@@ -721,6 +721,88 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
     }
 
     [Fact]
+    public void GetBlockingReasons_when_higher_attempt_unevaluated_does_not_block_on_superseded_rejected_trace()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime olderUtc = new(2026, 12, 5, 10, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 10, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededRejected = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace latestUnevaluated = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [supersededRejected, latestUnevaluated])
+            .Should().BeEmpty(
+                "TB-2226 fail-closed scope is recorded rejections on the winning attempt; execute→evaluate→commit records outcomes before seal");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_higher_attempt_rejected_still_blocks_even_if_lower_attempt_unevaluated()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime olderUtc = new(2026, 12, 5, 12, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 12, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededUnevaluated = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+        AgentExecutionTrace latestRejected = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [supersededUnevaluated, latestRejected]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-attempt-2");
+    }
+
+    [Fact]
     public void GetBlockingReasons_when_same_attempt_task_id_differs_only_by_whitespace_prefers_accepted_trace_after_upsert()
     {
         ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };

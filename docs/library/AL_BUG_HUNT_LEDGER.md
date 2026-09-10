@@ -375,7 +375,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -412,6 +412,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) same-attempt duplicate rows with newer `Rejected` and older `Warned` — **cheap-disproof 2026-09-10 seed hunt #1613:** #1549 Warned-over-Rejected policy holds when `CreatedUtc` differs (`Select_when_same_attempt_rejected_newer_and_warned_older_prefers_warned_trace`, `GetBlockingReasons_when_same_attempt_rejected_newer_and_warned_older_does_not_block`)
 - [x] (valid-no-repro) same-attempt duplicate rows with newer unevaluated and older `Warned` — **cheap-disproof 2026-09-10 seed hunt #1613:** rank ladder prefers recorded Warned over stale unevaluated snapshot (`Select_when_same_attempt_unevaluated_newer_and_warned_older_prefers_warned_trace`)
 - [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator` with `RecordedQualityGateOutcome.Warned` and `QualityRejected=true` — **cheap-disproof 2026-09-10 seed hunt #1613:** dual-flag reject patch blocks independently of recorded Warned outcome (`GetBlockingReasons_when_quality_rejected_with_warned_recorded_outcome_still_blocks`)
+- [x] (valid-no-repro) same-attempt duplicate rows with newer unevaluated and older `Accepted` — **cheap-disproof 2026-09-10 seed hunt #1615:** rank ladder prefers recorded Accepted over stale unevaluated snapshot (`Select_when_same_attempt_unevaluated_newer_and_accepted_older_prefers_accepted_trace`, `GetBlockingReasons_when_same_attempt_unevaluated_newer_and_accepted_older_does_not_block`)
+- [x] (valid-no-repro) same-attempt triplicate `Accepted`/`Warned`/`Rejected` rows — **cheap-disproof 2026-09-10 seed hunt #1615:** selector prefers Accepted (rank 3) over Warned and Rejected (`Select_when_same_attempt_triplicate_prefers_accepted_over_warned_and_rejected`)
+- [x] (valid-no-repro) same-attempt duplicate rows with `QualityRejected=true` + `Accepted` outcome vs `Warned` — **cheap-disproof 2026-09-10 seed hunt #1615:** extends #1549 Warned-over-blocking-duplicate policy (`GetBlockingReasons_when_same_attempt_quality_rejected_and_warned_duplicates_prefers_warned_and_does_not_block`)
+- [x] (valid-no-repro) higher `AttemptIndex` unevaluated trace wins over superseded lower-attempt `Rejected` — **cheap-disproof 2026-09-10 seed hunt #1616:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_unevaluated_wins_over_lower_attempt_rejected`, `GetBlockingReasons_when_higher_attempt_unevaluated_does_not_block_on_superseded_rejected_trace`)
+- [x] (valid-no-repro) same-attempt duplicate rows with newer `Warned` and older `Accepted` — **cheap-disproof 2026-09-10 seed hunt #1616:** rank ladder prefers Accepted (rank 3) over Warned when `CreatedUtc` differs (`Select_when_same_attempt_warned_newer_and_accepted_older_prefers_accepted_trace`)
+- [x] (valid-no-repro) higher `AttemptIndex` `Rejected` still blocks when lower attempt is unevaluated — **cheap-disproof 2026-09-10 seed hunt #1616:** fail-closed applies to winning attempt rejection (`GetBlockingReasons_when_higher_attempt_rejected_still_blocks_even_if_lower_attempt_unevaluated`)
+
+2026-09-10 seed hunt #1616 (seed-only): reseeded commit-output-integrity after #1615; cheap-disproof on attempt-index supersession vs rank ladder, Accepted-over-Warned CreatedUtc skew, and higher-attempt rejection fail-closed; 40 scoped commit-output-integrity tests passed.
+
+2026-09-10 seed hunt #1615 (seed-only): reseeded commit-output-integrity after #1613; cheap-disproof on Accepted-vs-unevaluated skew, triplicate rank ladder, and QualityRejected+Warned duplicate policy; 36 scoped commit-output-integrity tests passed.
 
 2026-09-10 seed hunt #1613 (seed-only): reseeded commit-output-integrity after #1612 rank ladder; cheap-disproof on Warned-vs-Rejected CreatedUtc skew, unevaluated-vs-Warned duplicates, and QualityRejected+Warned dual flag; 32 scoped commit-output-integrity tests passed.
 
