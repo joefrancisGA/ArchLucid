@@ -10819,11 +10819,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 12
-- **bugs-found:** 20
+- **hunts:** 13
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — sponsor digest success panel sign-in missing returnUrl; signup verify poll error flipped delivery-failure UI
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — /see-it live disclosure after thin API JSON upgraded to static showcase
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10860,7 +10860,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `ExecDigestSponsorDeepLinkPanel` success view used raw `view.signInUrl` without `returnUrl` — **hit 2026-09-05 (#813):** workspace sign-in CTA on loaded sponsor digest did not return to `/digest/sponsor` after auth unlike issue-page parity fix; fixed with `buildAuthSignInHref({ returnPath: DIGEST_SPONSOR_CANONICAL_PATH })` (`ExecDigestSponsorDeepLinkPanel.test.tsx`).
 - [x] (proven) `SignupVerifyClient.refreshTrialStatus` set `initialLoadFailed` on every poll error — **hit 2026-09-05 (#813):** background `STATUS_POLL_MS` fetch error replaced check-inbox UX with delivery-failure copy after a successful pending probe; fixed by limiting `initialLoadFailed` to the initial load (`SignupVerifyClient.test.tsx`).
-- [ ] (candidate) `/see-it` keeps `source="live"` disclosure when `normalizeSeeItMarketingPayload` upgrades thin API JSON to static showcase payload — needs repro in `see-it/page.tsx` / `SeeItMarketingBody`.
+- [x] (proven) `/see-it` keeps `source="live"` disclosure when `normalizeSeeItMarketingPayload` upgrades thin API JSON to static showcase payload — **hit 2026-09-10 (#1576):** `page.tsx` passed fetch `source` while rendering normalized static showcase; fixed with `resolveSeeItMarketingRenderPlan` downgrading disclosure to snapshot when normalization replaces payload; regression in `see-it.test.tsx`.
+
+2026-09-10 thorough hunt #1576 (hit): proved /see-it live-vs-snapshot disclosure mismatch after thin live JSON normalization; 26 scoped see-it tests passed.
 
 2026-09-05 seed hunt #813 (hit): proved sponsor digest panel sign-in returnUrl gap and signup verify poll delivery-failure flip; seeded see-it live-vs-snapshot disclosure candidate.
 
