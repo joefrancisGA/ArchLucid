@@ -23,10 +23,6 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
-import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
-
-
-
 import {
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_ID,
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO,

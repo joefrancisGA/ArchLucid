@@ -5,8 +5,6 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPatchJson, apiPutJson } from "./http";
 
-import { apiPutJson } from "@/lib/api/http";
-
 export type RunCoverageAcknowledgementEntry = {
   policyPackId: string;
   excluded: boolean;
