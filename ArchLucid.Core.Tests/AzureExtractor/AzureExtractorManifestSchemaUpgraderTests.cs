@@ -142,6 +142,19 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
     }
 
     [Fact]
+    public void TryUpgradeManifestJson_preserves_existing_script_version_on_schema_zero_upgrade()
+    {
+        string manifestJson = """{"schemaVersion":0,"tenantId":"contoso","scriptVersion":"3.1.0"}""";
+
+        bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
+
+        ok.Should().BeTrue();
+        error.Should().BeNull();
+        manifestJson.Should().Contain("\"collectorVersion\":\"3.1.0\"");
+        manifestJson.Should().NotContain("legacy-0.x");
+    }
+
+    [Fact]
     public void TryUpgradeManifestJson_rejects_unsupported_legacy_schema_version()
     {
         string manifestJson = """{"schemaVersion":-1,"tenantId":"contoso"}""";

@@ -320,6 +320,29 @@ public sealed class AzureExtractorResourceInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_skips_resource_rows_missing_name()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "location": "eastus"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        (IReadOnlyList<AzureExtractorInventoryResourceLine>? lines, string? error) =
+            AzureExtractorResourceInventoryReader.TryReadFromZip(stream);
+
+        error.Should().BeNull();
+        lines.Should().NotBeNull();
+        lines!.Should().BeEmpty();
+    }
+
+    [Fact]
     public void TryReadFromZip_returns_error_when_zip_payload_is_invalid()
     {
         byte[] invalidZipBytes = [0x50, 0x4B, 0x03, 0x04, 0xFF, 0xFF];

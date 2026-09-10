@@ -24,6 +24,40 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_valid_schema_v2_package_succeeds()
+    {
+        byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 2, includeResources: true);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeTrue();
+        result.IsSchemaRejection.Should().BeFalse();
+        result.IsInvalidArchive.Should().BeFalse();
+        result.FileEntryCount.Should().Be(2);
+    }
+
+    [Fact]
+    public void Validate_rejects_malformed_optional_companion_json()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 2,
+            includeResources: true,
+            optionalEntryName: AzureExtractorPackageZipEntryNames.RoleAssignments,
+            optionalEntryJson: "{ not-valid-json");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("role-assignments.json is not valid JSON");
+    }
+
+    [Fact]
     public void Validate_missing_manifest_is_schema_rejection()
     {
         byte[] zipBytes = BuildZip(includeManifest: false, schemaVersion: 1, includeResources: true);

@@ -4756,4 +4756,13 @@ public sealed class AzureExtractorSensitivePropertyRedactorTests
     {
         AzureExtractorSensitivePropertyRedactor.RedactValue("super-secret").Should().Be("[REDACTED]");
     }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void RedactValue_returns_empty_for_null_or_whitespace(string? value)
+    {
+        AzureExtractorSensitivePropertyRedactor.RedactValue(value).Should().BeEmpty();
+    }
 }
