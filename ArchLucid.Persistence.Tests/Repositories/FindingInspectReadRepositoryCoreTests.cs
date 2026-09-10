@@ -1408,4 +1408,51 @@ public sealed class FindingInspectReadRepositoryCoreTests
         parsed!.Value.ValueKind.Should().Be(JsonValueKind.Number);
         parsed!.Value.GetInt32().Should().Be(0);
     }
+
+    [Fact]
+    public void FilterRecommendedActions_ignores_null_entries_without_throwing()
+    {
+        IReadOnlyList<string> filtered = FindingInspectReadRepositoryCore.FilterRecommendedActions(
+            [null!, "  Rotate keys  ", null!]);
+
+        filtered.Should().Equal("Rotate keys");
+    }
+
+    [Fact]
+    public void BuildEvidenceFromRelatedNodes_ignores_null_entries_without_throwing()
+    {
+        IReadOnlyList<FindingInspectEvidenceItem> evidence = FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes(
+            [null!, "  node-a  ", null!]);
+
+        evidence.Should().ContainSingle();
+        evidence[0].Excerpt.Should().Be("node-a");
+    }
+
+    [Fact]
+    public void NormalizeFindingId_returns_empty_string_when_input_is_whitespace_only()
+    {
+        FindingInspectReadRepositoryCore.NormalizeFindingId("   ").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ResolveRuleFields_prefers_applied_rule_ids_json_over_trace_text_when_both_present()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["cost-guardrail"]""",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("cost-guardrail");
+        ruleName.Should().Be("cost-guardrail");
+    }
+
+    [Fact]
+    public void BuildMetadataTypedPayload_builds_rationale_only_payload_when_title_is_whitespace()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.BuildMetadataTypedPayload("   ", "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").ValueKind.Should().Be(JsonValueKind.Null);
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+    }
 }

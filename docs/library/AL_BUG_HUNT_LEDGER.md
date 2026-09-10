@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1565,8 +1565,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `TryParsePayloadJson` treats JSON number zero as corrupt and returns null — **cheap-disproof 2026-09-10 seed hunt #1654:** numeric zero deserializes to `JsonValueKind.Number`; regression `TryParsePayloadJson_returns_deserialized_zero_for_json_number_zero`.
 - [x] (valid-no-repro) `ParseFindingSeverity` maps negative numeric strings to `Critical` — **cheap-disproof 2026-09-10 seed hunt #1654:** undefined negative ordinals default to `Info`; regression `ParseFindingSeverity_maps_negative_numeric_string_to_info_default`.
 - [x] (valid-no-repro) `FollowUpBatch` disposition subquery reads `RowVersionStamp` from review events instead of the pointer table — **cheap-disproof 2026-09-10 seed hunt #1654:** projection selects `c.RowVersionStamp`; regression `FollowUpBatch_disposition_subquery_reads_row_version_from_pointer_table`.
+- [x] (valid-no-repro) `ParseFindingSeverity` maps positive undefined numeric strings to `Critical` — **cheap-disproof 2026-09-10 seed hunt #1655:** undefined positive ordinals default to `Info`; regression `ParseFindingSeverity_maps_positive_undefined_numeric_string_to_info_default`.
+- [x] (valid-no-repro) `TryParseEvaluationConfidenceLevel` accepts positive undefined numeric strings — **cheap-disproof 2026-09-10 seed hunt #1655:** undefined positive ordinals return null; regression `TryParseEvaluationConfidenceLevel_returns_null_for_positive_undefined_numeric_string`.
+- [x] (valid-no-repro) `ParseHumanReview` maps positive undefined numeric strings to `Pending` — **cheap-disproof 2026-09-10 seed hunt #1655:** undefined positive ordinals default to `NotRequired`; regression `ParseHumanReview_maps_positive_undefined_numeric_string_to_not_required_default`.
+- [x] (valid-no-repro) `ParseDisposition` accepts positive undefined numeric strings — **cheap-disproof 2026-09-10 seed hunt #1655:** undefined positive ordinals return null; regression `ParseDisposition_returns_null_for_positive_undefined_numeric_string`.
+- [x] (valid-no-repro) `FilterRecommendedActions` throws when the source collection contains null entries — **cheap-disproof 2026-09-10 seed hunt #1655:** null entries are skipped by the shared whitespace guard; regression `FilterRecommendedActions_ignores_null_entries_without_throwing`.
+- [x] (valid-no-repro) `BuildEvidenceFromRelatedNodes` throws when related-node ids contain null entries — **cheap-disproof 2026-09-10 seed hunt #1655:** null entries are skipped before evidence mapping; regression `BuildEvidenceFromRelatedNodes_ignores_null_entries_without_throwing`.
+- [x] (valid-no-repro) `NormalizeFindingId` throws on whitespace-only finding ids — **cheap-disproof 2026-09-10 seed hunt #1655:** trim yields empty string without throwing; regression `NormalizeFindingId_returns_empty_string_when_input_is_whitespace_only`.
+- [x] (valid-no-repro) `ResolveRuleFields` falls back to trace text when valid `AppliedRuleIdsJson` is present — **cheap-disproof 2026-09-10 seed hunt #1655:** non-empty JSON array wins over trace text per #667 contract; regression `ResolveRuleFields_prefers_applied_rule_ids_json_over_trace_text_when_both_present`.
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` returns null when title is whitespace-only and rationale is present — **cheap-disproof 2026-09-10 seed hunt #1655:** whitespace title trims to null while rationale still builds slim metadata; regression `BuildMetadataTypedPayload_builds_rationale_only_payload_when_title_is_whitespace`.
 
 2026-09-10 seed hunt #1654 (seed-only): reseeded finding-inspect-sql after #1653; cheap-disproof closed null trace fallback, recommended-action filter parity, object/null applied-rule JSON fallback, empty disposition mapping, zero-byte row-version encoding, JSON zero payload parse, negative severity defaulting, and pointer row-version SQL source; 255 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+2026-09-10 seed hunt #1655 (seed-only): reseeded finding-inspect-sql after #1654; cheap-disproof closed positive undefined numeric enum parsing, null recommended-action/evidence entries, whitespace-only finding-id normalization, applied-rule JSON precedence over trace text, and whitespace-title metadata payload edges; 259 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

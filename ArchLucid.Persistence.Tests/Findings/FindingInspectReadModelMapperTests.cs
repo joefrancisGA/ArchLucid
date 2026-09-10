@@ -256,4 +256,28 @@ public sealed class FindingInspectReadModelMapperTests
     {
         FindingInspectReadModelMapper.ParseFindingSeverity("-1").Should().Be(FindingSeverity.Info);
     }
+
+    [Fact]
+    public void ParseFindingSeverity_maps_positive_undefined_numeric_string_to_info_default()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("4").Should().Be(FindingSeverity.Info);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_returns_null_for_positive_undefined_numeric_string()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("3").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseHumanReview_maps_positive_undefined_numeric_string_to_not_required_default()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("5").Should().Be(FindingHumanReviewStatus.NotRequired);
+    }
+
+    [Fact]
+    public void ParseDisposition_returns_null_for_positive_undefined_numeric_string()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("5").Should().BeNull();
+    }
 }
