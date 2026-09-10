@@ -5,6 +5,9 @@ import {
   reviewPipelineDetailHref,
   reviewPipelineOperationId,
 } from "@/lib/operations/review-pipeline-in-flight";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { reviewExecuteMutationBlockedReason } from "@/lib/runs/review-execute-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   apiPatchJson,
   apiPostAcceptedWithLocation,
@@ -40,7 +43,14 @@ export async function commitArchitectureRun(
 
 /** Runs agent pipeline for an architecture review (POST /v1/architecture/review/{runId}/execute). */
 export async function executeArchitectureRun(runId: string): Promise<unknown> {
-  return apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute`, {});
+  try {
+    return await apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute`, {});
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewExecuteMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export type ExecuteArchitectureRunAsyncResult = {
