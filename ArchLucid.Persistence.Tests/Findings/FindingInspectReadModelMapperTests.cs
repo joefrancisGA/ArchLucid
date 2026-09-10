@@ -114,4 +114,20 @@ public sealed class FindingInspectReadModelMapperTests
 
         actual.Should().BeNull();
     }
+
+    [Fact]
+    public void ParseDisposition_parses_case_insensitive_enum_value()
+    {
+        FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition("accepted");
+
+        actual.Should().Be(FindingDisposition.Accepted);
+    }
+
+    [Fact]
+    public void ParseHumanReview_parses_case_insensitive_enum_value()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("pending");
+
+        actual.Should().Be(FindingHumanReviewStatus.Pending);
+    }
 }

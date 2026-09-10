@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Findings;
 
 using FluentAssertions;
@@ -293,5 +295,79 @@ public sealed class FindingInspectReadRepositoryCoreTests
 
         typed.Should().NotBeNull();
         typed!.Value.ValueKind.Should().Be(JsonValueKind.Null);
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_deserialized_boolean_when_payload_is_json_true()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "true",
+            "Encrypt at rest",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.ValueKind.Should().Be(JsonValueKind.True);
+        typed!.Value.GetBoolean().Should().BeTrue();
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_deserialized_string_when_payload_is_json_string()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "\"finding-payload\"",
+            "Encrypt at rest",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.ValueKind.Should().Be(JsonValueKind.String);
+        typed!.Value.GetString().Should().Be("finding-payload");
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_only_whitespace_entries_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["   ", "  "]""",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
+    public void BuildInspectResponse_uses_rule_id_when_rule_name_is_null()
+    {
+        FindingInspectResponse response = FindingInspectReadRepositoryCore.BuildInspectResponse(
+            findingId: "finding-1",
+            severity: FindingSeverity.Critical,
+            typedPayload: null,
+            ruleId: "cost-guardrail",
+            ruleName: null,
+            evidence: [],
+            recommendedActions: [],
+            auditRowId: null,
+            runId: Guid.NewGuid(),
+            manifestVersion: "1.0",
+            modelDeploymentName: null,
+            modelAlias: null,
+            promptTemplateVersion: null,
+            confidenceScore: null,
+            evaluationConfidenceScore: null,
+            confidenceLevel: null,
+            humanReviewStatus: FindingHumanReviewStatus.NotRequired,
+            isMuted: false,
+            muteReason: null,
+            reasoningTrace: null,
+            reasoningTraceDigestSha256: null,
+            latestDisposition: null,
+            latestDispositionOccurredAtUtc: null,
+            hasActiveWaiver: false,
+            assignedToUserId: null,
+            remediationDueUtc: null,
+            runStructuralExecutionMode: StructuralExecutionMode.Simulator,
+            runRealModeFellBackToSimulator: false);
+
+        response.DecisionRuleId.Should().Be("cost-guardrail");
+        response.DecisionRuleName.Should().Be("cost-guardrail");
     }
 }

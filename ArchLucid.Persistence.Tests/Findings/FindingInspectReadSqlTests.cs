@@ -306,6 +306,48 @@ public sealed class FindingInspectReadSqlTests
         dispositionSql.Should().Contain("e.OccurredAtUtc");
     }
 
+    [Fact]
+    public void MainInspect_projects_golden_manifest_id()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.GoldenManifestId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("r.GoldenManifestId");
+    }
+
+    [Fact]
+    public void MainInspect_projects_run_structural_execution_mode_fields()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.StructuralExecutionMode");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.RealModeFellBackToSimulator");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("r.StructuralExecutionMode");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("r.RealModeFellBackToSimulator");
+    }
+
+    [Fact]
+    public void MainInspectWithTypedPayload_selects_payload_json_column()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.PayloadJson");
+    }
+
+    [Fact]
+    public void FollowUpBatch_scopes_trace_rules_child_table_to_request_scope()
+    {
+        string traceRulesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingTraceRulesApplied");
+
+        traceRulesSql.Should().Contain("tra.TenantId = @TenantId");
+        traceRulesSql.Should().Contain("tra.WorkspaceId = @WorkspaceId");
+        traceRulesSql.Should().Contain("tra.ProjectId = @ScopeProjectId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_scopes_recommended_actions_child_table_to_request_scope()
+    {
+        string actionsSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRecommendedActions");
+
+        actionsSql.Should().Contain("fra.TenantId = @TenantId");
+        actionsSql.Should().Contain("fra.WorkspaceId = @WorkspaceId");
+        actionsSql.Should().Contain("fra.ProjectId = @ScopeProjectId");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

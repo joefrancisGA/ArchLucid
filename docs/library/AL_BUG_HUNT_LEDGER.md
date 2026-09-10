@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1382,6 +1382,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ParseHumanReview` / `TryParseEvaluationConfidenceLevel` treat whitespace-only strings as valid values — **cheap-disproof 2026-09-10 seed hunt #1637:** mappers use `IsNullOrWhiteSpace` guards; regressions `ParseHumanReview_maps_or_defaults` for `"   "` and `TryParseEvaluationConfidenceLevel_returns_null_for_missing_or_invalid` for `"   "`.
 
 2026-09-10 seed hunt #1637 (seed-only): reseeded finding-inspect-sql after #1636; cheap-disproof closed agent-trace id join, decision-trace id join, run scope-project filter, disposition occurred-at projection, whitespace-only metadata payload, numeric JSON payload handling, and whitespace-only enum parsing; 93 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspect` mishandles boolean JSON literals in `PayloadJson` — **cheap-disproof 2026-09-10 seed hunt #1638:** `TryParsePayloadJson` deserializes `true`/`false` primitives; regression `ResolveTypedPayloadForInspect_returns_deserialized_boolean_when_payload_is_json_true`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspect` treats JSON string primitives as corrupt and falls back to metadata — **cheap-disproof 2026-09-10 seed hunt #1638:** string roots deserialize to `JsonValueKind.String`; regression `ResolveTypedPayloadForInspect_returns_deserialized_string_when_payload_is_json_string`.
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` array contains only whitespace entries returns null instead of trace text — **cheap-disproof 2026-09-10 seed hunt #1638:** whitespace-only elements are skipped and fallback uses trimmed trace text; regression `ResolveRuleFields_when_applied_rule_ids_json_contains_only_whitespace_entries_falls_back_to_trace_text`.
+- [x] (valid-no-repro) `BuildInspectResponse` leaves `DecisionRuleName` null when `ruleName` is absent — **cheap-disproof 2026-09-10 seed hunt #1638:** `DecisionRuleName = ruleName ?? ruleId`; regression `BuildInspectResponse_uses_rule_id_when_rule_name_is_null`.
+- [x] (valid-no-repro) `MainInspect*` omits `GoldenManifestId` from the inspect projection — **cheap-disproof 2026-09-10 seed hunt #1638:** both main inspect queries project `r.GoldenManifestId`; regression `MainInspect_projects_golden_manifest_id`.
+- [x] (valid-no-repro) `MainInspect*` omits run structural execution mode fields — **cheap-disproof 2026-09-10 seed hunt #1638:** both main inspect queries project `r.StructuralExecutionMode` and `r.RealModeFellBackToSimulator`; regression `MainInspect_projects_run_structural_execution_mode_fields`.
+- [x] (valid-no-repro) `MainInspectWithTypedPayload` omits `fr.PayloadJson` and always builds metadata-only typed payload — **cheap-disproof 2026-09-10 seed hunt #1638:** typed-payload query selects `fr.PayloadJson`; regression `MainInspectWithTypedPayload_selects_payload_json_column`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rule subquery omits child-table tenant/workspace/project predicates — **cheap-disproof 2026-09-10 seed hunt #1638:** `FindingTraceRulesApplied` binds `tra.TenantId`/`WorkspaceId`/`ProjectId`; regression `FollowUpBatch_scopes_trace_rules_child_table_to_request_scope`.
+- [x] (valid-no-repro) `FollowUpBatch` recommended-actions subquery omits child-table tenant/workspace/project predicates — **cheap-disproof 2026-09-10 seed hunt #1638:** `FindingRecommendedActions` binds `fra.TenantId`/`WorkspaceId`/`ProjectId`; regression `FollowUpBatch_scopes_recommended_actions_child_table_to_request_scope`.
+- [x] (valid-no-repro) `ParseDisposition` / `ParseHumanReview` are case-sensitive on DB enum strings — **cheap-disproof 2026-09-10 seed hunt #1638:** mappers use `Enum.TryParse(..., ignoreCase: true)`; regressions `ParseDisposition_parses_case_insensitive_enum_value` and `ParseHumanReview_parses_case_insensitive_enum_value`.
+
+2026-09-10 seed hunt #1638 (seed-only): reseeded finding-inspect-sql after #1637; cheap-disproof closed boolean/string JSON payloads, whitespace-only rule-id arrays, rule-name fallback, golden-manifest projection, structural execution mode fields, payload column selection, child-table tenant scoping, and case-insensitive enum parsing; 104 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
