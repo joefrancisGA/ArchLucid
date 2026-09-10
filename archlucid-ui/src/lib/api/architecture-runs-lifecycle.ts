@@ -171,28 +171,35 @@ export async function replayArchitectureRunAsync(
     readonly manifestVersionOverride?: string | null;
   } = {},
 ): Promise<ReplayArchitectureRunAsyncResult> {
-  const accepted = await apiPostAcceptedWithLocation(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/replay/async`,
-    {
-      executionMode: body.executionMode,
-      commitReplay: body.commitReplay,
-      manifestVersionOverride: body.manifestVersionOverride ?? undefined,
-    },
-    { suppressErrorToast: true },
-  );
-  const operationId =
-    parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
+  try {
+    const accepted = await apiPostAcceptedWithLocation(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/replay/async`,
+      {
+        executionMode: body.executionMode,
+        commitReplay: body.commitReplay,
+        manifestVersionOverride: body.manifestVersionOverride ?? undefined,
+      },
+      { suppressErrorToast: true },
+    );
+    const operationId =
+      parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
 
-  trackInFlightOperation({
-    operationId,
-    title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
-    href: reviewPipelineDetailHref(runId),
-    runId,
-    stepLabel: "Replay queued",
-    state: "Pending",
-  });
+    trackInFlightOperation({
+      operationId,
+      title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
+      href: reviewPipelineDetailHref(runId),
+      runId,
+      stepLabel: "Replay queued",
+      state: "Pending",
+    });
 
-  return { operationId, location: accepted.location };
+    return { operationId, location: accepted.location };
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewAsyncReplayMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** TB-938: re-execute selected agents only (POST /v1/architecture/review/{runId}/execute/selective). */

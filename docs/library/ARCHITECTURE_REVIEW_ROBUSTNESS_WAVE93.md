@@ -1,6 +1,5 @@
 > **Scope:** Contributor-reference — wave-93 robustness controls for architecture create and review (branch `cursor/wave93-robustness-e14f`).
 
-
 # Architecture create/review robustness — wave 93
 
 Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE92.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE92.md) (1089–1100 carryover).

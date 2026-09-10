@@ -71,7 +71,7 @@ export function HelpArchitectureSharingGuideView(props: HelpArchitectureSharingG
         >
           <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Not a second tenant or chat</h2>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{ARCHITECTURE_SHARING_HELP_NOT_IN_PRODUCT_COPY}</p>
-          <p className={cn("mt-3 mb-0", OPERATOR_TYPOGRAPHY.caption)}>{ARCHITECTURE_SHARING_HELP_CLAIM_DISCIPLINE}</p>
+          <p className={cn("mt-3 mb-0", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_SHARING_HELP_CLAIM_DISCIPLINE}</p>
         </section>
         <HelpTopicRegistryProvenanceLine entry={entry} />
       </div>
