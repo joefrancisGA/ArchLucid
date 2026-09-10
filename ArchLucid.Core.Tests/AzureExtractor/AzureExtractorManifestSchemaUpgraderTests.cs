@@ -111,6 +111,20 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
     }
 
     [Fact]
+    public void TryUpgradeManifestJson_upgrades_schema_zero_with_legacy_defaults()
+    {
+        string manifestJson = """{"schemaVersion":0,"tenantId":"contoso"}""";
+
+        bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
+
+        ok.Should().BeTrue();
+        error.Should().BeNull();
+        manifestJson.Should().Contain("\"schemaVersion\":2");
+        manifestJson.Should().Contain("\"scriptVersion\":\"legacy-0.x\"");
+        manifestJson.Should().Contain("\"switchesUsed\":[]");
+    }
+
+    [Fact]
     public void TryUpgradeManifestJson_upgrades_schema_one_to_two_with_defaults()
     {
         string manifestJson =

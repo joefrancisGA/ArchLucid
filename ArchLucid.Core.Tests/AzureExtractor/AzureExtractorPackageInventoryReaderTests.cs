@@ -555,6 +555,164 @@ public sealed class AzureExtractorPackageInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_uses_name_as_resource_id_when_arm_id_missing()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "name": "sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "location": "eastus"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].AzureResourceId.Should().Be("sa1");
+    }
+
+    [Fact]
+    public void TryReadFromZip_skips_non_string_tag_values()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "tags": {
+                  "env": "prod",
+                  "retentionDays": 30
+                }
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].Tags.Should().ContainKey("env");
+        result.Resources[0].Tags.Should().NotContainKey("retentionDays");
+    }
+
+    [Fact]
+    public void TryReadFromZip_serializes_boolean_and_number_property_values()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "properties": {
+                  "supportsHttpsTrafficOnly": true,
+                  "accessTier": 1
+                }
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].Properties["supportsHttpsTrafficOnly"].Should().Be("true");
+        result.Resources[0].Properties["accessTier"].Should().Be("1");
+    }
+
+    [Fact]
+    public void TryReadFromZip_reads_object_sku_name_property()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "sku": { "name": "Standard_GRS" }
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].SkuName.Should().Be("Standard_GRS");
+    }
+
+    [Fact]
+    public void TryReadFromZip_prefers_explicit_resource_group_on_row()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg-east/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "resourceGroup": "rg-west"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].ResourceGroup.Should().Be("rg-west");
+    }
+
+    [Fact]
+    public void TryReadFromZip_reads_valid_diagnostic_settings_companion_array()
+    {
+        byte[] zipBytes = BuildZipWithCompanion(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """,
+            AzureExtractorPackageZipEntryNames.DiagnosticSettings,
+            """[{"name":"diag1","workspaceId":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1"}]""");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.DiagnosticSettings.Should().ContainSingle();
+        result.DiagnosticSettings[0].GetProperty("name").GetString().Should().Be("diag1");
+    }
+
+    [Fact]
     public void TryReadFromZip_extracts_resource_group_from_arm_id_when_not_on_row()
     {
         byte[] zipBytes = BuildZip(

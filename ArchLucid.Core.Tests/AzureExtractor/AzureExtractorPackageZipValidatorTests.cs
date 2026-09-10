@@ -344,6 +344,43 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_resolves_manifest_entry_case_insensitively()
+    {
+        byte[] zipBytes = BuildZipWithEntryName(
+            "MANIFEST.JSON",
+            includeResources: true,
+            schemaVersion: 2);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ValidateFile_validates_existing_zip_on_disk()
+    {
+        string zipPath = Path.Combine(Path.GetTempPath(), $"archlucid-extractor-{Guid.NewGuid():N}.zip");
+        byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 2, includeResources: true);
+
+        File.WriteAllBytes(zipPath, zipBytes);
+
+        try
+        {
+            AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.ValidateFile(zipPath);
+
+            result.IsValid.Should().BeTrue();
+            result.FileEntryCount.Should().Be(2);
+        }
+        finally
+        {
+            if (File.Exists(zipPath))
+                File.Delete(zipPath);
+        }
+    }
+
+    [Fact]
     public void Validate_rejects_non_array_defender_summary_json()
     {
         byte[] zipBytes = BuildZip(
@@ -414,6 +451,37 @@ public sealed class AzureExtractorPackageZipValidatorTests
                 using StreamWriter writer = new(optional.Open());
 
                 writer.Write(optionalEntryJson);
+            }
+        }
+
+        return ms.ToArray();
+    }
+
+    private static byte[] BuildZipWithEntryName(
+        string manifestEntryName,
+        bool includeResources,
+        int schemaVersion,
+        string resourcesJson = "[]")
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry manifest = zip.CreateEntry(manifestEntryName);
+
+            using (StreamWriter writer = new(manifest.Open()))
+            {
+                writer.Write(
+                    $$"""{"schemaVersion":{{schemaVersion}},"subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}""");
+            }
+
+            if (includeResources)
+            {
+                ZipArchiveEntry resources = zip.CreateEntry("resources.json");
+
+                using StreamWriter writer = new(resources.Open());
+
+                writer.Write(resourcesJson);
             }
         }
 
