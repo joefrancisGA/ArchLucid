@@ -172,7 +172,6 @@ public sealed partial class RoiController(
 
         IActionResult? sealedGuardResult = await EnsureSponsorRoiSealedManifestReadAllowedAsync(cancellationToken);
 
-
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 

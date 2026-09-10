@@ -62,7 +62,6 @@ export async function getArchitectureGraphTemporalSnapshot(
         const blockedReason = architectureGraphTemporalSnapshotBlockedReason(failure);
 
         throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
-
       }
     }
 

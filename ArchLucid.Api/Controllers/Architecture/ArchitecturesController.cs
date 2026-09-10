@@ -182,7 +182,6 @@ public sealed partial class ArchitecturesController(
         catch (ConflictException ex)
         {
             return MapArchitectureSealedManifestConflict(ex);
-
         }
     }
 
@@ -263,7 +262,6 @@ public sealed partial class ArchitecturesController(
         catch (ConflictException ex)
         {
             return MapArchitectureSealedManifestConflict(ex);
-
         }
         catch (ArgumentException ex)
         {
