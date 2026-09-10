@@ -285,6 +285,28 @@ public sealed class ArchitectureFindingJsonConverterTests
             .WithMessage("*Unknown finding severity value*");
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Deserialize_whitespace_only_severity_defaults_to_info(string severity)
+    {
+        string json = $$"""
+                        {
+                          "severity": "{{severity}}",
+                          "category": "Compliance",
+                          "enforcementTier": "PolicyViolation",
+                          "message": "Partial LLM payload may omit severity."
+                        }
+                        """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.Severity.Should().Be(FindingSeverity.Info);
+    }
+
     [Fact]
     public void Deserialize_pascal_case_description_maps_message()
     {

@@ -49,12 +49,14 @@ internal static class DraftRequestServiceTestFactory
         InMemoryRunRepository resolvedRunRepository = runRepository ?? new InMemoryRunRepository();
         InMemoryArchitectureRequestRepository resolvedRequestRepository =
             architectureRequestRepository ?? new InMemoryArchitectureRequestRepository();
+        InMemoryArchitectureShareRepository shareRepository = new();
         InMemoryArchitectureIdentityRepository architectureIdentityRepository =
-            new(repository, resolvedRunRepository);
-        ArchitectureIdentityService architectureIdentityService = new(
+            new(repository, resolvedRunRepository, shareRepository: shareRepository);
+        ArchitectureIdentityService architectureIdentityService = ArchitectureIdentityServiceTestSupport.Create(
             architectureIdentityRepository,
             resolvedRunRepository,
-            repository);
+            repository,
+            shareRepository);
 
         PresenterIntakeTrailSyncService presenterIntakeTrailSyncService = new(
             resolvedRunRepository,

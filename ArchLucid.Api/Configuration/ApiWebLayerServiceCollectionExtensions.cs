@@ -102,6 +102,8 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddSingleton<ILocalTrialJwtIssuer, LocalTrialJwtIssuer>();
         services.AddScoped<PlatformUserAuthVersionValidator>();
         services.AddScoped<IAuthenticatedPlatformUserResolver, AuthenticatedPlatformUserResolver>();
+        services.AddScoped<Application.Architecture.IArchitectureShareAccessService, Application.Architecture.ArchitectureShareAccessService>();
+        services.AddScoped<Support.IArchitectureShareAccessGate, Support.ArchitectureShareAccessGate>();
         services.AddScoped<IArchitectureRequestImportValidator, FluentArchitectureRequestImportValidator>();
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
         services.AddScoped<IDocumentTextExtractionService, DocumentTextExtractionService>();
