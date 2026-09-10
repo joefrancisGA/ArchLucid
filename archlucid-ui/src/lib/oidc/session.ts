@@ -1,4 +1,5 @@
 import { clearCachedColorModePreference } from "@/lib/color-mode-preference";
+import { clearInfraEvidenceAskTranscriptStorage } from "@/lib/infra-evidence/infra-evidence-ask-transcript";
 import { clearOperatorScopeStorage } from "@/lib/operator/operator-scope-storage";
 import {
   getOidcAuthority,
@@ -126,6 +127,7 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
 export function clearOidcSession(): void {
   refreshSessionGeneration += 1;
   refreshInFlight = null;
+  clearInfraEvidenceAskTranscriptStorage();
   removeOidcKeys([
     OIDC_ACCESS_TOKEN_KEY,
     OIDC_REFRESH_TOKEN_KEY,

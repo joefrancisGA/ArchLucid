@@ -14,7 +14,7 @@ vi.mock("next/navigation", async (importOriginal) => {
 
   return {
     ...actual,
-    useRouter: () => ({ push: vi.fn() }),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
     useSearchParams: () => ({ get: (key: string) => searchParamsGet(key) }),
   };
 });
@@ -27,12 +27,40 @@ vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-workspace-system-name-availability", () => ({
+  useWorkspaceSystemNameAvailability: () => ({
+    isAvailable: true,
+    conflictMessage: null,
+    validating: false,
+    validationReady: true,
+    validationUnavailable: false,
+    blocksSubmit: false,
+  }),
+}));
+
 vi.mock("@/lib/architecture/architecture-creation-init", () => ({
   initializeArchitectureCreation: (...args: unknown[]) => initializeArchitectureCreation(...args),
   applyArchitectureCreationDraftToFormState: () => ({
     freeTextIntent: "",
     businessOutcome: "",
     systemName: "",
+    structuredBrief: {
+      confirmedConstraints: [],
+      confirmedAssumptions: [],
+      confirmedRequiredCapabilities: [],
+      suggestedConstraints: [],
+      suggestedAssumptions: [],
+      suggestedRequiredCapabilities: [],
+      deniedConstraints: [],
+      deniedAssumptions: [],
+      deniedRequiredCapabilities: [],
+      qualityAttribute: "",
+      failureModeNote: "",
+      suggestedFailureModeNote: "",
+      deniedFailureModeNote: "",
+      operationalOwner: "",
+    },
+    openQuestions: "",
   }),
 }));
 

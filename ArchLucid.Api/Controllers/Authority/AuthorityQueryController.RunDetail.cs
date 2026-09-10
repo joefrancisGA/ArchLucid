@@ -95,6 +95,7 @@ public sealed partial class AuthorityQueryController
 
             if (sealedGuardResult is not null)
                 return sealedGuardResult;
+
             return Ok(result);
         }
         catch (ConflictException ex)

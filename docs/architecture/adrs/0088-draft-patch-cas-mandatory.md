@@ -14,7 +14,7 @@
 
 Architects sit in this product much of the day. A colleague’s in-flight draft, or this tab’s own unsaved replay after reconnect, must not vanish without a 409. ADR 0076 already fail-closes finding disposition races; draft PATCH was the leftover LWW hole (LK-12 opt-in token).
 
-**Related:** ADR 0048 (mutable draft lifecycle), ADR 0071 (working-document undo vs sealed amend — 300s toast unchanged), ADR 0076 (disposition 409). Lease (ADR 0090) does **not** replace this CAS.
+**Related:** ADR 0048 (mutable draft lifecycle), ADR 0071 (working-document undo vs sealed amend — 300s toast unchanged), ADR 0076 (disposition 409). Lease (ADR 0090) does **not** replace this CAS. Hasher robustness wave 23 item 226 (`DraftStartReviewStaleUpdatedUtcGuard`) is **start-review admission**, not this PATCH guard — do not merge (`docs/architecture/LOST_WRITE_START_REVIEW_VS_PATCH_CAS.md`).
 
 **HTTP:** omit-token and stale-token both return **409 Conflict**. Distinct ProblemDetails `errorCode` values: `draft_cas_token_missing` vs `draft_cas_stale`.
 
