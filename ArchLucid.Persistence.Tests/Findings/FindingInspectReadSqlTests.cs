@@ -636,6 +636,16 @@ public sealed class FindingInspectReadSqlTests
     }
 
     [Fact]
+    public void FollowUpBatch_disposition_pointer_where_clause_filters_by_scoped_tenant_workspace_and_project()
+    {
+        string dispositionSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingCurrentDispositions");
+
+        dispositionSql.Should().Contain("c.TenantId = @TenantId");
+        dispositionSql.Should().Contain("c.WorkspaceId = @WorkspaceId");
+        dispositionSql.Should().Contain("c.ProjectId = @ScopeProjectId");
+    }
+
+    [Fact]
     public void MainInspect_scopes_runs_table_to_tenant_and_workspace()
     {
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.TenantId = @TenantId");

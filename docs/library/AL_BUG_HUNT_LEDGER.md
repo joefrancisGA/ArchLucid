@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1524,6 +1524,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Corrupt `PayloadJson` with both title and rationale present still returns null typed payload — **cheap-disproof 2026-09-10 seed hunt #1650:** corrupt non-empty payload builds full slim metadata object; regression `ResolveTypedPayloadForInspect_builds_full_metadata_when_corrupt_payload_and_both_fields_present`.
 
 2026-09-10 seed hunt #1650 (seed-only): reseeded finding-inspect-sql after #1649; extracted trace-rule fallback helper; cheap-disproof closed decision-rule name preference, trace-text trim fallback, JSON primitive parse guards, null reviewer passthrough, core identity passthrough, and dual-field corrupt-payload metadata; 222 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `DapperFindingInspectReadRepository` accepts null `connectionFactory` — **cheap-disproof 2026-09-10 seed hunt #1651:** primary constructor throws `ArgumentNullException`; regression `DapperFindingInspectReadRepository_throws_when_connection_factory_is_null`.
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` is a nested JSON array uses inner rule ids — **cheap-disproof 2026-09-10 seed hunt #1651:** nested array roots fail `List<string>` deserialize and fall back to trace text; regression `ResolveRuleFields_when_applied_rule_ids_json_is_nested_array_falls_back_to_trace_text`.
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` contains numeric JSON elements coerces them to rule ids — **cheap-disproof 2026-09-10 seed hunt #1651:** non-string array elements are skipped; numeric-only arrays fall back to trace text or `(null, null)`; regressions `ResolveRuleFields_when_applied_rule_ids_json_contains_numeric_element_falls_back_to_trace_text` and `ResolveRuleFields_when_applied_rule_ids_json_contains_only_numeric_elements_returns_nulls`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` parses a default disposition when pointer row exists but `Disposition` column is null — **cheap-disproof 2026-09-10 seed hunt #1651:** null disposition raw parses to null while other pointer metadata survives; regression `MapDispositionPointerProjection_returns_null_disposition_when_disposition_raw_is_null_with_row_present`.
+- [x] (valid-no-repro) `FilterRecommendedActions` reorders recommended actions alphabetically — **cheap-disproof 2026-09-10 seed hunt #1651:** helper preserves source order via shared trim filter; regression `FilterRecommendedActions_preserves_input_order`.
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` duplicates `whyThisMatters` when only `Title` is populated — **cheap-disproof 2026-09-10 seed hunt #1651:** title-only slim payload leaves `whyThisMatters` null; regression `BuildMetadataTypedPayload_sets_why_this_matters_null_when_only_title_is_present`.
+- [x] (valid-no-repro) `FollowUpBatch` disposition pointer subquery omits tenant/workspace/project predicates in the WHERE clause — **cheap-disproof 2026-09-10 seed hunt #1651:** pointer lookup binds `c.TenantId` / `c.WorkspaceId` / `c.ProjectId`; regression `FollowUpBatch_disposition_pointer_where_clause_filters_by_scoped_tenant_workspace_and_project`.
+
+2026-09-10 seed hunt #1651 (seed-only): reseeded finding-inspect-sql after #1650; cheap-disproof closed null connection-factory guard, nested/numeric applied-rule JSON fallback, null disposition raw mapping, recommended-action ordering, title-only whyThisMatters contract, and disposition pointer scope predicates; 230 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

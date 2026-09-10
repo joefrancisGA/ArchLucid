@@ -1,5 +1,6 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Findings;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
@@ -47,5 +48,13 @@ public sealed class InMemoryFindingInspectReadRepositoryValidationTests
         Func<Task> act = async () => await repository.GetInspectAsync(scope, string.Empty, CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public void DapperFindingInspectReadRepository_throws_when_connection_factory_is_null()
+    {
+        Action act = () => new DapperFindingInspectReadRepository(null!);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("connectionFactory");
     }
 }

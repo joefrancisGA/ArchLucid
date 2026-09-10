@@ -1135,4 +1135,71 @@ public sealed class FindingInspectReadRepositoryCoreTests
         typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
         typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
     }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_is_nested_array_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """[["cost-guardrail"]]""",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_numeric_element_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            "[42]",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_only_numeric_elements_returns_nulls()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            "[42]",
+            firstRuleText: null);
+
+        ruleId.Should().BeNull();
+        ruleName.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_returns_null_disposition_when_disposition_raw_is_null_with_row_present()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: null,
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().BeNull();
+        projection.LatestDispositionReviewerUserId.Should().Be("reviewer");
+    }
+
+    [Fact]
+    public void FilterRecommendedActions_preserves_input_order()
+    {
+        IReadOnlyList<string> filtered = FindingInspectReadRepositoryCore.FilterRecommendedActions(
+            ["Enable MFA", "Rotate keys"]);
+
+        filtered.Should().Equal("Enable MFA", "Rotate keys");
+    }
+
+    [Fact]
+    public void BuildMetadataTypedPayload_sets_why_this_matters_null_when_only_title_is_present()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.BuildMetadataTypedPayload("Encrypt at rest", null);
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("whyThisMatters").ValueKind.Should().Be(JsonValueKind.Null);
+    }
 }
