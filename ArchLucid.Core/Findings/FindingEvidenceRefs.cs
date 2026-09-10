@@ -157,6 +157,60 @@ public static class FindingEvidenceRefs
         return null;
     }
 
+    /// <summary>
+    ///     True for ARM/ARN/GCP resource names or cloud product type tokens
+    ///     (<c>Microsoft.Web/sites</c>, <c>AWS::Lambda::Function</c>, <c>google_compute_instance</c>).
+    /// </summary>
+    public static bool IsProductShapedInventoryToken(string? value)
+    {
+        if (TryFormatInventoryResourceId(value) is not null)
+            return true;
+
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        return IsCloudProviderResourceTypeName(value.Trim());
+    }
+
+    private static bool IsCloudProviderResourceTypeName(string trimmed)
+    {
+        if (trimmed.StartsWith("Microsoft.", StringComparison.OrdinalIgnoreCase))
+        {
+            int slash = trimmed.IndexOf('/');
+
+            if (slash <= "Microsoft.".Length || slash >= trimmed.Length - 1)
+                return false;
+
+            if (trimmed.Contains(' ', StringComparison.Ordinal))
+                return false;
+
+            return true;
+        }
+
+        if (trimmed.StartsWith("AWS::", StringComparison.OrdinalIgnoreCase))
+        {
+            string[] parts = trimmed.Split(["::"], StringSplitOptions.None);
+
+            if (parts.Length < 3)
+                return false;
+
+            return parts.All(static part => part.Length > 0);
+        }
+
+        if (!trimmed.StartsWith("google_", StringComparison.OrdinalIgnoreCase) || trimmed.Length <= "google_".Length)
+            return false;
+
+        foreach (char character in trimmed)
+        {
+            if (char.IsAsciiLetterOrDigit(character) || character == '_')
+                continue;
+
+            return false;
+        }
+
+        return true;
+    }
+
     private static bool IsGenericEvidenceRef(string normalized) =>
         normalized.Equals("request", StringComparison.OrdinalIgnoreCase)
         || normalized.Equals("critic-checklist", StringComparison.OrdinalIgnoreCase)

@@ -38,6 +38,8 @@ public sealed class ExecDigestEmailDispatcher(
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
         if (string.IsNullOrWhiteSpace(isoWeekIdempotencyKey))
             throw new ArgumentException("Idempotency key is required.", nameof(isoWeekIdempotencyKey));
+
+        string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
         ArgumentNullException.ThrowIfNull(composition);
 
         List<string> normalizedMailboxes = [];
@@ -71,7 +73,7 @@ public sealed class ExecDigestEmailDispatcher(
             UnsubscribeUrl = unsubscribeAbsoluteUrl.Trim(),
             LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase)
         };
-        string idempotencyKey = $"exec-digest:{tenantId:N}:{isoWeekIdempotencyKey}";
+        string idempotencyKey = $"exec-digest:{tenantId:N}:{normalizedIsoWeekKey}";
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
         string subject = $"{productName} weekly digest — {composition.WeekLabel}";

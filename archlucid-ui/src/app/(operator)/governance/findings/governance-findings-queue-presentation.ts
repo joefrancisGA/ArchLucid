@@ -11,8 +11,9 @@ import {
 } from "@/lib/governance-findings-page-copy";
 import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
-  BUYER_GOVERNANCE_ASSIGNED_TO_ME_PAGE_LEAD,
 } from "@/lib/buyer/buyer-polish-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveGovernanceAssignedToMePageSubtitle } from "@/lib/product-line/securenow-governance-assigned-to-me-copy";
 import {
   comparePageHrefWithLifecycleAnchor,
   COMPARE_FINDING_LIFECYCLE_ANCHOR,
@@ -25,9 +26,9 @@ import {
   GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT,
 } from "@/lib/enterprise-compact-empty-state-presets";
 import {
-  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import { resolveContinueLastGovernanceFinding } from "@/lib/resolve-continue-last-governance-finding";
@@ -242,11 +243,10 @@ export function resolveGovernanceFindingsPageTitle(
 export function resolveGovernanceFindingsPageSubtitle(
   isAssignedToMe: boolean,
   buyerPolishedShell: boolean,
+  productLineId: ProductLineId = "architecture",
 ): string {
   if (isAssignedToMe) {
-    return buyerPolishedShell
-      ? BUYER_GOVERNANCE_ASSIGNED_TO_ME_PAGE_LEAD
-      : "Open findings assigned to you for remediation across reviews in this workspace.";
+    return resolveGovernanceAssignedToMePageSubtitle(productLineId, buyerPolishedShell);
   }
 
   return buyerPolishedShell
@@ -254,8 +254,15 @@ export function resolveGovernanceFindingsPageSubtitle(
     : ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE;
 }
 
-export function resolveGovernanceFindingsNavHref(isAssignedToMe: boolean): string {
-  return isAssignedToMe ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH;
+export function resolveGovernanceFindingsNavHref(
+  isAssignedToMe: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isAssignedToMe) {
+    return assignedToMeFindingsPathForProductLine(productLineId);
+  }
+
+  return GOVERNANCE_FINDINGS_PATH;
 }
 
 export function resolveGovernanceFindingsLoadFailedPreset(isAssignedToMe: boolean) {

@@ -12,6 +12,10 @@ public static class RequiredAuditTrailOrphanProbeSql
 
     public const string DomainGoldenManifestFinalized = "golden_manifest_finalized";
 
+    public const string DomainArchitectureShareGranted = "architecture_share_granted";
+
+    public const string DomainArchitectureRestrictToSharesEnabled = "architecture_restrict_to_shares_enabled";
+
     /// <summary>Approved governance requests missing <c>GovernanceApprovalApproved</c> audit.</summary>
     public const string GovernanceApprovedMissingAudit = """
                                                          SELECT COUNT_BIG(1)
@@ -61,4 +65,34 @@ public static class RequiredAuditTrailOrphanProbeSql
                                                                           OR a.RunId = m.RunId
                                                                       ));
                                                               """;
+
+    /// <summary>Architecture share rows missing <c>ArchitectureIdentity.ShareGranted</c> audit (AS-093).</summary>
+    public const string ArchitectureShareGrantedMissingAudit = """
+                                                               SELECT COUNT_BIG(1)
+                                                               FROM dbo.ArchitectureShares s
+                                                               WHERE s.GrantedUtc < DATEADD(minute, -@GraceMinutes, SYSUTCDATETIME())
+                                                                 AND s.GrantedUtc >= DATEADD(day, -@LookbackDays, SYSUTCDATETIME())
+                                                                 AND NOT EXISTS (
+                                                                     SELECT 1
+                                                                     FROM dbo.AuditEvents a
+                                                                     WHERE a.EventType = N'ArchitectureIdentity.ShareGranted'
+                                                                       AND a.TenantId = s.TenantId
+                                                                       AND JSON_VALUE(a.DataJson, '$.architectureId') = LOWER(CAST(s.ArchitectureId AS nvarchar(36)))
+                                                                       AND JSON_VALUE(a.DataJson, '$.userId') = LOWER(CAST(s.UserId AS nvarchar(36))));
+                                                               """;
+
+    /// <summary>Restrict-to-shares architectures missing <c>ArchitectureIdentity.RestrictToSharesEnabled</c> audit (AS-093).</summary>
+    public const string ArchitectureRestrictToSharesEnabledMissingAudit = """
+                                                                          SELECT COUNT_BIG(1)
+                                                                          FROM dbo.Architectures a
+                                                                          WHERE a.RestrictToShares = 1
+                                                                            AND a.UpdatedUtc < DATEADD(minute, -@GraceMinutes, SYSUTCDATETIME())
+                                                                            AND a.UpdatedUtc >= DATEADD(day, -@LookbackDays, SYSUTCDATETIME())
+                                                                            AND NOT EXISTS (
+                                                                                SELECT 1
+                                                                                FROM dbo.AuditEvents ae
+                                                                                WHERE ae.EventType = N'ArchitectureIdentity.RestrictToSharesEnabled'
+                                                                                  AND ae.TenantId = a.TenantId
+                                                                                  AND JSON_VALUE(ae.DataJson, '$.architectureId') = LOWER(CAST(a.ArchitectureId AS nvarchar(36))));
+                                                                          """;
 }
