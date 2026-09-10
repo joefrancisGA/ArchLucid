@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { InfrastructureAskClient } from "@/app/(operator)/governance/infrastructure/ask/InfrastructureAskClient";
 import { submitInfraEvidenceAsk } from "@/lib/infra-evidence/infra-evidence-ask-api";
@@ -25,6 +25,26 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParams,
   usePathname: () => "/governance/infrastructure/ask",
   useRouter: () => ({ replace }),
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
+  fetchInfraEvidenceSnapshots: vi.fn(async () => ({
+    items: [
+      {
+        snapshotId: "22222222-2222-2222-2222-222222222222",
+        subscriptionId: null,
+        subscriptionName: null,
+        capturedUtc: "2026-09-08T22:44:27Z",
+        captureStatus: 1,
+        resourceCount: 12,
+        relationshipCount: 0,
+      },
+    ],
+    totalCount: 1,
+    page: 1,
+    pageSize: 50,
+    hasMore: false,
+  })),
 }));
 
 vi.mock("@/hooks/use-infra-evidence-resource-hub-audit-lineage", () => ({
@@ -53,6 +73,10 @@ vi.mock("@/lib/use-nav-surface", () => ({
 }));
 
 describe("InfrastructureAskClient", () => {
+  afterEach(() => {
+    window.sessionStorage.clear();
+  });
+
   it("shows insufficient evidence state, simulator banner, and citation link", async () => {
     searchParams = new URLSearchParams("");
     render(<InfrastructureAskClient />);
@@ -385,5 +409,114 @@ describe("InfrastructureAskClient", () => {
       expect(screen.getAllByText(/Question:/)).toHaveLength(2);
     });
     expect(vi.mocked(submitInfraEvidenceAsk)).toHaveBeenCalledTimes(2);
+  });
+
+  it("inserts canned prompts into the draft without auto-submitting", async () => {
+    searchParams = new URLSearchParams("");
+    render(<InfrastructureAskClient />);
+
+    fireEvent.change(screen.getByTestId("infra-ask-question"), {
+      target: { value: "Partial draft" },
+    });
+    fireEvent.click(screen.getByTestId("infra-ask-canned-What changed since baseline?"));
+
+    expect(screen.getByTestId("infra-ask-question")).toHaveValue("Partial draft What changed since baseline?");
+    expect(vi.mocked(submitInfraEvidenceAsk)).not.toHaveBeenCalled();
+  });
+
+  it("submits on Ctrl+Enter and shows shortcut affordance", async () => {
+    searchParams = new URLSearchParams("");
+    render(<InfrastructureAskClient />);
+
+    expect(screen.getByText("Ctrl+Enter")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByTestId("infra-ask-question"), {
+      target: { value: "Keyboard submit?" },
+    });
+    fireEvent.keyDown(screen.getByTestId("infra-ask-question"), {
+      key: "Enter",
+      ctrlKey: true,
+    });
+
+    expect(await screen.findByTestId("infra-ask-response")).toBeInTheDocument();
+  });
+
+  it("shows simulator provenance tags and snapshot freshness in scoped context", async () => {
+    searchParams = new URLSearchParams(
+      "cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    render(<InfrastructureAskClient />);
+
+    expect(await screen.findByTestId("infra-ask-simulator-status-header")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-ask-simulator-status-submit")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-ask-snapshot-freshness")).toHaveTextContent(
+      "Snapshot 22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByTestId("infra-ask-context-banner")).toHaveTextContent("captured");
+  });
+
+  it("renders blocked ask errors as a semantic callout", async () => {
+    vi.mocked(submitInfraEvidenceAsk).mockRejectedValueOnce(new Error("Ask blocked for test"));
+    searchParams = new URLSearchParams("");
+    render(<InfrastructureAskClient />);
+
+    fireEvent.change(screen.getByTestId("infra-ask-question"), {
+      target: { value: "Blocked question" },
+    });
+    fireEvent.click(screen.getByTestId("infra-ask-submit"));
+
+    const errorPanel = await screen.findByTestId("infra-ask-submit-error");
+    expect(errorPanel).toHaveAttribute("role", "alert");
+    expect(errorPanel).toHaveTextContent("Ask blocked");
+  });
+
+  it("maps topic kind to plain labels in responses", async () => {
+    vi.mocked(submitInfraEvidenceAsk).mockResolvedValueOnce({
+      topicKind: "ResourceOverview",
+      answer: "One operational finding is open for this resource.",
+      insufficientEvidence: false,
+      citations: [],
+      simulatorLabel: null,
+    });
+    searchParams = new URLSearchParams("");
+    render(<InfrastructureAskClient />);
+
+    fireEvent.change(screen.getByTestId("infra-ask-question"), {
+      target: { value: "What findings are open?" },
+    });
+    fireEvent.click(screen.getByTestId("infra-ask-submit"));
+
+    expect(await screen.findByText("Topic: Resource overview")).toBeInTheDocument();
+    expect(screen.queryByText("ResourceOverview")).not.toBeInTheDocument();
+  });
+
+  it("rehydrates transcript and draft from sessionStorage per scope", async () => {
+    const scopeKey = "11111111-1111-1111-1111-111111111111|22222222-2222-2222-2222-222222222222|_|_|_|_|_|_|_|_|_|all|_";
+    window.sessionStorage.setItem(
+      `archlucid.infra-evidence.ask-transcript.unknown.anonymous.${scopeKey}`,
+      JSON.stringify({
+        turns: [
+          {
+            question: "Persisted question",
+            response: {
+              topicKind: "ResourceOverview",
+              answer: "Persisted answer",
+              insufficientEvidence: false,
+              citations: [],
+              simulatorLabel: null,
+            },
+          },
+        ],
+        draft: "Saved draft",
+      }),
+    );
+
+    searchParams = new URLSearchParams(
+      "cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    render(<InfrastructureAskClient />);
+
+    expect(await screen.findByText("Question: Persisted question")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-ask-question")).toHaveValue("Saved draft");
   });
 });
