@@ -714,6 +714,60 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task RequestCodeAsync_retries_immediately_after_email_delivery_failure_despite_resend_cooldown()
+    {
+        FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
+        EmailOtpAuthOptions options = new()
+        {
+            Enabled = true,
+            ResendCooldownSeconds = 60
+        };
+
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IEmailOtpEmailNotifier> notifier,
+            out _,
+            options,
+            clock);
+
+        int sendAttempts = 0;
+
+        notifier
+            .Setup(n => n.TrySendSignInCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                sendAttempts += 1;
+
+                return sendAttempts > 1;
+            });
+
+        EmailOtpChallengeRequestResult first = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "fail-send@example.com" },
+            CancellationToken.None);
+
+        Assert.Null(first.ChallengeId);
+
+        EmailOtpChallengeRequestResult second = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "fail-send@example.com" },
+            CancellationToken.None);
+
+        Assert.NotNull(second.ChallengeId);
+        Assert.True(second.EmailDeliverySucceeded);
+
+        EmailOtpChallengeRecord? activeChallenge =
+            await challenges.GetByIdAsync(second.ChallengeId!.Value, CancellationToken.None);
+
+        Assert.NotNull(activeChallenge);
+        Assert.Null(activeChallenge!.InvalidatedUtc);
+        Assert.Equal(2, sendAttempts);
+    }
+
+    [Fact]
     public async Task RequestCodeAsync_returns_neutral_message_when_email_delivery_fails()
     {
         EmailOtpAuthService sut = CreateSut(

@@ -91,7 +91,7 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         _ = cancellationToken;
 
         DateTimeOffset? latest = _byId.Values
-            .Where(row => row.NormalizedEmail == normalizedEmail)
+            .Where(row => row.NormalizedEmail == normalizedEmail && EmailOtpChallengeRepositoryCore.IsActive(row))
             .Select(row => (DateTimeOffset?)row.CreatedUtc)
             .OrderByDescending(row => row)
             .FirstOrDefault();
