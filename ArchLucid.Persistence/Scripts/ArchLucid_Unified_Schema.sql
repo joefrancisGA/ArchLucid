@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 372_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 379_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -1598,10 +1598,6 @@ GO
 IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.FindingReviewEvents', N'EvidenceRequestText') IS NULL
     ALTER TABLE dbo.FindingReviewEvents ADD EvidenceRequestText NVARCHAR(MAX) NULL;
-
-IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.FindingReviewEvents', N'ArchitectRestatement') IS NULL
-    ALTER TABLE dbo.FindingReviewEvents ADD ArchitectRestatement NVARCHAR(MAX) NULL;
 
 GO
 
@@ -7611,10 +7607,6 @@ IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.FindingReviewEvents', N'EvidenceRequestText') IS NULL
     ALTER TABLE dbo.FindingReviewEvents ADD EvidenceRequestText NVARCHAR(MAX) NULL;
 
-IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.FindingReviewEvents', N'ArchitectRestatement') IS NULL
-    ALTER TABLE dbo.FindingReviewEvents ADD ArchitectRestatement NVARCHAR(MAX) NULL;
-
 GO
 
 IF OBJECT_ID(N'dbo.RiskExceptions', N'U') IS NULL
@@ -7822,40 +7814,6 @@ BEGIN
         CONSTRAINT FK_AgentResultEnrichments_Result
             FOREIGN KEY (ResultId) REFERENCES dbo.AgentResults (ResultId)
     );
-END;
-
-GO
-
-/* AS-060 / Migration 379: semantic support band overlay (mutable until freeze; sealed finding prose stays immutable). */
-IF OBJECT_ID(N'dbo.FindingSemanticSupportBandOverlays', N'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.FindingSemanticSupportBandOverlays
-    (
-        FindingsSnapshotId        UNIQUEIDENTIFIER NOT NULL,
-        FindingId                 NVARCHAR(200)    NOT NULL,
-        TenantId                  UNIQUEIDENTIFIER NOT NULL,
-        WorkspaceId               UNIQUEIDENTIFIER NOT NULL,
-        ProjectId                 UNIQUEIDENTIFIER NOT NULL,
-        SemanticSupportBand       NVARCHAR(32)     NOT NULL,
-        ScorerVersion             NVARCHAR(64)     NOT NULL,
-        EvidenceExcerptHashSha256 NVARCHAR(64)     NULL,
-        ScoredAtUtc               DATETIME2(7)     NOT NULL
-            CONSTRAINT DF_FindingSemanticSupportBandOverlays_ScoredAtUtc DEFAULT SYSUTCDATETIME(),
-        UpdatedUtc                DATETIME2(7)     NOT NULL
-            CONSTRAINT DF_FindingSemanticSupportBandOverlays_UpdatedUtc DEFAULT SYSUTCDATETIME(),
-        FrozenAtUtc               DATETIME2(7)     NULL,
-        CONSTRAINT PK_FindingSemanticSupportBandOverlays
-            PRIMARY KEY CLUSTERED (FindingsSnapshotId, FindingId),
-        CONSTRAINT FK_FindingSemanticSupportBandOverlays_FindingRecords
-            FOREIGN KEY (FindingsSnapshotId, FindingId)
-            REFERENCES dbo.FindingRecords (FindingsSnapshotId, FindingId)
-            ON DELETE CASCADE,
-        CONSTRAINT CK_FindingSemanticSupportBandOverlays_Band CHECK (SemanticSupportBand IN (
-            N'Supported', N'Unchecked', N'Unsupported', N'NotScored'))
-    );
-
-    CREATE NONCLUSTERED INDEX IX_FindingSemanticSupportBandOverlays_Scope
-        ON dbo.FindingSemanticSupportBandOverlays (TenantId, WorkspaceId, ProjectId, FindingsSnapshotId);
 END;
 
 GO
@@ -10407,6 +10365,61 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_RunStoredEvidenceFiles_Scope_Run_Created
         ON dbo.RunStoredEvidenceFiles (TenantId, WorkspaceId, ScopeProjectId, RunId, CreatedUtc);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.FindingVerificationReports', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.FindingVerificationReports
+    (
+        ReportId                       UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_FindingVerificationReports PRIMARY KEY,
+        TenantId                       UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId                    UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId                 UNIQUEIDENTIFIER NOT NULL,
+        RunId                          UNIQUEIDENTIFIER NOT NULL,
+        SourceManifestHash             NVARCHAR(128)    NOT NULL,
+        SourceFindingsSnapshotId       UNIQUEIDENTIFIER NOT NULL,
+        VerificationFindingsSnapshotId UNIQUEIDENTIFIER NULL,
+        ReportHash                     NVARCHAR(128)    NOT NULL,
+        TriggeredByUserId              NVARCHAR(256)    NOT NULL,
+        CreatedUtc                     DATETIME2(7)     NOT NULL CONSTRAINT DF_FindingVerificationReports_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_FindingVerificationReports_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_FindingVerificationReports_Scope_Run_Created
+        ON dbo.FindingVerificationReports (TenantId, WorkspaceId, ScopeProjectId, RunId, CreatedUtc DESC);
+
+    CREATE NONCLUSTERED INDEX IX_FindingVerificationReports_Idempotency
+        ON dbo.FindingVerificationReports (
+            TenantId,
+            WorkspaceId,
+            ScopeProjectId,
+            RunId,
+            SourceFindingsSnapshotId,
+            VerificationFindingsSnapshotId,
+            CreatedUtc DESC);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.FindingVerificationResults', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.FindingVerificationResults
+    (
+        ResultId   UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_FindingVerificationResults PRIMARY KEY,
+        ReportId   UNIQUEIDENTIFIER NOT NULL,
+        FindingId  NVARCHAR(64)     NOT NULL,
+        Status     TINYINT          NOT NULL,
+        TraceText  NVARCHAR(2000)   NOT NULL,
+        CONSTRAINT CK_FindingVerificationResults_Status CHECK (Status IN (0, 1, 2, 3)),
+        CONSTRAINT FK_FindingVerificationResults_Reports FOREIGN KEY (ReportId)
+            REFERENCES dbo.FindingVerificationReports (ReportId),
+        CONSTRAINT UQ_FindingVerificationResults_Report_Finding UNIQUE (ReportId, FindingId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_FindingVerificationResults_Report
+        ON dbo.FindingVerificationResults (ReportId, FindingId);
 END;
 
 GO
