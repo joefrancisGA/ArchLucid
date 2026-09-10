@@ -47,7 +47,7 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
                 Scope.TenantId,
                 true,
                 It.IsAny<IReadOnlyList<string>>(),
-                "UTC",
+                "America/New_York",
                 1,
                 8,
                 It.IsAny<CancellationToken>()))
@@ -57,7 +57,7 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
                 IsConfigured = true,
                 EmailEnabled = true,
                 RecipientEmails = ["sponsor@contoso.test"],
-                IanaTimeZoneId = "UTC",
+                IanaTimeZoneId = "America/New_York",
             });
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -103,6 +103,7 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
 
         body.TenantId.Should().Be(Scope.TenantId);
         body.IsConfigured.Should().BeFalse();
+        body.IanaTimeZoneId.Should().Be("America/New_York");
     }
 
     [Fact]

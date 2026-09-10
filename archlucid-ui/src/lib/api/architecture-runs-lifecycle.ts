@@ -5,6 +5,11 @@ import {
   reviewPipelineDetailHref,
   reviewPipelineOperationId,
 } from "@/lib/operations/review-pipeline-in-flight";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { reviewExecuteMutationBlockedReason } from "@/lib/runs/review-execute-mutation-blocked-reason";
+import { reviewFinalizeMutationBlockedReason } from "@/lib/runs/review-finalize-mutation-blocked-reason";
+import { reviewSelectiveExecuteMutationBlockedReason } from "@/lib/runs/review-selective-execute-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   apiPatchJson,
   apiPostAcceptedWithLocation,
@@ -32,15 +37,29 @@ export async function commitArchitectureRun(
     readonly acknowledgedAssumptionIds?: readonly string[];
   },
 ): Promise<unknown> {
-  return apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/finalize`, {
-    notifySponsor: options?.notifySponsor === true,
-    acknowledgedAssumptionIds: options?.acknowledgedAssumptionIds ?? undefined,
-  });
+  try {
+    return await apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/finalize`, {
+      notifySponsor: options?.notifySponsor === true,
+      acknowledgedAssumptionIds: options?.acknowledgedAssumptionIds ?? undefined,
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewFinalizeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Runs agent pipeline for an architecture review (POST /v1/architecture/review/{runId}/execute). */
 export async function executeArchitectureRun(runId: string): Promise<unknown> {
-  return apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute`, {});
+  try {
+    return await apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute`, {});
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewExecuteMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export type ExecuteArchitectureRunAsyncResult = {
@@ -122,11 +141,18 @@ export async function executeArchitectureRunSelective(
     readonly includeDependents?: boolean;
   },
 ): Promise<unknown> {
-  return apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute/selective`, {
-    agentTypes: body.agentTypes ?? [],
-    taskIds: body.taskIds ?? [],
-    includeDependents: body.includeDependents !== false,
-  });
+  try {
+    return await apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute/selective`, {
+      agentTypes: body.agentTypes ?? [],
+      taskIds: body.taskIds ?? [],
+      includeDependents: body.includeDependents !== false,
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewSelectiveExecuteMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /**
