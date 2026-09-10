@@ -8,6 +8,7 @@ import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { runOperatorGovernanceDispositionMutationBlockedReason } from "@/lib/runs/run-operator-governance-disposition-mutation-blocked-reason";
 import { runPipelineTimelineBlockedReason } from "@/lib/runs/run-pipeline-timeline-blocked-reason";
+import { runReviewTrailBlockedReason } from "@/lib/runs/run-review-trail-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   type ApiResponseWithTrace,
@@ -92,6 +93,20 @@ export async function getRunPipelineTimeline(runId: string): Promise<PipelineTim
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = runPipelineTimelineBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
+}
+
+/** Canonical product review-trail list (`GET /v1/runs/{runId}/review-trail`). */
+export async function getReviewTrail(runId: string): Promise<PipelineTimelineItem[]> {
+  try {
+    return await apiGetSealedManifestAware<PipelineTimelineItem[]>(
+      `/v1/runs/${encodeURIComponent(runId)}/review-trail`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runReviewTrailBlockedReason(failure);
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
