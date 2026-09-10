@@ -1777,11 +1777,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 8
-- **bugs-found:** 8
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — enable/disable confirmation dialog closed when post-toggle list refresh failed
+- **last-bug:** 2026-09-10 — stale webhookEnableId/webhookDisableId URL params when subscription missing from loaded rows
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1811,6 +1811,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `confirmEnableSubscription` / `confirmDisableSubscription` close confirmation when post-toggle `load()` fails — **hit 2026-09-10 seed hunt #1536 (seed→hit):** `executeToggle` ignored refresh failure so dialogs dismissed while table still showed pre-toggle enabled state; fixed by gating dialog close on refresh success and surfacing load failure in dialog only; regressions `keeps enable confirmation open when list refresh fails after toggle` and `keeps disable confirmation open when list refresh fails after toggle`.
 
 2026-09-10 seed hunt #1536 (hit): reseeded ui-webhooks-settings; proved post-toggle refresh failure still dismissed enable/disable confirmations; 38 scoped webhooks folder tests passed (2 pre-existing sources-strip / buyer-polished failures unrelated).
+
+- [x] (proven) `useWebhooksSettingsMutations` URL-sync effect — non-empty `webhookEnableId`/`webhookDisableId` params persist when the subscription id is missing from loaded rows — **hit 2026-09-10 seed hunt #1538 (seed→hit):** after list hydration, unknown toggle-confirm ids clear URL params instead of leaving dead deep links; regressions `clears stale webhookDisableId from the URL when the subscription is missing from loaded rows` and `clears stale webhookEnableId from the URL when the subscription is missing from loaded rows`.
+
+2026-09-10 seed hunt #1538 (hit): reseeded ui-webhooks-settings; proved stale webhook enable/disable deep-link URL params; 40 scoped webhooks folder tests passed (2 pre-existing sources-strip / buyer-polished failures unrelated).
 
 ---
 
