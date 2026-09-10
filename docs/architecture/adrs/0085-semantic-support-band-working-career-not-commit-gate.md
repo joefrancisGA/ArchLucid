@@ -72,3 +72,9 @@ TB-1228 rejected fusing semantic/RAG faithfulness into a **sync LLM judge on com
 - **Positive:** 0085 becomes the merge-blocking question for “block seal on LLM faithfulness?”; wave 22 semantic cluster can parallel inventory bind after 0084; TB-1228 gains an ADR anchor for desk visibility.
 - **Negative:** 0085 alone is contract-only — no band on wire until AS-059; heuristic misses paraphrase by design; warn-only finalize may feel weak until PilotStrict opt-in ships.
 - **Follow-ups:** AS-057 heuristic quote-overlap scorer; AS-058 async support-ratio job; AS-059 support band enum; AS-065 PilotStrict optional hold on Unsupported; AS-066 do-not-fuse insight-density (**ratchet:** `ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTests`); AS-067 honesty CI not legal truth; AS-074 LLM judge default off; AS-075 semantic contract doc completeness.
+
+## Follow-up (AS-066)
+
+**Ratchet shipped:** `DeterministicInsightDensityGate.Score` and `InsightDensityGateCandidate` do **not** read `Finding.SemanticSupportBand`. Unit test `Score_ignores_semantic_support_band_on_source_finding` proves band changes do not alter score/treatment/classification; architecture tests guard the gate source from reintroducing band coupling.
+
+**Why sibling signals:** Cited-but-paraphrased rows can stay decision-grade under ADR 0070 while showing **Unchecked** or **Unsupported** on Working — fusing band into density demotion would hide semantic risk inside checklist coverage.

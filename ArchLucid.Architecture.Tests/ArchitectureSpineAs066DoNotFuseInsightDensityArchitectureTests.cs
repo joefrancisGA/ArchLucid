@@ -2,12 +2,15 @@ using FluentAssertions;
 
 namespace ArchLucid.Architecture.Tests;
 
-/// <summary>AS-066 ratchet: semantic support band must not fuse into insight-density demotion.</summary>
+/// <summary>AS-066 ratchet: semantic support band must not fuse into ADR 0070 insight-density demotion.</summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTests
 {
     private static readonly string RepoRoot = FindRepoRoot();
+
+    private const string AdrRelativePath =
+        "docs/architecture/adrs/0085-semantic-support-band-working-career-not-commit-gate.md";
 
     private static readonly string[] DensityGateSourceRelativePaths =
     [
@@ -92,6 +95,17 @@ public sealed class ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTes
         densityApplicatorIndex.Should().BeGreaterThan(-1);
         defaultsApplicatorIndex.Should().BeGreaterThan(densityApplicatorIndex);
         emissionApplicatorIndex.Should().BeGreaterThan(defaultsApplicatorIndex);
+    }
+
+    [Fact]
+    public void As066_adr_0085_documents_insight_density_sibling_signal_follow_up()
+    {
+        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
+
+        adr.Should().Contain("AS-066");
+        adr.Should().Contain("insight-density");
+        adr.Should().MatchRegex("not.*fused", "ADR must keep support band separate from insight-density demotion");
+        adr.Should().Contain("ADR 0070");
     }
 
     private static string FindRepoRoot()
