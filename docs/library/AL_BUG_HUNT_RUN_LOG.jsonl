@@ -1776,3 +1776,4 @@
 {"at":"2026-09-10T06:24:30.0788681Z","zoneId":"host-composition","outcome":"hit"}
 {"at":"2026-09-10T06:29:37.9277054Z","zoneId":"host-composition","outcome":"seed-only"}
 {"at":"2026-09-10T06:34:30.3234565Z","zoneId":"host-composition","outcome":"seed-only"}
+{"at":"2026-09-10T06:37:49.9824194Z","zoneId":"alert-simulation","outcome":"dry"}

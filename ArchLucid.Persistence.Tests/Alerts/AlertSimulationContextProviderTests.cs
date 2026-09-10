@@ -783,6 +783,140 @@ public sealed class AlertSimulationContextProviderTests
     }
 
     [Fact]
+    public async Task GetContextsAsync_recent_run_batch_ignores_compared_to_run_id()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid comparedToRunId = Guid.NewGuid();
+        Guid firstRunId = Guid.NewGuid();
+        Guid secondRunId = Guid.NewGuid();
+
+        static RunDetailDto CreateRunDetail(Guid runId, Guid tenant, Guid workspace, Guid project)
+        {
+            Guid findingsSnapshotId = Guid.NewGuid();
+            Guid contextSnapshotId = Guid.NewGuid();
+            Guid graphSnapshotId = Guid.NewGuid();
+
+            return new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenant,
+                    WorkspaceId = workspace,
+                    ScopeProjectId = project,
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
+                },
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    Findings = [],
+                },
+            };
+        }
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                "default",
+                2,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RunSummaryDto { RunId = firstRunId, CreatedUtc = DateTime.UtcNow.AddHours(-1) },
+                new RunSummaryDto { RunId = secondRunId, CreatedUtc = DateTime.UtcNow },
+            ]);
+
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                firstRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateRunDetail(firstRunId, tenantId, workspaceId, projectId));
+
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                secondRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateRunDetail(secondRunId, tenantId, workspaceId, projectId));
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan());
+
+        Mock<IComparisonService> comparison = new();
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RecommendationRecord>());
+
+        Mock<IRecommendationLearningService> learning = new();
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            comparison.Object,
+            recommendations.Object,
+            learning.Object,
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId: null,
+            comparedToRunId,
+            recentRunCount: 2,
+            runProjectSlug: "default",
+            CancellationToken.None);
+
+        contexts.Should().HaveCount(2);
+        contexts.Should().AllSatisfy(c =>
+        {
+            c.ComparedToRunId.Should().BeNull();
+            c.ComparisonResult.Should().BeNull();
+        });
+
+        comparison.Verify(
+            c => c.Compare(It.IsAny<ManifestDocument>(), It.IsAny<ManifestDocument>()),
+            Times.Never);
+
+        authority.Verify(
+            a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                comparedToRunId,
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        advisor.Invocations.Should().OnlyContain(i =>
+            i.Method.Name == nameof(IImprovementAdvisorService.GeneratePlanAsync)
+            && i.Arguments.Count == 3);
+    }
+
+    [Fact]
     public async Task GetContextsAsync_when_authority_returns_foreign_project_run_returns_empty()
     {
         Guid tenantId = Guid.NewGuid();
