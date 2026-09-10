@@ -8254,6 +8254,9 @@ export interface components {
             findingId?: string;
             /** Format: uuid */
             instanceId?: string;
+            /** Format: uuid */
+            pathId?: null | string;
+            pathNarrative?: null | components["schemas"]["RemediationPathNarrative"];
             patternKey?: string;
             /** Format: uuid */
             preflightSnapshotId?: null | string;
@@ -8273,6 +8276,25 @@ export interface components {
             /** Format: int32 */
             count?: number;
             key?: string;
+        };
+        RemediationPathNarrative: {
+            affectedDependencyCloudResourceIds?: string[];
+            aiInferenceSummary?: null | string;
+            blastRadiusWarning?: string;
+            canonicalHopHashHex?: string;
+            exposureSummary?: string;
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            preconditions?: string[];
+            problemStatement?: string;
+            recommendedChange?: string;
+            recommendedChangeSource?: string;
+            safeRolloutSteps?: string[];
+            verificationQueries?: string[];
+            weakestHopReason?: string;
+            whyItMatters?: string;
         };
         RemediationPatternBulkImportRequest: {
             items?: components["schemas"]["RemediationPatternDraftApiRequest"][];

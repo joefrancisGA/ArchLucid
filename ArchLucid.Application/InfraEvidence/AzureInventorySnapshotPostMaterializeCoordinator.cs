@@ -162,4 +162,28 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
             SecureNowArchitectConstants.SystemActorId,
             cancellationToken);
     }
+
+    private async Task RunDownstreamSecureNowPipelineAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken)
+    {
+        await fourRealityDriftEngine.RunAsync(
+            scope,
+            snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            cancellationToken);
+
+        await pathRankingEngine.RunAsync(
+            scope,
+            snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            cancellationToken);
+
+        await cutPointAnalysisEngine.RunAsync(
+            scope,
+            snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            cancellationToken);
+    }
 }

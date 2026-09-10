@@ -55,23 +55,23 @@ public sealed partial class ArchitectureExportController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (!AuthorityRunIdentifier.TryParse(runId, out _))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        if (!_generateRunSummaryOptions.CurrentValue.Enabled)
-        {
-            return this.NotFoundProblem(
-                "Run summary export is not enabled for this deployment.",
-                ProblemTypes.ResourceNotFound);
-        }
-
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId.Trim(), cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
         try
         {
+            if (!AuthorityRunIdentifier.TryParse(runId, out _))
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            if (!_generateRunSummaryOptions.CurrentValue.Enabled)
+            {
+                return this.NotFoundProblem(
+                    "Run summary export is not enabled for this deployment.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId.Trim(), cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
             RunSummaryOnePagerExportResult result = await exportService.GenerateMarkdownAsync(runId.Trim(), cancellationToken);
             return File(result.Content, result.ContentType, result.FileName);
         }
