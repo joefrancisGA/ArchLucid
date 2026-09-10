@@ -43,4 +43,12 @@ public sealed class NoOpSecurityEvidencePathRepository : ISecurityEvidencePathRe
         int pageSize,
         CancellationToken cancellationToken = default)
         => Task.FromResult<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)>(([], 0));
+
+    public Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<SecurityEvidencePathRecord>>([]);
 }
