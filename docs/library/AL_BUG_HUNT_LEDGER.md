@@ -1870,10 +1870,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-17
+- **last-hunt:** 2026-09-10
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -1885,6 +1885,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Access-denied technical detail is shown as a successful sign-in (retired: denial heading + detail until access-request 2xx; success copy is request-sent, not signed-in)
 - [x] Callback continues into the operator shell when the grant is missing (retired: panel only links to `/auth/signin`; no `window.location` / operator routes)
 - [x] Error copy includes another userÎ“Ã‡Ã–s email from a leftover query cache (retired: no query/session read; duplicate/submit errors are fixed strings)
+
+- [x] (valid-no-repro) Non-409 API failure leaves the operator on the success panel or drops the form without error copy — **cheap-disproof 2026-09-10 seed hunt #1587:** `!response.ok` (except 409) sets `AUTH_CALLBACK_ACCESS_SUBMIT_ERROR` and keeps the form open; regression `shows generic submit error when the API returns a non-duplicate failure`.
+- [x] (valid-no-repro) `fetch` rejection surfaces no operator-facing error — **cheap-disproof 2026-09-10 seed hunt #1587:** catch path sets `AUTH_CALLBACK_ACCESS_SUBMIT_ERROR`; regression `shows generic submit error when fetch rejects`.
+- [x] (valid-no-repro) Whitespace-only optional fields are posted as empty strings and bypass server trim/null semantics — **cheap-disproof 2026-09-10 seed hunt #1587:** client trims optional `cloudPlatformFocus` / `note` to null before POST; regression `sends whitespace-only optional fields as null`.
+- [x] (valid-no-repro) Cancel leaves a prior submit error visible on the collapsed panel — **cheap-disproof 2026-09-10 seed hunt #1587:** cancel clears `errorMessage` and hides form; regression `cancel hides the form and clears a prior submit error`.
+- [x] (valid-no-repro) Request-access toggle cannot close an open form — **cheap-disproof 2026-09-10 seed hunt #1587:** button toggles `showForm`; regression `toggles the request form closed when request access is clicked again`.
+- [x] (valid-no-repro) Success panel omits a sign-in recovery link — **cheap-disproof 2026-09-10 seed hunt #1587:** success view renders `AUTH_CALLBACK_ACCESS_BACK_TO_SIGN_IN_ACTION` → `/auth/signin`; regression `shows back-to-sign-in recovery only after a successful submit`.
+
+2026-09-10 seed hunt #1587 (seed-only): reseeded ui-auth-callback after 2026-08-17 dry hunt; cheap-disproof closed API/network error handling, optional-field null trim, cancel/toggle form UX, and success recovery link; 10 scoped `AuthCallbackAccessPanel` tests passed.
 
 ---
 
