@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Sql;
 
 using FluentAssertions;
 
@@ -742,6 +743,74 @@ public sealed class FindingInspectReadRepositoryCoreTests
             ["node-b", "node-a"]);
 
         evidence.Select(static item => item.Excerpt).Should().Equal("node-b", "node-a");
+    }
+
+    [Fact]
+    public void ResolveMainInspectSql_routes_to_payload_and_metadata_only_queries()
+    {
+        FindingInspectReadRepositoryCore.ResolveMainInspectSql(includeTypedPayload: true)
+            .Should().Be(FindingInspectReadSql.MainInspectWithTypedPayload);
+        FindingInspectReadRepositoryCore.ResolveMainInspectSql(includeTypedPayload: false)
+            .Should().Be(FindingInspectReadSql.MainInspectWithoutTypedPayload);
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_returns_defaults_when_pointer_row_is_absent()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "Accepted",
+            hasDispositionRow: false,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: DateTime.UtcNow,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().BeNull();
+        projection.LatestDispositionOccurredAtUtc.Should().BeNull();
+        projection.LatestDispositionEventId.Should().BeNull();
+        projection.LatestDispositionRowVersionBase64.Should().BeNull();
+        projection.LatestDispositionReviewerUserId.Should().BeNull();
+        projection.RevisitDueUtc.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_pointer_metadata_when_row_is_present()
+    {
+        Guid eventId = Guid.NewGuid();
+        DateTimeOffset occurredAtUtc = new(2026, 10, 2, 8, 0, 0, TimeSpan.Zero);
+        DateTime revisitDueUtc = new(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc);
+        byte[] rowVersionStamp = [0x0A, 0x0B];
+
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "Deferred",
+            hasDispositionRow: true,
+            occurredAtUtc: occurredAtUtc,
+            revisitDueUtc: revisitDueUtc,
+            eventId: eventId,
+            reviewerUserId: "reviewer-1",
+            rowVersionStamp: rowVersionStamp);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.Deferred);
+        projection.LatestDispositionOccurredAtUtc.Should().Be(occurredAtUtc);
+        projection.LatestDispositionEventId.Should().Be(eventId);
+        projection.LatestDispositionRowVersionBase64.Should().Be(Convert.ToBase64String(rowVersionStamp));
+        projection.LatestDispositionReviewerUserId.Should().Be("reviewer-1");
+        projection.RevisitDueUtc.Should().Be(new DateTimeOffset(revisitDueUtc));
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_falls_back_to_rationale_only_metadata_when_payload_is_corrupt()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            null,
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").ValueKind.Should().Be(JsonValueKind.Null);
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
     }
 
     [Fact]

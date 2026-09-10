@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Sql;
 
 namespace ArchLucid.Persistence.Findings;
 
@@ -12,6 +13,32 @@ internal static class FindingInspectReadRepositoryCore
         options?.IncludeTypedPayload ?? true;
 
     public static string NormalizeFindingId(string findingId) => findingId.Trim();
+
+    public static string ResolveMainInspectSql(bool includeTypedPayload) =>
+        includeTypedPayload
+            ? FindingInspectReadSql.MainInspectWithTypedPayload
+            : FindingInspectReadSql.MainInspectWithoutTypedPayload;
+
+    public static DispositionPointerProjection MapDispositionPointerProjection(
+        string? dispositionRaw,
+        bool hasDispositionRow,
+        DateTimeOffset? occurredAtUtc,
+        DateTime? revisitDueUtc,
+        Guid? eventId,
+        string? reviewerUserId,
+        byte[]? rowVersionStamp)
+    {
+        if (!hasDispositionRow)
+            return default;
+
+        return new DispositionPointerProjection(
+            MapLatestDisposition(dispositionRaw, true),
+            occurredAtUtc,
+            eventId,
+            EncodeRowVersionStampBase64(rowVersionStamp),
+            reviewerUserId,
+            ToUtcDateTimeOffset(revisitDueUtc));
+    }
     public static IReadOnlyList<string> FilterNonBlankTrimmedStrings(IEnumerable<string> values) =>
         values
             .Where(static value => !string.IsNullOrWhiteSpace(value))

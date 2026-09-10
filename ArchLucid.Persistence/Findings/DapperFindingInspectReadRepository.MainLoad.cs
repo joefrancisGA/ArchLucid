@@ -1,5 +1,4 @@
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -16,9 +15,7 @@ public sealed partial class DapperFindingInspectReadRepository
         bool includeTypedPayload,
         CancellationToken ct)
     {
-        string sql = includeTypedPayload
-            ? FindingInspectReadSql.MainInspectWithTypedPayload
-            : FindingInspectReadSql.MainInspectWithoutTypedPayload;
+        string sql = FindingInspectReadRepositoryCore.ResolveMainInspectSql(includeTypedPayload);
 
         return await connection.QuerySingleOrDefaultAsync<MainRow>(
             new CommandDefinition(

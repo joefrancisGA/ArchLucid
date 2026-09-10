@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1489,6 +1489,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `GetInspectAsync` accepts empty-string `findingId` — **cheap-disproof 2026-09-10 seed hunt #1646:** whitespace guard rejects empty input; regression `GetInspectAsync_throws_when_finding_id_is_empty`.
 
 2026-09-10 seed hunt #1646 (seed-only): reseeded finding-inspect-sql after #1645; extracted includeTypedPayload and finding-id normalization helpers; cheap-disproof closed default typed-payload routing, SQL finding-id trim binding, title-only corrupt-payload fallback, blank evidence handling, disposition pointer finding-id filter, and empty finding-id validation; 196 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `LoadMainRowAsync` uses metadata-only SQL when `includeTypedPayload` is true — **cheap-disproof 2026-09-10 seed hunt #1647:** `ResolveMainInspectSql` routes to `MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload`; regression `ResolveMainInspectSql_routes_to_payload_and_metadata_only_queries`.
+- [x] (valid-no-repro) `MapInspectResponse` parses disposition pointer fields when pointer row is absent — **cheap-disproof 2026-09-10 seed hunt #1647:** `MapDispositionPointerProjection` returns null defaults without a row; regression `MapDispositionPointerProjection_returns_defaults_when_pointer_row_is_absent`.
+- [x] (valid-no-repro) `MapInspectResponse` omits `LatestDispositionEventId` / row-version / reviewer / revisit fields when pointer row exists — **cheap-disproof 2026-09-10 seed hunt #1647:** projection maps all pointer metadata; regression `MapDispositionPointerProjection_maps_pointer_metadata_when_row_is_present`.
+- [x] (valid-no-repro) Corrupt `PayloadJson` with rationale-only metadata falls back to null typed payload — **cheap-disproof 2026-09-10 seed hunt #1647:** corrupt non-empty payload still builds slim metadata when rationale is present; regression `ResolveTypedPayloadForInspect_falls_back_to_rationale_only_metadata_when_payload_is_corrupt`.
+
+2026-09-10 seed hunt #1647 (seed-only): reseeded finding-inspect-sql after #1646; extracted main-inspect SQL routing and disposition pointer projection; cheap-disproof closed typed-payload SQL selection, absent/present pointer metadata mapping, and rationale-only corrupt-payload fallback; 200 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

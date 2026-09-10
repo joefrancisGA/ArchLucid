@@ -30,6 +30,15 @@ public sealed partial class DapperFindingInspectReadRepository
             row.Rationale);
         FindingSeverity recordSeverity = FindingInspectReadModelMapper.ParseFindingSeverity(row.Severity);
 
+        DispositionPointerProjection dispositionPointer = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            joinResult.DispositionRow?.Disposition,
+            joinResult.DispositionRow is not null,
+            joinResult.DispositionRow?.OccurredAtUtc,
+            joinResult.DispositionRow?.RevisitDueUtc,
+            joinResult.DispositionRow?.EventId,
+            joinResult.DispositionRow?.ReviewerUserId,
+            joinResult.DispositionRow?.RowVersionStamp);
+
         return new FindingInspectResponse
         {
             FindingId = row.FindingId,
@@ -53,16 +62,12 @@ public sealed partial class DapperFindingInspectReadRepository
             MuteReason = row.MuteReason,
             ReasoningTrace = row.ReasoningTrace,
             ReasoningTraceDigestSha256 = row.ReasoningTraceDigestSha256,
-            LatestDisposition = FindingInspectReadRepositoryCore.MapLatestDisposition(
-                joinResult.DispositionRow?.Disposition,
-                joinResult.DispositionRow is not null),
-            LatestDispositionOccurredAtUtc = joinResult.DispositionRow?.OccurredAtUtc,
-            LatestDispositionEventId = joinResult.DispositionRow?.EventId,
-            LatestDispositionRowVersionBase64 = FindingInspectReadRepositoryCore.EncodeRowVersionStampBase64(
-                joinResult.DispositionRow?.RowVersionStamp),
-            LatestDispositionReviewerUserId = joinResult.DispositionRow?.ReviewerUserId,
-            RevisitDueUtc = FindingInspectReadRepositoryCore.ToUtcDateTimeOffset(
-                joinResult.DispositionRow?.RevisitDueUtc),
+            LatestDisposition = dispositionPointer.LatestDisposition,
+            LatestDispositionOccurredAtUtc = dispositionPointer.LatestDispositionOccurredAtUtc,
+            LatestDispositionEventId = dispositionPointer.LatestDispositionEventId,
+            LatestDispositionRowVersionBase64 = dispositionPointer.LatestDispositionRowVersionBase64,
+            LatestDispositionReviewerUserId = dispositionPointer.LatestDispositionReviewerUserId,
+            RevisitDueUtc = dispositionPointer.RevisitDueUtc,
             HasActiveWaiver = FindingInspectReadRepositoryCore.HasActiveWaiver(joinResult.ActiveWaiverCount),
             AssignedToUserId = row.AssignedToUserId,
             RemediationDueUtc = FindingInspectReadRepositoryCore.ToUtcDateTimeOffset(row.RemediationDueUtc),
