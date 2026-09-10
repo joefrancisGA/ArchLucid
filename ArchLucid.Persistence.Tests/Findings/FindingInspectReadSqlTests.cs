@@ -411,6 +411,60 @@ public sealed class FindingInspectReadSqlTests
         auditSql.Should().Contain("SELECT TOP 1 ae.EventId");
     }
 
+    [Fact]
+    public void MainInspect_projects_model_deployment_and_prompt_template_version()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.ModelDeploymentName");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.PromptTemplateVersion");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.ModelDeploymentName");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.PromptTemplateVersion");
+    }
+
+    [Fact]
+    public void MainInspectWithoutTypedPayload_joins_run_through_findings_snapshot()
+    {
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("INNER JOIN dbo.Runs r ON r.RunId = fs.RunId");
+    }
+
+    [Fact]
+    public void MainInspect_selects_finding_id_column()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.FindingId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.FindingId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_recommended_actions_selects_action_text()
+    {
+        string actionsSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRecommendedActions");
+
+        actionsSql.Should().Contain("SELECT fra.ActionText");
+    }
+
+    [Fact]
+    public void FollowUpBatch_trace_rules_selects_rule_text()
+    {
+        string traceRulesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingTraceRulesApplied");
+
+        traceRulesSql.Should().Contain("SELECT TOP 1 tra.RuleText");
+    }
+
+    [Fact]
+    public void FollowUpBatch_waiver_count_filters_by_finding_id()
+    {
+        string waiverSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.RiskExceptions");
+
+        waiverSql.Should().Contain("FindingId = @FindingId");
+    }
+
+    [Fact]
+    public void MainInspect_uses_left_join_for_agent_execution_traces()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("LEFT JOIN dbo.AgentExecutionTraces aet");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("LEFT JOIN dbo.AgentExecutionTraces aet");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

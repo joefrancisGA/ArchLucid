@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1410,6 +1410,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ParseFindingSeverity` is case-sensitive for `Warning` — **cheap-disproof 2026-09-10 seed hunt #1639:** mapper trims and uses `Enum.TryParse(..., ignoreCase: true)`; regression `ParseFindingSeverity_parses_case_insensitive_warning_value`.
 
 2026-09-10 seed hunt #1639 (seed-only): reseeded finding-inspect-sql after #1638; extracted shared inspect mapping helpers; cheap-disproof closed evidence/action whitespace filtering, waiver/row-version/UTC mapping, false JSON payload, whitespace trace fallback, SQL metadata projections, and case-insensitive severity parsing; 121 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `includeTypedPayload=false` still deserializes relational `PayloadJson` instead of metadata-only typed payload — **cheap-disproof 2026-09-10 seed hunt #1640:** `ResolveTypedPayloadForInspectRead` routes to `BuildMetadataTypedPayload` when metadata-only; regression `ResolveTypedPayloadForInspectRead_when_metadata_only_ignores_payload_json`.
+- [x] (valid-no-repro) `MainInspect*` omits model deployment and prompt-template version columns — **cheap-disproof 2026-09-10 seed hunt #1640:** both main inspect queries project `fr.ModelDeploymentName` and `fr.PromptTemplateVersion`; regression `MainInspect_projects_model_deployment_and_prompt_template_version`.
+- [x] (valid-no-repro) `MainInspectWithoutTypedPayload` omits `FindingsSnapshots` join path — **cheap-disproof 2026-09-10 seed hunt #1640:** metadata-only query joins snapshot and run tables; regression `MainInspectWithoutTypedPayload_joins_run_through_findings_snapshot`.
+- [x] (valid-no-repro) `MainInspect*` omits `fr.FindingId` from the select list — **cheap-disproof 2026-09-10 seed hunt #1640:** both queries select `fr.FindingId`; regression `MainInspect_selects_finding_id_column`.
+- [x] (valid-no-repro) `FollowUpBatch` recommended-actions subquery omits `ActionText` projection — **cheap-disproof 2026-09-10 seed hunt #1640:** actions subquery selects `fra.ActionText`; regression `FollowUpBatch_recommended_actions_selects_action_text`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rules subquery omits `RuleText` projection — **cheap-disproof 2026-09-10 seed hunt #1640:** trace subquery selects `TOP 1 tra.RuleText`; regression `FollowUpBatch_trace_rules_selects_rule_text`.
+- [x] (valid-no-repro) Active waiver count ignores `FindingId` and counts tenant-wide exceptions — **cheap-disproof 2026-09-10 seed hunt #1640:** waiver subquery filters `FindingId = @FindingId`; regression `FollowUpBatch_waiver_count_filters_by_finding_id`.
+- [x] (valid-no-repro) `MainInspect*` inner-joins `AgentExecutionTraces` and drops inspect rows without trace rows — **cheap-disproof 2026-09-10 seed hunt #1640:** agent trace join is `LEFT JOIN`; regression `MainInspect_uses_left_join_for_agent_execution_traces`.
+- [x] (valid-no-repro) `ToUtcDateTimeOffset` throws on null database timestamps — **cheap-disproof 2026-09-10 seed hunt #1640:** null input returns null; regression `ToUtcDateTimeOffset_returns_null_for_null_input`.
+- [x] (valid-no-repro) `FilterNonBlankTrimmedStrings` returns whitespace entries when all values are blank — **cheap-disproof 2026-09-10 seed hunt #1640:** all-blank input yields empty list; regression `FilterNonBlankTrimmedStrings_returns_empty_when_all_values_are_blank`.
+- [x] (valid-no-repro) `EncodeRowVersionStampBase64` returns null for empty row-version stamp bytes — **cheap-disproof 2026-09-10 seed hunt #1640:** empty byte array encodes to empty string; regression `EncodeRowVersionStampBase64_returns_empty_string_for_empty_stamp`.
+- [x] (valid-no-repro) `ParseFindingSeverity` / `TryParseEvaluationConfidenceLevel` / `ParseDisposition` are case-sensitive for `Error` / `Low` / `Deferred` — **cheap-disproof 2026-09-10 seed hunt #1640:** mappers use `Enum.TryParse(..., ignoreCase: true)`; regressions `ParseFindingSeverity_parses_case_insensitive_error_value`, `TryParseEvaluationConfidenceLevel_parses_case_insensitive_low_value`, and `ParseDisposition_parses_case_insensitive_deferred_value`.
+
+2026-09-10 seed hunt #1640 (seed-only): reseeded finding-inspect-sql after #1639; extracted metadata-only typed-payload resolver; cheap-disproof closed includeTypedPayload routing, model/prompt SQL projections, snapshot join parity, follow-up text projections, waiver finding-id filter, agent-trace left join, UTC/null mapping edges, and additional case-insensitive enum parsing; 135 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

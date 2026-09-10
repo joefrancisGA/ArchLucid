@@ -97,6 +97,15 @@ internal static class FindingInspectReadRepositoryCore
         return BuildMetadataTypedPayload(title, rationale);
     }
 
+    public static JsonElement? ResolveTypedPayloadForInspectRead(
+        bool includeTypedPayload,
+        string? payloadJson,
+        string? title,
+        string? rationale) =>
+        includeTypedPayload
+            ? ResolveTypedPayloadForInspect(payloadJson, title, rationale)
+            : BuildMetadataTypedPayload(title, rationale);
+
     public static FindingInspectResponse BuildInspectResponse(
         string findingId,
         FindingSeverity severity,

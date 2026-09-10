@@ -138,4 +138,28 @@ public sealed class FindingInspectReadModelMapperTests
 
         actual.Should().Be(FindingSeverity.Warning);
     }
+
+    [Fact]
+    public void ParseFindingSeverity_parses_case_insensitive_error_value()
+    {
+        FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity("error");
+
+        actual.Should().Be(FindingSeverity.Error);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_parses_case_insensitive_low_value()
+    {
+        FindingConfidenceLevel? actual = FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("low");
+
+        actual.Should().Be(FindingConfidenceLevel.Low);
+    }
+
+    [Fact]
+    public void ParseDisposition_parses_case_insensitive_deferred_value()
+    {
+        FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition("deferred");
+
+        actual.Should().Be(FindingDisposition.Deferred);
+    }
 }

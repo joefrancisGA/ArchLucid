@@ -25,9 +25,11 @@ public sealed partial class DapperFindingInspectReadRepository
                 new FindingInspectEvidenceItem { ArtifactId = null, LineRange = null, Excerpt = n })
             .ToList();
 
-        JsonElement? typed = includeTypedPayload
-            ? FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(row.PayloadJson, row.Title, row.Rationale)
-            : FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(row.Title, row.Rationale);
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload,
+            row.PayloadJson,
+            row.Title,
+            row.Rationale);
         FindingSeverity recordSeverity = FindingInspectReadModelMapper.ParseFindingSeverity(row.Severity);
 
         return new FindingInspectResponse

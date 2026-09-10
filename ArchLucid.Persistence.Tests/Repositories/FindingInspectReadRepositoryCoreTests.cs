@@ -440,4 +440,36 @@ public sealed class FindingInspectReadRepositoryCoreTests
         ruleId.Should().BeNull();
         ruleName.Should().BeNull();
     }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspectRead_when_metadata_only_ignores_payload_json()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload: false,
+            payloadJson: """{"resourceId":"vm-1"}""",
+            title: "Encrypt at rest",
+            rationale: "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").GetString().Should().Be("Encrypt at rest");
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void ToUtcDateTimeOffset_returns_null_for_null_input()
+    {
+        FindingInspectReadRepositoryCore.ToUtcDateTimeOffset(null).Should().BeNull();
+    }
+
+    [Fact]
+    public void FilterNonBlankTrimmedStrings_returns_empty_when_all_values_are_blank()
+    {
+        FindingInspectReadRepositoryCore.FilterNonBlankTrimmedStrings(["", "   "]).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void EncodeRowVersionStampBase64_returns_empty_string_for_empty_stamp()
+    {
+        FindingInspectReadRepositoryCore.EncodeRowVersionStampBase64([]).Should().BeEmpty();
+    }
 }
