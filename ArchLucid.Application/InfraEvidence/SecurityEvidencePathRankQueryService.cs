@@ -1,6 +1,5 @@
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Contracts.InfraEvidence;
-using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -8,9 +7,10 @@ namespace ArchLucid.Application.InfraEvidence;
 
 public sealed class SecurityEvidencePathRankQueryService(
     ISecurityEvidencePathRepository pathRepository,
-    ISecurityEvidencePathRankRepository rankRepository) : ISecurityEvidencePathRankQueryService
+    ISecurityEvidencePathRankRepository rankRepository,
+    ISecurityEvidenceCutPointRepository cutPointRepository) : ISecurityEvidencePathRankQueryService
 {
-    public async Task<PagedResponse<SecurityEvidencePathRankSummaryResponse>> ListRankedPathsAsync(
+    public async Task<SecurityEvidencePathRankedPageResponse> ListRankedPathsAsync(
         ScopeContext scope,
         Guid? snapshotId,
         int page,
@@ -29,13 +29,31 @@ public sealed class SecurityEvidencePathRankQueryService(
                 pageSize,
                 cancellationToken);
 
+        IReadOnlyList<SecurityEvidenceCutPointRecord> topCutPoints = [];
+
+        if (snapshotId is not null && snapshotId != Guid.Empty)
+        {
+            topCutPoints = await cutPointRepository.ListBySnapshotAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                snapshotId.Value,
+                cancellationToken);
+        }
+
         if (ranks.Count == 0)
         {
-            return PagedResponseBuilder.FromDatabasePage<SecurityEvidencePathRankSummaryResponse>(
-                [],
-                totalCount,
-                page,
-                pageSize);
+            return new SecurityEvidencePathRankedPageResponse
+            {
+                Items = [],
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TopCutPoints = topCutPoints
+                    .Take(10)
+                    .Select(SecurityEvidenceCutPointResponseMapper.MapSummary)
+                    .ToList(),
+            };
         }
 
         Dictionary<Guid, SecurityEvidencePathRecord> pathHeaders = [];
@@ -58,12 +76,33 @@ public sealed class SecurityEvidencePathRankQueryService(
             }
         }
 
-        IReadOnlyList<SecurityEvidencePathRankSummaryResponse> summaries = ranks
-            .Where(rank => pathHeaders.ContainsKey(rank.PathId))
-            .Select(rank => MapSummary(rank, pathHeaders[rank.PathId]))
-            .ToList();
+        List<SecurityEvidencePathRankSummaryResponse> summaries = [];
 
-        return PagedResponseBuilder.FromDatabasePage(summaries, totalCount, page, pageSize);
+        foreach (SecurityEvidencePathRankRecord rank in ranks)
+        {
+
+            if (!pathHeaders.TryGetValue(rank.PathId, out SecurityEvidencePathRecord? path))
+            {
+                continue;
+            }
+
+            IReadOnlyList<SecurityEvidenceCutPointRecord> relatedCutPoints =
+                await cutPointRepository.ListByPathIdAsync(scope.TenantId, rank.PathId, cancellationToken);
+
+            summaries.Add(MapSummary(rank, path, relatedCutPoints));
+        }
+
+        return new SecurityEvidencePathRankedPageResponse
+        {
+            Items = summaries,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TopCutPoints = topCutPoints
+                .Take(10)
+                .Select(SecurityEvidenceCutPointResponseMapper.MapSummary)
+                .ToList(),
+        };
     }
 
     public async Task<SecurityEvidencePathRankDetailResponse?> TryGetPathRankAsync(
@@ -129,7 +168,8 @@ public sealed class SecurityEvidencePathRankQueryService(
 
     private static SecurityEvidencePathRankSummaryResponse MapSummary(
         SecurityEvidencePathRankRecord rank,
-        SecurityEvidencePathRecord path) =>
+        SecurityEvidencePathRecord path,
+        IReadOnlyList<SecurityEvidenceCutPointRecord> relatedCutPoints) =>
         new()
         {
             PathId = rank.PathId,
@@ -146,5 +186,8 @@ public sealed class SecurityEvidencePathRankQueryService(
             PathKind = path.PathKind.ToString(),
             PathConfidenceBand = path.PathConfidenceBand.ToString(),
             ComputedUtc = rank.ComputedUtc,
+            RelatedCutPoints = relatedCutPoints
+                .Select(SecurityEvidenceCutPointResponseMapper.MapSummary)
+                .ToList(),
         };
 }

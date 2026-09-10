@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public interface ISecurityEvidencePathRankQueryService
 {
-    Task<PagedResponse<SecurityEvidencePathRankSummaryResponse>> ListRankedPathsAsync(
+    Task<SecurityEvidencePathRankedPageResponse> ListRankedPathsAsync(
         ScopeContext scope,
         Guid? snapshotId,
         int page,

@@ -22,7 +22,8 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
     IToxicCombinationEngine toxicCombinationEngine,
     ICapabilityToFlowEngine capabilityToFlowEngine,
     ISharedControlBlastRadiusEngine sharedControlBlastRadiusEngine,
-    IPathRankingEngine pathRankingEngine) : IAzureInventorySnapshotPostMaterializeCoordinator
+    IPathRankingEngine pathRankingEngine,
+    ICutPointAnalysisEngine cutPointAnalysisEngine) : IAzureInventorySnapshotPostMaterializeCoordinator
 {
     public async Task OnSnapshotMaterializedAsync(
         ScopeContext scope,
@@ -81,6 +82,12 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
             cancellationToken);
 
         await pathRankingEngine.RunAsync(
+            scope,
+            snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            cancellationToken);
+
+        await cutPointAnalysisEngine.RunAsync(
             scope,
             snapshotId,
             SecureNowArchitectConstants.SystemActorId,

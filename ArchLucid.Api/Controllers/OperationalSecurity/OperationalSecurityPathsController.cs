@@ -61,7 +61,7 @@ public sealed class OperationalSecurityPathsController(
     }
 
     [HttpGet("ranked")]
-    [ProducesResponseType(typeof(PagedResponse<SecurityEvidencePathRankSummaryResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(SecurityEvidencePathRankedPageResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListRankedPaths(
         [FromQuery] Guid? snapshotId,
         [FromQuery] int page = PaginationDefaults.DefaultPage,
@@ -77,7 +77,7 @@ public sealed class OperationalSecurityPathsController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        PagedResponse<SecurityEvidencePathRankSummaryResponse> response = await pathRankQueryService.ListRankedPathsAsync(
+        SecurityEvidencePathRankedPageResponse response = await pathRankQueryService.ListRankedPathsAsync(
             scope,
             snapshotId,
             page,

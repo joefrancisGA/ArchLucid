@@ -85,6 +85,12 @@ public sealed class SecurityEvidencePathRankSummaryResponse
         get;
         init;
     }
+
+    public IReadOnlyList<SecurityEvidenceCutPointSummaryResponse> RelatedCutPoints
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class SecurityEvidencePathRankDetailResponse
