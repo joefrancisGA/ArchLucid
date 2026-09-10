@@ -69,6 +69,35 @@ public sealed class GoldenCorpusProductCitationTests
     }
 
     [Fact]
+    public async Task Case34_declaration_premise_conflict_has_concrete_citation()
+    {
+        GraphSnapshot graph = await LoadGraphAsync("case-34");
+        DeclarationPremiseConflictFindingEngine sut = new(
+            new FixedComplianceRulePackProvider(CreateFailOpenPolicyPack()));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        IReadOnlyList<Finding> premiseFindings = findings
+            .Where(finding => string.Equals(finding.EngineType, "declaration-premise-conflict", StringComparison.Ordinal))
+            .ToList();
+
+        premiseFindings.Should().NotBeEmpty();
+        AssertAllHaveConcreteCitation(premiseFindings);
+    }
+
+    [Fact]
+    public async Task Case41_dangling_declaration_reference_has_concrete_citation()
+    {
+        GraphSnapshot graph = await LoadGraphAsync("case-41");
+        DanglingDeclarationReferenceFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().NotBeEmpty();
+        AssertAllHaveConcreteCitation(findings);
+    }
+
+    [Fact]
     public async Task Case47_data_flow_trust_boundary_has_concrete_citation()
     {
         GraphSnapshot graph = await LoadGraphAsync("case-47");
