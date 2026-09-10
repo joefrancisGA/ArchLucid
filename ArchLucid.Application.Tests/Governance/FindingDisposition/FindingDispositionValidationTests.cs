@@ -393,4 +393,19 @@ public sealed class FindingDispositionValidationTests
 
         act.Should().Throw<ArgumentException>().WithMessage("*Impact preview attestation*");
     }
+
+    [Fact]
+    public void Validate_working_remediated_rejects_zero_width_space_only_preview_override_reason()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Remediated,
+            PreviewOverrideReason = new string('\u200B', FindingDispositionValidation.MinimumRationaleLength),
+        };
+
+        Action act = () => FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation(request, true);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Impact preview override reason*");
+    }
 }
