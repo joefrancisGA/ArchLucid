@@ -619,11 +619,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 12
-- **bugs-found:** 10
+- **hunts:** 13
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — `@` host-smuggling check rejected safe return paths with `@` in query or fragment
+- **last-bug:** 2026-09-10 — set-minus and additional slash-operator homoglyphs evaded `IsSlashHomoglyph`
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -850,6 +850,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TryNormalizeRelativePath` rejects any `@` in the full return path including query/fragment, blocking legitimate in-app URLs like `/reviews?notify=user@example.com` — **hit 2026-09-10 seed hunt #1522 (seed→hit):** `@` host-smuggling guard now scopes to `GetPathWithoutQueryOrFragment`; regression `TryNormalize_accepts_at_sign_in_query_or_fragment_not_path`; path smuggling regressions unchanged in `TryNormalize_rejects_open_redirect_shapes`
 
 2026-09-10 seed hunt #1522 (hit): reseeded auth-return-path; proved `@`-in-query false reject; 44 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (proven) Set-minus and additional slash-operator homoglyphs bypass `IsSlashHomoglyph` — **hit 2026-09-10 seed hunt #1531 (seed→hit):** SET MINUS (`∖`, `%E2%88%96`), REVERSE SOLIDUS WITH TICK (`⧷`, `%E2%A7%B7`), and DOUBLE SOLIDUS OPERATOR (`⫽`, `%E2%AB%BD`) evaded protocol-relative checks; fixed by extending `IsSlashHomoglyph`; regression in `TryNormalize_rejects_more_unicode_slash_homoglyph_protocol_relative_paths`
+
+2026-09-10 seed hunt #1531 (hit): reseeded auth-return-path; proved additional Unicode slash homoglyph bypass; 50 scoped AuthSignInReturnPathGuard tests passed.
 
 ## Zone: tenant-erasure
 
