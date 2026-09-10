@@ -8999,11 +8999,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 17
-- **bugs-found:** 28
+- **hunts:** 18
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — trial/commit admin mailbox trim-only bypassed IdentityEmailNormalizer
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — ExecDigest padded ISO week idempotency key bypassed weekly ledger
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -9066,6 +9066,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-05 thorough hunt #795 (hit): proved admin-mailbox normalization gap; cheap-disproved unsubscribe idempotency as intentional.
 
 2026-09-04 seed hunt #754: reseeded notifications-pipeline after #660; proved trial expired-email race between lifecycle advancement and email dispatch/scan; seeded unsubscribe idempotency and admin-mailbox normalization candidates.
+
+- [x] (proven) `ExecDigestEmailDispatcher.TryDispatchAsync` — padded `isoWeekIdempotencyKey` built a distinct weekly ledger scope from the trimmed key used by sibling weekly dispatchers — **hit 2026-09-10 seed hunt #1614:** whitespace-padded ISO week keys could send duplicate exec digest emails in the same week; fixed with `normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim()`; regression `ExecDigestEmailDispatcher_padded_iso_week_idempotency_key_does_not_duplicate_weekly_send`
+
+2026-09-10 seed hunt #1614 (hit): reseeded notifications-pipeline after sponsor ISO-week trim fixes; proved ExecDigest padded-key duplicate-send gap; 111 scoped Application notifications tests passed.
 
 ## Zone: artifact-synthesis
 
