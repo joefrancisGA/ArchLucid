@@ -82,11 +82,11 @@ public sealed partial class ArchitectureDiagramVisionIngestController(
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not configured", StringComparison.OrdinalIgnoreCase))
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDiagramVisionIngestSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

@@ -1,3 +1,4 @@
+import { runSummaryExportMutationBlockedReason } from "@/lib/runs/run-summary-export-mutation-blocked-reason";
 import { getRunSummaryExportUrl } from "./downloads-blob-urls";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
@@ -7,5 +8,6 @@ export async function downloadRunSummaryExport(runId: string): Promise<void> {
     accept: "text/markdown, application/json",
     defaultFileName: `sponsor-summary-${runId}.md`,
     expectedContentTypePrefixes: ["text/markdown"],
+    resolveBlockedReason: runSummaryExportMutationBlockedReason,
   });
 }

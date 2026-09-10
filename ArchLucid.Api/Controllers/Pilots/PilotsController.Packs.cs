@@ -36,13 +36,7 @@ public sealed partial class PilotsController
         }
         catch (ConflictException ex)
         {
-            string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
-                ? ProblemTypes.DecisionReceiptSealedHashMismatch
-                : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
-                    ? ProblemTypes.DecisionReceiptSealedIncomplete
-                    : ProblemTypes.Conflict;
-
-            return this.ConflictProblem(ex.Message, problemType);
+            return MapPilotPackSealedManifestConflict(ex);
         }
     }
 
@@ -79,13 +73,7 @@ public sealed partial class PilotsController
         }
         catch (ConflictException ex)
         {
-            string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
-                ? ProblemTypes.DecisionReceiptSealedHashMismatch
-                : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
-                    ? ProblemTypes.DecisionReceiptSealedIncomplete
-                    : ProblemTypes.Conflict;
-
-            return this.ConflictProblem(ex.Message, problemType);
+            return MapPilotPackSealedManifestConflict(ex);
         }
     }
 
@@ -113,13 +101,7 @@ public sealed partial class PilotsController
         }
         catch (ConflictException ex)
         {
-            string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
-                ? ProblemTypes.DecisionReceiptSealedHashMismatch
-                : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
-                    ? ProblemTypes.DecisionReceiptSealedIncomplete
-                    : ProblemTypes.Conflict;
-
-            return this.ConflictProblem(ex.Message, problemType);
+            return MapPilotPackSealedManifestConflict(ex);
         }
     }
 
@@ -154,13 +136,7 @@ public sealed partial class PilotsController
         }
         catch (ConflictException ex)
         {
-            string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
-                ? ProblemTypes.DecisionReceiptSealedHashMismatch
-                : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
-                    ? ProblemTypes.DecisionReceiptSealedIncomplete
-                    : ProblemTypes.Conflict;
-
-            return this.ConflictProblem(ex.Message, problemType);
+            return MapPilotPackSealedManifestConflict(ex);
         }
     }
 
@@ -267,13 +243,7 @@ public sealed partial class PilotsController
         }
         catch (ConflictException ex)
         {
-            string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
-                ? ProblemTypes.DecisionReceiptSealedHashMismatch
-                : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
-                    ? ProblemTypes.DecisionReceiptSealedIncomplete
-                    : ProblemTypes.Conflict;
-
-            return this.ConflictProblem(ex.Message, problemType);
+            return MapPilotPackSealedManifestConflict(ex);
         }
     }
 }
