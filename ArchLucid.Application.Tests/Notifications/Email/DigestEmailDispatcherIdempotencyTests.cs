@@ -744,6 +744,67 @@ public sealed class DigestEmailDispatcherIdempotencyTests
     }
 
     [Fact]
+    public async Task ExecDigestEmailDispatcher_padded_iso_week_idempotency_key_does_not_duplicate_weekly_send()
+    {
+        InMemorySentEmailLedger ledger = new();
+        List<EmailMessage> sentMessages = [];
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessages.Add(message))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>digest</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("digest");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        ExecDigestEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<ExecDigestEmailDispatcher>.Instance);
+
+        Guid tenantId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        const string isoWeek = "2026-W24";
+        ExecDigestComposition composition = new(
+            WeekLabel: "W24",
+            ComplianceDriftMarkdown: null,
+            CommittedManifestsInWeek: null,
+            TopManifestRuns: [],
+            FindingsDeltaSummary: null,
+            DashboardUrl: "https://example.test/d",
+            SponsorValueReportUrl: "https://example.test/sponsor",
+            LatestCommittedRunIdHex: null);
+
+        bool firstAttempt = await sut.TryDispatchAsync(
+            tenantId,
+            isoWeek,
+            composition,
+            ["exec@example.test"],
+            "https://example.test/unsub",
+            CancellationToken.None);
+
+        bool secondAttempt = await sut.TryDispatchAsync(
+            tenantId,
+            $"  {isoWeek}  ",
+            composition,
+            ["exec@example.test"],
+            "https://example.test/unsub",
+            CancellationToken.None);
+
+        firstAttempt.Should().BeTrue();
+        secondAttempt.Should().BeTrue("padded ISO week keys must resolve to the same weekly ledger idempotency scope");
+        sentMessages.Should().HaveCount(1, "whitespace-padded ISO week keys must not send duplicate weekly exec digest emails");
+    }
+
+    [Fact]
     public async Task WeeklySponsorReportEmailDispatcher_padded_iso_week_idempotency_key_does_not_duplicate_weekly_send()
     {
         InMemorySentEmailLedger ledger = new();
