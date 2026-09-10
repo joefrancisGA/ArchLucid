@@ -1767,3 +1767,4 @@
 {"at":"2026-09-10T05:27:42.7032055Z","zoneId":"cli-tenant-isolation","outcome":"seed-only"}
 {"at":"2026-09-10T05:31:45.3335684Z","zoneId":"alert-simulation","outcome":"seed-only"}
 {"at":"2026-09-10T05:35:23.2371464Z","zoneId":"tenant-settings-sql","outcome":"seed-only"}
+{"at":"2026-09-10T05:38:52.9182040Z","zoneId":"commit-output-integrity","outcome":"dry"}
