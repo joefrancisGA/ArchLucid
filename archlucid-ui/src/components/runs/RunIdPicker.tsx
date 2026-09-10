@@ -34,6 +34,8 @@ type RunIdPickerProps = {
   useBuyerFacingRunLabels?: boolean;
   /** Invoked when the user picks a row from the list (not on every keystroke). */
   onRunPicked?: (summary: RunSummary) => void;
+  /** When set, limits picker rows to reviews of this architecture (AO-29). */
+  architectureId?: string;
   /** When true, focus the combo input on mount (operator list vs compare-entry ergonomics). */
   autoFocus?: boolean;
 };
@@ -55,6 +57,7 @@ export function RunIdPicker({
   preferAutoPick = true,
   useBuyerFacingRunLabels = false,
   onRunPicked,
+  architectureId,
   autoFocus = false,
 }: RunIdPickerProps) {
   const picker = useRunIdPicker({
@@ -68,6 +71,7 @@ export function RunIdPicker({
     preferAutoPick,
     useBuyerFacingRunLabels,
     onRunPicked,
+    architectureId,
   });
 
   const popupContainerClass =

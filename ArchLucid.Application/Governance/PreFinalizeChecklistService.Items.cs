@@ -1,12 +1,16 @@
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Options;
+
+using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
 
 namespace ArchLucid.Application.Governance;
 
@@ -60,8 +64,13 @@ public sealed partial class PreFinalizeChecklistService
         };
     }
 
-    private PreFinalizeChecklistItem BuildEvidenceLinkageItem(string runId, IReadOnlyList<Finding> findings)
+    private PreFinalizeChecklistItem BuildEvidenceLinkageItem(
+        string runId,
+        IReadOnlyList<Finding> findings,
+        IReadOnlyDictionary<string, Disposition> latestDispositionsByFindingId)
     {
+        ArgumentNullException.ThrowIfNull(latestDispositionsByFindingId);
+
         FindingEvidenceLinkageFindingEngineOptions options = _findingEvidenceLinkageFindingEngineOptions.Value;
 
         if (!options.Enabled)
@@ -76,7 +85,21 @@ public sealed partial class PreFinalizeChecklistService
             };
         }
 
-        int linkageGapCount = _findingEvidenceLinkageFindingEngine.Evaluate(runId, findings)?.Count ?? 0;
+        IReadOnlyList<Finding> activeHighSeverityFindings = findings
+            .Where(finding =>
+                (finding.Severity == FindingSeverity.Critical
+                    && PreFinalizeActiveFindingCounter.IsActiveForChecklist(
+                        finding,
+                        FindingSeverity.Critical,
+                        latestDispositionsByFindingId))
+                || (finding.Severity == FindingSeverity.Error
+                    && PreFinalizeActiveFindingCounter.IsActiveForChecklist(
+                        finding,
+                        FindingSeverity.Error,
+                        latestDispositionsByFindingId)))
+            .ToList();
+
+        int linkageGapCount = _findingEvidenceLinkageFindingEngine.Evaluate(runId, activeHighSeverityFindings)?.Count ?? 0;
 
         return new PreFinalizeChecklistItem
         {
@@ -139,8 +162,68 @@ public sealed partial class PreFinalizeChecklistService
         };
     }
 
-    private static PreFinalizeChecklistItem BuildPreCommitGateItem(PreCommitGateResult gateResult)
+    private PreFinalizeChecklistItem BuildUnsupportedSemanticSupportHoldItem(
+        RunRecord run,
+        IReadOnlyList<Finding> findings)
     {
+        AgentOutputQualityGateOptions options = _qualityGateOptionsResolver?.Resolve(CancellationToken.None)
+            ?? new AgentOutputQualityGateOptions();
+
+        if (!UnsupportedSemanticSupportFinalizeHoldEvaluator.Applies(run.StructuralExecutionMode, options))
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "unsupported-semantic-support-hold",
+                Title = "Unsupported semantic support hold",
+                Detail = options.PilotStrictHoldOnUnsupportedSemanticSupport
+                    ? "PilotStrict Unsupported hold is enabled but this run is not Working Real PilotStrict."
+                    : "Unsupported semantic support does not block finalize by default (TB-1228).",
+                Status = PreFinalizeChecklistItemStatus.Clear,
+                Count = 0,
+            };
+        }
+
+        int unsupportedCount = UnsupportedSemanticSupportFinalizeHoldEvaluator.CountUnsupportedDecisionGradeFindings(findings);
+
+        if (unsupportedCount == 0)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "unsupported-semantic-support-hold",
+                Title = "Unsupported semantic support hold",
+                Detail = "No Unsupported decision-grade semantic support bands on this package.",
+                Status = PreFinalizeChecklistItemStatus.Clear,
+                Count = 0,
+            };
+        }
+
+        return new PreFinalizeChecklistItem
+        {
+            ItemId = "unsupported-semantic-support-hold",
+            Title = "Unsupported semantic support hold",
+            Detail =
+                $"{unsupportedCount} decision-grade finding{(unsupportedCount == 1 ? "" : "s")} have Unsupported semantic support — finalize is held under PilotStrict opt-in (TB-1228).",
+            Status = PreFinalizeChecklistItemStatus.Blocking,
+            Count = unsupportedCount,
+        };
+    }
+
+    private static PreFinalizeChecklistItem BuildPreCommitGateItem(
+        PreCommitGateResult gateResult,
+        bool preCommitGateEnabled)
+    {
+        if (!preCommitGateEnabled)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "pre-commit-gate",
+                Title = PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerTitle,
+                Detail = PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerMessage,
+                Status = PreFinalizeChecklistItemStatus.Blocking,
+                Count = 1,
+            };
+        }
+
         if (gateResult.Blocked)
         {
             return new PreFinalizeChecklistItem

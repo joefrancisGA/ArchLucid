@@ -12,7 +12,11 @@ import {
 } from "@/lib/oidc/session";
 import {
   OIDC_ACCESS_TOKEN_KEY,
+  OIDC_DISPLAY_NAME_KEY,
   OIDC_EXPIRES_AT_MS_KEY,
+  OIDC_ID_TOKEN_KEY,
+  OIDC_REFRESH_TOKEN_KEY,
+  OIDC_USER_SUBJECT_KEY,
 } from "@/lib/oidc/storage-keys";
 
 describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
@@ -62,13 +66,21 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
   });
 });
 
-describe("getAccessTokenForApi / isLikelySignedIn expiry parsing", () => {
+describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", () => {
   afterEach(() => {
     sessionStorage.clear();
   });
 
+  it("never exposes access tokens from sessionStorage after sign-in", () => {
+    persistTokenResponse({ access_token: "tok", expires_in: 3600 });
+
+    expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_REFRESH_TOKEN_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_ID_TOKEN_KEY)).toBeNull();
+    expect(getAccessTokenForApi()).toBeUndefined();
+  });
+
   it("treats a non-numeric expires_at as expired instead of bypassing skew checks", () => {
-    sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, "stale-access");
     sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, "not-a-number");
 
     expect(getAccessTokenForApi()).toBeUndefined();
@@ -89,7 +101,8 @@ describe("persistTokenResponse", () => {
     expect(Number.isFinite(expiresAtMs)).toBe(true);
     expect(expiresAtMs).toBeGreaterThan(Date.now());
     expect(isLikelySignedIn()).toBe(true);
-    expect(getAccessTokenForApi()).toBe("tok");
+    expect(getAccessTokenForApi()).toBeUndefined();
+    expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
   });
 
   it("honors zero expires_in so callers refresh immediately", () => {
@@ -119,6 +132,21 @@ describe("persistTokenResponse", () => {
     expect(expiresAtMs).toBeGreaterThanOrEqual(expectedMin);
     expect(expiresAtMs).toBeLessThanOrEqual(expectedMax);
     expect(isLikelySignedIn()).toBe(true);
+    expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
+  });
+
+  it("stores non-sensitive display name and subject hints from JWT claims", () => {
+    const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+    const payload = Buffer.from(
+      JSON.stringify({ sub: "user-123", name: "Jane Operator", exp: Math.floor(Date.now() / 1000) + 3600 }),
+    ).toString("base64url");
+    const accessToken = `${header}.${payload}.sig`;
+
+    persistTokenResponse({ access_token: accessToken, expires_in: 3600 });
+
+    expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBe("Jane Operator");
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("user-123");
+    expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
   });
 });
 

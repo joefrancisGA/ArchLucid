@@ -1,16 +1,22 @@
 "use client";
 
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { ArchitectureDraftDetailClaimOrientationStrip } from "./ArchitectureDraftDetailClaimOrientationStrip";
 
-/** Guided eval chrome: mount claim discipline + Sources on saved draft detail (CA-47). */
+/** Guided eval chrome: mount Sources orientation above the draft workspace body (ARR). */
 export function ArchitectureDraftDetailBuyerChrome(): React.JSX.Element | null {
   const evalChromeShell = useProductionEvalChrome();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
-  if (!evalChromeShell) {
+  if (!evalChromeShell && !buyerPolishedShell) {
     return null;
   }
 
-  return <ArchitectureDraftDetailClaimOrientationStrip />;
+  return (
+    <div data-testid="architecture-draft-detail-orientation-top">
+      <ArchitectureDraftDetailClaimOrientationStrip />
+    </div>
+  );
 }

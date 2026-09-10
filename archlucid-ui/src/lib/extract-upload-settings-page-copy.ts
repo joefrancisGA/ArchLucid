@@ -2,7 +2,9 @@ import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
-export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE = "Extract & Upload" as const;
+export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE = "Extract & upload" as const;
+
+export const EXTRACT_UPLOAD_SETTINGS_PAGE_LOADING_SUBTITLE = "Loading extract and upload workspace…" as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE =
   "Run the read-only cloud inventory script locally for your provider, validate the ZIP, then upload it for architecture reviews." as const;
@@ -11,6 +13,12 @@ export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_BUYER =
   "Collect a read-only cloud inventory ZIP locally (Azure, AWS, or Google Cloud), validate it, and upload it to start architecture reviews." as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID = "extract-upload-settings-primary-content" as const;
+
+export const EXTRACT_UPLOAD_SETTINGS_FIRST_VIEWPORT_ID = "extract-upload-settings-first-viewport" as const;
+
+export const EXTRACT_UPLOAD_SETTINGS_FIRST_VIEWPORT_TEST_ID = EXTRACT_UPLOAD_SETTINGS_FIRST_VIEWPORT_ID;
+
+export const EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID = EXTRACT_UPLOAD_SETTINGS_FIRST_VIEWPORT_ID;
 
 export const EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL = "Skip to extract and upload workspace" as const;
 
@@ -39,17 +47,6 @@ export const EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX = "Extractor scrip
 export const EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL = "Evidence graph" as const;
 
 export const EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF = EVIDENCE_GRAPH_PATH;
-
-export const EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY = "Validate before upload (CLI)" as const;
-
-export const EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND =
-  "archlucid azure validate-zip --path <your-package.zip>" as const;
-
-export const EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND =
-  "archlucid aws validate-zip --path <your-package.zip>" as const;
-
-export const EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND =
-  "archlucid gcp validate-zip --path <your-package.zip>" as const;
 
 export const EXTRACT_UPLOAD_DEMO_ASIDE_TITLE = "Try demo data" as const;
 

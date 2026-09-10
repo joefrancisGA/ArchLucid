@@ -4,7 +4,7 @@ import { HelpTroubleshootingClaimOrientationStrip } from "@/app/(operator)/help/
 import { HelpTroubleshootingHeaderActions } from "@/app/(operator)/help/_sections/HelpTroubleshootingHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTroubleshootingAdvancedDiagnostics } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnostics";
-import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
+import { HelpTroubleshootingAdvancedDiagnosticsDisclosure } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnosticsDisclosure";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -242,10 +242,8 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
               </p>
             </section>
 
-            <HelpLazyDetails
-              id="advanced-diagnostics"
+            <HelpTroubleshootingAdvancedDiagnosticsDisclosure
               className={cn(HELP_PAGE_LAYOUT.details, OPERATOR_SHELL_SCROLL_OFFSET_CLASS)}
-              data-testid="troubleshooting-advanced-diagnostics"
               summaryClassName={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}
               summary="Advanced diagnostics"
               bodyClassName={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-4")}
@@ -255,7 +253,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
                 and decision tree above.
               </p>
               <HelpTroubleshootingAdvancedDiagnostics />
-            </HelpLazyDetails>
+            </HelpTroubleshootingAdvancedDiagnosticsDisclosure>
 
             <EvidenceOrientationMetaLine
               testId="troubleshooting-help-freshness"

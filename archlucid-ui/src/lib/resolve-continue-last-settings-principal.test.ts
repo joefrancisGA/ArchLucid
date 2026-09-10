@@ -42,4 +42,9 @@ describe("resolveContinueLastSettingsPrincipal", () => {
     expect(match?.principalId).toBe("u1");
     expect(match?.name).toBe("Ada");
   });
+
+  it("returns null when rows is not an array", () => {
+    expect(resolveContinueLastSettingsPrincipal(null)).toBeNull();
+    expect(resolveContinueLastSettingsPrincipal(undefined)).toBeNull();
+  });
 });

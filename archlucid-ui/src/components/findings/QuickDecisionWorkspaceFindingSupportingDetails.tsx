@@ -18,6 +18,10 @@ import {
   parseWorkspaceIntegrationsFindingIdFromSearch,
   workspaceIntegrationsDisclosureHrefFromSearch,
 } from "@/lib/findings/workspace-integrations-disclosure-url";
+import {
+  parseQuickDecisionSupportingDetailFindingIdFromSearch,
+  quickDecisionSupportingDetailDisclosureHrefFromSearch,
+} from "@/lib/findings/quick-decision-supporting-detail-disclosure-url";
 import { cn } from "@/lib/utils";
 
 /** Architecture-creation context needed by the provider-neutral work-item affordance. */
@@ -51,11 +55,17 @@ export function QuickDecisionWorkspaceFindingSupportingDetails(
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const workspaceIntegrationsFindingIdParam = searchParams.get("workspaceIntegrationsFindingId");
+  const quickDecisionSupportingDetailFindingIdParam = searchParams.get("quickDecisionSupportingDetailFindingId");
   const context = props.context;
   const finding = props.finding;
   // ITSM correlations are only fetched once the operator opens the disclosure.
   const [integrationsOpen, setIntegrationsOpenState] = useState(
     () => parseWorkspaceIntegrationsFindingIdFromSearch(workspaceIntegrationsFindingIdParam) === finding.findingId,
+  );
+  const [supportingDetailOpen, setSupportingDetailOpenState] = useState(
+    () =>
+      parseQuickDecisionSupportingDetailFindingIdFromSearch(quickDecisionSupportingDetailFindingIdParam) ===
+      finding.findingId,
   );
   const citationModel = buildFindingPolicyEvidenceCitationsFromQuickDecision(context.runId, finding);
 
@@ -81,11 +91,40 @@ export function QuickDecisionWorkspaceFindingSupportingDetails(
     [syncIntegrationsOpenToUrl],
   );
 
+  const syncSupportingDetailOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        quickDecisionSupportingDetailDisclosureHrefFromSearch(
+          searchParams.toString(),
+          open ? finding.findingId : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [finding.findingId, pathname, router, searchParams],
+  );
+
+  const setSupportingDetailOpen = useCallback(
+    (open: boolean) => {
+      setSupportingDetailOpenState(open);
+      syncSupportingDetailOpenToUrl(open);
+    },
+    [syncSupportingDetailOpenToUrl],
+  );
+
   useEffect(() => {
     setIntegrationsOpenState(
       parseWorkspaceIntegrationsFindingIdFromSearch(workspaceIntegrationsFindingIdParam) === finding.findingId,
     );
   }, [finding.findingId, workspaceIntegrationsFindingIdParam]);
+
+  useEffect(() => {
+    setSupportingDetailOpenState(
+      parseQuickDecisionSupportingDetailFindingIdFromSearch(quickDecisionSupportingDetailFindingIdParam) ===
+        finding.findingId,
+    );
+  }, [finding.findingId, quickDecisionSupportingDetailFindingIdParam]);
 
   function renderIntegrations(): ReactElement | null {
     if (context.packageCommitted === false) {
@@ -96,6 +135,7 @@ export function QuickDecisionWorkspaceFindingSupportingDetails(
       <details
         className="rounded-md border border-neutral-200 p-2 dark:border-neutral-800"
         data-workspace-disclosure
+        open={integrationsOpen}
         onToggle={(event) => {
           setIntegrationsOpen(event.currentTarget.open);
         }}
@@ -141,6 +181,10 @@ export function QuickDecisionWorkspaceFindingSupportingDetails(
       className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/50 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
       data-workspace-disclosure
       data-testid={`finding-workspace-supporting-${finding.findingId}`}
+      open={supportingDetailOpen}
+      onToggle={(event) => {
+        setSupportingDetailOpen(event.currentTarget.open);
+      }}
     >
       <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         Supporting detail

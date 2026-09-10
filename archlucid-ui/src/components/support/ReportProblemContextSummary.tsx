@@ -1,4 +1,8 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReportProblemContext } from "@/lib/report-problem-context";
@@ -18,6 +22,11 @@ import {
   REPORT_PROBLEM_FIELD_LABEL_WORKSPACE,
   REPORT_PROBLEM_SUMMARY_TITLE,
 } from "@/lib/report-problem-copy";
+import {
+  REPORT_PROBLEM_DETAILS_OPEN_PARAM,
+  parseReportProblemDetailsOpenFromSearch,
+  reportProblemDetailsDisclosureHrefFromSearch,
+} from "@/lib/support/report-problem-details-disclosure-url";
 
 import {
   formatOptionalField,
@@ -28,9 +37,35 @@ import {
 } from "./report-problem-formatters";
 
 export function ReportProblemContextSummary(props: { readonly context: ReportProblemContext }): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const reportProblemDetailsParam = searchParams.get(REPORT_PROBLEM_DETAILS_OPEN_PARAM);
+  const [reportProblemDetailsOpen, setReportProblemDetailsOpenState] = useState(() =>
+    parseReportProblemDetailsOpenFromSearch(reportProblemDetailsParam),
+  );
+  const syncReportProblemDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(reportProblemDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+  const setReportProblemDetailsOpen = useCallback(
+    (open: boolean) => {
+      setReportProblemDetailsOpenState(open);
+      syncReportProblemDetailsOpenToUrl(open);
+    },
+    [syncReportProblemDetailsOpenToUrl],
+  );
   const { context } = props;
   const referenceId = resolveReportProblemReferenceId(context);
   const showMismatchHint = hasApiUiCommitMismatch(context);
+
+  useEffect(() => {
+    setReportProblemDetailsOpenState(parseReportProblemDetailsOpenFromSearch(reportProblemDetailsParam));
+  }, [reportProblemDetailsParam]);
 
   return (
     <div
@@ -86,7 +121,11 @@ export function ReportProblemContextSummary(props: { readonly context: ReportPro
           {REPORT_PROBLEM_API_UI_MISMATCH_HINT}
         </p>
       ) : null}
-      <details className="rounded-md border border-neutral-200 bg-white p-2 dark:border-neutral-800 dark:bg-neutral-950">
+      <details
+        className="rounded-md border border-neutral-200 bg-white p-2 dark:border-neutral-800 dark:bg-neutral-950"
+        open={reportProblemDetailsOpen}
+        onToggle={(event) => setReportProblemDetailsOpen(event.currentTarget.open)}
+      >
         <summary
           className={cn("cursor-pointer font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="report-problem-details-summary"

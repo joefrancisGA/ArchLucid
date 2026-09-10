@@ -131,4 +131,22 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
 
     expect(summary.governedCoverageLabel).toBe("0 of 5 evidence-backed (n/a)");
   });
+
+  it("uses governed vocabulary when asserted transparency trail is empty (FC-13)", () => {
+    const summary = buildRunDetailFirstScreenProofSummary(
+      {
+        governedFindingCoverage: {
+          isAvailable: true,
+          governedCount: 8,
+          totalDecisionGradeCount: 10,
+          governedPercentage: 80.0,
+          advisoryCount: 2,
+        },
+      },
+      { assertedTrailEmpty: true },
+    );
+
+    expect(summary.governedCoverageLabel).toBe("8 of 10 governed (80.0%)");
+    expect(summary.governedCoverageLabel).not.toContain("evidence-backed");
+  });
 });

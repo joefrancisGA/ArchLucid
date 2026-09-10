@@ -55,6 +55,34 @@ describe("GraphLoadedExperience (LD-14)", () => {
     expect(screen.queryByTestId("graph-interactive-canvas")).toBeNull();
   });
 
+  it("shows PNG export disclaimer near export controls", () => {
+    render(
+      <GraphLoadedExperience
+        buyerPolishedShell={false}
+        graphMainColumnMaxClass="max-w-5xl"
+        graph={graph}
+        demoUi={false}
+        graphSurfaceKey="review-001-1-0"
+        typeFilter=""
+        onTypeFilterChange={vi.fn()}
+        nodeTypes={["Decision"]}
+        runId="review-001"
+        mode="provenance-full"
+        onModeChange={vi.fn()}
+        loading={false}
+        graphInteractiveReady
+        onGraphInteractiveSurfaceReady={vi.fn()}
+        controls={<div data-testid="graph-page-controls" />}
+        presentationView="graph"
+        onPresentationViewChange={vi.fn()}
+        operatorListFirst={false}
+      />,
+    );
+
+    expect(screen.getByTestId("graph-png-export-disclaimer")).toHaveTextContent(/viewport snapshot/i);
+    expect(screen.getByTestId("graph-png-export-disclaimer")).toHaveTextContent(/not a sealed attestation/i);
+  });
+
   it("shows the canvas when Working operator shell switches to graph view", () => {
     render(
       <GraphLoadedExperience

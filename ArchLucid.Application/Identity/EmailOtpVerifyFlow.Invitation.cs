@@ -74,7 +74,8 @@ public sealed partial class EmailOtpVerifyFlow
         {
             InvitationId = invitation.Id,
             TenantId = invitation.TenantId,
-            WorkspaceId = invitation.WorkspaceId
+            WorkspaceId = invitation.WorkspaceId,
+            AppRole = invitation.AppRole
         };
     }
 

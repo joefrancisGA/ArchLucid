@@ -55,6 +55,7 @@ export type UseArchitectureIntelligenceProductContextResult = {
   setPrioritiesRaw: (value: string) => void;
   interviewAnswers: Record<string, string>;
   onInterviewAnswerChange: (questionId: string, value: string) => void;
+  setInterviewAnswers: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   activeRunId: string | null;
   setActiveRunId: (value: string | null) => void;
   hydratedSourceTexts: ClosedLoopReasoningSourceText[];
@@ -83,6 +84,8 @@ export type UseArchitectureIntelligenceProductContextResult = {
   showReasoningWorkspace: boolean;
   inboundContextLine: string | null;
   onSelectReview: (reviewId: string) => void;
+  actionGenerationRef: React.RefObject<number>;
+  invalidateInFlightActions: () => void;
 };
 
 export function useArchitectureIntelligenceProductContext(): UseArchitectureIntelligenceProductContextResult {
@@ -96,6 +99,13 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const scope = useOperatorScopeQueryKey();
   const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
   const previousScopeKeyRef = useRef(scopeKey);
+  const previousInboundRunIdRef = useRef(inboundRunId);
+  const previousUrlContextRunIdRef = useRef("");
+  const previousInboundRunIdForScopeRef = useRef(inboundRunId);
+  const actionGenerationRef = useRef(0);
+  const invalidateInFlightActions = useCallback(() => {
+    actionGenerationRef.current += 1;
+  }, []);
   const [productContextReloadNonce, setProductContextReloadNonce] = useState(0);
   const sourceContextQuery = useArchitectureIntelligenceSourceContextQuery(inboundRunId, {
     enabled: inboundRunId.length > 0,
@@ -168,12 +178,73 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   );
 
   useEffect(() => {
+    const previousContextRunId = previousUrlContextRunIdRef.current;
+    const previousInbound = previousInboundRunIdForScopeRef.current;
+
+    previousUrlContextRunIdRef.current = urlContextRunId;
+    previousInboundRunIdForScopeRef.current = inboundRunId;
+
     if (urlContextRunId.length === 0) {
       return;
     }
 
+    const droppedInboundToDifferentContext =
+      previousInbound.length > 0 &&
+      inboundRunId.length === 0 &&
+      urlContextRunId !== previousInbound;
+
+    const changedContextOnlyScope =
+      inboundRunId.length === 0 &&
+      previousContextRunId.length > 0 &&
+      previousContextRunId !== urlContextRunId;
+
+    const changedContextRunId =
+      previousContextRunId.length > 0 &&
+      previousContextRunId !== urlContextRunId;
+
+    if (changedContextRunId) {
+      invalidateInFlightActions();
+      setRunState(null);
+      setInterviewAnswers({});
+      setError(null);
+      setPublishToProduct(false);
+      setHydratedSourceTexts([]);
+    }
+
+    if (droppedInboundToDifferentContext || changedContextOnlyScope) {
+      invalidateInFlightActions();
+      setRunState(null);
+      setInterviewAnswers({});
+      setError(null);
+      setArchitectureDescription("");
+      setPrioritiesRaw("");
+      setHydratedSourceTexts([]);
+      setPublishToProduct(false);
+      setProductContextStatus("idle");
+      setLoadingAction(null);
+    }
+
     setActiveRunId(urlContextRunId);
-  }, [urlContextRunId]);
+  }, [urlContextRunId, inboundRunId, invalidateInFlightActions]);
+
+  useEffect(() => {
+    if (inboundRunId.length > 0 || urlContextRunId.length > 0) {
+      return;
+    }
+
+    invalidateInFlightActions();
+    previousInboundRunIdRef.current = "";
+    setActiveRunId(null);
+    setRunState(null);
+    setInterviewAnswers({});
+    setError(null);
+    setArchitectureDescription("");
+    setPrioritiesRaw("");
+    setHydratedSourceTexts([]);
+    setPublishToProduct(false);
+    setProductContextStatus("idle");
+    setLoadingAction(null);
+  }, [inboundRunId, invalidateInFlightActions, urlContextRunId]);
 
   const onInterviewAnswerChange = useCallback((questionId: string, value: string) => {
     setInterviewAnswers((previous) => ({ ...previous, [questionId]: value }));
@@ -186,6 +257,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
 
     previousScopeKeyRef.current = scopeKey;
 
+    invalidateInFlightActions();
     setRunState(null);
     setInterviewAnswers({});
     setError(null);
@@ -204,32 +276,56 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
 
     setProductContextStatus("loading");
     setProductContextReloadNonce((previous) => previous + 1);
-  }, [scopeKey, inboundRunId]);
+  }, [scopeKey, inboundRunId, invalidateInFlightActions]);
 
   useEffect(() => {
     if (inboundRunId.length === 0) {
       return;
     }
 
+    invalidateInFlightActions();
     setRunState(null);
     setInterviewAnswers({});
     setActiveRunId(inboundRunId);
     setError(null);
-  }, [inboundRunId, productContextReloadNonce]);
+    setPublishToProduct(false);
+  }, [inboundRunId, invalidateInFlightActions, productContextReloadNonce]);
 
   useEffect(() => {
     if (inboundRunId.length === 0 || sourceContextQuery.data === undefined) {
       return;
     }
 
+    const previousInboundRunId = previousInboundRunIdRef.current;
+    previousInboundRunIdRef.current = inboundRunId;
+
     const sources = sourceContextQuery.data.sourceTexts;
     setHydratedSourceTexts([...sources]);
-    setArchitectureDescription(hydratedDescriptionFromQuery);
-    setActiveRunId(sourceContextQuery.data.runId?.trim() || inboundRunId);
+    setArchitectureDescription((currentDescription) => {
+      if (hydratedDescriptionFromQuery.trim().length > 0) {
+        return hydratedDescriptionFromQuery;
+      }
 
-    if ((sourceContextQuery.data.declaredPriorities?.length ?? 0) > 0) {
-      setPrioritiesRaw(hydratedPrioritiesFromQuery);
-    }
+      // Preserve freeform intake when the first deep-link resolves to an empty product context.
+      if (previousInboundRunId.length === 0 && currentDescription.trim().length > 0) {
+        return currentDescription;
+      }
+
+      return hydratedDescriptionFromQuery;
+    });
+    setActiveRunId(sourceContextQuery.data.runId?.trim() || inboundRunId);
+    setPrioritiesRaw((currentPriorities) => {
+      if (hydratedPrioritiesFromQuery.trim().length > 0) {
+        return hydratedPrioritiesFromQuery;
+      }
+
+      // Preserve freeform priorities when the first deep-link resolves to an empty product context.
+      if (previousInboundRunId.length === 0 && currentPriorities.trim().length > 0) {
+        return currentPriorities;
+      }
+
+      return hydratedPrioritiesFromQuery;
+    });
 
     setProductContextStatus(sources.length > 0 ? "loaded" : "empty");
     setLoadingAction(null);
@@ -388,6 +484,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     setPrioritiesRaw,
     interviewAnswers,
     onInterviewAnswerChange,
+    setInterviewAnswers,
     activeRunId,
     setActiveRunId: setActiveRunIdWithUrl,
     hydratedSourceTexts,
@@ -416,6 +513,8 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     showReasoningWorkspace,
     inboundContextLine,
     onSelectReview,
+    actionGenerationRef,
+    invalidateInFlightActions,
   };
 }
 

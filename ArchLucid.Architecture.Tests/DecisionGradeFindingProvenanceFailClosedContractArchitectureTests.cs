@@ -51,6 +51,9 @@ public sealed class DecisionGradeFindingProvenanceFailClosedContractArchitecture
         string[] paths =
         [
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "FindingPayloadValidator.cs"),
+            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "FindingProvenanceValidator.cs"),
+            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Findings", "AgentArchitectureFindingProvenanceValidator.cs"),
+            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Merge", "AgentArchitectureFindingEmissionGate.cs"),
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "FindingsOrchestrator.cs"),
             Path.Combine(RepoRoot, "ArchLucid.AgentRuntime", "Evaluation", "FindingClaimCoverageEvaluator.cs"),
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Findings", "ArchitectureFinding.cs"),

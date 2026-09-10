@@ -18,3 +18,10 @@ export const GOVERNANCE_AUDIT_LOAD_ERROR =
   "Could not load audit events for this workspace. Try again in a moment." as const;
 
 export const GOVERNANCE_AUDIT_LOAD_ERROR_RETRY_LABEL = "Try again" as const;
+
+/** Buyer-facing copy for `/governance/audit` (AUD). */
+export const GOVERNANCE_AUDIT_PAGE_LEAD =
+  "Browse workspace audit events for approvals, decisions, exports, and configuration changes.";
+
+export const GOVERNANCE_AUDIT_BUYER_START_HERE_HELPER =
+  "Pick a review or run a search below — export tools in the header help when you need tamper-evident records.";

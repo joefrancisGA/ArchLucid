@@ -3,6 +3,7 @@
 import { OperatorAttentionKindChip } from "@/components/operator/OperatorAttentionKindChip";
 import { useAttentionPartitionPreviews } from "@/hooks/use-attention-partition-previews";
 import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
+import { useReviewsHubUnfinishedWorkHref } from "@/hooks/use-reviews-hub-unfinished-work-href";
 import {
   OPERATOR_ATTENTION_KIND_DESTINATIONS,
 } from "@/lib/operator/operator-attention-kind-destinations";
@@ -27,13 +28,14 @@ export type OperatorAttentionKindStripProps = {
 /** TB-2353 / TB-2369 — actionable four-kind attention taxonomy for hub pages. */
 export function OperatorAttentionKindStrip(
   props: OperatorAttentionKindStripProps,
-): React.JSX.Element {
+): React.JSX.Element | null {
   const variant = props.variant ?? "default";
   const suppressKinds = new Set(props.suppressKinds ?? []);
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const { summaries } = useOperatorAttentionSummary();
   const partitionPreviews = useAttentionPartitionPreviews();
+  const unfinishedWorkHref = useReviewsHubUnfinishedWorkHref();
   const summaryByPartition = new Map(summaries.map((summary) => [summary.partition, summary]));
   const visibleKinds = OPERATOR_ATTENTION_KIND_IDS.filter((kind) => {
     if (suppressKinds.has(kind)) {
@@ -50,6 +52,10 @@ export function OperatorAttentionKindStrip(
   const previewKind = resolveHighestNonZeroAttentionKind(countsByKind, visibleKinds);
   const previewLine = previewKind !== null ? partitionPreviews[previewKind] : null;
 
+  if (visibleKinds.length === 0) {
+    return null;
+  }
+
   return (
     <div
       className={props.className}
@@ -62,18 +68,19 @@ export function OperatorAttentionKindStrip(
       >
         {visibleKinds.map((kind: OperatorAttentionKindId) => {
           const destination = OPERATOR_ATTENTION_KIND_DESTINATIONS[kind];
+          const href = kind === "unfinished-work" ? unfinishedWorkHref : destination.href;
           const count = countsByKind[kind] ?? 0;
           const selected = isOperatorAttentionKindDestinationActive(
             pathname,
             searchParams,
-            destination.href,
+            href,
           );
 
           return (
             <li key={kind} className="flex items-center">
               <OperatorAttentionKindChip
                 kind={kind}
-                href={destination.href}
+                href={href}
                 count={count}
                 selected={selected}
               />

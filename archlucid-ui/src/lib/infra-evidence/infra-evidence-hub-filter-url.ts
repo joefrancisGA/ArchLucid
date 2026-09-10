@@ -7,6 +7,7 @@ import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-typ
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { resolveResourceHubTabFromExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import type { CloudResourceExplorerWorkCountKind } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
+import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 
 export const RESOURCE_EXPLORER_NAME_PREFIX_PARAM = "namePrefix";
 export const RESOURCE_EXPLORER_RESOURCE_TYPE_PARAM = "resourceType";
@@ -17,6 +18,9 @@ export const RESOURCE_EXPLORER_WORK_QUEUE_PARAM = "workQueue";
 export const RESOURCE_HUB_TAB_PARAM = "tab";
 export const RESOURCE_HUB_RUN_ID_PARAM = "runId";
 export const RESOURCE_HUB_SNAPSHOT_ID_PARAM = "snapshotId";
+
+/** Explorer forwards the same snapshot param name as the resource hub. */
+export const RESOURCE_EXPLORER_SNAPSHOT_ID_PARAM = RESOURCE_HUB_SNAPSHOT_ID_PARAM;
 export const RESOURCE_HUB_ASSESSMENT_ID_PARAM = "assessmentId";
 export const RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM = "auditEvidenceSnapshotId";
 export const RESOURCE_HUB_CONTROL_ID_PARAM = "controlId";
@@ -90,6 +94,28 @@ export function parseResourceHubQueryValueFromSearch(raw: string | null | undefi
   return raw.trim();
 }
 
+const ASK_HUB_TAB_ORIGIN_VALUES: ReadonlySet<ResourceHubTab> = new Set([
+  "drift",
+  "diagram",
+  "terraform",
+  "findings",
+  "remediation",
+]);
+
+export function parseAskHubTabOriginFromSearch(raw: string | null | undefined): ResourceHubTab | undefined {
+  const trimmed = parseResourceHubQueryValueFromSearch(raw);
+
+  if (trimmed.length === 0) {
+    return undefined;
+  }
+
+  if (!ASK_HUB_TAB_ORIGIN_VALUES.has(trimmed as ResourceHubTab)) {
+    return undefined;
+  }
+
+  return trimmed as ResourceHubTab;
+}
+
 export function buildInfrastructureAskHref(context: {
   readonly cloudResourceId?: string;
   readonly snapshotId?: string;
@@ -103,6 +129,8 @@ export function buildInfrastructureAskHref(context: {
   readonly controlId?: string;
   readonly workQueue?: CloudResourceExplorerWorkQueue;
   readonly seedNodeId?: string;
+  /** Hub tab the user opened Ask from (workbench-origin back link when audit scope is also present). */
+  readonly hubTab?: ResourceHubTab;
 }): string {
   const params = new URLSearchParams();
 
@@ -154,6 +182,10 @@ export function buildInfrastructureAskHref(context: {
     params.set(RESOURCE_HUB_SEED_NODE_ID_PARAM, context.seedNodeId.trim());
   }
 
+  if (context.hubTab != null && ASK_HUB_TAB_ORIGIN_VALUES.has(context.hubTab)) {
+    params.set(RESOURCE_HUB_TAB_PARAM, context.hubTab);
+  }
+
   const query = params.toString();
 
   return query.length === 0
@@ -161,13 +193,11 @@ export function buildInfrastructureAskHref(context: {
     : `${GOVERNANCE_INFRASTRUCTURE_ASK_PATH}?${query}`;
 }
 
-export function resolveResourceHubTabFromAskScope(context: {
+export function resolveResourceHubWorkbenchTabFromAskScope(context: {
+  readonly hubTab?: string;
   readonly findingId?: string;
   readonly instanceId?: string;
   readonly diffId?: string;
-  readonly assessmentId?: string;
-  readonly auditEvidenceSnapshotId?: string;
-  readonly controlId?: string;
   readonly correspondenceId?: string;
 }): ResourceHubTab | undefined {
   if (context.findingId != null && context.findingId.trim().length > 0) {
@@ -176,6 +206,39 @@ export function resolveResourceHubTabFromAskScope(context: {
 
   if (context.instanceId != null && context.instanceId.trim().length > 0) {
     return "remediation";
+  }
+
+  if (context.correspondenceId != null && context.correspondenceId.trim().length > 0) {
+    return "diagram";
+  }
+
+  if (context.diffId != null && context.diffId.trim().length > 0) {
+    return "drift";
+  }
+
+  const hubTabOrigin = parseAskHubTabOriginFromSearch(context.hubTab ?? null);
+
+  if (hubTabOrigin != null) {
+    return hubTabOrigin;
+  }
+
+  return undefined;
+}
+
+export function resolveResourceHubTabFromAskScope(context: {
+  readonly hubTab?: string;
+  readonly findingId?: string;
+  readonly instanceId?: string;
+  readonly diffId?: string;
+  readonly assessmentId?: string;
+  readonly auditEvidenceSnapshotId?: string;
+  readonly controlId?: string;
+  readonly correspondenceId?: string;
+}): ResourceHubTab | undefined {
+  const workbenchTab = resolveResourceHubWorkbenchTabFromAskScope(context);
+
+  if (workbenchTab != null) {
+    return workbenchTab;
   }
 
   if (
@@ -189,15 +252,70 @@ export function resolveResourceHubTabFromAskScope(context: {
     return "audit";
   }
 
-  if (context.correspondenceId != null && context.correspondenceId.trim().length > 0) {
-    return "diagram";
-  }
-
-  if (context.diffId != null && context.diffId.trim().length > 0) {
-    return "drift";
-  }
-
   return undefined;
+}
+
+export function formatResourceHubTabViewLabelFromAskScope(
+  tab: ResourceHubTab | undefined,
+): string | null {
+  if (tab == null || tab === "overview") {
+    return null;
+  }
+
+  return formatResourceHubTabViewLabel(tab);
+}
+
+export type InfrastructureAskAuditContext = {
+  readonly assessmentId?: string;
+  readonly auditEvidenceSnapshotId?: string;
+  readonly controlId?: string;
+};
+
+export function toWorkbenchLinkAuditContext(
+  auditContext: InfrastructureAskAuditContext,
+): InfrastructureAskAuditContext | undefined {
+  const assessmentId = auditContext.assessmentId?.trim() ?? "";
+  const auditEvidenceSnapshotId = auditContext.auditEvidenceSnapshotId?.trim() ?? "";
+  const controlId = auditContext.controlId?.trim() ?? "";
+
+  if (assessmentId.length === 0 || auditEvidenceSnapshotId.length === 0 || controlId.length === 0) {
+    return undefined;
+  }
+
+  return {
+    assessmentId,
+    auditEvidenceSnapshotId,
+    controlId,
+  };
+}
+
+export function resolveInfrastructureAskAuditContext(
+  urlContext: {
+    readonly assessmentId: string;
+    readonly auditEvidenceSnapshotId: string;
+    readonly controlId: string;
+  },
+  payloadContext?: InfrastructureAskAuditContext | null,
+): InfrastructureAskAuditContext {
+  const assessmentId = urlContext.assessmentId.length > 0
+    ? urlContext.assessmentId
+    : payloadContext?.assessmentId?.trim() ?? "";
+  const auditEvidenceSnapshotId = urlContext.auditEvidenceSnapshotId.length > 0
+    ? urlContext.auditEvidenceSnapshotId
+    : payloadContext?.auditEvidenceSnapshotId?.trim() ?? "";
+  const controlId = urlContext.controlId.length > 0
+    ? urlContext.controlId
+    : payloadContext?.controlId?.trim() ?? "";
+
+  if (assessmentId.length === 0 || auditEvidenceSnapshotId.length === 0 || controlId.length === 0) {
+    return {};
+  }
+
+  return {
+    assessmentId,
+    auditEvidenceSnapshotId,
+    controlId,
+  };
 }
 
 export function resourceExplorerFilterHrefFromSearch(
@@ -208,6 +326,7 @@ export function resourceExplorerFilterHrefFromSearch(
     readonly resourceGroup?: string;
     readonly cloudResourceId?: string;
     readonly workQueue?: CloudResourceExplorerWorkQueue;
+    readonly snapshotId?: string;
   },
   pathname: string = GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
 ): string {
@@ -261,6 +380,16 @@ export function resourceExplorerFilterHrefFromSearch(
     }
   }
 
+  if (patch.snapshotId !== undefined) {
+    const trimmed = patch.snapshotId.trim();
+
+    if (trimmed.length === 0) {
+      params.delete(RESOURCE_EXPLORER_SNAPSHOT_ID_PARAM);
+    } else {
+      params.set(RESOURCE_EXPLORER_SNAPSHOT_ID_PARAM, trimmed);
+    }
+  }
+
   const nextQuery = params.toString();
 
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
@@ -273,6 +402,7 @@ export function resourceHubFilterHrefFromSearch(
     readonly tab?: ResourceHubTab;
     readonly runId?: string;
     readonly snapshotId?: string;
+    readonly workQueue?: CloudResourceExplorerWorkQueue;
     readonly assessmentId?: string;
     readonly auditEvidenceSnapshotId?: string;
     readonly controlId?: string;
@@ -306,6 +436,14 @@ export function resourceHubFilterHrefFromSearch(
       params.delete(RESOURCE_HUB_SNAPSHOT_ID_PARAM);
     } else {
       params.set(RESOURCE_HUB_SNAPSHOT_ID_PARAM, trimmed);
+    }
+  }
+
+  if (patch.workQueue !== undefined) {
+    if (patch.workQueue === "all") {
+      params.delete(RESOURCE_EXPLORER_WORK_QUEUE_PARAM);
+    } else {
+      params.set(RESOURCE_EXPLORER_WORK_QUEUE_PARAM, patch.workQueue);
     }
   }
 
@@ -344,18 +482,98 @@ export function resourceHubFilterHrefFromSearch(
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
 }
 
+export function buildResourceHubAuditLineageHref(
+  cloudResourceId: string,
+  context: {
+    readonly assessmentId: string;
+    readonly auditEvidenceSnapshotId: string;
+    readonly controlId: string;
+    readonly snapshotId?: string;
+  },
+): string {
+  const trimmedCloudResourceId = cloudResourceId.trim();
+  const trimmedSnapshotId = context.snapshotId?.trim() ?? "";
+
+  return resourceHubFilterHrefFromSearch(trimmedCloudResourceId, "", {
+    tab: "audit",
+    snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
+    assessmentId: context.assessmentId,
+    auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
+    controlId: context.controlId,
+  });
+}
+
 export function buildResourceHubExplorerHref(
   cloudResourceId: string,
   workQueue: CloudResourceExplorerWorkQueue = "all",
+  snapshotId?: string | null,
 ): string {
   const tab = resolveResourceHubTabFromExplorerWorkQueue(workQueue);
+  const trimmedSnapshotId = snapshotId?.trim() ?? "";
 
-  return resourceHubFilterHrefFromSearch(cloudResourceId, "", tab != null ? { tab } : {});
+  return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+    ...(tab != null ? { tab } : {}),
+    snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
+    workQueue: workQueue !== "all" ? workQueue : undefined,
+  });
+}
+
+export function buildResourceHubOverviewHref(
+  cloudResourceId: string,
+  context?: {
+    readonly snapshotId?: string | null;
+    readonly runId?: string | null;
+    readonly workQueue?: CloudResourceExplorerWorkQueue;
+    readonly assessmentId?: string | null;
+    readonly auditEvidenceSnapshotId?: string | null;
+    readonly controlId?: string | null;
+  },
+): string {
+  const trimmedSnapshotId = context?.snapshotId?.trim() ?? "";
+  const trimmedRunId = context?.runId?.trim() ?? "";
+
+  return resourceHubFilterHrefFromSearch(cloudResourceId.trim(), "", {
+    tab: "overview",
+    snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
+    runId: trimmedRunId.length > 0 ? trimmedRunId : undefined,
+    workQueue: context?.workQueue != null && context.workQueue !== "all" ? context.workQueue : undefined,
+    assessmentId: context?.assessmentId?.trim().length ? context.assessmentId?.trim() : undefined,
+    auditEvidenceSnapshotId: context?.auditEvidenceSnapshotId?.trim().length
+      ? context.auditEvidenceSnapshotId?.trim()
+      : undefined,
+    controlId: context?.controlId?.trim().length ? context?.controlId?.trim() : undefined,
+  });
 }
 
 export function buildResourceHubWorkCountHref(
   cloudResourceId: string,
   kind: CloudResourceExplorerWorkCountKind,
+  snapshotId?: string | null,
 ): string {
-  return resourceHubFilterHrefFromSearch(cloudResourceId, "", { tab: kind });
+  const trimmedSnapshotId = snapshotId?.trim() ?? "";
+
+  return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+    tab: kind,
+    snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
+  });
+}
+
+export function buildResourceExplorerWorkCountHref(
+  cloudResourceId: string,
+  kind: CloudResourceExplorerWorkCountKind,
+  workQueue: CloudResourceExplorerWorkQueue = "all",
+  snapshotId?: string | null,
+): string {
+  const queueTab = resolveResourceHubTabFromExplorerWorkQueue(workQueue);
+
+  if (queueTab != null && queueTab === kind) {
+    return buildInfrastructureAskHref({
+      cloudResourceId,
+      workQueue,
+      snapshotId: snapshotId?.trim().length ? snapshotId.trim() : undefined,
+      hubTab: queueTab,
+    });
+  }
+
+  return buildResourceHubWorkCountHref(cloudResourceId, kind, snapshotId);
 }

@@ -7,6 +7,8 @@ import {
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { shortenNextActionForPrimaryCta } from "@/lib/run-detail-workspace-derive";
 import { SPONSOR_BRIEFING_EXPORT_LABEL } from "@/lib/usability/canonical-product-terms";
+import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
+import type { FeasibilityVerdictKind } from "@/types/feasibility-verdict";
 
 import { resolveReviewPackageSummaryMode } from "./resolve-review-package-summary-mode";
 
@@ -14,6 +16,7 @@ export type ReviewPackagePrimaryActionKind =
   | "review-findings"
   | "add-evidence"
   | "finalize-package"
+  | "export-decision-receipt"
   | "send-to-sponsor"
   | "open-governance-decision";
 
@@ -34,6 +37,7 @@ export type ResolveReviewPackagePrimaryActionInput = {
   readonly manifestStatus: string | null | undefined;
   readonly runCompleted: boolean;
   readonly nextAction?: string | null;
+  readonly feasibilityVerdictKind?: FeasibilityVerdictKind | null;
 };
 
 const REVIEW_PACKAGE_PRIMARY_ACTION_LABELS: Record<
@@ -43,6 +47,7 @@ const REVIEW_PACKAGE_PRIMARY_ACTION_LABELS: Record<
   "review-findings": "Review findings",
   "add-evidence": "Add evidence",
   "finalize-package": "Finalize review",
+  "export-decision-receipt": "Export decision receipt",
   "send-to-sponsor": `Send ${SPONSOR_BRIEFING_EXPORT_LABEL.toLowerCase()}`,
 };
 
@@ -58,6 +63,10 @@ function sendToSponsorHref(runId: string): string {
   return buildReviewDetailTabHref(runId, "review-package", { hash: "sponsor-handoff" });
 }
 
+function decisionReceiptHref(runId: string): string {
+  return buildReviewDetailTabHref(runId, "evidence", { hash: "artifacts-exports" });
+}
+
 function buildLinkAction(
   runId: string,
   kind: Exclude<ReviewPackagePrimaryActionKind, "finalize-package" | "open-governance-decision">,
@@ -65,6 +74,7 @@ function buildLinkAction(
   const hrefByKind: Record<typeof kind, string> = {
     "review-findings": reviewFindingsHref(runId),
     "add-evidence": addEvidenceHref(runId),
+    "export-decision-receipt": decisionReceiptHref(runId),
     "send-to-sponsor": sendToSponsorHref(runId),
   };
 
@@ -153,6 +163,14 @@ export function resolveReviewPackagePrimaryAction(
 
   if (!input.runCompleted) {
     return buildLinkAction(input.runId, "add-evidence");
+  }
+
+  if (
+    input.feasibilityVerdictKind !== null
+    && input.feasibilityVerdictKind !== undefined
+    && isExportableDecisionVerdict(input.feasibilityVerdictKind)
+  ) {
+    return buildLinkAction(input.runId, "export-decision-receipt");
   }
 
   return buildFinalizeAction();

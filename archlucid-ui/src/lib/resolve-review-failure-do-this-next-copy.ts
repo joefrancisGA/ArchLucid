@@ -2,6 +2,7 @@ import type { WorkspaceAiAvailabilityCheckState } from "@/hooks/useWorkspaceAiAv
 import type { ReviewFailureRecoveryGuidance } from "@/lib/resolve-review-failure-recovery-guidance";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { plainLanguageFailureCauseSentence } from "@/lib/execution-vs-quality-outcome-copy";
+import type { RunSummary } from "@/types/authority";
 
 const PRE_STAGE_GENERIC_DETAIL =
   "The review stopped before processing began. This is usually a configuration or infrastructure issue — not missing intake fields. Check AI configuration, then re-run the review.";
@@ -107,12 +108,16 @@ export function resolveProbeAwareReviewFailureDoThisNextSentence(
 export function resolveReviewFailureWhatFailedLine(
   lastFailureSummary: RunDetailLastFailureSummary | null | undefined,
   guidance: ReviewFailureRecoveryGuidance | null | undefined,
+  pipelineSummary?: RunSummary | null,
 ): string | null {
+  const completedStages = completedPipelineStagesForWhatFailed(pipelineSummary);
+
   if (lastFailureSummary !== null && lastFailureSummary !== undefined) {
     return plainLanguageFailureCauseSentence({
       failureClass: lastFailureSummary.failureClass,
       triageScenarioId: lastFailureSummary.triageScenarioId,
       reasonCode: lastFailureSummary.reasonCode,
+      completedStages,
     });
   }
 
@@ -125,6 +130,19 @@ export function resolveReviewFailureWhatFailedLine(
   const detail = normalizeCopy(guidance?.detail);
 
   return detail.length > 0 ? detail : null;
+}
+
+function completedPipelineStagesForWhatFailed(summary: RunSummary | null | undefined): number {
+  if (summary === null || summary === undefined) {
+    return 0;
+  }
+
+  return [
+    summary.hasContextSnapshot === true,
+    summary.hasGraphSnapshot === true,
+    summary.hasFindingsSnapshot === true,
+    summary.hasGoldenManifest === true,
+  ].filter(Boolean).length;
 }
 
 /** Finalize strip copy when execution failed — no cross-reference to the Do this next heading. */

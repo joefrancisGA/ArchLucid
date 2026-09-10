@@ -43,6 +43,11 @@ public static class TenantAdjustedFindingsSavingsCalculator
 
         foreach (Finding finding in snapshot.Findings)
         {
+            if (finding.IsMuted)
+            {
+                continue;
+            }
+
             if (finding.ProjectedImpactUsd is not decimal impact)
                 continue;
 

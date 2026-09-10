@@ -38,11 +38,6 @@ export async function downloadConsultingArchitectureReportDocx(
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/json",
   );
   headers.set("Content-Type", "application/json");
-  const bearer = getBearerToken();
-
-  if (bearer) {
-    headers.set("Authorization", `Bearer ${bearer}`);
-  }
 
   const bodyPayload: Record<string, unknown> = {};
 
@@ -103,8 +98,7 @@ export async function downloadFirstValueReportPdf(runId: string): Promise<void> 
   const url = `/api/proxy${path}`;
   const headers = new Headers();
   headers.set("Accept", "application/pdf, application/json");
-  const bearer = getBearerToken();
-  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
+
   const init = mergeRegistrationScopeForProxy({
     method: "POST",
     headers,
@@ -143,8 +137,7 @@ export async function downloadBoardPackPdf(year: number, quarter: number): Promi
   const headers = new Headers();
   headers.set("Accept", "application/pdf, application/json");
   headers.set("Content-Type", "application/json");
-  const bearer = getBearerToken();
-  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
+
   const init = mergeRegistrationScopeForProxy({
     method: "POST",
     headers,

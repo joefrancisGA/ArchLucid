@@ -83,6 +83,7 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
     const items: RunSummary[] = [
       makeRun({
         runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        hasFindingsSnapshot: true,
         hasGoldenManifest: false,
       }),
       makeRun({
@@ -101,7 +102,7 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
     expect(metrics.reviewPackagesActive).toBe(1);
     expect(metrics.openFindings).toBe(0);
     expect(metrics.governanceWarnings).toBe(0);
-    expect(metrics.evidenceSources).toBe(0);
+    expect(metrics.evidenceSources).toBe(1);
   });
 });
 

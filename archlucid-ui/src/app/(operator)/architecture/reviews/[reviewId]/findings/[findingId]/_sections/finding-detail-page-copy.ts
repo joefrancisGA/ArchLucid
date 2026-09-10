@@ -1,5 +1,11 @@
 export const FINDING_DETAIL_PRIMARY_CONTENT_ID = "finding-detail-primary-content" as const;
 
+export const FINDING_DETAIL_FIRST_VIEWPORT_ID = "finding-detail-first-viewport" as const;
+
+export const FINDING_DETAIL_FIRST_VIEWPORT_TEST_ID = FINDING_DETAIL_FIRST_VIEWPORT_ID;
+
+export const FINDING_DETAIL_SKIP_TARGET_ID = FINDING_DETAIL_FIRST_VIEWPORT_ID;
+
 export const FINDING_DETAIL_SKIP_LINK_LABEL = "Skip to finding summary" as const;
 
 export const FINDING_DETAIL_BREADCRUMB_FINDINGS_LABEL = "Findings" as const;

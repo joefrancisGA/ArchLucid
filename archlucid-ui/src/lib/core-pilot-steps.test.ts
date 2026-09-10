@@ -24,15 +24,14 @@ describe("core-pilot-steps", () => {
     expect(CORE_PILOT_STEPS.some((step) => step.title.toLowerCase().includes("audit"))).toBe(true);
   });
 
-  it("uses multi-cloud inventory language on step 4 upload guidance", () => {
+  it("uses Azure-first inventory language on the optional upload step (QR-10 / TB-645)", () => {
     const uploadStep = CORE_PILOT_STEPS[3];
 
-    expect(uploadStep.title).toBe("Upload cloud inventory evidence");
-    expect(uploadStep.shortBody).toBe(
-      "Optional for document/brief-only reviews — cloud inventory required for cost ROI accuracy.",
-    );
-    expect(uploadStep.detail).toContain("brief, document, or diagram evidence only");
-    expect(uploadStep.primaryLabel).toBe("Upload inventory ZIP");
+    expect(uploadStep.title).toBe("Upload Azure inventory ZIP");
+    expect(uploadStep.shortBody).toContain("Azure packager ZIP");
+    expect(uploadStep.detail).toContain("Get-ArchLucidAzurePackage.ps1");
+    expect(uploadStep.detail).toContain("hosted extractor");
+    expect(uploadStep.primaryLabel).toBe("Upload Azure inventory ZIP");
     expect(uploadStep.primaryHref).toBe("/administration/extract-upload");
   });
 

@@ -10,6 +10,7 @@ import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHe
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
@@ -25,6 +26,7 @@ import {
   WORKSPACE_SETTINGS_HELP_AUDIT_TRAIL_EFFECT_SECTION_ID,
   WORKSPACE_SETTINGS_HELP_AUDIT_TRAIL_EFFECT_TITLE,
   WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE,
+  WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID,
   WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS,
   WORKSPACE_SETTINGS_HELP_HOW_TO_READ_STEPS,
   WORKSPACE_SETTINGS_HELP_OVERVIEW,
@@ -66,7 +68,12 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const contentGridClass = resolveHelpPageContentGridClass(WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-workspace-settings",
+    WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS,
+    WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -216,7 +223,7 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
 
         </div>
 
-        <HelpTopicTableOfContents headings={WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={guideHeadings} />
       </div>
     </article>
   );

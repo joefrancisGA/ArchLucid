@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { listAwsTier2Connections } from "@/lib/api/aws-cloud-connections-api";
 import { listTier2Connections } from "@/lib/api/cloud-connections-api";
 import { listGcpTier2Connections } from "@/lib/api/gcp-cloud-connections-api";
@@ -16,6 +17,11 @@ import {
   visibleCloudProviders,
   type CloudProviderId,
 } from "@/lib/cloud-platform-scope-storage";
+import {
+  effectiveCloudPlatformScopeForProductLine,
+  filterCloudProvidersForProductLine,
+  isCloudProviderSupportedForProductLine,
+} from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   parseCloudConnectionsPlatformFromSearch,
   type CloudConnectionsPlatformFilter,
@@ -68,7 +74,6 @@ const DEFAULT_PROVIDER_SUMMARY: ProviderSummaryState = {
   evidenceCollected: CLOUD_CONNECTIONS_PROVIDER_EVIDENCE_NONE,
 };
 
-const CLOUD_PROVIDER_COUNT = CLOUD_PROVIDER_NEUTRAL_ORDER.length;
 
 export const CLOUD_PLATFORM_CHIP_OPTIONS: readonly {
   readonly id: CloudConnectionsPlatformFilter;
@@ -82,6 +87,7 @@ export const CLOUD_PLATFORM_CHIP_OPTIONS: readonly {
 
 export function useCloudConnectionsPage() {
   const searchParams = useSearchParams();
+  const { productLine } = useProductLine();
   const currentSearch = searchParams.toString();
   const urlPlatform = parseCloudConnectionsPlatformFromSearch(searchParams.get("platform"));
   const [platformScope, setPlatformScope] = useState(() => resolveLandingCloudPlatformScope());
@@ -99,10 +105,13 @@ export function useCloudConnectionsPage() {
   const [zoneLoadSlices, setZoneLoadSlices] = useState<readonly IntegrationZoneLoadSlice[]>([]);
 
   const refreshSummaries = useCallback(async () => {
+    const loadAws = isCloudProviderSupportedForProductLine("aws", productLine);
+    const loadGcp = isCloudProviderSupportedForProductLine("gcp", productLine);
+
     const [azureOutcome, awsOutcome, gcpOutcome] = await Promise.allSettled([
       listTier2Connections(),
-      listAwsTier2Connections(),
-      listGcpTier2Connections(),
+      loadAws ? listAwsTier2Connections() : Promise.resolve([]),
+      loadGcp ? listGcpTier2Connections() : Promise.resolve([]),
     ]);
 
     const zones: IntegrationZoneLoadSlice[] = [
@@ -115,7 +124,10 @@ export function useCloudConnectionsPage() {
             ? integrationZoneLoadReasonMessage(azureOutcome.reason, "Could not load Azure connections.")
             : null,
       },
-      {
+    ];
+
+    if (loadAws) {
+      zones.push({
         id: "aws",
         label: "AWS cloud connections",
         failed: awsOutcome.status === "rejected",
@@ -123,8 +135,11 @@ export function useCloudConnectionsPage() {
           awsOutcome.status === "rejected"
             ? integrationZoneLoadReasonMessage(awsOutcome.reason, "Could not load AWS connections.")
             : null,
-      },
-      {
+      });
+    }
+
+    if (loadGcp) {
+      zones.push({
         id: "gcp",
         label: "GCP cloud connections",
         failed: gcpOutcome.status === "rejected",
@@ -132,8 +147,8 @@ export function useCloudConnectionsPage() {
           gcpOutcome.status === "rejected"
             ? integrationZoneLoadReasonMessage(gcpOutcome.reason, "Could not load GCP connections.")
             : null,
-      },
-    ];
+      });
+    }
 
     setZoneLoadSlices(zones);
 
@@ -208,7 +223,7 @@ export function useCloudConnectionsPage() {
             : DEFAULT_PROVIDER_SUMMARY,
       }));
     }
-  }, []);
+  }, [productLine]);
 
   const loadSummaries = useCallback(async () => {
     setIsLoading(true);
@@ -217,30 +232,38 @@ export function useCloudConnectionsPage() {
       await refreshSummaries();
     } catch (error) {
       console.error(error);
-      setZoneLoadSlices([
+      const failedZones: IntegrationZoneLoadSlice[] = [
         {
           id: "azure",
           label: "Azure cloud connections",
           failed: true,
           errorMessage: CLOUD_CONNECTIONS_LOAD_FAILURE_MESSAGE,
         },
-        {
+      ];
+
+      if (isCloudProviderSupportedForProductLine("aws", productLine)) {
+        failedZones.push({
           id: "aws",
           label: "AWS cloud connections",
           failed: true,
           errorMessage: CLOUD_CONNECTIONS_LOAD_FAILURE_MESSAGE,
-        },
-        {
+        });
+      }
+
+      if (isCloudProviderSupportedForProductLine("gcp", productLine)) {
+        failedZones.push({
           id: "gcp",
           label: "GCP cloud connections",
           failed: true,
           errorMessage: CLOUD_CONNECTIONS_LOAD_FAILURE_MESSAGE,
-        },
-      ]);
+        });
+      }
+
+      setZoneLoadSlices(failedZones);
     } finally {
       setIsLoading(false);
     }
-  }, [refreshSummaries]);
+  }, [productLine, refreshSummaries]);
 
   useEffect(() => {
     void loadSummaries();
@@ -258,7 +281,21 @@ export function useCloudConnectionsPage() {
     [],
   );
 
-  const preferenceScopedProviders = useMemo(() => visibleCloudProviders(platformScope), [platformScope]);
+  const preferenceScopedProviders = useMemo(() => {
+    const scopedProviders = visibleCloudProviders(
+      effectiveCloudPlatformScopeForProductLine(platformScope, productLine),
+    );
+
+    return filterCloudProvidersForProductLine(scopedProviders, productLine);
+  }, [platformScope, productLine]);
+
+  const visiblePlatformChipOptions = useMemo(
+    () =>
+      CLOUD_PLATFORM_CHIP_OPTIONS.filter(
+        (option) => option.id === "all" || isCloudProviderSupportedForProductLine(option.id, productLine),
+      ),
+    [productLine],
+  );
 
   const visibleProviders = useMemo(() => {
     if (urlPlatform === "all") {
@@ -297,7 +334,7 @@ export function useCloudConnectionsPage() {
   const hasConfiguredProvider = connectedProviderCount > 0;
 
   const recommendedProviderId = useMemo((): CloudProviderId => {
-    const visibleUnconfigured = CLOUD_PROVIDER_NEUTRAL_ORDER.find(
+    const visibleUnconfigured = filterCloudProvidersForProductLine(CLOUD_PROVIDER_NEUTRAL_ORDER, productLine).find(
       (provider) =>
         platformScope[provider] && !isCloudProviderSummaryConfigured(providerSummaries[provider].status),
     );
@@ -306,10 +343,17 @@ export function useCloudConnectionsPage() {
       return visibleUnconfigured;
     }
 
-    const anyVisible = CLOUD_PROVIDER_NEUTRAL_ORDER.find((provider) => platformScope[provider]);
+    const anyVisible = filterCloudProvidersForProductLine(CLOUD_PROVIDER_NEUTRAL_ORDER, productLine).find(
+      (provider) => platformScope[provider],
+    );
 
-    return anyVisible ?? CLOUD_PROVIDER_NEUTRAL_ORDER[0];
-  }, [platformScope, providerSummaries]);
+    return anyVisible ?? "azure";
+  }, [platformScope, productLine, providerSummaries]);
+
+  const supportedProviderCount = filterCloudProvidersForProductLine(
+    CLOUD_PROVIDER_NEUTRAL_ORDER,
+    productLine,
+  ).length;
 
   const integrationZoneRecoveries = useMemo(
     () => buildIntegrationZoneRecoveries(zoneLoadSlices),
@@ -343,7 +387,9 @@ export function useCloudConnectionsPage() {
     hasConfiguredProvider,
     hasSuccessfulPull,
     connectedProviderCount,
-    totalProviderCount: CLOUD_PROVIDER_COUNT,
+    totalProviderCount: supportedProviderCount,
+    visiblePlatformChipOptions,
+    productLine,
     recommendedProviderId,
     continueLastProvider,
   };

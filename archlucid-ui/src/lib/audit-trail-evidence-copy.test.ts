@@ -5,6 +5,7 @@ import {
   AUDIT_TRAIL_CLAIM_DISCIPLINE,
   AUDIT_TRAIL_CLAIM_HEADING,
   AUDIT_TRAIL_FOLLOW_UPS_TITLE,
+  AUDIT_TRAIL_ORIENTATION_SOURCES,
   AUDIT_TRAIL_SOURCES,
   AUDIT_TRAIL_SOURCES_INTRO,
 } from "@/lib/audit-trail-evidence-copy";
@@ -20,5 +21,10 @@ describe("audit-trail-evidence-copy", () => {
     for (const link of AUDIT_TRAIL_SOURCES) {
       expect(link.href).not.toBe(AUDIT_TRAIL_CANONICAL_PATH);
     }
+
+    const orientationHrefs = AUDIT_TRAIL_ORIENTATION_SOURCES.map((source) => source.href);
+
+    expect(orientationHrefs).not.toContain(AUDIT_TRAIL_CANONICAL_PATH);
+    expect(AUDIT_TRAIL_ORIENTATION_SOURCES.length).toBe(AUDIT_TRAIL_SOURCES.length);
   });
 });

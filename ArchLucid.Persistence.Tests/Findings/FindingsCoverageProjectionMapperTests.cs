@@ -41,6 +41,39 @@ public sealed class FindingsCoverageProjectionMapperTests
     }
 
     [Fact]
+    public void Map_preserves_is_muted_from_coverage_projection()
+    {
+        FindingsCoverageFindingRow[] rows =
+        [
+            new()
+            {
+                FindingId = "f-muted",
+                FindingType = "SecurityGap",
+                Category = "Security",
+                EngineType = "Compliance",
+                Severity = "Critical",
+                Title = "Muted critical",
+                IsMuted = true,
+            },
+            new()
+            {
+                FindingId = "f-active",
+                FindingType = "SecurityGap",
+                Category = "Security",
+                EngineType = "Compliance",
+                Severity = "Warning",
+                Title = "Active warning",
+            },
+        ];
+
+        FindingsSnapshot snapshot = FindingsCoverageProjectionMapper.Map(CreateHeader(), rows);
+
+        snapshot.Findings.Should().HaveCount(2);
+        snapshot.Findings[0].IsMuted.Should().BeTrue();
+        snapshot.Findings[1].IsMuted.Should().BeFalse();
+    }
+
+    [Fact]
     public void Map_defaults_unknown_severity_to_info_and_blank_policy_rule_to_null()
     {
         FindingsCoverageFindingRow[] rows =

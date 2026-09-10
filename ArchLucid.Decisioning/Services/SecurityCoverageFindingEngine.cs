@@ -1,4 +1,5 @@
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -21,6 +22,10 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
         List<Finding> findings = [];
 
         if (result.UnprotectedResourceCount > 0)
+        {
+            List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(
+                graphSnapshot,
+                result.UnprotectedResources);
 
             findings.Add(new Finding
             {
@@ -40,6 +45,7 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     UnprotectedResources = result.UnprotectedResources
                 },
                 RelatedNodeIds = [.. result.UnprotectedResources],
+                EvidenceRefs = evidenceRefs,
                 RecommendedActions =
                 [
                     "Add security baseline declarations or protection mappings for uncovered resources."
@@ -65,6 +71,7 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     ]
                 }
             });
+        }
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }

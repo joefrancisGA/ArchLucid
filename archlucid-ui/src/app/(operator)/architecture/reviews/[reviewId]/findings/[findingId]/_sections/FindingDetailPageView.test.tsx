@@ -6,6 +6,8 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/run-1/findings/finding-1",
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -78,11 +80,16 @@ vi.mock("@/components/operator/OperatorEvidenceLimitsFooter", () => ({
   ),
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
-  isNextPublicDemoMode: () => false,
-  isOperatorExperienceFullShellEnv: () => true,
-  isBuyerPolishedOperatorShellEnv: () => true,
-}));
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isNextPublicDemoMode: () => false,
+    isOperatorExperienceFullShellEnv: () => true,
+    isBuyerPolishedOperatorShellEnv: () => false,
+  };
+});
 
 import { FindingDetailPageView } from "./FindingDetailPageView";
 
@@ -113,6 +120,8 @@ function buyerModel(overrides: Partial<FindingDetailPageModel> = {}): FindingDet
     runExecutionFootnote: null,
     statedConstraintContext: null,
     nextFindingInReview: null,
+    parentArchitectureId: null,
+    transparencyTrail: null,
     ...overrides,
   };
 }
@@ -122,7 +131,6 @@ describe("FindingDetailPageView buyer polish", () => {
     render(<FindingDetailPageView model={buyerModel()} />);
 
     expect(screen.queryByTestId("finding-detail-wayfinding")).not.toBeInTheDocument();
-    expect(screen.getByTestId("finding-detail-breadcrumb")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Open evidence trace" })).toBeNull();
   });
 

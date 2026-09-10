@@ -2,28 +2,22 @@
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
-import { ReviewPackageGovernanceFindingsVocabularyRail } from "@/components/ReviewPackageGovernanceFindingsVocabularyRail";
-
 import { GovernanceFindingsClaimOrientationStrip } from "./GovernanceFindingsClaimOrientationStrip";
 
-/** Buyer default: mount claim discipline + Sources after primary workspace findings queue body. */
+/** Buyer default: mount Sources orientation after primary workspace findings queue body. */
 export type GovernanceFindingsBuyerChromeProps = {
   readonly scopedRunId?: string | null;
 };
 
 export function GovernanceFindingsBuyerChrome(
-  props: GovernanceFindingsBuyerChromeProps = {},
+  _props: GovernanceFindingsBuyerChromeProps = {},
 ): React.JSX.Element | null {
   if (!isBuyerPolishedOperatorShellEnv()) {
     return null;
   }
 
   return (
-    <div className="space-y-3" data-testid="governance-findings-orientation-top">
-      <ReviewPackageGovernanceFindingsVocabularyRail
-        runId={props.scopedRunId}
-        currentSurfaceId="governance-findings-queue"
-      />
+    <div className="mb-4 text-left" data-testid="governance-findings-orientation-bottom">
       <GovernanceFindingsClaimOrientationStrip />
     </div>
   );

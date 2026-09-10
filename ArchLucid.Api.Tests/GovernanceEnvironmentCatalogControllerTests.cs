@@ -12,6 +12,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
+using ArchLucid.TestSupport.SealedManifest;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Api.Tests;
 
@@ -63,7 +67,10 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             scopeProvider.Object,
             catalogService.Object,
             Mock.Of<IAuditService>(),
-            tenants.Object)
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -109,7 +116,10 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             scopeProvider.Object,
             catalogService.Object,
             Mock.Of<IAuditService>(),
-            tenants.Object)
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -155,7 +165,10 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             scopeProvider.Object,
             catalogService.Object,
             Mock.Of<IAuditService>(),
-            tenants.Object)
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -182,7 +195,10 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             scopeProvider.Object,
             catalogService.Object,
             auditService.Object,
-            TenantMissingRepository())
+            TenantMissingRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -216,7 +232,10 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             scopeProvider.Object,
             catalogService.Object,
             auditService.Object,
-            TenantExistsRepository())
+            TenantExistsRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -247,7 +266,10 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             scopeProvider.Object,
             catalogService.Object,
             auditService.Object,
-            TenantExistsRepository())
+            TenantExistsRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -276,7 +298,10 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             scopeProvider.Object,
             catalogService.Object,
             auditService.Object,
-            TenantMissingRepository())
+            TenantMissingRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -336,7 +361,10 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             scopeProvider.Object,
             catalogService.Object,
             auditService.Object,
-            TenantExistsRepository())
+            TenantExistsRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -413,7 +441,10 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             scopeProvider.Object,
             catalogService.Object,
             auditService.Object,
-            TenantExistsRepository())
+            TenantExistsRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -479,7 +510,10 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             scopeProvider.Object,
             catalogService.Object,
             auditService.Object,
-            TenantExistsRepository())
+            TenantExistsRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

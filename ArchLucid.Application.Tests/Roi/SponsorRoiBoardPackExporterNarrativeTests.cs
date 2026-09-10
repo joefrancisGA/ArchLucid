@@ -32,7 +32,7 @@ public sealed class SponsorRoiBoardPackExporterNarrativeTests
             CancellationToken.None);
 
         result.Markdown.Should().NotBeNullOrEmpty();
-        result.Markdown.Should().NotContain("## Sponsor report");
+        result.Markdown.Should().NotContain(SponsorRoiBoardPackNarrativeBuilder.AdvisoryNarrativeHeading);
     }
 
     [Fact]
@@ -48,8 +48,10 @@ public sealed class SponsorRoiBoardPackExporterNarrativeTests
             generateNarrative: true,
             CancellationToken.None);
 
-        result.Markdown.Should().StartWith("## Sponsor report");
+        result.Markdown.Should().StartWith(SponsorRoiBoardPackNarrativeBuilder.AdvisoryNarrativeHeading);
+        result.Markdown.Should().Contain(SponsorRoiBoardPackNarrativeBuilder.AdvisoryNarrativeBoundarySentence);
         result.Markdown.Should().Contain("Savings remain concentrated in cost levers.");
+        result.Markdown.Should().NotContain("## Sponsor report");
     }
 
     [Fact]
@@ -66,7 +68,7 @@ public sealed class SponsorRoiBoardPackExporterNarrativeTests
             CancellationToken.None);
 
         result.Markdown.Should().NotBeNullOrEmpty();
-        result.Markdown.Should().NotContain("## Sponsor report");
+        result.Markdown.Should().NotContain(SponsorRoiBoardPackNarrativeBuilder.AdvisoryNarrativeHeading);
         result.Markdown.Should().Contain("# Sponsor ROI — Board Pack");
     }
 

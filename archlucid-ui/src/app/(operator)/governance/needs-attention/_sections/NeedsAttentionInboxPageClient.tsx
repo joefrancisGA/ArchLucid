@@ -6,6 +6,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { useAttentionPartitionPreviews } from "@/hooks/use-attention-partition-previews";
 import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
+import { useReviewsHubUnfinishedWorkHref } from "@/hooks/use-reviews-hub-unfinished-work-href";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH } from "@/lib/governance/governance-route-paths";
 import {
@@ -20,6 +21,7 @@ import { NEEDS_ATTENTION_INBOX_LABEL } from "@/lib/usability/usability-consolida
 export function NeedsAttentionInboxPageClient(): React.JSX.Element {
   const { summaries } = useOperatorAttentionSummary();
   const previews = useAttentionPartitionPreviews();
+  const unfinishedWorkHref = useReviewsHubUnfinishedWorkHref();
 
   return (
     <OperatorPageContainer variant="full">
@@ -31,12 +33,14 @@ export function NeedsAttentionInboxPageClient(): React.JSX.Element {
       <ul className="m-0 grid list-none gap-3 p-0 md:grid-cols-2" data-testid="needs-attention-inbox-list">
         {summaries.map((summary) => {
           const destination = OPERATOR_ATTENTION_KIND_DESTINATIONS[summary.partition];
+          const href =
+            summary.partition === "unfinished-work" ? unfinishedWorkHref : destination.href;
           const preview = previews[summary.partition];
 
           return (
             <li key={summary.partition}>
               <Link
-                href={destination.href}
+                href={href}
                 className={cn(
                   "block rounded-lg border border-neutral-200 p-4 no-underline transition-colors hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:border-neutral-700 dark:hover:bg-neutral-900",
                   OPERATOR_LINK,

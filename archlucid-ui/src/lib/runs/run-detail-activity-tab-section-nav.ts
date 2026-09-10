@@ -5,6 +5,8 @@ export type BuildRunDetailActivityTabSectionsArgs = {
   readonly authorityChainLabel?: string;
   /** When set, includes TB-2200 post-finalize package changes anchor. */
   readonly hasManifestId?: boolean;
+  /** When false, omits the failure-details anchor (Do this next owns recovery). */
+  readonly showFailureDetails?: boolean;
 };
 
 /** Anchor targets on the committed review workspace Activity tab (`reviewTab=activity`). */
@@ -25,6 +27,12 @@ export function buildRunDetailActivityTabSections(
   if (authorityChainLabel.length > 0) {
     sections.push({ id: "authority-chain", label: authorityChainLabel });
   }
+
+  if (args.showFailureDetails !== false) {
+    sections.push({ id: "review-failure-details", label: "Failure details" });
+  }
+
+  sections.push({ id: "records-and-diagnostics", label: "Records and diagnostics" });
 
   if (!args.buyerPolishedArtifactTable) {
     sections.push({ id: "agent-forensics", label: "Diagnostics" });

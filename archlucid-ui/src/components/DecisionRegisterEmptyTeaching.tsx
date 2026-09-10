@@ -4,6 +4,9 @@ import type { JSX } from "react";
 
 import Link from "next/link";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+
 import {
   buildDecisionRegisterEmptyTeaching,
   type DecisionRegisterEmptyTeachingModel,
@@ -24,7 +27,13 @@ export type DecisionRegisterEmptyTeachingProps = {
 export function DecisionRegisterEmptyTeaching(
   props: DecisionRegisterEmptyTeachingProps,
 ): JSX.Element {
-  const model = props.model ?? buildDecisionRegisterEmptyTeaching();
+  const { isWorkingMode } = useWorkspaceMode();
+  const model =
+    props.model ??
+    buildDecisionRegisterEmptyTeaching({
+      workingMode: isWorkingMode,
+      lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+    });
   const actions =
     model.actions === null || model.actions === undefined
       ? []
