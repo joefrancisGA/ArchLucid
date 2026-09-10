@@ -16,7 +16,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.CommitRunResponse result = await _api.FinalizeAsync(runId, null, ct);
+            Gen.CommitRunResponse result = await _api.FinalizeAsync(runId, null, null, ct);
             CommitRunResponse? mapped = DeserializeRoundTrip<CommitRunResponse>(result);
 
             return new CommitRunResult(true, mapped, null);
@@ -44,7 +44,7 @@ public sealed partial class ArchLucidApiClient
 
         try
         {
-            _ = await _api.ExecuteAsync(runId, ct);
+            _ = await _api.ExecuteAsync(runId, null, ct);
 
             return new ExecuteRunResult(true, null);
         }

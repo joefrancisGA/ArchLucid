@@ -87,9 +87,9 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/extract-upload")).toBe(true);
     expect(securityLinks.map((link) => link.href)).toEqual([
       "/",
-      "/governance/findings/assigned-to-me",
-      "/governance/remediation-factory",
-      "/governance/remediation-patterns",
+      "/security/assigned-to-me",
+      "/security/remediation-factory",
+      "/security/remediation-patterns",
     ]);
     expect(integrationLinks.map((link) => link.href)).toEqual([
       "/integrations/cloud-connections",

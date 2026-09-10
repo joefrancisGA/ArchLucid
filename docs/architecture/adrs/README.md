@@ -5,7 +5,7 @@
 
 # Architecture Decision Records (ADR)
 
-**Last reviewed:** 2026-09-07
+**Last reviewed:** 2026-09-10
 
 Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history. Historical ADRs removed 2026-08-02 are listed in [`redirects.md`](../../redirects.md#historical-adrs-removed-2026-08-02). **Completed decisions roll-up:** [`completed_adrs.md`](completed_adrs.md).
 
@@ -82,7 +82,11 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0084](0084-architecture-review-inputs-include-diagrams-and-bound-inventory.md) | Architecture review **decide inputs** include structured diagrams and bound inventory snapshots — ESI inspect stays separate; pixel-only is **NotVerifiable**, not silent drop (**Status: Proposed** 2026-09-09; AS-001 / wave 22 kernel) |
 | [0085](0085-semantic-support-band-working-career-not-commit-gate.md) | Semantic **support band** on Working career surfaces — Supported / Unchecked / Unsupported / NotScored; structural provenance (0082) stays persist gate; default finalize **warns** on Unchecked, does not block on LLM faithfulness (**Status: Proposed** 2026-09-09; AS-056 / TB-1228) |
 | [0086](0086-working-career-vs-rehearsal-doors.md) | Working **Career vs Rehearsal** doors — explicit chrome; host `AgentExecution:Mode` default may stay Simulator; Working must not present Simulator as unlabeled career work (**Status: Proposed** 2026-09-10; AS-076; **not** G-REAL-06) |
-| [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
+| [0087](0087-architecture-scoped-sharing-restrict-to-shares.md) | Optional **RestrictToShares** per architecture inside the tenant — View / Decide / Admin user grants; default workspace-visible; **no SQL RLS**; not chat or presence (**Status: Proposed** 2026-09-10; AS-086; amends 0074 §6 only) |
+| [0088](0088-draft-patch-cas-mandatory.md) | Draft PATCH **CAS is mandatory** unless audited `forceOverwrite` — omit `expectedUpdatedUtc` is 409, not last-write-wins (**Status: Proposed** 2026-09-10; LW-001) |
+| [0089](0089-livelihood-mutation-401-resume.md) | Livelihood **mutating** writes resume after 401 from `localStorage` with the same idempotency key — not GET, not auth bootstrap (**Status: Proposed** 2026-09-10; LW-007) |
+| [0090](0090-architecture-work-lease-without-presence.md) | Soft exclusive **work-lease** on a draft (acquire / heartbeat / release / steal-with-confirm) — not live presence; ADR 0088 CAS still required (**Status: Proposed** 2026-09-10; LW-008) |
+| [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, and Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 
 **When to add an ADR:** Cross-cutting choice affecting security, data, or ops; multiple valid alternatives; cost of reversal is high.

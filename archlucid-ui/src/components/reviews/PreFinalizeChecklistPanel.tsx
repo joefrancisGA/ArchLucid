@@ -8,7 +8,10 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { getPreFinalizeChecklist } from "@/lib/api/pre-finalize-checklist";
+import { shouldSuppressReadyToFinalizeForWorkingRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
@@ -87,6 +90,12 @@ export function PreFinalizeChecklistPanel({
   runId,
   manifestFinalized,
 }: PreFinalizeChecklistPanelProps): React.JSX.Element | null {
+  const { isWorkingMode } = useWorkspaceMode();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
+  const suppressReadyLabel = shouldSuppressReadyToFinalizeForWorkingRehearsalDoor({
+    workingDesk: isWorkingMode,
+    effectiveWorkingCareerRehearsalDoor: effectiveDoor,
+  });
   const [checklist, setChecklist] = useState<Awaited<ReturnType<typeof getPreFinalizeChecklist>> | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -127,8 +136,12 @@ export function PreFinalizeChecklistPanel({
           <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Pre-finalize checklist</h3>
           {checklist ? (
             <StatusTag
-              kind={checklist.readyToFinalize ? "ready" : "needs-attention"}
-              label={checklist.readyToFinalize ? "Ready to finalize" : "Review before finalize"}
+              kind={checklist.readyToFinalize && !suppressReadyLabel ? "ready" : "needs-attention"}
+              label={
+                checklist.readyToFinalize && !suppressReadyLabel
+                  ? "Ready to finalize"
+                  : "Review before finalize"
+              }
             />
           ) : null}
         </div>

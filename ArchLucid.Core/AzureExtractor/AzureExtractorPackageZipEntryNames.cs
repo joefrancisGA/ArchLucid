@@ -15,6 +15,8 @@ public static class AzureExtractorPackageZipEntryNames
 
     public const string PolicyAssignments = "policy-assignments.json";
 
+    public const string FederatedCredentials = "federated-credentials.json";
+
     public const string DefenderSummary = "defender-summary.json";
 
     public static IReadOnlyCollection<string> OptionalInventoryEntryNames { get; } =
@@ -23,6 +25,7 @@ public static class AzureExtractorPackageZipEntryNames
         DiagnosticSettings,
         NetworkAssociations,
         PolicyAssignments,
+        FederatedCredentials,
         DefenderSummary,
     ];
 }

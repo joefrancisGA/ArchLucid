@@ -1,7 +1,13 @@
 /** SecureNow Security shell learn-more overrides — longer prefixes win over architecture defaults. */
 
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
-import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_REMEDIATION_FACTORY_PATH,
+  SECURENOW_REMEDIATION_PATTERNS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
@@ -29,12 +35,24 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
     topic: { slug: "getting-started", label: OPERATOR_NAV_LINK_LABELS.home },
   },
   {
+    prefix: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+    topic: { slug: "findings", label: OPERATOR_NAV_LINK_LABELS.assignedToMeFindings, hashFragment: "assigned-to-me" },
+  },
+  {
     prefix: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
     topic: { slug: "findings", label: OPERATOR_NAV_LINK_LABELS.assignedToMeFindings, hashFragment: "assigned-to-me" },
   },
   {
+    prefix: SECURENOW_REMEDIATION_FACTORY_PATH,
+    topic: { slug: "security-evidence-paths", label: OPERATOR_NAV_LINK_LABELS.remediationFactory },
+  },
+  {
     prefix: "/governance/remediation-factory",
     topic: { slug: "remediation-factory", label: OPERATOR_NAV_LINK_LABELS.remediationFactory },
+  },
+  {
+    prefix: SECURENOW_REMEDIATION_PATTERNS_PATH,
+    topic: { slug: "remediation-patterns", label: OPERATOR_NAV_LINK_LABELS.remediationPatterns },
   },
   {
     prefix: "/governance/remediation-patterns",

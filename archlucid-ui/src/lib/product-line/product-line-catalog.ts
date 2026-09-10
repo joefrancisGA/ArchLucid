@@ -45,6 +45,8 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/governance/remediation-patterns": "both",
   "/governance/audit-evidence": "both",
 
+  // SecureNow Security shell — personal assigned-to-me queue (canonical URL; nav reshapes from governance href).
+
   // Inventory collection and outbound remediation bridges.
   "/integrations/cloud-connections": "both",
   "/integrations/jira": "both",
@@ -91,6 +93,9 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
  * (settings hub leaves, OAuth returns).
  */
 export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLineAssignment>> = {
+  "/security/assigned-to-me": "security",
+  "/security/remediation-factory": "security",
+  "/security/remediation-patterns": "security",
   "/administration/auth-domains": "both",
   "/administration/identity/sso-wizard": "both",
   "/integrations/itsm/oauth/callback": "both",
@@ -107,6 +112,7 @@ export const PRODUCT_LINE_NESTED_PREFIXES: readonly string[] = [
   "/governance/findings",
   "/governance/policy-packs",
   "/governance/standards-and-rules",
+  "/security",
   "/integrations/cloud-connections",
   "/integrations/jira",
   "/integrations/azure-boards",

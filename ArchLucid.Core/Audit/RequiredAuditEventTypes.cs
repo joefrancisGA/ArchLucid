@@ -57,6 +57,11 @@ public static class RequiredAuditEventTypes
         AuditEventTypes.AuthorityCommittedChainPersisted,
         AuditEventTypes.ArchitectureInventorySnapshotBound,
         AuditEventTypes.ArchitectureInventorySnapshotDetached,
+        AuditEventTypes.ArchitectureShareGranted,
+        AuditEventTypes.ArchitectureShareRevoked,
+        AuditEventTypes.ArchitectureRestrictToSharesEnabled,
+        AuditEventTypes.ArchitectureRestrictToSharesDisabled,
+        AuditEventTypes.DraftIntakeForceOverwriteApplied,
     ];
 
     /// <summary>
@@ -88,6 +93,11 @@ public static class RequiredAuditEventTypes
         nameof(AuditEventTypes.AuthorityCommittedChainPersisted),
         nameof(AuditEventTypes.ArchitectureInventorySnapshotBound),
         nameof(AuditEventTypes.ArchitectureInventorySnapshotDetached),
+        nameof(AuditEventTypes.ArchitectureShareGranted),
+        nameof(AuditEventTypes.ArchitectureShareRevoked),
+        nameof(AuditEventTypes.ArchitectureRestrictToSharesEnabled),
+        nameof(AuditEventTypes.ArchitectureRestrictToSharesDisabled),
+        nameof(AuditEventTypes.DraftIntakeForceOverwriteApplied),
     ];
 
     public static bool IsRequired(string? eventType)

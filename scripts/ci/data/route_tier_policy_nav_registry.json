@@ -1942,10 +1942,30 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "OperationalSecurity/OperationalSecurityArchitectMetricsController.cs",
+      "class_name": "OperationalSecurityArchitectMetricsController",
+      "route_template": "v{version:apiVersion}/operational-security/architect-metrics",
+      "normalized_prefix": "/v1/operational-security/architect-metrics",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "OperationalSecurity/OperationalSecurityFindingsController.cs",
       "class_name": "OperationalSecurityFindingsController",
       "route_template": "v{version:apiVersion}/operational-security/findings",
       "normalized_prefix": "/v1/operational-security/findings",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "OperationalSecurity/OperationalSecurityPathsController.cs",
+      "class_name": "OperationalSecurityPathsController",
+      "route_template": "v{version:apiVersion}/operational-security/paths",
+      "normalized_prefix": "/v1/operational-security/paths",
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,

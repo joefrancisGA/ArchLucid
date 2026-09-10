@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.Persistence.InfraEvidence;
 
 using FluentAssertions;
@@ -72,8 +73,9 @@ public sealed class AzureInventorySnapshotMaterializerTests
         captured!.Relationships.Should().ContainSingle(r =>
             r.FromAzureResourceId == parentArmId
             && r.ToAzureResourceId == normalizedChildArmId
-            && r.RelationshipType == "contains"
-            && r.ProvenanceKind == ProvenanceKind.ObservedFact);
+            && r.RelationshipType == GraphEdgeTypes.Contains
+            && r.ProvenanceKind == ProvenanceKind.ObservedFact
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryExplicitParentChild);
     }
 
     [Fact]
@@ -230,8 +232,9 @@ public sealed class AzureInventorySnapshotMaterializerTests
         captured!.Relationships.Should().Contain(r =>
             r.FromAzureResourceId == normalizedTargetId
             && r.ToAzureResourceId == normalizedWorkspaceId
-            && r.RelationshipType == "logsTo"
-            && r.ProvenanceKind == ProvenanceKind.ObservedFact);
+            && r.RelationshipType == GraphEdgeTypes.ConnectsTo
+            && r.ProvenanceKind == ProvenanceKind.ObservedFact
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticTarget);
     }
 
     private static Mock<IAzureInventorySnapshotRepository> CreateSnapshotRepository(

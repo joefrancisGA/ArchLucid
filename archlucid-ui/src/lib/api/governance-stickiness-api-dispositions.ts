@@ -6,7 +6,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostJson } from "./http";
 
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
-import { executeIdempotentLivelihoodMutation } from "@/lib/auth/livelihood-mutation-401-resume";
+import { withLivelihood401Resume } from "@/lib/auth/livelihood-mutation-401-resume";
 import {
   type FindingDispositionEvent,
   type FindingDispositionKind,
@@ -56,7 +56,7 @@ export async function recordFindingDispositionWith401Resume(
 ): Promise<FindingDispositionEvent> {
   const idempotencyKey = options.idempotencyKey.trim();
 
-  return executeIdempotentLivelihoodMutation({
+  return withLivelihood401Resume({
     kind: "finding_disposition",
     returnPath: options.returnPath,
     idempotencyKey,
