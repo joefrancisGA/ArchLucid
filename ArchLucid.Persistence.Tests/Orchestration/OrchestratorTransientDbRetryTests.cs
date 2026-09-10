@@ -171,4 +171,74 @@ public sealed class OrchestratorTransientDbRetryTests
         attempts.Should().Be(2);
         result.Should().Be(42);
     }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_exhausts_max_retries_then_throws_transient_sql_error()
+    {
+        int attempts = 0;
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw SqlExceptionTestFactory.Create(1205);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<SqlException>();
+        attempts.Should().Be(4);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_empty_aggregate_exception()
+    {
+        int attempts = 0;
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException();
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_aggregate_with_only_non_transient_sql_inners()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException uniqueViolation = SqlExceptionTestFactory.Create(2627);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException(fkViolation, uniqueViolation);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_generic_overload_does_not_retry_non_transient_sql_errors()
+    {
+        int attempts = 0;
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync<int>(
+            _ =>
+            {
+                attempts++;
+                return Task.FromException<int>(SqlExceptionTestFactory.Create(547));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<SqlException>();
+        attempts.Should().Be(1);
+    }
 }

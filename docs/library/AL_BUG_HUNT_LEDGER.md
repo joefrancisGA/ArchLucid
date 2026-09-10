@@ -593,6 +593,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-10 seed hunt #1582 (seed-only): reseeded orchestrator-transient-retry after #1481; cheap-disproof closed nested-aggregate wrapper, cancellation retry, generic overload parity, and zero-index delay candidates; 14 scoped transient-retry tests passed.
 
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` exhausts after three retries (four total attempts) on persistent transient deadlock — **cheap-disproof 2026-09-10 seed hunt #1591:** Polly `MaxRetryAttempts=3` yields one initial plus three retries; regression `ExecuteAsync_exhausts_max_retries_then_throws_transient_sql_error`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` retries empty `AggregateException` — **cheap-disproof 2026-09-10 seed hunt #1591:** flatten finds no transient inners; regression `ExecuteAsync_does_not_retry_empty_aggregate_exception`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` retries `AggregateException` with only non-transient SQL inners — **cheap-disproof 2026-09-10 seed hunt #1591:** no transient inner after flatten; regression `ExecuteAsync_does_not_retry_aggregate_with_only_non_transient_sql_inners`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.ExecuteAsync<T>` retries non-transient SQL unlike void overload — **cheap-disproof 2026-09-10 seed hunt #1591:** generic overload shares pipeline; regression `ExecuteAsync_generic_overload_does_not_retry_non_transient_sql_errors`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.IsExhausted` true when elapsed is one millisecond below budget at attempt 11 — **cheap-disproof 2026-09-10 seed hunt #1591:** `elapsed >= RetryBudget` is exclusive of sub-budget values; regression `IsExhausted_returns_false_when_elapsed_is_just_below_retry_budget`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.RetryDelay` at `MaxAttempts` diverges from linear `150ms * attempt` — **cheap-disproof 2026-09-10 seed hunt #1591:** same multiplier at ceiling attempt; regression `RetryDelay_at_max_attempt_uses_linear_backoff_multiplier`.
+
+2026-09-10 seed hunt #1591 (seed-only): cheap-disproof closed retry exhaustion, empty aggregate, permanent-only aggregate, generic non-transient parity, budget boundary, and max-attempt delay candidates; 20 scoped transient-retry tests passed.
+
 2026-09-09 seed hunt #1481 (seed-only): reseeded orchestrator-transient-retry; cheap-disproved mixed-aggregate fail-fast candidate; 10 scoped transient-retry tests passed.
 
 ---
