@@ -75,7 +75,10 @@ export function RunDetailReviewPackageStampViewport(
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
         {!pipelineTerminalFailure ? (
           <>
-            <RunDetailPreFinalizeGateHonestyStrip />
+            <RunDetailPreFinalizeGateHonestyStrip
+              findings={props.quickDecisionFindings}
+              manifestFinalized={props.hasGoldenManifest}
+            />
             <RunDetailQualityGateModeStrip
               runId={props.runId}
               structuralExecutionMode={props.structuralExecutionMode}
@@ -138,7 +141,10 @@ export function RunDetailReviewPackageStampViewport(
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
       {!pipelineTerminalFailure ? (
         <>
-          <RunDetailPreFinalizeGateHonestyStrip />
+          <RunDetailPreFinalizeGateHonestyStrip
+            findings={props.quickDecisionFindings}
+            manifestFinalized={props.hasGoldenManifest}
+          />
           <RunDetailQualityGateModeStrip
             runId={props.runId}
             structuralExecutionMode={props.structuralExecutionMode}
