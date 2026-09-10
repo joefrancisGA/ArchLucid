@@ -13,7 +13,7 @@ import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
-﻿import type {
+import type {
   FindingEvidenceChain,
   FindingExplainability,
   FindingLlmAudit,
