@@ -88,7 +88,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     expect(securityLinks.map((link) => link.href)).toEqual([
       "/",
       "/security/assigned-to-me",
-      "/governance/remediation-factory",
+      "/security/remediation-factory",
       "/governance/remediation-patterns",
     ]);
     expect(integrationLinks.map((link) => link.href)).toEqual([

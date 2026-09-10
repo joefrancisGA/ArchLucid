@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { contextualHelpForPathname } from "@/lib/contextual-help-registry";
+import {
+  GOVERNANCE_REMEDIATION_FACTORY_PATH,
+  SECURENOW_REMEDIATION_FACTORY_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_PATH, GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
@@ -49,10 +53,10 @@ describe("SecureNow contextual help (SH-01)", () => {
   });
 
   it("maps remediation factory Learn more away from governance-approval in Security", () => {
-    expect(pageHelpTopicForPathname("/governance/remediation-factory", "security")?.slug).toBe(
+    expect(pageHelpTopicForPathname(SECURENOW_REMEDIATION_FACTORY_PATH, "security")?.slug).toBe(
       "remediation-factory",
     );
-    expect(pageHelpTopicForPathname("/governance/remediation-factory", "architecture")?.slug).toBe(
+    expect(pageHelpTopicForPathname(GOVERNANCE_REMEDIATION_FACTORY_PATH, "architecture")?.slug).toBe(
       "governance-approval",
     );
   });

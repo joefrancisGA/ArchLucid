@@ -38,6 +38,12 @@ export const GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH = "/governance/findings/ass
 /** SecureNow Security shell — personal assigned-to-me queue (same page, Security URL namespace). */
 export const SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH = "/security/assigned-to-me" as const;
 
+/** IE-15 remediation factory — ranked queue and executive metrics. */
+export const GOVERNANCE_REMEDIATION_FACTORY_PATH = "/governance/remediation-factory" as const;
+
+/** SecureNow Security shell — remediation factory (same page, Security URL namespace). */
+export const SECURENOW_REMEDIATION_FACTORY_PATH = "/security/remediation-factory" as const;
+
 /** Cross-review decision register (left-nav). */
 export const GOVERNANCE_DECISION_REGISTER_PATH = "/governance/decision-register" as const;
 

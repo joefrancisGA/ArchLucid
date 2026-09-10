@@ -6,6 +6,8 @@ import {
   GOVERNANCE_DECISION_REGISTER_PATH,
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_REMEDIATION_FACTORY_PATH,
+  SECURENOW_REMEDIATION_FACTORY_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
   buildCanonicalGovernanceAlertsInboxHref,
@@ -21,6 +23,8 @@ describe("governance-route-paths", () => {
     expect(GOVERNANCE_FINDINGS_PATH).toBe("/governance/findings");
     expect(GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH).toBe("/governance/findings/assigned-to-me");
     expect(SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH).toBe("/security/assigned-to-me");
+    expect(GOVERNANCE_REMEDIATION_FACTORY_PATH).toBe("/governance/remediation-factory");
+    expect(SECURENOW_REMEDIATION_FACTORY_PATH).toBe("/security/remediation-factory");
     expect(GOVERNANCE_WORKSPACE_HEALTH_HREF).toBe("/insights/workspace-health");
   });
 
