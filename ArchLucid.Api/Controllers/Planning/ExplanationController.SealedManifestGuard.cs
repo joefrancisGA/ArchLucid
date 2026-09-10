@@ -29,7 +29,7 @@ public sealed partial class ExplanationController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapExplanationSealedManifestConflict(ex);
         }
 
         return null;
@@ -62,9 +62,15 @@ public sealed partial class ExplanationController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapExplanationSealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps explanation run/finding/holistic <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapExplanationSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

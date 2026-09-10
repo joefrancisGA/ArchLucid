@@ -7,6 +7,8 @@ import {
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { STANDARDS_RULES_HELP_TOPIC_LABEL } from "@/lib/standards-rules-page";
 import { STANDARDS_RULES_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/standards-rules-help-evidence-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 export const STANDARDS_RULES_HELP_PAGE_EYEBROW = "Help topic" as const;
 
@@ -24,7 +26,7 @@ export const STANDARDS_RULES_HELP_PRIMARY_CONTENT_ID = "help-standards-rules-pri
 
 export const STANDARDS_RULES_HELP_SKIP_LINK_LABEL = "Skip to standards and rules guide" as const;
 
-export function standardsRulesHelpPageSubtitle(buyerPolishedShell: boolean): string {
+function standardsRulesHelpPageSubtitleLegacy(buyerPolishedShell: boolean): string {
   return buyerPolishedShell ? STANDARDS_RULES_HELP_PAGE_SUBTITLE_BUYER : STANDARDS_RULES_HELP_PAGE_SUBTITLE;
 }
 
@@ -80,6 +82,41 @@ export const STANDARDS_RULES_HELP_FINDINGS_HREF = GOVERNANCE_FINDINGS_PATH;
 export const STANDARDS_RULES_HELP_POLICY_PACKS_HELP_HREF = inAppHelpHref("policy-packs");
 
 export const STANDARDS_RULES_HELP_CLAIM_HEADING_ID = "help-standards-rules-claim-discipline-heading" as const;
+
+export const SECURENOW_STANDARDS_RULES_HELP_PAGE_SUBTITLE =
+  "How to read effective ARC-AMPE rules, policy pack sources, and linked inventory evidence for the active workspace scope.";
+
+export const SECURENOW_STANDARDS_RULES_HELP_OVERVIEW =
+  "This guide explains how to read the Standards and rules resolution view for the active workspace scope: enforced rule rows, policy pack sources, linked findings, and diagnostic export. Use it before you open the live view or when compliance questions need citeable resolution context.";
+
+export const SECURENOW_STANDARDS_RULES_HELP_HOW_TO_READ_STEPS = [
+  "Open Standards and rules, then start with enforced rules to see which checks apply to the current workspace scope.",
+  "Filter or refresh the table when scope changes or new policy packs are assigned.",
+  "Open policy packs or findings when a rule row needs follow-up outside the resolution view.",
+] as const;
+
+export function standardsRulesHelpPageSubtitle(
+  buyerPolishedShell: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_STANDARDS_RULES_HELP_PAGE_SUBTITLE;
+  }
+
+  return standardsRulesHelpPageSubtitleLegacy(buyerPolishedShell);
+}
+
+export function standardsRulesHelpOverview(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_STANDARDS_RULES_HELP_OVERVIEW
+    : STANDARDS_RULES_HELP_OVERVIEW;
+}
+
+export function standardsRulesHelpHowToReadSteps(productLineId: ProductLineId = "architecture"): readonly string[] {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_STANDARDS_RULES_HELP_HOW_TO_READ_STEPS
+    : STANDARDS_RULES_HELP_HOW_TO_READ_STEPS;
+}
 
 export const STANDARDS_RULES_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-standards-and-rules-shows", title: "What standards & rules shows" },

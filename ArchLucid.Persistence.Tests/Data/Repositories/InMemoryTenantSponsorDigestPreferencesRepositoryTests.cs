@@ -33,7 +33,7 @@ public sealed class InMemoryTenantSponsorDigestPreferencesRepositoryTests
 
         row.Should().NotBeNull();
         row.RecipientEmails.Should().ContainInOrder("a@x.test", "b@y.test");
-        row.IanaTimeZoneId.Should().Be("UTC");
+        row.IanaTimeZoneId.Should().Be("America/New_York");
     }
 
     [SkippableFact]

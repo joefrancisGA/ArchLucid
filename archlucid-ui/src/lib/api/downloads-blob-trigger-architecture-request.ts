@@ -1,3 +1,4 @@
+import { architectureRequestJsonMutationBlockedReason } from "@/lib/runs/architecture-request-json-mutation-blocked-reason";
 import { getArchitectureRequestDownloadUrl } from "./downloads-blob-urls";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
@@ -6,5 +7,6 @@ export async function downloadArchitectureRequestJson(requestId: string): Promis
   await downloadScopedProxyFileGet(getArchitectureRequestDownloadUrl(requestId), {
     accept: "application/json",
     defaultFileName: `ArchitectureRequest-${requestId}.json`,
+    resolveBlockedReason: architectureRequestJsonMutationBlockedReason,
   });
 }

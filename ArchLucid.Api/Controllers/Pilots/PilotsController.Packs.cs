@@ -75,7 +75,6 @@ public sealed partial class PilotsController
         catch (ConflictException ex)
         {
             return MapPilotPackSealedManifestConflict(ex);
-
         }
     }
 
@@ -104,7 +103,6 @@ public sealed partial class PilotsController
         catch (ConflictException ex)
         {
             return MapPilotPackSealedManifestConflict(ex);
-
         }
     }
 
@@ -256,7 +254,6 @@ public sealed partial class PilotsController
         catch (ConflictException ex)
         {
             return MapPilotPackSealedManifestConflict(ex);
-
         }
     }
 }

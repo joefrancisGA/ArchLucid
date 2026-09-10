@@ -30,7 +30,6 @@ public sealed partial class AuthorityQueryController
         catch (ConflictException ex)
         {
             return MapRunQuerySealedManifestConflict(ex);
-
         }
 
         return null;
@@ -62,7 +61,6 @@ public sealed partial class AuthorityQueryController
         catch (ConflictException ex)
         {
             return MapRunQuerySealedManifestConflict(ex);
-
         }
 
         return null;
@@ -83,7 +81,6 @@ public sealed partial class AuthorityQueryController
         catch (ConflictException ex)
         {
             return MapRunQuerySealedManifestConflict(ex);
-
         }
 
         return null;
@@ -110,7 +107,6 @@ public sealed partial class AuthorityQueryController
         catch (ConflictException ex)
         {
             return MapRunQuerySealedManifestConflict(ex);
-
         }
 
         return null;

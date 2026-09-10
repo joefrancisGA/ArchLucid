@@ -39,6 +39,7 @@ public sealed class ArchitecturesControllerTests
     private readonly Mock<IArchitectureSealDeltaService> _sealDeltaService = new();
     private readonly Mock<IRunRepository> _runRepository = new();
     private readonly Mock<IGoldenManifestRepository> _goldenManifestRepository = new();
+    private readonly Mock<IManifestHashService> _manifestHashService = new();
 
     public ArchitecturesControllerTests()
     {
@@ -201,7 +202,7 @@ public sealed class ArchitecturesControllerTests
             _auditService.Object,
             _runRepository.Object,
             _goldenManifestRepository.Object,
-            SealedManifestHashTestSupport.CreateManifestHashService(),
+            _manifestHashService.Object,
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun())
         {

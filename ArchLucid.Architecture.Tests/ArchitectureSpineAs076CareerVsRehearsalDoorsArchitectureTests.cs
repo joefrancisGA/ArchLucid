@@ -2,7 +2,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Architecture.Tests;
 
-/// <summary>AS-076 ratchet: ADR 0086 Career vs Rehearsal doors exists.</summary>
+/// <summary>AS-076 ratchet: ADR 0086 Career vs Rehearsal doors without host Mode flip.</summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ArchitectureSpineAs076CareerVsRehearsalDoorsArchitectureTests
@@ -10,23 +10,63 @@ public sealed class ArchitectureSpineAs076CareerVsRehearsalDoorsArchitectureTest
     private static readonly string RepoRoot = FindRepoRoot();
 
     private const string AdrRelativePath =
-        "docs/architecture/adrs/0086-career-vs-rehearsal-doors-no-host-mode-flip.md";
+        "docs/architecture/adrs/0086-working-career-vs-rehearsal-doors.md";
+
+    private const string ReadmeRelativePath = "docs/architecture/adrs/README.md";
 
     [Fact]
-    public void As076_adr_0086_exists_and_forbids_host_mode_flip()
+    public void As076_adr_0086_exists_with_career_rehearsal_doors_and_required_sections()
     {
-        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
+        string adrPath = Path.Combine(RepoRoot, AdrRelativePath);
+        File.Exists(adrPath).Should().BeTrue();
 
+        string adr = File.ReadAllText(adrPath);
+
+        adr.Should().Contain("**Status:** Proposed");
         adr.Should().Contain("Career");
         adr.Should().Contain("Rehearsal");
         adr.Should().Contain("AgentExecution:Mode");
-        adr.Should().Contain("G-REAL-06");
+        adr.Should().Contain("## Trade-offs");
+        adr.Should().Contain("## Constraints");
+        adr.Should().Contain("## Expected impact");
+        adr.Should().Contain("LP-06");
+        adr.Should().Contain("0033");
     }
 
     [Fact]
-    public void As076_working_chooser_component_exists()
+    public void As076_adr_0086_forbids_host_mode_flip_and_g_real_06_implementation()
     {
-        string chooser = File.ReadAllText(
+        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
+
+        adr.Should().Contain("G-REAL-06");
+        adr.Should().MatchRegex("not.*flip", "ADR must forbid silent host Mode flip");
+        adr.Should().MatchRegex("not.*implement.*G-REAL-06", "ADR must not subsume G-REAL-06 owner program");
+        adr.Should().Contain("simulator-career-honesty");
+    }
+
+    [Fact]
+    public void As076_adr_0086_quoteable_working_career_while_mode_simulator_is_no()
+    {
+        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
+
+        adr.Should().Contain("May Working look like Career while `Mode=Simulator`?");
+        adr.Should().Contain("**No**");
+        adr.Should().Contain("unless the user is in the explicit **Rehearsal** door");
+    }
+
+    [Fact]
+    public void As076_readme_lists_adr_0086_row()
+    {
+        string readme = File.ReadAllText(Path.Combine(RepoRoot, ReadmeRelativePath));
+
+        readme.Should().Contain("0086-working-career-vs-rehearsal-doors.md");
+        readme.Should().Contain("AS-076");
+    }
+
+    [Fact]
+    public void As076_working_chooser_component_exists_in_governance_and_workspace_mode()
+    {
+        string governanceChooser = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -35,7 +75,18 @@ public sealed class ArchitectureSpineAs076CareerVsRehearsalDoorsArchitectureTest
                 "governance",
                 "WorkingCareerRehearsalChooser.tsx"));
 
-        chooser.Should().Contain("working-career-rehearsal-chooser");
+        governanceChooser.Should().Contain("working-career-rehearsal-chooser");
+
+        string workspaceModeChooser = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "archlucid-ui",
+                "src",
+                "components",
+                "workspace-mode",
+                "WorkingCareerRehearsalChooser.tsx"));
+
+        workspaceModeChooser.Should().Contain("WORKING_CAREER_REHEARSAL_CHOOSER_ARIA_LABEL");
     }
 
     private static string FindRepoRoot()

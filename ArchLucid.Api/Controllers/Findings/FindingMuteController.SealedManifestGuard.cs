@@ -37,9 +37,15 @@ public sealed partial class FindingMuteController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapFindingMuteSealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps finding mute/unmute <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapFindingMuteSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

@@ -1,10 +1,9 @@
 using ArchLucid.Core.Findings;
-
 using FluentAssertions;
 
 namespace ArchLucid.Architecture.Tests;
 
-/// <summary>AS-074 ratchet: premium LLM semantic support judge stays default off.</summary>
+/// <summary>AS-074 ratchet: premium LLM semantic judge for support band stays default off.</summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
@@ -23,6 +22,32 @@ public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
     }
 
     [Fact]
+    public void As074_options_default_enable_llm_judge_false()
+    {
+        string optionsSource = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Core", "Findings", "FindingSemanticSupportBandOptions.cs"));
+
+        optionsSource.Should().Contain("EnableLlmJudge");
+        optionsSource.Should().Contain("= false");
+        optionsSource.Should().Contain("AS-074");
+    }
+
+    [Fact]
+    public void As074_host_registers_noop_llm_judge_by_default()
+    {
+        string composition = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Host.Composition",
+                "Startup",
+                "ServiceCollectionExtensions.Decisioning.cs"));
+
+        composition.Should().Contain("FindingSemanticSupportBandOptions");
+        composition.Should().Contain("IFindingSemanticSupportBandLlmJudge");
+        composition.Should().Contain("NoOpFindingSemanticSupportBandLlmJudge");
+    }
+
+    [Fact]
     public void As074_scorer_remains_heuristic_default_without_llm_judge_flag()
     {
         string scorer = File.ReadAllText(
@@ -37,7 +62,23 @@ public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
     }
 
     [Fact]
-    public void As074_adr_0085_documents_default_off_llm_judge_follow_up()
+    public void As074_emission_applicator_skips_llm_judge_when_option_disabled()
+    {
+        string emission = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Decisioning",
+                "Findings",
+                "FindingSemanticSupportBandEmissionApplicator.cs"));
+
+        emission.Should().Contain("options.EnableLlmJudge");
+        emission.Should().Contain("FindingSemanticSupportBandScorer.Score");
+        emission.Should().NotContain("CompleteJsonAsync");
+        emission.Should().NotContain("AgentOutputLlmSemanticJudge");
+    }
+
+    [Fact]
+    public void As074_adr_0085_documents_default_off_llm_judge()
     {
         string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
 

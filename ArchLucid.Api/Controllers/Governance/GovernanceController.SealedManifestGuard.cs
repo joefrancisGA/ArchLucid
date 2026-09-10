@@ -35,7 +35,7 @@ public sealed partial class GovernanceController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceSealedManifestConflict(ex);
         }
 
         return null;
@@ -72,7 +72,7 @@ public sealed partial class GovernanceController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceSealedManifestConflict(ex);
         }
 
         return null;
@@ -95,4 +95,10 @@ public sealed partial class GovernanceController
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps governance dry-run/simulate/insights <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapGovernanceSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

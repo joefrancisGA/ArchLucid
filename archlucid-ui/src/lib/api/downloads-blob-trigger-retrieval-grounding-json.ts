@@ -1,3 +1,4 @@
+import { runRetrievalGroundingBlockedReason } from "@/lib/runs/run-retrieval-grounding-blocked-reason";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
 /** Downloads retrieval grounding diagnostics JSON for one run (browser only). */
@@ -7,6 +8,7 @@ export async function downloadRunRetrievalGroundingJson(runId: string): Promise<
     {
       accept: "application/json",
       defaultFileName: `retrieval-grounding-${runId}.json`,
+      resolveBlockedReason: runRetrievalGroundingBlockedReason,
     },
   );
 }

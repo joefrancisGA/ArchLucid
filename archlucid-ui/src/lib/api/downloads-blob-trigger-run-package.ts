@@ -1,3 +1,4 @@
+import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 import {
   getRunPackageExportUrl,
   type RunPackageExportFormat,
@@ -30,5 +31,6 @@ export async function downloadRunPackageExport(
         : format === "pdf"
           ? ["application/pdf"]
           : ["text/html"],
+    resolveBlockedReason: runPackageExportMutationBlockedReason,
   });
 }
