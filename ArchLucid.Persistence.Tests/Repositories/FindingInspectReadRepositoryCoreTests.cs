@@ -2555,4 +2555,19 @@ public sealed class FindingInspectReadRepositoryCoreTests
 
         projection.LatestDisposition.Should().Be(FindingDisposition.Accepted);
     }
+
+    [Fact]
+    public void MapDispositionPointerProjection_returns_null_disposition_for_whitespace_padded_negative_numeric_string()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "  -1  ",
+            hasDispositionRow: true,
+            occurredAtUtc: new DateTimeOffset(2026, 10, 8, 14, 30, 0, TimeSpan.Zero),
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().BeNull();
+    }
 }

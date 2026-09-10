@@ -425,4 +425,34 @@ public sealed class FindingInspectReadModelMapperTests
     {
         FindingInspectReadModelMapper.ParseDisposition("  1.5  ").Should().BeNull();
     }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_returns_null_for_negative_numeric_string()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("-1").Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_trims_whitespace_from_negative_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("  -1  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_trims_whitespace_from_negative_numeric_string_before_defaulting_to_info()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("  -1  ").Should().Be(FindingSeverity.Info);
+    }
+
+    [Fact]
+    public void ParseHumanReview_trims_whitespace_from_negative_numeric_string_before_defaulting_to_not_required()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("  -1  ").Should().Be(FindingHumanReviewStatus.NotRequired);
+    }
+
+    [Fact]
+    public void ParseDisposition_trims_whitespace_from_negative_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("  -1  ").Should().BeNull();
+    }
 }
