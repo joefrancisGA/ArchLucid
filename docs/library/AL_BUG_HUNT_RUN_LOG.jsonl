@@ -1799,3 +1799,4 @@
 {"at":"2026-09-10T16:33:05.1133113Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
 {"at":"2026-09-10T16:37:16.2780241Z","zoneId":"cli-terraform-evidence","outcome":"seed-only"}
 {"at":"2026-09-10T16:49:53.1143632Z","zoneId":"ui-auth-proxy","outcome":"hit"}
+{"at":"2026-09-10T16:54:01.6072129Z","zoneId":"ui-runs-list","outcome":"seed-only"}
