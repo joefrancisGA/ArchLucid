@@ -49,6 +49,7 @@ import {
   fetchInfraEvidenceSnapshots,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import { formatInfraEvidenceDiagramsApiError } from "@/lib/infra-evidence/infra-evidence-diagrams-api";
+import { formatInfraEvidenceSnapshotLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
@@ -99,13 +100,6 @@ const cnCard =
 
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
-
-function formatSnapshotLabel(snapshot: InfraEvidenceSnapshotSummary): string {
-  const captured = snapshot.capturedUtc != null ? new Date(snapshot.capturedUtc).toLocaleString() : "unknown time";
-  const subscription = snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription";
-
-  return `${subscription} · ${captured} · ${snapshot.resourceCount} resources`;
-}
 
 function resolveDefaultFallbackKey(
   artifacts: readonly InfraEvidenceMermaidFallbackArtifactSummary[],
@@ -666,7 +660,7 @@ export function DiagramsWorkbenchClient() {
                 ) : (
                   snapshots.map((snapshot) => (
                     <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                      {formatSnapshotLabel(snapshot)}
+                      {formatInfraEvidenceSnapshotLabel(snapshot)}
                     </option>
                   ))
                 )}
@@ -706,7 +700,7 @@ export function DiagramsWorkbenchClient() {
                 ) : (
                   snapshots.map((snapshot) => (
                     <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                      {formatSnapshotLabel(snapshot)}
+                      {formatInfraEvidenceSnapshotLabel(snapshot)}
                     </option>
                   ))
                 )}
