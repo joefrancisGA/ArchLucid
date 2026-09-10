@@ -538,4 +538,70 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
         latest.Should().ContainSingle();
         latest[0].TraceId.Should().Be("trace-a-accepted");
     }
+
+    [Fact]
+    public void Select_when_higher_attempt_warned_wins_over_lower_attempt_rejected()
+    {
+        DateTime olderUtc = new(2026, 12, 5, 13, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 13, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededRejected = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace latestWarned = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+            QualityRejected = false,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([supersededRejected, latestWarned]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-attempt-2");
+    }
+
+    [Fact]
+    public void Select_when_same_attempt_quality_rejected_null_outcome_beats_unevaluated_duplicate()
+    {
+        DateTime olderUtc = new(2026, 12, 5, 14, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 14, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace blockingDuplicate = new()
+        {
+            TraceId = "trace-qr-null",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace unevaluatedDuplicate = new()
+        {
+            TraceId = "trace-unevaluated",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([unevaluatedDuplicate, blockingDuplicate]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-qr-null");
+    }
 }

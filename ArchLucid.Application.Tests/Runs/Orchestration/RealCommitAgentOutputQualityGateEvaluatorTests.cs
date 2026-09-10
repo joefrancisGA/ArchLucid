@@ -803,6 +803,112 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
     }
 
     [Fact]
+    public void GetBlockingReasons_when_higher_attempt_warned_does_not_block_on_superseded_rejected_trace()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime olderUtc = new(2026, 12, 5, 13, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 13, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededRejected = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace latestWarned = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [supersededRejected, latestWarned])
+            .Should().BeEmpty(
+                "AttemptIndex supersedes quality rank; Warned winning attempt is intentionally non-blocking");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_quality_rejected_flag_set_with_null_recorded_outcome_still_blocks()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "trace-qr-null",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [trace]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-qr-null");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_same_attempt_quality_rejected_null_outcome_duplicate_still_blocks()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime olderUtc = new(2026, 12, 5, 14, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 14, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace blockingDuplicate = new()
+        {
+            TraceId = "trace-qr-null",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace unevaluatedDuplicate = new()
+        {
+            TraceId = "trace-unevaluated",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [unevaluatedDuplicate, blockingDuplicate]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-qr-null");
+    }
+
+    [Fact]
     public void GetBlockingReasons_when_same_attempt_task_id_differs_only_by_whitespace_prefers_accepted_trace_after_upsert()
     {
         ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
