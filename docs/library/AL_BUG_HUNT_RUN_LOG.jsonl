@@ -1809,3 +1809,4 @@
 {"at":"2026-09-10T17:20:59.9259861Z","zoneId":"ui-form-validation","outcome":"seed-only"}
 {"at":"2026-09-10T17:24:47.5218945Z","zoneId":"weekly-digest-email","outcome":"seed-only"}
 {"at":"2026-09-10T17:27:43.3389763Z","zoneId":"cli-terraform-evidence","outcome":"seed-only"}
+{"at":"2026-09-10T17:30:34.8187459Z","zoneId":"core-azure-extractor","outcome":"seed-only"}
