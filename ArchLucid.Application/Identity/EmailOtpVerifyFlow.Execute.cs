@@ -216,6 +216,23 @@ public sealed partial class EmailOtpVerifyFlow
 
         if (activeMemberships.Count == 1)
         {
+            UserInvitationRecord? pendingInvitationForNewWorkspace =
+                await TryGetPendingInvitationForNonMemberWorkspaceAsync(
+                        normalizedEmail,
+                        activeMemberships,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+            if (pendingInvitationForNewWorkspace is not null)
+            {
+                return (
+                    EmailOtpAuthNextStep.AcceptInvitation,
+                    pendingInvitationForNewWorkspace.TenantId,
+                    pendingInvitationForNewWorkspace.WorkspaceId,
+                    pendingInvitationForNewWorkspace.Id,
+                    ResolveMembershipRole(pendingInvitationForNewWorkspace.AppRole));
+            }
+
             WorkspaceMembershipRecord only = activeMemberships[0];
 
             return (
@@ -249,22 +266,46 @@ public sealed partial class EmailOtpVerifyFlow
             }
         }
 
-        IReadOnlyList<UserInvitationRecord> openInvitations =
-            await _invitations.ListPendingByNormalizedEmailAsync(normalizedEmail, cancellationToken).ConfigureAwait(false);
+        UserInvitationRecord? openInvitation =
+            await TryGetPendingInvitationForNonMemberWorkspaceAsync(
+                    normalizedEmail,
+                    activeMemberships,
+                    cancellationToken)
+                .ConfigureAwait(false);
 
-        if (openInvitations.Count > 0)
+        if (openInvitation is not null)
         {
-            UserInvitationRecord first = openInvitations[0];
-
             return (
                 EmailOtpAuthNextStep.AcceptInvitation,
-                first.TenantId,
-                first.WorkspaceId,
-                first.Id,
-                ResolveMembershipRole(first.AppRole));
+                openInvitation.TenantId,
+                openInvitation.WorkspaceId,
+                openInvitation.Id,
+                ResolveMembershipRole(openInvitation.AppRole));
         }
 
         return (EmailOtpAuthNextStep.CreateWorkspace, null, null, null, ArchLucidRoles.Reader);
+    }
+
+    private async Task<UserInvitationRecord?> TryGetPendingInvitationForNonMemberWorkspaceAsync(
+        string normalizedEmail,
+        IReadOnlyList<WorkspaceMembershipRecord> activeMemberships,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<UserInvitationRecord> openInvitations =
+            await _invitations.ListPendingByNormalizedEmailAsync(normalizedEmail, cancellationToken).ConfigureAwait(false);
+
+        foreach (UserInvitationRecord invitation in openInvitations)
+        {
+            bool alreadyMember = activeMemberships.Any(row =>
+                row.TenantId == invitation.TenantId && row.WorkspaceId == invitation.WorkspaceId);
+
+            if (!alreadyMember)
+            {
+                return invitation;
+            }
+        }
+
+        return null;
     }
 
     private static string ResolveMembershipRole(string? role)
