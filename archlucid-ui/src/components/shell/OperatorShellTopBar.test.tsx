@@ -250,6 +250,20 @@ describe("OperatorShellTopBar", () => {
     expect(screen.queryByTestId("simulator-mode-top-bar-chip-toggle")).not.toBeInTheDocument();
   });
 
+  it("hides the workspace scope switcher in the Security product shell", async () => {
+    productLineMock.value = "security";
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.queryByTestId("app-shell-topbar-context")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("operator-scope-switcher-trigger")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("operator-shell-demo-workspace-tag")).not.toBeInTheDocument();
+  });
+
   it("hides the AI budget pill when remaining budget is healthy", async () => {
     fetchBudgetStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,

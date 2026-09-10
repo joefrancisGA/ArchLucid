@@ -58,6 +58,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
   const showAuthorityThemeToggle = isUiAuthorityThemeEvalEnabledEnv();
   const showMoreMenu = showAuthorityThemeToggle;
   const showDevAnalysisTopBarChrome = productLine !== "security";
+  const showWorkspaceScopeSwitcher = productLine !== "security";
 
   useSearchShortcut();
 
@@ -108,13 +109,15 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
           data-testid="app-shell-topbar-session"
           className="ml-auto flex min-w-0 shrink-0 flex-nowrap items-center justify-end gap-3 py-2.5 pr-4 lg:pr-6"
         >
-            <div
-              data-testid="app-shell-topbar-context"
-              className="flex min-w-0 flex-nowrap items-center gap-2"
-            >
-              <ScopeSwitcherDeferred density="compact" />
-              <OperatorShellDemoWorkspaceTag />
-            </div>
+            {showWorkspaceScopeSwitcher ? (
+              <div
+                data-testid="app-shell-topbar-context"
+                className="flex min-w-0 flex-nowrap items-center gap-2"
+              >
+                <ScopeSwitcherDeferred density="compact" />
+                <OperatorShellDemoWorkspaceTag />
+              </div>
+            ) : null}
             <AuthPanel />
             <div className="flex shrink-0 items-center gap-2.5 border-l border-neutral-200 pl-3 dark:border-neutral-700">
               <GuidedModeTopBarChip />
