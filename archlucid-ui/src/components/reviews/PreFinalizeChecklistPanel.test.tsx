@@ -3,6 +3,20 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PreFinalizeChecklistPanel } from "./PreFinalizeChecklistPanel";
 
+const effectiveDoorMock = vi.hoisted(() => ({ value: "career" as "career" | "rehearsal" }));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({ isWorkingMode: true }),
+}));
+
+vi.mock("@/hooks/use-effective-working-career-rehearsal-door", () => ({
+  useEffectiveWorkingCareerRehearsalDoor: () => ({
+    door: effectiveDoorMock.value,
+    effectiveDoor: effectiveDoorMock.value,
+    mounted: true,
+  }),
+}));
+
 vi.mock("@/lib/api/pre-finalize-checklist", () => ({
   getPreFinalizeChecklist: vi.fn(),
 }));
@@ -16,6 +30,22 @@ describe("PreFinalizeChecklistPanel", () => {
     );
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("suppresses Ready to finalize label on Working Rehearsal door (AS-079)", async () => {
+    effectiveDoorMock.value = "rehearsal";
+    vi.mocked(getPreFinalizeChecklist).mockResolvedValue({
+      runId: "run-1",
+      readyToFinalize: true,
+      advisoryCount: 0,
+      blockingCount: 0,
+      items: [],
+    });
+
+    render(<PreFinalizeChecklistPanel runId="run-1" manifestFinalized={false} />);
+
+    expect(await screen.findByText("Review before finalize")).toBeInTheDocument();
+    expect(screen.queryByText("Ready to finalize")).not.toBeInTheDocument();
   });
 
   it("shows checklist rows when pre-finalize checks return data", async () => {
