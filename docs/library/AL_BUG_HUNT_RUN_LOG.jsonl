@@ -1732,4 +1732,5 @@
 {"at":"2026-09-09T22:39:28.0118662Z","zoneId":"auth-return-path","outcome":"seed-only"}
 {"at":"2026-09-09T22:39:38.7522048Z","zoneId":"auth-return-path","outcome":"seed-only"}
 {"at":"2026-09-10T01:37:19.0359392Z","zoneId":"auth-return-path","outcome":"hit"}
-{"at":"2026-09-10T01:37:19.2786720Z","zoneId":"auth-return-path","outcome":"hit"}
+{"at":"2026-09-10T01:37:19.278672Z","zoneId":"auth-return-path","outcome":"hit"}
+{"at":"2026-09-10T01:42:20.1766812Z","zoneId":"host-core-coordination","outcome":"hit"}
