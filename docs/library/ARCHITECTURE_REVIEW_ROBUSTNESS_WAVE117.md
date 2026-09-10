@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 > **Scope:** Contributor-reference — wave-117 robustness controls for architecture create and review (branch `cursor/wave117-robustness-e14f`).
+=======
+> **Scope:** Placeholder — wave-117 robustness controls (1389–1400) when opened.
+>>>>>>> origin/master
 
 # Architecture create/review robustness — wave 117
 
 Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE116.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE116.md) (1377–1388 carryover).
 
+<<<<<<< HEAD
 | # | Control | Primary wiring |
 |---|---------|----------------|
 | 1389 | Product source-context GET runtime **409** mapper | `ArchitectureIntelligenceController.ProductPublish.cs` — `GetProductRunSourceContextAsync` |
@@ -24,3 +29,6 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave117Ar
 **Hasher baseline note:** wave 117 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
 **Deferred:** wave 52 run findings and advisory read follow-ups — see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE118.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE118.md) (1401–1412) when opened.
+=======
+**Deferred:** not yet opened.
+>>>>>>> origin/master

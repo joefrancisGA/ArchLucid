@@ -259,6 +259,7 @@ public sealed partial class PilotsController
                 return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
             }
 
+
             return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
 

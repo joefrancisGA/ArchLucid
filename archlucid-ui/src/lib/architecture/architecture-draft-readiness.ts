@@ -76,8 +76,6 @@ export type ArchitectureDraftPatchPayload = {
   readonly workflowIntent: typeof CREATE_ARCHITECTURE_INTENT;
   readonly structuredBrief: ReturnType<typeof structuredBriefToPatchPayload>;
   readonly openQuestions?: string;
-  readonly expectedUpdatedUtc?: string;
-  readonly forceOverwrite?: boolean;
 };
 
 /**
