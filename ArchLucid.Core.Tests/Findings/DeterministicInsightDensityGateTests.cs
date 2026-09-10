@@ -725,6 +725,37 @@ public sealed class DeterministicInsightDensityGateTests
     }
 
     [Fact]
+    public void Score_ignores_semantic_support_band_on_source_finding()
+    {
+        Finding supported = SampleFindingForSupportBandIsolation();
+        supported.SemanticSupportBand = FindingSemanticSupportBand.Supported;
+
+        Finding unsupported = SampleFindingForSupportBandIsolation();
+        unsupported.SemanticSupportBand = FindingSemanticSupportBand.Unsupported;
+
+        Finding uncheckedBand = SampleFindingForSupportBandIsolation();
+        uncheckedBand.SemanticSupportBand = FindingSemanticSupportBand.Unchecked;
+
+        InsightDensityGateCandidate supportedCandidate = InsightDensityGateCandidate.FromFinding(supported);
+        InsightDensityGateCandidate unsupportedCandidate = InsightDensityGateCandidate.FromFinding(unsupported);
+        InsightDensityGateCandidate uncheckedCandidate = InsightDensityGateCandidate.FromFinding(uncheckedBand);
+
+        InsightDensityGateResult supportedResult = Gate.Score(supportedCandidate, [supportedCandidate]);
+        InsightDensityGateResult unsupportedResult = Gate.Score(unsupportedCandidate, [unsupportedCandidate]);
+        InsightDensityGateResult uncheckedResult = Gate.Score(uncheckedCandidate, [uncheckedCandidate]);
+
+        unsupportedResult.InsightDensityScore.Should().Be(supportedResult.InsightDensityScore);
+        unsupportedResult.Treatment.Should().Be(supportedResult.Treatment);
+        unsupportedResult.Classification.Should().Be(supportedResult.Classification);
+        unsupportedResult.PenaltyReasons.Should().BeEquivalentTo(supportedResult.PenaltyReasons);
+
+        uncheckedResult.InsightDensityScore.Should().Be(supportedResult.InsightDensityScore);
+        uncheckedResult.Treatment.Should().Be(supportedResult.Treatment);
+        uncheckedResult.Classification.Should().Be(supportedResult.Classification);
+        uncheckedResult.PenaltyReasons.Should().BeEquivalentTo(supportedResult.PenaltyReasons);
+    }
+
+    [Fact]
     public void Score_impact_witness_stacks_with_inventory_and_clamps_at_one_hundred()
     {
         const string storageArmId =
@@ -747,5 +778,20 @@ public sealed class DeterministicInsightDensityGateTests
         result.PenaltyReasons.Should().Contain("impact-witness");
         result.InsightDensityScore.Should().BeLessThanOrEqualTo(100);
         result.Treatment.Should().Be(FindingTreatment.Promote);
+    }
+
+    private static Finding SampleFindingForSupportBandIsolation()
+    {
+        return new Finding
+        {
+            FindingId = "engine-as066-band",
+            FindingType = "Security",
+            Category = "Security",
+            EngineType = "test-engine",
+            Severity = FindingSeverity.Warning,
+            Title = "SecretManagementUnderSpecified",
+            Rationale = "SecretManagementUnderSpecified",
+            EvidenceRefs = ["doc:manifest.json#L10"],
+        };
     }
 }

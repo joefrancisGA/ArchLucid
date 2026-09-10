@@ -1,5 +1,6 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Advisory;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Core.Persistence.Ports;
@@ -41,7 +42,38 @@ public sealed partial class AdvisoryController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAdvisorySealedManifestConflict(ex);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Maps advisory workflow <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapAdvisorySealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+
+        if (detail?.GoldenManifest is null)
+            return null;
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                _manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return MapAdvisorySealedManifestConflict(ex);
         }
 
         return null;

@@ -87,6 +87,57 @@ class TestFaithfulnessSupportRatioScoringLaneHonesty(unittest.TestCase):
             violations = FAITHFULNESS.scan_doc_claims(root, Path("docs/go-to-market/POSITIONING.md"))
             self.assertTrue(any("commit gate" in item.lower() for item in violations))
 
+    def test_semantically_verified_seal_overclaim_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_scan_target(
+                root,
+                Path("docs/go-to-market/POSITIONING.md"),
+                "Every sealed package is semantically verified before sponsor export.\n",
+            )
+
+            violations = FAITHFULNESS.scan_doc_claims(root, Path("docs/go-to-market/POSITIONING.md"))
+            self.assertTrue(any("semantically verified" in item.lower() for item in violations))
+
+    def test_faithfulness_gated_seal_overclaim_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_scan_target(
+                root,
+                Path("docs/go-to-market/trust-center.md"),
+                "Finalize is faithfulness-gated for every enterprise review package.\n",
+            )
+
+            violations = FAITHFULNESS.scan_doc_claims(root, Path("docs/go-to-market/trust-center.md"))
+            self.assertTrue(any("faithfulness-gated" in item.lower() for item in violations))
+
+    def test_precise_as065_opt_in_sentence_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_scan_target(
+                root,
+                Path("docs/go-to-market/POSITIONING.md"),
+                "PilotStrict hold on Unsupported is opt-in (AS-065, default off) — not a faithfulness-gated seal.\n",
+            )
+
+            violations = FAITHFULNESS.scan_doc_claims(root, Path("docs/go-to-market/POSITIONING.md"))
+            self.assertEqual(violations, [])
+
+    def test_support_band_heuristic_sentence_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_scan_target(
+                root,
+                Path("docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md"),
+                "Support band is a heuristic async signal on Working — not legal truth of the seal.\n",
+            )
+
+            violations = FAITHFULNESS.scan_doc_claims(
+                root,
+                Path("docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md"),
+            )
+            self.assertEqual(violations, [])
+
 
 class TestSharedHallucinationDefensePlaneHonesty(unittest.TestCase):
     def test_repo_passes(self):

@@ -132,7 +132,7 @@ public sealed partial class ArtifactExportController
                 }
                 catch (ConflictException ex)
                 {
-                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                    return MapArtifactExportSealedManifestConflict(ex);
                 }
 
                 string? mermaid = MermaidDiagramArtifactExtractor.TryGetDiagramSource(artifactsForDiagram);

@@ -6,6 +6,8 @@ namespace ArchLucid.Core.Findings;
 
 /// <summary>
 ///     Deterministic TB-382 insight-density gate — no LLM calls; populates score/treatment/classification only.
+///     AS-066 / ADR 0085: semantic support band is a sibling Working signal — Score must not read band
+///     from the source finding or fuse it into ADR 0070 demotion.
 /// </summary>
 public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateOptions> options) : IInsightDensityGate
 {

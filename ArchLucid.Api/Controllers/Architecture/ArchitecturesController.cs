@@ -37,6 +37,7 @@ public sealed partial class ArchitecturesController(
     IActorContext actorContext,
     IArchitectureIdentityService architectureIdentityService,
     IArchitectureInventoryBindingService architectureInventoryBindingService,
+    ArchitectureInventoryBindingAuditSupport architectureInventoryBindingAuditSupport,
     IArchitectureSealDeltaService architectureSealDeltaService,
     IAuditService auditService,
     IRunRepository runRepository,
@@ -71,6 +72,9 @@ public sealed partial class ArchitecturesController(
 
     private readonly IArchitectureInventoryBindingService _architectureInventoryBindingService =
         architectureInventoryBindingService ?? throw new ArgumentNullException(nameof(architectureInventoryBindingService));
+
+    private readonly ArchitectureInventoryBindingAuditSupport _architectureInventoryBindingAuditSupport =
+        architectureInventoryBindingAuditSupport ?? throw new ArgumentNullException(nameof(architectureInventoryBindingAuditSupport));
 
     private readonly IArchitectureSealDeltaService _architectureSealDeltaService =
         architectureSealDeltaService ?? throw new ArgumentNullException(nameof(architectureSealDeltaService));
@@ -177,7 +181,7 @@ public sealed partial class ArchitecturesController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapArchitectureSealedManifestConflict(ex);
         }
     }
 
@@ -257,7 +261,7 @@ public sealed partial class ArchitecturesController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapArchitectureSealedManifestConflict(ex);
         }
         catch (ArgumentException ex)
         {

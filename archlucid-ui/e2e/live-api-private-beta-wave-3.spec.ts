@@ -30,8 +30,8 @@ const deepLinkTargets = [
   { path: "/architecture/reviews", fragment: "/architecture/reviews" },
   { path: "/governance/findings", fragment: "/governance/findings" },
   { path: "/architecture/reviews/new", fragment: "/architecture/reviews/new" },
-  { path: "/dashboard", fragment: "/dashboard" },
-  { path: "/onboarding", fragment: "/onboarding" },
+  { path: "/architecture/sponsor-dashboard", fragment: "/architecture/sponsor-dashboard" },
+  { path: "/architecture/first-review-guide", fragment: "/architecture/first-review-guide" },
 ] as const;
 
 test.describe(
@@ -87,6 +87,8 @@ test.describe(
       const signedOutPage = await signedOutContext.newPage();
 
       try {
+        await signedOutContext.clearCookies();
+
         for (const target of deepLinkTargets) {
           await stubEmptyArchitectureDraftListRoute(signedOutPage);
           await signedOutPage.goto(target.path, { waitUntil: "domcontentloaded" });
@@ -146,7 +148,10 @@ test.describe(
 
         // Seed invitee principal in BFF session so bootstrap/status uses platform-user JWT, not CI admin proxy bearer.
         await writeJwtBrowserSession(page, preAuth.preAuthAccessToken);
-        await page.goto("/auth/bootstrap", { waitUntil: "domcontentloaded" });
+        await page.goto(
+          `/auth/bootstrap?invitationToken=${encodeURIComponent(invite.invitationToken)}`,
+          { waitUntil: "domcontentloaded" },
+        );
         await expect(page.getByTestId("bootstrap-invitation-step")).toBeVisible({ timeout: 60_000 });
 
         await page.getByTestId(`bootstrap-accept-invitation-${invite.id}`).click();

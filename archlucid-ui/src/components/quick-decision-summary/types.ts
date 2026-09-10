@@ -59,6 +59,7 @@ export type QuickDecisionSummaryProps = {
    * unfiltered source length so create-home empty states do not fire on filtered-empty lists.
    */
   readonly sourceFindingsCount?: number;
+  readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
 };
 
 export type QuickDecisionSummaryDerivedData = {

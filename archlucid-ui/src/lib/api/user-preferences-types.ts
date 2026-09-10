@@ -1,5 +1,6 @@
 import type { CloudPlatformScope } from "@/lib/cloud-platform-scope-storage";
 import type { ColorModePreference } from "@/lib/color-mode-preference";
+import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { DEFAULT_LOADED_HOURLY_USD } from "@/lib/roi-assumptions";
 import type { WorkspaceModeId } from "@/lib/workspace-mode/workspace-mode";
 import type { WorkspaceModeGraduationOfferState } from "@/lib/workspace-mode/workspace-mode-preference";
@@ -106,7 +107,7 @@ export const DEFAULT_CLOUD_PLATFORM_SCOPE_DTO: CloudPlatformScopeDto = {
   gcp: true,
 };
 
-export const DEFAULT_IANA_TIME_ZONE_ID = "UTC";
+export { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 
 /** Matches prior module-level TTL; TanStack `staleTime` for cross-tree dedupe (TB-2303). */
 export const USER_PREFERENCES_STALE_MS = 30_000;

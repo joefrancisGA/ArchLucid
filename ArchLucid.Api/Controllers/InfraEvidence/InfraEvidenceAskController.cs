@@ -22,7 +22,7 @@ namespace ArchLucid.Api.Controllers.InfraEvidence;
 [Route("v{version:apiVersion}/infra-evidence/ask")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class InfraEvidenceAskController(
+public sealed partial class InfraEvidenceAskController(
     IInfraEvidenceAskGroundingService askGroundingService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
@@ -62,7 +62,7 @@ public sealed class InfraEvidenceAskController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAskSealedManifestConflict(ex);
         }
     }
 }

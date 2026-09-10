@@ -18,8 +18,10 @@
         "properties": {
           "terraformType": "azurerm_network_security_group",
           "tf.name": "edge-nsg",
-          "tf.security_rule": "name                       = \u0022ssh\u0022\n    priority                   = 100\n    direction                  = \u0022inbound\u0022\n    access                     = \u0022allow\u0022\n    protocol                   = \u0022tcp\u0022\n    source_port_range          = \u0022*\u0022\n    destination_port_range     = \u002222\u0022\n    source_address_prefix      = \u0022*\u0022\n    destination_address_prefix = \u0022*\u0022",
-          "declarationSegmentationRule": "name                       = \u0022ssh\u0022\n    priority                   = 100\n    direction                  = \u0022inbound\u0022\n    access                     = \u0022allow\u0022\n    protocol                   = \u0022tcp\u0022\n    source_port_range          = \u0022*\u0022\n    destination_port_range     = \u002222\u0022\n    source_address_prefix      = \u0022*\u0022\n    destination_address_prefix = \u0022*\u0022"
+          "tf.security_rule": "name                       = \"ssh\"\n    priority                   = 100\n    direction                  = \"inbound\"\n    access                     = \"allow\"\n    protocol                   = \"tcp\"\n    source_port_range          = \"*\"\n    destination_port_range     = \"22\"\n    source_address_prefix      = \"*\"\n    destination_address_prefix = \"*\"",
+          "declarationSegmentationRule": "name                       = \"ssh\"\n    priority                   = 100\n    direction                  = \"inbound\"\n    access                     = \"allow\"\n    protocol                   = \"tcp\"\n    source_port_range          = \"*\"\n    destination_port_range     = \"22\"\n    source_address_prefix      = \"*\"\n    destination_address_prefix = \"*\"",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000069/resourceGroups/rg-golden/providers/Microsoft.Network/networkSecurityGroups/edge",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000069/resourceGroups/rg-golden/providers/Microsoft.Network/networkSecurityGroups/edge"
         },
         "reasoningTrace": null
       },
@@ -34,7 +36,9 @@
           "terraformType": "azurerm_subnet",
           "tf.name": "app-subnet",
           "tf.connected_to": "pay_sql",
-          "connectedToNodeIds": "pay_sql"
+          "connectedToNodeIds": "pay_sql",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000069/resourceGroups/rg-golden/providers/Microsoft.Network/virtualNetworks/app",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000069/resourceGroups/rg-golden/providers/Microsoft.Network/virtualNetworks/app"
         },
         "reasoningTrace": null
       },
@@ -50,7 +54,9 @@
           "tf.subnet_id": "app",
           "tf.network_security_group_id": "edge",
           "declarationSegmentationControlId": "edge",
-          "declarationAssociatedNodeId": "app"
+          "declarationAssociatedNodeId": "app",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000069/resourceGroups/rg-golden/providers/Microsoft.Network/networkSecurityGroups/edge_app",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000069/resourceGroups/rg-golden/providers/Microsoft.Network/networkSecurityGroups/edge_app"
         },
         "reasoningTrace": null
       },
@@ -65,7 +71,9 @@
           "terraformType": "azurerm_mssql_server",
           "tf.name": "pay-sql-prod",
           "category": "data",
-          "topologySensitivity": "data-bearing"
+          "topologySensitivity": "data-bearing",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000069/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/pay_sql",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000069/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/pay_sql"
         },
         "reasoningTrace": null
       }
@@ -80,7 +88,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "65944aea28b94de7bb77ac9696ef1d6e",
@@ -91,7 +99,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "cbc848e94a3e493d8a4852c4b68fb63a",
@@ -102,7 +110,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "fbf9c237c0704f00b25587946af0db8d",
@@ -113,7 +121,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "fc4e1ec8152345de91ad6540474dc9d9",

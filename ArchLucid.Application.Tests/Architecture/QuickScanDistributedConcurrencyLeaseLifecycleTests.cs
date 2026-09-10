@@ -381,7 +381,7 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
             .Setup(q => q.ScanAsync(It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()))
             .Returns(async (IReadOnlyDictionary<string, string> _, CancellationToken cancellationToken) =>
             {
-                await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken).ConfigureAwait(false);
+                await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
 
                 return new QuickScanResult { ScanId = "never" };
             });
@@ -795,7 +795,7 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
             QuickScanConcurrencyPromoteRequest request,
             CancellationToken cancellationToken = default)
         {
-            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken).ConfigureAwait(false);
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
 
             return QuickScanConcurrencyPromoteResult.NotYet();
         }
@@ -931,7 +931,7 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
             QuickScanConcurrencyPromoteRequest request,
             CancellationToken cancellationToken = default)
         {
-            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken).ConfigureAwait(false);
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
 
             return QuickScanConcurrencyPromoteResult.NotYet();
         }

@@ -1,3 +1,4 @@
+import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { formatIanaTimeZoneOptionLabel } from "@/lib/iana-time-zone-select";
 
 import type { ExecDigestScheduleFormState } from "./exec-digest-schedule-form-state";
@@ -149,7 +150,7 @@ export function computeExecDigestNextSendInstant(
   form: Pick<ExecDigestScheduleFormState, "dayOfWeek" | "hourOfDay" | "ianaTimeZoneId">,
   from: Date = new Date(),
 ): Date | null {
-  const timeZoneId = form.ianaTimeZoneId.trim() || "UTC";
+  const timeZoneId = form.ianaTimeZoneId.trim() || DEFAULT_IANA_TIME_ZONE_ID;
   const fromParts = getZonedDateParts(from, timeZoneId);
 
   for (let offset = 0; offset < 14; offset += 1) {
@@ -220,15 +221,5 @@ export function formatExecDigestNextSendPreview(
 }
 
 export function resolveBrowserTimeZoneIdForExecDigest(): string {
-  try {
-    const resolved = Intl.DateTimeFormat().resolvedOptions().timeZone?.trim() ?? "";
-
-    if (resolved.length > 0) {
-      return resolved === "Etc/UTC" ? "UTC" : resolved;
-    }
-  } catch {
-    /* Intl unavailable */
-  }
-
-  return "UTC";
+  return DEFAULT_IANA_TIME_ZONE_ID;
 }

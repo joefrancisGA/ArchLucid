@@ -1170,6 +1170,119 @@ describe("WebhooksIntegrationPage", () => {
     await waitFor(() => expect(apiMocks.list).toHaveBeenCalled());
   });
 
+  it("does not show continue-last row for another workspace subscription after scope switch", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+    const { writeWebhookSubscriptionLastViewedId } = await import(
+      "@/lib/resolve-continue-last-webhook-subscription"
+    );
+    const subscriptionIdA = "11111111-1111-1111-1111-111111111111";
+    const subscriptionIdB = "22222222-2222-2222-2222-222222222222";
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionIdA,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook A",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook-a",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionIdA}`);
+    writeWebhookSubscriptionLastViewedId(subscriptionIdA);
+
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionIdB,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook B",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook-b",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-02T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionIdB}`);
+    expect(screen.queryByTestId("webhooks-continue-last-viewed-row")).toBeNull();
+    expect(screen.queryByText("Hook A")).toBeNull();
+  });
+
+  it("closes enable and disable confirmation dialogs when operator scope switches workspaces", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+    const subscriptionId = "11111111-1111-1111-1111-111111111111";
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook A",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook-a",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(/Disable webhook subscription Hook A/i)).toBeInTheDocument();
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Disable webhook subscription Hook A/i)).not.toBeInTheDocument();
+    });
+    expect(navigationMocks.routerReplaceMock).toHaveBeenCalledWith("/integrations/webhooks", { scroll: false });
+  });
+
   it("does not show toggle failure in a new workspace when enable completes after scope switch", async () => {
     const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
     const subscriptionIdA = "11111111-1111-1111-1111-111111111111";

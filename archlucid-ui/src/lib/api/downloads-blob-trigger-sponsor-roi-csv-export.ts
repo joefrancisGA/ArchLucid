@@ -1,5 +1,6 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { sponsorRoiCsvExportMutationBlockedReason } from "@/lib/pilots/sponsor-roi-csv-export-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
@@ -39,7 +40,9 @@ export async function downloadSponsorRoiCsvExport(): Promise<void> {
   if (!response.ok) {
     const errText = await response.text();
     const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
-    throw new Error(formatExportSealedManifestAwareApiError(failure));
+    const blockedReason = sponsorRoiCsvExportMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
   const json = (await response.json()) as SponsorRoiExportPayload;

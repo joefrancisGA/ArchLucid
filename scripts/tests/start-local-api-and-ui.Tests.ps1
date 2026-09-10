@@ -137,6 +137,19 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
         $sites[0].ProductLine | Should -Be 'architecture'
     }
 
+    It 'omits Architecture when IncludeArchitecture is false' {
+        $sites = @(Get-LocalUiSiteSpecs -IncludeArchitecture $false)
+
+        $sites.Count | Should -Be 1
+        $sites[0].ProductLine | Should -Be 'security'
+        $sites[0].Port | Should -Be 3001
+    }
+
+    It 'throws when both Architecture and Security are omitted' {
+        { Get-LocalUiSiteSpecs -IncludeArchitecture $false -IncludeSecurity $false } |
+            Should -Throw '*At least one UI product line must be included*'
+    }
+
     It 'throws when Architecture and Security ports are the same' {
         { Get-LocalUiSiteSpecs -ArchitecturePort 3000 -SecurityPort 3000 -IncludeSecurity $true } |
             Should -Throw '*ports must differ*'
@@ -204,5 +217,25 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
         (Get-Content -LiteralPath $envLocal -Raw) | Should -Match 'NEXT_PUBLIC_ARCHLUCID_API_BASE_URL=http://localhost:5000'
 
         Remove-Item -LiteralPath $tempRoot -Recurse -Force
+    }
+}
+
+Describe 'start-local-securenow.ps1' {
+
+    BeforeAll {
+        [string]$script:repoRoot = Split-Path -Parent $PSScriptRoot
+        [string]$script:secureNowScript = Join-Path $script:repoRoot 'start-local-securenow.ps1'
+    }
+
+    It 'exists next to start-local-api-and-ui.ps1' {
+        Test-Path -LiteralPath $script:secureNowScript | Should -Be $true
+    }
+
+    It 'delegates to start-local-api-and-ui.ps1 with -SkipArchitectureUi' {
+        [string]$content = Get-Content -LiteralPath $script:secureNowScript -Raw
+
+        $content | Should -Match 'start-local-api-and-ui\.ps1'
+        $content | Should -Match '-SkipArchitectureUi'
+        $content | Should -Not -Match '-SkipSecurityUi'
     }
 }

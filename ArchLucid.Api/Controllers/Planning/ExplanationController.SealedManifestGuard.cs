@@ -29,7 +29,7 @@ public sealed partial class ExplanationController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapExplanationSealedManifestConflict(ex);
         }
 
         return null;
@@ -47,4 +47,30 @@ public sealed partial class ExplanationController
 
         return await EnsureSealedManifestReadAllowedAsync(targetRunId, cancellationToken);
     }
+
+    private IActionResult? EnsureGoldenManifestSealedReadAllowed(RunDetailDto detail, Guid runId)
+    {
+        if (detail.GoldenManifest is null)
+            return null;
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return MapExplanationSealedManifestConflict(ex);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Maps explanation run/finding/holistic <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapExplanationSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

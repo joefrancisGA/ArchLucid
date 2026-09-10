@@ -6,6 +6,7 @@ import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDeta
 import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSealDeskCoverageStrip";
 
 import { RunDetailReviewPackageClassificationSummary } from "./RunDetailReviewPackageClassificationSummary";
+import { RunDetailReviewPackageSemanticSupportBandSummary } from "./RunDetailReviewPackageSemanticSupportBandSummary";
 import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPackageDecisionReceiptStrip";
 import { RunDetailPreFinalizeGateHonestyStrip } from "@/components/reviews/RunDetailPreFinalizeGateHonestyStrip";
 import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQualityGateModeStrip";
@@ -74,7 +75,11 @@ export function RunDetailReviewPackageStampViewport(
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
         {!pipelineTerminalFailure ? (
           <>
-            <RunDetailPreFinalizeGateHonestyStrip />
+            <RunDetailPreFinalizeGateHonestyStrip
+              findings={props.quickDecisionFindings}
+              manifestFinalized={props.hasGoldenManifest}
+              structuralExecutionMode={props.structuralExecutionMode}
+            />
             <RunDetailQualityGateModeStrip
               runId={props.runId}
               structuralExecutionMode={props.structuralExecutionMode}
@@ -101,6 +106,10 @@ export function RunDetailReviewPackageStampViewport(
           findings={props.quickDecisionFindings ?? []}
           withheldFindingCount={props.withheldFindingCount}
           catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+        />
+        <RunDetailReviewPackageSemanticSupportBandSummary
+          findings={props.quickDecisionFindings ?? []}
+          structuralExecutionMode={props.structuralExecutionMode}
         />
         <RunDetailInsightDensityMeasurementDenominatorStrip
           enginesSucceeded={props.enginesSucceeded}
@@ -136,7 +145,11 @@ export function RunDetailReviewPackageStampViewport(
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
       {!pipelineTerminalFailure ? (
         <>
-          <RunDetailPreFinalizeGateHonestyStrip />
+          <RunDetailPreFinalizeGateHonestyStrip
+            findings={props.quickDecisionFindings}
+            manifestFinalized={props.hasGoldenManifest}
+            structuralExecutionMode={props.structuralExecutionMode}
+          />
           <RunDetailQualityGateModeStrip
             runId={props.runId}
             structuralExecutionMode={props.structuralExecutionMode}
@@ -171,6 +184,10 @@ export function RunDetailReviewPackageStampViewport(
         findings={props.quickDecisionFindings ?? []}
         withheldFindingCount={props.withheldFindingCount}
         catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+      />
+      <RunDetailReviewPackageSemanticSupportBandSummary
+        findings={props.quickDecisionFindings ?? []}
+        structuralExecutionMode={props.structuralExecutionMode}
       />
       <RunDetailInsightDensityMeasurementDenominatorStrip
         actorNodeCount={measurementFloorOptions.actorNodeCount}

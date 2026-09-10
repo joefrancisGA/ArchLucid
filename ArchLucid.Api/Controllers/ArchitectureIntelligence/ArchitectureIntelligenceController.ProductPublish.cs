@@ -33,23 +33,11 @@ public sealed partial class ArchitectureIntelligenceController
 
         if (Guid.TryParse(runId, out Guid runGuid))
         {
-            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+            IActionResult? sealedGuardResult =
+                await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-            if (detail?.GoldenManifest is not null)
-            {
-                try
-                {
-                    SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                        detail.GoldenManifest,
-                        runGuid.ToString("D"),
-                        _manifestHashService);
-                }
-                catch (ConflictException ex)
-                {
-                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-                }
-            }
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
         }
 
         ArchitectureIntelligenceProductRunSourceContextLoadResult loaded =

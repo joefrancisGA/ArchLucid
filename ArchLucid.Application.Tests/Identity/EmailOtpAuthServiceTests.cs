@@ -1220,6 +1220,84 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task VerifyCodeAsync_returns_accept_invitation_when_user_has_one_membership_and_pending_invite_elsewhere()
+    {
+        FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out InMemoryWorkspaceMembershipRepository memberships,
+            out InMemoryUserInvitationRepository invitations,
+            out _,
+            out _,
+            out _,
+            new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 },
+            clock);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid existingWorkspaceId = Guid.NewGuid();
+        Guid invitedWorkspaceId = Guid.NewGuid();
+        const string email = "member@example.com";
+
+        EmailOtpChallengeRequestResult bootstrap = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = email },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord bootstrapChallenge =
+            (await challenges.GetByIdAsync(bootstrap.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult bootstrapVerified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = bootstrapChallenge.Id,
+                Code = RecoverCodeForTests(bootstrapChallenge)
+            },
+            CancellationToken.None);
+
+        Guid userId = bootstrapVerified.PlatformUserId!.Value;
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = existingWorkspaceId,
+                Role = "Reader",
+                Status = WorkspaceMembershipStatus.Active
+            },
+            clock.GetUtcNow(),
+            CancellationToken.None);
+
+        await invitations.InsertAsync(
+            tenantId,
+            invitedWorkspaceId,
+            email,
+            ArchLucidRoles.WorkspaceAdmin,
+            "admin",
+            null,
+            EmailOtpInvitationTokenHasher.Hash("unused-token"),
+            clock.GetUtcNow().AddDays(7),
+            CancellationToken.None);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = email },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = challenge.Id, Code = RecoverCodeForTests(challenge) },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+        Assert.Equal(EmailOtpAuthNextStep.AcceptInvitation, verified.NextStep);
+        Assert.Equal(invitedWorkspaceId, verified.WorkspaceId);
+        Assert.Equal(ArchLucidRoles.WorkspaceAdmin, verified.Role);
+    }
+
+    [Fact]
     public async Task VerifyCodeAsync_returns_pending_invitation_app_role_for_accept_invitation_next_step()
     {
         EmailOtpAuthService sut = CreateSut(
@@ -1324,6 +1402,485 @@ public sealed class EmailOtpAuthServiceTests
             await identityRepo.ListByUserIdAsync(firstUserId, CancellationToken.None);
 
         Assert.Single(identities);
+    }
+
+    [Fact]
+    public async Task VerifyCodeAsync_reenables_disabled_email_otp_identity()
+    {
+        FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out InMemoryAuthenticationIdentityRepository identityRepo,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 },
+            clock);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "disabled-identity@example.com" },
+            CancellationToken.None);
+
+        Assert.NotNull(requested.ChallengeId);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult firstVerify = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = challenge.Id, Code = RecoverCodeForTests(challenge) },
+            CancellationToken.None);
+
+        Guid userId = firstVerify.PlatformUserId!.Value;
+
+        IReadOnlyList<AuthenticationIdentityRecord> identities =
+            await identityRepo.ListByUserIdAsync(userId, CancellationToken.None);
+
+        AuthenticationIdentityRecord emailIdentity = Assert.Single(
+            identities,
+            row => row.ProviderType == AuthenticationProviderType.EmailOneTimeCode);
+
+        await identityRepo.DisableAsync(emailIdentity.Id, clock.GetUtcNow(), CancellationToken.None);
+
+        clock.Advance(TimeSpan.FromMinutes(1));
+
+        EmailOtpChallengeRequestResult secondRequest = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "disabled-identity@example.com" },
+            CancellationToken.None);
+
+        Assert.NotNull(secondRequest.ChallengeId);
+
+        EmailOtpChallengeRecord secondChallenge =
+            (await challenges.GetByIdAsync(secondRequest.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult secondVerify = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = secondChallenge.Id,
+                Code = RecoverCodeForTests(secondChallenge)
+            },
+            CancellationToken.None);
+
+        Assert.True(secondVerify.Succeeded);
+        Assert.Equal(userId, secondVerify.PlatformUserId);
+
+        AuthenticationIdentityRecord? reenabled =
+            await identityRepo.GetByIdAsync(emailIdentity.Id, CancellationToken.None);
+
+        Assert.NotNull(reenabled);
+        Assert.Null(reenabled.DisabledUtc);
+        Assert.NotNull(reenabled.LastAuthenticatedUtc);
+    }
+
+    [Fact]
+    public async Task RequestCodeAsync_resend_cooldown_preserves_active_challenge_for_verify()
+    {
+        FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IAuditService> audit,
+            new EmailOtpAuthOptions
+            {
+                Enabled = true,
+                ResendCooldownSeconds = 60,
+                MaxCodeRequestsPerEmailPerHour = 10
+            },
+            clock);
+
+        EmailOtpChallengeRequestResult firstRequest = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "cooldown@example.com" },
+            CancellationToken.None);
+
+        Assert.NotNull(firstRequest.ChallengeId);
+        Assert.True(firstRequest.EmailDeliverySucceeded);
+
+        EmailOtpChallengeRequestResult secondRequest = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "cooldown@example.com" },
+            CancellationToken.None);
+
+        Assert.Null(secondRequest.ChallengeId);
+        Assert.NotEqual(true, secondRequest.EmailDeliverySucceeded);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(firstRequest.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = challenge.Id, Code = RecoverCodeForTests(challenge) },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(row => row.EventType == AuditEventTypes.EmailOtpCodeSent),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task VerifyCodeAsync_returns_failure_when_otp_auth_disabled()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IAuditService> audit,
+            new EmailOtpAuthOptions { Enabled = false, ResendCooldownSeconds = 0 });
+
+        Guid challengeId = Guid.NewGuid();
+
+        await challenges.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                Id = challengeId,
+                NormalizedEmail = "user@example.com",
+                CodeHash = EmailOtpCodeHasher.Hash(challengeId, "123456", string.Empty),
+                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10)
+            },
+            CancellationToken.None);
+
+        EmailOtpVerifyResult result = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = challengeId, Code = "123456" },
+            CancellationToken.None);
+
+        Assert.False(result.Succeeded);
+
+        audit.Verify(
+            service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task VerifyCodeAsync_returns_failure_when_challenge_id_is_empty()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IAuditService> audit,
+            new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 });
+
+        EmailOtpVerifyResult result = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = Guid.Empty, Code = "123456" },
+            CancellationToken.None);
+
+        Assert.False(result.Succeeded);
+
+        audit.Verify(
+            service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task VerifyCodeAsync_returns_failure_without_audit_when_challenge_is_unknown()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IAuditService> audit,
+            new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 });
+
+        EmailOtpVerifyResult result = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = Guid.NewGuid(), Code = "123456" },
+            CancellationToken.None);
+
+        Assert.False(result.Succeeded);
+
+        audit.Verify(
+            service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task VerifyCodeAsync_returns_failure_when_code_is_whitespace_only()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IAuditService> audit,
+            new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 });
+
+        Guid challengeId = Guid.NewGuid();
+
+        await challenges.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                Id = challengeId,
+                NormalizedEmail = "user@example.com",
+                CodeHash = EmailOtpCodeHasher.Hash(challengeId, "123456", string.Empty),
+                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10)
+            },
+            CancellationToken.None);
+
+        EmailOtpVerifyResult result = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = challengeId, Code = "   " },
+            CancellationToken.None);
+
+        Assert.False(result.Succeeded);
+
+        audit.Verify(
+            service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RequestCodeAsync_returns_neutral_result_when_bot_challenge_required_but_missing()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IEmailOtpEmailNotifier> notifier,
+            out Mock<IAuditService> audit,
+            new EmailOtpAuthOptions
+            {
+                Enabled = true,
+                ResendCooldownSeconds = 0,
+                RequireBotChallenge = true,
+                MaxCodeRequestsPerEmailPerHour = 10
+            });
+
+        EmailOtpChallengeRequestResult result = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "bot-gate@example.com" },
+            CancellationToken.None);
+
+        Assert.Null(result.ChallengeId);
+        Assert.NotEqual(true, result.EmailDeliverySucceeded);
+
+        notifier.Verify(
+            n => n.TrySendSignInCodeAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(row => row.EventType == AuditEventTypes.EmailOtpCodeRequested),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(row => row.EventType == AuditEventTypes.EmailOtpCodeSent),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        DateTimeOffset? latestRequest =
+            await challenges.GetLatestRequestUtcByEmailAsync("bot-gate@example.com", CancellationToken.None);
+
+        Assert.Null(latestRequest);
+    }
+
+    [Fact]
+    public async Task VerifyCodeAsync_rate_limits_repeated_failures_per_email()
+    {
+        EmailOtpAuthOptions options = new()
+        {
+            Enabled = true,
+            ResendCooldownSeconds = 0,
+            MaxVerificationAttemptsPerEmailPerHour = 1
+        };
+
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IAuditService> audit,
+            options);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "ratelimit@example.com" },
+            CancellationToken.None);
+
+        Guid challengeId = requested.ChallengeId!.Value;
+
+        await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = challengeId, Code = "000000" },
+            CancellationToken.None);
+
+        EmailOtpVerifyResult rateLimited = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = challengeId, Code = "000001" },
+            CancellationToken.None);
+
+        Assert.False(rateLimited.Succeeded);
+
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(row => row.EventType == AuditEventTypes.EmailOtpRateLimitTriggered),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RequestCodeAsync_omits_invitation_link_when_token_is_expired()
+    {
+        FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out InMemoryUserInvitationRepository invitations,
+            out _,
+            out _,
+            out _,
+            new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 },
+            clock);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        const string rawToken = "expired-request-token";
+        byte[] tokenHash = EmailOtpInvitationTokenHasher.Hash(rawToken);
+        DateTimeOffset expiresUtc = clock.GetUtcNow().AddMinutes(-1);
+
+        await invitations.SeedPendingForTestsAsync(
+            new UserInvitationRecord
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                Email = "invited@example.com",
+                AppRole = "Reader",
+                InvitedByActorId = "admin",
+                Status = UserInvitationStatus.Pending,
+                CreatedUtc = expiresUtc.AddDays(-1),
+                ExpiresUtc = expiresUtc
+            },
+            tokenHash);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest
+            {
+                Email = "invited@example.com",
+                InvitationToken = rawToken
+            },
+            CancellationToken.None);
+
+        Assert.NotNull(requested.ChallengeId);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        Assert.Null(challenge.InvitationId);
+    }
+
+    [Fact]
+    public async Task RequestCodeAsync_omits_invitation_link_when_token_email_mismatches_sign_in_email()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out InMemoryUserInvitationRepository invitations,
+            out _,
+            out _,
+            out _);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        const string rawToken = "mismatch-request-token";
+        byte[] tokenHash = EmailOtpInvitationTokenHasher.Hash(rawToken);
+
+        await invitations.InsertAsync(
+            tenantId,
+            workspaceId,
+            "other@example.com",
+            "Reader",
+            "admin",
+            null,
+            tokenHash,
+            DateTimeOffset.UtcNow.AddDays(7),
+            CancellationToken.None);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest
+            {
+                Email = "signer@example.com",
+                InvitationToken = rawToken
+            },
+            CancellationToken.None);
+
+        Assert.NotNull(requested.ChallengeId);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        Assert.Null(challenge.InvitationId);
+    }
+
+    [Fact]
+    public async Task RequestCodeAsync_returns_neutral_result_when_otp_auth_disabled()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IEmailOtpEmailNotifier> notifier,
+            out Mock<IAuditService> audit,
+            new EmailOtpAuthOptions { Enabled = false, ResendCooldownSeconds = 0 });
+
+        EmailOtpChallengeRequestResult result = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "disabled@example.com" },
+            CancellationToken.None);
+
+        Assert.Null(result.ChallengeId);
+        Assert.NotEqual(true, result.EmailDeliverySucceeded);
+
+        notifier.Verify(
+            n => n.TrySendSignInCodeAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        audit.Verify(
+            service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        DateTimeOffset? latestRequest =
+            await challenges.GetLatestRequestUtcByEmailAsync("disabled@example.com", CancellationToken.None);
+
+        Assert.Null(latestRequest);
     }
 
     private static string RecoverCodeForTests(EmailOtpChallengeRecord challenge)

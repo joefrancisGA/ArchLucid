@@ -11,6 +11,8 @@ export type HealthReadyResponse = {
   preCommitGateEnabled?: boolean;
   /** Host `ArchLucid:AgentOutput:QualityGate:Mode` when the readiness writer includes it (DR-05). */
   agentOutputQualityGateMode?: string;
+  /** Host `PilotStrictHoldOnUnsupportedSemanticSupport` when the readiness writer includes it (AS-065). */
+  pilotStrictHoldOnUnsupportedSemanticSupport?: boolean;
   entries: ReadonlyArray<{
     name: string;
     status: string;

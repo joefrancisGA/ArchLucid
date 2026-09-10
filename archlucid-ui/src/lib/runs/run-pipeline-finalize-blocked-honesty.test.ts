@@ -62,6 +62,21 @@ describe("shouldSuppressReadyToFinalizeForCareerHonesty (FC-70)", () => {
     ).toBe(true);
   });
 
+  it("suppresses Ready for Working Rehearsal intent even when trail is complete (AS-079)", () => {
+    expect(
+      shouldSuppressReadyToFinalizeForCareerHonesty({
+        workingDesk: true,
+        workingCareerRehearsalIntent: "rehearsal",
+        structuralExecutionMode: StructuralExecutionModeWire.Real,
+        transparencyTrail: {
+          asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+          inferred: [],
+          skipped: [],
+        },
+      }),
+    ).toBe(true);
+  });
+
   it("suppresses Ready when pre-finalize gate is disabled on Working (LP-18)", () => {
     expect(
       shouldSuppressReadyToFinalizeForCareerHonesty({

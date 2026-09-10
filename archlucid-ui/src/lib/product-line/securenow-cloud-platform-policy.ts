@@ -4,14 +4,35 @@ import type { ProductLineId } from "@/lib/product-line/product-line-id";
 /** SecureNow ships Azure cloud connectors only — not AWS or GCP. */
 export const SECURENOW_SUPPORTED_CLOUD_PROVIDERS: readonly CloudProviderId[] = ["azure"];
 
+/** Help topic slugs hidden from SecureNow help hub, search, and advanced lists. */
 export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "cloud-connections-aws",
   "cloud-connections-gcp",
+  "first-architecture-review",
+  "evidence-intake",
+  "review-packages",
+  "review-guide",
+  "choose-your-next-step",
+  "accelerator-chooser",
+  "billing-and-plans",
 ];
 
+/** Help search drawer topic ids hidden in the SecureNow shell. */
 export const SECURENOW_EXCLUDED_HELP_SEARCH_TOPIC_IDS: readonly string[] = [
   "connect-aws",
   "connect-gcp",
+  "how-archlucid-works",
+  "choose-your-next-step",
+  "first-review-guide",
+  "review-guide",
+  "create-first-review",
+  "sample-review",
+  "upload-evidence",
+  "finalize-review",
+  "review-artifacts",
+  "close-evidence-gaps",
+  "improvement-planning-help",
+  "billing-and-plans",
 ];
 
 export function isSecureNowProductLine(productLineId: ProductLineId): boolean {
@@ -106,7 +127,7 @@ export function cloudConnectionsSummaryForProductLine(productLineId: ProductLine
 }
 
 export function secureNowCloudConnectionsHelpSubtitle(): string {
-  return "Optional Azure connector for read-only evidence — or run evidence-only reviews without any cloud connector.";
+  return "Optional Azure connector for read-only cloud inventory evidence — or upload a validated inventory ZIP without a connector.";
 }
 
 export function architectureCloudConnectionsHelpSubtitle(): string {
@@ -122,7 +143,7 @@ export function cloudConnectionsHelpSubtitleForProductLine(productLineId: Produc
 }
 
 export function secureNowCloudConnectionsHubContextualLead(): string {
-  return "Connect Azure for optional read-only evidence collection, or start evidence-only reviews without a cloud connector.";
+  return "Connect Azure for optional read-only inventory collection, or upload a validated inventory ZIP when no connector is configured.";
 }
 
 export function architectureCloudConnectionsHubContextualLead(): string {

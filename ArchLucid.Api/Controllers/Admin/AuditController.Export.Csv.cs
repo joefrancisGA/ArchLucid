@@ -57,22 +57,11 @@ public sealed partial class AuditController
         int exportMaxRows = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        if (runId is not null && runId.Value != Guid.Empty)
-        {
-            try
-            {
-                await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                    runId.Value.ToString("N"),
-                    scope,
-                    authorityQueryService,
-                    manifestHashService,
-                    ct);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
-        }
+        IActionResult? sealedGuardResult =
+            await EnsureAuditExportSealedManifestAllowedAsync(runId, scope, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         AuditEventFilter filter = new()
         {

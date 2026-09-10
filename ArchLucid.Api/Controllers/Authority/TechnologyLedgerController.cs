@@ -36,7 +36,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
-public sealed class TechnologyLedgerController(
+public sealed partial class TechnologyLedgerController(
     ITechnologyLedgerRunCommandService technologyLedgerRunCommandService,
     IAuthorityQueryService authorityQueryService,
     IScopeContextProvider scopeContextProvider,
@@ -175,7 +175,7 @@ public sealed class TechnologyLedgerController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapTechnologyLedgerSealedManifestConflict(ex);
         }
         catch (RunNotFoundException ex)
         {
@@ -191,29 +191,4 @@ public sealed class TechnologyLedgerController(
         }
     }
 
-    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
-        ScopeContext scope,
-        Guid runId,
-        CancellationToken cancellationToken)
-    {
-        RunDetailDto? detail =
-            await authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
-
-        if (detail?.GoldenManifest is null)
-            return null;
-
-        try
-        {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                _manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
-
-        return null;
-    }
 }

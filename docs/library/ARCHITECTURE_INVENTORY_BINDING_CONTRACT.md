@@ -33,7 +33,7 @@ Binding is **optional**. Unbound architectures show a labeled **estate gap** —
 | **Detach** | Same authz as attach | Clears active binding; does **not** delete the snapshot row or extractor ZIP |
 | **Re-attach** | Same as attach | May point at a newer snapshot id; prior seals are unchanged (ADR 0039) |
 
-**Freshness (AS-052):** desk and career export must show `CapturedUtc`, `CaptureStatus`, and collector version when bound. Stale snapshots are labeled — never silently treated as current estate.
+**Freshness (AS-052):** desk and career export must show `CapturedUtc` when bound. Snapshots whose `CapturedUtc` is **7 days** old or older are labeled stale (`ArchitectureInventorySnapshotFreshness.StaleAfterDays`). Warn only — never auto-collect a replacement snapshot. `CaptureStatus` and collector version remain IE-plane metadata; the architecture desk does not invent a second collector.
 
 **Audit (AS-055):** attach/detach are **Required** durable audit events co-committed with the binding row mutation.
 
@@ -58,6 +58,22 @@ Canonical collector entry points:
 - **Materializer:** `ArchLucid.Application.InfraEvidence.AzureInventorySnapshotMaterializer`
 
 AS-054 ratchet expands forbidden type names; this contract is the human-readable source of truth.
+
+### AS-054 — Forbidden type names (CI ratchet)
+
+`ArchitectureSpineAs054ForbiddenCollectorArchitectureTests` fails CI when architecture bind paths declare or reference a second collector. **Do not add** types or dependencies matching these fragments under `ArchLucid.Application/Architecture`, `ArchLucid.Api/Controllers/Architecture`, or `BoundArchitectureInventoryGraphOverlayApplicator.cs`:
+
+| Forbidden type name fragment | Why |
+|------------------------------|-----|
+| `ArmHarvest` | Inline ARM collection in the decide path |
+| `AzureResourceGraphClient` | Duplicate Resource Graph client beside IE plane |
+| `InlineArmCollector` | Review-API harvest shortcut |
+| `ReviewApiAzureCollector` | Parallel collector in authority API |
+| `ArchitectureInventoryCollector` | Bind wave must reference snapshots, not collect |
+| `DuplicateAzureExtractor` | Fork of `Get-ArchLucidAzurePackage` family |
+| `SecondAzureCollector` | Explicit second collector family |
+
+Forbidden dependency tokens in those paths: `IHostedAzureExtractorClient`, `HostedAzureExtractorClient`, `Get-ArchLucidAzurePackage`, `AzureResourceGraph`.
 
 ---
 
