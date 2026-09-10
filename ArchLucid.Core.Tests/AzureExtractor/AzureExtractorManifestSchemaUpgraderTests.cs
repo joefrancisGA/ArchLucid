@@ -142,6 +142,35 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
     }
 
     [Fact]
+    public void TryUpgradeManifestJson_preserves_existing_switches_used_on_schema_zero_upgrade()
+    {
+        string manifestJson =
+            """{"schemaVersion":0,"tenantId":"contoso","switchesUsed":["IncludeNetwork","IncludePolicy"]}""";
+
+        bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
+
+        ok.Should().BeTrue();
+        error.Should().BeNull();
+        manifestJson.Should().Contain("IncludeNetwork");
+        manifestJson.Should().Contain("IncludePolicy");
+    }
+
+    [Fact]
+    public void TryUpgradeManifestJson_preserves_existing_warnings_and_errors_on_schema_one_upgrade()
+    {
+        string manifestJson =
+            """{"schemaVersion":1,"tenantId":"contoso","warnings":["partial capture"],"errors":["skipped resource"],"completenessScore":0.5}""";
+
+        bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
+
+        ok.Should().BeTrue();
+        error.Should().BeNull();
+        manifestJson.Should().Contain("partial capture");
+        manifestJson.Should().Contain("skipped resource");
+        manifestJson.Should().Contain("\"completenessScore\":0.5");
+    }
+
+    [Fact]
     public void TryUpgradeManifestJson_preserves_existing_script_version_on_schema_zero_upgrade()
     {
         string manifestJson = """{"schemaVersion":0,"tenantId":"contoso","scriptVersion":"3.1.0"}""";

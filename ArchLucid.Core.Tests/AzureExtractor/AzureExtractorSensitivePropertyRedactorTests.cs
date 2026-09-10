@@ -4765,4 +4765,13 @@ public sealed class AzureExtractorSensitivePropertyRedactorTests
     {
         AzureExtractorSensitivePropertyRedactor.RedactValue(value).Should().BeEmpty();
     }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void IsSensitiveKey_returns_false_for_null_or_whitespace(string? key)
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(key).Should().BeFalse();
+    }
 }

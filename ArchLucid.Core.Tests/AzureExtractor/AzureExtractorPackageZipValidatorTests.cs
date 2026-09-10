@@ -335,7 +335,26 @@ public sealed class AzureExtractorPackageZipValidatorTests
         AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
 
         result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeFalse();
         result.ErrorDetail.Should().Contain("resources.json");
+    }
+
+    [Fact]
+    public void Validate_resolves_optional_companion_entry_case_insensitively()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 2,
+            includeResources: true,
+            optionalEntryName: "ROLE-ASSIGNMENTS.JSON",
+            optionalEntryJson: """[{"principalId":"11111111-1111-1111-1111-111111111111"}]""");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeTrue();
+        result.FileEntryCount.Should().Be(3);
     }
 
     [Fact]

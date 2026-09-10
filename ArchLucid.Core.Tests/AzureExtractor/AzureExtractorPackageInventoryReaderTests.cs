@@ -555,6 +555,87 @@ public sealed class AzureExtractorPackageInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_fails_on_malformed_resources_json()
+    {
+        byte[] zipBytes = BuildZip("{ not-valid-json");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeFalse();
+        result.Error.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public void TryReadFromZip_fails_on_invalid_zip_payload()
+    {
+        byte[] invalidZipBytes = [0x50, 0x4B, 0x03, 0x04, 0xFF, 0xFF];
+
+        using MemoryStream stream = new(invalidZipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeFalse();
+        result.Error.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public void TryReadFromZip_serializes_false_property_values()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "properties": { "supportsHttpsTrafficOnly": false }
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].Properties["supportsHttpsTrafficOnly"].Should().Be("false");
+    }
+
+    [Fact]
+    public void TryReadFromZip_serializes_non_sensitive_array_property_values()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1",
+                "resourceType": "Microsoft.Web/sites",
+                "name": "app1",
+                "properties": {
+                  "allowedHosts": ["api.contoso.com", "app.contoso.com"]
+                }
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].Properties["allowedHosts"].Should().Contain("api.contoso.com");
+        result.Resources[0].Properties["allowedHosts"].Should().NotContain("[REDACTED]");
+    }
+
+    [Fact]
     public void TryReadFromZip_derives_name_from_arm_id_when_name_missing()
     {
         byte[] zipBytes = BuildZip(
