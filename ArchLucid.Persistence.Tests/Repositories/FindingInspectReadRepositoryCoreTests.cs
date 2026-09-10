@@ -2268,4 +2268,73 @@ public sealed class FindingInspectReadRepositoryCoreTests
         typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
         typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
     }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspectRead_when_include_typed_payload_true_falls_back_to_metadata_for_corrupt_payload()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload: true,
+            payloadJson: "{ not json",
+            title: "Encrypt at rest",
+            rationale: "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").GetString().Should().Be("Encrypt at rest");
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspectRead_when_include_typed_payload_true_returns_null_for_corrupt_payload_and_blank_metadata()
+    {
+        FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload: true,
+            payloadJson: "{ not json",
+            title: "   ",
+            rationale: "   ").Should().BeNull();
+    }
+
+    [Fact]
+    public void MapLatestDisposition_returns_null_for_undefined_numeric_string_five()
+    {
+        FindingInspectReadRepositoryCore.MapLatestDisposition("5", hasDispositionRow: true).Should().BeNull();
+    }
+
+    [Fact]
+    public void MapLatestDisposition_returns_null_for_negative_numeric_string()
+    {
+        FindingInspectReadRepositoryCore.MapLatestDisposition("-1", hasDispositionRow: true).Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_deserialized_decimal_for_json_number_with_fraction()
+    {
+        JsonElement? parsed = FindingInspectReadRepositoryCore.TryParsePayloadJson("1.5");
+
+        parsed.Should().NotBeNull();
+        parsed!.Value.ValueKind.Should().Be(JsonValueKind.Number);
+        parsed!.Value.GetDouble().Should().Be(1.5);
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_preserves_pointer_metadata_when_disposition_is_undefined_numeric_five()
+    {
+        DateTimeOffset occurredAt = new(2026, 10, 6, 9, 15, 0, TimeSpan.Zero);
+        Guid eventId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "5",
+            hasDispositionRow: true,
+            occurredAtUtc: occurredAt,
+            revisitDueUtc: new DateTime(2026, 11, 2, 0, 0, 0, DateTimeKind.Unspecified),
+            eventId: eventId,
+            reviewerUserId: "reviewer-2",
+            rowVersionStamp: [0x03]);
+
+        projection.LatestDisposition.Should().BeNull();
+        projection.LatestDispositionOccurredAtUtc.Should().Be(occurredAt);
+        projection.LatestDispositionEventId.Should().Be(eventId);
+        projection.LatestDispositionReviewerUserId.Should().Be("reviewer-2");
+        projection.RevisitDueUtc.Should().NotBeNull();
+    }
 }
