@@ -185,7 +185,9 @@ public sealed class AzureInventorySnapshotMaterializer(
                     inventory.RoleAssignments,
                     inventory.NetworkAssociations,
                     inventory.PolicyAssignments,
-                    inventory.DiagnosticSettings);
+                    inventory.DiagnosticSettings,
+                    inventory.FederatedCredentials,
+                    inventory.FederatedCredentialsFilePresent);
 
             byte[] contentHash = ComputeContentHash(resources, securityEdges.Relationships);
             AzureInventoryCaptureStatus status = resources.Count == 0
