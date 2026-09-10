@@ -8,7 +8,7 @@ import type { EffectivePolicyPackSet } from "@/types/policy-packs";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import {
-complianceDriftTrendBlockedReason,
+  complianceDriftTrendBlockedReason,
   governanceDashboardBlockedReason,
 } from "@/lib/governance/governance-dashboard-blocked-reason";
 import {
@@ -21,7 +21,7 @@ import { apiGet } from "./http";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
-/** Approval setup guide: effective policy packs and alert routing subscriptions. */
+/** Governance setup guide: effective policy packs and alert routing subscriptions. */
 export async function fetchGovernanceSetupGuideBundle(): Promise<{
   effectivePolicyPacks: EffectivePolicyPackSet;
   alertRoutingSubscriptions: AlertRoutingSubscription[];
@@ -36,7 +36,7 @@ export async function fetchGovernanceSetupGuideBundle(): Promise<{
   }
 }
 
-/** Fetches the policy resolution result (merge decisions, conflicts, effective content). */
+/** Fetches the governance resolution result (merge decisions, conflicts, effective content). */
 export async function getGovernanceResolution(): Promise<EffectiveGovernanceResolutionResult> {
   try {
     return await apiGetSealedManifestAware<EffectiveGovernanceResolutionResult>(`/${ApiV1Routes.governanceResolution}`);
@@ -48,7 +48,7 @@ export async function getGovernanceResolution(): Promise<EffectiveGovernanceReso
   }
 }
 
-/** Cross-run approval dashboard: pending approvals, recent decisions, tenant policy change log. */
+/** Cross-run governance dashboard: pending approvals, recent decisions, tenant policy change log. */
 export async function getGovernanceDashboard(
   maxPending = 20,
   maxDecisions = 20,
@@ -60,17 +60,17 @@ export async function getGovernanceDashboard(
     maxChanges: String(maxChanges),
   });
 
-try {
+  try {
     return await apiGetSealedManifestAware<GovernanceDashboardSummary>(`${governanceBase()}/dashboard?${query.toString()}`);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceDashboardBlockedReason(failure);
+
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-return apiGetSealedManifestAware<GovernanceDashboardSummary>(`${governanceBase()}/dashboard?${query.toString()}`);
 }
 
-/** Policy pack change activity buckets for the approval dashboard trend chart. */
+/** Policy pack change activity buckets for the governance dashboard trend chart. */
 export async function getComplianceDriftTrend(
   fromUtc: string,
   toUtc: string,
@@ -82,14 +82,14 @@ export async function getComplianceDriftTrend(
     bucketMinutes: String(bucketMinutes),
   });
 
-try {
+  try {
     return await apiGetSealedManifestAware<ComplianceDriftTrendPoint[]>(
       `${governanceBase()}/compliance-drift-trend?${query.toString()}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = complianceDriftTrendBlockedReason(failure);
+
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-return apiGetSealedManifestAware<ComplianceDriftTrendPoint[]>(
 }

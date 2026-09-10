@@ -297,10 +297,13 @@ const [dispositionConflict, setDispositionConflict] = useState<FindingDispositio
       const failure = toApiLoadFailure(error);
       const message =
         findingDispositionMutationBlockedReason(failure) ?? resolveMutationError(error);
-if (isLivelihoodMutation401RedirectError(error)) {
+
+      if (isLivelihoodMutation401RedirectError(error)) {
         return;
       }
+
       const conflict = readFindingDispositionConflictFromError(error);
+
       if (conflict !== null) {
         setDispositionConflict(conflict);
         setDispositionInlineSaveError(null);
@@ -360,10 +363,13 @@ if (isLivelihoodMutation401RedirectError(error)) {
       const failure = toApiLoadFailure(error);
       const message =
         findingDispositionMutationBlockedReason(failure) ?? resolveMutationError(error);
-if (isLivelihoodMutation401RedirectError(error)) {
+
+      if (isLivelihoodMutation401RedirectError(error)) {
         return;
       }
+
       const conflict = readFindingDispositionConflictFromError(error);
+
       if (conflict !== null) {
         setDispositionConflict(conflict);
         setDispositionInlineSaveError(null);

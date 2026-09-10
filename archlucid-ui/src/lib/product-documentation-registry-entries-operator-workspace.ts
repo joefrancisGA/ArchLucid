@@ -330,6 +330,16 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
     "releaseApplicability": "Scope: personal account settings · Audience: all signed-in users",
   },
   {
+    "slug": "career-rehearsal-doors",
+    "title": "Career and Rehearsal doors",
+    "summary": "Choose Working execution intent — Rehearsal for practice, Career for sealed-record proof. Simulator output is not sponsor proof.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-09-10",
+    "releaseApplicability": "Working Career vs Rehearsal door chrome (ADR 0086 / AS-082)",
+  },
+  {
     "slug": "notifications",
     "title": "Notifications",
     "summary": "Channel launcher for digests, alerts, alert rules, Teams, and Slack — routes to where each destination configures.",
