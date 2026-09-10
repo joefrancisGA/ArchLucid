@@ -29,6 +29,11 @@ const HelpAuditTrailGuideView = dynamic(() =>
 const HelpBaselineSettingsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpBaselineSettingsGuideView").then((module) => module.HelpBaselineSettingsGuideView),
 );
+const HelpArchitectureSharingGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpArchitectureSharingGuideView").then(
+    (module) => module.HelpArchitectureSharingGuideView,
+  ),
+);
 const HelpCareerRehearsalGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpCareerRehearsalGuideView").then(
     (module) => module.HelpCareerRehearsalGuideView,
@@ -347,6 +352,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "career-vs-rehearsal") {
     return <HelpCareerRehearsalGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+  if (loaded.entry.slug === "architecture-sharing") {
+    return <HelpArchitectureSharingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "choose-your-next-step") {
     return <HelpPathChooserGuideView entry={loaded.entry} markdown={loaded.markdown} />;

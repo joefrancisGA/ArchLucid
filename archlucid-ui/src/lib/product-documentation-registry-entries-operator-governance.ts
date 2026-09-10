@@ -99,6 +99,17 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
     "releaseApplicability": "Working desk Career vs Rehearsal doors (AS-076+)",
   },
   {
+    "slug": "architecture-sharing",
+    "title": "Architecture sharing inside your tenant",
+    "summary": "Optional restrict-to-shares hides a package from unshared workspace members — still one tenant, not chat or a second tenant.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/architecture/adrs/0087-architecture-share-acl-inside-tenant.md",
+    ],
+    "lastReviewed": "2026-09-10",
+    "releaseApplicability": "Optional RestrictToShares inside tenant (AS-086+)",
+  },
+  {
     "slug": "pilot-feedback",
     "title": "Pilot feedback (internal runbook)",
     "summary": "Admin/product-owner guide for human judgment signals on findings and architecture reviews — separate from recommendation learning. Not default buyer help.",
