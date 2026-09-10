@@ -153,21 +153,12 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   }
 
   const presentation = buildPackagePrintPresentation(summaryQuery.data, {
-coverageHonestyLine: workingDesk
-      ? formatCareerExportHonestyPlainText({
-          runId: summaryQuery.data.runId,
-          progressSummary: summaryQuery.data,
-          manifestSummary: null,
-          graphSnapshot: null,
-          enginesSucceeded: null,
-          workingDesk: true,
-        })
-      : null,
     meetingCaptureEntries:
       meetingCaptureBlockedReason !== null ? null : (meetingCaptureQuery.data?.entries ?? null),
     coverageHonestyLine:
       workingDesk && analysisStagesCompleteOnSummary(summaryQuery.data)
         ? coverageHonestyLine
+        : null,
     semanticSupportBandStampLine,
     transparencyTrail:
       workingDesk && coverageHonestyQuery.data !== undefined
