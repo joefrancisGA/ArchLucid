@@ -115,4 +115,62 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
 
     public void SeedShare(ArchitectureShareRecord record) =>
         _shares[(record.ArchitectureId, record.UserId)] = record;
+
+    public Task<IReadOnlyList<ArchitectureShareRecord>> ListSharesAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        List<ArchitectureShareRecord> rows = _shares.Values
+            .Where(share =>
+                share.ArchitectureId == architectureId
+                && share.TenantId == scope.TenantId
+                && share.WorkspaceId == scope.WorkspaceId
+                && share.ScopeProjectId == scope.ProjectId)
+            .OrderBy(share => share.GrantedUtc)
+            .ThenBy(share => share.UserId)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<ArchitectureShareRecord>>(rows);
+    }
+
+    public Task<bool> UpsertShareAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid userId,
+        string role,
+        string grantedBy,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(role);
+        ArgumentException.ThrowIfNullOrWhiteSpace(grantedBy);
+
+        _shares[(architectureId, userId)] = new ArchitectureShareRecord
+        {
+            ArchitectureId = architectureId,
+            UserId = userId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            Role = role.Trim(),
+            GrantedBy = grantedBy.Trim(),
+            GrantedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+        };
+
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> TryDeleteShareAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return Task.FromResult(_shares.TryRemove((architectureId, userId), out _));
+    }
 }

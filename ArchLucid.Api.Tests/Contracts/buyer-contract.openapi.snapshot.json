@@ -5594,6 +5594,46 @@
         },
         "type": "object"
       },
+      "ArchitectureShareGrantResponse": {
+        "properties": {
+          "grantedBy": {
+            "type": "string"
+          },
+          "grantedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "userId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureShareListResponse": {
+        "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "confirmationCopy": {
+            "type": "string"
+          },
+          "restrictToShares": {
+            "type": "boolean"
+          },
+          "shares": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureShareGrantResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureTraceTimelineEntry": {
         "properties": {
           "kind": {
@@ -38243,6 +38283,14 @@
               "null",
               "array"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "UpsertArchitectureShareRequest": {
+        "properties": {
+          "role": {
+            "type": "string"
           }
         },
         "type": "object"

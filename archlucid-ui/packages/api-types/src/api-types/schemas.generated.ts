@@ -1620,6 +1620,21 @@ export interface components {
             /** Format: uuid */
             latestSealedReviewRunId?: null | string;
         };
+        ArchitectureShareGrantResponse: {
+            grantedBy?: string;
+            /** Format: date-time */
+            grantedUtc?: string;
+            role?: string;
+            /** Format: uuid */
+            userId?: string;
+        };
+        ArchitectureShareListResponse: {
+            /** Format: uuid */
+            architectureId?: string;
+            confirmationCopy?: string;
+            restrictToShares?: boolean;
+            shares?: components["schemas"]["ArchitectureShareGrantResponse"][];
+        };
         ArchitectureTraceTimelineEntry: {
             kind: string;
             label: string;
@@ -11128,6 +11143,9 @@ export interface components {
         UpdateComparisonRecordRequest: {
             label?: null | string;
             tags?: null | string[];
+        };
+        UpsertArchitectureShareRequest: {
+            role?: string;
         };
         UpsertRealizedValueAttestationRequest: {
             /** Format: int32 */

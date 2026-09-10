@@ -263,6 +263,7 @@ public sealed class ArchitecturesControllerInventoryBindingTests
             _bindingService.Object,
             _bindingAuditSupport,
             _restrictToSharesService.Object,
+            ArchitectureShareManagementServiceTestDefaults.CreatePermissiveService().Object,
             _shareAccessService.Object,
             _shareAccessGate.Object,
             _platformUserResolver.Object,

@@ -31,4 +31,23 @@ public interface IArchitectureShareRepository
         Guid architectureId,
         Guid userId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<ArchitectureShareRecord>> ListSharesAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> UpsertShareAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid userId,
+        string role,
+        string grantedBy,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> TryDeleteShareAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid userId,
+        CancellationToken cancellationToken = default);
 }

@@ -4,6 +4,7 @@ using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Controllers.Architecture;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+using ArchLucid.Api.Tests.Support;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
@@ -191,6 +192,7 @@ public sealed class ArchitecturesControllerRestrictedShareIdorTests
                 _auditService.Object,
                 Microsoft.Extensions.Logging.Abstractions.NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
             _restrictToSharesService.Object,
+            ArchitectureShareManagementServiceTestDefaults.CreatePermissiveService().Object,
             _shareAccessService.Object,
             _shareAccessGate.Object,
             _platformUserResolver.Object,

@@ -206,6 +206,7 @@ public sealed class ArchitecturesControllerTests
                 _auditService.Object,
                 NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
             _restrictToSharesService.Object,
+            ArchitectureShareManagementServiceTestDefaults.CreatePermissiveService().Object,
             _shareAccessService.Object,
             _shareAccessGate.Object,
             _platformUserResolver.Object,
