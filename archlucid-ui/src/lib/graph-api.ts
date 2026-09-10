@@ -22,7 +22,14 @@ export async function getProvenanceGraph(runId: string): Promise<GraphViewModel>
 
 /** Fetches the full architecture graph for a run (may return 413 when node count exceeds API limit). */
 export async function getArchitectureGraph(runId: string): Promise<GraphViewModel> {
-  return apiGetSealedManifestAware<GraphViewModel>(`/v1/evidence-graph/reviews/${runId}`);
+  try {
+    return await apiGetSealedManifestAware<GraphViewModel>(`/v1/evidence-graph/reviews/${runId}`);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureGraphReadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export type ArchitectureGraphTemporalSnapshot =
@@ -33,50 +40,46 @@ export async function getArchitectureGraphTemporalSnapshot(
   anchorRunId: string,
   asOfIsoUtc: string,
 ): Promise<ArchitectureGraphTemporalSnapshot> {
-  const rid = anchorRunId.trim();
-  const path = `/v1/evidence-graph/snapshot?runId=${encodeURIComponent(rid)}&asOf=${encodeURIComponent(asOfIsoUtc)}`;
+  try {
+    const rid = anchorRunId.trim();
+    const path = `/v1/evidence-graph/snapshot?runId=${encodeURIComponent(rid)}&asOf=${encodeURIComponent(asOfIsoUtc)}`;
 
-  await ensureOidcBearerReady();
-  const { url, headers } = await resolveRequest(path);
-  const fetchHeaders = withCorrelationHeaders(headers);
-  const response = await fetch(url, {
-    cache: "no-store",
-    headers: fetchHeaders,
-  });
-  const text = await response.text();
+    await ensureOidcBearerReady();
+    const { url, headers } = await resolveRequest(path);
+    const fetchHeaders = withCorrelationHeaders(headers);
+    const response = await fetch(url, {
+      cache: "no-store",
+      headers: fetchHeaders,
+    });
+    const text = await response.text();
 
-  if (response.status === 413) {
-    const resolvedId: string | null = tryReadResolvedRunIdFromProblemJson(text);
+    if (response.status === 413) {
+      const resolvedId: string | null = tryReadResolvedRunIdFromProblemJson(text);
 
-    if (resolvedId !== null) {
-      const merged = await mergeArchitectureGraphPages(resolvedId);
-      const summary = await getRunSummary(resolvedId);
+      if (resolvedId !== null) {
+        const merged = await mergeArchitectureGraphPages(resolvedId);
+        const summary = await getRunSummary(resolvedId);
 
-      return {
-        resolvedRunId: resolvedId,
-        asOfUtc: asOfIsoUtc,
-        resolvedRunCreatedUtc: summary.createdUtc,
-        graph: merged,
-      };
-    }
-  }
-
-  if (!response.ok) {
-    if (response.status === 409) {
-      try {
-        throwApiRequestError(response, text);
-      } catch (error: unknown) {
-        const failure = toApiLoadFailure(error);
-        const blockedReason = architectureGraphTemporalSnapshotBlockedReason(failure);
-
-        throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+        return {
+          resolvedRunId: resolvedId,
+          asOfUtc: asOfIsoUtc,
+          resolvedRunCreatedUtc: summary.createdUtc,
+          graph: merged,
+        };
       }
     }
 
-    throwApiRequestError(response, text);
-  }
+    if (!response.ok) {
+      throwApiRequestError(response, text);
+    }
 
-  return JSON.parse(text) as ArchitectureGraphTemporalSnapshot;
+    return JSON.parse(text) as ArchitectureGraphTemporalSnapshot;
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureGraphTemporalSnapshotBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 function tryReadResolvedRunIdFromProblemJson(bodyText: string): string | null {
@@ -228,4 +231,7 @@ export async function getNodeNeighborhood(
   }
 }
 
-export { architectureGraphTemporalSnapshotBlockedReason } from "@/lib/graph/architecture-graph-temporal-snapshot-blocked-reason";
+export {
+  architectureGraphReadBlockedReason,
+  architectureGraphTemporalSnapshotBlockedReason,
+} from "@/lib/graph/architecture-graph-temporal-snapshot-blocked-reason";
