@@ -33,6 +33,7 @@ partial class ArchLucidReferenceDataHotPathRegistrar
             services.AddScoped<IArchitectureIdentityRepository, SqlArchitectureIdentityRepository>();
             services.AddScoped<IArchitectureVersionRepository, SqlArchitectureVersionRepository>();
             services.AddScoped<IArchitectureInventoryBindingRepository, SqlArchitectureInventoryBindingRepository>();
+            services.AddScoped<IArchitectureShareRepository, SqlArchitectureShareRepository>();
             services.AddScoped<IPolicyPackRepository, DapperPolicyPackRepository>();
             services.AddScoped<SqlCommittedArchitectureReviewFlagReader>();
             services.AddScoped<ICommittedArchitectureReviewFlagReader>(sp =>
@@ -52,6 +53,7 @@ partial class ArchLucidReferenceDataHotPathRegistrar
         services.AddScoped<IArchitectureIdentityRepository, SqlArchitectureIdentityRepository>();
         services.AddScoped<IArchitectureVersionRepository, SqlArchitectureVersionRepository>();
         services.AddScoped<IArchitectureInventoryBindingRepository, SqlArchitectureInventoryBindingRepository>();
+        services.AddScoped<IArchitectureShareRepository, SqlArchitectureShareRepository>();
         services.AddScoped<IRunRepository>(sp => new CachingRunRepository(
             sp.GetRequiredService<SqlRunRepository>(),
             sp.GetRequiredService<IHotPathReadCache>()));

@@ -8,9 +8,10 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
-  TROUBLESHOOTING_COMMON_ISSUES,
   TROUBLESHOOTING_ISSUE_KIND_LABELS,
+  troubleshootingCommonIssues,
   type TroubleshootingIssue,
 } from "@/lib/troubleshooting-help-guide-content";
 import {
@@ -98,6 +99,8 @@ function TroubleshootingIssueCard(props: {
 
 /** Filterable, owner-grouped Common issues list for `/help/troubleshooting`. */
 export function TroubleshootingCommonIssuesList(): React.ReactElement {
+  const { productLine } = useProductLine();
+  const commonIssues = useMemo(() => troubleshootingCommonIssues(productLine), [productLine]);
   const router = useRouter();
   const pathname = usePathname() ?? "/help/troubleshooting";
   const searchParams = useSearchParams();
@@ -149,8 +152,8 @@ export function TroubleshootingCommonIssuesList(): React.ReactElement {
   }, [query, router, searchParams]);
 
   const filtered = useMemo(
-    () => filterTroubleshootingIssues(TROUBLESHOOTING_COMMON_ISSUES, query),
-    [query],
+    () => filterTroubleshootingIssues(commonIssues, query),
+    [commonIssues, query],
   );
   const groups = useMemo(() => groupTroubleshootingIssuesByKind(filtered), [filtered]);
 

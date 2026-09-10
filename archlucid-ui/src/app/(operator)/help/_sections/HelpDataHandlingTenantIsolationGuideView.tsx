@@ -25,6 +25,7 @@ import {
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_PATH } from "@/lib/data-handling-tenant-isolation-help-route";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
@@ -87,7 +88,7 @@ export function HelpDataHandlingTenantIsolationGuideView(
         eyebrow={buyerPolishedShell ? undefined : DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_EYEBROW}
         title={DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE}
         titleTestId="help-data-handling-tenant-isolation-page-title"
-        subtitle={dataHandlingTenantIsolationHelpPageSubtitle(buyerPolishedShell)}
+        subtitle={dataHandlingTenantIsolationHelpPageSubtitle(buyerPolishedShell, resolveProductLineIdFromEnv())}
         navHref={DATA_HANDLING_TENANT_ISOLATION_HELP_PATH}
         headingLevel="h1"
         breadcrumb={<HelpTopicBreadcrumb topicTitle={DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_TOPIC_TITLE} />}

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import { useMemo } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -30,6 +31,7 @@ import {
 } from "@/lib/package-print-view";
 import { extractSealedQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-finding-stream-resolver";
 import type { RunDetail } from "@/types/authority";
+
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { cn } from "@/lib/utils";
 
@@ -111,7 +113,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       findingsSnapshot: buyerSummary?.findingsSnapshot ?? null,
       run: { runId: summaryQuery.data.runId },
       results: [],
-    } as RunDetail;
+    } as unknown as RunDetail;
     const findings = extractSealedQuickDecisionFindingsFromRunDetail(pseudoDetail);
 
     if (findings.length === 0) {
@@ -168,6 +170,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       && coverageHonestyQuery.data !== undefined
       && analysisStagesCompleteOnSummary(summaryQuery.data)
       && countActorNodesInGraphSnapshot(coverageHonestyQuery.data.buyerSummary.graphSnapshot ?? null) === 0,
+
   });
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,

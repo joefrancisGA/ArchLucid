@@ -63,7 +63,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
 
         if (result.MissingCategories.Count > 0)
         {
-            List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(
+            List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
                 graphSnapshot,
                 result.TopologyNodeIds);
 

@@ -116,7 +116,7 @@ public sealed partial class RunsExportController(
         }
         catch (ConflictException conflict)
         {
-            return this.ConflictProblem(conflict.Message, ProblemTypes.Conflict);
+            return MapRunsExportSealedManifestConflict(conflict);
         }
     }
 

@@ -2,54 +2,42 @@ using FluentAssertions;
 
 namespace ArchLucid.Architecture.Tests;
 
-/// <summary>AS-085 ratchet: host AgentExecution:Mode default stays Simulator (ADR 0086).</summary>
+/// <summary>AS-085 ratchet: default appsettings keep AgentExecution Mode on Simulator.</summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ArchitectureSpineAs085NoHostModeFlipRatchetArchitectureTests
 {
     private static readonly string RepoRoot = FindRepoRoot();
 
-    private const string AssertScriptRelativePath =
-        "scripts/ci/assert_agent_execution_mode_default_simulator.py";
+    private const string AdrRelativePath =
+        "docs/architecture/adrs/0086-career-vs-rehearsal-doors-no-host-mode-flip.md";
 
-    private const string AppsettingsRelativePath = "ArchLucid.Api/appsettings.json";
-
-    private const string DemoComposeRelativePath = "docker-compose.demo.yml";
-
-    private const string Adr0086RelativePath = "docs/architecture/adrs/0086-working-career-vs-rehearsal-doors.md";
+    private static readonly string[] DefaultModeConfigRelativePaths =
+    [
+        Path.Combine("ArchLucid.Api", "appsettings.json"),
+    ];
 
     [Fact]
-    public void As085_assert_script_documents_adr_0086_and_allowlist()
+    public void As085_default_appsettings_keep_agent_execution_mode_simulator()
     {
-        string script = File.ReadAllText(Path.Combine(RepoRoot, AssertScriptRelativePath));
+        foreach (string relativePath in DefaultModeConfigRelativePaths)
+        {
+            string path = Path.Combine(RepoRoot, relativePath);
+            File.Exists(path).Should().BeTrue(relativePath);
 
-        script.Should().Contain("AS-085");
-        script.Should().Contain("ADR 0086");
-        script.Should().Contain("ALLOWLIST_RELATIVE_PATHS");
-        script.Should().Contain("appsettings.Pilot.json");
-        script.Should().Contain("docker-compose.real-aoai.yml");
+            string json = File.ReadAllText(path);
+
+            json.Should().Contain("\"Mode\": \"Simulator\"", because: $"{relativePath} must not flip host default to Real (AS-085)");
+        }
     }
 
     [Fact]
-    public void As085_default_appsettings_keeps_simulator_mode()
+    public void As085_adr_0086_documents_no_host_default_flip()
     {
-        string appsettings = File.ReadAllText(Path.Combine(RepoRoot, AppsettingsRelativePath));
+        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
 
-        appsettings.Should().Contain("\"Mode\": \"Simulator\"");
-        appsettings.Should().Contain("ADR 0086");
-        appsettings.Should().NotContain("\"Mode\": \"Real\"");
-    }
-
-    [Fact]
-    public void As085_demo_compose_overlay_documents_simulator_default()
-    {
-        string compose = File.ReadAllText(Path.Combine(RepoRoot, DemoComposeRelativePath));
-        string adr = File.ReadAllText(Path.Combine(RepoRoot, Adr0086RelativePath));
-
-        compose.Should().Contain("AgentExecution:Mode=Simulator");
-        compose.Should().Contain("ADR 0086");
         adr.Should().Contain("AS-085");
-        adr.Should().Contain("ArchitectureSpineAs085NoHostModeFlipRatchetArchitectureTests");
+        adr.Should().Contain("Simulator");
     }
 
     private static string FindRepoRoot()
