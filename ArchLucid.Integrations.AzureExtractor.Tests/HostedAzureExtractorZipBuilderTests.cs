@@ -45,6 +45,27 @@ public sealed class HostedAzureExtractorZipBuilderTests
         Assert.NotNull(manifest);
         Assert.Equal(2, manifest!.SchemaVersion);
         Assert.Equal("11111111-1111-1111-1111-111111111111", manifest.SubscriptionId);
+        Assert.Null(manifest.SubscriptionName);
+    }
+
+    [Fact]
+    public void BuildZip_writes_normalized_subscription_name()
+    {
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            "  Contoso Production  ");
+
+        using MemoryStream stream = new(zipBytes);
+
+        (AzureExtractorNormalizedManifest? manifest, string? error) =
+            AzureExtractorManifestReader.TryReadNormalizedFromZip(stream);
+
+        Assert.Null(error);
+        Assert.NotNull(manifest);
+        Assert.Equal("Contoso Production", manifest!.SubscriptionName);
     }
 
     [Fact]

@@ -9,4 +9,12 @@ public interface IHostedAzureArmReadClient
         string accessToken,
         string subscriptionId,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     GET <c>/subscriptions/{id}</c> for ARM <c>displayName</c>. Returns null when the name is missing, a GUID, or the call fails.
+    /// </summary>
+    Task<string?> TryGetSubscriptionDisplayNameAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken);
 }
