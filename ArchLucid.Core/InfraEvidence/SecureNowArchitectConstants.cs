@@ -14,6 +14,10 @@ public static class SecureNowArchitectConstants
 
     public const string CapabilityToFlowControlId = "securenow.capability-to-flow";
 
+    public const string SharedControlBlastRadiusControlId = "securenow.shared-control-blast-radius";
+
+    public const string SharedControlFanOutHopEdgeType = "shared-control-fan-out";
+
     /// <summary>Synthetic hop for possible information movement (SA-07) — never ObservedFact.</summary>
     public const string PossibleMovementHopEdgeType = "possible-movement";
 

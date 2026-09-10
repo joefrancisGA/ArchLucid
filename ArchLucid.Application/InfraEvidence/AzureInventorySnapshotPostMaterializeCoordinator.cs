@@ -20,7 +20,8 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
     IPrivilegePathEngine privilegePathEngine,
     IIntendedReachabilityEngine intendedReachabilityEngine,
     IToxicCombinationEngine toxicCombinationEngine,
-    ICapabilityToFlowEngine capabilityToFlowEngine) : IAzureInventorySnapshotPostMaterializeCoordinator
+    ICapabilityToFlowEngine capabilityToFlowEngine,
+    ISharedControlBlastRadiusEngine sharedControlBlastRadiusEngine) : IAzureInventorySnapshotPostMaterializeCoordinator
 {
     public async Task OnSnapshotMaterializedAsync(
         ScopeContext scope,
@@ -67,6 +68,12 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
             cancellationToken);
 
         await capabilityToFlowEngine.RunAsync(
+            scope,
+            snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            cancellationToken);
+
+        await sharedControlBlastRadiusEngine.RunAsync(
             scope,
             snapshotId,
             SecureNowArchitectConstants.SystemActorId,
