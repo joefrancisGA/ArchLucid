@@ -27,6 +27,8 @@ export type ApiProblemDetails = {
   fieldErrors?: readonly ApiValidationFieldError[];
   /** Governance pre-commit block narrative when commit is rejected (HTTP 409). */
   blockExplanation?: string;
+  /** Stable machine-readable conflict branch key (ADR 0088 draft CAS). */
+  code?: string;
   /** Finding identifiers that triggered the pre-commit approval gate (Problem Details extension). */
   blockingFindingIds?: readonly string[];
   /** Policy pack that enforced the pre-commit gate when applicable. */
@@ -72,6 +74,7 @@ export function readOptionalNumber(obj: Record<string, unknown>, key: string): n
 
 export function readExtensions(obj: Record<string, unknown>): {
   errorCode?: string;
+  code?: string;
   supportHint?: string;
   correlationId?: string;
   blockExplanation?: string;
@@ -95,6 +98,7 @@ export function readExtensions(obj: Record<string, unknown>): {
 
   return {
     errorCode: readTrimmedString(ext, "errorCode"),
+    code: readTrimmedString(ext, "code"),
     supportHint: readTrimmedString(ext, "supportHint"),
     correlationId: readTrimmedString(ext, "correlationId"),
     blockExplanation: readTrimmedString(ext, "blockExplanation"),
