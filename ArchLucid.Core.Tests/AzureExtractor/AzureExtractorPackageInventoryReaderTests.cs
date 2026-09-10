@@ -791,7 +791,132 @@ public sealed class AzureExtractorPackageInventoryReaderTests
             AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
 
         result.Succeeded.Should().BeFalse();
-        result.Error.Should().NotBeNullOrWhiteSpace();
+        result.Error.Should().Be("resources.json is not valid JSON.");
+    }
+
+    [Fact]
+    public void TryReadFromZip_fails_on_malformed_diagnostic_settings_companion_json()
+    {
+        byte[] zipBytes = BuildZipWithCompanion(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """,
+            AzureExtractorPackageZipEntryNames.DiagnosticSettings,
+            "{ not-valid-json");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeFalse();
+        result.Error.Should().Be("diagnostic-settings.json is not valid JSON.");
+    }
+
+    [Fact]
+    public void TryReadFromZip_reads_pascal_case_location_on_resource_row()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "Location": "northeurope"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].Location.Should().Be("northeurope");
+    }
+
+    [Fact]
+    public void TryReadFromZip_reads_pascal_case_resource_group_on_row()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg-east/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "ResourceGroup": "rg-west"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].ResourceGroup.Should().Be("rg-west");
+    }
+
+    [Fact]
+    public void TryReadFromZip_trims_whitespace_from_explicit_resource_group_on_row()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg-east/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "resourceGroup": "  rg-west  "
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].ResourceGroup.Should().Be("rg-west");
+    }
+
+    [Fact]
+    public void TryReadFromZip_treats_whitespace_only_location_as_null()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "location": "   "
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].Location.Should().BeNull();
     }
 
     [Fact]

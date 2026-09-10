@@ -4845,6 +4845,17 @@ public sealed class AzureExtractorSensitivePropertyRedactorTests
         redacted.Should().Contain("3");
     }
 
+    [Fact]
+    public void RedactStructuredJson_serializes_sensitive_null_scalar_values_as_empty_string()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """{"settings":{"apiKey":null,"replicaCount":3}}""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Be("""{"settings":{"apiKey":"","replicaCount":3}}""");
+    }
+
     [Theory]
     [InlineData("secretName")]
     [InlineData("passwordValue")]

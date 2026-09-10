@@ -479,6 +479,19 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_missing_resources_reports_file_entry_count()
+    {
+        byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 2, includeResources: false);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.FileEntryCount.Should().Be(1);
+    }
+
+    [Fact]
     public void Validate_resolves_optional_companion_entry_case_insensitively()
     {
         byte[] zipBytes = BuildZip(

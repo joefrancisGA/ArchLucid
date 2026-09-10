@@ -52,25 +52,37 @@ public static class AzureExtractorPackageInventoryReader
             return [];
 
         using Stream stream = entry.Open();
-        using JsonDocument document = JsonDocument.Parse(stream);
 
-        if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            throw new JsonException("resources.json root must be a JSON array.");
-
-        List<AzureExtractorExtendedResourceRow> rows = [];
-
-        foreach (JsonElement row in document.RootElement.EnumerateArray())
+        try
         {
-            if (row.ValueKind is not JsonValueKind.Object)
-                continue;
+            using JsonDocument document = JsonDocument.Parse(stream);
 
-            AzureExtractorExtendedResourceRow? mapped = MapResourceRow(row);
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+                throw new JsonException("resources.json root must be a JSON array.");
 
-            if (mapped is not null)
-                rows.Add(mapped);
+            List<AzureExtractorExtendedResourceRow> rows = [];
+
+            foreach (JsonElement row in document.RootElement.EnumerateArray())
+            {
+                if (row.ValueKind is not JsonValueKind.Object)
+                    continue;
+
+                AzureExtractorExtendedResourceRow? mapped = MapResourceRow(row);
+
+                if (mapped is not null)
+                    rows.Add(mapped);
+            }
+
+            return rows;
         }
-
-        return rows;
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException("resources.json is not valid JSON.");
+        }
     }
 
     private static AzureExtractorExtendedResourceRow? MapResourceRow(JsonElement row)
@@ -86,8 +98,13 @@ public static class AzureExtractorPackageInventoryReader
             return null;
 
         string name = TryReadString(row, "name") ?? azureResourceId.Split('/').LastOrDefault() ?? azureResourceId;
-        string? location = TryReadString(row, "location");
-        string? resourceGroup = TryReadString(row, "resourceGroup") ?? ExtractResourceGroup(azureResourceId);
+        string? location = TryReadString(row, "location") ?? TryReadString(row, "Location");
+        string? resourceGroup = TryReadString(row, "resourceGroup")
+            ?? TryReadString(row, "ResourceGroup")
+            ?? ExtractResourceGroup(azureResourceId);
+
+        if (!string.IsNullOrWhiteSpace(resourceGroup))
+            resourceGroup = resourceGroup.Trim();
         string? skuName = ExtractSku(row);
         IReadOnlyDictionary<string, string> tags = ReadStringDictionary(row, "tags");
         IReadOnlyDictionary<string, string> properties = ReadProperties(row);
