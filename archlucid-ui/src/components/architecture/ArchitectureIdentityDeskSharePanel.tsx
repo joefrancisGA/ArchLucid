@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactElement } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -23,6 +24,10 @@ import {
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { parseAdminUsersDirectoryPayload } from "@/lib/admin-tenant-directory-parse";
 import { architectureIdentityMutationBlockedReason } from "@/lib/architecture/architecture-identity-mutation-blocked-reason";
+import {
+  ARCHITECTURE_SHARE_RESTRICT_HELP_CANONICAL_PATH,
+  ARCHITECTURE_SHARE_RESTRICT_HELP_LEARN_MORE_LABEL,
+} from "@/lib/architecture/architecture-share-restrict-help-evidence-copy";
 import {
   ARCHITECTURE_IDENTITY_DESK_SHARE_CONFIRM_LABEL,
   ARCHITECTURE_IDENTITY_DESK_SHARE_CONFIRM_OPT_IN_REASON,
@@ -333,7 +338,14 @@ export function ArchitectureIdentityDeskSharePanel(
         {ARCHITECTURE_IDENTITY_DESK_SHARE_PANEL_TITLE}
       </h2>
       <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {ARCHITECTURE_IDENTITY_DESK_SHARE_HELPER}
+        {ARCHITECTURE_IDENTITY_DESK_SHARE_HELPER}{" "}
+        <Link
+          href={ARCHITECTURE_SHARE_RESTRICT_HELP_CANONICAL_PATH}
+          className="underline"
+          data-testid="architecture-identity-desk-share-learn-more"
+        >
+          {ARCHITECTURE_SHARE_RESTRICT_HELP_LEARN_MORE_LABEL}
+        </Link>
       </p>
 
       <div className="mt-3 space-y-2" data-testid="architecture-identity-desk-share-restrict">

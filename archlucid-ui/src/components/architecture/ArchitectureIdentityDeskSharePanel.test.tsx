@@ -29,6 +29,7 @@ vi.mock("@/lib/api/architecture-share-api", () => ({
 }));
 
 import { ArchitectureIdentityDeskSharePanel } from "@/components/architecture/ArchitectureIdentityDeskSharePanel";
+import { ARCHITECTURE_SHARE_RESTRICT_HELP_CANONICAL_PATH } from "@/lib/architecture/architecture-share-restrict-help-evidence-copy";
 
 const architectureId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
 const shareUserId = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
@@ -161,6 +162,25 @@ describe("ArchitectureIdentityDeskSharePanel (AS-092)", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-identity-desk-share-save-restrict")).toBeEnabled();
+    });
+  });
+
+  it("links to architecture-sharing help (AS-098)", async () => {
+    useArchitectureSharesQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: { architectureId, restrictToShares: false, shares: [] },
+      refetch: vi.fn(),
+      blockedReason: null,
+    });
+
+    renderPanel();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-identity-desk-share-learn-more")).toHaveAttribute(
+        "href",
+        ARCHITECTURE_SHARE_RESTRICT_HELP_CANONICAL_PATH,
+      );
     });
   });
 
