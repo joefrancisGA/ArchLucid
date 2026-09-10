@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -192,6 +193,88 @@ public sealed class SqlSecurityEvidencePathRepository(ISqlConnectionFactory conn
             PathId = validated.Path.PathId,
             Created = true,
         };
+    }
+
+    public async Task<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)> ListPagedAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        SecurityEvidencePathListFilter filter,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(filter);
+
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
+        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+
+        const string whereClause = """
+                                   WHERE p.TenantId = @TenantId
+                                     AND p.WorkspaceId = @WorkspaceId
+                                     AND p.ProjectId = @ProjectId
+                                     AND (@SnapshotId IS NULL OR p.SnapshotId = @SnapshotId)
+                                     AND (@PathKind IS NULL OR p.PathKind = @PathKind)
+                                     AND (@ConfidenceBand IS NULL OR p.PathConfidenceBand = @ConfidenceBand)
+                                     AND (
+                                           @CloudResourceId IS NULL
+                                           OR EXISTS (
+                                               SELECT 1
+                                               FROM dbo.OperationalSecurityFindings f
+                                               WHERE f.TenantId = p.TenantId
+                                                 AND f.PathId = p.PathId
+                                                 AND f.CloudResourceId = @CloudResourceId
+                                           )
+                                           OR EXISTS (
+                                               SELECT 1
+                                               FROM dbo.SecurityEvidencePathHops h
+                                               WHERE h.TenantId = p.TenantId
+                                                 AND h.PathId = p.PathId
+                                                 AND h.CloudResourceId = @CloudResourceId
+                                           )
+                                         )
+                                   """;
+
+        string countSql = $"""
+                           SELECT COUNT(1)
+                           FROM dbo.SecurityEvidencePaths p
+                           {whereClause};
+                           """;
+
+        string listSql = $"""
+                          SELECT p.PathId, p.TenantId, p.WorkspaceId, p.ProjectId, p.SnapshotId, p.PathKind, p.PathConfidenceBand,
+                                 p.CanonicalHopHashSha256, p.WeakestHopOrdinal, p.WeakestHopReason, p.CrownJewelAssertionId,
+                                 p.CreatedUtc, p.UpdatedUtc
+                          FROM dbo.SecurityEvidencePaths p
+                          {whereClause}
+                          ORDER BY p.CreatedUtc DESC, p.PathId
+                          OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
+                          """;
+
+        object parameters = new
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            SnapshotId = filter.SnapshotId,
+            PathKind = filter.PathKind.HasValue ? (int?)filter.PathKind.Value : null,
+            ConfidenceBand = filter.ConfidenceBand.HasValue ? (int?)filter.ConfidenceBand.Value : null,
+            CloudResourceId = filter.CloudResourceId,
+            Skip = skip,
+            PageSize = safePageSize,
+        };
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int totalCount = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+
+        IEnumerable<PathRow> rows = await conn.QueryAsync<PathRow>(
+            new CommandDefinition(listSql, parameters, cancellationToken: cancellationToken));
+
+        IReadOnlyList<SecurityEvidencePathRecord> items = rows.Select(MapPath).ToList();
+
+        return (items, totalCount);
     }
 
     private static SecurityEvidencePathRecord MapPath(PathRow row) =>

@@ -55,6 +55,7 @@ export type PackagePrintPageViewProps = {
   readonly presentation: PackagePrintPresentation;
   readonly listScopedRunId?: string | null;
   readonly parentArchitectureId?: string | null;
+
   readonly meetingCaptureBlockedReason?: string | null;
 };
 
@@ -65,6 +66,7 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
     reviewId: presentation.runId,
     reviewTab: "review-package",
   });
+
   const buyerPolishedShell = useProductionEvalChrome();
   const scopedListRunId = (listScopedRunId ?? "").trim();
   const listScopedRunFilterActive = scopedListRunId.length > 0;

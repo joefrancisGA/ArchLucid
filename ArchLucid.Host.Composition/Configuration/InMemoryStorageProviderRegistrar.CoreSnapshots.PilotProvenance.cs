@@ -69,6 +69,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
                 shareRepository: sp.GetRequiredService<IArchitectureShareRepository>()));
         services.AddSingleton<IArchitectureVersionRepository, InMemoryArchitectureVersionRepository>();
         services.AddSingleton<IArchitectureInventoryBindingRepository, InMemoryArchitectureInventoryBindingRepository>();
+        services.AddSingleton<IArchitectureShareRepository, InMemoryArchitectureShareRepository>();
         services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
         services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
         services.AddSingleton<IArchitectureProjectRepository, InMemoryArchitectureProjectRepository>();

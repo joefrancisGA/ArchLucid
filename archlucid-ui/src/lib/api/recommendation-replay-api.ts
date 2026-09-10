@@ -1,27 +1,36 @@
 import type { LearningProfile } from "@/types/recommendation-learning";
 import type { ReplayResponse } from "@/types/authority";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { recommendationLearningMutationBlockedReason } from "@/lib/internal/recommendation-learning-mutation-blocked-reason";
 import { reviewReplayMutationBlockedReason } from "@/lib/runs/review-replay-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "./http";
 
+
 export async function rebuildLearningProfile(): Promise<LearningProfile> {
-  await ensureOidcBearerReady();
-  const { url, headers } = await resolveRequest("/v1/recommendation-learning/rebuild");
-  const h = withCorrelationHeaders(headers);
-  h.set("Content-Type", "application/json");
-  const response = await fetch(url, {
-    method: "POST",
-    headers: h,
-    cache: "no-store",
-  });
-  const text = await response.text();
+  try {
+    await ensureOidcBearerReady();
+    const { url, headers } = await resolveRequest("/v1/recommendation-learning/rebuild");
+    const h = withCorrelationHeaders(headers);
+    h.set("Content-Type", "application/json");
+    const response = await fetch(url, {
+      method: "POST",
+      headers: h,
+      cache: "no-store",
+    });
+    const text = await response.text();
 
-  if (!response.ok) {
-    throwApiRequestError(response, text);
+    if (!response.ok) {
+      throwApiRequestError(response, text);
+    }
+
+    return JSON.parse(text) as LearningProfile;
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = recommendationLearningMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-
-  return JSON.parse(text) as LearningProfile;
 }
 
 /** Replays an authority chain for a run using the specified mode (ReconstructOnly, RebuildManifest, RebuildArtifacts). */

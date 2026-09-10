@@ -1,14 +1,24 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { policyPackAssignMutationBlockedReason } from "@/lib/policy/policy-pack-assign-mutation-blocked-reason";
+import { policyPackArchiveMutationBlockedReason } from "@/lib/policy/policy-pack-archive-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
+import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
+
+import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
+
+
+
 import type {
   PlatformBundledPolicyPackRegistryEntry,
   PolicyPackAssignment,
   PolicyPackWorkspaceSelectionItem,
 } from "@/types/policy-packs";
-import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
-import { policyPackAssignMutationBlockedReason } from "@/lib/policy/policy-pack-assign-mutation-blocked-reason";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
+
+
+
 
 /** Assigns a specific policy pack version to the current scope (project/workspace/tenant). */
 export async function assignPolicyPack(
@@ -42,7 +52,7 @@ export async function archivePolicyPackAssignment(assignmentId: string): Promise
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
-    const blockedReason = policyPackAssignMutationBlockedReason(failure);
+    const blockedReason = policyPackArchiveMutationBlockedReason(failure);
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }

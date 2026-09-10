@@ -92,62 +92,69 @@ public sealed partial class GovernanceResolutionController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Resolve(CancellationToken ct = default)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            scope,
-            _tenantRepository,
-            ct).ConfigureAwait(false);
+        try
+        {
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
+            IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+                this,
+                scope,
+                _tenantRepository,
+                ct).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+            if (scopeProblem is not null)
+                return scopeProblem;
 
-        IActionResult? sealedGuardResult =
-            await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, ct);
+            IActionResult? sealedGuardResult =
+                await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, ct);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            ct);
+            EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                ct);
 
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.GovernanceResolutionExecuted,
-                DataJson = JsonSerializer.Serialize(new GovernanceResolutionAuditData(
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    result.Decisions.Count,
-                    result.Conflicts.Count))
-            },
-            ct);
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.GovernanceResolutionExecuted,
+                    DataJson = JsonSerializer.Serialize(new GovernanceResolutionAuditData(
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
+                        result.Decisions.Count,
+                        result.Conflicts.Count))
+                },
+                ct);
 
-        if (result.Conflicts.Count <= 0)
+            if (result.Conflicts.Count <= 0)
+                return Ok(result);
+
+            List<GovernanceConflictAuditEntry> conflictEntries = result.Conflicts
+                .Select(c => new GovernanceConflictAuditEntry(c.ItemType, c.ItemKey, c.ConflictType))
+                .ToList();
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.GovernanceConflictDetected,
+                    DataJson = JsonSerializer.Serialize(new GovernanceConflictAuditData(
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
+                        result.Conflicts.Count,
+                        conflictEntries))
+                },
+                ct);
+
             return Ok(result);
-
-        List<GovernanceConflictAuditEntry> conflictEntries = result.Conflicts
-            .Select(c => new GovernanceConflictAuditEntry(c.ItemType, c.ItemKey, c.ConflictType))
-            .ToList();
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.GovernanceConflictDetected,
-                DataJson = JsonSerializer.Serialize(new GovernanceConflictAuditData(
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    result.Conflicts.Count,
-                    conflictEntries))
-            },
-            ct);
-
-        return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceResolutionSealedManifestConflict(ex);
+        }
     }
 
     private sealed record GovernanceResolutionAuditData(

@@ -1,18 +1,21 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
-import { governanceEnvironmentCatalogBlockedReason } from "@/lib/governance/governance-workflow-read-blocked-reason";
+import { governanceActivationsBlockedReason, governanceEnvironmentCatalogBlockedReason } from "@/lib/governance/governance-workflow-read-blocked-reason";
 import { governanceEnvironmentCatalogMutationBlockedReason } from "@/lib/governance/governance-environment-catalog-mutation-blocked-reason";
 import { governanceWorkflowMutationBlockedReason } from "@/lib/governance/governance-workflow-mutation-blocked-reason";
 
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { GovernanceEnvironmentActivation } from "@/types/governance-workflow";
+import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiPostJson, apiPutJson } from "./http";
+
 import type {
   GovernanceEnvironmentCatalog,
   ReplaceGovernanceEnvironmentCatalogRequest,
 } from "@/types/governance-environment-catalog";
-import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { apiPostJson, apiPutJson } from "./http";
+
+
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
@@ -48,9 +51,16 @@ export async function listActivations(runId: string): Promise<GovernanceEnvironm
     return [];
   }
 
-  return apiGetSealedManifestAware<GovernanceEnvironmentActivation[]>(
-    `${governanceBase()}/runs/${encodeURIComponent(runId)}/activations`,
-  );
+  try {
+    return await apiGetSealedManifestAware<GovernanceEnvironmentActivation[]>(
+      `${governanceBase()}/runs/${encodeURIComponent(runId)}/activations`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceActivationsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Returns the administrator-defined governance environment catalog for the current scope. */

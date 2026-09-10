@@ -4,6 +4,10 @@ import type {
   TechnologyLedgerListResponse,
 } from "@/types/technology-ledger";
 
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { technologyLedgerMutationBlockedReason } from "@/lib/runs/technology-ledger-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPatchJson } from "./http";
 
@@ -19,8 +23,15 @@ export async function patchTechnologyLedgerEntry(
   entryId: string,
   body: PatchTechnologyLedgerEntryRequest,
 ): Promise<PatchTechnologyLedgerEntryResponse> {
-  return apiPatchJson<PatchTechnologyLedgerEntryResponse>(
-    `${ledgerBase(runId)}/${encodeURIComponent(entryId)}`,
-    body,
-  );
+  try {
+    return await apiPatchJson<PatchTechnologyLedgerEntryResponse>(
+      `${ledgerBase(runId)}/${encodeURIComponent(entryId)}`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = technologyLedgerMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

@@ -64,6 +64,18 @@ public sealed partial class AuthorityQueryController
         Guid runId,
         CancellationToken ct = default)
     {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        IActionResult? shareGuardResult = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this,
+            User,
+            scope,
+            runId,
+            ct);
+
+        if (shareGuardResult is not null)
+            return shareGuardResult;
+
         RunDetailDto? result = await readHandlers.GetRunDetailAsync(runId, ct);
 
         if (result is null)

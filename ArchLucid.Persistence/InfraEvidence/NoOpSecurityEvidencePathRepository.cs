@@ -33,4 +33,14 @@ public sealed class NoOpSecurityEvidencePathRepository : ISecurityEvidencePathRe
             PathId = pathHeader.PathId,
             Created = false,
         });
+
+    public Task<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)> ListPagedAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        SecurityEvidencePathListFilter filter,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)>(([], 0));
 }

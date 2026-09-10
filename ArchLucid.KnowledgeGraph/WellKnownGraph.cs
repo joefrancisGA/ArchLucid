@@ -50,6 +50,8 @@ public static class GraphEdgeTypes
 
     public const string CanWrite = "CAN_WRITE";
 
+    public const string CanAssume = "CAN_ASSUME";
+
     public const string RoutesTo = "ROUTES_TO";
 
     /// <summary>Reserved for SA-19 federated identity adapter; no edges until that prompt ships.</summary>

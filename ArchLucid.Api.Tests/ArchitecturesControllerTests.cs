@@ -7,6 +7,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 
 
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Authorization;

@@ -43,6 +43,10 @@ public sealed partial class RunCoverageController
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (ConflictException ex)
+        {
+            return MapRunCoverageSealedManifestConflict(ex);
+        }
     }
 
     [HttpPut("{runId:guid}/coverage/acknowledgement")]

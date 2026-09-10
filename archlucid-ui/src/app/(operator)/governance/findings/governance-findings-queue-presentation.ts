@@ -26,9 +26,9 @@ import {
   GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT,
 } from "@/lib/enterprise-compact-empty-state-presets";
 import {
-  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import { resolveContinueLastGovernanceFinding } from "@/lib/resolve-continue-last-governance-finding";
@@ -254,8 +254,15 @@ export function resolveGovernanceFindingsPageSubtitle(
     : ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE;
 }
 
-export function resolveGovernanceFindingsNavHref(isAssignedToMe: boolean): string {
-  return isAssignedToMe ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH;
+export function resolveGovernanceFindingsNavHref(
+  isAssignedToMe: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isAssignedToMe) {
+    return assignedToMeFindingsPathForProductLine(productLineId);
+  }
+
+  return GOVERNANCE_FINDINGS_PATH;
 }
 
 export function resolveGovernanceFindingsLoadFailedPreset(isAssignedToMe: boolean) {
