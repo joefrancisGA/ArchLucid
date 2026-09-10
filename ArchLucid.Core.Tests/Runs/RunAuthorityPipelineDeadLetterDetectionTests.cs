@@ -191,4 +191,16 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
         // Writers emit AgentExecutionFailureClasses.PipelineDeadLetter without internal whitespace; conservative parse fails closed.
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
     }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_for_leading_and_trailing_whitespace_in_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":" pipelineDeadLetter "}
+            """;
+
+        // TryDeserialize trims failureClass before comparison; writers emit canonical class strings without padding.
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+>>>>>>> origin/bugsmash
 }

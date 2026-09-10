@@ -1,58 +1,143 @@
-# Finding semantic support band contract
+> **Scope:** Contributor reference — PA-facing contract for per-finding **semantic support band** on Working career surfaces (**AS-075** / ADR **0085**). Answers “what does **Supported** mean?” without conflating lanes.
 
-> **Authority:** ADR [0085 — Semantic support is a Working career band, not a sync commit gate](../architecture/adrs/0085-semantic-support-band-working-career-not-commit-gate.md) · TB-1228 Lane B positioning · [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md)
+# Finding semantic support band contract (ADR 0085 / TB-1228)
 
-## What the band is
+> **Audience:** Principal architects, contributors, and GTM reviewers explaining support-band chips on the Working desk, career exports, and finalize honesty strips.  
+> **ADR:** [`0085-semantic-support-band-working-career-not-commit-gate.md`](../architecture/adrs/0085-semantic-support-band-working-career-not-commit-gate.md).  
+> **Lane split (authoritative):** [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md) (**TB-1228**).  
+> **Honesty CI:** **TB-1229** / **AS-067** — support band is **not** legal truth or semantically verified seal.
 
-The **semantic support band** is a Working career honesty overlay on decision-grade findings. It answers whether the **finding sentence** is supported by the **cited excerpt text**, not whether citations exist structurally.
+---
 
-| Value | Meaning for architects |
+## Decision in one line
+
+**Semantic support band** is a **Working career honesty signal** beside structural citations — **not** the golden-manifest commit gate, **not** insight-density demotion, and **not** semantic legal truth.
+
+---
+
+## Enum (wire + UI)
+
+| Band | Meaning | Typical cause |
+| --- | --- | --- |
+| **Supported** | Claim text **exactly overlaps** cited excerpt text under the deterministic heuristic scorer (AS-057). | Quote or near-verbatim span found in `EvidenceRefs` excerpts. |
+| **Unchecked** | Citations exist but overlap is **partial**, or async Lane B score is **missing** (AS-058). | Paraphrase, pending eval row, or heuristic token overlap without exact quote. |
+| **Unsupported** | Citations exist but claim **contradicts** or is **disjoint** from cited excerpts (AS-057 / AS-073 livelihood exhibit). | Quote mismatch — finding stays **decision-grade**; band is visible, not deleted. |
+| **NotScored** | No scoreable citation excerpts, or row is **checklist coverage** (ADR 0082 provenance problem, not semantic Unsupported). | Empty/unresolvable refs, checklist band, or Simulator rehearsal presentation (AS-068). |
+
+**What Supported does *not* mean:** auditor attestation, CPA conclusion, RAG nightly eval green, cohort promotion ratio, or “semantically verified seal.”
+
+---
+
+## Scorer (default path — zero LLM)
+
+| Item | Value |
 | --- | --- |
-| **Supported** | Exact quote overlap between finding message and citation excerpts (AS-057 heuristic). |
-| **Unchecked** | Citations exist but overlap is inconclusive (paraphrase) or async Lane B has not scored yet. |
-| **Unsupported** | Citations exist but excerpt text does not support the claim (quote mismatch). |
-| **NotScored** | Checklist rows or nothing to score (no excerpts). |
+| **Lane** | TB-1228 **Lane A-adjacent** heuristic on sync emit (not commit gate) |
+| **Implementation** | `FindingSemanticSupportBandScorer` (AS-057) |
+| **Version stamp** | `as057-v1` (`FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1`) |
+| **Inputs** | Finding claim (`Rationale` / title) vs trimmed `EvidenceRefs` excerpt strings |
+| **Rules** | Exact quote span → **Supported**; zero token overlap → **Unsupported**; partial overlap → **Unchecked**; empty citations → **NotScored** (provenance, not Unsupported) |
+| **Premium LLM judge** | **Default off** — `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudge` (**AS-074**). Heuristic remains default until explicit opt-in and a wired judge. |
 
-## What the band is not
+**Code anchors:** `FindingSemanticSupportBandEmissionApplicator`, `FindingSemanticSupportBandOverlayScoring`, `finding-semantic-support-band-export.ts` (`FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION`).
 
-- **Not** a sync commit gate by default — finalize warns on Unchecked; it does not block seal on LLM faithfulness (ADR 0085).
-- **Not** insight-density demotion — `DeterministicInsightDensityGate` must not read the band (AS-066 ratchet).
-- **Not** legal truth, auditor conclusion, or CPA attestation.
-- **Not** a substitute for ADR 0082 structural provenance — empty `EvidenceRefs` fail closed as provenance, not as Unsupported.
+---
 
-## Scorers and lanes
+## Lane B async (may lag — not Supported by default)
 
-| Path | Default | Notes |
+When `AgentOutputSemanticScore` rows exist on agent traces (`FindingCitationCoverageRatio` / `AgentResultFaithfulnessSupportRatio`), read paths compose Lane B into the Working band via `IFindingSemanticSupportBandLaneBComposeService` (AS-058).
+
+| State | Working band |
+| --- | --- |
+| Lane B row **present** | Composed async score |
+| Lane B row **missing** | **Unchecked**, not Supported |
+| Execute / merge hot path | Does **not** enqueue or await Lane B jobs |
+
+**Honesty copy:** “Semantic support is async and may lag the sealed review.”
+
+---
+
+## Finalize posture: warn vs hold
+
+| Signal | Default (TB-1228) | Opt-in (AS-065) |
 | --- | --- | --- |
-| AS-057 heuristic quote overlap | **On** (sync at emit) | `FindingSemanticSupportBandScorer` · version `as057-quote-overlap-v1` |
-| TB-1228 Lane B support-ratio | **Async when present** | Missing row stays Unchecked, never Supported (AS-058) |
-| Premium LLM judge | **Off** | `EnableSemanticSupportBandLlmJudge` defaults false (AS-074) |
+| **Unchecked** | **Warn** on finalize/export honesty — does **not** block seal | unchanged |
+| **Unsupported** | **Visible** on Working — does **not** delete or demote to checklist solely for mismatch (AS-066 / AS-073) | Working **Real** + **PilotStrict** may **hold** finalize when `AgentOutput:QualityGate:PilotStrictHoldOnUnsupportedSemanticSupport` is **true** (default **false**) |
+| **Structural provenance fail** | ADR **0082** persist gate — separate from band | unchanged |
 
-## Simulator / Rehearsal honesty
+**Code anchors:** `semantic-support-band-finalize-honesty.ts`, `UnsupportedSemanticSupportFinalizeHoldEvaluator`, `CommitOutputIntegrityService`.
 
-When structural execution mode is Simulator or Fallback, Working must not show career-looking **Supported** chips from wire bands alone. Rehearsal presentation uses explicit rehearsal copy (AS-068 / LP-06).
+---
 
-## Architect restatement (AS-070)
+## Simulator / Rehearsal (AS-068)
 
-Human architect restatement is append-only judgment. Restatement text **never** upgrades the band to Supported even when quote overlap would score Supported on the restated sentence. The typed/model claim remains the scored message.
+Simulator and Fallback structural execution modes must **not** display career-looking **Supported** chips.
 
-## Warn vs hold
+| Mode | Presentation |
+| --- | --- |
+| **Real** Working | Wire band with TB-645 labels |
+| **Simulator / Rehearsal** | **NotScored** or “Rehearsal — not career support” — never green Supported from wire |
 
-| Band | Default finalize | PilotStrict (optional, AS-065) |
+**Code anchor:** `simulator-career-honesty.ts` → `presentDecisionGradeSemanticSupportBand`.
+
+---
+
+## Insight-density non-fusion (AS-066)
+
+`DeterministicInsightDensityGate` does **not** read `Finding.SemanticSupportBand`. Band and ADR 0070 demotion are **sibling signals**:
+
+- A row may stay **decision-grade** under insight-density while showing **Unchecked** or **Unsupported** on the desk.
+- Band must **not** silently demote to checklist coverage.
+
+**Ratchet:** `ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTests`.
+
+---
+
+## Honesty examples
+
+| Situation | Band | Safe explanation |
 | --- | --- | --- |
-| Unchecked | Warn on career export / finalize honesty surfaces | May warn |
-| Unsupported | Visible on Working; row stays decision-grade | Optional hold — **default off** |
+| ARM excerpt says “deny public database ingress”; finding claims “allows public internet access” | **Unsupported** | Cited but contradicts excerpt — livelihood exhibit (AS-073). |
+| Finding paraphrases citation without exact quote | **Unchecked** | Heuristic cannot confirm — not a provenance failure. |
+| Finding sentence appears verbatim in citation excerpt | **Supported** | Heuristic quote overlap only — not legal proof. |
+| `EvidenceRefs` empty on decision-grade row | **NotScored** (+ provenance hold) | Structural ADR 0082 problem — not Unsupported. |
+| Simulator screenshot with wire **Supported** | **NotScored** / rehearsal label | Rehearsal does not judge Real citation overlap (AS-068). |
+| Nightly eval / RAG ratio green | *(not the band)* | Lane B async — does not upgrade seal safety (**TB-1228**). |
 
-## Examples
+### Forbidden claims
 
-**Supported:** Finding message exactly matches an ARM-backed excerpt in `EvidenceRefs`.
+| Too strong | Safe |
+| --- | --- |
+| Support band = semantically verified seal | Working heuristic + optional async Lane B |
+| **Unsupported** → row deleted or hidden | Visible on desk; optional PilotStrict hold only |
+| **Supported** = auditor-approved conformity | Quote overlap heuristic only |
+| RAG / LLM faithfulness = default commit gate | Structural provenance (0082); band warns, does not block by default |
+| Band fused into insight-density demotion | Separate predicates (AS-066) |
 
-**Unsupported:** `EvidenceRefs` cite `/subscriptions/.../Microsoft.Sql/servers/sql-primary` but the finding claims unrestricted public internet ingress with no overlap tokens — livelihood exhibit (AS-073).
+---
 
-**Unchecked:** Paraphrase with partial token overlap; await Lane B or human review.
+## Related implementation ratchets
 
-**NotScored:** Checklist coverage row — band chip omitted or labeled Not scored.
+| AS | Ratchet / exhibit |
+| --- | --- |
+| **056** | `ArchitectureSpineAs056SemanticSupportAdrArchitectureTests` |
+| **057** | `FindingSemanticSupportBandScorerTests` |
+| **058** | `ArchitectureSpineAs058AsyncSupportRatioArchitectureTests` |
+| **066** | `ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTests` |
+| **068** | `simulator-career-honesty` presenter tests |
+| **073** | `ArchitectureSpineAs073HeuristicMismatchArchitectureTests` |
+| **074** | `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudge` default **false** (ADR 0085 follow-ups) |
+| **075** | `ArchitectureSpineAs075SemanticContractDocArchitectureTests` (this document) |
 
-## Related implementation waves
+---
 
-AS-059 wire enum · AS-061 desk chip · AS-062 stamp counts · AS-071 export/ADR/print · AS-072 desk ratchet · AS-073 mismatch exhibit · AS-074 LLM default off · AS-075 this contract.
+## Related backlog
+
+| ID | Role |
+| --- | --- |
+| **TB-1228** | Three-lane faithfulness positioning (parent contract) |
+| **TB-1229** | Honesty CI — band ≠ seal truth |
+| **TB-1221** | Structural provenance (persist gate) |
+| **ADR 0082** | ProvenanceKind A/B |
+| **ADR 0070** | Insight-density demotion (separate) |
+| **ADR 0085** | Support band on Working career surfaces |

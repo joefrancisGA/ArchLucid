@@ -12,9 +12,30 @@ import {
 } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
-import { compareAgentResultsBlockedReason } from "@/lib/compare/compare-agent-results-blocked-reason";
+import { compareRunsLoadBlockedReason } from "@/lib/api/compare-runs-load-blocked-reason";
 import { compareExplainMutationBlockedReason } from "@/lib/compare/compare-explain-mutation-blocked-reason";
 import { explainRunBlockedReason } from "@/lib/explain/explain-run-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { applyCorrelationHeaders } from "@/lib/api/http";
+
+type EndToEndReplayComparisonWireResponse = {
+  readonly report?: {
+    readonly findingCorrelation?: unknown;
+    readonly findingLifecycle?: unknown;
+    readonly findingLifecycleRecords?: unknown;
+    readonly compareQualityDelta?: unknown;
+  } | null;
+};
+
+/** Full end-to-end replay comparison report (includes finding correlation metadata for export parity). */
+export async function compareRunsEndToEnd(
+  leftRunId: string,
+  rightRunId: string,
+): Promise<EndToEndReplayComparisonWireResponse> {
+  return apiGetSealedManifestAware<EndToEndReplayComparisonWireResponse>(
+    `/v1/architecture/review/compare/end-to-end?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+  );
 }
 
 /** Structured agent-result diff between two runs. */

@@ -63,7 +63,7 @@ export function HelpCareerRehearsalGuideView(props: HelpCareerRehearsalGuideView
         >
           <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Simulator is not sponsor proof</h2>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{CAREER_REHEARSAL_HELP_SIMULATOR_HONESTY}</p>
-          <p className={cn("mt-3 mb-0", OPERATOR_TYPOGRAPHY.caption)}>{CAREER_REHEARSAL_HELP_CLAIM_DISCIPLINE}</p>
+          <p className={cn("mt-3 mb-0", OPERATOR_TYPOGRAPHY.helper)}>{CAREER_REHEARSAL_HELP_CLAIM_DISCIPLINE}</p>
         </section>
         <HelpTopicRegistryProvenanceLine entry={entry} />
       </div>
