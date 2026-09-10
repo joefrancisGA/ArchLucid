@@ -1,6 +1,7 @@
 import { executeIdempotentLivelihoodMutation } from "@/lib/auth/livelihood-mutation-401-resume";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+
 import { governanceMutationCorrectionBlockedReason } from "@/lib/governance/governance-mutation-correction-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostJson } from "@/lib/api/http";
@@ -40,6 +41,7 @@ export async function recordGovernanceMutationCorrection(
       },
       { extraHeaders: headers },
     );
+
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceMutationCorrectionBlockedReason(failure);
@@ -62,6 +64,7 @@ export async function recordGovernanceMutationCorrectionWith401Resume(
     payload: { body },
     execute: () => recordGovernanceMutationCorrection(body, { idempotencyKey }),
   });
+
 }
 
 export const GOVERNANCE_MUTATION_CORRECTION_RATIONALE_REQUIRED =

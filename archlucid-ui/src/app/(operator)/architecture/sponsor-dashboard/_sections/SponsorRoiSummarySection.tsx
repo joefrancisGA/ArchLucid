@@ -40,6 +40,7 @@ import { verifyBoardPackRunLineage } from "@/lib/exports/traceability-bundle-dow
 import type { ErrorRecoveryContractPresentation } from "@/lib/error-recovery-contract-copy";
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_SPONSOR_DATA_SOURCE_NOTE } from "@/lib/buyer/buyer-polish-copy";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
@@ -57,6 +58,7 @@ import { SponsorRoiSystemicIssueTrendChartDeferred } from "./sponsor-roi-dashboa
 
 function sponsorRoiSummaryCardTitle(evalChromeShell: boolean): string {
   if (evalChromeShell) {
+
     return BUYER_SPONSOR_SUMMARY_VOCABULARY.pageTitle;
   }
 
@@ -321,6 +323,7 @@ export function SponsorRoiSummarySection({
             testId="exec-roi-board-pack-verify-recovery"
           />
         ) : null}
+
         {scopedRoiFreshness.length > 0 ? (
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
