@@ -3,7 +3,7 @@
 claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
 DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
 (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
-The golden corpus harness registers **43** engines; **27** appear in this table (≥1 finding across case-01..case-72). **27** built-in product engines are absent from this corpus-derived slice.
+The golden corpus harness registers **43** engines; **28** appear in this table (≥1 finding across case-01..case-72). **26** built-in product engines are absent from this corpus-derived slice.
 `WouldDemoteIfUnprotectedCount` matches production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59).
 `WouldDemoteAt65Count` applies the same predicate at threshold 65; with production default 65 it should match `WouldDemoteIfUnprotectedCount`.
 
@@ -13,31 +13,32 @@ Recorded scores on this corpus do not form a 60/65/75/80/85 ladder; inventory an
 
 | Engine | Findings | Min | Median | Max | Would demote if unprotected | Generic advice | No evidence | No anchor | Duplication | Would demote at 65 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| dangling-declaration-reference | 1 | 67 | 67 | 67 | 0 | 0 | 1 | 0 | 0 | 0 |
-| dr-rpo-topology | 2 | 67 | 67 | 67 | 0 | 0 | 2 | 0 | 0 | 0 |
-| requirement-sku-tier | 1 | 67 | 67 | 67 | 0 | 0 | 1 | 0 | 0 | 0 |
 | declaration-security-baseline | 3 | 70 | 75 | 100 | 0 | 0 | 0 | 0 | 2 | 0 |
-| declaration-premise-conflict | 1 | 82 | 82 | 82 | 0 | 0 | 1 | 0 | 0 | 0 |
 | external-exposure | 1 | 85 | 85 | 85 | 0 | 0 | 0 | 1 | 0 | 0 |
 | security-baseline-expectation | 3 | 85 | 85 | 85 | 0 | 0 | 0 | 3 | 0 | 0 |
 | diagram-declaration-omission | 1 | 92 | 92 | 92 | 0 | 0 | 0 | 0 | 0 | 0 |
 | aws-inventory-reconciliation | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | azure-inventory-reconciliation | 3 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | azure-inventory-security-baseline | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
+| dangling-declaration-reference | 2 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | data-flow-trust-boundary | 4 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
+| decision-grade-fusion | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | declaration-inventory-contradiction | 2 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
+| declaration-premise-conflict | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
+| dr-rpo-topology | 2 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | gcp-inventory-reconciliation | 2 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | gcp-inventory-security-baseline | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
-| identity-blast-radius | 7 | 90 | 100 | 100 | 0 | 0 | 0 | 0 | 2 | 0 |
+| identity-blast-radius | 5 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | orphaned-aws-resource | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | orphaned-azure-resource | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | orphaned-gcp-resource | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
-| requirement-expectation | 25 | 85 | 100 | 100 | 0 | 0 | 0 | 3 | 0 | 0 |
+| requirement-expectation | 29 | 85 | 100 | 100 | 0 | 0 | 0 | 3 | 0 | 0 |
+| requirement-sku-tier | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | secrets-lifecycle | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | security-baseline | 16 | 70 | 100 | 100 | 0 | 0 | 0 | 0 | 2 | 0 |
-| security-baseline-completeness | 25 | 85 | 100 | 100 | 0 | 0 | 0 | 3 | 0 | 0 |
-| security-coverage | 4 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
+| security-baseline-completeness | 29 | 85 | 100 | 100 | 0 | 0 | 0 | 3 | 0 | 0 |
+| security-coverage | 7 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | segmentation-semantics | 3 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
-| topology-coverage | 25 | 85 | 100 | 100 | 0 | 0 | 0 | 3 | 0 | 0 |
+| topology-coverage | 29 | 85 | 100 | 100 | 0 | 0 | 0 | 3 | 0 | 0 |
 | topology-security-drift | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 
