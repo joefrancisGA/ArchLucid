@@ -1881,7 +1881,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 8
+- **hunts:** 10
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1932,7 +1932,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `NormalizeNextRunUtc` — underlying needs two advances before clearing `fromUtc` still returns next run — **cheap-disproof 2026-09-10 seed hunt #1628:** wrapper performs one retry then null; `SimpleScanScheduleCalculator` never needs a second skip; regression `ComputeNextRunUtc_returns_null_when_underlying_needs_more_than_one_advance_past_reference`.
 - [x] (valid-no-repro) `ComputeNextRunsUtc` — `@hourly` alias batch with `count > 1` emits non-monotonic instants — **cheap-disproof 2026-09-10 seed hunt #1628:** cursor advances one hour per iteration; regression `ComputeNextRunsUtc_hourly_alias_batch_stays_strictly_increasing`.
 
-- [ ] (candidate) `NormalizeNextRunUtc` — single-retry ceiling returns null when a custom `IScanScheduleCalculator` would need two advances before `candidate > fromUtc` (reachability: only stub calculators; production `SimpleScanScheduleCalculator` + Cronos never exhibit)
+- [x] (invalid) `NormalizeNextRunUtc` — single-retry ceiling returns null when a custom `IScanScheduleCalculator` would need two advances before `candidate > fromUtc` — **cheap-disproof 2026-09-10 seed hunt #1679:** intentional one-retry ceiling; stub `TwoStepPastScanScheduleCalculator` returns null after two calls; production `SimpleScanScheduleCalculator` advances in one retry from exact/mid-hour `@hourly` references; regressions `ComputeNextRunUtc_returns_null_when_underlying_needs_more_than_one_advance_past_reference`, `ComputeNextRunsUtc_returns_empty_when_underlying_needs_more_than_one_advance_past_reference`, `ComputeNextRunUtc_with_simple_scan_calculator_from_mid_hour_reference_returns_next_hour_without_null`, and `ComputeNextRunUtc_with_simple_scan_calculator_from_exact_hourly_occurrence_advances_to_following_hour`.
+- [x] (valid-no-repro) `IsSupportedCronExpression` — padded cron rejected at wrapper — **cheap-disproof 2026-09-10 seed hunt #1679:** delegates to `SimpleScanScheduleCalculator` trim; regression `IsSupportedCronExpression_accepts_padded_cron_expression`.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — `@daily` alias batch emits non-monotonic instants — **cheap-disproof 2026-09-10 seed hunt #1679:** cursor advances one day per iteration; regression `ComputeNextRunsUtc_daily_alias_batch_stays_strictly_increasing`.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — exact `@daily` occurrence repeats same day — **cheap-disproof 2026-09-10 seed hunt #1679:** `NormalizeNextRunUtc` advances when `candidate <= fromUtc`; regression `ComputeNextRunUtc_at_exact_daily_occurrence_returns_next_day`.
+- [x] (valid-no-repro) `IsSupportedCronExpression` — `@monthly` alias rejected — **cheap-disproof 2026-09-10 seed hunt #1679:** `SimpleScanScheduleCalculator` supports `@monthly`; regression `IsSupportedCronExpression_accepts_monthly_alias`.
+- [x] (valid-no-repro) `NormalizeNextRunUtc` — retry path omits `SpecifyUtc` when underlying returns `DateTimeKind.Unspecified` — **cheap-disproof 2026-09-10 seed hunt #1679:** retry branch stamps UTC; regression `ComputeNextRunUtc_stamps_utc_kind_when_retry_returns_unspecified_kind`.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — `@monthly` alias batch returns past instants — **cheap-disproof 2026-09-10 seed hunt #1679:** monthly alias advances from cursor; regression `ComputeNextRunsUtc_monthly_alias_returns_future_instants`.
+
+2026-09-10 seed hunt #1679 (seed-only): reseeded review-recurrence after #1628; cheap-disproof closed single-retry ceiling candidate as invalid on production paths and added alias/padding/retry-kind guards; 45 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
 2026-09-10 seed hunt #1628 (seed-only): reseeded review-recurrence after #1586; cheap-disproof closed null-cron support, disabled short-circuit, batch/single parity, single-retry ceiling, and hourly batch monotonicity; 36 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
