@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1331,6 +1331,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `MainInspect*` `DecisioningTraces` join without tenant/workspace/project predicates leaks sibling-tenant `AppliedRuleIdsJson` — **cheap-disproof 2026-09-10 seed hunt #1572:** `FindingInspectReadSql.MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload` already bind `dt.TenantId`/`WorkspaceId`/`ProjectId` to the run scope; regression `MainInspect_scopes_decisioning_trace_join_to_request_scope`.
 
 2026-09-10 seed hunt #1572 (seed-only): reseeded finding-inspect-sql; cheap-disproof closed empty `AppliedRuleIdsJson` array, JSON-null payload, and unscoped DecisioningTraces join candidates; 52 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ResolveRuleFields` when the first `AppliedRuleIdsJson` element is whitespace-only drops later rule ids — **cheap-disproof 2026-09-10 seed hunt #1633:** `Where(!string.IsNullOrWhiteSpace)` selects the first non-blank id; regression `ResolveRuleFields_when_first_applied_rule_id_is_whitespace_uses_next_non_blank_id`.
+- [x] (valid-no-repro) Malformed non-empty `AppliedRuleIdsJson` throws instead of falling back to trace text — **cheap-disproof 2026-09-10 seed hunt #1633:** `JsonException` catch falls through to `firstRuleText`; regression `ResolveRuleFields_when_applied_rule_ids_json_is_malformed_falls_back_to_trace_text`.
+- [x] (valid-no-repro) Whitespace-only `AppliedRuleIdsJson` column is treated as present JSON instead of missing — **cheap-disproof 2026-09-10 seed hunt #1633:** `string.IsNullOrWhiteSpace` short-circuit matches null/blank; regression `ResolveRuleFields_when_applied_rule_ids_json_is_blank_uses_trace_text`.
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` returns null when only `Title` is populated — **cheap-disproof 2026-09-10 seed hunt #1633:** slim metadata payload is built when either title or rationale is non-empty; regression `BuildMetadataTypedPayload_returns_slim_payload_when_only_title_is_present`.
+- [x] (valid-no-repro) `MainInspect*` can select archived reruns when a newer active run exists — **cheap-disproof 2026-09-10 seed hunt #1633:** both main inspect queries filter `(r.ArchivedUtc IS NULL)`; regression `MainInspect_excludes_archived_runs_from_active_inspect_selection`.
+- [x] (valid-no-repro) `MainInspectWithoutTypedPayload` still reads `fr.PayloadJson` — **cheap-disproof 2026-09-10 seed hunt #1633:** metadata-only path projects `CAST(NULL AS nvarchar(max)) AS PayloadJson`; regression `MainInspectWithoutTypedPayload_omits_payload_json_column`.
+- [x] (valid-no-repro) `FollowUpBatch` related-node evidence returns in arbitrary order — **cheap-disproof 2026-09-10 seed hunt #1633:** related-node subquery orders by `frn.SortOrder`; regression `FollowUpBatch_orders_related_nodes_by_sort_order`.
+
+2026-09-10 seed hunt #1633 (seed-only): reseeded finding-inspect-sql after #1572; cheap-disproof closed whitespace rule-id array elements, malformed JSON fallback, blank AppliedRuleIdsJson, title-only metadata payload, archived-run exclusion, metadata-only payload projection, and related-node ordering; 59 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `FollowUpBatch` audit-event subquery omits `ae.RunId = @RunId` and can surface another run's commit audit row — **cheap-disproof 2026-09-10 seed hunt #1634:** audit lookup binds `ae.RunId = @RunId`; regression `FollowUpBatch_scopes_audit_event_to_main_inspect_run`.
+- [x] (valid-no-repro) Trace-rule text and recommended actions return in arbitrary order — **cheap-disproof 2026-09-10 seed hunt #1634:** subqueries order by `tra.SortOrder` and `fra.SortOrder`; regressions `FollowUpBatch_orders_trace_rules_by_sort_order` and `FollowUpBatch_orders_recommended_actions_by_sort_order`.
+- [x] (valid-no-repro) Active waiver count includes expired `RiskExceptions` rows — **cheap-disproof 2026-09-10 seed hunt #1634:** waiver count filters `Status = @ActiveStatus` and `ExpiresAtUtc > SYSUTCDATETIME()`; regression `FollowUpBatch_active_waiver_count_requires_active_non_expired_exceptions`.
+- [x] (valid-no-repro) Disposition pointer join surfaces rows with null `Disposition` — **cheap-disproof 2026-09-10 seed hunt #1634:** disposition subquery requires `e.Disposition IS NOT NULL`; regression `FollowUpBatch_disposition_subquery_excludes_null_disposition_rows`.
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` returns null when only `Rationale` is populated — **cheap-disproof 2026-09-10 seed hunt #1634:** slim metadata payload is built when either title or rationale is non-empty; regression `BuildMetadataTypedPayload_returns_slim_payload_when_only_rationale_is_present`.
+- [x] (valid-no-repro) Valid empty JSON object `{}` in `PayloadJson` falls back to metadata — **cheap-disproof 2026-09-10 seed hunt #1634:** `ResolveTypedPayloadForInspect` returns deserialized object elements; regression `ResolveTypedPayloadForInspect_returns_deserialized_object_when_payload_is_empty_json_object`.
+- [x] (valid-no-repro) `ParseFindingSeverity` is sensitive to surrounding whitespace in the DB column — **cheap-disproof 2026-09-10 seed hunt #1634:** mapper trims before `Enum.TryParse`; regression `ParseFindingSeverity_maps_or_defaults` for `"  critical  "`.
+
+2026-09-10 seed hunt #1634 (seed-only): reseeded finding-inspect-sql after #1633; cheap-disproof closed audit run scoping, trace/action ordering, waiver expiry filter, null disposition exclusion, rationale-only metadata payload, empty-object payload handling, and severity trim; 68 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

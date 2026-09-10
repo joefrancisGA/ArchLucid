@@ -12,6 +12,7 @@ public sealed class FindingInspectReadModelMapperTests
     [InlineData(null, FindingSeverity.Info)]
     [InlineData("", FindingSeverity.Info)]
     [InlineData("  ", FindingSeverity.Info)]
+    [InlineData("  critical  ", FindingSeverity.Critical)]
     [InlineData("critical", FindingSeverity.Critical)]
     [InlineData("UNKNOWN", FindingSeverity.Info)]
     [InlineData("999", FindingSeverity.Info)]

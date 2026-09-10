@@ -158,6 +158,47 @@ public sealed class FindingInspectReadSqlTests
         relatedNodesSql.Should().Contain("ORDER BY frn.SortOrder");
     }
 
+    [Fact]
+    public void FollowUpBatch_scopes_audit_event_to_main_inspect_run()
+    {
+        string auditSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.AuditEvents");
+
+        auditSql.Should().Contain("ae.RunId = @RunId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_orders_trace_rules_by_sort_order()
+    {
+        string traceRulesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingTraceRulesApplied");
+
+        traceRulesSql.Should().Contain("ORDER BY tra.SortOrder");
+    }
+
+    [Fact]
+    public void FollowUpBatch_orders_recommended_actions_by_sort_order()
+    {
+        string actionsSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRecommendedActions");
+
+        actionsSql.Should().Contain("ORDER BY fra.SortOrder");
+    }
+
+    [Fact]
+    public void FollowUpBatch_active_waiver_count_requires_active_non_expired_exceptions()
+    {
+        string waiverSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.RiskExceptions");
+
+        waiverSql.Should().Contain("Status = @ActiveStatus");
+        waiverSql.Should().Contain("ExpiresAtUtc > SYSUTCDATETIME()");
+    }
+
+    [Fact]
+    public void FollowUpBatch_disposition_subquery_excludes_null_disposition_rows()
+    {
+        string dispositionSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingCurrentDispositions");
+
+        dispositionSql.Should().Contain("e.Disposition IS NOT NULL");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

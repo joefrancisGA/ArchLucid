@@ -158,6 +158,40 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void BuildMetadataTypedPayload_returns_slim_payload_when_only_rationale_is_present()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(null, "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").ValueKind.Should().Be(JsonValueKind.Null);
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void BuildMetadataTypedPayload_trims_whitespace_from_title_and_rationale()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.BuildMetadataTypedPayload("  Encrypt at rest  ", "  Missing TLS  ");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").GetString().Should().Be("Encrypt at rest");
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_deserialized_object_when_payload_is_empty_json_object()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{}",
+            "Encrypt at rest",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.ValueKind.Should().Be(JsonValueKind.Object);
+        typed!.Value.EnumerateObject().Should().BeEmpty();
+    }
+
+    [Fact]
     public void ResolveTypedPayloadForInspect_returns_null_when_payload_json_missing()
     {
         FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(null, "title", "rationale").Should().BeNull();
