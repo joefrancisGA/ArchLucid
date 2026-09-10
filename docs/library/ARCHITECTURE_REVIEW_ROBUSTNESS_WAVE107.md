@@ -1,4 +1,4 @@
-> **Scope:** Placeholder — wave-107 robustness controls (1269–1280) when opened.
+> **Scope:** Contributor-reference — placeholder for wave-107 robustness controls (1269–1280) when opened.
 
 # Architecture create/review robustness — wave 107
 
