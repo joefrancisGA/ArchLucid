@@ -103,7 +103,8 @@ public static class SecurityEvidencePathRankCalculator
     public static SecurityEvidencePathRankEvaluation Evaluate(
         SecurityEvidencePathRecord path,
         IReadOnlyList<SecurityEvidencePathHopRecord> hops,
-        IReadOnlyDictionary<SecurityEvidencePathRankDimension, decimal>? weights = null)
+        IReadOnlyDictionary<SecurityEvidencePathRankDimension, decimal>? weights = null,
+        IReadOnlySet<Guid>? activeCrownJewelAssertionIds = null)
     {
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(hops);
@@ -114,7 +115,8 @@ public static class SecurityEvidencePathRankCalculator
         decimal technicalExposure = Cap(ScoreTechnicalExposure(path, hops));
         decimal privilegeDepth = Cap(ScorePrivilegeDepth(path, hops));
         decimal blastRadius = Cap(ScoreBlastRadius(path, hops));
-        (decimal? businessConsequence, string businessSource) = ScoreBusinessConsequence(path);
+        (decimal? businessConsequence, string businessSource) =
+            ScoreBusinessConsequence(path, activeCrownJewelAssertionIds);
         decimal confidenceBand = Cap(ScoreConfidenceBand(path.PathConfidenceBand));
 
         List<SecurityEvidencePathRankDimensionContribution> contributions = [];
@@ -357,12 +359,20 @@ public static class SecurityEvidencePathRankCalculator
         return score;
     }
 
-    private static (decimal? Score, string Source) ScoreBusinessConsequence(SecurityEvidencePathRecord path)
+    private static (decimal? Score, string Source) ScoreBusinessConsequence(
+        SecurityEvidencePathRecord path,
+        IReadOnlySet<Guid>? activeCrownJewelAssertionIds)
     {
 
         if (path.CrownJewelAssertionId is not null && path.CrownJewelAssertionId != Guid.Empty)
         {
-            return (3.5m, "asserted-crown-jewel");
+            if (activeCrownJewelAssertionIds is null
+                || activeCrownJewelAssertionIds.Contains(path.CrownJewelAssertionId.Value))
+            {
+                return (3.5m, "asserted-crown-jewel");
+            }
+
+            return (null, "expired-or-revoked-assertion-neutral-sort");
         }
 
         return (null, "unknown-consequence-neutral-sort");
