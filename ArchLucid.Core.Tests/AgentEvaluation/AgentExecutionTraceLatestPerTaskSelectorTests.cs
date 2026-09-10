@@ -731,4 +731,55 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
         latest.Should().ContainSingle(t => t.TraceId == "trace-task-1");
         latest.Should().ContainSingle(t => t.TraceId == "trace-task-2");
     }
+
+    [Fact]
+    public void Select_when_single_trace_returns_same_trace()
+    {
+        AgentExecutionTrace onlyTrace = new()
+        {
+            TraceId = "trace-only",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([onlyTrace]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-only");
+    }
+
+    [Fact]
+    public void Select_when_higher_attempt_warned_wins_over_lower_attempt_accepted()
+    {
+        DateTime olderUtc = new(2026, 12, 5, 18, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 18, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededAccepted = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            QualityRejected = false,
+        };
+        AgentExecutionTrace latestWarned = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+            QualityRejected = false,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([supersededAccepted, latestWarned]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-attempt-2");
+    }
 }

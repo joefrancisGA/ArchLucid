@@ -1124,4 +1124,104 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
         reasons[0].Should().Contain("trace-task-2");
         reasons[0].Should().NotContain("trace-task-1");
     }
+
+    [Fact]
+    public void GetBlockingReasons_when_multiple_rejected_tasks_return_multiple_reasons()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace rejectedTopology = new()
+        {
+            TraceId = "trace-topology",
+            TaskId = "task-topology",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace rejectedCost = new()
+        {
+            TraceId = "trace-cost",
+            TaskId = "task-cost",
+            AgentType = AgentType.Cost,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [rejectedTopology, rejectedCost]);
+
+        reasons.Should().HaveCount(2);
+        reasons.Should().Contain(r => r.Contains("trace-topology"));
+        reasons.Should().Contain(r => r.Contains("trace-cost"));
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_higher_attempt_warned_does_not_block_on_superseded_accepted_trace()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime olderUtc = new(2026, 12, 5, 18, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 18, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededAccepted = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            QualityRejected = false,
+        };
+        AgentExecutionTrace latestWarned = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [supersededAccepted, latestWarned])
+            .Should().BeEmpty(
+                "AttemptIndex supersedes quality rank; Warned winning attempt is intentionally non-blocking");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_gate_disabled_with_warn_only_mode_returns_empty()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = false,
+            Mode = AgentOutputQualityGateMode.WarnOnly,
+        };
+        AgentExecutionTrace rejected = new()
+        {
+            TraceId = "trace-rejected",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [rejected])
+            .Should().BeEmpty("commit blocking requires Enabled=true and PilotStrict mode");
+    }
 }
