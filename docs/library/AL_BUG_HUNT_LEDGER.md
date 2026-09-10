@@ -566,11 +566,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 12
-- **bugs-found:** 8
+- **hunts:** 13
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — AcceptInvitation verify JWT hardcoded Reader instead of pending invitation AppRole
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — Resend cooldown blocked immediate retry after email delivery failure invalidated challenge
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -608,6 +608,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) OTP verify rate limit keyed only by challenge id allows unlimited guesses by requesting new challenges for the same email — **invalid 2026-09-09 seed hunt #1494:** `IsEmailOtpVerificationRateLimitedAsync` counts failures per normalized email independent of challenge id; regression `VerifyCodeAsync_rate_limits_repeated_failures_per_email`
 
 2026-09-09 seed hunt #1494 (seed-only): reseeded email-otp-auth; cheap-disproved per-challenge verify rate-limit bypass candidate; 21 scoped EmailOtpAuthService tests passed.
+
+- [x] (proven) `GetLatestRequestUtcByEmailAsync` includes invalidated challenges so resend cooldown blocks retry after email delivery failure — **hit 2026-09-10 seed hunt #1539:** `EmailOtpRequestFlow` invalidates the row when send fails but cooldown still read the invalidated `CreatedUtc`; fixed by filtering to active challenges in in-memory and Dapper repos; regression `RequestCodeAsync_retries_immediately_after_email_delivery_failure_despite_resend_cooldown`
+
+2026-09-10 seed hunt #1539 (seed→hit): proved resend cooldown blocked immediate retry after email send failure; 23 scoped EmailOtp tests passed.
 
 ---
 
