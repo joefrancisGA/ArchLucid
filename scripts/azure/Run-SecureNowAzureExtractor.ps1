@@ -97,4 +97,15 @@ if ($DryRun)
 }
 
 & $extractorScript @extractorParams
-exit $LASTEXITCODE
+
+if (-not $?)
+{
+    exit 1
+}
+
+if (Test-Path -Path 'Variable:LASTEXITCODE')
+{
+    exit $LASTEXITCODE
+}
+
+exit 0
