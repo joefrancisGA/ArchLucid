@@ -158,7 +158,8 @@ public sealed partial class TechnologyLedgerController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapTechnologyLedgerSealedManifestConflict(ex);
+
         }
         catch (RunNotFoundException ex)
         {

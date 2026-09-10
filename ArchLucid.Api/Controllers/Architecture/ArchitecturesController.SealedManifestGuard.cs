@@ -34,7 +34,8 @@ public sealed partial class ArchitecturesController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapArchitectureSealedManifestConflict(ex);
+
         }
 
         return null;
@@ -78,7 +79,8 @@ public sealed partial class ArchitecturesController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapArchitectureSealedManifestConflict(ex);
+
         }
 
         return null;
@@ -101,9 +103,16 @@ public sealed partial class ArchitecturesController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapArchitectureSealedManifestConflict(ex);
+
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps architecture identity read/mutation <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapArchitectureSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

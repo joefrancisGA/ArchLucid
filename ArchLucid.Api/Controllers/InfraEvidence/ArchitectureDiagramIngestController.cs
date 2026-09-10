@@ -76,7 +76,8 @@ public sealed partial class ArchitectureDiagramIngestController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDiagramIngestSealedManifestConflict(ex);
+
         }
     }
 
@@ -111,7 +112,7 @@ public sealed partial class ArchitectureDiagramIngestController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDiagramIngestSealedManifestConflict(ex);
         }
     }
 }

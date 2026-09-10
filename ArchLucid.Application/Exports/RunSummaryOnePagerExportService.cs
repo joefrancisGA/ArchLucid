@@ -39,6 +39,7 @@ public sealed class RunSummaryOnePagerExportService(
     IConfiguration configuration,
     IRunRepository runRepository,
     IArchitectureInventoryBindingRepository architectureInventoryBindingRepository) : IRunSummaryOnePagerExportService
+
 {
     private const string SponsorReportPrompt =
         "You are an enterprise architect writing a board-ready brief. "
@@ -172,6 +173,7 @@ public sealed class RunSummaryOnePagerExportService(
                 activeTrialExportNotice,
                 careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty),
                 architectRestatementMarkdown: architectRestatementMarkdownText);
+
 
         string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
         string safeStem = SanitizeRunIdForFileName(model.RunId);

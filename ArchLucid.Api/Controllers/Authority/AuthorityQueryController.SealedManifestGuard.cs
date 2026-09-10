@@ -29,11 +29,18 @@ public sealed partial class AuthorityQueryController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunQuerySealedManifestConflict(ex);
+
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps authority query read <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapRunQuerySealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 
     private async Task<IActionResult?> EnsureRunSealedManifestReadAllowedAsync(
         Guid runId,
@@ -54,7 +61,8 @@ public sealed partial class AuthorityQueryController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunQuerySealedManifestConflict(ex);
+
         }
 
         return null;
@@ -74,7 +82,8 @@ public sealed partial class AuthorityQueryController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunQuerySealedManifestConflict(ex);
+
         }
 
         return null;
@@ -100,7 +109,8 @@ public sealed partial class AuthorityQueryController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunQuerySealedManifestConflict(ex);
+
         }
 
         return null;

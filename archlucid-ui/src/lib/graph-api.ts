@@ -1,6 +1,8 @@
 import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { getRunSummary } from "@/lib/api/architecture-runs";
+import { architectureGraphTemporalSnapshotBlockedReason } from "@/lib/graph/architecture-graph-temporal-snapshot-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
 import type { components } from "@/lib/openapi-schemas";
 import type { GraphNodesPageResponse, GraphViewModel } from "@/types/graph";
@@ -56,7 +58,11 @@ export async function getArchitectureGraphTemporalSnapshot(
       try {
         throwApiRequestError(response, text);
       } catch (error: unknown) {
-        throw new Error(formatExportSealedManifestAwareApiError(error));
+        const failure = toApiLoadFailure(error);
+        const blockedReason = architectureGraphTemporalSnapshotBlockedReason(failure);
+
+        throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+
       }
     }
 

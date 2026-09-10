@@ -42,11 +42,18 @@ public sealed partial class AdvisoryController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAdvisorySealedManifestConflict(ex);
+
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps advisory workflow <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapAdvisorySealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 
     private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
         Guid runId,
@@ -67,7 +74,8 @@ public sealed partial class AdvisoryController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAdvisorySealedManifestConflict(ex);
+
         }
 
         return null;

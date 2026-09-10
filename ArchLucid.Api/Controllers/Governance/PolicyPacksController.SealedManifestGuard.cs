@@ -30,11 +30,18 @@ public sealed partial class PolicyPacksController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapPolicyPackSealedManifestConflict(ex);
+
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps policy pack mutation/simulate <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapPolicyPackSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 
     private async Task<IActionResult?> EnsurePolicyPackSimulateRunSealedManifestAllowedAsync(
         string runId,
@@ -56,7 +63,8 @@ public sealed partial class PolicyPacksController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapPolicyPackSealedManifestConflict(ex);
+
         }
 
         return null;

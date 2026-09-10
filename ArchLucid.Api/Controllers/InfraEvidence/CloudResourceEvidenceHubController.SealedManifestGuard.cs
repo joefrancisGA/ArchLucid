@@ -40,9 +40,16 @@ public sealed partial class CloudResourceEvidenceHubController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapEvidenceHubSealedManifestConflict(ex);
+
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps cloud resource evidence hub read <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapEvidenceHubSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

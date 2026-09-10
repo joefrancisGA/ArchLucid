@@ -153,7 +153,8 @@ public sealed partial class AdvisoryController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAdvisorySealedManifestConflict(ex);
+
         }
 
         if (result.Outcome is ApplyRecommendationActionOutcome.NotFound)
