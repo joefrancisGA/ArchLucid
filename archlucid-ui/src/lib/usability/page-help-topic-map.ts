@@ -11,6 +11,7 @@ import {
 } from "@/lib/evidence-trace-contextual-help";
 import { SETTINGS_HUB_HELP_TOPIC_LABEL } from "@/lib/contextual-help/administration-rows";
 import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
   REVIEW_WORKSPACE_HELP_TOPIC,
   pathIsReviewWorkspaceDetail,
@@ -21,6 +22,10 @@ import {
   PAGE_HELP_TOPICS,
   type PageHelpTopic,
 } from "@/lib/usability/page-help-topic-rows";
+import {
+  PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY,
+  type PageHelpTopicRow,
+} from "@/lib/usability/page-help-topic-rows-operator-security";
 
 export type { PageHelpTopic } from "@/lib/usability/page-help-topic-rows";
 export { listPageHelpTopicSlugs } from "@/lib/usability/page-help-topic-rows";
@@ -36,17 +41,51 @@ export const PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES = [
   "/why-archlucid",
 ] as const;
 
+function normalizePageHelpPathname(pathname: string): string {
+  const rawPath = (pathname ?? "").split("?")[0] ?? "";
+
+  return (canonicalizeLegacyOperatorRoutePath(rawPath).split("?")[0] ?? rawPath).trim() || "/";
+}
+
+function mergedPageHelpTopicRows(productLineId?: ProductLineId): readonly PageHelpTopicRow[] {
+  if (productLineId !== "security") {
+    return PAGE_HELP_TOPICS;
+  }
+
+  const byPrefix = new Map<string, PageHelpTopicRow>();
+
+  for (const row of PAGE_HELP_TOPICS) {
+    byPrefix.set(row.prefix, row);
+  }
+
+  for (const row of PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY) {
+    byPrefix.set(row.prefix, row);
+  }
+
+  return [...byPrefix.values()];
+}
+
+function pathMatchesPageHelpTopicRow(path: string, row: PageHelpTopicRow): boolean {
+  if (row.prefix === "/") {
+    return path === "/";
+  }
+
+  if (row.exactMatchOnly === true) {
+    return path === row.prefix;
+  }
+
+  return path === row.prefix || path.startsWith(`${row.prefix}/`);
+}
+
 /** True on in-app `/help` topic pages — contextual help chrome would only link back to the same article. */
 export function pathnameIsInAppHelpTopic(pathname: string): boolean {
-  const rawPath = (pathname ?? "").split("?")[0] ?? "";
-  const path = (canonicalizeLegacyOperatorRoutePath(rawPath).split("?")[0] ?? rawPath).trim() || "/";
+  const path = normalizePageHelpPathname(pathname);
 
   return path === "/help" || path.startsWith("/help/");
 }
 
-export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null {
-  const rawPath = (pathname ?? "").split("?")[0] ?? "";
-  const path = (canonicalizeLegacyOperatorRoutePath(rawPath).split("?")[0] ?? rawPath).trim() || "/";
+export function pageHelpTopicForPathname(pathname: string, productLineId?: ProductLineId): PageHelpTopic | null {
+  const path = normalizePageHelpPathname(pathname);
 
   if (path.includes("/artifacts/")) {
     return ARTIFACT_PREVIEW_HELP_TOPIC;
@@ -65,7 +104,9 @@ export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null
   }
 
   if (path === "/") {
-    return PAGE_HELP_TOPICS.find((row) => row.prefix === "/")?.topic ?? null;
+    const homeRow = mergedPageHelpTopicRows(productLineId).find((row) => row.prefix === "/");
+
+    return homeRow?.topic ?? null;
   }
 
   // Exact Settings hub only — must not use prefix startsWith or `/administration/*` children inherit this topic.
@@ -73,14 +114,16 @@ export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null
     return { label: SETTINGS_HUB_HELP_TOPIC_LABEL };
   }
 
-  const sorted = [...PAGE_HELP_TOPICS].sort((left, right) => right.prefix.length - left.prefix.length);
+  const sorted = [...mergedPageHelpTopicRows(productLineId)].sort(
+    (left, right) => right.prefix.length - left.prefix.length,
+  );
 
   for (const row of sorted) {
     if (row.prefix === "/") {
       continue;
     }
 
-    if (path === row.prefix || path.startsWith(`${row.prefix}/`)) {
+    if (pathMatchesPageHelpTopicRow(path, row)) {
       return row.topic;
     }
   }
