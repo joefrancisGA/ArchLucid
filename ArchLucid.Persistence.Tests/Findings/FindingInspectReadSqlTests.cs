@@ -644,6 +644,16 @@ public sealed class FindingInspectReadSqlTests
         FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("r.WorkspaceId = @WorkspaceId");
     }
 
+    [Fact]
+    public void FollowUpBatch_disposition_subquery_selects_disposition_column()
+    {
+        string dispositionSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingCurrentDispositions");
+
+        dispositionSql.Should().Contain("SELECT TOP 1 e.Disposition");
+        dispositionSql.Should().Contain("e.OccurredAtUtc");
+        dispositionSql.Should().Contain("e.RevisitDueUtc");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

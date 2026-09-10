@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1505,6 +1505,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MainInspect*` omits tenant/workspace predicates on the `Runs` join — **cheap-disproof 2026-09-10 seed hunt #1648:** both main inspect queries bind `r.TenantId` / `r.WorkspaceId`; regression `MainInspect_scopes_runs_table_to_tenant_and_workspace`.
 
 2026-09-10 seed hunt #1648 (seed-only): reseeded finding-inspect-sql after #1647; extracted recommended-action filter helper; cheap-disproof closed action whitespace filtering, valid payload parse guard, metadata-only corrupt-payload routing, invalid disposition pointer mapping, model/confidence passthrough, and runs-table tenant scoping; 205 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MapInspectResponse` leaves `DecisionRuleName` null when `ruleName` is absent even if `ruleId` exists — **cheap-disproof 2026-09-10 seed hunt #1649:** `ResolveDecisionRuleName` falls back to `ruleId`; regression `ResolveDecisionRuleName_falls_back_to_rule_id_when_name_is_null`.
+- [x] (valid-no-repro) `BuildInspectResponse` / `MapInspectResponse` emit empty-string decision rule fields when both sources are absent — **cheap-disproof 2026-09-10 seed hunt #1649:** null rule sources stay null; regressions `ResolveDecisionRuleName_returns_null_when_both_rule_fields_are_null` and `BuildInspectResponse_sets_null_decision_rule_fields_when_both_sources_missing`.
+- [x] (valid-no-repro) `TryParsePayloadJson` rejects JSON array roots — **cheap-disproof 2026-09-10 seed hunt #1649:** array roots deserialize to `JsonValueKind.Array`; regression `TryParsePayloadJson_returns_deserialized_array_for_valid_json_array`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` encodes empty base64 when `RowVersionStamp` is null — **cheap-disproof 2026-09-10 seed hunt #1649:** missing stamp bytes return null base64; regression `MapDispositionPointerProjection_maps_null_row_version_when_stamp_missing`.
+- [x] (valid-no-repro) `FilterRecommendedActions` returns a placeholder action when all action text is blank — **cheap-disproof 2026-09-10 seed hunt #1649:** all-blank input yields empty list; regression `FilterRecommendedActions_returns_empty_when_all_actions_are_blank`.
+- [x] (valid-no-repro) `ToUtcDateTimeOffset` preserves local offset from `DateTimeKind.Local` SQL timestamps — **cheap-disproof 2026-09-10 seed hunt #1649:** helper labels database timestamps as UTC without shifting clock values; regression `ToUtcDateTimeOffset_converts_local_kind_timestamps_to_utc_offset`.
+- [x] (valid-no-repro) Disposition pointer subquery omits `e.Disposition` / `e.OccurredAtUtc` / `e.RevisitDueUtc` projections — **cheap-disproof 2026-09-10 seed hunt #1649:** disposition batch selects pointer columns; regression `FollowUpBatch_disposition_subquery_selects_disposition_column`.
+
+2026-09-10 seed hunt #1649 (seed-only): reseeded finding-inspect-sql after #1648; extracted decision-rule name fallback helper; cheap-disproof closed rule-name fallback, absent rule fields, JSON array parse guard, null row-version mapping, blank recommended actions, local timestamp labeling, and disposition column projections; 213 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

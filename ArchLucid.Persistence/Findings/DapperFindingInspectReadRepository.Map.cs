@@ -45,7 +45,7 @@ public sealed partial class DapperFindingInspectReadRepository
             Severity = recordSeverity,
             TypedPayload = typed,
             DecisionRuleId = ruleId,
-            DecisionRuleName = ruleName ?? ruleId,
+            DecisionRuleName = FindingInspectReadRepositoryCore.ResolveDecisionRuleName(ruleName, ruleId),
             Evidence = evidence,
             RecommendedActions = joinResult.RecommendedActions,
             AuditRowId = joinResult.AuditRowId,

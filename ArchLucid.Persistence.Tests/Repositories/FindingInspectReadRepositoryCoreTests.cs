@@ -918,4 +918,97 @@ public sealed class FindingInspectReadRepositoryCoreTests
         projection.LatestDisposition.Should().BeNull();
         projection.LatestDispositionEventId.Should().NotBeNull();
     }
+
+    [Fact]
+    public void ResolveDecisionRuleName_falls_back_to_rule_id_when_name_is_null()
+    {
+        FindingInspectReadRepositoryCore.ResolveDecisionRuleName(null, "cost-guardrail").Should().Be("cost-guardrail");
+    }
+
+    [Fact]
+    public void ResolveDecisionRuleName_returns_null_when_both_rule_fields_are_null()
+    {
+        FindingInspectReadRepositoryCore.ResolveDecisionRuleName(null, null).Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_deserialized_array_for_valid_json_array()
+    {
+        JsonElement? parsed = FindingInspectReadRepositoryCore.TryParsePayloadJson("""["artifact-1"]""");
+
+        parsed.Should().NotBeNull();
+        parsed!.Value.ValueKind.Should().Be(JsonValueKind.Array);
+        parsed!.Value[0].GetString().Should().Be("artifact-1");
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_null_row_version_when_stamp_missing()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "Accepted",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: null);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.Accepted);
+        projection.LatestDispositionRowVersionBase64.Should().BeNull();
+    }
+
+    [Fact]
+    public void FilterRecommendedActions_returns_empty_when_all_actions_are_blank()
+    {
+        FindingInspectReadRepositoryCore.FilterRecommendedActions(["", "   "]).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ToUtcDateTimeOffset_converts_local_kind_timestamps_to_utc_offset()
+    {
+        DateTime local = new(2026, 10, 3, 9, 30, 0, DateTimeKind.Local);
+
+        DateTimeOffset? actual = FindingInspectReadRepositoryCore.ToUtcDateTimeOffset(local);
+
+        actual.Should().NotBeNull();
+        actual!.Value.Offset.Should().Be(TimeSpan.Zero);
+        actual!.Value.UtcDateTime.Should().Be(local);
+    }
+
+    [Fact]
+    public void BuildInspectResponse_sets_null_decision_rule_fields_when_both_sources_missing()
+    {
+        FindingInspectResponse response = FindingInspectReadRepositoryCore.BuildInspectResponse(
+            findingId: "finding-1",
+            severity: FindingSeverity.Info,
+            typedPayload: null,
+            ruleId: null,
+            ruleName: null,
+            evidence: [],
+            recommendedActions: [],
+            auditRowId: null,
+            runId: Guid.NewGuid(),
+            manifestVersion: null,
+            modelDeploymentName: null,
+            modelAlias: null,
+            promptTemplateVersion: null,
+            confidenceScore: null,
+            evaluationConfidenceScore: null,
+            confidenceLevel: null,
+            humanReviewStatus: FindingHumanReviewStatus.NotRequired,
+            isMuted: false,
+            muteReason: null,
+            reasoningTrace: null,
+            reasoningTraceDigestSha256: null,
+            latestDisposition: null,
+            latestDispositionOccurredAtUtc: null,
+            hasActiveWaiver: false,
+            assignedToUserId: null,
+            remediationDueUtc: null,
+            runStructuralExecutionMode: StructuralExecutionMode.Simulator,
+            runRealModeFellBackToSimulator: false);
+
+        response.DecisionRuleId.Should().BeNull();
+        response.DecisionRuleName.Should().BeNull();
+    }
 }

@@ -66,6 +66,8 @@ internal static class FindingInspectReadRepositoryCore
     public static FindingDisposition? MapLatestDisposition(string? dispositionRaw, bool hasDispositionRow) =>
         hasDispositionRow ? FindingInspectReadModelMapper.ParseDisposition(dispositionRaw) : null;
 
+    public static string? ResolveDecisionRuleName(string? ruleName, string? ruleId) => ruleName ?? ruleId;
+
     public static (string? RuleId, string? RuleName) ResolveRuleFields(string? appliedRuleIdsJson, string? firstRuleText)
     {
         if (string.IsNullOrWhiteSpace(appliedRuleIdsJson))
@@ -187,7 +189,7 @@ internal static class FindingInspectReadRepositoryCore
             Severity = severity,
             TypedPayload = typedPayload,
             DecisionRuleId = ruleId,
-            DecisionRuleName = ruleName ?? ruleId,
+            DecisionRuleName = ResolveDecisionRuleName(ruleName, ruleId),
             Evidence = evidence,
             RecommendedActions = recommendedActions,
             AuditRowId = auditRowId,
