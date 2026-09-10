@@ -10903,11 +10903,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 4
-- **bugs-found:** 5
+- **hunts:** 5
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — policy callout and review-package surfaces omitted detail snapshot finding counts when explanation deferred
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — outcome cards omitted detail snapshot finding counts when explanation deferred
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10921,6 +10921,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (valid-no-repro) `deriveRunDetailWorkspaceStatus` Approved without operator decision when manifest gate Passed — intentional gate semantics per `run-detail-governance-cta-visibility.test.ts`; governance CTA hidden when manifest status is Committed
 - [x] (proven) `RunDetailPageViewCommitted` / `resolveRunDetailReviewPackageInspectSteps` — inspect checklist keyed on deferred `findingCountDisplay` only while tab badge already falls back to detail snapshot triage counts — **hit 2026-09-08 hunt #1301 (seed→hit):** create-home inspect checklist kept findings step incomplete when `explanationSummary` null but `quickDecisionFindings` already had triage-visible rows; fixed via `resolveRunDetailFindingsReviewed` shared with tab badge fallback; regressions in `run-detail-findings-tab-badge-count.test.ts` and `run-detail-review-package-inspect-checklist.test.ts`
 - [x] (proven) `RunDetailPageViewCommitted` / tabbed workspace deferred surfaces — `RunDetailPolicyPackImpactCalloutDeferred` and review-package summary props passed raw `findingCountDisplay` without detail snapshot fallback when explanation deferred — **hit 2026-09-09 hunts #1381/#1383/#1387/#1389:** tab badge and inspect checklist already used `resolveRunDetailFindingsTabBadgeCount` / `resolveRunDetailFindingsReviewed`; policy callout, review-package section, and sample summary still showed null/` — ` counts until explanation loaded; fixed via shared `resolveRunDetailDeferredSurfaceFindingCount` in `RunDetailPageViewCommitted`, `resolveRunDetailTabbedWorkspace`, and `RunDetailPageViewShell`; regression in `run-detail-findings-tab-badge-count.test.ts`
+- [x] (proven) `RunDetailTabbedWorkspaceOverviewShell` / `RunDetailPageViewShell` / `buildRunDetailOutcomeCards` — `RunDetailOutcomeCardsDeferred` received raw `findingCountDisplay` while tab badge and summary strip already fell back to detail snapshot triage counts when explanation deferred — **hit 2026-09-10 seed hunt #1524:** wire outcome cards through `resolveRunDetailOutcomeCardsFindingCountDisplay`; regression `run-detail-outcome-cards-finding-count.test.ts`
+
+2026-09-10 seed hunt #1524 (hit): reseeded ui-review-detail-workspace; proved outcome cards deferred-explanation finding count parity gap; 23 scoped review-detail unit tests passed.
 
 2026-09-09 thorough hunt #1381 (hit): proved deferred-surface finding count parity gap vs tab badge; wired policy callout and review-package props through snapshot fallback helper; scoped RunDetail/reviewId unit tests passed.
 
