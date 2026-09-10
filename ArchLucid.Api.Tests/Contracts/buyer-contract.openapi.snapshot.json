@@ -28063,6 +28063,23 @@
             "format": "uuid",
             "type": "string"
           },
+          "pathId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pathNarrative": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPathNarrative"
+              }
+            ]
+          },
           "patternKey": {
             "type": "string"
           },
@@ -28113,6 +28130,76 @@
             "type": "integer"
           },
           "key": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPathNarrative": {
+        "properties": {
+          "affectedDependencyCloudResourceIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "aiInferenceSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "blastRadiusWarning": {
+            "type": "string"
+          },
+          "canonicalHopHashHex": {
+            "type": "string"
+          },
+          "exposureSummary": {
+            "type": "string"
+          },
+          "pathConfidenceBand": {
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pathKind": {
+            "type": "string"
+          },
+          "preconditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "problemStatement": {
+            "type": "string"
+          },
+          "recommendedChange": {
+            "type": "string"
+          },
+          "recommendedChangeSource": {
+            "type": "string"
+          },
+          "safeRolloutSteps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "verificationQueries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "weakestHopReason": {
+            "type": "string"
+          },
+          "whyItMatters": {
             "type": "string"
           }
         },
