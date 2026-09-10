@@ -22,7 +22,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class ArchitecturesControllerGrandfatherShareTests
 {
-    private const string ActorOid = "operator@test";
+    private const string ActorOid = "reader@test";
 
     private static readonly ScopeContext Scope = new()
     {
