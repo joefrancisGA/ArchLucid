@@ -44,6 +44,13 @@ public sealed class HostedAzureExtractorClientTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(resources);
 
+        armClient
+            .Setup(c => c.ListSubscriptionRoleAssignmentsAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         Mock<IEntraGroupMembershipGraphReader> graphReader = new();
         Mock<IOptionsMonitor<EntraGroupMembershipGraphOptions>> options = new();
         options.Setup(o => o.CurrentValue).Returns(new EntraGroupMembershipGraphOptions());

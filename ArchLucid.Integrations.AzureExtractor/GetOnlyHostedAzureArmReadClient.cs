@@ -13,6 +13,7 @@ public sealed class GetOnlyHostedAzureArmReadClient(
     ILogger<GetOnlyHostedAzureArmReadClient> logger) : IHostedAzureArmReadClient
 {
     private const string ResourcesApiVersion = "2021-04-01";
+    private const string RoleAssignmentsApiVersion = "2022-04-01";
     private const int MaxPaginationRequests = 64;
 
     private readonly HttpClient _httpClient =
@@ -109,6 +110,117 @@ public sealed class GetOnlyHostedAzureArmReadClient(
         return resources;
     }
 
+    public async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListSubscriptionRoleAssignmentsAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
+
+        List<HostedAzureArmRoleAssignmentRecord> assignments = [];
+        string? nextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/roleAssignments?api-version={RoleAssignmentsApiVersion}";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                throw new InvalidOperationException(
+                    "Hosted Azure extractor stopped ARM role assignment listing due to repeating nextLink.");
+            }
+
+            requestCount++;
+
+            if (requestCount > MaxPaginationRequests)
+            {
+                throw new InvalidOperationException(
+                    $"Hosted Azure extractor stopped ARM role assignment listing after {MaxPaginationRequests} pages.");
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            response.EnsureSuccessStatusCode();
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement) &&
+                valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmRoleAssignmentRecord? mapped = MapRoleAssignment(item);
+
+                    if (mapped is not null)
+                    {
+                        assignments.Add(mapped);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement) &&
+                nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(
+                        candidateNextLink,
+                        subscriptionId);
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug(
+                "Hosted Azure extractor listed {Count} role assignments for subscription {SubscriptionId}.",
+                assignments.Count,
+                subscriptionId);
+        }
+
+        return assignments;
+    }
+
+    private static HostedAzureArmRoleAssignmentRecord? MapRoleAssignment(JsonElement item)
+    {
+        if (!item.TryGetProperty("properties", out JsonElement propertiesElement)
+            || propertiesElement.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        string? scope = TryGetStringValue(propertiesElement, "scope");
+        string? principalId = TryGetStringValue(propertiesElement, "principalId");
+        string? roleDefinitionId = TryGetStringValue(propertiesElement, "roleDefinitionId");
+
+        if (string.IsNullOrWhiteSpace(scope)
+            || string.IsNullOrWhiteSpace(principalId)
+            || string.IsNullOrWhiteSpace(roleDefinitionId))
+        {
+            return null;
+        }
+
+        return new HostedAzureArmRoleAssignmentRecord(
+            scope.Trim(),
+            principalId.Trim(),
+            TryGetStringValue(propertiesElement, "principalType"),
+            roleDefinitionId.Trim());
+    }
+
     private void LogSkippedArmRow(JsonElement item)
     {
         if (!_logger.IsEnabled(LogLevel.Warning))
@@ -164,6 +276,12 @@ public sealed class GetOnlyHostedAzureArmReadClient(
         }
 
         Dictionary<string, object?> properties = BuildProperties(item, resourceType!);
+
+        if (item.TryGetProperty("properties", out JsonElement propertiesElement)
+            && propertiesElement.ValueKind == JsonValueKind.Object)
+        {
+            HostedAzureInventoryResourcePropertyExpander.Expand(resourceType!, propertiesElement, properties);
+        }
 
         return new HostedAzureArmResourceRecord(
             resourceType!,

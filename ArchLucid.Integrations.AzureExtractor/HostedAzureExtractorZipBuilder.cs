@@ -26,7 +26,9 @@ public static class HostedAzureExtractorZipBuilder
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         bool includeCostRequested,
         DateTimeOffset collectionTimestampUtc,
-        IReadOnlyList<AzureInventoryEntraGroupMembershipRow>? entraGroupMemberships = null)
+        IReadOnlyList<AzureInventoryEntraGroupMembershipRow>? entraGroupMemberships = null,
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord>? roleAssignments = null,
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord>? networkAssociations = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionId);
 
@@ -101,15 +103,41 @@ public static class HostedAzureExtractorZipBuilder
             })
             .ToArray<object>();
 
+        object[] roleAssignmentRows = (roleAssignments ?? [])
+            .Select(static row => new
+            {
+                scope = row.Scope,
+                principalId = row.PrincipalId,
+                principalType = row.PrincipalType,
+                roleDefinitionId = row.RoleDefinitionId,
+            })
+            .ToArray<object>();
+
+        object[] networkAssociationRows = (networkAssociations ?? [])
+            .Select(static row => new
+            {
+                fromResourceId = row.FromResourceId,
+                toResourceId = row.ToResourceId,
+                associationType = row.AssociationType,
+                ruleName = row.RuleName,
+            })
+            .ToArray<object>();
+
         using MemoryStream zipStream = new();
 
         using (ZipArchive archive = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
         {
             AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.Manifest, JsonSerializer.Serialize(manifest, SerializerOptions));
             AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.Resources, JsonSerializer.Serialize(resourceRows, SerializerOptions));
-            AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.RoleAssignments, "[]");
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.RoleAssignments,
+                JsonSerializer.Serialize(roleAssignmentRows, SerializerOptions));
             AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.DiagnosticSettings, "[]");
-            AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.NetworkAssociations, "[]");
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.NetworkAssociations,
+                JsonSerializer.Serialize(networkAssociationRows, SerializerOptions));
             AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.PolicyAssignments, "[]");
             AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.DefenderSummary, "[]");
             AddUtf8Entry(

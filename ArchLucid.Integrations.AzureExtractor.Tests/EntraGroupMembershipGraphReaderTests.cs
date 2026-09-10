@@ -147,6 +147,13 @@ public sealed class EntraGroupMembershipGraphReaderTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        armClient
+            .Setup(c => c.ListSubscriptionRoleAssignmentsAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         Mock<IEntraGroupMembershipGraphReader> graphReader = new();
 
         Mock<IOptionsMonitor<EntraGroupMembershipGraphOptions>> options = new();
@@ -175,6 +182,75 @@ public sealed class EntraGroupMembershipGraphReaderTests
                 It.IsAny<int>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task CollectZipAsync_graph_enabled_seeds_group_principals_from_role_assignments()
+    {
+        Mock<IHostedAzureExtractorCredentialFactory> credentialFactory = new();
+        credentialFactory
+            .Setup(f => f.CreateCredential(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(new StubTokenCredential());
+
+        const string groupId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+        Mock<IHostedAzureArmReadClient> armClient = new();
+        armClient
+            .Setup(c => c.ListSubscriptionResourcesAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        armClient
+            .Setup(c => c.ListSubscriptionRoleAssignmentsAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new HostedAzureArmRoleAssignmentRecord(
+                    "/subscriptions/sub",
+                    groupId,
+                    "Group",
+                    "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"),
+            ]);
+
+        IReadOnlyList<string>? capturedSeedGroupIds = null;
+
+        Mock<IEntraGroupMembershipGraphReader> graphReader = new();
+        graphReader
+            .Setup(reader => reader.TryReadDirectMembershipsAsync(
+                It.IsAny<TokenCredential>(),
+                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<TokenCredential, IReadOnlyList<string>, int, CancellationToken>(
+                (_, seedGroupIds, _, _) => capturedSeedGroupIds = seedGroupIds)
+            .ReturnsAsync(EntraGroupMembershipGraphReadResult.Empty());
+
+        Mock<IOptionsMonitor<EntraGroupMembershipGraphOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EntraGroupMembershipGraphOptions { Enabled = true });
+
+        HostedAzureExtractorClient sut = new(
+            credentialFactory.Object,
+            armClient.Object,
+            graphReader.Object,
+            options.Object,
+            NullLogger<HostedAzureExtractorClient>.Instance);
+
+        await sut.CollectZipAsync(
+            new HostedAzureExtractorCollectionRequest
+            {
+                CustomerTenantId = "22222222-2222-2222-2222-222222222222",
+                CustomerAppId = "33333333-3333-3333-3333-333333333333",
+                SubscriptionId = "11111111-1111-1111-1111-111111111111",
+            },
+            CancellationToken.None);
+
+        Assert.NotNull(capturedSeedGroupIds);
+        Assert.Single(capturedSeedGroupIds!);
+        Assert.Equal(groupId, capturedSeedGroupIds![0]);
     }
 
     private static HttpClient CreateHttpClient(Func<HttpRequestMessage, HttpResponseMessage> responder)

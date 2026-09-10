@@ -153,6 +153,43 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionRoleAssignmentsAsync_maps_assignment_properties()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""
+                                                {
+                                                  "value": [
+                                                    {
+                                                      "properties": {
+                                                        "scope": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                                                        "principalId": "11111111-1111-1111-1111-111111111111",
+                                                        "principalType": "Group",
+                                                        "roleDefinitionId": "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                                """)
+                }));
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> assignments =
+            await client.ListSubscriptionRoleAssignmentsAsync(
+                "token-abc",
+                "11111111-1111-1111-1111-111111111111",
+                CancellationToken.None);
+
+        Assert.Single(assignments);
+        Assert.Equal("Group", assignments[0].PrincipalType);
+        Assert.Equal("11111111-1111-1111-1111-111111111111", assignments[0].PrincipalId);
+    }
+
+    [Fact]
     public async Task ListSubscriptionResourcesAsync_throws_when_next_link_targets_different_subscription()
     {
         const string requestedSubscriptionId = "11111111-1111-1111-1111-111111111111";

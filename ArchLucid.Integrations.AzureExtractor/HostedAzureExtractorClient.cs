@@ -52,6 +52,13 @@ public sealed class HostedAzureExtractorClient(
             .ListSubscriptionResourcesAsync(accessToken.Token, request.SubscriptionId, cancellationToken)
             .ConfigureAwait(false);
 
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> roleAssignments = await _armReadClient
+            .ListSubscriptionRoleAssignmentsAsync(accessToken.Token, request.SubscriptionId, cancellationToken)
+            .ConfigureAwait(false);
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> networkAssociations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build(resources);
+
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
@@ -66,10 +73,12 @@ public sealed class HostedAzureExtractorClient(
 
         if (graphOptions.Enabled)
         {
+            IReadOnlyList<string> seedGroupIds = ExtractGroupPrincipalIds(roleAssignments);
+
             EntraGroupMembershipGraphReadResult graphResult = await _entraGroupMembershipGraphReader
                 .TryReadDirectMembershipsAsync(
                     credential,
-                    [],
+                    seedGroupIds,
                     graphOptions.MaxNestedDepth,
                     cancellationToken)
                 .ConfigureAwait(false);
@@ -92,7 +101,9 @@ public sealed class HostedAzureExtractorClient(
             resources,
             request.IncludeCost,
             collectionTimestampUtc,
-            entraGroupMemberships);
+            entraGroupMemberships,
+            roleAssignments,
+            networkAssociations);
 
         string fileName =
             $"archlucid-hosted-azure-{request.SubscriptionId.Trim().ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -103,5 +114,29 @@ public sealed class HostedAzureExtractorClient(
             OriginalFileName = fileName,
             ResourceCount = resources.Count
         };
+    }
+
+    private static IReadOnlyList<string> ExtractGroupPrincipalIds(
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> roleAssignments)
+    {
+        HashSet<string> groupIds = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (HostedAzureArmRoleAssignmentRecord assignment in roleAssignments)
+        {
+            if (string.IsNullOrWhiteSpace(assignment.PrincipalId)
+                || string.IsNullOrWhiteSpace(assignment.PrincipalType))
+            {
+                continue;
+            }
+
+            if (!assignment.PrincipalType.Equals("Group", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            groupIds.Add(assignment.PrincipalId.Trim());
+        }
+
+        return groupIds.OrderBy(static id => id, StringComparer.OrdinalIgnoreCase).ToList();
     }
 }

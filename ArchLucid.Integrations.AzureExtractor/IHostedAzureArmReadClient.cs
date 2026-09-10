@@ -9,4 +9,9 @@ public interface IHostedAzureArmReadClient
         string accessToken,
         string subscriptionId,
         CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListSubscriptionRoleAssignmentsAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken);
 }
