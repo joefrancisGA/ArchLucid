@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DiagramsWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient";
 
-const { fetchInfraEvidenceSnapshotsMock } = vi.hoisted(() => ({
+const { fetchInfraEvidenceSnapshotsMock, downloadInfraEvidenceMermaidPngMock } = vi.hoisted(() => ({
   fetchInfraEvidenceSnapshotsMock: vi.fn(),
+  downloadInfraEvidenceMermaidPngMock: vi.fn(),
 }));
 
 let searchParams = new URLSearchParams();
@@ -85,7 +86,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-mermaid-api", () => ({
       },
     ],
   })),
-  downloadInfraEvidenceMermaidPng: vi.fn(async () => undefined),
+  downloadInfraEvidenceMermaidPng: downloadInfraEvidenceMermaidPngMock,
   formatInfraEvidenceMermaidApiError: (error: unknown) => String(error),
 }));
 
@@ -127,6 +128,8 @@ describe("DiagramsWorkbenchClient", () => {
   beforeEach(() => {
     fetchInfraEvidenceSnapshotsMock.mockReset();
     fetchInfraEvidenceSnapshotsMock.mockResolvedValue(defaultSnapshotsResponse);
+    downloadInfraEvidenceMermaidPngMock.mockReset();
+    downloadInfraEvidenceMermaidPngMock.mockResolvedValue(undefined);
   });
 
   it("renders snapshot picker and partitioned fallback cards", async () => {
@@ -237,5 +240,22 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(await screen.findByTestId("infra-diagrams-snapshot-deep-link-missing")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-fallback-cards")).not.toBeInTheDocument();
+  });
+
+  it("shows an inline error instead of a toast when PNG export fails", async () => {
+    const exportError = new Error("Request validation failed (HTTP 400): PNG rendering is unavailable in this environment.");
+    downloadInfraEvidenceMermaidPngMock.mockRejectedValueOnce(exportError);
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DiagramsWorkbenchClient />);
+
+    fireEvent.click(await screen.findByTestId("infra-diagrams-export-png"));
+
+    expect(await screen.findByTestId("infra-diagrams-png-export-error")).toHaveTextContent(
+      "Could not download diagram PNG",
+    );
+    expect(screen.getByTestId("infra-diagrams-png-export-error")).toHaveTextContent(
+      "PNG rendering is unavailable in this environment.",
+    );
   });
 });
