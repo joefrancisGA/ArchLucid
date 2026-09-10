@@ -1742,3 +1742,4 @@
 {"at":"2026-09-10T02:12:14.3226852Z","zoneId":"finding-disposition","outcome":"hit"}
 {"at":"2026-09-10T02:21:14.5391262Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
 {"at":"2026-09-10T02:27:31.9841045Z","zoneId":"auth-return-path","outcome":"hit"}
+{"at":"2026-09-10T02:29:45.1408401Z","zoneId":"core-findings-advice","outcome":"hit"}

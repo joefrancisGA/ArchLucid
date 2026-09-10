@@ -7793,11 +7793,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 4
-- **bugs-found:** 7
+- **hunts:** 5
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — present-tense conflict falsifiability missed; underscore-delimited resource tokens under-penalized duplication
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — backslash-delimited Windows path tokens under-penalized duplication parity
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -7812,7 +7812,9 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — slash-separated ARM path segments stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-09-08 hunt #1288:** `/subscriptions/.../prod-db` vs space-separated peer Jaccard 0.167 missed 0.85 high-duplication threshold; fixed by splitting on `/`; regression in `Jaccard_similarity_treats_slash_separated_arm_path_tokens_as_space_separated_peers`
 - [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — present-tense `violating the constraint` missed falsifiability — **hit 2026-09-09 seed hunt #1398 (seed→hit):** regex used `violate[ds]?` only; LLM progressive conflict titles with `is violating the constraint` skipped `HasFalsifiabilitySignal`; fixed with `violat(?:e[ds]?|ing)`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — underscore-separated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-09-09 seed hunt #1398 (seed→hit):** `prod_sql_db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `_`; regression in `Jaccard_similarity_treats_underscore_separated_resource_tokens_as_space_separated_peers`
-- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — backslash-separated Windows path segments may under-penalize duplication parity with `/` and `_` fixes — seeded 2026-09-09 seed hunt #1398; not cheap-disproof'd this run
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — backslash-separated Windows path segments under-penalized duplication parity with `/` and `_` fixes — **hit 2026-09-10 thorough hunt #1532:** `prod\sql\db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `\`; regression in `Jaccard_similarity_treats_backslash_separated_windows_path_tokens_as_space_separated_peers`
+
+2026-09-10 thorough hunt #1532 (hit): cheap-disproved no other open candidates; proved backslash path delimiter duplication parity; 1705 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
 2026-09-09 seed hunt #1398 (seed→hit): reseeded after #1288; proved present-tense conflict falsifiability and underscore-token duplication parity; seeded backslash path delimiter candidate; 1704 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
