@@ -1,3 +1,5 @@
+using ArchLucid.Application.Budgeting;
+using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Integrations;
 using ArchLucid.Application.Value;
 using ArchLucid.ArtifactSynthesis.Docx;
@@ -136,6 +138,78 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
 
         registered.Should().BeTrue(
             "Api replicas need the process-local LlmCostEstimationUsdRateOverrideCache warmed for request-time cost estimation");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_llm_wallet_settlement_hosted_service()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(LlmWalletSettlementHostedService));
+
+        registered.Should().BeTrue(
+            "each Api replica drains its own in-memory LlmWalletSettlementQueue after LLM wallet mutations enqueue locally");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_evidence_added_incremental_rereview_hosted_service()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(EvidenceAddedIncrementalReReviewHostedService));
+
+        registered.Should().BeTrue(
+            "bulk evidence upload enqueues incremental re-review work on the same Api replica that accepted the upload");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_operational_error_capture_drain_hosted_service()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(OperationalErrorCaptureDrainHostedService));
+
+        registered.Should().BeTrue(
+            "each Api replica drains its own in-memory operational error capture queue into SQL");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_sql_connection_pool_warmup_for_sql_storage()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(SqlConnectionPoolWarmupHostedService));
+
+        registered.Should().BeTrue(
+            "each Api replica warms its own SQL connection pool independently at startup");
     }
 
     [Fact]
