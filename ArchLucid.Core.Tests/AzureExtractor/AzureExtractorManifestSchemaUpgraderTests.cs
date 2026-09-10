@@ -98,4 +98,26 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
         ok.Should().BeFalse();
         error.Should().NotBeNullOrWhiteSpace();
     }
+
+    [Fact]
+    public void TryUpgradeManifestJson_rejects_missing_schemaVersion()
+    {
+        string manifestJson = """{"tenantId":"contoso"}""";
+
+        bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
+
+        ok.Should().BeFalse();
+        error.Should().Contain("schemaVersion");
+    }
+
+    [Fact]
+    public void TryUpgradeManifestJson_rejects_non_object_root()
+    {
+        string manifestJson = """["not-an-object"]""";
+
+        bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
+
+        ok.Should().BeFalse();
+        error.Should().Contain("manifest.json root must be an object");
+    }
 }

@@ -7928,10 +7928,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-08 — companion inventory JSON arrays silently dropped on non-array root while resources.json fails closed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7951,6 +7951,15 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-07 seed hunt #1166 (hit): proved nested object property values bypassed sensitive-key redaction.
 
 2026-09-07 thorough hunt #1200 (hit): promoted three candidates to hunt-ready; proved apiKey/token property redaction gap, validator/inventory non-array resources.json skew, and tag key redaction gap.
+
+- [x] (valid-no-repro) `RedactStructuredJson` / inventory reader — sensitive keys inside JSON array property values persist plaintext — **cheap-disproof 2026-09-10 seed hunt #1588:** array walk redacts nested object keys; regression `TryReadFromZip_redacts_sensitive_keys_inside_array_property_values`.
+- [x] (valid-no-repro) Flat `clientSecret` property values bypass `IsSensitiveKey` fragment matching — **cheap-disproof 2026-09-10 seed hunt #1588:** `clientsecret` fragment matches; regression `TryReadFromZip_redacts_client_secret_property_values`.
+- [x] (valid-no-repro) Oversized property values bypass the 4000-character persistence cap — **cheap-disproof 2026-09-10 seed hunt #1588:** `ReadProperties` truncates at 4000 chars; regression `TryReadFromZip_truncates_oversized_property_values`.
+- [x] (valid-no-repro) Non-object rows in `resources.json` fail the entire inventory read — **cheap-disproof 2026-09-10 seed hunt #1588:** invalid array elements are skipped; regression `TryReadFromZip_skips_non_object_resource_rows`.
+- [x] (valid-no-repro) `diagnostic-settings.json` non-array root silently returns empty companion inventory — **cheap-disproof 2026-09-10 seed hunt #1588:** `ReadOptionalArray` fail-closed parity with role-assignments; regressions `TryReadFromZip_fails_on_non_array_diagnostic_settings_json`, `Validate_rejects_non_array_diagnostic_settings_json`.
+- [x] (valid-no-repro) `TryUpgradeManifestJson` accepts manifests missing `schemaVersion` or with non-object root — **cheap-disproof 2026-09-10 seed hunt #1588:** rejects with explicit error detail; regressions `TryUpgradeManifestJson_rejects_missing_schemaVersion`, `TryUpgradeManifestJson_rejects_non_object_root`.
+
+2026-09-10 seed hunt #1588 (seed-only): reseeded core-azure-extractor after #1300 companion-array hit; cheap-disproof closed array-nested redaction, clientSecret, property truncation, non-object row skip, diagnostic-settings fail-closed parity, and manifest upgrader guardrails; 872 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary

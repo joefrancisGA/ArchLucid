@@ -234,6 +234,25 @@ public sealed class AzureExtractorPackageZipValidatorTests
         result.ErrorDetail.Should().Contain("role-assignments.json root must be a JSON array");
     }
 
+    [Fact]
+    public void Validate_rejects_non_array_diagnostic_settings_json()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 2,
+            includeResources: true,
+            optionalEntryName: AzureExtractorPackageZipEntryNames.DiagnosticSettings,
+            optionalEntryJson: "{}");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("diagnostic-settings.json root must be a JSON array");
+    }
+
     private static byte[] BuildZip(
         bool includeManifest,
         int schemaVersion,
