@@ -2486,4 +2486,73 @@ public sealed class FindingInspectReadRepositoryCoreTests
         ruleId.Should().Be("Encrypt data at rest");
         ruleName.Should().Be("Encrypt data at rest");
     }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_only_empty_string_entries_returns_nulls_without_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["", "   "]""",
+            firstRuleText: null);
+
+        ruleId.Should().BeNull();
+        ruleName.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapLatestDisposition_returns_null_for_fractional_numeric_string()
+    {
+        FindingInspectReadRepositoryCore.MapLatestDisposition("1.5", hasDispositionRow: true).Should().BeNull();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_returns_null_disposition_for_fractional_numeric_string()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "0.5",
+            hasDispositionRow: true,
+            occurredAtUtc: new DateTimeOffset(2026, 10, 8, 14, 30, 0, TimeSpan.Zero),
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_preserves_pointer_metadata_when_disposition_is_fractional_numeric()
+    {
+        DateTimeOffset occurredAt = new(2026, 10, 8, 14, 30, 0, TimeSpan.Zero);
+        Guid eventId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "1.5",
+            hasDispositionRow: true,
+            occurredAtUtc: occurredAt,
+            revisitDueUtc: new DateTime(2026, 11, 4, 0, 0, 0, DateTimeKind.Unspecified),
+            eventId: eventId,
+            reviewerUserId: "reviewer-5",
+            rowVersionStamp: [0x06]);
+
+        projection.LatestDisposition.Should().BeNull();
+        projection.LatestDispositionOccurredAtUtc.Should().Be(occurredAt);
+        projection.LatestDispositionEventId.Should().Be(eventId);
+        projection.LatestDispositionReviewerUserId.Should().Be("reviewer-5");
+        projection.RevisitDueUtc.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_whitespace_padded_numeric_disposition_string_zero_to_accepted()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "  0  ",
+            hasDispositionRow: true,
+            occurredAtUtc: null,
+            revisitDueUtc: null,
+            eventId: null,
+            reviewerUserId: null,
+            rowVersionStamp: null);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.Accepted);
+    }
 }

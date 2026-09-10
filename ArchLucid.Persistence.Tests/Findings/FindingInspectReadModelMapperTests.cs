@@ -412,4 +412,17 @@ public sealed class FindingInspectReadModelMapperTests
     {
         FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("1.5").Should().BeNull();
     }
+
+    [Fact]
+    public void ParseDisposition_returns_null_for_fractional_numeric_string()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("0.5").Should().BeNull();
+        FindingInspectReadModelMapper.ParseDisposition("1.5").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseDisposition_trims_whitespace_from_fractional_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("  1.5  ").Should().BeNull();
+    }
 }
