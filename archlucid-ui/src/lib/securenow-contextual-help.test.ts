@@ -13,7 +13,7 @@ describe("SecureNow contextual help (SH-01)", () => {
     expect(entry?.whatIsThisPage).toContain("ARC-AMPE");
     expect(entry?.whatIsThisPage).toContain("Infrastructure");
     expect(entry?.whatToDoNext).toContain("assigned to you");
-    expect(entry?.whatToDoNextAction?.href).toBe("/governance/findings/assigned-to-me");
+    expect(entry?.whatToDoNextAction?.href).toBe("/security/assigned-to-me");
     expect(entry?.whatIsThisPage).not.toMatch(/architecture identity/i);
     expect(entry?.whatToDoNext).not.toMatch(/start a review/i);
     expect(entry?.whatToDoNextAction?.href).not.toContain("/architecture/reviews");

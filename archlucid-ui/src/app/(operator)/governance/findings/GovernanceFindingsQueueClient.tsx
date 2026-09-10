@@ -33,7 +33,9 @@ import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-fi
 import {
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
-import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { governanceFindingsWorkspaceSavedViewHref, governanceFindingsRunScopedSavedViewHref } from "@/lib/governance/governance-findings-saved-view-helpers";
 import { governanceFindingsClearAllFiltersHref, governanceFindingsShowAllFilteredFindingsHref } from "@/lib/governance/governance-findings-clear-all-filters-url";
 import { governanceFindingsClearReviewScopeHref } from "@/lib/governance/governance-findings-clear-review-scope-url";
@@ -59,7 +61,12 @@ export default function GovernanceFindingsQueueClient({
   mode = "tenant",
 }: GovernanceFindingsQueueClientProps) {
   const router = useRouter();
-  const pathname = usePathname() ?? (mode === "assigned-to-me" ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH);
+  const { productLine } = useProductLine();
+  const pathname = usePathname() ?? (
+    mode === "assigned-to-me"
+      ? assignedToMeFindingsPathForProductLine(productLine)
+      : GOVERNANCE_FINDINGS_PATH
+  );
   const searchParams = useSearchParams();
   const { hideGenericLowDensity, setHideGenericLowDensity } = useGovernanceFindingsHideGenericState();
   const { jobView, setJobView, nlFacets, setNlFacets, clearFacetFilters } =

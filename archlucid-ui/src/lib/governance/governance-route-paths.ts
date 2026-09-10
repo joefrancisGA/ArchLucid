@@ -35,6 +35,9 @@ export const GOVERNANCE_FINDINGS_PATH = "/governance/findings" as const;
 /** Personal assigned-to-me open findings queue (TB-2195). */
 export const GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH = "/governance/findings/assigned-to-me" as const;
 
+/** SecureNow Security shell — personal assigned-to-me queue (same page, Security URL namespace). */
+export const SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH = "/security/assigned-to-me" as const;
+
 /** Cross-review decision register (left-nav). */
 export const GOVERNANCE_DECISION_REGISTER_PATH = "/governance/decision-register" as const;
 
@@ -114,7 +117,10 @@ export function pathMatchesGovernanceApprovalQueue(pathname: string): boolean {
 }
 
 export function pathMatchesGovernanceAssignedToMeFindings(pathname: string): boolean {
-  return pathMatchesRoutePrefix(pathname, GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH);
+  return (
+    pathMatchesRoutePrefix(pathname, GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH)
+    || pathMatchesRoutePrefix(pathname, SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH)
+  );
 }
 
 /** Approval queue href, optionally scoped to a review via `runId`. */

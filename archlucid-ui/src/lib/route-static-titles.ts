@@ -7,6 +7,7 @@ import {
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
@@ -69,7 +70,8 @@ export const ROUTE_TITLES: Record<string, string> = {
   [GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH]: OPERATOR_NAV_LINK_LABELS.needsAttentionInbox,
   [WORKSPACE_HEALTH_PATH]: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
   "/governance/findings": OPERATOR_NAV_LINK_LABELS.findings,
-  "/governance/findings/assigned-to-me": OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
+  [GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH]: OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
+  "/security/assigned-to-me": OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
   [GOVERNANCE_EXCEPTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.riskExceptions,
   "/governance/decision-register": OPERATOR_NAV_LINK_LABELS.decisionRegister,
   [SIGNED_RECORDS_LIST_PATH]: OPERATOR_NAV_LINK_LABELS.sealedReviewRecords,

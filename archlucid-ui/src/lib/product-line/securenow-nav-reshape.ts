@@ -2,6 +2,7 @@ import { Home } from "lucide-react";
 
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
@@ -11,6 +12,7 @@ import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n"
 import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
 
 import type { ProductLineNavGroupRow } from "@/lib/product-line/filter-nav-groups-for-product-line";
+import { SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { SECURENOW_COMPLIANCE_NAV_GROUP_LABEL } from "@/lib/product-line/securenow-compliance-home-copy";
 
 export const SECURENOW_COMPLIANCE_NAV_GROUP_ID = "operate-compliance" as const;
@@ -46,7 +48,7 @@ export const SECURENOW_COMPLIANCE_NAV_HREFS: readonly string[] = [
 
 /** SecureNow sidebar — operational security destinations in display order. */
 export const SECURENOW_SECURITY_NAV_HREFS: readonly string[] = [
-  "/governance/findings/assigned-to-me",
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   "/governance/remediation-factory",
   "/governance/remediation-patterns",
 ];
@@ -102,6 +104,17 @@ function applySecureNowIntegrationNavLinkLabels(links: readonly NavLinkItem[]): 
   });
 }
 
+function remapSecureNowSecurityNavLink(link: NavLinkItem): NavLinkItem {
+  if (link.href !== GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH) {
+    return link;
+  }
+
+  return {
+    ...link,
+    href: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  };
+}
+
 function buildSecureNowNavGroup(
   id:
     | typeof SECURENOW_COMPLIANCE_NAV_GROUP_ID
@@ -143,7 +156,10 @@ export function reshapeNavGroupsForSecureNow(
   }
 
   const complianceLinks = pickNavLinks(linksByHref, SECURENOW_COMPLIANCE_NAV_HREFS);
-  const securityLinks = [SECURENOW_SECURITY_HOME_LINK, ...pickNavLinks(linksByHref, SECURENOW_SECURITY_NAV_HREFS)];
+  const securityLinks = [
+    SECURENOW_SECURITY_HOME_LINK,
+    ...pickNavLinks(linksByHref, SECURENOW_SECURITY_NAV_HREFS).map(remapSecureNowSecurityNavLink),
+  ];
   const integrationLinks = applySecureNowIntegrationNavLinkLabels(
     pickNavLinks(linksByHref, SECURENOW_INTEGRATION_NAV_HREFS),
   );
