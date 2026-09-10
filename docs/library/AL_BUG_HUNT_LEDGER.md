@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1599,6 +1599,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BuildInspectResponse` drops `DecisionRuleId` when `ruleName` is empty string — **cheap-disproof 2026-09-10 seed hunt #1657:** `DecisionRuleId` passes through while empty `ruleName` is preserved; regression `BuildInspectResponse_preserves_decision_rule_id_when_rule_name_is_empty_string`.
 
 2026-09-10 seed hunt #1657 (seed-only): reseeded finding-inspect-sql after #1656; cheap-disproof closed additional defined numeric enum parsing, corrupt-payload whitespace metadata guard, local revisit-due UTC labeling, and empty rule-name response passthrough; 277 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ParseHumanReview` maps defined numeric strings `"2"` / `"3"` / `"4"` to `NotRequired` — **cheap-disproof 2026-09-10 seed hunt #1658:** defined ordinals parse to `Approved` / `Rejected` / `Overridden`; regressions `ParseHumanReview_maps_defined_numeric_string_two_to_approved`, `ParseHumanReview_maps_defined_numeric_string_three_to_rejected`, and `ParseHumanReview_maps_defined_numeric_string_four_to_overridden`.
+- [x] (valid-no-repro) `ParseDisposition` rejects defined numeric strings `"2"` / `"3"` / `"4"` — **cheap-disproof 2026-09-10 seed hunt #1658:** defined ordinals parse to `NeedsEvidence` / `Remediated` / `RejectedAsNotApplicable`; regressions `ParseDisposition_maps_defined_numeric_string_two_to_needs_evidence`, `ParseDisposition_maps_defined_numeric_string_three_to_remediated`, and `ParseDisposition_maps_defined_numeric_string_four_to_rejected_as_not_applicable`.
+- [x] (valid-no-repro) `TryParseEvaluationConfidenceLevel` rejects defined numeric string `"2"` — **cheap-disproof 2026-09-10 seed hunt #1658:** defined ordinals parse to `Low`; regression `TryParseEvaluationConfidenceLevel_parses_defined_numeric_string_two_as_low`.
+- [x] (valid-no-repro) `ParseFindingSeverity` rejects defined numeric string `"3"` — **cheap-disproof 2026-09-10 seed hunt #1658:** defined ordinals parse to `Critical`; regression `ParseFindingSeverity_maps_defined_numeric_string_three_to_critical`.
+- [x] (valid-no-repro) `DapperFindingInspectReadRepository.GetInspectAsync` skips null `scope` / `findingId` validation — **cheap-disproof 2026-09-10 seed hunt #1658:** repository throws before opening SQL; regressions `DapperFindingInspectReadRepository_GetInspectAsync_throws_when_scope_is_null` and `DapperFindingInspectReadRepository_GetInspectAsync_throws_when_finding_id_is_null`.
+
+2026-09-10 seed hunt #1658 (seed-only): reseeded finding-inspect-sql after #1657; cheap-disproof closed remaining defined numeric enum ordinals and Dapper inspect input validation; 287 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

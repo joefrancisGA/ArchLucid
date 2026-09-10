@@ -334,4 +334,52 @@ public sealed class FindingInspectReadModelMapperTests
     {
         FindingInspectReadModelMapper.ParseDisposition("0").Should().Be(FindingDisposition.Accepted);
     }
+
+    [Fact]
+    public void ParseHumanReview_maps_defined_numeric_string_two_to_approved()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("2").Should().Be(FindingHumanReviewStatus.Approved);
+    }
+
+    [Fact]
+    public void ParseHumanReview_maps_defined_numeric_string_three_to_rejected()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("3").Should().Be(FindingHumanReviewStatus.Rejected);
+    }
+
+    [Fact]
+    public void ParseHumanReview_maps_defined_numeric_string_four_to_overridden()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("4").Should().Be(FindingHumanReviewStatus.Overridden);
+    }
+
+    [Fact]
+    public void ParseDisposition_maps_defined_numeric_string_two_to_needs_evidence()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("2").Should().Be(FindingDisposition.NeedsEvidence);
+    }
+
+    [Fact]
+    public void ParseDisposition_maps_defined_numeric_string_three_to_remediated()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("3").Should().Be(FindingDisposition.Remediated);
+    }
+
+    [Fact]
+    public void ParseDisposition_maps_defined_numeric_string_four_to_rejected_as_not_applicable()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("4").Should().Be(FindingDisposition.RejectedAsNotApplicable);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_parses_defined_numeric_string_two_as_low()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("2").Should().Be(FindingConfidenceLevel.Low);
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_maps_defined_numeric_string_three_to_critical()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("3").Should().Be(FindingSeverity.Critical);
+    }
 }

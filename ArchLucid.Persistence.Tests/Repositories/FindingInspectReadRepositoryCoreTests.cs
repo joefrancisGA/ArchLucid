@@ -2,11 +2,15 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Sql;
 
 using FluentAssertions;
+
+using Moq;
 
 namespace ArchLucid.Persistence.Tests.Repositories;
 
@@ -1582,5 +1586,31 @@ public sealed class FindingInspectReadRepositoryCoreTests
 
         response.DecisionRuleId.Should().Be("cost-guardrail");
         response.DecisionRuleName.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task DapperFindingInspectReadRepository_GetInspectAsync_throws_when_scope_is_null()
+    {
+        DapperFindingInspectReadRepository repository = new(new Mock<ISqlConnectionFactory>().Object);
+
+        Func<Task> act = async () => await repository.GetInspectAsync(
+            scope: null!,
+            findingId: "finding-demo-00000000000000000000000000000001-primary",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    [Fact]
+    public async Task DapperFindingInspectReadRepository_GetInspectAsync_throws_when_finding_id_is_null()
+    {
+        DapperFindingInspectReadRepository repository = new(new Mock<ISqlConnectionFactory>().Object);
+        ScopeContext scope = new();
+
+        Func<Task> act = async () => await repository.GetInspectAsync(scope, null!, CancellationToken.None);
+
+        ArgumentException exception = (await act.Should().ThrowAsync<ArgumentException>()).Which;
+        exception.ParamName.Should().Be("findingId");
+        exception.Message.Should().Contain("Finding id is required.");
     }
 }
