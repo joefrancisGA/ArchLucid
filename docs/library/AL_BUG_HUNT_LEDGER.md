@@ -7981,7 +7981,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -8032,6 +8032,17 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `CountFileEntries` counts ZIP directory entries toward file totals — **cheap-disproof 2026-09-10 seed hunt #1596:** only file entries counted; regression `CountFileEntries_ignores_directory_entries`.
 
 2026-09-10 seed hunt #1596 (seed-only): reseeded core-azure-extractor after #1595; cheap-disproof closed ResourceInventoryReader parity (missing entry, non-array root, case-insensitive lookup, non-object skip, PascalCase binding), `id` fallback in PackageInventoryReader, and ZipValidator missing-entry / missing-file / directory-entry counting; 890 scoped `AzureExtractor` tests passed.
+
+- [x] (valid-no-repro) `MapResourceRow` ignores ARM `type` when `resourceType` is absent — **cheap-disproof 2026-09-10 seed hunt #1597:** `type` fallback populates `ResourceType`; regression `TryReadFromZip_uses_type_property_when_resource_type_missing`.
+- [x] (valid-no-repro) Valid `role-assignments.json` companion array is dropped while resources load — **cheap-disproof 2026-09-10 seed hunt #1597:** companion arrays surface on read result; regression `TryReadFromZip_reads_valid_role_assignments_companion_array`.
+- [x] (valid-no-repro) String `sku` property values are ignored when object `sku.name` is absent — **cheap-disproof 2026-09-10 seed hunt #1597:** string SKU extracted; regression `TryReadFromZip_reads_string_sku_property`.
+- [x] (valid-no-repro) Null scalar property values throw or omit the property key — **cheap-disproof 2026-09-10 seed hunt #1597:** null serializes as empty string; regression `TryReadFromZip_serializes_null_property_values_as_empty_string`.
+- [x] (valid-no-repro) `TryUpgradeManifestJson` overwrites existing `completenessScore` and omits `collectorVersion` on v1→v2 upgrade — **cheap-disproof 2026-09-10 seed hunt #1597:** preserves score and copies `scriptVersion`; regression `TryUpgradeManifestJson_upgrades_schema_one_to_two_with_defaults`.
+- [x] (valid-no-repro) `AzureExtractorResourceInventoryReader` ignores PascalCase `Sku.Name` — **cheap-disproof 2026-09-10 seed hunt #1597:** PascalCase SKU object binding; regression `TryReadFromZip_reads_pascal_case_sku_name`.
+- [x] (valid-no-repro) Malformed `resources.json` in ResourceInventoryReader returns empty list instead of error — **cheap-disproof 2026-09-10 seed hunt #1597:** fail-closed with explicit error; regression `TryReadFromZip_returns_error_when_resources_json_is_malformed`.
+- [x] (valid-no-repro) `AzureExtractorPackageZipValidator` accepts malformed `resources.json` when manifest schema is valid — **cheap-disproof 2026-09-10 seed hunt #1597:** schema rejection with JSON error detail; regression `Validate_rejects_malformed_resources_json`.
+
+2026-09-10 seed hunt #1597 (seed-only): reseeded core-azure-extractor after #1596; cheap-disproof closed `type`/SKU/companion-array/null-property inventory reader paths, manifest v1→v2 upgrader defaults, ResourceInventoryReader malformed JSON handling, and ZipValidator malformed resources.json rejection; 898 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
