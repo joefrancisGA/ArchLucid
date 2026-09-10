@@ -87,6 +87,7 @@ public sealed class ArchitectureShareService(
         DateTime grantedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         await _shareRepository.UpsertAsync(
+            scope,
             new ArchitectureShareRecord
             {
                 ArchitectureId = architectureId,
@@ -186,6 +187,7 @@ public sealed class ArchitectureShareService(
                 DateTime grantedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
                 await _shareRepository.UpsertAsync(
+                    scope,
                     new ArchitectureShareRecord
                     {
                         ArchitectureId = architectureId,
