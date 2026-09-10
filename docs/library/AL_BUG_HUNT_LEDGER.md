@@ -599,7 +599,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -659,6 +659,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `VerifyCodeAsync` with `Enabled=false` still audits verification failure for unknown challenges — **cheap-disproof 2026-09-10 seed hunt #1568:** disabled guard returns failure before challenge lookup without `EmailOtpVerificationFailed` audit (no email correlation); regression `VerifyCodeAsync_returns_failure_when_otp_auth_disabled`
 
 2026-09-10 seed hunt #1568 (seed-only): reseeded email-otp-auth; cheap-disproof closed disabled-identity re-enable, resend-cooldown invalidation, and disabled-verify audit candidates; 28 scoped EmailOtp tests passed.
+
+- [x] (valid-no-repro) `VerifyCodeAsync` with `Guid.Empty` challenge id audits `EmailOtpVerificationFailed` — **cheap-disproof 2026-09-10 seed hunt #1571:** empty challenge guard returns failure before lookup without audit; regression `VerifyCodeAsync_returns_failure_when_challenge_id_is_empty`
+- [x] (valid-no-repro) `VerifyCodeAsync` with unknown challenge id audits verification failure — **cheap-disproof 2026-09-10 seed hunt #1571:** `unknown_challenge` path passes null email correlation so `FailWithAuditAsync` skips `EmailOtpVerificationFailed`; regression `VerifyCodeAsync_returns_failure_without_audit_when_challenge_is_unknown`
+- [x] (valid-no-repro) `VerifyCodeAsync` accepts whitespace-only OTP codes — **cheap-disproof 2026-09-10 seed hunt #1571:** `string.IsNullOrWhiteSpace(request.Code)` guard rejects before hash compare; regression `VerifyCodeAsync_returns_failure_when_code_is_whitespace_only`
+- [x] (invalid) `RequestCodeAsync` creates a challenge when bot challenge is required but token is missing — **cheap-disproof 2026-09-10 seed hunt #1571:** `PermissiveEmailOtpBotChallengeVerifier` fails closed and `EmailOtpRequestFlow` returns neutral without `EmailOtpCodeSent`; regression `RequestCodeAsync_returns_neutral_result_when_bot_challenge_required_but_missing`
+- [x] (valid-no-repro) `RequestCodeAsync` with `Enabled=false` still audits `EmailOtpCodeRequested` — **cheap-disproof 2026-09-10 seed hunt #1571:** disabled guard returns neutral before email normalization without identity audit; regression `RequestCodeAsync_returns_neutral_result_when_otp_auth_disabled`
+
+2026-09-10 seed hunt #1571 (seed-only): reseeded email-otp-auth; cheap-disproof closed verify input guards, bot-challenge gate, and disabled-request audit candidates; 33 scoped EmailOtp tests passed.
 
 ---
 
@@ -2841,6 +2849,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-08 seed hunt #1332 (hit): reseeded after Wave-22 mute guards; proved TB-930 coverage projection dropped `IsMuted`; seeded equal-count snapshot tie and muted-savings rollup candidates.
 
 2026-09-07 thorough hunt #1293 (hit): disproved two reseeded sponsor-packet candidates; proved sparse-agent decision-delta vs snapshot severity split; 20 scoped BuyerProofPack/BoardPack/SponsorDecisionDelta tests (19 pass; 1 pre-existing `BuyerProofPackBuilderRoiFreshnessTests` null-traces failure unrelated to this diff).
+
+- [x] (invalid) `BuyerProofPackCommitGuard.TryValidateCommitted` accepts `ReadyForCommit` runs with a manifest — **cheap-disproof 2026-09-10 seed hunt #1570:** requires `ArchitectureRunStatus.Committed`; regression `TryValidateCommitted_when_ready_for_commit_with_manifest_returns_false`
+- [x] (invalid) `BuyerProofPackCommitGuard.TryValidateCommitted` accepts committed runs without a manifest — **cheap-disproof 2026-09-10 seed hunt #1570:** null manifest rejected before status check; regression `TryValidateCommitted_when_committed_without_manifest_returns_false`
+- [x] (valid-no-repro) `BuyerProofPackCommitGuard.TryValidateDeltasJson` accepts deltas JSON missing `proofPackageCompleteness` — **cheap-disproof 2026-09-10 seed hunt #1570:** returns false with explicit error; regression `TryValidateDeltasJson_when_proof_package_completeness_missing_returns_false`
+- [x] (valid-no-repro) `BoardPackQuarterWindow.Resolve` accepts override end before start — **cheap-disproof 2026-09-10 seed hunt #1570:** throws `ArgumentOutOfRangeException` on inverted override window; regression `Resolve_throws_when_override_end_is_not_after_start`
+- [x] (invalid) `BoardPackQuarterWindow.Resolve` ignores configured calendar quarter when only one override bound is set — **cheap-disproof 2026-09-10 seed hunt #1570:** partial overrides fall back to `year`/`quarter` window; regression `Resolve_returns_calendar_quarter_window_when_overrides_absent`
+
+2026-09-10 seed hunt #1570 (seed-only): reseeded application-pilots after master merge; cheap-disproof closed commit-guard and board-pack quarter-window candidates; restored `BuyerProofPackBuilderRoiFreshnessTests` career-export test doubles; 22 scoped BuyerProofPack/BoardPack tests passed.
 
 ---
 
