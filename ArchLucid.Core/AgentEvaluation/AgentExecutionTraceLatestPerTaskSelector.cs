@@ -5,7 +5,9 @@ namespace ArchLucid.Core.AgentEvaluation;
 /// <summary>
 ///     Picks the newest trace per <see cref="AgentExecutionTrace.TaskId" /> so superseded auto-retry attempts do not
 ///     affect downstream evaluation. Ordering is <see cref="AgentExecutionTrace.AttemptIndex" /> first (TB-035), then
-///     <see cref="AgentExecutionTrace.CreatedUtc" />, then <see cref="AgentExecutionTrace.TraceId" />.
+///     quality-preference rank for upsert-drift duplicate rows (unevaluated snapshots rank below recorded
+///     outcomes), then <see cref="AgentExecutionTrace.CreatedUtc" />,
+///     then <see cref="AgentExecutionTrace.TraceId" />.
 /// </summary>
 public static class AgentExecutionTraceLatestPerTaskSelector
 {
@@ -20,8 +22,8 @@ public static class AgentExecutionTraceLatestPerTaskSelector
             .GroupBy(GetLatestPerTaskKey, StringComparer.OrdinalIgnoreCase)
             .Select(static g => g
                 .OrderByDescending(static t => t.AttemptIndex)
-                .ThenByDescending(static t => t.CreatedUtc)
                 .ThenByDescending(QualityPreferenceRank)
+                .ThenByDescending(static t => t.CreatedUtc)
                 .ThenByDescending(static t => t.TraceId, StringComparer.Ordinal)
                 .First())
             .ToList();
@@ -33,12 +35,17 @@ public static class AgentExecutionTraceLatestPerTaskSelector
     {
         if (trace.QualityRejected
             || trace.RecordedQualityGateOutcome == AgentOutputQualityGateOutcome.Rejected)
-            return 0;
-
-        if (trace.RecordedQualityGateOutcome == AgentOutputQualityGateOutcome.Warned)
             return 1;
 
-        return 2;
+        if (trace.RecordedQualityGateOutcome == AgentOutputQualityGateOutcome.Warned)
+            return 2;
+
+        if (trace.RecordedQualityGateOutcome == AgentOutputQualityGateOutcome.Accepted)
+            return 3;
+
+        // Upsert-drift duplicate rows can retain stale unevaluated snapshots; never prefer them
+        // over a sibling row that already recorded a quality-gate outcome.
+        return 0;
     }
 
     private static string GetLatestPerTaskKey(AgentExecutionTrace trace)

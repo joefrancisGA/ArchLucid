@@ -17,6 +17,9 @@ public static partial class AzureExtractorPackageZipValidator
 
             using JsonDocument document = JsonDocument.Parse(manifestStream);
 
+            if (document.RootElement.ValueKind is not JsonValueKind.Object)
+                return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
+
             if (!TryGetPropertyCaseInsensitive(document.RootElement, "schemaVersion", out JsonElement schemaVersionElement))
                 return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
 

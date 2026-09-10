@@ -10,6 +10,7 @@ using ArchLucid.Application.Roi;
 using ArchLucid.Application.Tests.Exports;
 using ArchLucid.Application.Tests.Roi;
 using ArchLucid.Application.Value;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -234,10 +235,7 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        IConfigurationRoot configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(
-                new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Simulator", ["AzureOpenAI:DeploymentName"] = "gpt-test" })
-            .Build();
+        IConfiguration configuration = SealedExportReceiptTestSupport.CreateSuccessfulExportHonestyConfiguration();
 
         Mock<IOptionsMonitor<PublicSiteOptions>> siteOpts = new();
         siteOpts.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
@@ -259,6 +257,14 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
                     UpdatedUtc = DateTimeOffset.UtcNow,
                 });
 
+        Mock<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository> traces = new();
+        traces
+            .Setup(repository => repository.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<AgentExecutionTrace>());
+
         return new FirstValueReportBuilder(
             query,
             deltas,
@@ -274,7 +280,7 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             authorityQuery ?? Mock.Of<IAuthorityQueryService>(),
             manifestHashService ?? Mock.Of<IManifestHashService>(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            traces.Object,
             Mock.Of<IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);

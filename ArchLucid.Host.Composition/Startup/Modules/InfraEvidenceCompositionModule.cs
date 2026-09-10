@@ -1,4 +1,5 @@
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Application.InfraEvidence.Ask;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.InfraEvidence.Mermaid;
@@ -14,6 +15,7 @@ using ArchLucid.Application.InfraEvidence.RemediationPatterns;
 using ArchLucid.Application.InfraEvidence.RemediationPrioritization;
 using ArchLucid.Application.InfraEvidence.RemediationWaves;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Persistence.InfraEvidence;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -51,10 +53,24 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IAuditEvidenceLineageService, AuditEvidenceLineageService>();
         services.AddScoped<ISecurityCrosswalkService, SecurityCrosswalkService>();
         services.AddScoped<IOperationalSecurityFindingIngestService, OperationalSecurityFindingIngestService>();
+        services.AddScoped<IPrivilegePathEngine, PrivilegePathEngine>();
+        services.AddScoped<IIntendedReachabilityEngine, IntendedReachabilityEngine>();
+        services.AddScoped<IToxicCombinationEngine, ToxicCombinationEngine>();
+        services.AddScoped<ICapabilityToFlowEngine, CapabilityToFlowEngine>();
+        services.AddScoped<ISharedControlBlastRadiusEngine, SharedControlBlastRadiusEngine>();
+        services.AddScoped<IFourRealityDriftEngine, FourRealityDriftEngine>();
+        services.AddScoped<SecureNowArchitectPathCarryForwardService>();
+        services.AddScoped<ISecureNowArchitectNeighborhoodRunner, SecureNowArchitectNeighborhoodRunner>();
+        services.AddScoped<IPathRankingEngine, PathRankingEngine>();
+        services.AddScoped<ICutPointAnalysisEngine, CutPointAnalysisEngine>();
+        services.AddScoped<ISecurityEvidencePathInspectorQueryService, SecurityEvidencePathInspectorQueryService>();
+        services.AddScoped<ISecurityEvidencePathRankQueryService, SecurityEvidencePathRankQueryService>();
+        services.AddScoped<ISecureNowArchitectMetricsQueryService, SecureNowArchitectMetricsQueryService>();
         services.AddScoped<IOperationalSecurityExceptionService, OperationalSecurityExceptionService>();
         services.AddScoped<IRemediationPatternService, RemediationPatternService>();
         services.AddScoped<IRemediationPatternMatcherService, RemediationPatternMatcherService>();
         services.AddScoped<IRemediationInstanceService, RemediationInstanceService>();
+        services.AddScoped<IRemediationPathNarrativeBuilder, RemediationPathNarrativeBuilder>();
         services.AddScoped<IRemediationInstanceQueryService, RemediationInstanceQueryService>();
         services.AddScoped<IRemediationPrioritizationService, RemediationPrioritizationService>();
         services.AddScoped<IRemediationWaveService, RemediationWaveService>();
@@ -74,6 +90,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<PostureAuditEvidenceSelector>();
         services.AddScoped<ResilienceAuditEvidenceSelector>();
         services.AddScoped<IAzureInventoryDiffConsumer, AuditContinuousReadinessDiffConsumer>();
+        services.AddScoped<IAzureInventoryDiffConsumer, SecureNowArchitectDiffConsumer>();
         services.AddScoped<IStructuredDiagramIngestService, StructuredDiagramIngestService>();
         services.AddScoped<IDiagramInfrastructureReconciliationService, DiagramInfrastructureReconciliationService>();
         services.AddScoped<IVisionDiagramIngestService, VisionDiagramIngestService>();

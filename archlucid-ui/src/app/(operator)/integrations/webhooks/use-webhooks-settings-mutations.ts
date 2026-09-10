@@ -46,8 +46,10 @@ export type UseWebhooksSettingsMutationsOptions = {
   readonly setError: UseFormReturn<WebhookSettingsFormValues>["setError"];
   readonly handleSubmit: UseFormHandleSubmit<WebhookSettingsFormValues>;
   readonly webhookRows: AlertRoutingSubscription[];
+  readonly loading: boolean;
   readonly scopeGenerationRef: React.RefObject<number>;
-  readonly load: () => Promise<void>;
+  readonly load: () => Promise<boolean>;
+  readonly getLastLoadFailure: () => ApiLoadFailureState | null;
   readonly setFailure: React.Dispatch<React.SetStateAction<ApiLoadFailureState | null>>;
 };
 
@@ -160,7 +162,7 @@ export function useWebhooksSettingsMutations(
       return;
     }
 
-    if (options.webhookRows.length === 0) {
+    if (options.loading) {
       return;
     }
 
@@ -168,6 +170,8 @@ export function useWebhooksSettingsMutations(
       const subscription = options.webhookRows.find((row) => row.routingSubscriptionId === urlDisableId);
 
       if (subscription === undefined) {
+        syncToggleConfirmToUrl({ disableId: null, enableId: null });
+
         return;
       }
 
@@ -187,6 +191,8 @@ export function useWebhooksSettingsMutations(
     const subscription = options.webhookRows.find((row) => row.routingSubscriptionId === urlEnableId);
 
     if (subscription === undefined) {
+      syncToggleConfirmToUrl({ disableId: null, enableId: null });
+
       return;
     }
 
@@ -199,9 +205,11 @@ export function useWebhooksSettingsMutations(
       subscriptionName: subscription.name,
     });
   }, [
+    options.loading,
     options.webhookRows,
     pendingDisable?.routingSubscriptionId,
     pendingEnable?.routingSubscriptionId,
+    syncToggleConfirmToUrl,
     urlDisableId,
     urlEnableId,
   ]);
@@ -218,9 +226,9 @@ export function useWebhooksSettingsMutations(
     setEnableErrorMessage(null);
   }, [setPendingDisable, setPendingEnable]);
 
-  async function executeToggle(routingSubscriptionId: string, generation: number): Promise<void> {
+  async function executeToggle(routingSubscriptionId: string, generation: number): Promise<boolean> {
     if (options.scopeGenerationRef.current !== generation) {
-      return;
+      return false;
     }
 
     options.setFailure(null);
@@ -229,16 +237,28 @@ export function useWebhooksSettingsMutations(
       await toggleAlertRoutingSubscription(routingSubscriptionId);
 
       if (options.scopeGenerationRef.current !== generation) {
-        return;
+        return false;
       }
 
-      await options.load();
+      return await options.load();
     } catch (error: unknown) {
       if (options.scopeGenerationRef.current !== generation) {
-        return;
+        return false;
       }
 
       throw error;
+    }
+  }
+
+  function presentToggleRefreshFailureInDialog(
+    setDialogErrorMessage: (message: string) => void,
+  ): void {
+    const loadFailure = options.getLastLoadFailure();
+
+    options.setFailure(null);
+
+    if (loadFailure !== null) {
+      setDialogErrorMessage(formatCustomerApiFailure(loadFailure));
     }
   }
 
@@ -273,9 +293,15 @@ export function useWebhooksSettingsMutations(
     writeWebhookSubscriptionLastViewedId(pendingEnable.routingSubscriptionId);
 
     try {
-      await executeToggle(pendingEnable.routingSubscriptionId, generation);
+      const refreshed = await executeToggle(pendingEnable.routingSubscriptionId, generation);
 
       if (options.scopeGenerationRef.current !== generation) {
+        return;
+      }
+
+      if (!refreshed) {
+        presentToggleRefreshFailureInDialog(setEnableErrorMessage);
+
         return;
       }
 
@@ -303,9 +329,15 @@ export function useWebhooksSettingsMutations(
     setDisableErrorMessage(null);
 
     try {
-      await executeToggle(pendingDisable.routingSubscriptionId, generation);
+      const refreshed = await executeToggle(pendingDisable.routingSubscriptionId, generation);
 
       if (options.scopeGenerationRef.current !== generation) {
+        return;
+      }
+
+      if (!refreshed) {
+        presentToggleRefreshFailureInDialog(setDisableErrorMessage);
+
         return;
       }
 
@@ -361,7 +393,13 @@ export function useWebhooksSettingsMutations(
       }
 
       options.reset({ ...webhookSettingsDefaultValues });
-      await options.load();
+
+      const refreshed = await options.load();
+
+      if (!refreshed) {
+        return;
+      }
+
       setSaveSuccessMessage(WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE);
     } catch (error: unknown) {
       if (options.scopeGenerationRef.current !== generation) {

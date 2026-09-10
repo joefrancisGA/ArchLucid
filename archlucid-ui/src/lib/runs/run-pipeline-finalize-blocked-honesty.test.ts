@@ -62,11 +62,11 @@ describe("shouldSuppressReadyToFinalizeForCareerHonesty (FC-70)", () => {
     ).toBe(true);
   });
 
-  it("suppresses Ready for Working Rehearsal intent even when trail is complete (AS-079)", () => {
+  it("suppresses Ready on Working Rehearsal door even when structural mode is Real (AS-079)", () => {
     expect(
       shouldSuppressReadyToFinalizeForCareerHonesty({
         workingDesk: true,
-        workingCareerRehearsalIntent: "rehearsal",
+        effectiveWorkingCareerRehearsalDoor: "rehearsal",
         structuralExecutionMode: StructuralExecutionModeWire.Real,
         transparencyTrail: {
           asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
@@ -75,6 +75,21 @@ describe("shouldSuppressReadyToFinalizeForCareerHonesty (FC-70)", () => {
         },
       }),
     ).toBe(true);
+  });
+
+  it("allows Ready on Working Career door when structural mode is Real and trail is complete", () => {
+    expect(
+      shouldSuppressReadyToFinalizeForCareerHonesty({
+        workingDesk: true,
+        effectiveWorkingCareerRehearsalDoor: "career",
+        structuralExecutionMode: StructuralExecutionModeWire.Real,
+        transparencyTrail: {
+          asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+          inferred: [],
+          skipped: [],
+        },
+      }),
+    ).toBe(false);
   });
 
   it("suppresses Ready when pre-finalize gate is disabled on Working (LP-18)", () => {
