@@ -218,6 +218,34 @@ public sealed class ScopeIdentityBindingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_development_bypass_rejects_conflicting_workspace_header()
+    {
+        Guid workspaceId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        DefaultHttpContext context = CreateContext();
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim("tenant_id", Guid.NewGuid().ToString("D")),
+                new Claim("workspace_id", workspaceId.ToString("D")),
+                new Claim("project_id", Guid.NewGuid().ToString("D")),
+            ],
+            "DevelopmentBypass"));
+        context.Request.Headers["x-workspace-id"] = Guid.NewGuid().ToString("D");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        string body = await ReadResponseBodyAsync(context);
+        body.Should().Contain("x-workspace-id");
+    }
+
+    [Fact]
     public async Task InvokeAsync_unauthenticated_request_invokes_next()
     {
         DefaultHttpContext context = CreateContext();

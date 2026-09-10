@@ -35,4 +35,6 @@ public static class GraphEdgeInferenceSources
     public const string InventoryDiagnosticTarget = "inventory-diagnostic-target";
     public const string InventoryPolicyAssignment = "inventory-policy-assignment";
     public const string InventoryNsgAllowRule = "inventory-nsg-allow-rule";
+
+    public const string InventoryFederatedCredential = "inventory-federated-credential";
 }

@@ -33305,6 +33305,12 @@
               "string"
             ]
           },
+          "architectSentence": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "asset": {
             "type": [
               "null",
@@ -33318,6 +33324,12 @@
             ]
           },
           "network": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "proposedChange": {
             "type": [
               "null",
               "string"

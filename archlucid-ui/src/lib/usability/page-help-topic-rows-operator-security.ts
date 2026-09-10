@@ -44,7 +44,7 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
   },
   {
     prefix: SECURENOW_REMEDIATION_FACTORY_PATH,
-    topic: { slug: "remediation-factory", label: OPERATOR_NAV_LINK_LABELS.remediationFactory },
+    topic: { slug: "security-evidence-paths", label: OPERATOR_NAV_LINK_LABELS.remediationFactory },
   },
   {
     prefix: "/governance/remediation-factory",
