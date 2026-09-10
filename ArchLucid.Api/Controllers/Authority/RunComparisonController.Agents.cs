@@ -163,20 +163,6 @@ public sealed partial class RunComparisonController
                 null,
                 null,
                 null),
-            ScopedRunPairLoadOutcome.LeftLifecycleIncomplete => (
-                this.ConflictProblem(
-                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
-                    ProblemTypes.Conflict),
-                null,
-                null,
-                null),
-            ScopedRunPairLoadOutcome.RightLifecycleIncomplete => (
-                this.ConflictProblem(
-                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
-                    ProblemTypes.Conflict),
-                null,
-                null,
-                null),
             _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
         };
     }
