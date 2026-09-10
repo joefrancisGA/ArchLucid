@@ -136,6 +136,28 @@ public sealed class FindingInspectReadSqlTests
         FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("dt.ProjectId = r.ScopeProjectId");
     }
 
+    [Fact]
+    public void MainInspect_excludes_archived_runs_from_active_inspect_selection()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("(r.ArchivedUtc IS NULL)");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("(r.ArchivedUtc IS NULL)");
+    }
+
+    [Fact]
+    public void MainInspectWithoutTypedPayload_omits_payload_json_column()
+    {
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("CAST(NULL AS nvarchar(max)) AS PayloadJson");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().NotContain("fr.PayloadJson");
+    }
+
+    [Fact]
+    public void FollowUpBatch_orders_related_nodes_by_sort_order()
+    {
+        string relatedNodesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRelatedNodes");
+
+        relatedNodesSql.Should().Contain("ORDER BY frn.SortOrder");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
