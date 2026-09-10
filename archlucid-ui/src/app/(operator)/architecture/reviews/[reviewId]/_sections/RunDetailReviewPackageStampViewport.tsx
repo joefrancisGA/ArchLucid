@@ -23,6 +23,7 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-det
 export type RunDetailReviewPackageStampViewportProps = {
   readonly hasGoldenManifest: boolean;
   readonly runId: string;
+  readonly manifestVersion?: string | null;
   readonly architectureRequestId?: string | null;
   readonly manifestVersion?: string | null;
   readonly suppressMeasurementDenominator?: boolean;

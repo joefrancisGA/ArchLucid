@@ -127,6 +127,7 @@ public sealed class ArchitectureSealDeltaServiceTests
             draftRepository.Object,
             projector,
             runRepository.Object,
+            Mock.Of<IManifestHashService>());
             manifestHashService);
 
         ArchitectureSealDeltaResponse? result = await sut.GetSealDeltaAsync(Scope, architectureId);
