@@ -1441,7 +1441,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1484,6 +1484,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Constructor accepts null `IScanScheduleCalculator` — **cheap-disproof 2026-09-10 seed hunt #1586:** `ArgumentNullException` on null dependency; regression `Constructor_throws_when_schedule_calculator_is_null`.
 
 2026-09-10 seed hunt #1586 (seed-only): reseeded review-recurrence after #1567; cheap-disproof closed empty/whitespace batch cron, Local reference normalization in batch path, duplicate-instant loop, and null-constructor guard; 30 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
+
+- [x] (valid-no-repro) `IsSupportedCronExpression` — null cron may throw instead of rejecting — **cheap-disproof 2026-09-10 seed hunt #1628:** delegates to `SimpleScanScheduleCalculator` `IsNullOrWhiteSpace`; regression `IsSupportedCronExpression_rejects_null_cron`.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — null cron still invokes underlying calculator — **cheap-disproof 2026-09-10 seed hunt #1628:** first loop iteration returns null; regression `ComputeNextRunsUtc_returns_empty_for_null_cron_expression`.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — disabled schedule still invokes underlying calculator for valid cron — **cheap-disproof 2026-09-10 seed hunt #1628:** `isScheduleEnabled: false` short-circuits before delegate; regression `ComputeNextRunUtc_when_schedule_disabled_does_not_invoke_underlying_calculator`.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — `count == 1` batch preview diverges from single `ComputeNextRunUtc` — **cheap-disproof 2026-09-10 seed hunt #1628:** batch delegates to single-run path; regression `ComputeNextRunsUtc_with_count_one_matches_single_compute_next_run`.
+- [x] (valid-no-repro) `NormalizeNextRunUtc` — underlying needs two advances before clearing `fromUtc` still returns next run — **cheap-disproof 2026-09-10 seed hunt #1628:** wrapper performs one retry then null; `SimpleScanScheduleCalculator` never needs a second skip; regression `ComputeNextRunUtc_returns_null_when_underlying_needs_more_than_one_advance_past_reference`.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — `@hourly` alias batch with `count > 1` emits non-monotonic instants — **cheap-disproof 2026-09-10 seed hunt #1628:** cursor advances one hour per iteration; regression `ComputeNextRunsUtc_hourly_alias_batch_stays_strictly_increasing`.
+
+- [ ] (candidate) `NormalizeNextRunUtc` — single-retry ceiling returns null when a custom `IScanScheduleCalculator` would need two advances before `candidate > fromUtc` (reachability: only stub calculators; production `SimpleScanScheduleCalculator` + Cronos never exhibit)
+
+2026-09-10 seed hunt #1628 (seed-only): reseeded review-recurrence after #1586; cheap-disproof closed null-cron support, disabled short-circuit, batch/single parity, single-retry ceiling, and hourly batch monotonicity; 36 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
 ---
 
