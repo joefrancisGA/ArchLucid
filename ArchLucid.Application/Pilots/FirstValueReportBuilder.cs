@@ -275,6 +275,7 @@ public sealed class FirstValueReportBuilder(
         FirstValueReportFindingFeedbackSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         FirstValueReportDeltasSectionFormatter.AppendFindingsSection(sb, deltas);
         FirstValueReportDeltasSectionFormatter.AppendFindingsTrustHonestySection(sb);
+        FirstValueReportSemanticSupportBandSectionFormatter.AppendMarkdownSection(sb, detail, deltas);
         FirstValueReportDeltasSectionFormatter.AppendElapsedSection(sb, deltas);
         FirstValueReportTraceSectionFormatter.AppendDecisionTraceSection(sb, detail, runId, baseUrl);
         FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(sb, deltas);
