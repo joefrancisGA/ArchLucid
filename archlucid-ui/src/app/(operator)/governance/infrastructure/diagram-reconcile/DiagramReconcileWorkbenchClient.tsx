@@ -86,7 +86,6 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE,
