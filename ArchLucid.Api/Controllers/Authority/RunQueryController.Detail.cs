@@ -43,6 +43,7 @@ public sealed partial class RunQueryController
 
             if (shareGuardResult is not null)
                 return shareGuardResult;
+
             IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
             if (sealedGuardResult is not null)

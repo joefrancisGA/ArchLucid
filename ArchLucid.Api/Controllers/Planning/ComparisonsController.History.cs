@@ -1,6 +1,7 @@
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -22,17 +23,24 @@ public sealed partial class ComparisonsController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        IReadOnlyList<ArchLucid.Contracts.Metadata.ComparisonRecord>? records =
-            await _comparisons.TryListByRunIdAsync(runId, cancellationToken);
+            IReadOnlyList<ArchLucid.Contracts.Metadata.ComparisonRecord>? records =
+                await _comparisons.TryListByRunIdAsync(runId, cancellationToken);
 
-        return records is null
-            ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
-            : Ok(new ComparisonHistoryResponse { Records = records.ToList() });
+            return records is null
+                ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
+                : Ok(new ComparisonHistoryResponse { Records = records.ToList() });
+        }
+        catch (ConflictException ex)
+        {
+            return MapComparisonReplaySealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("run/exports/{exportRecordId}/comparisons")]
@@ -126,32 +134,59 @@ public sealed partial class ComparisonsController
         [FromServices] IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken = default)
     {
-        ValidationResult? vr = await _comparisonHistoryQueryValidator.ValidateAsync(query, cancellationToken);
-
-        if (!vr.IsValid)
+        try
         {
-            return this.BadRequestProblem(
-                string.Join(" ", vr.Errors.Select(e => e.ErrorMessage)),
-                ProblemTypes.ValidationFailed);
-        }
+            ValidationResult? vr = await _comparisonHistoryQueryValidator.ValidateAsync(query, cancellationToken);
 
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForComparisonSearchQueryAsync(
-            query,
-            exportRecordRepository,
-            cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        if (!ApiPaging.TryParseUtcTicksIdCursor(query.Cursor, out DateTime? cursorCreatedUtc, out string? cursorId,
-                out string? cursorError))
-        {
-            return this.BadRequestProblem(cursorError!, ProblemTypes.ValidationFailed);
-        }
-
-        ComparisonHistorySearchResult search = await _comparisons.SearchAsync(
-            new ComparisonHistorySearchCriteria
+            if (!vr.IsValid)
             {
+                return this.BadRequestProblem(
+                    string.Join(" ", vr.Errors.Select(e => e.ErrorMessage)),
+                    ProblemTypes.ValidationFailed);
+            }
+
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForComparisonSearchQueryAsync(
+                query,
+                exportRecordRepository,
+                cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            if (!ApiPaging.TryParseUtcTicksIdCursor(query.Cursor, out DateTime? cursorCreatedUtc, out string? cursorId,
+                    out string? cursorError))
+            {
+                return this.BadRequestProblem(cursorError!, ProblemTypes.ValidationFailed);
+            }
+
+            ComparisonHistorySearchResult search = await _comparisons.SearchAsync(
+                new ComparisonHistorySearchCriteria
+                {
+                    ComparisonType = query.ComparisonType,
+                    LeftRunId = query.LeftRunId,
+                    RightRunId = query.RightRunId,
+                    LeftExportRecordId = query.LeftExportRecordId,
+                    RightExportRecordId = query.RightExportRecordId,
+                    Label = query.Label,
+                    CreatedFromUtc = query.CreatedFromUtc,
+                    CreatedToUtc = query.CreatedToUtc,
+                    Tags = ComparisonHistoryQuery.NormalizeTagList(query.Tag, query.Tags),
+                    SortBy = query.SortBy ?? "createdUtc",
+                    SortDir = query.SortDir ?? "desc",
+                    Cursor = query.Cursor,
+                    Skip = query.Skip,
+                    Limit = query.Limit,
+                    UseCursorPaging = Request.Query.ContainsKey("cursor"),
+                    CursorCreatedUtc = cursorCreatedUtc,
+                    CursorId = cursorId,
+                },
+                cancellationToken);
+
+            return Ok(new ComparisonHistoryResponse
+            {
+                Records = search.Records.ToList(),
+                Limit = search.Limit,
+                Skip = search.Skip,
                 ComparisonType = query.ComparisonType,
                 LeftRunId = query.LeftRunId,
                 RightRunId = query.RightRunId,
@@ -160,37 +195,17 @@ public sealed partial class ComparisonsController
                 Label = query.Label,
                 CreatedFromUtc = query.CreatedFromUtc,
                 CreatedToUtc = query.CreatedToUtc,
+                Tag = query.Tag,
                 Tags = ComparisonHistoryQuery.NormalizeTagList(query.Tag, query.Tags),
                 SortBy = query.SortBy ?? "createdUtc",
                 SortDir = query.SortDir ?? "desc",
-                Cursor = query.Cursor,
-                Skip = query.Skip,
-                Limit = query.Limit,
-                UseCursorPaging = Request.Query.ContainsKey("cursor"),
-                CursorCreatedUtc = cursorCreatedUtc,
-                CursorId = cursorId,
-            },
-            cancellationToken);
-
-        return Ok(new ComparisonHistoryResponse
+                NextCursor = search.NextCursor,
+            });
+        }
+        catch (ConflictException ex)
         {
-            Records = search.Records.ToList(),
-            Limit = search.Limit,
-            Skip = search.Skip,
-            ComparisonType = query.ComparisonType,
-            LeftRunId = query.LeftRunId,
-            RightRunId = query.RightRunId,
-            LeftExportRecordId = query.LeftExportRecordId,
-            RightExportRecordId = query.RightExportRecordId,
-            Label = query.Label,
-            CreatedFromUtc = query.CreatedFromUtc,
-            CreatedToUtc = query.CreatedToUtc,
-            Tag = query.Tag,
-            Tags = ComparisonHistoryQuery.NormalizeTagList(query.Tag, query.Tags),
-            SortBy = query.SortBy ?? "createdUtc",
-            SortDir = query.SortDir ?? "desc",
-            NextCursor = search.NextCursor,
-        });
+            return MapComparisonReplaySealedManifestConflict(ex);
+        }
     }
 
     [HttpPatch("comparisons/{comparisonRecordId}")]
