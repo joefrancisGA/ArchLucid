@@ -115,6 +115,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **ROI tiles are not Career proof (CG-035):** ROI summary (`RoiSummaryPageView`), sponsor value report (`PilotValueReportPageView`), and scorecard estimated-savings panel wire `RoiTileCareerHonestyStrip` when CG-031 cells are not **Career complete**. Directional dollar/hour tiles stay visible; headings gain **Rehearsal ROI** or **Practice ROI** qualifiers. Sample sponsor report keeps its sample banner — no duplicate strip.
 
+**Alerts from rehearsal cannot look like production proof (CG-036):** `AlertService` and `CompositeAlertService` prefix alert title/body from the sourcing run stamp before persist/deliver when CG-031 cells are not **Career complete** (`Rehearsal —` title prefix plus body disclaimer). Alert routing still fires on rehearsal. Inbox cards on Working show a rehearsal chip beside severity (`AlertsInboxAlertCard` + `useAlertInboxCareerHonesty`) as defense in depth when the persisted title is already prefixed.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.

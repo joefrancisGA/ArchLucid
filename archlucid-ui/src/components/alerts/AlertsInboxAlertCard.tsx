@@ -25,6 +25,8 @@ import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
 import { policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
+import { useAlertInboxCareerHonesty } from "@/hooks/use-alert-inbox-career-honesty";
+import { alertTitleShowsRehearsalHonesty } from "@/lib/alerts/alert-inbox-career-honesty";
 import type { AlertRecord } from "@/types/alerts";
 
 export type AlertActionKind = "Acknowledge" | "Resolve" | "Suppress";
@@ -83,6 +85,13 @@ export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
       : formatRelativeTime(props.alert.createdUtc);
   const hideDemoTriageActions = props.buyerPolishedShell && props.alert.alertId === "demo-alert-phi-intake";
   const triageOverflowOpen = openOverflowAlertId === props.alert.alertId;
+  const alertInboxCareerHonesty = useAlertInboxCareerHonesty({
+    runId: props.alert.runId,
+  });
+  const showRehearsalChip =
+    alertInboxCareerHonesty !== null
+    || alertTitleShowsRehearsalHonesty(props.alert.title);
+  const rehearsalChipLabel = alertInboxCareerHonesty?.chipLabel ?? "Rehearsal";
 
   return (
     <article
@@ -110,12 +119,23 @@ export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
               {props.alert.title}
             </strong>
           </div>
-          <Badge
-            className={cn("font-semibold", OPERATOR_TYPOGRAPHY.badge, alertsInboxSeverityBadgeClass(props.alert.severity))}
-            variant="outline"
-          >
-            {props.alert.severity}
-          </Badge>
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+            {showRehearsalChip ? (
+              <Badge
+                className={cn("font-semibold", OPERATOR_TYPOGRAPHY.badge)}
+                variant="secondary"
+                data-testid={`alert-rehearsal-chip-${props.alert.alertId}`}
+              >
+                {rehearsalChipLabel}
+              </Badge>
+            ) : null}
+            <Badge
+              className={cn("font-semibold", OPERATOR_TYPOGRAPHY.badge, alertsInboxSeverityBadgeClass(props.alert.severity))}
+              variant="outline"
+            >
+              {props.alert.severity}
+            </Badge>
+          </div>
         </div>
         <div className={cn("mb-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           <span className="text-neutral-500 dark:text-neutral-500">Category:</span> {props.alert.category}
