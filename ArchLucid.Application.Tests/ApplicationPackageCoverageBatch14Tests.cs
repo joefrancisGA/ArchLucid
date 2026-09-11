@@ -116,7 +116,7 @@ public sealed class ApplicationPackageCoverageBatch14Tests
         Mock<IDocumentLogoProvider> logoProvider = new();
 
         await ConsultingDocxCoverPageBuilder.AddAsync(
-            mainPart, body, report, options, logoProvider.Object, branding, CancellationToken.None);
+            mainPart, body, report, options, logoProvider.Object, branding, null, CancellationToken.None);
 
         body.InnerText.Should().Contain("Acme Consulting");
         body.InnerText.Should().Contain("Q3 Review");
@@ -147,7 +147,7 @@ public sealed class ApplicationPackageCoverageBatch14Tests
             .ReturnsAsync([9, 9, 9]);
 
         await ConsultingDocxCoverPageBuilder.AddAsync(
-            mainPart, body, report, options, logoProvider.Object, branding: null, CancellationToken.None);
+            mainPart, body, report, options, logoProvider.Object, branding: null, careerExportHonesty: null, CancellationToken.None);
 
         mainPart.ImageParts.Should().ContainSingle();
         body.InnerText.Should().Contain("Run ID: run-2");
