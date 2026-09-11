@@ -106,4 +106,21 @@ describe("resolve-client-commit-blocked-reason", () => {
 
     expect(skipped).toBeNull();
   });
+
+  it("blocks Working finalize when degraded coverage is wired into the scorecard recompute path", () => {
+    const blocked = resolveClientAwareCommitBlockedReason({
+      serverCommitBlockedReason: null,
+      finalizeAssumptionGateApplies: true,
+      findings: [],
+      blockingFindingCount: 0,
+      acknowledgedAssumptionIds: new Set(),
+      requestAssumptionTexts: [],
+      degradedFindingCoverage: true,
+      degradedFindingCoverageFailedEngineLabels: ["PolicyEngine/Security"],
+      blockDegradedFindingCoverageOnWorking: true,
+    });
+
+    expect(blocked).toContain("Finding coverage is degraded");
+    expect(blocked).toContain("PolicyEngine/Security");
+  });
 });
