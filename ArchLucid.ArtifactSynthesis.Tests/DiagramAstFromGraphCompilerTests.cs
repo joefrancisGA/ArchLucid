@@ -186,6 +186,73 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_identity_mode_flattens_sparse_swimlanes_when_many_resource_groups_each_hold_one_node()
+    {
+        GraphSnapshot graph = BuildIdentitySparseManagedIdentityGraph(resourceGroupCount: 12);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Identity);
+        string mermaid = renderer.Render(ast);
+
+        ast.Nodes.Should().HaveCount(12);
+        ast.Subgraphs.Should().BeEmpty();
+        ast.Nodes.Should().OnlyContain(node => string.IsNullOrWhiteSpace(node.SubgraphId));
+        mermaid.Should().NotContain("subgraph");
+        mermaid.Should().Contain("mi-eastus-0");
+        mermaid.Should().Contain("mi-eastus-11");
+        mermaid.Should().Contain("flowchart TD");
+    }
+
+    [Fact]
+    public void Compile_identity_mode_keeps_resource_group_frames_when_few_swimlanes()
+    {
+        GraphSnapshot graph = BuildIdentitySparseManagedIdentityGraph(resourceGroupCount: 3);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Identity);
+        string mermaid = renderer.Render(ast);
+
+        ast.Nodes.Should().HaveCount(3);
+        ast.Subgraphs.Should().NotBeEmpty();
+        mermaid.Should().Contain("subgraph");
+        mermaid.Should().Contain("RG identity-rg-0");
+        mermaid.Should().Contain("mi-eastus-0");
+    }
+
+    [Fact]
+    public void Compile_identity_mode_includes_user_assigned_identities_without_pre_stamped_category()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        graph.Nodes.Add(new GraphNode
+        {
+            NodeId = "mi-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "app-identity",
+            SourceType = "azure-inventory-snapshot",
+            SourceId =
+                "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/identity-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/app-identity",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["arm.id"] =
+                    "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/identity-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/app-identity",
+                ["arm.type"] = "Microsoft.ManagedIdentity/userAssignedIdentities",
+                ["arm.resourceGroup"] = "identity-rg",
+                ["arm.subscriptionId"] = "11111111-1111-1111-1111-111111111111",
+            },
+        });
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Identity);
+
+        ast.Nodes.Should().ContainSingle();
+        ast.Nodes[0].Label.Should().Be("app-identity");
+    }
+
+    [Fact]
     public void Compile_full_subscription_nests_subnet_under_vnet_subgraph_for_subnet_arm_type()
     {
         GraphSnapshot graph = BuildSampleGraph();
@@ -346,6 +413,17 @@ public sealed class DiagramAstFromGraphCompilerTests
             armType: "Microsoft.Storage/storageAccounts",
             resourceGroupPrefix: "data-rg",
             category: GraphTopologyCategories.Storage);
+    }
+
+    private static GraphSnapshot BuildIdentitySparseManagedIdentityGraph(int resourceGroupCount)
+    {
+        return BuildSparseSingleNodePerResourceGroupGraph(
+            resourceGroupCount,
+            nodeIdPrefix: "mi",
+            labelPrefix: "mi-eastus",
+            armType: "Microsoft.ManagedIdentity/userAssignedIdentities",
+            resourceGroupPrefix: "identity-rg",
+            category: GraphTopologyCategories.Identity);
     }
 
     private static GraphSnapshot BuildSparseSingleNodePerResourceGroupGraph(

@@ -5,6 +5,7 @@ import {
   fitMermaidSvgElementToHost,
   fitMermaidSvgElementToViewport,
   isMermaidDiagramSource,
+  isMermaidViewportPaintTooSmall,
   prepareMermaidSvgForResponsiveLayout,
   sanitizeMermaidRenderId,
 } from "@/lib/help/help-mermaid";
@@ -205,5 +206,16 @@ describe("help-mermaid", () => {
     expect(svg.getAttribute("height")).toBe(String(baseFit!.baseHeightPx * 2));
 
     svg.remove();
+  });
+
+  it("treats null viewport fit as unpainted ink", () => {
+    expect(isMermaidViewportPaintTooSmall(null, 1)).toBe(true);
+  });
+
+  it("treats tiny fitted ink height as unpainted", () => {
+    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 20 }, 1)).toBe(true);
+    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 15 }, 1.5)).toBe(true);
+    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 20 }, 1.5)).toBe(false);
+    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 24 }, 1)).toBe(false);
   });
 });

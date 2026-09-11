@@ -321,6 +321,95 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
+    public async Task Identity_mode_renders_mermaid_for_managed_identity_snapshot()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildIdentitySnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.Mode.Should().Be("identity");
+        result.Value.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded.ToString());
+        result.Value.Metrics.Should().NotBeNull();
+        result.Value.Metrics!.NodeCount.Should().Be(3);
+        result.Value.Mermaid.Should().NotBeNullOrWhiteSpace();
+        result.Value.Mermaid.Should().Contain("flowchart TD");
+        result.Value.Mermaid.Should().Contain("mi-eastus-0");
+        result.Value.Mermaid.Should().Contain("mi-eastus-2");
+    }
+
+    [Fact]
+    public async Task Identity_mode_preview_reports_nodes_for_managed_identity_snapshot()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildIdentitySnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
+            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+
+        InfraEvidenceMermaidModePreview identityPreview = result.Value!.Modes
+            .Should()
+            .ContainSingle(mode => mode.Mode == "identity")
+            .Subject;
+
+        identityPreview.NodeCount.Should().Be(3);
+        identityPreview.Status.Should().NotBe(MermaidDiagramRenderStatus.Failed.ToString());
+        identityPreview.Mermaid.Should().NotBeNullOrWhiteSpace();
+        identityPreview.Mermaid.Should().Contain("mi-eastus-0");
+    }
+
+    [Fact]
+    public async Task Identity_mode_flattens_sparse_managed_identity_swimlanes_in_mermaid()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildIdentitySnapshot(resourceCount: 12);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.Metrics!.NodeCount.Should().Be(12);
+        result.Value.Mermaid.Should().NotContain("subgraph");
+        result.Value.Mermaid.Should().Contain("mi-eastus-0");
+        result.Value.Mermaid.Should().Contain("mi-eastus-11");
+    }
+
+    [Fact]
+    public async Task Identity_mode_excludes_storage_accounts_from_mermaid()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildMixedIdentityAndStorageSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.Mermaid.Should().Contain("app-identity");
+        result.Value.Mermaid.Should().NotContain("logs-storage");
+    }
+
+    [Fact]
     public async Task Over_threshold_graph_returns_partitioned_status_in_preview()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 500);
@@ -457,6 +546,101 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
                     SubscriptionId = "sub",
                 },
             ],
+        };
+    }
+
+    private static AzureInventorySnapshotDetailReadModel BuildMixedIdentityAndStorageSnapshot()
+    {
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    CloudResourceId = Guid.Parse("11111111-2222-3333-4444-000000000010"),
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/identity-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/app-identity",
+                    ResourceType = "Microsoft.ManagedIdentity/userAssignedIdentities",
+                    ResourceGroup = "identity-rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    CloudResourceId = Guid.Parse("11111111-2222-3333-4444-000000000002"),
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/logsstorage",
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                    ResourceGroup = "rg-data",
+                    SubscriptionId = "sub",
+                },
+            ],
+        };
+    }
+
+    private static AzureInventorySnapshotDetailReadModel BuildIdentitySnapshot(int resourceCount)
+    {
+        List<AzureInventoryResourceRecord> resources = [];
+        List<AzureInventoryResourceRelationshipReadModel> relationships = [];
+
+        for (int index = 0; index < resourceCount; index++)
+        {
+            Guid cloudResourceId = Guid.Parse($"11111111-2222-3333-4444-{index:D12}");
+            string resourceGroup = $"identity-rg-{index}";
+            string armId =
+                $"/subscriptions/sub/resourceGroups/{resourceGroup}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/mi-eastus-{index}";
+
+            resources.Add(new AzureInventoryResourceRecord
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                CloudResourceId = cloudResourceId,
+                AzureResourceId = armId,
+                ResourceType = "Microsoft.ManagedIdentity/userAssignedIdentities",
+                ResourceGroup = resourceGroup,
+                SubscriptionId = "sub",
+            });
+
+            if (index > 0)
+            {
+                string priorResourceGroup = $"identity-rg-{index - 1}";
+                string priorArmId =
+                    $"/subscriptions/sub/resourceGroups/{priorResourceGroup}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/mi-eastus-{index - 1}";
+
+                relationships.Add(new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = priorArmId,
+                    ToAzureResourceId = armId,
+                    RelationshipType = "connects",
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                });
+            }
+        }
+
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = resources,
+            Relationships = relationships,
         };
     }
 

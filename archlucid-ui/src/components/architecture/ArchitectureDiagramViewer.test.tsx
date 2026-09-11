@@ -5,6 +5,7 @@ import { ArchitectureDiagramViewer } from '@/components/architecture/Architectur
 import {
   ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL,
   ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
+  ARCHITECTURE_DIAGRAM_PAINT_FAILURE,
   ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL,
   ARCHITECTURE_DIAGRAM_VIEWPORT_HINT,
   ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
@@ -12,9 +13,16 @@ import {
   ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL,
 } from '@/lib/architecture/architecture-diagram-copy';
 
+const sampleSvg =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#eee"/></svg>';
+
+const measurableMermaidSvg =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+  '<g class="node"><rect width="100" height="100" fill="#eee"/><text class="nodeLabel">Node A</text></g>' +
+  '</svg>';
+
 const renderMock = vi.fn().mockResolvedValue({
-  svg:
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#eee"/><text class="nodeLabel">Node A</text></svg>',
+  svg: measurableMermaidSvg,
 });
 const initializeMock = vi.fn();
 
@@ -34,13 +42,71 @@ vi.mock('next/navigation', () => ({
 const replaceMock = vi.fn();
 const searchParamsMock = new URLSearchParams();
 
-const sampleSvg =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#eee"/></svg>';
+function stubMeasurableMermaidInkGeometry(): void {
+  const measurableBBox = (): DOMRect =>
+    ({
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100,
+      top: 0,
+      right: 100,
+      bottom: 100,
+      left: 0,
+      toJSON: () => ({}),
+    }) as DOMRect;
+
+  Object.defineProperty(SVGGraphicsElement.prototype, 'getBBox', {
+    configurable: true,
+    writable: true,
+    value: measurableBBox,
+  });
+  Object.defineProperty(SVGGraphicsElement.prototype, 'getCTM', {
+    configurable: true,
+    writable: true,
+    value: (): DOMMatrix => new DOMMatrix(),
+  });
+  Object.defineProperty(SVGSVGElement.prototype, 'getScreenCTM', {
+    configurable: true,
+    writable: true,
+    value: (): DOMMatrix => new DOMMatrix(),
+  });
+}
+
+function restoreMermaidInkGeometry(): void {
+  delete (SVGGraphicsElement.prototype as { getBBox?: unknown }).getBBox;
+  delete (SVGGraphicsElement.prototype as { getCTM?: unknown }).getCTM;
+  delete (SVGSVGElement.prototype as { getScreenCTM?: unknown }).getScreenCTM;
+}
+
+function stubDiagramViewportDimensions(): void {
+  Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+    configurable: true,
+    get: (): number => 800,
+  });
+  Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+    configurable: true,
+    get: (): number => 400,
+  });
+}
+
+function restoreDiagramViewportDimensions(): void {
+  delete (HTMLElement.prototype as { clientWidth?: unknown }).clientWidth;
+  delete (HTMLElement.prototype as { clientHeight?: unknown }).clientHeight;
+}
 
 describe('ArchitectureDiagramViewer', () => {
   beforeEach(() => {
     replaceMock.mockReset();
-    searchParamsMock.forEach((_, key) => searchParamsMock.delete(key));
+    renderMock.mockReset();
+    renderMock.mockResolvedValue({ svg: measurableMermaidSvg });
+    initializeMock.mockReset();
+    searchParamsMock.delete('diagZoom');
+    restoreMermaidInkGeometry();
+    restoreDiagramViewportDimensions();
+    vi.restoreAllMocks();
+    stubMeasurableMermaidInkGeometry();
+    stubDiagramViewportDimensions();
     vi.mocked(useRouter).mockReturnValue({
       replace: replaceMock,
     } as unknown as ReturnType<typeof useRouter>);
@@ -167,6 +233,33 @@ describe('ArchitectureDiagramViewer', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(onRetry).toHaveBeenCalled();
+  });
+
+  it('shows in-flow paint failure when mermaid ink cannot be measured', async () => {
+    restoreMermaidInkGeometry();
+    renderMock.mockResolvedValueOnce({
+      svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"></svg>',
+    });
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Identity"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-render-failure')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(ARCHITECTURE_DIAGRAM_PAINT_FAILURE)).toBeInTheDocument();
+
+    const viewport = screen.getByTestId('architecture-diagram-viewport');
+
+    expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-render-failure'));
+    expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-viewport-controls'));
   });
 
   it('keeps mermaid viewport controls and fullscreen inside the diagram viewport', async () => {
