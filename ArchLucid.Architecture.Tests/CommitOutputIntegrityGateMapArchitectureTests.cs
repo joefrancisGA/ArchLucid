@@ -36,6 +36,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
         integrity.Should().Contain("FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons");
     }
 
+    [Fact]
     public void FinalizeQualityScorecard_evaluator_counts_nine_ui_parity_dimensions()
     {
         string evaluator = File.ReadAllText(
@@ -71,6 +72,24 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
         orchestrator.Should().Contain("CareerArtifactCompletenessValidator");
         orchestrator.Should().Contain("MapForFinalize");
         orchestrator.Should().NotContain("IsOpenVerifyHypothesisJobView");
+    }
+
+    [Fact]
+    public void FinalizeReadinessService_reuses_commit_gate_evaluators()
+    {
+        string readiness = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Governance",
+                "FinalizeReadinessService.cs"));
+
+        readiness.Should().Contain("CareerArtifactCompletenessValidator");
+        readiness.Should().Contain("StructuralExecutionModeCommitGuard.GetBlockingReasons");
+        readiness.Should().Contain("AuthorityRunLifecyclePhaseResolver.Resolve");
+        readiness.Should().Contain("FinalizeAssumptionGateEvaluator.GetBlockingReasons");
+        readiness.Should().Contain("FinalizeQualityScorecardEvaluator.Compute");
+        readiness.Should().Contain("FinalizeQualityScorecardEvaluator.GetBlockingReasons");
     }
 
     [Fact]
