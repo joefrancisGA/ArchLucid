@@ -2575,11 +2575,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 11
-- **bugs-found:** 11
+- **hunts:** 12
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — create form cleared before post-create list refresh completed
+- **last-bug:** 2026-09-11 — toggle-confirm deep links cleared before subscription list hydration
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2623,6 +2623,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `useWebhooksSettingsMutations` URL-sync effect clears `webhookEnableId`/`webhookDisableId` before initial `listAlertRoutingSubscriptions` hydration — **hit 2026-09-11 seed hunt #1717 (seed→hit):** `useWebhooksSettingsLoad` started with `loading=false`, so the toggle-confirm effect treated an empty row set as a missing subscription and stripped valid deep links on first paint; fixed by initializing `loading` to `true`; regression `opens enable confirmation from webhookEnableId after subscriptions finish loading`
 
 2026-09-11 seed hunt #1717 (hit): reseeded ui-webhooks-settings; proved pre-hydration toggle-confirm deep-link clearing; 44 scoped webhooks page/continue-last tests passed (1 pre-existing sources-strip failure unrelated).
+
+- [x] (proven) `useWebhooksSettingsMutations.submit` resets create form before post-create `load()` completes — **hit 2026-09-11 seed hunt #1714 (seed→hit):** successful create cleared form values even when list refresh failed; fixed by moving `reset()` after refresh success; regression `preserves create form values when list refresh fails after create`
+
+- [x] (proven) `useWebhooksSettingsMutations` URL-sync effect clears `webhookEnableId`/`webhookDisableId` before initial `listAlertRoutingSubscriptions` hydration — **hit 2026-09-11 seed hunt #1714 (seed→hit):** `useWebhooksSettingsLoad` started with `loading=false`, so the toggle-confirm effect treated an empty row set as a missing subscription and stripped valid deep links on first paint; fixed by initializing `loading` to `true`; regression `opens enable confirmation from webhookEnableId after subscriptions finish loading`
+
+2026-09-11 seed hunt #1714 (hit): reseeded ui-webhooks-settings; proved post-create form wipe on refresh failure and pre-hydration toggle-confirm deep-link clearing; 44 scoped webhooks page/continue-last tests passed (1 pre-existing sources-strip failure unrelated).
 
 ---
 
