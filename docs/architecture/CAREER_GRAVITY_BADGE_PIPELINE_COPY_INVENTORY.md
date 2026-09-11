@@ -39,11 +39,13 @@ Assume Working desk (`workingDesk === true`) and honesty options **are** passed 
 
 `RunStatusBadge` always passes `workingDesk` from `useProductionDeskChrome` and `effectiveWorkingCareerRehearsalDoor` from `useEffectiveWorkingCareerRehearsalDoor`. Direct `deriveRunListPipelineLabel(run)` call sites do not.
 
-## Security product-line chooser skip (AS-077 leftover)
+## Security product-line chooser skip (AS-077 leftover / CG-017)
 
 `OperatorShellTopBar.tsx` sets `showWorkingCareerRehearsalChooser = productLine !== "security"`. Security product line **does not render** `WorkingCareerRehearsalChooser`.
 
-Door preference still comes from `localStorage` / AS-080 defaults. Badges still read `effectiveDoor`. Operators on Security cannot see or change the door in the top bar (CG-017). Do not treat the skip as “Security has no Career gravity.”
+CG-017 ships `SecurityWorkingCareerHonestyStrip` on Working Security so the skip cannot screenshot as unlabeled Career. Copy: Simulator is not Career. The strip does not PUT the door and does not flip host execute mode. Demo, trial, and Guided seats do not mount it.
+
+Door preference still comes from account / `localStorage`. Badges still read `effectiveDoor`. Do not treat the skip as “Security has no Career gravity.”
 
 ## Surfaces
 
@@ -60,7 +62,8 @@ Door preference still comes from `localStorage` / AS-080 defaults. Badges still 
 | `archlucid-ui/src/lib/first-pilot-command-center-phase.ts` | `Ready to finalize review` | **No** | **bypass** | CG-085 |
 | `archlucid-ui/src/hooks/use-review-presenter-elicitation.ts` | default title `Ready to finalize` | **No** | **bypass** | CG-049 |
 | `archlucid-ui/src/lib/i18n.ts` | `All analysis is complete. Finalize…` | copy | bypass | CG-033 |
-| `archlucid-ui/src/components/shell/OperatorShellTopBar.tsx` | Security skips chooser | N/A | security-skip | CG-017 |
+| `archlucid-ui/src/components/shell/OperatorShellTopBar.tsx` | Security skips chooser; Working mounts honesty strip | strip | security-skip | CG-017 |
+| `archlucid-ui/src/components/workspace-mode/SecurityWorkingCareerHonestyStrip.tsx` | Compact labeled strip: Simulator is not Career | Yes (static) | security-skip | CG-017 |
 | `archlucid-ui/src/lib/governance/working-career-rehearsal-door.ts` | Door ids / grandfather | AS-080 | mismatch until CG-020 | CG-020 |
 | `archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageView.tsx` | Print `StatusTag` | presentation-dependent | covered / print leftover | CG-023 |
 
@@ -68,7 +71,7 @@ Door preference still comes from `localStorage` / AS-080 defaults. Badges still 
 
 1. **Do not change copy** from this inventory.
 2. Bypass rows stay until CG-031 / CG-085 / CG-049 wrap or remove them.
-3. Security chooser skip is **CG-017**, not a badge rewrite.
+3. Security chooser skip is **CG-017** (honesty strip; chooser stays skipped), not a badge rewrite.
 4. Ratchet: `career-gravity-badge-pipeline-copy-inventory.test.ts`.
 
 ## Intentional — do not “fix” from this inventory
