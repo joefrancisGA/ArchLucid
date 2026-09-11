@@ -103,6 +103,43 @@ public sealed class AdminApiKeySettingsServiceTests
     }
 
     [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = AdminKey
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "ReadOnly", InvalidatePrevious = false });
+
+        response.Slot.Should().Be("ReadOnly");
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_appends_when_readonly_slot_is_configured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                ReadOnlyKey = ReaderKey
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "ReadOnly", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Append");
+        response.AppendConfigSuffix.Should().StartWith(",");
+        response.AppendConfigSuffix.Should().Contain(response.PlaintextKey);
+    }
+
+    [Fact]
     public void Rotate_with_padded_slot_string_succeeds()
     {
         AdminApiKeySettingsService sut = CreateService(
