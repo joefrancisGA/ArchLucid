@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text.Json;
 
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Core.AzureExtractor;
 
 using Xunit;
 
@@ -34,6 +35,7 @@ public sealed class HostedAzureExtractorZipBuilderTests
         Assert.NotNull(archive.GetEntry("manifest.json"));
         Assert.NotNull(archive.GetEntry("resources.json"));
         Assert.NotNull(archive.GetEntry("policy-compliance.json"));
+        Assert.NotNull(archive.GetEntry(AzureExtractorPackageZipEntryNames.FederatedCredentials));
         Assert.NotNull(archive.GetEntry("README.txt"));
 
         stream.Position = 0;

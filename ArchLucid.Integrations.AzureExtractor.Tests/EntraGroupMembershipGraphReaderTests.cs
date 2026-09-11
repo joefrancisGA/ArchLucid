@@ -154,6 +154,13 @@ public sealed class EntraGroupMembershipGraphReaderTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        armClient
+            .Setup(c => c.ListFederatedCredentialsAsync(
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         Mock<IEntraGroupMembershipGraphReader> graphReader = new();
 
         Mock<IOptionsMonitor<EntraGroupMembershipGraphOptions>> options = new();
@@ -215,6 +222,13 @@ public sealed class EntraGroupMembershipGraphReaderTests
                     "Group",
                     "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"),
             ]);
+
+        armClient
+            .Setup(c => c.ListFederatedCredentialsAsync(
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         IReadOnlyList<string>? capturedSeedGroupIds = null;
 

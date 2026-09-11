@@ -187,6 +187,68 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Single(assignments);
         Assert.Equal("Group", assignments[0].PrincipalType);
         Assert.Equal("11111111-1111-1111-1111-111111111111", assignments[0].PrincipalId);
+        Assert.Equal("standing", assignments[0].PimEligibilityKind);
+    }
+
+    [Fact]
+    public async Task ListFederatedCredentialsAsync_maps_user_assigned_identity_credentials()
+    {
+        const string identityResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami1";
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                Assert.Contains("federatedIdentityCredentials", request.RequestUri?.AbsoluteUri, StringComparison.Ordinal);
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("""
+                                                    {
+                                                      "value": [
+                                                        {
+                                                          "name": "github-main",
+                                                          "properties": {
+                                                            "issuer": "https://token.actions.githubusercontent.com",
+                                                            "subject": "repo:org/repo:ref:refs/heads/main"
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                    """)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> resources =
+        [
+            new HostedAzureArmResourceRecord(
+                "Microsoft.ManagedIdentity/userAssignedIdentities",
+                identityResourceId,
+                "uami1",
+                "eastus",
+                null,
+                null,
+                new Dictionary<string, object?>
+                {
+                    ["principalId"] = "11111111-1111-1111-1111-111111111111",
+                    ["clientId"] = "22222222-2222-2222-2222-222222222222",
+                }),
+        ];
+
+        IReadOnlyList<HostedAzureArmFederatedCredentialRecord> credentials =
+            await client.ListFederatedCredentialsAsync("token-abc", resources, CancellationToken.None);
+
+        Assert.Single(credentials);
+        Assert.Equal("https://token.actions.githubusercontent.com", credentials[0].Issuer);
+        Assert.Equal("repo:org/repo:ref:refs/heads/main", credentials[0].Subject);
+        Assert.Equal("11111111-1111-1111-1111-111111111111", credentials[0].PrincipalId);
+        Assert.Equal("22222222-2222-2222-2222-222222222222", credentials[0].AppId);
+        Assert.Equal(identityResourceId, credentials[0].ParentResourceId);
+        Assert.Equal("github-main", credentials[0].CredentialName);
     }
 
     [Fact]

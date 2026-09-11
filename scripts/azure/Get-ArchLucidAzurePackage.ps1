@@ -610,9 +610,11 @@ try
             -ManagementGroupId $ManagementGroupId)
 
         [object[]]$networkAssociationRows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources @($resources))
+        [object[]]$federatedCredentialRows = @(Get-ArchLucidAzureFederatedCredentialCompanionRows -InventoryResources @($resources))
 
         Write-Utf8NoBom (Join-Path $staging "role-assignments.json") ($roleAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "network-associations.json") ($networkAssociationRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") ($federatedCredentialRows | ConvertTo-Json -Depth 12 -Compress:$false)
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `
@@ -622,6 +624,7 @@ try
             -Context @{
                 roleAssignmentCount = $roleAssignmentRows.Count
                 networkAssociationCount = $networkAssociationRows.Count
+                federatedCredentialCount = $federatedCredentialRows.Count
             }
     }
     catch
@@ -634,6 +637,7 @@ try
 
         Write-Utf8NoBom (Join-Path $staging "role-assignments.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "network-associations.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") "[]"
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `

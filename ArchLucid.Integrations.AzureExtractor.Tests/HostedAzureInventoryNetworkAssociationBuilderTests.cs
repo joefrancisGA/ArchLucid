@@ -95,6 +95,7 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
         Assert.Equal(
             "11111111-1111-1111-1111-111111111111",
             roleDocument.RootElement[0].GetProperty("principalId").GetString());
+        Assert.Equal("standing", roleDocument.RootElement[0].GetProperty("pimEligibilityKind").GetString());
 
         using Stream networkStream = networkAssociationsEntry!.Open();
         using JsonDocument networkDocument = JsonDocument.Parse(networkStream);

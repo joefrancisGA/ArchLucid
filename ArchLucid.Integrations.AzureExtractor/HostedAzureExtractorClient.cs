@@ -56,8 +56,14 @@ public sealed class HostedAzureExtractorClient(
             .ListSubscriptionRoleAssignmentsAsync(accessToken.Token, request.SubscriptionId, cancellationToken)
             .ConfigureAwait(false);
 
-        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> networkAssociations =
-            HostedAzureInventoryNetworkAssociationBuilder.Build(resources);
+        IReadOnlyList<HostedAzureArmFederatedCredentialRecord> federatedCredentials = await _armReadClient
+            .ListFederatedCredentialsAsync(accessToken.Token, resources, cancellationToken)
+            .ConfigureAwait(false);
+
+        List<HostedAzureArmNetworkAssociationRecord> networkAssociations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build(resources).ToList();
+
+        networkAssociations.AddRange(HostedAzureInventoryNsgAllowRuleBuilder.Build(resources));
 
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
         {
@@ -103,7 +109,8 @@ public sealed class HostedAzureExtractorClient(
             collectionTimestampUtc,
             entraGroupMemberships,
             roleAssignments,
-            networkAssociations);
+            networkAssociations,
+            federatedCredentials);
 
         string fileName =
             $"archlucid-hosted-azure-{request.SubscriptionId.Trim().ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
