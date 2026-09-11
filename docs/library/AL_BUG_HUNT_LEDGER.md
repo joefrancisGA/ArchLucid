@@ -9608,13 +9608,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 13
-- **bugs-found:** 14
+- **hunts:** 14
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — duplicate ContainedInManifest edges when manifest lists case-variant DecisionIds
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — AS-050 diagram rebind duplicate edges after inventory endpoint remap
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -9639,6 +9639,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `GraphSnapshotPagination.CreatePage` — paged graph slices dropped edges when endpoint casing differed from page node ids — **hit 2026-09-08 seed hunt #1356:** page node-id set used `StringComparer.Ordinal` while `GraphValidator` accepts case-insensitive endpoint matches (parity gap vs `KnowledgeGraphService` truncation fix #713); fixed with `OrdinalIgnoreCase` on page filter set; regression `CreatePage_retains_edges_when_endpoint_casing_differs_from_node_id`
 - [x] (invalid) `ArchitectureKnowledgeModelGraphProjector.Project` — second structural element silently dropped when `ElementId` differs only by case — **cheap-disproof 2026-09-09 thorough hunt #1426:** node materialization uses `canonicalNodeIdsByKey` with `StringComparer.OrdinalIgnoreCase`; case-variant `ElementId` values are duplicate ids under graph case-insensitive semantics, not a missing node parity gap; regression `Project_deduplicates_structural_elements_when_element_id_differs_only_by_case`
 - [x] (proven) `ProvenanceBuilder.Build` — duplicate `ContainedInManifest` edges when `manifest.Decisions` lists two entries whose `DecisionId` differs only by case (`nodeMap` collapses nodes; manifest edge loop iterated every list entry) — **hit 2026-09-09 thorough hunt #1426:** `DistinctDecisionKeys()` case-insensitive dedup on manifest decision edge loops; merged case-variant `SupportingFindingIds` in SupportedBy path; regression `Build_deduplicates_contained_in_manifest_when_manifest_lists_case_variant_decision_ids`
+- [x] (proven) `ArchitectureKnowledgeModelGraphProjector.Project` — duplicate `RELATES` edges when `RelatedElementIds` lists case variants of the same target on one element — **hit 2026-09-11 seed hunt #1722:** `foreach` lacked `Distinct(OrdinalIgnoreCase)` though `canonicalNodeIdsByKey` resolves both to one node; regression `Project_deduplicates_relates_edges_when_related_element_ids_list_case_variants`
+- [x] (proven) `ProvenanceBuilder.Build` — duplicate `InfluencedByGraphNode` edges when `findings.Findings` lists case-variant `FindingId` rows for the same finding — **hit 2026-09-11 seed hunt #1722:** graph→finding loop iterated every list entry though `nodeMap` collapses finding nodes; fixed with `GroupBy(FindingId, OrdinalIgnoreCase)`; regression `Build_deduplicates_influenced_by_graph_node_when_findings_list_case_variant_finding_ids`
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.RemapEdges` — duplicate parallel edges after diagram endpoint remap collides with existing inventory edge — **hit 2026-09-11 seed hunt #1722:** AS-050 rebind remapped `diagram-node:*` onto inventory `cloudResourceId` without deduping `from|to|type`; fixed with case-insensitive edge-key set matching overlay merger; regression `Rebind_matchingDisplayName_deduplicates_parallel_edges_after_endpoint_remap`
+- [x] (candidate) `StructuredDiagramCanonicalModelReconstructor` — `GroupBy(SourceId, Ordinal)` splits multi-diagram uploads whose `SourceId` differs only by case — invalid 2026-09-11 seed hunt #1722: `StructuredDiagramGraphMerger` only merges within one reconstructor pass; duplicate `SourceId` casing would be separate compile inputs, not a single merged snapshot defect today
+
+2026-09-11 seed hunt #1722 (seed→hit): reseeded after AS-050/SA-16–21 churn; proved κ→Γ `RelatedElementIds` dedup gap, findings-list `InfluencedByGraphNode` dedup gap, and AS-050 rebind parallel-edge dedup; cheap-disproved diagram `SourceId` ordinal split candidate; 265 scoped KnowledgeGraph + 43 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
 2026-09-09 thorough hunt #1426 (hit): cheap-disproof closed κ→Γ projector duplicate-element candidate; proved manifest decision-id duplicate `ContainedInManifest`/`TriggeredByRule`/`SupportedBy` edges; 209 scoped KnowledgeGraph + 42 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 

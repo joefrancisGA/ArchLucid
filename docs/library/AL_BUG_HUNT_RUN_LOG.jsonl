@@ -1938,3 +1938,4 @@
 {"at":"2026-09-11T03:09:57.6950544Z","zoneId":"core-explanation-json","outcome":"hit"}
 {"at":"2026-09-11T04:24:37.1102797Z","zoneId":"finding-disposition","outcome":"hit"}
 {"at":"2026-09-11T04:24:51.3008916Z","zoneId":"finding-disposition","outcome":"hit"}
+{"at":"2026-09-11T17:22:45.0643552Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
