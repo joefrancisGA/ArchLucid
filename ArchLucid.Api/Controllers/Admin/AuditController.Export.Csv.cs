@@ -2,6 +2,7 @@ using ArchLucid.Api.Formatters;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -65,6 +66,12 @@ public sealed partial class AuditController
             if (sealedGuardResult is not null)
                 return sealedGuardResult;
 
+            (IActionResult? careerBlockedResult, AuditExportCareerPostureStamp? postureStamp) =
+                await ResolveAuditCsvCareerPostureAsync(runId, scope, ct);
+
+            if (careerBlockedResult is not null)
+                return careerBlockedResult;
+
             AuditEventFilter filter = new()
             {
                 EventType = string.IsNullOrWhiteSpace(eventType) ? null : eventType.Trim(),
@@ -84,7 +91,10 @@ public sealed partial class AuditController
 
             DateTime nameFrom = effectiveFrom ?? TimeProvider.System.GetUtcNow().UtcDateTime;
             DateTime nameTo = effectiveTo ?? nameFrom;
-            string attachmentName = exportFormatter.BuildAuditExportCsvFileName(nameFrom, nameTo);
+            string attachmentName = exportFormatter.BuildAuditExportCsvFileName(
+                nameFrom,
+                nameTo,
+                postureStamp?.RehearsalIncomplete == true);
 
             IAsyncEnumerable<AuditEvent> events = repo.StreamFilteredExportAsync(
                 scope.TenantId,
@@ -93,7 +103,13 @@ public sealed partial class AuditController
                 filter,
                 ct);
 
-            await AuditEventCsvResponseWriter.WriteAsync(Response, exportFormatter, events, attachmentName, ct);
+            await AuditEventCsvResponseWriter.WriteAsync(
+                Response,
+                exportFormatter,
+                events,
+                attachmentName,
+                ct,
+                postureStamp);
 
             return new EmptyResult();
         }
