@@ -2641,6 +2641,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-11 seed hunt #1714 (hit): reseeded ui-webhooks-settings; proved post-create form wipe on refresh failure and pre-hydration toggle-confirm deep-link clearing; 44 scoped webhooks page/continue-last tests passed (1 pre-existing sources-strip failure unrelated).
 
 ---
+- [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-Unicode-only descriptions — **hit 2026-09-11 seed hunt #1715 (seed→hit):** zero-width space (`U+200B`) passes `IsNullOrWhiteSpace` but is not catalog-visible; fixed via shared `ProposedEvidenceTextValidation.HasSubstantiveText`; regressions `NormalizeResponse_returns_null_when_description_is_invisible_unicode_only` and `TryParseValid_WhenDescriptionIsInvisibleUnicodeOnly_ReturnsFalse`
+- [x] (proven) `AgentExecutionTraceRunLlmCostAggregator` reports `estimated-from-configured-rates` when only some traces price — **hit 2026-09-11 seed hunt #1715 (seed→hit):** mixed priced/unpriced deployment slices summed partial USD while labeling the full run as rate-estimated; fixed by downgrading basis to `provider-tokens-without-rate` and omitting partial USD when any measurable slice lacks a rate; regression `Compute_WhenOnlySomeTracesPrice_UsesProviderTokensWithoutRateBasis`
+2026-09-11 seed hunt #1715 (hit): reseeded application-agents; proved invisible Unicode curated-evidence descriptions and partial multi-trace cost basis mislabeling; 70 scoped `Application.Tests.Agents` tests passed.
 - [x] (proven) `useWebhooksSettingsMutations` URL-sync effect clears `webhookEnableId`/`webhookDisableId` before initial `listAlertRoutingSubscriptions` hydration — **hit 2026-09-11 seed hunt #1717 (seed→hit):** `useWebhooksSettingsLoad` started with `loading=false`, so the toggle-confirm effect treated an empty row set as a missing subscription and stripped valid deep links on first paint; fixed by initializing `loading` to `true`; regression `opens enable confirmation from webhookEnableId after subscriptions finish loading`
 2026-09-11 seed hunt #1717 (hit): reseeded ui-webhooks-settings; proved pre-hydration toggle-confirm deep-link clearing; 44 scoped webhooks page/continue-last tests passed (1 pre-existing sources-strip failure unrelated).
 
@@ -11591,11 +11594,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-09-07 seed hunt #1194 (hit): reseeded application-agents zone; proved run-detail reasoning token display parity, curated evidence description validation, and alias resolver audit flag conflation.
 
-- [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-Unicode-only descriptions — **hit 2026-09-11 seed hunt #1715 (seed→hit):** zero-width space (`U+200B`) passes `IsNullOrWhiteSpace` but is not catalog-visible; fixed via shared `ProposedEvidenceTextValidation.HasSubstantiveText`; regressions `NormalizeResponse_returns_null_when_description_is_invisible_unicode_only` and `TryParseValid_WhenDescriptionIsInvisibleUnicodeOnly_ReturnsFalse`
-
-- [x] (proven) `AgentExecutionTraceRunLlmCostAggregator` reports `estimated-from-configured-rates` when only some traces price — **hit 2026-09-11 seed hunt #1715 (seed→hit):** mixed priced/unpriced deployment slices summed partial USD while labeling the full run as rate-estimated; fixed by downgrading basis to `provider-tokens-without-rate` and omitting partial USD when any measurable slice lacks a rate; regression `Compute_WhenOnlySomeTracesPrice_UsesProviderTokensWithoutRateBasis`
-
-2026-09-11 seed hunt #1715 (hit): reseeded application-agents; proved invisible Unicode curated-evidence descriptions and partial multi-trace cost basis mislabeling; 70 scoped `Application.Tests.Agents` tests passed.
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-11
+- **last-bug:** 
 
 ---
 
