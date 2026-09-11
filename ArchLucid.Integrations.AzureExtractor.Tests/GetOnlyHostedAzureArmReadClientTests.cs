@@ -621,6 +621,96 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListDiagnosticSettingsAsync_rejects_next_link_for_different_resource_id()
+    {
+        const string storageResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string otherStorageResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa2";
+        const string crossResourceNextLink =
+            $"https://management.azure.com{otherStorageResourceId}/providers/Microsoft.Insights/diagnosticSettings?api-version=2021-05-01-preview&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "diag-page-one",
+                                     "properties": {
+                                       "workspaceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1"
+                                     }
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_RESOURCE_LINK"
+                               }
+                               """.Replace("CROSS_RESOURCE_LINK", crossResourceNextLink, StringComparison.Ordinal);
+
+        string secondPageBody = """
+                                {
+                                  "value": [
+                                    {
+                                      "name": "diag-leaked",
+                                      "properties": {
+                                        "workspaceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws2"
+                                      }
+                                    }
+                                  ]
+                                }
+                                """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                if (current == 2)
+                {
+                    Assert.Equal(crossResourceNextLink, request.RequestUri?.AbsoluteUri);
+
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(secondPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: diagnostic setting listing did not stop on cross-resource nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListDiagnosticSettingsAsync(
+                "token-abc",
+                [
+                    new HostedAzureArmResourceRecord(
+                        "Microsoft.Storage/storageAccounts",
+                        storageResourceId,
+                        "sa1",
+                        "eastus",
+                        null,
+                        null,
+                        new Dictionary<string, object?>()),
+                ],
+                CancellationToken.None));
+
+        Assert.Contains("resource", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListDiagnosticSettingsAsync_maps_workspace_targets_for_path_relevant_resources()
     {
         const string storageResourceId =

@@ -9893,11 +9893,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 12
-- **bugs-found:** 15
+- **hunts:** 13
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — GCP Asset search pagination had no page cap
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — Entra group membership Graph read ignored `@odata.nextLink` pagination
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9922,6 +9922,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `AwsResourceExplorerQueryString.ResolveForRegion` China partition (`cn-*`) — **2026-09-08:** `ResolveForRegion_returns_china_partition_for_cn_region` confirms existing `arn:aws-cn:*` branch; GovCloud parity already proven.
 - [x] (valid-no-repro) `GetOnlyHostedAzureArmReadClient` ARM HTTP failures throw via `EnsureSuccessStatusCode` without warning log — **2026-09-08:** 401/403/429 surface as HTTP exceptions to orchestration; no cross-tenant or inventory-corruption wrong outcome in extractor layer.
 - [x] (proven) GCP `HostedGcpExtractorClient.SearchResourcesAsync` used Google SDK async enumerator without explicit page cap — **hit 2026-09-08:** large projects could paginate unbounded vs AWS/Azure `MaxPaginationRequests = 64`; extracted `GcpAssetInventoryCollector` with raw-page guard; regression in `CollectFromRawPagesAsync_throws_after_max_pages`.
+- [ ] (candidate) `HostedAwsExtractorClient.CollectZipAsync` accepts unknown AWS region system names via `RegionEndpoint.GetBySystemName` without upfront validation — Azure has `HostedAzureExtractorGuidValidator`; deferred to next hunt
+- [x] (proven) `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync` ignored Microsoft Graph `@odata.nextLink` — **hit 2026-09-11 hunt #1706 (seed→hit):** groups with >1 page of direct members dropped members beyond the first page; fixed with visited-link pagination loop (`MaxPaginationRequests = 64`); regression in `TryReadDirectMembershipsAsync_follows_odata_next_link_for_group_members`
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync` followed ARM `nextLink` without validating resource scope — **hit 2026-09-11 hunt #1706 (seed→hit):** malicious or mis-issued `nextLink` to another resource's diagnostic settings could leak settings; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsDiagnosticSettingsResource`; regression in `ListDiagnosticSettingsAsync_rejects_next_link_for_different_resource_id`
+
+2026-09-11 seed hunt #1706 (seed→hit): reseeded cloud-extractors after master merge; proved Entra Graph membership pagination and diagnostic-settings cross-resource nextLink gaps; 54 scoped Azure extractor tests passed.
 
 ---
 
