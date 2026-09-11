@@ -138,15 +138,22 @@ ENV ARCHLUCID_BUILD_TIMESTAMP=${BUILD_TIMESTAMP}
 
 # ICU required: Microsoft.Data.SqlClient rejects invariant globalization (TB-2161 decline).
 # apk upgrade + explicit OpenSSL floor (CVE-2026-28390) so cached layers cannot keep 3.5.5-r0.
+# Mermaid CLI (mmdc) + Chromium for server-side diagram PNG export (infra-evidence, DOCX).
 RUN apk update --no-cache \
     && apk upgrade --no-cache \
     && apk add --no-cache --upgrade \
          "openssl>=3.5.6-r0" \
          "libssl3>=3.5.6-r0" \
          "libcrypto3>=3.5.6-r0" \
-    && apk add --no-cache icu-libs
+    && apk add --no-cache icu-libs nodejs npm chromium ttf-dejavu fontconfig \
+    && npm install -g @mermaid-js/mermaid-cli@11 \
+    && npm cache clean --force \
+    && rm -rf /root/.npm
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV ArchLucid__MermaidCli__Enabled=true
 
 WORKDIR /app
 

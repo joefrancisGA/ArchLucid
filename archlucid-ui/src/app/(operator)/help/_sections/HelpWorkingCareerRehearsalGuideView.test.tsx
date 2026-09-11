@@ -37,6 +37,7 @@ describe("HelpWorkingCareerRehearsalGuideView (AS-082)", () => {
       WORKING_REHEARSAL_DOOR_LABEL,
     );
     expect(screen.getByTestId("help-career-rehearsal-doors-simulator-honesty")).toHaveTextContent(/sponsor exports/i);
+    expect(screen.getByTestId("help-career-rehearsal-doors-security-note")).toHaveTextContent(/honesty strip/i);
     expect(screen.getByRole("link", { name: WORKING_CAREER_REHEARSAL_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
       "href",
       WORKING_CAREER_REHEARSAL_HELP_PRIMARY_ACTION.href,
