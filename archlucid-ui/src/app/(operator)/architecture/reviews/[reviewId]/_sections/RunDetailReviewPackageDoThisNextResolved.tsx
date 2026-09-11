@@ -21,6 +21,7 @@ import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
 import { RunDetailReviewPackageStampViewport } from "./RunDetailReviewPackageStampViewport";
 import { FinalizeReadinessChecklistParityBanner } from "@/components/reviews/FinalizeReadinessChecklistParityBanner";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
+import { RunDetailPackageSpineExportCoLocationStrip } from "@/components/reviews/RunDetailPackageSpineExportCoLocationStrip";
 import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import type {
@@ -304,6 +305,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         />
       ) : null}
       <FinalizeReadinessStrip
+        runId={props.runId}
         commitBlockedReason={
           next.failureRecovery !== null && next.failureRecovery !== undefined
             ? null
@@ -316,6 +318,9 @@ export function RunDetailReviewPackageDoThisNextResolved(
         }
         readinessLoading={commitBlockedState.readinessLoading}
       />
+      {props.hasGoldenManifest && (props.manifestId ?? "").trim().length > 0 ? (
+        <RunDetailPackageSpineExportCoLocationStrip runId={props.runId} manifestId={props.manifestId ?? ""} />
+      ) : null}
       <ReviewPackageDoThisNextStrip
         next={next}
         runId={props.runId}

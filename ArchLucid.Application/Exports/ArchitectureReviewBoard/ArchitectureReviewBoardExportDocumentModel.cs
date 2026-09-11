@@ -145,4 +145,11 @@ public sealed class ArchitectureReviewBoardExportDocumentModel
         get;
         init;
     }
+
+    /// <summary>Compact sendable cover block (policy pack, gate outcome, execution mode) for board export covers.</summary>
+    public string? SendableExportCoverPlainText
+    {
+        get;
+        init;
+    }
 }

@@ -113,6 +113,16 @@ describe("help-search-panel-catalog", () => {
     expect(hits.map((topic) => topic.id)).toContain("review-artifacts");
   });
 
+  it("finds Career/Rehearsal door topic from Working search terms (CG-097)", () => {
+    const topics = listHelpSearchPanelTopics(false);
+
+    for (const query of ["simulator", "career door", "rehearsal", "career-complete"]) {
+      const hits = filterHelpSearchPanelTopics(topics, query);
+
+      expect(hits.map((topic) => topic.id), query).toContain("career-rehearsal-doors");
+    }
+  });
+
   it("hides admin-only topics for non-admin callers", () => {
     const architectTopics = listHelpSearchPanelTopics(false);
 

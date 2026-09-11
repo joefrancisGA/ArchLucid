@@ -9,6 +9,7 @@ import { renderDoThisNextReferenceCopy } from "@/lib/usability/do-this-next-refe
 import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 
 export type FinalizeReadinessStripProps = {
+  readonly runId?: string;
   readonly commitBlockedReason: string | null | undefined;
   readonly commitBlockedBlocks?: readonly FinalizeReadinessBlock[];
   readonly readinessLoading?: boolean;
@@ -50,7 +51,7 @@ export function FinalizeReadinessStrip(props: FinalizeReadinessStripProps): Reac
         <StatusTag kind="blocked" label="Blocked" />
       </div>
       {blocks.length > 0 ? (
-        <FinalizeReadinessBlockList blocks={blocks} />
+        <FinalizeReadinessBlockList blocks={blocks} runId={props.runId} />
       ) : reason.length > 0 ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {renderDoThisNextReferenceCopy(reason)}
