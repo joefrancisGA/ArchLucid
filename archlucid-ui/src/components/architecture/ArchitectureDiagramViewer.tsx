@@ -15,9 +15,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import {
+  ARCHITECTURE_DIAGRAM_FIT_TO_VIEW_LABEL,
   ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
   ARCHITECTURE_DIAGRAM_RENDER_FAILURE,
-  ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL,
   ARCHITECTURE_DIAGRAM_RETRY_ACTION,
   ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
   ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
@@ -40,6 +40,21 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 2.5;
 const ZOOM_STEP = 0.25;
+
+function scrollViewportToOrigin(viewport: HTMLDivElement | null): void {
+  if (viewport === null) {
+    return;
+  }
+
+  if (typeof viewport.scrollTo === "function") {
+    viewport.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
+    return;
+  }
+
+  viewport.scrollTop = 0;
+  viewport.scrollLeft = 0;
+}
 
 export type ArchitectureDiagramViewerProps = {
   readonly mermaidSource: string;
@@ -81,6 +96,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
   const svgHostRef = useRef<HTMLDivElement | null>(null);
   const zoomRef = useRef<number>(zoom);
   const fullscreenOpenRef = useRef<boolean>(fullscreenOpen);
+  const fitRetryTimeoutRef = useRef<number | null>(null);
 
   zoomRef.current = zoom;
   fullscreenOpenRef.current = fullscreenOpen;
@@ -173,6 +189,120 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     [setZoom],
   );
 
+  const sanitizedSvg = useMemo(() => {
+    if (svgMarkup === null) {
+      return null;
+    }
+
+    return DOMPurify.sanitize(svgMarkup, {
+      USE_PROFILES: { svg: true, svgFilters: true },
+      FORBID_TAGS: ["script", "foreignObject"],
+    });
+  }, [svgMarkup]);
+
+  const applySvgFitToHost = useCallback((): boolean => {
+    const host = svgHostRef.current;
+    const svg = host?.querySelector("svg");
+
+    if (host === null || host === undefined || svg === null || !(svg instanceof SVGSVGElement)) {
+      return false;
+    }
+
+    const width = host.clientWidth;
+
+    if (width <= 0) {
+      return false;
+    }
+
+    fitMermaidSvgElementToHost(svg, width);
+
+    return true;
+  }, []);
+
+  const fitToView = useCallback(
+    (resetZoom: boolean) => {
+      applySvgFitToHost();
+
+      if (resetZoom) {
+        setZoom(1);
+      }
+
+      scrollViewportToOrigin(viewportRef.current);
+    },
+    [applySvgFitToHost, setZoom],
+  );
+
+  useLayoutEffect(() => {
+    if (sanitizedSvg === null) {
+      return;
+    }
+
+    let canceled = false;
+    let retryAttempts = 0;
+    const maxRetryAttempts = 8;
+
+    const scheduleFitRetry = (): void => {
+      if (canceled || retryAttempts >= maxRetryAttempts) {
+        return;
+      }
+
+      retryAttempts += 1;
+      window.requestAnimationFrame(() => {
+        if (canceled) {
+          return;
+        }
+
+        if (!applySvgFitToHost()) {
+          scheduleFitRetry();
+        }
+      });
+    };
+
+    if (!applySvgFitToHost()) {
+      scheduleFitRetry();
+    }
+
+    // Mermaid ink bounds can settle a frame after SVG insert.
+    const settleRafId = window.requestAnimationFrame(() => {
+      if (!canceled) {
+        applySvgFitToHost();
+        scrollViewportToOrigin(viewportRef.current);
+      }
+    });
+
+    fitRetryTimeoutRef.current = window.setTimeout(() => {
+      if (!canceled) {
+        applySvgFitToHost();
+        scrollViewportToOrigin(viewportRef.current);
+      }
+    }, 120);
+
+    const host = svgHostRef.current;
+
+    const resizeObserver =
+      host === null || typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(() => {
+            applySvgFitToHost();
+          });
+
+    if (host !== null) {
+      resizeObserver?.observe(host);
+    }
+
+    return (): void => {
+      canceled = true;
+      window.cancelAnimationFrame(settleRafId);
+
+      if (fitRetryTimeoutRef.current !== null) {
+        window.clearTimeout(fitRetryTimeoutRef.current);
+        fitRetryTimeoutRef.current = null;
+      }
+
+      resizeObserver?.disconnect();
+    };
+  }, [applySvgFitToHost, sanitizedSvg]);
+
   useEffect(() => {
     const viewport = viewportRef.current;
 
@@ -193,7 +323,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
 
       if (event.key === "0") {
         event.preventDefault();
-        setZoom(1);
+        fitToView(true);
       }
     };
 
@@ -202,59 +332,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     return (): void => {
       viewport.removeEventListener("keydown", onKeyDown);
     };
-  }, [adjustZoom, setZoom]);
-
-  const sanitizedSvg = useMemo(() => {
-    if (svgMarkup === null) {
-      return null;
-    }
-
-    return DOMPurify.sanitize(svgMarkup, {
-      USE_PROFILES: { svg: true, svgFilters: true },
-      FORBID_TAGS: ["script", "foreignObject"],
-    });
-  }, [svgMarkup]);
-
-  useLayoutEffect(() => {
-    if (sanitizedSvg === null) {
-      return;
-    }
-
-    const host = svgHostRef.current;
-    const svg = host?.querySelector("svg");
-
-    if (host === null || host === undefined || svg === null || !(svg instanceof SVGSVGElement)) {
-      return;
-    }
-
-    const applyFit = (): void => {
-      const width = host.clientWidth;
-
-      if (width <= 0) {
-        return;
-      }
-
-      fitMermaidSvgElementToHost(svg, width);
-    };
-
-    applyFit();
-
-    const rafId = window.requestAnimationFrame(applyFit);
-
-    const resizeObserver =
-      typeof ResizeObserver === "undefined"
-        ? null
-        : new ResizeObserver(() => {
-            applyFit();
-          });
-
-    resizeObserver?.observe(host);
-
-    return (): void => {
-      window.cancelAnimationFrame(rafId);
-      resizeObserver?.disconnect();
-    };
-  }, [sanitizedSvg]);
+  }, [adjustZoom, fitToView]);
 
   const zoomPercentLabel = `${Math.round(zoom * 100)}%`;
   const atMinZoom = zoom <= MIN_ZOOM + 0.001;
@@ -336,8 +414,8 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         >
           +
         </Button>
-        <Button type="button" variant="outline" size="sm" onClick={() => setZoom(1)}>
-          {ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL}
+        <Button type="button" variant="outline" size="sm" onClick={() => fitToView(true)}>
+          {ARCHITECTURE_DIAGRAM_FIT_TO_VIEW_LABEL}
         </Button>
         <Button type="button" variant="outline" size="sm" onClick={() => setFullscreenOpen(true)}>
           {ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION}

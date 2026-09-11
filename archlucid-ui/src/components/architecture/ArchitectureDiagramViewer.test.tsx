@@ -27,6 +27,7 @@ vi.mock("mermaid", () => ({
 }));
 
 import { ArchitectureDiagramViewer } from "@/components/architecture/ArchitectureDiagramViewer";
+import { ARCHITECTURE_DIAGRAM_FIT_TO_VIEW_LABEL } from "@/lib/architecture/architecture-diagram-copy";
 
 describe("ArchitectureDiagramViewer", () => {
   it("shows renderer failure and retry action", async () => {
@@ -92,5 +93,31 @@ describe("ArchitectureDiagramViewer", () => {
         scroll: false,
       });
     });
+  });
+
+  it("exposes fit to view and clears diagZoom when clicked", async () => {
+    replaceMock.mockClear();
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: ARCHITECTURE_DIAGRAM_FIT_TO_VIEW_LABEL })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: ARCHITECTURE_DIAGRAM_FIT_TO_VIEW_LABEL }));
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith("/governance/infrastructure/diagrams", {
+        scroll: false,
+      });
+    });
+
+    expect(screen.getByTestId("architecture-diagram-zoom-readout")).toHaveTextContent("100%");
   });
 });
