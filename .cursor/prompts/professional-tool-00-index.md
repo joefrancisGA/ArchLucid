@@ -19,7 +19,11 @@
      Wave 17: architecture-object-00-index.md (AO-01–50).
      Wave 18: system-desk-00-index.md (SY-01–SY-100).
      Wave 19: working-seat-00-index.md (WS-01–WS-24) — stop buyer polish on Working.
-     Wave 20: livelihood-proof-00-index.md (LP-01–LP-20) — persist gates after chrome. -->
+     Wave 20: livelihood-proof-00-index.md (LP-01–LP-20) — persist gates after chrome.
+     Wave 21: finding-pointer-00-index.md (FP-01–24) shipped.
+     Wave 22: architecture-spine-00-index.md (AS-001–100) shipped.
+     Wave 23: lost-write-00-index.md (LW-001–LW-100) shipped — do not re-run.
+     Waves 24–30: livelihood-gravity-00-index.md (CG/SN/LN/MG/DI/CE/DW) ready to run. Issue 1 is CG-001–100. -->
 
 # Professional-tool mitigations — Composer prompt set
 
@@ -44,8 +48,12 @@ ArchLucid sells a **seat for a repeat professional**. Production UX still treats
 **Wave 10:** [`.cursor/prompts/sealed-desk-00-index.md`](sealed-desk-00-index.md) (**SD-01–12**).
 **Wave 11:** [`.cursor/prompts/career-record-00-index.md`](career-record-00-index.md) (**CR-01–12**). Do not fork IS/LS/SD.
 **Wave 12:** [`.cursor/prompts/livelihood-kernel-00-index.md`](livelihood-kernel-00-index.md) (**LK-01–15**). Do **not** paste IS-15.
-     Wave 13: durable-architecture-00-index.md (DA-01–12) — do not paste after CA.
-     Wave 14: customer-architecture-00-index.md (CA-01–50).
+**Wave 13:** [`durable-architecture-00-index.md`](durable-architecture-00-index.md) (**DA-01–12**). Do not paste after CA.
+**Wave 14:** [`customer-architecture-00-index.md`](customer-architecture-00-index.md) (**CA-01–50**).
+**Wave 21 (shipped):** [`finding-pointer-00-index.md`](finding-pointer-00-index.md) (**FP-01–24**). Do not re-run.
+**Wave 22 (shipped):** [`architecture-spine-00-index.md`](architecture-spine-00-index.md) (**AS-001–100**). Do not re-run.
+**Wave 23 (shipped):** [`lost-write-00-index.md`](lost-write-00-index.md) (**LW-001–LW-100**). Do not re-run.
+**Waves 24–30 (ready):** [`livelihood-gravity-00-index.md`](livelihood-gravity-00-index.md) — **CG-001–100**, **SN-001–040**, **LN-001–040**, **MG-001–024**, **DI-001–024**, **CE-001–040**, **DW-001–024**. **SN** is system-not-job, not SecureNow brand.
 
 **Do not treat this set as a V1 assessment scorecard.** Do not add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or closed assurance programs (**TB-645** vocabulary must stay; **TB-135** / **TB-136** stay closed).
 
