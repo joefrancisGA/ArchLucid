@@ -195,6 +195,69 @@ public sealed class GetOnlyHostedAzureArmReadClient(
         return assignments;
     }
 
+
+    public async Task<string?> TryGetSubscriptionDisplayNameAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
+
+        string url =
+            f"https://management.azure.com/subscriptions/{subscriptionId.Trim()}?api-version={ResourcesApiVersion}";
+
+        try
+        {
+            using HttpRequestMessage request = new(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                LogSubscriptionDisplayNameFailure(subscriptionId, (int)response.StatusCode, exception: null);
+                return null;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            return ReadSubscriptionDisplayName(document.RootElement);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogSubscriptionDisplayNameFailure(subscriptionId, statusCode: null, ex);
+            return null;
+        }
+    }
+
+    private void LogSubscriptionDisplayNameFailure(string subscriptionId, int? statusCode, Exception? exception)
+    {
+        if (!_logger.IsEnabled(LogLevel.Warning))
+            return;
+
+        _logger.LogWarning(
+            exception,
+            "Hosted Azure extractor could not read subscription display name for {SubscriptionId}. StatusCode={StatusCode}.",
+            subscriptionId,
+            statusCode);
+    }
+
+    private static string? ReadSubscriptionDisplayName(JsonElement root)
+    {
+        if (!root.TryGetProperty("displayName", out JsonElement displayName) ||
+            displayName.ValueKind != JsonValueKind.String)
+        {
+            return null;
+        }
+
+        return AzureExtractorSubscriptionDisplayName.Normalize(displayName.GetString());
+    }
+
     private static HostedAzureArmRoleAssignmentRecord? MapRoleAssignment(JsonElement item)
     {
         if (!item.TryGetProperty("properties", out JsonElement propertiesElement)

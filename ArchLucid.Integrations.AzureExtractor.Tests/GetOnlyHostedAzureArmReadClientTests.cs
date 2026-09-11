@@ -310,6 +310,92 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task TryGetSubscriptionDisplayNameAsync_returns_arm_display_name()
+    {
+        List<string> methods = [];
+        List<string> uris = [];
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                methods.Add(request.Method.Method);
+                uris.Add(request.RequestUri?.AbsoluteUri ?? string.Empty);
+
+                const string body = """
+                                    {
+                                      "subscriptionId": "11111111-1111-1111-1111-111111111111",
+                                      "displayName": "Contoso Production",
+                                      "state": "Enabled"
+                                    }
+                                    """;
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(body)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        string? name = await client.TryGetSubscriptionDisplayNameAsync(
+            "token-abc",
+            "11111111-1111-1111-1111-111111111111",
+            CancellationToken.None);
+
+        Assert.Equal("Contoso Production", name);
+        Assert.All(methods, method => Assert.Equal(HttpMethod.Get.Method, method));
+        Assert.Contains(
+            uris,
+            uri => uri.StartsWith(
+                "https://management.azure.com/subscriptions/11111111-1111-1111-1111-111111111111?",
+                StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task TryGetSubscriptionDisplayNameAsync_returns_null_when_display_name_is_guid()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""
+                                                {
+                                                  "displayName": "11111111-1111-1111-1111-111111111111"
+                                                }
+                                                """)
+                }));
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        string? name = await client.TryGetSubscriptionDisplayNameAsync(
+            "token-abc",
+            "11111111-1111-1111-1111-111111111111",
+            CancellationToken.None);
+
+        Assert.Null(name);
+    }
+
+    [Fact]
+    public async Task TryGetSubscriptionDisplayNameAsync_returns_null_on_http_failure()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden)));
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        string? name = await client.TryGetSubscriptionDisplayNameAsync(
+            "token-abc",
+            "11111111-1111-1111-1111-111111111111",
+            CancellationToken.None);
+
+        Assert.Null(name);
+    }
+
     private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)
         : HttpMessageHandler
     {

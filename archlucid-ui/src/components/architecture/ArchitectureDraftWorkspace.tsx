@@ -188,6 +188,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     [setActorSet, setFields],
   );
 
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
+
   const {
     saveState,
     lastSavedUtc,
@@ -208,6 +211,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       deferCreateUntilFirstSave: isNewDraft,
       scopeGateOpen,
       scopeBullets,
+      livelihoodReturnPath,
       onDraftCreated: isNewDraft ? handleDraftCreated : undefined,
       onDraftLoaded: handleDraftLoaded,
       onImmutableDraftDetected: handleImmutableDraftDetected,

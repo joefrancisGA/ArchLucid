@@ -7,6 +7,7 @@ import type {
 
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
@@ -107,6 +108,8 @@ export async function patchDraftRequest(
   try {
     return await apiPatchJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, body);
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     if (isApiRequestError(error) && error.httpStatus === 409) {
       throw error;
     }

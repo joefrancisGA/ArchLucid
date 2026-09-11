@@ -1,3 +1,4 @@
+using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Integrations.AzureExtractor;
@@ -43,6 +44,16 @@ public sealed class HostedAzureExtractorClientTests
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(resources);
+        armClient
+            .Setup(c => c.TryGetSubscriptionDisplayNameAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("Contoso Production");
+
+        Mock<IEntraGroupMembershipGraphReader> graphReader = new();
+        Mock<IOptionsMonitor<EntraGroupMembershipGraphOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EntraGroupMembershipGraphOptions());
 
         armClient
             .Setup(c => c.ListSubscriptionRoleAssignmentsAsync(
@@ -75,6 +86,14 @@ public sealed class HostedAzureExtractorClientTests
         Assert.Equal(1, result.ResourceCount);
         Assert.NotEmpty(result.ZipBytes);
         Assert.Contains("11111111-1111-1111-1111-111111111111", result.OriginalFileName);
+
+        using MemoryStream stream = new(result.ZipBytes);
+        (AzureExtractorNormalizedManifest? manifest, string? error) =
+            AzureExtractorManifestReader.TryReadNormalizedFromZip(stream);
+
+        Assert.Null(error);
+        Assert.NotNull(manifest);
+        Assert.Equal("Contoso Production", manifest!.SubscriptionName);
     }
 
     private sealed class StubTokenCredential : TokenCredential

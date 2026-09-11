@@ -68,6 +68,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
                 Id = "/subscriptions/$SubscriptionId"
                 SubscriptionId = $SubscriptionId
                 TenantId = '99999999-8888-7777-6666-555555555555'
+                Name = 'Contoso Production'
             }
         }
 
@@ -124,6 +125,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
 
                 $manifest.schemaVersion | Should -Be 2
                 $manifest.subscriptionId | Should -Be 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+                $manifest.subscriptionName | Should -Be 'Contoso Production'
                 [string]::IsNullOrWhiteSpace($( $manifest.scriptVersion )) | Should -Be $false
                 $manifest.extractionTelemetry | Should -Not -BeNullOrEmpty
                 $manifest.extractionTelemetry.steps | Should -Not -BeNullOrEmpty

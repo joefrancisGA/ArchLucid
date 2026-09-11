@@ -32,6 +32,8 @@ import {
 import { remediationPatternStatusLabel, REMEDIATION_PATTERN_STATUS } from "@/lib/remediation-pattern-status";
 import type { RemediationPatternRecord, RemediationPatternVersionRecord } from "@/lib/remediation-pattern-types";
 
+import { RemediationPatternsGuards } from "./RemediationPatternsGuards";
+
 function VersionHistoryTable(props: {
   readonly versions: ReadonlyArray<RemediationPatternVersionRecord>;
   readonly selectedVersion: string | null;
@@ -169,6 +171,7 @@ export function RemediationPatternsClient() {
 
   return (
     <div className="space-y-6 p-4" data-testid="remediation-patterns-page">
+      <RemediationPatternsGuards yamlDraft={yamlDraft} />
       <OperatorPageHeader
         navHref="/governance/remediation-patterns"
         title={OPERATOR_NAV_LINK_LABELS.remediationPatterns}

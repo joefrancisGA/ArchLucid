@@ -22,7 +22,16 @@ export const LOST_WRITE_BROWSER_WIP_KEYS: readonly LostWriteBrowserWipKeyRow[] =
     survivesTabClose: false,
     crossDevice: false,
     owningPrompt: "LW-051",
-    notes: "LP-19 two kinds. Tab close drops the POST. Not a server user-preference row.",
+    notes: "Legacy LP-19 key. Migrated once into pending-mutation-v2 localStorage.",
+  },
+  {
+    id: "pending-mutation-v2",
+    key: "archlucid.livelihoodPendingMutation_v2",
+    storage: "localStorage",
+    survivesTabClose: true,
+    crossDevice: false,
+    owningPrompt: "LW-051",
+    notes: "ADR 0089 two kinds. Survives tab close during IdP redirect. Not a server user-preference row.",
   },
   {
     id: "offline-draft-queue-v1",

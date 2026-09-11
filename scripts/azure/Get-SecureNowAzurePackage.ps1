@@ -433,6 +433,7 @@ try
         scriptVersion = $scriptVersion
         collectionTimestamp = $collectionTimestamp
         subscriptionId = if ([string]::IsNullOrWhiteSpace($SubscriptionId)) { $null } else { $SubscriptionId }
+        subscriptionName = Resolve-ArchLucidAzureSubscriptionDisplayName -SubscriptionId $SubscriptionId
         managementGroupId = if ([string]::IsNullOrWhiteSpace($ManagementGroupId)) { $null } else { $ManagementGroupId }
         scope = $scopeDescriptor
         switchesUsed = $switchesUsed

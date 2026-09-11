@@ -8,6 +8,8 @@ import {
   LOST_WRITE_401_RESUME_KIND_INVENTORY,
   LOST_WRITE_401_RESUME_YES_KIND_IDS,
 } from "@/lib/lost-write-401-resume-inventory";
+import { findLostWrite401ResumeAuthExclusionViolations } from "@/lib/lost-write-401-resume-auth-exclusion-guard";
+import { findLostWrite401ResumeCallSiteViolations } from "@/lib/lost-write-401-resume-call-site-guard";
 import { LOST_WRITE_BROWSER_WIP_KEYS } from "@/lib/lost-write-browser-wip-inventory";
 import { LOST_WRITE_HELP_OVERWRITE_COPY } from "@/lib/lost-write-help-overwrite-copy-inventory";
 import {
@@ -59,37 +61,61 @@ describe("lost-write patch draft client inventory (LW-002)", () => {
   });
 });
 
-describe("lost-write 401 resume inventory (LW-003)", () => {
-  it("keeps LP-19 yes rows and seeds bulk, draft patch, and finalize gaps", () => {
+describe("lost-write 401 resume inventory (LW-003 / LW-054–062)", () => {
+  it("keeps all livelihood pending mutation kinds wrapped for 401 resume", () => {
     const byId = new Map(LOST_WRITE_401_RESUME_KIND_INVENTORY.map((row) => [row.id, row]));
+
+    expect(LOST_WRITE_401_RESUME_KIND_INVENTORY.length).toBe(LOST_WRITE_401_RESUME_YES_KIND_IDS.length);
 
     for (const id of LOST_WRITE_401_RESUME_YES_KIND_IDS) {
       expect(byId.get(id)?.resumeWrapperPresent).toBe("yes");
     }
 
-    expect(byId.get("finding_bulk_disposition")?.resumeWrapperPresent).toBe("no");
-    expect(byId.get("architecture_draft_patch")?.resumeWrapperPresent).toBe("no");
-    expect(byId.get("architecture_review_finalize")?.resumeWrapperPresent).toBe("no");
+    for (const row of LOST_WRITE_401_RESUME_KIND_INVENTORY) {
+      expect(row.resumeWrapperPresent).toBe("yes");
+    }
   });
 
   it("keeps yes-row wrappers in source", () => {
     const disposition = readRepoFile("lib/api/governance-stickiness-api-dispositions.ts");
     const correction = readRepoFile("lib/governance/governance-mutation-correction-api.ts");
+    const resumeCore = readRepoFile("lib/auth/livelihood-mutation-401-resume.ts");
+    const wrappers = readRepoFile("lib/auth/livelihood-mutation-401-resume-wrappers.ts");
 
     expect(disposition).toContain("recordFindingDispositionWith401Resume");
     expect(correction).toContain("recordGovernanceMutationCorrectionWith401Resume");
+    expect(disposition).toContain("withLivelihood401Resume");
+    expect(correction).toContain("withLivelihood401Resume");
+    expect(resumeCore).toContain("export async function withLivelihood401Resume");
+    expect(wrappers).toContain("patchDraftRequestWith401Resume");
+    expect(wrappers).toContain("saveItsmConnectorWith401Resume");
+  });
+});
+
+describe("lost-write 401 resume ratchets (LW-069 / LW-070)", () => {
+  it("keeps inventoried mutate sites wrapped and auth routes excluded", () => {
+    const uiRoot = process.cwd();
+    const callSiteViolations = findLostWrite401ResumeCallSiteViolations(uiRoot);
+    const authExclusionViolations = findLostWrite401ResumeAuthExclusionViolations(uiRoot);
+
+    expect(callSiteViolations).toEqual([]);
+    expect(authExclusionViolations).toEqual([]);
   });
 });
 
 describe("lost-write browser WIP keys (LW-005)", () => {
-  it("records pending mutation as sessionStorage and v1 offline queue as localStorage without expectedUtc", () => {
-    const pending = LOST_WRITE_BROWSER_WIP_KEYS.find((row) => row.id === "pending-mutation-v1");
+  it("records pending mutation v2 as localStorage and v1 offline queue as localStorage without expectedUtc", () => {
+    const pendingV1 = LOST_WRITE_BROWSER_WIP_KEYS.find((row) => row.id === "pending-mutation-v1");
+    const pendingV2 = LOST_WRITE_BROWSER_WIP_KEYS.find((row) => row.id === "pending-mutation-v2");
     const queueV1 = LOST_WRITE_BROWSER_WIP_KEYS.find((row) => row.id === "offline-draft-queue-v1");
 
-    expect(pending?.storage).toBe("sessionStorage");
-    expect(pending?.survivesTabClose).toBe(false);
-    expect(pending?.crossDevice).toBe(false);
-    expect(pending?.key).toBe(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY);
+    expect(pendingV1?.storage).toBe("sessionStorage");
+    expect(pendingV1?.survivesTabClose).toBe(false);
+
+    expect(pendingV2?.storage).toBe("localStorage");
+    expect(pendingV2?.survivesTabClose).toBe(true);
+    expect(pendingV2?.crossDevice).toBe(false);
+    expect(pendingV2?.key).toBe(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY);
 
     expect(queueV1?.storage).toBe("localStorage");
     expect(queueV1?.key).toBe(ARCHITECTURE_DRAFT_OFFLINE_QUEUE_KEY_V1);
