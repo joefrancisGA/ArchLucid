@@ -3,6 +3,7 @@
 import { ARCHITECTURE_SHARE_RESTRICT_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-share-restrict-help-evidence-copy";
 import { ARCHITECTURES_NEW_HELP_TOPIC_LABEL } from "@/lib/architectures-new-evidence-copy";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURE_DRAFT_EDITING_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-draft-editing-help-evidence-copy";
 import { ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } from "@/lib/architecture-drafts-evidence-copy";
 import { ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-intelligence-evidence-copy";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
@@ -67,6 +68,10 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_ARCHITECTURE: readonly { prefix: stri
   {
     prefix: "/help/architecture-drafts",
     topic: { slug: "architecture-drafts", label: ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/architecture-draft-editing",
+    topic: { slug: "architecture-draft-editing", label: ARCHITECTURE_DRAFT_EDITING_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/architecture-sharing",

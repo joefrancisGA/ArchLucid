@@ -63,6 +63,17 @@ vi.mock("@/hooks/use-architecture-draft-document-undo", () => ({
   })),
 }));
 
+vi.mock("@/hooks/use-architecture-draft-work-lease", () => ({
+  useArchitectureDraftWorkLease: vi.fn(() => ({
+    lease: null,
+    leaseLost: false,
+    heldByOther: false,
+    stealBusy: false,
+    stealError: null,
+    stealLease: vi.fn(async () => undefined),
+  })),
+}));
+
 const workspaceModeMock = vi.fn(() => ({
   mode: "guided" as const,
   isWorkingMode: false,
