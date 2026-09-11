@@ -6,9 +6,14 @@ import {
 } from "@/lib/governance/governance-infrastructure-copy";
 import { DiagramsWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient";
 
-const { fetchInfraEvidenceSnapshotsMock, downloadInfraEvidenceMermaidPngMock } = vi.hoisted(() => ({
+const {
+  fetchInfraEvidenceSnapshotsMock,
+  downloadInfraEvidenceMermaidPngMock,
+  fetchInfraEvidenceMermaidRenderMock,
+} = vi.hoisted(() => ({
   fetchInfraEvidenceSnapshotsMock: vi.fn(),
   downloadInfraEvidenceMermaidPngMock: vi.fn(),
+  fetchInfraEvidenceMermaidRenderMock: vi.fn(),
 }));
 
 let searchParams = new URLSearchParams();
@@ -57,38 +62,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-mermaid-api", () => ({
       },
     ],
   })),
-  fetchInfraEvidenceMermaidRender: vi.fn(async (_snapshotId, query) => ({
-    snapshotId: "11111111-1111-1111-1111-111111111111",
-    mode: query.mode ?? "executive",
-    fallbackKey: query.fallbackKey ?? null,
-    status: query.mode === "dependencyNeighborhood" ? "Succeeded" : "Partitioned",
-    mermaid: "flowchart LR\n  A-->B",
-    metrics: {
-      nodeCount: 500,
-      edgeCount: 900,
-      subgraphCount: 12,
-      maxDegree: 20,
-      crossSubgraphEdgeCount: 40,
-      textSizeBytes: 12000,
-      layoutEstimate: 8000,
-    },
-    fallbackArtifacts: [
-      {
-        key: "executive",
-        label: "Executive (executive)",
-        status: "Succeeded",
-        nodeCount: 120,
-        edgeCount: 180,
-      },
-      {
-        key: "network",
-        label: "Network (network)",
-        status: "Succeeded",
-        nodeCount: 90,
-        edgeCount: 140,
-      },
-    ],
-  })),
+  fetchInfraEvidenceMermaidRender: fetchInfraEvidenceMermaidRenderMock,
   downloadInfraEvidenceMermaidPng: downloadInfraEvidenceMermaidPngMock,
   formatInfraEvidenceMermaidApiError: (error: unknown) => String(error),
 }));
@@ -132,7 +106,40 @@ describe("DiagramsWorkbenchClient", () => {
     fetchInfraEvidenceSnapshotsMock.mockReset();
     fetchInfraEvidenceSnapshotsMock.mockResolvedValue(defaultSnapshotsResponse);
     downloadInfraEvidenceMermaidPngMock.mockReset();
-    downloadInfraEvidenceMermaidPngMock.mockResolvedValue(undefined);
+    downloadInfraEvidenceMermaidPngMock.mockResolvedValue({ usedBrowserFallback: false });
+    fetchInfraEvidenceMermaidRenderMock.mockReset();
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: query.mode === "dependencyNeighborhood" ? "Succeeded" : "Partitioned",
+      mermaid: "flowchart LR\n  A-->B",
+      metrics: {
+        nodeCount: 500,
+        edgeCount: 900,
+        subgraphCount: 12,
+        maxDegree: 20,
+        crossSubgraphEdgeCount: 40,
+        textSizeBytes: 12000,
+        layoutEstimate: 8000,
+      },
+      fallbackArtifacts: [
+        {
+          key: "executive",
+          label: "Executive (executive)",
+          status: "Succeeded",
+          nodeCount: 120,
+          edgeCount: 180,
+        },
+        {
+          key: "network",
+          label: "Network (network)",
+          status: "Succeeded",
+          nodeCount: 90,
+          edgeCount: 140,
+        },
+      ],
+    }));
   });
 
   it("renders snapshot picker and partitioned fallback cards", async () => {
@@ -250,8 +257,8 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-diagrams-fallback-cards")).not.toBeInTheDocument();
   });
 
-  it("shows an inline error instead of a toast when PNG export fails", async () => {
-    const exportError = new Error("Request validation failed (HTTP 400): PNG rendering is unavailable in this environment.");
+  it("shows an inline error instead of a toast when PNG export fails without a browser fallback", async () => {
+    const exportError = new Error("Request validation failed (HTTP 400): Snapshot missing.");
     downloadInfraEvidenceMermaidPngMock.mockRejectedValueOnce(exportError);
 
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
@@ -262,12 +269,36 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-png-export-error")).toHaveTextContent(
       "Could not download diagram PNG",
     );
-    expect(screen.getByTestId("infra-diagrams-png-export-error")).toHaveTextContent(
-      "PNG rendering is unavailable in this environment.",
-    );
-    expect(screen.getByTestId("operator-error-recovery-what-failed")).toHaveTextContent(
-      "Server-side PNG rendering is unavailable in this environment.",
-    );
+    expect(screen.queryByTestId("infra-diagrams-png-browser-fallback-note")).not.toBeInTheDocument();
     expect(screen.queryByText("The governance change did not save.")).not.toBeInTheDocument();
+  });
+
+  it("shows a browser fallback note when server PNG is unavailable but export succeeds in-browser", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "flowchart LR\n  A-->B",
+      metrics: {
+        nodeCount: 11,
+        edgeCount: 10,
+        subgraphCount: 0,
+        maxDegree: 3,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 1200,
+        layoutEstimate: 800,
+      },
+      fallbackArtifacts: [],
+    }));
+    downloadInfraEvidenceMermaidPngMock.mockResolvedValueOnce({ usedBrowserFallback: true });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DiagramsWorkbenchClient />);
+
+    fireEvent.click(await screen.findByTestId("infra-diagrams-export-png"));
+
+    expect(await screen.findByTestId("infra-diagrams-png-browser-fallback-note")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-png-export-error")).not.toBeInTheDocument();
   });
 });

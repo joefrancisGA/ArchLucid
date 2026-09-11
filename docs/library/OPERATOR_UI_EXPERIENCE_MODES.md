@@ -79,6 +79,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Chooser (CG-016):** one `WorkingCareerRehearsalChooser` implementation (`workspace-mode`). The findings workspace re-exports via `components/governance/WorkingCareerRehearsalChooser.tsx` and mounts `source="findings"` so Alt+Shift+E stays on the command bar only. Segmented control keeps `aria-pressed` (not a fake tablist) and supports Arrow/Home/End. Guided still returns null (AS-081). Do not add a third chooser.
 
+**Security product line (CG-017):** `OperatorShellTopBar` still skips `WorkingCareerRehearsalChooser` when `productLine === "security"`. Working Security mounts `SecurityWorkingCareerHonestyStrip` instead — Simulator is not Career. The strip does not PUT the door. Guided, demo, and trial seats do not mount it. Help: [`/help/career-rehearsal-doors#security-product-line`](/help/career-rehearsal-doors#security-product-line).
+
 **Execute posture stamp (CG-019):** First execute writes `workingCareerRehearsalDoor` and `executePostureCapturedUtc` onto the run header (plus existing `structuralExecutionMode`). Career honesty reads the **stamp**, not a later chooser change. A Rehearsal execute cannot later look like Career because the operator moved the door. Host `AgentExecution:Mode` stays Simulator. Full export block is CG-022.
 
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.

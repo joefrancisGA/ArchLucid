@@ -146,10 +146,14 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE =
   "Could not download diagram PNG" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY = {
-  whatFailed: "Server-side PNG rendering is unavailable in this environment.",
+  whatFailed: "Server-side PNG rendering is unavailable in this environment and the browser could not rasterize the diagram.",
   whatIsIntact: "The in-browser diagram and Mermaid export remain available.",
   nextStep: "Use Export Mermaid (.mmd), screenshot the canvas, or ask your operator to enable Mermaid CLI on the API host.",
 } as const;
+
+/** Shown after a successful browser PNG fallback when the API host lacks mmdc. */
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE =
+  "Downloaded a browser-rendered PNG because server-side rasterization is unavailable in this environment. Branded server PNG requires Mermaid CLI on the API host." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL = "Snapshot" as const;
 
