@@ -4684,6 +4684,7 @@ export interface components {
             /** Format: double */
             traceCompletenessRatio?: number | string;
             traceConfidenceLabel: string;
+            treatment?: null | components["schemas"]["FindingTreatment"];
         };
         FindingTreatment: number;
         FindingUnmuteRequest: {

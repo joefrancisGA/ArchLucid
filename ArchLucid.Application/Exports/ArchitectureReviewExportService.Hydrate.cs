@@ -114,4 +114,18 @@ public sealed partial class ArchitectureReviewExportService
 
         return trimmed.Length <= 120 ? trimmed : trimmed[..120];
     }
+
+    private static string? BuildSendableExportCoverPlainText(CareerExportCoverageHonestyInput input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+
+        IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(input);
+
+        if (lines.Count == 0)
+        {
+            return null;
+        }
+
+        return string.Join('\n', lines);
+    }
 }

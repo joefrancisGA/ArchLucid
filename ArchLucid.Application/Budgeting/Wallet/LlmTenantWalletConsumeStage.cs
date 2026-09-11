@@ -40,7 +40,7 @@ public sealed class LlmTenantWalletConsumeStage(
                     .GetOrCreateAsync(tenantId, cancellationToken)
                     .ConfigureAwait(false);
 
-                if (current.MonthlyCapUsd <= 0m)
+                if (current.MonthlyCapUsd <= 0m || !IsValidMonthlyCap(current.MonthlyCapUsd))
                     return null;
             }
         }

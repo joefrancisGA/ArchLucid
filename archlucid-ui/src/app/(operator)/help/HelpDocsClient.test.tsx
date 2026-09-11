@@ -303,6 +303,68 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("opens protocol-relative documentation links in a new tab with noreferrer", async () => {
+    const data = [
+      {
+        title: "Protocol relative doc",
+        summary: "Hosted on another origin without an explicit scheme.",
+        category: "API",
+        url: "//example.com/docs/protocol-relative",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const link = await screen.findByRole("link", { name: "Protocol relative doc" });
+
+    expect(link).toHaveAttribute("href", "//example.com/docs/protocol-relative");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noreferrer");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("opens http documentation links in a new tab with noreferrer", async () => {
+    const data = [
+      {
+        title: "External http doc",
+        summary: "Hosted outside the operator shell over plain http.",
+        category: "API",
+        url: "http://example.com/docs/http-alpha",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const link = await screen.findByRole("link", { name: "External http doc" });
+
+    expect(link).toHaveAttribute("href", "http://example.com/docs/http-alpha");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noreferrer");
+
+    vi.unstubAllGlobals();
+  });
+
   it("opens external documentation links in a new tab with noreferrer", async () => {
     const data = [
       {
@@ -401,6 +463,27 @@ describe("HelpDocsClient", () => {
 
     expect(searchbox).toHaveValue("");
     expect(helpDocsNavigation.replace).toHaveBeenCalledWith("/help", { scroll: false });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("filters documentation on mount when q= is in the URL", async () => {
+    helpDocsNavigation.params = new URLSearchParams("q=security");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Reviews list" })).toBeNull();
 
     vi.unstubAllGlobals();
   });
@@ -577,6 +660,74 @@ describe("HelpDocsClient", () => {
 
     expect(gettingStartedIndex).toBeGreaterThanOrEqual(0);
     expect(complianceIndex).toBeGreaterThan(gettingStartedIndex);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps fetched doc-index rows that share the /help hub url when titles differ", async () => {
+    const data = [
+      {
+        title: "API contracts snapshot",
+        summary: "High-level REST contracts and OpenAPI pointers for clients.",
+        category: "API",
+        url: "/help",
+      },
+      {
+        title: "API_VERSIONING",
+        summary: "Url-segment versioning, defaults, and client expectations for v1.",
+        category: "API",
+        url: "/help",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "API contracts snapshot" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "API_VERSIONING" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "API_VERSIONING" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "API_VERSIONING" })).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "API contracts snapshot" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("preserves non-q URL parameters when Escape clears the search box", async () => {
+    helpDocsNavigation.params = new URLSearchParams("tab=operations&q=security");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const searchbox = await screen.findByRole("searchbox");
+
+    expect(searchbox).toHaveValue("security");
+
+    fireEvent.keyDown(searchbox, { key: "Escape" });
+
+    expect(searchbox).toHaveValue("");
+    expect(helpDocsNavigation.replace).toHaveBeenCalledWith("/help?tab=operations", { scroll: false });
 
     vi.unstubAllGlobals();
   });

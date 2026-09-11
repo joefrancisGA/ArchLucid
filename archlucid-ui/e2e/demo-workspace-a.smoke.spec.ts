@@ -55,6 +55,10 @@ test.describe(
     );
     await expectBuyerPolishedReviewDetailWorkspaceCore(page);
 
+    await expect(page.getByTestId("run-detail-package-spine-export-co-location")).toBeVisible({
+      timeout: 60_000,
+    });
+
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "findings");
 
     await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 90_000 });

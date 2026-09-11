@@ -1,4 +1,5 @@
 using ArchLucid.Application.Exports;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.User;
 using ArchLucid.Decisioning.CareerArtifacts;
 
@@ -55,5 +56,42 @@ public sealed class ExportBundleCareerPostureResolverTests
         result.IsBlocked.Should().BeFalse();
         result.Stamp!.CareerPosture.Should().Be(ExportBundleCareerPostureResolver.CareerPostureCareer);
         result.Stamp.RehearsalIncomplete.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ResolveTriageFromRunFields_returns_null_when_no_stamp_fields()
+    {
+        ExportBundleCareerPostureTriageResult? result =
+            ExportBundleCareerPostureResolver.ResolveTriageFromRunFields(null, null);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveTriageFromRunFields_marks_career_blocked_for_simulator_career_door()
+    {
+        ExportBundleCareerPostureTriageResult? result =
+            ExportBundleCareerPostureResolver.ResolveTriageFromRunFields(
+                StructuralExecutionMode.Simulator,
+                WorkingCareerRehearsalDoorValues.Career);
+
+        result.Should().NotBeNull();
+        result!.CareerPostureLabel.Should().Be(ExportBundleCareerPostureResolver.CareerPostureCareerBlocked);
+        result.CareerBlocked.Should().BeTrue();
+        result.WorkingCareerRehearsalDoor.Should().Be(WorkingCareerRehearsalDoorValues.Career);
+    }
+
+    [Fact]
+    public void ResolveTriageFromRunFields_stamps_rehearsal_for_simulator_rehearsal_door()
+    {
+        ExportBundleCareerPostureTriageResult? result =
+            ExportBundleCareerPostureResolver.ResolveTriageFromRunFields(
+                StructuralExecutionMode.Simulator,
+                WorkingCareerRehearsalDoorValues.Rehearsal);
+
+        result.Should().NotBeNull();
+        result!.CareerPostureLabel.Should().Be(ExportBundleCareerPostureResolver.CareerPostureRehearsal);
+        result.RehearsalIncomplete.Should().BeTrue();
+        result.CareerBlocked.Should().BeFalse();
     }
 }
