@@ -2138,11 +2138,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 9
-- **bugs-found:** 5
+- **hunts:** 11
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-09 — `WeeklySponsorSummaryEmailDispatcher` padded ISO week idempotency keys duplicated weekly summary sends
+- **last-bug:** 2026-09-11 — padded `weekLabel` leaked into weekly sponsor summary subject and template model
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2177,6 +2177,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` invalid-only mailbox list skips send after template render — **cheap-disproof 2026-09-11 seed hunt #1756:** re-confirms #1431; outer trim pass renders before `IdentityEmailNormalizer` filters invalid addresses; no send/ledger wrong outcome; regression `WeeklySponsorReportEmailDispatcher_skips_send_when_all_mailboxes_fail_identity_normalization`.
 
 2026-09-11 seed hunt #1756 (seed-only): reseeded weekly-digest-email (`WeeklySponsorReportEmailDispatcher` in zone path); cheap-disproof closed lowercase ISO-week duplicate-send, all-recipients-already-recorded return contract, and invalid-mailbox pre-render candidates; 3 new digest idempotency regressions + 2 scoped WeeklyExecutiveSummaryJob tests passed (31 total digest/job coverage this run).
+
+- [x] (proven) `WeeklySponsorReportEmailDispatcher` passes padded `weekLabel` into subject and template while trimming `runIdHex`/`runDetailUrl` — **hit 2026-09-11 seed hunt #1770:** buyer-facing subject showed `" —  W27  "` padding; fixed by trimming `weekLabel`; regression `WeeklySponsorReportEmailDispatcher_trims_week_label_in_template_model_and_subject`.
+
+2026-09-11 seed hunt #1770 (seed→hit): reseeded weekly-digest-email; proved weekLabel trim gap in `WeeklyExecutiveSummaryEmailDispatcher.cs` (`WeeklySponsorReportEmailDispatcher`); 16 scoped report dispatcher idempotency tests passed.
+
+- [x] (proven) `WeeklySponsorSummaryEmailDispatcher` passes padded `weekLabel` into subject and template while trimming sibling fields — **hit 2026-09-11 seed hunt #1771:** summary subject showed padded week label; fixed by trimming `weekLabel` parity with report dispatcher #1770; regression `WeeklySponsorSummaryEmailDispatcher_trims_week_label_in_template_model_and_subject`.
+
+2026-09-11 seed hunt #1771 (seed→hit): reseeded weekly-digest-email; proved sibling summary dispatcher weekLabel trim gap; 10 scoped summary dispatcher idempotency tests passed.
 
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 
@@ -2501,7 +2509,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -2555,6 +2563,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Hosted wave boundaries invert so `$appWaveLeaves` precede final `$platformWaveLeaves` entry in evidence — **cheap-disproof 2026-09-11 seed hunt #1759:** acr precedes entra and keyvault precedes sql-failover; regression `DefaultApplyOrderRoots_hosted_wave_boundaries_place_app_leaves_after_platform_leaves`.
 
 2026-09-11 seed hunt #1759 (seed-only): reseeded cli-terraform-evidence after #1749; cheap-disproof closed reference-doc table sync, composition wave annotation, and hosted wave boundary candidates; 23 scoped DeploymentEvidenceTerraformReference tests passed.
+
+- [x] (valid-no-repro) Plain leaf evidence lines carry em-dash annotations so `ExtractLeafPaths` truncates hosted apply paths — **cheap-disproof 2026-09-11 seed hunt #1768:** thirteen unannotated leaves are exact `infra/terraform-*` paths; regression `DefaultApplyOrderRoots_plain_leaf_lines_are_unannotated_exact_paths`.
+- [x] (valid-no-repro) Consumption APIM root `infra/terraform` is ordered after longer `infra/terraform-*` siblings so substring `Contains` checks mis-rank apply order — **cheap-disproof 2026-09-11 seed hunt #1768:** edge → terraform → monitoring ordering matches `$appWaveLeaves`; regression `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`.
+
+2026-09-11 seed hunt #1768 (seed-only): reseeded cli-terraform-evidence after #1759; cheap-disproof closed plain-leaf annotation and consumption-APIM ordering candidates; 25 scoped DeploymentEvidenceTerraformReference tests passed.
 
 2026-09-09 seed hunt #1436 (seed-only): re-read static apply-order reference; cheap-disproved pilot-profile and hardcoded-leaf drift candidates; added `$pilotProfileOnly` sync regression; 6 scoped DeploymentEvidenceTerraformReference tests passed.
 
@@ -3141,11 +3154,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 7
-- **bugs-found:** 8
+- **hunts:** 8
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-08-26 — padded Admin/ReadOnly slot strings rejected rotation
+- **last-bug:** 2026-09-11 — comma-only AdminKey config made zero-downtime rotation Append instead of Replace
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3177,6 +3190,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-11 thorough hunt #1699 (seed-only): cheap-disproof closed duplicate blank API key header and whitespace test-actor override candidates; 23 scoped `ApiKeyAuthenticationHandlerTests` passed.
 
 2026-09-11 seed hunt #1760 (seed-only): reseeded api-key-auth after #1699; cheap-disproof closed reader success path, Production test-actor guard, reader expiry boundary, duplicate blank actor header, empty scope-id claims, disabled fail-closed with header, and ReadOnly rotation Replace/Append branches; 36 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (proven) `AdminApiKeySettingsService.Rotate` treats comma-only `Authentication:ApiKey:AdminKey` as configured and returns Append — **hit 2026-09-11 seed hunt #1769:** `string.IsNullOrWhiteSpace` is false for `" , , "` while `MaskCommaSeparatedSegments` is empty and auth cannot match; fixed by `HasConfiguredKeyMaterial`; regression `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_has_only_comma_segments`.
+
+2026-09-11 seed hunt #1769 (seed→hit): reseeded api-key-auth; proved comma-only slot material Append/Replace mismatch; 8 scoped AdminApiKeySettingsService tests passed.
 
 ---
 

@@ -304,6 +304,35 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
         leaves.IndexOf("infra/terraform-entra").Should().BeGreaterThan(leaves.IndexOf("infra/terraform-acr"));
     }
 
+    [Fact]
+    public void DefaultApplyOrderRoots_plain_leaf_lines_are_unannotated_exact_paths()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        foreach (string line in roots)
+        {
+            if (line.Contains("metadata composition root", StringComparison.Ordinal)
+                || line.Contains("canonical default profile", StringComparison.Ordinal)
+                || line.Contains("legacy isolation path only", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            line.Should().NotContain(" —", "plain leaf lines must not use em-dash annotations that corrupt path extraction");
+            line.Should().StartWith("infra/");
+            line.Trim().Should().Be(line, "plain leaf lines must be exact paths without trailing whitespace");
+        }
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring()
+    {
+        List<string> leaves = ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        leaves.IndexOf("infra/terraform").Should().BeGreaterThan(leaves.IndexOf("infra/terraform-edge"));
+        leaves.IndexOf("infra/terraform-monitoring").Should().BeGreaterThan(leaves.IndexOf("infra/terraform"));
+    }
+
     private static string RequireRepositoryRoot()
     {
         string? repoRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot(AppContext.BaseDirectory);

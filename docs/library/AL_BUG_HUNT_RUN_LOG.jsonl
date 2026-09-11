@@ -2013,3 +2013,8 @@
 {"at":"2026-09-11T22:03:30Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
 {"at":"2026-09-11T22:06:05.2786812Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
 {"at":"2026-09-11T22:06:06.2468998Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
+{"at":"2026-09-11T22:08:59.1590055Z","zoneId":"cli-terraform-evidence","outcome":"seed-only"}
+{"at":"2026-09-11T22:12:06.142664Z","zoneId":"api-key-auth","outcome":"hit"}
+{"at":"2026-09-11T22:14:55.168392Z","zoneId":"weekly-digest-email","outcome":"hit"}
+{"at":"2026-09-11T22:16:36.4019311Z","zoneId":"weekly-digest-email","outcome":"hit"}
+{"at":"2026-09-11T22:19:56.4160755Z","zoneId":"cli-terraform-evidence","outcome":"seed-only"}
