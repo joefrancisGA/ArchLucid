@@ -3581,7 +3581,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-11 thorough hunt #1739: cheap-disproved warnings-only manifest replay complexity candidate; proved confidence-only agent delta under-scoring in replay cost estimator; 25 scoped application-analysis tests passed.
 
-2026-09-05 thorough hunt #797: proved export compare-run pairing mispairing; warnings-only replay complexity candidate remains open.
+2026-09-05 thorough hunt #797: proved export compare-run pairing mispairing.
 
 2026-09-04 seed hunt #768: reseeded GCP inventory key asymmetry, comparison scope OR-gate, and consulting appendix manifest-count candidates; proved architecture-analysis DOCX agent evidence-ref/warning diff gap promoted from seed read.
 
