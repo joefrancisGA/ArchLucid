@@ -9794,16 +9794,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 24
-- **bugs-found:** 15
+- **hunts:** 25
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** none (seed-only)
+- **last-bug:** 2026-09-11
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
+- [x] (proven) `AddPlatformCapability` double-registers `IProductLineRequestAccessor` — **hit 2026-09-11 seed hunt #1710:** root `AddArchLucidApplicationServices` and `PlatformCapabilityCompositionRegistrar` each called `RegisterProductLineRequestAccessor`, yielding two singleton descriptors per replica; fixed by removing the duplicate from platform capability; regression `AddArchLucidApplicationServices_registers_product_line_accessor_once`
+- [x] (valid-no-repro) `trial-lifecycle` container offload drops `TrialArchitecturePreseedHostedService` — **cheap-disproof 2026-09-11 seed hunt #1710:** preseed is leader-elected worker automation with no `IArchLucidJob` slug (sibling pattern to architecture-review recurrence surviving advisory-scan offload); regression `AddArchLucidApplicationServices_Worker_offloads_trial_lifecycle_still_registers_TrialArchitecturePreseedHostedService_when_enabled`
+- [x] (valid-no-repro) `RegisterHostedStartupProbes` double-call from root and platform duplicates startup probe hosted services — **cheap-disproof 2026-09-11 seed hunt #1710:** MS.DI collapses duplicate `AddHostedService` descriptors to one runtime instance; regression `AddArchLucidApplicationServices_registers_configuration_validation_startup_probe_once`
 - [x] (invalid) Singleton service caches the first request tenant for the process lifetime — `CachingGovernanceDashboardService` keys cache entries with `HotPathCacheKeys.GovernanceDashboard(scope, tenantId, …)` per request scope
 - [x] (invalid) Optional security service is not registered in production configuration — harm-class template; no single missing-security locus identified in composition partials
 - [x] (invalid) Composition registers two implementations for the same tenant-scoped interface — `ISponsorReportRecipientLookup` is registered in both weekly modules with the same implementation type; MS.DI last registration wins without functional divergence
@@ -9869,6 +9872,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `DraftIntakeCompositionRegistrar` — `DecisionReceiptService` expanded constructor after #1686 may lack graph/trace/run-repository registrations — **cheap-disproof 2026-09-11 seed hunt #1687:** global storage registrars already wire `IGraphSnapshotRepository`, `IAgentExecutionTraceRepository`, `IRunRepository`, and `IArchitectureInventoryBindingRepository`; regression `DraftIntakeCompositionRegistrar_registers_decision_receipt_service`.
 
 2026-09-11 seed hunt #1687 (seed-only): reseeded host-composition after #1686 career-export DI expansion; cheap-disproved missing DecisionReceiptService dependency registrations; 1 scoped registration discipline test passed.
+
+2026-09-11 seed hunt #1710 (seed→hit): reseeded host-composition after #1709; proved duplicate `IProductLineRequestAccessor` registration from platform capability facade; cheap-disproved trial-preseed offload drop and startup-probe duplicate hosted-service descriptors; 361/371 scoped host-composition tests passed (10 pre-existing unrelated failures).
 
 2026-09-10 seed hunt #1575 (seed-only): reseeded host-composition; cheap-disproof closed startup OIDC/SAML probes, outbox metrics leader-election, extractor auto-pull Api gate, internal cross-tenant rollup gate, and hot-path memory replica logger candidates; 361/363 scoped host-composition tests passed (2 pre-existing unrelated failures).
 
