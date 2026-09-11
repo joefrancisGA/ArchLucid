@@ -2,6 +2,7 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Services.Authority;
 using ArchLucid.Application;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Integrations.Itsm;
@@ -17,11 +18,13 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
@@ -324,6 +327,54 @@ public sealed class RunQueryControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetRunDecisions_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory()
+    {
+        RunQueryController controller = CreateController(runProvenanceQueryService: CreateProvenanceQueryService());
+
+        IActionResult action = await controller.GetRunDecisions("   ", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetRunEvidence_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory()
+    {
+        RunQueryController controller = CreateController(runProvenanceQueryService: CreateProvenanceQueryService());
+
+        IActionResult action = await controller.GetRunEvidence("   ", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetRunToolInvocationForensics_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory()
+    {
+        RunQueryController controller = CreateController(runProvenanceQueryService: CreateProvenanceQueryService());
+
+        IActionResult action = await controller.GetRunToolInvocationForensics("   ", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    private static RunProvenanceQueryService CreateProvenanceQueryService()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(new ScopeContext());
+
+        return new RunProvenanceQueryService(
+            Mock.Of<IArchitectureRunProvenanceService>(),
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IDecisionNodeRepository>(),
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAgentToolInvocationRecordRepository>(),
+            scopeProvider.Object);
     }
 
     private static RunFindingsQueryService CreateFindingsQueryService()
