@@ -14,6 +14,7 @@ import {
   isCloudProviderSupportedForProductLine,
   isHelpSearchTopicExcludedForProductLine,
   isHelpTopicExcludedForProductLine,
+  isSecureNowTrainingChromeExcluded,
   secureNowCloudConnectionsHelpSubtitle,
   secureNowCloudConnectionsHubContextualLead,
   secureNowCloudConnectionsSummary,
@@ -46,6 +47,7 @@ describe("securenow-cloud-platform-policy", () => {
     expect(isHelpTopicExcludedForProductLine("review-guide", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("choose-your-next-step", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("accelerator-chooser", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("career-rehearsal-doors", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("findings", "security")).toBe(false);
     expect(isHelpTopicExcludedForProductLine("security-evidence-paths", "security")).toBe(false);
     expect(isHelpTopicExcludedForProductLine("security-evidence-paths", "architecture")).toBe(true);
@@ -54,6 +56,12 @@ describe("securenow-cloud-platform-policy", () => {
     expect(isHelpSearchTopicExcludedForProductLine("first-review-guide", "architecture")).toBe(false);
     expect(isHelpSearchTopicExcludedForProductLine("create-first-review", "security")).toBe(true);
     expect(isHelpSearchTopicExcludedForProductLine("how-archlucid-works", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("career-rehearsal-doors", "security")).toBe(true);
+  });
+
+  it("excludes ArchLucid training and simulator chrome from SecureNow", () => {
+    expect(isSecureNowTrainingChromeExcluded("security")).toBe(true);
+    expect(isSecureNowTrainingChromeExcluded("architecture")).toBe(false);
   });
 
   it("blocks AWS and GCP integration routes in the Security shell", () => {

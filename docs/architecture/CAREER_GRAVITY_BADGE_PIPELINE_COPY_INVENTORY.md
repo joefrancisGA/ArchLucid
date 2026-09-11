@@ -39,11 +39,11 @@ Assume Working desk (`workingDesk === true`) and honesty options **are** passed 
 
 `RunStatusBadge` always passes `workingDesk` from `useProductionDeskChrome` and `effectiveWorkingCareerRehearsalDoor` from `useEffectiveWorkingCareerRehearsalDoor`. Direct `deriveRunListPipelineLabel(run)` call sites do not.
 
-## Security product-line chooser skip (AS-077 leftover)
+## Security product-line chooser skip (AS-077 leftover / CG-017)
 
-`OperatorShellTopBar.tsx` sets `showWorkingCareerRehearsalChooser = productLine !== "security"`. Security product line **does not render** `WorkingCareerRehearsalChooser`.
+`OperatorShellTopBar.tsx` sets `showTrainingChrome = !isSecureNowTrainingChromeExcluded(productLine)`. The SecureNow (Security) product line **does not render** `WorkingCareerRehearsalChooser`, Guided training chips, or simulator dev chrome.
 
-Door preference still comes from `localStorage` / AS-080 defaults. Badges still read `effectiveDoor`. Operators on Security cannot see or change the door in the top bar (CG-017). Do not treat the skip as “Security has no Career gravity.”
+CG-017: SecureNow omits Career / Rehearsal top-bar chrome entirely — there is no rehearsal concept on the Security product line. Door preference still comes from account / `localStorage` on Architecture Working seats. Badges still read `effectiveDoor` where applicable.
 
 ## Surfaces
 
@@ -60,7 +60,7 @@ Door preference still comes from `localStorage` / AS-080 defaults. Badges still 
 | `archlucid-ui/src/lib/first-pilot-command-center-phase.ts` | `Ready to finalize review` | **No** | **bypass** | CG-085 |
 | `archlucid-ui/src/hooks/use-review-presenter-elicitation.ts` | default title `Ready to finalize` | **No** | **bypass** | CG-049 |
 | `archlucid-ui/src/lib/i18n.ts` | `All analysis is complete. Finalize…` | copy | bypass | CG-033 |
-| `archlucid-ui/src/components/shell/OperatorShellTopBar.tsx` | Security skips chooser | N/A | security-skip | CG-017 |
+| `archlucid-ui/src/components/shell/OperatorShellTopBar.tsx` | SecureNow skips Career/Rehearsal and training chrome | N/A | security-skip | CG-017 |
 | `archlucid-ui/src/lib/governance/working-career-rehearsal-door.ts` | Door ids / grandfather | AS-080 | mismatch until CG-020 | CG-020 |
 | `archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageView.tsx` | Print `StatusTag` | presentation-dependent | covered / print leftover | CG-023 |
 
@@ -68,7 +68,7 @@ Door preference still comes from `localStorage` / AS-080 defaults. Badges still 
 
 1. **Do not change copy** from this inventory.
 2. Bypass rows stay until CG-031 / CG-085 / CG-049 wrap or remove them.
-3. Security chooser skip is **CG-017**, not a badge rewrite.
+3. SecureNow Career/Rehearsal chrome omission is **CG-017** (chooser and related top-bar chrome skipped), not a badge rewrite.
 4. Ratchet: `career-gravity-badge-pipeline-copy-inventory.test.ts`.
 
 ## Intentional — do not “fix” from this inventory

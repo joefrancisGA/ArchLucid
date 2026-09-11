@@ -44,6 +44,7 @@ describe("career-gravity badge and pipeline copy inventory (CG-004)", () => {
     const topBar = readFileSync(join(REPO_ROOT, CAREER_GRAVITY_SECURITY_CHOOSER_SKIP_PATH), "utf8");
 
     expect(topBar).toContain(CAREER_GRAVITY_SECURITY_CHOOSER_SKIP_MARKER);
+    expect(topBar).not.toContain("SecurityWorkingCareerHonestyStrip");
 
     const rail = readFileSync(
       join(REPO_ROOT, "archlucid-ui/src/lib/first-pilot-operating-rail-status.ts"),

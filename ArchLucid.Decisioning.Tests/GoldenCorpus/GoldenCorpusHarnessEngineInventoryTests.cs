@@ -17,12 +17,22 @@ public sealed class GoldenCorpusHarnessEngineInventoryTests
     [Fact]
     public void Registered_count_matches_harness_contract()
     {
-        GoldenCorpusHarnessEngineInventory.RegisteredEngineCount.Should().Be(43);
-        GoldenCorpusHarnessEngineInventory.RegisteredEngineTypeIds.Count.Should().Be(43);
-        GoldenCorpusHarnessEngineInventory.AbsentEngineReasons.Count.Should().Be(11);
+        GoldenCorpusHarnessEngineInventory.RegisteredEngineCount.Should().Be(45);
+        GoldenCorpusHarnessEngineInventory.RegisteredEngineTypeIds.Count.Should().Be(45);
+        GoldenCorpusHarnessEngineInventory.AbsentEngineReasons.Count.Should().Be(9);
         BuiltInFindingEngineTypeCatalog.EngineTypeIds.Count.Should().Be(54);
-        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(43);
+        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(45);
         InsightDensityEngineDistributionMarkdown.BuiltInProductEngineCount.Should().Be(54);
+    }
+
+    [Fact]
+    public void Registered_plus_absent_equals_catalog_engine_count()
+    {
+        int registered = GoldenCorpusHarnessEngineInventory.RegisteredEngineCount;
+        int absent = GoldenCorpusHarnessEngineInventory.AbsentEngineReasons.Count;
+        int catalog = BuiltInFindingEngineTypeCatalog.EngineTypeIds.Count;
+
+        (registered + absent).Should().Be(catalog, "every catalog engine must be harness-registered or absent-with-reason");
     }
 
     [Fact]

@@ -14,6 +14,9 @@ export function useAssumptionAwareCommitBlockedReason(input: {
   readonly blockingFindingCount: number;
   readonly requestAssumptionTexts: readonly string[];
   readonly transparencyTrail?: TransparencyTrail | null;
+  readonly degradedFindingCoverage?: boolean;
+  readonly degradedFindingCoverageFailedEngineLabels?: readonly string[];
+  readonly blockDegradedFindingCoverageOnWorking?: boolean;
 }): string | null {
   const { acknowledgedIds } = useReviewAssumptionAcknowledgements(input.runId);
 
@@ -25,5 +28,8 @@ export function useAssumptionAwareCommitBlockedReason(input: {
     acknowledgedAssumptionIds: acknowledgedIds,
     requestAssumptionTexts: input.requestAssumptionTexts,
     transparencyTrail: input.transparencyTrail,
+    degradedFindingCoverage: input.degradedFindingCoverage,
+    degradedFindingCoverageFailedEngineLabels: input.degradedFindingCoverageFailedEngineLabels,
+    blockDegradedFindingCoverageOnWorking: input.blockDegradedFindingCoverageOnWorking,
   });
 }
