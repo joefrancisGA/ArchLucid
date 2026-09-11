@@ -95,10 +95,19 @@ public sealed partial class GovernanceCoverageController(
             return sealedGuardResult;
 
         CoveragePreviewInput input = CoveragePreviewMapper.ToInput(request);
-        CoveragePreviewResult preview = await coveragePreviewService.PreviewAsync(scope, input, cancellationToken);
-        CoveragePreviewResponse response = CoveragePreviewMapper.ToResponse(preview);
 
-        return Ok(response);
+        try
+        {
+            CoveragePreviewResult preview =
+                await coveragePreviewService.PreviewAsync(scope, input, cancellationToken);
+            CoveragePreviewResponse response = CoveragePreviewMapper.ToResponse(preview);
+
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceCoverageSealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("coverage")]

@@ -77,8 +77,12 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     parseArchitectureDiagramFullscreenOpenFromSearch(diagFullscreenParam),
   );
   const viewportRef = useRef<HTMLDivElement | null>(null);
-  const hostRef = useRef<HTMLDivElement | null>(null);
-  const syncDiagramZoomToUrlRef = useRef<(nextZoom: number) => void>(() => undefined);
+  const svgHostRef = useRef<HTMLDivElement | null>(null);
+  const zoomRef = useRef<number>(zoom);
+  const fullscreenOpenRef = useRef<boolean>(fullscreenOpen);
+
+  zoomRef.current = zoom;
+  fullscreenOpenRef.current = fullscreenOpen;
 
   const syncDiagramFullscreenToUrl = useCallback(
     (nextOpen: boolean) => {
@@ -89,30 +93,34 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     [pathname, router, searchParams],
   );
 
-  syncDiagramZoomToUrlRef.current = (nextZoom: number) => {
-    router.replace(architectureDiagramZoomHrefFromSearch(searchParams.toString(), nextZoom, pathname), {
-      scroll: false,
-    });
-  };
+  const syncDiagramZoomToUrl = useCallback(
+    (nextZoom: number) => {
+      router.replace(architectureDiagramZoomHrefFromSearch(searchParams.toString(), nextZoom, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
 
-  const setZoom = useCallback((value: SetStateAction<number>) => {
-    setZoomState((current) => {
+  const setZoom = useCallback(
+    (value: SetStateAction<number>) => {
+      const current = zoomRef.current;
       const nextRaw = typeof value === "function" ? value(current) : value;
       const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number(nextRaw.toFixed(2))));
-      syncDiagramZoomToUrlRef.current(next);
 
-      return next;
-    });
-  }, []);
+      setZoomState(next);
+      syncDiagramZoomToUrl(next);
+    },
+    [syncDiagramZoomToUrl],
+  );
 
   const setFullscreenOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setFullscreenOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncDiagramFullscreenToUrl(next);
+      const current = fullscreenOpenRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-        return next;
-      });
+      setFullscreenOpenState(next);
+      syncDiagramFullscreenToUrl(next);
     },
     [syncDiagramFullscreenToUrl],
   );
@@ -201,12 +209,23 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     };
   }, [adjustZoom, setZoom]);
 
-  useLayoutEffect(() => {
+  const sanitizedSvg = useMemo(() => {
     if (svgMarkup === null) {
+      return null;
+    }
+
+    return DOMPurify.sanitize(svgMarkup, {
+      USE_PROFILES: { svg: true, svgFilters: true },
+      FORBID_TAGS: ["script", "foreignObject"],
+    });
+  }, [svgMarkup]);
+
+  useLayoutEffect(() => {
+    if (sanitizedSvg === null) {
       return;
     }
 
-    const host = hostRef.current;
+    const host = svgHostRef.current;
     const svg = host?.querySelector("svg");
 
     if (host === null || host === undefined || svg === null || !(svg instanceof SVGSVGElement)) {
@@ -240,18 +259,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
       window.cancelAnimationFrame(rafId);
       resizeObserver?.disconnect();
     };
-  }, [svgMarkup]);
-
-  const sanitizedSvg = useMemo(() => {
-    if (svgMarkup === null) {
-      return null;
-    }
-
-    return DOMPurify.sanitize(svgMarkup, {
-      USE_PROFILES: { svg: true, svgFilters: true },
-      FORBID_TAGS: ["script"],
-    });
-  }, [svgMarkup]);
+  }, [sanitizedSvg]);
 
   const zoomPercentLabel = `${Math.round(zoom * 100)}%`;
   const atMinZoom = zoom <= MIN_ZOOM + 0.001;
@@ -275,7 +283,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         </p>
       ) : (
         <div
-          ref={hostRef}
+          ref={svgHostRef}
           className={cn(
             "w-full min-w-0 origin-top-left transition-transform [&_svg]:block",
             canvasStale ? "opacity-60" : undefined,
