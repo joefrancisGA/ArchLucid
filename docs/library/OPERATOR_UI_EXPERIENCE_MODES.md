@@ -129,6 +129,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Webhook payload includes rehearsal flag (CG-093):** `com.archlucid.authority.run.completed` and `com.archlucid.manifest.finalized.v1` outbox payloads include **`structuralExecutionMode`**, **`workingCareerRehearsalDoor`**, and **`careerComplete`** from the CG-019 run stamp. Webhook consumers must not infer Career proof from HTTP 200 alone — filter on `careerComplete === true` and Real Mode. Schema registry: `schemas/integration-events/authority-run-completed.v1.schema.json` and `manifest-finalized.v1.schema.json`.
 
+**Integration DLQ is not Career proof (CG-094):** `/internal/failed-integration-messages` shows `IntegrationEventsDlqCareerHonestyStrip` above the ops queue. Dead-letter rows are delivery failures awaiting retry — not sealed review records. Cross-tenant callout and Sources intro reinforce ops-only triage; Working primary nav already hides this admin surface. The retry/suppress tool remains available to Internal Operations.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
