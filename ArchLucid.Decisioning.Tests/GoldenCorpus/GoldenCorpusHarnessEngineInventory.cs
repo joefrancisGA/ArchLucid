@@ -17,7 +17,6 @@ public static class GoldenCorpusHarnessEngineInventory
     private static readonly IReadOnlyDictionary<string, string> AbsentReasons =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            ["requirement-gap"] = "Needs cross-run requirement diff graph — not present on golden corpus graphs.",
             ["requirement-cross-run-diff"] = "Cross-run diff engine — golden corpus is single-snapshot per case.",
             ["topology-cross-run-diff"] = "Cross-run topology diff — golden corpus is single-snapshot per case.",
             ["policy-applicability"] = "Policy-filtered packs exercised in WK-22 sibling tests, not merge harness.",

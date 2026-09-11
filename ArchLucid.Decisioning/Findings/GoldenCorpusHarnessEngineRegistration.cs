@@ -10,6 +10,7 @@ public static class GoldenCorpusHarnessEngineRegistration
     public static IReadOnlyList<string> RegisteredEngineTypeIds { get; } =
     [
         "requirement",
+        "requirement-gap",
         "requirement-expectation",
         "requirement-coverage",
         "requirement-sku-tier",
