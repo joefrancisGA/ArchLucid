@@ -92,6 +92,7 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inFlightSaveRef = useRef<Promise<boolean> | null>(null);
   const trailingSaveNeededRef = useRef(false);
+  const lastPersistWasConflictRef = useRef(false);
   const persistDraftRef = useRef<() => Promise<boolean>>(async () => false);
 
   const persistDraft = useCallback(async (options?: { readonly forceOverwrite?: boolean }): Promise<boolean> => {
@@ -165,6 +166,7 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
 
     const sequence = saveSequenceRef.current + 1;
     saveSequenceRef.current = sequence;
+    lastPersistWasConflictRef.current = false;
     args.setSaveState("saving");
     args.setConflictMessage(null);
 
@@ -216,6 +218,7 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
         });
 
         if (casDecision.kind === "conflict") {
+          lastPersistWasConflictRef.current = true;
           args.setConflictMessage(architectureDraftCasConflictMessage(DRAFT_CAS_STALE_CODE));
           args.setSaveState("error");
           patchFailedNonRetryable = true;
@@ -263,6 +266,7 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
           args.setSaveState("error");
 
           if (isApiRequestError(error) && error.httpStatus === 409) {
+            lastPersistWasConflictRef.current = true;
             const failure = toApiLoadFailure(error);
             args.setConflictMessage(
               architectureDraftCreateMutationBlockedReason(failure)
@@ -340,5 +344,9 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
     };
   }, [args, args.fields, args.actorSet, args.hasUnsavedChanges, persistDraft]);
 
-  return { persistDraft, keepLocalDraftOnConflict };
+  return {
+    persistDraft,
+    keepLocalDraftOnConflict,
+    wasLastSaveConflict: () => lastPersistWasConflictRef.current,
+  };
 }

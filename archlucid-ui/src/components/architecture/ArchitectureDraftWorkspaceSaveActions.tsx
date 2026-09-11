@@ -12,6 +12,7 @@ import {
   type ArchitectureDraftFieldState,
 } from "@/lib/architecture/architecture-draft-readiness";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { showMutationError } from "@/lib/toast";
 
 type ArchitectureDraftWorkspaceSaveActionsProps = {
   readonly editorLocked: boolean;
@@ -21,6 +22,7 @@ type ArchitectureDraftWorkspaceSaveActionsProps = {
   readonly hasPersistedDraft: boolean;
   readonly fields: ArchitectureDraftFieldState;
   readonly saveDraft: () => Promise<boolean>;
+  readonly wasLastSaveConflict?: () => boolean;
   readonly onExitPendingChange: (pending: boolean) => void;
   readonly children?: ReactNode;
 };
@@ -55,9 +57,14 @@ export function ArchitectureDraftWorkspaceSaveActions(
       return;
     }
 
+    if (props.conflictMessage !== null || props.wasLastSaveConflict?.() === true) {
+      return;
+    }
+
     // Conflict banner is driven by autosave hook state on the next render — keep failures on-page.
     setSaveActionError("Could not save your architecture draft. Try again.");
-  }, [props.saveDraft]);
+    showMutationError("Architecture draft", "Could not save your architecture draft. Try again.");
+  }, [props.conflictMessage, props.saveDraft, props.wasLastSaveConflict]);
 
   const handleSaveAndExit = useCallback(async () => {
     if (
@@ -77,7 +84,13 @@ export function ArchitectureDraftWorkspaceSaveActions(
 
     if (!saved) {
       props.onExitPendingChange(false);
+
+      if (props.conflictMessage !== null || props.wasLastSaveConflict?.() === true) {
+        return;
+      }
+
       setSaveActionError("Exit paused — save your changes before leaving this page.");
+      showMutationError("Architecture draft", "Exit paused — save your changes before leaving this page.");
 
       return;
     }

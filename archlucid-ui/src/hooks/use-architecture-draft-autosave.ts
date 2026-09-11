@@ -153,5 +153,6 @@ export function useArchitectureDraftAutosave(
     hasPersistedDraft,
     recoveredLocally,
     keepLocalDraftOnConflict: persistDraftBundle.keepLocalDraftOnConflict,
+    wasLastSaveConflict: persistDraftBundle.wasLastSaveConflict,
   };
 }
