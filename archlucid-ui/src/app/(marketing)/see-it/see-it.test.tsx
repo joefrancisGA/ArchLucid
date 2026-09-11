@@ -13,6 +13,7 @@ import {
 } from "@/lib/showcase-static-demo";
 
 import { loadSeeItDemoPreview } from "./load-see-it-demo-preview";
+import { resolveSeeItMarketingRenderPlan } from "./normalize-see-it-payload";
 import { createMinimalDemoPreviewPayload } from "./see-it.fixtures";
 import { resolveSeeItDemoUniverse, seeItUniverseBannerTitleForPayload } from "./see-it-demo-universe";
 import { SeeItDeliverablePreview } from "./SeeItDeliverablePreview";
@@ -188,6 +189,38 @@ describe("resolveSeeItDemoUniverse", () => {
   });
 });
 
+describe("resolveSeeItMarketingRenderPlan", () => {
+  it("downgrades live disclosure to snapshot when thin API JSON is upgraded to static showcase", () => {
+    const thinLivePayload = createMinimalDemoPreviewPayload();
+    thinLivePayload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    thinLivePayload.run.description = CUSTOMER_INTAKE_BUYER_REVIEW_TITLE;
+    thinLivePayload.artifacts = [];
+
+    const plan = resolveSeeItMarketingRenderPlan({
+      source: "live",
+      payload: thinLivePayload,
+    });
+
+    expect(plan.source).toBe("snapshot");
+    expect(plan.payload.run.runId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
+    expect(plan.payload.artifacts.length).toBeGreaterThan(0);
+  });
+
+  it("keeps live disclosure when the live payload is already usable", () => {
+    const livePayload = createMinimalDemoPreviewPayload();
+    livePayload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    livePayload.run.description = CUSTOMER_INTAKE_BUYER_REVIEW_TITLE;
+
+    const plan = resolveSeeItMarketingRenderPlan({
+      source: "live",
+      payload: livePayload,
+    });
+
+    expect(plan.source).toBe("live");
+    expect(plan.payload).toBe(livePayload);
+  });
+});
+
 describe("SeeItMarketingBody", () => {
   it("renders live mode without snapshot notice and fails closed when universe is unknown", () => {
     const payload = createMinimalDemoPreviewPayload();
@@ -258,6 +291,23 @@ describe("SeeItMarketingBody", () => {
     render(<SeeItMarketingBody source="snapshot" payload={payload} />);
 
     expect(screen.getByTestId("see-it-snapshot-notice")).toBeInTheDocument();
+  });
+
+  it("shows snapshot disclosure when live fetch upgraded thin JSON to static showcase", () => {
+    const thinLivePayload = createMinimalDemoPreviewPayload();
+    thinLivePayload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    thinLivePayload.run.description = CUSTOMER_INTAKE_BUYER_REVIEW_TITLE;
+    thinLivePayload.artifacts = [];
+
+    const { source, payload } = resolveSeeItMarketingRenderPlan({
+      source: "live",
+      payload: thinLivePayload,
+    });
+
+    render(<SeeItMarketingBody source={source} payload={payload} />);
+
+    expect(screen.getByTestId("see-it-snapshot-notice")).toBeInTheDocument();
+    expect(screen.getByTestId("see-it-preview-disclosure")).toHaveTextContent(/finalized January 2026/i);
   });
 
   /** Snapshot JSON or malformed API payloads may omit `artifacts`; avoid `.slice` on undefined (SSR stringify). */

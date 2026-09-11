@@ -6,6 +6,10 @@ import { useEffect, useMemo, useState } from "react";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 import { patchArchitectureIdentity } from "@/lib/api/architecture-identity-api";
 import { architectureIdentityMutationBlockedReason } from "@/lib/architecture/architecture-identity-mutation-blocked-reason";
 import {
@@ -19,6 +23,9 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { cn } from "@/lib/utils";
+
+export const ARCHITECTURE_IDENTITY_RENAME_UNSAVED_MESSAGE =
+  "You have an unsaved architecture name change. Leave this page without saving?";
 
 type ArchitectureIdentityRenameFormProps = {
   readonly architectureId: string;
@@ -42,6 +49,10 @@ export function ArchitectureIdentityRenameForm(
   const trimmedSavedName = props.displayName.trim();
   const isDirty = trimmedDraftName !== trimmedSavedName;
   const canSave = isDirty && trimmedDraftName.length > 0;
+  const documentGuards = useLivelihoodDocumentGuards({
+    when: isDirty,
+    message: ARCHITECTURE_IDENTITY_RENAME_UNSAVED_MESSAGE,
+  });
 
   const saveMutation = useMutation({
     mutationFn: () =>
@@ -137,6 +148,12 @@ export function ArchitectureIdentityRenameForm(
           recoveryScenario="api-problem"
         />
       ) : null}
+      <LivelihoodDocumentGuardDialog
+        message={documentGuards.dialogMessage}
+        onCancelLeave={documentGuards.cancelLeave}
+        onConfirmLeave={documentGuards.confirmLeave}
+        open={documentGuards.dialogOpen}
+      />
     </section>
   );
 }

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   EnterpriseTable,
@@ -18,6 +19,7 @@ import {
   useRemediationPatternsQuery,
 } from "@/hooks/use-remediation-patterns-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   approveRemediationPatternVersion,
   importRemediationPatternYaml,
@@ -29,6 +31,8 @@ import {
 } from "@/lib/remediation-pattern-sod";
 import { remediationPatternStatusLabel, REMEDIATION_PATTERN_STATUS } from "@/lib/remediation-pattern-status";
 import type { RemediationPatternRecord, RemediationPatternVersionRecord } from "@/lib/remediation-pattern-types";
+
+import { RemediationPatternsGuards } from "./RemediationPatternsGuards";
 
 function VersionHistoryTable(props: {
   readonly versions: ReadonlyArray<RemediationPatternVersionRecord>;
@@ -167,12 +171,14 @@ export function RemediationPatternsClient() {
 
   return (
     <div className="space-y-6 p-4" data-testid="remediation-patterns-page">
-      <header className="space-y-2">
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Remediation patterns</h1>
-        <p className={OPERATOR_TYPOGRAPHY.helper}>
-          Create, review, and approve governed remediation patterns. YAML import always lands as Draft and is not eligible for production instances until approved by a different actor.
-        </p>
-      </header>
+      <RemediationPatternsGuards yamlDraft={yamlDraft} />
+      <OperatorPageHeader
+        navHref="/governance/remediation-patterns"
+        title={OPERATOR_NAV_LINK_LABELS.remediationPatterns}
+        subtitle="Create, review, and approve governed remediation patterns. YAML import always lands as Draft and is not eligible for production instances until approved by a different actor."
+        headingLevel="h1"
+        titleTestId="remediation-patterns-page-title"
+      />
 
       <section className="space-y-3" aria-label="Pattern registry list">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Pattern registry</h2>

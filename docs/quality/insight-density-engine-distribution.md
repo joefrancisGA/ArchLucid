@@ -31,14 +31,14 @@ Recorded scores on this corpus do not form a 60/65/75/80/85 ladder; inventory an
 | orphaned-aws-resource | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | orphaned-azure-resource | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | orphaned-gcp-resource | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
-| requirement-expectation | 30 | 85 | 100 | 100 | 0 | 0 | 0 | 1 | 0 | 0 |
+| requirement-expectation | 30 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | requirement-sku-tier | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | secrets-lifecycle | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | security-baseline | 16 | 70 | 100 | 100 | 0 | 0 | 0 | 0 | 2 | 0 |
-| security-baseline-completeness | 30 | 85 | 100 | 100 | 0 | 0 | 0 | 1 | 0 | 0 |
-| security-baseline-expectation | 30 | 85 | 100 | 100 | 0 | 0 | 0 | 1 | 0 | 0 |
+| security-baseline-completeness | 30 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
+| security-baseline-expectation | 30 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | security-coverage | 7 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | segmentation-semantics | 3 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
-| topology-coverage | 30 | 85 | 100 | 100 | 0 | 0 | 0 | 1 | 0 | 0 |
+| topology-coverage | 30 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | topology-security-drift | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 

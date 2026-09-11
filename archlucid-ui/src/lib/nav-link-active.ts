@@ -9,7 +9,11 @@ import {
   SETTINGS_WORKSPACE_SETTINGS_PATH,
   pathMatchesSettingsWorkspaceSettings,
 } from "@/lib/settings-admin-route-paths";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { navHrefPathPart } from "@/lib/nav-href-path-part";
 import { PROJECTS_RECYCLE_BIN_PATH } from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
 
@@ -44,6 +48,13 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
   // Findings queue is exact-match only — assigned-to-me child route must not highlight the hub item.
   if (pathPart === GOVERNANCE_FINDINGS_PATH) {
     return pathname === GOVERNANCE_FINDINGS_PATH;
+  }
+
+  if (
+    pathPart === GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH
+    || pathPart === SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH
+  ) {
+    return pathname === pathPart;
   }
 
   if (pathPart === SETTINGS_WORKSPACE_SETTINGS_PATH) {

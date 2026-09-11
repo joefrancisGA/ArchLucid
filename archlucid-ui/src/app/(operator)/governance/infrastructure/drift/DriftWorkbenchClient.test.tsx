@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { DriftWorkbenchClient } from "@/app/(operator)/governance/infrastructure/drift/DriftWorkbenchClient";
@@ -44,6 +44,10 @@ const mockFetchChanges = vi.fn(async () => ({
   hasMore: false,
 }));
 
+const { downloadInfraEvidenceTerraformAdvisoryZipMock } = vi.hoisted(() => ({
+  downloadInfraEvidenceTerraformAdvisoryZipMock: vi.fn(async () => undefined),
+}));
+
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   fetchInfraEvidenceSnapshots: vi.fn(async () => ({
     items: [
@@ -64,7 +68,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   })),
   fetchInfraEvidenceDiffsForSnapshot: (...args: unknown[]) => mockFetchDiffs(...args),
   fetchInfraEvidenceDiffChanges: (...args: unknown[]) => mockFetchChanges(...args),
-  downloadInfraEvidenceTerraformAdvisoryZip: vi.fn(async () => undefined),
+  downloadInfraEvidenceTerraformAdvisoryZip: downloadInfraEvidenceTerraformAdvisoryZipMock,
   formatInfraEvidenceApiError: (error: unknown) => String(error),
 }));
 
@@ -91,6 +95,8 @@ describe("DriftWorkbenchClient", () => {
     evalChrome.enabled = true;
     mockFetchDiffs.mockClear();
     mockFetchChanges.mockClear();
+    downloadInfraEvidenceTerraformAdvisoryZipMock.mockReset();
+    downloadInfraEvidenceTerraformAdvisoryZipMock.mockResolvedValue(undefined);
   });
 
   it("renders snapshot picker and export button", async () => {
@@ -237,5 +243,23 @@ describe("DriftWorkbenchClient", () => {
 
     expect(await screen.findByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
     expect(screen.getByText("How drift compare works")).toBeInTheDocument();
+  });
+
+  it("shows an inline error instead of a toast when Terraform export fails", async () => {
+    downloadInfraEvidenceTerraformAdvisoryZipMock.mockRejectedValueOnce(
+      new Error("Request validation failed (HTTP 400): Export unavailable in this environment."),
+    );
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DriftWorkbenchClient />);
+
+    fireEvent.click(await screen.findByTestId("infra-drift-export-terraform"));
+
+    expect(await screen.findByTestId("infra-drift-export-error")).toHaveTextContent(
+      "Could not download Terraform advisory export",
+    );
+    expect(screen.getByTestId("infra-drift-export-error")).toHaveTextContent(
+      "Export unavailable in this environment.",
+    );
   });
 });

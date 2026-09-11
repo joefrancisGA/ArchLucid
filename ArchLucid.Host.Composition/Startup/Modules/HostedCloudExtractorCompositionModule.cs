@@ -51,7 +51,15 @@ public static class HostedCloudExtractorCompositionModule
         services.AddScoped<IHostedAzureExtractorRunService, HostedAzureExtractorRunService>();
         services.AddScoped<IAzureExtractorAutoPullOrchestrator, AzureExtractorAutoPullOrchestrator>();
         services.Configure<HostedAzureExtractorOptions>(configuration.GetSection(HostedAzureExtractorOptions.SectionName));
+        services.Configure<EntraGroupMembershipGraphOptions>(
+            configuration.GetSection(EntraGroupMembershipGraphOptions.SectionName));
         services.AddSingleton<IHostedAzureExtractorCredentialFactory, WorkloadIdentityHostedAzureExtractorCredentialFactory>();
+        services
+            .AddHttpClient<IEntraGroupMembershipGraphReader, EntraGroupMembershipGraphReader>(static client =>
+            {
+                client.Timeout = TimeSpan.FromMinutes(2);
+            })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane);
         services
             .AddHttpClient<IHostedAzureArmReadClient, GetOnlyHostedAzureArmReadClient>(static client =>
             {

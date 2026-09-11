@@ -6,12 +6,14 @@ import { governanceWorkflowMutationBlockedReason } from "@/lib/governance/govern
 
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { GovernanceEnvironmentActivation } from "@/types/governance-workflow";
+import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiPostJson, apiPutJson } from "./http";
+
 import type {
   GovernanceEnvironmentCatalog,
   ReplaceGovernanceEnvironmentCatalogRequest,
 } from "@/types/governance-environment-catalog";
-import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
-import { apiGet, apiPostJson, apiPutJson } from "./http";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
@@ -48,7 +50,7 @@ export async function listActivations(runId: string): Promise<GovernanceEnvironm
   }
 
   try {
-    return await apiGet<GovernanceEnvironmentActivation[]>(
+    return await apiGetSealedManifestAware<GovernanceEnvironmentActivation[]>(
       `${governanceBase()}/runs/${encodeURIComponent(runId)}/activations`,
     );
   } catch (error: unknown) {
@@ -62,7 +64,7 @@ export async function listActivations(runId: string): Promise<GovernanceEnvironm
 /** Returns the administrator-defined governance environment catalog for the current scope. */
 export async function fetchGovernanceEnvironmentCatalog(): Promise<GovernanceEnvironmentCatalog> {
   try {
-    return await apiGet<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`);
+    return await apiGetSealedManifestAware<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceEnvironmentCatalogBlockedReason(failure);

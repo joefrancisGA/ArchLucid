@@ -376,7 +376,8 @@ public sealed class RunQueryControllerTests
             traceabilityExport ?? Mock.Of<ITraceabilityBundleExportApplicationService>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IScopeContextProvider>(),
-            Mock.Of<IManifestHashService>())
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<ArchLucid.Api.Support.IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

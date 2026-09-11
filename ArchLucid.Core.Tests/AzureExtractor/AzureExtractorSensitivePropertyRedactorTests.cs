@@ -4752,8 +4752,184 @@ public sealed class AzureExtractorSensitivePropertyRedactorTests
     }
 
     [Fact]
+    public void IsSensitiveKey_detects_hyphenated_connection_string_key_names()
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey("connection-string").Should().BeTrue();
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey("primary-key").Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsSensitiveKey_ignores_non_prefixed_secret_fragment()
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey("non-secret").Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("nosecret")]
+    [InlineData("no-secret")]
+    [InlineData("nopassword")]
+    [InlineData("no_password")]
+    public void IsSensitiveKey_ignores_no_prefixed_secret_fragments(string key)
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(key).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("unsecret")]
+    [InlineData("un-secret")]
+    [InlineData("unpassword")]
+    [InlineData("un_password")]
+    public void IsSensitiveKey_ignores_un_prefixed_secret_fragments(string key)
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(key).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("mysecret")]
+    [InlineData("disclosureSecret")]
+    [InlineData("classificationPassword")]
+    public void IsSensitiveKey_ignores_embedded_secret_fragment_in_compound_property_name(string key)
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(key).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RedactStructuredJson_redacts_sensitive_keys_inside_array_elements()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """[{"apiKey":"abc123"},{"location":"eastus"}]""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Contain("[REDACTED]");
+        redacted.Should().NotContain("abc123");
+        redacted.Should().Contain("eastus");
+    }
+
+    [Fact]
+    public void RedactStructuredJson_redacts_sensitive_keys_inside_nested_array_objects()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """{"bindings":[{"settings":{"apiKey":"abc123"}}],"region":"eastus"}""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Contain("[REDACTED]");
+        redacted.Should().NotContain("abc123");
+        redacted.Should().Contain("eastus");
+    }
+
+    [Fact]
+    public void RedactStructuredJson_redacts_sensitive_boolean_scalar_values()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """{"settings":{"apiKey":true,"enabled":false}}""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Contain("[REDACTED]");
+        redacted.Should().NotContain("true");
+        redacted.Should().Contain("false");
+    }
+
+    [Fact]
+    public void RedactStructuredJson_redacts_sensitive_number_scalar_values()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """{"settings":{"apiKey":123456,"replicaCount":3}}""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Contain("[REDACTED]");
+        redacted.Should().NotContain("123456");
+        redacted.Should().Contain("3");
+    }
+
+    [Fact]
+    public void RedactStructuredJson_serializes_sensitive_null_scalar_values_as_empty_string()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """{"settings":{"apiKey":null,"replicaCount":3}}""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Be("""{"settings":{"apiKey":"","replicaCount":3}}""");
+    }
+
+    [Fact]
+    public void RedactStructuredJson_preserves_non_sensitive_null_scalar_values()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """{"settings":{"description":null,"replicaCount":3}}""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Be("""{"settings":{"description":null,"replicaCount":3}}""");
+    }
+
+    [Theory]
+    [InlineData("secretName")]
+    [InlineData("passwordValue")]
+    [InlineData("connectionString")]
+    public void IsSensitiveKey_detects_secret_prefix_at_start_of_property_name(string key)
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(key).Should().BeTrue();
+    }
+
+    [Fact]
+    public void RedactStructuredJson_redacts_sensitive_scalar_in_nested_object()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """{"siteConfig":{"connectionString":"AccountName=x;AccountKey=y"}}""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Contain("[REDACTED]");
+        redacted.Should().NotContain("AccountKey=y");
+    }
+
+    [Theory]
+    [InlineData("sasTokenless")]
+    [InlineData("apitokenizer")]
+    public void IsSensitiveKey_ignores_tokenless_and_tokenizer_suffix_false_positives(string key)
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(key).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RedactStructuredJson_preserves_non_sensitive_nested_object_values()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """{"siteConfig":{"alwaysOn":true,"http20Enabled":false}}""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Contain("alwaysOn");
+        redacted.Should().Contain("true");
+        redacted.Should().NotContain("[REDACTED]");
+    }
+
+    [Fact]
     public void RedactValue_returns_marker()
     {
         AzureExtractorSensitivePropertyRedactor.RedactValue("super-secret").Should().Be("[REDACTED]");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void RedactValue_returns_empty_for_null_or_whitespace(string? value)
+    {
+        AzureExtractorSensitivePropertyRedactor.RedactValue(value).Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void IsSensitiveKey_returns_false_for_null_or_whitespace(string? key)
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(key).Should().BeFalse();
     }
 }
