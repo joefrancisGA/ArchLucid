@@ -64,6 +64,9 @@ internal static class TenantScopedSqlExpressionResolver
                 if (IsRecognizedScopeHelperInvocation(invocation, semanticModel))
                     return new ResolutionResult(string.Empty, true, true);
 
+                if (TryResolveStringFormatInvocation(invocation, semanticModel, out ResolutionResult formatResolution))
+                    return formatResolution;
+
                 if (invocation.Expression is MemberAccessExpressionSyntax concatAccess &&
                     (string.Equals(concatAccess.Name.Identifier.Text, "Concat", StringComparison.Ordinal) ||
                      string.Equals(concatAccess.Name.Identifier.Text, "Join", StringComparison.Ordinal)))
@@ -280,5 +283,56 @@ internal static class TenantScopedSqlExpressionResolver
             return IsRecognizedScopeHelper(memberAccess, semanticModel);
 
         return false;
+    }
+
+    private static bool TryResolveStringFormatInvocation(
+        InvocationExpressionSyntax invocation,
+        SemanticModel semanticModel,
+        out ResolutionResult result)
+    {
+        result = null!;
+
+        if (!IsStringFormatInvocation(invocation, semanticModel))
+            return false;
+
+        SeparatedSyntaxList<ArgumentSyntax> arguments = invocation.ArgumentList.Arguments;
+
+        if (arguments.Count == 0)
+            return false;
+
+        ResolutionResult formatString = ResolveCore(arguments[0].Expression, semanticModel, visitingInterpolatedHole: false);
+
+        if (!formatString.IsStaticallyResolved || formatString.SqlText is null)
+            return false;
+
+        object?[] formatArgs = new object?[arguments.Count - 1];
+        bool hasScopeHelper = formatString.HasScopeHelperInvocation;
+
+        for (int index = 1; index < arguments.Count; index++)
+        {
+            ResolutionResult argument = ResolveCore(arguments[index].Expression, semanticModel, visitingInterpolatedHole: false);
+
+            if (!argument.IsStaticallyResolved)
+                return false;
+
+            hasScopeHelper |= argument.HasScopeHelperInvocation;
+            formatArgs[index - 1] = argument.SqlText ?? string.Empty;
+        }
+
+        string composed = string.Format(formatString.SqlText, formatArgs);
+        result = new ResolutionResult(composed, true, hasScopeHelper);
+
+        return true;
+    }
+
+    private static bool IsStringFormatInvocation(InvocationExpressionSyntax invocation, SemanticModel semanticModel)
+    {
+        if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
+            return false;
+
+        if (!string.Equals(method.Name, "Format", StringComparison.Ordinal))
+            return false;
+
+        return method.ContainingType.SpecialType == SpecialType.System_String;
     }
 }

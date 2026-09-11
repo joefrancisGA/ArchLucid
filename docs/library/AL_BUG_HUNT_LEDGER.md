@@ -1122,11 +1122,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 5
-- **bugs-found:** 8
+- **hunts:** 6
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — hash-line SQL comments bypassed `StripSqlComments`, false-binding tenant predicates
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — `string.Format` SQL expressions bypassed static resolution and ARCH006
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1142,9 +1142,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Non-const local / static readonly SQL variable references bypassed ARCH006 — **hit 2026-08-24:** resolver only folded `const` symbols, not declarator initializers; regressions in `ARCH006_reports_unscoped_sql_for_non_const_local_variable` and `ARCH006_reports_unscoped_sql_for_static_readonly_field`
 - [x] (proven) Property SQL initializers bypassed ARCH006 static resolution — **hit 2026-08-25:** `TenantScopedSqlExpressionResolver` resolved locals/fields from declarators but ignored `PropertyDeclarationSyntax` initializers, so `private string Sql { get; } = "SELECT … dbo.Runs …"` passed through unanalyzed; fixed by folding property initializers; regression in `ARCH006_reports_unscoped_sql_for_property_with_initializer`
 - [x] (proven) Hash-line SQL comments (`# …`) treated as tenant scope predicates — **hit 2026-09-03:** `StripSqlComments` stripped `--` and `/* */` but not full-line `#` comments, so `# TenantId = @TenantId …` false-bound `dbo.Runs`; fixed with `HashLineCommentRegex`; regression in `Tenant_id_predicate_in_hash_sql_comment_does_not_bind_runs`
-- [ ] (candidate) `Execute`/`ExecuteAsync` with `CommandType.StoredProcedure` may still be analyzed as raw SQL when procedure name is a string literal — needs hunt-ready locus in `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgument`
-- [ ] (candidate) `string.Format` / `nameof` / non-literal verbatim concatenation in SQL expressions may bypass static resolution — resolver returns non-static for unrecognized expression shapes
+- [x] (valid-no-repro) `Execute`/`ExecuteAsync` with `CommandType.StoredProcedure` analyzed benign procedure name as raw SQL — **cheap-disproof 2026-09-11 hunt #1750:** `usp_LoadRuns` with `CommandType.StoredProcedure` does not reference tenant-scoped tables; no ARCH006/ARCH006a false positive; regression `ARCH006_does_not_analyze_stored_procedure_name_when_command_type_is_stored_procedure`
+- [x] (proven) `string.Format` with table name in format arguments bypassed static SQL resolution — **hit 2026-09-11 hunt #1750:** resolver ignored `string.Format` invocations so `string.Format("SELECT … FROM {0}", "dbo.Runs")` evaded ARCH006; fixed `TryResolveStringFormatInvocation` in `TenantScopedSqlExpressionResolver`; regression `ARCH006a_reports_unanalyzable_sql_for_string_format_table_reference`
 - [x] (valid-no-repro) `const` field SQL initializers already fold via `IFieldSymbol.IsConst` in `ResolveFromSymbol` — same path as proven local/readonly fixes; no separate property-vs-field gap
+
+2026-09-11 thorough hunt #1750 (hit): reseeded tenant-scoped-analyzer; proved `string.Format` SQL bypass; cheap-disproof closed stored-procedure false-positive candidate; 12 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
 ---
 
