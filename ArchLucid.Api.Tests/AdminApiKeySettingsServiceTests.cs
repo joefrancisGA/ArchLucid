@@ -156,6 +156,27 @@ public sealed class AdminApiKeySettingsServiceTests
         response.DeploymentAction.Should().Be("Replace");
     }
 
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_admin_slot_has_only_comma_segments()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = " , , "
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "comma-only config is not authenticatable key material");
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "Admin", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
     private static AdminApiKeySettingsService CreateService(ApiKeyAuthenticationOptions options)
     {
         Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> monitor = new();
