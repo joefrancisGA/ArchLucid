@@ -42,12 +42,14 @@ export type EmailRunToSponsorExportActionsProps = {
   readonly markSentBusy: boolean;
   readonly sentToSponsorUtc: string | null;
   readonly blockSponsorPdf: boolean;
+  readonly blockSponsorEmailSend: boolean;
   readonly blockSponsorPdfForExecutionMode: boolean;
   readonly blockSponsorPdfForAiGate: boolean;
   readonly blockSponsorPdfForProjectedDollar: boolean;
   readonly blockSponsorPdfForRoi: boolean;
   readonly onDownloadPdf: () => Promise<void>;
   readonly onMarkSentToSponsor: () => Promise<void>;
+  readonly onComposeEmailToSponsor: () => void;
 };
 
 export function EmailRunToSponsorExportActions({
@@ -61,12 +63,14 @@ export function EmailRunToSponsorExportActions({
   markSentBusy,
   sentToSponsorUtc,
   blockSponsorPdf,
+  blockSponsorEmailSend,
   blockSponsorPdfForExecutionMode,
   blockSponsorPdfForAiGate,
   blockSponsorPdfForProjectedDollar,
   blockSponsorPdfForRoi,
   onDownloadPdf,
   onMarkSentToSponsor,
+  onComposeEmailToSponsor,
 }: EmailRunToSponsorExportActionsProps) {
   const [collateralBusy, setCollateralBusy] = useState<string | null>(null);
   const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
@@ -131,6 +135,18 @@ export function EmailRunToSponsorExportActions({
           }}
         >
           {collateralBusy === "proof-pack" ? "Downloading…" : "Download sponsor proof pack (ZIP)"}
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={blockSponsorEmailSend}
+          onClick={() => {
+            onComposeEmailToSponsor();
+          }}
+          data-testid="email-run-to-sponsor-compose-email"
+          aria-describedby={blockSponsorEmailSend ? "email-run-to-sponsor-email-block-hint" : undefined}
+        >
+          Compose email to sponsor
         </Button>
         <Button
           type="button"
@@ -213,13 +229,21 @@ export function EmailRunToSponsorExportActions({
             type="button"
             variant="outline"
             size="sm"
-            disabled={markSentBusy || blockSponsorPdf}
+            disabled={markSentBusy || blockSponsorEmailSend}
             onClick={() => void onMarkSentToSponsor()}
             data-testid="email-run-to-sponsor-mark-sent"
           >
             {markSentBusy ? "Recording…" : "Mark as sent to sponsor"}
           </Button>
         )}
+        <span
+          id="email-run-to-sponsor-email-block-hint"
+          className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        >
+          {blockSponsorEmailSend && !blockSponsorPdf
+            ? "Email compose and mark-sent stay disabled until rehearsal honesty is acknowledged."
+            : null}
+        </span>
         <span
           id="email-run-to-sponsor-pdf-block-hint"
           className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}

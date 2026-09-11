@@ -103,6 +103,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **API run export posture (CG-028):** `GET /v1/artifacts/runs/{runId}/export` and `POST …/export/push` apply the same Working Career completeness gate as DOCX/sponsor exports. Unlabeled Simulator + Career door returns **409** `CareerArtifactBlocked` ProblemDetails with `blockReasonCode` (e.g. `simulator_rehearsal_not_career_complete`) — not a generic 500. Rehearsal door may export when other gates pass.
 
+**Email-to-sponsor gate (CG-029):** `EmailRunToSponsorBanner` inherits the sponsor PDF honesty gate (`evaluateCareerArtifactHonesty` with CG-019 door stamp and `simulatorRehearsalBannerOnArtifact`). Working **Career** door + Simulator/Fallback cannot compose or mark-sent. **Rehearsal** door on Simulator requires TB-2005 rehearsal honesty acknowledgment before compose/mark-sent; `mailto` subject is forced to `[Rehearsal] …` and body carries rehearsal disclaimer lines so outbox drafts cannot look Career-complete.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.

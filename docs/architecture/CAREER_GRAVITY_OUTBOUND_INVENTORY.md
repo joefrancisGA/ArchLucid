@@ -21,7 +21,7 @@ Outbound is how rehearsal leaks into another system of record. Sponsors and tick
 
 | Channel | Path | Payload field | Mode / door | Leak class | Owner |
 |---------|------|---------------|-------------|------------|-------|
-| Email to sponsor | `archlucid-ui/src/components/use-email-run-to-sponsor-banner.ts` | Career artifact honesty + sponsor-proof readiness | Mode via pilot deltas; **no** Career/Rehearsal door | covered (honesty) / door gap | CG-029 / CG-038 adjacent |
+| Email to sponsor | `archlucid-ui/src/components/use-email-run-to-sponsor-banner.ts` | Career artifact honesty + sponsor-proof readiness + rehearsal mailto gate | Mode + CG-019 Career/Rehearsal door stamp | **covered** | CG-029 |
 | Email to sponsor | `archlucid-ui/src/components/EmailRunToSponsorBanner.tsx` | CTA chrome | Inherits banner hook | covered | CG-029 |
 | Email to sponsor | `archlucid-ui/src/components/EmailRunToSponsorExportActions.tsx` | PDF / mark-sent | Honesty block reasons | covered | CG-029 |
 | Weekly digest | `ArchLucid.Application/ExecDigest/ExecDigestComposition.cs` | Week label, committed counts, highlighted runs | **No** structural Mode or door | **bypass** | CG-037 |
@@ -40,7 +40,7 @@ Outbound is how rehearsal leaks into another system of record. Sponsors and tick
 
 1. Digest composition has no `structuralExecutionMode`. A Simulator week still reads as committed Career activity.
 2. ITSM issues copy finding text into Jira/ServiceNow with sealed-hash only — rehearsal is not a ticket field.
-3. Email-to-sponsor already calls `evaluateCareerArtifactHonesty` (CG-003 leftover). Do not re-run that helper; CG-029 still owns send-gate leftovers.
+3. Email-to-sponsor calls `evaluateCareerArtifactHonesty` with door stamp (CG-029). Rehearsal compose forces `[Rehearsal]` subject prefix and TB-2005 ack before send.
 
 ## Shrink rules
 
