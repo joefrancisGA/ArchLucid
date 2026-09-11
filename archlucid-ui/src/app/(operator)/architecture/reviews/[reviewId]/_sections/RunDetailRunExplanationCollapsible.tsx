@@ -306,7 +306,7 @@ export function RunDetailRunExplanationCollapsible(
           buyerPolishedArtifactTable={buyerPolishedArtifactTable}
         />
         {explanationFailure ? (
-          <>
+          <div className="space-y-2" data-testid="run-detail-explanation-blocked">
             <p className={cn("m-0 mb-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               Aggregate explanation could not be loaded.
             </p>
@@ -316,12 +316,22 @@ export function RunDetailRunExplanationCollapsible(
               correlationId={explanationFailure.correlationId}
               variant="warning"
             />
-            <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {explanationBlockedReason ??
-                "The review and manifest loaded, but the explanation aggregate request failed (HTTP / transport / 404)."}
-            </p>
-            <OperatorSectionRetryButton label="Retry loading explanation" />
-          </>
+            {explanationBlockedReason ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="run-detail-explanation-blocked-reason"
+              >
+                {explanationBlockedReason}
+              </p>
+            ) : (
+              <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                The review and manifest loaded, but the explanation aggregate request failed (HTTP / transport / 404).
+              </p>
+            )}
+            {explanationBlockedReason === null ? (
+              <OperatorSectionRetryButton label="Retry loading explanation" />
+            ) : null}
+          </div>
         ) : null}
         {!explanationFailure ? (
           <>
