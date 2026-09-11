@@ -50,6 +50,15 @@ export function ExecDigestSponsorDeepLinkPanel(props: ExecDigestSponsorDeepLinkV
             <p className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>{DIGEST_SPONSOR_PAGE_EYEBROW}</p>
             <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>{pageTitle}</h1>
             <p className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{view.weekLabel}</p>
+            {view.rehearsalBodyDisclaimer ? (
+              <p
+                className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}
+                data-testid="digest-sponsor-rehearsal-disclaimer"
+                role="status"
+              >
+                <strong>Rehearsal honesty:</strong> {view.rehearsalBodyDisclaimer}
+              </p>
+            ) : null}
             <p className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{DIGEST_SPONSOR_LEAD}</p>
           </header>
         }
@@ -84,6 +93,17 @@ export function ExecDigestSponsorDeepLinkPanel(props: ExecDigestSponsorDeepLinkV
                     >
                       <p className={cn("m-0 font-medium text-al-text-primary", MARKETING_TYPOGRAPHY.body)}>
                         {highlightedReviewLabel(run.caption)}
+                        {run.rehearsalRowLabel ? (
+                          <>
+                            <span aria-hidden="true"> · </span>
+                            <span
+                              className="font-semibold text-al-text-secondary"
+                              data-testid={`digest-sponsor-rehearsal-row-label-${run.runIdHex}`}
+                            >
+                              {run.rehearsalRowLabel}
+                            </span>
+                          </>
+                        ) : null}
                       </p>
                       <p className={cn("m-0 mt-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
                         Significance score {run.significanceScore}

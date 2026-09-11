@@ -56,7 +56,7 @@ export function FindingItsmExportPanel({
           </p>
         ) : (
           <div className="flex flex-wrap items-center gap-3 pt-3">
-            <ItsmOutboundCreateIssueDialog findingId={findingId} prominent />
+            <ItsmOutboundCreateIssueDialog findingId={findingId} scopedRunId={runId} prominent />
           </div>
         )}
         <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-700">

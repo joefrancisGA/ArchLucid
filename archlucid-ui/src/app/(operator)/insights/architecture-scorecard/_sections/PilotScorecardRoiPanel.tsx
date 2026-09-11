@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ARCHITECTURE_SCORECARD_DIRECTIONAL_ROI_HELPER } from "@/lib/architecture/architecture-scorecard-page-copy";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveRoiTileSectionHeading } from "@/lib/roi/roi-tile-career-honesty";
 
 export type PilotScorecardRoiFieldErrors = {
   readonly hours: string | null;
@@ -32,6 +33,7 @@ export type PilotScorecardRoiPanelProps = {
   readonly annualSavingsLabel: string | null;
   readonly quarterlySavingsLabel: string | null;
   readonly statusQuoCostLabel: string | null;
+  readonly roiSectionQualifier?: string | null;
 };
 
 export function PilotScorecardRoiPanel({
@@ -54,7 +56,10 @@ export function PilotScorecardRoiPanel({
   annualSavingsLabel,
   quarterlySavingsLabel,
   statusQuoCostLabel,
+  roiSectionQualifier = null,
 }: PilotScorecardRoiPanelProps) {
+  const estimatedSavingsHeading = resolveRoiTileSectionHeading("Estimated savings", roiSectionQualifier);
+
   return (
     <section
       aria-labelledby="roi-assumptions-heading"
@@ -163,7 +168,7 @@ export function PilotScorecardRoiPanel({
           aria-labelledby="roi-estimate"
         >
           <h2 id="roi-estimate" className={OPERATOR_NAV_GROUP_LABEL}>
-            Estimated savings
+            {estimatedSavingsHeading}
           </h2>
           {showPreviewBadge ? (
             <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-scorecard-roi-preview-badge">

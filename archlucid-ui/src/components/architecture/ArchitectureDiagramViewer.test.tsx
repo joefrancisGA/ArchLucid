@@ -240,4 +240,25 @@ describe('ArchitectureDiagramViewer', () => {
       });
     });
   });
+
+  it('sizes mermaid svg above the overlay-only floor after render', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    const host = screen.getByTestId('architecture-diagram-svg-host');
+    const svg = host.querySelector('svg');
+
+    expect(svg).not.toBeNull();
+    expect(Number(svg?.getAttribute('height') ?? 0)).toBeGreaterThanOrEqual(240);
+  });
 });

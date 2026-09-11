@@ -23,4 +23,7 @@ public sealed class ExecDigestSponsorDeepLinkViewResponse
     public string? RunSummaryMarkdown { get; init; }
 
     public string SignInUrl { get; init; } = string.Empty;
+
+    /// <summary>CG-037 — body disclaimer when any highlighted run requires rehearsal honesty.</summary>
+    public string? RehearsalBodyDisclaimer { get; init; }
 }

@@ -28,42 +28,47 @@ export const CAREER_GRAVITY_OUTBOUND_ROWS: readonly CareerGravityOutboundRow[] =
   },
   {
     relativePath: "ArchLucid.Application/ExecDigest/ExecDigestComposition.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-037",
   },
   {
     relativePath: "ArchLucid.Application/ExecDigest/ExecDigestCompositionMarkdownFormatter.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-037",
   },
   {
     relativePath: "ArchLucid.Application/Notifications/Email/ExecDigestEmailDispatcher.cs",
-    leakClass: "related",
+    leakClass: "covered",
     ownerPrompt: "CG-037",
   },
   {
     relativePath: "ArchLucid.Application/SponsorDigest/SponsorDigestWeeklyDeliveryScanner.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-037",
   },
   {
     relativePath: "ArchLucid.Application/Pilots/BoardPackPdfBuilder.cs",
-    leakClass: "related",
+    leakClass: "covered",
+    ownerPrompt: "CG-037",
+  },
+  {
+    relativePath: "archlucid-ui/src/app/(marketing)/digest/sponsor/_sections/ExecDigestSponsorDeepLinkPanel.tsx",
+    leakClass: "covered",
     ownerPrompt: "CG-037",
   },
   {
     relativePath: "ArchLucid.Application/Integrations/Itsm/Outbound/ItsmOutboundIssueCreationService.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-038",
   },
   {
     relativePath: "ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-038",
   },
   {
     relativePath: "archlucid-ui/src/components/itsm/ItsmOutboundCreateIssueDialog.tsx",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-038",
   },
   {
@@ -73,12 +78,27 @@ export const CAREER_GRAVITY_OUTBOUND_ROWS: readonly CareerGravityOutboundRow[] =
   },
   {
     relativePath: "ArchLucid.Application/Advisory/AdvisoryScanRunner.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-036",
   },
   {
     relativePath: "ArchLucid.Application/Alerts/AlertActionLoopReader.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
+    ownerPrompt: "CG-036",
+  },
+  {
+    relativePath: "ArchLucid.Persistence/Alerts/AlertService.cs",
+    leakClass: "covered",
+    ownerPrompt: "CG-036",
+  },
+  {
+    relativePath: "ArchLucid.Persistence/Alerts/CompositeAlertService.cs",
+    leakClass: "covered",
+    ownerPrompt: "CG-036",
+  },
+  {
+    relativePath: "archlucid-ui/src/components/alerts/AlertsInboxAlertCard.tsx",
+    leakClass: "covered",
     ownerPrompt: "CG-036",
   },
 ] as const;

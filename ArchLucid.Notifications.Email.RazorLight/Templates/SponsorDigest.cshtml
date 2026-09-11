@@ -16,6 +16,10 @@
     </table>
 }
 <p>Weekly executive digest from @Model.ProductName.</p>
+@if (!string.IsNullOrWhiteSpace(Model.RehearsalBodyDisclaimer))
+{
+    <p><strong>Rehearsal honesty:</strong> @Model.RehearsalBodyDisclaimer</p>
+}
 <p>
     <strong>@Model.WeekLabel</strong>
 </p>
@@ -30,7 +34,12 @@
         @foreach (var r in runs)
         {
             <li>
-                <code>@r.RunIdHex</code> — score @r.SignificanceScore
+                <code>@r.RunIdHex</code>
+                @if (!string.IsNullOrWhiteSpace(r.RehearsalRowLabel))
+                {
+                    <text> — <strong>@r.RehearsalRowLabel</strong></text>
+                }
+                <text> — score @r.SignificanceScore</text>
                 @if (r.Caption is not null)
                 {
                     <text> — @r.Caption</text>
