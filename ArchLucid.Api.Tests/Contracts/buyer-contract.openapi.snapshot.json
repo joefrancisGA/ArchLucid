@@ -14956,6 +14956,99 @@
         },
         "type": "object"
       },
+      "FinalizeQualityScorecardCountsDto": {
+        "properties": {
+          "blockingFindingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "lowExtractionConfidenceCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openCannotDetermineCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openContradictionCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openDeferredCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openVerifyHypothesisCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "uncoveredMandatoryRequirementCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "unresolvedHighSeverityDispositionCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "unverifiedAssumptionCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "FinalizeReadinessBlock": {
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "layer": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FinalizeReadinessResult": {
+        "properties": {
+          "blockedReasonSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "blocks": {
+            "items": {
+              "$ref": "#/components/schemas/FinalizeReadinessBlock"
+            },
+            "type": "array"
+          },
+          "checklist": {
+            "$ref": "#/components/schemas/PreFinalizeChecklistResult"
+          },
+          "finalizeQualityGateEnabled": {
+            "type": "boolean"
+          },
+          "readyToFinalize": {
+            "type": "boolean"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "scorecard": {
+            "$ref": "#/components/schemas/FinalizeQualityScorecardCountsDto"
+          },
+          "scorecardBlockingReasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "Finding": {
         "properties": {
           "agentExecutionTraceId": {
@@ -23708,6 +23801,16 @@
             "format": "date-time",
             "type": "string"
           },
+          "structuralExecutionMode": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StructuralExecutionMode"
+              }
+            ]
+          },
           "timeToCommittedManifestTotalSeconds": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
@@ -23734,6 +23837,12 @@
             ]
           },
           "topFindingSeverity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "workingCareerRehearsalDoor": {
             "type": [
               "null",
               "string"
@@ -35437,15 +35546,7 @@
         },
         "type": "object"
       },
-      "StructuralExecutionMode": {
-        "enum": [
-          "Simulator",
-          "Real",
-          "Fallback",
-          "Mixed"
-        ],
-        "type": "string"
-      },
+      "StructuralExecutionMode": {},
       "StructuredBriefSuggestionKind": {
         "enum": [
           "Constraint",

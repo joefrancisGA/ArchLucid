@@ -14956,6 +14956,99 @@
         },
         "type": "object"
       },
+      "FinalizeQualityScorecardCountsDto": {
+        "properties": {
+          "blockingFindingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "lowExtractionConfidenceCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openCannotDetermineCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openContradictionCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openDeferredCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openVerifyHypothesisCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "uncoveredMandatoryRequirementCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "unresolvedHighSeverityDispositionCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "unverifiedAssumptionCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "FinalizeReadinessBlock": {
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "layer": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FinalizeReadinessResult": {
+        "properties": {
+          "blockedReasonSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "blocks": {
+            "items": {
+              "$ref": "#/components/schemas/FinalizeReadinessBlock"
+            },
+            "type": "array"
+          },
+          "checklist": {
+            "$ref": "#/components/schemas/PreFinalizeChecklistResult"
+          },
+          "finalizeQualityGateEnabled": {
+            "type": "boolean"
+          },
+          "readyToFinalize": {
+            "type": "boolean"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "scorecard": {
+            "$ref": "#/components/schemas/FinalizeQualityScorecardCountsDto"
+          },
+          "scorecardBlockingReasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "Finding": {
         "properties": {
           "agentExecutionTraceId": {
@@ -23708,6 +23801,16 @@
             "format": "date-time",
             "type": "string"
           },
+          "structuralExecutionMode": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StructuralExecutionMode"
+              }
+            ]
+          },
           "timeToCommittedManifestTotalSeconds": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
@@ -23734,6 +23837,12 @@
             ]
           },
           "topFindingSeverity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "workingCareerRehearsalDoor": {
             "type": [
               "null",
               "string"
@@ -35437,15 +35546,7 @@
         },
         "type": "object"
       },
-      "StructuralExecutionMode": {
-        "enum": [
-          "Simulator",
-          "Real",
-          "Fallback",
-          "Mixed"
-        ],
-        "type": "string"
-      },
+      "StructuralExecutionMode": {},
       "StructuredBriefSuggestionKind": {
         "enum": [
           "Constraint",
@@ -111977,7 +112078,7 @@
             "content": {
               "application/problem\u002Bjson": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/CareerArtifactBlockedProblemDetails"
                 }
               },
               "application/zip": {
@@ -112233,7 +112334,7 @@
               },
               "application/problem\u002Bjson": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/CareerArtifactBlockedProblemDetails"
                 }
               },
               "text/json": {
@@ -113081,7 +113182,7 @@
             "content": {
               "application/problem\u002Bjson": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/CareerArtifactBlockedProblemDetails"
                 }
               },
               "application/zip": {
@@ -113337,7 +113438,7 @@
               },
               "application/problem\u002Bjson": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/CareerArtifactBlockedProblemDetails"
                 }
               },
               "text/json": {
@@ -148835,6 +148936,253 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/PreFinalizeChecklistResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "GovernancePreCommitSimulation"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/governance/pre-finalize/readiness/{runId}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "acknowledgedAssumptionIds",
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinalizeReadinessResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinalizeReadinessResult"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinalizeReadinessResult"
                 }
               }
             },

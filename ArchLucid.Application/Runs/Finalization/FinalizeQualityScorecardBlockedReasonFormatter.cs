@@ -6,6 +6,13 @@ namespace ArchLucid.Application.Runs.Finalization;
 /// </summary>
 public static class FinalizeQualityScorecardBlockedReasonFormatter
 {
+    public static string BlockingFindings(int count)
+    {
+        string noun = count == 1 ? "finding" : "findings";
+
+        return $"{count} unresolved blocking {noun} still need disposition.";
+    }
+
     public static string UncoveredMandatoryRequirements(int count)
     {
         return $"{count} mandatory requirement{Plural(count)} lack a design decision.";
@@ -14,6 +21,28 @@ public static class FinalizeQualityScorecardBlockedReasonFormatter
     public static string OpenCannotDetermine(int count)
     {
         return $"{count} open question{Plural(count)} still need answers before the package is defensible.";
+    }
+
+    public static string OpenVerifyHypotheses(int count)
+    {
+        string findings = count == 1 ? "finding" : "findings";
+        string objectPronoun = count == 1 ? "it" : "them";
+
+        return $"{count} hypothesis {findings} still need evidence before treating {objectPronoun} as publishable fact.";
+    }
+
+    public static string OpenDeferred(int count)
+    {
+        string findings = count == 1 ? "finding" : "findings";
+
+        return $"{count} deferred {findings} still need revisit before finalize.";
+    }
+
+    public static string OpenContradictions(int count)
+    {
+        string findings = count == 1 ? "finding" : "findings";
+
+        return $"{count} contradiction {findings} still need reconciliation before finalize.";
     }
 
     public static string UnverifiedAssumptions(int count)

@@ -3,7 +3,7 @@
 claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
 DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
 (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
-The golden corpus harness registers **43** engines; **28** appear in this table (≥1 finding across case-01..case-72). **26** built-in product engines are absent from this corpus-derived slice.
+The golden corpus harness registers **45** engines; **28** appear in this table (≥1 finding across case-01..case-73). **26** built-in product engines are absent from this corpus-derived slice.
 `WouldDemoteIfUnprotectedCount` matches production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59).
 `WouldDemoteAt65Count` applies the same predicate at threshold 65; with production default 65 it should match `WouldDemoteIfUnprotectedCount`.
 
@@ -18,7 +18,7 @@ Recorded scores on this corpus do not form a 60/65/75/80/85 ladder; inventory an
 | aws-inventory-reconciliation | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | azure-inventory-reconciliation | 3 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | azure-inventory-security-baseline | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
-| dangling-declaration-reference | 2 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
+| dangling-declaration-reference | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | data-flow-trust-boundary | 4 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | decision-grade-fusion | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | declaration-inventory-contradiction | 2 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |

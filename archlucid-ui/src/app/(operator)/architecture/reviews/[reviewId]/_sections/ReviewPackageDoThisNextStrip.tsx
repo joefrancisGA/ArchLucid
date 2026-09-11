@@ -39,6 +39,8 @@ import { cn } from "@/lib/utils";
 
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
+
 import type { ReviewPackageDoThisNext } from "./resolve-review-package-do-this-next";
 
 function resolveFailureRecoverySteps(
@@ -112,6 +114,7 @@ export type ReviewPackageDoThisNextStripProps = {
   readonly retryCount?: number | null;
   readonly hasGoldenManifest: boolean;
   readonly commitBlockedReason: string | null | undefined;
+  readonly commitBlockedBlocks?: readonly FinalizeReadinessBlock[];
   readonly sessionAiReadiness: SessionAiReadinessState;
   readonly canConfigureWorkspaceAi?: boolean;
   readonly usesCustomerAiConnection?: boolean;
@@ -399,6 +402,7 @@ export function ReviewPackageDoThisNextStrip(
     retryCount = null,
     hasGoldenManifest,
     commitBlockedReason,
+    commitBlockedBlocks = [],
     sessionAiReadiness,
     canConfigureWorkspaceAi = false,
     usesCustomerAiConnection = false,
@@ -423,6 +427,7 @@ export function ReviewPackageDoThisNextStrip(
         runId={runId}
         disabled={hasGoldenManifest}
         commitBlockedReason={commitBlockedReason}
+        commitBlockedBlocks={commitBlockedBlocks}
         buttonVariant="primary"
       />
     ) : next.kind === "rerun-review" && !blockRerun ? (

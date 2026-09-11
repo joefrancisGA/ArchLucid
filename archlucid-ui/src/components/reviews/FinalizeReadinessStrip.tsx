@@ -2,19 +2,38 @@
 
 import { cn } from "@/lib/utils";
 
+import { FinalizeReadinessBlockList } from "@/components/reviews/FinalizeReadinessBlockList";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { StatusTag } from "@/components/ui/status-tag";
 import { renderDoThisNextReferenceCopy } from "@/lib/usability/do-this-next-reference-copy";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 
 export type FinalizeReadinessStripProps = {
   readonly commitBlockedReason: string | null | undefined;
+  readonly commitBlockedBlocks?: readonly FinalizeReadinessBlock[];
+  readonly readinessLoading?: boolean;
 };
 
 /** Surfaces server-side finalize blockers before the operator opens the finalize dialog. */
 export function FinalizeReadinessStrip(props: FinalizeReadinessStripProps): React.JSX.Element | null {
-  const reason = props.commitBlockedReason?.trim() ?? "";
+  if (props.readinessLoading === true) {
+    return (
+      <div
+        className={cn(DESIGN_TOKENS.callout.warnShell, "mb-3 flex-col gap-2")}
+        data-testid="finalize-readiness-strip-loading"
+        role="status"
+      >
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Checking finalize readiness…
+        </p>
+      </div>
+    );
+  }
 
-  if (reason.length === 0) {
+  const reason = props.commitBlockedReason?.trim() ?? "";
+  const blocks = props.commitBlockedBlocks ?? [];
+
+  if (reason.length === 0 && blocks.length === 0) {
     return null;
   }
 
@@ -30,9 +49,13 @@ export function FinalizeReadinessStrip(props: FinalizeReadinessStripProps): Reac
         </p>
         <StatusTag kind="blocked" label="Blocked" />
       </div>
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {renderDoThisNextReferenceCopy(reason)}
-      </p>
+      {blocks.length > 0 ? (
+        <FinalizeReadinessBlockList blocks={blocks} />
+      ) : reason.length > 0 ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {renderDoThisNextReferenceCopy(reason)}
+        </p>
+      ) : null}
     </div>
   );
 }

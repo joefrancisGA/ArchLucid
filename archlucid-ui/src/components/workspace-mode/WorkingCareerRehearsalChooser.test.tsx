@@ -8,6 +8,9 @@ import {
 } from "@/lib/governance/working-career-door-gate-copy";
 import {
   WORKING_CAREER_DOOR_LABEL,
+  WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CANCEL_ACTION,
+  WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_ACTION,
+  WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_TITLE,
   WORKING_REHEARSAL_DOOR_LABEL,
 } from "@/lib/governance/working-career-rehearsal-door-copy";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
@@ -39,6 +42,19 @@ const evaluateGateMock = vi.hoisted(() =>
   })),
 );
 
+const inFlightReviewMock = vi.hoisted(() => ({ value: false }));
+
+const sessionModeMock = vi.hoisted(() => ({
+  mode: "Simulator" as "Real" | "Simulator",
+}));
+
+const readinessMock = vi.hoisted(() => ({
+  hostMode: "Simulator" as "Real" | "Simulator" | null,
+  isSessionReal: false,
+  isReady: false,
+  isLoading: false,
+}));
+
 vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => ({
     mode: workspaceModeMock.mode,
@@ -67,6 +83,21 @@ vi.mock("@/hooks/use-working-career-door-gate", () => ({
   useEvaluateWorkingCareerDoorGate: () => evaluateGateMock,
 }));
 
+vi.mock("@/hooks/use-has-in-flight-review-pipeline", () => ({
+  useHasInFlightReviewPipeline: () => inFlightReviewMock.value,
+}));
+
+vi.mock("@/hooks/use-agent-execution-mode", () => ({
+  useAgentExecutionMode: () => ({
+    mode: sessionModeMock.mode,
+    isLoading: false,
+  }),
+}));
+
+vi.mock("@/hooks/session-ai-readiness-context", () => ({
+  useSessionAiReadiness: () => readinessMock,
+}));
+
 describe("WorkingCareerRehearsalChooser", () => {
   beforeEach(() => {
     workspaceModeMock.mode = "working";
@@ -76,8 +107,12 @@ describe("WorkingCareerRehearsalChooser", () => {
     gateMock.isCareerExecuteBlocked = false;
     gateMock.blockReason = null;
     gateMock.blockedDetail = null;
+    sessionModeMock.mode = "Simulator";
+    readinessMock.hostMode = "Simulator";
+    readinessMock.isSessionReal = false;
     doorMock.setDoor.mockReset();
     evaluateGateMock.mockClear();
+    inFlightReviewMock.value = false;
   });
 
   it("renders Career and Rehearsal segmented controls in Working mode", () => {
@@ -88,6 +123,10 @@ describe("WorkingCareerRehearsalChooser", () => {
     );
 
     expect(screen.getByTestId("working-career-rehearsal-chooser")).toBeInTheDocument();
+    expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
+      "data-chooser-source",
+      "command-bar",
+    );
     expect(screen.getByTestId("working-career-rehearsal-door-career")).toHaveTextContent(
       WORKING_CAREER_DOOR_LABEL,
     );
@@ -154,10 +193,110 @@ describe("WorkingCareerRehearsalChooser", () => {
       </TooltipProvider>,
     );
 
-    expect(screen.getByTestId("working-career-door-blocked-tag")).toBeInTheDocument();
+    expect(screen.getByTestId("working-career-door-host-mode-career-simulator-blocked")).toBeInTheDocument();
     expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
       "data-effective-door",
       "rehearsal",
     );
+    expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
+      "data-door-host-mode-cell",
+      "career-simulator-blocked",
+    );
+  });
+
+  it("labels Rehearsal + Real as practice — not career proof", () => {
+    doorMock.door = "rehearsal";
+    sessionModeMock.mode = "Real";
+    readinessMock.hostMode = "Real";
+    readinessMock.isSessionReal = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("working-career-door-host-mode-rehearsal-real-practice")).toBeInTheDocument();
+    expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
+      "data-door-host-mode-cell",
+      "rehearsal-real-practice",
+    );
+  });
+
+  it("moves to Career with ArrowRight from Rehearsal on the segmented control", () => {
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser />
+      </TooltipProvider>,
+    );
+
+    fireEvent.keyDown(screen.getByTestId("working-career-rehearsal-door-rehearsal"), {
+      key: "ArrowRight",
+    });
+
+    expect(doorMock.setDoor).toHaveBeenCalledWith("career");
+  });
+
+  it("marks the findings mount so it is the same control without a second shortcut host", () => {
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser source="findings" />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
+      "data-chooser-source",
+      "findings",
+    );
+  });
+
+  it("requires confirm before changing the door while a review is in flight", () => {
+    inFlightReviewMock.value = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser />
+      </TooltipProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("working-career-rehearsal-door-career"));
+
+    expect(doorMock.setDoor).not.toHaveBeenCalled();
+    expect(screen.getByText(WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("working-career-rehearsal-door-change-confirm")).toHaveTextContent(/artifacts/i);
+    expect(screen.getByTestId("working-career-rehearsal-door-change-confirm")).toHaveTextContent(
+      /does not stop the in-flight operation/i,
+    );
+  });
+
+  it("applies the new door after in-flight confirm and does not cancel the run", () => {
+    inFlightReviewMock.value = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser />
+      </TooltipProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("working-career-rehearsal-door-career"));
+    fireEvent.click(screen.getByRole("button", { name: WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_ACTION }));
+
+    expect(doorMock.setDoor).toHaveBeenCalledWith("career");
+    expect(doorMock.setDoor).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the current door when in-flight confirm is dismissed", () => {
+    inFlightReviewMock.value = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser />
+      </TooltipProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("working-career-rehearsal-door-career"));
+    fireEvent.click(screen.getByRole("button", { name: WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CANCEL_ACTION }));
+
+    expect(doorMock.setDoor).not.toHaveBeenCalled();
   });
 });

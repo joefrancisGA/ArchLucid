@@ -59,7 +59,8 @@ public sealed class InsightDensityGateHumanCalibrationReportTests
                 graph,
                 CancellationToken.None,
                 input.InventoryFixture,
-                input.PriorGraphFixture);
+                input.PriorGraphFixture,
+                input.AssignedPackFixture);
 
             IReadOnlyList<InsightDensityGateHumanCalibrationRow> rows =
                 InsightDensityGateHumanCalibrationCalculator.Calculate(snapshot, gate, options, noveltyRates: null);
@@ -134,7 +135,8 @@ public sealed class InsightDensityGateHumanCalibrationReportTests
                 graph,
                 CancellationToken.None,
                 input.InventoryFixture,
-                input.PriorGraphFixture);
+                input.PriorGraphFixture,
+                input.AssignedPackFixture);
 
             IReadOnlyList<InsightDensityGateHumanCalibrationRow> rows =
                 InsightDensityGateHumanCalibrationCalculator.Calculate(snapshot, gate, options, noveltyRates: null);

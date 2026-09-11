@@ -4344,6 +4344,41 @@ export interface components {
             /** Format: date-time */
             lastModified?: null | string;
         };
+        FinalizeQualityScorecardCountsDto: {
+            /** Format: int32 */
+            blockingFindingCount?: number;
+            /** Format: int32 */
+            lowExtractionConfidenceCount?: number;
+            /** Format: int32 */
+            openCannotDetermineCount?: number;
+            /** Format: int32 */
+            openContradictionCount?: number;
+            /** Format: int32 */
+            openDeferredCount?: number;
+            /** Format: int32 */
+            openVerifyHypothesisCount?: number;
+            /** Format: int32 */
+            uncoveredMandatoryRequirementCount?: number;
+            /** Format: int32 */
+            unresolvedHighSeverityDispositionCount?: number;
+            /** Format: int32 */
+            unverifiedAssumptionCount?: number;
+        };
+        FinalizeReadinessBlock: {
+            code?: string;
+            layer?: string;
+            message?: string;
+        };
+        FinalizeReadinessResult: {
+            blockedReasonSummary?: null | string;
+            blocks?: components["schemas"]["FinalizeReadinessBlock"][];
+            checklist?: components["schemas"]["PreFinalizeChecklistResult"];
+            finalizeQualityGateEnabled?: boolean;
+            readyToFinalize?: boolean;
+            runId?: string;
+            scorecard?: components["schemas"]["FinalizeQualityScorecardCountsDto"];
+            scorecardBlockingReasons?: string[];
+        };
         Finding: {
             agentExecutionTraceId?: null | string;
             assignedToUserId?: null | string;
@@ -6907,11 +6942,13 @@ export interface components {
             roiSourceFreshnessDisposition?: string;
             /** Format: date-time */
             runCreatedUtc?: string;
+            structuralExecutionMode?: null | components["schemas"]["StructuralExecutionMode"];
             /** Format: double */
             timeToCommittedManifestTotalSeconds?: null | number | string;
             topFindingEvidenceChain?: null | components["schemas"]["FindingEvidenceChainResponse"];
             topFindingId?: null | string;
             topFindingSeverity?: null | string;
+            workingCareerRehearsalDoor?: null | string;
         };
         PilotScorecardBaselinesPutRequest: {
             /** Format: double */
@@ -10391,7 +10428,6 @@ export interface components {
             offset?: number;
             value?: null | string;
         };
-        /** @enum {string} */
         StructuralExecutionMode: "Simulator" | "Real" | "Fallback" | "Mixed";
         /** @enum {string} */
         StructuredBriefSuggestionKind: "Constraint" | "Assumption" | "RequiredCapability";
