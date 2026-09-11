@@ -3,6 +3,7 @@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
+import { useFinalizeReadiness } from "@/hooks/use-finalize-readiness";
 import { useReviewAssumptionAcknowledgements } from "@/hooks/use-review-assumption-acknowledgements";
 import { resolveClientAwareCommitBlockedReason } from "@/lib/review-quality/resolve-client-commit-blocked-reason";
 
@@ -19,9 +20,22 @@ export function useAssumptionAwareCommitBlockedReason(input: {
   readonly blockDegradedFindingCoverageOnWorking?: boolean;
 }): string | null {
   const { acknowledgedIds } = useReviewAssumptionAcknowledgements(input.runId);
+  const { readiness } = useFinalizeReadiness({
+    runId: input.runId,
+    enabled: input.finalizeAssumptionGateApplies,
+    acknowledgedAssumptionIds: acknowledgedIds,
+  });
+
+  if (input.serverCommitBlockedReason !== null && input.serverCommitBlockedReason !== undefined) {
+    return input.serverCommitBlockedReason;
+  }
+
+  if (readiness !== null) {
+    return readiness.blockedReasonSummary;
+  }
 
   return resolveClientAwareCommitBlockedReason({
-    serverCommitBlockedReason: input.serverCommitBlockedReason ?? null,
+    serverCommitBlockedReason: null,
     finalizeAssumptionGateApplies: input.finalizeAssumptionGateApplies,
     findings: input.findings,
     blockingFindingCount: input.blockingFindingCount,
