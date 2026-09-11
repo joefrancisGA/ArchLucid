@@ -85,6 +85,7 @@ Server-side finalize enforcement on branch `cursor/finalize-quality-gate-server-
 | Surface | Behavior |
 |---------|----------|
 | `ArchLucid:FinalizeQualityGate:Enabled` | When true (Staging/Production appsettings), `CommitOutputIntegrityService` re-derives the UI scorecard and throws `ConflictException` → **409** with the same copy as `finalize-quality-scorecard.ts`. |
+| Scorecard dimensions (six) | Uncovered mandatory requirements, open cannot-determine questions, open verify-hypothesis findings (TB-2315), unverified assumptions (threshold 3), low-confidence extractions, unresolved high-severity dispositions. |
 | `GET/PUT /v1/architecture/review/{runId}/assumptions/acknowledgement` | Persists pre-finalize assumption acknowledgements on the run header (`AcknowledgedAssumptionsJson`, migration **390**). Finalize unions request-body ids with persisted ids. |
 | UI hook | `useReviewAssumptionAcknowledgements` hydrates from and pushes to the server; localStorage remains a same-tab cache. |
 
@@ -107,6 +108,27 @@ Working seats block finalize when engine coverage is degraded:
 | **UI scorecard** | `blockDegradedFindingCoverageOnWorking` wired from `buyerPolishedArtifactTable !== true` in `run-detail-page-presentation-governance.ts` and client recompute (`resolveClientAwareCommitBlockedReason`). |
 
 Copy parity: `DegradedFindingCoverageBlockedReasonUiCopyParityTests` (Decisioning) + `degraded-finding-coverage-blocked-reason.ts`.
+
+## TB-2315 verify-hypothesis finalize block
+
+Open findings in the **verify-hypotheses** job view block finalize on both UI scorecard and server gate (structural lane, not TB-1228 semantic faithfulness):
+
+| Layer | Gate |
+|-------|------|
+| **Server scorecard** | `FinalizeQualityScorecardEvaluator` counts `IsOpenVerifyHypothesisJobView` → `FinalizeQualityGate` **409**. |
+| **UI scorecard** | `deriveFinalizeQualityScorecardInput` counts `classifyReviewFindingJobView === "verify-hypotheses"`. |
+
+Copy parity: `FinalizeQualityScorecardUiCopyParityTests` field `openVerifyHypothesisCount`.
+
+## Commit gate map (no duplicate enforcement)
+
+| Layer | Responsibility |
+|-------|----------------|
+| `CommitOutputIntegrityService` | Structural mode, lifecycle phase, agent output quality, unsupported semantic support hold, decision-grade provenance, existential assumptions, TB-2321 scorecard (six dimensions), evidence referential integrity. |
+| `AuthorityDrivenArchitectureRunCommitOrchestrator` | Skipped MUST, transparency trail, WS-14 degraded coverage on Working desk (`CareerArtifactCompletenessValidator`). |
+| UI-only scorecard rows | Blocking finding count, existential assumption ack UI, skipped MUST / transparency / degraded coverage (client recompute via `resolveClientAwareCommitBlockedReason`). |
+
+Guard: `CommitOutputIntegrityGateMapArchitectureTests`.
 
 ## ConflictException → 409 controller sweep
 
