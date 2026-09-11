@@ -34,6 +34,10 @@ import {
   parseRunsListInspectorRunIdFromSearch,
   runsListCompareInspectorHrefFromSearch,
 } from "@/lib/runs/runs-list-compare-inspector-url";
+import {
+  runsListNextPageHrefFromSearch,
+  runsListPreviousPageHrefFromSearch,
+} from "@/lib/runs/runs-list-pagination-url";
 
 import { shouldIgnoreRunsListRowActivation } from "./runs-list-row-activation";
 
@@ -310,12 +314,21 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     setPaginationAnnouncement(`Page ${page} of ${pages}. ${totalLabel}.`);
   }, [page, pages, totalCount]);
 
-  const baseQuery = `projectId=${encodeURIComponent(projectId)}&pageSize=${pageSize}`;
-  const previousHref = `/architecture/reviews?${baseQuery}&page=1`;
-  const nextHref =
-    nextCursor !== null && nextCursor !== undefined && nextCursor.length > 0
-      ? `/architecture/reviews?${baseQuery}&page=${page + 1}&cursor=${encodeURIComponent(nextCursor)}`
-      : `/architecture/reviews?${baseQuery}&page=${page + 1}`;
+  const currentSearch = searchParams.toString();
+  const previousHref = runsListPreviousPageHrefFromSearch(
+    currentSearch,
+    pathname,
+    projectId,
+    pageSize,
+  );
+  const nextHref = runsListNextPageHrefFromSearch(
+    currentSearch,
+    pathname,
+    projectId,
+    pageSize,
+    page + 1,
+    nextCursor,
+  );
 
   const onRowActivate = useCallback((run: RunSummary, e: MouseEvent<HTMLTableRowElement>) => {
     if (shouldIgnoreRunsListRowActivation(e.target)) {

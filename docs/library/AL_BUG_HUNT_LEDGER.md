@@ -2475,11 +2475,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 10
-- **bugs-found:** 7
+- **hunts:** 11
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — stale compareRuns URL persisted when buyer package cards hid compare UI
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — pagination Next/Previous links dropped q= and sort= search params
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -2519,6 +2519,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `inspectorRunId` deep link for a run not on the page opens a stale inspector — **cheap-disproof 2026-09-10 seed hunt #1631:** url-driven selection resolves from `safeRuns` only; regression `keeps the inspector empty when inspectorRunId does not match a row on the page`.
 
 2026-09-10 seed hunt #1631 (seed-only): reseeded ui-runs-list after #1590; cheap-disproof closed in_flight scope filtering, q= debounce sync, compare replacement notice, card-to-table narrowing, and invalid inspectorRunId deep link; 34 scoped `RunsListClient` tests passed.
+
+- [x] (proven) Pagination Next/Previous links rebuild href from `projectId`/`pageSize` only and drop active `q=`/`sort=` deep-link state — **hit 2026-09-11 seed hunt #1742 (seed→hit):** `useRunsList` now preserves current search params via `runsListNextPageHrefFromSearch` / `runsListPreviousPageHrefFromSearch`; regression `preserves q= and sort= in the Next pagination link`.
+
+2026-09-11 seed hunt #1742 (seed→hit): reseeded ui-runs-list; proved pagination href dropped q= and sort=; 35 scoped `RunsListClient` tests passed.
 
 2026-09-10 thorough hunt #1580 (hit): proved stale compareRuns persistence under buyer package cards; 20 scoped `RunsListClient` tests passed.
 

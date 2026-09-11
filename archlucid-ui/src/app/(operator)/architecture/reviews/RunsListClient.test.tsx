@@ -805,4 +805,31 @@ describe("RunsListClient inspector", () => {
     expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
     expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
   });
+
+  it("preserves q= and sort= in the Next pagination link", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={1}
+        pageSize={20}
+        totalCount={40}
+        nextCursor="cursor-page-2"
+      />,
+      "q=Demo&sort=created-asc",
+    );
+
+    const nextLink = screen.getByRole("link", { name: "Next" });
+
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("q=Demo"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("sort=created-asc"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=2"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("cursor=cursor-page-2"));
+  });
 });
