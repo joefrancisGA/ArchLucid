@@ -63,6 +63,28 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
     }
 
     [Fact]
+    public void Aggregate_simulator_run_with_mixed_trace_deployments_keeps_deterministic_provider_kind()
+    {
+        RunRecord run = BuildRun(StructuralExecutionMode.Simulator);
+        AgentEvidencePackage evidence = BuildEvidence(includePolicies: false);
+        List<AgentExecutionTrace> traces =
+        [
+            BuildTrace(AgentExecutionTraceModelMetadata.SimulatorDeploymentName),
+            BuildTrace("gpt-4o-arch", inputTokens: 10, outputTokens: 5),
+        ];
+
+        ReviewRunEngineProvenance provenance = ReviewRunEngineProvenanceAggregator.Aggregate(
+            traces,
+            evidence,
+            run,
+            findingsSnapshot: null,
+            CreateCostEstimator());
+
+        provenance.ProviderKind.Should().Be("deterministic");
+        provenance.EngineProfileId.Should().Be("deterministic-simulator");
+    }
+
+    [Fact]
     public void Aggregate_azure_traces_produce_azure_openai_provider_kind_and_token_totals()
     {
         RunRecord run = BuildRun(StructuralExecutionMode.Real);

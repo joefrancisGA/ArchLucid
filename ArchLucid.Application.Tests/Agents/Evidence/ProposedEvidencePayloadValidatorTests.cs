@@ -29,6 +29,17 @@ public sealed class ProposedEvidencePayloadValidatorTests
         ok.Should().BeFalse();
     }
 
+    [Fact]
+    public void TryParseValid_WhenTypeIsNull_ReturnsFalse()
+    {
+        bool ok = ProposedEvidencePayloadValidator.TryParseValid(
+            """{"type":null,"title":"Encrypt SQL TDE","description":"Require TDE."}""",
+            out ProposedEvidencePayload _);
+
+        ok.Should().BeFalse();
+    }
+
+
     [Theory]
     [InlineData("""{"type":"Unknown","title":"x","description":"y"}""")]
     [InlineData("""{"type":"Policy","title":"","description":"y"}""")]
