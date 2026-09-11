@@ -3,7 +3,7 @@
 
 # Infrastructure-evidence Composer prompts
 
-**Created:** 2026-09-04 · **Revised:** 2026-09-11 (added **IE-HOTFIX** Mermaid snapshot 500 after #2931).
+**Created:** 2026-09-04 · **Revised:** 2026-09-11 (added **IE-RF-01–IE-RF-12** relationship-first topology collection; **IE-ID-01–IE-ID-03** Identity diagram compiles but does not paint; **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931).
 
 **Status:** ready to run — **one prompt per chat**.
 
@@ -20,6 +20,9 @@ Canonical design: [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md
 | [`INFRA_EVIDENCE_COMPOSER_PROMPTS_BR.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_BR.md) | **BR-01–BR-09** tenant white-label branding |
 | [`INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md) | **IE-UX-00–IE-UX-05** operator workbenches + Infrastructure nav spine |
 | [`INFRA_EVIDENCE_MERMAID_500_COMPOSER_PROMPT.md`](INFRA_EVIDENCE_MERMAID_500_COMPOSER_PROMPT.md) | **IE-HOTFIX** Mermaid snapshot HTTP 500 after **#2931** (missing `AzureInventoryDefenderSummaries` DbUp + fail-soft dirty rows) |
+| [`INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ND-01–IE-ND-05** Network mode empty despite `Microsoft.Network/*` inventory (category substring bug, mermaid contract, sparse flatten, subnet subgraphs, honest empty UX) |
+| [`INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md) | **IE-RF-01–IE-RF-12** Relationship-first ARG projections + type-scoped ARM lists → association table → Mermaid (not ARM export / `dependsOn`) |
+| [`INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ID-01–IE-ID-03** Identity mode compiles (Succeeded + outline) but the canvas does not paint (sparse flatten leftover from IE-ND-03, mermaid contract, overlay collapse) |
 
 ## Why this set exists
 
@@ -42,6 +45,7 @@ Naive implementation would add a second Azure collector, a second finding type n
 | FIT-01–05 re-run; diagram OCR as default-on V1 claim | Archives / IE-20 gated |
 | GTM M-90 / M-44 / M-91 / M-92; SOC 2 CPA; third-party pen test | Owner/GTM |
 | Desktop review tab collapse | workspace rule |
+| `Export-AzResourceGroup` / `dependsOn` as architecture arrows | **IE-RF-12** — ARG projections + type lists, not a deploy DAG |
 
 ## Sequencing
 
@@ -92,14 +96,40 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | **IE-UX-03** | Diagram reconciliation workbench | IE-UX-00, IE-18, IE-19 |
 | **IE-UX-04** | Cloud resource hub + Infrastructure Ask | IE-UX-00, IE-21, IE-22, AE-10 |
 | **IE-UX-05** | Remediation factory operator UI | IE-UX-00, IE-09–IE-15, IE-UX-04 |
+| **IE-ND-01** | Canonical Azure network topology category (`Microsoft.Network/` not `Contains("/network")`) | IE-16, IE-UX-02 |
+| **IE-ND-02** | Network-mode mermaid contract from inventory snapshots | IE-ND-01 |
+| **IE-ND-03** | Flatten sparse Network-mode RG swimlanes | IE-ND-01 (parallel with 02) |
+| **IE-ND-04** | VNet/subnet subgraph planner ARM matching | IE-ND-01 (parallel with 02/03) |
+| **IE-ND-05** | Honest empty/failed Network diagram UX (not “too large”) | IE-ND-01, IE-ND-02 |
+| **IE-ID-01** | Flatten sparse Identity-mode RG swimlanes | IE-16, IE-UX-02, IE-ND-03 |
+| **IE-ID-02** | Identity-mode mermaid contract from inventory snapshots | IE-ID-01 |
+| **IE-ID-03** | Inventory mermaid viewport must not collapse to overlay-only | IDV-01–03 (parallel with IE-ID-01) |
+| **IE-RF-01** | Association type catalog on `network-associations.json` | IE-02 ZIP layout |
+| **IE-RF-02** | Tier 1 ARG relationship projections | IE-RF-01 |
+| **IE-RF-03** | Hosted type-scoped ARM list GETs | IE-RF-01 (parallel with 02) |
+| **IE-RF-04** | VM→NIC + all IP configs | IE-RF-02 or IE-RF-03 |
+| **IE-RF-05** | NSG / route table / peering associations | IE-RF-02 or IE-RF-03 |
+| **IE-RF-06** | App Gateway / LB / Private DNS / App Service subnet | IE-RF-02 or IE-RF-03 |
+| **IE-RF-07** | Materialize catalog associations → graph edges | IE-RF-01 (consume 04–06) |
+| **IE-RF-08** | Display-only derived VM→VNet layout edges | IE-RF-07 |
+| **IE-RF-09** | Completeness warnings per relationship class | IE-RF-02, IE-RF-03 |
+| **IE-RF-10** | Optional effective NSG/routes (fail-soft) | IE-RF-07 |
+| **IE-RF-11** | Network mermaid golden fixture for new edges | IE-RF-07, IE-RF-08 |
+| **IE-RF-12** | Hold — not implementation | — |
 
 Run **IE-UX-00 first** after backend batches land; then IE-UX-01–IE-UX-05 in order (or parallel only when stubs from IE-UX-00 already exist). Nav contract: [`INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md).
+
+**Network diagram empty despite inventory:** run **IE-ND-01 first**, then **IE-ND-02**. **IE-ND-03** and **IE-ND-04** may run in parallel after 01. **IE-ND-05** after 02. Prompts: [`INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md).
+
+**Identity diagram compiles but does not paint:** run **IE-ID-01 first**, then **IE-ID-02**. **IE-ID-03** may run in parallel with 01. Prompts: [`INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-identity-00-index.md`](../../.cursor/prompts/inventory-diagram-identity-00-index.md).
+
+**Relationship-first topology (sparse ARM flatten / no VM→NIC):** run **IE-RF-01 first**, then **IE-RF-02** and **IE-RF-03** in parallel. **IE-RF-10** must not block 01–09. **IE-RF-12** is a hold. Prompts: [`INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/infra-evidence-relationship-first-00-index.md`](../../.cursor/prompts/infra-evidence-relationship-first-00-index.md).
 
 **Run one prompt per chat.** Feature branch per prompt (`cursor/<short-name>-9cc3`). Name the branch in any commit/push request.
 
 ## Follow-on — SecureNow architect paths (not this set)
 
-Attack-path / capability-to-flow engines over **live inventory** are **SA-01–SA-22**: [`SECURENOW_ARCHITECT_COMPOSER_PROMPTS.md`](SECURENOW_ARCHITECT_COMPOSER_PROMPTS.md). They consume this plane. Do **not** re-run IE collector bodies to add them. Do **not** add `IFindingEngine`.
+Attack-path / capability-to-flow engines over **live inventory** are **SA-01–SA-22**: [`SECURENOW_ARCHITECT_COMPOSER_PROMPTS.md`](SECURENOW_ARCHITECT_COMPOSER_PROMPTS.md). They consume this plane. Do **not** re-run IE collector bodies to add them. Do **not** add `IFindingEngine`. **IE-RF-01–IE-RF-11** extend IE-02 collection so **SA-02** edges and inventory Mermaid are not limited to first-IP-config flatteners.
 
 ## Global constraints (every prompt)
 
@@ -132,3 +162,13 @@ Attack-path / capability-to-flow engines over **live inventory** are **SA-01–S
 | IE-UX-01, IE-UX-03, IE-UX-04 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` |
 | IE-UX-02 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
 | IE-UX-05 | `ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj` |
+| IE-ND-01 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` (+ KnowledgeGraph/ArtifactSynthesis tests named in the prompt) |
+| IE-ND-02 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` |
+| IE-ND-03, IE-ND-04 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
+| IE-ND-05 | `ArchLucid.Application.Tests` + `archlucid-ui` Vitest as specified in the prompt |
+| IE-RF-01 | `ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj` |
+| IE-RF-02 | Pester `scripts/azure/tests/` helpers named in the prompt |
+| IE-RF-03, IE-RF-04, IE-RF-05, IE-RF-06 | `ArchLucid.Integrations.AzureExtractor.Tests/ArchLucid.Integrations.AzureExtractor.Tests.csproj` |
+| IE-RF-07, IE-RF-09, IE-RF-11 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` |
+| IE-RF-08 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
+| IE-RF-10 | Extractor tests + Application.Tests if edges map |

@@ -43,6 +43,7 @@ export function RunDetailReviewPackageClassificationSummary(
       </p>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Decision-grade: {counts.decisionGrade} · Checklist: {counts.checklist}
+        {counts.uncited > 0 ? ` · Uncited: ${counts.uncited}` : ""}
       </p>
       {withheldLine !== null ? (
         <p

@@ -47,6 +47,14 @@ export const POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SCREENSHOT_CHECKLIST = [
 export const POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_HONESTY =
   "SOC 2 assignment alone does not add topology identity unless that pack's advisoryDefaults includes expectation.topologyCategories.add=identity. Use a P1 arm for honest SOC 2 vs CIS Azure declaration comparison.";
 
+export const POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_TITLE = "In-app Pack A vs Pack B impact preview";
+
+export const POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_SUMMARY =
+  "On Policy packs (My packs tab), pick a committed review, then use the Pack A and Pack B selectors in the policy impact preview panel. Run simulate to show rule-key deltas and would-block gate outcomes side by side — the same dry-run posture as this runbook without mutating the review.";
+
+export const POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_DEEP_LINK =
+  "From Compare two reviews, open Policy pack diff → Open pack impact preview for this comparison to pre-fill reviewId and baseline/target pack ids when at-commit snapshots exist.";
+
 export const POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS = {
   openPolicyPacks: {
     label: "Open policy packs",

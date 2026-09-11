@@ -23,7 +23,7 @@ export const REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM = "findingsBand";
 export function parseReviewFindingsClassificationBandFromSearch(
   raw: string | null | undefined,
 ): ReviewFindingsClassificationBandId {
-  if (raw === "checklist" || raw === "all") {
+  if (raw === "checklist" || raw === "all" || raw === "uncited") {
     return raw;
   }
 

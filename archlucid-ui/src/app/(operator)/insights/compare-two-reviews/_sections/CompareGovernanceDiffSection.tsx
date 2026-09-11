@@ -38,6 +38,7 @@ export function CompareGovernanceDiffSection(props: CompareGovernanceDiffSection
       softFailureMessage={softFailureMessage}
       baselineCloudMismatchDetail={cloudMismatch.baselineDetail}
       targetCloudMismatchDetail={cloudMismatch.targetDetail}
+      targetRunId={props.targetRunId}
     />
   );
 }

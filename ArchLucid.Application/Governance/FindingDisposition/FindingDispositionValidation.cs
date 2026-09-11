@@ -158,6 +158,25 @@ public static class FindingDispositionValidation
                     nameof(request));
             }
         }
+
+        if (!string.IsNullOrWhiteSpace(request.PreviewOverrideReason))
+        {
+            string normalizedPreviewOverrideReason = request.PreviewOverrideReason.Trim();
+
+            if (!HasSubstantiveText(normalizedPreviewOverrideReason))
+            {
+                throw new ArgumentException(
+                    "Preview override reason must contain visible characters when provided.",
+                    nameof(request));
+            }
+
+            if (normalizedPreviewOverrideReason.Length > MaximumRationaleLength)
+            {
+                throw new ArgumentException(
+                    $"Preview override reason must not exceed {MaximumRationaleLength} characters.",
+                    nameof(request));
+            }
+        }
     }
 
     /// <summary>Working desk Remediated requires server-attested impact preview completion or an explicit override (LP-14).</summary>

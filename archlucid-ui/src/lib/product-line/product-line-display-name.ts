@@ -16,16 +16,34 @@ export function productLineShowsArchLucidMark(productLineId: ProductLineId): boo
   return productLineId !== "security";
 }
 
-/** Root layout favicon / touch icons — omitted on SecureNow (text-only branding). */
-export function productLineRootMetadataIcons(productLineId: ProductLineId): Metadata["icons"] | undefined {
-  if (!productLineShowsArchLucidMark(productLineId)) {
-    return undefined;
-  }
+/**
+ * Transparent 32×32 PNG used as the SecureNow tab icon.
+ * Omitting icons lets Next.js emit `/favicon.ico`, which Microsoft Edge still
+ * requests for the tab and favorites toolbar and can show the ArchLucid mark.
+ */
+export const SECURENOW_BLANK_FAVICON_URL = "/logo/favicon-blank.png";
 
+function secureNowRootMetadataIcons(): Metadata["icons"] {
+  return {
+    icon: [{ url: SECURENOW_BLANK_FAVICON_URL, type: "image/png", sizes: "32x32" }],
+    shortcut: [{ url: SECURENOW_BLANK_FAVICON_URL, type: "image/png" }],
+  };
+}
+
+function architectureRootMetadataIcons(): Metadata["icons"] {
   return {
     icon: [{ url: "/logo/favicon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/logo/icon-192.png", sizes: "192x192", type: "image/png" }],
   };
+}
+
+/** Root layout favicon / touch icons — SecureNow stays text-only in the tab/toolbar. */
+export function productLineRootMetadataIcons(productLineId: ProductLineId): Metadata["icons"] {
+  if (!productLineShowsArchLucidMark(productLineId)) {
+    return secureNowRootMetadataIcons();
+  }
+
+  return architectureRootMetadataIcons();
 }
 
 /** PWA manifest path — SecureNow omits ArchLucid install icons. */

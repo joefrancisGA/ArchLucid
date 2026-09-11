@@ -1,0 +1,81 @@
+"use client";
+
+import type { ReactElement } from "react";
+
+import { StatusTag } from "@/components/ui/status-tag";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { FirstReviewSpineBandSummary } from "@/lib/reviews/first-review-spine-band";
+import { cn } from "@/lib/utils";
+
+export type RunDetailFirstReviewSpineBandProps = {
+  readonly summary: FirstReviewSpineBandSummary;
+  readonly className?: string;
+};
+
+function gateOutcomeStatusKind(
+  tone: FirstReviewSpineBandSummary["gateOutcomeTone"],
+): "approved" | "needs-attention" | "blocked" {
+  if (tone === "success") {
+    return "approved";
+  }
+
+  if (tone === "danger") {
+    return "blocked";
+  }
+
+  return "needs-attention";
+}
+
+/** Unified first-viewport spine: gate outcome, execution mode, classification counts, top finding. */
+export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBandProps): ReactElement {
+  const { summary } = props;
+
+  return (
+    <section
+      className={cn(
+        "rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-3 dark:border-neutral-800",
+        props.className,
+      )}
+      data-testid="run-detail-first-review-spine-band"
+      aria-label="First-review spine"
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>First-review spine</p>
+        <StatusTag
+          kind={gateOutcomeStatusKind(summary.gateOutcomeTone)}
+          label={`Gate: ${summary.gateOutcomeLabel}`}
+          data-testid="run-detail-first-review-spine-gate"
+        />
+        {summary.executionModeLabel !== null ? (
+          <StatusTag
+            kind="neutral"
+            label={`${summary.executionModeLabel} execution`}
+            data-testid="run-detail-first-review-spine-execution-mode"
+          />
+        ) : null}
+      </div>
+
+      {summary.gateOutcomeDetail !== null ? (
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {summary.gateOutcomeDetail}
+        </p>
+      ) : null}
+
+      <p
+        className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="run-detail-first-review-spine-classification"
+      >
+        Decision-grade: {summary.decisionGradeCount} · Checklist: {summary.checklistCount}
+        {summary.uncitedCount > 0 ? ` · Uncited: ${summary.uncitedCount}` : ""}
+      </p>
+
+      {summary.topFindingTitle !== null ? (
+        <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-first-review-spine-top-finding">
+          <span className="font-semibold">Top policy-mapped finding:</span>{" "}
+          {summary.topFindingSeverityLabel !== null ? `[${summary.topFindingSeverityLabel}] ` : ""}
+          {summary.topFindingTitle}
+        </p>
+      ) : null}
+    </section>
+  );
+}

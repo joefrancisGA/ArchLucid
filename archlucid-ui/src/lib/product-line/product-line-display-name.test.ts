@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   PRODUCT_LINE_DISPLAY_NAME,
+  SECURENOW_BLANK_FAVICON_URL,
   accessDeniedBody,
   accessDeniedHeading,
   accessDeniedMailtoSubject,
@@ -42,7 +43,10 @@ describe("productLineDisplayName", () => {
       icon: [{ url: "/logo/favicon.svg", type: "image/svg+xml" }],
       apple: [{ url: "/logo/icon-192.png", sizes: "192x192", type: "image/png" }],
     });
-    expect(productLineRootMetadataIcons("security")).toBeUndefined();
+    expect(productLineRootMetadataIcons("security")).toEqual({
+      icon: [{ url: SECURENOW_BLANK_FAVICON_URL, type: "image/png", sizes: "32x32" }],
+      shortcut: [{ url: SECURENOW_BLANK_FAVICON_URL, type: "image/png" }],
+    });
     expect(productLineRootManifestPath("architecture")).toBe("/manifest.webmanifest");
     expect(productLineRootManifestPath("security")).toBeUndefined();
   });
