@@ -3150,10 +3150,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 16
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-09 — ServiceNow disposition ignored incident_state when primary state mapped human review only
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3191,6 +3191,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` / `ItsmInboundExternalStatusMapper` — configured `ServiceNowStateDispositionMap` on `incident_state` was not consulted when primary `state` mapped human review but disposition was unmapped (alternate path existed for human review since #717 but disposition still used primary `effectivePayload.StatusValue` only) — **hit 2026-09-09 thorough hunt #1409:** fall back to `AlternateStatusValue` for disposition when primary status is unmapped; regression `ServiceNow_inbound_uses_incident_state_disposition_when_primary_state_maps_human_review_only`.
 
 2026-09-09 thorough hunt #1409 (hit): proved ServiceNow disposition alternate asymmetry; 48 scoped ITSM inbound webhook tests passed.
+
+- [x] (invalid) `ItsmInboundJiraPayloadReader.TryReadJiraIssueKey` accepts numeric JSON `issue.key` — **cheap-disproof 2026-09-11 seed hunt #1704:** Jira keys are string tokens; `GetString()` on numeric returns null; regression `TryRead_rejects_numeric_issue_key`
+- [x] (valid-no-repro) `ItsmInboundServiceNowPayloadReader` rejects numeric `incident_state` — **cheap-disproof 2026-09-11 seed hunt #1704:** `ReadStringOrRawText` normalizes JSON numbers; regression `TryRead_accepts_numeric_incident_state`
+- [x] (valid-no-repro) `ItsmInboundJsonElementReader.ReadStringOrRawText` treats JSON null as absent status — **cheap-disproof 2026-09-11 seed hunt #1704:** null tokens return null; regression `ReadStringOrRawText_returns_null_for_json_null`
+- [x] (valid-no-repro) `ItsmInboundJiraPayloadReader` drops whitespace-padded status names — **cheap-disproof 2026-09-11 seed hunt #1704:** status trimmed before length guard; regression `TryRead_trims_whitespace_from_status_name`
+
+2026-09-11 seed hunt #1704 (dry): reseeded itsm-inbound-webhooks JSON reader parity; cheap-disproof closed four hunt-ready rows; 48 scoped ITSM inbound webhook tests passed.
 
 ---
 
