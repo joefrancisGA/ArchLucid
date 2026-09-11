@@ -101,4 +101,12 @@ public sealed class CommitRunTransientRetryPolicyTests
             .Should()
             .BeTrue();
     }
+
+    [Fact]
+    public void IsExhausted_returns_true_when_elapsed_exactly_equals_retry_budget()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(1, CommitRunTransientRetryPolicy.RetryBudget)
+            .Should()
+            .BeTrue();
+    }
 }

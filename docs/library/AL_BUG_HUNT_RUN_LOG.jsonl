@@ -1985,4 +1985,5 @@
 {"at":"2026-09-11T20:16:08.2900888Z","zoneId":"ui-runs-list","outcome":"seed-only"}
 {"at":"2026-09-11T20:18:24.5952028Z","zoneId":"ui-help-docs","outcome":"hit"}
 {"at":"2026-09-11T20:20:46.6737895Z","zoneId":"ui-help-docs","outcome":"seed-only"}
-{"at":"2026-09-11T20:27:32.1328930Z","zoneId":"application-pilots","outcome":"hit"}
+{"at":"2026-09-11T20:27:32.132893Z","zoneId":"application-pilots","outcome":"hit"}
+{"at":"2026-09-11T20:34:52.3096964Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}

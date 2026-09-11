@@ -717,6 +717,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1481 (seed-only): reseeded orchestrator-transient-retry; cheap-disproved mixed-aggregate fail-fast candidate; 10 scoped transient-retry tests passed.
 
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.IsExhausted` treats elapsed exactly equal to `RetryBudget` as not exhausted — **cheap-disproof 2026-09-11 seed hunt #1747:** `elapsed >= RetryBudget` is inclusive; regression `IsExhausted_returns_true_when_elapsed_exactly_equals_retry_budget`.
+
+2026-09-11 seed hunt #1747 (seed-only): reseeded orchestrator-transient-retry after bugsmash merges; cheap-disproof closed budget boundary equality; 30 scoped transient-retry tests passed (11 Application + 18 Persistence + 1 new policy test).
+
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry bare `TimeoutException` — **cheap-disproof 2026-09-10 seed hunt #1674:** `SqlTransientDetector` treats timeout as transient; regression `ExecuteAsync_retries_bare_timeout_exception`.
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry SQL error `-2` (command timeout) — **cheap-disproof 2026-09-10 seed hunt #1674:** `-2` is in transient detector set; regression `ExecuteAsync_retries_sql_timeout_error_number_minus_two`.
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry Azure SQL unavailable error `40613` — **cheap-disproof 2026-09-10 seed hunt #1674:** `40613` is in transient detector set; regression `ExecuteAsync_retries_azure_sql_unavailable_error_40613`.
