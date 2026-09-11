@@ -7,6 +7,7 @@ import { resolveTerminalPipelineLabelFromLegacyStatus } from "@/lib/runs/run-pip
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
+import { applyRunStatusBadgeWorkingCareerHonesty } from "@/lib/runs/run-status-badge-career-honesty";
 import type { RunSummary } from "@/types/authority";
 
 export type RunPipelineLabel = RunPipelineInternalLabel;
@@ -83,6 +84,22 @@ export function resolveRunPipelineStatusPresentation(
   const run = "run" in input ? input.run : input;
   const qualityGateHonesty = "run" in input ? input : undefined;
   const internalLabel = deriveRunListPipelineLabel(run, qualityGateHonesty);
+  const careerHonesty = applyRunStatusBadgeWorkingCareerHonesty(internalLabel, {
+    workingDesk: qualityGateHonesty?.workingDesk,
+    structuralExecutionMode: run.structuralExecutionMode,
+    effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
+      stampedDoor: run.workingCareerRehearsalDoor,
+      liveDoor: qualityGateHonesty?.effectiveWorkingCareerRehearsalDoor,
+    }),
+  });
+
+  if (careerHonesty !== null) {
+    return {
+      internalLabel,
+      displayLabel: careerHonesty.displayLabel,
+      statusTagKind: careerHonesty.statusTagKind,
+    };
+  }
 
   return {
     internalLabel,
