@@ -139,6 +139,34 @@ describe("RunProgressTracker", () => {
     expect(screen.queryByRole("button", { name: /retry polling/i })).not.toBeInTheDocument();
   });
 
+  it("suppresses Ready to finalize copy on Working Career + Simulator (CG-030)", async () => {
+    effectiveDoorMock.value = "career";
+    workingDeskMock.value = true;
+
+    render(
+      <RunProgressTracker
+        runId="prefinalize-simulator-career-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "prefinalize-simulator-career-1",
+          hasContextSnapshot: true,
+          hasGraphSnapshot: true,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          structuralExecutionMode: "Simulator",
+        }}
+        preFinalizeReadyToFinalize
+        buyerAssessmentCopy
+      />,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.queryByText(/Ready to finalize/i)).not.toBeInTheDocument();
+  });
+
   it("suppresses Ready to finalize copy on Working Rehearsal door (AS-079)", async () => {
     effectiveDoorMock.value = "rehearsal";
     workingDeskMock.value = true;

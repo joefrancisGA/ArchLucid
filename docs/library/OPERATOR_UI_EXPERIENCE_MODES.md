@@ -97,6 +97,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Email-to-sponsor gate (CG-029):** `EmailRunToSponsorBanner` inherits the sponsor PDF honesty gate (`evaluateCareerArtifactHonesty` with CG-019 door stamp and `simulatorRehearsalBannerOnArtifact`). Working **Career** door + Simulator/Fallback cannot compose or mark-sent. **Rehearsal** door on Simulator requires TB-2005 rehearsal honesty acknowledgment before compose/mark-sent; `mailto` subject is forced to `[Rehearsal] …` and body carries rehearsal disclaimer lines so outbox drafts cannot look Career-complete.
 
+**Ready-to-finalize label suppression (CG-030):** LP-18 residual on review-detail — `PreFinalizeChecklistPanel` and `RunDetailPreFinalizeGateHonestyStrip` call `shouldSuppressReadyToFinalizeForCareerHonesty` (Career + Simulator/Fallback, Rehearsal door, pre-commit gate off). Working surfaces show **Review before finalize** / **Needs attention** instead of **Ready to finalize**; the honesty strip adds a Simulator Career banner when execute Mode is Simulator/Fallback on the Career door. Pipeline badges and progress tracker already suppress via the same helper when `structuralExecutionMode` is passed. Guided teaching may still show Ready on Simulator.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
