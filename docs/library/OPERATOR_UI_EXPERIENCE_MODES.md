@@ -133,6 +133,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **AI budget pill is not execute posture (CG-095):** `LlmBudgetStatusPill` is admin-gated cost control for warn/critical UTC-month headroom. Buyer-default Working production hides the shell pill (`isOperatorExperienceFullShellEnv` gate in `OperatorShellTopBar`; WA-03). When visible, the popover shows CG-095 honesty — budget caps block new LLM calls, not Career/Rehearsal door. Hard-cap label uses **at cap** (not **paused**) so it cannot be confused with rehearsal-incomplete posture. Administration → AI usage and billing surfaces remain unchanged.
 
+**Error recovery does not promise Career (CG-096):** `error.tsx` segment boundaries on Working show `ErrorRecoveryCareerHonestyStrip`. Review-detail recovery reads cached execute stamp (`runSummary` / pilot-run-deltas) when available and states that **Retry** reloads the desk without upgrading Simulator to Real or washing rehearsal posture. TB-2155 idle snapshots stay preserved (LW-095). Guided mode omits the strip.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
