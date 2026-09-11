@@ -46,6 +46,44 @@ public sealed class SsoWizardTestLoginServiceTests
         response.AccessToken.Should().NotBeNullOrWhiteSpace();
     }
 
+    [Theory]
+    [InlineData("file:///etc/passwd")]
+    [InlineData("javascript:alert('xss')")]
+    public void Execute_rejects_non_http_scheme_issuer_uri(string issuerUri)
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin"
+                        }
+                    ]
+                },
+                SampleClaimValues = ["al-admins"]
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("HTTP(S)");
+    }
+
     [Fact]
     public void Execute_returns_failure_when_no_roles_mapped()
     {

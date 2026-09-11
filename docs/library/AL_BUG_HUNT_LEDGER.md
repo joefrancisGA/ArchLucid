@@ -2838,11 +2838,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 5
-- **bugs-found:** 6
+- **hunts:** 6
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-08-24 — activation accepted non-HTTP(S) issuer URIs that discovery rejects
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — sandbox test-login accepted non-HTTP(S) issuer URIs that activation rejects
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2870,8 +2870,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Whitespace-only `MetadataXml` preserves prior metadata — **cheap-disproof 2026-09-10 seed hunt #1669:** `ResolveOptionalPersistedField` clears on whitespace; regression `ActivateAsync_clears_metadata_xml_when_whitespace_only_string_provided`
 - [x] (valid-no-repro) Missing or relative issuer URI accepted — **cheap-disproof 2026-09-10 seed hunt #1669:** `IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps` rejects empty/relative; regression `ActivateAsync_rejects_missing_or_relative_issuer_uri`
 - [x] (valid-no-repro) Unsupported `ArchLucidRole` in mapping persisted — **cheap-disproof 2026-09-10 seed hunt #1669:** `IdentityClaimRoleMappingResolver.ValidateMapping` fails before upsert; regression `ActivateAsync_rejects_unsupported_arch_lucid_role_in_mapping`
+- [x] (proven) Sandbox test-login accepted non-HTTP(S) issuer URIs that activation rejects — **hit 2026-09-11 seed hunt #1731 (seed→hit):** `SsoWizardTestLoginService.Execute` validated only non-whitespace issuer text while `ActivateAsync` and discovery require absolute HTTP(S); shared `IdentityProviderUriValidator` now covers test-login; regression in `Execute_rejects_non_http_scheme_issuer_uri`
 
 2026-09-10 seed hunt #1669 (seed-only): reseeded identity-provider-config after 2026-08-25; cheap-disproof closed empty-tenant guard, blank-actor guard, null-request guard, invalid-protocol guard, case-insensitive protocol acceptance, issuer/actor trim, whitespace-only secret/metadata clear, missing/relative issuer rejection, and unsupported role mapping rejection; 26 scoped `IdentityProviderActivationServiceTests` passed.
+2026-09-11 seed hunt #1731 (seed→hit): reseeded identity-provider-config; proved sandbox test-login non-HTTP(S) issuer bypass; 30 scoped `IdentityProviderActivationServiceTests` and `SsoWizardTestLoginServiceTests` passed.
 
 ---
 
