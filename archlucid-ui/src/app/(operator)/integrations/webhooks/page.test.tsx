@@ -557,6 +557,43 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/list refresh failed/i);
   });
 
+  it("preserves create form values when list refresh fails after create", async () => {
+    let listCallCount = 0;
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([]);
+      }
+
+      return Promise.reject(new Error("list refresh failed"));
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+    });
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    await waitFor(() => {
+      expect(apiMocks.create).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+    });
+
+    expect(screen.queryByTestId("webhook-save-success-callout")).toBeNull();
+    expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/list refresh failed/i);
+    expect((screen.getByLabelText(/^Subscription name$/i) as HTMLInputElement).value).toBe("Signal hook");
+    expect((screen.getByLabelText(/^Destination URL$/i) as HTMLInputElement).value).toBe(
+      "https://listener.example/webhook",
+    );
+  });
+
   it("shows save failure feedback without raw internal errors", async () => {
     apiMocks.create.mockRejectedValue(new Error("routingSubscriptionId conflict in dbo.AlertRouting"));
 
@@ -888,6 +925,47 @@ describe("WebhooksIntegrationPage", () => {
     });
 
     expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
+  });
+
+  it("opens enable confirmation from webhookEnableId after subscriptions finish loading", async () => {
+    const subscriptionId = "sub-enable-deeplink-1";
+    let resolveList: (rows: unknown[]) => void = () => {};
+    navigationMocks.getSearchParams().set("webhookEnableId", subscriptionId);
+    apiMocks.list.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveList = resolve as (rows: unknown[]) => void;
+        }),
+    );
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+    });
+
+    expect(navigationMocks.routerReplaceMock).not.toHaveBeenCalled();
+
+    resolveList([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    expect(await screen.findByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+    expect(
+      screen.getByText(webhooksEnableConfirmDescription("PagerDuty alerts")),
+    ).toBeInTheDocument();
   });
 
   it("does not render mid-page About webhooks panel (TB-2093)", async () => {
