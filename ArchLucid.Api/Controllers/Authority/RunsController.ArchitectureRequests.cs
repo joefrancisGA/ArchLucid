@@ -134,13 +134,20 @@ public sealed partial class RunsController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        await requestRepository.ArchiveAsync(requestId, cancellationToken);
+        try
+        {
+            await requestRepository.ArchiveAsync(requestId, cancellationToken);
 
-        await auditService.LogAsync(
-            BuildArchitectureRequestAuditEvent("ArchitectureRequestArchived", requestId),
-            cancellationToken);
+            await auditService.LogAsync(
+                BuildArchitectureRequestAuditEvent("ArchitectureRequestArchived", requestId),
+                cancellationToken);
 
-        return Ok();
+            return Ok();
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -177,13 +184,20 @@ public sealed partial class RunsController
         if (request.IsArchived)
             return Ok();
 
-        await requestRepository.ArchiveAsync(requestId, cancellationToken);
+        try
+        {
+            await requestRepository.ArchiveAsync(requestId, cancellationToken);
 
-        await auditService.LogAsync(
-            BuildArchitectureRequestAuditEvent("ArchitectureRequestDeleted", requestId),
-            cancellationToken);
+            await auditService.LogAsync(
+                BuildArchitectureRequestAuditEvent("ArchitectureRequestDeleted", requestId),
+                cancellationToken);
 
-        return Ok();
+            return Ok();
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -221,13 +235,20 @@ public sealed partial class RunsController
         if (!request.IsArchived)
             return Ok();
 
-        await requestRepository.RestoreAsync(requestId, cancellationToken);
+        try
+        {
+            await requestRepository.RestoreAsync(requestId, cancellationToken);
 
-        await auditService.LogAsync(
-            BuildArchitectureRequestAuditEvent("ArchitectureRequestRestored", requestId),
-            cancellationToken);
+            await auditService.LogAsync(
+                BuildArchitectureRequestAuditEvent("ArchitectureRequestRestored", requestId),
+                cancellationToken);
 
-        return Ok();
+            return Ok();
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>

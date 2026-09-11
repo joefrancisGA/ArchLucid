@@ -112,12 +112,19 @@ public sealed partial class RunsController(
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        SubmitResultResult result =
-            await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
+        try
+        {
+            SubmitResultResult result =
+                await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
 
-        return result.Success
-            ? Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! })
-            : MapApplicationServiceFailure(result.Error, result.FailureKind, "Submission failed.");
+            return result.Success
+                ? Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! })
+                : MapApplicationServiceFailure(result.Error, result.FailureKind, "Submission failed.");
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
     }
 
     private static bool TryParseRunGuidForAudit(string runId, out Guid runGuid)

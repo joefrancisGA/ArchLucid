@@ -112,6 +112,10 @@ public sealed partial class GovernanceController
 
             return Ok(result);
         }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
         catch (ArgumentException ex)
         {
             logger.LogWarning(ex, "SubmitApprovalRequest failed: validation error.");

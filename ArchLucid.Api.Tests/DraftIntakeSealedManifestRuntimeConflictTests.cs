@@ -125,6 +125,27 @@ public sealed class DraftIntakeSealedManifestRuntimeConflictTests
     }
 
     [Fact]
+    public async Task CreateDraft_maps_service_ConflictException_to_409_and_does_not_audit()
+    {
+        CreateDraftRequest body = new()
+        {
+            FreeTextIntent =
+                "Build a compliance workflow platform for analysts with governed evidence intake, Entra ID authentication, and exportable architecture review packages.",
+        };
+        (DraftRequestsController sut, Mock<IDraftRequestService> service, _, Mock<IAuditService> audit) = BuildDraftSut();
+        service
+            .Setup(s => s.CreateAsync(Scope, "op-id", body, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(SealedConflict);
+
+        IActionResult action = await sut.CreateDraft(body, CancellationToken.None);
+
+        AssertSealedManifestConflict409(action);
+        audit.Verify(
+            static a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task UpsertDraft_maps_service_ConflictException_to_409()
     {
         UpsertWizardIntakeDraftRequest body = new()
