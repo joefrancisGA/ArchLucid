@@ -787,6 +787,46 @@ describe("useArchitectureDraftAutosave", () => {
     expect(patchBody.expectedUpdatedUtc).toBe("2026-08-11T12:00:00.000Z");
   });
 
+  it("surfaces sealed-manifest blockedReason on autosave PATCH 409", async () => {
+    const fields: ArchitectureDraftFieldState = {
+      freeTextIntent: longIntent(),
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
+      systemName: "B2B SaaS Tenant Migration Platform",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
+    };
+
+    getDraftRequest.mockResolvedValue(draftResponse(fields, "2026-08-11T12:00:00.000Z"));
+    patchDraftRequest.mockRejectedValue(
+      new ApiRequestError("Conflict", {
+        httpStatus: 409,
+        correlationId: "corr-draft-autosave-409",
+        problem: {
+          title: "Conflict",
+          status: 409,
+          detail: "Draft 'draft-001' sealed manifest hash verification failed before autosave.",
+        },
+      }),
+    );
+
+    const { result } = renderHook(() =>
+      useArchitectureDraftAutosave({
+        draftId: "draft-001",
+        fields,
+        actorSet,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.saveDraft();
+    });
+
+    expect(result.current.saveState).toBe("error");
+    expect(result.current.conflictMessage).toBe(
+      "Draft 'draft-001' sealed manifest hash verification failed before autosave.",
+    );
+  });
+
   it("sends forceOverwrite on Keep mine without expectedUpdatedUtc (LW-030)", async () => {
     const fields: ArchitectureDraftFieldState = {
       freeTextIntent: longIntent(),
