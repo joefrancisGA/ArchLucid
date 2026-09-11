@@ -3,13 +3,20 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.InfraEvidence.Branding;
+using ArchLucid.Application.Runs;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.User;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Persistence.Coordination.Export;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -252,6 +259,109 @@ public sealed class ArtifactExportControllerRunExportTests
     }
 
     [Fact]
+    public async Task PushRunExportToBlob_returns_409_when_working_career_simulator_unlabeled()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out Mock<IAuditService> audit,
+            out Mock<IRunExportBlobPushOutboxRepository> outbox,
+            scope,
+            manifestHashService: SealedManifestHashTestSupport.CreateManifestHashService(),
+            runDetailQueryService: CreateBlockedSimulatorRunDetails(runId));
+
+        authority
+            .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    GoldenManifestId = Guid.NewGuid(),
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    ManifestId = Guid.NewGuid(),
+                    ManifestHash = SealedManifestHashTestSupport.DefaultHash,
+                },
+            });
+
+        IActionResult result = await sut.PushRunExportToBlob(
+            runId,
+            new RunExportBlobPushRequest { DestinationSasUrl = ValidDestination },
+            CancellationToken.None);
+
+        ObjectResult blocked = result.Should().BeOfType<ObjectResult>().Subject;
+        blocked.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            blocked.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Extensions["blockReasonCode"].Should().Be(CareerArtifactCompletenessValidator.SimulatorRehearsalCode);
+        outbox.Verify(
+            o => o.EnqueueAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task DownloadRunExport_returns_409_when_working_career_simulator_unlabeled()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IRunExportPackageBuilder> builder = new();
+        builder
+            .Setup(b => b.BuildAsync(scope, runId, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunExportPackageResult.Success(
+                [0x50, 0x4b],
+                "application/zip",
+                "export.zip",
+                Guid.NewGuid()));
+
+        ArtifactExportController sut = CreateController(
+            out _,
+            out Mock<IAuditService> audit,
+            out _,
+            scope,
+            builder.Object,
+            runDetailQueryService: CreateBlockedSimulatorRunDetails(runId));
+
+        IActionResult result = await sut.DownloadRunExport(runId, CancellationToken.None);
+
+        ObjectResult blocked = result.Should().BeOfType<ObjectResult>().Subject;
+        blocked.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            blocked.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Extensions["blockReasonCode"].Should().Be(CareerArtifactCompletenessValidator.SimulatorRehearsalCode);
+        builder.Verify(
+            b => b.BuildAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<byte[]?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PushRunExportToBlob_enqueues_and_returns_202_when_run_is_exportable()
     {
         Guid runId = Guid.NewGuid();
@@ -399,6 +509,26 @@ public sealed class ArtifactExportControllerRunExportTests
         body.CommittedManifestHash.Should().Be("ABC");
     }
 
+    private static Mock<IRunDetailQueryService> CreateBlockedSimulatorRunDetails(Guid runId)
+    {
+        Mock<IRunDetailQueryService> runDetails = new();
+
+        runDetails
+            .Setup(s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun
+                {
+                    RunId = runId.ToString("N"),
+                    Status = ArchitectureRunStatus.Committed,
+                    StructuralExecutionMode = StructuralExecutionMode.Simulator,
+                    WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Career,
+                },
+            });
+
+        return runDetails;
+    }
+
     private static ArtifactExportController CreateController(
         out Mock<IAuthorityQueryService> authority,
         out Mock<IAuditService> audit,
@@ -408,7 +538,8 @@ public sealed class ArtifactExportControllerRunExportTests
         IRunExportLineageVerifier? runExportLineageVerifier = null,
         IArtifactPackagingService? artifactPackagingService = null,
         ITerraformGitHubPrService? terraformGitHubPrService = null,
-        IManifestHashService? manifestHashService = null)
+        IManifestHashService? manifestHashService = null,
+        Mock<IRunDetailQueryService>? runDetailQueryService = null)
     {
         authority = new Mock<IAuthorityQueryService>();
         audit = new Mock<IAuditService>();
@@ -433,8 +564,23 @@ public sealed class ArtifactExportControllerRunExportTests
             .Returns(Task.CompletedTask);
 
         IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> { ["ArchLucid:MermaidCli:Enabled"] = "false" })
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucid:MermaidCli:Enabled"] = "false",
+                ["ArchLucid:Governance:PreCommitGateEnabled"] = "true",
+                ["ArchLucid:AgentOutput:QualityGate:Mode"] = "WarnOnly",
+                ["AgentExecution:Mode"] = "Simulator",
+            })
             .Build();
+
+        Mock<IAuthorityQueryService> authorityForExport = authority;
+        authorityForExport
+            .Setup(s => s.GetRunDetailForExportAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = Guid.NewGuid() },
+                FindingCoverageSummary = new RunFindingCoverageSummary { EnginesSucceeded = 50 },
+            });
 
         ArtifactExportController controller = new(
             Mock.Of<IArtifactQueryService>(),
@@ -452,10 +598,28 @@ public sealed class ArtifactExportControllerRunExportTests
             manifestHashService ?? Mock.Of<IManifestHashService>(),
             Mock.Of<IBrandedDiagramExportService>(),
             Mock.Of<IFindingVerificationReportQueryService>(),
-            Mock.Of<ArchLucid.Api.Support.IArchitectureShareAccessGate>());
+            Mock.Of<ArchLucid.Api.Support.IArchitectureShareAccessGate>(),
+            runDetailQueryService?.Object ?? Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IGraphSnapshotRepository>(),
+            CreateEmptyAgentExecutionTraceRepository(),
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<IArchitectureInventoryBindingRepository>());
 
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         return controller;
+    }
+
+    private static IAgentExecutionTraceRepository CreateEmptyAgentExecutionTraceRepository()
+    {
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces
+            .Setup(r => r.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return traces.Object;
     }
 }
