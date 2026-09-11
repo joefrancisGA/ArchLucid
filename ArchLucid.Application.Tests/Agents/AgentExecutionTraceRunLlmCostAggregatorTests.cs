@@ -60,6 +60,39 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
     }
 
     [Fact]
+    public void Compute_deduplicates_model_label_when_deployment_name_differs_only_by_case()
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(e => e.EstimateUsd(100, 40, 0, "dep-a"))
+            .Returns(1.0m);
+        estimator
+            .Setup(e => e.EstimateUsd(50, 10, 0, "DEP-A"))
+            .Returns(0.25m);
+
+        List<AgentExecutionTrace> traces =
+        [
+            new()
+            {
+                ModelDeploymentName = "dep-a",
+                InputTokenCount = 100,
+                OutputTokenCount = 40,
+            },
+            new()
+            {
+                ModelDeploymentName = "DEP-A",
+                InputTokenCount = 50,
+                OutputTokenCount = 10,
+            },
+        ];
+
+        AgentExecutionTraceRunLlmCostSummary summary =
+            AgentExecutionTraceRunLlmCostAggregator.Compute(traces, estimator.Object);
+
+        summary.ModelLabel.Should().Be("dep-a");
+    }
+
+    [Fact]
     public void Compute_WithTokens_SumsPerTraceEstimatesAndDeployments()
     {
         Mock<ILlmCostEstimator> estimator = new();

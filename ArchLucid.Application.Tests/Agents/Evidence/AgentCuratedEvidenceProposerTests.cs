@@ -23,10 +23,23 @@ public sealed class AgentCuratedEvidenceProposerTests
             """;
         AgentCuratedEvidenceProposer.NormalizeResponse(json).Should().BeNull();
     }
+
     [Fact]
     public void NormalizeResponse_returns_null_when_title_is_zero_width_space_only()
+    {
+        const string json =
+            """
             {"type":"Policy","title":"\u200b","description":"Require TDE on all SQL databases."}
+            """;
+
+        AgentCuratedEvidenceProposer.NormalizeResponse(json).Should().BeNull();
+    }
+
+    [Fact]
     public void NormalizeResponse_returns_null_when_type_is_null()
+    {
+        const string json =
+            """
             {"type":null,"title":"Encrypt SQL TDE","description":"Require TDE on all SQL databases."}
             """;
 
@@ -50,6 +63,17 @@ public sealed class AgentCuratedEvidenceProposerTests
         const string json =
             """
             {"type":"Policy","title":"Encrypt SQL TDE","description":"\u200b","rationale":"Findings cited missing encryption."}
+            """;
+
+        AgentCuratedEvidenceProposer.NormalizeResponse(json).Should().BeNull();
+    }
+
+    [Fact]
+    public void NormalizeResponse_returns_null_when_rationale_is_zero_width_space_only()
+    {
+        const string json =
+            """
+            {"type":"Policy","title":"Encrypt SQL TDE","description":"Require TDE on all SQL databases.","rationale":"\u200b"}
             """;
 
         AgentCuratedEvidenceProposer.NormalizeResponse(json).Should().BeNull();

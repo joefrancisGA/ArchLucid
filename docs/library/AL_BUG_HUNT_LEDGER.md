@@ -11597,11 +11597,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 6
-- **bugs-found:** 8
+- **hunts:** 7
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — evidence promotion catalog slug collision surfaced SQL unique-index failure; null evidence `type` threw instead of rejecting; 2026-09-11 — invisible Unicode curated-evidence descriptions; partial multi-trace cost basis mislabeling
+- **last-bug:** 2026-09-11 — run-level model label duplicated deployment names that differed only by case
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -11623,11 +11623,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-only title or description text — **hit 2026-09-11 seed hunt #1723 (seed→hit):** U+200B is not whitespace under `string.IsNullOrWhiteSpace`, so zero-width-only `description`/`title` values passed normalize and promote validation; fixed via shared `ProposedEvidenceTextValidation.HasSubstantiveText`; regressions `NormalizeResponse_returns_null_when_description_is_zero_width_space_only`, `NormalizeResponse_returns_null_when_title_is_zero_width_space_only`, and `TryParseValid_WhenDescriptionIsZeroWidthSpaceOnly_ReturnsFalse`
 - [x] (proven) `ProposedEvidencePayloadValidator.TryParseValid` throws on `"type":null` instead of rejecting — **hit 2026-09-11 thorough hunt #1724:** `IsSupportedType` called `.Equals` on null JSON `type`; fixed via null/whitespace guard; regression `TryParseValid_WhenTypeIsNull_ReturnsFalse`
 - [x] (proven) `AgentExecutionTraceRunLlmCostAggregator` reports `estimated-from-configured-rates` when only some traces price — **hit 2026-09-11 seed hunt #1715 (seed→hit):** mixed priced/unpriced deployment slices summed partial USD while labeling the full run as rate-estimated; fixed by downgrading basis to `provider-tokens-without-rate` and omitting partial USD when any measurable slice lacks a rate; regression `Compute_WhenOnlySomeTracesPrice_UsesProviderTokensWithoutRateBasis`
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 
+- [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-only `rationale` text — **hit 2026-09-11 seed hunt #1730 (seed→hit):** title/description guards used `HasSubstantiveText` but rationale was unchecked; fixed in both paths; regressions `NormalizeResponse_returns_null_when_rationale_is_zero_width_space_only` and `TryParseValid_WhenRationaleIsZeroWidthSpaceOnly_ReturnsFalse`
+- [x] (proven) `AgentExecutionTraceRunLlmCostAggregator.BuildModelLabelFromDeployments` — duplicate deployment names in `ModelLabel` when trace rows differed only by casing — **hit 2026-09-11 seed hunt #1730 (seed→hit):** measurable deployment set used `StringComparer.Ordinal`; fixed with `OrdinalIgnoreCase` on measurable and fallback deployment sets; regression `Compute_deduplicates_model_label_when_deployment_name_differs_only_by_case`
+
+2026-09-11 seed hunt #1730 (hit): reseeded application-agents; proved invisible-only curated-evidence rationale bypass and run-level model-label deployment casing duplication; restored corrupted evidence test sources; 81 scoped Application.Tests.Agents tests passed.
+
 2026-09-11 seed hunt #1715 (hit): reseeded application-agents; proved invisible Unicode curated-evidence descriptions and partial multi-trace cost basis mislabeling; 70 scoped `Application.Tests.Agents` tests passed.
 2026-09-11 seed hunt #1723 (hit): reseeded application-agents; seeded catalog slug-collision candidate; proved invisible-only curated evidence text bypass; 70 scoped Application.Tests.Agents tests passed.
 2026-09-11 thorough hunt #1724 (hit): proved catalog slug collision on evidence promotion and null evidence type validation throw; 72 scoped Application.Tests.Agents tests passed.

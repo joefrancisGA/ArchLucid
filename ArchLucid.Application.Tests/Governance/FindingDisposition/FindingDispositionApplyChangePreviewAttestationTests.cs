@@ -121,7 +121,6 @@ public sealed class FindingDispositionApplyChangePreviewAttestationTests
 
     [Fact]
     public async Task RecordAsync_guided_remediated_rejects_overlong_preview_override_reason()
-    public async Task RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes()
     {
         ConcurrentFindingReviewTrailRepository trailRepository = new();
         FindingDispositionService sut = FindingDispositionServiceTestFactory.Create(trailRepository, isWorkingDesk: false);
@@ -136,6 +135,18 @@ public sealed class FindingDispositionApplyChangePreviewAttestationTests
         Func<Task> act = () => sut.RecordAsync(request, Scope, "alice", CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>().WithMessage($"*exceed*{FindingDispositionValidation.MaximumRationaleLength}*");
+    }
+
+    [Fact]
+    public async Task RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = FindingDispositionServiceTestFactory.Create(trailRepository, isWorkingDesk: false);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = Disposition.Remediated,
             Rationale = "Remediation shipped in release 2.4.",
             ImpactPreviewCompleted = true,
         };
