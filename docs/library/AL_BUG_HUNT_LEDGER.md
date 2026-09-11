@@ -2601,11 +2601,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 11
-- **bugs-found:** 7
+- **hunts:** 12
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — protocol-relative doc-index URLs opened in the same tab without noreferrer
+- **last-bug:** 2026-09-11 — fetched doc-index rows sharing `/help` hub url dropped when titles differ
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2660,6 +2660,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `?q=` deep link initializes the search box but leaves the full index visible until the operator types — **cheap-disproof 2026-09-11 seed hunt #1745:** `query` state seeds from `urlQuery` and `filtered` applies on first render; regression `filters documentation on mount when q= is in the URL`.
 
 2026-09-11 seed hunt #1745 (seed-only): reseeded ui-help-docs after #1744; cheap-disproof closed q= mount filtering candidate; 23 scoped `HelpDocsClient` tests passed.
+
+- [x] (proven) `mergeDocIndex` URL dedupe drops fetched doc-index rows that share the `/help` hub url but have distinct titles — **hit 2026-09-11 seed hunt #1753 (seed→hit):** `seenUrls` suppressed all but the first `/help` stub from `public/doc-index.json` (~50 distinct titles); fixed to dedupe fetched rows only when the url is already claimed by static quick links; regression `keeps fetched doc-index rows that share the /help hub url when titles differ`.
+
+- [ ] (candidate) Help hub Escape clear drops non-`q` URL parameters — needs cheap-disproof with `tab=` or similar preserved on clear.
+
+- [ ] (candidate) `http://` doc-index external links omit `target="_blank"`/`rel="noreferrer"` — needs cheap-disproof; `linkProps` already treats `http://` like `https://`.
+
+2026-09-11 seed hunt #1753 (seed→hit): reseeded ui-help-docs after #1745; proved shared `/help` hub url merge drop; 24 scoped `HelpDocsClient` tests passed.
 
 ## Zone: ui-webhooks-settings
 

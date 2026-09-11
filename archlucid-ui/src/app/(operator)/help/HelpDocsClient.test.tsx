@@ -633,6 +633,47 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("keeps fetched doc-index rows that share the /help hub url when titles differ", async () => {
+    const data = [
+      {
+        title: "API contracts snapshot",
+        summary: "High-level REST contracts and OpenAPI pointers for clients.",
+        category: "API",
+        url: "/help",
+      },
+      {
+        title: "API_VERSIONING",
+        summary: "Url-segment versioning, defaults, and client expectations for v1.",
+        category: "API",
+        url: "/help",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "API contracts snapshot" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "API_VERSIONING" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "API_VERSIONING" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "API_VERSIONING" })).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "API contracts snapshot" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("does not clear the URL when Escape is pressed on an empty search box", async () => {
     vi.stubGlobal(
       "fetch",

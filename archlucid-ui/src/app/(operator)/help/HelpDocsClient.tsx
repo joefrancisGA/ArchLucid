@@ -86,11 +86,11 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
   }
 
   const seenKeys = new Set<string>();
-  const seenUrls = new Set<string>();
+  const staticUrls = new Set<string>();
 
   for (const e of staticRows) {
     seenKeys.add(`${e.category}|${e.title}|${e.url}`);
-    seenUrls.add(e.url);
+    staticUrls.add(e.url);
   }
 
   const merged: DocIndexEntry[] = [...staticRows];
@@ -98,12 +98,11 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
   for (const e of fetched) {
     const k = `${e.category}|${e.title}|${e.url}`;
 
-    if (seenKeys.has(k) || seenUrls.has(e.url)) {
+    if (seenKeys.has(k) || staticUrls.has(e.url)) {
       continue;
     }
 
     seenKeys.add(k);
-    seenUrls.add(e.url);
     merged.push(e);
   }
 
