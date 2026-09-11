@@ -1,5 +1,4 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ArchitectureDiagramViewer } from '@/components/architecture/ArchitectureDiagramViewer';
@@ -9,6 +8,7 @@ import {
   ARCHITECTURE_DIAGRAM_VIEWPORT_HINT,
   ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
   ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
+  ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL,
 } from '@/lib/architecture/architecture-diagram-copy';
 
 vi.mock('next/navigation', () => ({
@@ -46,25 +46,59 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL })).toBeInTheDocument();
     expect(screen.getByText(ARCHITECTURE_DIAGRAM_VIEWPORT_HINT)).toBeInTheDocument();
+    expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toBeInTheDocument();
   });
 
   it('fit in view clears diagram zoom from the URL and shows 100 percent', async () => {
-    const user = userEvent.setup();
     searchParamsMock.set('diagZoom', '1.50');
 
     render(
       <ArchitectureDiagramViewer source={sampleSvg} sourceKind="html" alt="Inventory topology" />
     );
 
-    expect(screen.getByText('150%')).toBeInTheDocument();
+    expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(150);
 
-    await user.click(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL }));
+    fireEvent.click(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL }));
 
     expect(replaceMock).toHaveBeenCalled();
     const lastCall = replaceMock.mock.calls.at(-1);
 
     expect(lastCall?.[0]).not.toContain('diagZoom=');
-    expect(screen.getByText('100%')).toBeInTheDocument();
+    expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(100);
+  });
+
+  it('applies a custom zoom percentage from the input', async () => {
+    render(
+      <ArchitectureDiagramViewer source={sampleSvg} sourceKind="html" alt="Inventory topology" />
+    );
+
+    const zoomInput = screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL);
+
+    fireEvent.change(zoomInput, { target: { value: '350' } });
+    fireEvent.blur(zoomInput);
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/securenow/inventory?diagZoom=3.50', {
+        scroll: false,
+      });
+    });
+  });
+
+  it('clamps custom zoom percentages to the supported range', async () => {
+    render(
+      <ArchitectureDiagramViewer source={sampleSvg} sourceKind="html" alt="Inventory topology" />
+    );
+
+    const zoomInput = screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL);
+
+    fireEvent.change(zoomInput, { target: { value: '1500' } });
+    fireEvent.blur(zoomInput);
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/securenow/inventory?diagZoom=10.00', {
+        scroll: false,
+      });
+    });
   });
 
   it('preserves foreignObject labels when sanitizing diagram HTML', () => {

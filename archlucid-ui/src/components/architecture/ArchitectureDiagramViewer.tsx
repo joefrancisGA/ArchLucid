@@ -10,12 +10,14 @@ import {
   ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
   ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
 } from '@/lib/architecture/architecture-diagram-copy';
-import { fitMermaidSvgElementToHost } from '@/lib/architecture/fit-mermaid-svg-to-host';
-import { sanitizeArchitectureDiagramSvg } from '@/lib/architecture/sanitize-architecture-diagram-svg';
+import { sanitizeArchitectureDiagramSvg } from '@/lib/architecture/architecture-diagram-svg';
+import { fitMermaidSvgElementToHost } from '@/lib/help/help-mermaid';
 import { cn } from '@/lib/utils';
 
-const MIN_ZOOM = 0.5;
-const MAX_ZOOM = 2;
+const MIN_ZOOM = 0.1;
+const MAX_ZOOM = 10;
+const MIN_ZOOM_PERCENT = 10;
+const MAX_ZOOM_PERCENT = 1000;
 const ZOOM_STEP = 0.1;
 const MAX_INITIAL_FIT_RETRIES = 8;
 const INITIAL_FIT_RETRY_DELAY_MS = 120;
@@ -33,7 +35,15 @@ export interface ArchitectureDiagramViewerProps {
 }
 
 function clampZoom(value: number): number {
-  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, value));
+  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number(value.toFixed(2))));
+}
+
+function zoomToPercent(value: number): number {
+  return Math.round(clampZoom(value) * 100);
+}
+
+function percentToZoom(percent: number): number {
+  return clampZoom(percent / 100);
 }
 
 function parseZoomParam(raw: string | null): number | null {
@@ -75,6 +85,7 @@ export function ArchitectureDiagramViewer({
   const fitRetryTimeoutRef = useRef<number | null>(null);
   const urlZoom = parseZoomParam(searchParams.get('diagZoom'));
   const [zoom, setZoomState] = useState<number>(() => urlZoom ?? 1);
+  const [zoomPercentDraft, setZoomPercentDraft] = useState<string | null>(null);
   const isInteractiveView = interactive || sourceKind === 'html';
 
   const setZoomClamped = useCallback((value: number) => {
@@ -98,7 +109,15 @@ export function ArchitectureDiagramViewer({
       return false;
     }
 
-    return fitMermaidSvgElementToHost(svg, host);
+    const width = host.clientWidth;
+
+    if (width <= 0) {
+      return false;
+    }
+
+    fitMermaidSvgElementToHost(svg, width);
+
+    return true;
   }, [sourceKind]);
 
   useEffect(() => {
@@ -143,6 +162,27 @@ export function ArchitectureDiagramViewer({
     setZoomClamped(1);
     scrollViewportToOrigin(viewportRef.current);
   }, [setZoomClamped]);
+
+  const commitZoomPercent = useCallback(
+    (raw: string) => {
+      setZoomPercentDraft(null);
+
+      const trimmed = raw.trim().replace(/%$/, '');
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const parsed = Number.parseFloat(trimmed);
+
+      if (!Number.isFinite(parsed)) {
+        return;
+      }
+
+      setZoomClamped(percentToZoom(parsed));
+    },
+    [setZoomClamped],
+  );
 
   const fitToView = useCallback(() => {
     if (sourceKind !== 'html') {
@@ -257,11 +297,21 @@ export function ArchitectureDiagramViewer({
     [isInteractiveView, zoomIn, zoomOut]
   );
 
-  const zoomPercentLabel = `${Math.round(zoom * 100)}%`;
+  const zoomPercent = zoomToPercent(zoom);
+  const zoomPercentInputValue = zoomPercentDraft ?? String(zoomPercent);
+  const atMinZoom = zoom <= MIN_ZOOM + 0.001;
+  const atMaxZoom = zoom >= MAX_ZOOM - 0.001;
 
   const viewportControls = (
     <ArchitectureDiagramViewportControls
-      zoomPercentLabel={zoomPercentLabel}
+      zoomPercentInputValue={zoomPercentInputValue}
+      minZoomPercent={MIN_ZOOM_PERCENT}
+      maxZoomPercent={MAX_ZOOM_PERCENT}
+      atMinZoom={atMinZoom}
+      atMaxZoom={atMaxZoom}
+      onZoomPercentDraftChange={setZoomPercentDraft}
+      onZoomPercentFocus={() => setZoomPercentDraft(String(zoomPercent))}
+      onCommitZoomPercent={commitZoomPercent}
       onZoomIn={zoomIn}
       onZoomOut={zoomOut}
       onResetZoom={resetZoom}
