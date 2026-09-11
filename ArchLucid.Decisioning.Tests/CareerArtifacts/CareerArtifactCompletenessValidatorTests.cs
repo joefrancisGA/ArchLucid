@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.User;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Findings;
@@ -276,6 +277,42 @@ public sealed class CareerArtifactCompletenessValidatorTests
 
         result.CanRender.Should().BeFalse();
         result.BlockReasons.Should().Contain(reason =>
+            reason.Code == CareerArtifactCompletenessValidator.SimulatorRehearsalCode);
+    }
+
+    [Fact]
+    public void Evaluate_blocks_working_career_finalize_on_simulator_without_rehearsal_door_stamp()
+    {
+        CareerArtifactCompletenessInput input = new(
+            ArtifactKind: CareerArtifactKind.Finalize,
+            TransparencyTrail: new TransparencyTrail(),
+            EnginesSucceeded: _meetsFloorEngineCount,
+            WorkingDesk: true,
+            StructuralExecutionMode: StructuralExecutionMode.Simulator,
+            WorkingCareerRehearsalDoor: WorkingCareerRehearsalDoorValues.Career);
+
+        CareerArtifactCompletenessResult result = _sut.Evaluate(input);
+
+        result.CanRender.Should().BeFalse();
+        result.BlockReasons.Should().Contain(reason =>
+            reason.Code == CareerArtifactCompletenessValidator.SimulatorRehearsalCode);
+    }
+
+    [Fact]
+    public void Evaluate_allows_working_rehearsal_finalize_on_simulator_with_door_stamp()
+    {
+        CareerArtifactCompletenessInput input = new(
+            ArtifactKind: CareerArtifactKind.Finalize,
+            TransparencyTrail: new TransparencyTrail(),
+            EnginesSucceeded: _meetsFloorEngineCount,
+            WorkingDesk: true,
+            StructuralExecutionMode: StructuralExecutionMode.Simulator,
+            WorkingCareerRehearsalDoor: WorkingCareerRehearsalDoorValues.Rehearsal);
+
+        CareerArtifactCompletenessResult result = _sut.Evaluate(input);
+
+        result.CanRender.Should().BeTrue();
+        result.BlockReasons.Should().NotContain(reason =>
             reason.Code == CareerArtifactCompletenessValidator.SimulatorRehearsalCode);
     }
 

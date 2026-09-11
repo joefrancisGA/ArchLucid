@@ -87,6 +87,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Door × host Mode matrix (CG-020):** `resolveWorkingCareerDoorHostModeMatrixCell` names four cells on the Working chooser: Career+Real (allowed), Career+Simulator (blocked — not green Career), Rehearsal+Simulator (labeled rehearsal), Rehearsal+Real (labeled practice even when live AI is ready). `WorkingCareerRehearsalChooser` surfaces the active cell via `data-door-host-mode-cell` and a mismatch `StatusTag`. Host `AgentExecution:Mode` stays Simulator.
 
+**Career finalize gate (CG-021):** Working **Career** door + structural **Simulator** or **Fallback** cannot finalize — server returns a governance block (4xx) and the UI disables the finalize CTA with blocked-honesty copy (no Ready label). **Rehearsal** door on Simulator/Fallback may still seal as rehearsal-incomplete per LP-06; Ready-to-finalize labels stay suppressed (AS-079) even when finalize is allowed. `MapForFinalize` passes the CG-019 door stamp into `CareerArtifactCompletenessValidator`; TS uses `shouldBlockFinalizeForCareerHonesty` for mutation parity.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
