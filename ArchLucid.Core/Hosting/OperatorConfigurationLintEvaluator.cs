@@ -45,6 +45,14 @@ public static class OperatorConfigurationLintEvaluator
         if (preCommitGateDisabled is not null)
             blocking.Add(preCommitGateDisabled.Value);
 
+        HostingMisconfigurationWarning? finalizeQualityGateDisabled =
+            FinalizeQualityGateProductionLikeConfigurationLint.TryDescribeBlockingFinding(
+                configuration,
+                trimmedEnv);
+
+        if (finalizeQualityGateDisabled is not null)
+            blocking.Add(finalizeQualityGateDisabled.Value);
+
         List<HostingMisconfigurationWarning> advisory =
             ProductionLikeHostingMisconfigurationAdvisor.DescribeWarningRecords(configuration, trimmedEnv).ToList();
 

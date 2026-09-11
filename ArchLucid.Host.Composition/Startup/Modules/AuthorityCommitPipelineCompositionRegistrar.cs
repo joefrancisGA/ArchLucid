@@ -35,6 +35,9 @@ internal static class AuthorityCommitPipelineCompositionRegistrar
         services.AddScoped<IBaselineMutationAuditService, BaselineMutationAuditService>();
         services.Configure<PreCommitGovernanceGateOptions>(
             configuration.GetSection(PreCommitGovernanceGateOptions.SectionPath));
+        services.Configure<FinalizeQualityGateOptions>(
+            configuration.GetSection(FinalizeQualityGateOptions.SectionPath));
+        services.AddScoped<IFinalizeQualityGate, FinalizeQualityGate>();
         services.Configure<TechnologyConsistencyFindingEngineOptions>(
             configuration.GetSection(TechnologyConsistencyFindingEngineOptions.SectionPath));
         services.Configure<FindingEvidenceLinkageFindingEngineOptions>(

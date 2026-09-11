@@ -76,4 +76,8 @@ public static class ProductionLikeHostingMisconfigurationAdvisorRuleNames
     /// <summary><c>ArchLucid:Governance:PreCommitGateEnabled=false</c> on production-like hosting (DR-04).</summary>
     public const string PreCommitGovernanceGateDisabledProductionLike =
         "pre_commit_governance_gate_disabled_production_like";
+
+    /// <summary><c>ArchLucid:FinalizeQualityGate:Enabled=false</c> on production-like hosting (TB-2321).</summary>
+    public const string FinalizeQualityGateDisabledProductionLike =
+        "finalize_quality_gate_disabled_production_like";
 }

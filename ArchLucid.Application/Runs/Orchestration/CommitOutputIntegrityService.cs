@@ -33,7 +33,8 @@ public sealed class CommitOutputIntegrityService(
     IRunEvidencePackagePinService runEvidencePackagePinService,
     IArchitectureKnowledgeModelAccess architectureKnowledgeModelAccess,
     IDraftRequestRepository draftRequestRepository,
-    IArchitectureVersionRepository architectureVersionRepository) : ICommitOutputIntegrityService
+    IArchitectureVersionRepository architectureVersionRepository,
+    IFinalizeQualityGate finalizeQualityGate) : ICommitOutputIntegrityService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -64,6 +65,9 @@ public sealed class CommitOutputIntegrityService(
 
     private readonly IArchitectureVersionRepository _architectureVersionRepository =
         architectureVersionRepository ?? throw new ArgumentNullException(nameof(architectureVersionRepository));
+
+    private readonly IFinalizeQualityGate _finalizeQualityGate =
+        finalizeQualityGate ?? throw new ArgumentNullException(nameof(finalizeQualityGate));
 
     /// <inheritdoc />
     public async Task EnsurePassOrThrowAsync(
@@ -155,6 +159,11 @@ public sealed class CommitOutputIntegrityService(
                 "Commit blocked: existential assumptions require confirmation before finalize. "
                 + string.Join(" ", assumptionGateReasons));
         }
+
+        // TB-2321: the UI scorecard already refuses these; the server must refuse them for direct API callers too.
+        await _finalizeQualityGate
+            .EnsurePassOrThrowAsync(scope, architectureRequest, findings, cancellationToken)
+            .ConfigureAwait(false);
 
         if (Guid.TryParseExact(runId, "N", out Guid runGuidForEvidence) || Guid.TryParse(runId, out runGuidForEvidence))
         {
