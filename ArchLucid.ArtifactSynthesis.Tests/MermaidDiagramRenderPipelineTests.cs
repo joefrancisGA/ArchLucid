@@ -49,6 +49,32 @@ public sealed class MermaidDiagramRenderPipelineTests
     }
 
     [Fact]
+    public async Task RenderAsync_preserves_inventory_node_metadata_through_deterministic_repair()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "inventory-metadata",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/core-vnet",
+                    Label = "core-vnet",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Network/virtualNetworks",
+                    ArmResourceGroup = "rg-network",
+                },
+            ],
+        };
+
+        MermaidDiagramRenderResult result = await pipeline.RenderAsync(new MermaidDiagramRenderRequest { Ast = ast });
+
+        result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
+        result.PrimaryMermaid.Should().Contain("al-type=Microsoft.Network/virtualNetworks");
+        result.PrimaryMermaid.Should().Contain("al-rg=rg-network");
+    }
+
+    [Fact]
     public async Task RenderAsync_over_threshold_graph_returns_partitioned_not_succeeded()
     {
         DiagramAst ast = BuildLargeAst(nodeCount: 500);
