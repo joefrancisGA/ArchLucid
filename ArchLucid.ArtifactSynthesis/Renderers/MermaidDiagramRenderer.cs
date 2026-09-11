@@ -104,7 +104,54 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         string indentText = new(' ', indent * 4);
         string safeNodeId = MermaidIdSanitizer.Sanitize(node.NodeId);
         string safeLabel = EscapeLabel(node.Label);
-        sb.AppendLine($"{indentText}{safeNodeId}[\"{safeLabel}\"]");
+        string metadataComment = BuildInventoryNodeMetadataComment(node);
+
+        if (string.IsNullOrEmpty(metadataComment))
+        {
+            sb.AppendLine($"{indentText}{safeNodeId}[\"{safeLabel}\"]");
+            return;
+        }
+
+        sb.AppendLine($"{indentText}{safeNodeId}[\"{safeLabel}\"] {metadataComment}");
+    }
+
+    private static string BuildInventoryNodeMetadataComment(DiagramNode node)
+    {
+        List<string> tokens = [];
+
+        if (!string.IsNullOrWhiteSpace(node.ArmResourceType))
+        {
+            tokens.Add($"al-type={QuoteMetadataValue(node.ArmResourceType)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(node.ArmResourceGroup))
+        {
+            tokens.Add($"al-rg={QuoteMetadataValue(node.ArmResourceGroup)}");
+        }
+
+        if (tokens.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        return $"%% {string.Join(' ', tokens)}";
+    }
+
+    private static string QuoteMetadataValue(string value)
+    {
+        string trimmed = value.Trim();
+
+        if (trimmed.Length == 0)
+        {
+            return "\"\"";
+        }
+
+        if (!trimmed.Contains('"', StringComparison.Ordinal) && !trimmed.Contains(' ', StringComparison.Ordinal))
+        {
+            return trimmed;
+        }
+
+        return "\"" + trimmed.Replace("\"", "\\\"", StringComparison.Ordinal) + "\"";
     }
 
     private static void AppendEdges(DiagramAst ast, StringBuilder sb)
