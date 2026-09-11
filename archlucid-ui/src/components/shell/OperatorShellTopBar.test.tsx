@@ -317,6 +317,20 @@ describe("OperatorShellTopBar", () => {
     expect(screen.queryByTestId("working-career-rehearsal-chooser")).not.toBeInTheDocument();
   });
 
+  it("hides Guided mode training chrome in the Security product shell", async () => {
+    productLineMock.value = "security";
+    workspaceModeMock.mode = "guided";
+    workspaceModeMock.isWorkingMode = false;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.queryByTestId("guided-mode-top-bar-chip")).not.toBeInTheDocument();
+  });
+
   it("hides the AI budget pill when remaining budget is healthy", async () => {
     fetchBudgetStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,

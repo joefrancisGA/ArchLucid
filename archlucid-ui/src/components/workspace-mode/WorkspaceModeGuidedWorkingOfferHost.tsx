@@ -4,7 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type SetStateAction } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { isSecureNowTrainingChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { WorkspaceModeGraduationOffer } from "@/components/workspace-mode/WorkspaceModeGraduationOffer";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
@@ -25,6 +27,7 @@ export function WorkspaceModeGuidedWorkingOfferHost(): React.JSX.Element | null 
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const { productLine } = useProductLine();
   const { mode, setAndPersist } = useWorkspaceMode();
   const evalChrome = useProductionEvalChrome();
   const commitQuery = useCorePilotCommitContextQuery();
@@ -80,7 +83,7 @@ export function WorkspaceModeGuidedWorkingOfferHost(): React.JSX.Element | null 
     syncGraduationOfferOpenToUrl(offerEligible);
   }, [offerEligible, syncGraduationOfferOpenToUrl]);
 
-  if (!offerEligible) {
+  if (isSecureNowTrainingChromeExcluded(productLine) || !offerEligible) {
     return null;
   }
 
