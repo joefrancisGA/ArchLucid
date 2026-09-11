@@ -19,6 +19,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
 import { RunDetailReviewPackageStampViewport } from "./RunDetailReviewPackageStampViewport";
+import { FinalizeReadinessChecklistParityBanner } from "@/components/reviews/FinalizeReadinessChecklistParityBanner";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
 import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
@@ -285,6 +286,14 @@ export function RunDetailReviewPackageDoThisNextResolved(
         structuralExecutionMode={props.structuralExecutionMode}
         workingCareerRehearsalDoor={props.pipelineSummary?.workingCareerRehearsalDoor}
       />
+      {commitBlockedState.readinessChecklistMismatch
+      && commitBlockedState.checklistReadyToFinalize !== null
+      && commitBlockedState.readinessReadyToFinalize !== null ? (
+        <FinalizeReadinessChecklistParityBanner
+          checklistReadyToFinalize={commitBlockedState.checklistReadyToFinalize}
+          readinessReadyToFinalize={commitBlockedState.readinessReadyToFinalize}
+        />
+      ) : null}
       <FinalizeReadinessStrip
         commitBlockedReason={
           next.failureRecovery !== null && next.failureRecovery !== undefined
