@@ -556,7 +556,7 @@ export function InfrastructureAskClient() {
 
       <main
         id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID : undefined}
-        className={cn("mx-auto flex w-full max-w-3xl flex-col gap-4", buyerPolishedShell ? "scroll-mt-24" : undefined)}
+        className={cn("flex w-full flex-col gap-4", buyerPolishedShell ? "scroll-mt-24" : undefined)}
         data-testid="infra-ask-primary-content"
       >
       {buyerPolishedShell && auditScope == null ? (

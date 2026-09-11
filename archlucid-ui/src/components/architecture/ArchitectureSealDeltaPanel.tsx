@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { useArchitectureSealDeltaQuery } from "@/hooks/use-architecture-seal-delta-query";
 import {
@@ -19,6 +20,7 @@ import {
   architectureSealDeltaDiffKindLabel,
   architectureSealDeltaSectionLabel,
 } from "@/lib/architecture/architecture-seal-delta-copy";
+import { architectureSealDeltaBlockedReason } from "@/lib/architecture/architecture-seal-delta-blocked-reason";
 import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import {
@@ -104,16 +106,27 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
   }
 
   if (query.isError || delta === undefined) {
-    const blockedReason = query.blockedReason;
+    const blockedReason =
+      query.blockedReason ?? architectureSealDeltaBlockedReason(query.failure);
 
     return (
-      <div className="space-y-2" data-testid="architecture-seal-delta-error">
-        <p className={OPERATOR_TYPOGRAPHY.body} role={blockedReason !== null ? "alert" : undefined}>
-          {blockedReason ?? ARCHITECTURE_SEAL_DELTA_ERROR_LABEL}
-        </p>
-        <Button type="button" variant="outline" size="sm" onClick={() => void query.refetch()}>
-          {ARCHITECTURE_SEAL_DELTA_RETRY_LABEL}
-        </Button>
+      <div className="space-y-2" data-testid="architecture-seal-delta-blocked">
+        {query.failure ? <OperatorApiProblem failure={query.failure} /> : null}
+        {blockedReason ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="architecture-seal-delta-blocked-reason"
+          >
+            {blockedReason}
+          </p>
+        ) : (
+          <p className={OPERATOR_TYPOGRAPHY.body}>{ARCHITECTURE_SEAL_DELTA_ERROR_LABEL}</p>
+        )}
+        {blockedReason === null ? (
+          <Button type="button" variant="outline" size="sm" onClick={() => void query.refetch()}>
+            {ARCHITECTURE_SEAL_DELTA_RETRY_LABEL}
+          </Button>
+        ) : null}
       </div>
     );
   }

@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Authorization;
@@ -41,64 +42,71 @@ public sealed partial class RunsController
         if (comment is { Length: > 2000 })
             return this.BadRequestProblem("Comment exceeds maximum length (2000).", ProblemTypes.ValidationFailed);
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail = await authorityQuery.GetRunDetailAsync(scope, request.RunId, cancellationToken);
-
-        if (detail?.FindingsSnapshot?.Findings is not { Count: > 0 } list)
+        try
         {
-            return this.NotFoundProblem(
-                $"Run '{request.RunId}' has no findings snapshot in the current scope.",
-                ProblemTypes.RunNotFound);
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+            RunDetailDto? detail = await authorityQuery.GetRunDetailAsync(scope, request.RunId, cancellationToken);
+
+            if (detail?.FindingsSnapshot?.Findings is not { Count: > 0 } list)
+            {
+                return this.NotFoundProblem(
+                    $"Run '{request.RunId}' has no findings snapshot in the current scope.",
+                    ProblemTypes.RunNotFound);
+            }
+
+            string trimmedFindingId = findingId.Trim();
+            Finding? matchedFinding = list.FirstOrDefault(
+                f => string.Equals(f.FindingId, trimmedFindingId, StringComparison.OrdinalIgnoreCase));
+
+            if (matchedFinding is null)
+            {
+                return this.NotFoundProblem(
+                    $"Finding '{trimmedFindingId}' was not found on run '{request.RunId}'.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            IActionResult? sealedGuardResult =
+                await EnsureRunSealedManifestReadAllowedAsync(request.RunId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            short score = request.IsHelpful ? (short)1 : (short)-1;
+
+            FindingFeedbackSubmission submission = new()
+            {
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = request.RunId,
+                FindingId = trimmedFindingId,
+                Score = score,
+                Comment = string.IsNullOrWhiteSpace(comment) ? null : comment
+            };
+
+            await findingFeedbackRepository.InsertAsync(submission, cancellationToken);
+
+            await findingInstrumentationAudit.LogFeedbackRecordedAsync(
+                scope,
+                actorContext.GetActor(),
+                request.RunId,
+                trimmedFindingId,
+                score,
+                matchedFinding.Classification,
+                submission.Comment,
+                cancellationToken);
+
+            logger.LogInformation(
+                "Finding feedback recorded for run {RunId} finding {FindingId} score {Score}.",
+                request.RunId,
+                LogSanitizer.Sanitize(trimmedFindingId),
+                score); // lgtm[cs/log-forging] finding id sanitized for log sink.
+
+            return NoContent();
         }
-
-        string trimmedFindingId = findingId.Trim();
-        Finding? matchedFinding = list.FirstOrDefault(
-            f => string.Equals(f.FindingId, trimmedFindingId, StringComparison.OrdinalIgnoreCase));
-
-        if (matchedFinding is null)
+        catch (ConflictException ex)
         {
-            return this.NotFoundProblem(
-                $"Finding '{trimmedFindingId}' was not found on run '{request.RunId}'.",
-                ProblemTypes.ResourceNotFound);
+            return MapRunsSealedManifestConflict(ex);
         }
-
-        IActionResult? sealedGuardResult =
-            await EnsureRunSealedManifestReadAllowedAsync(request.RunId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        short score = request.IsHelpful ? (short)1 : (short)-1;
-
-        FindingFeedbackSubmission submission = new()
-        {
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            RunId = request.RunId,
-            FindingId = trimmedFindingId,
-            Score = score,
-            Comment = string.IsNullOrWhiteSpace(comment) ? null : comment
-        };
-
-        await findingFeedbackRepository.InsertAsync(submission, cancellationToken);
-
-        await findingInstrumentationAudit.LogFeedbackRecordedAsync(
-            scope,
-            actorContext.GetActor(),
-            request.RunId,
-            trimmedFindingId,
-            score,
-            matchedFinding.Classification,
-            submission.Comment,
-            cancellationToken);
-
-        logger.LogInformation(
-            "Finding feedback recorded for run {RunId} finding {FindingId} score {Score}.",
-            request.RunId,
-            LogSanitizer.Sanitize(trimmedFindingId),
-            score); // lgtm[cs/log-forging] finding id sanitized for log sink.
-
-        return NoContent();
     }
 }
