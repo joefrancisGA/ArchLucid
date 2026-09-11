@@ -2851,7 +2851,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — activation accepted issuer URIs and optional fields with embedded zero-width characters
+- **last-bug:** 2026-09-11 — activation persisted invisible-only claim-mapping role claim names
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2894,6 +2894,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Invisible-only `IssuerUri` (`U+200B`) accepted as valid HTTP(S) URL — **cheap-disproof 2026-09-11 seed hunt #1734:** zero-width-only issuer fails substantive-text and HTTP(S) validation before upsert; covered by shared validator guard with embedded-character regressions.
 
 2026-09-11 seed hunt #1734 (seed→hit): reseeded identity-provider-config after #1731; proved embedded zero-width issuer URIs and invisible-only actor/optional-field persistence; repaired stale direct-call test-login success expectation; 39 scoped activation/controller/test-login tests passed.
+
+- [x] (proven) `IdentityProviderActivationService` — invisible-only `RoleClaimName` and `CustomGroupClaimRegex` passed `IsNullOrWhiteSpace` and persisted in `ClaimMappingJson` — **hit 2026-09-11 seed hunt #1735 (seed→hit):** `IdentityClaimRoleMappingValidator` only checked whitespace emptiness; activation now applies substantive-text guards before `ValidateMapping`; regressions `ActivateAsync_rejects_invisible_unicode_only_role_claim_name` and `ActivateAsync_rejects_invisible_unicode_only_custom_group_claim_regex`.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` returns another tenant's IdP row — **cheap-disproof 2026-09-11 seed hunt #1735:** repository lookup uses `scope.TenantId` only; tenant override is not present on the request surface.
+
+2026-09-11 seed hunt #1735 (seed→hit): reseeded identity-provider-config after #1734; proved invisible-only claim-mapping role claim and custom regex persistence; cheap-disproof closed cross-tenant configuration GET candidate; 41 scoped activation/controller/test-login tests passed.
 
 ---
 
