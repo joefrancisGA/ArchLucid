@@ -81,6 +81,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Execute posture stamp (CG-019):** First execute writes `workingCareerRehearsalDoor` and `executePostureCapturedUtc` onto the run header (plus existing `structuralExecutionMode`). Career honesty reads the **stamp**, not a later chooser change. A Rehearsal execute cannot later look like Career because the operator moved the door. Host `AgentExecution:Mode` stays Simulator. Full export block is CG-022.
 
+**Door × host Mode matrix (CG-020):** `resolveWorkingCareerDoorHostModeMatrixCell` names four cells on the Working chooser: Career+Real (allowed), Career+Simulator (blocked — not green Career), Rehearsal+Simulator (labeled rehearsal), Rehearsal+Real (labeled practice even when live AI is ready). `WorkingCareerRehearsalChooser` surfaces the active cell via `data-door-host-mode-cell` and a mismatch `StatusTag`. Host `AgentExecution:Mode` stays Simulator.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
