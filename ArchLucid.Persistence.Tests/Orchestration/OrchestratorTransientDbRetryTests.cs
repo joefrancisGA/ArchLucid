@@ -241,6 +241,7 @@ public sealed class OrchestratorTransientDbRetryTests
         await act.Should().ThrowAsync<SqlException>();
         attempts.Should().Be(1);
     }
+
     [SkippableFact]
     public async Task ExecuteAsync_retries_bare_timeout_exception()
     {

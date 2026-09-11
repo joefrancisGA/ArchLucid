@@ -21,6 +21,9 @@ public static class UserSettingKeys
     /// <summary>Operator workspace mode: <c>guided</c> (default) or <c>working</c>.</summary>
     public const string WorkspaceMode = "WorkspaceMode";
 
+    /// <summary>Working Career vs Rehearsal door: <c>career</c> or <c>rehearsal</c>.</summary>
+    public const string WorkingCareerRehearsalDoor = "WorkingCareerRehearsalDoor";
+
     /// <summary>Post-seal Working-mode graduation offer: <c>pending</c>, <c>dismissed</c>, or <c>remind-next</c>.</summary>
     public const string WorkspaceModeGraduationOffer = "WorkspaceModeGraduationOffer";
 

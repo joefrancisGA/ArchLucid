@@ -9,6 +9,7 @@ import {
   resolveDefaultWorkingCareerRehearsalDoor,
   resolveWorkingCareerRehearsalDoorScope,
   shouldSuppressReadyToFinalizeForWorkingRehearsalDoor,
+  tryReadExplicitWorkingCareerRehearsalDoorFromStorage,
   WORKING_CAREER_REHEARSAL_TENANT_GRANDFATHER_STORAGE_KEY,
   WORKING_CAREER_REHEARSAL_TENANT_STORAGE_KEY,
   workingCareerRehearsalArchitectureStorageKey,
@@ -122,5 +123,15 @@ describe("working-career-rehearsal-door", () => {
     expect(workingCareerRehearsalArchitectureStorageKey("architecture-003")).toContain(
       "architecture-003",
     );
+  });
+
+  it("tryReadExplicit returns null when only the AS-080 implicit default applies", () => {
+    expect(tryReadExplicitWorkingCareerRehearsalDoorFromStorage({ kind: "tenant" })).toBeNull();
+  });
+
+  it("tryReadExplicit returns the stored tenant door without inventing a default", () => {
+    writeWorkingCareerRehearsalDoorToStorage({ kind: "tenant" }, "rehearsal");
+
+    expect(tryReadExplicitWorkingCareerRehearsalDoorFromStorage({ kind: "tenant" })).toBe("rehearsal");
   });
 });

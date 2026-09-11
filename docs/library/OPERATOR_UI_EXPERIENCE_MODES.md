@@ -67,6 +67,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Guided split (AS-081):** `WorkingCareerRehearsalChooser` returns `null` when `isWorkingWorkspaceMode(mode)` is false. Guided screenshots and teaching flows keep Simulator coaching without requiring the Career door. Vitest ratchet: `working-career-rehearsal-guided-split.test.ts`. C# ratchet: `ArchitectureSpineAs081GuidedKeepsSimulatorTeachingArchitectureTests`.
 
+**Account persist (CG-011):** GET `/v1/user/preferences` returns `workingCareerRehearsalDoor` and `workingCareerRehearsalDoorIsExplicit`. `PUT /v1/user/preferences/working-career-rehearsal-door` stores an explicit Working pick in UserSettings. Working reads the server first when the row is explicit; `localStorage` is interrupt recovery only. Guided does not PUT this field.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.

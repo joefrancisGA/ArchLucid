@@ -131,6 +131,31 @@ public sealed class PersistencePackageCoverageBatch4Tests
     }
 
     [Fact]
+    public async Task InMemoryUserInvitationRepository_GetPendingByIdAsync_filters_expired_rows_using_system_utc()
+    {
+        InMemoryUserInvitationRepository sut = new();
+        Guid invitationId = Guid.NewGuid();
+        DateTimeOffset expiredUtc = DateTimeOffset.UtcNow.AddMinutes(-5);
+
+        await sut.SeedPendingForTestsAsync(
+            new UserInvitationRecord
+            {
+                Id = invitationId,
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                Email = "expired@example.com",
+                AppRole = "Reader",
+                InvitedByActorId = "actor",
+                Status = UserInvitationStatus.Pending,
+                CreatedUtc = expiredUtc.AddDays(-1),
+                ExpiresUtc = expiredUtc
+            },
+            [1, 2, 3, 4]);
+
+        (await sut.GetPendingByIdAsync(invitationId, CancellationToken.None)).Should().BeNull();
+    }
+
+    [Fact]
     public void AuditEventFilterEnumerable_applies_all_filter_dimensions()
     {
         Guid tenantId = Guid.NewGuid();

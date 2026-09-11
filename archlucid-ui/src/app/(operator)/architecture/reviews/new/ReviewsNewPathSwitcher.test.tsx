@@ -115,6 +115,31 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     expect(replace.mock.calls.some(([href]) => String(href).includes("scopeGate="))).toBe(false);
   });
 
+  it("clears stale detailed wizard query params when opening guided intake from the disclosure", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("step=4&mode=full&pilot=0&advancedConfig=1"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-more-path-guided-intake")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("reviews-new-more-path-guided-intake"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
+    });
+
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=guided-intake",
+      expect.objectContaining({ scroll: false }),
+    );
+    expect(replace.mock.calls.some(([href]) => String(href).includes("step="))).toBe(false);
+    expect(replace.mock.calls.some(([href]) => String(href).includes("mode="))).toBe(false);
+    expect(replace.mock.calls.some(([href]) => String(href).includes("pilot="))).toBe(false);
+    expect(replace.mock.calls.some(([href]) => String(href).includes("advancedConfig="))).toBe(false);
+  });
+
   it("clears orphan intakeStep when opening guided intake from the disclosure", async () => {
     useSearchParams.mockReturnValue(new URLSearchParams("intakeStep=2"));
 
@@ -176,6 +201,29 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
       "/architecture/reviews/new?path=detailed",
       expect.objectContaining({ scroll: false }),
     );
+  });
+
+  it("clears orphan intakeStep when opening detailed wizard from the disclosure", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("intakeStep=2&scopeGate=1"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-more-path-detailed")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("reviews-new-more-path-detailed"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
+    });
+
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=detailed",
+      expect.objectContaining({ scroll: false }),
+    );
+    expect(replace.mock.calls.some(([href]) => String(href).includes("intakeStep="))).toBe(false);
+    expect(replace.mock.calls.some(([href]) => String(href).includes("scopeGate="))).toBe(false);
   });
 
   it("opens guided intake when path=guided-intake is in the query string", async () => {

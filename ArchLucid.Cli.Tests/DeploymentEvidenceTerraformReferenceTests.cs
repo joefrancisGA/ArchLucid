@@ -223,6 +223,42 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
             .NotContain("\\");
     }
 
+    [Fact]
+    public void DefaultApplyOrderRoots_lists_exactly_twenty_entries()
+    {
+        DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots().Should().HaveCount(20);
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_places_pilot_as_final_entry()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        roots[^1].Should().Contain("infra/terraform-pilot");
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_lists_three_composition_waves_in_foundation_platform_app_order()
+    {
+        IReadOnlyList<string> composition = ExtractCompositionRootPaths(
+            DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        composition.Should().Equal(
+        [
+            "infra/terraform-foundation",
+            "infra/terraform-platform",
+            "infra/terraform-app",
+        ]);
+    }
+
+    [Fact]
+    public void DocumentationRelativePath_does_not_use_leading_slash()
+    {
+        DeploymentEvidenceTerraformReference.DocumentationRelativePath
+            .Should()
+            .NotStartWith("/");
+    }
+
     private static string RequireRepositoryRoot()
     {
         string? repoRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot(AppContext.BaseDirectory);

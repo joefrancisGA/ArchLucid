@@ -5,18 +5,24 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Exports;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Services;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Configuration;
 
 using Moq;
 
@@ -286,6 +292,24 @@ public sealed class DecisionReceiptServiceTests
     }
 
     [Fact]
+    public async Task BuildForRunAsync_sample_workspace_run_returns_career_artifact_blocked()
+    {
+        SetupCommittedRunDetail();
+        FeasibilityVerdict verdict = CreateFeasibleVerdict();
+        SetupVerifiedCommittedManifest(verdict, out _);
+        ManifestDocument goldenManifest = CreateCommittedManifest(RunId, verdict);
+        SealedExportReceiptTestSupport.ConfigureSampleRunExportDetail(_authority, RunId, goldenManifest);
+
+        DecisionReceiptService sut = CreateSut();
+
+        DecisionReceiptRunBuildResult buildResult = await sut.BuildForRunAsync(Scope, RunId, CancellationToken.None);
+
+        buildResult.Outcome.Should().Be(DecisionReceiptRunBuildOutcome.CareerArtifactBlocked);
+        buildResult.BlockReasonCode.Should().Be(CareerArtifactCompletenessValidator.SampleWorkspaceExportCode);
+        buildResult.Receipt.Should().BeNull();
+    }
+
+    [Fact]
     public async Task BuildForRunAsync_UsesSealedManifestVerdictAndVersion()
     {
         SetupCommittedRunDetail();
@@ -360,6 +384,15 @@ public sealed class DecisionReceiptServiceTests
                 Run = new RunRecord { RunId = RunId },
                 GoldenManifest = manifest,
             });
+
+        _authority
+            .Setup(static s => s.GetRunDetailForExportAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = RunId },
+                GoldenManifest = manifest,
+                FindingCoverageSummary = new RunFindingCoverageSummary { EnginesSucceeded = 50 },
+            });
     }
 
     private ManifestDocument CreateCommittedManifest(Guid runId, FeasibilityVerdict verdict)
@@ -385,7 +418,13 @@ public sealed class DecisionReceiptServiceTests
         {
             Kind = FeasibilityVerdictKind.Feasible,
             Summary = "Architecture satisfies policy controls.",
-            TransparencyTrail = new TransparencyTrail(),
+            TransparencyTrail = new TransparencyTrail
+            {
+                Asserted =
+                [
+                    new AssertedTrailEntry { Key = "businessOutcome", Value = "Reduce triage time" },
+                ],
+            },
         };
 
     private static FeasibilityVerdict CreateInfeasibleVerdict() =>
@@ -393,7 +432,13 @@ public sealed class DecisionReceiptServiceTests
         {
             Kind = FeasibilityVerdictKind.SoftInfeasible,
             Summary = "Policy controls are not satisfied.",
-            TransparencyTrail = new TransparencyTrail(),
+            TransparencyTrail = new TransparencyTrail
+            {
+                Asserted =
+                [
+                    new AssertedTrailEntry { Key = "businessOutcome", Value = "Reduce triage time" },
+                ],
+            },
             SoftEnvelope = new SoftInfeasibilityEnvelope
             {
                 ConfidenceLow = 50,
@@ -405,5 +450,15 @@ public sealed class DecisionReceiptServiceTests
         };
 
     private DecisionReceiptService CreateSut() =>
-        new(_drafts.Object, _authority.Object, _runDetails.Object, _manifestHashService, _verdictBuilder);
+        new(
+            _drafts.Object,
+            _authority.Object,
+            _runDetails.Object,
+            _manifestHashService,
+            _verdictBuilder,
+            Mock.Of<IGraphSnapshotRepository>(),
+            SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
+            SealedExportReceiptTestSupport.CreateSuccessfulExportHonestyConfiguration(),
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IArchitectureInventoryBindingRepository>());
 }

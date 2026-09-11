@@ -69,6 +69,68 @@ public sealed class EntraGroupMembershipGraphReaderTests
     }
 
     [Fact]
+    public async Task TryReadDirectMembershipsAsync_follows_odata_next_link_for_group_members()
+    {
+        const string memberPage1 = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+        const string memberPage2 = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
+        int requestCount = 0;
+
+        HttpClient httpClient = CreateHttpClient(request =>
+        {
+            int current = Interlocked.Increment(ref requestCount);
+
+            if (current == 1)
+            {
+                return JsonResponse(
+                    $$"""
+                    {
+                      "value": [
+                        {
+                          "id": "{{memberPage1}}",
+                          "@odata.type": "#microsoft.graph.user"
+                        }
+                      ],
+                      "@odata.nextLink": "https://graph.microsoft.com/v1.0/groups/{{GroupA}}/members?$select=id&$skiptoken=page2"
+                    }
+                    """);
+            }
+
+            if (current == 2)
+            {
+                Assert.Contains("/groups/", request.RequestUri!.AbsolutePath, StringComparison.Ordinal);
+
+                return JsonResponse(
+                    $$"""
+                    {
+                      "value": [
+                        {
+                          "id": "{{memberPage2}}",
+                          "@odata.type": "#microsoft.graph.user"
+                        }
+                      ]
+                    }
+                    """);
+            }
+
+            throw new InvalidOperationException(
+                "Test hang guard: Entra group membership listing did not stop after second page.");
+        });
+
+        EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
+
+        EntraGroupMembershipGraphReadResult result = await sut.TryReadDirectMembershipsAsync(
+            new StubTokenCredential(),
+            [GroupA],
+            maxNestedDepth: 0,
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.Equal(2, result.Memberships.Count);
+        Assert.Contains(result.Memberships, row => row.MemberId == memberPage1 && row.GroupId == GroupA);
+        Assert.Contains(result.Memberships, row => row.MemberId == memberPage2 && row.GroupId == GroupA);
+    }
+
+    [Fact]
     public async Task TryReadDirectMembershipsAsync_respects_nested_depth_cap()
     {
         List<string> requestedGroupIds = [];

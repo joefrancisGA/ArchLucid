@@ -99,6 +99,20 @@ public sealed class UserPreferencesResponse
         set;
     }
 
+    /// <summary>Working Career vs Rehearsal door: career (GET default when unset) or rehearsal.</summary>
+    public string WorkingCareerRehearsalDoor
+    {
+        get;
+        set;
+    } = WorkingCareerRehearsalDoorValues.Default;
+
+    /// <summary>True when the user has an explicit stored Working Career/Rehearsal door row.</summary>
+    public bool WorkingCareerRehearsalDoorIsExplicit
+    {
+        get;
+        set;
+    }
+
     /// <summary>When true, Working-mode review-detail uses the split workbench layout.</summary>
     public bool ProfessionalWorkbenchEnabled
     {

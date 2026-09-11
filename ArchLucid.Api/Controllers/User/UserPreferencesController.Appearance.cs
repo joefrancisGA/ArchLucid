@@ -44,6 +44,10 @@ public sealed partial class UserPreferencesController
             userId,
             UserSettingKeys.WorkspaceModeGraduationOffer,
             cancellationToken);
+        string? workingCareerRehearsalDoorStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.WorkingCareerRehearsalDoor,
+            cancellationToken);
         string? professionalWorkbenchStored = await _userSettingsRepository.TryGetAsync(
             userId,
             UserSettingKeys.ProfessionalWorkbenchEnabled,
@@ -77,6 +81,7 @@ public sealed partial class UserPreferencesController
         string ianaTimeZoneId = IanaTimeZonePreferenceValues.NormalizeOrDefault(ianaTimeZoneStored);
         string workspaceMode = WorkspaceModeValues.ParseOrDefault(workspaceModeStored);
         string workspaceModeGraduationOffer = WorkspaceModeGraduationOfferValues.ParseOrDefault(workspaceModeGraduationOfferStored);
+        string workingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.ParseOrDefault(workingCareerRehearsalDoorStored);
         bool professionalWorkbenchEnabled = ProfessionalWorkbenchEnabledValues.ParseOrDefault(professionalWorkbenchStored);
         decimal roiLoadedHourlyCostUsd = RoiLoadedHourlyCostUsdValues.ParseOrDefault(roiLoadedHourlyCostStored);
         bool findingsHideGenericEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsHideGenericStored);
@@ -109,6 +114,8 @@ public sealed partial class UserPreferencesController
             WorkspaceModeIsExplicit = WorkspaceModeValues.IsExplicitValue(workspaceModeStored),
             WorkspaceModeGraduationOffer = workspaceModeGraduationOffer,
             WorkspaceModeGraduationOfferIsExplicit = WorkspaceModeGraduationOfferValues.IsExplicitValue(workspaceModeGraduationOfferStored),
+            WorkingCareerRehearsalDoor = workingCareerRehearsalDoor,
+            WorkingCareerRehearsalDoorIsExplicit = WorkingCareerRehearsalDoorValues.IsExplicitValue(workingCareerRehearsalDoorStored),
             ProfessionalWorkbenchEnabled = professionalWorkbenchEnabled,
             ProfessionalWorkbenchEnabledIsExplicit = ProfessionalWorkbenchEnabledValues.IsExplicitValue(professionalWorkbenchStored),
             RoiLoadedHourlyCostUsd = roiLoadedHourlyCostUsd,
