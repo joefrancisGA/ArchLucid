@@ -171,6 +171,39 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
         problem.Detail.Should().Contain("sealed-hash verification");
     }
 
+    [Fact]
+    public async Task ListArtifactsForRun_maps_manifest_compare_ConflictException_to_409()
+    {
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        authority
+            .Setup(service => service.GetRunDetailAsync(Scope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = RunId,
+                    GoldenManifestId = Guid.NewGuid(),
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    ManifestId = Guid.NewGuid(),
+                    ManifestHash = SealedManifestHashTestSupport.DefaultHash,
+                },
+            });
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                Scope,
+                RunId,
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(SealedConflict);
+
+        ArtifactExportController sut = BuildController(authority: authority.Object);
+
+        IActionResult action = await sut.ListArtifactsForRun(RunId, CancellationToken.None);
+
+        AssertSealedManifestConflict409(action);
+    }
+
     private static ArtifactExportController BuildController(
         IAuthorityQueryService? authority = null,
         IRunExportPackageBuilder? runExportPackageBuilder = null,
