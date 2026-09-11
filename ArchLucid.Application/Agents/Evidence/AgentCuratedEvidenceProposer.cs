@@ -124,10 +124,10 @@ public sealed class AgentCuratedEvidenceProposer(
 
             ProposedEvidencePayload? payload = JsonSerializer.Deserialize<ProposedEvidencePayload>(trimmed, JsonOptions);
 
-            if (payload is null || string.IsNullOrWhiteSpace(payload.Title))
+            if (payload is null || !ProposedEvidenceTextValidation.HasSubstantiveText(payload.Title))
                 return null;
 
-            if (string.IsNullOrWhiteSpace(payload.Description))
+            if (!ProposedEvidenceTextValidation.HasSubstantiveText(payload.Description))
                 return null;
 
             if (!IsSupportedType(payload.Type))
