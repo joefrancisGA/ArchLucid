@@ -156,6 +156,70 @@ public sealed class ApplicationPackageCoverageBatchRc28Tests
     }
 
     [Fact]
+    public void ComparisonReplayPayloadComplexity_scores_warnings_only_manifest_diff()
+    {
+        const string json =
+            """
+            {
+              "manifestDiff": {
+                "addedServices": [],
+                "removedServices": [],
+                "addedDatastores": [],
+                "removedDatastores": [],
+                "addedRequiredControls": [],
+                "removedRequiredControls": [],
+                "addedRelationships": [],
+                "removedRelationships": [],
+                "warnings": ["manifest-version skew"]
+              }
+            }
+            """;
+        List<string> factors = [];
+
+        int bump = ComparisonReplayPayloadComplexity.ScorePayloadComplexity(json, factors);
+
+        bump.Should().BeGreaterThan(0);
+        factors.Should().Contain(f => f.Contains("warning-only drift", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void ComparisonReplayPayloadComplexity_scores_confidence_only_agent_delta()
+    {
+        const string json =
+            """
+            {
+              "agentResultDiff": {
+                "agentDeltas": [
+                  {
+                    "agentType": "Topology",
+                    "leftExists": true,
+                    "rightExists": true,
+                    "leftConfidence": 0.42,
+                    "rightConfidence": 0.88,
+                    "addedClaims": [],
+                    "removedClaims": [],
+                    "addedEvidenceRefs": [],
+                    "removedEvidenceRefs": [],
+                    "addedFindings": [],
+                    "removedFindings": [],
+                    "addedRequiredControls": [],
+                    "removedRequiredControls": [],
+                    "addedWarnings": [],
+                    "removedWarnings": []
+                  }
+                ]
+              }
+            }
+            """;
+        List<string> factors = [];
+
+        int bump = ComparisonReplayPayloadComplexity.ScorePayloadComplexity(json, factors);
+
+        bump.Should().BeGreaterThan(0);
+        factors.Should().Contain(f => f.Contains("Agent result deltas present", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void ComparisonReplayPayloadComplexity_scores_invalid_json_as_one()
     {
         List<string> factors = [];

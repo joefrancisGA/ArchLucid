@@ -39,6 +39,7 @@ import {
   resolveEmailRunToSponsorRehearsalGate,
   resolveEmailRunToSponsorSendBlocked,
 } from "@/lib/email-run-to-sponsor-rehearsal-gate";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
 
 import type { EmailRunToSponsorBannerProps } from "./EmailRunToSponsorBanner";
@@ -307,9 +308,11 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     || blockSponsorPdfForExecutionMode
     || blockSponsorPdfForCareerArtifact;
   const rehearsalEmailGate = useMemo(() => {
-    const structuralExecutionMode =
+    const structuralExecutionMode: StructuralExecutionModeInput =
       careerArtifactDoorFields?.structuralExecutionMode
-      ?? (proofGate.status === "ok" ? proofGate.payload.structuralExecutionMode : undefined);
+      ?? (proofGate.status === "ok"
+        ? (proofGate.payload.structuralExecutionMode as StructuralExecutionModeInput)
+        : undefined);
 
     return resolveEmailRunToSponsorRehearsalGate({
       workingDesk: careerArtifactHonesty?.workingDesk ?? true,

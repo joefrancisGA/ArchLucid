@@ -368,7 +368,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             Status = renderResult.Status.ToString(),
             NodeCount = renderResult.Metrics.NodeCount,
             EdgeCount = renderResult.Metrics.EdgeCount,
-            Mermaid = includeMermaid ? renderResult.PrimaryMermaid : null,
+            Mermaid = InfraEvidenceMermaidResponseContent.SelectMermaidForClient(
+                includeMermaid,
+                renderResult.PrimaryMermaid,
+                renderResult.Metrics),
             FallbackArtifacts = MapFallbackSummaries(renderResult.FallbackArtifacts),
         };
     }
@@ -388,7 +391,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             Mode = modeKey,
             FallbackKey = fallbackKey,
             Status = renderResult.Status.ToString(),
-            Mermaid = includeMermaid ? renderResult.PrimaryMermaid : null,
+            Mermaid = InfraEvidenceMermaidResponseContent.SelectMermaidForClient(
+                includeMermaid,
+                renderResult.PrimaryMermaid,
+                renderResult.Metrics),
             Metrics = MapMetrics(renderResult.Metrics),
             FallbackArtifacts = MapFallbackSummaries(renderResult.FallbackArtifacts),
         };

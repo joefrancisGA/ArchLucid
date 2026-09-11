@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.KnowledgeGraph.Inventory;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
@@ -44,7 +45,7 @@ internal sealed class DiagramSubgraphPlanner
                 nodeSubgraphAssignments[node.NodeId] = resourceGroupSubgraphId;
             }
 
-            if (armType.Contains("/subnets/", StringComparison.OrdinalIgnoreCase))
+            if (AzureInventoryTopologyCategory.IsSubnetArmType(armType))
             {
                 string? parentArmId = node.Properties.TryGetValue("arm.parentId", out string? parentId) ? parentId : null;
 
@@ -103,13 +104,12 @@ internal sealed class DiagramSubgraphPlanner
         string? resourceGroup = DiagramAstGraphNodeClassifier.ReadResourceGroup(node);
         string armType = DiagramAstGraphNodeClassifier.ReadArmType(node);
 
-        if (armType.Contains("/subnets/", StringComparison.OrdinalIgnoreCase))
+        if (AzureInventoryTopologyCategory.IsSubnetArmType(armType))
         {
             return MermaidIdSanitizer.Sanitize($"subnet-{armId}");
         }
 
-        if (armType.Contains("/virtualnetworks/", StringComparison.OrdinalIgnoreCase)
-            && !armType.Contains("/subnets/", StringComparison.OrdinalIgnoreCase))
+        if (AzureInventoryTopologyCategory.IsVirtualNetworkArmType(armType))
         {
             if (!string.IsNullOrWhiteSpace(resourceGroup) && !string.IsNullOrWhiteSpace(subscriptionId))
             {

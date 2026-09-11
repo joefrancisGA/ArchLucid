@@ -482,6 +482,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
               [
                 ["decision-grade", `Decision-grade (${classificationCounts.decisionGrade})`],
                 ["checklist", `Checklist (${classificationCounts.checklist})`],
+                ["uncited", `Uncited (${classificationCounts.uncited})`],
                 ["all", `All (${confidenceVisibleScoped.length})`],
               ] as const
             ).map(([bandId, label]) => (

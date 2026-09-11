@@ -35,6 +35,7 @@ import {
   RunDetailSectionNavDeferred,
   RunDetailStalledReviewGuidanceCalloutDeferred,
   RunDetailWorkspaceHeaderDeferred,
+  RunDetailWorkspaceStickyActionsResolvedDeferred,
   HelpPageSituationRegistrarDeferred,
   ReviewGenerationCreatedNoticeDeferred,
 } from "./run-detail-page-view-deferred-chunks";
@@ -231,7 +232,12 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
     blockingApprovalCount,
     buyerGoldenPageReady,
     commitBlockedReason,
+    finalizeAssumptionGateApplies,
+    finalizeReadinessBlocks,
+    quickDecisionFindings,
+    requestAssumptionTexts,
     reviewHeaderPresentation,
+    reviewStatusSummary,
     showArchitectureCreatedHome,
     showDemoMarketingChrome,
     signedReviewRecordId,
@@ -241,6 +247,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
     templateLabel,
     finalizedAtLabel,
     packageVersionLabel,
+    findingCoverageSummary,
   } = presentation;
   const reviewPipelineIncomplete = presentation.reviewPipelineIncomplete;
   const buyerPolishedShell = m.buyerPolishedArtifactTable;
@@ -271,6 +278,42 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
       <WorkingUnlinkedReviewHonestyBanner architectureId={m.resolvedDetail.run.architectureId ?? null} />
     </>
   );
+
+  const stickyActionsEl =
+    !showArchitectureCreatedHome && !reviewPipelineIncomplete ? (
+      <RunDetailWorkspaceStickyActionsResolvedDeferred
+        runId={m.resolvedDetail.run.runId}
+        manifestId={m.manifestId}
+        hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
+        blockingFindingCount={blockingApprovalCount}
+        buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+        operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
+        manifestStatus={m.manifestSummary?.status ?? null}
+        runCompleted={m.resolvedDetail.run.completedUtc != null}
+        showProgressTracker={m.showProgressTracker}
+        commitBlockedReason={commitBlockedReason}
+        serverFinalizeReadinessBlocks={finalizeReadinessBlocks}
+        finalizeAssumptionGateApplies={finalizeAssumptionGateApplies}
+        quickDecisionFindings={quickDecisionFindings}
+        requestAssumptionTexts={requestAssumptionTexts}
+        nextAction={reviewStatusSummary.nextAction}
+        feasibilityVerdictKind={
+          m.manifestSummaryForUi?.feasibilityVerdict?.kind ??
+          m.manifestSummary?.feasibilityVerdict?.kind ??
+          null
+        }
+        degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}
+        degradedFindingCoverageFailedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
+        structuralExecutionMode={m.resolvedDetail.run.structuralExecutionMode}
+        workingCareerRehearsalDoor={m.progressForPipelineUi.workingCareerRehearsalDoor}
+        transparencyTrail={
+          m.manifestSummaryForUi?.feasibilityVerdict?.transparencyTrail ??
+          m.manifestSummary?.feasibilityVerdict?.transparencyTrail ??
+          null
+        }
+        pagePrimaryOwnedElsewhere
+      />
+    ) : null;
 
   const runDetailStandardWorkspaceBody = buyerPolishedShell ? (
     <>
@@ -349,7 +392,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
 
         <RunDetailWorkspaceDisclosureProvider>
           <RunDetailWorkspaceLayout
-            stickyActions={null}
+            stickyActions={stickyActionsEl}
             main={
               <>
                 {showArchitectureCreatedHome ? (

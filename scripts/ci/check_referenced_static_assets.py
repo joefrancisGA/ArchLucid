@@ -12,6 +12,7 @@ LOGO_DIR = UI_ROOT / "public" / "logo"
 PNG_REF_PATTERN = re.compile(r"/logo/([A-Za-z0-9._-]+\.png)")
 SCAN_PATHS = (
     UI_ROOT / "src" / "app" / "layout.tsx",
+    UI_ROOT / "src" / "lib" / "product-line" / "product-line-display-name.ts",
     UI_ROOT / "public" / "manifest.webmanifest",
 )
 

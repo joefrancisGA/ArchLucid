@@ -7,6 +7,7 @@ import { LIVELIHOOD_PENDING_MUTATION_KINDS } from "@/lib/auth/livelihood-mutatio
 import {
   clearLivelihoodPendingMutation,
   consumeLivelihoodPendingMutationForReturnPath,
+  peekLivelihoodPendingMutationForReturnPath,
   executeIdempotentLivelihoodMutation,
   isLivelihoodMutation401RedirectError,
   LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY,
@@ -252,6 +253,26 @@ describe("livelihood-mutation-401-resume (LP-19 / LW-051)", () => {
     expect(assignMock).toHaveBeenCalledWith(
       "/auth/session-expired?reason=idle-timeout&returnUrl=%2Fgovernance%2Ffindings",
     );
+  });
+
+  it("peekLivelihoodPendingMutationForReturnPath reads without removing storage (LW-101)", () => {
+    writeLivelihoodPendingMutation({
+      kind: "architecture_draft_patch",
+      idempotencyKey: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      returnPath: "/architecture/drafts/draft-peek",
+      savedAtUtc: "2026-09-10T12:00:00.000Z",
+      requestLeftClient: true,
+      payload: {
+        draftId: "draft-peek",
+        body: { expectedUpdatedUtc: "2026-09-10T12:00:00.000Z" },
+      },
+    });
+
+    expect(
+      peekLivelihoodPendingMutationForReturnPath("/architecture/drafts/draft-peek")?.kind,
+    ).toBe("architecture_draft_patch");
+    expect(readLivelihoodPendingMutation()).not.toBeNull();
+    clearLivelihoodPendingMutation();
   });
 
   it("does not consume pending mutation when return path differs", () => {

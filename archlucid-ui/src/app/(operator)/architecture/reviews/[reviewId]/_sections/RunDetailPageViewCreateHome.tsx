@@ -72,6 +72,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
     findingCoverageSummary,
     findingsTriageVisibleCount,
     finalizeAssumptionGateApplies,
+    finalizeReadinessBlocks,
     quickDecisionFindings,
     requestAssumptionTexts,
     reviewDisplayTitle,
@@ -100,6 +101,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         useCreateHomeWorkspaceTabs
         hasGoldenManifest={Boolean(m.manifestId)}
         commitBlockedReason={commitBlockedReason}
+        serverFinalizeReadinessBlocks={finalizeReadinessBlocks}
         finalizeAssumptionGateApplies={finalizeAssumptionGateApplies}
         quickDecisionFindings={quickDecisionFindings}
         requestAssumptionTexts={requestAssumptionTexts}

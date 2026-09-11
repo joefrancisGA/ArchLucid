@@ -1,5 +1,6 @@
 // Draft-intake composition registrations (extracted from PipelineCompositionModule).
 
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Drafts.Stages;
 using ArchLucid.Application.Planning.Stages;
@@ -38,6 +39,7 @@ internal static class DraftIntakeCompositionRegistrar
         services.AddScoped<IDraftSnapshotCloningService, DraftSnapshotCloningService>();
         services.AddScoped<IDraftRequestService, DraftRequestService>();
         services.AddScoped<IArchitectureWorkLeaseHolderResolver, ArchitectureWorkLeaseHolderResolver>();
+        services.AddScoped<IArchitectureShareAccessService, ArchitectureShareAccessService>();
         services.AddScoped<IArchitectureWorkLeaseService, ArchitectureWorkLeaseService>();
         services.AddScoped<IDraftRequestApplicationFacade, DraftRequestApplicationFacade>();
         services.AddScoped<IDecisionReceiptService, DecisionReceiptService>();
