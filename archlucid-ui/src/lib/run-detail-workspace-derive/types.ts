@@ -92,4 +92,7 @@ export type DeriveRunDetailWorkspaceStatusInput = {
   readonly buyerPolishedArtifactTable: boolean;
   /** Open findings that block approval — used to avoid a bare "Finalized" tag when approval is still blocked. */
   readonly blockingFindingCount?: number;
+  /** CG-033 — Working review-detail complete copy honesty (omit on Guided / list rows). */
+  readonly workingDesk?: boolean;
+  readonly effectiveWorkingCareerRehearsalDoor?: string | null;
 }
