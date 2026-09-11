@@ -145,4 +145,51 @@ describe('ArchitectureDiagramViewer', () => {
 
     expect(screen.getByText('Edge label')).toBeInTheDocument();
   });
+
+  it('shows renderer failure and retry action', async () => {
+    renderMock.mockRejectedValueOnce(new Error('Renderer failed'));
+    const onRetry = vi.fn();
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+        onRetry={onRetry}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-render-failure')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(onRetry).toHaveBeenCalled();
+  });
+
+  it('syncs zoom changes to the URL after user interaction', async () => {
+    replaceMock.mockClear();
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-viewport')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL }));
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/securenow/inventory?diagZoom=1.10', {
+        scroll: false,
+      });
+    });
+  });
 });

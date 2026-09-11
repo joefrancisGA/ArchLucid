@@ -134,12 +134,12 @@ export const CAREER_GRAVITY_EXPORT_WATERMARK_ROWS: readonly CareerGravityExportW
   },
   {
     relativePath: "ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Download.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-028",
   },
   {
     relativePath: "ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Push.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-028",
   },
   {
@@ -164,7 +164,12 @@ export const CAREER_GRAVITY_EXPORT_WATERMARK_ROWS: readonly CareerGravityExportW
   },
   {
     relativePath: "ArchLucid.Cli/Commands/ProofPacketCommand.cs",
-    leakClass: "assumed-banner",
+    leakClass: "covered",
+    ownerPrompt: "CG-027",
+  },
+  {
+    relativePath: "ArchLucid.Cli/Commands/PilotProofPacketCommand.WriteFolder.cs",
+    leakClass: "covered",
     ownerPrompt: "CG-027",
   },
 ] as const;

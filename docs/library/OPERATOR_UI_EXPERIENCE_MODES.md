@@ -79,7 +79,7 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Chooser (CG-016):** one `WorkingCareerRehearsalChooser` implementation (`workspace-mode`). The findings workspace re-exports via `components/governance/WorkingCareerRehearsalChooser.tsx` and mounts `source="findings"` so Alt+Shift+E stays on the command bar only. Segmented control keeps `aria-pressed` (not a fake tablist) and supports Arrow/Home/End. Guided still returns null (AS-081). Do not add a third chooser.
 
-**Security product line (CG-017):** `OperatorShellTopBar` still skips `WorkingCareerRehearsalChooser` when `productLine === "security"`. Working Security mounts `SecurityWorkingCareerHonestyStrip` instead — Simulator is not Career. The strip does not PUT the door. Guided, demo, and trial seats do not mount it. Help: [`/help/career-rehearsal-doors#security-product-line`](/help/career-rehearsal-doors#security-product-line).
+**Security product line (CG-017):** `OperatorShellTopBar` skips `WorkingCareerRehearsalChooser`, Guided training chips, and simulator dev chrome when `isSecureNowTrainingChromeExcluded(productLine)` is true (SecureNow). There is no Career / Rehearsal concept on the Security product line.
 
 **Mid-review door change (CG-018):** Changing Career ↔ Rehearsal while a review pipeline is in flight requires confirm. Copy names artifact impact. The in-flight execute keeps the door it started under (run stamp is CG-019). New execute uses the confirmed door. Confirm does **not** cancel the run (AD-02 cancel stays on the in-flight affordance).
 
@@ -98,6 +98,10 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 **Decision receipt posture (CG-025):** Committed-run decision receipt JSON from `DecisionReceiptService` and the client `decision-receipt-export` helper stamp `structuralExecutionMode`, `workingCareerRehearsalDoor`, and `rehearsalIncomplete` after sealed-hash verification (posture is an export overlay, not part of `receiptHashSha256`). Working **Career** door + Simulator/Fallback remains **blocked** server-side. **Rehearsal** door on Simulator exports with `rehearsalIncomplete: true` so forwarded receipts cannot omit Mode/door.
 
 **Audit CSV posture (CG-026):** Run-scoped audit CSV (`GET /v1/audit/export/csv?runId=…`) prepends CG-026 `#` honesty comment lines and adds `StructuralExecutionMode`, `WorkingCareerRehearsalDoor`, and `RehearsalIncomplete` columns on every row. Working **Career** door + Simulator/Fallback is **blocked** server-side; **Rehearsal** exports use a `-rehearsal` filename suffix. Audit event rows stay immutable — posture is export overlay only.
+
+**CLI proof-packet posture (CG-027):** `archlucid proof-packet` / `pilot proof-packet` read execute posture from `pilot-run-deltas` (`structuralExecutionMode`, `workingCareerRehearsalDoor`). Working **Career** door + Simulator/Fallback **fails closed** before the ZIP is written. **Rehearsal** door on Simulator stamps `careerPosture: REHEARSAL` (plus Mode/door fields) in `artifact-manifest.json` and the sponsor index so automation cannot archive an unlabeled Simulator bundle as Career.
+
+**API run export posture (CG-028):** `GET /v1/artifacts/runs/{runId}/export` and `POST …/export/push` apply the same Working Career completeness gate as DOCX/sponsor exports. Unlabeled Simulator + Career door returns **409** `CareerArtifactBlocked` ProblemDetails with `blockReasonCode` (e.g. `simulator_rehearsal_not_career_complete`) — not a generic 500. Rehearsal door may export when other gates pass.
 
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 

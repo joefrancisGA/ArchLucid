@@ -61,6 +61,8 @@ export type ArchitectureDiagramMermaidViewerProps = {
   readonly canvasStale?: boolean;
   readonly onRenderFailure?: () => void;
   readonly onRetry?: () => void;
+  /** Fires when sanitized SVG markup is ready for browser PNG export. */
+  readonly onExportableSvgMarkupChange?: (svgMarkup: string | null) => void;
 };
 
 export type ArchitectureDiagramStaticViewerProps = {
@@ -291,6 +293,10 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
     return sanitizeArchitectureDiagramSvg(svgMarkup);
   }, [svgMarkup]);
+
+  useEffect(() => {
+    props.onExportableSvgMarkupChange?.(sanitizedSvg);
+  }, [props.onExportableSvgMarkupChange, sanitizedSvg]);
 
   const applySvgFitToHost = useCallback((): boolean => {
     const host = svgHostRef.current;

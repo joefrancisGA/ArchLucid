@@ -15,6 +15,49 @@ namespace ArchLucid.Api.Tests.OpenApi;
 public sealed class OpenApiCareerArtifactExportTransformerTests
 {
     [Fact]
+    public async Task CareerArtifactExportTransformer_documents_blockReason_schema_on_run_export_409()
+    {
+        OpenApiOperation operation = new()
+        {
+            Responses = new OpenApiResponses
+            {
+                ["409"] = new OpenApiResponse
+                {
+                    Description = "Conflict.",
+                    Content = new Dictionary<string, OpenApiMediaType>
+                    {
+                        ["application/problem+json"] = new OpenApiMediaType
+                        {
+                            Schema = new OpenApiSchemaReference("ProblemDetails"),
+                        },
+                    },
+                },
+            },
+        };
+
+        MicrosoftOpenApiCareerArtifactExportOperationTransformer transformer = new();
+
+        await transformer.TransformAsync(
+            operation,
+            new OpenApiOperationTransformerContext
+            {
+                DocumentName = "v1",
+                ApplicationServices = new ServiceCollection().BuildServiceProvider(),
+                Description = new ApiDescription
+                {
+                    HttpMethod = HttpMethods.Get,
+                    RelativePath = "v1/artifacts/runs/{runId}/export",
+                },
+            },
+            CancellationToken.None);
+
+        OpenApiMediaType mediaType = operation.Responses["409"].Content!["application/problem+json"];
+        mediaType.Schema.Should().BeOfType<OpenApiSchemaReference>();
+        ((OpenApiSchemaReference)mediaType.Schema!).Reference.Id.Should()
+            .Be(MicrosoftOpenApiCareerArtifactBlockedProblemDetailsDocumentTransformer.SchemaName);
+    }
+
+    [Fact]
     public async Task CareerArtifactExportTransformer_documents_blockReason_schema_on_first_value_pdf_409()
     {
         OpenApiOperation operation = new()
