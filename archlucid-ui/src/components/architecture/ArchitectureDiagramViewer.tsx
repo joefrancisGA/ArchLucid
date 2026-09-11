@@ -78,7 +78,11 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
   );
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const svgHostRef = useRef<HTMLDivElement | null>(null);
-  const syncDiagramZoomToUrlRef = useRef<(nextZoom: number) => void>(() => undefined);
+  const zoomRef = useRef<number>(zoom);
+  const fullscreenOpenRef = useRef<boolean>(fullscreenOpen);
+
+  zoomRef.current = zoom;
+  fullscreenOpenRef.current = fullscreenOpen;
 
   const syncDiagramFullscreenToUrl = useCallback(
     (nextOpen: boolean) => {
@@ -89,30 +93,34 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     [pathname, router, searchParams],
   );
 
-  syncDiagramZoomToUrlRef.current = (nextZoom: number) => {
-    router.replace(architectureDiagramZoomHrefFromSearch(searchParams.toString(), nextZoom, pathname), {
-      scroll: false,
-    });
-  };
+  const syncDiagramZoomToUrl = useCallback(
+    (nextZoom: number) => {
+      router.replace(architectureDiagramZoomHrefFromSearch(searchParams.toString(), nextZoom, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
 
-  const setZoom = useCallback((value: SetStateAction<number>) => {
-    setZoomState((current) => {
+  const setZoom = useCallback(
+    (value: SetStateAction<number>) => {
+      const current = zoomRef.current;
       const nextRaw = typeof value === "function" ? value(current) : value;
       const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number(nextRaw.toFixed(2))));
-      syncDiagramZoomToUrlRef.current(next);
 
-      return next;
-    });
-  }, []);
+      setZoomState(next);
+      syncDiagramZoomToUrl(next);
+    },
+    [syncDiagramZoomToUrl],
+  );
 
   const setFullscreenOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setFullscreenOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncDiagramFullscreenToUrl(next);
+      const current = fullscreenOpenRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-        return next;
-      });
+      setFullscreenOpenState(next);
+      syncDiagramFullscreenToUrl(next);
     },
     [syncDiagramFullscreenToUrl],
   );
