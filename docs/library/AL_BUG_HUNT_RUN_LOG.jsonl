@@ -1915,3 +1915,4 @@
 {"at":"2026-09-11T00:47:51.4546208Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-11T00:50:11.80605Z","zoneId":"finding-disposition","outcome":"seed-only"}
 {"at":"2026-09-11T00:54:27.3286133Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}
+{"at":"2026-09-11T00:58:31.3833649Z","zoneId":"api-key-auth","outcome":"seed-only"}

@@ -2899,10 +2899,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-08-26 — padded Admin/ReadOnly slot strings rejected rotation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2920,8 +2920,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Duplicate `X-ArchLucid-Test-Actor-Name` headers broke governance actor override — **hit 2026-08-25:** `ApplyTestActorHeaderOverrides` used `StringValues.ToString()` comma-join; now reuses `ExtractProvidedApiKey` for first non-empty segment; regression in `When_allow_test_actor_headers_and_duplicate_actor_name_headers_use_first_value`
 - [x] (proven) `DevelopmentBypassAll` ignored `X-ArchLucid-Test-Actor-Name` governance override — **hit 2026-08-25:** bypass branch returned `BuildSyntheticAdminClaims` directly instead of `BuildSuccessTicket`/`ApplyTestActorHeaderOverrides`; segregation E2E saw `DevUser` instead of peer actor; regression in `When_development_bypass_and_allow_test_actor_headers_overrides_display_name`
 - [x] (proven) `AdminApiKeySettingsService.ParseSlot` rejected padded slot strings — **hit 2026-08-26:** `" Admin "` / `" ReadOnly "` threw validation errors instead of rotating; fixed by trimming before case-insensitive compare (`AdminApiKeySettingsServiceTests.Rotate_with_padded_slot_string_succeeds`)
-- [ ] (candidate) Duplicate `X-Api-Key` headers where the first value is whitespace-only may still fail when the second value is valid — cheap-disproof: `ExtractProvidedApiKey` already skips blank segments; add handler regression test before promoting.
-- [ ] (candidate) Whitespace-only `X-ArchLucid-Test-Actor-Name` with `AllowTestActorHeaders` may override display name — cheap-disproof: `ExtractProvidedApiKey` returns empty and override is skipped.
+- [x] (valid-no-repro) Duplicate `X-Api-Key` headers where the first value is whitespace-only may still fail when the second value is valid — **cheap-disproof 2026-09-11 thorough hunt #1699:** `ExtractProvidedApiKey` skips blank segments and uses the next header value; regression `When_enabled_true_and_duplicate_api_key_headers_skip_blank_first_value`.
+- [x] (valid-no-repro) Whitespace-only `X-ArchLucid-Test-Actor-Name` with `AllowTestActorHeaders` may override display name — **cheap-disproof 2026-09-11 thorough hunt #1699:** blank actor header is ignored and ApiKey display name is preserved; regression `When_allow_test_actor_headers_and_actor_name_is_whitespace_only_keeps_api_key_display_name`.
+
+2026-09-11 thorough hunt #1699 (seed-only): cheap-disproof closed duplicate blank API key header and whitespace test-actor override candidates; 23 scoped `ApiKeyAuthenticationHandlerTests` passed.
 
 ---
 
