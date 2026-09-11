@@ -8,6 +8,9 @@ import {
 } from "@/lib/governance/working-career-door-gate-copy";
 import {
   WORKING_CAREER_DOOR_LABEL,
+  WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CANCEL_ACTION,
+  WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_ACTION,
+  WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_TITLE,
   WORKING_REHEARSAL_DOOR_LABEL,
 } from "@/lib/governance/working-career-rehearsal-door-copy";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
@@ -38,6 +41,8 @@ const evaluateGateMock = vi.hoisted(() =>
     platformSettingsHref: "/administration/connection-status",
   })),
 );
+
+const inFlightReviewMock = vi.hoisted(() => ({ value: false }));
 
 const sessionModeMock = vi.hoisted(() => ({
   mode: "Simulator" as "Real" | "Simulator",
@@ -78,6 +83,10 @@ vi.mock("@/hooks/use-working-career-door-gate", () => ({
   useEvaluateWorkingCareerDoorGate: () => evaluateGateMock,
 }));
 
+vi.mock("@/hooks/use-has-in-flight-review-pipeline", () => ({
+  useHasInFlightReviewPipeline: () => inFlightReviewMock.value,
+}));
+
 vi.mock("@/hooks/use-agent-execution-mode", () => ({
   useAgentExecutionMode: () => ({
     mode: sessionModeMock.mode,
@@ -103,6 +112,7 @@ describe("WorkingCareerRehearsalChooser", () => {
     readinessMock.isSessionReal = false;
     doorMock.setDoor.mockReset();
     evaluateGateMock.mockClear();
+    inFlightReviewMock.value = false;
   });
 
   it("renders Career and Rehearsal segmented controls in Working mode", () => {
@@ -238,5 +248,55 @@ describe("WorkingCareerRehearsalChooser", () => {
       "data-chooser-source",
       "findings",
     );
+  });
+
+  it("requires confirm before changing the door while a review is in flight", () => {
+    inFlightReviewMock.value = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser />
+      </TooltipProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("working-career-rehearsal-door-career"));
+
+    expect(doorMock.setDoor).not.toHaveBeenCalled();
+    expect(screen.getByText(WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("working-career-rehearsal-door-change-confirm")).toHaveTextContent(/artifacts/i);
+    expect(screen.getByTestId("working-career-rehearsal-door-change-confirm")).toHaveTextContent(
+      /does not stop the in-flight operation/i,
+    );
+  });
+
+  it("applies the new door after in-flight confirm and does not cancel the run", () => {
+    inFlightReviewMock.value = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser />
+      </TooltipProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("working-career-rehearsal-door-career"));
+    fireEvent.click(screen.getByRole("button", { name: WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_ACTION }));
+
+    expect(doorMock.setDoor).toHaveBeenCalledWith("career");
+    expect(doorMock.setDoor).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the current door when in-flight confirm is dismissed", () => {
+    inFlightReviewMock.value = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser />
+      </TooltipProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("working-career-rehearsal-door-career"));
+    fireEvent.click(screen.getByRole("button", { name: WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CANCEL_ACTION }));
+
+    expect(doorMock.setDoor).not.toHaveBeenCalled();
   });
 });

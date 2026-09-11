@@ -37,3 +37,10 @@ export const SECURITY_WORKING_CAREER_HONESTY_STRIP_BODY =
   "This product line hides the Career / Rehearsal control. Hiding it does not make Simulator Career.";
 
 export const SECURITY_WORKING_CAREER_HONESTY_STRIP_HELP_LABEL = "Career / Rehearsal doors";
+
+export const WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_TITLE =
+  "Change execution door during in-flight analysis?";
+
+export const WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_ACTION = "Change door";
+
+export const WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CANCEL_ACTION = "Keep current door";

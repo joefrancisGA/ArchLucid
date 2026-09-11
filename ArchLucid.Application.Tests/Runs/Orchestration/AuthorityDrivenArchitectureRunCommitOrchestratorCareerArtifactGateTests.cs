@@ -147,7 +147,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
     }
 
     [SkippableFact]
-    public async Task CommitRunAsync_blocks_finalize_when_simulator_mode_on_working_desk()
+    public async Task CommitRunAsync_blocks_finalize_when_career_door_on_simulator_mode()
     {
         Guid findingsSnapshotId = Guid.Parse("cccccccccccccccccccccccccccccccc");
         FindingsSnapshot measurementPassingSnapshot = CreateMeasurementFloorPassingSnapshot(findingsSnapshotId);
@@ -157,7 +157,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
             transparencyTrail: new TransparencyTrail(),
             findingsSnapshot: measurementPassingSnapshot,
             findingsSnapshotId: findingsSnapshotId,
-            structuralExecutionMode: StructuralExecutionMode.Simulator);
+            structuralExecutionMode: StructuralExecutionMode.Simulator,
+            workingCareerRehearsalDoor: WorkingCareerRehearsalDoorValues.Career);
 
         Func<Task> act = async () => await sut.CommitRunAsync(RunId, CancellationToken.None);
 
@@ -166,6 +167,25 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
 
         exception.Result.Blocked.Should().BeTrue();
         exception.Result.Reason.Should().Be(SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage);
+    }
+
+    [SkippableFact]
+    public async Task CommitRunAsync_does_not_block_career_gate_when_rehearsal_door_on_simulator_mode()
+    {
+        Guid findingsSnapshotId = Guid.Parse("dddddddddddddddddddddddddddddddd");
+        FindingsSnapshot measurementPassingSnapshot = CreateMeasurementFloorPassingSnapshot(findingsSnapshotId);
+
+        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
+            out _,
+            transparencyTrail: new TransparencyTrail(),
+            findingsSnapshot: measurementPassingSnapshot,
+            findingsSnapshotId: findingsSnapshotId,
+            structuralExecutionMode: StructuralExecutionMode.Simulator,
+            workingCareerRehearsalDoor: WorkingCareerRehearsalDoorValues.Rehearsal);
+
+        Exception? thrown = await Record.ExceptionAsync(() => sut.CommitRunAsync(RunId, CancellationToken.None));
+
+        thrown.Should().NotBeOfType<PreCommitGovernanceBlockedException>();
     }
 
     private static FindingsSnapshot CreateMeasurementFloorPassingSnapshot(Guid snapshotId)
@@ -201,7 +221,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
         TransparencyTrail? transparencyTrail,
         FindingsSnapshot? findingsSnapshot = null,
         Guid? findingsSnapshotId = null,
-        StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Real)
+        StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Real,
+        string? workingCareerRehearsalDoor = null)
     {
         requestRepository = new Mock<IArchitectureRequestRepository>();
         requestRepository
@@ -213,7 +234,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
             });
 
         Mock<IRunRepository> runRepository = new();
-        RunRecord runRecord = CreateReadyRunRecord(findingsSnapshotId, structuralExecutionMode);
+        RunRecord runRecord = CreateReadyRunRecord(findingsSnapshotId, structuralExecutionMode, workingCareerRehearsalDoor);
         runRepository
             .Setup(repository => repository.GetByIdAsync(TestScope, RunGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(runRecord);
@@ -289,7 +310,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
 
     private static RunRecord CreateReadyRunRecord(
         Guid? findingsSnapshotId = null,
-        StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Real) =>
+        StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Real,
+        string? workingCareerRehearsalDoor = null) =>
         new()
         {
             RunId = RunGuid,
@@ -301,6 +323,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
             LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
             FindingsSnapshotId = findingsSnapshotId,
             StructuralExecutionMode = structuralExecutionMode,
+            WorkingCareerRehearsalDoor = workingCareerRehearsalDoor,
         };
 
     private static IReadOnlyList<AgentResult> CreateCommitReadyAgentResults() =>
