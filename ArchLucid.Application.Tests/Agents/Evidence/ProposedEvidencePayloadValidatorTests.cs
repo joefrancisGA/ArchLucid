@@ -34,6 +34,7 @@ public sealed class ProposedEvidencePayloadValidatorTests
     {
         bool ok = ProposedEvidencePayloadValidator.TryParseValid(
             """{"type":null,"title":"Encrypt SQL TDE","description":"Use CMK.","rationale":"Gap"}""",
+            """{"type":null,"title":"Encrypt SQL TDE","description":"Require TDE."}""",
             out ProposedEvidencePayload _);
 
         ok.Should().BeFalse();
