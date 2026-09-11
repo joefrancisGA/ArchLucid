@@ -40,6 +40,18 @@ public sealed class HostedAzureExtractorClient(
         ArgumentNullException.ThrowIfNull(request);
         HostedAzureExtractorGuidValidator.RequireCollectionRequestGuids(request);
 
+        if (!string.IsNullOrWhiteSpace(request.ManagementGroupId))
+        {
+            return await CollectManagementGroupZipAsync(request, cancellationToken).ConfigureAwait(false);
+        }
+
+        return await CollectSubscriptionZipAsync(request, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<HostedAzureExtractorCollectionResult> CollectSubscriptionZipAsync(
+        HostedAzureExtractorCollectionRequest request,
+        CancellationToken cancellationToken)
+    {
         TokenCredential credential = _credentialFactory.CreateCredential(
             request.CustomerTenantId,
             request.CustomerAppId);
@@ -48,54 +60,64 @@ public sealed class HostedAzureExtractorClient(
             .GetTokenAsync(new TokenRequestContext([ManagementScope]), cancellationToken)
             .ConfigureAwait(false);
 
+        string subscriptionId = request.SubscriptionId!.Trim();
+
         IReadOnlyList<HostedAzureArmResourceRecord> resources = await _armReadClient
-            .ListSubscriptionResourcesAsync(accessToken.Token, request.SubscriptionId, cancellationToken)
+            .ListSubscriptionResourcesAsync(accessToken.Token, subscriptionId, cancellationToken)
             .ConfigureAwait(false);
+
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> standingRoleAssignments = await _armReadClient
+            .ListSubscriptionRoleAssignmentsAsync(accessToken.Token, subscriptionId, cancellationToken)
+            .ConfigureAwait(false);
+
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> eligibleRoleAssignments = await _armReadClient
+            .ListSubscriptionRoleEligibilitySchedulesAsync(accessToken.Token, subscriptionId, cancellationToken)
+            .ConfigureAwait(false);
+
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> roleAssignments =
+            HostedAzureRoleAssignmentMerger.Merge(standingRoleAssignments, eligibleRoleAssignments);
+
+        string? subscriptionName = await _armReadClient
+            .TryGetSubscriptionDisplayNameAsync(accessToken.Token, subscriptionId, cancellationToken)
+            .ConfigureAwait(false);
+
+        IReadOnlyList<HostedAzureArmFederatedCredentialRecord> federatedCredentials = await _armReadClient
+            .ListFederatedCredentialsAsync(accessToken.Token, resources, cancellationToken)
+            .ConfigureAwait(false);
+
+        List<HostedAzureArmNetworkAssociationRecord> networkAssociations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build(resources).ToList();
+
+        networkAssociations.AddRange(HostedAzureInventoryNsgAllowRuleBuilder.Build(resources));
 
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
                 "Hosted Azure extractor skipping Cost Management merge for subscription {SubscriptionId}; hosted path is GET-only on management.azure.com.",
-                request.SubscriptionId);
+                subscriptionId);
         }
 
         DateTimeOffset collectionTimestampUtc = TimeProvider.System.GetUtcNow();
-        IReadOnlyList<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships = [];
-
-        EntraGroupMembershipGraphOptions graphOptions = _entraGroupMembershipGraphOptions.CurrentValue;
-
-        if (graphOptions.Enabled)
-        {
-            EntraGroupMembershipGraphReadResult graphResult = await _entraGroupMembershipGraphReader
-                .TryReadDirectMembershipsAsync(
-                    credential,
-                    [],
-                    graphOptions.MaxNestedDepth,
-                    cancellationToken)
-                .ConfigureAwait(false);
-
-            if (graphResult.Forbidden)
-            {
-                _logger.LogWarning(
-                    "Hosted Azure extractor skipped Entra group membership merge for subscription {SubscriptionId}: {Warning}",
-                    request.SubscriptionId,
-                    graphResult.Warnings.FirstOrDefault());
-            }
-            else
-            {
-                entraGroupMemberships = graphResult.Memberships;
-            }
-        }
+        IReadOnlyList<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships =
+            await TryReadEntraGroupMembershipsAsync(
+                credential,
+                roleAssignments,
+                subscriptionId,
+                cancellationToken).ConfigureAwait(false);
 
         byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
-            request.SubscriptionId,
+            subscriptionId,
             resources,
             request.IncludeCost,
             collectionTimestampUtc,
-            entraGroupMemberships);
+            subscriptionName,
+            entraGroupMemberships,
+            roleAssignments,
+            networkAssociations,
+            federatedCredentials);
 
         string fileName =
-            $"archlucid-hosted-azure-{request.SubscriptionId.Trim().ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
+            $"archlucid-hosted-azure-{subscriptionId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
 
         return new HostedAzureExtractorCollectionResult
         {
@@ -103,5 +125,165 @@ public sealed class HostedAzureExtractorClient(
             OriginalFileName = fileName,
             ResourceCount = resources.Count
         };
+    }
+
+    private async Task<HostedAzureExtractorCollectionResult> CollectManagementGroupZipAsync(
+        HostedAzureExtractorCollectionRequest request,
+        CancellationToken cancellationToken)
+    {
+        TokenCredential credential = _credentialFactory.CreateCredential(
+            request.CustomerTenantId,
+            request.CustomerAppId);
+
+        AccessToken accessToken = await credential
+            .GetTokenAsync(new TokenRequestContext([ManagementScope]), cancellationToken)
+            .ConfigureAwait(false);
+
+        string managementGroupId = request.ManagementGroupId!.Trim();
+        string accessTokenValue = accessToken.Token;
+
+        IReadOnlyList<string> subscriptionIds = await _armReadClient
+            .ListManagementGroupSubscriptionIdsAsync(accessTokenValue, managementGroupId, cancellationToken)
+            .ConfigureAwait(false);
+
+        List<HostedAzureArmResourceRecord> resources = [];
+        List<HostedAzureArmRoleAssignmentRecord> standingRoleAssignments = [];
+        List<HostedAzureArmRoleAssignmentRecord> eligibleRoleAssignments = [];
+
+        standingRoleAssignments.AddRange(
+            await _armReadClient
+                .ListManagementGroupRoleAssignmentsAsync(accessTokenValue, managementGroupId, cancellationToken)
+                .ConfigureAwait(false));
+
+        eligibleRoleAssignments.AddRange(
+            await _armReadClient
+                .ListManagementGroupRoleEligibilitySchedulesAsync(accessTokenValue, managementGroupId, cancellationToken)
+                .ConfigureAwait(false));
+
+        foreach (string subscriptionId in subscriptionIds)
+        {
+            IReadOnlyList<HostedAzureArmResourceRecord> subscriptionResources = await _armReadClient
+                .ListSubscriptionResourcesAsync(accessTokenValue, subscriptionId, cancellationToken)
+                .ConfigureAwait(false);
+
+            resources.AddRange(subscriptionResources);
+
+            standingRoleAssignments.AddRange(
+                await _armReadClient
+                    .ListSubscriptionRoleAssignmentsAsync(accessTokenValue, subscriptionId, cancellationToken)
+                    .ConfigureAwait(false));
+
+            eligibleRoleAssignments.AddRange(
+                await _armReadClient
+                    .ListSubscriptionRoleEligibilitySchedulesAsync(accessTokenValue, subscriptionId, cancellationToken)
+                    .ConfigureAwait(false));
+        }
+
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> roleAssignments =
+            HostedAzureRoleAssignmentMerger.Merge(standingRoleAssignments, eligibleRoleAssignments);
+
+        IReadOnlyList<HostedAzureArmFederatedCredentialRecord> federatedCredentials = await _armReadClient
+            .ListFederatedCredentialsAsync(accessTokenValue, resources, cancellationToken)
+            .ConfigureAwait(false);
+
+        List<HostedAzureArmNetworkAssociationRecord> networkAssociations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build(resources).ToList();
+
+        networkAssociations.AddRange(HostedAzureInventoryNsgAllowRuleBuilder.Build(resources));
+
+        if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation(
+                "Hosted Azure extractor skipping Cost Management merge for management group {ManagementGroupId}; hosted path is GET-only on management.azure.com.",
+                managementGroupId);
+        }
+
+        DateTimeOffset collectionTimestampUtc = TimeProvider.System.GetUtcNow();
+        IReadOnlyList<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships =
+            await TryReadEntraGroupMembershipsAsync(
+                credential,
+                roleAssignments,
+                managementGroupId,
+                cancellationToken).ConfigureAwait(false);
+
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            subscriptionId: null,
+            resources,
+            request.IncludeCost,
+            collectionTimestampUtc,
+            subscriptionName: null,
+            entraGroupMemberships,
+            roleAssignments,
+            networkAssociations,
+            federatedCredentials,
+            managementGroupId: managementGroupId);
+
+        string fileName =
+            $"archlucid-hosted-azure-mg-{managementGroupId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
+
+        return new HostedAzureExtractorCollectionResult
+        {
+            ZipBytes = zipBytes,
+            OriginalFileName = fileName,
+            ResourceCount = resources.Count
+        };
+    }
+
+    private async Task<IReadOnlyList<AzureInventoryEntraGroupMembershipRow>> TryReadEntraGroupMembershipsAsync(
+        TokenCredential credential,
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> roleAssignments,
+        string scopeLabel,
+        CancellationToken cancellationToken)
+    {
+        EntraGroupMembershipGraphOptions graphOptions = _entraGroupMembershipGraphOptions.CurrentValue;
+
+        if (!graphOptions.Enabled)
+            return [];
+
+        IReadOnlyList<string> seedGroupIds = ExtractGroupPrincipalIds(roleAssignments);
+
+        EntraGroupMembershipGraphReadResult graphResult = await _entraGroupMembershipGraphReader
+            .TryReadDirectMembershipsAsync(
+                credential,
+                seedGroupIds,
+                graphOptions.MaxNestedDepth,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (graphResult.Forbidden)
+        {
+            _logger.LogWarning(
+                "Hosted Azure extractor skipped Entra group membership merge for scope {ScopeLabel}: {Warning}",
+                scopeLabel,
+                graphResult.Warnings.FirstOrDefault());
+
+            return [];
+        }
+
+        return graphResult.Memberships;
+    }
+
+    private static IReadOnlyList<string> ExtractGroupPrincipalIds(
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> roleAssignments)
+    {
+        HashSet<string> groupIds = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (HostedAzureArmRoleAssignmentRecord assignment in roleAssignments)
+        {
+            if (string.IsNullOrWhiteSpace(assignment.PrincipalId)
+                || string.IsNullOrWhiteSpace(assignment.PrincipalType))
+            {
+                continue;
+            }
+
+            if (!assignment.PrincipalType.Equals("Group", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            groupIds.Add(assignment.PrincipalId.Trim());
+        }
+
+        return groupIds.OrderBy(static id => id, StringComparer.OrdinalIgnoreCase).ToList();
     }
 }

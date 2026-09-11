@@ -221,6 +221,67 @@ function Set-ArchLucidAzureExtractorSubscriptionContext
         -ErrorAction Stop
 }
 
+function Resolve-ArchLucidAzureSubscriptionDisplayName
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $SubscriptionId
+    )
+
+    [string]$trimmedSubscriptionId = "$SubscriptionId".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($trimmedSubscriptionId))
+    {
+        return $null
+    }
+
+    [object]$subscription = $null
+
+    try
+    {
+        $subscription = Get-AzSubscription `
+            -SubscriptionId $trimmedSubscriptionId `
+            -ErrorAction Stop
+    }
+    catch
+    {
+        return $null
+    }
+
+    if ($null -eq $subscription)
+    {
+        return $null
+    }
+
+    [string]$candidate = $null
+
+    if ($subscription.PSObject.Properties.Name -contains 'Name')
+    {
+        $candidate = "$($subscription.Name)".Trim()
+    }
+
+    if ([string]::IsNullOrWhiteSpace($candidate))
+    {
+        return $null
+    }
+
+    # Azure subscription ids are GUIDs; the diagrams picker hides UUID-like labels.
+    [guid]$parsed = [guid]::Empty
+
+    if ([guid]::TryParse($candidate, [ref]$parsed))
+    {
+        return $null
+    }
+
+    if ($candidate.Length -gt 256)
+    {
+        return $candidate.Substring(0, 256)
+    }
+
+    return $candidate
+}
+
 function Resolve-ArchLucidAzureExtractorSubscriptionId
 {
     param(

@@ -61,4 +61,45 @@ public sealed class HostedAzureExtractorGuidValidatorTests
 
         Assert.Equal("SubscriptionId", ex.ParamName);
     }
+
+    [Fact]
+    public void RequireCollectionRequestGuids_accepts_management_group_scope()
+    {
+        HostedAzureExtractorCollectionRequest request = new()
+        {
+            CustomerTenantId = ValidGuid.ToString("D"),
+            CustomerAppId = Guid.Parse("22222222-2222-2222-2222-222222222222").ToString("D"),
+            ManagementGroupId = "corp-prod",
+            IncludeCost = false,
+        };
+
+        HostedAzureExtractorGuidValidator.RequireCollectionRequestGuids(request);
+    }
+
+    [Fact]
+    public void RequireCollectionRequestGuids_rejects_both_scope_identifiers()
+    {
+        HostedAzureExtractorCollectionRequest request = new()
+        {
+            CustomerTenantId = ValidGuid.ToString("D"),
+            CustomerAppId = ValidGuid.ToString("D"),
+            SubscriptionId = ValidGuid.ToString("D"),
+            ManagementGroupId = "corp",
+            IncludeCost = false,
+        };
+
+        Assert.Throws<ArgumentException>(() =>
+            HostedAzureExtractorGuidValidator.RequireCollectionRequestGuids(request));
+    }
+
+    [Theory]
+    [InlineData("../corp")]
+    [InlineData("corp/prod")]
+    public void RequireManagementGroupId_rejects_unsafe_values(string value)
+    {
+        ArgumentException ex = Assert.Throws<ArgumentException>(() =>
+            HostedAzureExtractorGuidValidator.RequireManagementGroupId("managementGroupId", value));
+
+        Assert.Equal("managementGroupId", ex.ParamName);
+    }
 }

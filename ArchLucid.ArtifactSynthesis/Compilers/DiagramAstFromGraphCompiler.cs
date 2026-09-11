@@ -78,6 +78,9 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             });
         }
 
+        DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
+        DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
+
         return ast;
     }
 
