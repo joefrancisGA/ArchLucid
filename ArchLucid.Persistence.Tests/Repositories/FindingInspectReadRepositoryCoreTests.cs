@@ -2711,4 +2711,34 @@ public sealed class FindingInspectReadRepositoryCoreTests
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("aet.TraceId = fr.AgentExecutionTraceId");
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("aet.RunId = r.RunId");
     }
+
+    [Fact]
+    public void BuildEvidenceFromRelatedNodes_drops_invisible_unicode_only_related_nodes()
+    {
+        FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes(["\u200B"]).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FilterNonBlankTrimmedStrings_drops_invisible_unicode_recommended_action_text()
+    {
+        FindingInspectReadRepositoryCore.FilterNonBlankTrimmedStrings(["\u200B", "Rotate keys"]).Should()
+            .Equal("Rotate keys");
+    }
+
+    [Fact]
+    public void ResolveTraceRuleFields_returns_nulls_when_trace_text_is_invisible_unicode_only()
+    {
+        FindingInspectReadRepositoryCore.ResolveTraceRuleFields("\u200B").Should().Be((null, null));
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_only_invisible_unicode_entries_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["\u200B"]""",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
 }

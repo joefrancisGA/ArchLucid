@@ -43,8 +43,9 @@ internal static class FindingInspectReadRepositoryCore
 
     public static IReadOnlyList<string> FilterNonBlankTrimmedStrings(IEnumerable<string> values) =>
         values
-            .Where(static value => !string.IsNullOrWhiteSpace(value))
-            .Select(static value => value.Trim())
+            .Select(NormalizeInspectText)
+            .Where(static value => value is not null)
+            .Cast<string>()
             .ToList();
 
     public static IReadOnlyList<string> FilterRecommendedActions(IEnumerable<string> values) =>
@@ -69,8 +70,12 @@ internal static class FindingInspectReadRepositoryCore
 
     public static string? ResolveDecisionRuleName(string? ruleName, string? ruleId) => ruleName ?? ruleId;
 
-    public static (string? RuleId, string? RuleName) ResolveTraceRuleFields(string? firstRuleText) =>
-        !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
+    public static (string? RuleId, string? RuleName) ResolveTraceRuleFields(string? firstRuleText)
+    {
+        string? normalized = NormalizeInspectText(firstRuleText);
+
+        return normalized is null ? (null, null) : (normalized, normalized);
+    }
 
     public static (string? RuleId, string? RuleName) ResolveRuleFields(string? appliedRuleIdsJson, string? firstRuleText)
     {
@@ -84,9 +89,8 @@ internal static class FindingInspectReadRepositoryCore
             if (ids is { Count: > 0 })
             {
                 string? firstValid = ids
-                    .Where(static id => !string.IsNullOrWhiteSpace(id))
-                    .Select(static id => id.Trim())
-                    .FirstOrDefault();
+                    .Select(NormalizeInspectText)
+                    .FirstOrDefault(normalized => normalized is not null);
 
                 if (firstValid is not null)
                     return (firstValid, firstValid);
@@ -102,8 +106,8 @@ internal static class FindingInspectReadRepositoryCore
 
     public static JsonElement? BuildMetadataTypedPayload(string? title, string? rationale)
     {
-        string? normalizedTitle = NormalizeMetadataText(title);
-        string? normalizedRationale = NormalizeMetadataText(rationale);
+        string? normalizedTitle = NormalizeInspectText(title);
+        string? normalizedRationale = NormalizeInspectText(rationale);
 
         if (normalizedTitle is null && normalizedRationale is null)
             return null;
@@ -119,23 +123,23 @@ internal static class FindingInspectReadRepositoryCore
     }
 
     /// <summary>
-    ///     Rejects blank and invisible-only metadata (for example U+200B) that pass
+    ///     Rejects blank and invisible-only inspect strings (for example U+200B) that pass
     ///     <see cref="string.IsNullOrWhiteSpace(string?)" /> but are not usable operator-facing text.
     /// </summary>
-    private static string? NormalizeMetadataText(string? value)
+    private static string? NormalizeInspectText(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return null;
 
         string trimmed = value.Trim();
 
-        if (!HasSubstantiveMetadataText(trimmed))
+        if (!HasSubstantiveInspectText(trimmed))
             return null;
 
         return trimmed;
     }
 
-    private static bool HasSubstantiveMetadataText(string value)
+    private static bool HasSubstantiveInspectText(string value)
     {
         if (string.IsNullOrEmpty(value))
             return false;
