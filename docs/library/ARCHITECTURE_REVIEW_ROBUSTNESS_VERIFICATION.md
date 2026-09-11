@@ -204,7 +204,7 @@ dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~FinalizeRea
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeReadinessControllerTests"
 ```
 
-UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton`. SSR `finalizeReadinessBlocks` from `buildRunDetailGovernancePresentation` hydrate the hook during client fetch and flow through `RunDetailPageHeader`, `ReviewPackagePrimaryAction`, and `RunDetailWorkspaceStickyActions`. `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority.
+UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton`. SSR `finalizeReadinessBlocks` from `buildRunDetailGovernancePresentation` hydrate the hook during client fetch and flow through `RunDetailPageHeader`, `ReviewPackagePrimaryAction`, and `RunDetailWorkspaceStickyActionsResolved` (deferred sticky bar on standard review detail). `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority.
 
 ## ConflictException → 409 controller sweep
 
