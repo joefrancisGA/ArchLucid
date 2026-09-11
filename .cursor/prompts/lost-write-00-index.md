@@ -225,3 +225,4 @@ Summarize: files changed, tests run, residual risk, Working vs Guided behavior, 
 
 **Wave 22:** [`architecture-spine-00-index.md`](architecture-spine-00-index.md) (**AS-001–100**). Do not fork AS-094.
 **Hasher wave 23:** [`docs/library/ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE23.md`](../../docs/library/ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE23.md). Do not renumber.
+**Successor (livelihood UX waves 24–30):** [`livelihood-gravity-00-index.md`](livelihood-gravity-00-index.md). Issue 1 is [`career-gravity-00-index.md`](career-gravity-00-index.md) (**CG-001–100**). **Do not re-run LW.**
