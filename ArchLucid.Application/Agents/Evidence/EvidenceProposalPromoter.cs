@@ -48,6 +48,8 @@ public sealed class EvidenceProposalPromoter(
 
         string catalogEntryId = BuildCatalogEntryId(payload.Type, payload.Title);
 
+        await EnsureCatalogEntryIdAvailableAsync(scope.TenantId, catalogEntryId, cancellationToken).ConfigureAwait(false);
+
         await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken).ConfigureAwait(false);
 
         try
@@ -135,6 +137,19 @@ public sealed class EvidenceProposalPromoter(
             .ConfigureAwait(false);
 
         return entryId;
+    }
+
+    private async Task EnsureCatalogEntryIdAvailableAsync(
+        Guid tenantId,
+        string catalogEntryId,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<TenantCuratedEvidenceEntryRow> existing =
+            await _curatedEvidenceRepository.ListByTenantAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (existing.Any(row => string.Equals(row.CatalogEntryId, catalogEntryId, StringComparison.OrdinalIgnoreCase)))
+            throw new InvalidOperationException(
+                $"A curated evidence catalog entry with id '{catalogEntryId}' already exists for this tenant.");
     }
 
     private static string BuildCatalogEntryId(string type, string title)
