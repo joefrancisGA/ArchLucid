@@ -15,16 +15,14 @@ import { formatInsightDensityMeasurementFloorPresentation } from "@/lib/quality/
 import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
 import { formatSandboxStyleGoldenManifest } from "./export-markdown-sandbox-manifest";
 import { isRecord } from "./export-markdown-text";
-import {
-  appendTrustEvidenceMarkdownSection,
-  formatTrustEvidenceCardMarkdown,
-} from "./export-markdown-trust-evidence";
+import { formatSendableExportCoverMarkdown } from "./export-markdown-sendable-cover";
+import { appendTrustEvidenceMarkdownSection } from "./export-markdown-trust-evidence";
 
 export {
   buildGoldenManifestMarkdownFilename,
   triggerGoldenManifestMarkdownDownload,
 } from "./export-markdown-download";
-export { formatTrustEvidenceCardMarkdown };
+export { formatTrustEvidenceCardMarkdown } from "./export-markdown-trust-evidence";
 
 export type GoldenManifestMarkdownOptions = {
   /** Echoed in metadata. */
@@ -292,5 +290,14 @@ export function formatGoldenManifestMarkdown(
     ? appendCareerExportHonestyMarkdownSection(body, options, options?.manifestSummaryFallback ?? null)
     : body;
 
-  return appendTrustEvidenceMarkdownSection(withHonesty, options?.trustEvidenceCard);
+  const coverMarkdown = formatSendableExportCoverMarkdown({
+    runId: options?.runId ?? null,
+    manifestSummary: options?.manifestSummaryFallback ?? null,
+    feasibilityVerdict: options?.manifestSummaryFallback?.feasibilityVerdict ?? null,
+    structuralExecutionMode: options?.careerExportHonesty?.structuralExecutionMode ?? null,
+    hostAgentExecutionMode: options?.careerExportHonesty?.hostAgentExecutionMode ?? null,
+  });
+  const withCover = `${coverMarkdown}\n${withHonesty}`;
+
+  return appendTrustEvidenceMarkdownSection(withCover, options?.trustEvidenceCard);
 }

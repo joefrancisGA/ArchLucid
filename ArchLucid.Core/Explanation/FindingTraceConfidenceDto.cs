@@ -79,4 +79,11 @@ public sealed class FindingTraceConfidenceDto
         get;
         init;
     }
+
+    /// <summary>Insight-density treatment when the gate demotes a finding to checklist coverage.</summary>
+    public FindingTreatment? Treatment
+    {
+        get;
+        init;
+    }
 }

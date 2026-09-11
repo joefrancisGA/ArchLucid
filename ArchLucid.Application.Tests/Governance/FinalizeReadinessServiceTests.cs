@@ -140,6 +140,65 @@ public sealed class FinalizeReadinessServiceTests
         result.Blocks.Should().NotContain(block => block.Layer == FinalizeReadinessLayers.Governance);
     }
 
+    [Fact]
+    public async Task BuildAsync_aligns_embedded_checklist_ready_flag_with_commit_authority_when_checklist_disagrees()
+    {
+        string runId = Guid.NewGuid().ToString("D");
+        Guid runGuid = Guid.Parse(runId);
+
+        Mock<IRunRepository> runs = CreateRunRepository(runId, runGuid, includeRequest: true);
+        Mock<IPreFinalizeChecklistService> checklist = new();
+        checklist
+            .Setup(service => service.BuildAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PreFinalizeChecklistResult
+            {
+                RunId = runId,
+                ReadyToFinalize = true,
+                Items = [],
+                AdvisoryCount = 0,
+                BlockingCount = 0,
+                PreCommitGateEnabled = true,
+            });
+
+        Mock<IPreCommitGovernanceGate> preCommitGate = new();
+        preCommitGate
+            .Setup(gate => gate.EvaluateAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PreCommitGateResult
+            {
+                Blocked = true,
+                Reason = "Critical findings exceed policy pack threshold.",
+                BlockingFindingIds = ["finding-1"],
+            });
+
+        FinalizeReadinessService sut = CreateSut(
+            runs.Object,
+            checklist.Object,
+            transparencyTrail: new TransparencyTrail(),
+            preCommitGate: preCommitGate.Object);
+
+        FinalizeReadinessResult result = await sut.BuildAsync(runId, cancellationToken: CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.Checklist.ReadyToFinalize.Should().BeFalse();
+        result.Checklist.ReadyToFinalize.Should().Be(result.ReadyToFinalize);
+    }
+
+    [Fact]
+    public void AlignChecklistWithCommitAuthority_returns_same_instance_when_flags_already_match()
+    {
+        PreFinalizeChecklistResult checklist = new()
+        {
+            RunId = Guid.NewGuid().ToString("D"),
+            ReadyToFinalize = false,
+            Items = [],
+        };
+
+        PreFinalizeChecklistResult aligned =
+            FinalizeReadinessService.AlignChecklistWithCommitAuthority(checklist, commitAuthorityReady: false);
+
+        aligned.Should().BeSameAs(checklist);
+    }
+
     private static Mock<IPreFinalizeChecklistService> CreateChecklistMock(string runId)
     {
         Mock<IPreFinalizeChecklistService> checklist = new();

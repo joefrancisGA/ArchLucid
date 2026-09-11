@@ -42,6 +42,22 @@ describe("RunDetailPreFinalizeGateHonestyStrip (DR-04 / AS-064 / AS-065)", () =>
     effectiveDoorMock.value = "career";
   });
 
+  it("shows simulator Career honesty when Career door meets Simulator execute (CG-030)", () => {
+    healthReadyMock.mockReturnValue({
+      data: { preCommitGateEnabled: true, status: "Healthy", entries: [] },
+    });
+
+    render(
+      <RunDetailPreFinalizeGateHonestyStrip
+        manifestFinalized={false}
+        structuralExecutionMode="Simulator"
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-pre-finalize-simulator-career-honesty-strip")).toBeInTheDocument();
+    expect(screen.getByText("Simulator cannot read as career-complete")).toBeInTheDocument();
+  });
+
   it("shows rehearsal door honesty when Ready labels are suppressed (AS-079)", () => {
     effectiveDoorMock.value = "rehearsal";
     healthReadyMock.mockReturnValue({

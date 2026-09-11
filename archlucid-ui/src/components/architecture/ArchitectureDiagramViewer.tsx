@@ -15,6 +15,7 @@ import { SeverityTag } from '@/components/ui/severity-tag';
 import {
   ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL,
   ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
+  ARCHITECTURE_DIAGRAM_PAINT_FAILURE,
   ARCHITECTURE_DIAGRAM_RENDER_FAILURE,
   ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL,
   ARCHITECTURE_DIAGRAM_RETRY_ACTION,
@@ -38,8 +39,13 @@ import {
 } from '@/lib/architecture/architecture-diagram-fullscreen-url';
 import { sanitizeArchitectureDiagramSvg } from '@/lib/architecture/architecture-diagram-svg';
 import {
+  applyMermaidSvgViewportZoom,
   fitMermaidSvgElementToHost,
+  fitMermaidSvgElementToViewport,
+  isMermaidViewportPaintTooSmall,
+  type MermaidViewportFitDimensions,
   prepareMermaidSvgForResponsiveLayout,
+  readMermaidViewportFitBudget,
   sanitizeMermaidRenderId,
 } from '@/lib/help/help-mermaid';
 import { OPERATOR_TYPOGRAPHY } from '@/lib/design-tokens';
@@ -92,6 +98,55 @@ function scrollViewportToOrigin(viewport: HTMLDivElement | null): void {
 
   viewport.scrollLeft = 0;
   viewport.scrollTop = 0;
+}
+
+function applyMermaidViewportCamera(
+  host: HTMLDivElement,
+  viewport: HTMLDivElement,
+  zoom: number,
+): MermaidViewportFitDimensions | null {
+  const svg = host.querySelector('svg');
+
+  if (!(svg instanceof SVGSVGElement)) {
+    return null;
+  }
+
+  const { widthPx, heightPx } = readMermaidViewportFitBudget(viewport);
+  const baseFit = fitMermaidSvgElementToViewport(svg, widthPx, heightPx);
+
+  if (baseFit !== null) {
+    applyMermaidSvgViewportZoom(svg, baseFit, zoom);
+  }
+
+  return baseFit;
+}
+
+function reportMermaidViewportPaintFailure(
+  baseFit: MermaidViewportFitDimensions | null,
+  zoom: number,
+  setRenderError: React.Dispatch<React.SetStateAction<string | null>>,
+  onRenderFailure?: () => void,
+): void {
+  if (!isMermaidViewportPaintTooSmall(baseFit, zoom)) {
+    setRenderError((current) => (current === ARCHITECTURE_DIAGRAM_PAINT_FAILURE ? null : current));
+
+    return;
+  }
+
+  setRenderError(ARCHITECTURE_DIAGRAM_PAINT_FAILURE);
+  onRenderFailure?.();
+}
+
+function syncMermaidViewportCamera(
+  host: HTMLDivElement | null,
+  viewport: HTMLDivElement | null,
+  zoom: number,
+): MermaidViewportFitDimensions | null {
+  if (host === null || viewport === null) {
+    return null;
+  }
+
+  return applyMermaidViewportCamera(host, viewport, zoom);
 }
 
 function useDiagramZoomState(pathname: string) {
@@ -183,9 +238,15 @@ function useDiagramZoomState(pathname: string) {
   };
 }
 
+type DiagramViewportControlsOptions = {
+  readonly layout?: 'stacked' | 'overlay';
+  readonly fullscreenAction?: { readonly label: string; readonly onClick: () => void };
+};
+
 function renderDiagramViewportControls(
   zoom: ReturnType<typeof useDiagramZoomState>,
   onFitInView: () => void,
+  options?: DiagramViewportControlsOptions,
 ): React.JSX.Element {
   return (
     <ArchitectureDiagramViewportControls
@@ -206,9 +267,19 @@ function renderDiagramViewportControls(
       resetZoomLabel={ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL}
       fitInViewLabel={ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL}
       viewportHint={ARCHITECTURE_DIAGRAM_VIEWPORT_HINT}
+      layout={options?.layout}
+      fullscreenAction={options?.fullscreenAction}
     />
   );
 }
+
+const MERMAID_SVG_HOST_CLASSNAME = cn(
+  'inline-block min-w-0 text-neutral-900 dark:text-neutral-100',
+  '[&_svg]:block [&_svg]:overflow-visible',
+  '[&_svg_text]:fill-current [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200',
+  '[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:leading-snug [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100',
+  '[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]',
+);
 
 /** Interactive architecture diagram canvas with zoom, pan, fullscreen, and accessible fallback text. */
 function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewerProps): React.JSX.Element {
@@ -233,7 +304,13 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   );
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const svgHostRef = useRef<HTMLDivElement | null>(null);
+  const fullscreenViewportRef = useRef<HTMLDivElement | null>(null);
+  const fullscreenHostRef = useRef<HTMLDivElement | null>(null);
+  const baseFitRef = useRef<MermaidViewportFitDimensions | null>(null);
+  const fullscreenBaseFitRef = useRef<MermaidViewportFitDimensions | null>(null);
   const fullscreenOpenRef = useRef<boolean>(fullscreenOpen);
+  const mermaidFitRetryCountRef = useRef(0);
+  const mermaidFitRetryTimeoutRef = useRef<number | null>(null);
   const zoom = useDiagramZoomState(pathname);
 
   fullscreenOpenRef.current = fullscreenOpen;
@@ -298,88 +375,168 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     props.onExportableSvgMarkupChange?.(sanitizedSvg);
   }, [props.onExportableSvgMarkupChange, sanitizedSvg]);
 
-  const applySvgFitToHost = useCallback((): boolean => {
+  const syncInlineViewportCamera = useCallback((): boolean => {
     const host = svgHostRef.current;
+    const viewport = viewportRef.current;
 
-    if (host === null) {
+    if (host === null || viewport === null) {
       return false;
     }
 
-    const svg = host.querySelector('svg');
+    const baseFit = syncMermaidViewportCamera(host, viewport, zoom.zoom);
 
-    if (!(svg instanceof SVGSVGElement)) {
+    if (baseFit === null) {
       return false;
     }
 
-    const width = host.clientWidth;
-
-    if (width <= 0) {
-      return false;
-    }
-
-    fitMermaidSvgElementToHost(svg, width);
+    baseFitRef.current = baseFit;
+    reportMermaidViewportPaintFailure(baseFit, zoom.zoom, setRenderError, onRenderFailure);
 
     return true;
-  }, []);
+  }, [onRenderFailure, zoom.zoom]);
+
+  const syncFullscreenViewportCamera = useCallback((): boolean => {
+    const host = fullscreenHostRef.current;
+    const viewport = fullscreenViewportRef.current;
+
+    if (host === null || viewport === null) {
+      return false;
+    }
+
+    const baseFit = syncMermaidViewportCamera(host, viewport, zoom.zoom);
+
+    if (baseFit === null) {
+      return false;
+    }
+
+    fullscreenBaseFitRef.current = baseFit;
+
+    return true;
+  }, [zoom.zoom]);
 
   const fitToView = useCallback(() => {
-    applySvgFitToHost();
     zoom.setZoom(1);
     scrollViewportToOrigin(viewportRef.current);
-  }, [applySvgFitToHost, zoom]);
+    scrollViewportToOrigin(fullscreenViewportRef.current);
+
+    const host = svgHostRef.current;
+    const viewport = viewportRef.current;
+
+    if (host !== null && viewport !== null) {
+      baseFitRef.current = applyMermaidViewportCamera(host, viewport, 1);
+    }
+
+    if (fullscreenOpenRef.current) {
+      syncFullscreenViewportCamera();
+    }
+  }, [syncFullscreenViewportCamera, zoom]);
 
   useLayoutEffect(() => {
     if (sanitizedSvg === null) {
       return;
     }
 
-    const host = svgHostRef.current;
-    const svg = host?.querySelector('svg');
+    mermaidFitRetryCountRef.current = 0;
 
-    if (host === null || host === undefined || svg === null || !(svg instanceof SVGSVGElement)) {
+    if (mermaidFitRetryTimeoutRef.current !== null) {
+      window.clearTimeout(mermaidFitRetryTimeoutRef.current);
+      mermaidFitRetryTimeoutRef.current = null;
+    }
+
+    const scheduleFitRetry = (): void => {
+      mermaidFitRetryCountRef.current += 1;
+
+      if (mermaidFitRetryCountRef.current > MAX_INITIAL_FIT_RETRIES) {
+        return;
+      }
+
+      mermaidFitRetryTimeoutRef.current = window.setTimeout(() => {
+        mermaidFitRetryTimeoutRef.current = null;
+
+        if (syncInlineViewportCamera()) {
+          scrollViewportToOrigin(viewportRef.current);
+          return;
+        }
+
+        scheduleFitRetry();
+      }, INITIAL_FIT_RETRY_DELAY_MS);
+    };
+
+    const runInitialFit = (): void => {
+      if (syncInlineViewportCamera()) {
+        scrollViewportToOrigin(viewportRef.current);
+        return;
+      }
+
+      window.requestAnimationFrame(() => {
+        if (syncInlineViewportCamera()) {
+          scrollViewportToOrigin(viewportRef.current);
+          return;
+        }
+
+        scheduleFitRetry();
+      });
+    };
+
+    runInitialFit();
+
+    const viewport = viewportRef.current;
+    const resizeObserver =
+      viewport === null || typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => {
+            syncInlineViewportCamera();
+          });
+
+    if (resizeObserver !== null && viewport !== null) {
+      resizeObserver.observe(viewport);
+    }
+
+    return (): void => {
+      if (mermaidFitRetryTimeoutRef.current !== null) {
+        window.clearTimeout(mermaidFitRetryTimeoutRef.current);
+        mermaidFitRetryTimeoutRef.current = null;
+      }
+
+      resizeObserver?.disconnect();
+    };
+  }, [sanitizedSvg, syncInlineViewportCamera]);
+
+  useLayoutEffect(() => {
+    if (!fullscreenOpen || sanitizedSvg === null) {
       return;
     }
 
-    const applyFit = (): void => {
-      const width = host.clientWidth;
-
-      if (width <= 0) {
+    const runFullscreenFit = (): void => {
+      if (syncFullscreenViewportCamera()) {
+        scrollViewportToOrigin(fullscreenViewportRef.current);
         return;
       }
 
-      fitMermaidSvgElementToHost(svg, width);
-
-      const viewport = viewportRef.current;
-      const firstInk = svg.querySelector('.node, text.nodeLabel, text');
-
-      if (viewport === null || firstInk === null) {
-        return;
-      }
-
-      const nodeRect = firstInk.getBoundingClientRect();
-      const viewRect = viewport.getBoundingClientRect();
-      viewport.scrollLeft += nodeRect.left - viewRect.left - 16;
-      viewport.scrollTop += nodeRect.top - viewRect.top - 16;
+      window.requestAnimationFrame(() => {
+        syncFullscreenViewportCamera();
+        scrollViewportToOrigin(fullscreenViewportRef.current);
+      });
     };
 
-    applyFit();
+    runFullscreenFit();
 
-    const rafId = window.requestAnimationFrame(applyFit);
-
+    const viewport = fullscreenViewportRef.current;
     const resizeObserver =
-      typeof ResizeObserver === 'undefined'
+      viewport === null || typeof ResizeObserver === 'undefined'
         ? null
         : new ResizeObserver(() => {
-            applyFit();
+            syncFullscreenViewportCamera();
           });
 
-    resizeObserver?.observe(host);
+    if (resizeObserver !== null && viewport !== null) {
+      resizeObserver.observe(viewport);
+    }
 
     return (): void => {
-      window.cancelAnimationFrame(rafId);
       resizeObserver?.disconnect();
     };
-  }, [sanitizedSvg]);
+  }, [fullscreenOpen, sanitizedSvg, syncFullscreenViewportCamera]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -417,9 +574,38 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     };
   }, [zoom]);
 
-  const diagramBody = (
-    <>
-      {renderError !== null ? (
+  const onWheel = useCallback(
+    (event: React.WheelEvent<HTMLDivElement>) => {
+      if (event.ctrlKey || event.metaKey) {
+        event.preventDefault();
+
+        if (event.deltaY < 0) {
+          zoom.zoomIn();
+        } else if (event.deltaY > 0) {
+          zoom.zoomOut();
+        }
+      }
+    },
+    [zoom],
+  );
+
+  const viewportControlOptions = useMemo(
+    () => ({
+      layout: 'overlay' as const,
+      fullscreenAction: {
+        label: ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
+        onClick: () => setFullscreenOpen(true),
+      },
+    }),
+    [setFullscreenOpen],
+  );
+
+  const renderMermaidInk = (
+    hostRef: React.RefObject<HTMLDivElement | null>,
+    testId?: string,
+  ): React.JSX.Element => {
+    if (renderError !== null) {
+      return (
         <div className="space-y-3" role="alert" data-testid="architecture-diagram-render-failure">
           <SeverityTag severity="high" label="Diagram render error" />
           <p className={cn('m-0 text-amber-800 dark:text-amber-200', OPERATOR_TYPOGRAPHY.body)}>{renderError}</p>
@@ -429,27 +615,26 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             </Button>
           ) : null}
         </div>
-      ) : sanitizedSvg === null ? (
+      );
+    }
+
+    if (sanitizedSvg === null) {
+      return (
         <p className={cn('m-0 text-neutral-500 dark:text-neutral-400', OPERATOR_TYPOGRAPHY.body)} aria-live="polite">
           Rendering architecture diagram…
         </p>
-      ) : (
-        <div
-          ref={svgHostRef}
-          className={cn(
-            'w-full min-w-0 origin-top-left text-neutral-900 transition-transform dark:text-neutral-100',
-            '[&_svg]:block [&_svg]:overflow-visible',
-            '[&_svg_text]:fill-current [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200',
-            '[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:leading-snug [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100',
-            '[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]',
-            canvasStale ? 'opacity-60' : undefined,
-          )}
-          style={{ transform: `scale(${zoom.zoom})`, transformOrigin: 'top left' }}
-          dangerouslySetInnerHTML={{ __html: sanitizedSvg }}
-        />
-      )}
-    </>
-  );
+      );
+    }
+
+    return (
+      <div
+        ref={hostRef}
+        data-testid={testId}
+        className={cn(MERMAID_SVG_HOST_CLASSNAME, canvasStale ? 'opacity-60' : undefined)}
+        dangerouslySetInnerHTML={{ __html: sanitizedSvg }}
+      />
+    );
+  };
 
   return (
     <figure data-testid="architecture-diagram-viewer">
@@ -462,17 +647,11 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         </p>
       ) : null}
 
-      {renderDiagramViewportControls(zoom, fitToView)}
-      <div className="mb-2 flex flex-wrap items-center gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={() => setFullscreenOpen(true)}>
-          {ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION}
-        </Button>
-        {canvasStale ? (
-          <span className={cn('text-amber-800 dark:text-amber-200', OPERATOR_TYPOGRAPHY.helper)}>
-            Canvas may be stale while a new render loads.
-          </span>
-        ) : null}
-      </div>
+      {canvasStale ? (
+        <p className={cn('mb-2 text-amber-800 dark:text-amber-200', OPERATOR_TYPOGRAPHY.helper)}>
+          Canvas may be stale while a new render loads.
+        </p>
+      ) : null}
 
       <div
         ref={viewportRef}
@@ -480,10 +659,12 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         role="img"
         aria-label={viewportAriaLabel}
         aria-describedby={`${renderId}-alt`}
-        className="min-h-[18rem] max-h-[36rem] overflow-auto rounded-md border border-neutral-200 bg-neutral-50 p-4 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950/80"
+        className="relative w-full max-h-[36rem] overflow-auto rounded-md border border-neutral-200 bg-neutral-50 p-4 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950/80"
         data-testid="architecture-diagram-viewport"
+        onWheel={onWheel}
       >
-        {diagramBody}
+        {renderDiagramViewportControls(zoom, fitToView, viewportControlOptions)}
+        {renderMermaidInk(svgHostRef, 'architecture-diagram-svg-host')}
       </div>
 
       <p id={`${renderId}-alt`} className="sr-only">
@@ -495,7 +676,16 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           <DialogHeader>
             <DialogTitle>{fullscreenTitle}</DialogTitle>
           </DialogHeader>
-          <div className="max-h-[80vh] overflow-auto p-2">{diagramBody}</div>
+          <div
+            ref={fullscreenViewportRef}
+            tabIndex={0}
+            className="relative max-h-[80vh] overflow-auto rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-950/80"
+            data-testid="architecture-diagram-fullscreen-viewport"
+            onWheel={onWheel}
+          >
+            {renderDiagramViewportControls(zoom, fitToView, viewportControlOptions)}
+            {renderMermaidInk(fullscreenHostRef, 'architecture-diagram-fullscreen-svg-host')}
+          </div>
         </DialogContent>
       </Dialog>
     </figure>

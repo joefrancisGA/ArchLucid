@@ -31,4 +31,42 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     expect(resolveInfraEvidenceOutlineNodeLabel(outline.nodes, "vnet1")).toBe("vnet-eastus");
     expect(resolveInfraEvidenceOutlineNodeLabel(outline.nodes, "missing")).toBe("missing");
   });
+
+  it("parses inventory node metadata comments for resource type and group", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    n_a1["nic-prod"] %% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network',
+      ].join("\n"),
+    );
+
+    expect(outline.nodes).toEqual([
+      {
+        id: "n_a1",
+        label: "nic-prod",
+        resourceType: "Microsoft.Network/networkInterfaces",
+        resourceGroup: "rg-network",
+      },
+    ]);
+  });
+
+  it("falls back to RG subgraph labels when metadata comments are absent", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    subgraph rg1["RG rg-network"]',
+        '        vnet1["vnet-eastus"]',
+        "    end",
+      ].join("\n"),
+    );
+
+    expect(outline.nodes).toEqual([
+      {
+        id: "vnet1",
+        label: "vnet-eastus",
+        resourceType: null,
+        resourceGroup: "rg-network",
+      },
+    ]);
+  });
 });
