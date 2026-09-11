@@ -42,9 +42,7 @@ public static class SecurityEvidencePathRankExplanationBuilder
             $"Privilege depth {FormatScore(rank.PrivilegeDepthScore)} of {FormatScore(SecurityEvidencePathRankConstants.DimensionCap)} "
             + $"from role, read/write, and identity hops.";
 
-        string blast =
-            $"Blast radius {FormatScore(rank.BlastRadiusScore)} of {FormatScore(SecurityEvidencePathRankConstants.DimensionCap)} "
-            + $"from downstream resource fan-out and shared-control patterns.";
+        string blast = BuildBlastRadiusProse(rank);
 
         string consequence;
 
@@ -79,6 +77,24 @@ public static class SecurityEvidencePathRankExplanationBuilder
 
     private static string FormatScore(decimal score) =>
         score.ToString("0.##", CultureInfo.InvariantCulture);
+
+    private static string BuildBlastRadiusProse(SecurityEvidencePathRankRecord rank)
+    {
+        string prose =
+            $"Blast radius {FormatScore(rank.BlastRadiusScore)} of {FormatScore(SecurityEvidencePathRankConstants.DimensionCap)} "
+            + "from downstream resource fan-out and shared-control patterns.";
+
+        string? defenderPostureBand =
+            SecurityEvidencePathRankBreakdownReader.TryReadDefenderPostureBandLabel(rank.BreakdownJson);
+
+        if (defenderPostureBand is null)
+        {
+            return prose;
+        }
+
+        return prose
+            + $" Subscription Defender posture band is {defenderPostureBand} (ordinal metadata only; no percentage score).";
+    }
 }
 
 public sealed class SecurityEvidencePathRankProse

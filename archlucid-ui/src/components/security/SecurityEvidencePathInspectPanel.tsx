@@ -109,6 +109,14 @@ function PathHopsTable(props: {
 }
 
 function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail }) {
+  const dimensionEntries = [
+    { key: "technicalExposure", label: "Technical exposure", value: props.rank.dimensionProse.technicalExposure },
+    { key: "privilegeDepth", label: "Privilege depth", value: props.rank.dimensionProse.privilegeDepth },
+    { key: "blastRadius", label: "Blast radius", value: props.rank.dimensionProse.blastRadius },
+    { key: "businessConsequence", label: "Business consequence", value: props.rank.dimensionProse.businessConsequence },
+    { key: "confidenceBand", label: "Confidence band", value: props.rank.dimensionProse.confidenceBand },
+  ].filter((entry) => entry.value.trim().length > 0);
+
   return (
     <div className="rounded border border-border bg-muted/30 p-3" data-testid="security-evidence-path-rank">
       <div className="flex flex-wrap items-center gap-2">
@@ -120,6 +128,22 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
       </p>
       {props.rank.dimensionProse.overall.trim().length > 0 ? (
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{props.rank.dimensionProse.overall}</p>
+      ) : null}
+      {dimensionEntries.length > 0 ? (
+        <ul
+          className="m-0 mt-2 list-disc space-y-1 pl-5"
+          data-testid="security-evidence-path-rank-dimensions"
+        >
+          {dimensionEntries.map((entry) => (
+            <li
+              key={entry.key}
+              className={OPERATOR_TYPOGRAPHY.helper}
+              data-testid={`security-evidence-path-rank-dimension-${entry.key}`}
+            >
+              <span className="font-medium text-foreground">{entry.label}:</span> {entry.value}
+            </li>
+          ))}
+        </ul>
       ) : null}
     </div>
   );
