@@ -193,7 +193,7 @@ dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~FinalizeRea
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeReadinessControllerTests"
 ```
 
-UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available.
+UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. SSR `buildRunDetailGovernancePresentation` loads readiness via `tryLoadFinalizeReadinessForRun`.
 
 ## ConflictException → 409 controller sweep
 
