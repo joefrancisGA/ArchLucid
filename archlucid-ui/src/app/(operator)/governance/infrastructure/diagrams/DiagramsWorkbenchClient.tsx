@@ -553,6 +553,7 @@ export function DiagramsWorkbenchClient() {
       return;
     }
 
+    const activeRenderQuery = renderQuery;
     let cancelled = false;
 
     async function loadRender() {
@@ -560,7 +561,7 @@ export function DiagramsWorkbenchClient() {
       setLoadError(null);
 
       try {
-        const response = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, renderQuery);
+        const response = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, activeRenderQuery);
 
         if (!cancelled) {
           setRenderResult(response);

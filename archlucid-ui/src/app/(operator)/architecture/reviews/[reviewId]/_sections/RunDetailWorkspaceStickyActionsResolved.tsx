@@ -37,7 +37,7 @@ export type RunDetailWorkspaceStickyActionsResolvedProps = {
   readonly degradedFindingCoverage?: boolean;
   readonly degradedFindingCoverageFailedEngineLabels?: readonly string[];
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
-  readonly workingCareerRehearsalDoor?: boolean | null;
+  readonly workingCareerRehearsalDoor?: string | null;
   readonly transparencyTrail?: TransparencyTrail | null;
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
