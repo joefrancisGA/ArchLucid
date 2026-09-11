@@ -1993,3 +1993,4 @@
 {"at":"2026-09-11T20:56:49.5826181Z","zoneId":"ui-runs-list","outcome":"hit","paths":["archlucid-ui/src/lib/runs/runs-list-search-url.ts"],"severity":"low","defectClass":"state-machine-gap"}
 {"at":"2026-09-11T20:59:58.2240103Z","zoneId":"ui-runs-list","outcome":"hit","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/use-runs-list.ts"],"severity":"low","defectClass":"state-machine-gap"}
 {"at":"2026-09-11T21:04:46.3695857Z","zoneId":"ui-help-docs","outcome":"hit","paths":["archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx"],"severity":"low","defectClass":"other"}
+{"at":"2026-09-11T21:06:22.4664888Z","zoneId":"ui-help-docs","outcome":"dry"}

@@ -334,6 +334,37 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("opens http documentation links in a new tab with noreferrer", async () => {
+    const data = [
+      {
+        title: "External http doc",
+        summary: "Hosted outside the operator shell over plain http.",
+        category: "API",
+        url: "http://example.com/docs/http-alpha",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const link = await screen.findByRole("link", { name: "External http doc" });
+
+    expect(link).toHaveAttribute("href", "http://example.com/docs/http-alpha");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noreferrer");
+
+    vi.unstubAllGlobals();
+  });
+
   it("opens external documentation links in a new tab with noreferrer", async () => {
     const data = [
       {
@@ -670,6 +701,33 @@ describe("HelpDocsClient", () => {
       expect(screen.getByRole("link", { name: "API_VERSIONING" })).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: "API contracts snapshot" })).toBeNull();
     });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("preserves non-q URL parameters when Escape clears the search box", async () => {
+    helpDocsNavigation.params = new URLSearchParams("tab=operations&q=security");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const searchbox = await screen.findByRole("searchbox");
+
+    expect(searchbox).toHaveValue("security");
+
+    fireEvent.keyDown(searchbox, { key: "Escape" });
+
+    expect(searchbox).toHaveValue("");
+    expect(helpDocsNavigation.replace).toHaveBeenCalledWith("/help?tab=operations", { scroll: false });
 
     vi.unstubAllGlobals();
   });

@@ -2601,9 +2601,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-11 — fetched doc-index rows sharing `/help` hub url dropped when titles differ
 - **related-pd-tb:** none
@@ -2663,9 +2663,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `mergeDocIndex` URL dedupe drops fetched doc-index rows that share the `/help` hub url but have distinct titles — **hit 2026-09-11 seed hunt #1753 (seed→hit):** `seenUrls` suppressed all but the first `/help` stub from `public/doc-index.json` (~50 distinct titles); fixed to dedupe fetched rows only when the url is already claimed by static quick links; regression `keeps fetched doc-index rows that share the /help hub url when titles differ`.
 
-- [ ] (candidate) Help hub Escape clear drops non-`q` URL parameters — needs cheap-disproof with `tab=` or similar preserved on clear.
+- [x] (valid-no-repro) Help hub Escape clear drops non-`q` URL parameters — **cheap-disproof 2026-09-11 thorough hunt #1754:** `helpHubClearSearchHrefFromSearch` deletes only `q` via `URLSearchParams`; regression `preserves non-q URL parameters when Escape clears the search box`.
 
-- [ ] (candidate) `http://` doc-index external links omit `target="_blank"`/`rel="noreferrer"` — needs cheap-disproof; `linkProps` already treats `http://` like `https://`.
+- [x] (valid-no-repro) `http://` doc-index external links omit `target="_blank"`/`rel="noreferrer"` — **cheap-disproof 2026-09-11 thorough hunt #1754:** `linkProps` uses `/^https?:\/\//i` so plain `http://` rows match `https://`; regression `opens http documentation links in a new tab with noreferrer`.
+
+2026-09-11 thorough hunt #1754 (dry): cheap-disproof closed Escape non-`q` param preservation and `http://` external link safety candidates; 26 scoped `HelpDocsClient` tests passed.
 
 2026-09-11 seed hunt #1753 (seed→hit): reseeded ui-help-docs after #1745; proved shared `/help` hub url merge drop; 24 scoped `HelpDocsClient` tests passed.
 
