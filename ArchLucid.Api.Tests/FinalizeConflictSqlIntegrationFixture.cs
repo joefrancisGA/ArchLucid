@@ -83,6 +83,90 @@ internal static class FinalizeConflictSqlIntegrationFixture
             cancellationToken);
     }
 
+    internal static Task InjectBlockingScorecardFindingAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        return InjectPinnedScorecardFindingAsync(
+            factory,
+            runId,
+            finding =>
+            {
+                finding.FindingId = "scorecard-proof-blocking-finding";
+                finding.Title = "Public storage account exposes customer data.";
+                finding.Rationale = "Policy violation requires disposition before finalize.";
+                finding.PolicyRuleId = "blocking-scorecard-proof";
+                finding.Severity = FindingSeverity.Critical;
+            },
+            cancellationToken);
+    }
+
+    internal static Task InjectLowConfidenceScorecardFindingAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        return InjectPinnedScorecardFindingAsync(
+            factory,
+            runId,
+            finding =>
+            {
+                finding.FindingId = "scorecard-proof-low-confidence";
+                finding.Title = "Critical subnet CIDR extracted with low model confidence.";
+                finding.Rationale = "Re-ingest or caveat before sponsor export.";
+                finding.PolicyRuleId = "low-confidence-scorecard-proof";
+                finding.Severity = FindingSeverity.Critical;
+                finding.ConfidenceLevel = FindingConfidenceLevel.Low;
+            },
+            cancellationToken);
+    }
+
+    internal static async Task InjectUnverifiedAssumptionScorecardFindingsAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        await InjectPinnedScorecardFindingAsync(
+            factory,
+            runId,
+            finding =>
+            {
+                finding.FindingId = "scorecard-proof-assumption-1";
+                finding.Title = "Assumption: traffic peaks at 2x baseline.";
+                finding.Rationale = "Capacity planning assumption still unverified.";
+                finding.PolicyRuleId = "assumption-scorecard-proof-1";
+                finding.Severity = FindingSeverity.Info;
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        await InjectPinnedScorecardFindingAsync(
+            factory,
+            runId,
+            finding =>
+            {
+                finding.FindingId = "scorecard-proof-assumption-2";
+                finding.Title = "Assumption: single region is acceptable.";
+                finding.Rationale = "Residency assumption still unverified.";
+                finding.PolicyRuleId = "assumption-scorecard-proof-2";
+                finding.Severity = FindingSeverity.Info;
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        await InjectPinnedScorecardFindingAsync(
+            factory,
+            runId,
+            finding =>
+            {
+                finding.FindingId = "scorecard-proof-assumption-3";
+                finding.Title = "Assumption: vendor SLA covers failover.";
+                finding.Rationale = "Vendor assumption still unverified.";
+                finding.PolicyRuleId = "assumption-scorecard-proof-3";
+                finding.Severity = FindingSeverity.Info;
+            },
+            cancellationToken).ConfigureAwait(false);
+    }
+
     internal static async Task PinPreCommitGateBlockAsync(
         ArchLucidApiFactory factory,
         string runId,
@@ -226,6 +310,8 @@ internal static class FinalizeConflictSqlIntegrationFixture
             PolicyRuleId = source.PolicyRuleId,
             HumanReviewStatus = source.HumanReviewStatus,
             IsMuted = source.IsMuted,
+            ConfidenceLevel = source.ConfidenceLevel,
+            EnforcementTier = source.EnforcementTier,
         };
     }
 }
