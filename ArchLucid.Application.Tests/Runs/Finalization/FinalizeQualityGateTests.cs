@@ -174,7 +174,7 @@ public sealed class FinalizeQualityGateTests
 
     private static Finding OpenCritical(string title)
     {
-        return new Finding
+        Finding finding = new()
         {
             FindingId = Guid.NewGuid().ToString("N"),
             Title = title,
@@ -184,5 +184,9 @@ public sealed class FinalizeQualityGateTests
             Category = "test",
             EngineType = "test",
         };
+
+        finding.EvidenceRefs.Add("doc-1");
+
+        return finding;
     }
 }

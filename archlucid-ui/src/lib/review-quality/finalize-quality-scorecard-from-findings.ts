@@ -93,6 +93,9 @@ export function deriveFinalizeQualityScorecardInput(
   const openCannotDetermineCount = findings.filter(
     (finding) => !finding.isMuted && classifyReviewFindingJobView(finding) === "answer-these-questions",
   ).length;
+  const openVerifyHypothesisCount = findings.filter(
+    (finding) => !finding.isMuted && classifyReviewFindingJobView(finding) === "verify-hypotheses",
+  ).length;
   const uncoveredMandatoryRequirementCount = findings.filter(
     (finding) => !finding.isMuted && classifyReviewFindingJobView(finding) === "coverage-gaps",
   ).length;
@@ -112,6 +115,7 @@ export function deriveFinalizeQualityScorecardInput(
     unacknowledgedExistentialAssumptionCount,
     uncoveredMandatoryRequirementCount,
     openCannotDetermineCount,
+    openVerifyHypothesisCount,
     lowExtractionConfidenceCount,
     unresolvedHighSeverityDispositionCount,
     skippedMustCount: countSkippedMustQuestions(options?.transparencyTrail),

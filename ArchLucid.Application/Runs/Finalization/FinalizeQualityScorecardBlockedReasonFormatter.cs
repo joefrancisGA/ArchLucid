@@ -16,6 +16,14 @@ public static class FinalizeQualityScorecardBlockedReasonFormatter
         return $"{count} open question{Plural(count)} still need answers before the package is defensible.";
     }
 
+    public static string OpenVerifyHypotheses(int count)
+    {
+        string findings = count == 1 ? "finding" : "findings";
+        string objectPronoun = count == 1 ? "it" : "them";
+
+        return $"{count} hypothesis {findings} still need evidence before treating {objectPronoun} as publishable fact.";
+    }
+
     public static string UnverifiedAssumptions(int count)
     {
         return $"{count} unverified assumptions remain — confirm or caveat existential ones before finalize.";

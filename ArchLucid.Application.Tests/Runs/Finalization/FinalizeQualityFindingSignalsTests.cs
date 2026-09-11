@@ -182,6 +182,23 @@ public sealed class FinalizeQualityFindingSignalsTests
     }
 
     [Fact]
+    public void IsOpenVerifyHypothesisJobView_yields_to_higher_priority_buckets()
+    {
+        Finding open = NewFinding(title: "Exploratory adversarial challenge on ingress");
+        Finding deferred = NewFinding(title: "Speculative hypothesis about WAF");
+        Finding closed = NewFinding(title: "Hypothesis about cache");
+        Finding question = NewFinding(title: "cannot determine ingress — hypothesis");
+        question.EvidenceRefs.Add("doc-1");
+        Finding contradiction = NewFinding(title: "hypothesis contradicts diagram");
+
+        FinalizeQualityFindingSignals.IsOpenVerifyHypothesisJobView(open, null).Should().BeTrue();
+        FinalizeQualityFindingSignals.IsOpenVerifyHypothesisJobView(deferred, FindingDisposition.Deferred).Should().BeFalse();
+        FinalizeQualityFindingSignals.IsOpenVerifyHypothesisJobView(closed, FindingDisposition.Accepted).Should().BeFalse();
+        FinalizeQualityFindingSignals.IsOpenVerifyHypothesisJobView(question, null).Should().BeFalse();
+        FinalizeQualityFindingSignals.IsOpenVerifyHypothesisJobView(contradiction, null).Should().BeFalse();
+    }
+
+    [Fact]
     public void IsCoverageGapJobView_yields_to_cannot_determine_and_hypothesis_buckets()
     {
         // Grounded so the ungrounded → verify-hypothesis bucket does not swallow the coverage-gap classification.

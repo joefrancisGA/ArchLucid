@@ -9,6 +9,7 @@ const BASE_INPUT = {
   unacknowledgedExistentialAssumptionCount: 0,
   uncoveredMandatoryRequirementCount: 0,
   openCannotDetermineCount: 0,
+  openVerifyHypothesisCount: 0,
   lowExtractionConfidenceCount: 0,
   unresolvedHighSeverityDispositionCount: 0,
 };

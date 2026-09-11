@@ -58,6 +58,21 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     }
 
     [Fact]
+    public void Compute_counts_open_verify_hypothesis_findings_and_excludes_closed_dispositions()
+    {
+        Finding open = NewFinding("Exploratory adversarial challenge on ingress", FindingSeverity.Warning);
+        Finding accepted = NewFinding("Speculative hypothesis about WAF", FindingSeverity.Warning);
+        Dictionary<string, FindingDisposition> dispositions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [accepted.FindingId] = FindingDisposition.Accepted,
+        };
+
+        FinalizeQualityScorecardCounts counts = Compute([open, accepted], dispositions);
+
+        counts.OpenVerifyHypothesisCount.Should().Be(1);
+    }
+
+    [Fact]
     public void Compute_counts_unverified_assumptions_from_request_and_findings()
     {
         ArchitectureRequest request = new()
@@ -159,6 +174,7 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
         FinalizeQualityScorecardCounts counts = new(
             UncoveredMandatoryRequirementCount: 1,
             OpenCannotDetermineCount: 2,
+            OpenVerifyHypothesisCount: 0,
             UnverifiedAssumptionCount: 3,
             LowExtractionConfidenceCount: 1,
             UnresolvedHighSeverityDispositionCount: 4);
@@ -178,7 +194,7 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     [Fact]
     public void GetBlockingReasons_pluralises_like_the_ui()
     {
-        FinalizeQualityScorecardCounts counts = new(2, 1, 0, 2, 1);
+        FinalizeQualityScorecardCounts counts = new(2, 1, 0, 0, 2, 1);
 
         IReadOnlyList<string> reasons = FinalizeQualityScorecardEvaluator.GetBlockingReasons(
             counts,
@@ -194,8 +210,8 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     [Fact]
     public void GetBlockingReasons_applies_unverified_assumption_threshold()
     {
-        FinalizeQualityScorecardCounts twoOpen = new(0, 0, 2, 0, 0);
-        FinalizeQualityScorecardCounts threeOpen = new(0, 0, 3, 0, 0);
+        FinalizeQualityScorecardCounts twoOpen = new(0, 0, 0, 2, 0, 0);
+        FinalizeQualityScorecardCounts threeOpen = new(0, 0, 0, 3, 0, 0);
 
         FinalizeQualityScorecardEvaluator.GetBlockingReasons(twoOpen, new FinalizeQualityGateOptions())
             .Should().BeEmpty();
@@ -209,7 +225,7 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     [Fact]
     public void GetBlockingReasons_disables_assumption_check_when_threshold_is_below_one()
     {
-        FinalizeQualityScorecardCounts manyOpen = new(0, 0, 50, 0, 0);
+        FinalizeQualityScorecardCounts manyOpen = new(0, 0, 0, 50, 0, 0);
         FinalizeQualityGateOptions options = new() { UnverifiedAssumptionBlockThreshold = 0 };
 
         FinalizeQualityScorecardEvaluator.GetBlockingReasons(manyOpen, options).Should().BeEmpty();

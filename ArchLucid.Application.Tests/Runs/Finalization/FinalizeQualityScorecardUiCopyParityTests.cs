@@ -41,6 +41,7 @@ public sealed class FinalizeQualityScorecardUiCopyParityTests
     {
         { "uncoveredMandatoryRequirementCount", FinalizeQualityScorecardBlockedReasonFormatter.UncoveredMandatoryRequirements },
         { "openCannotDetermineCount", FinalizeQualityScorecardBlockedReasonFormatter.OpenCannotDetermine },
+        { "openVerifyHypothesisCount", FinalizeQualityScorecardBlockedReasonFormatter.OpenVerifyHypotheses },
         { "unverifiedAssumptionCount", FinalizeQualityScorecardBlockedReasonFormatter.UnverifiedAssumptions },
         { "lowExtractionConfidenceCount", FinalizeQualityScorecardBlockedReasonFormatter.LowExtractionConfidence },
         { "unresolvedHighSeverityDispositionCount", FinalizeQualityScorecardBlockedReasonFormatter.UnresolvedHighSeverityDispositions },
@@ -99,6 +100,13 @@ public sealed class FinalizeQualityScorecardUiCopyParityTests
 
         if (noun.Success)
             rendered = rendered.Replace("${noun}", count == 1 ? noun.Groups["singular"].Value : noun.Groups["plural"].Value, StringComparison.Ordinal);
+
+        rendered = Regex.Replace(
+            rendered,
+            @"\$\{input\." + Regex.Escape(field) + @" === 1 \? ""(?<singular>[^""]+)"" : ""(?<plural>[^""]+)""\}",
+            match => count == 1 ? match.Groups["singular"].Value : match.Groups["plural"].Value,
+            RegexOptions.CultureInvariant,
+            TimeSpan.FromSeconds(1));
 
         rendered.Should().NotContain("${", $"every template placeholder for input.{field} must be rendered");
 

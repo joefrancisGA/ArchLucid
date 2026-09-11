@@ -6,7 +6,7 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.Application.Runs.Finalization;
 
 /// <summary>
-///     Computes the five finalize scorecard dimensions on the server and turns them into blocking reasons
+///     Computes the six finalize scorecard dimensions on the server and turns them into blocking reasons
 ///     (TB-2321). Blocking-finding, existential-assumption, skipped-MUST, transparency-trail, and degraded-coverage
 ///     dimensions are enforced by their own server gates and are intentionally not duplicated here.
 /// </summary>
@@ -29,6 +29,7 @@ public static class FinalizeQualityScorecardEvaluator
 
         int uncovered = 0;
         int cannotDetermine = 0;
+        int verifyHypothesis = 0;
         int lowConfidence = 0;
         int unresolvedHighSeverity = 0;
 
@@ -41,6 +42,9 @@ public static class FinalizeQualityScorecardEvaluator
 
             if (FinalizeQualityFindingSignals.IsOpenCannotDetermineJobView(finding, disposition))
                 cannotDetermine++;
+
+            if (FinalizeQualityFindingSignals.IsOpenVerifyHypothesisJobView(finding, disposition))
+                verifyHypothesis++;
 
             if (!IsOpenHighSeverity(finding, disposition, minimumSeverity))
                 continue;
@@ -56,6 +60,7 @@ public static class FinalizeQualityScorecardEvaluator
         return new FinalizeQualityScorecardCounts(
             uncovered,
             cannotDetermine,
+            verifyHypothesis,
             unverifiedAssumptions,
             lowConfidence,
             unresolvedHighSeverity);
@@ -81,6 +86,12 @@ public static class FinalizeQualityScorecardEvaluator
         {
             reasons.Add(FinalizeQualityScorecardBlockedReasonFormatter.OpenCannotDetermine(
                 counts.OpenCannotDetermineCount));
+        }
+
+        if (counts.OpenVerifyHypothesisCount > 0)
+        {
+            reasons.Add(FinalizeQualityScorecardBlockedReasonFormatter.OpenVerifyHypotheses(
+                counts.OpenVerifyHypothesisCount));
         }
 
         if (options.UnverifiedAssumptionBlockThreshold >= 1
