@@ -2083,10 +2083,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-09 — `WeeklySponsorSummaryEmailDispatcher` padded ISO week idempotency keys duplicated weekly summary sends
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -2116,6 +2116,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `WeeklySponsorSummaryEmailDispatcher.TryDispatchAsync` accepts `Guid.Empty` tenant — **cheap-disproof 2026-09-10 seed hunt #1681:** throws `ArgumentException` for empty tenant; regression `WeeklySponsorSummaryEmailDispatcher_throws_for_empty_tenant_id`.
 - [x] (valid-no-repro) `WeeklySponsorSummaryEmailDispatcher` whitespace-only `isoWeekIdempotencyKey` bypasses trim guard — **cheap-disproof 2026-09-10 seed hunt #1681:** rejects whitespace-only keys before ledger scope; regression `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_iso_week_key`.
 - [x] (valid-no-repro) `WeeklySponsorSummaryEmailDispatcher` omits `weekly-sponsor-summary` telemetry tag — **cheap-disproof 2026-09-10 seed hunt #1681:** `EmailMessageTags.EventType` set; regression `WeeklySponsorSummaryEmailDispatcher_tags_outbound_message_with_weekly_sponsor_summary_event_type`.
+
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` lowercase ISO-week letter (`2026-w32`) bypasses canonical uppercase ledger scope and duplicates weekly sends — **cheap-disproof 2026-09-11 seed hunt #1756:** idempotency prefix is case-sensitive, but `WeeklySponsorReportDeliveryScanner` emits canonical `{isoYear}-W{isoWeek:00}` uppercase only; regression `WeeklySponsorReportEmailDispatcher_lowercase_iso_week_idempotency_key_is_distinct_from_canonical_week`.
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` returns false when all recipients are already ledger-recorded — **cheap-disproof 2026-09-11 seed hunt #1756:** `MultiRecipientEmailDispatch` returns true (idempotent success) without re-sending when every mailbox is already recorded; regression `WeeklySponsorReportEmailDispatcher_returns_true_when_all_recipients_already_recorded`.
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` invalid-only mailbox list skips send after template render — **cheap-disproof 2026-09-11 seed hunt #1756:** re-confirms #1431; outer trim pass renders before `IdentityEmailNormalizer` filters invalid addresses; no send/ledger wrong outcome; regression `WeeklySponsorReportEmailDispatcher_skips_send_when_all_mailboxes_fail_identity_normalization`.
+
+2026-09-11 seed hunt #1756 (seed-only): reseeded weekly-digest-email (`WeeklySponsorReportEmailDispatcher` in zone path); cheap-disproof closed lowercase ISO-week duplicate-send, all-recipients-already-recorded return contract, and invalid-mailbox pre-render candidates; 3 new digest idempotency regressions + 2 scoped WeeklyExecutiveSummaryJob tests passed (31 total digest/job coverage this run).
 
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 

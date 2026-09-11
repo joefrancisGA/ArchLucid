@@ -1995,3 +1995,5 @@
 {"at":"2026-09-11T21:04:46.3695857Z","zoneId":"ui-help-docs","outcome":"hit","paths":["archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx"],"severity":"low","defectClass":"other"}
 {"at":"2026-09-11T21:06:22.4664888Z","zoneId":"ui-help-docs","outcome":"dry"}
 {"at":"2026-09-11T21:12:30.4995818Z","zoneId":"scim-users","outcome":"dry"}
+{"at":"2026-09-11T21:17:50.3803929Z","zoneId":"weekly-digest-email","outcome":"seed-only"}
+{"at":"2026-09-11T21:18:28.8000612Z","zoneId":"weekly-digest-email","outcome":"seed-only"}

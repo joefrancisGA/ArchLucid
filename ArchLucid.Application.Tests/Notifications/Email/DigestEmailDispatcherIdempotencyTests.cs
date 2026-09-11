@@ -1354,4 +1354,163 @@ public sealed class DigestEmailDispatcherIdempotencyTests
         sentMessages[0].Tags!.TenantId.Should().Be(tenantId);
         sentMessages[0].Tags!.EventType.Should().Be("weekly-sponsor-summary");
     }
+
+    [Fact]
+    public async Task WeeklySponsorReportEmailDispatcher_skips_send_when_all_mailboxes_fail_identity_normalization()
+    {
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>report</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("report");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        WeeklySponsorReportEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            new InMemorySentEmailLedger(),
+            options.Object,
+            NullLogger<WeeklySponsorReportEmailDispatcher>.Instance);
+
+        bool sent = await sut.TryDispatchAsync(
+            Guid.Parse("31313131-3131-3131-3131-313131313131"),
+            "2026-W31",
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "W31",
+            toMailboxes: ["not-an-email"],
+            cancellationToken: CancellationToken.None);
+
+        sent.Should().BeFalse("mailboxes that fail IdentityEmailNormalizer must not send");
+        renderer.Verify(
+            r => r.RenderHtmlAsync(WeeklySponsorReportEmailDispatcher.TemplateId, It.IsAny<object>(), It.IsAny<CancellationToken>()),
+            Times.Once,
+            "outer trim-only pass currently renders before MultiRecipientEmailDispatch filters invalid mailboxes");
+        renderer.Verify(
+            r => r.RenderTextAsync(WeeklySponsorReportEmailDispatcher.TemplateId, It.IsAny<object>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        provider.Verify(
+            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task WeeklySponsorReportEmailDispatcher_lowercase_iso_week_idempotency_key_is_distinct_from_canonical_week()
+    {
+        InMemorySentEmailLedger ledger = new();
+        List<EmailMessage> sentMessages = [];
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessages.Add(message))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>report</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("report");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        WeeklySponsorReportEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<WeeklySponsorReportEmailDispatcher>.Instance);
+
+        Guid tenantId = Guid.Parse("32323232-3232-3232-3232-323232323232");
+
+        bool canonicalWeek = await sut.TryDispatchAsync(
+            tenantId,
+            "2026-W32",
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "W32",
+            toMailboxes: ["exec@example.test"],
+            cancellationToken: CancellationToken.None);
+
+        bool lowercaseWeek = await sut.TryDispatchAsync(
+            tenantId,
+            "2026-w32",
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "W32",
+            toMailboxes: ["exec@example.test"],
+            cancellationToken: CancellationToken.None);
+
+        canonicalWeek.Should().BeTrue();
+        lowercaseWeek.Should().BeTrue();
+        sentMessages.Should().HaveCount(
+            2,
+            "ISO week keys are case-sensitive in the ledger prefix; delivery scanner emits canonical uppercase W only");
+    }
+
+    [Fact]
+    public async Task WeeklySponsorReportEmailDispatcher_returns_true_when_all_recipients_already_recorded()
+    {
+        InMemorySentEmailLedger ledger = new();
+        Guid tenantId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        const string isoWeek = "2026-W33";
+        string idempotencyPrefix = $"weekly-sponsor-report:{tenantId:N}:{isoWeek}";
+        string mailboxKey = MultiRecipientEmailDispatch.BuildMailboxIdempotencyKey(idempotencyPrefix, "exec@example.test");
+
+        await ledger.TryRecordSentAsync(
+            new SentEmailLedgerEntry(
+                mailboxKey,
+                tenantId,
+                WeeklySponsorReportEmailDispatcher.TemplateId,
+                "test-provider",
+                null),
+            CancellationToken.None);
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>report</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("report");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        WeeklySponsorReportEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<WeeklySponsorReportEmailDispatcher>.Instance);
+
+        bool sent = await sut.TryDispatchAsync(
+            tenantId,
+            isoWeek,
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "W33",
+            toMailboxes: ["exec@example.test"],
+            cancellationToken: CancellationToken.None);
+
+        sent.Should().BeTrue("all recipients already recorded is intentional idempotent success");
+        provider.Verify(
+            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }
