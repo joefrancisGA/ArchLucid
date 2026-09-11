@@ -7,6 +7,7 @@ import { Copy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   truncateExtractUploadPackageId,
@@ -17,9 +18,12 @@ import {
   EXTRACT_UPLOAD_ACCEPTED_REPLACE_LABEL,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL,
+  EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_DETAIL,
+  EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_TITLE,
 } from "@/lib/extract-upload-settings-page-copy";
 import { EXTRACT_UPLOAD_SETTINGS_SOURCES } from "@/lib/extract-upload-settings-evidence-copy";
-import { showError, showSuccess } from "@/lib/toast";
+import { formatGovernanceInfrastructureInlineActionError } from "@/lib/governance/governance-infrastructure-copy";
+import { showSuccess } from "@/lib/toast";
 
 export type ExtractUploadAcceptedPackagePanelProps = {
   readonly record: ExtractUploadAcceptedPackageRecord;
@@ -31,16 +35,24 @@ export function ExtractUploadAcceptedPackagePanel(
 ): React.JSX.Element {
   const { record, onReplaceInventory } = props;
   const [copied, setCopied] = useState(false);
+  const [copyPackageIdError, setCopyPackageIdError] = useState<string | null>(null);
   const truncatedId = truncateExtractUploadPackageId(record.packageId);
 
   const onCopyPackageId = useCallback(async () => {
+    setCopyPackageIdError(null);
+
     try {
       await navigator.clipboard.writeText(record.packageId);
       setCopied(true);
       showSuccess("Package id copied.");
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
-      showError("Package id", "Could not write to clipboard — copy manually.");
+      setCopyPackageIdError(
+        formatGovernanceInfrastructureInlineActionError(
+          EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_TITLE,
+          EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_DETAIL,
+        ),
+      );
     }
   }, [record.packageId]);
 
@@ -73,6 +85,7 @@ export function ExtractUploadAcceptedPackagePanel(
                   variant="outline"
                   size="sm"
                   data-testid="extract-upload-accepted-package-id-copy"
+                  aria-describedby={copyPackageIdError != null ? "extract-upload-accepted-package-id-copy-error" : undefined}
                   onClick={() => {
                     void onCopyPackageId();
                   }}
@@ -81,6 +94,13 @@ export function ExtractUploadAcceptedPackagePanel(
                   {copied ? "Copied" : "Copy id"}
                 </Button>
               </dd>
+              {copyPackageIdError != null ? (
+                <OperatorMutationInlineError
+                  message={copyPackageIdError}
+                  testId="extract-upload-accepted-package-id-copy-error"
+                  className="mt-2"
+                />
+              ) : null}
               <details className="mt-1">
                 <summary className={cn("cursor-pointer text-al-link", OPERATOR_TYPOGRAPHY.helper)}>
                   Show full package id
