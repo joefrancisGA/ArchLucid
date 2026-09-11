@@ -137,6 +137,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Error recovery does not promise Career (CG-096):** `error.tsx` segment boundaries on Working show `ErrorRecoveryCareerHonestyStrip`. Review-detail recovery reads cached execute stamp (`runSummary` / pilot-run-deltas) when available and states that **Retry** reloads the desk without upgrading Simulator to Real or washing rehearsal posture. TB-2155 idle snapshots stay preserved (LW-095). Guided mode omits the strip.
 
+**Help search finds Career/Rehearsal terms (CG-097):** Help drawer aliases map `simulator`, `career door`, `rehearsal`, and `career-complete` to the [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) topic (`HELP_DRAWER_SEARCH_ALIASES` + registry summary). Working users can find Working door guidance without screenshotting the chooser. Guided help still teaches Simulator separately (AS-081).
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
