@@ -15,7 +15,8 @@ import { governanceWorkflowMutationBlockedReason } from "@/lib/governance/govern
 import { governanceWorkflowRunReadBlockedReason } from "@/lib/governance/governance-workflow-run-read-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import { apiGet, apiPostJson, type ApiGetOptions } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiPostJson, type ApiGetOptions } from "./http";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
@@ -24,7 +25,7 @@ export async function getApprovalRequestLineage(
   approvalRequestId: string,
 ): Promise<GovernanceLineageResult> {
   try {
-    return await apiGet<GovernanceLineageResult>(
+    return await apiGetSealedManifestAware<GovernanceLineageResult>(
       `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/lineage`,
     );
   } catch (error: unknown) {
@@ -40,7 +41,7 @@ export async function getGovernanceApprovalRationale(
   approvalRequestId: string,
 ): Promise<GovernanceRationaleResult> {
   try {
-    return await apiGet<GovernanceRationaleResult>(
+    return await apiGetSealedManifestAware<GovernanceRationaleResult>(
       `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/rationale`,
     );
   } catch (error: unknown) {
@@ -61,7 +62,7 @@ export async function listApprovalRequests(
   }
 
   try {
-    return await apiGet<GovernanceApprovalRequest[]>(
+    return await apiGetSealedManifestAware<GovernanceApprovalRequest[]>(
       `${governanceBase()}/runs/${encodeURIComponent(runId)}/approval-requests`,
       options,
     );
@@ -176,7 +177,7 @@ export async function listPromotions(runId: string): Promise<GovernancePromotion
   }
 
   try {
-    return await apiGet<GovernancePromotionRecord[]>(
+    return await apiGetSealedManifestAware<GovernancePromotionRecord[]>(
       `${governanceBase()}/runs/${encodeURIComponent(runId)}/promotions`,
     );
   } catch (error: unknown) {

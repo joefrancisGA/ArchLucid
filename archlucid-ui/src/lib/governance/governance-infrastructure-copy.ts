@@ -64,10 +64,24 @@ export const GOVERNANCE_INFRASTRUCTURE_ASK_CONTEXT_LABEL = "Grounded to" as cons
 
 export const GOVERNANCE_INFRASTRUCTURE_ASK_QUESTION_LABEL = "Question" as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_DISCLOSURE_TITLE = "Simulator mode" as const;
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_STATUS_LABEL = "Simulated" as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_LABEL =
-  "Use deterministic simulator (citation-grounded template for demos)" as const;
+export const GOVERNANCE_INFRASTRUCTURE_ASK_CANNED_PROMPTS_LABEL = "Canned prompts" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_SHORTCUT_LABEL = "Ctrl+Enter" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_READINESS_EMPTY =
+  "Enter a question before asking." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_READINESS_BUSY = "Waiting for the current answer…" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_BLOCKED_LABEL = "Ask blocked" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_FAILED_LABEL = "Ask failed" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SCOPE_BACK_LINKS_LABEL = "Related workbenches" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_TRANSCRIPT_INDEX_LABEL = "Ask transcript" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE =
   OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile;
@@ -89,6 +103,30 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SCOPE_LABEL = "Scoped t
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE =
   "Diagram reconciliation unavailable" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_MODEL_ERROR_TITLE =
+  "Could not load diagram model" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_REVIEW_ID_REQUIRED_ERROR =
+  "Review id required — Enter a sealed review record id before ingesting a diagram." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_DIAGRAM_SOURCE_REQUIRED_ERROR =
+  "Diagram source required — Paste Mermaid diagram text before ingesting." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_INGEST_ERROR_TITLE =
+  "Diagram ingest failed" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RUN_SNAPSHOT_REQUIRED_ERROR =
+  "Run and snapshot required — Select a sealed run and inventory snapshot before reconciling." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RECONCILE_ERROR_TITLE =
+  "Reconciliation failed" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_FINDING_ERROR_TITLE =
+  "Could not create operational finding" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_COPY_ERROR_TITLE =
+  "Copy failed" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RUN_ID_LABEL = "Sealed review record id" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams;
@@ -98,14 +136,20 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID = "infra-diag
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL = "Skip to diagram viewer" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
-  "Render inventory diagrams from snapshot evidence with partitioned fallbacks when graphs exceed readability thresholds." as const;
-
-export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE =
-  "Diagram renders reflect inventory snapshot evidence — server PNG export applies tenant branding on the container only, never inside graph nodes." as const;
+  "Render inventory diagrams from snapshot evidence with partitioned fallbacks when graphs exceed readability thresholds. Choose a snapshot and diagram mode before exporting PNG or Mermaid. Partitioned views default to Executive when the full graph exceeds readability thresholds." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL = "Scoped to resource" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE = "Inventory diagrams unavailable" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE =
+  "Could not download diagram PNG" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY = {
+  whatFailed: "Server-side PNG rendering is unavailable in this environment.",
+  whatIsIntact: "The in-browser diagram and Mermaid export remain available.",
+  nextStep: "Use Export Mermaid (.mmd), screenshot the canvas, or ask your operator to enable Mermaid CLI on the API host.",
+} as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL = "Snapshot" as const;
 
@@ -128,6 +172,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE =
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_LABEL = "Scoped to resource" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_LOAD_ERROR_TITLE = "Drift workbench unavailable" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_ERROR_TITLE =
+  "Could not download Terraform advisory export" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL = "Current snapshot" as const;
 
@@ -298,3 +345,13 @@ export const INFRASTRUCTURE_WORKBENCH_ROWS: readonly InfrastructureWorkbenchRow[
     summary: "Track remediation instances and waves with advisory-only execute honesty.",
   },
 ];
+
+export function formatGovernanceInfrastructureInlineActionError(title: string, detail?: string | null): string {
+  const trimmed = detail?.trim() ?? "";
+
+  if (trimmed.length > 0) {
+    return `${title} — ${trimmed}`;
+  }
+
+  return title;
+}

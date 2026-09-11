@@ -1,5 +1,7 @@
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Search;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Search;
 
 using Asp.Versioning;
@@ -15,16 +17,27 @@ namespace ArchLucid.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/search")]
 [EnableRateLimiting("fixed")]
-public sealed class SearchController(IGlobalSearchService searchService) : ControllerBase
+public sealed class SearchController(
+    IGlobalSearchService searchService,
+    GlobalSearchShareAccessFilter shareAccessFilter,
+    IScopeContextProvider scopeProvider) : ControllerBase
 {
     private readonly IGlobalSearchService _searchService =
         searchService ?? throw new ArgumentNullException(nameof(searchService));
+
+    private readonly GlobalSearchShareAccessFilter _shareAccessFilter =
+        shareAccessFilter ?? throw new ArgumentNullException(nameof(shareAccessFilter));
+
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     [HttpGet]
     [ProducesResponseType(typeof(GlobalSearchResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> SearchAsync([FromQuery] string? q, [FromQuery] int take = 8, CancellationToken cancellationToken = default)
     {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
         GlobalSearchResult result = await _searchService.SearchAsync(q ?? string.Empty, take, cancellationToken);
+        result = await _shareAccessFilter.FilterAsync(User, scope, result, cancellationToken);
 
         return Ok(GlobalSearchResponse.FromResult(result));
     }

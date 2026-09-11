@@ -12,6 +12,9 @@ public static partial class AuditEventTypes
     /// <summary>Operator patched a drafting intake draft (<c>PATCH /v1/architecture/draft/{draftId}</c>).</summary>
     public const string DraftIntakePatched = "DraftIntake.Patched";
 
+    /// <summary>Keep mine won a drafting PATCH by skipping CAS (ADR 0088 / LW-015).</summary>
+    public const string DraftIntakeForceOverwriteApplied = "DraftIntake.ForceOverwriteApplied";
+
     /// <summary>Operator renamed or updated metadata on a customer architecture identity (<c>PATCH /v1/architectures/{architectureId}</c>, ADR 0074).</summary>
     public const string ArchitectureIdentityPatched = "ArchitectureIdentity.Patched";
 
@@ -26,6 +29,21 @@ public static partial class AuditEventTypes
 
     /// <summary>Architecture identity inventory snapshot binding removed (AS-048).</summary>
     public const string ArchitectureInventorySnapshotDetached = "ArchitectureIdentity.InventorySnapshotDetached";
+
+    /// <summary>Architecture share granted to a user oid inside the tenant (AS-093).</summary>
+    public const string ArchitectureShareGranted = "ArchitectureIdentity.ShareGranted";
+
+    /// <summary>Architecture share revoked (AS-093).</summary>
+    public const string ArchitectureShareRevoked = "ArchitectureIdentity.ShareRevoked";
+
+    /// <summary>Restrict-to-shares enabled on an architecture identity (AS-089).</summary>
+    public const string ArchitectureRestrictToSharesEnabled = "ArchitectureIdentity.RestrictToSharesEnabled";
+
+    /// <summary>Restrict-to-shares disabled on an architecture identity (AS-089).</summary>
+    public const string ArchitectureRestrictToSharesDisabled = "ArchitectureIdentity.RestrictToSharesDisabled";
+
+    /// <summary>Operator acquired a soft work lease on a drafting intake desk (ADR 0090 / LW-090).</summary>
+    public const string ArchitectureWorkLeaseAcquired = "DraftIntake.WorkLeaseAcquired";
 
     /// <summary>Pre-run manifest-free reasoning turn on an intake draft (SAQ-013).</summary>
     public const string DraftIntakeReasoned = "DraftIntake.Reasoned";

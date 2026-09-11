@@ -184,6 +184,51 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_rejects_unauthenticated_default_scope()
+    {
+        DefaultHttpContext context = CreateContext("/v1/runs");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_allow_anonymous_metadata()
+    {
+        DefaultHttpContext context = CreateContext("/v1/runs");
+        context.SetEndpoint(new Endpoint(
+            _ => Task.CompletedTask,
+            new EndpointMetadataCollection(new AllowAnonymousAttribute()),
+            "anonymous-probe"));
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_rejects_empty_guid_tenant_claim()
     {
         DefaultHttpContext context = CreateContext("/v1/runs");

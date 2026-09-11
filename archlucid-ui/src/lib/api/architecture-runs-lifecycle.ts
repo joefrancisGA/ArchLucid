@@ -15,6 +15,7 @@ import { reviewArchiveMutationBlockedReason } from "@/lib/runs/review-archive-mu
 import { architectureRequestLifecycleMutationBlockedReason } from "@/lib/runs/architecture-request-lifecycle-mutation-blocked-reason";
 import { internalArchitectureSeedFakeMutationBlockedReason } from "@/lib/runs/internal-architecture-seed-fake-mutation-blocked-reason";
 
+import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   apiPatchJson,
@@ -49,13 +50,24 @@ export async function commitArchitectureRun(
     readonly notifySponsor?: boolean;
     readonly acknowledgedAssumptionIds?: readonly string[];
   },
+  requestOptions?: { readonly idempotencyKey?: string },
 ): Promise<unknown> {
+  const idempotencyKey = requestOptions?.idempotencyKey?.trim() ?? "";
+  const extraHeaders =
+    idempotencyKey.length > 0 ? { "Idempotency-Key": idempotencyKey } : undefined;
+
   try {
-    return await apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/finalize`, {
-      notifySponsor: options?.notifySponsor === true,
-      acknowledgedAssumptionIds: options?.acknowledgedAssumptionIds ?? undefined,
-    });
+    return await apiPostJson<unknown>(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/finalize`,
+      {
+        notifySponsor: options?.notifySponsor === true,
+        acknowledgedAssumptionIds: options?.acknowledgedAssumptionIds ?? undefined,
+      },
+      { extraHeaders },
+    );
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = reviewFinalizeMutationBlockedReason(failure);
 

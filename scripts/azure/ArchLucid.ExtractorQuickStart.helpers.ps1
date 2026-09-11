@@ -24,7 +24,17 @@ function Ensure-ArchLucidAzModules
             }
         }
 
-        Import-Module Az.Accounts, Az.Resources -ErrorAction Stop
+        [System.Management.Automation.ActionPreference]$previousWarningPreference = $WarningPreference
+
+        try
+        {
+            $WarningPreference = 'SilentlyContinue'
+            Import-Module Az.Accounts, Az.Resources -ErrorAction Stop
+        }
+        finally
+        {
+            $WarningPreference = $previousWarningPreference
+        }
 
         return
     }
@@ -41,7 +51,18 @@ function Ensure-ArchLucidAzModules
         Install-Module Az -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
     }
 
-    Import-Module Az.Accounts, Az.Resources -ErrorAction Stop
+    [System.Management.Automation.ActionPreference]$previousWarningPreference = $WarningPreference
+
+    try
+    {
+        # Az.Accounts refreshes cached tokens for every signed-in tenant on import; ignore stale tenants.
+        $WarningPreference = 'SilentlyContinue'
+        Import-Module Az.Accounts, Az.Resources -ErrorAction Stop
+    }
+    finally
+    {
+        $WarningPreference = $previousWarningPreference
+    }
 }
 
 function Ensure-ArchLucidAzureLogin
@@ -98,6 +119,13 @@ function Ensure-ArchLucidAzureLogin
                 -UseDeviceAuthentication `
                 -ErrorAction Stop
         }
+        elseif (-not [string]::IsNullOrWhiteSpace($trimmedSubscriptionId))
+        {
+            $null = Connect-AzAccount `
+                -Subscription $trimmedSubscriptionId `
+                -UseDeviceAuthentication `
+                -ErrorAction Stop
+        }
         else
         {
             $null = Connect-AzAccount `
@@ -110,9 +138,20 @@ function Ensure-ArchLucidAzureLogin
 
     if (-not [string]::IsNullOrWhiteSpace($trimmedSubscriptionId))
     {
-        [object]$subscription = Get-AzSubscription `
-            -SubscriptionId $trimmedSubscriptionId `
-            -ErrorAction Stop
+        [System.Management.Automation.ActionPreference]$previousWarningPreference = $WarningPreference
+        [object]$subscription = $null
+
+        try
+        {
+            $WarningPreference = 'SilentlyContinue'
+            $subscription = Get-AzSubscription `
+                -SubscriptionId $trimmedSubscriptionId `
+                -ErrorAction Stop
+        }
+        finally
+        {
+            $WarningPreference = $previousWarningPreference
+        }
 
         [string]$resolvedTenantId =
             if (-not [string]::IsNullOrWhiteSpace($trimmedTenantId))
@@ -151,9 +190,20 @@ function Set-ArchLucidAzureExtractorSubscriptionContext
     [string]$trimmedSubscriptionId = "$SubscriptionId".Trim()
     [string]$trimmedTenantId = "$TenantId".Trim()
 
-    [object]$subscription = Get-AzSubscription `
-        -SubscriptionId $trimmedSubscriptionId `
-        -ErrorAction Stop
+    [System.Management.Automation.ActionPreference]$previousWarningPreference = $WarningPreference
+    [object]$subscription = $null
+
+    try
+    {
+        $WarningPreference = 'SilentlyContinue'
+        $subscription = Get-AzSubscription `
+            -SubscriptionId $trimmedSubscriptionId `
+            -ErrorAction Stop
+    }
+    finally
+    {
+        $WarningPreference = $previousWarningPreference
+    }
 
     [string]$resolvedTenantId =
         if (-not [string]::IsNullOrWhiteSpace($trimmedTenantId))
@@ -169,6 +219,67 @@ function Set-ArchLucidAzureExtractorSubscriptionContext
         -SubscriptionId $subscription.Id `
         -Tenant $resolvedTenantId `
         -ErrorAction Stop
+}
+
+function Resolve-ArchLucidAzureSubscriptionDisplayName
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $SubscriptionId
+    )
+
+    [string]$trimmedSubscriptionId = "$SubscriptionId".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($trimmedSubscriptionId))
+    {
+        return $null
+    }
+
+    [object]$subscription = $null
+
+    try
+    {
+        $subscription = Get-AzSubscription `
+            -SubscriptionId $trimmedSubscriptionId `
+            -ErrorAction Stop
+    }
+    catch
+    {
+        return $null
+    }
+
+    if ($null -eq $subscription)
+    {
+        return $null
+    }
+
+    [string]$candidate = $null
+
+    if ($subscription.PSObject.Properties.Name -contains 'Name')
+    {
+        $candidate = "$($subscription.Name)".Trim()
+    }
+
+    if ([string]::IsNullOrWhiteSpace($candidate))
+    {
+        return $null
+    }
+
+    # Azure subscription ids are GUIDs; the diagrams picker hides UUID-like labels.
+    [guid]$parsed = [guid]::Empty
+
+    if ([guid]::TryParse($candidate, [ref]$parsed))
+    {
+        return $null
+    }
+
+    if ($candidate.Length -gt 256)
+    {
+        return $candidate.Substring(0, 256)
+    }
+
+    return $candidate
 }
 
 function Resolve-ArchLucidAzureExtractorSubscriptionId

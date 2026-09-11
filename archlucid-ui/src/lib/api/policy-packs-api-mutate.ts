@@ -11,6 +11,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { policyPackDryRunMutationBlockedReason } from "@/lib/policy/policy-pack-dry-run-mutation-blocked-reason";
 import { policyPackMutationBlockedReason } from "@/lib/policy/policy-pack-mutation-blocked-reason";
 import { policyPackSimulateBlockedReason } from "@/lib/policy/policy-pack-simulate-blocked-reason";
+import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostJson } from "./http";
 
@@ -24,6 +25,8 @@ export async function createPolicyPack(body: {
   try {
     return await apiPostJson<PolicyPack>(`/${ApiV1Routes.policyPacks}`, body);
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = policyPackMutationBlockedReason(failure);
 
@@ -42,6 +45,8 @@ export async function publishPolicyPackVersion(
       body,
     );
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = policyPackMutationBlockedReason(failure);
 

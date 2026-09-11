@@ -29,7 +29,7 @@ export async function getArchitectureRequest(
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<components["schemas"]["ArchitectureRequest"]> {
   try {
-    return await apiGet<components["schemas"]["ArchitectureRequest"]>(
+    return await apiGetSealedManifestAware<components["schemas"]["ArchitectureRequest"]>(
       `/v1/architecture/request/${encodeURIComponent(requestId)}`,
       options,
     );

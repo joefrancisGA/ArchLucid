@@ -2,18 +2,22 @@
 
 import { useCallback, useState } from "react";
 
-import { upsertAzureBoardsSettings } from "@/lib/api/azure-boards-api";
+import type {
+  AzureBoardsIntegrationHealthResponse,
+  AzureBoardsOutboundSettingsResponse,
+} from "@/lib/api/azure-boards-api";
 import {
-  upsertTenantItsmConnectorConnection,
   type TenantItsmConnectorConnectionResponse,
 } from "@/lib/api/itsm-outbound-api";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { saveItsmConnectorWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
 import {
   isAzureBoardsConnectionSaveSuccessful,
 } from "@/lib/azure-boards-integration-present";
 import { mapAzureBoardsHealthFromSettings } from "@/lib/azure-boards-stored-health";
-import type { AzureBoardsIntegrationHealthResponse, AzureBoardsOutboundSettingsResponse } from "@/lib/api/azure-boards-api";
 
 export type UseAzureBoardsConnectionMutationsOptions = {
+  readonly livelihoodReturnPath: string;
   readonly canMutate: boolean;
   readonly organizationUrl: string;
   readonly tokenReference: string;
@@ -30,6 +34,7 @@ export type UseAzureBoardsConnectionMutationsOptions = {
 };
 
 export function useAzureBoardsConnectionMutations({
+  livelihoodReturnPath,
   canMutate,
   organizationUrl,
   tokenReference,
@@ -66,13 +71,20 @@ export function useAzureBoardsConnectionMutations({
     setConnectionInlineSaveError(null);
 
     try {
-      const saved = await upsertTenantItsmConnectorConnection("azureboards", {
-        instanceBaseUrl: organizationUrl.trim(),
-        authMode: "BasicApiToken",
-        authUserName: "",
-        credentialKeyVaultSecretName: tokenReference.trim() || connection?.credentialKeyVaultSecretName || "",
-        isEnabled: true,
-      });
+      const saved = await saveItsmConnectorWith401Resume(
+        {
+          connector: "azureboards_connection",
+          body: {
+            instanceBaseUrl: organizationUrl.trim(),
+            authMode: "BasicApiToken",
+            authUserName: "",
+            credentialKeyVaultSecretName:
+              tokenReference.trim() || connection?.credentialKeyVaultSecretName || "",
+            isEnabled: true,
+          },
+        },
+        { returnPath: livelihoodReturnPath },
+      ) as TenantItsmConnectorConnectionResponse;
       applyConnection(saved);
 
       if (isAzureBoardsConnectionSaveSuccessful(saved)) {
@@ -88,6 +100,10 @@ export function useAzureBoardsConnectionMutations({
       );
       await loadDiscovery();
     } catch (error: unknown) {
+      if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
       const message = error instanceof Error ? error.message : "Could not save connection.";
       setConnectionSaveError(message);
       setConnectionInlineSaveError(message);
@@ -98,6 +114,7 @@ export function useAzureBoardsConnectionMutations({
     applyConnection,
     canMutate,
     connection?.credentialKeyVaultSecretName,
+    livelihoodReturnPath,
     loadDiscovery,
     organizationUrl,
     setHealth,
@@ -115,16 +132,26 @@ export function useAzureBoardsConnectionMutations({
     setSettingsInlineSaveError(null);
 
     try {
-      const saved = await upsertAzureBoardsSettings({
-        projectName: projectName.trim(),
-        defaultWorkItemType: workItemType.trim(),
-        areaPath: areaPath.trim() || null,
-        iterationPath: iterationPath.trim() || null,
-        defaultTags: defaultTags.trim() || null,
-      });
+      const saved = await saveItsmConnectorWith401Resume(
+        {
+          connector: "azureboards_settings",
+          body: {
+            projectName: projectName.trim(),
+            defaultWorkItemType: workItemType.trim(),
+            areaPath: areaPath.trim() || null,
+            iterationPath: iterationPath.trim() || null,
+            defaultTags: defaultTags.trim() || null,
+          },
+        },
+        { returnPath: livelihoodReturnPath },
+      ) as AzureBoardsOutboundSettingsResponse;
       applySettings(saved);
       setSettingsLastSavedUtc(new Date().toISOString());
     } catch (error: unknown) {
+      if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
       const message = error instanceof Error ? error.message : "Could not save work item settings.";
       setSaveError(message);
       setSettingsInlineSaveError(message);
@@ -137,6 +164,7 @@ export function useAzureBoardsConnectionMutations({
     canMutate,
     defaultTags,
     iterationPath,
+    livelihoodReturnPath,
     projectName,
     workItemType,
   ]);

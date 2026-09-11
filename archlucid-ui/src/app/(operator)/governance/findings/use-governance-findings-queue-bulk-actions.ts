@@ -3,10 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import {
-  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
-  GOVERNANCE_FINDINGS_PATH,
-} from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   governanceAssignedToMeBulkSelectionHrefFromSearch,
   governanceFindingsBulkSelectionHrefFromSearch,
@@ -19,7 +18,12 @@ export function useGovernanceFindingsQueueBulkActions(options: {
 }) {
   const { refresh, mode = "tenant" } = options;
   const router = useRouter();
-  const pathname = usePathname() ?? (mode === "assigned-to-me" ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH);
+  const { productLine } = useProductLine();
+  const pathname = usePathname() ?? (
+    mode === "assigned-to-me"
+      ? assignedToMeFindingsPathForProductLine(productLine)
+      : GOVERNANCE_FINDINGS_PATH
+  );
   const searchParams = useSearchParams();
   const urlBulkFindingsRaw = searchParams.get("bulkFindings");
   const urlBulkFindingIds = parseGovernanceFindingsBulkSelectionFromSearch(urlBulkFindingsRaw);

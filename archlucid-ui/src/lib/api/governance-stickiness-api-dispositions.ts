@@ -1,12 +1,13 @@
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { findingBulkDispositionBlockedReason } from "@/lib/governance/finding-bulk-disposition-blocked-reason";
 import { findingDispositionsBlockedReason } from "@/lib/governance/finding-dispositions-blocked-reason";
 import { findingDispositionMutationBlockedReason } from "@/lib/findings/finding-disposition-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { apiGet, apiPostJson } from "./http";
+import { apiPostJson } from "./http";
 
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
-import { executeIdempotentLivelihoodMutation } from "@/lib/auth/livelihood-mutation-401-resume";
+import { withLivelihood401Resume } from "@/lib/auth/livelihood-mutation-401-resume";
 import {
   type FindingDispositionEvent,
   type FindingDispositionKind,
@@ -56,7 +57,7 @@ export async function recordFindingDispositionWith401Resume(
 ): Promise<FindingDispositionEvent> {
   const idempotencyKey = options.idempotencyKey.trim();
 
-  return executeIdempotentLivelihoodMutation({
+  return withLivelihood401Resume({
     kind: "finding_disposition",
     returnPath: options.returnPath,
     idempotencyKey,
@@ -100,7 +101,7 @@ export async function recordBulkFindingDisposition(
 
 export async function listFindingDispositions(findingId: string): Promise<FindingDispositionEvent[]> {
   try {
-    return await apiGet<FindingDispositionEvent[]>(
+    return await apiGetSealedManifestAware<FindingDispositionEvent[]>(
       `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
     );
   } catch (error: unknown) {

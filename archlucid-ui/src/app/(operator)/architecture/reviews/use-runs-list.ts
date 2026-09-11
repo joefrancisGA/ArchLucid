@@ -253,8 +253,9 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
       list = list.filter((run) => {
         const idMatch = run.runId.toLowerCase().includes(query);
         const desc = (run.description ?? "").toLowerCase();
+        const displayName = (run.displayName ?? "").toLowerCase();
 
-        return idMatch || desc.includes(query);
+        return idMatch || desc.includes(query) || displayName.includes(query);
       });
     }
 
@@ -333,6 +334,15 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     !listNarrowingActive;
 
   const showCompareSelection = safeRuns.length >= 2 && !showBuyerPackageCards;
+
+  useEffect(() => {
+    if (showCompareSelection || compareSelection.length === 0) {
+      return;
+    }
+
+    setCompareSelection([]);
+    setCompareSelectionNotice(null);
+  }, [compareSelection.length, setCompareSelection, showCompareSelection]);
 
   const toggleCompareSelection = useCallback((runId: string) => {
     setCompareSelection((current) => {

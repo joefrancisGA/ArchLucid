@@ -22,14 +22,28 @@ public static class HostedAzureExtractorZipBuilder
         };
 
     public static byte[] BuildZip(
-        string subscriptionId,
+        string? subscriptionId,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         bool includeCostRequested,
-        DateTimeOffset collectionTimestampUtc)
+        DateTimeOffset collectionTimestampUtc,
+        string? subscriptionName = null,
+        IReadOnlyList<AzureInventoryEntraGroupMembershipRow>? entraGroupMemberships = null,
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord>? roleAssignments = null,
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord>? networkAssociations = null,
+        IReadOnlyList<HostedAzureArmFederatedCredentialRecord>? federatedCredentials = null,
+        string? managementGroupId = null)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionId);
+        bool hasSubscriptionId = !string.IsNullOrWhiteSpace(subscriptionId);
+        bool hasManagementGroupId = !string.IsNullOrWhiteSpace(managementGroupId);
 
-        string scope = $"/subscriptions/{subscriptionId.Trim()}";
+        if (hasSubscriptionId == hasManagementGroupId)
+        {
+            throw new ArgumentException("Specify exactly one of subscriptionId or managementGroupId.");
+        }
+
+        string scope = hasManagementGroupId
+            ? $"/providers/Microsoft.Management/managementGroups/{managementGroupId!.Trim()}"
+            : $"/subscriptions/{subscriptionId!.Trim()}";
         List<string> switchesUsed = [];
 
         if (includeCostRequested)
@@ -40,7 +54,9 @@ public static class HostedAzureExtractorZipBuilder
             ["schemaVersion"] = SchemaVersion,
             ["scriptVersion"] = HostedScriptVersion,
             ["collectionTimestamp"] = collectionTimestampUtc.ToString("o"),
-            ["subscriptionId"] = subscriptionId.Trim(),
+            ["subscriptionId"] = hasSubscriptionId ? subscriptionId!.Trim() : null,
+            ["subscriptionName"] = AzureExtractorSubscriptionDisplayName.Normalize(subscriptionName),
+            ["managementGroupId"] = hasManagementGroupId ? managementGroupId!.Trim() : null,
             ["scope"] = scope,
             ["switchesUsed"] = switchesUsed,
             ["azModuleVersion"] = "hosted-extractor",
@@ -76,7 +92,7 @@ public static class HostedAzureExtractorZipBuilder
             ["schemaVersion"] = 1,
             ["collectionTimestampUtc"] = collectionTimestampUtc.ToString("o"),
             ["scope"] = scope,
-            ["subscriptionId"] = subscriptionId.Trim(),
+            ["subscriptionId"] = hasSubscriptionId ? subscriptionId!.Trim() : null,
             ["policyStates"] = Array.Empty<object>(),
             ["note"] =
                 "Hosted Tier 2 collector uses GET-only management.azure.com calls; policy states require POST and are not collected in this path."
@@ -88,17 +104,77 @@ public static class HostedAzureExtractorZipBuilder
                               Upload via POST /v1/azure-extractor/upload or the hosted run endpoint.
                               """;
 
+        object[] entraMembershipRows = (entraGroupMemberships ?? [])
+            .Select(static row => new
+            {
+                memberId = row.MemberId,
+                groupId = row.GroupId,
+                provenanceKind = row.ProvenanceKind.ToString(),
+                evidenceHashSha256 = row.EvidenceHashSha256 is null
+                    ? null
+                    : Convert.ToHexStringLower(row.EvidenceHashSha256),
+            })
+            .ToArray<object>();
+
+        object[] roleAssignmentRows = (roleAssignments ?? [])
+            .Select(static row => new
+            {
+                scope = row.Scope,
+                principalId = row.PrincipalId,
+                principalType = row.PrincipalType,
+                roleDefinitionId = row.RoleDefinitionId,
+                pimEligibilityKind = row.PimEligibilityKind,
+            })
+            .ToArray<object>();
+
+        object[] networkAssociationRows = (networkAssociations ?? [])
+            .Select(static row => new
+            {
+                fromResourceId = row.FromResourceId,
+                toResourceId = row.ToResourceId,
+                associationType = row.AssociationType,
+                ruleName = row.RuleName,
+            })
+            .ToArray<object>();
+
+        object[] federatedCredentialRows = (federatedCredentials ?? [])
+            .Select(static row => new
+            {
+                issuer = row.Issuer,
+                subject = row.Subject,
+                principalId = row.PrincipalId,
+                appId = row.AppId,
+                parentResourceId = row.ParentResourceId,
+                credentialName = row.CredentialName,
+                provenanceKind = "ObservedFact",
+            })
+            .ToArray<object>();
+
         using MemoryStream zipStream = new();
 
         using (ZipArchive archive = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
         {
             AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.Manifest, JsonSerializer.Serialize(manifest, SerializerOptions));
             AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.Resources, JsonSerializer.Serialize(resourceRows, SerializerOptions));
-            AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.RoleAssignments, "[]");
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.RoleAssignments,
+                JsonSerializer.Serialize(roleAssignmentRows, SerializerOptions));
             AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.DiagnosticSettings, "[]");
-            AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.NetworkAssociations, "[]");
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.NetworkAssociations,
+                JsonSerializer.Serialize(networkAssociationRows, SerializerOptions));
             AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.PolicyAssignments, "[]");
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.FederatedCredentials,
+                JsonSerializer.Serialize(federatedCredentialRows, SerializerOptions));
             AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.DefenderSummary, "[]");
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.EntraGroupMemberships,
+                JsonSerializer.Serialize(entraMembershipRows, SerializerOptions));
             AddUtf8Entry(archive, "policy-compliance.json", JsonSerializer.Serialize(policyCompliance, SerializerOptions));
             AddUtf8Entry(archive, "README.txt", readme);
         }

@@ -39,6 +39,7 @@ public sealed partial class DraftRequestsController(
     IDraftIntakeReasoningService draftIntakeReasoningService,
     IDecisionReceiptService decisionReceiptService,
     IAuditService auditService,
+    IArchitectureWorkLeaseService architectureWorkLeaseService,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
     IRunDetailQueryService runDetailQueryService) : ControllerBase
@@ -57,6 +58,9 @@ public sealed partial class DraftRequestsController(
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IArchitectureWorkLeaseService _architectureWorkLeaseService =
+        architectureWorkLeaseService ?? throw new ArgumentNullException(nameof(architectureWorkLeaseService));
 
     private readonly IDraftRequestService _draftRequestService =
         draftRequestService ?? throw new ArgumentNullException(nameof(draftRequestService));

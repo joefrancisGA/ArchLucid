@@ -456,6 +456,12 @@ public sealed class CloudResourceEvidenceHubServiceTests
                 (pageItems, filtered.Count));
         }
 
+        public Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdAsync(
+            Guid tenantId,
+            Guid pathId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<Guid>>([]);
+
         public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
             Guid tenantId,
             Guid findingId,
