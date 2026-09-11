@@ -11446,10 +11446,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-07 — recycle bin advertised purge schedule for soft-deletes missing DeletedUtc
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -11472,6 +11472,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `ListAsync` returns workspace projects when `scope.WorkspaceId` is absent from `ListWorkspacesAsync` — **cheap-disproof 2026-09-10 seed hunt #1569:** missing workspace membership returns `404 ResourceNotFound`; regression `ListAsync_returns_not_found_when_scope_workspace_missing_from_tenant_list`
 
 2026-09-10 seed hunt #1569 (seed-only): reseeded api-tenancy-workspaces after master merge; cheap-disproof closed default-project delete, empty project id, retention clamp, and scope/workspace membership guards; 26 scoped TenantWorkspaces tests passed.
+
+- [x] (valid-no-repro) `ListRecycleBinAsync` returns HTTP 200 when `scope.WorkspaceId` is absent from `ListWorkspacesAsync` — **cheap-disproof 2026-09-11 seed hunt #1701:** identical guard to `ListAsync` at lines 34–38; regression `ListRecycleBinAsync_returns_not_found_when_scope_workspace_missing_from_tenant_list`
+- [x] (valid-no-repro) `ListAsync` exposes unclamped `RetentionDays=0` when purge options misconfigured below minimum — **cheap-disproof 2026-09-11 seed hunt #1701:** `ArchitectureProjectRetentionSchedule.ClampRetentionDays` clamps `0` to `1` on list path; regression `ListAsync_clamps_retention_days_from_configuration`
+- [x] (valid-no-repro) `RestoreProjectAsync` accepts `Guid.Empty` workspaceId and reaches tenant lookup — **cheap-disproof 2026-09-11 seed hunt #1701:** empty `workspaceId` returns `400 ValidationFailed` before repository call; regression `RestoreProjectAsync_returns_bad_request_when_workspace_id_is_empty`
+
+2026-09-11 seed hunt #1701 (dry): reseeded sibling-path parity gaps between List/ListRecycleBin/RestoreProject; cheap-disproof closed three hunt-ready rows; 29 scoped TenantWorkspaces tests passed.
 
 ---
 ## Zone: application-agents
