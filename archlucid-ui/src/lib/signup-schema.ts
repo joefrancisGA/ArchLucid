@@ -106,7 +106,9 @@ export function deriveSignupFormReadinessMessage(values: SignupFormValues): stri
     return "Enter work email, full name, and organization to continue.";
   }
 
-  const issuePath = parsed.error.issues[0]?.path[0];
+  const issue = parsed.error.issues[0];
+  const issuePath = issue?.path[0];
+  const issueMessage = issue?.message;
 
   switch (issuePath) {
     case "adminEmail":
@@ -116,19 +118,30 @@ export function deriveSignupFormReadinessMessage(values: SignupFormValues): stri
     case "organizationName":
       return "Enter an organization name of at most 200 characters to continue.";
     case "architectureTeamSize":
-      return "Enter a valid architecture team size between 1 and 10,000 to continue.";
-    case "industryVerticalOther": {
-      const industryIssue = parsed.error.issues.find(
-        (issue) => issue.path[0] === "industryVerticalOther",
-      );
-
-      if (industryIssue?.message.includes("200")) {
-        return "Enter an industry specification of at most 200 characters to continue.";
-      }
-
-      return "Specify your industry when you select Other to continue.";
-    }
+      return readinessMessageForArchitectureTeamSize(issueMessage);
+    case "industryVerticalOther":
+      return readinessMessageForIndustryVerticalOther(issueMessage);
     default:
       return "Complete the required fields to continue.";
   }
+}
+
+function readinessMessageForArchitectureTeamSize(message: string | undefined): string {
+  if (message === "Architecture team size must be a whole number when provided.") {
+    return "Enter a whole-number architecture team size to continue.";
+  }
+
+  if (message === "Enter a valid number for architecture team size.") {
+    return "Enter a valid architecture team size to continue.";
+  }
+
+  return "Enter a valid architecture team size between 1 and 10,000 to continue.";
+}
+
+function readinessMessageForIndustryVerticalOther(message: string | undefined): string {
+  if (message === "At most 200 characters.") {
+    return "Enter an industry specification of at most 200 characters to continue.";
+  }
+
+  return "Specify your industry when you select Other to continue.";
 }
