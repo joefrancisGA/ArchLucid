@@ -39,6 +39,7 @@ public sealed class ProposedEvidencePayloadValidatorTests
         ok.Should().BeFalse();
     }
 
+
     [Theory]
     [InlineData("""{"type":"Unknown","title":"x","description":"y"}""")]
     [InlineData("""{"type":"Policy","title":"","description":"y"}""")]
