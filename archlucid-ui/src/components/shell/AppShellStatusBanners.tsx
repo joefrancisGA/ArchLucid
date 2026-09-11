@@ -14,6 +14,7 @@ import { TrialUsageUpgradeNudge } from "@/components/trial/TrialUsageUpgradeNudg
 import { PersistentTrialStatusStrip } from "@/components/usability/PersistentTrialStatusStrip";
 import { SetupHealthShellBanner } from "@/components/usability/SetupHealthShellBanner";
 import { RealModeAiReadinessShellBanner } from "@/components/usability/RealModeAiReadinessShellBanner";
+import { WorkingSimulatorCloneRehearsalBanner } from "@/components/workspace-mode/WorkingSimulatorCloneRehearsalBanner";
 import { useReviewPresenterChromeActive } from "@/hooks/use-review-presenter-chrome-active";
 
 type AppShellStatusBannersProps = {
@@ -38,6 +39,7 @@ export function AppShellStatusBanners({ variant }: AppShellStatusBannersProps) {
       <ServiceBusHealthBanner />
       {variant === "full" ? <SetupHealthShellBanner /> : null}
       {variant === "full" ? <RealModeAiReadinessShellBanner /> : null}
+      <WorkingSimulatorCloneRehearsalBanner />
       <LlmBudgetApproachingLimitBanner />
       <TrialAiBudgetStatusBanner />
       <TrialUsageUpgradeNudge />
