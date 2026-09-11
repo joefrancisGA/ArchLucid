@@ -204,6 +204,45 @@ public static class FinalizeQualityFindingSignals
         return IsCannotDetermine(finding);
     }
 
+    /// <summary>Mirrors <c>classifyReviewFindingJobView === "deferred"</c>.</summary>
+    public static bool IsOpenDeferredJobView(Finding finding, FindingDisposition? latestDisposition)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+
+        if (finding.IsMuted || IsFinalizeResolved(finding, latestDisposition))
+            return false;
+
+        return IsDeferred(latestDisposition);
+    }
+
+    /// <summary>Mirrors <c>classifyReviewFindingJobView === "resolve-contradictions"</c>.</summary>
+    public static bool IsOpenContradictionJobView(Finding finding, FindingDisposition? latestDisposition)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+
+        if (finding.IsMuted || IsDeferred(latestDisposition) || IsFinalizeResolved(finding, latestDisposition))
+            return false;
+
+        return IsContradiction(finding) || IsMergeConflict(finding);
+    }
+
+    /// <summary>
+    ///     Mirrors <c>classifyReviewFindingJobView === "verify-hypotheses"</c>: earlier job-view buckets
+    ///     (deferred, closed, contradiction, merge conflict, cannot-determine) win over the hypothesis classifier.
+    /// </summary>
+    public static bool IsOpenVerifyHypothesisJobView(Finding finding, FindingDisposition? latestDisposition)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+
+        if (finding.IsMuted || IsDeferred(latestDisposition) || IsFinalizeResolved(finding, latestDisposition))
+            return false;
+
+        if (IsContradiction(finding) || IsMergeConflict(finding) || IsCannotDetermine(finding))
+            return false;
+
+        return IsVerifyHypothesis(finding);
+    }
+
     /// <summary>Mirrors <c>classifyReviewFindingJobView === "coverage-gaps"</c>, including all higher-priority buckets.</summary>
     public static bool IsCoverageGapJobView(Finding finding, FindingDisposition? latestDisposition)
     {
