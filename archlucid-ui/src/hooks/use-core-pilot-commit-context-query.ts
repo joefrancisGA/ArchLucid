@@ -8,6 +8,7 @@ import {
   resolveCorePilotCommitContextFromRunItems,
   type CorePilotCommitContext,
 } from "@/lib/core-pilot-commit-context";
+import { shouldSkipArchitectureOnlyProxyApi } from "@/lib/product-line/architecture-only-proxy-api";
 import { subscribeOperatorHomeLifecycleRefresh } from "@/lib/operator/operator-home-lifecycle-notify";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { RunSummary } from "@/types/authority";
@@ -22,6 +23,7 @@ export function useCorePilotCommitContextQuery(options?: UseCorePilotCommitConte
   const queryClient = useQueryClient();
   const seedRunItems = options?.seedRunItems;
   const hasSeed = seedRunItems !== undefined;
+  const skipArchitectureOnlyApi = shouldSkipArchitectureOnlyProxyApi();
 
   useEffect(() => {
     return subscribeOperatorHomeLifecycleRefresh(() => {
@@ -35,7 +37,7 @@ export function useCorePilotCommitContextQuery(options?: UseCorePilotCommitConte
       hasSeed
         ? resolveCorePilotCommitContextFromRunItems(seedRunItems)
         : fetchCorePilotCommitContext(),
-    enabled: options?.enabled ?? true,
+    enabled: (options?.enabled ?? true) && !skipArchitectureOnlyApi,
     retry: false,
   });
 }
