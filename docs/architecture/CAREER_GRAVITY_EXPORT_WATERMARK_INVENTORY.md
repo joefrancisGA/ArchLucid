@@ -66,7 +66,7 @@ Working Career must not be confused with these waivers.
 | `ArchLucid.Application/Exports/ArchitectureReviewExportService.cs` | **Yes** | Same | covered | CG-022 |
 | `ArchLucid.Application/Analysis/ExportReplayService.cs` | **Yes** | Replay ZIP inherits mapper | assumed-banner | CG-027 |
 | `ArchLucid.Api/Controllers/Authority/DocxExportController.cs` | `EnsureCanExport` + plain-text honesty section | DOCX gets coverage honesty text; rehearsal banner assumed | assumed-banner | CG-043 |
-| `ArchLucid.Application/Exports/DecisionReceiptService.cs` | `MapForExport` | JSON receipt; no visual watermark | assumed-banner | CG-025 / CG-044 |
+| `ArchLucid.Application/Exports/DecisionReceiptService.cs` | `MapForExport` + `DecisionReceiptCareerPostureStamper` | JSON receipt stamps Mode/door + `rehearsalIncomplete` | **covered** | CG-025 |
 | `ArchLucid.Application/Pilots/FirstValueReportBuilder.cs` | `MapForExport` | Markdown honesty; PDF sibling uses **sponsor-circulation** watermarks | assumed-banner | CG-022 / CG-042 |
 | `ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs` | `MapForFinalize` (banner defaults **false**) | Finalize **does** block unlabeled Working Simulator | covered | CG-021 |
 | `ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Download.cs` | ZIP `GET …/export` — **no** `EnsureCanExport` | Sealed-hash only | **bypass** | CG-028 |
