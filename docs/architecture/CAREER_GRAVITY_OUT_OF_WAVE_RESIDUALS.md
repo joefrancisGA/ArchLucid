@@ -2,7 +2,7 @@
 
 # Career-gravity out-of-wave residuals
 
-**Status:** open (feeds [`career-gravity-100-wave-close-audit.md`](../../.cursor/prompts/career-gravity-100-wave-close-audit.md)) · **Do not** mark these rows shipped in CG-100 unless product actually ships them.
+**Status:** recorded in [`CAREER_GRAVITY_ACCEPTANCE_2026-09-11.md`](CAREER_GRAVITY_ACCEPTANCE_2026-09-11.md) (CG-100) · **Do not** mark these rows shipped unless product actually ships them.
 
 | Item | Tracking | Owner prompt | Status | Notes |
 |------|----------|--------------|--------|-------|
