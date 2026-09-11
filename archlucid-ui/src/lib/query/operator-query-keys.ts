@@ -50,8 +50,8 @@ export const operatorQueryKeys = {
     ["operator", "governance", "precommit-blocked-count", { fromUtcIso, toUtcIso }] as const,
   workspaceHealthPrecommitAuditCounts30d:
     ["operator", "workspace-health", "precommit-audit-counts", "30d"] as const,
-  pilotValueReport: (fromUtc: string, toUtc: string) =>
-    ["operator", "pilots", "value-report", { fromUtc, toUtc }] as const,
+  pilotValueReport: (scope: OperatorScopeQueryKey, fromUtc: string, toUtc: string) =>
+    ["operator", "pilots", "value-report", scope, { fromUtc, toUtc }] as const,
   operatorNextBestActions: ["operator", "tenant", "next-best-actions"] as const,
   governanceDecisionsNeededSummary: (projectId?: string) =>
     ["operator", "governance", "decisions-needed-summary", projectId ?? "workspace"] as const,

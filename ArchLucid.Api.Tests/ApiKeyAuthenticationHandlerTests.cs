@@ -430,6 +430,51 @@ public sealed class ApiKeyAuthenticationHandlerTests
     }
 
     [SkippableFact]
+    public async Task When_enabled_true_and_duplicate_api_key_headers_skip_blank_first_value()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "   ");
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyAdmin");
+    }
+
+    [SkippableFact]
+    public async Task When_allow_test_actor_headers_and_actor_name_is_whitespace_only_keeps_api_key_display_name()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "   ");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "true"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyAdmin");
+    }
+
+    [SkippableFact]
     public async Task When_allow_test_actor_headers_and_duplicate_actor_name_headers_use_first_value()
     {
         DefaultHttpContext http = new();

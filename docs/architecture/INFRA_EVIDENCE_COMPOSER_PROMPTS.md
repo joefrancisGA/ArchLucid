@@ -3,7 +3,7 @@
 
 # Infrastructure-evidence Composer prompts
 
-**Created:** 2026-09-04 · **Revised:** 2026-09-04 (full spec: snapshot spine, remediation, ARC-AMPE as snapshot consumer, lineage, branding).
+**Created:** 2026-09-04 · **Revised:** 2026-09-11 (added **IE-HOTFIX** Mermaid snapshot 500 after #2931).
 
 **Status:** ready to run — **one prompt per chat**.
 
@@ -19,6 +19,7 @@ Canonical design: [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md
 | [`INFRA_EVIDENCE_COMPOSER_PROMPTS_AE.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_AE.md) | **AE-01–AE-10** ARC-AMPE audit evidence (**no second collector**) + **CW-01** crosswalk |
 | [`INFRA_EVIDENCE_COMPOSER_PROMPTS_BR.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_BR.md) | **BR-01–BR-09** tenant white-label branding |
 | [`INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md) | **IE-UX-00–IE-UX-05** operator workbenches + Infrastructure nav spine |
+| [`INFRA_EVIDENCE_MERMAID_500_COMPOSER_PROMPT.md`](INFRA_EVIDENCE_MERMAID_500_COMPOSER_PROMPT.md) | **IE-HOTFIX** Mermaid snapshot HTTP 500 after **#2931** (missing `AzureInventoryDefenderSummaries` DbUp + fail-soft dirty rows) |
 
 ## Why this set exists
 

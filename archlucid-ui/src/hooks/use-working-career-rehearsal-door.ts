@@ -3,16 +3,29 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { patchUserPreferencesCache } from "@/lib/api/user-preferences-cache";
+import {
+  extractArchitectureIdentityIdFromPathname,
+  readCachedLastOpenArchitectureId,
+} from "@/lib/desk-continuity-preference";
 import {
   readWorkingCareerRehearsalDoorFromStorage,
   resolveWorkingCareerRehearsalDoorScope,
   writeWorkingCareerRehearsalDoorToStorage,
   type WorkingCareerRehearsalDoorId,
+  type WorkingCareerRehearsalDoorScope,
 } from "@/lib/governance/working-career-rehearsal-door";
 import {
-  extractArchitectureIdentityIdFromPathname,
-  readCachedLastOpenArchitectureId,
-} from "@/lib/desk-continuity-preference";
+  postWorkingCareerRehearsalDoorBroadcast,
+  subscribeWorkingCareerRehearsalDoorBroadcast,
+} from "@/lib/governance/working-career-rehearsal-door-broadcast";
+import {
+  persistWorkingCareerRehearsalDoorToServer,
+  syncWorkingCareerRehearsalDoorFromServer,
+} from "@/lib/governance/working-career-rehearsal-door-preference";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
+
 export type UseWorkingCareerRehearsalDoorResult = {
   readonly door: WorkingCareerRehearsalDoorId;
   readonly mounted: boolean;
@@ -29,7 +42,15 @@ function resolveArchitectureIdForDoor(pathname: string, search: string): string 
   return readCachedLastOpenArchitectureId();
 }
 
-/** Working Career vs Rehearsal door state with architecture-first persistence (AS-077). */
+function writeInterruptRecoveryDoor(
+  scope: WorkingCareerRehearsalDoorScope,
+  door: WorkingCareerRehearsalDoorId,
+): void {
+  writeWorkingCareerRehearsalDoorToStorage(scope, door);
+  writeWorkingCareerRehearsalDoorToStorage({ kind: "tenant" }, door);
+}
+
+/** Working Career vs Rehearsal door: server first, localStorage interrupt, cross-tab BroadcastChannel (CG-011 / CG-012). */
 export function useWorkingCareerRehearsalDoor(): UseWorkingCareerRehearsalDoorResult {
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
@@ -42,6 +63,8 @@ export function useWorkingCareerRehearsalDoor(): UseWorkingCareerRehearsalDoorRe
     () => resolveWorkingCareerRehearsalDoorScope({ architectureId }),
     [architectureId],
   );
+  const { mode } = useWorkspaceMode();
+  const isWorking = isWorkingWorkspaceMode(mode);
   const [mounted, setMounted] = useState(false);
   const [door, setDoorState] = useState<WorkingCareerRehearsalDoorId>(() =>
     readWorkingCareerRehearsalDoorFromStorage(scope),
@@ -50,14 +73,47 @@ export function useWorkingCareerRehearsalDoor(): UseWorkingCareerRehearsalDoorRe
   useEffect(() => {
     setMounted(true);
     setDoorState(readWorkingCareerRehearsalDoorFromStorage(scope));
-  }, [scope]);
+
+    if (!isWorking) {
+      return;
+    }
+
+    void syncWorkingCareerRehearsalDoorFromServer(scope).then((synced) => {
+      if (synced === null) {
+        return;
+      }
+
+      setDoorState(synced);
+    });
+
+    // Sibling tabs apply the door chrome only — never draft CAS writes.
+    const unsubscribeBroadcast = subscribeWorkingCareerRehearsalDoorBroadcast((nextDoor) => {
+      writeInterruptRecoveryDoor(scope, nextDoor);
+      setDoorState(nextDoor);
+      patchUserPreferencesCache({
+        workingCareerRehearsalDoor: nextDoor,
+        workingCareerRehearsalDoorIsExplicit: true,
+      });
+    });
+
+    return () => {
+      unsubscribeBroadcast();
+    };
+  }, [isWorking, scope]);
 
   const setDoor = useCallback(
     (next: WorkingCareerRehearsalDoorId) => {
-      writeWorkingCareerRehearsalDoorToStorage(scope, next);
+      writeInterruptRecoveryDoor(scope, next);
       setDoorState(next);
+
+      if (!isWorking) {
+        return;
+      }
+
+      postWorkingCareerRehearsalDoorBroadcast(next);
+      void persistWorkingCareerRehearsalDoorToServer(next);
     },
-    [scope],
+    [isWorking, scope],
   );
 
   return {

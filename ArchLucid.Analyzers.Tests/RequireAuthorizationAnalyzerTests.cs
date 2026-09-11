@@ -489,6 +489,46 @@ namespace N
         await test.RunAsync();
     }
 
+    [Fact]
+    public async Task Reports_nested_controller_class_without_authorization()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class OuterController : ControllerBase
+    {
+        public sealed class NestedController : ControllerBase
+        {
+            [HttpGet]
+            public IActionResult {|#0:Get|}() => Ok();
+        }
+    }
+}
+""";
+
+        DiagnosticResult expectedNested = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("OuterController.NestedController.Get()");
+
+        DiagnosticResult expectedOuter = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithSpan(39, 25, 39, 40)
+            .WithArguments("OuterController");
+
+        CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedOuter, expectedNested },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        };
+
+        await test.RunAsync();
+    }
+
     private static Solution ProductAssemblyNameTransform(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
 }

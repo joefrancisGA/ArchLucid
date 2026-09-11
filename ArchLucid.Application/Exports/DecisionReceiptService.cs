@@ -1,17 +1,21 @@
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Analysis;
-using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Exports;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Feasibility;
-using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
+
+using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Application.Exports;
 
@@ -21,7 +25,12 @@ public sealed class DecisionReceiptService(
     IAuthorityQueryService authorityQueryService,
     IRunDetailQueryService runDetailQueryService,
     IManifestHashService manifestHashService,
-    FeasibilityVerdictBuilder feasibilityVerdictBuilder) : IDecisionReceiptService
+    FeasibilityVerdictBuilder feasibilityVerdictBuilder,
+    IGraphSnapshotRepository graphSnapshotRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IConfiguration configuration,
+    IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository) : IDecisionReceiptService
 {
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
@@ -37,6 +46,22 @@ public sealed class DecisionReceiptService(
 
     private readonly FeasibilityVerdictBuilder _feasibilityVerdictBuilder =
         feasibilityVerdictBuilder ?? throw new ArgumentNullException(nameof(feasibilityVerdictBuilder));
+
+    private readonly IGraphSnapshotRepository _graphSnapshotRepository =
+        graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository
+        ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
 
     /// <inheritdoc />
     public async Task<DecisionReceiptDocument?> BuildForDraftAsync(
@@ -116,17 +141,21 @@ public sealed class DecisionReceiptService(
             };
         }
 
+        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
+            detail,
+            _authorityQueryService,
+            _graphSnapshotRepository,
+            _agentExecutionTraceRepository,
+            scope,
+            workingDesk: true,
+            _configuration,
+            cancellationToken,
+            _runRepository,
+            _architectureInventoryBindingRepository);
+
         CareerArtifactCompletenessResult careerArtifactResult = new CareerArtifactCompletenessValidator().Evaluate(
             CareerArtifactCompletenessInputMapper.MapForExport(
-                new CareerExportCoverageHonestyInput(
-                    new SponsorReviewCoverageHonestyContext(
-                        RunId: runId.ToString("N"),
-                        Verdict: verdict,
-                        AnalysisStagesComplete: true,
-                        ActorNodeCount: 0),
-                    EnginesSucceeded: InsightDensityMeasurementFloorPresenter.CareerExportMeasurementFloorMinEngines,
-                    WorkingDesk: true,
-                    ClassificationCounts: null),
+                careerExportHonesty,
                 verdict?.TransparencyTrail));
 
         if (!careerArtifactResult.CanRender)

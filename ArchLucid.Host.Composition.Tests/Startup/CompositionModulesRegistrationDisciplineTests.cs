@@ -7,6 +7,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.AwsExtractor;
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Drafts;
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.GcpExtractor;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Governance.PolicyPacks;
@@ -286,6 +287,19 @@ public sealed class CompositionModulesRegistrationDisciplineTests
         DraftIntakeCompositionRegistrar.Register(services, configuration);
 
         services.Should().Contain(static d => d.ServiceType == typeof(IDraftRequestService));
+    }
+
+    [Fact]
+    public void DraftIntakeCompositionRegistrar_registers_decision_receipt_service()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        DraftIntakeCompositionRegistrar.Register(services, configuration);
+
+        services.Should().Contain(static d =>
+            d.ServiceType == typeof(IDecisionReceiptService) &&
+            d.ImplementationType == typeof(DecisionReceiptService));
     }
 
     [Fact]

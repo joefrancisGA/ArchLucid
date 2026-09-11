@@ -6,6 +6,8 @@ internal static class HostedAzureArmNextLinkValidator
 
     private const string ManagementGroupsPathPrefix = "/providers/Microsoft.Management/managementGroups/";
 
+    private const string DiagnosticSettingsPathSuffix = "/providers/Microsoft.Insights/diagnosticSettings";
+
     public static void EnsureTargetsSubscription(string nextLink, string subscriptionId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
@@ -44,6 +46,27 @@ internal static class HostedAzureArmNextLinkValidator
             return null;
 
         return subscriptionId.ToString();
+    }
+
+    public static void EnsureTargetsDiagnosticSettingsResource(string nextLink, string resourceId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
+        ArgumentException.ThrowIfNullOrWhiteSpace(resourceId);
+
+        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
+        {
+            throw new InvalidOperationException(
+                "Hosted Azure extractor stopped diagnostic setting listing due to an invalid nextLink.");
+        }
+
+        string normalizedResourceId = resourceId.Trim();
+        string expectedPathPrefix = normalizedResourceId + DiagnosticSettingsPathSuffix;
+
+        if (!uri.AbsolutePath.StartsWith(expectedPathPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Hosted Azure extractor stopped diagnostic setting listing because nextLink targets a different resource.");
+        }
     }
 
     public static void EnsureTargetsManagementGroup(string nextLink, string managementGroupId)

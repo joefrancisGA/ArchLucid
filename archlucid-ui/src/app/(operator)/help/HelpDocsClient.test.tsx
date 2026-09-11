@@ -453,6 +453,7 @@ describe("HelpDocsClient", () => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
   });
+
   it("filters documentation entries case-insensitively", async () => {
     vi.stubGlobal(
       "fetch",

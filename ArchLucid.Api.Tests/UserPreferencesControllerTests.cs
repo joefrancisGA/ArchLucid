@@ -46,6 +46,8 @@ public sealed class UserPreferencesControllerTests
         body.WorkspaceModeIsExplicit.Should().BeFalse();
         body.WorkspaceModeGraduationOffer.Should().Be(WorkspaceModeGraduationOfferValues.Default);
         body.WorkspaceModeGraduationOfferIsExplicit.Should().BeFalse();
+        body.WorkingCareerRehearsalDoor.Should().Be(WorkingCareerRehearsalDoorValues.Default);
+        body.WorkingCareerRehearsalDoorIsExplicit.Should().BeFalse();
         body.FindingsHideGenericEnabled.Should().BeFalse();
         body.FindingsHideGenericEnabledIsExplicit.Should().BeFalse();
         body.FindingsShowLowConfidenceEnabled.Should().BeTrue();
@@ -323,6 +325,69 @@ public sealed class UserPreferencesControllerTests
     }
 
     [SkippableFact]
+    public async Task GetPreferences_ReturnsStoredWorkingCareerRehearsalDoor()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        repository
+            .Setup(repo => repo.TryGetAsync(
+                "jwt:user-1",
+                UserSettingKeys.WorkingCareerRehearsalDoor,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("rehearsal");
+
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.GetPreferences(CancellationToken.None);
+
+        OkObjectResult ok = (OkObjectResult)result;
+        UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
+        body.WorkingCareerRehearsalDoor.Should().Be(WorkingCareerRehearsalDoorValues.Rehearsal);
+        body.WorkingCareerRehearsalDoorIsExplicit.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task SetWorkingCareerRehearsalDoor_ReturnsNoContentWhenValid()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetWorkingCareerRehearsalDoor(
+            new SetWorkingCareerRehearsalDoorRequest { Door = "rehearsal" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
+                UserSettingKeys.WorkingCareerRehearsalDoor,
+                "rehearsal",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task SetWorkingCareerRehearsalDoor_ReturnsBadRequestWhenInvalid()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetWorkingCareerRehearsalDoor(
+            new SetWorkingCareerRehearsalDoorRequest { Door = "simulator" },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                It.IsAny<string>(),
+                UserSettingKeys.WorkingCareerRehearsalDoor,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task SetFindingsVisibilityPreferences_ReturnsNoContentWhenValid()
     {
         Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
@@ -460,6 +525,9 @@ public sealed class UserPreferencesControllerTests
             .ReturnsAsync((string?)null);
         repository
             .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.WorkspaceModeGraduationOffer, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.WorkingCareerRehearsalDoor, It.IsAny<CancellationToken>()))
             .ReturnsAsync((string?)null);
         repository
             .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.ProfessionalWorkbenchEnabled, It.IsAny<CancellationToken>()))

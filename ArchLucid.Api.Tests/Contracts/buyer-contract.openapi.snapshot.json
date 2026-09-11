@@ -34199,6 +34199,14 @@
         },
         "type": "object"
       },
+      "SetWorkingCareerRehearsalDoorRequest": {
+        "properties": {
+          "door": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SetWorkspaceModeGraduationOfferRequest": {
         "properties": {
           "state": {
@@ -39584,6 +39592,12 @@
             "type": "boolean"
           },
           "whereToGoNextIsExplicit": {
+            "type": "boolean"
+          },
+          "workingCareerRehearsalDoor": {
+            "type": "string"
+          },
+          "workingCareerRehearsalDoorIsExplicit": {
             "type": "boolean"
           },
           "workspaceMode": {
