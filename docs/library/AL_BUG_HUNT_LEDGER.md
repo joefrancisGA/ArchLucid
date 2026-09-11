@@ -9112,11 +9112,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 3
-- **bugs-found:** 4
+- **hunts:** 4
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — standalone `Hour` / `hours` Azure retail UOM rejected while quantity-prefixed forms matched
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — standalone month/months Azure retail UOM rejected while quantity-prefixed forms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9131,6 +9131,10 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (valid-no-repro) `ManifestInfrastructureCostNodes.FromTerraformResourceRows` — null `SkuOrTier` blocks live AWS/GCP probe for terraform-sourced nodes — **2026-09-09 hunt #1415:** `TerraformInfrastructureCostResourceRow` carries only display name, terraform type, and region (no instance-type/sku source); mapper correctly leaves `SkuOrTier` null; live-probe guards are intentional until row schema carries SKU; regression documents contract in `FromTerraformResourceRows_maps_available_row_fields_only`.
 
 2026-09-09 thorough hunt #1415 (hit): proved standalone Azure retail `Hour`/`hours` UOM gap; cheap-disproved terraform null-SKU probe candidate as missing input schema rather than mapper defect; 119 scoped Costing unit tests passed.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — standalone `month` / `months` UOM rejected while quantity-prefixed forms pass — **hit 2026-09-11 seed hunt #1703:** bare `"month"` / `"months"` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `"1 Month"` already matched via bounded tokens; fixed with standalone `month` / `months` synonyms (parity with #1415 hour fix); regressions `TryMonthlyUsdFromRow_accepts_standalone_month_unit_of_measure_synonyms` and `LooksLikeConsumptionUsd_accepts_standalone_month_unit_of_measure_synonyms`
+
+2026-09-11 seed hunt #1703 (hit): reseeded core-costing sibling UOM parity; proved standalone month/months Azure retail gap; 124 scoped Costing tests passed.
 
 2026-09-07 seed hunt #1186 (hit): seeded zone from split catalog; proved GCP billing catalog pagination gap on live pricing probe.
 
