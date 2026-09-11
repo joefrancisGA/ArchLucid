@@ -2575,11 +2575,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 10
-- **bugs-found:** 10
+- **hunts:** 11
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — continue-last row mislabeled another workspace subscription after scope switch
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — create form cleared before post-create list refresh completed
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2613,6 +2613,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `useWebhooksSettingsMutations` URL-sync effect — non-empty `webhookEnableId`/`webhookDisableId` params persist when the subscription id is missing from loaded rows — **hit 2026-09-10 seed hunt #1538 (seed→hit):** after list hydration, unknown toggle-confirm ids clear URL params instead of leaving dead deep links; regressions `clears stale webhookDisableId from the URL when the subscription is missing from loaded rows` and `clears stale webhookEnableId from the URL when the subscription is missing from loaded rows`.
 
 2026-09-10 seed hunt #1538 (hit): reseeded ui-webhooks-settings; proved stale webhook enable/disable deep-link URL params; 40 scoped webhooks folder tests passed (2 pre-existing sources-strip / buyer-polished failures unrelated).
+
+- [x] (valid-no-repro) `resolveContinueLastWebhookSubscription` falls back to another workspace subscription when stored id is stale — **valid-no-repro 2026-09-11 seed hunt #1713:** stale stored ids return `null` instead of newest row; regression `does not show continue-last row for another workspace subscription after scope switch` in `page.test.tsx`
+
+- [x] (proven) `useWebhooksSettingsMutations.submit` resets create form before post-create `load()` completes — **hit 2026-09-11 seed hunt #1713 (seed→hit):** successful create cleared form values even when list refresh failed, leaving operators with an empty form and refresh error despite the subscription being created; fixed by moving `reset()` after refresh success; regression `preserves create form values when list refresh fails after create`
+
+2026-09-11 seed hunt #1713 (hit): reseeded ui-webhooks-settings; cheap-disproved continue-last stale-id fallback; proved post-create form wipe on refresh failure; 43 scoped webhooks page/continue-last tests passed (1 pre-existing sources-strip failure unrelated).
 
 ---
 

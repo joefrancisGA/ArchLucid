@@ -392,14 +392,13 @@ export function useWebhooksSettingsMutations(
         return;
       }
 
-      options.reset({ ...webhookSettingsDefaultValues });
-
       const refreshed = await options.load();
 
       if (!refreshed) {
         return;
       }
 
+      options.reset({ ...webhookSettingsDefaultValues });
       setSaveSuccessMessage(WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE);
     } catch (error: unknown) {
       if (options.scopeGenerationRef.current !== generation) {
