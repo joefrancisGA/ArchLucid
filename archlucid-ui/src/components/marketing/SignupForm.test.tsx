@@ -201,6 +201,40 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("re-enables submit after switching away from Other with an overlong specification", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Other")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Other"));
+    fireEvent.change(screen.getByTestId("signup-industry-specify"), {
+      target: { value: "A".repeat(201) },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Technology")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Technology"));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("signup-industry-specify")).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+  });
+
   it("keeps submit disabled when industry Other is selected without a specification", async () => {
     render(<SignupForm />);
     fillRequiredFields();

@@ -338,11 +338,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 5
-- **bugs-found:** 2
+- **hunts:** 6
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — signup readiness hint stayed generic after optional-field validation failed; fractional architecture team size passed client validation
+- **last-bug:** 2026-09-11 — signup readiness hint stayed generic after optional-field validation failed; fractional architecture team size passed client validation; stale overlong industry Other text kept submit disabled after switching industry
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** 0
 
@@ -383,6 +383,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SignupForm` fractional `architectureTeamSize` kept submit enabled and reached register — **hit 2026-09-11 seed hunt #1730 (seed→hit):** `signupFormSchema.superRefine` accepted finite decimals (e.g. `3.5`) that `RegistrationRequestBaselineValidator` rejects as non-integer; added `Number.isInteger` guard; regressions `keeps submit disabled for fractional optional architecture team size` and `does not send fractional optional architecture team size in the register payload`
 
 2026-09-11 seed hunt #1730 (seed→hit): reseeded ui-form-validation; proved misleading signup readiness hints and fractional architecture team size client bypass; 21 scoped SignupForm tests passed.
+
+- [x] (proven) `SignupForm` stale overlong `industryVerticalOther` kept submit disabled after switching away from Other — **hit 2026-09-11 seed hunt #1731 (seed→hit):** unconditional `max(200)` on hidden `industryVerticalOther` left `canSubmit` false with no visible field error after the industry select changed; validation now applies only when `industryVertical === "Other"` and the field clears on industry change; regression `re-enables submit after switching away from Other with an overlong specification`
+
+2026-09-11 seed hunt #1731 (seed→hit): reseeded ui-form-validation; proved stale overlong industry Other text blocked submit after switching industry; 18 scoped SignupForm tests passed.
 
 ---
 
