@@ -111,7 +111,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
   const sessionAiReadiness = useSessionAiReadiness({ requireLiveProbe });
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canConfigureWorkspaceAi = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
-  const assumptionAwareCommitBlockedReason = useAssumptionAwareCommitBlockedReason({
+  const commitBlockedState = useAssumptionAwareCommitBlockedReason({
     runId: props.runId,
     serverCommitBlockedReason: props.commitBlockedReason,
     finalizeAssumptionGateApplies: props.finalizeAssumptionGateApplies,
@@ -130,9 +130,12 @@ export function RunDetailReviewPackageDoThisNextResolved(
       structuralExecutionMode: props.structuralExecutionMode,
     });
   const effectiveCommitBlockedReason = mergeFinalizeCommitBlockedReasons(
-    assumptionAwareCommitBlockedReason,
-    unsupportedSemanticSupportCommitBlockedReason,
+    commitBlockedState.blockedReason,
+    commitBlockedState.readinessUnavailable || commitBlockedState.blocks.length > 0
+      ? null
+      : unsupportedSemanticSupportCommitBlockedReason,
   );
+  const effectiveCommitBlockedBlocks = commitBlockedState.blocks;
 
   useEffect(() => {
     let canceled = false;
@@ -280,6 +283,12 @@ export function RunDetailReviewPackageDoThisNextResolved(
             ? null
             : effectiveCommitBlockedReason
         }
+        commitBlockedBlocks={
+          next.failureRecovery !== null && next.failureRecovery !== undefined
+            ? []
+            : effectiveCommitBlockedBlocks
+        }
+        readinessLoading={commitBlockedState.readinessLoading}
       />
       <ReviewPackageDoThisNextStrip
         next={next}
@@ -287,6 +296,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         retryCount={props.pipelineDiagnosticContext?.retryCount ?? props.pipelineSummary?.retryCount ?? null}
         hasGoldenManifest={props.hasGoldenManifest}
         commitBlockedReason={effectiveCommitBlockedReason}
+        commitBlockedBlocks={effectiveCommitBlockedBlocks}
         sessionAiReadiness={sessionAiReadiness}
         canConfigureWorkspaceAi={canConfigureWorkspaceAi}
         usesCustomerAiConnection={usesCustomerAiConnection}

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { FinalizeReadinessBlockList } from "@/components/reviews/FinalizeReadinessBlockList";
 import { GovernanceRecordCorrectionInlineControl } from "@/components/governance/GovernanceRecordCorrectionInlineControl";
 import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -57,12 +58,16 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 /** Nav and review-detail copy  —  replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */
 export const FINALIZE_REPLAY_COMPARE_TOOLTIP = FINALIZE_REPLAY_COMPARE_NOTE;
 
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
+
 export type CommitRunButtonProps = {
   runId: string;
   /** When true, the review already has a reviewed manifest  —  commit is not offered. */
   disabled: boolean;
   /** Existing server-side finding coverage says finalize will be blocked. */
   commitBlockedReason?: string | null;
+  /** Structured finalize gate blocks from the unified readiness API. */
+  commitBlockedBlocks?: readonly FinalizeReadinessBlock[];
   /** Demote to outline when another surface owns the page's single primary CTA (TB-618). */
   buttonVariant?: "primary" | "outline";
 };
@@ -74,6 +79,7 @@ export function CommitRunButton({
   runId,
   disabled,
   commitBlockedReason = null,
+  commitBlockedBlocks = [],
   buttonVariant = "primary",
 }: CommitRunButtonProps) {
   const { isWorkingMode } = useWorkspaceMode();
@@ -247,7 +253,10 @@ export function CommitRunButton({
     );
   }
 
-  if (commitBlockedReason !== null && commitBlockedReason.trim().length > 0) {
+  if (
+    (commitBlockedReason !== null && commitBlockedReason.trim().length > 0)
+    || commitBlockedBlocks.length > 0
+  ) {
     return (
       <div
         className={cn(
@@ -257,10 +266,16 @@ export function CommitRunButton({
         data-testid="commit-blocked-finding-coverage"
         role="alert"
       >
-        <p className="m-0 font-semibold">Finalize is blocked by finding coverage</p>
-        <p className="m-0 mt-2 leading-relaxed">{commitBlockedReason.trim()}</p>
+        <p className="m-0 font-semibold">Finalize is blocked</p>
+        {commitBlockedBlocks.length > 0 ? (
+          <div className="mt-2">
+            <FinalizeReadinessBlockList blocks={commitBlockedBlocks} />
+          </div>
+        ) : (
+          <p className="m-0 mt-2 leading-relaxed">{commitBlockedReason?.trim() ?? ""}</p>
+        )}
         <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
-          Resolve the blocking engine failure or regenerate coverage before finalizing this architecture review.
+          Resolve the listed blockers before finalizing this architecture review.
         </p>
       </div>
     );

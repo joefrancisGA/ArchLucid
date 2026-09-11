@@ -105,6 +105,28 @@ describe("CommitRunButton", () => {
     expect(screen.queryByRole("button", { name: /^finalize review$/i })).not.toBeInTheDocument();
   });
 
+  it("renders structured readiness blocks without primary finalize control", () => {
+    render(
+      <CommitRunButton
+        runId="abc"
+        disabled={false}
+        commitBlockedReason="Commit blocked."
+        commitBlockedBlocks={[
+          {
+            layer: "governance",
+            code: "pre_commit_gate",
+            message: "Policy pack thresholds would block finalize.",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId("finalize-readiness-block-pre_commit_gate")).toHaveTextContent(
+      "Policy pack thresholds would block finalize.",
+    );
+    expect(screen.queryByRole("button", { name: /^finalize review$/i })).not.toBeInTheDocument();
+  });
+
   it("surfaces finalize tooltip on the primary control", () => {
     render(<CommitRunButton runId="x" disabled={false} />);
 

@@ -3,6 +3,7 @@ import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer/buyer-golden-sp
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer/buyer-demo-content-gating";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 import type { WithheldFindingRow } from "@/lib/findings/findings-withheld-band";
 import type {
   EvidenceCoverageSummary,
@@ -37,6 +38,7 @@ export type RunDetailPresentation = {
 
   readonly findingCoverageSummary: FindingCoverageSummary | null;
   readonly commitBlockedReason: string | null;
+  readonly finalizeReadinessBlocks: readonly FinalizeReadinessBlock[];
   readonly finalizeAssumptionGateApplies: boolean;
   readonly requestAssumptionTexts: readonly string[];
 
@@ -229,6 +231,7 @@ export async function buildRunDetailPresentation(
 
     findingCoverageSummary,
     commitBlockedReason: governancePresentation.commitBlockedReason,
+    finalizeReadinessBlocks: governancePresentation.finalizeReadinessBlocks,
     finalizeAssumptionGateApplies: governancePresentation.finalizeAssumptionGateApplies,
     requestAssumptionTexts: governancePresentation.requestAssumptionTexts,
 
