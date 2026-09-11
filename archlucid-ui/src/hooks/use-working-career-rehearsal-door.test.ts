@@ -111,3 +111,114 @@ describe("useWorkingCareerRehearsalDoor", () => {
     expect(setUserWorkingCareerRehearsalDoorMock).not.toHaveBeenCalled();
   });
 });
+
+describe("useWorkingCareerRehearsalDoor cross-tab (CG-012)", () => {
+  type FanOutChannel = {
+    readonly name: string;
+    readonly listeners: Set<(event: MessageEvent) => void>;
+  };
+
+  let channelsByName: Map<string, Set<FanOutChannel>>;
+
+  beforeEach(() => {
+    window.localStorage.clear();
+    workspaceModeMock.mode = "working";
+    getUserPreferencesMock.mockReset();
+    setUserWorkingCareerRehearsalDoorMock.mockReset();
+    setUserWorkingCareerRehearsalDoorMock.mockResolvedValue(undefined);
+    getUserPreferencesMock.mockResolvedValue({
+      workingCareerRehearsalDoor: "career",
+      workingCareerRehearsalDoorIsExplicit: false,
+    });
+    channelsByName = new Map();
+
+    class FanOutBroadcastChannel {
+      readonly listeners = new Set<(event: MessageEvent) => void>();
+
+      constructor(public readonly name: string) {
+        const group = channelsByName.get(name) ?? new Set<FanOutChannel>();
+        group.add(this);
+        channelsByName.set(name, group);
+      }
+
+      addEventListener(eventName: string, handler: (event: MessageEvent) => void): void {
+        if (eventName === "message") {
+          this.listeners.add(handler);
+        }
+      }
+
+      removeEventListener(eventName: string, handler: (event: MessageEvent) => void): void {
+        if (eventName === "message") {
+          this.listeners.delete(handler);
+        }
+      }
+
+      postMessage(data: unknown): void {
+        const peers = channelsByName.get(this.name);
+
+        if (peers === undefined) {
+          return;
+        }
+
+        for (const peer of peers) {
+          if (peer === this) {
+            continue;
+          }
+
+          for (const listener of peer.listeners) {
+            listener({ data } as MessageEvent);
+          }
+        }
+      }
+
+      close(): void {
+        channelsByName.get(this.name)?.delete(this);
+      }
+    }
+
+    vi.stubGlobal("BroadcastChannel", FanOutBroadcastChannel);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    window.localStorage.clear();
+  });
+
+  it("second tab sees Rehearsal after the first tab saves without a second PUT", async () => {
+    const { useWorkingCareerRehearsalDoor } = await import("@/hooks/use-working-career-rehearsal-door");
+    const firstTab = renderHook(() => useWorkingCareerRehearsalDoor());
+    const secondTab = renderHook(() => useWorkingCareerRehearsalDoor());
+
+    await waitFor(() => {
+      expect(firstTab.result.current.mounted).toBe(true);
+      expect(secondTab.result.current.mounted).toBe(true);
+    });
+
+    act(() => {
+      firstTab.result.current.setDoor("rehearsal");
+    });
+
+    await waitFor(() => {
+      expect(secondTab.result.current.door).toBe("rehearsal");
+    });
+    expect(firstTab.result.current.door).toBe("rehearsal");
+    await waitFor(() => {
+      expect(setUserWorkingCareerRehearsalDoorMock).toHaveBeenCalledTimes(1);
+    });
+    expect(setUserWorkingCareerRehearsalDoorMock).toHaveBeenCalledWith("rehearsal");
+  });
+
+  it("does not steal draft CAS when applying a sibling door", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const hookSource = readFileSync(
+      join(process.cwd(), "src/hooks/use-working-career-rehearsal-door.ts"),
+      "utf8",
+    );
+
+    expect(hookSource).toContain("subscribeWorkingCareerRehearsalDoorBroadcast");
+    expect(hookSource).toContain("never draft CAS");
+    expect(hookSource).not.toContain("expectedUpdatedUtc");
+    expect(hookSource).not.toContain("forceOverwrite");
+  });
+});

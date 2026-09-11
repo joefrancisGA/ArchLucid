@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { patchUserPreferencesCache } from "@/lib/api/user-preferences-cache";
 import {
   extractArchitectureIdentityIdFromPathname,
   readCachedLastOpenArchitectureId,
@@ -15,6 +16,10 @@ import {
   type WorkingCareerRehearsalDoorId,
   type WorkingCareerRehearsalDoorScope,
 } from "@/lib/governance/working-career-rehearsal-door";
+import {
+  postWorkingCareerRehearsalDoorBroadcast,
+  subscribeWorkingCareerRehearsalDoorBroadcast,
+} from "@/lib/governance/working-career-rehearsal-door-broadcast";
 import {
   persistWorkingCareerRehearsalDoorToServer,
   syncWorkingCareerRehearsalDoorFromServer,
@@ -45,7 +50,7 @@ function writeInterruptRecoveryDoor(
   writeWorkingCareerRehearsalDoorToStorage({ kind: "tenant" }, door);
 }
 
-/** Working Career vs Rehearsal door: server first, localStorage interrupt recovery only (CG-011). */
+/** Working Career vs Rehearsal door: server first, localStorage interrupt, cross-tab BroadcastChannel (CG-011 / CG-012). */
 export function useWorkingCareerRehearsalDoor(): UseWorkingCareerRehearsalDoorResult {
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
@@ -80,6 +85,20 @@ export function useWorkingCareerRehearsalDoor(): UseWorkingCareerRehearsalDoorRe
 
       setDoorState(synced);
     });
+
+    // Sibling tabs apply the door chrome only — never draft CAS / expectedUpdatedUtc.
+    const unsubscribeBroadcast = subscribeWorkingCareerRehearsalDoorBroadcast((nextDoor) => {
+      writeInterruptRecoveryDoor(scope, nextDoor);
+      setDoorState(nextDoor);
+      patchUserPreferencesCache({
+        workingCareerRehearsalDoor: nextDoor,
+        workingCareerRehearsalDoorIsExplicit: true,
+      });
+    });
+
+    return () => {
+      unsubscribeBroadcast();
+    };
   }, [isWorking, scope]);
 
   const setDoor = useCallback(
@@ -91,6 +110,7 @@ export function useWorkingCareerRehearsalDoor(): UseWorkingCareerRehearsalDoorRe
         return;
       }
 
+      postWorkingCareerRehearsalDoorBroadcast(next);
       void persistWorkingCareerRehearsalDoorToServer(next);
     },
     [isWorking, scope],
