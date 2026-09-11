@@ -1958,5 +1958,6 @@
 {"at":"2026-09-11T04:24:51.3008916Z","zoneId":"finding-disposition","outcome":"hit"}
 {"at":"2026-09-11T17:14:00.5286326Z","zoneId":"ui-auth-proxy","outcome":"hit"}
 {"at":"2026-09-11T17:22:45.0643552Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
+{"at":"2026-09-11T17:36:05.8598541Z","zoneId":"identity-provider-config","outcome":"hit"}
 {"at":"2026-09-11T17:39:29.2658351Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
 {"at":"2026-09-11T17:42:51.8708338Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}

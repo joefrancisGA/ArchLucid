@@ -2839,13 +2839,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 5
-- **bugs-found:** 6
+- **hunts:** 6
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-08-24 — activation accepted non-HTTP(S) issuer URIs that discovery rejects
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — SSO wizard test-login accepted non-HTTP(S) issuer URIs that activate rejects
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -2871,6 +2871,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Whitespace-only `MetadataXml` preserves prior metadata — **cheap-disproof 2026-09-10 seed hunt #1669:** `ResolveOptionalPersistedField` clears on whitespace; regression `ActivateAsync_clears_metadata_xml_when_whitespace_only_string_provided`
 - [x] (valid-no-repro) Missing or relative issuer URI accepted — **cheap-disproof 2026-09-10 seed hunt #1669:** `IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps` rejects empty/relative; regression `ActivateAsync_rejects_missing_or_relative_issuer_uri`
 - [x] (valid-no-repro) Unsupported `ArchLucidRole` in mapping persisted — **cheap-disproof 2026-09-10 seed hunt #1669:** `IdentityClaimRoleMappingResolver.ValidateMapping` fails before upsert; regression `ActivateAsync_rejects_unsupported_arch_lucid_role_in_mapping`
+- [x] (proven) `IdentityProviderConfigurationController.TestLogin` accepted non-HTTP(S) `IssuerUri` values that `ActivateAsync` rejects — **hit 2026-09-11 seed hunt #1723:** `SsoWizardTestLoginService` only checked non-whitespace issuer while activation uses `IdentityProviderUriValidator`; wizard test-login returned sandbox success for `file://` / `javascript:` issuers; fixed with shared HTTP(S) validation on controller `test-login`; regressions in `IdentityProviderConfigurationControllerTests` and `Execute_succeeds_with_non_http_issuer_uri_before_controller_validation`
+- [x] (valid-no-repro) `ActivateAsync` accepts duplicate case-variant `IdpValue` mappings in persisted JSON — **cheap-disproof 2026-09-11 seed hunt #1723:** `IdentityClaimRoleMappingValidator.Evaluate` warns and `ResolveRoles` uses first-wins `GroupBy(OrdinalIgnoreCase)`; intentional warn-only until product tightens mapping persistence
+
+2026-09-11 seed hunt #1723 (seed→hit): reseeded identity-provider-config; proved test-login issuer HTTP(S) parity gap vs activate; cheap-disproof closed duplicate case-variant mapping persistence candidate; 28 scoped `IdentityProviderActivationServiceTests` + controller tests passed.
 
 2026-09-10 seed hunt #1669 (seed-only): reseeded identity-provider-config after 2026-08-25; cheap-disproof closed empty-tenant guard, blank-actor guard, null-request guard, invalid-protocol guard, case-insensitive protocol acceptance, issuer/actor trim, whitespace-only secret/metadata clear, missing/relative issuer rejection, and unsupported role mapping rejection; 26 scoped `IdentityProviderActivationServiceTests` passed.
 

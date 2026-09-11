@@ -47,6 +47,41 @@ public sealed class SsoWizardTestLoginServiceTests
     }
 
     [Fact]
+    public void Execute_succeeds_with_non_http_issuer_uri_before_controller_validation()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "file:///etc/passwd",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin",
+                        },
+                    ],
+                },
+                SampleClaimValues = ["al-admins"],
+            },
+            scope);
+
+        response.Success.Should().BeTrue();
+    }
+
+    [Fact]
     public void Execute_returns_failure_when_no_roles_mapped()
     {
         SsoWizardTestLoginService sut = new();
