@@ -968,6 +968,44 @@ describe("WebhooksIntegrationPage", () => {
     ).toBeInTheDocument();
   });
 
+  it("opens disable confirmation from webhookDisableId after subscriptions finish loading", async () => {
+    const subscriptionId = "sub-disable-deeplink-1";
+    let resolveList: (rows: unknown[]) => void = () => {};
+    navigationMocks.getSearchParams().set("webhookDisableId", subscriptionId);
+    apiMocks.list.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveList = resolve as (rows: unknown[]) => void;
+        }),
+    );
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+    });
+
+    expect(navigationMocks.routerReplaceMock).not.toHaveBeenCalled();
+
+    resolveList([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    expect(await screen.findByText(/Disable webhook subscription PagerDuty alerts/i)).toBeInTheDocument();
+  });
+
   it("shows loading configuration status while subscription list is pending", async () => {
     apiMocks.list.mockImplementation(() => new Promise(() => {}));
 
