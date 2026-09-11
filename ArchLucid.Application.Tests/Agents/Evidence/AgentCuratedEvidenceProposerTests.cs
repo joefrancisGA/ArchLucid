@@ -37,6 +37,17 @@ public sealed class AgentCuratedEvidenceProposerTests
     }
 
     [Fact]
+    public void NormalizeResponse_returns_null_when_description_is_invisible_unicode_only()
+    {
+        const string json =
+            """
+            {"type":"Policy","title":"Encrypt SQL TDE","description":"\u200b","rationale":"Findings cited missing encryption."}
+            """;
+
+        AgentCuratedEvidenceProposer.NormalizeResponse(json).Should().BeNull();
+    }
+
+    [Fact]
     public void NormalizeResponse_parses_valid_policy_proposal()
     {
         const string json =

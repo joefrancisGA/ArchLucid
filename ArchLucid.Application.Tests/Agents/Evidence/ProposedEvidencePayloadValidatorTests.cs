@@ -20,6 +20,16 @@ public sealed class ProposedEvidencePayloadValidatorTests
     }
 
     [Fact]
+    public void TryParseValid_WhenDescriptionIsInvisibleUnicodeOnly_ReturnsFalse()
+    {
+        bool ok = ProposedEvidencePayloadValidator.TryParseValid(
+            """{"type":"Policy","title":"Encrypt data at rest","description":"\u200b","rationale":"Gap in catalog."}""",
+            out ProposedEvidencePayload _);
+
+        ok.Should().BeFalse();
+    }
+
+    [Fact]
     public void TryParseValid_WhenTypeIsNull_ReturnsFalse()
     {
         bool ok = ProposedEvidencePayloadValidator.TryParseValid(
@@ -28,6 +38,7 @@ public sealed class ProposedEvidencePayloadValidatorTests
 
         ok.Should().BeFalse();
     }
+
 
     [Theory]
     [InlineData("""{"type":"Unknown","title":"x","description":"y"}""")]

@@ -61,7 +61,7 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         long reasoningSum = 0;
         decimal costAccum = 0m;
         bool anyCost = false;
-        bool anyUnpricedTokenSlice = false;
+        bool anyUnpricedMeasurableSlice = false;
 
         HashSet<string> measurableDeployments = new(StringComparer.Ordinal);
 
@@ -98,7 +98,7 @@ public static class AgentExecutionTraceRunLlmCostAggregator
             }
             else
             {
-                anyUnpricedTokenSlice = true;
+                anyUnpricedMeasurableSlice = true;
             }
 
             if (!string.IsNullOrWhiteSpace(modelDeploymentName))
@@ -115,12 +115,16 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         if (promptSum + completionSum + reasoningSum <= 0 && !anyCost)
             return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, reasoningSum, modelLabel, costBasis);
 
-        if (anyCost && !anyUnpricedTokenSlice)
+        if (anyUnpricedMeasurableSlice)
+        {
+            costBasis = RunLlmCostEstimationBasis.ProviderTokensWithoutRate;
+        }
+        else if (anyCost)
         {
             estimatedUsd = costAccum;
             costBasis = RunLlmCostEstimationBasis.EstimatedFromConfiguredRates;
         }
-        else if (promptSum + completionSum + reasoningSum > 0)
+        else
         {
             costBasis = RunLlmCostEstimationBasis.ProviderTokensWithoutRate;
         }
