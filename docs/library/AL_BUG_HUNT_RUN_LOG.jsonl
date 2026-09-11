@@ -1934,5 +1934,8 @@
 {"at":"2026-09-11T02:40:17.7445442Z","zoneId":"host-composition","outcome":"hit"}
 {"at":"2026-09-11T02:51:35.1901884Z","zoneId":"ui-webhooks-settings","outcome":"hit"}
 {"at":"2026-09-11T02:55:19.5556441Z","zoneId":"ui-webhooks-settings","outcome":"hit"}
+{"at":"2026-09-11T03:04:44.4043317Z","zoneId":"application-agents","outcome":"hit"}
 {"at":"2026-09-11T03:09:57.6950544Z","zoneId":"core-explanation-json","outcome":"hit"}
 {"at":"2026-09-11T03:16:26.7904620Z","zoneId":"ui-webhooks-settings","outcome":"hit"}
+{"at":"2026-09-11T04:24:37.1102797Z","zoneId":"finding-disposition","outcome":"hit"}
+{"at":"2026-09-11T04:24:51.3008916Z","zoneId":"finding-disposition","outcome":"hit"}
