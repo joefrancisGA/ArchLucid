@@ -1,11 +1,14 @@
+using System.Globalization;
+
 namespace ArchLucid.Application.Agents.Evidence;
 
 /// <summary>
-/// Rejects catalog text that passes <see cref="string.IsNullOrWhiteSpace(string?)" /> but has no visible content.
+///     Rejects blank and invisible-only curated-evidence strings (for example U+200B) that pass
+///     <see cref="string.IsNullOrWhiteSpace(string?)" /> but are not usable operator-facing text.
 /// </summary>
-internal static class ProposedEvidenceTextValidation
+public static class ProposedEvidenceTextValidation
 {
-    internal static bool HasSubstantiveText(string? value)
+    public static bool HasSubstantiveText(string? value)
     {
         if (string.IsNullOrEmpty(value))
             return false;
@@ -18,8 +21,9 @@ internal static class ProposedEvidenceTextValidation
             if (char.IsWhiteSpace(character))
                 continue;
 
-            if (char.GetUnicodeCategory(character) is System.Globalization.UnicodeCategory.Format
-                or System.Globalization.UnicodeCategory.Control)
+            UnicodeCategory category = char.GetUnicodeCategory(character);
+
+            if (category is UnicodeCategory.Format or UnicodeCategory.Control)
                 return false;
 
             hasSubstantive = true;
@@ -28,3 +32,4 @@ internal static class ProposedEvidenceTextValidation
         return hasSubstantive;
     }
 }
+

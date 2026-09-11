@@ -20,10 +20,10 @@ public sealed class ProposedEvidencePayloadValidatorTests
     }
 
     [Fact]
-    public void TryParseValid_WhenDescriptionIsInvisibleUnicodeOnly_ReturnsFalse()
+    public void TryParseValid_WhenDescriptionIsZeroWidthSpaceOnly_ReturnsFalse()
     {
         bool ok = ProposedEvidencePayloadValidator.TryParseValid(
-            """{"type":"Policy","title":"Encrypt data at rest","description":"\u200b","rationale":"Gap in catalog."}""",
+            """{"type":"Policy","title":"Encrypt SQL TDE","description":"\u200b"}""",
             out ProposedEvidencePayload _);
 
         ok.Should().BeFalse();
@@ -33,6 +33,7 @@ public sealed class ProposedEvidencePayloadValidatorTests
     public void TryParseValid_WhenTypeIsNull_ReturnsFalse()
     {
         bool ok = ProposedEvidencePayloadValidator.TryParseValid(
+            """{"type":null,"title":"Encrypt SQL TDE","description":"Use CMK.","rationale":"Gap"}""",
             """{"type":null,"title":"Encrypt SQL TDE","description":"Require TDE."}""",
             out ProposedEvidencePayload _);
 
