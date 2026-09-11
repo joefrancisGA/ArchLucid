@@ -32,6 +32,22 @@ Requires ReadAuthority. Both snapshots must belong to the current tenant workspa
 
 `supportingOperationalMetrics.openFindings` — current open + recurred operational finding count (IE-15 style). This is **not** a headline architecture outcome.
 
+## Remediation factory UI
+
+`SecureNowArchitectOutcomeMetricsPanel` on the remediation factory desk:
+
+- Loads inventory snapshots (`useInfraEvidenceSnapshotsQuery`).
+- Auto-selects the two newest snapshots as **from** / **to** when at least two exist.
+- Calls `GET /v1/operational-security/architect-metrics?fromSnapshotId=&toSnapshotId=` on **Compare**.
+- Renders headline fields as ordinal cards (no `%` confidence).
+- Shows `SA11-metrics-v1` rule version for audit parity.
+
+Copy: `securenow-architect-metrics-copy.ts` · API client: `securenow-architect-metrics-api.ts`.
+
+## Defender secure score companion (IE-02)
+
+`defender-summary.json` rows (`resourceId`, `secureScore` metadata only) materialize into `AzureInventoryDefenderSummaries` and surface on snapshot detail reads. Toxic-combination findings may include ordinal metadata `defenderSecureScoreBand` (`Low` / `Medium` / `High`) — never a numeric percentage in buyer output.
+
 ## Non-goals
 
 - No LLM scoring

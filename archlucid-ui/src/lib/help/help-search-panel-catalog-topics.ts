@@ -172,8 +172,17 @@ export const SECURITY_FINDINGS_WORK_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "remediation-factory",
     title: "Remediation factory",
-    description: "Rank findings, plan remediation waves, and open factory instances.",
-    keywords: ["remediation factory", "wave", "ranked findings", "factory"],
+    description:
+      "Rank findings, inspect architect paths, compare outcome metrics, and open factory instances.",
+    keywords: [
+      "remediation factory",
+      "wave",
+      "ranked findings",
+      "ranked paths",
+      "architect metrics",
+      "path inspect",
+      "factory",
+    ],
     action: { kind: "route", href: "/governance/remediation-factory", helpSlug: null },
   },
 ];

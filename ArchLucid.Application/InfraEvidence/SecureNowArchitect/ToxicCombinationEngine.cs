@@ -108,6 +108,8 @@ public sealed class ToxicCombinationEngine(
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         List<OperationalSecurityFindingIngestItem> ingestItems = [];
         int pathsPersisted = 0;
+        DefenderSecureScoreOrdinalBand defenderSecureScoreBand =
+            DefenderSnapshotContextResolver.ResolveSubscriptionBand(snapshot);
 
         foreach (ToxicCombinationCandidate candidate in candidates)
         {
@@ -156,6 +158,21 @@ public sealed class ToxicCombinationEngine(
 
             PrivilegePathSeverityResult severity = ToxicCombinationSeverityTable.Resolve(candidate);
 
+            Dictionary<string, string?> metadata = new()
+            {
+                ["pathKind"] = PathKind.ToxicCombination.ToString(),
+                ["reachabilityPathId"] = candidate.ReachabilityPathId.ToString("D"),
+                ["privilegePathId"] = candidate.PrivilegePathId.ToString("D"),
+                ["hasEgressHop"] = candidate.HasEgressHop.ToString(),
+                ["hopCount"] = candidate.Hops.Count.ToString(),
+            };
+
+            if (defenderSecureScoreBand != DefenderSecureScoreOrdinalBand.Unknown)
+            {
+                metadata[SecureNowArchitectConstants.DefenderSecureScoreBandMetadataKey] =
+                    DefenderSecureScoreOrdinalBandMapper.ToMetadataValue(defenderSecureScoreBand);
+            }
+
             ingestItems.Add(new OperationalSecurityFindingIngestItem
             {
                 Provider = CloudProvider.Azure,
@@ -175,14 +192,7 @@ public sealed class ToxicCombinationEngine(
                 BlastRadius = severity.BlastRadius,
                 Status = OperationalSecurityFindingStatus.Open,
                 RawEvidenceReference = $"snapshot:{snapshotId:D}",
-                Metadata = new Dictionary<string, string?>
-                {
-                    ["pathKind"] = PathKind.ToxicCombination.ToString(),
-                    ["reachabilityPathId"] = candidate.ReachabilityPathId.ToString("D"),
-                    ["privilegePathId"] = candidate.PrivilegePathId.ToString("D"),
-                    ["hasEgressHop"] = candidate.HasEgressHop.ToString(),
-                    ["hopCount"] = candidate.Hops.Count.ToString(),
-                },
+                Metadata = metadata,
             });
         }
 
