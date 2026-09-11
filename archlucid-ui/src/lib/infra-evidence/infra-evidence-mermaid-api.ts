@@ -1,7 +1,9 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { exportMermaidSourceToPngBlob } from "@/lib/infra-evidence/export-mermaid-source-to-png";
 import { infraEvidenceMermaidMutationBlockedReason } from "@/lib/infra-evidence/infra-evidence-mermaid-mutation-blocked-reason";
+import { isInfraEvidenceMermaidServerPngUnavailableError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-unavailable";
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import {
   ensureOidcBearerReady,
@@ -25,6 +27,15 @@ export type InfraEvidenceMermaidRenderQuery = {
   readonly mode?: string | null;
   readonly fallbackKey?: string | null;
   readonly seedNodeId?: string | null;
+};
+
+export type InfraEvidenceMermaidPngDownloadOptions = {
+  readonly fallbackMermaidSource?: string | null;
+  readonly dark?: boolean;
+};
+
+export type InfraEvidenceMermaidPngDownloadResult = {
+  readonly usedBrowserFallback: boolean;
 };
 
 function buildMermaidQuery(params: InfraEvidenceMermaidRenderQuery): string {
@@ -64,14 +75,18 @@ export async function fetchInfraEvidenceMermaidRender(
   );
 }
 
-export async function downloadInfraEvidenceMermaidPng(
+function buildInfraEvidenceMermaidPngFileName(snapshotId: string, query: InfraEvidenceMermaidRenderQuery): string {
+  const modeToken = query.fallbackKey?.trim()
+    || query.mode?.trim()
+    || "diagram";
+
+  return `infra-evidence-mermaid-${snapshotId}-${modeToken}.png`;
+}
+
+async function downloadInfraEvidenceMermaidPngFromServer(
   snapshotId: string,
   query: InfraEvidenceMermaidRenderQuery,
 ): Promise<void> {
-  if (!isBrowser()) {
-    throw new Error("downloadInfraEvidenceMermaidPng is only supported in the browser.");
-  }
-
   await ensureOidcBearerReady();
   const url = `${SNAPSHOTS_PATH}/${snapshotId}/mermaid/export.png${buildMermaidQuery(query)}`;
   const headers = new Headers();
@@ -94,9 +109,40 @@ export async function downloadInfraEvidenceMermaidPng(
 
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition"))
-    ?? `infra-evidence-mermaid-${snapshotId}.png`;
+    ?? buildInfraEvidenceMermaidPngFileName(snapshotId, query);
   const blob = await response.blob();
   await triggerBrowserBlobDownload(blob, fileName);
+}
+
+export async function downloadInfraEvidenceMermaidPng(
+  snapshotId: string,
+  query: InfraEvidenceMermaidRenderQuery,
+  options: InfraEvidenceMermaidPngDownloadOptions = {},
+): Promise<InfraEvidenceMermaidPngDownloadResult> {
+  if (!isBrowser()) {
+    throw new Error("downloadInfraEvidenceMermaidPng is only supported in the browser.");
+  }
+
+  try {
+    await downloadInfraEvidenceMermaidPngFromServer(snapshotId, query);
+
+    return { usedBrowserFallback: false };
+  }
+  catch (error: unknown) {
+    const fallbackMermaidSource = options.fallbackMermaidSource?.trim() ?? "";
+
+    if (fallbackMermaidSource.length === 0 || !isInfraEvidenceMermaidServerPngUnavailableError(error)) {
+      throw error;
+    }
+
+    const blob = await exportMermaidSourceToPngBlob(fallbackMermaidSource, {
+      dark: options.dark ?? false,
+      renderId: `infra-evidence-mermaid-export-${snapshotId}`,
+    });
+    await triggerBrowserBlobDownload(blob, buildInfraEvidenceMermaidPngFileName(snapshotId, query));
+
+    return { usedBrowserFallback: true };
+  }
 }
 
 export function formatInfraEvidenceMermaidApiError(error: unknown): string {
