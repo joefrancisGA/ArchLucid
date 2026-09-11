@@ -55,6 +55,105 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
+    public async Task Snapshot_with_blank_arm_id_still_renders_executive_mermaid()
+    {
+        AzureInventoryResourceRecord resource = new()
+        {
+            ResourceRowId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000001"),
+            SnapshotId = SnapshotId,
+            TenantId = TenantId,
+            CloudResourceId = null,
+            AzureResourceId = string.Empty,
+            ResourceType = "Microsoft.Network/virtualNetworks",
+            ResourceGroup = "rg-network",
+            SubscriptionId = "sub",
+        };
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = [resource],
+        };
+
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.Mode.Should().Be("executive");
+    }
+
+    [Fact]
+    public async Task Snapshot_with_duplicate_cloud_resource_ids_still_renders_executive_mermaid()
+    {
+        Guid sharedCloudResourceId = Guid.Parse("dddddddd-eeee-ffff-0000-111111111111");
+        List<AzureInventoryResourceRecord> resources =
+        [
+            new()
+            {
+                ResourceRowId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000002"),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                CloudResourceId = sharedCloudResourceId,
+                AzureResourceId =
+                    "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-a",
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                ResourceGroup = "rg-network",
+                SubscriptionId = "sub",
+            },
+            new()
+            {
+                ResourceRowId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000003"),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                CloudResourceId = sharedCloudResourceId,
+                AzureResourceId =
+                    "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-b",
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                ResourceGroup = "rg-network",
+                SubscriptionId = "sub",
+            },
+        ];
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = resources,
+        };
+
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
+            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.Modes.Should().NotBeEmpty();
+    }
+
+    [Fact]
     public async Task Over_threshold_graph_returns_partitioned_status_in_preview()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 500);

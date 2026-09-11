@@ -42,10 +42,18 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         };
 
         int order = 0;
+        Dictionary<string, string> nodeIdMap = new(StringComparer.Ordinal);
+        HashSet<string> seenTopologyNodeIds = new(StringComparer.Ordinal);
 
         foreach (GraphNode node in topologyNodes)
         {
+            if (!seenTopologyNodeIds.Add(node.NodeId))
+            {
+                continue;
+            }
+
             string mermaidNodeId = MermaidIdSanitizer.Sanitize(node.NodeId);
+            nodeIdMap[node.NodeId] = mermaidNodeId;
 
             ast.Nodes.Add(new DiagramNode
             {
@@ -56,11 +64,6 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 OrderKey = order++,
             });
         }
-
-        Dictionary<string, string> nodeIdMap = topologyNodes.ToDictionary(
-            node => node.NodeId,
-            node => MermaidIdSanitizer.Sanitize(node.NodeId),
-            StringComparer.Ordinal);
 
         foreach (GraphEdge edge in includedEdges)
         {
