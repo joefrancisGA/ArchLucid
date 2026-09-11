@@ -11500,10 +11500,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-10 — lineage exposed top findings when golden manifest hash was tampered
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -11532,6 +11532,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PreFinalizeChecklistService` severity counts use rollup-filtered snapshot findings while `PreCommitGovernanceGate` evaluates raw snapshot plus supplemental findings — **hit 2026-09-09 (#1418):** checklist `open-error-findings` stayed Clear on empty snapshot while global Error-threshold gate blocked on technology-consistency supplemental findings; fixed via shared `PreFinalizeGateParityFindingLoader` (`PreFinalizeChecklistServiceTests.BuildAsync_marks_error_findings_when_technology_consistency_supplemental_would_block_gate`)
 - [x] (proven) `GovernanceLineageService.GetApprovalRequestLineageAsync` reads golden manifest summary without `GovernanceInsightsSealedManifestHashGuard` — **hit 2026-09-09 (#1418):** lineage surfaced manifest summary and risk posture for tampered hash; fixed by verifying sealed hash before manifest exposure (`GovernanceLineageServiceTests.GetApprovalRequestLineageAsync_When_manifest_unsealed_omits_manifest_summary_and_risk_posture`)
 - [x] (proven) `GovernanceLineageService.GetApprovalRequestLineageAsync` still maps `TopFindings` when golden manifest is present but hash fails seal verification — **hit 2026-09-10 seed hunt:** #1418 guarded manifest summary and risk posture only; findings snapshot titles and severities still leaked for tampered hash; fixed by skipping top-finding projection when manifest is present and unsealed (`GovernanceLineageServiceTests.GetApprovalRequestLineageAsync_When_manifest_unsealed_omits_top_findings`)
+
+- [x] (valid-no-repro) `PolicyPackGovernanceDryRunService.EvaluateAsync` returns null for non-GUID `targetRunId` — **cheap-disproof 2026-09-11 seed hunt #1694:** intentional 404 parity with out-of-scope runs, not an id-format oracle (`EvaluateAsync_returns_null_for_non_guid_target_run_id_without_id_format_oracle`).
+
+2026-09-11 seed hunt #1694 (seed-only): reseeded application-governance-policy after #1535; cheap-disproof on dry-run non-GUID null shape; 1 scoped PolicyPackGovernanceDryRunService test passed.
 
 2026-09-10 seed hunt (hit): extended lineage sealed-manifest guard to top findings projection.
 2026-09-09 thorough hunt #1418 (hit): proved checklist supplemental-finding parity gap and lineage sealed-manifest guard gap.
@@ -11827,10 +11831,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 17
-- **bugs-found:** 27
+- **hunts:** 18
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-09 — home preview tab counts ignored deduped previewItems pool
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11876,6 +11880,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — preview tab counts derived from `displayItems` instead of deduped `previewItems` — **hit 2026-09-09 seed hunt #1420:** buyer-polished Home passed rail-deduped `previewItems` but tab badges counted the full dashboard pool; fixed by counting `filterTenantOverviewRuns(input.previewItems)`; regression in `uses previewItems for tab counts when unfinished-work rail dedup shrinks the preview pool`
 
 - [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` and KPI aggregates use loaded page length only; no workspace `totalCount` from paginated runs dashboard — seeded 2026-09-09; `OperatorHomeWorkspaceMetricsSummary` already uses `runsDashboard.totalCount` while tenant counting snapshot omits it
+- [x] (proven) `invalidateOperatorHomeRunsCaches` / `invalidateOperatorSponsorRoiCaches` — omitted scoped `pilotValueReport` TanStack invalidation after run commit or sponsor seed changes — **hit 2026-09-11 thorough hunt #1695:** sponsor value report `totalRunsCommitted` stayed stale until `staleTime` expired; fixed via `invalidatePilotValueReportCache`; regression `invalidateOperatorHomeRunsCaches_invalidates_scoped_pilot_value_report_queries`.
+
+2026-09-11 thorough hunt #1695 (hit): proved pilot value report cache not invalidated on run lifecycle writes; 2 scoped operator-query-invalidation tests passed.
 
 2026-09-09 seed hunt #1420 (seed→hit): reseeded ui-operator-lib after HOM reconciliation commits; proved previewItems tab-count parity gap; seeded paginated totalCount metrics candidate; 5 tenant-counting tests passed.
 2026-09-08 seed hunt #1345 (seed→hit): reseeded home counting parity after HOM reconciliation commits; proved archived-run tab count inflation on Overview preview; 15 scoped home-counting tests passed.
