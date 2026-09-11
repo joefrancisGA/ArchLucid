@@ -133,7 +133,7 @@ import { OPERATOR_FORM_FIELD_LABEL_CLASS } from "@/lib/design-tokens";
 import { DiagramsWorkbenchClient } from "./DiagramsWorkbenchClient";
 
 describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
-  it("renders skip link, claim discipline, picker sections, and sources strip", async () => {
+  it("renders skip link, picker sections, and sources strip", async () => {
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
 
@@ -141,7 +141,6 @@ describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
       "href",
       `#${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("infra-diagrams-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("governance-infrastructure-diagrams-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
