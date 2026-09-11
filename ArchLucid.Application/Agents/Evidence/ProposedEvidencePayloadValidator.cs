@@ -31,6 +31,9 @@ public static class ProposedEvidencePayloadValidator
             if (!ProposedEvidenceTextValidation.HasSubstantiveText(parsed.Description))
                 return false;
 
+            if (!ProposedEvidenceTextValidation.HasSubstantiveText(parsed.Rationale))
+                return false;
+
             payload = parsed;
             return true;
         }
