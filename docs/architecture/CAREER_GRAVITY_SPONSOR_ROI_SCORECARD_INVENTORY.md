@@ -23,9 +23,9 @@ Sponsors never open the chooser. KPI tiles are the packet.
 |---------|------|----------------|--------------|------------|-------|
 | Sponsor report | `archlucid-ui/src/app/(operator)/insights/sponsor-report/page.tsx` | Value-report page | No door; not review-detail | **bypass** | CG-035 / CG-091 |
 | ROI summary | `archlucid-ui/src/app/(operator)/insights/roi-summary/_sections/RoiSummaryBuyerChrome.tsx` | Claim orientation | No rehearsal door | **bypass** | CG-035 |
-| Architecture scorecard | `archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx` | Pilot KPIs | No door | **bypass** | CG-034 |
-| Scorecard ROI panel | `archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardRoiPanel.tsx` | ROI panel | No door | **bypass** | CG-034 / CG-035 |
-| Scorecard outcomes | `archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPrimaryOutcomes.tsx` | Outcome tiles | No door | **bypass** | CG-034 |
+| Architecture scorecard | `archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx` | Pilot KPIs | CG-034 strip + rehearsal section qualifier | **covered** | CG-034 |
+| Scorecard ROI panel | `archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardRoiPanel.tsx` | ROI panel | CG-034 strip context | **covered** | CG-034 / CG-035 |
+| Scorecard outcomes | `archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPrimaryOutcomes.tsx` | Outcome tiles | Rehearsal / practice KPI labels | **covered** | CG-034 |
 | ROI summary service | `ArchLucid.Application/Roi/SponsorRoiSummaryService.cs` | Aggregates | No door field | **bypass** | CG-035 |
 | ROI history mix | `ArchLucid.Application/Roi/SponsorRoiHistoryRunModeCalculator.cs` | Real vs Simulator **run counts** | Period mix, not door | related | CG-035 |
 | Mode honesty footnote | `ArchLucid.Application/Runs/StructuralExecutionModeHonesty.cs` | `RoiPeriodMixedModeFootnote` | Mix across period — **not** Rehearsal door | related | CG-035 |

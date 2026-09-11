@@ -52,6 +52,9 @@ import {
   resolveScorecardScoringSteps,
 } from "@/lib/scorecard-scoring-checklist";
 
+import { ScorecardKpiCareerHonestyStrip } from "@/components/scorecard/ScorecardKpiCareerHonestyStrip";
+import { useScorecardKpiCareerHonesty } from "@/hooks/use-scorecard-kpi-career-honesty";
+
 import { ArchitectureScorecardBuyerChrome } from "./ArchitectureScorecardBuyerChrome";
 import { PilotScorecardMethodology } from "./PilotScorecardMethodology";
 import { PilotScorecardPrimaryOutcomes } from "./PilotScorecardPrimaryOutcomes";
@@ -200,6 +203,10 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
     reviewPicked: scopedRunFilterActive,
     metricsReviewed: showScorecardMetrics,
     exportReady: showScorecardMetrics,
+  });
+  const scorecardKpiCareerHonesty = useScorecardKpiCareerHonesty({
+    isSample: sampleMode,
+    scopedRunId: scopedRunId,
   });
 
   return (
@@ -382,6 +389,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
 
       {showScorecardMetrics && summaryRow !== null ? (
         <>
+          <ScorecardKpiCareerHonestyStrip isSample={sampleMode} scopedRunId={scopedRunId} />
           <PilotScorecardPrimaryOutcomes
             savingsReady={savingsReady}
             finalizedDisplay={finalizedDisplay}
@@ -390,6 +398,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
             summaryRow={summaryRow}
             showPreviewBadge={showPreviewBadge}
             quarterlySavingsLabel={quarterlySavingsLabel}
+            kpiSectionQualifier={scorecardKpiCareerHonesty?.kpiSectionQualifier ?? null}
           />
 
           <PilotScorecardRoiPanel

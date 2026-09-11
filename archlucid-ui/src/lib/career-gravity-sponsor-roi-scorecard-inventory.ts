@@ -23,18 +23,18 @@ export const CAREER_GRAVITY_SPONSOR_ROI_SCORECARD_ROWS: readonly CareerGravitySp
   },
   {
     relativePath: "archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-034",
   },
   {
     relativePath: "archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardRoiPanel.tsx",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-034",
   },
   {
     relativePath:
       "archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPrimaryOutcomes.tsx",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-034",
   },
   {
