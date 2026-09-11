@@ -62,6 +62,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 NodeType = node.NodeType,
                 SubgraphId = subgraphPlanner.ResolveSubgraphId(node, subgraphs),
                 OrderKey = order++,
+                ArmResourceType = DiagramAstGraphNodeClassifier.ReadArmType(node),
+                ArmResourceGroup = DiagramAstGraphNodeClassifier.ReadResourceGroup(node),
             });
         }
 
@@ -155,7 +157,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
     private static List<GraphNode> FilterByCategories(List<GraphNode> nodes, params string[] categories)
     {
-        HashSet<string> allowed = categories.ToHashSet(StringComparer.Ordinal);
+        HashSet<string> allowed = categories.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         return nodes
             .Where(node => allowed.Contains(DiagramAstGraphNodeClassifier.ResolveCategory(node)))

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ArchitectureDiagramViewer } from '@/components/architecture/ArchitectureDiagramViewer';
 import {
   ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL,
+  ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
   ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL,
   ARCHITECTURE_DIAGRAM_VIEWPORT_HINT,
   ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
@@ -166,6 +167,53 @@ describe('ArchitectureDiagramViewer', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(onRetry).toHaveBeenCalled();
+  });
+
+  it('keeps mermaid viewport controls and fullscreen inside the diagram viewport', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-viewport')).toBeInTheDocument();
+    });
+
+    const viewport = screen.getByTestId('architecture-diagram-viewport');
+
+    expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-viewport-controls'));
+    expect(viewport).toContainElement(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION }));
+  });
+
+  it('zooms the mermaid viewport with ctrl+wheel', async () => {
+    replaceMock.mockClear();
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-viewport')).toBeInTheDocument();
+    });
+
+    const viewport = screen.getByTestId('architecture-diagram-viewport');
+
+    fireEvent.wheel(viewport, { deltaY: -100, ctrlKey: true });
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/securenow/inventory?diagZoom=1.10', {
+        scroll: false,
+      });
+    });
   });
 
   it('syncs zoom changes to the URL after user interaction', async () => {

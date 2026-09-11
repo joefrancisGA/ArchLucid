@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:437 -->
+<!-- audit-core-const-count:446 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -440,6 +440,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 |----------|-------|---------------------------|
 | `RunStarted` | `RunStarted` | `AuthorityRunOrchestrator` |
 | `RunCompleted` | `RunCompleted` | `AuthorityRunOrchestrator` |
+| `RunAssumptionsAcknowledged` | `RunAssumptionsAcknowledged` | `RunAssumptionAcknowledgementService` (`PUT /v1/architecture/review/{runId}/assumptions/acknowledgement`; TB-2345) |
 | `RunCoverageAcknowledged` | `RunCoverageAcknowledged` | `RunCoverageAcknowledgementService` (`RunCoverageController` PUT/PATCH acknowledgement) |
 | `ManifestGenerated` | `ManifestGenerated` | `AuthorityPipelineStagesExecutor` |
 | `ManifestFinalized` | `ManifestFinalized` | `ManifestFinalizationService` (`sp_FinalizeManifest` transactional path — see `MANIFEST_FINALIZATION_TRANSACTION.md`) |
@@ -654,6 +655,11 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `CircuitBreakerProbeOutcome` | `CircuitBreakerProbeOutcome` | `CircuitBreakerAuditBridge` |
 | `ContentSafetyCircuitDegradedFallback` | `ContentSafetyCircuitDegradedFallback` | `CircuitBreakingContentSafetyGuard` (degraded allow path; local deny-list after Azure Content Safety circuit unhealthy) |
 | `SecurityAssessmentPublished` | `SecurityAssessmentPublished` | `SecurityTrustPublicationController` |
+| `SecurityAssetAssertionCreated` | `SecurityAssetAssertion.Created` | `SecurityAssetAssertionService` (`OperationalSecurityAssetAssertionsController` `POST /v1/operational-security/asset-assertions`) |
+| `SecurityAssetAssertionExpired` | `SecurityAssetAssertion.Expired` | `SecurityAssetAssertionService` (`OperationalSecurityAssetAssertionsController` expiry sweep) |
+| `SecurityAssetAssertionRenewed` | `SecurityAssetAssertion.Renewed` | `SecurityAssetAssertionService` (`OperationalSecurityAssetAssertionsController` renew) |
+| `SecurityAssetAssertionRevoked` | `SecurityAssetAssertion.Revoked` | `SecurityAssetAssertionService` (`OperationalSecurityAssetAssertionsController` revoke) |
+| `SecureNowArchitectNeighborhoodRecomputed` | `SecureNowArchitect.NeighborhoodRecomputed` | `SecureNowArchitectNeighborhoodRunner` (infra-evidence neighborhood diff recompute) |
 | `TenantProvisioned` | `TenantProvisioned` | `TenantProvisioningService` |
 | `TenantSelfRegistered` | `TenantSelfRegistered` | `RegistrationController` |
 | `TenantSuspended` | `TenantSuspended` | `TenantSuspendCommandService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `TenantsAdminController` `POST …/admin/tenants/{id}/suspend`) |
