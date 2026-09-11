@@ -59,13 +59,11 @@ public static class ReviewRunEngineProvenanceAggregator
         IReadOnlyList<AgentExecutionTrace> traces,
         StructuralExecutionMode structuralExecutionMode)
     {
-        if (traces.Count == 0)
-        {
-            if (structuralExecutionMode == StructuralExecutionMode.Simulator)
-                return "deterministic";
+        if (structuralExecutionMode == StructuralExecutionMode.Simulator)
+            return "deterministic";
 
+        if (traces.Count == 0)
             return "azure-openai";
-        }
 
         if (traces.All(static trace =>
                 string.Equals(
