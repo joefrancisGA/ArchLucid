@@ -265,6 +265,42 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
     }
 
     [Fact]
+    public void Compute_WhenOnlySomeTracesPrice_UsesProviderTokensWithoutRateBasis()
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(e => e.EstimateUsd(100, 40, 0, "dep-priced"))
+            .Returns(1.0m);
+        estimator
+            .Setup(e => e.EstimateUsd(50, 10, 0, "dep-unpriced"))
+            .Returns((decimal?)null);
+
+        List<AgentExecutionTrace> traces =
+        [
+            new()
+            {
+                ModelDeploymentName = "dep-priced",
+                InputTokenCount = 100,
+                OutputTokenCount = 40,
+            },
+            new()
+            {
+                ModelDeploymentName = "dep-unpriced",
+                InputTokenCount = 50,
+                OutputTokenCount = 10,
+            },
+        ];
+
+        AgentExecutionTraceRunLlmCostSummary summary =
+            AgentExecutionTraceRunLlmCostAggregator.Compute(traces, estimator.Object);
+
+        summary.PromptTokens.Should().Be(150);
+        summary.CompletionTokens.Should().Be(50);
+        summary.EstimatedCostUsd.Should().BeNull();
+        summary.CostEstimationBasis.Should().Be(RunLlmCostEstimationBasis.ProviderTokensWithoutRate);
+    }
+
+    [Fact]
     public void Compute_LargeTokenTotals_UseLongAccumulationWithoutOverflow()
     {
         Mock<ILlmCostEstimator> estimator = new();
