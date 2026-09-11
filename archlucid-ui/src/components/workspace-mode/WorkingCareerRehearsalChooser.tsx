@@ -9,13 +9,15 @@ import { WorkingCareerDoorBlockedDialog } from "@/components/workspace-mode/Work
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import {
   useEvaluateWorkingCareerDoorGate,
   useWorkingCareerDoorGate,
 } from "@/hooks/use-working-career-door-gate";
+import { useSessionAiReadiness } from "@/hooks/session-ai-readiness-context";
 import type { WorkingCareerDoorGateResult } from "@/lib/governance/working-career-door-gate";
+import { resolveWorkingCareerDoorHostModeMatrixCell } from "@/lib/governance/working-career-door-host-mode-matrix";
 import { useWorkingCareerRehearsalDoor } from "@/hooks/use-working-career-rehearsal-door";
-import { WORKING_CAREER_DOOR_BLOCKED_TITLE } from "@/lib/governance/working-career-door-gate-copy";
 import {
   WORKING_CAREER_DOOR_DETAIL,
   WORKING_CAREER_REHEARSAL_CHOOSER_ARIA_LABEL,
@@ -66,6 +68,15 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
   const { door, mounted: doorMounted, setDoor } = useWorkingCareerRehearsalDoor();
   const gate = useWorkingCareerDoorGate(door);
   const evaluateGate = useEvaluateWorkingCareerDoorGate();
+  const { mode: sessionMode } = useAgentExecutionMode();
+  const readiness = useSessionAiReadiness();
+  const matrix = resolveWorkingCareerDoorHostModeMatrixCell({
+    selectedDoor: door,
+    gate,
+    isSessionReal: readiness.isSessionReal,
+    hostMode: readiness.hostMode,
+    sessionMode,
+  });
   const [blockedDialogOpen, setBlockedDialogOpen] = useState(false);
   const [blockedDialogGate, setBlockedDialogGate] = useState<WorkingCareerDoorGateResult | null>(null);
   const canShow = workspaceMounted && doorMounted && isWorkingWorkspaceMode(mode);
@@ -107,8 +118,8 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
     return null;
   }
 
-  const activeDetail = gate.isCareerExecuteBlocked
-    ? gate.blockedDetail ?? WORKING_CAREER_DOOR_BLOCKED_TITLE
+  const activeDetail = matrix.showStatusTag
+    ? matrix.detail
     : DOOR_OPTIONS.find((option) => option.id === door)?.detail ?? WORKING_REHEARSAL_DOOR_DETAIL;
 
   return (
@@ -117,7 +128,8 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
         className={cn("inline-flex max-w-[min(100%,20rem)] items-center gap-1.5 sm:max-w-none", props.className)}
         data-testid={WORKING_CAREER_REHEARSAL_CHOOSER_TEST_ID}
         data-chooser-source={source}
-        data-effective-door={gate.isCareerExecuteBlocked ? "rehearsal" : door}
+        data-effective-door={matrix.effectiveDoor}
+        data-door-host-mode-cell={matrix.cellId}
         aria-keyshortcuts={registryKeyToAriaKeyShortcuts(WORKING_CAREER_REHEARSAL_DOOR_SHORTCUT_KEY)}
       >
         <OperatorSegmentedModeToolbar
@@ -136,12 +148,12 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
           ariaLabel={WORKING_CAREER_REHEARSAL_CHOOSER_ARIA_LABEL}
           className="mb-0 gap-1"
         />
-        {gate.isCareerExecuteBlocked ? (
+        {matrix.showStatusTag ? (
           <StatusTag
-            kind="blocked"
-            label="Blocked"
+            kind={matrix.statusTagKind}
+            label={matrix.statusLabel}
             className="shrink-0"
-            data-testid="working-career-door-blocked-tag"
+            data-testid={matrix.matrixTestId}
           />
         ) : null}
         <FieldHelpTooltip
