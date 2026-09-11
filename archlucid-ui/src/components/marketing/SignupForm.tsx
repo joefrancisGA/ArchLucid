@@ -24,6 +24,7 @@ import { readFirstTouchCookie, serializeFirstTouchHeader } from "@/lib/marketing
 import {
   companySizeOptions,
   industryVerticalOptions,
+  deriveSignupFormReadinessMessage,
   signupFormSchema,
   type SignupFormValues,
 } from "@/lib/signup-schema";
@@ -64,6 +65,7 @@ export function SignupForm() {
   const industryVertical = values.industryVertical;
   // TB-2010 — disable primary until hard client validation passes (no validation toast).
   const canSubmit = signupFormSchema.safeParse(values).success;
+  const readinessMessage = deriveSignupFormReadinessMessage(values);
 
   const onSubmit = handleSubmit(async (values) => {
     setSubmitting(true);
@@ -341,10 +343,8 @@ export function SignupForm() {
               id="signup-form-readiness"
               testId="signup-form-readiness"
               reason={
-                !canSubmit && !submitting
-                  ? whyDisabledIncompleteInput(
-                      "Enter work email, full name, and organization to continue.",
-                    )
+                !canSubmit && !submitting && readinessMessage !== null
+                  ? whyDisabledIncompleteInput(readinessMessage)
                   : null
               }
             />

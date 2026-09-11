@@ -373,6 +373,75 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("shows email-specific readiness when required fields are filled but email is invalid", async () => {
+    render(<SignupForm />);
+
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "not-an-email" } });
+    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
+    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/valid work email/i);
+  });
+
+  it("shows industry readiness when Other is selected without a specification", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Other")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Other"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/industry/i);
+  });
+
+  it("keeps submit disabled for fractional optional architecture team size", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.change(screen.getByTestId("signup-architecture-team-size"), { target: { value: "3.5" } });
+
+    await waitFor(() => {
+      expect(screen.getByText(/whole number when provided/i)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+  });
+
+  it("does not send fractional optional architecture team size in the register payload", async () => {
+    const fetchMock = vi.fn();
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.change(screen.getByTestId("signup-architecture-team-size"), { target: { value: "3.5" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    fireEvent.submit(screen.getByRole("button", { name: /Create evaluation workspace/i }).closest("form")!);
+
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
+  });
+
   it("omits whitespace-only optional architecture team size from the register payload", async () => {
     const fetchMock = vi.fn(async () =>
       new Response(

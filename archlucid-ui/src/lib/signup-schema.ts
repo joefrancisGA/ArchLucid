@@ -54,6 +54,12 @@ export const signupFormSchema = z
           message: "Enter a valid number for architecture team size.",
           path: ["architectureTeamSize"],
         });
+      } else if (!Number.isInteger(n)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Architecture team size must be a whole number when provided.",
+          path: ["architectureTeamSize"],
+        });
       } else if (n <= 0 || n > 10_000) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -73,3 +79,37 @@ export const signupFormSchema = z
   });
 
 export type SignupFormValues = z.infer<typeof signupFormSchema>;
+
+/** TB-2010 readiness copy beside the signup CTA when hard client validation blocks submit. */
+export function deriveSignupFormReadinessMessage(values: SignupFormValues): string | null {
+  const parsed = signupFormSchema.safeParse(values);
+
+  if (parsed.success) {
+    return null;
+  }
+
+  const trimmedEmail = values.adminEmail?.trim() ?? "";
+  const trimmedName = values.adminDisplayName?.trim() ?? "";
+  const trimmedOrg = values.organizationName?.trim() ?? "";
+
+  if (trimmedEmail.length === 0 || trimmedName.length === 0 || trimmedOrg.length === 0) {
+    return "Enter work email, full name, and organization to continue.";
+  }
+
+  const issuePath = parsed.error.issues[0]?.path[0];
+
+  switch (issuePath) {
+    case "adminEmail":
+      return "Enter a valid work email to continue.";
+    case "adminDisplayName":
+      return "Enter a full name of at most 200 characters to continue.";
+    case "organizationName":
+      return "Enter an organization name of at most 200 characters to continue.";
+    case "architectureTeamSize":
+      return "Enter a valid architecture team size between 1 and 10,000 to continue.";
+    case "industryVerticalOther":
+      return "Specify your industry when you select Other to continue.";
+    default:
+      return "Complete the required fields to continue.";
+  }
+}
