@@ -1,13 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 import "./globals.css";
 
 import { OperatorErrorUiReferenceLine } from "@/components/operator/OperatorErrorUiReferenceLine";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
+import { ERROR_BOUNDARY_IDLE_SNAPSHOT_PRESERVED_COPY } from "@/lib/auth/error-boundary-idle-snapshot-copy";
+import { persistLivelihoodIdleSnapshotsBeforeErrorRecovery } from "@/lib/auth/error-boundary-idle-snapshot";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /**
  * Replaces the entire root layout when layout.tsx fails. Must define html/body.
@@ -19,6 +23,12 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [idleSnapshotsPreserved, setIdleSnapshotsPreserved] = useState(false);
+
+  useLayoutEffect(() => {
+    setIdleSnapshotsPreserved(persistLivelihoodIdleSnapshotsBeforeErrorRecovery());
+  }, [error]);
+
   useEffect(() => {
     console.error("Operator shell global error:", error);
   }, [error]);
@@ -35,6 +45,14 @@ export default function GlobalError({
           <p className="mt-2 text-sm text-red-900 dark:text-red-100/95">
             {isDev ? error.message : "A critical error occurred. Try reloading or open Help."}
           </p>
+          {idleSnapshotsPreserved ? (
+            <p
+              className={cn("mt-2 text-sm text-red-900 dark:text-red-100/95", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="global-error-idle-snapshot-preserved"
+            >
+              {ERROR_BOUNDARY_IDLE_SNAPSHOT_PRESERVED_COPY}
+            </p>
+          ) : null}
           <OperatorErrorUiReferenceLine paragraphClassName="mt-3 text-red-900/90 dark:text-red-100/85" />
           {digest.length > 0 ? (
             <div className="mt-3 flex flex-wrap items-center gap-2">

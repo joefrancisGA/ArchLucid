@@ -29,10 +29,12 @@ public sealed partial class DraftRequestsController
             scope,
             draftId,
             actorId,
+            hasExecuteAuthority: true,
             cancellationToken);
 
-        if (result.Status == ArchitectureWorkLeaseAcquireStatus.DraftNotFound
-            || result.Status == ArchitectureWorkLeaseAcquireStatus.HolderNotResolved)
+        if (result.Status is ArchitectureWorkLeaseAcquireStatus.DraftNotFound
+            or ArchitectureWorkLeaseAcquireStatus.HolderNotResolved
+            or ArchitectureWorkLeaseAcquireStatus.NotAuthorized)
         {
             return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ResourceNotFound);
         }
@@ -119,5 +121,46 @@ public sealed partial class DraftRequestsController
         }
 
         return NoContent();
+    }
+
+    /// <summary>Steals an unexpired work lease after explicit operator confirm (ADR 0090 / LW-092).</summary>
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [HttpPost("{draftId:guid}/work-lease/steal")]
+    [ProducesResponseType(typeof(ArchitectureWorkLeaseResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [MutatingAuditExcluded("Audit: work-lease steal logs DraftIntake.WorkLeaseStolen via LogOrThrowAsync.")]
+    public async Task<IActionResult> StealDraftWorkLease(Guid draftId, CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        string actorId = _actorContext.GetActorId();
+
+        ArchitectureWorkLeaseStealResult result = await _architectureWorkLeaseService.StealAsync(
+            scope,
+            draftId,
+            actorId,
+            hasExecuteAuthority: true,
+            cancellationToken);
+
+        if (result.Status is ArchitectureWorkLeaseStealStatus.DraftNotFound
+            or ArchitectureWorkLeaseStealStatus.HolderNotResolved
+            or ArchitectureWorkLeaseStealStatus.NotAuthorized)
+        {
+            return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ResourceNotFound);
+        }
+
+        await _auditService.LogAsync(
+            BuildDraftAuditEvent(
+                scope,
+                AuditEventTypes.ArchitectureWorkLeaseStolen,
+                new
+                {
+                    draftId,
+                    architectureId = result.Response?.ArchitectureId,
+                    holderUserId = result.Response?.HolderUserId,
+                    previousHolderUserId = result.PreviousHolderUserId,
+                }),
+            cancellationToken);
+
+        return Ok(result.Response);
     }
 }
