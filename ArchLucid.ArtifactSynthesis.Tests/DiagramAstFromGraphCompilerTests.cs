@@ -86,6 +86,26 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_collapses_duplicate_topology_node_ids_without_throwing()
+    {
+        GraphSnapshot graph = BuildSampleGraph();
+        GraphNode duplicateNode = CreateTopologyNode(
+            graph.Nodes[0].NodeId,
+            "duplicate-vnet",
+            "Microsoft.Network/virtualNetworks",
+            "network-rg",
+            "11111111-1111-1111-1111-111111111111",
+            GraphTopologyCategories.Network);
+        graph.Nodes.Add(duplicateNode);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+
+        ast.Nodes.Should().HaveCount(graph.Nodes.Count - 1);
+        string mermaid = renderer.Render(ast);
+        mermaid.Should().Contain("flowchart TD");
+    }
+
+    [Fact]
     public void Compile_drops_edges_below_documented_weight_threshold()
     {
         GraphSnapshot graph = BuildSampleGraph();
