@@ -968,6 +968,16 @@ describe("WebhooksIntegrationPage", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows loading configuration status while subscription list is pending", async () => {
+    apiMocks.list.mockImplementation(() => new Promise(() => {}));
+
+    render(<WebhooksIntegrationPage />);
+
+    expect(screen.getByText(/Loading configuration status/i)).toBeInTheDocument();
+    expect(screen.queryByTestId("webhooks-not-configured-next-step")).toBeNull();
+    expect(screen.queryByLabelText("Status: Not configured")).toBeNull();
+  });
+
   it("does not render mid-page About webhooks panel (TB-2093)", async () => {
     render(<WebhooksIntegrationPage />);
 
