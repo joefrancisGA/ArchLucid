@@ -135,15 +135,24 @@ export type ArchitectureShareGrantPendingPayload = {
 
 export type RiskExceptionWriteOperation = "renew" | "revoke";
 
-export type RiskExceptionWritePendingPayload = {
+export type RiskExceptionRenewPendingPayload = {
   readonly riskExceptionId: string;
-  readonly operation: RiskExceptionWriteOperation;
-  readonly body?: {
-    readonly expiresAtUtc?: string;
+  readonly operation: "renew";
+  readonly body: {
+    readonly expiresAtUtc: string;
     readonly rationale?: string;
     readonly evidenceRef?: string;
   };
 };
+
+export type RiskExceptionRevokePendingPayload = {
+  readonly riskExceptionId: string;
+  readonly operation: "revoke";
+};
+
+export type RiskExceptionWritePendingPayload =
+  | RiskExceptionRenewPendingPayload
+  | RiskExceptionRevokePendingPayload;
 
 export type LivelihoodPendingMutationPayload =
   | FindingDispositionPendingPayload
