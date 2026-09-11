@@ -259,6 +259,80 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
             .NotStartWith("/");
     }
 
+    [Fact]
+    public void DefaultApplyOrderRoots_lists_orchestrator_only_once_as_legacy_leaf()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+        List<string> orchestratorLines = roots
+            .Where(line => line.Contains("infra/terraform-orchestrator", StringComparison.Ordinal))
+            .ToList();
+
+        orchestratorLines.Should().ContainSingle();
+        orchestratorLines[0].Should().Contain("legacy isolation path only");
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_leaf_sequence_matches_reference_doc_advanced_table()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> referenceLeaves = ReadReferenceDocAdvancedTableLeafPaths(repoRoot);
+        IReadOnlyList<string> evidenceLeaves = ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        evidenceLeaves.Should().Equal(referenceLeaves);
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_composition_roots_annotate_foundation_platform_app_waves()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+        List<string> compositionLines = roots
+            .Where(line => line.Contains("metadata composition root", StringComparison.Ordinal))
+            .ToList();
+
+        compositionLines.Should().HaveCount(3);
+        compositionLines[0].Should().Contain("wave 1");
+        compositionLines[1].Should().Contain("wave 2");
+        compositionLines[2].Should().Contain("wave 3");
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_hosted_wave_boundaries_place_app_leaves_after_platform_leaves()
+    {
+        List<string> leaves = ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        leaves.IndexOf("infra/terraform-acr").Should().BeGreaterThan(leaves.IndexOf("infra/terraform-keyvault"));
+        leaves.IndexOf("infra/terraform-entra").Should().BeGreaterThan(leaves.IndexOf("infra/terraform-acr"));
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_plain_leaf_lines_are_unannotated_exact_paths()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        foreach (string line in roots)
+        {
+            if (line.Contains("metadata composition root", StringComparison.Ordinal)
+                || line.Contains("canonical default profile", StringComparison.Ordinal)
+                || line.Contains("legacy isolation path only", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            line.Should().NotContain(" —", "plain leaf lines must not use em-dash annotations that corrupt path extraction");
+            line.Should().StartWith("infra/");
+            line.Trim().Should().Be(line, "plain leaf lines must be exact paths without trailing whitespace");
+        }
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring()
+    {
+        List<string> leaves = ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        leaves.IndexOf("infra/terraform").Should().BeGreaterThan(leaves.IndexOf("infra/terraform-edge"));
+        leaves.IndexOf("infra/terraform-monitoring").Should().BeGreaterThan(leaves.IndexOf("infra/terraform"));
+    }
+
     private static string RequireRepositoryRoot()
     {
         string? repoRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot(AppContext.BaseDirectory);
@@ -304,6 +378,18 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
         MatchCollection matches = Regex.Matches(
             content,
             @"^\s+root_path\s*=\s*""(infra/terraform[^""]*)""\s*$",
+            RegexOptions.Multiline);
+
+        return matches.Select(match => match.Groups[1].Value).ToList();
+    }
+
+    private static IReadOnlyList<string> ReadReferenceDocAdvancedTableLeafPaths(string repoRoot)
+    {
+        string docPath = Path.Combine(repoRoot, DeploymentEvidenceTerraformReference.DocumentationRelativePath);
+        string content = File.ReadAllText(docPath);
+        MatchCollection matches = Regex.Matches(
+            content,
+            @"^\|\s*\d+\s*\|\s*`(infra/[^`]+)`\s*\|",
             RegexOptions.Multiline);
 
         return matches.Select(match => match.Groups[1].Value).ToList();
