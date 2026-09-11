@@ -4,6 +4,8 @@ internal static class HostedAzureArmNextLinkValidator
 {
     private const string SubscriptionsPathPrefix = "/subscriptions/";
 
+    private const string ManagementGroupsPathPrefix = "/providers/Microsoft.Management/managementGroups/";
+
     public static void EnsureTargetsSubscription(string nextLink, string subscriptionId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
@@ -42,5 +44,45 @@ internal static class HostedAzureArmNextLinkValidator
             return null;
 
         return subscriptionId.ToString();
+    }
+
+    public static void EnsureTargetsManagementGroup(string nextLink, string managementGroupId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
+        HostedAzureExtractorGuidValidator.RequireManagementGroupId(nameof(managementGroupId), managementGroupId);
+
+        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
+        {
+            throw new InvalidOperationException(
+                "Hosted Azure extractor stopped ARM management group listing due to an invalid nextLink.");
+        }
+
+        string normalizedManagementGroupId = managementGroupId.Trim();
+        string? nextLinkManagementGroupId = TryGetManagementGroupId(uri.AbsolutePath);
+
+        if (nextLinkManagementGroupId is null ||
+            !string.Equals(nextLinkManagementGroupId, normalizedManagementGroupId, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Hosted Azure extractor stopped ARM management group listing because nextLink targets a different management group.");
+        }
+    }
+
+    private static string? TryGetManagementGroupId(string absolutePath)
+    {
+        if (!absolutePath.StartsWith(ManagementGroupsPathPrefix, StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        ReadOnlySpan<char> remainder = absolutePath.AsSpan(ManagementGroupsPathPrefix.Length);
+        int slashIndex = remainder.IndexOf('/');
+
+        ReadOnlySpan<char> managementGroupId = slashIndex < 0
+            ? remainder
+            : remainder[..slashIndex];
+
+        if (managementGroupId.IsEmpty)
+            return null;
+
+        return managementGroupId.ToString();
     }
 }
