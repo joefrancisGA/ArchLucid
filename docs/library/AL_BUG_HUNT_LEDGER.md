@@ -2485,13 +2485,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 13
-- **bugs-found:** 9
+- **hunts:** 14
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — sort/pagination hrefs dropped in-progress text filter before debounced q= sync
+- **last-bug:** 2026-09-11 — inspector/compare URL sync dropped pending filter text before debounced q= sync
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -2541,6 +2541,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Sort/pagination/scope navigation hrefs drop in-progress text filter before debounced `q=` URL sync — **hit 2026-09-11 seed hunt #1751 (seed→hit):** href builders used `searchParams` only while `filterText` debounces 250ms; sort chip and Next link omitted typed query until debounce completed; fixed by merging `filterText` via `runsListEffectiveSearchFromSearch` for navigation hrefs; regressions `preserves pending text filter in sort href before q= debounce completes` and `preserves pending text filter in the Next pagination link before q= debounce completes`.
 
 2026-09-11 seed hunt #1751 (seed→hit): reseeded ui-runs-list after #1743; proved navigation hrefs dropped pending filter text before debounced q= sync; 38 scoped `RunsListClient` tests passed.
+
+- [x] (proven) Inspector/compare `router.replace` URL sync drops in-progress text filter before debounced `q=` URL sync — **hit 2026-09-11 seed hunt #1752 (seed→hit):** `syncCompareInspectorToUrl` used `searchParams` only while `filterText` debounces 250ms; row activation and compare checkbox wrote `inspectorRunId`/`compareRuns` without pending `q=` until debounce completed; fixed by merging `filterText` via `runsListEffectiveSearchFromSearch` in `syncCompareInspectorToUrl`; regressions `preserves pending text filter in inspectorRunId URL sync before q= debounce completes` and `preserves pending text filter in compareRuns URL sync before q= debounce completes`.
+
+2026-09-11 seed hunt #1752 (seed→hit): reseeded ui-runs-list after #1751; proved inspector/compare URL sync dropped pending filter text before debounced q= sync; 40 scoped `RunsListClient` tests passed.
 
 2026-09-10 thorough hunt #1580 (hit): proved stale compareRuns persistence under buyer package cards; 20 scoped `RunsListClient` tests passed.
 

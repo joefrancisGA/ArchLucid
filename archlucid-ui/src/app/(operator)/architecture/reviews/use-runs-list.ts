@@ -168,14 +168,14 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     (inspectorRunId: string | null, compareRunIds: readonly string[]) => {
       router.replace(
         runsListCompareInspectorHrefFromSearch(
-          searchParams.toString(),
+          runsListEffectiveSearchFromSearch(searchParams.toString(), filterText),
           { inspectorRunId, compareRunIds },
           pathname,
         ),
         { scroll: false },
       );
     },
-    [pathname, router, searchParams],
+    [filterText, pathname, router, searchParams],
   );
 
   const setSelectedRun = useCallback(
