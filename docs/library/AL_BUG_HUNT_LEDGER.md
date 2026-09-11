@@ -1980,10 +1980,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -2042,6 +2042,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-10 seed hunt #1679 (seed-only): reseeded review-recurrence after #1628; cheap-disproof closed single-retry ceiling candidate as invalid on production paths and added alias/padding/retry-kind guards; 45 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
 2026-09-10 seed hunt #1628 (seed-only): reseeded review-recurrence after #1586; cheap-disproof closed null-cron support, disabled short-circuit, batch/single parity, single-retry ceiling, and hourly batch monotonicity; 36 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
+
+- [x] (valid-no-repro) `IsSupportedCronExpression` — `@weekly` alias rejected at wrapper — **cheap-disproof 2026-09-11 seed hunt #1762:** `SimpleScanScheduleCalculator.IsIntervalAlias` includes `@weekly`; runtime probe `IsSupportedCronExpression("@weekly")` returns true.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — `@weekly` alias batch emits non-monotonic instants — **cheap-disproof 2026-09-11 seed hunt #1762:** alias adds seven days per cursor advance; runtime probe from 2026-03-26 yields 2026-04-02 / 2026-04-09 / 2026-04-16.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — single-run `@weekly` returns instant not strictly after reference — **cheap-disproof 2026-09-11 seed hunt #1762:** `@weekly` always advances `fromUtc` by seven days; `NormalizeNextRunUtc` only retries when `candidate <= fromUtc`.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — single-run `@monthly` returns null or a past instant — **cheap-disproof 2026-09-11 seed hunt #1762:** Cronos `@monthly` parse returns 2026-04-01 UTC after 2026-03-26 reference; kind stamped UTC.
+- [x] (invalid) `NormalizeNextRunUtc` — `SpecifyUtc` relabels `DateTimeKind.Local` without `ToUniversalTime`, shifting next-run wall clock — **cheap-disproof 2026-09-11 seed hunt #1762:** production `SimpleScanScheduleCalculator` and Cronos `GetNextOccurrence(..., TimeZoneInfo.Utc)` return UTC-kind instants; Local-kind retry is stub-only.
+
+2026-09-11 seed hunt #1762 (seed-only): reseeded review-recurrence after #1679; cheap-disproof closed `@weekly` alias support/monotonicity, single-run `@monthly`, and Local-kind `SpecifyUtc` relabel candidate; 45 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
 ---
 
