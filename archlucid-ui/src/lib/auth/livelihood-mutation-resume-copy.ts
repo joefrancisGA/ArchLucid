@@ -1,5 +1,7 @@
 import type { LivelihoodPendingMutation } from "@/lib/auth/livelihood-mutation-401-resume-kinds";
 
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { requiresConfirmBeforeLivelihoodReplay } from "@/lib/auth/livelihood-mutation-replay-policy";
 
 export type LivelihoodMutationResumePresentation = {
@@ -45,4 +47,17 @@ export function resolveLivelihoodMutationResumePresentation(
     confirmLabel: "Retry saved action",
     discardLabel: "Discard saved action",
   };
+}
+
+/** Operator-facing summary when livelihood 401 replay fails after re-auth (LW-098 / TB-2155). */
+export function readLivelihoodMutationReplayFailureMessage(error: unknown): string {
+  if (isApiRequestError(error)) {
+    return toApiLoadFailure(error).message;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Could not retry your saved action.";
 }

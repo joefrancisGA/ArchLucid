@@ -12,6 +12,7 @@ import {
 import { replayLivelihoodPendingMutation } from "@/lib/auth/livelihood-mutation-401-resume-replay";
 import { requiresConfirmBeforeLivelihoodReplay } from "@/lib/auth/livelihood-mutation-replay-policy";
 import {
+  readLivelihoodMutationReplayFailureMessage,
   resolveLivelihoodMutationResumePresentation,
   type LivelihoodMutationResumePresentation,
 } from "@/lib/auth/livelihood-mutation-resume-copy";
@@ -28,6 +29,7 @@ export type LivelihoodMutationResumeChromeState = {
   readonly pending: LivelihoodPendingMutation;
   readonly presentation: LivelihoodMutationResumePresentation;
   readonly isReplaying: boolean;
+  readonly replayErrorMessage: string | null;
 };
 
 export type UseResumePendingLivelihoodMutationResult = {
@@ -67,6 +69,7 @@ export function useResumePendingLivelihoodMutation(
       pending,
       presentation,
       isReplaying: isReplaying || !presentation.requiresConfirm,
+      replayErrorMessage: null,
     });
 
     void replayLivelihoodPendingMutation(pending)
@@ -84,6 +87,7 @@ export function useResumePendingLivelihoodMutation(
             : {
                 ...current,
                 isReplaying: false,
+                replayErrorMessage: readLivelihoodMutationReplayFailureMessage(error),
               },
         );
       });
@@ -107,6 +111,7 @@ export function useResumePendingLivelihoodMutation(
         pending,
         presentation: resolveLivelihoodMutationResumePresentation(pending),
         isReplaying: false,
+        replayErrorMessage: null,
       });
 
       return;

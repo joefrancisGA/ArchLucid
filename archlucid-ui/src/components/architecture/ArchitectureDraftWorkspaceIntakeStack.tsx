@@ -13,6 +13,7 @@ import {
   ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE,
 } from "@/lib/architecture-draft-start-review-checklist";
 import { startReviewFromDraftContextHref } from "@/lib/architecture/architecture-routes";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import type { ArchitectureDraftWorkspaceBodyProps } from "./ArchitectureDraftWorkspaceBody";
 
 type ArchitectureDraftWorkspaceIntakeStackProps = Pick<
@@ -109,14 +110,9 @@ export function ArchitectureDraftWorkspaceIntakeStack(
           <OperatorMutationInlineError
             message={conflictMessage}
             testId="architecture-draft-conflict-message"
-            recoveryScenario="api-problem"
-            recoveryPresentation={{
-              whatFailed: "This architecture draft changed in another browser session or from offline replay.",
-              whatIsIntact: "Your unsaved edits in this tab are still on screen and were not overwritten.",
-              nextStep: isWorkingMode
-                ? "Keep your edits, load the server copy, or retry save after you choose."
-                : "Refresh the draft to load the latest version, then re-apply any edits you still need.",
-            }}
+            recoveryPresentation={errorRecoveryContractForScenario("architecture-draft-offline-replay-conflict", {
+              workingMode: isWorkingMode,
+            })}
           />
           <div className="flex flex-wrap gap-2">
             {isWorkingMode ? (

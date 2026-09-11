@@ -191,6 +191,17 @@ describe("lost-write CAS compat matrix (LW-009 / LW-010)", () => {
   });
 });
 
+describe("lost-write TB-2155 recovery roots (LW-098)", () => {
+  it("documents offline replay conflict and livelihood resume failure surfaces", () => {
+    const inventory = readRepoFile("lib/error-recovery-contract-inventory.ts");
+
+    expect(inventory).toMatch(/architecture-draft-offline-replay-conflict/);
+    expect(inventory).toMatch(/livelihood-mutation-resume-failed/);
+    expect(inventory).toMatch(/ArchitectureDraftWorkspaceIntakeStack/);
+    expect(inventory).toMatch(/LivelihoodMutationResumeChrome/);
+  });
+});
+
 describe("lost-write mutation error toast inventory (LW-097)", () => {
   it("documents sticky mutation error toast guard module", () => {
     const guard = readRepoFile("lib/lost-write-mutation-error-toast-guard.ts");
