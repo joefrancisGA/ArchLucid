@@ -376,6 +376,29 @@ namespace N
     await RunInnerLayerTestAsync(testCode, expected);
   }
 
+  [Fact]
+  public async Task Reports_banned_type_in_method_return_type_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        public {|#0:HttpContext|} Build() => throw null!;
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
   private static Task RunInnerLayerTestAsync(string testCode, params DiagnosticResult[] expectedDiagnostics) =>
       RunTestAsync(testCode, InnerLayerAssemblyNameTransform, expectedDiagnostics);
 
