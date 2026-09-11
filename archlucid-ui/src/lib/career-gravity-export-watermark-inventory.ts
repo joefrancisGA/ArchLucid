@@ -164,7 +164,12 @@ export const CAREER_GRAVITY_EXPORT_WATERMARK_ROWS: readonly CareerGravityExportW
   },
   {
     relativePath: "ArchLucid.Cli/Commands/ProofPacketCommand.cs",
-    leakClass: "assumed-banner",
+    leakClass: "covered",
+    ownerPrompt: "CG-027",
+  },
+  {
+    relativePath: "ArchLucid.Cli/Commands/PilotProofPacketCommand.WriteFolder.cs",
+    leakClass: "covered",
     ownerPrompt: "CG-027",
   },
 ] as const;

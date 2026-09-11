@@ -75,7 +75,8 @@ Working Career must not be confused with these waivers.
 | `ArchLucid.Api/Controllers/Findings/FindingVerificationController.Export.cs` | Markdown/DOCX of verification report | No career honesty mapper | **bypass** | CG-026 |
 | `ArchLucid.Cli/Commands/PilotProofPacketStructuralExecutionModeFormatter.cs` | Caveat line from deltas JSON | Mode-labeled markdown, not a page watermark | covered (caveat) | CG-027 / CG-045 |
 | `ArchLucid.Cli/Commands/FirstValueReportCommand.cs` | Downloads API markdown | Honesty is whatever the API emitted | assumed-banner | CG-027 |
-| `ArchLucid.Cli/Commands/ProofPacketCommand.cs` | Claim lint; mode caveat via formatter | Bundle can still look Career-complete | assumed-banner | CG-027 |
+| `ArchLucid.Cli/Commands/ProofPacketCommand.cs` | `ExportBundleCareerPostureResolver` + manifest stamp | `careerPosture` in `artifact-manifest.json` | **covered** | CG-027 |
+| `ArchLucid.Cli/Commands/PilotProofPacketCommand.WriteFolder.cs` | Same gate as proof-packet | Sponsor index + manifest overlay | **covered** | CG-027 |
 
 ## Shrink rules
 
