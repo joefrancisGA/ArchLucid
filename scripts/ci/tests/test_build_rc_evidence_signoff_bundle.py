@@ -126,6 +126,24 @@ class BuildRcEvidenceSignoffBundleTests(unittest.TestCase):
             encoding="utf-8",
         )
         (bundle / "simulator-only-override.md").write_text("# Simulator-only override\n", encoding="utf-8")
+        (bundle / "real-llm-evidence-gate.json").write_text(
+            json.dumps(
+                {
+                    "schema": "archlucid.real-llm-evidence-gate.v2",
+                    "generatedUtc": "2026-09-10T00:00:00+00:00",
+                    "overallOutcome": "PASS",
+                    "executionMode": "real",
+                    "agentPaths": [
+                        {"agentPath": "Topology"},
+                        {"agentPath": "Cost"},
+                        {"agentPath": "Compliance"},
+                        {"agentPath": "Critic"},
+                    ],
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
         (bundle / "simulator-live-divergence.json").write_text(
             json.dumps({"disposition": "PASS", "buyerFacingFullRealBlocked": False})
             + "\n",
@@ -180,6 +198,7 @@ class BuildRcEvidenceSignoffBundleTests(unittest.TestCase):
         gate_ids = {gate["id"]: gate["status"] for gate in payload["gates"]}
         self.assertEqual(gate_ids["release-smoke"], "PASS")
         self.assertEqual(gate_ids["ship-gate-evidence"], "PASS")
+        self.assertEqual(gate_ids["real-llm-evidence-gate"], "PASS")
         self.assertEqual(gate_ids["live-ui-api-parity"], "PASS")
         self.assertEqual(gate_ids["procurement-claim-boundary"], "PASS")
 
@@ -203,6 +222,27 @@ class BuildRcEvidenceSignoffBundleTests(unittest.TestCase):
 
         self.assertEqual(release_smoke["status"], "SKIPPED")
         self.assertIn("Release smoke", release_smoke["reason"])
+
+    def test_real_llm_evidence_gate_skipped_when_missing(self) -> None:
+        bundle = self._write_minimal_bundle()
+        json_out = self.temp_dir / "signoff-real-llm.json"
+        md_out = self.temp_dir / "signoff-real-llm.md"
+
+        run_py(
+            "build_rc_evidence_signoff_bundle.py",
+            "--bundle-dir",
+            str(bundle),
+            "--json-out",
+            str(json_out),
+            "--markdown-out",
+            str(md_out),
+        )
+
+        payload = json.loads(json_out.read_text(encoding="utf-8"))
+        real_llm_gate = next(gate for gate in payload["gates"] if gate["id"] == "real-llm-evidence-gate")
+
+        self.assertEqual(real_llm_gate["status"], "SKIPPED")
+        self.assertIn("real-llm-evidence-gate.json", real_llm_gate["reason"])
 
     def test_rag_citation_coverage_gate_warns_when_missing(self) -> None:
         bundle = self._write_minimal_bundle()

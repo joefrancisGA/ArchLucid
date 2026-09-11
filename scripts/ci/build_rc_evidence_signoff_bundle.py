@@ -334,13 +334,40 @@ def build_signoff_bundle(root: Path, bundle_dir: Path) -> dict[str, Any]:
         )
     )
 
+    real_mode_row = evaluate_real_mode_ai_evidence(bundle_dir)
+    real_llm_status = _normalize_status(real_mode_row.get("status"))
+
+    if real_llm_status == "SKIPPED" and bool(real_mode_row.get("simulatorOnlyOverridePresent")):
+        real_llm_status = "PASS"
+
+    real_llm_reason = str(
+        real_mode_row.get("detail") or real_mode_row.get("claimBoundary") or "real-llm-evidence-gate.json not attached"
+    )
+
+    if real_llm_status == "PASS" and bool(real_mode_row.get("simulatorOnlyOverridePresent")):
+        real_llm_reason = "Simulator-only override attached; real-mode claims explicitly bounded."
+
+    gates.append(
+        {
+            "id": "real-llm-evidence-gate",
+            "label": "Real-mode LLM evidence gate (G-REAL-08 / G5)",
+            "status": real_llm_status,
+            "reason": real_llm_reason,
+            "artifactPath": real_mode_row.get("artifact"),
+            "evidenceMode": "real" if str(real_mode_row.get("executionMode") or "").lower() == "real" else (
+                "simulator" if real_mode_row.get("simulatorOnlyOverridePresent") else "unknown"
+            ),
+            "highRisk": True,
+            "simulatorOnlyOverridePresent": bool(real_mode_row.get("simulatorOnlyOverridePresent")),
+        }
+    )
+
     ai_summary_path, ai_summary_rel = _resolve_artifact(
         root,
         bundle_dir,
         ["ai-quality-release-summary.json"],
     )
     ai_summary_payload = load_json(ai_summary_path) if ai_summary_path else None
-    real_mode_row = evaluate_real_mode_ai_evidence(bundle_dir)
     ai_status = _normalize_status(real_mode_row.get("status"))
     ai_mode = "real" if str(real_mode_row.get("executionMode") or "").lower() == "real" else (
         "simulator" if real_mode_row.get("simulatorOnlyOverridePresent") else "unknown"
