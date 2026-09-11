@@ -94,6 +94,28 @@ describe("ArchitectureDiagramViewer", () => {
     });
   });
 
+  it("labels zoom controls and explains plus, minus, and 0", async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-viewport")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("button", { name: "Zoom out" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zoom in" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Reset to 100%" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Fit in view" })).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-diagram-viewport-hint")).toHaveTextContent(/Zoom in and Zoom out/i);
+    expect(screen.getByTestId("architecture-diagram-viewport-hint")).toHaveTextContent(/0 key/);
+    expect(screen.queryByText(/^0$/)).not.toBeInTheDocument();
+  });
+
   it("applies a custom zoom percentage from the input", async () => {
     replaceMock.mockClear();
 
@@ -145,6 +167,29 @@ describe("ArchitectureDiagramViewer", () => {
       expect(replaceMock).toHaveBeenCalledWith("/governance/infrastructure/diagrams?diagZoom=10.00", {
         scroll: false,
       });
+    });
+  });
+
+  it("keeps resource names when mermaid emits HTML labels inside foreignObject", async () => {
+    mermaidRenderMock.mockResolvedValueOnce({
+      svg: [
+        '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80" viewBox="0 0 200 80">',
+        '<g class="node"><rect width="120" height="28" fill="#ececec"/>',
+        '<foreignObject width="120" height="28"><div xmlns="http://www.w3.org/1999/xhtml">vnet-eastus</div></foreignObject>',
+        "</g></svg>",
+      ].join(""),
+    });
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["vnet-eastus"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-viewport")).toHaveTextContent("vnet-eastus");
     });
   });
 });

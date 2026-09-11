@@ -77,3 +77,38 @@ No Hasher A schema bump; remains **`v12`** (`tests/manifest-hash/hasher-baseline
 ## Wave 141 status
 
 [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE141.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE141.md) guard-test placeholder (1677–1688) is **superseded** by this verification batch until a new inventory wave is explicitly reopened.
+
+## Finalize quality gate + assumption acknowledgements (TB-2321 / TB-2345 item 49)
+
+Server-side finalize enforcement on branch `cursor/finalize-quality-gate-server-e14f`:
+
+| Surface | Behavior |
+|---------|----------|
+| `ArchLucid:FinalizeQualityGate:Enabled` | When true (Staging/Production appsettings), `CommitOutputIntegrityService` re-derives the UI scorecard and throws `ConflictException` → **409** with the same copy as `finalize-quality-scorecard.ts`. |
+| `GET/PUT /v1/architecture/review/{runId}/assumptions/acknowledgement` | Persists pre-finalize assumption acknowledgements on the run header (`AcknowledgedAssumptionsJson`, migration **390**). Finalize unions request-body ids with persisted ids. |
+| UI hook | `useReviewAssumptionAcknowledgements` hydrates from and pushes to the server; localStorage remains a same-tab cache. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~FinalizeQuality|RunAssumptionAcknowledgement"
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~FinalizeQualityScorecardUiCopyParity"
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~OpenApiContractSnapshotTests"
+cd archlucid-ui && npx vitest run src/lib/review-quality/review-assumption-ack-sync.test.ts src/hooks/use-review-assumption-acknowledgements.test.tsx
+```
+
+## WS-14 degraded finding-engine coverage policy
+
+Working seats block finalize when engine coverage is degraded:
+
+| Layer | Gate |
+|-------|------|
+| **Server** | `CareerArtifactCompletenessValidator.EvaluateDegradedFindingCoverage` when `WorkingDesk && Finalize && DegradedFindingCoverage` (via `AuthorityDrivenArchitectureRunCommitOrchestrator`). |
+| **UI scorecard** | `blockDegradedFindingCoverageOnWorking` wired from `buyerPolishedArtifactTable !== true` in `run-detail-page-presentation-governance.ts` and client recompute (`resolveClientAwareCommitBlockedReason`). |
+
+Copy parity: `DegradedFindingCoverageBlockedReasonUiCopyParityTests` (Decisioning) + `degraded-finding-coverage-blocked-reason.ts`.
+
+## ConflictException → 409 controller sweep
+
+Twenty controller `try` blocks that returned **400** for `InvalidOperationException` now catch `ConflictException` first. Guard: `ControllerConflictExceptionNotSwallowedAs400ArchitectureTests`.
+

@@ -36,6 +36,7 @@ describe("help-center-catalog-security", () => {
     expect(slugs).not.toContain("cloud-connections-gcp");
     expect(slugs).not.toContain("billing-and-plans");
     expect(slugs).not.toContain("first-architecture-review");
+    expect(slugs).not.toContain("career-rehearsal-doors");
     expect(slugs).toContain("cloud-connections-azure");
     expect(slugs).toContain("findings");
   });
