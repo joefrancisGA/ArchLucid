@@ -12,6 +12,9 @@ public static class SecureNowArchitectConstants
 
     public const string ToxicCombinationControlId = "securenow.toxic-combination";
 
+    /// <summary>Ordinal Defender posture band on toxic-combination findings — never a numeric score.</summary>
+    public const string DefenderSecureScoreBandMetadataKey = "defenderSecureScoreBand";
+
     public const string CapabilityToFlowControlId = "securenow.capability-to-flow";
 
     public const string SharedControlBlastRadiusControlId = "securenow.shared-control-blast-radius";

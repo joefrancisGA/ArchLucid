@@ -322,6 +322,86 @@ public sealed class AzureInventorySnapshotMaterializerTests
         return ms.ToArray();
     }
 
+    [Fact]
+    public async Task TryMaterializePackageAsync_materializes_defender_summary_companion_rows()
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        Guid snapshotId = Guid.NewGuid();
+        Guid packageId = Guid.NewGuid();
+
+        AzureInventorySnapshotMaterializeWriteRequest? captured = null;
+        Mock<IAzureInventorySnapshotRepository> snapshotRepository = CreateSnapshotRepository(
+            scope,
+            snapshotId,
+            request => captured = request);
+
+        Mock<ICloudResourceIdentityDirectory> identityDirectory = CreateIdentityDirectory(scope, snapshotId);
+
+        byte[] zipBytes = BuildZipWithDefenderSummary(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "location": "eastus",
+                "properties": {}
+              }
+            ]
+            """,
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub",
+                "secureScore": 72
+              }
+            ]
+            """);
+
+        AzureInventorySnapshotMaterializer sut = new(
+            snapshotRepository.Object,
+            identityDirectory.Object,
+            CreateNoOpPostMaterializeCoordinator(),
+            NullLogger<AzureInventorySnapshotMaterializer>.Instance);
+
+        AzureInventorySnapshotMaterializeResult result = await sut.TryMaterializePackageAsync(
+            scope,
+            snapshotId,
+            packageId,
+            zipBytes,
+            AzureInventoryCaptureMethod.CustomerScript,
+            "0.4.0",
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        captured.Should().NotBeNull();
+        captured!.DefenderSummaries.Should().ContainSingle(row =>
+            row.SecureScore == 72
+            && row.SourceEvidenceReference == AzureExtractorPackageZipEntryNames.DefenderSummary);
+    }
+
+    private static byte[] BuildZipWithDefenderSummary(string resourcesJson, string defenderSummaryJson)
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive archive = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry resources = archive.CreateEntry(AzureExtractorPackageZipEntryNames.Resources);
+            using (StreamWriter writer = new(resources.Open(), Encoding.UTF8))
+            {
+                writer.Write(resourcesJson);
+            }
+
+            ZipArchiveEntry defenderSummary = archive.CreateEntry(AzureExtractorPackageZipEntryNames.DefenderSummary);
+            using (StreamWriter writer = new(defenderSummary.Open(), Encoding.UTF8))
+            {
+                writer.Write(defenderSummaryJson);
+            }
+        }
+
+        return ms.ToArray();
+    }
+
     private static byte[] BuildZipWithDiagnostics(string resourcesJson, string diagnosticsJson)
     {
         using MemoryStream ms = new();

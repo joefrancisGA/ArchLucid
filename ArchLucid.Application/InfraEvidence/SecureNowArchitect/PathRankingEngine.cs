@@ -11,6 +11,7 @@ public sealed class PathRankingEngine(
     ISecurityEvidencePathRepository pathRepository,
     ISecurityEvidencePathRankRepository rankRepository,
     ISecurityAssetAssertionResolver assertionResolver,
+    IAzureInventorySnapshotRepository snapshotRepository,
     ILogger<PathRankingEngine> logger) : IPathRankingEngine
 {
     public async Task<PathRankingEngineResult> RunAsync(
@@ -59,6 +60,16 @@ public sealed class PathRankingEngine(
         IReadOnlySet<Guid> activeCrownJewelAssertionIds =
             await assertionResolver.GetActiveCrownJewelAssertionIdsAsync(scope.TenantId, utcNow, cancellationToken);
 
+        DefenderSecureScoreOrdinalBand subscriptionDefenderBand = DefenderSecureScoreOrdinalBand.Unknown;
+
+        AzureInventorySnapshotDetailReadModel? snapshot =
+            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+
+        if (snapshot is not null)
+        {
+            subscriptionDefenderBand = DefenderSnapshotContextResolver.ResolveSubscriptionBand(snapshot);
+        }
+
         List<(SecurityEvidencePathRecord Path, SecurityEvidencePathRankEvaluation Evaluation)> evaluated = [];
 
         foreach (SecurityEvidencePathRecord path in paths)
@@ -67,7 +78,12 @@ public sealed class PathRankingEngine(
                 await pathRepository.ListHopsByPathAsync(scope.TenantId, path.PathId, cancellationToken);
 
             SecurityEvidencePathRankEvaluation evaluation =
-                SecurityEvidencePathRankCalculator.Evaluate(path, hops, weights, activeCrownJewelAssertionIds);
+                SecurityEvidencePathRankCalculator.Evaluate(
+                    path,
+                    hops,
+                    weights,
+                    activeCrownJewelAssertionIds,
+                    subscriptionDefenderBand);
 
             evaluated.Add((path, evaluation));
         }
