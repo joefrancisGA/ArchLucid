@@ -145,6 +145,8 @@ public sealed class CompositeAlertService(
                     manifestHashService,
                     ct);
 
+                await AlertCareerHonestyApplicator.ApplyAsync(alert, context, authorityQueryService, ct);
+
                 await alertRepository.CreateAsync(alert, ct);
                 await alertDeliveryDispatcher.DeliverAsync(alert, ct);
                 created.Add(alert);

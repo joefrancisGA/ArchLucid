@@ -73,12 +73,27 @@ export const CAREER_GRAVITY_OUTBOUND_ROWS: readonly CareerGravityOutboundRow[] =
   },
   {
     relativePath: "ArchLucid.Application/Advisory/AdvisoryScanRunner.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-036",
   },
   {
     relativePath: "ArchLucid.Application/Alerts/AlertActionLoopReader.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
+    ownerPrompt: "CG-036",
+  },
+  {
+    relativePath: "ArchLucid.Persistence/Alerts/AlertService.cs",
+    leakClass: "covered",
+    ownerPrompt: "CG-036",
+  },
+  {
+    relativePath: "ArchLucid.Persistence/Alerts/CompositeAlertService.cs",
+    leakClass: "covered",
+    ownerPrompt: "CG-036",
+  },
+  {
+    relativePath: "archlucid-ui/src/components/alerts/AlertsInboxAlertCard.tsx",
+    leakClass: "covered",
     ownerPrompt: "CG-036",
   },
 ] as const;

@@ -33,8 +33,11 @@ Outbound is how rehearsal leaks into another system of record. Sponsors and tick
 | ITSM ticket | `ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs` | `POST …/itsm/outbound/issues` | Same | **bypass** | CG-038 |
 | ITSM ticket | `archlucid-ui/src/components/itsm/ItsmOutboundCreateIssueDialog.tsx` | Operator create dialog | No door | **bypass** | CG-038 |
 | Webhook | `ArchLucid.Core/Integration/IntegrationWebhookPayloadSamples.cs` | Event payloads (finding verification, etc.) | Manifest hash; **no** rehearsal door | **bypass** | CG-036 / CG-094 |
-| Alerts | `ArchLucid.Application/Advisory/AdvisoryScanRunner.cs` | Alert fire from advisory scan | No Career door | **bypass** | CG-036 |
-| Alerts | `ArchLucid.Application/Alerts/AlertActionLoopReader.cs` | Delivery attempts | No Mode | **bypass** | CG-036 |
+| Alerts | `ArchLucid.Application/Advisory/AdvisoryScanRunner.cs` | Alert fire from advisory scan | Run stamp via `AlertCareerHonestyApplicator` on persist | **covered** | CG-036 |
+| Alerts | `ArchLucid.Application/Alerts/AlertActionLoopReader.cs` | Delivery attempts | Stamped alert copy from persist path | **covered** | CG-036 |
+| Alerts | `ArchLucid.Persistence/Alerts/AlertService.cs` | Simple alert persist/deliver | `Rehearsal —` title + body disclaimer | **covered** | CG-036 |
+| Alerts | `ArchLucid.Persistence/Alerts/CompositeAlertService.cs` | Composite alert persist/deliver | Same | **covered** | CG-036 |
+| Alerts | `archlucid-ui/src/components/alerts/AlertsInboxAlertCard.tsx` | Inbox row | Rehearsal chip on Working | **covered** | CG-036 |
 
 ## Quoteable gaps
 
