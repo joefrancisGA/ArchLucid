@@ -63,7 +63,7 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         bool anyCost = false;
         bool anyUnpricedMeasurableSlice = false;
 
-        HashSet<string> measurableDeployments = new(StringComparer.Ordinal);
+        HashSet<string> measurableDeployments = new(StringComparer.OrdinalIgnoreCase);
 
         foreach ((string? modelDeploymentName, int? inputTokenCount, int? outputTokenCount, int? reasoningTokenCount) in rows)
         {
@@ -139,7 +139,7 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         if (measurableDeployments.Count > 0)
             return string.Join(", ", measurableDeployments.Order(StringComparer.Ordinal));
 
-        HashSet<string> fallback = new(StringComparer.Ordinal);
+        HashSet<string> fallback = new(StringComparer.OrdinalIgnoreCase);
 
         foreach ((string? modelDeploymentName, _, _, _) in rows)
         {
