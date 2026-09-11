@@ -1,3 +1,4 @@
+import { isRehearsalStructuralExecutionMode } from "@/lib/governance/simulator-career-honesty";
 import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
 import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
@@ -24,4 +25,16 @@ export function resolveCareerArtifactExportHonestyDoorFields(input: {
     structuralExecutionMode,
     effectiveWorkingCareerRehearsalDoor,
   };
+}
+
+/** CG-022 / CG-024 — banner flag only when Rehearsal door + Simulator/Fallback (not Mode alone). */
+export function resolveSimulatorRehearsalBannerOnArtifactForExport(input: {
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
+}): boolean {
+  if (!isRehearsalStructuralExecutionMode(input.structuralExecutionMode ?? null)) {
+    return false;
+  }
+
+  return input.effectiveWorkingCareerRehearsalDoor === "rehearsal";
 }

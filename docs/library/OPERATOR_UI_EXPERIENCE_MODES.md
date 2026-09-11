@@ -93,6 +93,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Package print rehearsal strip (CG-023):** Ctrl+P / Save as PDF on Working Career keeps print enabled but adds a **print-only** rehearsal honesty strip when structural Mode is Simulator/Fallback and the CG-019 door stamp is not career-complete. `PackagePrintPageClient` resolves the stamped door via `resolveCareerArtifactExportHonestyDoorFields`; `PackagePrintRehearsalHonestyStripView` is hidden on screen and visible in print CSS. Repeating page watermarks are CG-041.
 
+**ADR export gate (CG-024):** `GenerateAdrFromRunModal` calls `evaluateCareerArtifactHonesty` with CG-019 door stamp and door-aware `simulatorRehearsalBannerOnArtifact`. Working **Career** door + Simulator/Fallback **hard-blocks** ADR copy/download (no incomplete-export confirm bypass). **Rehearsal** door on Simulator prepends a rehearsal header in the exported Markdown before the `# ADR:` body so rehearsal exports cannot look sealed-Career. ADR vocabulary is unchanged.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
