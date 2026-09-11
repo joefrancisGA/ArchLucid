@@ -547,6 +547,10 @@ BEGIN
         PackageOrigin NVARCHAR(16) NULL,
         StructuralExecutionMode NVARCHAR(32) NOT NULL CONSTRAINT DF_Runs_StructuralExecutionMode_Greenfield DEFAULT (N'Simulator'),
         CONSTRAINT CK_Runs_StructuralExecutionMode_Greenfield CHECK (StructuralExecutionMode IN (N'Simulator', N'Real', N'Fallback', N'Mixed')),
+        WorkingCareerRehearsalDoor NVARCHAR(16) NULL,
+        ExecutePostureCapturedUtc DATETIME2 NULL,
+        CONSTRAINT CK_Runs_WorkingCareerRehearsalDoor_Greenfield CHECK (
+            WorkingCareerRehearsalDoor IS NULL OR WorkingCareerRehearsalDoor IN (N'career', N'rehearsal')),
         RowVersionStamp ROWVERSION,
         INDEX IX_Runs_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC)
     );
@@ -639,6 +643,18 @@ BEGIN
         CONSTRAINT CK_Runs_StructuralExecutionModeArchLucidSql CHECK (StructuralExecutionMode IN (N'Simulator', N'Real', N'Fallback', N'Mixed'));
 
     EXEC (N'UPDATE dbo.Runs SET StructuralExecutionMode = N''Fallback'' WHERE RealModeFellBackToSimulator = 1;');
+END;
+GO
+
+/* CG-019: Working Career vs Rehearsal door captured at first execute start. */
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'WorkingCareerRehearsalDoor') IS NULL
+BEGIN
+    ALTER TABLE dbo.Runs ADD
+        WorkingCareerRehearsalDoor NVARCHAR(16) NULL,
+        ExecutePostureCapturedUtc DATETIME2 NULL,
+        CONSTRAINT CK_Runs_WorkingCareerRehearsalDoorArchLucidSql CHECK (
+            WorkingCareerRehearsalDoor IS NULL OR WorkingCareerRehearsalDoor IN (N'career', N'rehearsal'));
 END;
 GO
 
@@ -10235,6 +10251,8 @@ BEGIN
               OR EXISTS (SELECT i.OtelTraceId EXCEPT SELECT d.OtelTraceId)
               OR EXISTS (SELECT i.EngineProvenanceJson EXCEPT SELECT d.EngineProvenanceJson)
               OR EXISTS (SELECT i.GovernanceScopeJson EXCEPT SELECT d.GovernanceScopeJson)
+              OR EXISTS (SELECT i.WorkingCareerRehearsalDoor EXCEPT SELECT d.WorkingCareerRehearsalDoor)
+              OR EXISTS (SELECT i.ExecutePostureCapturedUtc EXCEPT SELECT d.ExecutePostureCapturedUtc)
           ))
     BEGIN
         THROW 50310, N''Committed run header evidence anchors are immutable (TB-310).'', 1;
@@ -10242,6 +10260,28 @@ BEGIN
 END;';
 
     EXEC sp_executesql @sealGovernanceScopeTriggerSql;
+END
+GO
+
+/* CG-019: execute-time Working door stamp on the physical run/review table.
+   After ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews. */
+DECLARE @executePostureTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+IF @executePostureTable IS NOT NULL
+   AND COL_LENGTH(@executePostureTable, N'WorkingCareerRehearsalDoor') IS NULL
+BEGIN
+    DECLARE @addExecutePostureSql NVARCHAR(MAX) =
+        N'ALTER TABLE ' + @executePostureTable + N' ADD
+            WorkingCareerRehearsalDoor NVARCHAR(16) NULL,
+            ExecutePostureCapturedUtc DATETIME2 NULL,
+            CONSTRAINT CK_Runs_WorkingCareerRehearsalDoor CHECK (
+                WorkingCareerRehearsalDoor IS NULL OR WorkingCareerRehearsalDoor IN (N''career'', N''rehearsal''));';
+
+    EXEC sp_executesql @addExecutePostureSql;
 END
 GO
 
@@ -10724,6 +10764,24 @@ BEGIN
     SET @acknowledgedCoverageRunSql = N'ALTER TABLE ' + @acknowledgedCoverageRunTable + N' ADD AcknowledgedCoverageJson NVARCHAR(MAX) NULL;';
 
     EXEC sp_executesql @acknowledgedCoverageRunSql;
+END
+GO
+
+/* 390: Pre-finalize assumption acknowledgement JSON (ADR 0064 synonym-safe). */
+DECLARE @acknowledgedAssumptionsRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @acknowledgedAssumptionsRunSql NVARCHAR(MAX);
+
+IF @acknowledgedAssumptionsRunTable IS NOT NULL
+   AND COL_LENGTH(@acknowledgedAssumptionsRunTable, N'AcknowledgedAssumptionsJson') IS NULL
+BEGIN
+    SET @acknowledgedAssumptionsRunSql = N'ALTER TABLE ' + @acknowledgedAssumptionsRunTable + N' ADD AcknowledgedAssumptionsJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @acknowledgedAssumptionsRunSql;
 END
 GO
 
