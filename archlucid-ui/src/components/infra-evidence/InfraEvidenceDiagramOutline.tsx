@@ -51,7 +51,6 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
               <tr>
                 <th className="px-3 py-2 font-medium">From</th>
                 <th className="px-3 py-2 font-medium">To</th>
-                <th className="px-3 py-2 font-medium">Label</th>
               </tr>
             </thead>
             <tbody>
@@ -62,7 +61,6 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                 >
                   <td className="px-3 py-2 font-mono text-sm">{edge.from}</td>
                   <td className="px-3 py-2 font-mono text-sm">{edge.to}</td>
-                  <td className="px-3 py-2">{edge.label ?? "—"}</td>
                 </tr>
               ))}
             </tbody>
