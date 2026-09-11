@@ -23708,6 +23708,16 @@
             "format": "date-time",
             "type": "string"
           },
+          "structuralExecutionMode": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StructuralExecutionMode"
+              }
+            ]
+          },
           "timeToCommittedManifestTotalSeconds": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
@@ -23734,6 +23744,12 @@
             ]
           },
           "topFindingSeverity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "workingCareerRehearsalDoor": {
             "type": [
               "null",
               "string"
@@ -35437,15 +35453,7 @@
         },
         "type": "object"
       },
-      "StructuralExecutionMode": {
-        "enum": [
-          "Simulator",
-          "Real",
-          "Fallback",
-          "Mixed"
-        ],
-        "type": "string"
-      },
+      "StructuralExecutionMode": {},
       "StructuredBriefSuggestionKind": {
         "enum": [
           "Constraint",
@@ -111977,7 +111985,7 @@
             "content": {
               "application/problem\u002Bjson": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/CareerArtifactBlockedProblemDetails"
                 }
               },
               "application/zip": {
@@ -112233,7 +112241,7 @@
               },
               "application/problem\u002Bjson": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/CareerArtifactBlockedProblemDetails"
                 }
               },
               "text/json": {
@@ -113081,7 +113089,7 @@
             "content": {
               "application/problem\u002Bjson": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/CareerArtifactBlockedProblemDetails"
                 }
               },
               "application/zip": {
@@ -113337,7 +113345,7 @@
               },
               "application/problem\u002Bjson": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/CareerArtifactBlockedProblemDetails"
                 }
               },
               "text/json": {
