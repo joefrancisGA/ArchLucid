@@ -43,7 +43,7 @@ public sealed class FindingDispositionService(
         bool isWorkingDesk = await _userWorkspaceModeReader.IsWorkingDeskAsync(reviewerUserId, cancellationToken);
         FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation(request, isWorkingDesk);
 
-        FindingReviewEventRecord record = BuildReviewEventRecord(request, scope, reviewerUserId);
+        FindingReviewEventRecord record = BuildReviewEventRecord(request, scope, reviewerUserId, isWorkingDesk);
 
         byte[]? expectedRowVersion = TryDecodeRowVersion(request.ExpectedCurrentDispositionRowVersionBase64);
 
@@ -101,7 +101,7 @@ public sealed class FindingDispositionService(
                     nameof(requests));
             }
 
-            records.Add(BuildReviewEventRecord(request, scope, reviewerUserId));
+            records.Add(BuildReviewEventRecord(request, scope, reviewerUserId, isWorkingDesk));
             expectedRowVersions.Add(TryDecodeRowVersion(request.ExpectedCurrentDispositionRowVersionBase64));
         }
 
@@ -139,7 +139,8 @@ public sealed class FindingDispositionService(
     private static FindingReviewEventRecord BuildReviewEventRecord(
         RecordFindingDispositionRequest request,
         ScopeContext scope,
-        string reviewerUserId)
+        string reviewerUserId,
+        bool isWorkingDesk)
     {
         return new FindingReviewEventRecord
         {
@@ -150,7 +151,7 @@ public sealed class FindingDispositionService(
             FindingId = request.FindingId.Trim(),
             ReviewerUserId = reviewerUserId.Trim(),
             Action = FindingReviewAction.RecordDisposition,
-            Notes = BuildDispositionNotes(request),
+            Notes = BuildDispositionNotes(request, isWorkingDesk),
             OccurredAtUtc = TimeProvider.System.UtcNowDateTime(),
             RunId = request.RunId,
             Disposition = request.Disposition,
@@ -235,10 +236,10 @@ public sealed class FindingDispositionService(
         return result;
     }
 
-    private static string? BuildDispositionNotes(RecordFindingDispositionRequest request)
+    private static string? BuildDispositionNotes(RecordFindingDispositionRequest request, bool isWorkingDesk)
     {
         string? rationale = string.IsNullOrWhiteSpace(request.Rationale) ? null : request.Rationale.Trim();
-        string? previewAttestationNote = BuildImpactPreviewAttestationNote(request);
+        string? previewAttestationNote = BuildImpactPreviewAttestationNote(request, isWorkingDesk);
 
         if (request.Disposition != Disposition.Accepted)
         {
@@ -260,9 +261,9 @@ public sealed class FindingDispositionService(
         return JoinDispositionNotes($"{rationale}\n\nTrade-off accepted: {tradeOff}", previewAttestationNote);
     }
 
-    private static string? BuildImpactPreviewAttestationNote(RecordFindingDispositionRequest request)
+    private static string? BuildImpactPreviewAttestationNote(RecordFindingDispositionRequest request, bool isWorkingDesk)
     {
-        if (request.Disposition != Disposition.Remediated)
+        if (!isWorkingDesk || request.Disposition != Disposition.Remediated)
         {
             return null;
         }
