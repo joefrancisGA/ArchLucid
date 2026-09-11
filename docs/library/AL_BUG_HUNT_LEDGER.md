@@ -239,7 +239,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-11
@@ -319,6 +319,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) Concurrent `DeleteAsync` on the same key serves stale cached hit after both wrappers complete — **cheap-disproof 2026-09-11 seed hunt #1757:** symmetric to #1547 write-in-flight parity; idempotent inner delete plus per-slot generation bumps still expose absent final state; regression `TenantSettings_TryGetAsync_returns_null_after_concurrent_delete_on_same_key`
 
 2026-09-11 seed hunt #1757 (seed-only): reseeded tenant-settings-sql after #1554; cheap-disproof closed eleven-alias JSON budget, delete key-casing normalization, and concurrent-delete cache isolation; 46 scoped TenantSettings tests passed.
+
+- [x] (invalid) Ten-alias allowed-engine JSON exceeds migration `NVARCHAR(512)` — **cheap-disproof 2026-09-11 seed hunt #1765:** ten `managed-azure-openai-alias-*` ids fit under the 512-char budget (eleven fits per #1757; fourteen exceeds per #1323).
+- [x] (valid-no-repro) `TenantSettingsWriteGuard.EnsureSettingValueLength` measures `settingValue.Trim().Length` so padding cannot bypass the 512-char limit — **cheap-disproof 2026-09-11 seed hunt #1765:** guard rejects `512 + 1` chars and accepts exact 512 (`EnsureSettingValueLength_accepts_value_at_exact_migration_nvarchar_512_limit`).
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.TryGetCoreAsync` returns null for whitespace-only `SettingValue` rows — **cheap-disproof 2026-09-11 seed hunt #1765:** `string.IsNullOrWhiteSpace(value) ? null : value.Trim()` treats blank SQL payloads as absent; upsert path rejects whitespace values before MERGE.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` bypasses hybrid cache when `WriteInFlightKeys` contains the slot — **cheap-disproof 2026-09-11 seed hunt #1765:** in-flight reads delegate to inner SQL during upsert/delete wrappers; regression `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed`.
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` rejects `Guid.Empty` before opening a SQL connection — **cheap-disproof 2026-09-11 seed hunt #1765:** `tenantId == Guid.Empty` throws `ArgumentException` at lines 77–78 before `CreateOpenConnectionAsync`.
+- [x] (invalid) `SqlTenantSettingsRepository.DeleteCoreAsync` should invoke `TenantSettingsWriteGuard` — **cheap-disproof 2026-09-11 seed hunt #1765:** delete removes a key only; no `SettingValue` payload exists on the delete path.
+
+2026-09-11 seed hunt #1765 (seed-only): reseeded tenant-settings-sql after #1757; cheap-disproof closed ten-alias JSON budget, trim-aware write guard, whitespace read normalization, write-in-flight cache bypass, empty-tenant upsert guard, and delete write-guard candidate; 12 scoped SqlTenantSettingsRepository tests passed.
 
 2026-09-08 seed hunt #1358 (seed-only): reseeded after #1347; cheap-disproof closed failed-delete generation-bump and empty-tenant-id cache-poison candidates; seeded out-of-band SQL cache staleness and multi-key partial-write candidates; no hunt-ready row reproduces.
 
@@ -2339,10 +2348,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 15
+- **hunts:** 17
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-07 — run-list exclude probe false-passed when hasMore true without nextCursor
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -2409,6 +2418,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-10 seed hunt #1550 (seed-only): reseeded cli-tenant-isolation after #1546; cheap-disproof closed HTTP 3xx deny false-pass, bare-array list parsing, primary 401 gate, and HTTP 408 list SKIP; seeded nested runId property candidate; 34 scoped TenantIsolationNegativeTestRunner tests passed.
 
 2026-09-10 seed hunt #1546 (seed-only): reseeded cli-tenant-isolation after #1480; cheap-disproof closed Guid wire-format list matching, HTTP 409 deny semantics, primary 503 gate, and orphan-cursor pagination; 30 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (valid-no-repro) Run-list exclude probe maps HTTP 403 Forbidden to SKIP via `ListUnavailable` — **cheap-disproof 2026-09-11 seed hunt #1763:** `ScanRunListForForeignRunIdAsync` treats any non-2xx list response as `ListUnavailable` (same branch as HTTP 401 in #1241); alternate scope cannot verify foreign runId exclusion.
+- [x] (valid-no-repro) `EvaluateDenyStatus` maps HTTP 410 Gone to FAIL not PASS for deny-status probes — **cheap-disproof 2026-09-11 seed hunt #1763:** only 401/403/404 count as denied access; 410 falls through to fail-closed FAIL.
+- [x] (valid-no-repro) `ProbePrimaryRunVisibilityAsync` treats HTTP 204 No Content as Pass and runs cross-tenant probes — **cheap-disproof 2026-09-11 seed hunt #1763:** `response.IsSuccessStatusCode` is the primary-scope gate; any 2xx means the supplied runId is reachable before alternate probes execute.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestCommand` returns non-zero exit when live overall verdict is SKIP — **cheap-disproof 2026-09-11 seed hunt #1763:** `RunAsync` returns `CliExitCode.OperationFailed` unless overall is Pass; markdown notes non-zero exit when isolation could not be verified.
+- [x] (valid-no-repro) `TryFindRunIdInRunList` ignores non-string `runId` JSON values — **cheap-disproof 2026-09-11 seed hunt #1763:** `ArrayContainsRunId` uses `GetString()`; `RunSummaryResponse.RunId` serializes as a JSON string per `ArchLucidApiJsonSerializerOptions` (see #1546 Guid wire-format test).
+- [x] (valid-no-repro) `EvaluateDenyStatus` maps HTTP 502 Bad Gateway to SKIP on deny-status probes — **cheap-disproof 2026-09-11 seed hunt #1763:** status codes `>= 500` return Skip (same branch as 503 in `EvaluateDenyStatus_Treats503AsSkip`).
+
+2026-09-11 seed hunt #1763 (seed-only): reseeded cli-tenant-isolation after #1555 dry; cheap-disproof closed HTTP 403 list SKIP, HTTP 410 deny fail-closed, primary 204 gate, live SKIP exit code, non-string runId JSON, and HTTP 502 deny SKIP; 35 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (valid-no-repro) Offline replay maps HTTP 429 on deny-status probes to FAIL not SKIP — **cheap-disproof 2026-09-11 seed hunt #1764:** `TenantIsolationNegativeTestOfflineRunner.EvaluateReplayProbe` calls `EvaluateDenyStatus` for deny probes; same conservative FAIL as live (`EvaluateDenyStatus_Treats429AsFailNotSkip`).
+- [x] (valid-no-repro) Offline exclude-run-id replay maps HTTP 403 list response to SKIP — **cheap-disproof 2026-09-11 seed hunt #1764:** `EvaluateExcludeRunIdProbeVerdict` returns Skip for any non-2xx status before inspecting `foreignRunIdVisible`.
+- [x] (valid-no-repro) `BuildReport` offline path sets `LiveApiMode` false so SKIP cross-tenant probes do not downgrade overall — **cheap-disproof 2026-09-11 seed hunt #1764:** `TenantIsolationNegativeTestRunner.RunOffline` passes `liveApiMode: false`; regression `DeriveOverallVerdict_OfflineModeAllowsPassWhenCrossTenantProbeSkipped`.
+- [x] (invalid) `cross-tenant-run-roi` deny probe should target `/v1/roi/...` instead of architecture review ROI — **cheap-disproof 2026-09-11 seed hunt #1764:** canonical scoped read is `GET /v1/architecture/review/{runId}/roi` (`RunQueryController.Detail.cs`); tenant ROI analytics live under separate `/v1/roi` routes outside this probe catalog.
+- [x] (valid-no-repro) `EvaluateDenyStatus` maps HTTP 405 Method Not Allowed to FAIL on deny-status probes — **cheap-disproof 2026-09-11 seed hunt #1764:** only 401/403/404 are treated as denied access; 405 is fail-closed FAIL.
+- [x] (valid-no-repro) `BuildMarkdown` escapes pipe characters in probe fields — **cheap-disproof 2026-09-11 seed hunt #1764:** `TenantIsolationNegativeTestCommand.EscapePipe` replaces `|` before markdown table emission; prevents table corruption, not an isolation false-pass vector.
+
+2026-09-11 seed hunt #1764 (seed-only): reseeded cli-tenant-isolation after #1763; cheap-disproof closed offline 429 deny, offline 403 list SKIP, offline LiveApiMode overall semantics, ROI route alias, HTTP 405 deny, and markdown pipe escaping; 35 scoped TenantIsolationNegativeTestRunner tests passed.
 
 ---
 
