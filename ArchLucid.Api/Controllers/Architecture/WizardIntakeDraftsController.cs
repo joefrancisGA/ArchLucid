@@ -112,9 +112,16 @@ public sealed partial class WizardIntakeDraftsController(
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        WizardIntakeDraftResponse draft =
-            await wizardIntakeDraftService.UpsertAsync(scope, wizardId, body, cancellationToken);
+        try
+        {
+            WizardIntakeDraftResponse draft =
+                await wizardIntakeDraftService.UpsertAsync(scope, wizardId, body, cancellationToken);
 
-        return Ok(draft);
+            return Ok(draft);
+        }
+        catch (ConflictException ex)
+        {
+            return MapWizardIntakeDraftSealedManifestConflict(ex);
+        }
     }
 }
