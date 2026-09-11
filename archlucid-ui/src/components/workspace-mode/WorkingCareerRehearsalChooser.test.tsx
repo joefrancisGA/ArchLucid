@@ -39,6 +39,17 @@ const evaluateGateMock = vi.hoisted(() =>
   })),
 );
 
+const sessionModeMock = vi.hoisted(() => ({
+  mode: "Simulator" as "Real" | "Simulator",
+}));
+
+const readinessMock = vi.hoisted(() => ({
+  hostMode: "Simulator" as "Real" | "Simulator" | null,
+  isSessionReal: false,
+  isReady: false,
+  isLoading: false,
+}));
+
 vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => ({
     mode: workspaceModeMock.mode,
@@ -67,6 +78,17 @@ vi.mock("@/hooks/use-working-career-door-gate", () => ({
   useEvaluateWorkingCareerDoorGate: () => evaluateGateMock,
 }));
 
+vi.mock("@/hooks/use-agent-execution-mode", () => ({
+  useAgentExecutionMode: () => ({
+    mode: sessionModeMock.mode,
+    isLoading: false,
+  }),
+}));
+
+vi.mock("@/hooks/session-ai-readiness-context", () => ({
+  useSessionAiReadiness: () => readinessMock,
+}));
+
 describe("WorkingCareerRehearsalChooser", () => {
   beforeEach(() => {
     workspaceModeMock.mode = "working";
@@ -76,6 +98,9 @@ describe("WorkingCareerRehearsalChooser", () => {
     gateMock.isCareerExecuteBlocked = false;
     gateMock.blockReason = null;
     gateMock.blockedDetail = null;
+    sessionModeMock.mode = "Simulator";
+    readinessMock.hostMode = "Simulator";
+    readinessMock.isSessionReal = false;
     doorMock.setDoor.mockReset();
     evaluateGateMock.mockClear();
   });
@@ -88,6 +113,10 @@ describe("WorkingCareerRehearsalChooser", () => {
     );
 
     expect(screen.getByTestId("working-career-rehearsal-chooser")).toBeInTheDocument();
+    expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
+      "data-chooser-source",
+      "command-bar",
+    );
     expect(screen.getByTestId("working-career-rehearsal-door-career")).toHaveTextContent(
       WORKING_CAREER_DOOR_LABEL,
     );
@@ -154,10 +183,60 @@ describe("WorkingCareerRehearsalChooser", () => {
       </TooltipProvider>,
     );
 
-    expect(screen.getByTestId("working-career-door-blocked-tag")).toBeInTheDocument();
+    expect(screen.getByTestId("working-career-door-host-mode-career-simulator-blocked")).toBeInTheDocument();
     expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
       "data-effective-door",
       "rehearsal",
+    );
+    expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
+      "data-door-host-mode-cell",
+      "career-simulator-blocked",
+    );
+  });
+
+  it("labels Rehearsal + Real as practice — not career proof", () => {
+    doorMock.door = "rehearsal";
+    sessionModeMock.mode = "Real";
+    readinessMock.hostMode = "Real";
+    readinessMock.isSessionReal = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("working-career-door-host-mode-rehearsal-real-practice")).toBeInTheDocument();
+    expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
+      "data-door-host-mode-cell",
+      "rehearsal-real-practice",
+    );
+  });
+
+  it("moves to Career with ArrowRight from Rehearsal on the segmented control", () => {
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser />
+      </TooltipProvider>,
+    );
+
+    fireEvent.keyDown(screen.getByTestId("working-career-rehearsal-door-rehearsal"), {
+      key: "ArrowRight",
+    });
+
+    expect(doorMock.setDoor).toHaveBeenCalledWith("career");
+  });
+
+  it("marks the findings mount so it is the same control without a second shortcut host", () => {
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser source="findings" />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
+      "data-chooser-source",
+      "findings",
     );
   });
 });

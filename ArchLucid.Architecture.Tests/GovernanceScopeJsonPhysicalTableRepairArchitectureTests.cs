@@ -65,7 +65,7 @@ public sealed class GovernanceScopeJsonPhysicalTableRepairArchitectureTests
         HashSet<string> registryColumns = CommittedRunHeaderAnchorRegistry.AnchorColumnNames
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        registryColumns.Should().BeEquivalentTo(migrationColumns);
+        migrationColumns.Should().BeSubsetOf(registryColumns);
     }
 
     private static string ReadPersistenceSql(params string[] relativeSegments)

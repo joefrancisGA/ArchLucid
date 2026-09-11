@@ -3,6 +3,7 @@ import { PreFinalizeChecklistPanel } from "@/components/reviews/PreFinalizeCheck
 export type PreFinalizeChecklistSectionProps = {
   readonly runId: string;
   readonly manifestFinalized: boolean;
+  readonly workingCareerRehearsalDoor?: string | null;
 };
 
 export function PreFinalizeChecklistSection(props: PreFinalizeChecklistSectionProps): React.JSX.Element {

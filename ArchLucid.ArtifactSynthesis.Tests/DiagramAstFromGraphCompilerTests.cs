@@ -102,6 +102,51 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_data_mode_flattens_sparse_swimlanes_when_many_resource_groups_each_hold_one_node()
+    {
+        GraphSnapshot graph = BuildDataSparseStorageGraph(resourceGroupCount: 12);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Data);
+        string mermaid = renderer.Render(ast);
+
+        ast.Nodes.Should().HaveCount(12);
+        ast.Subgraphs.Should().BeEmpty();
+        ast.Nodes.Should().OnlyContain(node => string.IsNullOrWhiteSpace(node.SubgraphId));
+        mermaid.Should().NotContain("subgraph");
+        mermaid.Should().Contain("stdata-0");
+        mermaid.Should().Contain("stdata-11");
+        mermaid.Should().Contain("flowchart TD");
+    }
+
+    [Fact]
+    public void Compile_data_mode_keeps_resource_group_frames_when_few_swimlanes()
+    {
+        GraphSnapshot graph = BuildDataSparseStorageGraph(resourceGroupCount: 3);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Data);
+        string mermaid = renderer.Render(ast);
+
+        ast.Nodes.Should().HaveCount(3);
+        ast.Subgraphs.Should().NotBeEmpty();
+        mermaid.Should().Contain("subgraph");
+        mermaid.Should().Contain("RG data-rg-0");
+        mermaid.Should().Contain("stdata-0");
+    }
+
+    [Fact]
+    public void Compile_full_subscription_does_not_flatten_sparse_swimlanes()
+    {
+        GraphSnapshot graph = BuildDataSparseStorageGraph(resourceGroupCount: 12);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+        string mermaid = renderer.Render(ast);
+
+        ast.Nodes.Should().HaveCount(12);
+        ast.Subgraphs.Should().NotBeEmpty();
+        mermaid.Should().Contain("subgraph");
+    }
+
+    [Fact]
     public void Compile_collapses_duplicate_topology_node_ids_without_throwing()
     {
         GraphSnapshot graph = BuildSampleGraph();
@@ -212,6 +257,34 @@ public sealed class DiagramAstFromGraphCompilerTests
 
     private static GraphSnapshot BuildExecutiveSparseVnetGraph(int resourceGroupCount)
     {
+        return BuildSparseSingleNodePerResourceGroupGraph(
+            resourceGroupCount,
+            nodeIdPrefix: "vnet",
+            labelPrefix: "vnet-eastus",
+            armType: "Microsoft.Network/virtualNetworks",
+            resourceGroupPrefix: "network-rg",
+            category: GraphTopologyCategories.Network);
+    }
+
+    private static GraphSnapshot BuildDataSparseStorageGraph(int resourceGroupCount)
+    {
+        return BuildSparseSingleNodePerResourceGroupGraph(
+            resourceGroupCount,
+            nodeIdPrefix: "storage",
+            labelPrefix: "stdata",
+            armType: "Microsoft.Storage/storageAccounts",
+            resourceGroupPrefix: "data-rg",
+            category: GraphTopologyCategories.Storage);
+    }
+
+    private static GraphSnapshot BuildSparseSingleNodePerResourceGroupGraph(
+        int resourceGroupCount,
+        string nodeIdPrefix,
+        string labelPrefix,
+        string armType,
+        string resourceGroupPrefix,
+        string category)
+    {
         GraphSnapshot graph = new()
         {
             GraphSnapshotId = Guid.NewGuid(),
@@ -225,12 +298,12 @@ public sealed class DiagramAstFromGraphCompilerTests
         for (int index = 0; index < resourceGroupCount; index++)
         {
             graph.Nodes.Add(CreateTopologyNode(
-                $"vnet-{index}",
-                $"vnet-eastus-{index}",
-                "Microsoft.Network/virtualNetworks",
-                $"network-rg-{index}",
+                $"{nodeIdPrefix}-{index}",
+                $"{labelPrefix}-{index}",
+                armType,
+                $"{resourceGroupPrefix}-{index}",
                 subscriptionId,
-                GraphTopologyCategories.Network));
+                category));
         }
 
         return graph;

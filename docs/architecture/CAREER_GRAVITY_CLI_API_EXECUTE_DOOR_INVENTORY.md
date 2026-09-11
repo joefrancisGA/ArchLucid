@@ -50,7 +50,7 @@ UI doors do not bind curl. Livelihood packets leave through CLI/API.
 
 1. **UI doors do not bind curl.** `POST review/{runId}/execute` has no Career/Rehearsal field. A Working architect on Career chrome can still execute Simulator via API while host Mode is Simulator.
 2. **CLI generic execute** (`ArchLucidApiClient.ExecuteRunAsync`) sends no door. Only `try` / `real-mode smoke` know `--rehearse` / `--real`.
-3. **`--rehearse` is an alias for `--allow-simulator` on smoke**, not a persisted run stamp. CG-019 (execute posture stamp) is the leftover for stamping the door on the run.
+3. **`--rehearse` is an alias for `--allow-simulator` on smoke**, not a CLI door header. CG-019 stamps the Working door on the run at first execute from UserSettings; unlabeled CLI/API execute with no stored door still defaults to Career (CG-014) while host Mode stays Simulator — leftover for CG-020/021 mismatch honesty.
 4. Finalize is **stricter** than export: `MapForFinalize` does not assume a rehearsal banner. Execute remains unlabeled without a door.
 
 ## Ratchet paths (must stay backtick-listed)
