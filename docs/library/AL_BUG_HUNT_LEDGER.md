@@ -1822,13 +1822,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 13
-- **bugs-found:** 7
+- **hunts:** 14
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-10 — invisible-only architect restatement and optional rationale bypassed HasSubstantiveText
+- **last-bug:** 2026-09-11 — bulk disposition accepted duplicate finding ids and persisted multiple events while current pointer kept only the last
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** 0
 
 ### Hypotheses
 
@@ -1883,6 +1883,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-10 thorough hunt #1579 (dry): cheap-disproved whitespace row-version concurrency bypass; added invalid-base64 guard regression; seeded bulk row-version decode candidate; 36 scoped finding-disposition tests passed.
 
 2026-09-10 seed hunt #1578 (seed→hit): reseeded finding-disposition; proved invisible architect restatement and optional rationale gaps; seeded whitespace row-version concurrency candidate; 33 scoped finding-disposition tests passed.
+
+- [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch with null expected row versions staged multiple pointer updates without conflict detection on in-memory/demo repositories — **hit 2026-09-11 thorough hunt #1726:** `InMemoryFindingDispositionConcurrencyRepository` deferred pointer writes until after the batch loop so a second row for the same finding id succeeded and appended two trail events while the current pointer kept only the last; SQL bulk path already conflicted on the second row; fixed with pre-repository duplicate finding-id guard in `RecordBulkAsync`; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
+
+2026-09-11 thorough hunt #1726 (hit): proved bulk duplicate finding-id bypass on in-memory CAS; 56 scoped finding-disposition tests passed.
 
 ---
 
