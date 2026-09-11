@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
@@ -101,17 +102,61 @@ internal static class FindingInspectReadRepositoryCore
 
     public static JsonElement? BuildMetadataTypedPayload(string? title, string? rationale)
     {
-        if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(rationale))
+        string? normalizedTitle = NormalizeMetadataText(title);
+        string? normalizedRationale = NormalizeMetadataText(rationale);
+
+        if (normalizedTitle is null && normalizedRationale is null)
             return null;
 
         Dictionary<string, string?> slim = new(StringComparer.Ordinal)
         {
-            ["title"] = string.IsNullOrWhiteSpace(title) ? null : title.Trim(),
-            ["rationale"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
-            ["whyThisMatters"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
+            ["title"] = normalizedTitle,
+            ["rationale"] = normalizedRationale,
+            ["whyThisMatters"] = normalizedRationale,
         };
 
         return JsonSerializer.SerializeToElement(slim);
+    }
+
+    /// <summary>
+    ///     Rejects blank and invisible-only metadata (for example U+200B) that pass
+    ///     <see cref="string.IsNullOrWhiteSpace(string?)" /> but are not usable operator-facing text.
+    /// </summary>
+    private static string? NormalizeMetadataText(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        string trimmed = value.Trim();
+
+        if (!HasSubstantiveMetadataText(trimmed))
+            return null;
+
+        return trimmed;
+    }
+
+    private static bool HasSubstantiveMetadataText(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return false;
+
+        bool hasSubstantive = false;
+
+        foreach (char character in value)
+        {
+
+            if (char.IsWhiteSpace(character))
+                continue;
+
+            UnicodeCategory category = char.GetUnicodeCategory(character);
+
+            if (category is UnicodeCategory.Format or UnicodeCategory.Control)
+                return false;
+
+            hasSubstantive = true;
+        }
+
+        return hasSubstantive;
     }
 
     public static JsonElement? TryParsePayloadJson(string? payloadJson)

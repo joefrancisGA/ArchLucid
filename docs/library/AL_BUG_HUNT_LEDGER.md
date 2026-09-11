@@ -1317,11 +1317,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 55
-- **bugs-found:** 13
+- **hunts:** 56
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-08 — inspect `TryParseEvaluationConfidenceLevel` accepted undefined numeric confidence strings
+- **last-bug:** 2026-09-11 — inspect metadata typed payload accepted invisible-only title/rationale (U+200B)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1780,6 +1780,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ResolveRuleFields` strips leading `+` from applied rule ids — **cheap-disproof 2026-09-11 seed hunt #1698:** `+cost-guardrail` token preserved verbatim; regression `ResolveRuleFields_preserves_plus_sign_in_rule_id_tokens`.
 
 2026-09-11 seed hunt #1698 (seed-only): reseeded finding-inspect-sql after #1678; cheap-disproof closed plus-sign numeric enum parsing and plus-prefixed rule-id token candidates; 401 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (proven) `BuildMetadataTypedPayload` / `ResolveTypedPayloadForInspect` — invisible-only `Title` or `Rationale` (U+200B) passed `IsNullOrWhiteSpace` and surfaced empty-looking typed payloads — **hit 2026-09-11 seed hunt #1733 (seed→hit):** metadata fallback and metadata-only inspect paths built slim JSON for format/control-only strings; fixed with substantive-text normalization in `FindingInspectReadRepositoryCore`; regressions `BuildMetadataTypedPayload_returns_null_when_only_invisible_unicode_title_is_present`, `ResolveTypedPayloadForInspect_returns_null_metadata_when_corrupt_payload_and_invisible_unicode_title`, and `ResolveTypedPayloadForInspectRead_metadata_only_returns_null_when_only_invisible_unicode_fields_present`.
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` contains numeric JSON elements instead of strings — **cheap-disproof 2026-09-11 seed hunt #1733:** `JsonSerializer.Deserialize<List<string>>` throws `JsonException` on `[1, 2]` and falls back to trace text; regression `ResolveRuleFields_when_applied_rule_ids_json_contains_numeric_elements_falls_back_to_trace_text`.
+- [x] (valid-no-repro) `ParseDisposition` mishandles leading-zero (`"00"`) or hex-prefixed (`"0x0"`) numeric disposition strings — **cheap-disproof 2026-09-11 seed hunt #1733:** `"00"` maps to defined `Accepted`; `"0x0"` fails `Enum.TryParse`; regression `ParseDisposition_handles_leading_zero_and_hex_prefixed_numeric_strings`.
+- [x] (invalid) `MainInspect*` `AgentExecutionTraces` join omits tenant predicate and can pair another tenant's trace row — **cheap-disproof 2026-09-11 seed hunt #1733:** `dbo.AgentExecutionTraces` has no `TenantId` column; isolation is via `aet.TraceId = fr.AgentExecutionTraceId` and `aet.RunId = r.RunId` on run-scoped joins; regression `MainInspect_scopes_agent_execution_trace_by_run_id_without_tenant_column`.
+
+2026-09-11 seed hunt #1733 (seed→hit): reseeded finding-inspect-sql after #1698; proved invisible-only metadata typed-payload fallback; cheap-disproof closed numeric applied-rule-id array elements, leading-zero/hex disposition strings, and unscoped agent-trace tenant join; 409 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
