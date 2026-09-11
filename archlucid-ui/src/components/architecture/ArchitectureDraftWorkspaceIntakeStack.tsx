@@ -107,7 +107,7 @@ export function ArchitectureDraftWorkspaceIntakeStack(
             testId="architecture-draft-conflict-message"
             recoveryScenario="api-problem"
             recoveryPresentation={{
-              whatFailed: "This architecture draft changed in another browser session.",
+              whatFailed: "This architecture draft changed in another browser session or from offline replay.",
               whatIsIntact: "Your unsaved edits in this tab are still on screen and were not overwritten.",
               nextStep: isWorkingMode
                 ? "Keep your edits, load the server copy, or retry save after you choose."

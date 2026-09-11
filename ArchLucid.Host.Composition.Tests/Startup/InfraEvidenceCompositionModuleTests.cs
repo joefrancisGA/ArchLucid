@@ -1,6 +1,7 @@
 using System.Reflection;
 
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
@@ -22,6 +23,7 @@ using ArchLucid.Persistence.Queries;
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -139,6 +141,64 @@ public sealed class InfraEvidenceCompositionModuleTests
 
         handedOff.Should().BeTrue(
             "InMemory uses NoOpOperationalSecurityFindingRepository; real handoff still reports success for local hosts");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_resolves_tenant_branding_cache_after_platform_pipeline_registers_memory_cache()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        TenantBrandingResolvedProfileCache brandingCache =
+            serviceScope.ServiceProvider.GetRequiredService<TenantBrandingResolvedProfileCache>();
+        IMemoryCache memoryCache = serviceScope.ServiceProvider.GetRequiredService<IMemoryCache>();
+
+        Guid tenantId = scope.TenantId;
+        ResolvedTenantBrandingProfile profile = new()
+        {
+            TenantId = tenantId,
+            CompanyDisplayName = "Acme Corp",
+            IsProductBrand = false,
+        };
+
+        brandingCache.Set(tenantId, profile);
+
+        brandingCache.TryGet(tenantId, out ResolvedTenantBrandingProfile? cached).Should().BeTrue();
+        cached.Should().BeEquivalentTo(profile);
+        memoryCache.Should().NotBeNull("Authority pipeline registers IMemoryCache before InfraEvidence branding cache");
+    }
+
+    [Fact]
+    public void InfraEvidenceCompositionModule_repeated_register_keeps_single_selector_descriptor_per_evidence_type()
+    {
+        ServiceCollection services = [];
+        InfraEvidenceCompositionModule.Register(services);
+        InfraEvidenceCompositionModule.Register(services);
+
+        int inventorySelectorRegistrations = services.Count(
+            static descriptor => descriptor.ServiceType == typeof(InventoryAuditEvidenceSelector));
+
+        inventorySelectorRegistrations.Should().Be(2,
+            "repeated Register duplicates scoped selector descriptors, but registry wiring stays typed");
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        using IServiceScope scope = provider.CreateScope();
+        IAuditEvidenceSelectorRegistry registry =
+            scope.ServiceProvider.GetRequiredService<IAuditEvidenceSelectorRegistry>();
+
+        registry.ListDescriptors().Should().HaveCount(9,
+            "AuditEvidenceSelectorRegistry injects one instance per selector type; collection does not enumerate IEnumerable<IAuditEvidenceSelector>");
     }
 
     [Fact]

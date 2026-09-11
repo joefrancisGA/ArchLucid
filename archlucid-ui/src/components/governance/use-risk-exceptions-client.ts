@@ -7,10 +7,13 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   defaultRiskExceptionExpiresAtUtc,
   listRiskExceptions,
-  renewRiskException,
-  revokeRiskException,
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import {
+  renewRiskExceptionWith401Resume,
+  revokeRiskExceptionWith401Resume,
+} from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   defaultRiskExceptionRenewOpenedExpiryUtc,
@@ -86,6 +89,8 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
   const router = useRouter();
   const pathname = usePathname() ?? GOVERNANCE_EXCEPTIONS_PATH;
   const searchParams = useSearchParams();
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const urlRenewId = parseRiskExceptionRenewIdFromSearch(searchParams.get("renewId"));
   const urlRevokeId = parseRiskExceptionRevokeIdFromSearch(searchParams.get("revokeId"));
@@ -277,10 +282,14 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
       writeRiskExceptionLastViewedId(record.riskExceptionId);
 
       try {
-        await renewRiskException(record.riskExceptionId, {
-          expiresAtUtc: renewExpiresAtUtc,
-          rationale: renewRationale.trim().length > 0 ? renewRationale.trim() : undefined,
-        });
+        await renewRiskExceptionWith401Resume(
+          record.riskExceptionId,
+          {
+            expiresAtUtc: renewExpiresAtUtc,
+            rationale: renewRationale.trim().length > 0 ? renewRationale.trim() : undefined,
+          },
+          { returnPath: livelihoodReturnPath },
+        );
 
         setRenewingId(null);
         setRenewRationale("");
@@ -288,6 +297,10 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
         syncRenewRevokeToUrl(null, pendingRevoke?.riskExceptionId ?? null);
         await reload();
       } catch (error: unknown) {
+        if (isLivelihoodMutation401RedirectError(error)) {
+          return;
+        }
+
         const failure = toApiLoadFailure(error);
         setLoadError(
           riskExceptionMutationBlockedReason(failure)
@@ -297,7 +310,7 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
         setBusyId(null);
       }
     },
-    [canMutate, renewExpiresAtUtc, renewRationale, reload],
+    [canMutate, livelihoodReturnPath, renewExpiresAtUtc, renewRationale, reload],
   );
 
   const submitRevoke = useCallback(
@@ -311,11 +324,17 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
       writeRiskExceptionLastViewedId(record.riskExceptionId);
 
       try {
-        await revokeRiskException(record.riskExceptionId);
+        await revokeRiskExceptionWith401Resume(record.riskExceptionId, {
+          returnPath: livelihoodReturnPath,
+        });
         setPendingRevoke(null);
         syncRenewRevokeToUrl(renewingId, null);
         await reload();
       } catch (error: unknown) {
+        if (isLivelihoodMutation401RedirectError(error)) {
+          return;
+        }
+
         const failure = toApiLoadFailure(error);
         setLoadError(
           riskExceptionMutationBlockedReason(failure)
@@ -325,7 +344,7 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
         setBusyId(null);
       }
     },
-    [canMutate, reload],
+    [canMutate, livelihoodReturnPath, reload],
   );
 
   const onTriageExtend = useCallback((riskExceptionId: string) => {

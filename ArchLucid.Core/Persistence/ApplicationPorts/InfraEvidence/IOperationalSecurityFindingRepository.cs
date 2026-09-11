@@ -29,6 +29,11 @@ public interface IOperationalSecurityFindingRepository
         int pageSize,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdAsync(
+        Guid tenantId,
+        Guid pathId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
         Guid tenantId,
         Guid findingId,

@@ -29,6 +29,7 @@ internal static class DraftIntakeCompositionRegistrar
         services.AddScoped<IPriorPackageSemanticMergeService, PriorPackageSemanticMergeService>();
         services.AddScoped<IDraftRequestCreateStage, DraftRequestCreateStage>();
         services.AddScoped<IPresenterIntakeTrailSyncService, PresenterIntakeTrailSyncService>();
+        services.AddScoped<DraftForceOverwriteAuditSupport>();
         services.AddScoped<IDraftRequestMutateStage, DraftRequestMutateStage>();
         services.AddScoped<IDraftRequestDeleteStage, DraftRequestDeleteStage>();
         services.AddScoped<IDraftRequestCrudService, DraftRequestCrudService>();
@@ -36,6 +37,8 @@ internal static class DraftIntakeCompositionRegistrar
         services.AddScoped<IDraftBranchingService, DraftBranchingService>();
         services.AddScoped<IDraftSnapshotCloningService, DraftSnapshotCloningService>();
         services.AddScoped<IDraftRequestService, DraftRequestService>();
+        services.AddScoped<IArchitectureWorkLeaseHolderResolver, ArchitectureWorkLeaseHolderResolver>();
+        services.AddScoped<IArchitectureWorkLeaseService, ArchitectureWorkLeaseService>();
         services.AddScoped<IDraftRequestApplicationFacade, DraftRequestApplicationFacade>();
         services.AddScoped<IDecisionReceiptService, DecisionReceiptService>();
         services.AddScoped<IDraftIntakeReaperService, DraftIntakeReaperService>();

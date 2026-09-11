@@ -17,8 +17,11 @@ import {
 import { createPortal } from "react-dom";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { InAppNavigationGuardDialog } from "@/components/navigation/InAppNavigationGuardDialog";
 import { ScopeSwitcherPanelBody } from "@/components/ScopeSwitcherPanelBody";
 import { Button } from "@/components/ui/button";
+import { useHasActiveLivelihoodDocumentGuardDirty } from "@/hooks/use-has-active-livelihood-document-guard-dirty";
+import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import { Card } from "@/components/ui/card";
 import {
   BUYER_SCOPE_CURRENT_WORKSPACE_TITLE,
@@ -31,7 +34,6 @@ import {
   clearOperatorScopeStorage,
   defaultLabelsForScopeIds,
   getEffectiveBrowserProxyScopeHeaders,
-  readOperatorScopeFromStorage,
   type OperatorScopeRecord,
   writeOperatorScopeToStorage,
 } from "@/lib/operator/operator-scope-storage";
@@ -59,6 +61,13 @@ import {
   scopeSwitcherHrefFromSearch,
 } from "@/lib/operator/scope-switcher-url";
 
+export const SCOPE_SWITCHER_UNSAVED_MESSAGE =
+  "You have unsaved changes. Switch workspace scope without saving?";
+
+type PendingScopeAction =
+  | { readonly kind: "apply"; readonly row: OperatorScopeRecord }
+  | { readonly kind: "clear" };
+
 type ScopeSwitcherProps = {
   readonly density?: "default" | "compact";
 };
@@ -77,11 +86,13 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   const [open, setOpenState] = useState(() => parseScopeSwitcherOpenFromSearch(scopeOpenParam));
   const openRef = useRef(open);
   openRef.current = open;
-  const [tick, setTick] = useState(0);
+  const stored = useOperatorScopeRecord();
   const [listLoading, setListLoading] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
   const [workspaces, setWorkspaces] = useState<ScopeSwitcherWorkspaceOption[] | null>(null);
   const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
+  const [pendingScopeAction, setPendingScopeAction] = useState<PendingScopeAction | null>(null);
+  const hasDirtyLivelihoodForm = useHasActiveLivelihoodDocumentGuardDirty();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -108,14 +119,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
     setOpenState(parseScopeSwitcherOpenFromSearch(scopeOpenParam));
   }, [scopeOpenParam]);
 
-  const effective = useMemo(() => {
-    void tick;
-    return getEffectiveBrowserProxyScopeHeaders();
-  }, [tick]);
-  const stored = useMemo(() => {
-    void tick;
-    return readOperatorScopeFromStorage();
-  }, [tick]);
+  const effective = useMemo(() => getEffectiveBrowserProxyScopeHeaders(), [stored]);
   const tenantId = effective["x-tenant-id"] ?? "";
   const workspaceId = effective["x-workspace-id"] ?? "";
   const projectId = effective["x-project-id"] ?? "";
@@ -295,13 +299,30 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
     };
   }, [open, setOpen]);
 
-  const applyScope = useCallback(
-    (row: OperatorScopeRecord) => {
-      writeOperatorScopeToStorage(row);
-      setTick((n) => n + 1);
+  const commitScopeAction = useCallback(
+    (action: PendingScopeAction) => {
+      if (action.kind === "apply") {
+        writeOperatorScopeToStorage(action.row);
+      } else {
+        clearOperatorScopeStorage();
+      }
+
       setOpen(false);
     },
     [setOpen],
+  );
+
+  const applyScope = useCallback(
+    (row: OperatorScopeRecord) => {
+      if (hasDirtyLivelihoodForm) {
+        setPendingScopeAction({ kind: "apply", row });
+
+        return;
+      }
+
+      commitScopeAction({ kind: "apply", row });
+    },
+    [commitScopeAction, hasDirtyLivelihoodForm],
   );
 
   const closePanel = useCallback(() => {
@@ -310,10 +331,27 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   }, [setOpen]);
 
   const clearCustomScope = useCallback(() => {
-    clearOperatorScopeStorage();
-    setTick((n) => n + 1);
-    setOpen(false);
-  }, [setOpen]);
+    if (hasDirtyLivelihoodForm) {
+      setPendingScopeAction({ kind: "clear" });
+
+      return;
+    }
+
+    commitScopeAction({ kind: "clear" });
+  }, [commitScopeAction, hasDirtyLivelihoodForm]);
+
+  const confirmScopeChange = useCallback(() => {
+    if (pendingScopeAction === null) {
+      return;
+    }
+
+    commitScopeAction(pendingScopeAction);
+    setPendingScopeAction(null);
+  }, [commitScopeAction, pendingScopeAction]);
+
+  const cancelScopeChange = useCallback(() => {
+    setPendingScopeAction(null);
+  }, []);
 
   if (!canShow) {
     return null;
@@ -329,6 +367,15 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
     density === "compact"
       ? "min-w-0 flex-1 truncate whitespace-nowrap text-left text-neutral-900 dark:text-neutral-100"
       : "min-w-0 flex-1 truncate whitespace-nowrap text-left text-neutral-800 dark:text-neutral-200";
+
+  const scopeDirtyGuardDialog = (
+    <InAppNavigationGuardDialog
+      message={SCOPE_SWITCHER_UNSAVED_MESSAGE}
+      onCancelLeave={cancelScopeChange}
+      onConfirmLeave={confirmScopeChange}
+      open={pendingScopeAction !== null}
+    />
+  );
 
   const scopePanel =
     open && panelStyle != null ? (
@@ -370,6 +417,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   if (polishedShell) {
     return (
       <>
+        {scopeDirtyGuardDialog}
         <span className={cn("inline-flex shrink items-center", polishedMaxWidthClass)}>
           <Button
             ref={triggerRef}
@@ -408,6 +456,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
 
   return (
     <>
+      {scopeDirtyGuardDialog}
       <div className="flex min-w-0 max-w-full shrink items-center">
         <Button
           ref={triggerRef}

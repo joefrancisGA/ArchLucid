@@ -36,7 +36,7 @@ export async function getArchitectureRunProvenance(
   runId: string,
 ): Promise<ArchitectureRunProvenanceGraph> {
   try {
-    return await apiGet<ArchitectureRunProvenanceGraph>(
+    return await apiGetSealedManifestAware<ArchitectureRunProvenanceGraph>(
       `/v1/architecture/reviews/${encodeURIComponent(runId)}/provenance`,
     );
   } catch (error: unknown) {

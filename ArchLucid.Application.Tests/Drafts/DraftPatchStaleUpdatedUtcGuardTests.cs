@@ -23,6 +23,20 @@ public sealed class DraftPatchStaleUpdatedUtcGuardTests
     }
 
     [Fact]
+    public void EnsurePatchNotStaleOrThrow_throws_when_token_omitted()
+    {
+        DraftRequestResponse existing = CreateDraft(updatedUtc: DateTime.UtcNow);
+
+        Action act = () => DraftPatchStaleUpdatedUtcGuard.EnsurePatchNotStaleOrThrow(
+            existing,
+            expectedUpdatedUtc: null,
+            forceOverwrite: false);
+
+        ConflictException ex = act.Should().Throw<ConflictException>().Which;
+        ex.Code.Should().Be(DraftPatchCasConflictCodes.TokenMissing);
+    }
+
+    [Fact]
     public void EnsurePatchNotStaleOrThrow_throws_when_token_stale()
     {
         DraftRequestResponse existing = CreateDraft(updatedUtc: DateTime.UtcNow);
@@ -32,7 +46,32 @@ public sealed class DraftPatchStaleUpdatedUtcGuardTests
             expectedUpdatedUtc: existing.UpdatedUtc.AddMinutes(-5),
             forceOverwrite: false);
 
-        act.Should().Throw<ConflictException>();
+        ConflictException ex = act.Should().Throw<ConflictException>().Which;
+        ex.Code.Should().Be(DraftPatchCasConflictCodes.Stale);
+    }
+
+    [Fact]
+    public void EnsurePatchNotStaleOrThrow_passes_when_token_matches()
+    {
+        DraftRequestResponse existing = CreateDraft(updatedUtc: DateTime.UtcNow);
+
+        Action act = () => DraftPatchStaleUpdatedUtcGuard.EnsurePatchNotStaleOrThrow(
+            existing,
+            expectedUpdatedUtc: existing.UpdatedUtc,
+            forceOverwrite: false);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsurePatchNotStaleOrThrow_throws_when_existing_is_null()
+    {
+        Action act = () => DraftPatchStaleUpdatedUtcGuard.EnsurePatchNotStaleOrThrow(
+            null!,
+            expectedUpdatedUtc: DateTime.UtcNow,
+            forceOverwrite: false);
+
+        act.Should().Throw<ArgumentNullException>();
     }
 
     private static DraftRequestResponse CreateDraft(DateTime updatedUtc)

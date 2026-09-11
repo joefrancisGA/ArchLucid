@@ -153,6 +153,142 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionRoleAssignmentsAsync_maps_assignment_properties()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""
+                                                {
+                                                  "value": [
+                                                    {
+                                                      "properties": {
+                                                        "scope": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                                                        "principalId": "11111111-1111-1111-1111-111111111111",
+                                                        "principalType": "Group",
+                                                        "roleDefinitionId": "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                                """)
+                }));
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> assignments =
+            await client.ListSubscriptionRoleAssignmentsAsync(
+                "token-abc",
+                "11111111-1111-1111-1111-111111111111",
+                CancellationToken.None);
+
+        Assert.Single(assignments);
+        Assert.Equal("Group", assignments[0].PrincipalType);
+        Assert.Equal("11111111-1111-1111-1111-111111111111", assignments[0].PrincipalId);
+        Assert.Equal("standing", assignments[0].PimEligibilityKind);
+    }
+
+    [Fact]
+    public async Task ListFederatedCredentialsAsync_maps_user_assigned_identity_credentials()
+    {
+        const string identityResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami1";
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                Assert.Contains("federatedIdentityCredentials", request.RequestUri?.AbsoluteUri, StringComparison.Ordinal);
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("""
+                                                    {
+                                                      "value": [
+                                                        {
+                                                          "name": "github-main",
+                                                          "properties": {
+                                                            "issuer": "https://token.actions.githubusercontent.com",
+                                                            "subject": "repo:org/repo:ref:refs/heads/main"
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                    """)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> resources =
+        [
+            new HostedAzureArmResourceRecord(
+                "Microsoft.ManagedIdentity/userAssignedIdentities",
+                identityResourceId,
+                "uami1",
+                "eastus",
+                null,
+                null,
+                new Dictionary<string, object?>
+                {
+                    ["principalId"] = "11111111-1111-1111-1111-111111111111",
+                    ["clientId"] = "22222222-2222-2222-2222-222222222222",
+                }),
+        ];
+
+        IReadOnlyList<HostedAzureArmFederatedCredentialRecord> credentials =
+            await client.ListFederatedCredentialsAsync("token-abc", resources, CancellationToken.None);
+
+        Assert.Single(credentials);
+        Assert.Equal("https://token.actions.githubusercontent.com", credentials[0].Issuer);
+        Assert.Equal("repo:org/repo:ref:refs/heads/main", credentials[0].Subject);
+        Assert.Equal("11111111-1111-1111-1111-111111111111", credentials[0].PrincipalId);
+        Assert.Equal("22222222-2222-2222-2222-222222222222", credentials[0].AppId);
+        Assert.Equal(identityResourceId, credentials[0].ParentResourceId);
+        Assert.Equal("github-main", credentials[0].CredentialName);
+    }
+
+    [Fact]
+    public async Task ListSubscriptionRoleEligibilitySchedulesAsync_maps_eligible_assignments()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""
+                                                {
+                                                  "value": [
+                                                    {
+                                                      "properties": {
+                                                        "scope": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                                                        "principalId": "11111111-1111-1111-1111-111111111111",
+                                                        "principalType": "User",
+                                                        "roleDefinitionId": "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                                """)
+                }));
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> schedules =
+            await client.ListSubscriptionRoleEligibilitySchedulesAsync(
+                "token-abc",
+                "11111111-1111-1111-1111-111111111111",
+                CancellationToken.None);
+
+        Assert.Single(schedules);
+        Assert.Equal("eligible", schedules[0].PimEligibilityKind);
+        Assert.Equal("11111111-1111-1111-1111-111111111111", schedules[0].PrincipalId);
+    }
+
+    [Fact]
     public async Task ListSubscriptionResourcesAsync_throws_when_next_link_targets_different_subscription()
     {
         const string requestedSubscriptionId = "11111111-1111-1111-1111-111111111111";
@@ -271,6 +407,175 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task TryGetSubscriptionDisplayNameAsync_returns_arm_display_name()
+    {
+        List<string> methods = [];
+        List<string> uris = [];
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                methods.Add(request.Method.Method);
+                uris.Add(request.RequestUri?.AbsoluteUri ?? string.Empty);
+
+                const string body = """
+                                    {
+                                      "subscriptionId": "11111111-1111-1111-1111-111111111111",
+                                      "displayName": "Contoso Production",
+                                      "state": "Enabled"
+                                    }
+                                    """;
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(body)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        string? name = await client.TryGetSubscriptionDisplayNameAsync(
+            "token-abc",
+            "11111111-1111-1111-1111-111111111111",
+            CancellationToken.None);
+
+        Assert.Equal("Contoso Production", name);
+        Assert.All(methods, method => Assert.Equal(HttpMethod.Get.Method, method));
+        Assert.Contains(
+            uris,
+            uri => uri.StartsWith(
+                "https://management.azure.com/subscriptions/11111111-1111-1111-1111-111111111111?",
+                StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task TryGetSubscriptionDisplayNameAsync_returns_null_when_display_name_is_guid()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""
+                                                {
+                                                  "displayName": "11111111-1111-1111-1111-111111111111"
+                                                }
+                                                """)
+                }));
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        string? name = await client.TryGetSubscriptionDisplayNameAsync(
+            "token-abc",
+            "11111111-1111-1111-1111-111111111111",
+            CancellationToken.None);
+
+        Assert.Null(name);
+    }
+
+    [Fact]
+    public async Task TryGetSubscriptionDisplayNameAsync_returns_null_on_http_failure()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden)));
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        string? name = await client.TryGetSubscriptionDisplayNameAsync(
+            "token-abc",
+            "11111111-1111-1111-1111-111111111111",
+            CancellationToken.None);
+
+        Assert.Null(name);
+    }
+
+    [Fact]
+    public async Task ListManagementGroupSubscriptionIdsAsync_maps_subscription_ids()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                Assert.Contains("/managementGroups/corp/subscriptions", request.RequestUri?.AbsoluteUri);
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("""
+                                                    {
+                                                      "value": [
+                                                        {
+                                                          "id": "/subscriptions/11111111-1111-1111-1111-111111111111",
+                                                          "name": "11111111-1111-1111-1111-111111111111"
+                                                        },
+                                                        {
+                                                          "id": "/subscriptions/22222222-2222-2222-2222-222222222222",
+                                                          "name": "22222222-2222-2222-2222-222222222222"
+                                                        }
+                                                      ]
+                                                    }
+                                                    """)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<string> subscriptionIds = await client.ListManagementGroupSubscriptionIdsAsync(
+            "token-abc",
+            "corp",
+            CancellationToken.None);
+
+        Assert.Equal(2, subscriptionIds.Count);
+        Assert.Contains("11111111-1111-1111-1111-111111111111", subscriptionIds);
+        Assert.Contains("22222222-2222-2222-2222-222222222222", subscriptionIds);
+    }
+
+    [Fact]
+    public async Task ListManagementGroupRoleAssignmentsAsync_maps_management_group_assignments()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                Assert.Contains("/managementGroups/corp/providers/Microsoft.Authorization/roleAssignments", request.RequestUri?.AbsoluteUri);
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("""
+                                                    {
+                                                      "value": [
+                                                        {
+                                                          "properties": {
+                                                            "scope": "/providers/Microsoft.Management/managementGroups/corp",
+                                                            "principalId": "11111111-1111-1111-1111-111111111111",
+                                                            "principalType": "User",
+                                                            "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                    """)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> assignments =
+            await client.ListManagementGroupRoleAssignmentsAsync(
+                "token-abc",
+                "corp",
+                CancellationToken.None);
+
+        Assert.Single(assignments);
+        Assert.Equal("standing", assignments[0].PimEligibilityKind);
+        Assert.Contains("managementGroups/corp", assignments[0].Scope, StringComparison.Ordinal);
     }
 
     private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)

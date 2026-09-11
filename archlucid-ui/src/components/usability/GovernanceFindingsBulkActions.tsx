@@ -36,6 +36,8 @@ import {
   type GovernanceFindingsBulkDisposition,
 } from "@/lib/governance/governance-findings-bulk-disposition-confirm-url";
 import { recordBulkFindingDisposition } from "@/lib/api/governance-stickiness-api";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { recordBulkFindingDispositionWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
 import { findingBulkDispositionBlockedReason } from "@/lib/governance/finding-bulk-disposition-blocked-reason";
 import { collectExpectedCurrentDispositionRowVersionByFindingId } from "@/lib/findings/finding-collect-expected-disposition-row-versions";
 import { FindingDispositionConflictPanel } from "@/components/governance/findings/FindingDispositionConflictPanel";
@@ -77,6 +79,8 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
   const router = useRouter();
   const pathname = usePathname() ?? GOVERNANCE_FINDINGS_PATH;
   const searchParams = useSearchParams();
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
   const bulkDispConfirmParam = searchParams.get("bulkDispConfirm");
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
@@ -163,18 +167,20 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
       const expectedCurrentDispositionRowVersionBase64ByFindingId =
         await collectExpectedCurrentDispositionRowVersionByFindingId(findingIds);
 
-      const result = await recordBulkFindingDisposition(
-        {
-          findingIds,
-          disposition,
-          rationale: trimmedReason,
-          revisitDueUtc: disposition === "Deferred" ? revisitDueUtc : undefined,
-          ...(Object.keys(expectedCurrentDispositionRowVersionBase64ByFindingId).length === 0
-            ? {}
-            : { expectedCurrentDispositionRowVersionBase64ByFindingId }),
-        },
-        { idempotencyKey },
-      );
+      const bulkBody = {
+        findingIds,
+        disposition,
+        rationale: trimmedReason,
+        revisitDueUtc: disposition === "Deferred" ? revisitDueUtc : undefined,
+        ...(Object.keys(expectedCurrentDispositionRowVersionBase64ByFindingId).length === 0
+          ? {}
+          : { expectedCurrentDispositionRowVersionBase64ByFindingId }),
+      };
+
+      const result = await recordBulkFindingDispositionWith401Resume(bulkBody, {
+        returnPath: livelihoodReturnPath,
+        idempotencyKey,
+      });
 
       if (disposition === "Accepted" || disposition === "RejectedAsNotApplicable") {
         const appliedAtUtc = new Date().toISOString();
@@ -237,6 +243,10 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
       setPendingDisposition(null);
       router.refresh();
     } catch (err) {
+      if (isLivelihoodMutation401RedirectError(err)) {
+        return;
+      }
+
       const conflict = readFindingDispositionConflictFromError(err);
 
       if (conflict !== null) {

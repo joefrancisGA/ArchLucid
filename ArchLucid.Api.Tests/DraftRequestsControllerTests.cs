@@ -41,6 +41,7 @@ public sealed class DraftRequestsControllerTests
     private readonly Mock<IDraftIntakeReasoningService> _reasoning = new();
     private readonly Mock<IDecisionReceiptService> _decisionReceipt = new();
     private readonly Mock<IAuditService> _audit = new();
+    private readonly Mock<IArchitectureWorkLeaseService> _workLease = new();
 
     public DraftRequestsControllerTests()
     {
@@ -57,6 +58,7 @@ public sealed class DraftRequestsControllerTests
             _reasoning.Object,
             _decisionReceipt.Object,
             _audit.Object,
+            _workLease.Object,
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())

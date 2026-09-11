@@ -3,11 +3,10 @@
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_REMEDIATION_FACTORY_PATH,
+  GOVERNANCE_REMEDIATION_PATTERNS_PATH,
+  SECURENOW_REMEDIATION_PATTERNS_PATH,
 } from "@/lib/governance/governance-route-paths";
-
-const GOVERNANCE_REMEDIATION_FACTORY_PATH = "/governance/remediation-factory" as const;
-
-const GOVERNANCE_REMEDIATION_PATTERNS_PATH = "/governance/remediation-patterns" as const;
 
 const GOVERNANCE_REMEDIATION_PATTERNS_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
@@ -33,6 +32,10 @@ const GOVERNANCE_REMEDIATION_PATTERNS_HUB_CONTEXTUAL_HELP = {
 } as const;
 
 export const GOVERNANCE_REMEDIATION_PATTERNS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
+  {
+    prefix: SECURENOW_REMEDIATION_PATTERNS_PATH,
+    entry: GOVERNANCE_REMEDIATION_PATTERNS_HUB_CONTEXTUAL_HELP,
+  },
   {
     prefix: GOVERNANCE_REMEDIATION_PATTERNS_PATH,
     entry: GOVERNANCE_REMEDIATION_PATTERNS_HUB_CONTEXTUAL_HELP,

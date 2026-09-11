@@ -2,15 +2,79 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Sql;
 
 namespace ArchLucid.Persistence.Findings;
 
 internal static class FindingInspectReadRepositoryCore
 {
+    public static bool ResolveIncludeTypedPayload(FindingInspectReadOptions? options) =>
+        options?.IncludeTypedPayload ?? true;
+
+    public static string NormalizeFindingId(string findingId) => findingId.Trim();
+
+    public static string ResolveMainInspectSql(bool includeTypedPayload) =>
+        includeTypedPayload
+            ? FindingInspectReadSql.MainInspectWithTypedPayload
+            : FindingInspectReadSql.MainInspectWithoutTypedPayload;
+
+    public static DispositionPointerProjection MapDispositionPointerProjection(
+        string? dispositionRaw,
+        bool hasDispositionRow,
+        DateTimeOffset? occurredAtUtc,
+        DateTime? revisitDueUtc,
+        Guid? eventId,
+        string? reviewerUserId,
+        byte[]? rowVersionStamp)
+    {
+        if (!hasDispositionRow)
+            return default;
+
+        return new DispositionPointerProjection(
+            MapLatestDisposition(dispositionRaw, true),
+            occurredAtUtc,
+            eventId,
+            EncodeRowVersionStampBase64(rowVersionStamp),
+            reviewerUserId,
+            ToUtcDateTimeOffset(revisitDueUtc));
+    }
+
+    public static IReadOnlyList<string> FilterNonBlankTrimmedStrings(IEnumerable<string> values) =>
+        values
+            .Where(static value => !string.IsNullOrWhiteSpace(value))
+            .Select(static value => value.Trim())
+            .ToList();
+
+    public static IReadOnlyList<string> FilterRecommendedActions(IEnumerable<string> values) =>
+        FilterNonBlankTrimmedStrings(values);
+
+    public static IReadOnlyList<FindingInspectEvidenceItem> BuildEvidenceFromRelatedNodes(IEnumerable<string> relatedNodes) =>
+        FilterNonBlankTrimmedStrings(relatedNodes)
+            .Select(static node =>
+                new FindingInspectEvidenceItem { ArtifactId = null, LineRange = null, Excerpt = node })
+            .ToList();
+
+    public static bool HasActiveWaiver(long activeWaiverCount) => activeWaiverCount > 0;
+
+    public static string? EncodeRowVersionStampBase64(byte[]? rowVersionStamp) =>
+        rowVersionStamp is null ? null : Convert.ToBase64String(rowVersionStamp);
+
+    public static DateTimeOffset? ToUtcDateTimeOffset(DateTime? value) =>
+        value is null ? null : new DateTimeOffset(DateTime.SpecifyKind(value.Value, DateTimeKind.Utc));
+
+    public static FindingDisposition? MapLatestDisposition(string? dispositionRaw, bool hasDispositionRow) =>
+        hasDispositionRow ? FindingInspectReadModelMapper.ParseDisposition(dispositionRaw) : null;
+
+    public static string? ResolveDecisionRuleName(string? ruleName, string? ruleId) => ruleName ?? ruleId;
+
+    public static (string? RuleId, string? RuleName) ResolveTraceRuleFields(string? firstRuleText) =>
+        !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
+
     public static (string? RuleId, string? RuleName) ResolveRuleFields(string? appliedRuleIdsJson, string? firstRuleText)
     {
         if (string.IsNullOrWhiteSpace(appliedRuleIdsJson))
-            return !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
+            return ResolveTraceRuleFields(firstRuleText);
 
         try
         {
@@ -32,7 +96,7 @@ internal static class FindingInspectReadRepositoryCore
             // Fall through to trace text only.
         }
 
-        return !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
+        return ResolveTraceRuleFields(firstRuleText);
     }
 
     public static JsonElement? BuildMetadataTypedPayload(string? title, string? rationale)
@@ -83,6 +147,15 @@ internal static class FindingInspectReadRepositoryCore
         return BuildMetadataTypedPayload(title, rationale);
     }
 
+    public static JsonElement? ResolveTypedPayloadForInspectRead(
+        bool includeTypedPayload,
+        string? payloadJson,
+        string? title,
+        string? rationale) =>
+        includeTypedPayload
+            ? ResolveTypedPayloadForInspect(payloadJson, title, rationale)
+            : BuildMetadataTypedPayload(title, rationale);
+
     public static FindingInspectResponse BuildInspectResponse(
         string findingId,
         FindingSeverity severity,
@@ -119,7 +192,7 @@ internal static class FindingInspectReadRepositoryCore
             Severity = severity,
             TypedPayload = typedPayload,
             DecisionRuleId = ruleId,
-            DecisionRuleName = ruleName ?? ruleId,
+            DecisionRuleName = ResolveDecisionRuleName(ruleName, ruleId),
             Evidence = evidence,
             RecommendedActions = recommendedActions,
             AuditRowId = auditRowId,
