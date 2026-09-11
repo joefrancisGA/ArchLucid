@@ -21,6 +21,7 @@ import { InAppNavigationGuardDialog } from "@/components/navigation/InAppNavigat
 import { ScopeSwitcherPanelBody } from "@/components/ScopeSwitcherPanelBody";
 import { Button } from "@/components/ui/button";
 import { useHasActiveLivelihoodDocumentGuardDirty } from "@/hooks/use-has-active-livelihood-document-guard-dirty";
+import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import { Card } from "@/components/ui/card";
 import {
   BUYER_SCOPE_CURRENT_WORKSPACE_TITLE,
@@ -33,7 +34,6 @@ import {
   clearOperatorScopeStorage,
   defaultLabelsForScopeIds,
   getEffectiveBrowserProxyScopeHeaders,
-  readOperatorScopeFromStorage,
   type OperatorScopeRecord,
   writeOperatorScopeToStorage,
 } from "@/lib/operator/operator-scope-storage";
@@ -86,7 +86,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   const [open, setOpenState] = useState(() => parseScopeSwitcherOpenFromSearch(scopeOpenParam));
   const openRef = useRef(open);
   openRef.current = open;
-  const [tick, setTick] = useState(0);
+  const stored = useOperatorScopeRecord();
   const [listLoading, setListLoading] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
   const [workspaces, setWorkspaces] = useState<ScopeSwitcherWorkspaceOption[] | null>(null);
@@ -119,14 +119,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
     setOpenState(parseScopeSwitcherOpenFromSearch(scopeOpenParam));
   }, [scopeOpenParam]);
 
-  const effective = useMemo(() => {
-    void tick;
-    return getEffectiveBrowserProxyScopeHeaders();
-  }, [tick]);
-  const stored = useMemo(() => {
-    void tick;
-    return readOperatorScopeFromStorage();
-  }, [tick]);
+  const effective = useMemo(() => getEffectiveBrowserProxyScopeHeaders(), [stored]);
   const tenantId = effective["x-tenant-id"] ?? "";
   const workspaceId = effective["x-workspace-id"] ?? "";
   const projectId = effective["x-project-id"] ?? "";
@@ -314,7 +307,6 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
         clearOperatorScopeStorage();
       }
 
-      setTick((n) => n + 1);
       setOpen(false);
     },
     [setOpen],

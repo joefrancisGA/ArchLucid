@@ -222,10 +222,7 @@ export async function replayLivelihoodPendingMutation(
         const payload = pending.payload as RiskExceptionWritePendingPayload;
 
         if (payload.operation === "renew") {
-          return await renewRiskException(
-            payload.riskExceptionId,
-            payload.body ?? { expiresAtUtc: "" },
-          );
+          return await renewRiskException(payload.riskExceptionId, payload.body);
         }
 
         return await revokeRiskException(payload.riskExceptionId);
