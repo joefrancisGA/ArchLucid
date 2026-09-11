@@ -32,3 +32,4 @@ public static class ProposedEvidenceTextValidation
         return hasSubstantive;
     }
 }
+
