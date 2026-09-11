@@ -2007,3 +2007,4 @@
 {"at":"2026-09-11T21:45:03.5221205Z","zoneId":"tenant-scoped-analyzer","outcome":"hit","paths":["ArchLucid.Analyzers/TenantScopedSqlExpressionResolver.cs"],"severity":"high","defectClass":"authz-scope"}
 {"at":"2026-09-11T21:48:58.4193624Z","zoneId":"review-recurrence","outcome":"seed-only"}
 {"at":"2026-09-11T21:55:46.0493865Z","zoneId":"cli-tenant-isolation","outcome":"seed-only"}
+{"at":"2026-09-11T21:56:05.7508102Z","zoneId":"cli-tenant-isolation","outcome":"seed-only"}
