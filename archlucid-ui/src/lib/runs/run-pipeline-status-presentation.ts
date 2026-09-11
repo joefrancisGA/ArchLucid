@@ -6,6 +6,7 @@ import { resolvePipelineStatusDisplayLabel } from "@/lib/resolve-pipeline-status
 import { resolveTerminalPipelineLabelFromLegacyStatus } from "@/lib/runs/run-pipeline-legacy-terminal-label";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
+import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
 import type { RunSummary } from "@/types/authority";
 
 export type RunPipelineLabel = RunPipelineInternalLabel;
@@ -49,7 +50,10 @@ export function deriveRunListPipelineLabel(
         hostQualityGateMode: qualityGateHonesty?.hostQualityGateMode,
         aggregateQualityGateOutcome: qualityGateHonesty?.aggregateQualityGateOutcome,
         transparencyTrail: qualityGateHonesty?.transparencyTrail,
-        effectiveWorkingCareerRehearsalDoor: qualityGateHonesty?.effectiveWorkingCareerRehearsalDoor,
+        effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
+          stampedDoor: run.workingCareerRehearsalDoor,
+          liveDoor: qualityGateHonesty?.effectiveWorkingCareerRehearsalDoor,
+        }),
       })
     ) {
       return PIPELINE_STATUS_LABELS.inPipeline;

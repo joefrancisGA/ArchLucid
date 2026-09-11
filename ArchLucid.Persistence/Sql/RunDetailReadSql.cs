@@ -12,8 +12,9 @@ internal static class RunDetailReadSql
                                             GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchitectureId, ArchitectureVersionId, ArchivedUtc,
                                             ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                             IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                            StructuralExecutionMode,
+                                            StructuralExecutionMode, WorkingCareerRehearsalDoor, ExecutePostureCapturedUtc,
                                             RetryCount, LastFailureReason, EngineProvenanceJson, GovernanceScopeJson, AcknowledgedCoverageJson,
+                                            AcknowledgedAssumptionsJson,
                                             KnowledgeModelId, CreatedByUserId,
                                             PinnedPolicyPackIdsJson, PinnedPolicyPackIdsHashSha256,
                                             PinnedEvidencePackagePinsJson, PinnedEvidencePackagePinsHashSha256,
@@ -40,6 +41,7 @@ internal static class RunDetailReadSql
                                                    ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                                    GoldenManifestId, DecisionTraceId, ArtifactBundleId,
                                                    CurrentManifestVersion, OtelTraceId, StructuralExecutionMode,
+                                                   WorkingCareerRehearsalDoor, ExecutePostureCapturedUtc,
                                                    EngineProvenanceJson, GovernanceScopeJson
                                                    """;
 }

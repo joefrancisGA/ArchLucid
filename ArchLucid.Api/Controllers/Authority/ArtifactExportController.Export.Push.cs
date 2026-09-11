@@ -1,5 +1,6 @@
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.Audit;
@@ -154,6 +155,10 @@ public sealed partial class ArtifactExportController
                     PullRequestNumber = result.PullRequestNumber,
                     BranchName = result.BranchName
                 });
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
