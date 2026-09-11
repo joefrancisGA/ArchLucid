@@ -252,6 +252,43 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionRoleEligibilitySchedulesAsync_maps_eligible_assignments()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""
+                                                {
+                                                  "value": [
+                                                    {
+                                                      "properties": {
+                                                        "scope": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                                                        "principalId": "11111111-1111-1111-1111-111111111111",
+                                                        "principalType": "User",
+                                                        "roleDefinitionId": "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                                """)
+                }));
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> schedules =
+            await client.ListSubscriptionRoleEligibilitySchedulesAsync(
+                "token-abc",
+                "11111111-1111-1111-1111-111111111111",
+                CancellationToken.None);
+
+        Assert.Single(schedules);
+        Assert.Equal("eligible", schedules[0].PimEligibilityKind);
+        Assert.Equal("11111111-1111-1111-1111-111111111111", schedules[0].PrincipalId);
+    }
+
+    [Fact]
     public async Task ListSubscriptionResourcesAsync_throws_when_next_link_targets_different_subscription()
     {
         const string requestedSubscriptionId = "11111111-1111-1111-1111-111111111111";

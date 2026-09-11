@@ -63,15 +63,18 @@ public sealed class HostedAzureExtractorClientTests
             .ReturnsAsync([]);
 
         armClient
+            .Setup(c => c.ListSubscriptionRoleEligibilitySchedulesAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        armClient
             .Setup(c => c.ListFederatedCredentialsAsync(
                 It.IsAny<string>(),
                 It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-
-        Mock<IEntraGroupMembershipGraphReader> graphReader = new();
-        Mock<IOptionsMonitor<EntraGroupMembershipGraphOptions>> options = new();
-        options.Setup(o => o.CurrentValue).Returns(new EntraGroupMembershipGraphOptions());
 
         HostedAzureExtractorClient sut = new(
             credentialFactory.Object,

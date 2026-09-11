@@ -178,38 +178,116 @@ function Get-ArchLucidAzureRoleAssignmentCompanionRows
         [string] $ManagementGroupId
     )
 
-    if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
-    {
-        return @()
-    }
-
     if (-not (Get-Command Get-AzRoleAssignment -ErrorAction SilentlyContinue))
     {
         return @()
     }
 
-    try
+    $rows = [System.Collections.ArrayList]::new()
+    $seen = @{}
+
+    if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
     {
-        if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
+        [string]$managementGroupScope = "/providers/Microsoft.Management/managementGroups/$($ManagementGroupId.Trim())"
+
+        Add-ArchLucidAzureRoleAssignmentRowsFromGetAzRoleAssignment `
+            -Rows $rows `
+            -Seen $seen `
+            -Scope $managementGroupScope
+
+        if (Get-Command Get-ArchLucidManagementGroupSubscriptionIds -ErrorAction SilentlyContinue)
         {
-            $assignments = @(Get-AzRoleAssignment -ResourceGroupName $ResourceGroupScope -ErrorAction Stop)
+            foreach ($subId in @(Get-ArchLucidManagementGroupSubscriptionIds -ManagementGroupId $ManagementGroupId))
+            {
+                if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
+                {
+                    Add-ArchLucidAzureRoleAssignmentRowsFromGetAzRoleAssignment `
+                        -Rows $rows `
+                        -Seen $seen `
+                        -ResourceGroupName $ResourceGroupScope
+                }
+                else
+                {
+                    Add-ArchLucidAzureRoleAssignmentRowsFromGetAzRoleAssignment `
+                        -Rows $rows `
+                        -Seen $seen `
+                        -Scope "/subscriptions/$subId"
+                }
+            }
         }
-        elseif (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
+    }
+    else
+    {
+        try
         {
-            $scope = "/subscriptions/$SubscriptionId"
-            $assignments = @(Get-AzRoleAssignment -Scope $scope -ErrorAction Stop)
+            if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
+            {
+                Add-ArchLucidAzureRoleAssignmentRowsFromGetAzRoleAssignment `
+                    -Rows $rows `
+                    -Seen $seen `
+                    -ResourceGroupName $ResourceGroupScope
+            }
+            elseif (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
+            {
+                Add-ArchLucidAzureRoleAssignmentRowsFromGetAzRoleAssignment `
+                    -Rows $rows `
+                    -Seen $seen `
+                    -Scope "/subscriptions/$SubscriptionId"
+            }
         }
-        else
+        catch
         {
             return @()
         }
     }
-    catch
+
+    foreach ($eligibleRow in @(Get-ArchLucidAzureRoleEligibilityScheduleCompanionRows `
+            -SubscriptionId $SubscriptionId `
+            -ResourceGroupScope $ResourceGroupScope `
+            -ManagementGroupId $ManagementGroupId))
     {
-        return @()
+        [string]$eligibleKey = "$( $eligibleRow.scope )|$( $eligibleRow.principalId )|$( $eligibleRow.roleDefinitionId )"
+
+        if ($seen.ContainsKey($eligibleKey))
+        {
+            continue
+        }
+
+        $seen[$eligibleKey] = $true
+        [void]$rows.Add($eligibleRow)
     }
 
-    $rows = @()
+    return @($rows.ToArray())
+}
+
+function Add-ArchLucidAzureRoleAssignmentRowsFromGetAzRoleAssignment
+{
+    param(
+        [System.Collections.IList] $Rows,
+        [hashtable] $Seen,
+        [string] $Scope = $null,
+        [string] $ResourceGroupName = $null
+    )
+
+    try
+    {
+        if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupName)))
+        {
+            $assignments = @(Get-AzRoleAssignment -ResourceGroupName $ResourceGroupName -ErrorAction Stop)
+        }
+        elseif (-not ([string]::IsNullOrWhiteSpace($Scope)))
+        {
+            $assignments = @(Get-AzRoleAssignment -Scope $Scope -ErrorAction Stop)
+        }
+        else
+        {
+            return
+        }
+    }
+    catch
+    {
+        return
+    }
 
     foreach ($assignment in @($assignments))
     {
@@ -217,16 +295,107 @@ function Get-ArchLucidAzureRoleAssignmentCompanionRows
         if ([string]::IsNullOrWhiteSpace($assignment.RoleDefinitionId)) { continue }
         if ([string]::IsNullOrWhiteSpace($assignment.Scope)) { continue }
 
-        $rows += [ordered]@{
+        [string]$key = "$( $assignment.Scope )|$( $assignment.ObjectId )|$( $assignment.RoleDefinitionId )"
+
+        if ($Seen.ContainsKey($key))
+        {
+            continue
+        }
+
+        $Seen[$key] = $true
+
+        [void]$Rows.Add([ordered]@{
             scope = $assignment.Scope
             principalId = $assignment.ObjectId
             principalType = $assignment.ObjectType
             roleDefinitionId = $assignment.RoleDefinitionId
             pimEligibilityKind = "standing"
+        })
+    }
+}
+
+function Get-ArchLucidAzureRoleEligibilityScheduleCompanionRows
+{
+    param(
+        [string] $SubscriptionId,
+
+        [string] $ResourceGroupScope,
+
+        [string] $ManagementGroupId
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    [string[]]$subscriptionIds = @()
+
+    if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+    {
+        if (-not (Get-Command Get-ArchLucidManagementGroupSubscriptionIds -ErrorAction SilentlyContinue))
+        {
+            return @()
+        }
+
+        $subscriptionIds = @(Get-ArchLucidManagementGroupSubscriptionIds -ManagementGroupId $ManagementGroupId)
+    }
+    elseif (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
+    {
+        $subscriptionIds = @($SubscriptionId.Trim())
+    }
+    else
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+
+    foreach ($subId in @($subscriptionIds))
+    {
+        if ([string]::IsNullOrWhiteSpace($subId)) { continue }
+
+        try
+        {
+            [string]$path = "/subscriptions/$subId/providers/Microsoft.Authorization/roleEligibilitySchedules?api-version=2020-10-01&`$filter=asTarget()"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($schedule in @($payload.value))
+            {
+                [string]$scope = "$( $schedule.properties.scope )".Trim()
+                [string]$principalId = "$( $schedule.properties.principalId )".Trim()
+                [string]$roleDefinitionId = "$( $schedule.properties.roleDefinitionId )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($scope)) { continue }
+                if ([string]::IsNullOrWhiteSpace($principalId)) { continue }
+                if ([string]::IsNullOrWhiteSpace($roleDefinitionId)) { continue }
+
+                if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
+                {
+                    [string]$expectedSuffix = "/resourceGroups/$ResourceGroupScope"
+
+                    if (-not ($scope.EndsWith($expectedSuffix, [System.StringComparison]::OrdinalIgnoreCase)))
+                    {
+                        continue
+                    }
+                }
+
+                [void]$rows.Add([ordered]@{
+                    scope = $scope
+                    principalId = $principalId
+                    principalType = $schedule.properties.principalType
+                    roleDefinitionId = $roleDefinitionId
+                    pimEligibilityKind = "eligible"
+                })
+            }
+        }
+        catch
+        {
         }
     }
 
-    return @($rows)
+    return @($rows.ToArray())
 }
 
 function Get-ArchLucidAzureNetworkAssociationCompanionRows

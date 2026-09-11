@@ -83,4 +83,37 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
 
         @($rows | Where-Object { $_.associationType -eq 'nsgAllowRule' }).Count | Should -Be 1
     }
+
+    It 'collects management group and subscription role assignments when ManagementGroupId is set' {
+        function Get-ArchLucidManagementGroupSubscriptionIds {
+            param([string] $ManagementGroupId)
+            return @('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+        }
+
+        function Get-AzRoleAssignment {
+            param(
+                [string] $Scope,
+                [string] $ResourceGroupName
+            )
+
+            if (-not ([string]::IsNullOrWhiteSpace($Scope)))
+            {
+                return @(
+                    [PSCustomObject]@{
+                        Scope = $Scope
+                        ObjectId = '11111111-1111-1111-1111-111111111111'
+                        ObjectType = 'User'
+                        RoleDefinitionId = '/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+                    }
+                )
+            }
+
+            return @()
+        }
+
+        [object[]]$rows = @(Get-ArchLucidAzureRoleAssignmentCompanionRows -ManagementGroupId 'mg1')
+
+        $rows.Count | Should -Be 2
+        @($rows | Where-Object { $_.pimEligibilityKind -eq 'standing' }).Count | Should -Be 2
+    }
 }

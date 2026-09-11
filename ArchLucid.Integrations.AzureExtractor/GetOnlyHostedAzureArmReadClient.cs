@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 
+using ArchLucid.Core.AzureExtractor;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Integrations.AzureExtractor;
@@ -14,6 +16,7 @@ public sealed class GetOnlyHostedAzureArmReadClient(
 {
     private const string ResourcesApiVersion = "2021-04-01";
     private const string RoleAssignmentsApiVersion = "2022-04-01";
+    private const string RoleEligibilitySchedulesApiVersion = "2020-10-01";
     private const string FederatedCredentialsApiVersion = "2023-01-31";
     private const int MaxPaginationRequests = 64;
 
@@ -196,6 +199,101 @@ public sealed class GetOnlyHostedAzureArmReadClient(
         return assignments;
     }
 
+    public async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListSubscriptionRoleEligibilitySchedulesAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
+
+        List<HostedAzureArmRoleAssignmentRecord> schedules = [];
+        string? nextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/roleEligibilitySchedules?api-version={RoleEligibilitySchedulesApiVersion}&$filter=asTarget()";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                throw new InvalidOperationException(
+                    "Hosted Azure extractor stopped ARM role eligibility listing due to repeating nextLink.");
+            }
+
+            requestCount++;
+
+            if (requestCount > MaxPaginationRequests)
+            {
+                throw new InvalidOperationException(
+                    $"Hosted Azure extractor stopped ARM role eligibility listing after {MaxPaginationRequests} pages.");
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped role eligibility schedules for subscription {SubscriptionId}; HTTP {StatusCode}.",
+                        subscriptionId,
+                        (int)response.StatusCode);
+                }
+
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement) &&
+                valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmRoleAssignmentRecord? mapped = MapRoleEligibilitySchedule(item);
+
+                    if (mapped is not null)
+                    {
+                        schedules.Add(mapped);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement) &&
+                nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(
+                        candidateNextLink,
+                        subscriptionId);
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug(
+                "Hosted Azure extractor listed {Count} role eligibility schedules for subscription {SubscriptionId}.",
+                schedules.Count,
+                subscriptionId);
+        }
+
+        return schedules;
+    }
 
     public async Task<string?> TryGetSubscriptionDisplayNameAsync(
         string accessToken,
@@ -206,7 +304,7 @@ public sealed class GetOnlyHostedAzureArmReadClient(
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
         string url =
-            f"https://management.azure.com/subscriptions/{subscriptionId.Trim()}?api-version={ResourcesApiVersion}";
+            $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}?api-version={ResourcesApiVersion}";
 
         try
         {
@@ -465,6 +563,33 @@ public sealed class GetOnlyHostedAzureArmReadClient(
             principalId.Trim(),
             TryGetStringValue(propertiesElement, "principalType"),
             roleDefinitionId.Trim());
+    }
+
+    private static HostedAzureArmRoleAssignmentRecord? MapRoleEligibilitySchedule(JsonElement item)
+    {
+        if (!item.TryGetProperty("properties", out JsonElement propertiesElement)
+            || propertiesElement.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        string? scope = TryGetStringValue(propertiesElement, "scope");
+        string? principalId = TryGetStringValue(propertiesElement, "principalId");
+        string? roleDefinitionId = TryGetStringValue(propertiesElement, "roleDefinitionId");
+
+        if (string.IsNullOrWhiteSpace(scope)
+            || string.IsNullOrWhiteSpace(principalId)
+            || string.IsNullOrWhiteSpace(roleDefinitionId))
+        {
+            return null;
+        }
+
+        return new HostedAzureArmRoleAssignmentRecord(
+            scope.Trim(),
+            principalId.Trim(),
+            TryGetStringValue(propertiesElement, "principalType"),
+            roleDefinitionId.Trim(),
+            PimEligibilityKind: "eligible");
     }
 
     private void LogSkippedArmRow(JsonElement item)

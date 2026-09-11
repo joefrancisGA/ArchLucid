@@ -15,6 +15,11 @@ public interface IHostedAzureArmReadClient
         string subscriptionId,
         CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListSubscriptionRoleEligibilitySchedulesAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken);
+
     Task<IReadOnlyList<HostedAzureArmFederatedCredentialRecord>> ListFederatedCredentialsAsync(
         string accessToken,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
