@@ -12089,7 +12089,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -12118,6 +12118,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 - [x] (valid-no-repro) `ReviewsNewPathSwitcher.selectPath` — stale `step`/`mode`/`pilot`/`advancedConfig` survive switch to guided intake — **cheap-disproof 2026-09-10 seed hunt #1682:** `path !== detailed` branch deletes detailed wizard params; regression `clears stale detailed wizard query params when opening guided intake from the disclosure`.
 - [x] (valid-no-repro) `useGuidedIntakeBriefForm` — `scopeGate=1` URL leaves advance blocked after operator confirms scope bullets — **cheap-disproof 2026-09-10 seed hunt #1682:** `scopeConfirmed` requires gate open and non-empty bullets; regression `clears scope confirmation blocker when scope bullets are confirmed after scopeGate URL prefill`.
+
+- [x] (valid-no-repro) `ReviewsNewPathSwitcher.selectPath` — orphan `intakeStep`/`scopeGate` survive switch to detailed wizard — **cheap-disproof 2026-09-10 seed hunt #1683:** `path !== guided-intake` branch deletes guided-intake params; regression `clears orphan intakeStep when opening detailed wizard from the disclosure`.
+
+2026-09-10 seed hunt #1683 (seed-only): reseeded ui-review-intake-wizards after #1682; cheap-disproof closed guided-intake param survival on detailed path switch; 24 scoped intake path + brief-form unit tests passed.
 
 2026-09-10 seed hunt #1682 (seed-only): reseeded ui-review-intake-wizards after #1525; cheap-disproof closed detailed-param path-switch and scopeGate+bullets advance candidates; 23 scoped intake path + brief-form unit tests passed.
 
