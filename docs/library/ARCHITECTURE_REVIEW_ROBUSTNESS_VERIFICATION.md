@@ -184,7 +184,10 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGate
 
 ## Finalize conflict SQL integration proof
 
-`FinalizeConflictSqlIntegrationTests` proves lifecycle integrity blocks on `POST …/finalize` and `GET …/readiness` stay aligned through real SQL persistence (create run without execute → 409 + readiness `lifecycle_phase_incomplete` block).
+`FinalizeConflictSqlIntegrationTests` proves lifecycle integrity blocks and scorecard blocks on `POST …/finalize` stay aligned with `GET …/readiness` through real SQL persistence:
+
+- Create run without execute → 409 + readiness `lifecycle_phase_incomplete` integrity block.
+- Execute run, bulk-disposition one finding as **Deferred** with revisit → 409 + readiness `scorecard` layer block (open deferred dimension).
 
 ```bash
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeConflictSqlIntegrationTests"
