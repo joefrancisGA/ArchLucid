@@ -117,7 +117,7 @@ export function RunsDashboardPanelFilters({
   });
 
   return (
-    <CardHeader className={OPERATOR_CARD.header}>
+    <CardHeader className={cn(OPERATOR_CARD.header, "overflow-visible pb-4")}>
       {buyerPolishedShell && hideHeading ? null : hideHeading ? null : (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
