@@ -51,6 +51,7 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-mermaid-types";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import { formatInfraEvidenceDiagramsApiError } from "@/lib/infra-evidence/infra-evidence-diagrams-api";
+import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
 import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra-evidence/infra-evidence-mermaid-render-status-presentation";
@@ -213,6 +214,7 @@ export function DiagramsWorkbenchClient() {
   const [exportBusy, setExportBusy] = useState(false);
   const [pngExportError, setPngExportError] = useState<string | null>(null);
   const [pngBrowserFallbackNote, setPngBrowserFallbackNote] = useState<string | null>(null);
+  const [exportableSvgMarkup, setExportableSvgMarkup] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [browserRenderBlocked, setBrowserRenderBlocked] = useState(false);
   const [loadGeneration, setLoadGeneration] = useState(0);
@@ -586,6 +588,7 @@ export function DiagramsWorkbenchClient() {
 
       const result = await downloadInfraEvidenceMermaidPng(selectedSnapshotId, query, {
         fallbackMermaidSource: mermaidSource,
+        fallbackSvgMarkup: exportableSvgMarkup,
         dark,
       });
 
@@ -593,10 +596,13 @@ export function DiagramsWorkbenchClient() {
         setPngBrowserFallbackNote(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE);
       }
     } catch (error: unknown) {
+      const pngExportDetail =
+        formatInfraEvidenceMermaidPngExportError(error) ?? formatInfraEvidenceMermaidApiError(error);
+
       setPngExportError(
         formatGovernanceInfrastructureInlineActionError(
           GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE,
-          formatInfraEvidenceMermaidApiError(error),
+          pngExportDetail,
         ),
       );
     } finally {
@@ -606,6 +612,7 @@ export function DiagramsWorkbenchClient() {
     dark,
     effectiveFallbackKey,
     exportsDisabled,
+    exportableSvgMarkup,
     mermaidSource,
     seedNodeId,
     selectedMode,
@@ -1061,6 +1068,7 @@ export function DiagramsWorkbenchClient() {
             canvasStale={renderInFlight}
             onRenderFailure={handleRenderFailure}
             onRetry={handleRenderRetry}
+            onExportableSvgMarkupChange={setExportableSvgMarkup}
           />
           {mermaidOutline != null ? <InfraEvidenceDiagramOutline outline={mermaidOutline} /> : null}
         </>

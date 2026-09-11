@@ -50,6 +50,8 @@ export type ArchitectureDiagramViewerProps = {
   readonly canvasStale?: boolean;
   readonly onRenderFailure?: () => void;
   readonly onRetry?: () => void;
+  /** Fires when sanitized SVG markup is ready for browser PNG export. */
+  readonly onExportableSvgMarkupChange?: (svgMarkup: string | null) => void;
 };
 
 /** Interactive architecture diagram canvas with zoom, pan, fullscreen, and accessible fallback text. */
@@ -214,6 +216,10 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
       FORBID_TAGS: ["script", "foreignObject"],
     });
   }, [svgMarkup]);
+
+  useEffect(() => {
+    props.onExportableSvgMarkupChange?.(sanitizedSvg);
+  }, [props.onExportableSvgMarkupChange, sanitizedSvg]);
 
   useLayoutEffect(() => {
     if (sanitizedSvg === null) {
