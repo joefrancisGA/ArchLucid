@@ -191,4 +191,61 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].pimEligibilityKind | Should -Be 'eligible'
         $rows[0].scope | Should -Match 'managementGroups/mg1'
     }
+
+    It 'maps policy assignments into companion rows' {
+        $assignment = [PSCustomObject]@{
+            Scope = '/providers/Microsoft.Management/managementGroups/corp'
+            PolicyDefinitionId = '/providers/Microsoft.Authorization/policyDefinitions/audit-storage'
+            PolicySetDefinitionId = $null
+            Name = 'audit-storage-assignment'
+            ResourceId = '/providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization/policyAssignments/abc'
+        }
+
+        [object[]]$rows = @(Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($assignment))
+
+        $rows.Count | Should -Be 1
+        $rows[0].scope | Should -Be '/providers/Microsoft.Management/managementGroups/corp'
+        $rows[0].policyDefinitionId | Should -Match 'policyDefinitions/audit-storage'
+    }
+
+    It 'collects diagnostic settings for path-relevant resources' {
+        function Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path
+            )
+
+            $Path | Should -Match 'storageAccounts/sa1/providers/Microsoft.Insights/diagnosticSettings'
+
+            return [PSCustomObject]@{
+                Content = (@{
+                    value = @(
+                        @{
+                            name = 'diag-to-law'
+                            properties = @{
+                                workspaceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1'
+                            }
+                        }
+                    )
+                } | ConvertTo-Json -Depth 8)
+            }
+        }
+
+        $inventory = @(
+            [PSCustomObject]@{
+                resourceType = 'Microsoft.Storage/storageAccounts'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1'
+            },
+            [PSCustomObject]@{
+                resourceType = 'Microsoft.Compute/virtualMachines'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1'
+            }
+        )
+
+        [object[]]$rows = @(Get-ArchLucidAzureDiagnosticSettingCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 1
+        $rows[0].targetResourceId | Should -Match 'storageAccounts/sa1'
+        $rows[0].workspaceId | Should -Match 'OperationalInsights/workspaces/ws1'
+    }
 }

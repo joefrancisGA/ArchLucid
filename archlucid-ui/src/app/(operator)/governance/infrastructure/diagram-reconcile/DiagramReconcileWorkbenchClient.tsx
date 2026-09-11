@@ -683,7 +683,7 @@ export function DiagramReconcileWorkbenchClient() {
       <main
         id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PRIMARY_CONTENT_ID : undefined}
         className={cn(
-          "mx-auto flex w-full max-w-6xl flex-col gap-4",
+          "flex w-full flex-col gap-4",
           buyerPolishedShell ? "scroll-mt-24" : undefined,
         )}
         data-testid="infra-diagram-reconcile-primary-content"

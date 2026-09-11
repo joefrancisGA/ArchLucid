@@ -18,6 +18,8 @@ public sealed class GetOnlyHostedAzureArmReadClient(
     private const string RoleAssignmentsApiVersion = "2022-04-01";
     private const string RoleEligibilitySchedulesApiVersion = "2020-10-01";
     private const string FederatedCredentialsApiVersion = "2023-01-31";
+    private const string PolicyAssignmentsApiVersion = "2022-06-01";
+    private const string DiagnosticSettingsApiVersion = "2021-05-01-preview";
     private const int MaxPaginationRequests = 64;
 
     private readonly HttpClient _httpClient =
@@ -692,6 +694,330 @@ public sealed class GetOnlyHostedAzureArmReadClient(
         }
 
         return null;
+    }
+
+    public async Task<IReadOnlyList<HostedAzureArmPolicyAssignmentRecord>> ListSubscriptionPolicyAssignmentsAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
+
+        return await ListPolicyAssignmentsAtRestPathAsync(
+            accessToken,
+            $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/policyAssignments?api-version={PolicyAssignmentsApiVersion}",
+            subscriptionId,
+            validateSubscriptionNextLink: true,
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<HostedAzureArmPolicyAssignmentRecord>> ListManagementGroupPolicyAssignmentsAsync(
+        string accessToken,
+        string managementGroupId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireManagementGroupId(nameof(managementGroupId), managementGroupId);
+
+        return await ListPolicyAssignmentsAtRestPathAsync(
+            accessToken,
+            $"https://management.azure.com/providers/Microsoft.Management/managementGroups/{managementGroupId.Trim()}/providers/Microsoft.Authorization/policyAssignments?api-version={PolicyAssignmentsApiVersion}",
+            managementGroupId,
+            validateSubscriptionNextLink: false,
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<HostedAzureArmDiagnosticSettingRecord>> ListDiagnosticSettingsAsync(
+        string accessToken,
+        IReadOnlyList<HostedAzureArmResourceRecord> resources,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        ArgumentNullException.ThrowIfNull(resources);
+
+        List<HostedAzureArmDiagnosticSettingRecord> settings = [];
+        HashSet<string> seenKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (HostedAzureArmResourceRecord resource in resources)
+        {
+            if (!HostedAzureInventoryPathRelevantDiagnosticResourceFilter.IsPathRelevant(resource.ResourceType))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(resource.ResourceId))
+            {
+                continue;
+            }
+
+            IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> resourceSettings =
+                await ListDiagnosticSettingsForResourceAsync(
+                    accessToken,
+                    resource.ResourceId.Trim(),
+                    cancellationToken).ConfigureAwait(false);
+
+            foreach (HostedAzureArmDiagnosticSettingRecord setting in resourceSettings)
+            {
+                string key = $"{setting.TargetResourceId}|{setting.Name}|{setting.WorkspaceId}";
+
+                if (seenKeys.Add(key))
+                {
+                    settings.Add(setting);
+                }
+            }
+        }
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug(
+                "Hosted Azure extractor listed {Count} diagnostic settings across path-relevant resources.",
+                settings.Count);
+        }
+
+        return settings;
+    }
+
+    private async Task<IReadOnlyList<HostedAzureArmPolicyAssignmentRecord>> ListPolicyAssignmentsAtRestPathAsync(
+        string accessToken,
+        string initialUrl,
+        string scopeKey,
+        bool validateSubscriptionNextLink,
+        CancellationToken cancellationToken)
+    {
+        List<HostedAzureArmPolicyAssignmentRecord> assignments = [];
+        string? nextLink = initialUrl;
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                throw new InvalidOperationException(
+                    "Hosted Azure extractor stopped ARM policy assignment listing due to repeating nextLink.");
+            }
+
+            requestCount++;
+
+            if (requestCount > MaxPaginationRequests)
+            {
+                throw new InvalidOperationException(
+                    $"Hosted Azure extractor stopped ARM policy assignment listing after {MaxPaginationRequests} pages.");
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped policy assignment listing for scope {ScopeKey}; HTTP {StatusCode}.",
+                        scopeKey,
+                        (int)response.StatusCode);
+                }
+
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                && valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmPolicyAssignmentRecord? mapped = MapPolicyAssignment(item);
+
+                    if (mapped is not null)
+                    {
+                        assignments.Add(mapped);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    if (validateSubscriptionNextLink)
+                    {
+                        HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(candidateNextLink, scopeKey);
+                    }
+                    else
+                    {
+                        HostedAzureArmNextLinkValidator.EnsureTargetsManagementGroup(candidateNextLink, scopeKey);
+                    }
+
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        return assignments;
+    }
+
+    private async Task<IReadOnlyList<HostedAzureArmDiagnosticSettingRecord>> ListDiagnosticSettingsForResourceAsync(
+        string accessToken,
+        string resourceId,
+        CancellationToken cancellationToken)
+    {
+        List<HostedAzureArmDiagnosticSettingRecord> settings = [];
+        string? nextLink =
+            $"https://management.azure.com/{resourceId.Trim()}/providers/Microsoft.Insights/diagnosticSettings?api-version={DiagnosticSettingsApiVersion}";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (requestCount > MaxPaginationRequests)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor stopped diagnostic setting listing for resource {ResourceId} after {MaxPages} pages.",
+                        resourceId,
+                        MaxPaginationRequests);
+                }
+
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped diagnostic settings for resource {ResourceId}; HTTP {StatusCode}.",
+                        resourceId,
+                        (int)response.StatusCode);
+                }
+
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                && valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmDiagnosticSettingRecord? mapped = MapDiagnosticSetting(item, resourceId);
+
+                    if (mapped is not null)
+                    {
+                        settings.Add(mapped);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                nextLink = nextLinkElement.GetString();
+            }
+        }
+
+        return settings;
+    }
+
+    private static HostedAzureArmPolicyAssignmentRecord? MapPolicyAssignment(JsonElement item)
+    {
+        if (!item.TryGetProperty("properties", out JsonElement propertiesElement)
+            || propertiesElement.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        string? scope = TryGetStringValue(propertiesElement, "scope");
+        string? policyDefinitionId = TryGetStringValue(propertiesElement, "policyDefinitionId")
+                                     ?? TryGetStringValue(propertiesElement, "policySetDefinitionId");
+
+        if (string.IsNullOrWhiteSpace(scope) || string.IsNullOrWhiteSpace(policyDefinitionId))
+        {
+            return null;
+        }
+
+        return new HostedAzureArmPolicyAssignmentRecord(
+            scope.Trim(),
+            policyDefinitionId.Trim(),
+            TryGetStringValue(item, "name"),
+            TryGetStringValue(item, "id"));
+    }
+
+    private static HostedAzureArmDiagnosticSettingRecord? MapDiagnosticSetting(JsonElement item, string targetResourceId)
+    {
+        string? name = TryGetStringValue(item, "name");
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return null;
+        }
+
+        if (!item.TryGetProperty("properties", out JsonElement propertiesElement)
+            || propertiesElement.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        string? workspaceId = TryGetStringValue(propertiesElement, "workspaceId");
+
+        if (string.IsNullOrWhiteSpace(workspaceId)
+            && propertiesElement.TryGetProperty("workspaces", out JsonElement workspacesElement)
+            && workspacesElement.ValueKind == JsonValueKind.Array)
+        {
+            foreach (JsonElement workspace in workspacesElement.EnumerateArray())
+            {
+                workspaceId = TryGetStringValue(workspace, "workspaceResourceId");
+
+                if (!string.IsNullOrWhiteSpace(workspaceId))
+                {
+                    break;
+                }
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(workspaceId))
+        {
+            return null;
+        }
+
+        return new HostedAzureArmDiagnosticSettingRecord(
+            targetResourceId.Trim(),
+            name.Trim(),
+            workspaceId.Trim());
     }
 
     public async Task<IReadOnlyList<HostedAzureArmFederatedCredentialRecord>> ListFederatedCredentialsAsync(

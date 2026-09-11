@@ -232,6 +232,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     recoveredLocally,
     markDirty,
     keepLocalDraftOnConflict,
+    wasLastSaveConflict,
   } = useArchitectureDraftAutosave({
       draftId: props.draftId,
       fields,
@@ -491,6 +492,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       canStartReview={canStartReview}
       handleStartReview={handleStartReview}
       saveDraft={saveDraft}
+      wasLastSaveConflict={wasLastSaveConflict}
       setExitPending={setExitPending}
       hasPersistedDraft={hasPersistedDraft}
       qualityAttributesEncouragementOpen={qualityAttributesEncouragementOpen}

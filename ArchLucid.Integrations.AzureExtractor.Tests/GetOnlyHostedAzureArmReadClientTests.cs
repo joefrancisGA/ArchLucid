@@ -578,6 +578,107 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Contains("managementGroups/corp", assignments[0].Scope, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task ListSubscriptionPolicyAssignmentsAsync_maps_assignment_properties()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                Assert.Contains("/providers/Microsoft.Authorization/policyAssignments", request.RequestUri?.AbsoluteUri);
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("""
+                                                    {
+                                                      "value": [
+                                                        {
+                                                          "id": "/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Authorization/policyAssignments/assign1",
+                                                          "name": "assign1",
+                                                          "properties": {
+                                                            "scope": "/subscriptions/11111111-1111-1111-1111-111111111111",
+                                                            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/audit-storage"
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                    """)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmPolicyAssignmentRecord> assignments =
+            await client.ListSubscriptionPolicyAssignmentsAsync(
+                "token-abc",
+                "11111111-1111-1111-1111-111111111111",
+                CancellationToken.None);
+
+        Assert.Single(assignments);
+        Assert.Equal("assign1", assignments[0].Name);
+        Assert.Contains("policyDefinitions/audit-storage", assignments[0].PolicyDefinitionId, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task ListDiagnosticSettingsAsync_maps_workspace_targets_for_path_relevant_resources()
+    {
+        const string storageResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                Assert.Contains("diagnosticSettings", request.RequestUri?.AbsoluteUri, StringComparison.Ordinal);
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("""
+                                                    {
+                                                      "value": [
+                                                        {
+                                                          "name": "diag-to-law",
+                                                          "properties": {
+                                                            "workspaceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1"
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                    """)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> settings = await client.ListDiagnosticSettingsAsync(
+            "token-abc",
+            [
+                new HostedAzureArmResourceRecord(
+                    "Microsoft.Storage/storageAccounts",
+                    storageResourceId,
+                    "sa1",
+                    "eastus",
+                    null,
+                    null,
+                    new Dictionary<string, object?>()),
+                new HostedAzureArmResourceRecord(
+                    "Microsoft.Compute/virtualMachines",
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1",
+                    "vm1",
+                    "eastus",
+                    null,
+                    null,
+                    new Dictionary<string, object?>()),
+            ],
+            CancellationToken.None);
+
+        Assert.Single(settings);
+        Assert.Equal(storageResourceId, settings[0].TargetResourceId);
+        Assert.Equal("diag-to-law", settings[0].Name);
+    }
+
     private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)
         : HttpMessageHandler
     {

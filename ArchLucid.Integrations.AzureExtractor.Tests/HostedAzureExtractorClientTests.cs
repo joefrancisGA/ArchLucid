@@ -76,6 +76,20 @@ public sealed class HostedAzureExtractorClientTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        armClient
+            .Setup(c => c.ListSubscriptionPolicyAssignmentsAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        armClient
+            .Setup(c => c.ListDiagnosticSettingsAsync(
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         HostedAzureExtractorClient sut = new(
             credentialFactory.Object,
             armClient.Object,
@@ -165,6 +179,24 @@ public sealed class HostedAzureExtractorClientTests
             .Setup(c => c.ListManagementGroupRoleEligibilitySchedulesAsync(
                 It.IsAny<string>(),
                 "corp",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        armClient
+            .Setup(c => c.ListManagementGroupPolicyAssignmentsAsync(
+                It.IsAny<string>(),
+                "corp",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        armClient
+            .Setup(c => c.ListSubscriptionPolicyAssignmentsAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        armClient
+            .Setup(c => c.ListDiagnosticSettingsAsync(
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         armClient

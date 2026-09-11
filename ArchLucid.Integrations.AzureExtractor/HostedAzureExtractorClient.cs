@@ -85,6 +85,14 @@ public sealed class HostedAzureExtractorClient(
             .ListFederatedCredentialsAsync(accessToken.Token, resources, cancellationToken)
             .ConfigureAwait(false);
 
+        IReadOnlyList<HostedAzureArmPolicyAssignmentRecord> policyAssignments = await _armReadClient
+            .ListSubscriptionPolicyAssignmentsAsync(accessToken.Token, subscriptionId, cancellationToken)
+            .ConfigureAwait(false);
+
+        IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> diagnosticSettings = await _armReadClient
+            .ListDiagnosticSettingsAsync(accessToken.Token, resources, cancellationToken)
+            .ConfigureAwait(false);
+
         List<HostedAzureArmNetworkAssociationRecord> networkAssociations =
             HostedAzureInventoryNetworkAssociationBuilder.Build(resources).ToList();
 
@@ -114,7 +122,10 @@ public sealed class HostedAzureExtractorClient(
             entraGroupMemberships,
             roleAssignments,
             networkAssociations,
-            federatedCredentials);
+            federatedCredentials,
+            managementGroupId: null,
+            policyAssignments,
+            diagnosticSettings);
 
         string fileName =
             $"archlucid-hosted-azure-{subscriptionId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -149,6 +160,7 @@ public sealed class HostedAzureExtractorClient(
         List<HostedAzureArmResourceRecord> resources = [];
         List<HostedAzureArmRoleAssignmentRecord> standingRoleAssignments = [];
         List<HostedAzureArmRoleAssignmentRecord> eligibleRoleAssignments = [];
+        List<HostedAzureArmPolicyAssignmentRecord> policyAssignments = [];
 
         standingRoleAssignments.AddRange(
             await _armReadClient
@@ -158,6 +170,11 @@ public sealed class HostedAzureExtractorClient(
         eligibleRoleAssignments.AddRange(
             await _armReadClient
                 .ListManagementGroupRoleEligibilitySchedulesAsync(accessTokenValue, managementGroupId, cancellationToken)
+                .ConfigureAwait(false));
+
+        policyAssignments.AddRange(
+            await _armReadClient
+                .ListManagementGroupPolicyAssignmentsAsync(accessTokenValue, managementGroupId, cancellationToken)
                 .ConfigureAwait(false));
 
         foreach (string subscriptionId in subscriptionIds)
@@ -177,6 +194,11 @@ public sealed class HostedAzureExtractorClient(
                 await _armReadClient
                     .ListSubscriptionRoleEligibilitySchedulesAsync(accessTokenValue, subscriptionId, cancellationToken)
                     .ConfigureAwait(false));
+
+            policyAssignments.AddRange(
+                await _armReadClient
+                    .ListSubscriptionPolicyAssignmentsAsync(accessTokenValue, subscriptionId, cancellationToken)
+                    .ConfigureAwait(false));
         }
 
         IReadOnlyList<HostedAzureArmRoleAssignmentRecord> roleAssignments =
@@ -184,6 +206,10 @@ public sealed class HostedAzureExtractorClient(
 
         IReadOnlyList<HostedAzureArmFederatedCredentialRecord> federatedCredentials = await _armReadClient
             .ListFederatedCredentialsAsync(accessTokenValue, resources, cancellationToken)
+            .ConfigureAwait(false);
+
+        IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> diagnosticSettings = await _armReadClient
+            .ListDiagnosticSettingsAsync(accessTokenValue, resources, cancellationToken)
             .ConfigureAwait(false);
 
         List<HostedAzureArmNetworkAssociationRecord> networkAssociations =
@@ -216,7 +242,9 @@ public sealed class HostedAzureExtractorClient(
             roleAssignments,
             networkAssociations,
             federatedCredentials,
-            managementGroupId: managementGroupId);
+            managementGroupId: managementGroupId,
+            policyAssignments,
+            diagnosticSettings);
 
         string fileName =
             $"archlucid-hosted-azure-mg-{managementGroupId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";

@@ -849,3 +849,138 @@ function Get-ArchLucidResourceGroupNameFromResourceId([string] $ResourceId)
 
     return $ResourceId.Substring($startIndex, $endIndex - $startIndex)
 }
+
+function Test-ArchLucidPathRelevantDiagnosticResourceType
+{
+    param(
+        [string] $ResourceType
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ResourceType))
+    {
+        return $false
+    }
+
+    return $ResourceType -eq 'Microsoft.Storage/storageAccounts' `
+        -or $ResourceType -eq 'Microsoft.KeyVault/vaults' `
+        -or $ResourceType -eq 'Microsoft.Network/networkSecurityGroups' `
+        -or $ResourceType -eq 'Microsoft.Sql/servers'
+}
+
+function Get-ArchLucidAzurePolicyAssignmentCompanionRows
+{
+    param(
+        [object[]] $PolicyAssignments
+    )
+
+    $rows = [System.Collections.ArrayList]::new()
+    $seen = @{}
+
+    foreach ($assignment in @($PolicyAssignments))
+    {
+        if ($null -eq $assignment) { continue }
+
+        [string]$scope = "$( $assignment.Scope )".Trim()
+        [string]$policyDefinitionId = "$( $assignment.PolicyDefinitionId )".Trim()
+        [string]$policySetDefinitionId = "$( $assignment.PolicySetDefinitionId )".Trim()
+        [string]$definitionId = $(if (-not ([string]::IsNullOrWhiteSpace($policyDefinitionId))) { $policyDefinitionId } else { $policySetDefinitionId })
+
+        if ([string]::IsNullOrWhiteSpace($scope)) { continue }
+        if ([string]::IsNullOrWhiteSpace($definitionId)) { continue }
+
+        [string]$name = "$( $assignment.Name )".Trim()
+        [string]$key = "$scope|$definitionId|$name"
+
+        if ($seen.ContainsKey($key))
+        {
+            continue
+        }
+
+        $seen[$key] = $true
+
+        [void]$rows.Add([ordered]@{
+            scope = $scope
+            policyDefinitionId = $definitionId
+            name = $(if ([string]::IsNullOrWhiteSpace($name)) { $null } else { $name })
+            assignmentId = $assignment.ResourceId
+        })
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureDiagnosticSettingCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+    $seen = @{}
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not (Test-ArchLucidPathRelevantDiagnosticResourceType -ResourceType $resourceType)) { continue }
+        if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
+
+        try
+        {
+            [string]$path = "$resourceId/providers/Microsoft.Insights/diagnosticSettings?api-version=2021-05-01-preview"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($setting in @($payload.value))
+            {
+                [string]$name = "$( $setting.name )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($name)) { continue }
+
+                [string]$workspaceId = "$( $setting.properties.workspaceId )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($workspaceId))
+                {
+                    try
+                    {
+                        $workspaceId = "$( $setting.properties.workspaces[0].workspaceResourceId )".Trim()
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                if ([string]::IsNullOrWhiteSpace($workspaceId)) { continue }
+
+                [string]$key = "$resourceId|$name|$workspaceId"
+
+                if ($seen.ContainsKey($key))
+                {
+                    continue
+                }
+
+                $seen[$key] = $true
+
+                [void]$rows.Add([ordered]@{
+                    targetResourceId = $resourceId
+                    name = $name
+                    workspaceId = $workspaceId
+                })
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    return @($rows.ToArray())
+}
