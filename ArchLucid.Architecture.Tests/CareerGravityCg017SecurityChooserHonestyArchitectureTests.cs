@@ -3,8 +3,8 @@ using FluentAssertions;
 namespace ArchLucid.Architecture.Tests;
 
 /// <summary>
-/// CG-017 ratchet: Security product line skips the Career/Rehearsal chooser and mounts
-/// a static honesty strip. Does not re-implement AS-077. Host execute default stays Simulator.
+/// CG-017 ratchet: Security product line skips Career/Rehearsal chrome entirely.
+/// Does not re-implement AS-077. Host execute default stays Simulator.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -30,18 +30,10 @@ public sealed class CareerGravityCg017SecurityChooserHonestyArchitectureTests
     }
 
     [Fact]
-    public void Cg017_security_top_bar_keeps_chooser_skip_and_mounts_honesty_strip()
+    public void Cg017_security_top_bar_excludes_career_rehearsal_chrome()
     {
         string topBar = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "shell", "OperatorShellTopBar.tsx"));
-        string strip = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "archlucid-ui",
-                "src",
-                "components",
-                "workspace-mode",
-                "SecurityWorkingCareerHonestyStrip.tsx"));
         string inventory = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
@@ -57,44 +49,23 @@ public sealed class CareerGravityCg017SecurityChooserHonestyArchitectureTests
                 "governance",
                 "working-career-rehearsal-help-guide-content.ts"));
 
-        string copy = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "archlucid-ui",
-                "src",
-                "lib",
-                "governance",
-                "working-career-rehearsal-door-copy.ts"));
-
-        topBar.Should().Contain("showWorkingCareerRehearsalChooser = productLine !== \"security\"");
-        topBar.Should().Contain("SecurityWorkingCareerHonestyStrip");
+        topBar.Should().Contain("isSecureNowTrainingChromeExcluded");
+        topBar.Should().NotContain("SecurityWorkingCareerHonestyStrip");
         topBar.Should().NotContain("G-REAL-06");
-        strip.Should().Contain("SECURITY_WORKING_CAREER_HONESTY_STRIP_TITLE");
-        strip.Should().Contain("shouldShowSecurityWorkingCareerHonestyStrip");
-        strip.Should().NotContain("G-REAL-06");
-        strip.Should().NotContain("setDoor");
-        copy.Should().Contain("Simulator is not Career");
-        inventory.Should().Contain("SecurityWorkingCareerHonestyStrip");
+        inventory.Should().NotContain("SecurityWorkingCareerHonestyStrip");
         help.Should().Contain("WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY");
-        help.Should().Contain("honesty strip");
+        help.Should().Contain("SecureNow");
     }
 
     [Fact]
     public void Cg017_does_not_flip_host_execute_mode_default()
     {
         string appsettings = File.ReadAllText(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
-        string strip = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "archlucid-ui",
-                "src",
-                "components",
-                "workspace-mode",
-                "SecurityWorkingCareerHonestyStrip.tsx"));
+        string topBar = File.ReadAllText(
+            Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "shell", "OperatorShellTopBar.tsx"));
 
         appsettings.Should().Contain("\"Mode\": \"Simulator\"");
-        strip.Should().NotContain("G-REAL-06");
-        strip.Should().Contain("isBuyerPolishedOperatorShellEnv");
+        topBar.Should().NotContain("G-REAL-06");
     }
 
     private static string FindRepoRoot()

@@ -54,7 +54,7 @@ export const WORKING_CAREER_REHEARSAL_HELP_GUIDED_NOTE =
 export const WORKING_CAREER_REHEARSAL_HELP_SECURITY_TITLE = "Security product line";
 
 export const WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY =
-  "The Security product shell skips the Career / Rehearsal chooser in the operator top bar. Working Security still cannot treat Simulator as Career. A compact honesty strip labels that skip so omitting the control cannot launder unlabeled Career gravity. Change the door from Architecture Working chrome or Account preferences — not by hiding the control.";
+  "The SecureNow (Security) product shell does not include Career / Rehearsal doors — that Working execution intent applies to Architecture review workflows only. SecureNow omits the chooser and related top-bar chrome entirely.";
 
 export const WORKING_CAREER_REHEARSAL_HELP_PRIMARY_ACTION = {
   label: "Check connection status",
