@@ -1750,6 +1750,45 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
     }
 
     [Fact]
+    public void GetBlockingReasons_when_same_attempt_quality_rejected_rejected_outcome_and_accepted_duplicates_does_not_block()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime sharedUtc = new(2026, 12, 6, 0, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace qualityRejectedRejectedDuplicate = new()
+        {
+            TraceId = "trace-qr-rejected",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace acceptedDuplicate = new()
+        {
+            TraceId = "trace-a-accepted",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [qualityRejectedRejectedDuplicate, acceptedDuplicate])
+            .Should().BeEmpty(
+                "rank ladder prefers Accepted duplicate over QualityRejected+Rejected drift row");
+    }
+
+    [Fact]
     public void GetBlockingReasons_when_simulator_mode_receives_rejected_traces_without_blocking()
     {
         ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Simulator };
