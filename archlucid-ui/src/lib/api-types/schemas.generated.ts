@@ -4162,6 +4162,7 @@ export interface components {
         };
         ExecDigestSponsorDeepLinkHighlightedRunDto: {
             caption?: null | string;
+            rehearsalRowLabel?: null | string;
             runIdHex?: string;
             /** Format: int32 */
             significanceScore?: number;
@@ -4172,6 +4173,7 @@ export interface components {
             complianceDriftMarkdown?: null | string;
             decisionNeededMarkdown?: null | string;
             findingsDeltaSummary?: null | string;
+            rehearsalBodyDisclaimer?: null | string;
             runIdHex?: null | string;
             runSummaryMarkdown?: null | string;
             signInUrl?: string;
