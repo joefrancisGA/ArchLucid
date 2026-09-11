@@ -73,16 +73,25 @@ vi.mock("./ReviewPackagePrimaryAction", () => ({
   ReviewPackagePrimaryAction: ({
     action,
     commitBlockedReason,
+    commitBlockedBlocks = [],
     demoted,
   }: {
     action: { label: string; kind: string };
     commitBlockedReason?: string | null;
+    commitBlockedBlocks?: readonly { message: string }[];
     demoted?: boolean;
   }) => (
     <div data-testid="review-package-primary-action-mock" data-demoted={demoted === true ? "true" : "false"}>
       <button type="button">{action.label}</button>
       {commitBlockedReason !== null && commitBlockedReason !== undefined && commitBlockedReason.length > 0 ? (
         <div data-testid="commit-blocked-reason">{commitBlockedReason}</div>
+      ) : null}
+      {commitBlockedBlocks.length > 0 ? (
+        <ul data-testid="finalize-readiness-block-list">
+          {commitBlockedBlocks.map((block) => (
+            <li key={block.message}>{block.message}</li>
+          ))}
+        </ul>
       ) : null}
     </div>
   ),
@@ -296,6 +305,42 @@ describe("RunDetailWorkspaceStickyActions", () => {
       "Assessment coverage is incomplete for architecture structure. Re-run the review before finalizing.",
     );
     expect(screen.getByRole("button", { name: "Finalize review" })).toBeInTheDocument();
+  });
+
+  it("passes structured finalize readiness blocks to the primary action", () => {
+    render(
+      <RunDetailWorkspaceStickyActions
+        runId="run-1"
+        primaryAction={{
+          kind: "finalize-package",
+          label: "Finalize review",
+          href: null,
+        }}
+        primaryActionContext={{
+          runId: "run-1",
+          manifestId: null,
+          hasCommitBlockingFailures: false,
+          blockingFindingCount: 0,
+          buyerPolishedArtifactTable: false,
+          operatorGovernanceDecision: null,
+          manifestStatus: "Draft",
+          runCompleted: true,
+        }}
+        commitBlockedReason="Finalize blocked by quality scorecard. 1 deferred finding still need revisit before finalize."
+        commitBlockedBlocks={[
+          {
+            layer: "scorecard",
+            code: "scorecard",
+            message: "1 deferred finding still need revisit before finalize.",
+          },
+        ]}
+        showProgressTracker={false}
+        manifestId={null}
+      />,
+    );
+
+    expect(screen.getByTestId("finalize-readiness-block-list")).toBeInTheDocument();
+    expect(screen.getByText("1 deferred finding still need revisit before finalize.")).toBeInTheDocument();
   });
 
   it("demotes sticky primary action when Do this next owns the page primary", () => {

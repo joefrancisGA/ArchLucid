@@ -146,6 +146,7 @@ public static class StructuredDiagramCompiledGraphBinder
         IReadOnlyList<GraphEdge> edges,
         IReadOnlyDictionary<string, string> diagramNodeIdRemap)
     {
+        HashSet<string> edgeKeys = new(StringComparer.OrdinalIgnoreCase);
         List<GraphEdge> remapped = [];
 
         foreach (GraphEdge edge in edges)
@@ -154,6 +155,13 @@ public static class StructuredDiagramCompiledGraphBinder
             string toNodeId = RemapEndpoint(edge.ToNodeId, diagramNodeIdRemap);
 
             if (string.Equals(fromNodeId, toNodeId, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            string edgeKey = $"{fromNodeId}|{toNodeId}|{edge.EdgeType}";
+
+            if (!edgeKeys.Add(edgeKey))
             {
                 continue;
             }

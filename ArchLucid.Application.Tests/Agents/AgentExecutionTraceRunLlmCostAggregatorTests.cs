@@ -60,6 +60,39 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
     }
 
     [Fact]
+    public void Compute_deduplicates_model_label_when_deployment_name_differs_only_by_case()
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(e => e.EstimateUsd(100, 40, 0, "dep-a"))
+            .Returns(1.0m);
+        estimator
+            .Setup(e => e.EstimateUsd(50, 10, 0, "DEP-A"))
+            .Returns(0.25m);
+
+        List<AgentExecutionTrace> traces =
+        [
+            new()
+            {
+                ModelDeploymentName = "dep-a",
+                InputTokenCount = 100,
+                OutputTokenCount = 40,
+            },
+            new()
+            {
+                ModelDeploymentName = "DEP-A",
+                InputTokenCount = 50,
+                OutputTokenCount = 10,
+            },
+        ];
+
+        AgentExecutionTraceRunLlmCostSummary summary =
+            AgentExecutionTraceRunLlmCostAggregator.Compute(traces, estimator.Object);
+
+        summary.ModelLabel.Should().Be("dep-a");
+    }
+
+    [Fact]
     public void Compute_WithTokens_SumsPerTraceEstimatesAndDeployments()
     {
         Mock<ILlmCostEstimator> estimator = new();
@@ -97,6 +130,42 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
 
         estimator.Verify(e => e.EstimateUsd(100, 40, 0, "dep-a"), Times.Once);
         estimator.Verify(e => e.EstimateUsd(50, 10, 0, "dep-b"), Times.Once);
+    }
+
+    [Fact]
+    public void Compute_WhenMixedDeploymentsHavePartialRates_OmitsUsdAndUsesProviderTokensWithoutRateBasis()
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(e => e.EstimateUsd(100, 40, 0, "dep-a"))
+            .Returns(1.0m);
+        estimator
+            .Setup(e => e.EstimateUsd(50, 10, 0, "dep-b"))
+            .Returns((decimal?)null);
+
+        List<AgentExecutionTrace> traces =
+        [
+            new()
+            {
+                ModelDeploymentName = "dep-a",
+                InputTokenCount = 100,
+                OutputTokenCount = 40,
+            },
+            new()
+            {
+                ModelDeploymentName = "dep-b",
+                InputTokenCount = 50,
+                OutputTokenCount = 10,
+            },
+        ];
+
+        AgentExecutionTraceRunLlmCostSummary summary =
+            AgentExecutionTraceRunLlmCostAggregator.Compute(traces, estimator.Object);
+
+        summary.PromptTokens.Should().Be(150);
+        summary.CompletionTokens.Should().Be(50);
+        summary.EstimatedCostUsd.Should().BeNull();
+        summary.CostEstimationBasis.Should().Be(RunLlmCostEstimationBasis.ProviderTokensWithoutRate);
     }
 
     [Fact]
@@ -262,6 +331,42 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
         summary.EstimatedCostUsd.Should().BeNull();
         summary.CostEstimationBasis.Should().Be(RunLlmCostEstimationBasis.ProviderTokensWithoutRate);
         summary.ModelLabel.Should().Be("o1-preview");
+    }
+
+    [Fact]
+    public void Compute_WhenOnlySomeTracesPrice_UsesProviderTokensWithoutRateBasis()
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(e => e.EstimateUsd(100, 40, 0, "dep-priced"))
+            .Returns(1.0m);
+        estimator
+            .Setup(e => e.EstimateUsd(50, 10, 0, "dep-unpriced"))
+            .Returns((decimal?)null);
+
+        List<AgentExecutionTrace> traces =
+        [
+            new()
+            {
+                ModelDeploymentName = "dep-priced",
+                InputTokenCount = 100,
+                OutputTokenCount = 40,
+            },
+            new()
+            {
+                ModelDeploymentName = "dep-unpriced",
+                InputTokenCount = 50,
+                OutputTokenCount = 10,
+            },
+        ];
+
+        AgentExecutionTraceRunLlmCostSummary summary =
+            AgentExecutionTraceRunLlmCostAggregator.Compute(traces, estimator.Object);
+
+        summary.PromptTokens.Should().Be(150);
+        summary.CompletionTokens.Should().Be(50);
+        summary.EstimatedCostUsd.Should().BeNull();
+        summary.CostEstimationBasis.Should().Be(RunLlmCostEstimationBasis.ProviderTokensWithoutRate);
     }
 
     [Fact]

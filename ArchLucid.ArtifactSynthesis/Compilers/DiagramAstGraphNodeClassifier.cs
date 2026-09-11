@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Inventory;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
@@ -8,45 +9,22 @@ internal static class DiagramAstGraphNodeClassifier
 {
     public static string ResolveCategory(GraphNode node)
     {
+        string armType = ReadArmType(node);
+        string categoryFromArmType = AzureInventoryTopologyCategory.Resolve(armType);
+
         if (!string.IsNullOrWhiteSpace(node.Category))
         {
+            // Older snapshots stamped Microsoft.Network/* as compute before IE-ND-01; trust ARM type for network provider resources.
+            if (AzureInventoryTopologyCategory.IsMicrosoftNetworkProviderType(armType)
+                && !string.Equals(node.Category, GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase))
+            {
+                return GraphTopologyCategories.Network;
+            }
+
             return node.Category;
         }
 
-        string armType = ReadArmType(node);
-
-        if (armType.Contains("/network", StringComparison.OrdinalIgnoreCase)
-            || armType.Contains("networksecuritygroups", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Network;
-        }
-
-        if (armType.Contains("/storage", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Storage;
-        }
-
-        if (armType.Contains("/compute", StringComparison.OrdinalIgnoreCase)
-            || armType.Contains("sites", StringComparison.OrdinalIgnoreCase)
-            || armType.Contains("serverfarms", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Compute;
-        }
-
-        if (armType.Contains("/sql", StringComparison.OrdinalIgnoreCase)
-            || armType.Contains("/documentdb", StringComparison.OrdinalIgnoreCase)
-            || armType.Contains("/dbfor", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Data;
-        }
-
-        if (armType.Contains("managedidentity", StringComparison.OrdinalIgnoreCase)
-            || armType.Contains("authorization", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Identity;
-        }
-
-        return GraphTopologyCategories.Compute;
+        return categoryFromArmType;
     }
 
     public static string ReadArmId(GraphNode node)

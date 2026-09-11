@@ -213,6 +213,89 @@ function readMermaidInkBBox(svg: SVGSVGElement): DOMRect | null {
  */
 const MERMAID_FIT_MIN_HEIGHT_PX = 280;
 
+/** Base pixel dimensions after a contain-fit into a bounded viewport (inventory / architecture diagrams). */
+export type MermaidViewportFitDimensions = {
+  readonly baseWidthPx: number;
+  readonly baseHeightPx: number;
+};
+
+function applyMermaidSvgInkViewBox(
+  svg: SVGSVGElement,
+  bbox: DOMRect,
+  paddingPx: number,
+): { viewWidth: number; viewHeight: number } {
+  const viewWidth = bbox.width + paddingPx * 2;
+  const viewHeight = bbox.height + paddingPx * 2;
+
+  svg.setAttribute(
+    "viewBox",
+    `${bbox.x - paddingPx} ${bbox.y - paddingPx} ${viewWidth} ${viewHeight}`,
+  );
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  svg.style.maxWidth = "100%";
+  svg.style.display = "block";
+
+  return { viewWidth, viewHeight };
+}
+
+function applyMermaidSvgPixelSize(svg: SVGSVGElement, widthPx: number, heightPx: number): void {
+  const width = Math.max(1, Math.round(widthPx));
+  const height = Math.max(1, Math.round(heightPx));
+
+  svg.setAttribute("width", String(width));
+  svg.setAttribute("height", String(height));
+  svg.style.width = `${width}px`;
+  svg.style.height = `${height}px`;
+}
+
+/**
+ * Contain diagram ink inside a visible viewport box (width and height).
+ * Used by inventory / architecture mermaid canvases — not help-topic width-fill.
+ */
+export function fitMermaidSvgElementToViewport(
+  svg: SVGSVGElement,
+  viewportWidthPx: number,
+  viewportHeightPx: number,
+  paddingPx = 12,
+): MermaidViewportFitDimensions | null {
+  const bbox = readMermaidInkBBox(svg);
+
+  if (bbox === null) {
+    svg.setAttribute("width", "100%");
+    svg.removeAttribute("height");
+    svg.style.width = "100%";
+    svg.style.height = "auto";
+    svg.style.maxWidth = "none";
+    svg.style.display = "block";
+
+    return null;
+  }
+
+  const { viewWidth, viewHeight } = applyMermaidSvgInkViewBox(svg, bbox, paddingPx);
+  const availableWidth = Math.max(1, viewportWidthPx - paddingPx * 2);
+  const availableHeight = Math.max(1, viewportHeightPx - paddingPx * 2);
+  const scale = Math.min(availableWidth / viewWidth, availableHeight / viewHeight);
+  const baseWidthPx = Math.max(1, Math.round(viewWidth * scale));
+  const baseHeightPx = Math.max(1, Math.round(viewHeight * scale));
+
+  applyMermaidSvgPixelSize(svg, baseWidthPx, baseHeightPx);
+
+  return { baseWidthPx, baseHeightPx };
+}
+
+/** Layout-affecting zoom on top of a viewport contain-fit (100% = fitted base size). */
+export function applyMermaidSvgViewportZoom(
+  svg: SVGSVGElement,
+  baseFit: MermaidViewportFitDimensions,
+  zoom: number,
+): void {
+  applyMermaidSvgPixelSize(
+    svg,
+    baseFit.baseWidthPx * zoom,
+    baseFit.baseHeightPx * zoom,
+  );
+}
+
 export function fitMermaidSvgElementToHost(
   svg: SVGSVGElement,
   hostWidthPx: number,
@@ -232,21 +315,10 @@ export function fitMermaidSvgElementToHost(
     return;
   }
 
-  const viewWidth = bbox.width + paddingPx * 2;
-  const viewHeight = bbox.height + paddingPx * 2;
+  const { viewWidth, viewHeight } = applyMermaidSvgInkViewBox(svg, bbox, paddingPx);
   const width = Math.max(1, Math.floor(hostWidthPx));
   const proportionalHeight = Math.max(1, Math.round(width * (viewHeight / viewWidth)));
   const height = Math.max(minHeightPx, proportionalHeight);
 
-  svg.setAttribute(
-    "viewBox",
-    `${bbox.x - paddingPx} ${bbox.y - paddingPx} ${viewWidth} ${viewHeight}`,
-  );
-  svg.setAttribute("width", String(width));
-  svg.setAttribute("height", String(height));
-  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-  svg.style.width = `${width}px`;
-  svg.style.height = `${height}px`;
-  svg.style.maxWidth = "100%";
-  svg.style.display = "block";
+  applyMermaidSvgPixelSize(svg, width, height);
 }

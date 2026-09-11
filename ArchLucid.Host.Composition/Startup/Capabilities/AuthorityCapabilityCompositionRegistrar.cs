@@ -65,6 +65,7 @@ public static partial class ServiceCollectionExtensions
         RegisterPostCommitProjectionOutbox(services, hostingRole);
         RegisterCosmosGraphSnapshotOutbox(services, configuration, hostingRole);
         RegisterAgentResultBlobCleanupHostedService(services, hostingRole);
+        RegisterDurableTaskWorkerInfrastructure(services, configuration, hostingRole);
         RegisterSponsorRoiCacheWarmupHostedService(services, configuration, hostingRole);
         RegisterSponsorRoiSavingsGaugeHostedService(services, configuration, hostingRole);
         RegisterArchitectureProjectRetentionPurgeHostedService(services, hostingRole);
