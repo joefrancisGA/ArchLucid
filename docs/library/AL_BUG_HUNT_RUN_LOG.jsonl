@@ -2009,3 +2009,6 @@
 {"at":"2026-09-11T21:55:46.0493865Z","zoneId":"cli-tenant-isolation","outcome":"seed-only"}
 {"at":"2026-09-11T21:56:05.7508102Z","zoneId":"cli-tenant-isolation","outcome":"seed-only"}
 {"at":"2026-09-11T21:56:06.6239004Z","zoneId":"tenant-settings-sql","outcome":"seed-only"}
+{"at":"2026-09-11T22:00:00Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
+{"at":"2026-09-11T22:03:30Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
+{"at":"2026-09-11T22:06:05.2786812Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}

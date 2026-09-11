@@ -457,4 +457,205 @@ public sealed class OrchestratorTransientDbRetryTests
         await act.Should().ThrowAsync<TaskCanceledException>();
         attempts.Should().Be(1);
     }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_azure_sql_unavailable_error_40645()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(40645);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_azure_service_capacity_error_40197()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(40197);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_network_connection_error_233()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(233);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_azure_throttling_error_49918()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(49918);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_resource_throttling_error_10928()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(10928);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_network_connection_error_10053()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(10053);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_network_connection_error_10054()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(10054);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_network_connection_error_10060()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(10060);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_resource_throttling_error_10929()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(10929);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_generic_overload_retries_azure_throttling_error_49919()
+    {
+        int attempts = 0;
+
+        int result = await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(49919);
+
+                return Task.FromResult(7);
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+        result.Should().Be(7);
+    }
 }

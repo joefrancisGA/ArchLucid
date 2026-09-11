@@ -130,4 +130,24 @@ public sealed class CommitRunTransientRetryPolicyTests
             .Should()
             .BeFalse();
     }
+
+    [Fact]
+    public void IsExhausted_returns_true_at_max_attempts_with_elapsed_below_budget()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+                CommitRunTransientRetryPolicy.MaxAttempts,
+                CommitRunTransientRetryPolicy.RetryBudget - TimeSpan.FromSeconds(1))
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void IsExhausted_returns_true_at_attempt_zero_when_elapsed_exceeds_budget()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+                0,
+                CommitRunTransientRetryPolicy.RetryBudget)
+            .Should()
+            .BeTrue();
+    }
 }

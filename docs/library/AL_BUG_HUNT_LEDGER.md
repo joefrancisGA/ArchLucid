@@ -693,7 +693,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 9
+- **hunts:** 11
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -757,6 +757,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `CommitRunTransientRetryPolicy.IsExhausted` true at attempt `MaxAttempts - 1` with zero elapsed — **cheap-disproof 2026-09-11 seed hunt #1758:** exhaustion requires attempt ≥ 12 or elapsed ≥ budget; regression `IsExhausted_returns_false_at_attempt_one_below_max_with_zero_elapsed`.
 
 2026-09-11 seed hunt #1758 (seed-only): reseeded orchestrator-transient-retry after #1747; cheap-disproof closed wrapper-chain retry, aggregate-wrapped deadlock, Azure `40501`, aggregate timeout inner, task cancellation, inter-attempt delay budget, and attempt-11 zero-elapsed guard; 37 scoped transient-retry tests passed (23 Persistence + 14 Application).
+
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry Azure SQL unavailable error `40645` — **cheap-disproof 2026-09-11 seed hunt #1766:** `40645` is in transient detector set per `SqlTransientDetector` remarks; regression `ExecuteAsync_retries_azure_sql_unavailable_error_40645`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry Azure service capacity error `40197` — **cheap-disproof 2026-09-11 seed hunt #1766:** `40197` is in transient detector set; regression `ExecuteAsync_retries_azure_service_capacity_error_40197`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry network connection error `233` — **cheap-disproof 2026-09-11 seed hunt #1766:** `233` is in transient detector set; regression `ExecuteAsync_retries_network_connection_error_233`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry Azure throttling error `49918` — **cheap-disproof 2026-09-11 seed hunt #1766:** `49918` is in transient detector set; regression `ExecuteAsync_retries_azure_throttling_error_49918`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry resource throttling error `10928` — **cheap-disproof 2026-09-11 seed hunt #1766:** `10928` is in transient detector set; regression `ExecuteAsync_retries_resource_throttling_error_10928`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.IsExhausted` false at attempt `MaxAttempts` with elapsed below budget — **cheap-disproof 2026-09-11 seed hunt #1766:** attempt ceiling triggers exhaustion regardless of elapsed; regression `IsExhausted_returns_true_at_max_attempts_with_elapsed_below_budget`.
+
+2026-09-11 seed hunt #1766 (seed-only): reseeded orchestrator-transient-retry after #1758; cheap-disproof closed Azure `40645`/`40197`, network `233`, throttling `49918`/`10928`, and max-attempt-with-sub-budget-elapsed guard; 43 scoped transient-retry tests passed (28 Persistence + 15 Application).
+
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry network connection error `10053` — **cheap-disproof 2026-09-11 seed hunt #1767:** `10053` is in transient detector set; regression `ExecuteAsync_retries_network_connection_error_10053`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry network connection error `10054` — **cheap-disproof 2026-09-11 seed hunt #1767:** `10054` is in transient detector set; regression `ExecuteAsync_retries_network_connection_error_10054`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry network connection error `10060` — **cheap-disproof 2026-09-11 seed hunt #1767:** `10060` is in transient detector set; regression `ExecuteAsync_retries_network_connection_error_10060`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry resource throttling error `10929` — **cheap-disproof 2026-09-11 seed hunt #1767:** `10929` is in transient detector set; regression `ExecuteAsync_retries_resource_throttling_error_10929`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.ExecuteAsync<T>` does not retry Azure throttling error `49919` — **cheap-disproof 2026-09-11 seed hunt #1767:** generic overload shares pipeline; regression `ExecuteAsync_generic_overload_retries_azure_throttling_error_49919`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.IsExhausted` false at attempt zero when elapsed exceeds budget — **cheap-disproof 2026-09-11 seed hunt #1767:** elapsed ceiling triggers exhaustion regardless of attempt; regression `IsExhausted_returns_true_at_attempt_zero_when_elapsed_exceeds_budget`.
+
+2026-09-11 seed hunt #1767 (seed-only): reseeded orchestrator-transient-retry after #1766; cheap-disproof closed network `10053`/`10054`/`10060`, resource `10929`, generic `49919`, and attempt-zero budget exhaustion; 49 scoped transient-retry tests passed (33 Persistence + 16 Application).
 
 ---
 
