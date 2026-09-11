@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Contracts.Drafts;
@@ -57,14 +58,21 @@ public sealed partial class DraftRequestsController
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
 
-        PagedResponse<DraftRequestSummaryResponse> response = await _draftRequestService.ListAsync(
-            scope,
-            actorUserId,
-            statuses,
-            page,
-            pageSize,
-            cancellationToken);
+        try
+        {
+            PagedResponse<DraftRequestSummaryResponse> response = await _draftRequestService.ListAsync(
+                scope,
+                actorUserId,
+                statuses,
+                page,
+                pageSize,
+                cancellationToken);
 
-        return Ok(response);
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
+        }
     }
 }
