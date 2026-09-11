@@ -239,6 +239,31 @@ public sealed class FinalizeReadinessService(
         return BuildResult(runId, blocks, scorecardCounts, scorecardReasons, gateOptions.Enabled, checklist);
     }
 
+    /// <summary>
+    ///     Embedded checklist on the readiness contract follows commit authority so finalize UI does not
+    ///     disagree with <see cref="FinalizeReadinessResult.ReadyToFinalize" /> on the same payload.
+    ///     Standalone <c>GET …/pre-finalize/checklist</c> keeps its own operator-hygiene ready flag.
+    /// </summary>
+    internal static PreFinalizeChecklistResult AlignChecklistWithCommitAuthority(
+        PreFinalizeChecklistResult checklist,
+        bool commitAuthorityReady)
+    {
+        ArgumentNullException.ThrowIfNull(checklist);
+
+        if (checklist.ReadyToFinalize == commitAuthorityReady)
+            return checklist;
+
+        return new PreFinalizeChecklistResult
+        {
+            RunId = checklist.RunId,
+            ReadyToFinalize = commitAuthorityReady,
+            Items = checklist.Items,
+            AdvisoryCount = checklist.AdvisoryCount,
+            BlockingCount = checklist.BlockingCount,
+            PreCommitGateEnabled = checklist.PreCommitGateEnabled,
+        };
+    }
+
     private static void AppendCareerArtifactBlocks(
         List<FinalizeReadinessBlock> blocks,
         TransparencyTrail? transparencyTrail,
@@ -444,13 +469,16 @@ public sealed class FinalizeReadinessService(
             ? string.Join(" ", blocks.Select(static block => block.Message))
             : null;
 
+        PreFinalizeChecklistResult alignedChecklist =
+            AlignChecklistWithCommitAuthority(checklist, commitAuthorityReady: blocks.Count == 0);
+
         return new FinalizeReadinessResult
         {
             RunId = runId,
             ReadyToFinalize = blocks.Count == 0,
             BlockedReasonSummary = summary,
             Blocks = blocks,
-            Checklist = checklist,
+            Checklist = alignedChecklist,
             Scorecard = MapScorecard(scorecardCounts),
             ScorecardBlockingReasons = scorecardBlockingReasons,
             FinalizeQualityGateEnabled = finalizeQualityGateEnabled,
