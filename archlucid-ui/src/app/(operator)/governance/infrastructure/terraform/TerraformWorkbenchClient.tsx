@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { Button } from "@/components/ui/button";
@@ -193,7 +194,11 @@ export function TerraformWorkbenchClient() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6" data-testid="infra-terraform-workbench">
+    <OperatorPageContainer
+      variant="full"
+      className="flex flex-col gap-6 py-4"
+      data-testid="infra-terraform-workbench"
+    >
       <LayerHeader pageKey="infrastructure-terraform" />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
@@ -388,6 +393,6 @@ export function TerraformWorkbenchClient() {
           Open this workbench from a scoped resource hub or explorer row to review advisory Terraform mapping.
         </p>
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }
