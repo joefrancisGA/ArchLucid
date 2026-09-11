@@ -130,6 +130,9 @@ public sealed class AgentCuratedEvidenceProposer(
             if (!ProposedEvidenceTextValidation.HasSubstantiveText(payload.Description))
                 return null;
 
+            if (!ProposedEvidenceTextValidation.HasSubstantiveText(payload.Rationale))
+                return null;
+
             if (!IsSupportedType(payload.Type))
                 return null;
 

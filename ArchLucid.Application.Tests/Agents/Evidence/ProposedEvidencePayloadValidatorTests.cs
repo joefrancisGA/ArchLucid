@@ -30,10 +30,29 @@ public sealed class ProposedEvidencePayloadValidatorTests
     }
 
     [Fact]
+    public void TryParseValid_WhenTitleIsZeroWidthSpaceOnly_ReturnsFalse()
+    {
+        bool ok = ProposedEvidencePayloadValidator.TryParseValid(
+            """{"type":"Policy","title":"\u200b","description":"Require TDE."}""",
+            out ProposedEvidencePayload _);
+
+        ok.Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryParseValid_WhenRationaleIsZeroWidthSpaceOnly_ReturnsFalse()
+    {
+        bool ok = ProposedEvidencePayloadValidator.TryParseValid(
+            """{"type":"Policy","title":"Encrypt SQL TDE","description":"Require TDE.","rationale":"\u200b"}""",
+            out ProposedEvidencePayload _);
+
+        ok.Should().BeFalse();
+    }
+
+    [Fact]
     public void TryParseValid_WhenTypeIsNull_ReturnsFalse()
     {
         bool ok = ProposedEvidencePayloadValidator.TryParseValid(
-            """{"type":null,"title":"Encrypt SQL TDE","description":"Use CMK.","rationale":"Gap"}""",
             """{"type":null,"title":"Encrypt SQL TDE","description":"Require TDE."}""",
             out ProposedEvidencePayload _);
 
