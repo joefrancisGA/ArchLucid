@@ -156,4 +156,38 @@ Write-Output "fake extractor success"
 
         $true | Should -Be $true
     }
+
+    It "returns a buyer-facing subscription name from Get-AzSubscription" {
+        Mock Get-AzSubscription {
+            return [PSCustomObject]@{
+                Id = "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+                Name = "Contoso Production"
+            }
+        }
+
+        $name = Resolve-ArchLucidAzureSubscriptionDisplayName -SubscriptionId "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+
+        $name | Should -Be "Contoso Production"
+    }
+
+    It "returns null when the Azure name is a GUID" {
+        Mock Get-AzSubscription {
+            return [PSCustomObject]@{
+                Id = "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+                Name = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+            }
+        }
+
+        $name = Resolve-ArchLucidAzureSubscriptionDisplayName -SubscriptionId "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+
+        $name | Should -Be $null
+    }
+
+    It "returns null when Get-AzSubscription fails" {
+        Mock Get-AzSubscription { throw "subscription not found" }
+
+        $name = Resolve-ArchLucidAzureSubscriptionDisplayName -SubscriptionId "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+
+        $name | Should -Be $null
+    }
 }

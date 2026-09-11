@@ -52,6 +52,10 @@ public sealed class HostedAzureExtractorClient(
             .ListSubscriptionResourcesAsync(accessToken.Token, request.SubscriptionId, cancellationToken)
             .ConfigureAwait(false);
 
+        string? subscriptionName = await _armReadClient
+            .TryGetSubscriptionDisplayNameAsync(accessToken.Token, request.SubscriptionId, cancellationToken)
+            .ConfigureAwait(false);
+
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
@@ -92,6 +96,7 @@ public sealed class HostedAzureExtractorClient(
             resources,
             request.IncludeCost,
             collectionTimestampUtc,
+            subscriptionName,
             entraGroupMemberships);
 
         string fileName =

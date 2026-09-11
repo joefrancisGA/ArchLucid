@@ -55,6 +55,7 @@ Describe 'Get-SecureNowAzurePackage.ps1' {
                 Id = "/subscriptions/$SubscriptionId"
                 SubscriptionId = $SubscriptionId
                 TenantId = '99999999-8888-7777-6666-555555555555'
+                Name = 'Contoso Production'
             }
         }
 
@@ -114,6 +115,7 @@ Describe 'Get-SecureNowAzurePackage.ps1' {
 
                 $manifest.schemaVersion | Should -Be 2
                 $manifest.subscriptionId | Should -Be 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+                $manifest.subscriptionName | Should -Be 'Contoso Production'
                 $readme | Should -Match 'SecureNow Azure extractor output'
                 $readme | Should -Match 'Upload this ZIP to SecureNow'
                 $readme | Should -Not -Match 'ArchLucid Azure extractor output'
