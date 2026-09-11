@@ -53,11 +53,12 @@ describe("career-gravity export watermark inventory (CG-003)", () => {
     }
   });
 
-  it("quotes the MapForExport assumed-banner gravity gap", () => {
+  it("quotes the MapForExport door-stamp banner resolver (CG-022)", () => {
     const mapper = readFileSync(join(REPO_ROOT, CAREER_GRAVITY_EXPORT_MAPPER_PATH), "utf8");
 
-    expect(mapper).toMatch(/SimulatorRehearsalBannerOnArtifact:\s*simulatorRehearsalBannerOnArtifact/);
-    expect(mapper).toMatch(/IsRehearsalStructuralExecutionMode\(input\.StructuralExecutionMode\)/);
+    expect(mapper).toMatch(/ResolveSimulatorRehearsalBannerOnArtifactForExport/);
+    expect(mapper).toMatch(/WorkingCareerRehearsalDoor:\s*input\.WorkingCareerRehearsalDoor/);
+    expect(mapper).toMatch(/WorkingCareerRehearsalDoorValues\.Rehearsal/);
 
     const zipDownload = readFileSync(
       join(REPO_ROOT, "ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Download.cs"),

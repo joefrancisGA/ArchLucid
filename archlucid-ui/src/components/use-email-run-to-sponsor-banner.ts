@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { usePilotRunDeltasQuery, resolvePilotRunDeltasQueryErrorMessage } from "@/hooks/use-pilot-run-deltas-query";
 import { useTenantBaselineRoiQuery } from "@/hooks/use-tenant-baseline-roi-query";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
@@ -29,6 +30,7 @@ import {
   evaluateCareerArtifactHonesty,
   type CareerArtifactHonestyInput,
 } from "@/lib/career-artifact/career-artifact-honesty";
+import { resolveCareerArtifactExportHonestyDoorFields } from "@/lib/career-artifact/resolve-career-artifact-export-honesty-input";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
 
 import type { EmailRunToSponsorBannerProps } from "./EmailRunToSponsorBanner";
@@ -80,6 +82,7 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
   const telemetrySentRef = useRef(false);
   const [readinessLoadingPhase, setReadinessLoadingPhase] = useState<"quick" | "slow">("quick");
 
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
   const { data: trialPayload } = useTenantTrialStatusQuery({ enabled: sidecarFetchesEnabled });
   const {
     data: deltasPayload,
@@ -255,8 +258,14 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
       return null;
     }
 
+    const doorFields = resolveCareerArtifactExportHonestyDoorFields({
+      progressSummary: careerArtifactHonesty.progressSummary,
+      structuralExecutionMode: careerArtifactHonesty.structuralExecutionMode,
+      liveDoor: effectiveDoor,
+    });
     const input: CareerArtifactHonestyInput = {
       ...careerArtifactHonesty,
+      ...doorFields,
       artifactKind: "export",
       runId,
       curatedSampleRun,
@@ -265,7 +274,7 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     };
 
     return evaluateCareerArtifactHonesty(input);
-  }, [careerArtifactHonesty, curatedSampleRun, runId]);
+  }, [careerArtifactHonesty, curatedSampleRun, effectiveDoor, runId]);
   const blockSponsorPdfForCareerArtifact =
     careerArtifactVerdict !== null && !careerArtifactVerdict.canRender;
   const blockSponsorPdf =

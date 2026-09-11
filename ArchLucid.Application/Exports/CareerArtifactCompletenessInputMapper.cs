@@ -2,6 +2,7 @@ using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.User;
 using ArchLucid.Decisioning.CareerArtifacts;
 
 namespace ArchLucid.Application.Exports;
@@ -19,8 +20,7 @@ public static class CareerArtifactCompletenessInputMapper
 
         bool resolvedLegacySealedReExport =
             legacySealedReExport || LegacySealedReExportHonestyResolver.Resolve(transparencyTrail);
-        bool simulatorRehearsalBannerOnArtifact =
-            SimulatorCareerHonestyPresenter.IsRehearsalStructuralExecutionMode(input.StructuralExecutionMode);
+        bool simulatorRehearsalBannerOnArtifact = ResolveSimulatorRehearsalBannerOnArtifactForExport(input);
 
         return new CareerArtifactCompletenessInput(
             ArtifactKind: CareerArtifactKind.Export,
@@ -37,7 +37,21 @@ public static class CareerArtifactCompletenessInputMapper
             LegacySealedReExport: resolvedLegacySealedReExport,
             BlockExternalSponsorDistribution: blockExternalSponsorDistribution,
             SimulatorRehearsalBannerOnArtifact: simulatorRehearsalBannerOnArtifact,
+            WorkingCareerRehearsalDoor: input.WorkingCareerRehearsalDoor,
             FindingsSnapshot: input.FindingsSnapshot);
+    }
+
+    internal static bool ResolveSimulatorRehearsalBannerOnArtifactForExport(CareerExportCoverageHonestyInput input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+
+        if (!SimulatorCareerHonestyPresenter.IsRehearsalStructuralExecutionMode(input.StructuralExecutionMode))
+        {
+            return false;
+        }
+
+        return WorkingCareerRehearsalDoorValues.ParseOrDefault(input.WorkingCareerRehearsalDoor)
+            == WorkingCareerRehearsalDoorValues.Rehearsal;
     }
 
     public static CareerArtifactCompletenessInput MapForFinalize(

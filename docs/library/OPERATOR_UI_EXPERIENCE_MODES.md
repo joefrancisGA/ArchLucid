@@ -81,6 +81,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Career finalize gate (CG-021):** Working **Career** door + structural **Simulator** or **Fallback** cannot finalize — server returns a governance block (4xx) and the UI disables the finalize CTA with blocked-honesty copy (no Ready label). **Rehearsal** door on Simulator/Fallback may still seal as rehearsal-incomplete per LP-06; Ready-to-finalize labels stay suppressed (AS-079) even when finalize is allowed. `MapForFinalize` passes the CG-019 door stamp into `CareerArtifactCompletenessValidator`; TS uses `shouldBlockFinalizeForCareerHonesty` for mutation parity.
 
+**Sponsor PDF gate (CG-022):** Working **Career** door + Simulator/Fallback cannot produce an unwatermarked sponsor PDF — `MapForExport` is door-stamp aware (not Mode-assumed banner), `FirstValueReportBuilder` blocks via `CareerArtifactExportCompletenessGate`, and `EmailRunToSponsorBanner` disables download when `evaluateCareerArtifactHonesty` fails. **Rehearsal** door on Simulator may export with rehearsal labeling (LP-06). Demo/sample waiver paths stay off Working Career.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
