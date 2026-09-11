@@ -6,7 +6,7 @@ import type {
 } from "@/types/draft-intake";
 
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
-import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { architectureDraftBlockedReason, architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiGet, apiPatchJson, apiPostJson } from "./http";
@@ -85,7 +85,14 @@ export async function getDraftRequest(
   draftId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<DraftRequestResponse> {
-  return apiGetSealedManifestAware<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, options);
+  try {
+    return await apiGet<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, options);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function patchDraftRequest(
