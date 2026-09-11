@@ -54,11 +54,22 @@ public sealed class AzureInventorySnapshotGraphResolver(
         Dictionary<string, string> nodeIdByArmId = new(StringComparer.OrdinalIgnoreCase);
         List<GraphNode> nodes = [];
 
+        HashSet<string> seenNodeIds = new(StringComparer.Ordinal);
+
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources
                      .OrderBy(candidate => candidate.AzureResourceId, StringComparer.Ordinal))
         {
             string nodeId = ResolveNodeId(resource);
-            nodeIdByArmId[resource.AzureResourceId] = nodeId;
+
+            if (!string.IsNullOrWhiteSpace(resource.AzureResourceId))
+            {
+                nodeIdByArmId[resource.AzureResourceId] = nodeId;
+            }
+
+            if (!seenNodeIds.Add(nodeId))
+            {
+                continue;
+            }
 
             GraphNode node = new()
             {
@@ -148,7 +159,13 @@ public sealed class AzureInventorySnapshotGraphResolver(
             return resource.CloudResourceId.Value.ToString("D");
         }
 
-        return MermaidIdSanitizer.Sanitize(resource.AzureResourceId);
+        if (!string.IsNullOrWhiteSpace(resource.AzureResourceId))
+        {
+            return MermaidIdSanitizer.Sanitize(resource.AzureResourceId);
+        }
+
+        // Materialized rows can exist before cloud-resource linkage; keep graph compile deterministic.
+        return $"resource-row-{resource.ResourceRowId:D}";
     }
 
     private static string ResolveLabel(AzureInventoryResourceRecord resource)

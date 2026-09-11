@@ -2,6 +2,7 @@
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/lost-write-00-index.md`](../../.cursor/prompts/lost-write-00-index.md) (**LW-001–LW-100**)
 > **Predecessor (wave 22 — architecture-spine):** [`ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md`](ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md) (**AS-001–AS-100**). **Do not re-run AS.**
+> **Successor (livelihood UX waves 24–30):** [`LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md`](LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md) · [`.cursor/prompts/livelihood-gravity-00-index.md`](../../.cursor/prompts/livelihood-gravity-00-index.md) (**CG / SN / LN / MG / DI / CE / DW**). **Do not re-run LW.** Issue 1 starts at [`CAREER_GRAVITY_COMPOSER_PROMPTS.md`](CAREER_GRAVITY_COMPOSER_PROMPTS.md) (**CG-001–100**).
 > **Not** Hasher robustness wave 23: [`../library/ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE23.md`](../library/ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE23.md) (items 221–230). Do not renumber those controls.
 
 # Lost-write Composer prompts (LW-001–LW-100)
