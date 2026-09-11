@@ -224,6 +224,33 @@ describe("lost-write mutation error toast inventory (LW-097)", () => {
   });
 });
 
+describe("lost-write wave close audit (LW-100)", () => {
+  it("documents acceptance markdown and README shipped status", () => {
+    const acceptance = readFileSync(
+      join(REPO_ROOT, "docs/architecture/LOST_WRITE_ACCEPTANCE_2026-09-11.md"),
+      "utf8",
+    );
+    const readme = readFileSync(join(REPO_ROOT, "docs/architecture/README.md"), "utf8");
+    const prompts = readFileSync(
+      join(REPO_ROOT, "docs/architecture/LOST_WRITE_COMPOSER_PROMPTS.md"),
+      "utf8",
+    );
+
+    expect(acceptance).toMatch(/Shipped/);
+    expect(acceptance).toMatch(/omit-token/);
+    expect(acceptance).toMatch(/localStorage/);
+    expect(acceptance).toMatch(/work-lease/);
+    expect(acceptance).toMatch(/## Do not claim/);
+    expect(acceptance).toMatch(/Do not claim[\s\S]*live presence/i);
+
+    expect(readme).toMatch(/LOST_WRITE_ACCEPTANCE_2026-09-11\.md/);
+    expect(readme).toMatch(/shipped/i);
+
+    expect(prompts).toMatch(/LOST_WRITE_ACCEPTANCE_2026-09-11\.md/);
+    expect(prompts).not.toMatch(/ready to run/i);
+  });
+});
+
 describe("lost-write help overwrite copy (LW-012)", () => {
   it("inventories Keep mine without live-presence language", () => {
     const ids = LOST_WRITE_HELP_OVERWRITE_COPY.map((row) => row.id);
