@@ -239,10 +239,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
@@ -313,6 +313,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-10 thorough hunt #1554 (dry): cheap-disproof closed cross-tenant generation-stamped cache-key collision candidate; no hunt-ready rows remain; 11 scoped SqlTenantSettingsRepository tests plus cross-tenant cache isolation test passed.
 
 2026-09-10 seed hunt #1552 (seed-only): reseeded tenant-settings-sql after #1548; cheap-disproof closed cross-tenant cache isolation, whitespace value delete-key guards, empty-tenant TryGet cache poison, and twelve-alias JSON budget; 43 scoped TenantSettings tests passed.
+
+- [x] (invalid) Eleven-alias allowed-engine JSON exceeds migration `NVARCHAR(512)` — **cheap-disproof 2026-09-11 seed hunt #1757:** eleven `managed-azure-openai-alias-*` ids still fit under the 512-char budget (fourteen exceeds per #1323); regression `Serialized_allowed_engine_set_with_eleven_aliases_fits_migration_setting_value_limit`
+- [x] (invalid) `CachingTenantSettingsRepository.DeleteAsync` with alternate setting-key casing fails to delete the normalized SQL/cache slot — **cheap-disproof 2026-09-11 seed hunt #1757:** `TenantSettingKeyNormalizer.Normalize` runs in `DeleteAsync` before inner delete and generation bumps; regression `TenantSettings_TryGetAsync_returns_null_after_delete_when_setting_key_casing_differs`
+- [x] (valid-no-repro) Concurrent `DeleteAsync` on the same key serves stale cached hit after both wrappers complete — **cheap-disproof 2026-09-11 seed hunt #1757:** symmetric to #1547 write-in-flight parity; idempotent inner delete plus per-slot generation bumps still expose absent final state; regression `TenantSettings_TryGetAsync_returns_null_after_concurrent_delete_on_same_key`
+
+2026-09-11 seed hunt #1757 (seed-only): reseeded tenant-settings-sql after #1554; cheap-disproof closed eleven-alias JSON budget, delete key-casing normalization, and concurrent-delete cache isolation; 46 scoped TenantSettings tests passed.
 
 2026-09-08 seed hunt #1358 (seed-only): reseeded after #1347; cheap-disproof closed failed-delete generation-bump and empty-tenant-id cache-poison candidates; seeded out-of-band SQL cache staleness and multi-key partial-write candidates; no hunt-ready row reproduces.
 
