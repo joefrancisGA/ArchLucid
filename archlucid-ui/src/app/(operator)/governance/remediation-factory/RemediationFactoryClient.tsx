@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
+import { SecureNowArchitectOutcomeMetricsPanel } from "@/components/security/SecureNowArchitectOutcomeMetricsPanel";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   EnterpriseTable,
@@ -183,6 +184,8 @@ export function RemediationFactoryClient() {
       ) : (
         <p className={OPERATOR_TYPOGRAPHY.helper}>Loading executive metrics…</p>
       )}
+
+      <SecureNowArchitectOutcomeMetricsPanel />
 
       <section className="space-y-3" aria-label="Operator priority table">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Priority queue</h2>
