@@ -82,6 +82,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IMissingArchitectureRequestRunRemediator, MissingArchitectureRequestRunRemediator>();
         services.AddScoped<IRunEngineProvenanceCaptureService, RunEngineProvenanceCaptureService>();
         services.AddScoped<IExecuteTimeGovernanceScopeCaptureService, ExecuteTimeGovernanceScopeCaptureService>();
+        services.AddScoped<IExecuteTimeCareerPostureCaptureService, ExecuteTimeCareerPostureCaptureService>();
         services.AddScoped<ISampleRunPurgeService, SampleRunPurgeService>();
         services.AddScoped<IReplayRunCloneStage, ReplayRunCloneStage>();
         services.AddScoped<IReplayRunPrepareStage, ReplayRunPrepareStage>();

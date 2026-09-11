@@ -32,6 +32,7 @@ import {
 } from "@/lib/review-pipeline-stall-diagnosis";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
+import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
 import { shouldSuppressReadyToFinalizeForCareerHonesty } from "@/lib/runs/run-pipeline-finalize-blocked-honesty";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
@@ -81,7 +82,10 @@ export function useRunProgressTracker({
     isSample: initialSummary?.isSample,
     hostAgentExecutionMode: healthQuery.data?.agentExecutionMode,
     hostQualityGateMode: healthQuery.data?.agentOutputQualityGateMode,
-    effectiveWorkingCareerRehearsalDoor: workingDesk ? effectiveDoor : undefined,
+    effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
+      stampedDoor: initialSummary?.workingCareerRehearsalDoor,
+      liveDoor: workingDesk ? effectiveDoor : undefined,
+    }),
   });
   const effectivePreFinalizeTerminal = preFinalizeTerminal && !gateSuppressesReady;
   const pipelineTerminalFailure = isReviewPipelineTerminalFailure(diagnosticContext);

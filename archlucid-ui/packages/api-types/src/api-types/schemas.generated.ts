@@ -1551,6 +1551,8 @@ export interface components {
             currentManifestVersion?: null | string;
             /** Format: uuid */
             decisionTraceId?: null | string;
+            /** Format: date-time */
+            executePostureCapturedUtc?: null | string;
             /** Format: uuid */
             findingsSnapshotId?: null | string;
             /** Format: uuid */
@@ -1568,6 +1570,7 @@ export interface components {
             status: components["schemas"]["ArchitectureRunStatus"];
             structuralExecutionMode: components["schemas"]["StructuralExecutionMode"];
             taskIds?: string[];
+            workingCareerRehearsalDoor?: null | string;
         };
         ArchitectureRunDetail: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
@@ -7763,6 +7766,9 @@ export interface components {
             actorOid?: string;
             role?: string;
         };
+        PutRunAssumptionAcknowledgementRequest: {
+            acknowledgedAssumptionIds?: null | string[];
+        };
         PutRunCoverageAcknowledgementRequest: {
             entries?: null | components["schemas"]["RunCoverageAcknowledgementEntryRequest"][];
         };
@@ -9043,6 +9049,13 @@ export interface components {
             /** Format: int32 */
             graphSnapshots?: number;
         };
+        RunAssumptionAcknowledgementDocument: {
+            acknowledgedAssumptionIds?: string[];
+            /** Format: date-time */
+            acknowledgedUtc?: string;
+            actorUserId?: string;
+            evaluationVersion?: string;
+        };
         RunAuthorityRuleAuditExplainabilitySection: {
             acceptedFindingIds?: string[];
             allowedFindingIds?: string[];
@@ -9396,6 +9409,7 @@ export interface components {
             summary?: string;
         };
         RunRecord: {
+            acknowledgedAssumptionsJson?: null | string;
             acknowledgedCoverageJson?: null | string;
             /** Format: uuid */
             architectureId?: null | string;
@@ -9418,6 +9432,8 @@ export interface components {
             decisionTraceId?: null | string;
             description?: null | string;
             engineProvenanceJson?: null | string;
+            /** Format: date-time */
+            executePostureCapturedUtc?: null | string;
             /** Format: uuid */
             findingsSnapshotId?: null | string;
             /** Format: uuid */
@@ -9482,6 +9498,7 @@ export interface components {
             structuralExecutionMode: components["schemas"]["StructuralExecutionMode"];
             /** Format: uuid */
             tenantId?: string;
+            workingCareerRehearsalDoor?: null | string;
             /** Format: uuid */
             workspaceId?: string;
         };
@@ -9585,6 +9602,8 @@ export interface components {
             degradedExecutionAgents?: string[];
             description?: null | string;
             displayName?: null | string;
+            /** Format: date-time */
+            executePostureCapturedUtc?: null | string;
             /** Format: uuid */
             goldenManifestId?: null | string;
             hasArtifactBundle?: boolean;
@@ -9605,6 +9624,7 @@ export interface components {
             /** Format: uuid */
             runId: string;
             structuralExecutionMode?: components["schemas"]["StructuralExecutionMode"];
+            workingCareerRehearsalDoor?: null | string;
         };
         RunToolInvocationForensicRow: {
             agentType?: string;
