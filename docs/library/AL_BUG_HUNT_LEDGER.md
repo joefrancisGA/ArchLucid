@@ -2475,7 +2475,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -2583,11 +2583,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 9
-- **bugs-found:** 6
+- **hunts:** 10
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-09 — category section headings used raw category text in invalid HTML id tokens
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — protocol-relative doc-index URLs opened in the same tab without noreferrer
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2634,6 +2634,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Escape on an empty search box clears the URL — **cheap-disproof 2026-09-10 seed hunt #1632:** Escape handler requires `query.trim().length > 0`; regression `does not clear the URL when Escape is pressed on an empty search box`.
 
 2026-09-10 seed hunt #1632 (seed-only): reseeded ui-help-docs after #1589; cheap-disproof closed case sensitivity, whitespace filter, internal link target, post-error refresh status, unknown category ordering, and empty Escape URL clear; 21 scoped `HelpDocsClient` tests passed.
+
+- [x] (proven) Protocol-relative doc-index URLs (`//host/path`) open in the same tab without `target="_blank"`/`rel="noreferrer"` — **hit 2026-09-11 seed hunt #1744 (seed→hit):** `linkProps` only treated `https?://` as external; fixed to include scheme-relative URLs; regression `opens protocol-relative documentation links in a new tab with noreferrer`.
+
+2026-09-11 seed hunt #1744 (seed→hit): reseeded ui-help-docs; proved protocol-relative external link handling gap; 22 scoped `HelpDocsClient` tests passed.
 
 ## Zone: ui-webhooks-settings
 

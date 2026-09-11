@@ -303,6 +303,37 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("opens protocol-relative documentation links in a new tab with noreferrer", async () => {
+    const data = [
+      {
+        title: "Protocol relative doc",
+        summary: "Hosted on another origin without an explicit scheme.",
+        category: "API",
+        url: "//example.com/docs/protocol-relative",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const link = await screen.findByRole("link", { name: "Protocol relative doc" });
+
+    expect(link).toHaveAttribute("href", "//example.com/docs/protocol-relative");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noreferrer");
+
+    vi.unstubAllGlobals();
+  });
+
   it("opens external documentation links in a new tab with noreferrer", async () => {
     const data = [
       {

@@ -191,7 +191,8 @@ export function HelpDocsClient() {
   }, [filtered]);
 
   function linkProps(url: string): { rel?: string; target?: "_blank" } {
-    const external = /^https?:\/\//i.test(url);
+    const trimmed = url.trim();
+    const external = /^https?:\/\//i.test(trimmed) || trimmed.startsWith("//");
 
     if (!external) {
       return {};
