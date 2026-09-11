@@ -596,7 +596,7 @@ public sealed class AzureExtractorPackageZipValidatorTests
         AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
 
         result.IsValid.Should().BeTrue();
-        result.FileEntryCount.Should().Be(7);
+        result.FileEntryCount.Should().Be(9);
     }
 
     [Fact]

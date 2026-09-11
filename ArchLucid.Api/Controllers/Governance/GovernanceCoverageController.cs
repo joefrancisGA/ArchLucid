@@ -95,10 +95,19 @@ public sealed partial class GovernanceCoverageController(
             return sealedGuardResult;
 
         CoveragePreviewInput input = CoveragePreviewMapper.ToInput(request);
-        CoveragePreviewResult preview = await coveragePreviewService.PreviewAsync(scope, input, cancellationToken);
-        CoveragePreviewResponse response = CoveragePreviewMapper.ToResponse(preview);
 
-        return Ok(response);
+        try
+        {
+            CoveragePreviewResult preview =
+                await coveragePreviewService.PreviewAsync(scope, input, cancellationToken);
+            CoveragePreviewResponse response = CoveragePreviewMapper.ToResponse(preview);
+
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceCoverageSealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("coverage")]
@@ -122,7 +131,16 @@ public sealed partial class GovernanceCoverageController(
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        CoverageSummary summary = await coverageQueryService.GetByScopeAsync(scope, cancellationToken);
+        CoverageSummary summary;
+
+        try
+        {
+            summary = await coverageQueryService.GetByScopeAsync(scope, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceCoverageSealedManifestConflict(ex);
+        }
 
         Dictionary<Guid, PolicyPack> packById = summary.Assignments.Count == 0
             ? new Dictionary<Guid, PolicyPack>()

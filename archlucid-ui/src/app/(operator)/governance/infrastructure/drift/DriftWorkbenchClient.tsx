@@ -9,6 +9,7 @@ import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
 import { LayerHeader } from "@/components/LayerHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -101,6 +102,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_DISABLED_NO_SNAPSHOT,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_RECEIPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_LAYER_GUIDANCE_SUMMARY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_LOAD_ERROR_TITLE,
@@ -117,6 +119,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RISK_FILTER_LABEL,
+  formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -129,7 +132,6 @@ import {
   formatInfraEvidenceSnapshotLabel,
 } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import { cn } from "@/lib/utils";
-import { showError } from "@/lib/toast";
 
 import { DriftBreadcrumb } from "./DriftBreadcrumb";
 import { DriftChangeDetail } from "./DriftChangeDetail";
@@ -266,6 +268,7 @@ export function DriftWorkbenchClient() {
   const [loadingChanges, setLoadingChanges] = useState(false);
   const [exportBusy, setExportBusy] = useState(false);
   const [exportReceipt, setExportReceipt] = useState<{ snapshotId: string; exportedAtUtc: string } | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const selectedSnapshot = useMemo(
@@ -601,6 +604,7 @@ export function DriftWorkbenchClient() {
     }
 
     setExportBusy(true);
+    setExportError(null);
 
     try {
       await downloadInfraEvidenceTerraformAdvisoryZip(selectedSnapshotId);
@@ -609,7 +613,12 @@ export function DriftWorkbenchClient() {
         exportedAtUtc: new Date().toISOString(),
       });
     } catch (error: unknown) {
-      showError("Could not download Terraform advisory export", formatInfraEvidenceApiError(error));
+      setExportError(
+        formatGovernanceInfrastructureInlineActionError(
+          GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_ERROR_TITLE,
+          formatInfraEvidenceApiError(error),
+        ),
+      );
     } finally {
       setExportBusy(false);
     }
@@ -898,7 +907,13 @@ export function DriftWorkbenchClient() {
                 data-testid="infra-drift-export-terraform"
                 disabled={exportBusy || exportDisabledReason != null}
                 title={exportDisabledReason ?? undefined}
-                aria-describedby={exportDisabledReason != null ? "infra-drift-export-disabled-reason" : undefined}
+                aria-describedby={
+                  exportDisabledReason != null
+                    ? "infra-drift-export-disabled-reason"
+                    : exportError != null
+                      ? "infra-drift-export-error"
+                      : undefined
+                }
                 onClick={() => void runExport()}
               >
                 {exportBusy ? (
@@ -955,6 +970,10 @@ export function DriftWorkbenchClient() {
                 {new Date(exportReceipt.exportedAtUtc).toLocaleString()}
               </p>
             </div>
+          ) : null}
+
+          {exportError != null ? (
+            <OperatorMutationInlineError message={exportError} testId="infra-drift-export-error" />
           ) : null}
 
           <div className="grid gap-3 border-t border-neutral-200 pt-3 dark:border-neutral-800 md:grid-cols-3" aria-label="Drift table filters">
