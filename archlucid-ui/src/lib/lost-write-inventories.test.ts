@@ -191,7 +191,6 @@ describe("lost-write CAS compat matrix (LW-009 / LW-010)", () => {
   });
 });
 
-<<<<<<< HEAD
 describe("lost-write prompt file ratchet (LW-099)", () => {
   it("documents the LW-00 index and numbered prompt inventory test", () => {
     const inventoryTest = readRepoFile("lib/lost-write-prompt-inventory.test.ts");
@@ -202,8 +201,6 @@ describe("lost-write prompt file ratchet (LW-099)", () => {
   });
 });
 
-=======
->>>>>>> origin/master
 describe("lost-write TB-2155 recovery roots (LW-098)", () => {
   it("documents offline replay conflict and livelihood resume failure surfaces", () => {
     const inventory = readRepoFile("lib/error-recovery-contract-inventory.ts");
@@ -224,6 +221,33 @@ describe("lost-write mutation error toast inventory (LW-097)", () => {
     expect(inventory).toMatch(/showMutationError/);
     expect(guard).toMatch(/findLostWriteMutationErrorToastViolations/);
     expect(toastHelpers).toMatch(/TOAST_STICKY_DURATION/);
+  });
+});
+
+describe("lost-write wave close audit (LW-100)", () => {
+  it("documents acceptance markdown and README shipped status", () => {
+    const acceptance = readFileSync(
+      join(REPO_ROOT, "docs/architecture/LOST_WRITE_ACCEPTANCE_2026-09-11.md"),
+      "utf8",
+    );
+    const readme = readFileSync(join(REPO_ROOT, "docs/architecture/README.md"), "utf8");
+    const prompts = readFileSync(
+      join(REPO_ROOT, "docs/architecture/LOST_WRITE_COMPOSER_PROMPTS.md"),
+      "utf8",
+    );
+
+    expect(acceptance).toMatch(/Shipped/);
+    expect(acceptance).toMatch(/omit-token/);
+    expect(acceptance).toMatch(/localStorage/);
+    expect(acceptance).toMatch(/work-lease/);
+    expect(acceptance).toMatch(/## Do not claim/);
+    expect(acceptance).toMatch(/Do not claim[\s\S]*live presence/i);
+
+    expect(readme).toMatch(/LOST_WRITE_ACCEPTANCE_2026-09-11\.md/);
+    expect(readme).toMatch(/shipped/i);
+
+    expect(prompts).toMatch(/LOST_WRITE_ACCEPTANCE_2026-09-11\.md/);
+    expect(prompts).not.toMatch(/ready to run/i);
   });
 });
 

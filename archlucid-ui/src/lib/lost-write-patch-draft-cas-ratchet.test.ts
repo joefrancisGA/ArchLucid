@@ -7,6 +7,12 @@ const UI_SRC = join(process.cwd(), "src");
 
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".cs"]);
 
+/** ADR 0089 replay/wrapper paths pass ArchitectureDraftPatchPendingPayload.body with CAS fields. */
+const PATCH_DRAFT_CAS_BODY_CARRIER_ALLOWLIST = new Set([
+  "lib/auth/livelihood-mutation-401-resume-replay.ts",
+  "lib/auth/livelihood-mutation-401-resume-wrappers.ts",
+]);
+
 function walkFiles(rootDir: string, relativeDir: string, results: string[]): void {
   const absoluteDir = join(rootDir, relativeDir);
   let entries: string[];
@@ -84,7 +90,10 @@ describe("lost-write PATCH CAS ratchets (LW-028 / LW-035 / LW-050)", () => {
     const violations: string[] = [];
 
     for (const relativePath of files) {
-      if (relativePath === "lib/api/draft-intake-api-crud.ts") {
+      if (
+        relativePath === "lib/api/draft-intake-api-crud.ts"
+        || PATCH_DRAFT_CAS_BODY_CARRIER_ALLOWLIST.has(relativePath)
+      ) {
         continue;
       }
 

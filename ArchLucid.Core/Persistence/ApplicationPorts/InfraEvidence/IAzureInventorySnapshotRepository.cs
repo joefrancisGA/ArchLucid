@@ -140,6 +140,12 @@ public sealed class AzureInventorySnapshotMaterializeWriteRequest
         get;
         init;
     } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderSummaryWrite> DefenderSummaries
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class AzureInventoryResourcePropertyWrite

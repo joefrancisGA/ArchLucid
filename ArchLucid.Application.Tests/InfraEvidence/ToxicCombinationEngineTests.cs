@@ -103,6 +103,51 @@ public sealed class ToxicCombinationEngineTests
     }
 
     [Fact]
+    public async Task RunAsync_adds_defender_secure_score_band_metadata_when_companion_present()
+    {
+        ScopeContext scope = CreateScope();
+        Guid storageRowId = Guid.NewGuid();
+        Guid managedIdentityRowId = Guid.NewGuid();
+        AzureInventorySnapshotDetailReadModel baseSnapshot =
+            BuildToxicCombinationSnapshot(storageRowId, managedIdentityRowId);
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = baseSnapshot.Header,
+            Resources = baseSnapshot.Resources,
+            Properties = baseSnapshot.Properties,
+            RoleAssignments = baseSnapshot.RoleAssignments,
+            Relationships = baseSnapshot.Relationships,
+            DefenderSummaries =
+            [
+                new AzureInventoryDefenderSummaryReadModel
+                {
+                    ResourceId = $"/subscriptions/{SubscriptionId}",
+                    SecureScore = 35,
+                },
+            ],
+        };
+
+        InMemorySecurityEvidencePathRepository pathRepository = new();
+        InMemoryOperationalSecurityFindingRepository findingRepository = new();
+        OperationalSecurityFindingIngestService ingestService = CreateIngestService(findingRepository);
+
+        PrivilegePathEngine privilegeEngine = CreatePrivilegeEngine(snapshot, scope, pathRepository, ingestService);
+        IntendedReachabilityEngine reachabilityEngine =
+            CreateReachabilityEngine(snapshot, scope, pathRepository, ingestService);
+        ToxicCombinationEngine toxicEngine = CreateToxicEngine(snapshot, scope, pathRepository, ingestService);
+
+        await privilegeEngine.RunAsync(scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None);
+        await reachabilityEngine.RunAsync(scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None);
+
+        await toxicEngine.RunAsync(scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None);
+
+        findingRepository.StoredMetadata.Should().ContainSingle(metadata =>
+            metadata.MetadataKey == SecureNowArchitectConstants.DefenderSecureScoreBandMetadataKey
+            && metadata.MetadataValue == "Low");
+    }
+
+    [Fact]
     public async Task RunAsync_only_privilege_paths_produces_no_toxic_combination()
     {
         ScopeContext scope = CreateScope();
@@ -649,6 +694,8 @@ public sealed class ToxicCombinationEngineTests
     {
         public List<OperationalSecurityFindingRecord> StoredFindings { get; } = [];
 
+        public List<OperationalSecurityFindingMetadataRecord> StoredMetadata { get; } = [];
+
         public Task<OperationalSecurityFindingRecord?> TryGetByNaturalKeyAsync(
             Guid tenantId,
             CloudProvider provider,
@@ -710,6 +757,7 @@ public sealed class ToxicCombinationEngineTests
             CancellationToken cancellationToken = default)
         {
             StoredFindings.Add(finding);
+            StoredMetadata.AddRange(metadata);
             return Task.CompletedTask;
         }
 

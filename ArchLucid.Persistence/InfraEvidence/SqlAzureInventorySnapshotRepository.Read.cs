@@ -102,6 +102,19 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                     new { scope.TenantId, SnapshotId = snapshotId },
                     cancellationToken: cancellationToken));
 
+        const string defenderSummariesSql = """
+                                            SELECT ResourceId, SecureScore, SourceEvidenceReference
+                                            FROM dbo.AzureInventoryDefenderSummaries
+                                            WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+                                            """;
+
+        IEnumerable<AzureInventoryDefenderSummaryReadModel> defenderSummaries =
+            await conn.QueryAsync<AzureInventoryDefenderSummaryReadModel>(
+                new CommandDefinition(
+                    defenderSummariesSql,
+                    new { scope.TenantId, SnapshotId = snapshotId },
+                    cancellationToken: cancellationToken));
+
         return new AzureInventorySnapshotDetailReadModel
         {
             Header = header,
@@ -120,6 +133,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                 .ToList(),
             RoleAssignments = roleAssignments.ToList(),
             Diagnostics = diagnostics.ToList(),
+            DefenderSummaries = defenderSummaries.ToList(),
         };
     }
 
