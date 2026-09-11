@@ -2879,10 +2879,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-03 — PUT/PATCH assigned `externalId` still held by directory-removed user
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2900,8 +2900,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Repeat DELETE on directory-removed user returned success instead of notFound — **hit 2026-08-25:** `DeactivateAsync` omitted `DirectoryRemovedUtc` guard used by GET/PUT/PATCH; second DELETE returned HTTP 204 while GET returned 404; regression in `DeactivateAsync_throws_not_found_when_user_already_directory_removed`
 - [x] (proven) POST create after directory DELETE returned 409 on tombstoned `externalId` instead of reactivating — **hit 2026-08-25:** `CreateAsync` treated directory-removed rows as active duplicates; `UQ_ScimUsers_TenantId_ExternalId` blocks insert; `ReactivateAsync` clears `DirectoryRemovedUtc` and restores profile; regression in `CreateAsync_after_directory_remove_reactivates_same_external_id`
 - [x] (proven) PUT/PATCH changing `externalId` to a directory-removed user's value bypassed conflict check — **hit 2026-09-03:** `EnsureExternalIdNotUsedByAnotherUserAsync` skipped rows with `DirectoryRemovedUtc`; active user could claim tombstoned `externalId` (SQL `UQ_ScimUsers_TenantId_ExternalId` fault or silent in-memory duplicate); regressions in `ReplaceAsync_tombstoned_external_id_throws_conflict` and `PatchAsync_tombstoned_external_id_throws_conflict`
-- [ ] (candidate) PATCH `active:false` on already-inactive user decrements enterprise seat twice — `TransitionSeatAsync` only runs when `wasActive != willBeActive`; cheap-disproof pending
-- [ ] (candidate) SCIM filter `externalId eq` matches directory-removed users in list results — `ListAsync` excludes `DirectoryRemovedUtc`; cheap-disproof pending
+- [x] (valid-no-repro) PATCH `active:false` on already-inactive user decrements enterprise seat twice — **cheap-disproof 2026-09-11 hunt #1755:** `TransitionSeatAsync` returns when `wasActive == willBeActive`; regression `PatchAsync_active_false_on_already_inactive_user_does_not_decrement_seats_again`
+- [x] (valid-no-repro) SCIM filter `externalId eq` matches directory-removed users in list results — **cheap-disproof 2026-09-11 hunt #1755:** `ListAsync` excludes `DirectoryRemovedUtc` before filter evaluation in service + SQL/in-memory repos; regression `ListAsync_external_id_filter_excludes_directory_removed_users`
+
+2026-09-11 thorough hunt #1755 (dry): cheap-disproof closed PATCH inactive double-seat-decrement and directory-removed externalId list filter candidates; 13 scoped `ScimUsers` tests passed.
 
 ---
 
