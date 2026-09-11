@@ -2444,7 +2444,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -2492,6 +2492,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Evidence lists `infra/terraform-orchestrator` more than once or without the legacy isolation annotation — **cheap-disproof 2026-09-11 seed hunt #1749:** single orchestrator line with legacy note; regression `DefaultApplyOrderRoots_lists_orchestrator_only_once_as_legacy_leaf`.
 
 2026-09-11 seed hunt #1749 (seed-only): reseeded cli-terraform-evidence; cheap-disproof closed duplicate orchestrator legacy entry candidate; 20 scoped DeploymentEvidenceTerraformReference tests passed.
+
+- [x] (valid-no-repro) Evidence leaf order drifts from `REFERENCE_SAAS_STACK_ORDER.md` advanced table orders 1-16 while apply-saas sync still passes — **cheap-disproof 2026-09-11 seed hunt #1759:** table leaf paths match evidence leaves; regression `DefaultApplyOrderRoots_leaf_sequence_matches_reference_doc_advanced_table`.
+- [x] (valid-no-repro) Composition root wave annotations mislabel foundation/platform/app metadata waves — **cheap-disproof 2026-09-11 seed hunt #1759:** lines cite wave 1/2/3 in order; regression `DefaultApplyOrderRoots_composition_roots_annotate_foundation_platform_app_waves`.
+- [x] (valid-no-repro) Hosted wave boundaries invert so `$appWaveLeaves` precede final `$platformWaveLeaves` entry in evidence — **cheap-disproof 2026-09-11 seed hunt #1759:** acr precedes entra and keyvault precedes sql-failover; regression `DefaultApplyOrderRoots_hosted_wave_boundaries_place_app_leaves_after_platform_leaves`.
+
+2026-09-11 seed hunt #1759 (seed-only): reseeded cli-terraform-evidence after #1749; cheap-disproof closed reference-doc table sync, composition wave annotation, and hosted wave boundary candidates; 23 scoped DeploymentEvidenceTerraformReference tests passed.
 
 2026-09-09 seed hunt #1436 (seed-only): re-read static apply-order reference; cheap-disproved pilot-profile and hardcoded-leaf drift candidates; added `$pilotProfileOnly` sync regression; 6 scoped DeploymentEvidenceTerraformReference tests passed.
 
@@ -3078,7 +3084,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -3102,7 +3108,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Duplicate `X-Api-Key` headers where the first value is whitespace-only may still fail when the second value is valid — **cheap-disproof 2026-09-11 thorough hunt #1699:** `ExtractProvidedApiKey` skips blank segments and uses the next header value; regression `When_enabled_true_and_duplicate_api_key_headers_skip_blank_first_value`.
 - [x] (valid-no-repro) Whitespace-only `X-ArchLucid-Test-Actor-Name` with `AllowTestActorHeaders` may override display name — **cheap-disproof 2026-09-11 thorough hunt #1699:** blank actor header is ignored and ApiKey display name is preserved; regression `When_allow_test_actor_headers_and_actor_name_is_whitespace_only_keeps_api_key_display_name`.
 
+- [x] (valid-no-repro) Valid read-only key fails when only `ReadOnlyKey` is configured — **cheap-disproof 2026-09-11 seed hunt #1760:** reader branch authenticates with `ApiKeyReadOnly` role and reader permissions; regression `When_enabled_true_and_valid_reader_key_returns_success_with_reader_role`.
+- [x] (valid-no-repro) `AllowTestActorHeaders` in Production still authenticates with actor override — **cheap-disproof 2026-09-11 seed hunt #1760:** handler throws `InvalidOperationException` before auth when Production + `AllowTestActorHeaders`; regression `When_allow_test_actor_headers_in_production_throws_before_authenticate`.
+- [x] (valid-no-repro) Read-only key expiry at exact `ExpiresAt` timestamp still authenticates — **cheap-disproof 2026-09-11 seed hunt #1760:** `IsKeyExpired` uses inclusive `>=` for reader slot; regression `When_read_only_key_expiry_is_exactly_now_returns_failure`.
+- [x] (valid-no-repro) Duplicate `X-ArchLucid-Test-Actor-Name` with blank first header comma-joins values — **cheap-disproof 2026-09-11 seed hunt #1760:** `ExtractProvidedApiKey` skips blank segments on actor header; regression `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_blank_first_value`.
+- [x] (valid-no-repro) Empty `TenantId`/`WorkspaceId`/`ProjectId` emit scope claims on API key principal — **cheap-disproof 2026-09-11 seed hunt #1760:** `BuildApiKeyClaims` omits claims when scope ids are `Guid.Empty`; regression `When_empty_guid_scope_ids_do_not_emit_scope_claims`.
+- [x] (valid-no-repro) Disabled API key auth with valid `X-Api-Key` header still authenticates — **cheap-disproof 2026-09-11 seed hunt #1760:** `Enabled=false` and `DevelopmentBypassAll=false` fail closed before key compare; regression `When_enabled_false_and_bypass_false_valid_api_key_header_still_fails`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` append path used when ReadOnly slot is unconfigured — **cheap-disproof 2026-09-11 seed hunt #1760:** whitespace-only ReadOnly slot returns `Replace`; regression `Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_unconfigured`.
+- [x] (valid-no-repro) ReadOnly slot zero-downtime rotation always returns Replace instead of Append — **cheap-disproof 2026-09-11 seed hunt #1760:** configured ReadOnly slot with `InvalidatePrevious=false` returns Append suffix; regression `Rotate_without_invalidate_previous_appends_when_readonly_slot_is_configured`.
+
 2026-09-11 thorough hunt #1699 (seed-only): cheap-disproof closed duplicate blank API key header and whitespace test-actor override candidates; 23 scoped `ApiKeyAuthenticationHandlerTests` passed.
+
+2026-09-11 seed hunt #1760 (seed-only): reseeded api-key-auth after #1699; cheap-disproof closed reader success path, Production test-actor guard, reader expiry boundary, duplicate blank actor header, empty scope-id claims, disabled fail-closed with header, and ReadOnly rotation Replace/Append branches; 36 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
