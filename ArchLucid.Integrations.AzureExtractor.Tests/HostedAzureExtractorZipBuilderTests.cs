@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text.Json;
 
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Core.AzureExtractor;
 
 using Xunit;
 
@@ -34,6 +35,7 @@ public sealed class HostedAzureExtractorZipBuilderTests
         Assert.NotNull(archive.GetEntry("manifest.json"));
         Assert.NotNull(archive.GetEntry("resources.json"));
         Assert.NotNull(archive.GetEntry("policy-compliance.json"));
+        Assert.NotNull(archive.GetEntry(AzureExtractorPackageZipEntryNames.FederatedCredentials));
         Assert.NotNull(archive.GetEntry("README.txt"));
 
         stream.Position = 0;
@@ -45,6 +47,27 @@ public sealed class HostedAzureExtractorZipBuilderTests
         Assert.NotNull(manifest);
         Assert.Equal(2, manifest!.SchemaVersion);
         Assert.Equal("11111111-1111-1111-1111-111111111111", manifest.SubscriptionId);
+        Assert.Null(manifest.SubscriptionName);
+    }
+
+    [Fact]
+    public void BuildZip_writes_normalized_subscription_name()
+    {
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            "  Contoso Production  ");
+
+        using MemoryStream stream = new(zipBytes);
+
+        (AzureExtractorNormalizedManifest? manifest, string? error) =
+            AzureExtractorManifestReader.TryReadNormalizedFromZip(stream);
+
+        Assert.Null(error);
+        Assert.NotNull(manifest);
+        Assert.Equal("Contoso Production", manifest!.SubscriptionName);
     }
 
     [Fact]
@@ -66,5 +89,77 @@ public sealed class HostedAzureExtractorZipBuilderTests
         using JsonDocument document = JsonDocument.Parse(json);
         Assert.Equal(2, document.RootElement.GetProperty("schemaVersion").GetInt32());
         Assert.Equal(JsonValueKind.Null, document.RootElement.GetProperty("actualCostSummary").ValueKind);
+    }
+
+    [Fact]
+    public void BuildZip_manifest_includes_management_group_scope()
+    {
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            subscriptionId: null,
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            managementGroupId: "corp-prod");
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream manifestStream = archive.GetEntry("manifest.json")!.Open();
+        using StreamReader reader = new(manifestStream);
+        string json = reader.ReadToEnd();
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Assert.Equal("corp-prod", document.RootElement.GetProperty("managementGroupId").GetString());
+        Assert.Equal(JsonValueKind.Null, document.RootElement.GetProperty("subscriptionId").ValueKind);
+        Assert.Equal(
+            "/providers/Microsoft.Management/managementGroups/corp-prod",
+            document.RootElement.GetProperty("scope").GetString());
+
+        stream.Position = 0;
+
+        (AzureExtractorNormalizedManifest? manifest, string? error) =
+            AzureExtractorManifestReader.TryReadNormalizedFromZip(stream);
+
+        Assert.Null(error);
+        Assert.NotNull(manifest);
+        Assert.Equal(string.Empty, manifest!.SubscriptionId);
+    }
+
+    [Fact]
+    public void BuildZip_writes_policy_and_diagnostic_companion_entries()
+    {
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            policyAssignments:
+            [
+                new HostedAzureArmPolicyAssignmentRecord(
+                    "/providers/Microsoft.Management/managementGroups/corp",
+                    "/providers/Microsoft.Authorization/policyDefinitions/audit-storage",
+                    "assign1",
+                    "/providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization/policyAssignments/assign1"),
+            ],
+            diagnosticSettings:
+            [
+                new HostedAzureArmDiagnosticSettingRecord(
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                    "diag-to-law",
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1"),
+            ]);
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream policyStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.PolicyAssignments)!.Open();
+        using StreamReader policyReader = new(policyStream);
+        using JsonDocument policyDocument = JsonDocument.Parse(policyReader.ReadToEnd());
+        Assert.Equal("assign1", policyDocument.RootElement[0].GetProperty("name").GetString());
+
+        using Stream diagnosticStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.DiagnosticSettings)!.Open();
+        using StreamReader diagnosticReader = new(diagnosticStream);
+        using JsonDocument diagnosticDocument = JsonDocument.Parse(diagnosticReader.ReadToEnd());
+        Assert.Equal("diag-to-law", diagnosticDocument.RootElement[0].GetProperty("name").GetString());
     }
 }

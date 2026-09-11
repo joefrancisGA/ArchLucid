@@ -1,12 +1,12 @@
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { findingBulkDispositionBlockedReason } from "@/lib/governance/finding-bulk-disposition-blocked-reason";
+import { findingDispositionsBlockedReason } from "@/lib/governance/finding-dispositions-blocked-reason";
 import { findingDispositionMutationBlockedReason } from "@/lib/findings/finding-disposition-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostJson } from "./http";
 
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
-import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { withLivelihood401Resume } from "@/lib/auth/livelihood-mutation-401-resume";
 import {
   type FindingDispositionEvent,
@@ -42,8 +42,6 @@ export async function recordFindingDisposition(
       { extraHeaders: { "Idempotency-Key": idempotencyKey } },
     );
   } catch (error: unknown) {
-    rethrowLivelihoodMutate401(error);
-
     const failure = toApiLoadFailure(error);
     const blockedReason = findingDispositionMutationBlockedReason(failure);
 
@@ -94,8 +92,6 @@ export async function recordBulkFindingDisposition(
       { extraHeaders: { "Idempotency-Key": idempotencyKey } },
     );
   } catch (error: unknown) {
-    rethrowLivelihoodMutate401(error);
-
     const failure = toApiLoadFailure(error);
     const blockedReason = findingBulkDispositionBlockedReason(failure);
 
@@ -104,7 +100,14 @@ export async function recordBulkFindingDisposition(
 }
 
 export async function listFindingDispositions(findingId: string): Promise<FindingDispositionEvent[]> {
-  return apiGetSealedManifestAware<FindingDispositionEvent[]>(
-    `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
-  );
+  try {
+    return await apiGetSealedManifestAware<FindingDispositionEvent[]>(
+      `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingDispositionsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

@@ -18,7 +18,16 @@ public sealed partial class RunComparisonController
             return null;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunComparisonSealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;

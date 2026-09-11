@@ -114,7 +114,15 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             string safeLabel = EscapeLabel(edge.Label);
             string fromId = MermaidIdSanitizer.Sanitize(edge.FromNodeId);
             string toId = MermaidIdSanitizer.Sanitize(edge.ToNodeId);
-            sb.AppendLine($"    {fromId} -->|\"{safeLabel}\"| {toId}");
+
+            if (string.IsNullOrWhiteSpace(safeLabel))
+            {
+                sb.AppendLine($"    {fromId} --> {toId}");
+            }
+            else
+            {
+                sb.AppendLine($"    {fromId} -->|\"{safeLabel}\"| {toId}");
+            }
         }
     }
 

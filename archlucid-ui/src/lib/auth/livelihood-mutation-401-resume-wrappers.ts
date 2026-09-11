@@ -14,6 +14,7 @@ import { patchDraftRequest } from "@/lib/api/draft-intake-api";
 import { upsertAzureBoardsSettings } from "@/lib/api/azure-boards-api";
 import { upsertTeamsIncomingWebhookConnection } from "@/lib/api/advisory-digests-read-export";
 import {
+  type ArchitectureShareListResponse,
   patchArchitectureRestrictToShares,
   putArchitectureShare,
   revokeArchitectureShare,
@@ -236,7 +237,7 @@ export async function saveItsmConnectorWith401Resume(
 export async function mutateArchitectureShareWith401Resume(
   payload: ArchitectureShareGrantPendingPayload,
   options: Livelihood401ResumeOptions,
-): Promise<unknown> {
+): Promise<ArchitectureShareListResponse> {
   const idempotencyKey = resolveIdempotencyKey(options.idempotencyKey);
 
   return withLivelihood401Resume({
@@ -277,7 +278,7 @@ export async function mutateArchitectureShareWith401Resume(
 
 export async function renewRiskExceptionWith401Resume(
   riskExceptionId: string,
-  body: NonNullable<RiskExceptionWritePendingPayload["body"]>,
+  body: Extract<RiskExceptionWritePendingPayload, { operation: "renew" }>["body"],
   options: Livelihood401ResumeOptions,
 ): Promise<Awaited<ReturnType<typeof renewRiskException>>> {
   const idempotencyKey = resolveIdempotencyKey(options.idempotencyKey);

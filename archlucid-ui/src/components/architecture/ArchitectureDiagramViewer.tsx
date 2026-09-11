@@ -3,7 +3,7 @@
 import DOMPurify from "dompurify";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type SetStateAction } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { ShortcutHint } from "@/components/ShortcutHint";
 import {
@@ -28,7 +28,11 @@ import {
   parseArchitectureDiagramFullscreenOpenFromSearch,
   parseArchitectureDiagramZoomFromSearch,
 } from "@/lib/architecture/architecture-diagram-fullscreen-url";
-import { sanitizeMermaidRenderId } from "@/lib/help/help-mermaid";
+import {
+  fitMermaidSvgElementToHost,
+  prepareMermaidSvgForResponsiveLayout,
+  sanitizeMermaidRenderId,
+} from "@/lib/help/help-mermaid";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -73,7 +77,12 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     parseArchitectureDiagramFullscreenOpenFromSearch(diagFullscreenParam),
   );
   const viewportRef = useRef<HTMLDivElement | null>(null);
-  const syncDiagramZoomToUrlRef = useRef<(nextZoom: number) => void>(() => undefined);
+  const svgHostRef = useRef<HTMLDivElement | null>(null);
+  const zoomRef = useRef<number>(zoom);
+  const fullscreenOpenRef = useRef<boolean>(fullscreenOpen);
+
+  zoomRef.current = zoom;
+  fullscreenOpenRef.current = fullscreenOpen;
 
   const syncDiagramFullscreenToUrl = useCallback(
     (nextOpen: boolean) => {
@@ -84,30 +93,34 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     [pathname, router, searchParams],
   );
 
-  syncDiagramZoomToUrlRef.current = (nextZoom: number) => {
-    router.replace(architectureDiagramZoomHrefFromSearch(searchParams.toString(), nextZoom, pathname), {
-      scroll: false,
-    });
-  };
+  const syncDiagramZoomToUrl = useCallback(
+    (nextZoom: number) => {
+      router.replace(architectureDiagramZoomHrefFromSearch(searchParams.toString(), nextZoom, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
 
-  const setZoom = useCallback((value: SetStateAction<number>) => {
-    setZoomState((current) => {
+  const setZoom = useCallback(
+    (value: SetStateAction<number>) => {
+      const current = zoomRef.current;
       const nextRaw = typeof value === "function" ? value(current) : value;
       const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number(nextRaw.toFixed(2))));
-      syncDiagramZoomToUrlRef.current(next);
 
-      return next;
-    });
-  }, []);
+      setZoomState(next);
+      syncDiagramZoomToUrl(next);
+    },
+    [syncDiagramZoomToUrl],
+  );
 
   const setFullscreenOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setFullscreenOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncDiagramFullscreenToUrl(next);
+      const current = fullscreenOpenRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-        return next;
-      });
+      setFullscreenOpenState(next);
+      syncDiagramFullscreenToUrl(next);
     },
     [syncDiagramFullscreenToUrl],
   );
@@ -134,12 +147,13 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
           theme: dark ? "dark" : "neutral",
           securityLevel: "strict",
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
+          flowchart: { htmlLabels: false },
         });
 
         const result = await mermaid.render(renderId, mermaidSource.trim());
 
         if (!canceled) {
-          setSvgMarkup(result.svg);
+          setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));
         }
       } catch (error) {
         if (!canceled) {
@@ -206,6 +220,47 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     });
   }, [svgMarkup]);
 
+  useLayoutEffect(() => {
+    if (sanitizedSvg === null) {
+      return;
+    }
+
+    const host = svgHostRef.current;
+    const svg = host?.querySelector("svg");
+
+    if (host === null || host === undefined || svg === null || !(svg instanceof SVGSVGElement)) {
+      return;
+    }
+
+    const applyFit = (): void => {
+      const width = host.clientWidth;
+
+      if (width <= 0) {
+        return;
+      }
+
+      fitMermaidSvgElementToHost(svg, width);
+    };
+
+    applyFit();
+
+    const rafId = window.requestAnimationFrame(applyFit);
+
+    const resizeObserver =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(() => {
+            applyFit();
+          });
+
+    resizeObserver?.observe(host);
+
+    return (): void => {
+      window.cancelAnimationFrame(rafId);
+      resizeObserver?.disconnect();
+    };
+  }, [sanitizedSvg]);
+
   const zoomPercentLabel = `${Math.round(zoom * 100)}%`;
   const atMinZoom = zoom <= MIN_ZOOM + 0.001;
   const atMaxZoom = zoom >= MAX_ZOOM - 0.001;
@@ -228,7 +283,11 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         </p>
       ) : (
         <div
-          className={cn("origin-top-left transition-transform", canvasStale ? "opacity-60" : undefined)}
+          ref={svgHostRef}
+          className={cn(
+            "w-full min-w-0 origin-top-left transition-transform [&_svg]:block",
+            canvasStale ? "opacity-60" : undefined,
+          )}
           style={{ transform: `scale(${zoom})` }}
           dangerouslySetInnerHTML={{ __html: sanitizedSvg }}
         />

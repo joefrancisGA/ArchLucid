@@ -33,7 +33,7 @@ See [`.cursor/prompts/securenow-architect-00-index.md`](../../.cursor/prompts/se
 | 6 Fix | **SA-14**, **SA-15** | Path-aware advisory remediation + org routing |
 | 7 Desk | **SA-16**, **SA-17**, **SA-18**, **SA-21** | UI, constrained AI, human assertions, honesty copy |
 | 8 Adapters | **SA-19**, **SA-20** | CI federated identity + optional Entra (fail soft) |
-| Hold | **SA-22** | Written hold — not implementation |
+| Hold | **SA-22** | Written hold — not implementation ([`SECURENOW_ARCHITECT_HOLD.md`](../library/SECURENOW_ARCHITECT_HOLD.md)) |
 
 **SA-01** first. **SA-03** after **SA-02**. Adapters **SA-19/SA-20** must not block waves 1–2.
 
