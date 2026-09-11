@@ -116,4 +116,79 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows.Count | Should -Be 2
         @($rows | Where-Object { $_.pimEligibilityKind -eq 'standing' }).Count | Should -Be 2
     }
+
+    It 'prefers standing assignments over eligible duplicates' {
+        function Get-AzRoleAssignment {
+            return @(
+                [PSCustomObject]@{
+                    Scope = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1'
+                    ObjectId = '11111111-1111-1111-1111-111111111111'
+                    ObjectType = 'User'
+                    RoleDefinitionId = '/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+                }
+            )
+        }
+
+        function Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path
+            )
+
+            return [PSCustomObject]@{
+                Content = (@{
+                    value = @(
+                        @{
+                            properties = @{
+                                scope = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1'
+                                principalId = '11111111-1111-1111-1111-111111111111'
+                                principalType = 'User'
+                                roleDefinitionId = '/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+                            }
+                        }
+                    )
+                } | ConvertTo-Json -Depth 8)
+            }
+        }
+
+        [object[]]$rows = @(Get-ArchLucidAzureRoleAssignmentCompanionRows -SubscriptionId 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+
+        $rows.Count | Should -Be 1
+        $rows[0].pimEligibilityKind | Should -Be 'standing'
+    }
+
+    It 'collects management group eligibility schedules without subscription graph helper' {
+        function Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path
+            )
+
+            if ($Path -like '*/managementGroups/mg1/*')
+            {
+                return [PSCustomObject]@{
+                    Content = (@{
+                        value = @(
+                            @{
+                                properties = @{
+                                    scope = '/providers/Microsoft.Management/managementGroups/mg1'
+                                    principalId = '33333333-3333-3333-3333-333333333333'
+                                    principalType = 'User'
+                                    roleDefinitionId = '/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+                                }
+                            }
+                        )
+                    } | ConvertTo-Json -Depth 8)
+                }
+            }
+
+            return [PSCustomObject]@{ Content = '{"value":[]}' }
+        }
+
+        [object[]]$rows = @(Get-ArchLucidAzureRoleEligibilityScheduleCompanionRows -ManagementGroupId 'mg1')
+
+        $rows.Count | Should -Be 1
+        $rows[0].pimEligibilityKind | Should -Be 'eligible'
+        $rows[0].scope | Should -Match 'managementGroups/mg1'
+    }
 }

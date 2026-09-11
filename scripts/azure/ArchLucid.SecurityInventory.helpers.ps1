@@ -329,73 +329,93 @@ function Get-ArchLucidAzureRoleEligibilityScheduleCompanionRows
         return @()
     }
 
-    [string[]]$subscriptionIds = @()
+    $rows = [System.Collections.ArrayList]::new()
 
     if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
     {
-        if (-not (Get-Command Get-ArchLucidManagementGroupSubscriptionIds -ErrorAction SilentlyContinue))
-        {
-            return @()
-        }
+        [string]$managementGroupPath = "/providers/Microsoft.Management/managementGroups/$($ManagementGroupId.Trim())/providers/Microsoft.Authorization/roleEligibilitySchedules?api-version=2020-10-01&`$filter=asTarget()"
 
-        $subscriptionIds = @(Get-ArchLucidManagementGroupSubscriptionIds -ManagementGroupId $ManagementGroupId)
+        Add-ArchLucidAzureRoleEligibilityScheduleRowsFromRestPath `
+            -Rows $rows `
+            -RestPath $managementGroupPath `
+            -ResourceGroupScope $ResourceGroupScope
+
+        if (Get-Command Get-ArchLucidManagementGroupSubscriptionIds -ErrorAction SilentlyContinue)
+        {
+            foreach ($subId in @(Get-ArchLucidManagementGroupSubscriptionIds -ManagementGroupId $ManagementGroupId))
+            {
+                if ([string]::IsNullOrWhiteSpace($subId)) { continue }
+
+                [string]$subscriptionPath = "/subscriptions/$subId/providers/Microsoft.Authorization/roleEligibilitySchedules?api-version=2020-10-01&`$filter=asTarget()"
+
+                Add-ArchLucidAzureRoleEligibilityScheduleRowsFromRestPath `
+                    -Rows $rows `
+                    -RestPath $subscriptionPath `
+                    -ResourceGroupScope $ResourceGroupScope
+            }
+        }
     }
     elseif (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
     {
-        $subscriptionIds = @($SubscriptionId.Trim())
-    }
-    else
-    {
-        return @()
-    }
+        [string]$subscriptionPath = "/subscriptions/$($SubscriptionId.Trim())/providers/Microsoft.Authorization/roleEligibilitySchedules?api-version=2020-10-01&`$filter=asTarget()"
 
-    $rows = [System.Collections.ArrayList]::new()
-
-    foreach ($subId in @($subscriptionIds))
-    {
-        if ([string]::IsNullOrWhiteSpace($subId)) { continue }
-
-        try
-        {
-            [string]$path = "/subscriptions/$subId/providers/Microsoft.Authorization/roleEligibilitySchedules?api-version=2020-10-01&`$filter=asTarget()"
-            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
-            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
-
-            foreach ($schedule in @($payload.value))
-            {
-                [string]$scope = "$( $schedule.properties.scope )".Trim()
-                [string]$principalId = "$( $schedule.properties.principalId )".Trim()
-                [string]$roleDefinitionId = "$( $schedule.properties.roleDefinitionId )".Trim()
-
-                if ([string]::IsNullOrWhiteSpace($scope)) { continue }
-                if ([string]::IsNullOrWhiteSpace($principalId)) { continue }
-                if ([string]::IsNullOrWhiteSpace($roleDefinitionId)) { continue }
-
-                if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
-                {
-                    [string]$expectedSuffix = "/resourceGroups/$ResourceGroupScope"
-
-                    if (-not ($scope.EndsWith($expectedSuffix, [System.StringComparison]::OrdinalIgnoreCase)))
-                    {
-                        continue
-                    }
-                }
-
-                [void]$rows.Add([ordered]@{
-                    scope = $scope
-                    principalId = $principalId
-                    principalType = $schedule.properties.principalType
-                    roleDefinitionId = $roleDefinitionId
-                    pimEligibilityKind = "eligible"
-                })
-            }
-        }
-        catch
-        {
-        }
+        Add-ArchLucidAzureRoleEligibilityScheduleRowsFromRestPath `
+            -Rows $rows `
+            -RestPath $subscriptionPath `
+            -ResourceGroupScope $ResourceGroupScope
     }
 
     return @($rows.ToArray())
+}
+
+function Add-ArchLucidAzureRoleEligibilityScheduleRowsFromRestPath
+{
+    param(
+        [System.Collections.IList] $Rows,
+        [Parameter(Mandatory = $true)]
+        [string] $RestPath,
+        [string] $ResourceGroupScope = $null
+    )
+
+    if ([string]::IsNullOrWhiteSpace($RestPath)) { return }
+
+    try
+    {
+        $response = Invoke-AzRestMethod -Method GET -Path $RestPath -ErrorAction Stop
+        $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+        foreach ($schedule in @($payload.value))
+        {
+            [string]$scope = "$( $schedule.properties.scope )".Trim()
+            [string]$principalId = "$( $schedule.properties.principalId )".Trim()
+            [string]$roleDefinitionId = "$( $schedule.properties.roleDefinitionId )".Trim()
+
+            if ([string]::IsNullOrWhiteSpace($scope)) { continue }
+            if ([string]::IsNullOrWhiteSpace($principalId)) { continue }
+            if ([string]::IsNullOrWhiteSpace($roleDefinitionId)) { continue }
+
+            if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
+            {
+                [string]$expectedSuffix = "/resourceGroups/$ResourceGroupScope"
+
+                if (-not ($scope.EndsWith($expectedSuffix, [System.StringComparison]::OrdinalIgnoreCase)))
+                {
+                    continue
+                }
+            }
+
+            [void]$Rows.Add([ordered]@{
+                scope = $scope
+                principalId = $principalId
+                principalType = $schedule.properties.principalType
+                roleDefinitionId = $roleDefinitionId
+                pimEligibilityKind = "eligible"
+            })
+        }
+    }
+    catch
+    {
+    }
 }
 
 function Get-ArchLucidAzureNetworkAssociationCompanionRows

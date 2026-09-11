@@ -61,7 +61,7 @@ public sealed class HostedAzureExtractorClient(
             .ConfigureAwait(false);
 
         IReadOnlyList<HostedAzureArmRoleAssignmentRecord> roleAssignments =
-            MergeRoleAssignmentRows(standingRoleAssignments, eligibleRoleAssignments);
+            HostedAzureRoleAssignmentMerger.Merge(standingRoleAssignments, eligibleRoleAssignments);
 
         string? subscriptionName = await _armReadClient
             .TryGetSubscriptionDisplayNameAsync(accessToken.Token, request.SubscriptionId, cancellationToken)
@@ -158,27 +158,4 @@ public sealed class HostedAzureExtractorClient(
 
         return groupIds.OrderBy(static id => id, StringComparer.OrdinalIgnoreCase).ToList();
     }
-
-    private static IReadOnlyList<HostedAzureArmRoleAssignmentRecord> MergeRoleAssignmentRows(
-        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> standingAssignments,
-        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> eligibleAssignments)
-    {
-        Dictionary<string, HostedAzureArmRoleAssignmentRecord> merged =
-            new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (HostedAzureArmRoleAssignmentRecord assignment in eligibleAssignments)
-        {
-            merged[BuildRoleAssignmentKey(assignment)] = assignment;
-        }
-
-        foreach (HostedAzureArmRoleAssignmentRecord assignment in standingAssignments)
-        {
-            merged[BuildRoleAssignmentKey(assignment)] = assignment;
-        }
-
-        return merged.Values.ToList();
-    }
-
-    private static string BuildRoleAssignmentKey(HostedAzureArmRoleAssignmentRecord assignment) =>
-        $"{assignment.Scope}|{assignment.PrincipalId}|{assignment.RoleDefinitionId}";
 }
