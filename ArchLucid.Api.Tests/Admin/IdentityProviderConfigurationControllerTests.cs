@@ -19,6 +19,25 @@ namespace ArchLucid.Api.Tests.Admin;
 [Trait("Category", "Unit")]
 public sealed class IdentityProviderConfigurationControllerTests
 {
+    [Fact]
+    public void TestLogin_rejects_issuer_uri_with_embedded_zero_width_character()
+    {
+        IdentityProviderConfigurationController controller = CreateController();
+
+        IActionResult result = controller.TestLogin(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/\u200B",
+                ClaimMapping = ValidClaimMapping(),
+                SampleClaimValues = ["al-admins"],
+            });
+
+        ObjectResult objectResult = result.Should().BeOfType<ObjectResult>().Subject;
+        objectResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        objectResult.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+    }
+
     [Theory]
     [InlineData("file:///etc/passwd")]
     [InlineData("javascript:alert('xss')")]
