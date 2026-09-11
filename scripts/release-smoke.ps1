@@ -242,7 +242,8 @@ function Write-ReleaseSmokeResultArtifact {
         [bool] $RanMockPlaywright,
         [bool] $RanLivePlaywright,
         [string] $ApiBaseUrlEvidence,
-        [string] $ProfileName
+        [string] $ProfileName,
+        [bool] $RanShipGateEvidence = $false
     )
 
     if ([string]::IsNullOrWhiteSpace($ResultOutPath)) {
@@ -289,6 +290,10 @@ function Write-ReleaseSmokeResultArtifact {
         $checks += @{ Name = 'Live Playwright parity'; Result = 'Passed'; Detail = 'live-api / demo workspace smoke' }
     }
 
+    if ($RanShipGateEvidence) {
+        $checks += @{ Name = 'Ship-gate evidence artifact'; Result = 'Passed'; Detail = 'archlucid pilot ship-gate-evidence JSON + Markdown under artifacts/ship-gate-evidence/' }
+    }
+
     $mdOut = [System.IO.Path]::ChangeExtension($ResultOutPath, '.md')
     & (Join-Path $PSScriptRoot 'Write-ReleaseSmokeResultReport.ps1') `
         -ResultJsonOut $ResultOutPath `
@@ -297,6 +302,65 @@ function Write-ReleaseSmokeResultArtifact {
         -BaseUrl $ApiBaseUrlEvidence `
         -Profile $ProfileName `
         -Checks $checks
+}
+
+function Invoke-ReleaseSmokeShipGateEvidence {
+    param(
+        [Parameter(Mandatory = $true)][string] $RunId,
+        [Parameter(Mandatory = $true)][string] $ApiBaseUrl,
+        [Parameter(Mandatory = $true)][string] $RepoRoot,
+        [Parameter(Mandatory = $true)][string] $CliProj
+    )
+
+    if ([string]::IsNullOrWhiteSpace($RunId)) {
+        return $false
+    }
+
+    $artifactDir = Join-Path $RepoRoot ("artifacts/ship-gate-evidence/" + $RunId.Trim())
+    New-Item -ItemType Directory -Path $artifactDir -Force | Out-Null
+    $jsonOut = Join-Path $artifactDir 'ship-gate-evidence.json'
+    $mdOut = Join-Path $artifactDir 'ship-gate-evidence.md'
+
+    $previousApiUrl = $env:ARCHLUCID_API_URL
+    $env:ARCHLUCID_API_URL = $ApiBaseUrl.TrimEnd('/')
+
+    Push-Location $RepoRoot
+    try {
+        Write-Host ''
+        Write-Host '--- Ship-gate evidence (archlucid pilot ship-gate-evidence) ---' -ForegroundColor DarkGray
+        dotnet run --project $CliProj -- pilot ship-gate-evidence `
+            --run-id $RunId `
+            --json-out $jsonOut `
+            --markdown-out $mdOut `
+            --skip-claim-lint
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Ship-gate evidence CLI exited $LASTEXITCODE (artifact may be partial)." -ForegroundColor Yellow
+            return $false
+        }
+    }
+    finally {
+        Pop-Location
+
+        if ($null -eq $previousApiUrl) {
+            Remove-Item Env:ARCHLUCID_API_URL -ErrorAction SilentlyContinue
+        }
+        else {
+            $env:ARCHLUCID_API_URL = $previousApiUrl
+        }
+    }
+
+    $schemaScript = Join-Path $PSScriptRoot 'ci/assert_ship_gate_evidence_schema.py'
+    if ((Test-Path -LiteralPath $jsonOut) -and (Test-Path -LiteralPath $schemaScript)) {
+        python3 $schemaScript $jsonOut
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host 'Ship-gate evidence schema validation failed.' -ForegroundColor Yellow
+            return $false
+        }
+    }
+
+    Write-Host "Ship-gate evidence artifact: $jsonOut" -ForegroundColor Green
+    return $true
 }
 
 function Write-ReleaseSmokeEvidenceSummary {
@@ -1063,6 +1127,15 @@ try
 
     Invoke-ReleaseSmokePlaywrightWhenRequested -RepoRoot $root -RunPlaywright:$RunPlaywright -LivePlaywright:$runLivePlaywrightEffective -ApiBaseUrl $ApiBaseUrl -UiSkipped:$SkipUi -SkipE2E:$SkipE2E
 
+    $shipGateEvidenceRan = $false
+    if (-not [string]::IsNullOrWhiteSpace($ResultOut)) {
+        $shipGateEvidenceRan = Invoke-ReleaseSmokeShipGateEvidence `
+            -RunId $runId `
+            -ApiBaseUrl $ApiBaseUrl `
+            -RepoRoot $root `
+            -CliProj $cliProj
+    }
+
     Write-ReleaseSmokeEvidenceSummary -ExitMode Complete `
         -LiveUiSqlProfile:$runLiveUiSqlProfile `
         -RanFastCoreGate:$true `
@@ -1088,7 +1161,8 @@ try
         -RanMockPlaywright:([bool]$RunPlaywright.IsPresent) `
         -RanLivePlaywright:$runLivePlaywrightEffective `
         -ApiBaseUrlEvidence $ApiBaseUrl `
-        -ProfileName $Profile
+        -ProfileName $Profile `
+        -RanShipGateEvidence:$shipGateEvidenceRan
 
     if ($Profile -eq 'ReleaseCandidate') {
         Publish-ReleaseSmokeRcCanonicalArtifacts -ResultOutPath $ResultOut -ExpectedProfile 'ReleaseCandidate'

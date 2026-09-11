@@ -26,6 +26,9 @@ import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-muta
 import { commitArchitectureRunWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import { simulatePreCommitSyntheticFindings } from "@/lib/api/pre-finalize-synthetic-simulation-api";
+import type { PreCommitGateResult } from "@/lib/api/pre-finalize-synthetic-simulation-api";
+import { PreCommitGatePreviewStrip } from "@/components/reviews/PreCommitGatePreviewStrip";
+import { resolvePreCommitGatePreviewView } from "@/lib/governance/pre-commit-gate-preview";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runSummaryBlockedReason } from "@/lib/runs/run-summary-blocked-reason";
 import { preFinalizeSyntheticSimulationBlockedReason } from "@/lib/runs/pre-finalize-synthetic-simulation-blocked-reason";
@@ -98,6 +101,7 @@ export function CommitRunButton({
   const [notifySponsor, setNotifySponsor] = useState(false);
   const [busy, setBusy] = useState(false);
   const [preflightBusy, setPreflightBusy] = useState(false);
+  const [preflightGatePreview, setPreflightGatePreview] = useState<ReturnType<typeof resolvePreCommitGatePreviewView>>(null);
   const [error, setError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -148,13 +152,27 @@ export function CommitRunButton({
     setError(null);
     setNotifySponsor(false);
     setPreflightBusy(true);
+    setPreflightGatePreview(null);
 
     try {
-      await simulatePreCommitSyntheticFindings({
+      const gateResult: PreCommitGateResult = await simulatePreCommitSyntheticFindings({
         runId,
         syntheticCount: 0,
         syntheticSeverity: "Critical",
       });
+      const preview = resolvePreCommitGatePreviewView(gateResult);
+      setPreflightGatePreview(preview);
+
+      if (preview?.disposition === "block") {
+        setError({
+          message: preview.detail,
+          problem: null,
+          correlationId: null,
+        });
+
+        return;
+      }
+
       setDialogOpen(true);
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
@@ -269,7 +287,7 @@ export function CommitRunButton({
         <p className="m-0 font-semibold">Finalize is blocked</p>
         {commitBlockedBlocks.length > 0 ? (
           <div className="mt-2">
-            <FinalizeReadinessBlockList blocks={commitBlockedBlocks} />
+            <FinalizeReadinessBlockList blocks={commitBlockedBlocks} runId={runId} />
           </div>
         ) : (
           <p className="m-0 mt-2 leading-relaxed">{commitBlockedReason?.trim() ?? ""}</p>
@@ -307,6 +325,8 @@ export function CommitRunButton({
           permission to finalize.
         </p>
       </div>
+
+      {preflightGatePreview !== null ? <PreCommitGatePreviewStrip preview={preflightGatePreview} /> : null}
 
       {error !== null ? (
         <>

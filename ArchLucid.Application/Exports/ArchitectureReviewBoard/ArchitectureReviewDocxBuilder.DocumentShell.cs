@@ -157,6 +157,8 @@ public sealed partial class ArchitectureReviewDocxBuilder
                 ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, cover.SimulatorRehearsalBody, "Subtle");
         }
 
+        ArchitectureReviewBoardSendableExportCoverRenderer.AppendDocxCover(body, model);
+
         ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 3);
         ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, $"Review ID: {model.ReviewId:D}", "Subtle");
         ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, $"Review (run) ID: {model.RunId.Trim()}",

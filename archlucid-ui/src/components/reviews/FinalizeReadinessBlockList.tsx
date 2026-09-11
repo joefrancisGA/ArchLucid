@@ -1,11 +1,17 @@
+"use client";
+
+import Link from "next/link";
+
 import { cn } from "@/lib/utils";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finalizeReadinessLayerLabel } from "@/lib/review-quality/finalize-readiness-layer-labels";
+import { resolveFinalizeReadinessBlockAction } from "@/lib/review-quality/finalize-readiness-block-action";
 import { renderDoThisNextReferenceCopy } from "@/lib/usability/do-this-next-reference-copy";
 import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 
 export type FinalizeReadinessBlockListProps = {
+  readonly runId?: string;
   readonly blocks: readonly FinalizeReadinessBlock[];
   readonly className?: string;
   readonly testId?: string;
@@ -41,15 +47,33 @@ export function FinalizeReadinessBlockList(props: FinalizeReadinessBlockListProp
             {finalizeReadinessLayerLabel(layer)}
           </p>
           <ul className="m-0 mt-1 list-disc space-y-1 pl-5">
-            {layerBlocks.map((block) => (
-              <li
-                key={`${block.layer}:${block.code}:${block.message}`}
-                data-testid={`finalize-readiness-block-${block.code}`}
-                className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-              >
-                {renderDoThisNextReferenceCopy(block.message)}
-              </li>
-            ))}
+            {layerBlocks.map((block) => {
+              const action =
+                props.runId === undefined
+                  ? null
+                  : resolveFinalizeReadinessBlockAction(props.runId, block);
+
+              return (
+                <li
+                  key={`${block.layer}:${block.code}:${block.message}`}
+                  data-testid={`finalize-readiness-block-${block.code}`}
+                  className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                >
+                  {renderDoThisNextReferenceCopy(block.message)}
+                  {action !== null ? (
+                    <span className="mt-1 block">
+                      <Link
+                        href={action.href}
+                        className="font-medium text-al-text-primary underline-offset-2 hover:underline"
+                        data-testid={`finalize-readiness-block-action-${block.code}`}
+                      >
+                        {action.label}
+                      </Link>
+                    </span>
+                  ) : null}
+                </li>
+              );
+            })}
           </ul>
         </li>
       ))}

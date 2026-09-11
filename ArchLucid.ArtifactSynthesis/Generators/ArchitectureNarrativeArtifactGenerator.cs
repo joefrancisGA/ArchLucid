@@ -76,7 +76,8 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
             foreach (SecurityPostureItem control in manifest.Security.Controls)
 
-                sb.AppendLine($"- {control.ControlName}: {control.Status}");
+                sb.AppendLine(
+                    $"- {control.ControlId} {control.ControlName} ({control.Impact}): {control.Status}");
 
         foreach (string gap in manifest.Security.Gaps)
 
@@ -93,7 +94,8 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
             foreach (CompliancePostureItem control in manifest.Compliance.Controls)
 
-                sb.AppendLine($"- {control.ControlId} {control.ControlName}: {control.Status}");
+                sb.AppendLine(
+                    $"- {control.ControlId} {control.ControlName} [{control.AppliesToCategory}]: {control.Status}");
 
         foreach (string gap in manifest.Compliance.Gaps)
 
@@ -183,8 +185,14 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         else
 
             foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
+            {
+                string findingSuffix = issue.SupportingFindingIds.Count == 0
+                    ? string.Empty
+                    : $" (supporting findings: {string.Join(", ", issue.SupportingFindingIds)})";
 
-                sb.AppendLine($"- [{issue.Severity}] {issue.Title}: {issue.Description}");
+                sb.AppendLine(
+                    $"- [{issue.Severity}] {issue.IssueType} {issue.Title}: {issue.Description}{findingSuffix}");
+            }
 
         sb.AppendLine();
 

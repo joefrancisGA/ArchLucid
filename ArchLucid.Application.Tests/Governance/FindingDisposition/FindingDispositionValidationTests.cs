@@ -503,4 +503,36 @@ public sealed class FindingDispositionValidationTests
             .Throw<ArgumentException>()
             .WithMessage($"*exceed*{FindingDispositionValidation.MaximumRationaleLength}*");
     }
+
+    [Fact]
+    public void Validate_rejects_overlong_preview_override_reason_when_provided()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Remediated,
+            PreviewOverrideReason = new string('o', FindingDispositionValidation.MaximumRationaleLength + 1),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage($"*exceed*{FindingDispositionValidation.MaximumRationaleLength}*");
+    }
+
+    [Fact]
+    public void Validate_rejects_zero_width_space_only_preview_override_reason_when_provided()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Remediated,
+            PreviewOverrideReason = new string('\u200B', FindingDispositionValidation.MinimumRationaleLength),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Preview override reason*");
+    }
 }

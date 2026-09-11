@@ -1,6 +1,7 @@
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Integrations;
+using ArchLucid.Core.ProductLine;
 using ArchLucid.Application.Value;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.Core.Audit;
@@ -422,6 +423,40 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
         observed.Should().NotBeNull(
             "async value report jobs must be pollable from another Api replica via shared IDistributedCache state");
         observed!.Found.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_registers_configuration_validation_startup_probe_once()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        int count = services.Count(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(ConfigurationValidationHostedService));
+
+        count.Should().Be(1,
+            "configuration validation must not register duplicate IHostedService descriptors per replica");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_registers_product_line_accessor_once()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        int count = services.Count(static d => d.ServiceType == typeof(IProductLineRequestAccessor));
+
+        count.Should().Be(1,
+            "product-line accessor must not register duplicate singleton descriptors");
     }
 
     [Fact]

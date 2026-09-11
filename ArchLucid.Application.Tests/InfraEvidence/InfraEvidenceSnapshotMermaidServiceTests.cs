@@ -236,6 +236,286 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
+    public async Task Snapshot_graph_stamps_microsoft_network_virtual_networks_as_network_category()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 2);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        AzureInventorySnapshotGraphResolver resolver = new(repository);
+        ScopeContext scope = CreateScope();
+
+        AzureInventorySnapshotGraphResolveResult graphResult =
+            await resolver.TryResolveGraphAsync(scope, SnapshotId, CancellationToken.None);
+
+        graphResult.Succeeded.Should().BeTrue();
+        graphResult.Graph.Should().NotBeNull();
+        graphResult.Graph!.Nodes.Should().OnlyContain(node => node.Category == GraphTopologyCategories.Network);
+    }
+
+    [Fact]
+    public async Task Network_mode_renders_mermaid_for_virtual_network_snapshot()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "network", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.Mode.Should().Be("network");
+        result.Value.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded.ToString());
+        result.Value.Metrics.Should().NotBeNull();
+        result.Value.Metrics!.NodeCount.Should().Be(3);
+        result.Value.Mermaid.Should().NotBeNullOrWhiteSpace();
+        result.Value.Mermaid.Should().Contain("flowchart TD");
+        result.Value.Mermaid.Should().Contain("resource-0");
+        result.Value.Mermaid.Should().Contain("resource-2");
+    }
+
+    [Fact]
+    public async Task Network_mode_preview_reports_nodes_for_virtual_network_snapshot()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
+            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+
+        InfraEvidenceMermaidModePreview networkPreview = result.Value!.Modes
+            .Should()
+            .ContainSingle(mode => mode.Mode == "network")
+            .Subject;
+
+        networkPreview.NodeCount.Should().Be(3);
+        networkPreview.Status.Should().NotBe(MermaidDiagramRenderStatus.Failed.ToString());
+        networkPreview.Mermaid.Should().NotBeNullOrWhiteSpace();
+        networkPreview.Mermaid.Should().Contain("resource-0");
+    }
+
+    [Fact]
+    public async Task Network_mode_renders_relationship_first_topology_golden_fixture()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildRelationshipFirstNetworkGoldenSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "network", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.Mode.Should().Be("network");
+        result.Value.Status.Should().BeOneOf(
+            MermaidDiagramRenderStatus.Succeeded.ToString(),
+            MermaidDiagramRenderStatus.Partitioned.ToString());
+        result.Value.Metrics.Should().NotBeNull();
+        result.Value.Metrics!.NodeCount.Should().BeGreaterThanOrEqualTo(4);
+        result.Value.Mermaid.Should().NotBeNullOrWhiteSpace();
+        result.Value.Mermaid.Should().Contain("app-nic");
+        result.Value.Mermaid.Should().Contain("core-vnet");
+        result.Value.Mermaid.Should().Contain("edge-nsg");
+        result.Value.Mermaid.Should().Contain("peer-vnet");
+        result.Value.Mermaid.Should().Contain("CONNECTS_TO");
+        result.Value.Mermaid.Should().Contain("PEERS_WITH");
+        result.Value.Mermaid.Should().Contain("app-vm");
+        result.Value.Mermaid.Should().Contain(@"""in""");
+    }
+
+    [Fact]
+    public async Task Relationship_first_golden_fixture_graph_includes_vm_to_nic_connects_to_edge()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildRelationshipFirstNetworkGoldenSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        AzureInventorySnapshotGraphResolver resolver = new(repository);
+        ScopeContext scope = CreateScope();
+
+        AzureInventorySnapshotGraphResolveResult graphResult =
+            await resolver.TryResolveGraphAsync(scope, SnapshotId, CancellationToken.None);
+
+        graphResult.Succeeded.Should().BeTrue();
+        graphResult.Graph!.Edges.Should().Contain(edge =>
+            edge.EdgeType == GraphEdgeTypes.ConnectsTo
+            && edge.Label == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public async Task Relationship_first_golden_fixture_network_ast_includes_derived_vm_vnet_layout_edge()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildRelationshipFirstNetworkGoldenSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        AzureInventorySnapshotGraphResolver resolver = new(repository);
+
+        AzureInventorySnapshotGraphResolveResult graphResult = await resolver
+            .TryResolveGraphAsync(CreateScope(), SnapshotId, CancellationToken.None);
+
+        graphResult.Succeeded.Should().BeTrue();
+
+        DiagramAst ast = new DiagramAstFromGraphCompiler().Compile(
+            graphResult.Graph!,
+            DiagramMode.Network);
+
+        ast.Nodes.Should().Contain(node => node.Label == "app-vm");
+        ast.Edges.Should().Contain(edge => edge.Label == "in");
+        ast.Edges.Should().Contain(edge => edge.Label == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public async Task Executive_mode_omits_low_weight_effective_control_edges_from_golden_fixture()
+    {
+        AzureInventorySnapshotDetailReadModel baseSnapshot = BuildRelationshipFirstNetworkGoldenSnapshot();
+        List<AzureInventoryResourceRelationshipReadModel> relationships = baseSnapshot.Relationships.ToList();
+        relationships.Add(new AzureInventoryResourceRelationshipReadModel
+        {
+            FromAzureResourceId =
+                "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Network/networkInterfaces/app-nic",
+            ToAzureResourceId =
+                "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Network/networkSecurityGroups/effective-only-nsg",
+            RelationshipType = GraphEdgeTypes.AppliesTo,
+            ProvenanceKind = ProvenanceKind.DeterministicInference,
+            InferenceSource = GraphEdgeInferenceSources.InventoryEffectiveNsg,
+        });
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = baseSnapshot.Header,
+            Resources = baseSnapshot.Resources,
+            Relationships = relationships,
+        };
+
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.Mermaid.Should().NotContain("effective-only-nsg");
+    }
+
+    [Fact]
+    public async Task Network_mode_excludes_storage_accounts_from_mermaid()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildMixedNetworkAndStorageSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "network", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.Mermaid.Should().Contain("core-vnet");
+        result.Value.Mermaid.Should().NotContain("logs-storage");
+    }
+
+    [Fact]
+    public async Task Identity_mode_renders_mermaid_for_managed_identity_snapshot()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildIdentitySnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.Mode.Should().Be("identity");
+        result.Value.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded.ToString());
+        result.Value.Metrics.Should().NotBeNull();
+        result.Value.Metrics!.NodeCount.Should().Be(3);
+        result.Value.Mermaid.Should().NotBeNullOrWhiteSpace();
+        result.Value.Mermaid.Should().Contain("flowchart TD");
+        result.Value.Mermaid.Should().Contain("mi-eastus-0");
+        result.Value.Mermaid.Should().Contain("mi-eastus-2");
+    }
+
+    [Fact]
+    public async Task Identity_mode_preview_reports_nodes_for_managed_identity_snapshot()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildIdentitySnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
+            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+
+        InfraEvidenceMermaidModePreview identityPreview = result.Value!.Modes
+            .Should()
+            .ContainSingle(mode => mode.Mode == "identity")
+            .Subject;
+
+        identityPreview.NodeCount.Should().Be(3);
+        identityPreview.Status.Should().NotBe(MermaidDiagramRenderStatus.Failed.ToString());
+        identityPreview.Mermaid.Should().NotBeNullOrWhiteSpace();
+        identityPreview.Mermaid.Should().Contain("mi-eastus-0");
+    }
+
+    [Fact]
+    public async Task Identity_mode_flattens_sparse_managed_identity_swimlanes_in_mermaid()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildIdentitySnapshot(resourceCount: 12);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.Metrics!.NodeCount.Should().Be(12);
+        result.Value.Mermaid.Should().NotContain("subgraph");
+        result.Value.Mermaid.Should().Contain("mi-eastus-0");
+        result.Value.Mermaid.Should().Contain("mi-eastus-11");
+    }
+
+    [Fact]
+    public async Task Identity_mode_excludes_storage_accounts_from_mermaid()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildMixedIdentityAndStorageSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.Mermaid.Should().Contain("app-identity");
+        result.Value.Mermaid.Should().NotContain("logs-storage");
+    }
+
+    [Fact]
     public async Task Over_threshold_graph_returns_partitioned_status_in_preview()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 500);
@@ -332,6 +612,280 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             thresholds);
+    }
+
+    private static AzureInventorySnapshotDetailReadModel BuildRelationshipFirstNetworkGoldenSnapshot()
+    {
+        const string vmArmId =
+            "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Compute/virtualMachines/app-vm";
+        const string nicArmId =
+            "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Network/networkInterfaces/app-nic";
+        const string vnetArmId =
+            "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/core-vnet";
+        const string subnetArmId =
+            "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/core-vnet/subnets/app";
+        const string nsgArmId =
+            "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Network/networkSecurityGroups/edge-nsg";
+        const string peerVnetArmId =
+            "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/peer-vnet";
+
+        List<AzureInventoryResourceRecord> resources =
+        [
+            new()
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                AzureResourceId = vmArmId,
+                ResourceType = "Microsoft.Compute/virtualMachines",
+                ResourceGroup = "rg-network",
+                SubscriptionId = "sub",
+            },
+            new()
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                AzureResourceId = nicArmId,
+                ResourceType = "Microsoft.Network/networkInterfaces",
+                ResourceGroup = "rg-network",
+                SubscriptionId = "sub",
+            },
+            new()
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                AzureResourceId = vnetArmId,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                ResourceGroup = "rg-network",
+                SubscriptionId = "sub",
+            },
+            new()
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                AzureResourceId = subnetArmId,
+                ResourceType = "Microsoft.Network/virtualNetworks/subnets",
+                ResourceGroup = "rg-network",
+                SubscriptionId = "sub",
+                ParentResourceId = vnetArmId,
+            },
+            new()
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                AzureResourceId = nsgArmId,
+                ResourceType = "Microsoft.Network/networkSecurityGroups",
+                ResourceGroup = "rg-network",
+                SubscriptionId = "sub",
+            },
+            new()
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                AzureResourceId = peerVnetArmId,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                ResourceGroup = "rg-network",
+                SubscriptionId = "sub",
+            },
+        ];
+
+        List<AzureInventoryResourceRelationshipReadModel> relationships =
+        [
+            new()
+            {
+                FromAzureResourceId = vmArmId,
+                ToAzureResourceId = nicArmId,
+                RelationshipType = GraphEdgeTypes.ConnectsTo,
+                ProvenanceKind = ProvenanceKind.ObservedFact,
+                InferenceSource = GraphEdgeInferenceSources.InventoryVmNic,
+            },
+            new()
+            {
+                FromAzureResourceId = nicArmId,
+                ToAzureResourceId = subnetArmId,
+                RelationshipType = GraphEdgeTypes.ConnectsTo,
+                ProvenanceKind = ProvenanceKind.ObservedFact,
+                InferenceSource = GraphEdgeInferenceSources.InventoryNicSubnet,
+            },
+            new()
+            {
+                FromAzureResourceId = subnetArmId,
+                ToAzureResourceId = nsgArmId,
+                RelationshipType = GraphEdgeTypes.AppliesTo,
+                ProvenanceKind = ProvenanceKind.ObservedFact,
+                InferenceSource = GraphEdgeInferenceSources.InventorySubnetNsg,
+            },
+            new()
+            {
+                FromAzureResourceId = vnetArmId,
+                ToAzureResourceId = peerVnetArmId,
+                RelationshipType = GraphEdgeTypes.PeersWith,
+                ProvenanceKind = ProvenanceKind.ObservedFact,
+                InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering,
+            },
+            new()
+            {
+                FromAzureResourceId = vnetArmId,
+                ToAzureResourceId = subnetArmId,
+                RelationshipType = GraphEdgeTypes.Contains,
+                ProvenanceKind = ProvenanceKind.ObservedFact,
+                InferenceSource = GraphEdgeInferenceSources.InventoryExplicitParentChild,
+            },
+        ];
+
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = resources,
+            Relationships = relationships,
+        };
+    }
+
+    private static AzureInventorySnapshotDetailReadModel BuildMixedNetworkAndStorageSnapshot()
+    {
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    CloudResourceId = Guid.Parse("11111111-2222-3333-4444-000000000001"),
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/core-vnet",
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg-network",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    CloudResourceId = Guid.Parse("11111111-2222-3333-4444-000000000002"),
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/logsstorage",
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                    ResourceGroup = "rg-data",
+                    SubscriptionId = "sub",
+                },
+            ],
+        };
+    }
+
+    private static AzureInventorySnapshotDetailReadModel BuildMixedIdentityAndStorageSnapshot()
+    {
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    CloudResourceId = Guid.Parse("11111111-2222-3333-4444-000000000010"),
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/identity-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/app-identity",
+                    ResourceType = "Microsoft.ManagedIdentity/userAssignedIdentities",
+                    ResourceGroup = "identity-rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    CloudResourceId = Guid.Parse("11111111-2222-3333-4444-000000000002"),
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/logsstorage",
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                    ResourceGroup = "rg-data",
+                    SubscriptionId = "sub",
+                },
+            ],
+        };
+    }
+
+    private static AzureInventorySnapshotDetailReadModel BuildIdentitySnapshot(int resourceCount)
+    {
+        List<AzureInventoryResourceRecord> resources = [];
+        List<AzureInventoryResourceRelationshipReadModel> relationships = [];
+
+        for (int index = 0; index < resourceCount; index++)
+        {
+            Guid cloudResourceId = Guid.Parse($"11111111-2222-3333-4444-{index:D12}");
+            string resourceGroup = $"identity-rg-{index}";
+            string armId =
+                $"/subscriptions/sub/resourceGroups/{resourceGroup}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/mi-eastus-{index}";
+
+            resources.Add(new AzureInventoryResourceRecord
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                CloudResourceId = cloudResourceId,
+                AzureResourceId = armId,
+                ResourceType = "Microsoft.ManagedIdentity/userAssignedIdentities",
+                ResourceGroup = resourceGroup,
+                SubscriptionId = "sub",
+            });
+
+            if (index > 0)
+            {
+                string priorResourceGroup = $"identity-rg-{index - 1}";
+                string priorArmId =
+                    $"/subscriptions/sub/resourceGroups/{priorResourceGroup}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/mi-eastus-{index - 1}";
+
+                relationships.Add(new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = priorArmId,
+                    ToAzureResourceId = armId,
+                    RelationshipType = "connects",
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                });
+            }
+        }
+
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = resources,
+            Relationships = relationships,
+        };
     }
 
     private static AzureInventorySnapshotDetailReadModel BuildSnapshot(int resourceCount)

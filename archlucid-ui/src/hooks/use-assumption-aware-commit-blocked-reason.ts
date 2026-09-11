@@ -23,6 +23,8 @@ const READINESS_UNAVAILABLE_MESSAGE =
 export function useAssumptionAwareCommitBlockedReason(input: {
   readonly runId: string;
   readonly serverCommitBlockedReason: string | null | undefined;
+  /** SSR-hydrated structured blocks from buildRunDetailGovernancePresentation. */
+  readonly serverFinalizeReadinessBlocks?: readonly FinalizeReadinessBlock[];
   readonly finalizeAssumptionGateApplies: boolean;
   readonly findings: readonly QuickDecisionFinding[];
   readonly blockingFindingCount: number;
@@ -32,6 +34,7 @@ export function useAssumptionAwareCommitBlockedReason(input: {
   readonly degradedFindingCoverageFailedEngineLabels?: readonly string[];
   readonly blockDegradedFindingCoverageOnWorking?: boolean;
 }): AssumptionAwareCommitBlockedState {
+  const serverFinalizeReadinessBlocks = input.serverFinalizeReadinessBlocks ?? [];
   const { acknowledgedIds } = useReviewAssumptionAcknowledgements(input.runId);
   const { readiness, loading } = useFinalizeReadiness({
     runId: input.runId,
@@ -39,7 +42,11 @@ export function useAssumptionAwareCommitBlockedReason(input: {
     acknowledgedAssumptionIds: acknowledgedIds,
   });
 
-  if (input.serverCommitBlockedReason !== null && input.serverCommitBlockedReason !== undefined) {
+  if (
+    input.serverCommitBlockedReason !== null
+    && input.serverCommitBlockedReason !== undefined
+    && !input.finalizeAssumptionGateApplies
+  ) {
     return {
       blockedReason: input.serverCommitBlockedReason,
       blocks: [],
@@ -65,8 +72,8 @@ export function useAssumptionAwareCommitBlockedReason(input: {
 
   if (loading) {
     return {
-      blockedReason: null,
-      blocks: [],
+      blockedReason: input.serverCommitBlockedReason ?? null,
+      blocks: serverFinalizeReadinessBlocks,
       readinessLoading: true,
       readinessUnavailable: false,
       checklistReadyToFinalize: null,

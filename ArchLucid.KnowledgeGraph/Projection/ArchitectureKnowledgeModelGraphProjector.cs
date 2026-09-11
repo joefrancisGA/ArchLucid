@@ -94,7 +94,7 @@ public sealed class ArchitectureKnowledgeModelGraphProjector : IArchitectureKnow
             if (!canonicalNodeIdsByKey.TryGetValue(fromNodeId, out string? resolvedFromNodeId))
                 continue;
 
-            foreach (string relatedId in element.RelatedElementIds)
+            foreach (string relatedId in element.RelatedElementIds.Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 string toNodeId = ToGraphNodeId(relatedId);
 

@@ -41,7 +41,7 @@ internal static class ConsultingDocxOpenXmlComposer
             ConsultingDocxOpenXmlPrimitives.AddStylesPart(mainPart, options);
 
             await ConsultingDocxCoverPageBuilder.AddAsync(mainPart, body, report, options, logoProvider, branding,
-                cancellationToken);
+                careerExportHonesty, cancellationToken);
             ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
 
             ConsultingDocxSupplementalSections.AddCareerExportHonesty(body, careerExportHonesty);
