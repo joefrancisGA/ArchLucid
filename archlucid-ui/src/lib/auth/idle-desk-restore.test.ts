@@ -4,6 +4,7 @@ import {
   clearIdleDeskRestorePayload,
   consumeIdleDeskRestoreFormSnapshot,
   IDLE_DESK_RESTORE_STORAGE_KEY,
+  mergeLivelihoodIdleFormSnapshotIntoDeskRestore,
   persistIdleDeskRestoreBeforeSessionClear,
   readIdleDeskRestorePayload,
   restoreIdleDeskScopeAfterSignIn,
@@ -75,6 +76,23 @@ describe("idle-desk-restore (DR-12)", () => {
 
     expect(readIdleDeskRestorePayload()).toBeNull();
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+  });
+
+  it("merges one livelihood snapshot without requiring the in-memory registry (LW-095)", () => {
+    const returnPath = "/governance/workflow";
+    const snapshotKey = buildLivelihoodIdleFormSnapshotKey("governance-approval-rationale", "approval-3");
+
+    mergeLivelihoodIdleFormSnapshotIntoDeskRestore(snapshotKey, {
+      surfaceId: "governance-approval-rationale",
+      returnPath,
+      entityKey: "approval-3",
+      fields: { reviewComment: "Held for security review." },
+      savedAtUtc: "2026-09-11T00:00:00.000Z",
+    });
+
+    expect(
+      readIdleDeskRestorePayload()?.formSnapshots?.[snapshotKey]?.fields.reviewComment,
+    ).toBe("Held for security review.");
   });
 
   it("persists dirty livelihood form snapshots before session clear (WS-18)", () => {
