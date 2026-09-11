@@ -184,11 +184,14 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGate
 
 ## Finalize conflict SQL integration proof
 
+`FinalizeConflictSqlIntegrationFixture` pins scorecard-shaped findings on an executed run's SQL findings snapshot so verify-hypothesis and contradiction proofs no longer depend on simulator output shape.
+
 `FinalizeConflictSqlIntegrationTests` proves lifecycle integrity blocks, scorecard blocks, and pre-commit governance blocks on `POST …/finalize` stay aligned with `GET …/readiness` through real SQL persistence:
 
 - Create run without execute → 409 + readiness `lifecycle_phase_incomplete` integrity block.
 - Execute run, bulk-disposition one finding as **Deferred** with revisit → 409 + readiness `scorecard` layer block (open deferred dimension).
-- Execute run with open **verify-hypothesis** finding (when simulator emits one) → 409 + readiness `scorecard` layer block containing `hypothesis` (TB-2315 parity; self-skips when fixture absent).
+- Execute run with pinned **verify-hypothesis** finding → 409 + readiness `scorecard` layer block containing `hypothesis` (TB-2315 parity).
+- Execute run with pinned **contradiction** finding → 409 + readiness `scorecard` layer block containing `contradiction` (TB-2179 parity).
 - Execute run blocked by **pre-commit governance** → finalize **409** with `ProblemTypes.GovernancePreCommitBlocked` aligned with readiness `pre_commit_gate` layer block (self-skips when gate does not block).
 
 ```bash
@@ -197,7 +200,11 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeConflictSql
 
 ## Wave-73 finding disposition sealed-manifest 409 proof
 
-`GovernanceStickinessDispositionSealedManifestRuntimeConflictTests` proves `POST …/governance/findings/{findingId}/dispositions` maps runtime `ConflictException` from disposition persistence to OpenAPI **409** (`ProblemTypes.Conflict`).
+`GovernanceStickinessDispositionSealedManifestRuntimeConflictTests` proves governance disposition mutations map runtime `ConflictException` from persistence to OpenAPI **409** (`ProblemTypes.Conflict`):
+
+- `POST …/findings/{findingId}/dispositions` (`RecordDisposition`)
+- `POST …/findings/bulk-disposition` (`RecordBulkDisposition`)
+- `POST …/runs/{runId}/finding-merge-conflicts/{findingId}/resolve` (`ResolveFindingMergeConflict`)
 
 UI copy parity: `finding-disposition-mutation-blocked-reason.ts` → `compareRunPairBlockedReason` for lifecycle/sealed-hash **409** detail.
 
