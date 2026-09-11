@@ -88,6 +88,10 @@ describe("WorkingCareerRehearsalChooser", () => {
     );
 
     expect(screen.getByTestId("working-career-rehearsal-chooser")).toBeInTheDocument();
+    expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
+      "data-chooser-source",
+      "command-bar",
+    );
     expect(screen.getByTestId("working-career-rehearsal-door-career")).toHaveTextContent(
       WORKING_CAREER_DOOR_LABEL,
     );
@@ -158,6 +162,33 @@ describe("WorkingCareerRehearsalChooser", () => {
     expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
       "data-effective-door",
       "rehearsal",
+    );
+  });
+
+  it("moves to Career with ArrowRight from Rehearsal on the segmented control", () => {
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser />
+      </TooltipProvider>,
+    );
+
+    fireEvent.keyDown(screen.getByTestId("working-career-rehearsal-door-rehearsal"), {
+      key: "ArrowRight",
+    });
+
+    expect(doorMock.setDoor).toHaveBeenCalledWith("career");
+  });
+
+  it("marks the findings mount so it is the same control without a second shortcut host", () => {
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser source="findings" />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("working-career-rehearsal-chooser")).toHaveAttribute(
+      "data-chooser-source",
+      "findings",
     );
   });
 });
