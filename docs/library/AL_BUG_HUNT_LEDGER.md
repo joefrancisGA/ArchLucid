@@ -3004,11 +3004,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 17
-- **bugs-found:** 27
+- **hunts:** 18
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — sponsor review packet omitted career export gate for sample workspace runs
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — decision receipt export omitted sample-workspace career gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3713,7 +3713,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DapperEmailOtpChallengeRepository.TryCompleteSingleAttemptAsync` — correct-code UPDATE on `RowVersion` conflict returns `AlreadyCompleted` without retry — fail-path retry proven (#314); success path uses `UPDLOCK` and no concurrent repro in integration tests.
 - [x] (proven) `InMemoryAuthenticationIdentityRepository.DisableAsync` — idempotent disable on an already-disabled row unconditionally `TryRemove`d the external-key index entry, orphaning a replacement active identity — **hit 2026-09-10 seed hunt #1543:** early-return when `DisabledUtc` is set, remove index only when occupant matches, lifecycle lock on insert/disable/re-enable; regression in `DisableAsync_on_already_disabled_identity_does_not_unclaim_active_external_key`.
 - [x] (invalid) `InMemoryTenantSignInEmailDomainRepository.InsertAsync` — soft-removed domain row still occupies `_byDomain` key so blind re-insert throws — **cheap-disproved 2026-09-10 seed hunt #1544:** mirrors SQL `UX_TenantSignInEmailDomains_NormalizedDomain`; `TenantAuthDomainVerificationService.ProposeDomainAsync` must update the removed row (application layer), not persistence insert parity.
-- [ ] (candidate) `TenantAuthDomainVerificationService.ProposeDomainAsync` — after `RemoveDomainAsync`, `FindByNormalizedDomainAsync` hides the removed row but `InsertAsync` fails on both stores; re-propose path needs update-not-insert (application zone, out of persistence-identity scope).
+- [x] (invalid) `TenantAuthDomainVerificationService.ProposeDomainAsync` — after `RemoveDomainAsync`, `FindByNormalizedDomainAsync` hides the removed row but `InsertAsync` fails on both stores; re-propose path needs update-not-insert — **cheap-disproof 2026-09-11 thorough hunt #1685:** application-layer concern; persistence `InsertAsync` throw on soft-removed key is intentional SQL parity (#1544).
+- [x] (proven) `InMemoryPlatformTenantAuthRecoveryGrantRepository.InsertAsync` — duplicate explicit `GrantId` silently overwrote the prior grant while SQL raises PK violation — **hit 2026-09-11 thorough hunt #1685:** `TryAdd` + `DuplicatePlatformTenantAuthRecoveryGrantException`; regression in `InsertAsync_throws_when_grant_id_already_exists`.
+
+2026-09-11 thorough hunt #1685 (hit): proved in-memory recovery-grant duplicate Id overwrite; cheap-disproved application-layer domain re-propose candidate; 3 recovery-grant repository unit tests passed.
 
 2026-09-10 seed hunt #1544: cheap-disproved soft-removed domain blind re-insert as cross-layer concern; shipped #1543 `DisableAsync` fix to `bugsmash`.
 
