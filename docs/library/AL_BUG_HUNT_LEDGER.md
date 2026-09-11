@@ -338,11 +338,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 4
-- **bugs-found:** 1
+- **hunts:** 6
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — stale overlong industry Other text kept submit disabled after switching industry
+- **last-bug:** 2026-09-11 — signup readiness hint stayed generic after optional-field validation failed; fractional architecture team size passed client validation; stale overlong industry Other text kept submit disabled after switching industry
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** 0
 
@@ -375,6 +375,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `SignupForm` successful register omits success toast — **cheap-disproof 2026-09-10 seed hunt #1670:** `showSuccess` on 2xx before verify redirect; regression `submits valid payload to the same-origin proxy`
 
 2026-09-10 seed hunt #1670 (seed-only): reseeded ui-form-validation after #1592; cheap-disproof closed whitespace-only required fields, max-length guards, team-size upper bound, whitespace-only industry Other, in-flight submit lock, keyboard-submit inline validation, and success toast on 2xx; 17 scoped SignupForm tests passed.
+- [x] (proven) `SignupForm` readiness hint stayed generic after optional-field validation failed — **hit 2026-09-11 seed hunt #1732 (seed→hit):** `WhyDisabledCtaHint` always showed required-field copy when `canSubmit` was false even after email/industry/team-size validation failed; `deriveSignupFormReadinessMessage` now maps schema issues to accurate readiness text; regressions `shows email-specific readiness when required fields are filled but email is invalid` and `shows industry readiness when Other is selected without a specification`
+
+2026-09-11 seed hunt #1732 (seed→hit): reseeded ui-form-validation; proved misleading signup readiness hint for industry Other and invalid-email cases; 20 scoped SignupForm tests passed.
+
+- [x] (proven) `SignupForm` readiness hint stayed generic after optional-field validation failed — **hit 2026-09-11 seed hunt #1730 (seed→hit):** `WhyDisabledCtaHint` always showed required-field copy when `canSubmit` was false even after email/industry/team-size validation failed; `deriveSignupFormReadinessMessage` maps schema issues to accurate readiness text; regressions `shows email-specific readiness when required fields are filled but email is invalid` and `shows industry readiness when Other is selected without a specification`
+- [x] (proven) `SignupForm` fractional `architectureTeamSize` kept submit enabled and reached register — **hit 2026-09-11 seed hunt #1730 (seed→hit):** `signupFormSchema.superRefine` accepted finite decimals (e.g. `3.5`) that `RegistrationRequestBaselineValidator` rejects as non-integer; added `Number.isInteger` guard; regressions `keeps submit disabled for fractional optional architecture team size` and `does not send fractional optional architecture team size in the register payload`
+
+2026-09-11 seed hunt #1730 (seed→hit): reseeded ui-form-validation; proved misleading signup readiness hints and fractional architecture team size client bypass; 21 scoped SignupForm tests passed.
+
 - [x] (proven) `SignupForm` stale overlong `industryVerticalOther` kept submit disabled after switching away from Other — **hit 2026-09-11 seed hunt #1731 (seed→hit):** unconditional `max(200)` on hidden `industryVerticalOther` left `canSubmit` false with no visible field error after the industry select changed; validation now applies only when `industryVertical === "Other"` and the field clears on industry change; regression `re-enables submit after switching away from Other with an overlong specification`
 
 2026-09-11 seed hunt #1731 (seed→hit): reseeded ui-form-validation; proved stale overlong industry Other text blocked submit after switching industry; 18 scoped SignupForm tests passed.
