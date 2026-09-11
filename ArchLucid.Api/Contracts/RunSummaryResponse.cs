@@ -170,6 +170,20 @@ public class RunSummaryResponse
         set;
     }
 
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.WorkingCareerRehearsalDoor" />
+    public string? WorkingCareerRehearsalDoor
+    {
+        get;
+        set;
+    }
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.ExecutePostureCapturedUtc" />
+    public DateTime? ExecutePostureCapturedUtc
+    {
+        get;
+        set;
+    }
+
     /// <summary>Authority pipeline lifecycle phase (wave-6 suggestion 58).</summary>
     public AuthorityRunLifecyclePhase AuthorityLifecyclePhase
     {

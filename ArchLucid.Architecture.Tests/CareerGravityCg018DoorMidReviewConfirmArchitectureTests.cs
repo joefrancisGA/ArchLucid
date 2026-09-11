@@ -3,7 +3,8 @@ using FluentAssertions;
 namespace ArchLucid.Architecture.Tests;
 
 /// <summary>
-/// CG-018 ratchet: in-flight review door change requires confirm. Does not implement CG-019 stamp.
+/// CG-018 ratchet: in-flight review door change requires confirm.
+/// Confirm must not mutate the execute-time stamp (CG-019 owns that write).
 /// Does not cancel in-flight operations. Host execute default stays Simulator.
 /// </summary>
 [Trait("Suite", "Core")]
@@ -51,16 +52,8 @@ public sealed class CareerGravityCg018DoorMidReviewConfirmArchitectureTests
     }
 
     [Fact]
-    public void Cg018_does_not_implement_run_stamp_schema_owned_by_cg019()
+    public void Cg018_confirm_does_not_mutate_execute_posture_stamp()
     {
-        string runRecord = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Core",
-                "Persistence",
-                "ApplicationPorts",
-                "Models",
-                "RunRecord.cs"));
         string helper = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
@@ -69,9 +62,20 @@ public sealed class CareerGravityCg018DoorMidReviewConfirmArchitectureTests
                 "lib",
                 "governance",
                 "working-career-rehearsal-door-mid-review-confirm.ts"));
+        string chooser = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "archlucid-ui",
+                "src",
+                "components",
+                "workspace-mode",
+                "WorkingCareerRehearsalChooser.tsx"));
 
-        runRecord.Should().NotContain("WorkingCareerRehearsalDoor");
         helper.Should().Contain("Stamp immutability on the run is CG-019");
+        helper.Should().NotContain("ExecutePostureCapturedUtc");
+        helper.Should().NotContain("ExecuteTimeCareerPostureCapture");
+        chooser.Should().NotContain("ExecuteTimeCareerPostureCapture");
+        chooser.Should().Contain("stamp lock is CG-019");
     }
 
     [Fact]

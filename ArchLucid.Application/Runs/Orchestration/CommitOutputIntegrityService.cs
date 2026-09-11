@@ -33,7 +33,9 @@ public sealed class CommitOutputIntegrityService(
     IRunEvidencePackagePinService runEvidencePackagePinService,
     IArchitectureKnowledgeModelAccess architectureKnowledgeModelAccess,
     IDraftRequestRepository draftRequestRepository,
-    IArchitectureVersionRepository architectureVersionRepository) : ICommitOutputIntegrityService
+    IArchitectureVersionRepository architectureVersionRepository,
+    IFinalizeQualityGate finalizeQualityGate,
+    IRunAssumptionAcknowledgementService runAssumptionAcknowledgementService) : ICommitOutputIntegrityService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -64,6 +66,12 @@ public sealed class CommitOutputIntegrityService(
 
     private readonly IArchitectureVersionRepository _architectureVersionRepository =
         architectureVersionRepository ?? throw new ArgumentNullException(nameof(architectureVersionRepository));
+
+    private readonly IFinalizeQualityGate _finalizeQualityGate =
+        finalizeQualityGate ?? throw new ArgumentNullException(nameof(finalizeQualityGate));
+
+    private readonly IRunAssumptionAcknowledgementService _runAssumptionAcknowledgementService =
+        runAssumptionAcknowledgementService ?? throw new ArgumentNullException(nameof(runAssumptionAcknowledgementService));
 
     /// <inheritdoc />
     public async Task EnsurePassOrThrowAsync(
@@ -142,9 +150,9 @@ public sealed class CommitOutputIntegrityService(
                 + string.Join(" ", provenanceViolations));
         }
 
-        HashSet<string>? acknowledgedIds = acknowledgedAssumptionIds is null
-            ? null
-            : new HashSet<string>(acknowledgedAssumptionIds, StringComparer.Ordinal);
+        HashSet<string> acknowledgedIds =
+            await LoadAcknowledgedAssumptionIdsAsync(scope, runId, acknowledgedAssumptionIds, cancellationToken)
+                .ConfigureAwait(false);
 
         IReadOnlyList<string> assumptionGateReasons =
             FinalizeAssumptionGateEvaluator.GetBlockingReasons(architectureRequest, findings, acknowledgedIds);
@@ -155,6 +163,11 @@ public sealed class CommitOutputIntegrityService(
                 "Commit blocked: existential assumptions require confirmation before finalize. "
                 + string.Join(" ", assumptionGateReasons));
         }
+
+        // TB-2321: the UI scorecard already refuses these; the server must refuse them for direct API callers too.
+        await _finalizeQualityGate
+            .EnsurePassOrThrowAsync(scope, architectureRequest, findings, cancellationToken)
+            .ConfigureAwait(false);
 
         if (Guid.TryParseExact(runId, "N", out Guid runGuidForEvidence) || Guid.TryParse(runId, out runGuidForEvidence))
         {
@@ -174,6 +187,30 @@ public sealed class CommitOutputIntegrityService(
                 }
             }
         }
+    }
+
+    /// <summary>
+    ///     Server-persisted acknowledgements (TB-2345 item 49) union the ids the caller sent in the commit body, so a
+    ///     confirmation made in one browser session still counts when finalize is triggered elsewhere.
+    /// </summary>
+    private async Task<HashSet<string>> LoadAcknowledgedAssumptionIdsAsync(
+        ScopeContext scope,
+        string runId,
+        IReadOnlyList<string>? requestAcknowledgedIds,
+        CancellationToken cancellationToken)
+    {
+        HashSet<string> acknowledgedIds = RunAssumptionAcknowledgementJson.NormalizeIds(requestAcknowledgedIds);
+
+        if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
+            return acknowledgedIds;
+
+        IReadOnlySet<string> persistedIds = await _runAssumptionAcknowledgementService
+            .GetAcknowledgedIdsAsync(scope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        acknowledgedIds.UnionWith(persistedIds);
+
+        return acknowledgedIds;
     }
 
     private async Task EnsureArchitectureVersionPinnedOrThrowAsync(

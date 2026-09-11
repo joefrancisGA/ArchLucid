@@ -139,6 +139,37 @@ public sealed class Adr0064PhysicalTableDdlArchitectureTests
     }
 
     [Fact]
+    public void Migration_390_adds_acknowledged_assumptions_json_on_physical_reviews_table()
+    {
+        string migrationText = ReadPersistenceSql("Migrations", "390_Runs_AcknowledgedAssumptionsJson.sql");
+
+        migrationText.Should().Contain("OBJECT_ID(N'dbo.Reviews', N'U')");
+        migrationText.Should().Contain("AcknowledgedAssumptionsJson");
+        migrationText.Should().Contain("sp_executesql");
+        AlterRunsTableRegex.IsMatch(StripSqlComments(migrationText)).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Rollback_390_targets_physical_table()
+    {
+        string rollbackText = ReadPersistenceSql("Migrations", "Rollback", "R390_Runs_AcknowledgedAssumptionsJson.sql");
+
+        rollbackText.Should().Contain("OBJECT_ID(N'dbo.Reviews', N'U')");
+        rollbackText.Should().Contain("DROP COLUMN AcknowledgedAssumptionsJson");
+        AlterRunsTableRegex.IsMatch(StripSqlComments(rollbackText)).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ArchLucid_sql_adds_acknowledged_assumptions_json_on_physical_table()
+    {
+        string ddl = ReadPersistenceSql("Scripts", "ArchLucid.sql");
+
+        ddl.Should().Contain("AcknowledgedAssumptionsJson");
+        ddl.Should().Contain("@acknowledgedAssumptionsRunTable");
+        ddl.Should().Contain("sp_executesql");
+    }
+
+    [Fact]
     public void ArchLucid_sql_after_adr0064_synonym_does_not_alter_runs_synonym()
     {
         string ddl = ReadPersistenceSql("Scripts", "ArchLucid.sql");

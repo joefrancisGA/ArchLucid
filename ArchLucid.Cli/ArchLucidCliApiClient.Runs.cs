@@ -29,7 +29,7 @@ public sealed partial class ArchLucidApiClient
                 return new SubmitResultResult(false, null, "Invalid agent result payload.");
 
             Gen.SubmitAgentResultRequest req = new() { Result = genResult };
-            Gen.Body75? body = MapToOpenApiRequestBody<Gen.Body75>(req, GenNumericEnumBridgeJson);
+            Gen.Body76? body = MapToOpenApiRequestBody<Gen.Body76>(req, GenNumericEnumBridgeJson);
             Gen.SubmitAgentResultResponse parsed = await _api.ResultPOSTAsync(runId, null, body, ct);
 
             return new SubmitResultResult(true, parsed.ResultId, null);

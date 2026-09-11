@@ -77,6 +77,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Mid-review door change (CG-018):** Changing Career ↔ Rehearsal while a review pipeline is in flight requires confirm. Copy names artifact impact. The in-flight execute keeps the door it started under (run stamp is CG-019). New execute uses the confirmed door. Confirm does **not** cancel the run (AD-02 cancel stays on the in-flight affordance).
 
+**Execute posture stamp (CG-019):** First execute writes `workingCareerRehearsalDoor` and `executePostureCapturedUtc` onto the run header (plus existing `structuralExecutionMode`). Career honesty reads the **stamp**, not a later chooser change. A Rehearsal execute cannot later look like Career because the operator moved the door. Host `AgentExecution:Mode` stays Simulator. Full export block is CG-022.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Tenancy;
@@ -67,6 +68,10 @@ public sealed class TenantsAdminController(
         catch (ArgumentException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
