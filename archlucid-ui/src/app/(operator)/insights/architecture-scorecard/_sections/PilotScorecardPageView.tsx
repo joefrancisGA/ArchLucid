@@ -53,6 +53,7 @@ import {
 } from "@/lib/scorecard-scoring-checklist";
 
 import { ScorecardKpiCareerHonestyStrip } from "@/components/scorecard/ScorecardKpiCareerHonestyStrip";
+import { useRoiTileCareerHonesty } from "@/hooks/use-roi-tile-career-honesty";
 import { useScorecardKpiCareerHonesty } from "@/hooks/use-scorecard-kpi-career-honesty";
 
 import { ArchitectureScorecardBuyerChrome } from "./ArchitectureScorecardBuyerChrome";
@@ -205,6 +206,10 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
     exportReady: showScorecardMetrics,
   });
   const scorecardKpiCareerHonesty = useScorecardKpiCareerHonesty({
+    isSample: sampleMode,
+    scopedRunId: scopedRunId,
+  });
+  const roiTileCareerHonesty = useRoiTileCareerHonesty({
     isSample: sampleMode,
     scopedRunId: scopedRunId,
   });
@@ -404,6 +409,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
           <PilotScorecardRoiPanel
             showRoiEstimatePanel={showRoiEstimatePanel}
             sampleMode={sampleMode}
+            roiSectionQualifier={roiTileCareerHonesty?.roiSectionQualifier ?? null}
             displayHours={displayHours}
             displayReviews={displayReviews}
             displayRate={displayRate}

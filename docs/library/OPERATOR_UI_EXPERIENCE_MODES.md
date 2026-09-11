@@ -115,6 +115,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Scorecard KPIs are not Career proof (CG-034):** Architecture scorecard on Working (`PilotScorecardPageView`) shows `ScorecardKpiCareerHonestyStrip` above the KPI grid when CG-031 door×Mode cells are not **Career complete**. KPI numbers stay visible; **Operational metrics** gains a **Rehearsal metrics** or **Practice metrics** qualifier. Sample scorecard (`sample=1`) keeps the existing sample banner — no duplicate strip.
 
+**ROI tiles are not Career proof (CG-035):** ROI summary (`RoiSummaryPageView`), sponsor value report (`PilotValueReportPageView`), and scorecard estimated-savings panel wire `RoiTileCareerHonestyStrip` when CG-031 cells are not **Career complete**. Directional dollar/hour tiles stay visible; headings gain **Rehearsal ROI** or **Practice ROI** qualifiers. Sample sponsor report keeps its sample banner — no duplicate strip.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
