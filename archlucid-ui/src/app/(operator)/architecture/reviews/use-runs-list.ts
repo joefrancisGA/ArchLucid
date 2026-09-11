@@ -23,6 +23,7 @@ import { parseBuyerPackageScopeFilter } from "./buyer-package-scope-url";
 import {
   parseRunsListSearchQuery,
   runsListClearSearchHrefFromSearch,
+  runsListEffectiveSearchFromSearch,
   runsListSearchHrefFromSearch,
 } from "@/lib/runs/runs-list-search-url";
 import {
@@ -72,6 +73,7 @@ export type UseRunsListResult = {
   pages: number;
   previousHref: string;
   nextHref: string;
+  navigationSearch: string;
   onRowActivate: (run: RunSummary, e: MouseEvent<HTMLTableRowElement>) => void;
   showBuyerPackageCards: boolean;
   showCompareSelection: boolean;
@@ -315,14 +317,15 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   }, [page, pages, totalCount]);
 
   const currentSearch = searchParams.toString();
+  const navigationSearch = runsListEffectiveSearchFromSearch(currentSearch, filterText);
   const previousHref = runsListPreviousPageHrefFromSearch(
-    currentSearch,
+    navigationSearch,
     pathname,
     projectId,
     pageSize,
   );
   const nextHref = runsListNextPageHrefFromSearch(
-    currentSearch,
+    navigationSearch,
     pathname,
     projectId,
     pageSize,
@@ -415,6 +418,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     pages,
     previousHref,
     nextHref,
+    navigationSearch,
     onRowActivate,
     showBuyerPackageCards,
     showCompareSelection,

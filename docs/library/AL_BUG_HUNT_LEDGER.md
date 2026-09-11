@@ -2485,11 +2485,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 12
-- **bugs-found:** 8
+- **hunts:** 13
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — pagination Next/Previous links dropped q= and sort= search params
+- **last-bug:** 2026-09-11 — sort/pagination hrefs dropped in-progress text filter before debounced q= sync
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -2537,6 +2537,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Previous pagination link on page 2 drops active `q=`/`sort=` — **cheap-disproof 2026-09-11 seed hunt #1743:** `runsListPreviousPageHrefFromSearch` preserves search params; regression `preserves q= and sort= in the Previous pagination link on page 2`.
 
 2026-09-11 seed hunt #1743 (seed-only): reseeded ui-runs-list after #1742; cheap-disproof closed Previous-link param preservation; 36 scoped `RunsListClient` tests passed.
+
+- [x] (proven) Sort/pagination/scope navigation hrefs drop in-progress text filter before debounced `q=` URL sync — **hit 2026-09-11 seed hunt #1751 (seed→hit):** href builders used `searchParams` only while `filterText` debounces 250ms; sort chip and Next link omitted typed query until debounce completed; fixed by merging `filterText` via `runsListEffectiveSearchFromSearch` for navigation hrefs; regressions `preserves pending text filter in sort href before q= debounce completes` and `preserves pending text filter in the Next pagination link before q= debounce completes`.
+
+2026-09-11 seed hunt #1751 (seed→hit): reseeded ui-runs-list after #1743; proved navigation hrefs dropped pending filter text before debounced q= sync; 38 scoped `RunsListClient` tests passed.
 
 2026-09-10 thorough hunt #1580 (hit): proved stale compareRuns persistence under buyer package cards; 20 scoped `RunsListClient` tests passed.
 
