@@ -49,7 +49,7 @@ Working Career must not be confused with these waivers.
 |------|----------------|-----------------------------|------------|-------|
 | `archlucid-ui/src/components/GoldenManifestExportMenu.tsx` | **Yes** | Honesty markdown via `formatCareerExportHonestyMarkdown`; banner flag **not** passed | covered | CG-022 leftover if bytes still unlabeled after a server round-trip |
 | `archlucid-ui/src/components/GenerateAdrFromRunModal.tsx` | **Yes** | Honesty markdown prepended to ADR | covered | CG-024 |
-| `archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageClient.tsx` | **Yes** | Header lines; **no** CSS print watermark | covered (block) / print-stamp leftover | CG-023 / CG-041 |
+| `archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageClient.tsx` | **Yes** | Door-stamp rehearsal strip (print-only); repeating watermark is CG-041 | covered | CG-041 |
 | `archlucid-ui/src/lib/export-markdown.ts` | **Yes** | Honesty markdown + demo chrome helper | covered | CG-022 |
 | `archlucid-ui/src/lib/sealed-manifest-json-export.ts` | **Yes** | Working fail-closed; no rehearsal JSON flag unless honesty input carries it | covered | CG-044 |
 | `archlucid-ui/src/components/reviews/RunDetailCareerArtifactHonestyStrip.tsx` | **Yes** | Screen strip, not a file | covered | CG-029 adjacent |

@@ -91,6 +91,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Sponsor PDF gate (CG-022):** Working **Career** door + Simulator/Fallback cannot produce an unwatermarked sponsor PDF — `MapForExport` is door-stamp aware (not Mode-assumed banner), `FirstValueReportBuilder` blocks via `CareerArtifactExportCompletenessGate`, and `EmailRunToSponsorBanner` disables download when `evaluateCareerArtifactHonesty` fails. **Rehearsal** door on Simulator may export with rehearsal labeling (LP-06). Demo/sample waiver paths stay off Working Career.
 
+**Package print rehearsal strip (CG-023):** Ctrl+P / Save as PDF on Working Career keeps print enabled but adds a **print-only** rehearsal honesty strip when structural Mode is Simulator/Fallback and the CG-019 door stamp is not career-complete. `PackagePrintPageClient` resolves the stamped door via `resolveCareerArtifactExportHonestyDoorFields`; `PackagePrintRehearsalHonestyStripView` is hidden on screen and visible in print CSS. Repeating page watermarks are CG-041.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
