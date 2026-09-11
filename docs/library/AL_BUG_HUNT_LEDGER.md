@@ -3059,6 +3059,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `SponsorReviewPacketBuilder.BuildMarkdownAsync` — loaded `CareerExportCoverageHonestyMaterialLoader` but omitted `CareerArtifactExportCompletenessGate.EnsureCanExportFromHonestyMaterial` present on `ArchitectureReviewExportService` and `RunSummaryOnePagerExportService` — **hit 2026-09-10 seed hunt #1527:** sample-workspace runs exported sponsor packet markdown while board/one-pager paths throw `sample_workspace_export_block`; regression `BuildMarkdownAsync_throws_career_blocked_for_sample_workspace_run`
 
+- [x] (proven) `DecisionReceiptService.BuildForRunAsync` — synthetic career honesty input hardcoded `IsSampleRun: false` and measurement-floor engines, bypassing `CareerExportCoverageHonestyMaterialLoader` sample-workspace block — **hit 2026-09-11 seed hunt #1686:** load honesty material before validator; regression `BuildForRunAsync_sample_workspace_run_returns_career_artifact_blocked`.
+
+2026-09-11 seed hunt #1686 (hit): reseeded tenant-data-export; proved decision receipt sample-workspace career gate gap; 11 DecisionReceiptService unit tests passed.
+
 2026-09-10 seed hunt #1527 (hit): reseeded tenant-data-export; proved sponsor packet career gate parity gap; 7 scoped SponsorReviewPacketBuilder tests passed.
 
 2026-09-08 seed hunt #1307: reseeded from export surfaces after career-honesty integration; proved ADR 0078 gate parity gap on board PDF/DOCX/HTML and one-pager markdown; seeded manifest-hash, replay, metadata lifecycle, and sponsor-packet parity candidates.
@@ -9739,11 +9743,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 15
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — retrieval index freshness readiness Degraded on leader-elected non-leader replicas
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-11
+- **last-bug:** none (seed-only)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9810,6 +9814,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `HostedServicesCompositionRegistrar.RegisterExtractorAutoPull` registers cloud extractor auto-pull on Api — **cheap-disproof 2026-09-10 seed hunt #1575:** `HostedServicesCompositionRegistrar.ExtractorAutoPull.cs` returns early unless Worker+Combined; regression `AddArchLucidApplicationServices_Api_role_does_not_register_extractor_auto_pull_hosted_services`.
 - [x] (invalid) `RegisterInternalCrossTenantAnalytics` registers `InternalCrossTenantRollupHostedService` on Api — **cheap-disproof 2026-09-10 seed hunt #1575:** `ServiceCollectionExtensions.InternalCrossTenantAnalytics.cs` lines 17–18 gate Worker+Combined only; regression `AddArchLucidApplicationServices_Api_role_does_not_register_internal_cross_tenant_rollup_hosted_service`.
 - [x] (valid-no-repro) `ArchLucidReferenceDataHotPathRegistrar.RegisterHotPathReadCaching` omits `HotPathMemoryReplicaCoherenceHostedLogger` when memory provider is used with `ExpectedApiReplicaCount > 1` — **cheap-disproof 2026-09-10 seed hunt #1575:** lines 40–42 register coherence warning logger for multi-replica memory L1; regression `RegisterHotPathReadCaching_memory_provider_with_multi_replica_warning_registers_coherence_logger`.
+
+- [x] (valid-no-repro) `DraftIntakeCompositionRegistrar` — `DecisionReceiptService` expanded constructor after #1686 may lack graph/trace/run-repository registrations — **cheap-disproof 2026-09-11 seed hunt #1687:** global storage registrars already wire `IGraphSnapshotRepository`, `IAgentExecutionTraceRepository`, `IRunRepository`, and `IArchitectureInventoryBindingRepository`; regression `DraftIntakeCompositionRegistrar_registers_decision_receipt_service`.
+
+2026-09-11 seed hunt #1687 (seed-only): reseeded host-composition after #1686 career-export DI expansion; cheap-disproved missing DecisionReceiptService dependency registrations; 1 scoped registration discipline test passed.
 
 2026-09-10 seed hunt #1575 (seed-only): reseeded host-composition; cheap-disproof closed startup OIDC/SAML probes, outbox metrics leader-election, extractor auto-pull Api gate, internal cross-tenant rollup gate, and hot-path memory replica logger candidates; 361/363 scoped host-composition tests passed (2 pre-existing unrelated failures).
 

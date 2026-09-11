@@ -1903,3 +1903,4 @@
 {"at":"2026-09-11T00:06:22.6910331Z","zoneId":"ui-review-intake-wizards","outcome":"hit"}
 {"at":"2026-09-11T00:09:20.9221236Z","zoneId":"persistence-identity","outcome":"hit"}
 {"at":"2026-09-11T00:15:39.5591284Z","zoneId":"tenant-data-export","outcome":"hit"}
+{"at":"2026-09-11T00:18:41.4818312Z","zoneId":"host-composition","outcome":"seed-only"}
