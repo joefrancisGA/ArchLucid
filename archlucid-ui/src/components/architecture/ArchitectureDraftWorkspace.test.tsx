@@ -152,6 +152,7 @@ vi.mock("@/lib/architecture/architecture-draft-handoff-gate", async () => {
 
 vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
+  showMutationError: vi.fn(),
   showSuccess: vi.fn(),
 }));
 
@@ -176,7 +177,7 @@ import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/archit
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { showError, showSuccess } from "@/lib/toast";
+import { showError, showMutationError, showSuccess } from "@/lib/toast";
 
 const readyStructuredBriefDocument = {
   confirmedConstraints: ["Private endpoints required"],
@@ -228,6 +229,7 @@ beforeEach(() => {
     displayName: "Claims intake modernization",
   });
   vi.mocked(showError).mockReset();
+  vi.mocked(showMutationError).mockReset();
   vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([]);
   vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
     saveState: "idle",
@@ -884,6 +886,7 @@ describe("ArchitectureDraftWorkspace", () => {
 
     expect(screen.getByTestId("architecture-draft-conflict-refresh")).toBeInTheDocument();
     expect(vi.mocked(showError)).not.toHaveBeenCalled();
+    expect(vi.mocked(showMutationError)).not.toHaveBeenCalled();
   });
 
   it("disables Start review and shows inline readiness when overview/outcome are below minimum (TB-2006)", async () => {
