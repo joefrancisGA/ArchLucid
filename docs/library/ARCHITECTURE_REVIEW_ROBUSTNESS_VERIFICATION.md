@@ -106,7 +106,7 @@ Working seats block finalize when engine coverage is degraded:
 | Layer | Gate |
 |-------|------|
 | **Server** | `CareerArtifactCompletenessValidator.EvaluateDegradedFindingCoverage` when `WorkingDesk && Finalize && DegradedFindingCoverage` (via `AuthorityDrivenArchitectureRunCommitOrchestrator`). |
-| **UI scorecard** | `blockDegradedFindingCoverageOnWorking` wired from `buyerPolishedArtifactTable !== true` in `run-detail-page-presentation-governance.ts` and client recompute (`resolveClientAwareCommitBlockedReason`). |
+| **UI scorecard** | `blockDegradedFindingCoverageOnWorking` wired from `buyerPolishedArtifactTable !== true` in `run-detail-page-presentation-governance.ts`; finalize blocking uses server `GET …/readiness` via `useAssumptionAwareCommitBlockedReason`. |
 
 Copy parity: `DegradedFindingCoverageBlockedReasonUiCopyParityTests` (Decisioning) + `degraded-finding-coverage-blocked-reason.ts`.
 
@@ -154,7 +154,7 @@ Pre-manifest finalize derives `blockingFindingCount` from live finding rows (Err
 |-------|----------------|
 | `CommitOutputIntegrityService` | Structural mode, lifecycle phase, agent output quality, unsupported semantic support hold, decision-grade provenance, existential assumptions, TB-2321 scorecard (nine dimensions), evidence referential integrity. |
 | `AuthorityDrivenArchitectureRunCommitOrchestrator` | Skipped MUST, transparency trail, WS-14 degraded coverage on Working desk (`CareerArtifactCompletenessValidator`). |
-| UI-only scorecard rows | Blocking finding count, existential assumption ack UI, skipped MUST / transparency / degraded coverage (client recompute via `resolveClientAwareCommitBlockedReason`). |
+| UI finalize fallback | When server readiness is unavailable, `useAssumptionAwareCommitBlockedReason` surfaces `READINESS_UNAVAILABLE_MESSAGE` instead of client scorecard recompute. |
 
 Guard: `CommitOutputIntegrityGateMapArchitectureTests`.
 
@@ -184,18 +184,55 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGate
 
 ## Finalize conflict SQL integration proof
 
-`FinalizeConflictSqlIntegrationFixture` pins scorecard-shaped findings on an executed run's SQL findings snapshot so verify-hypothesis, contradiction, and pre-commit proofs no longer depend on simulator output shape. Pre-commit proof pins a `BlockCommitOnCritical` policy pack row on the run header and injects a **Critical** finding into the findings snapshot.
+`FinalizeConflictSqlIntegrationFixture` pins scorecard-shaped findings on an executed run's SQL findings snapshot so all nine finalize scorecard dimensions (blocking findings, uncovered requirements, deferred, contradictions, cannot-determine, verify-hypothesis, unverified assumptions, low-confidence extractions, unresolved high-severity dispositions) plus pre-commit proofs no longer depend on simulator output shape. Pre-commit proof pins a `BlockCommitOnCritical` policy pack row on the run header and injects a **Critical** finding into the findings snapshot.
 
 `FinalizeConflictSqlIntegrationTests` proves lifecycle integrity blocks, scorecard blocks, and pre-commit governance blocks on `POST …/finalize` stay aligned with `GET …/readiness` through real SQL persistence:
 
 - Create run without execute → 409 + readiness `lifecycle_phase_incomplete` integrity block.
-- Execute run, bulk-disposition one finding as **Deferred** with revisit → 409 + readiness `scorecard` layer block (open deferred dimension).
+- Execute run, bulk-disposition pinned finding as **Deferred** with revisit → 409 + readiness `scorecard` layer block (open deferred dimension).
 - Execute run with pinned **verify-hypothesis** finding → 409 + readiness `scorecard` layer block containing `hypothesis` (TB-2315 parity).
 - Execute run with pinned **contradiction** finding → 409 + readiness `scorecard` layer block containing `contradiction` (TB-2179 parity).
+- Execute run with pinned **cannot-determine** finding → 409 + readiness `scorecard` layer block containing `open question` (TB-2302 parity).
+- Execute run with pinned **blocking** finding → 409 + readiness `scorecard` layer block containing `unresolved blocking`.
+- Execute run with pinned **low-confidence** critical finding → 409 + readiness `scorecard` layer block containing `low confidence`.
+- Execute run with pinned **unverified assumptions** (threshold met) → 409 + readiness `scorecard` layer block containing `unverified assumptions`.
+- Execute run with pinned **coverage-gap** finding → 409 + readiness `scorecard` layer block containing `mandatory requirement` / `design decision`.
+- Execute run with pinned **unresolved high-severity** finding → 409 + readiness `scorecard` layer block containing `accepted-risk disposition`.
 - Execute run blocked by **pre-commit governance** → finalize **409** with `ProblemTypes.GovernancePreCommitBlocked` aligned with readiness `pre_commit_gate` layer block (deterministic via pinned critical finding + `BlockCommitOnCritical` policy pack pin).
+- Execute run with pinned **skipped MUST** intake question → finalize **409** with `ProblemTypes.GovernancePreCommitBlocked` aligned with readiness `career-artifact` / `skipped_must_questions` block.
+- Execute run with **missing transparency trail** → finalize **409** aligned with readiness `career-artifact` / `transparency_trail_incomplete` block.
+- Execute run with **degraded finding coverage** on Working desk → finalize **409** aligned with readiness `career-artifact` / `degraded_finding_coverage` block.
+- Execute run with **decision-grade provenance violation** → finalize **409** with `ProblemTypes.Conflict` aligned with readiness `integrity` / `decision_grade_provenance` block.
+- Execute run with **unacknowledged existential assumption** on request → finalize **409** aligned with readiness `integrity` / `existential_assumption` block.
+- Execute run with **rejected agent output quality trace** (Real + PilotStrict) → finalize **409** aligned with readiness `integrity` / `agent_output_quality` block.
 
 ```bash
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeConflictSqlIntegrationTests"
+```
+
+## Artifact export sealed-manifest runtime 409 proof
+
+`ArtifactExportSealedManifestRuntimeConflictTests` proves artifact export controllers map runtime sealed-manifest `ConflictException` (and builder/verifier conflict outcomes) to OpenAPI **409**:
+
+- `GET …/reviews/{runId}/export` (`DownloadRunExport`) — manifest compare guard and package-builder conflict
+- `GET …/reviews/{runId}/export/verify` (`VerifyRunExportLineage`) — lineage verifier conflict
+- `GET …/reviews/{runId}/terraform-advisory-export` (`DownloadTerraformAdvisoryExport`) — sealed hash drift
+- `GET …/reviews/{runId}/decision-receipt` (`DownloadRunDecisionReceipt`) — sealed-hash mismatch outcome
+- `GET …/architecture/reviews/{runId}/artifacts` (`ListArtifactsForRun`) — manifest compare guard
+
+```bash
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~ArtifactExportSealedManifestRuntimeConflictTests"
+```
+
+## DOCX export sealed-manifest runtime 409 proof
+
+`DocxExportSealedManifestRuntimeConflictTests` proves consulting DOCX export maps lifecycle and compare-run sealed-manifest conflicts to OpenAPI **409**:
+
+- `GET …/docx/reviews/{runId}/architecture-package` (`ExportRunDocx`) — lifecycle incomplete guard
+- `GET …/docx/reviews/{runId}/architecture-package?compareWithRunId=` — compare-run sealed-manifest guard
+
+```bash
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~DocxExportSealedManifestRuntimeConflictTests"
 ```
 
 ## Wave-73 finding disposition sealed-manifest 409 proof
@@ -206,6 +243,15 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeConflictSql
 - `POST …/findings/bulk-disposition` (`RecordBulkDisposition`)
 - `POST …/runs/{runId}/finding-merge-conflicts/{findingId}/resolve` (`ResolveFindingMergeConflict`)
 
+`Wave73SealedManifestRuntimeConflictTests` proves wave-73 suggestions **861–866** map runtime `ConflictException` to OpenAPI **409**:
+
+- `GET …/runs/{runId}/sponsor-proof-pack.zip` (`GetSponsorProofPackZip`)
+- `GET …/runs/{runId}/sponsor-review-packet` (`GetExecutiveReviewPacket`)
+- `GET …/runs/{runId}/first-value-report` (`GetFirstValueReport`)
+- `GET …/roi/sponsor-report/board-pack` (`GetSponsorReportBoardPackAsync`)
+- `POST …/review/{runId}/analysis-report` (`AnalyzeRun`)
+- `POST …/governance/risk-exceptions` (`CreateRiskException`)
+
 UI copy parity: `finding-disposition-mutation-blocked-reason.ts` → `compareRunPairBlockedReason` for lifecycle/sealed-hash **409** detail.
 
 Wave-73 export helpers (868–872) delegate to the same `compareRunPairBlockedReason` path; `wave-73-export-mutation-blocked-reason.test.ts` covers pilot collateral, sponsor ROI board pack, consulting DOCX, run summary/package export, and architecture package DOCX helpers.
@@ -215,13 +261,14 @@ pnpm --dir archlucid-ui exec vitest run src/lib/wave-73-export-mutation-blocked-
 ```
 
 ```bash
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~Wave73SealedManifestRuntimeConflictTests"
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~GovernanceStickinessDispositionSealedManifestRuntimeConflictTests"
 cd archlucid-ui && npx vitest run src/lib/findings/finding-disposition-mutation-blocked-reason.test.ts
 ```
 
 ## Unified finalize readiness API
 
-`GET /v1/governance/pre-finalize/readiness/{runId}` composes career-artifact, integrity, scorecard, and pre-commit governance gates into one server contract (`FinalizeReadinessService`). Optional `acknowledgedAssumptionIds` query params union persisted TB-2345 acknowledgements for assumption-gate parity. Pre-commit governance reuses `IPreCommitGovernanceGate.EvaluateAsync(runId)` (same snapshot + supplemental findings path as checklist/commit; no manifest dry-run required for blocking parity).
+`GET /v1/governance/pre-finalize/readiness/{runId}` composes career-artifact, integrity, scorecard, and pre-commit governance gates into one server contract (`FinalizeReadinessService`). Optional `acknowledgedAssumptionIds` query params union persisted TB-2345 acknowledgements for assumption-gate parity. Pre-commit governance reuses `IPreCommitGovernanceGate.EvaluateAsync(runId)` (same snapshot + supplemental findings path as checklist/commit; no manifest dry-run required for blocking parity). Embedded `checklist.readyToFinalize` on the readiness payload is aligned with commit authority (`readyToFinalize`) so finalize UI does not disagree on the same response; standalone `GET …/pre-finalize/checklist/{runId}` keeps operator-hygiene items.
 
 Proof tests:
 
@@ -230,7 +277,19 @@ dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~FinalizeRea
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeReadinessControllerTests"
 ```
 
-UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton`. SSR `finalizeReadinessBlocks` from `buildRunDetailGovernancePresentation` hydrate the hook during client fetch and flow through `RunDetailPageHeader`, `ReviewPackagePrimaryAction`, and `RunDetailWorkspaceStickyActionsResolved` (deferred sticky bar on standard review detail). `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority.
+UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton` with per-block deep links via `resolveFinalizeReadinessBlockAction` (findings job views, activity tab, intake finalize-readiness anchor). SSR `finalizeReadinessBlocks` from `buildRunDetailGovernancePresentation` hydrate the hook during client fetch and flow through `RunDetailPageHeader`, `ReviewPackagePrimaryAction`, and `RunDetailWorkspaceStickyActionsResolved` (deferred sticky bar on standard review detail). `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority.
+
+```bash
+cd archlucid-ui && npx vitest run src/lib/review-quality/finalize-readiness-block-action.test.ts src/components/reviews/FinalizeReadinessBlockList.test.tsx
+```
+
+## TB-184 governance-block explainer (Staging)
+
+`AgentRuntime:ExplainGovernanceBlocks:Enabled` is **true** in `appsettings.Staging.json` so pre-commit governance **409** responses can include optional `blockExplanation` copy. Production remains default-off for cost control.
+
+```bash
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~ExplainGovernanceBlocksHostedAppsettingsTests"
+```
 
 ## ConflictException → 409 controller sweep
 

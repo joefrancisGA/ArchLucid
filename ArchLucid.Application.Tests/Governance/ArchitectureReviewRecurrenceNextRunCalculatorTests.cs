@@ -470,6 +470,24 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculatorTests
     }
 
     [Fact]
+    public void IsSupportedCronExpression_accepts_yearly_alias()
+    {
+        _sut.IsSupportedCronExpression("@yearly").Should().BeTrue("Cronos parses @yearly like @monthly");
+    }
+
+    [Fact]
+    public void ComputeNextRunsUtc_yearly_alias_returns_future_instants()
+    {
+        DateTime from = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
+
+        IReadOnlyList<DateTime> runs = _sut.ComputeNextRunsUtc("@yearly", from, 2);
+
+        runs.Should().HaveCount(2);
+        runs[0].Should().BeAfter(from);
+        runs[1].Should().BeAfter(runs[0]);
+    }
+
+    [Fact]
     public void ComputeNextRunUtc_stamps_utc_kind_when_retry_returns_unspecified_kind()
     {
         DateTime reference = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);

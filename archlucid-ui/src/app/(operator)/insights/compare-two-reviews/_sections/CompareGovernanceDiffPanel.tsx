@@ -150,6 +150,27 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
         </p>
       ) : null}
 
+      {props.targetRunId !== null &&
+      props.targetRunId !== undefined &&
+      props.targetRunId.trim().length > 0 &&
+      view.manifestRuleSetChanges.length > 0 ? (
+        <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-governance-impact-preview-link">
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={buildPolicyPacksImpactPreviewHref(
+              resolveCompareGovernancePackImpactHandoff(
+                props.targetRunId,
+                view.baselineManifest.atCommit?.packAssignments[0]?.policyPackId ??
+                  view.baselineManifest.ruleSetId,
+                view.targetManifest.atCommit?.packAssignments[0]?.policyPackId ?? view.targetManifest.ruleSetId,
+              ),
+            )}
+          >
+            Open pack impact preview for this comparison
+          </Link>
+        </p>
+      ) : null}
+
       {view.usesCurrentEffectiveOnly && props.hideCurrentEffectiveDisclaimer !== true ? (
         <p
           className={cn("m-0 mt-3", DESIGN_TOKENS.callout.warn, "p-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

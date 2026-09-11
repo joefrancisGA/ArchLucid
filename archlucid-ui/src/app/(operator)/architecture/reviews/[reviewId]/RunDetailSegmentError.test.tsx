@@ -32,6 +32,42 @@ vi.mock("@/lib/auth/error-boundary-idle-snapshot", () => ({
   persistLivelihoodIdleSnapshotsBeforeErrorRecovery: () => false,
 }));
 
+vi.mock("next/navigation", () => ({
+  useParams: () => ({ reviewId: "run-abc" }),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => "/architecture/reviews/run-abc",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({
+    mode: "working",
+    mounted: true,
+    accountSyncState: "synced",
+    isWorkingMode: true,
+    setAndPersist: vi.fn(),
+  }),
+}));
+
+vi.mock("@/hooks/use-effective-working-career-rehearsal-door", () => ({
+  useEffectiveWorkingCareerRehearsalDoor: () => ({
+    door: "rehearsal",
+    effectiveDoor: "rehearsal",
+    mounted: true,
+  }),
+}));
+
+vi.mock("@/hooks/use-operator-scope-query-key", () => ({
+  useOperatorScopeQueryKey: () => ({ tenantId: "tenant-a", projectId: "project-a" }),
+}));
+
+vi.mock("@/lib/error-recovery/read-error-recovery-run-stamp-from-cache", () => ({
+  readErrorRecoveryRunStampFromCache: () => ({
+    structuralExecutionMode: "Simulator",
+    workingCareerRehearsalDoor: "rehearsal",
+  }),
+}));
+
 import RunDetailSegmentError from "@/app/(operator)/architecture/reviews/[reviewId]/error";
 
 describe("RunDetailSegmentError (LW-096)", () => {
@@ -48,6 +84,13 @@ describe("RunDetailSegmentError (LW-096)", () => {
     expect(screen.getByTestId("operator-error-recovery-what-failed")).toBeInTheDocument();
     expect(screen.getByTestId("operator-error-recovery-intact")).toBeInTheDocument();
     expect(screen.getByTestId("operator-error-recovery-next-step")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-error-recovery-next-step")).toHaveTextContent(
+      /does not change execute posture/i,
+    );
+    expect(screen.getByTestId("error-recovery-career-honesty-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("error-recovery-career-honesty-body")).toHaveTextContent(
+      /does not mark a rehearsal run Career-complete/i,
+    );
 
     const retry = screen.getByTestId("review-detail-segment-error-retry");
     const back = screen.getByTestId("review-detail-segment-error-back");
