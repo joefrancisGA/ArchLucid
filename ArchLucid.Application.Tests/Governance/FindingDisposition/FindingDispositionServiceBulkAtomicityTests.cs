@@ -96,6 +96,33 @@ public sealed class FindingDispositionServiceBulkAtomicityTests
     }
 
     [Fact]
+    public async Task RecordBulkAsync_rejects_invalid_base64_expected_row_version_before_repository()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        RecordFindingDispositionRequest validRequest = CreateRequest(
+            "finding-fresh",
+            FindingDispositionKind.Accepted,
+            "bulk valid finding",
+            tradeOffAcknowledgment: "accepting fresh finding trade-off for pilot scope");
+        RecordFindingDispositionRequest invalidTokenRequest = CreateRequest(
+            "finding-invalid-token",
+            FindingDispositionKind.Remediated,
+            "bulk invalid concurrency token",
+            expectedRowVersionBase64: "not-valid-base64!!!");
+
+        Func<Task> act = () => sut.RecordBulkAsync(
+            [validRequest, invalidTokenRequest],
+            Scope,
+            "bob",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithMessage("*base64*");
+        trailRepository.EventCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task RecordBulkAsync_matching_expected_version_records_and_stale_version_conflicts()
     {
         ConcurrentFindingReviewTrailRepository trailRepository = new();
