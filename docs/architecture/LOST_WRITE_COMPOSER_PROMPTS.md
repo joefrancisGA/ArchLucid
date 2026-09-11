@@ -6,7 +6,7 @@
 
 # Lost-write Composer prompts (LW-001–LW-100)
 
-**Created:** 2026-09-10 · **Status:** ready to run · **Do not re-run** AS, FP, LP, WS, LK, V12-01 / AS-094 except as an LW row names a leftover.
+**Created:** 2026-09-10 · **Status:** shipped (wave 23 close audit [`LOST_WRITE_ACCEPTANCE_2026-09-11.md`](LOST_WRITE_ACCEPTANCE_2026-09-11.md)) · **Do not re-run** AS, FP, LP, WS, LK, V12-01 / AS-094 except as an LW row names a leftover.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. Waves through **22** made Working an instrument (chrome, persist gates, disposition CAS, diagrams on decide). They did not fail-close **in-flight writes**.
 
