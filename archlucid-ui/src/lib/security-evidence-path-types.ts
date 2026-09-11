@@ -68,3 +68,81 @@ export type OperationalSecurityFindingDetail = {
   pathId: string | null;
   title: string | null;
 };
+
+export type SecurityEvidencePathRankSummary = {
+  pathId: string;
+  snapshotId: string;
+  rankOrder: number;
+  ruleVersion: string;
+  technicalExposureScore: number;
+  privilegeDepthScore: number;
+  blastRadiusScore: number;
+  businessConsequenceScore: number | null;
+  confidenceBandScore: number;
+  compositeSortScore: number;
+  explanationSummary: string;
+  pathKind: string;
+  pathConfidenceBand: string;
+  computedUtc: string;
+  relatedCutPoints: ReadonlyArray<SecurityEvidencePathCutPoint>;
+};
+
+export type SecurityEvidencePathRankedPage = {
+  items: ReadonlyArray<SecurityEvidencePathRankSummary>;
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  topCutPoints: ReadonlyArray<SecurityEvidencePathCutPoint>;
+};
+
+export type SecurityEvidencePathRankDetail = {
+  pathId: string;
+  snapshotId: string;
+  rankOrder: number;
+  ruleVersion: string;
+  technicalExposureScore: number;
+  privilegeDepthScore: number;
+  blastRadiusScore: number;
+  businessConsequenceScore: number | null;
+  confidenceBandScore: number;
+  compositeSortScore: number;
+  explanationSummary: string;
+  breakdownJson: string;
+  pathKind: string;
+  pathConfidenceBand: string;
+  dimensionProse: {
+    technicalExposure: string;
+    privilegeDepth: string;
+    blastRadius: string;
+    businessConsequence: string;
+    confidenceBand: string;
+    overall: string;
+  };
+  computedUtc: string;
+};
+
+export type SecurityEvidencePathProposedRemediation = {
+  recommendedChange: string;
+  recommendedChangeSource: string;
+  verificationQueries: ReadonlyArray<string>;
+  preconditions: ReadonlyArray<string>;
+  suggestedPatternKey: string | null;
+};
+
+export type SecurityEvidencePathExplanation = {
+  explanationId: string;
+  pathId: string;
+  executiveSummary: string;
+  businessImpactHypotheses: ReadonlyArray<string>;
+  proposedRemediation: SecurityEvidencePathProposedRemediation;
+  citedEvidenceRefs: ReadonlyArray<string>;
+  provenanceKind: string;
+  simulatorLabel: string | null;
+  createdUtc: string;
+};
+
+export type SecurityEvidencePathExplanationResult = {
+  succeeded: boolean;
+  errorMessage: string | null;
+  explanation: SecurityEvidencePathExplanation | null;
+};
