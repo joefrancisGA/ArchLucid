@@ -127,6 +127,12 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **First-review guide does not launder Career (CG-091):** `/architecture/first-review-guide` on Working applies `shouldSuppressReadyToFinalizeForCareerHonesty` before walkthrough steps or header actions show **Seal review**. Evaluation scope helper names **Career + Real** vs explicit **Rehearsal** practice. Sample recovery (`OnboardingSampleReviewShortcut`, walkthrough step 6, support-panel sample rail) stays off live tenant shells via `isLiveOperatorShellRecoveryContext`. Guided guide copy is unchanged when not on Working.
 
+**Support bundle includes door/Mode (CG-092):** `archlucid support-bundle --run-id <runId>` writes **`triage-index.json`** / **`triage-index.md`** with CG-019 **`careerPosture`** (door, posture label, rehearsal-incomplete, career-blocked) plus **`structuralExecutionModeLabel`**. Identifiers only — no secrets, prompts, or evidence bodies. On-call can distinguish Rehearsal vs Career blocked without a UI screenshot. See [`FIRST_PILOT_SUPPORT_TRIAGE.md`](../runbooks/FIRST_PILOT_SUPPORT_TRIAGE.md).
+
+**Webhook payload includes rehearsal flag (CG-093):** `com.archlucid.authority.run.completed` and `com.archlucid.manifest.finalized.v1` outbox payloads include **`structuralExecutionMode`**, **`workingCareerRehearsalDoor`**, and **`careerComplete`** from the CG-019 run stamp. Webhook consumers must not infer Career proof from HTTP 200 alone — filter on `careerComplete === true` and Real Mode. Schema registry: `schemas/integration-events/authority-run-completed.v1.schema.json` and `manifest-finalized.v1.schema.json`.
+
+**Integration DLQ is not Career proof (CG-094):** `/internal/failed-integration-messages` shows `IntegrationEventsDlqCareerHonestyStrip` above the ops queue. Dead-letter rows are delivery failures awaiting retry — not sealed review records. Cross-tenant callout and Sources intro reinforce ops-only triage; Working primary nav already hides this admin surface. The retry/suppress tool remains available to Internal Operations.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
