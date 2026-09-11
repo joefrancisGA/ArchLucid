@@ -386,4 +386,33 @@ public sealed class TrialLimitGateTests
 
         await act.Should().NotThrowAsync();
     }
+
+    [SkippableFact]
+    public async Task GuardWriteAsync_unrecognized_trial_status_does_not_enforce_trial_limits()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "n",
+                    Slug = "s",
+                    Tier = TenantTier.Standard,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    TrialStatus = "LegacyImport",
+                    TrialExpiresUtc = DateTimeOffset.Parse("2026-04-10T00:00:00Z", CultureInfo.InvariantCulture),
+                    TrialRunsLimit = 1,
+                    TrialRunsUsed = 99,
+                });
+
+        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
+        Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
+
+        await act.Should().NotThrowAsync(
+            "non-canonical TrialStatus values are treated as non-trial for mutating gate purposes unless they match a frozen lifecycle label");
+    }
 }

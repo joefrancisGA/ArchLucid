@@ -21,4 +21,15 @@ describe("operator-query-invalidation", () => {
 
     expect(queryClient.getQueryState(operatorQueryKeys.userAttentionSummary)?.isInvalidated).toBe(true);
   });
+
+  it("invalidateOperatorHomeRunsCaches_invalidates_scoped_pilot_value_report_queries", async () => {
+    const queryClient = getOperatorQueryClient();
+    const scope = { tenantId: "t1", workspaceId: "w1", projectId: "p1" };
+    const reportKey = operatorQueryKeys.pilotValueReport(scope, "open", "2026-02-01T00:00:00.000Z");
+    queryClient.setQueryData(reportKey, { totalRunsCommitted: 1 });
+
+    await invalidateOperatorHomeRunsCaches();
+
+    expect(queryClient.getQueryState(reportKey)?.isInvalidated).toBe(true);
+  });
 });

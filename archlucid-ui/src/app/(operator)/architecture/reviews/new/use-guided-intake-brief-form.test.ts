@@ -43,6 +43,32 @@ describe("useGuidedIntakeBriefForm", () => {
     expect(result.current.advanceBlockers).toContain(GUIDED_INTAKE_SCOPE_CONFIRMATION_BLOCKER);
   });
 
+  it("clears scope confirmation blocker when scope bullets are confirmed after scopeGate URL prefill", () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("scopeGate=1"));
+
+    const { result } = renderHook(() =>
+      useGuidedIntakeBriefForm({
+        exampleTemplate: null,
+        isCreateArchitectureFlow: false,
+      }),
+    );
+
+    act(() => {
+      result.current.setScopeBullets([
+        {
+          id: "scope-1",
+          kind: "system",
+          label: "Primary System or Architecture",
+          value: "Retail API",
+          source: "inferred",
+        },
+      ]);
+    });
+
+    expect(result.current.scopeGateOpen).toBe(true);
+    expect(result.current.advanceBlockers).not.toContain(GUIDED_INTAKE_SCOPE_CONFIRMATION_BLOCKER);
+  });
+
   it("applies example template prefill only once across hook remounts", async () => {
     const first = renderHook(() =>
       useGuidedIntakeBriefForm({

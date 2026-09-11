@@ -63,7 +63,7 @@ function resolveExpiresInSeconds(expiresIn: number | undefined): number {
     return defaultExpiresInSec;
   }
 
-  return numericExpiresIn;
+  return Math.trunc(numericExpiresIn);
 }
 
 let refreshInFlight: Promise<void> | null = null;

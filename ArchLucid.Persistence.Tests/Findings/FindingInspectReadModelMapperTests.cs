@@ -425,4 +425,113 @@ public sealed class FindingInspectReadModelMapperTests
     {
         FindingInspectReadModelMapper.ParseDisposition("  1.5  ").Should().BeNull();
     }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_returns_null_for_negative_numeric_string()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("-1").Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_trims_whitespace_from_negative_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("  -1  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_trims_whitespace_from_negative_numeric_string_before_defaulting_to_info()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("  -1  ").Should().Be(FindingSeverity.Info);
+    }
+
+    [Fact]
+    public void ParseHumanReview_trims_whitespace_from_negative_numeric_string_before_defaulting_to_not_required()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("  -1  ").Should().Be(FindingHumanReviewStatus.NotRequired);
+    }
+
+    [Fact]
+    public void ParseDisposition_trims_whitespace_from_negative_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("  -1  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_trims_whitespace_from_fractional_numeric_string_before_defaulting_to_info()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("  1.5  ").Should().Be(FindingSeverity.Info);
+    }
+
+    [Fact]
+    public void ParseHumanReview_trims_whitespace_from_fractional_numeric_string_before_defaulting_to_not_required()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("  2.5  ").Should().Be(FindingHumanReviewStatus.NotRequired);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_trims_whitespace_from_fractional_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("  1.5  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseDisposition_trims_whitespace_from_fractional_numeric_string_before_rejecting_for_all_fractional_inputs()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("  0.5  ").Should().BeNull();
+        FindingInspectReadModelMapper.ParseDisposition("  1.5  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseDisposition_trims_whitespace_from_positive_undefined_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("  5  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_trims_whitespace_from_positive_undefined_numeric_string_before_defaulting_to_info()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("  4  ").Should().Be(FindingSeverity.Info);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_trims_whitespace_from_positive_undefined_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("  3  ").Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("+0", FindingSeverity.Info)]
+    [InlineData("+1", FindingSeverity.Warning)]
+    [InlineData("+999", FindingSeverity.Info)]
+    public void ParseFindingSeverity_maps_plus_sign_prefixed_numeric_strings(string raw, FindingSeverity expected)
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity(raw).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("+0", FindingHumanReviewStatus.NotRequired)]
+    [InlineData("+1", FindingHumanReviewStatus.Pending)]
+    [InlineData("+999", FindingHumanReviewStatus.NotRequired)]
+    public void ParseHumanReview_maps_plus_sign_prefixed_numeric_strings(string raw, FindingHumanReviewStatus expected)
+    {
+        FindingInspectReadModelMapper.ParseHumanReview(raw).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("+0", FindingConfidenceLevel.High)]
+    [InlineData("+1", FindingConfidenceLevel.Medium)]
+    [InlineData("+999", null)]
+    public void TryParseEvaluationConfidenceLevel_maps_plus_sign_prefixed_numeric_strings(string raw, FindingConfidenceLevel? expected)
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel(raw).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("+0", FindingDisposition.Accepted)]
+    [InlineData("+1", FindingDisposition.Deferred)]
+    [InlineData("+999", null)]
+    public void ParseDisposition_maps_plus_sign_prefixed_numeric_strings(string raw, FindingDisposition? expected)
+    {
+        FindingInspectReadModelMapper.ParseDisposition(raw).Should().Be(expected);
+    }
 }
