@@ -19,6 +19,7 @@ import {
   SIMULATOR_REHEARSAL_HEADER_BODY,
   SIMULATOR_REHEARSAL_HEADER_TITLE,
 } from "@/lib/governance/simulator-career-honesty";
+import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import { countSkippedMustQuestions } from "@/lib/review-quality/count-skipped-must-questions";
 import { resolveHardInfeasibleCitationExportBlockedReason } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
 import { getDecisionGradeFindingProvenanceViolations } from "@/lib/findings/decision-grade-finding-provenance-validator";
@@ -37,6 +38,8 @@ export type CareerArtifactHonestyInput = CareerExportCoverageHonestyInput & {
   readonly blockExternalSponsorDistribution?: boolean;
   /** LP-06 — rehearsal title/body are embedded on the export artifact. */
   readonly simulatorRehearsalBannerOnArtifact?: boolean;
+  /** CG-019 / CG-021 — stamped or live Working door for Simulator finalize parity. */
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
 };
 
 export type CareerArtifactHonestyVerdict = {
@@ -250,6 +253,7 @@ export function evaluateCareerArtifactHonesty(
     isSample: input.isSample,
     structuralExecutionMode: input.structuralExecutionMode,
     simulatorRehearsalBannerOnArtifact: input.simulatorRehearsalBannerOnArtifact,
+    effectiveWorkingCareerRehearsalDoor: input.effectiveWorkingCareerRehearsalDoor,
     artifactKind: input.artifactKind,
   });
 

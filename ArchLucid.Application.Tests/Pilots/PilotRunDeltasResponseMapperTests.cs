@@ -1,8 +1,10 @@
 using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Contracts.Pilots;
+using ArchLucid.Contracts.User;
+using ArchLucid.Contracts.ValueReports;
 
 using FluentAssertions;
 
@@ -70,6 +72,69 @@ public class PilotRunDeltasResponseMapperTests
             PilotRunDeltasResponseMapper.ToResponseWithProofPackage(run, manifest, deltas, valueReport, ts);
 
         response.ExtractorCollectionTimestampUtc.Should().Be(ts);
+    }
+
+    [Fact]
+    public void ToResponseWithProofPackage_Maps_execute_posture_fields_for_cli_bundle()
+    {
+        ArchitectureRun run = new()
+        {
+            RunId = Guid.NewGuid().ToString("N"),
+            StructuralExecutionMode = StructuralExecutionMode.Simulator,
+            WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
+        };
+
+        GoldenManifest manifest = new()
+        {
+            Metadata = new ManifestMetadata()
+        };
+
+        PilotRunDeltas deltas = new()
+        {
+            RunCreatedUtc = DateTime.UtcNow
+        };
+
+        ValueReportSnapshot valueReport = new(
+            TenantId: Guid.NewGuid(),
+            WorkspaceId: Guid.NewGuid(),
+            ProjectId: Guid.NewGuid(),
+            PeriodFromUtc: DateTimeOffset.UtcNow,
+            PeriodToUtc: DateTimeOffset.UtcNow,
+            RunStatusRows: new List<ValueReportRunStatusRow>(),
+            RunsCompletedCount: 1,
+            ManifestsCommittedCount: 0,
+            GovernanceEventsHandledCount: 0,
+            DriftAlertEventsCaughtCount: 0,
+            EstimatedArchitectHoursSavedFromManifests: 0,
+            EstimatedArchitectHoursSavedFromGovernanceEvents: 0,
+            EstimatedArchitectHoursSavedFromDriftEvents: 0,
+            EstimatedTotalArchitectHoursSaved: 0,
+            EstimatedLlmCostForWindowUsd: 0,
+            EstimatedLlmCostMethodologyNote: "",
+            AnnualizedHoursValueUsd: 0,
+            AnnualizedLlmCostUsd: 0,
+            BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel: 0,
+            NetAnnualizedValueVersusRoiBaselineUsd: 0,
+            RoiAnnualizedPercentVersusRoiBaseline: 0,
+            TenantBaselineReviewCycleHours: null,
+            TenantBaselineReviewCycleSource: null,
+            TenantBaselineReviewCycleCapturedUtc: null,
+            MeasuredAverageReviewCycleHoursForWindow: null,
+            MeasuredReviewCycleSampleSize: 0,
+            ReviewCycleBaselineProvenance: ReviewCycleBaselineProvenance.NoMeasurementYet,
+            ReviewCycleHoursDelta: null,
+            ReviewCycleHoursDeltaPercent: null,
+            FindingFeedbackNetScore: 0,
+            FindingFeedbackVoteCount: 0,
+            TenantBaselineManualPrepHoursPerReview: null,
+            TenantBaselinePeoplePerReview: null
+        );
+
+        PilotRunDeltasResponse response =
+            PilotRunDeltasResponseMapper.ToResponseWithProofPackage(run, manifest, deltas, valueReport);
+
+        response.StructuralExecutionMode.Should().Be(StructuralExecutionMode.Simulator);
+        response.WorkingCareerRehearsalDoor.Should().Be(WorkingCareerRehearsalDoorValues.Rehearsal);
     }
 
     [Fact]

@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Support;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Findings.FindingVerification;
@@ -8,10 +9,14 @@ using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagrams;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Coordination.Export;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -54,7 +59,12 @@ public sealed partial class ArtifactExportController(
     IManifestHashService manifestHashService,
     IBrandedDiagramExportService brandedDiagramExportService,
     IFindingVerificationReportQueryService findingVerificationReportQueryService,
-    IArchitectureShareAccessGate architectureShareAccessGate)
+    IArchitectureShareAccessGate architectureShareAccessGate,
+    IRunDetailQueryService runDetailQueryService,
+    IGraphSnapshotRepository graphSnapshotRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository)
     : ControllerBase
 {
     private readonly IArchitectureShareAccessGate _architectureShareAccessGate =

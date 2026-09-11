@@ -1,10 +1,11 @@
 "use client";
 
+import DOMPurify from "dompurify";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
-import { ArchitectureDiagramViewportControls } from "@/components/architecture/ArchitectureDiagramViewportControls";
+import { ShortcutHint } from "@/components/ShortcutHint";
 import {
   Dialog,
   DialogContent,
@@ -14,8 +15,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import {
+  ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
   ARCHITECTURE_DIAGRAM_RENDER_FAILURE,
+  ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL,
   ARCHITECTURE_DIAGRAM_RETRY_ACTION,
+  ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
+  ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
 } from "@/lib/architecture/architecture-diagram-copy";
 import {
   architectureDiagramFullscreenHrefFromSearch,
@@ -24,7 +29,6 @@ import {
   parseArchitectureDiagramZoomFromSearch,
 } from "@/lib/architecture/architecture-diagram-fullscreen-url";
 import { createArchitectureDiagramMermaidConfig } from "@/lib/architecture/architecture-diagram-mermaid-config";
-import { sanitizeArchitectureDiagramSvg } from "@/lib/architecture/architecture-diagram-svg";
 import {
   fitMermaidSvgElementToHost,
   prepareMermaidSvgForResponsiveLayout,
@@ -46,6 +50,8 @@ export type ArchitectureDiagramViewerProps = {
   readonly canvasStale?: boolean;
   readonly onRenderFailure?: () => void;
   readonly onRetry?: () => void;
+  /** Fires when sanitized SVG markup is ready for browser PNG export. */
+  readonly onExportableSvgMarkupChange?: (svgMarkup: string | null) => void;
 };
 
 /** Interactive architecture diagram canvas with zoom, pan, fullscreen, and accessible fallback text. */
@@ -169,25 +175,6 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     [setZoom],
   );
 
-  const fitToView = useCallback(() => {
-    const viewport = viewportRef.current;
-    const host = svgHostRef.current;
-    const svg = host?.querySelector("svg");
-
-    if (viewport === null || host === null || svg === null || !(svg instanceof SVGSVGElement)) {
-      return;
-    }
-
-    const currentZoom = zoomRef.current;
-    const scaled = svg.getBoundingClientRect();
-    const unscaledHeight = scaled.height / Math.max(currentZoom, 0.01);
-    const unscaledWidth = scaled.width / Math.max(currentZoom, 0.01);
-    const availableHeight = Math.max(1, viewport.clientHeight - 16);
-    const availableWidth = Math.max(1, viewport.clientWidth - 16);
-    const next = Math.min(availableHeight / unscaledHeight, availableWidth / unscaledWidth, MAX_ZOOM);
-    setZoom(Number(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, next)).toFixed(2)));
-  }, [setZoom]);
-
   useEffect(() => {
     const viewport = viewportRef.current;
 
@@ -224,8 +211,15 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
       return null;
     }
 
-    return sanitizeArchitectureDiagramSvg(svgMarkup);
+    return DOMPurify.sanitize(svgMarkup, {
+      USE_PROFILES: { svg: true, svgFilters: true },
+      FORBID_TAGS: ["script", "foreignObject"],
+    });
   }, [svgMarkup]);
+
+  useEffect(() => {
+    props.onExportableSvgMarkupChange?.(sanitizedSvg);
+  }, [props.onExportableSvgMarkupChange, sanitizedSvg]);
 
   useLayoutEffect(() => {
     if (sanitizedSvg === null) {
@@ -247,18 +241,6 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
       }
 
       fitMermaidSvgElementToHost(svg, width);
-
-      const viewport = viewportRef.current;
-      const firstInk = svg.querySelector(".node, text.nodeLabel, text");
-
-      if (viewport === null || firstInk === null) {
-        return;
-      }
-
-      const nodeRect = firstInk.getBoundingClientRect();
-      const viewRect = viewport.getBoundingClientRect();
-      viewport.scrollLeft += nodeRect.left - viewRect.left - 16;
-      viewport.scrollTop += nodeRect.top - viewRect.top - 16;
     };
 
     applyFit();
@@ -304,10 +286,9 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         <div
           ref={svgHostRef}
           className={cn(
-            "w-full min-w-0 origin-top-left text-neutral-900 transition-transform dark:text-neutral-100",
-            "[&_svg]:block [&_svg]:overflow-visible",
-            "[&_svg_text]:fill-current [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200",
-            "[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:leading-snug [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100",
+            "w-full min-w-0 origin-top-left transition-transform",
+            "[&_svg]:block [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200",
+            "[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:fill-neutral-900 dark:[&_svg_.nodeLabel]:fill-neutral-100",
             "[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]",
             canvasStale ? "opacity-60" : undefined,
           )}
@@ -329,17 +310,55 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         </p>
       ) : null}
 
-      <ArchitectureDiagramViewportControls
-        zoomPercentLabel={zoomPercentLabel}
-        atMinZoom={atMinZoom}
-        atMaxZoom={atMaxZoom}
-        canvasStale={canvasStale}
-        onZoomOut={() => adjustZoom(-ZOOM_STEP)}
-        onZoomIn={() => adjustZoom(ZOOM_STEP)}
-        onResetZoom={() => setZoom(1)}
-        onFitToView={fitToView}
-        onFullscreen={() => setFullscreenOpen(true)}
-      />
+      <div
+        className="mb-2 flex flex-wrap items-center gap-2"
+        data-testid="architecture-diagram-viewport-controls"
+        aria-label="Diagram viewport controls"
+      >
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          aria-label={ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL}
+          disabled={atMinZoom}
+          onClick={() => adjustZoom(-ZOOM_STEP)}
+        >
+          −
+        </Button>
+        <span
+          className={cn("min-w-[3.25rem] text-center tabular-nums text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-diagram-zoom-readout"
+          aria-live="polite"
+        >
+          {zoomPercentLabel}
+        </span>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          aria-label={ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL}
+          disabled={atMaxZoom}
+          onClick={() => adjustZoom(ZOOM_STEP)}
+        >
+          +
+        </Button>
+        <Button type="button" variant="outline" size="sm" onClick={() => setZoom(1)}>
+          {ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL}
+        </Button>
+        <Button type="button" variant="outline" size="sm" onClick={() => setFullscreenOpen(true)}>
+          {ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION}
+        </Button>
+        <span className={cn("flex flex-wrap items-center gap-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <ShortcutHint shortcut="+" />
+          <ShortcutHint shortcut="−" />
+          <ShortcutHint shortcut="0" />
+        </span>
+        {canvasStale ? (
+          <span className={cn("text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
+            Canvas may be stale while a new render loads.
+          </span>
+        ) : null}
+      </div>
 
       <div
         ref={viewportRef}

@@ -55,6 +55,23 @@ describe("decisionReceiptExport", () => {
     expect(receipt.transparencyTrail?.skipped).toHaveLength(1);
   });
 
+  it("includes career posture on committed-run receipts (CG-025)", () => {
+    const receipt = buildDecisionReceiptDocument({
+      source: "committed-run",
+      runId: "run-1",
+      structuralExecutionMode: "Simulator",
+      liveDoor: "rehearsal",
+      verdict: {
+        kind: "Feasible",
+        summary: "Proceed with constraints.",
+      },
+    });
+
+    expect(receipt.careerPosture?.structuralExecutionMode).toBe("Simulator");
+    expect(receipt.careerPosture?.workingCareerRehearsalDoor).toBe("rehearsal");
+    expect(receipt.careerPosture?.rehearsalIncomplete).toBe(true);
+  });
+
   it("blocks decision receipt export when hard infeasible lacks citation (FC-30)", () => {
     const blockedReason = resolveDecisionReceiptExportBlockedReason({
       source: "committed-run",

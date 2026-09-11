@@ -1,8 +1,10 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
 import type { AdrGeneratorRunInput } from "@/lib/adr-from-run";
+import { PACKAGE_PRINT_REHEARSAL_STRIP_TITLE } from "@/lib/package-print-rehearsal-honesty";
+import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/r1",
@@ -12,6 +14,16 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionDeskChrome: () => true,
+}));
+
+const effectiveDoorMock = vi.hoisted(() => ({ value: "career" as "career" | "rehearsal" }));
+
+vi.mock("@/hooks/use-effective-working-career-rehearsal-door", () => ({
+  useEffectiveWorkingCareerRehearsalDoor: () => ({
+    door: effectiveDoorMock.value,
+    effectiveDoor: effectiveDoorMock.value,
+    mounted: true,
+  }),
 }));
 
 function buildFinding(index: number) {
@@ -44,6 +56,10 @@ const minimalInput: AdrGeneratorRunInput = {
 };
 
 describe("GenerateAdrFromRunModal", () => {
+  beforeEach(() => {
+    effectiveDoorMock.value = "career";
+  });
+
   it("opens with markdown seeded from input and supports reset", async () => {
     render(<GenerateAdrFromRunModal input={minimalInput} />);
 
@@ -68,7 +84,7 @@ describe("GenerateAdrFromRunModal", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.assign(navigator, { clipboard: { writeText } });
 
-    render(<GenerateAdrFromRunModal input={minimalInput} enginesSucceeded={16} />);
+    render(<GenerateAdrFromRunModal input={minimalInput} enginesSucceeded={41} />);
 
     fireEvent.click(screen.getByTestId("generate-adr-button"));
     fireEvent.click(await screen.findByRole("button", { name: /copy to clipboard/i }));
@@ -90,7 +106,7 @@ describe("GenerateAdrFromRunModal", () => {
   });
 
   it("PC-13: Working ADR markdown prepends shared career export honesty block", async () => {
-    render(<GenerateAdrFromRunModal input={minimalInput} enginesSucceeded={16} />);
+    render(<GenerateAdrFromRunModal input={minimalInput} enginesSucceeded={41} />);
 
     fireEvent.click(screen.getByTestId("generate-adr-button"));
 
@@ -123,6 +139,64 @@ describe("GenerateAdrFromRunModal", () => {
 
     expect(screen.getByTestId("generate-adr-measurement-floor-line")).toHaveTextContent("external-exposure");
     expect(screen.getByTestId("generate-adr-measurement-floor-line")).toHaveTextContent("no Actor nodes");
+  });
+
+  it("CG-024: hard-blocks ADR export for Working Career simulator without rehearsal stamp", async () => {
+    render(
+      <GenerateAdrFromRunModal
+        input={{
+          ...minimalInput,
+          structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+        }}
+        enginesSucceeded={41}
+        progressSummary={{
+          runId: minimalInput.runId,
+          projectId: minimalInput.projectId,
+          createdUtc: minimalInput.createdUtc,
+          structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+          workingCareerRehearsalDoor: "career",
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+
+    const dialog = await screen.findByRole("dialog");
+
+    expect(screen.getByTestId("generate-adr-career-artifact-gap")).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: /download \.md/i })).toBeDisabled();
+    expect(screen.queryByTestId("generate-adr-export-incomplete-confirm")).not.toBeInTheDocument();
+  });
+
+  it("CG-024: prepends rehearsal header for Working Rehearsal simulator ADR export", async () => {
+    effectiveDoorMock.value = "rehearsal";
+
+    render(
+      <GenerateAdrFromRunModal
+        input={{
+          ...minimalInput,
+          structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+        }}
+        enginesSucceeded={41}
+        progressSummary={{
+          runId: minimalInput.runId,
+          projectId: minimalInput.projectId,
+          createdUtc: minimalInput.createdUtc,
+          structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+          workingCareerRehearsalDoor: "rehearsal",
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+
+    const dialog = await screen.findByRole("dialog");
+    const editor = within(dialog).getByRole("textbox", { name: /architecture decision record markdown/i });
+    const ta = editor as HTMLTextAreaElement;
+
+    expect(ta.value.indexOf(PACKAGE_PRINT_REHEARSAL_STRIP_TITLE)).toBeLessThan(ta.value.indexOf("# ADR:"));
+    expect(ta.value).toMatch(/Rehearsal/i);
+    expect(within(dialog).getByRole("button", { name: /download \.md/i })).not.toBeDisabled();
   });
 
   it("CA-41: Working blocks download until incomplete export is confirmed when only 20 of 25 are included", async () => {

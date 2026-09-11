@@ -321,7 +321,15 @@ export function resolveRunDetailTabbedWorkspace(
               />
             </div>
           ) : null}
-          {resolveRunDetailSponsorBriefingSection(m, { pagePrimaryOwnedElsewhere: true })}
+          {resolveRunDetailSponsorBriefingSection(m, {
+            pagePrimaryOwnedElsewhere: true,
+            enginesSucceeded: findingCoverageSummary?.enginesSucceeded ?? null,
+            manifestSummary: m.manifestSummaryForUi ?? m.manifestSummary,
+            progressSummary: m.progressForPipelineUi,
+            graphSnapshot: m.resolvedDetail.graphSnapshot,
+            structuralExecutionMode: m.resolvedDetail.run.structuralExecutionMode,
+            workingCareerRehearsalDoor: m.progressForPipelineUi.workingCareerRehearsalDoor,
+          })}
           {m.manifestId ? (
             <RunDetailPostCommitHabitIsland model={m} context={deferredContext} />
           ) : null}

@@ -15,6 +15,7 @@ import type { RunSummary } from "@/types/authority";
 import { buildSemanticSupportBandExportStamp } from "@/lib/findings/finding-semantic-support-band-export";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
+import type { PackagePrintRehearsalHonestyStrip } from "@/lib/package-print-rehearsal-honesty";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 /** Document title / H1 for the print stylesheet view. */
@@ -102,6 +103,7 @@ export type PackagePrintPresentation = {
   readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
   readonly transparencyTrail?: TransparencyTrail | null;
   readonly showQuietEnginesHint?: boolean;
+  readonly rehearsalHonestyStrip?: PackagePrintRehearsalHonestyStrip | null;
 };
 
 function finiteCount(value: number | null | undefined): number | null {
@@ -234,6 +236,7 @@ export function buildPackagePrintPresentation(
     readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
     readonly transparencyTrail?: TransparencyTrail | null;
     readonly showQuietEnginesHint?: boolean;
+    readonly rehearsalHonestyStrip?: PackagePrintRehearsalHonestyStrip | null;
   },
 ): PackagePrintPresentation {
   const statusLabel = resolvePackagePrintStatusLabel(summary);
@@ -265,6 +268,7 @@ export function buildPackagePrintPresentation(
     meetingCaptureEntries: options?.meetingCaptureEntries ?? null,
     transparencyTrail: options?.transparencyTrail ?? null,
     showQuietEnginesHint: options?.showQuietEnginesHint ?? false,
+    rehearsalHonestyStrip: options?.rehearsalHonestyStrip ?? null,
     manifestVersionForGuard:
       summary.currentManifestVersion?.trim()
       ?? summary.goldenManifestId?.trim()

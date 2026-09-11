@@ -1,4 +1,8 @@
+import DOMPurify from "dompurify";
+
+import { createArchitectureDiagramMermaidConfig } from "@/lib/architecture/architecture-diagram-mermaid-config";
 import { sanitizeMermaidRenderId } from "@/lib/help/help-mermaid";
+import { sanitizeMermaidSvgForCanvasExport } from "@/lib/infra-evidence/sanitize-mermaid-svg-for-canvas-export";
 
 export type ExportMermaidSourceToPngOptions = {
   readonly dark?: boolean;
@@ -42,48 +46,70 @@ function readSvgExportDimensions(svgMarkup: string): { width: number; height: nu
   return { width: 1200, height: 800 };
 }
 
+function sanitizeSvgMarkupForCanvasExport(svgMarkup: string): string {
+  const purified = DOMPurify.sanitize(svgMarkup, {
+    USE_PROFILES: { svg: true, svgFilters: true },
+    FORBID_TAGS: ["script", "foreignObject"],
+  });
+
+  return sanitizeMermaidSvgForCanvasExport(purified);
+}
+
 async function svgMarkupToPngBlob(svgMarkup: string, backgroundColor: string): Promise<Blob> {
-  const { width, height } = readSvgExportDimensions(svgMarkup);
-  const svgBlob = new Blob([svgMarkup], { type: "image/svg+xml;charset=utf-8" });
-  const objectUrl = URL.createObjectURL(svgBlob);
+  const sanitizedSvgMarkup = sanitizeSvgMarkupForCanvasExport(svgMarkup);
+  const { width, height } = readSvgExportDimensions(sanitizedSvgMarkup);
+  const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(sanitizedSvgMarkup)}`;
 
-  try {
-    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = () => reject(new Error("Failed to load Mermaid SVG for PNG export."));
-      img.src = objectUrl;
-    });
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("Failed to load Mermaid SVG for PNG export."));
+    img.src = dataUrl;
+  });
 
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const context = canvas.getContext("2d");
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
 
-    if (context === null) {
-      throw new Error("Canvas 2D context is unavailable for PNG export.");
-    }
-
-    context.fillStyle = backgroundColor;
-    context.fillRect(0, 0, width, height);
-    context.drawImage(image, 0, 0, width, height);
-
-    const blob = await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob((value) => {
-        if (value === null) {
-          reject(new Error("Browser PNG encoding failed."));
-          return;
-        }
-
-        resolve(value);
-      }, "image/png");
-    });
-
-    return blob;
+  if (context === null) {
+    throw new Error("Canvas 2D context is unavailable for PNG export.");
   }
-  finally {
-    URL.revokeObjectURL(objectUrl);
+
+  context.fillStyle = backgroundColor;
+  context.fillRect(0, 0, width, height);
+  context.drawImage(image, 0, 0, width, height);
+
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((value) => {
+      if (value === null) {
+        reject(new Error("Browser PNG encoding failed."));
+        return;
+      }
+
+      resolve(value);
+    }, "image/png");
+  });
+
+  return blob;
+}
+
+/** Converts already-rendered Mermaid SVG markup into a PNG blob. */
+export async function exportSanitizedMermaidSvgMarkupToPngBlob(
+  svgMarkup: string,
+  options: Pick<ExportMermaidSourceToPngOptions, "backgroundColor" | "dark"> = {},
+): Promise<Blob> {
+  const trimmed = svgMarkup.trim();
+
+  if (trimmed.length === 0) {
+    throw new Error("Mermaid SVG markup is empty.");
   }
+
+  const dark = options.dark ?? false;
+  const backgroundColor = options.backgroundColor ?? (dark ? "#0a0a0a" : "#ffffff");
+
+  return svgMarkupToPngBlob(trimmed, backgroundColor);
 }
 
 /** Renders Mermaid source in the browser and returns a PNG blob (used when server mmdc is unavailable). */
@@ -103,13 +129,7 @@ export async function exportMermaidSourceToPngBlob(
   const renderId = sanitizeMermaidRenderId(options.renderId ?? "infra-evidence-mermaid-export");
   const backgroundColor = options.backgroundColor ?? (dark ? "#0a0a0a" : "#ffffff");
 
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: dark ? "dark" : "neutral",
-    securityLevel: "strict",
-    fontFamily: "ui-sans-serif, system-ui, sans-serif",
-    flowchart: { htmlLabels: false },
-  });
+  mermaid.initialize(createArchitectureDiagramMermaidConfig(dark));
 
   const result = await mermaid.render(renderId, trimmed);
 

@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.Application.Exports;
+
 namespace ArchLucid.Cli.Commands;
 
 internal static partial class PilotProofPacketCommand
@@ -52,6 +54,18 @@ internal static partial class PilotProofPacketCommand
         bool demoWarning = collection.Artifacts.DemoWarning;
         string? firstValueMarkdown = collection.Artifacts.FirstValueMarkdown;
 
+        ExportBundleCareerPostureResult careerPostureResult = ExportBundleCareerPostureResolver.ResolveFromDeltasJson(deltasJson);
+
+        if (careerPostureResult.IsBlocked)
+        {
+            await errorWriter.WriteLineAsync(careerPostureResult.BlockReason);
+
+            return new PilotProofPacketWriteOutcome(CliExitCode.UsageError, outputDirectory);
+        }
+
+        ExportBundleCareerPostureStamp careerPostureStamp = careerPostureResult.Stamp
+            ?? throw new InvalidOperationException("CG-027 posture stamp is required when export is allowed.");
+
         string dir = BuyerPacketFolderWriter.EnsureDirectory(outputDirectory);
 
         await BuyerPacketFolderWriter.WriteJsonRawAsync(dir, "run-evidence.json", deltasJson, cancellationToken);
@@ -102,15 +116,10 @@ internal static partial class PilotProofPacketCommand
             BuyerPacketFolderWriter.JsonWriteIndented);
         await BuyerPacketFolderWriter.WriteTextAsync(dir, "audit-sample.json", auditSampleJson, cancellationToken);
 
-        string artifactManifestJson = JsonSerializer.Serialize(
-            new
-            {
-                schema = "archlucid.proof-packet.artifact-manifest.v1",
-                runId,
-                capturedUtc = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
-                artifactIds,
-            },
-            BuyerPacketFolderWriter.JsonWriteIndented);
+        string artifactManifestJson = PilotProofPacketArtifactManifestBuilder.BuildJson(
+            runId,
+            artifactIds,
+            careerPostureStamp);
         await BuyerPacketFolderWriter.WriteTextAsync(dir, "artifact-manifest.json", artifactManifestJson, cancellationToken);
 
         string environmentJson = PilotProofPacketEnvironmentBuilder.BuildJson(config, normalized, deltasJson, demoWarning, pilotStrictSatisfied);
@@ -169,13 +178,15 @@ internal static partial class PilotProofPacketCommand
             runId,
             pilotStrictSatisfied,
             demoWarning,
-            structuralExecutionModeLabel);
+            structuralExecutionModeLabel,
+            careerPostureStamp);
         await BuyerPacketFolderWriter.WriteTextAsync(dir, "sponsor-proof-packet-index.json", indexJson, cancellationToken);
 
         string indexMarkdown = PilotProofPacketIndexBuilder.BuildMarkdown(
             runId,
             pilotStrictSatisfied,
-            structuralExecutionModeLabel);
+            structuralExecutionModeLabel,
+            careerPostureStamp);
         await BuyerPacketFolderWriter.WriteTextAsync(dir, "sponsor-proof-packet-index.md", indexMarkdown, cancellationToken);
 
         await BuyerPacketFolderWriter.WriteTextAsync(

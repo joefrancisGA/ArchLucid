@@ -14,7 +14,6 @@ import {
   WORKING_CAREER_DOOR_LABEL,
   WORKING_REHEARSAL_DOOR_LABEL,
 } from "@/lib/governance/working-career-rehearsal-door-copy";
-import { SECURITY_WORKING_CAREER_HONESTY_STRIP_TEST_ID } from "@/lib/governance/security-working-career-honesty-strip";
 import { WORKSPACE_MODE_GUIDED_TOP_BAR_CHIP_LABEL } from "@/lib/workspace-mode/workspace-mode-copy";
 
 const fullShellMock = vi.hoisted(() => ({ value: true }));
@@ -299,10 +298,9 @@ describe("OperatorShellTopBar", () => {
     expect(screen.queryByTestId("working-career-rehearsal-chooser")).not.toBeInTheDocument();
     expect(screen.queryByTestId("working-career-rehearsal-door-career")).not.toBeInTheDocument();
     expect(screen.queryByTestId("working-career-rehearsal-door-rehearsal")).not.toBeInTheDocument();
-    expect(screen.getByTestId(SECURITY_WORKING_CAREER_HONESTY_STRIP_TEST_ID)).toBeInTheDocument();
   });
 
-  it("hides the Security honesty strip on Guided Security", async () => {
+  it("hides Guided mode training chrome in the Security product shell", async () => {
     productLineMock.value = "security";
     workspaceModeMock.mode = "guided";
     workspaceModeMock.isWorkingMode = false;
@@ -313,8 +311,7 @@ describe("OperatorShellTopBar", () => {
       </TooltipProvider>,
     );
 
-    expect(screen.queryByTestId(SECURITY_WORKING_CAREER_HONESTY_STRIP_TEST_ID)).not.toBeInTheDocument();
-    expect(screen.queryByTestId("working-career-rehearsal-chooser")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("guided-mode-top-bar-chip")).not.toBeInTheDocument();
   });
 
   it("hides the AI budget pill when remaining budget is healthy", async () => {
@@ -451,7 +448,6 @@ describe("OperatorShellTopBar", () => {
     );
 
     expect(screen.getByTestId("working-career-rehearsal-chooser")).toBeInTheDocument();
-    expect(screen.queryByTestId(SECURITY_WORKING_CAREER_HONESTY_STRIP_TEST_ID)).not.toBeInTheDocument();
     expect(screen.getByTestId("working-career-rehearsal-door-career")).toHaveTextContent(
       WORKING_CAREER_DOOR_LABEL,
     );

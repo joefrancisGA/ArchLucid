@@ -114,15 +114,26 @@ describe("DiagramsWorkbenchClient", () => {
       fallbackKey: query.fallbackKey ?? null,
       status: query.mode === "dependencyNeighborhood" ? "Succeeded" : "Partitioned",
       mermaid: "flowchart LR\n  A-->B",
-      metrics: {
-        nodeCount: 500,
-        edgeCount: 900,
-        subgraphCount: 12,
-        maxDegree: 20,
-        crossSubgraphEdgeCount: 40,
-        textSizeBytes: 12000,
-        layoutEstimate: 8000,
-      },
+      metrics:
+        query.mode === "dependencyNeighborhood"
+          ? {
+              nodeCount: 3,
+              edgeCount: 2,
+              subgraphCount: 0,
+              maxDegree: 2,
+              crossSubgraphEdgeCount: 0,
+              textSizeBytes: 1200,
+              layoutEstimate: 800,
+            }
+          : {
+              nodeCount: 500,
+              edgeCount: 900,
+              subgraphCount: 12,
+              maxDegree: 20,
+              crossSubgraphEdgeCount: 40,
+              textSizeBytes: 12000,
+              layoutEstimate: 8000,
+            },
       fallbackArtifacts: [
         {
           key: "executive",
@@ -243,9 +254,69 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(await screen.findByTestId("infra-diagrams-seed-node-input")).toHaveValue(armId);
     expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("dependencyNeighborhood");
+    expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
       `/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&seedNodeId=${encodeURIComponent(armId)}&tab=diagram`,
+    );
+  });
+
+  it("requires a seed before rendering dependency neighborhood mode", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-dependency-seed-prompt")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
+    expect(fetchInfraEvidenceMermaidRenderMock).not.toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ mode: "dependencyNeighborhood" }),
+    );
+  });
+
+  it("shows a modal when Focus neighborhood is clicked without a seed", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    fireEvent.change(await screen.findByTestId("infra-diagrams-seed-node-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Focus neighborhood" }));
+
+    expect(await screen.findByTestId("infra-diagrams-dependency-seed-blocked-dialog")).toHaveTextContent(
+      "Pick a seed resource before rendering",
+    );
+  });
+
+  it("shows a modal when the applied seed produces an empty neighborhood", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "dependencyNeighborhood",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "",
+      metrics: {
+        nodeCount: 0,
+        edgeCount: 0,
+        subgraphCount: 0,
+        maxDegree: 0,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 0,
+        layoutEstimate: 0,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood&seedNodeId=bad-seed",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-dependency-seed-blocked-dialog")).toHaveTextContent(
+      "Seed did not match this snapshot",
     );
   });
 
