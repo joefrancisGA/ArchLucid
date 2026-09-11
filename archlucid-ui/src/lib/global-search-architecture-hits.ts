@@ -87,11 +87,29 @@ export function filterGlobalSearchArchitectureIdentityHits(
   }));
 }
 
+function architectureDraftEntryIsVisibleToActor(
+  entry: ArchitectureDraftRegistryEntry,
+  draftIdToArchitectureId: ReadonlyMap<string, string>,
+  visibleArchitectureIds: ReadonlySet<string>,
+): boolean {
+  const parentArchitectureId = entry.parentArchitectureId?.trim() ?? "";
+  const linkedArchitectureId = draftIdToArchitectureId.get(entry.draftId.trim())?.trim() ?? "";
+  const resolvedArchitectureId =
+    parentArchitectureId.length > 0 ? parentArchitectureId : linkedArchitectureId;
+
+  if (resolvedArchitectureId.length === 0) {
+    return true;
+  }
+
+  return visibleArchitectureIds.has(resolvedArchitectureId);
+}
+
 /** CA-42: draft title hits labeled separately from identity desks — never searches draft document bodies. */
 export function filterGlobalSearchArchitectureDraftHits(
   entries: readonly ArchitectureDraftRegistryEntry[],
   search: string,
   draftIdToArchitectureId: ReadonlyMap<string, string>,
+  visibleArchitectureIds: ReadonlySet<string>,
 ): readonly GlobalSearchArchitectureDraftHit[] {
   const tokens = normalizedSearchTokens(search);
 
@@ -101,6 +119,9 @@ export function filterGlobalSearchArchitectureDraftHits(
 
   return entries
     .filter((entry) => entry.customerStatus !== "archived")
+    .filter((entry) =>
+      architectureDraftEntryIsVisibleToActor(entry, draftIdToArchitectureId, visibleArchitectureIds),
+    )
     .filter((entry) => architectureDraftRegistryEntryMatchesSearch(entry, tokens))
     .slice(0, GLOBAL_SEARCH_ARCHITECTURE_MATCH_LIMIT)
     .map((entry) => ({

@@ -168,31 +168,24 @@ public sealed partial class PilotsController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        try
-        {
-            SponsorPackSentResult result = await _pilots.RecordSponsorPackSentAsync(
-                runId,
-                body?.DeliveryMethod,
-                body?.RecipientEmail,
-                HttpContext.TraceIdentifier,
-                cancellationToken);
+        SponsorPackSentResult result = await _pilots.RecordSponsorPackSentAsync(
+            runId,
+            body?.DeliveryMethod,
+            body?.RecipientEmail,
+            HttpContext.TraceIdentifier,
+            cancellationToken);
 
-            return result.Outcome switch
-            {
-                SponsorPackSentOutcome.RunNotFound => this.NotFoundProblem(
-                    $"Run '{runId}' was not found (or is out of scope).",
-                    ProblemTypes.RunNotFound),
-                SponsorPackSentOutcome.NotCommitted => MapPilotPackSealedManifestConflict(
-                    new ConflictException(
-                        "Sponsor pack delivery can only be recorded after the review is committed.")),
-                SponsorPackSentOutcome.Recorded => NoContent(),
-                _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
-            };
-        }
-        catch (ConflictException ex)
+        return result.Outcome switch
         {
-            return MapPilotPackSealedManifestConflict(ex);
-        }
+            SponsorPackSentOutcome.RunNotFound => this.NotFoundProblem(
+                $"Run '{runId}' was not found (or is out of scope).",
+                ProblemTypes.RunNotFound),
+            SponsorPackSentOutcome.NotCommitted => MapPilotPackSealedManifestConflict(
+                new ConflictException(
+                    "Sponsor pack delivery can only be recorded after the review is committed.")),
+            SponsorPackSentOutcome.Recorded => NoContent(),
+            _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
+        };
     }
 
     // idempotency-posture: operator-documented-safe-retry
@@ -212,34 +205,27 @@ public sealed partial class PilotsController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        try
-        {
-            SponsorPreliminaryShareResult result = await _pilots.RecordSponsorPreliminaryShareAsync(
-                runId,
-                body?.ReadinessStatus,
-                body?.KnownGaps ?? Array.Empty<string>(),
-                body?.OverrideAcknowledged,
-                body?.ConfidentialityLabel,
-                body?.DeliveryMethod,
-                HttpContext.TraceIdentifier,
-                cancellationToken);
+        SponsorPreliminaryShareResult result = await _pilots.RecordSponsorPreliminaryShareAsync(
+            runId,
+            body?.ReadinessStatus,
+            body?.KnownGaps ?? Array.Empty<string>(),
+            body?.OverrideAcknowledged,
+            body?.ConfidentialityLabel,
+            body?.DeliveryMethod,
+            HttpContext.TraceIdentifier,
+            cancellationToken);
 
-            return result.Outcome switch
-            {
-                SponsorPreliminaryShareOutcome.RunNotFound => this.NotFoundProblem(
-                    $"Run '{runId}' was not found (or is out of scope).",
-                    ProblemTypes.RunNotFound),
-                SponsorPreliminaryShareOutcome.OverrideRequired => MapPilotPackSealedManifestConflict(
-                    new ConflictException(
-                        "Preliminary sponsor sharing requires explicit override acknowledgement when readiness is not Ready.")),
-                SponsorPreliminaryShareOutcome.Recorded => NoContent(),
-                _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
-            };
-        }
-        catch (ConflictException ex)
+        return result.Outcome switch
         {
-            return MapPilotPackSealedManifestConflict(ex);
-        }
+            SponsorPreliminaryShareOutcome.RunNotFound => this.NotFoundProblem(
+                $"Run '{runId}' was not found (or is out of scope).",
+                ProblemTypes.RunNotFound),
+            SponsorPreliminaryShareOutcome.OverrideRequired => MapPilotPackSealedManifestConflict(
+                new ConflictException(
+                    "Preliminary sponsor sharing requires explicit override acknowledgement when readiness is not Ready.")),
+            SponsorPreliminaryShareOutcome.Recorded => NoContent(),
+            _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
+        };
     }
 
     // idempotency-posture: operator-documented-safe-retry
@@ -268,6 +254,11 @@ public sealed partial class PilotsController
         }
         catch (SponsorFirstValuePdfBlockedException ex)
         {
+            if (!string.IsNullOrWhiteSpace(ex.BlockReasonCode))
+            {
+                return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+            }
+
             return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
 

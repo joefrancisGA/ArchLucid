@@ -1,10 +1,22 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
-import { consumeLivelihoodPendingMutationForReturnPath } from "@/lib/auth/livelihood-mutation-401-resume";
+import {
+  clearLivelihoodPendingMutation,
+  consumeLivelihoodPendingMutationForReturnPath,
+  LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY,
+  type LivelihoodPendingMutation,
+} from "@/lib/auth/livelihood-mutation-401-resume";
 import { replayLivelihoodPendingMutation } from "@/lib/auth/livelihood-mutation-401-resume-replay";
+import { requiresConfirmBeforeLivelihoodReplay } from "@/lib/auth/livelihood-mutation-replay-policy";
+import {
+  resolveLivelihoodMutationResumePresentation,
+  type LivelihoodMutationResumePresentation,
+} from "@/lib/auth/livelihood-mutation-resume-copy";
+import { notifyLivelihoodMutationReplayed } from "@/lib/auth/livelihood-mutation-replay-notify";
+import { isOperatorOidcKeepaliveRoute } from "@/lib/auth/operator-oidc-keepalive-route";
 
 export type UseResumePendingLivelihoodMutationArgs = {
   readonly enabled: boolean;
@@ -12,20 +24,72 @@ export type UseResumePendingLivelihoodMutationArgs = {
   readonly onReplayError?: (error: unknown) => void;
 };
 
-/** After session recovery, replays one stored livelihood POST with the same idempotency key (LP-19). */
-export function useResumePendingLivelihoodMutation(args: UseResumePendingLivelihoodMutationArgs): void {
+export type LivelihoodMutationResumeChromeState = {
+  readonly pending: LivelihoodPendingMutation;
+  readonly presentation: LivelihoodMutationResumePresentation;
+  readonly isReplaying: boolean;
+};
+
+export type UseResumePendingLivelihoodMutationResult = {
+  readonly chrome: LivelihoodMutationResumeChromeState | null;
+  readonly confirmReplay: () => void;
+  readonly discardReplay: () => void;
+};
+
+function buildReturnPath(pathname: string, searchParams: URLSearchParams): string {
+  const query = searchParams.toString();
+
+  return query.length > 0 ? `${pathname}?${query}` : pathname;
+}
+
+/**
+ * After session recovery, replays one stored livelihood POST with the same idempotency key (LP-19 / ADR 0089).
+ * Listens for localStorage writes so sibling tabs can replay when re-auth lands on a matching returnPath (LW-052).
+ */
+export function useResumePendingLivelihoodMutation(
+  args: UseResumePendingLivelihoodMutationArgs,
+): UseResumePendingLivelihoodMutationResult {
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
-  const returnPath =
-    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
+  const returnPath = buildReturnPath(pathname, searchParams);
   const replayStartedRef = useRef(false);
   const onReplayedRef = useRef(args.onReplayed);
   const onReplayErrorRef = useRef(args.onReplayError);
+  const [chromeState, setChromeState] = useState<LivelihoodMutationResumeChromeState | null>(null);
 
   onReplayedRef.current = args.onReplayed;
   onReplayErrorRef.current = args.onReplayError;
 
-  useEffect(() => {
+  const runReplay = useCallback((pending: LivelihoodPendingMutation, isReplaying = false) => {
+    const presentation = resolveLivelihoodMutationResumePresentation(pending);
+
+    setChromeState({
+      pending,
+      presentation,
+      isReplaying: isReplaying || !presentation.requiresConfirm,
+    });
+
+    void replayLivelihoodPendingMutation(pending)
+      .then((result) => {
+        notifyLivelihoodMutationReplayed({ pending, result });
+        onReplayedRef.current?.(pending.kind, result);
+        setChromeState(null);
+      })
+      .catch((error: unknown) => {
+        replayStartedRef.current = false;
+        onReplayErrorRef.current?.(error);
+        setChromeState((current) =>
+          current === null
+            ? null
+            : {
+                ...current,
+                isReplaying: false,
+              },
+        );
+      });
+  }, []);
+
+  const tryReplay = useCallback(() => {
     if (!args.enabled || replayStartedRef.current) {
       return;
     }
@@ -38,12 +102,64 @@ export function useResumePendingLivelihoodMutation(args: UseResumePendingLivelih
 
     replayStartedRef.current = true;
 
-    void replayLivelihoodPendingMutation(pending)
-      .then((result) => {
-        onReplayedRef.current?.(pending.kind, result);
-      })
-      .catch((error: unknown) => {
-        onReplayErrorRef.current?.(error);
+    if (requiresConfirmBeforeLivelihoodReplay(pending)) {
+      setChromeState({
+        pending,
+        presentation: resolveLivelihoodMutationResumePresentation(pending),
+        isReplaying: false,
       });
-  }, [args.enabled, returnPath]);
+
+      return;
+    }
+
+    runReplay(pending);
+  }, [args.enabled, returnPath, runReplay]);
+
+  const confirmReplay = useCallback(() => {
+    if (chromeState === null || chromeState.isReplaying) {
+      return;
+    }
+
+    runReplay(chromeState.pending, true);
+  }, [chromeState, runReplay]);
+
+  const discardReplay = useCallback(() => {
+    clearLivelihoodPendingMutation();
+    replayStartedRef.current = false;
+    setChromeState(null);
+  }, []);
+
+  useEffect(() => {
+    if (!args.enabled || !isOperatorOidcKeepaliveRoute(pathname)) {
+      return;
+    }
+
+    tryReplay();
+  }, [args.enabled, pathname, tryReplay]);
+
+  useEffect(() => {
+    if (!args.enabled || !isOperatorOidcKeepaliveRoute(pathname)) {
+      return;
+    }
+
+    const handleStorage = (event: StorageEvent): void => {
+      if (event.key !== LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY) {
+        return;
+      }
+
+      tryReplay();
+    };
+
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, [args.enabled, pathname, tryReplay]);
+
+  return {
+    chrome: chromeState,
+    confirmReplay,
+    discardReplay,
+  };
 }

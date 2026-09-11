@@ -76,8 +76,6 @@ export type ArchitectureDraftPatchPayload = {
   readonly workflowIntent: typeof CREATE_ARCHITECTURE_INTENT;
   readonly structuredBrief: ReturnType<typeof structuredBriefToPatchPayload>;
   readonly openQuestions?: string;
-  readonly expectedUpdatedUtc?: string;
-  readonly forceOverwrite?: boolean;
 };
 
 /**
@@ -103,7 +101,9 @@ export function buildArchitectureDraftPatchPayload(
       : {}),
     businessOutcome: trimmedOutcome,
     ...(trimmedSystemName.length > 0 ? { systemName: trimmedSystemName } : {}),
-    ...(fields.openQuestions.trim().length > 0 ? { openQuestions: fields.openQuestions.trim() } : { openQuestions: "" }),
+    ...( (fields.openQuestions?.trim() ?? "").length > 0
+      ? { openQuestions: fields.openQuestions.trim() }
+      : { openQuestions: "" }),
     actorSet: normalizeActorSetForAdmission(
       actorSet.actors.length > 0 ? actorSet : buildDefaultActorSet(),
     ),

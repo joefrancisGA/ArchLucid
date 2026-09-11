@@ -13,6 +13,7 @@ public static class CompletionsCommand
         "new",
         "pilot",
         "explain-operator-model",
+        "try",
         "second-run",
         "draft",
         "request",

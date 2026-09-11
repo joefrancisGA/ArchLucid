@@ -16,7 +16,6 @@ export type InfraEvidenceAskRequest = {
   assessmentId?: string | null;
   auditEvidenceSnapshotId?: string | null;
   controlId?: string | null;
-  useSimulator?: boolean;
 };
 
 export type InfraEvidenceAskResponse = {

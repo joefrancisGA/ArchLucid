@@ -1,4 +1,6 @@
+import { postSessionIdleBroadcastMessage } from "@/lib/auth/session-idle-broadcast";
 import { clearCachedColorModePreference } from "@/lib/color-mode-preference";
+import { clearInfraEvidenceAskTranscriptStorage } from "@/lib/infra-evidence/infra-evidence-ask-transcript";
 import { clearOperatorScopeStorage } from "@/lib/operator/operator-scope-storage";
 import {
   getOidcAuthority,
@@ -123,9 +125,14 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
   void syncBffSessionCookieFromTokenResponse(tokens);
 }
 
-export function clearOidcSession(): void {
+export type ClearOidcSessionOptions = {
+  readonly broadcastAuthCleared?: boolean;
+};
+
+export function clearOidcSession(options?: ClearOidcSessionOptions): void {
   refreshSessionGeneration += 1;
   refreshInFlight = null;
+  clearInfraEvidenceAskTranscriptStorage();
   removeOidcKeys([
     OIDC_ACCESS_TOKEN_KEY,
     OIDC_REFRESH_TOKEN_KEY,
@@ -143,6 +150,10 @@ export function clearOidcSession(): void {
   ]);
   clearCachedColorModePreference();
   void clearBffSessionCookie();
+
+  if (options?.broadcastAuthCleared !== false) {
+    postSessionIdleBroadcastMessage({ type: "auth-cleared" });
+  }
 }
 
 function pkceStorageKeys(flow: OidcPkceFlow): {

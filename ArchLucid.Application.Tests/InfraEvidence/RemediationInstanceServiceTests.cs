@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.InfraEvidence.RemediationInstances;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
@@ -156,6 +157,104 @@ public sealed class RemediationInstanceServiceTests
     }
 
     [Fact]
+    public async Task CreateFromMatch_without_path_id_does_not_set_narrative()
+    {
+        InMemoryRemediationInstanceRepository instanceRepository = new();
+        InMemoryRemediationPatternMatchRepository matchRepository = new();
+        matchRepository.ActiveMatch = CreateMatch(RemediationPatternMatchKind.ExactMatch);
+
+        InMemoryRemediationPatternRepository patternRepository = new();
+        patternRepository.Versions.Add(CreateVersion(RemediationPatternStatus.Approved));
+
+        Mock<IOperationalSecurityFindingRepository> findingRepository = new();
+        findingRepository
+            .Setup(repository => repository.TryGetByIdAsync(TenantId, FindingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateOperationalFinding(pathId: null));
+
+        RemediationInstanceService sut = CreateSut(
+            instanceRepository,
+            matchRepository,
+            patternRepository,
+            findingRepository: findingRepository.Object);
+
+        RemediationInstanceOperationResult result =
+            await sut.CreateFromMatchAsync(CreateScope(), FindingId, "creator");
+
+        result.Succeeded.Should().BeTrue();
+        RemediationInstanceRecord instance = instanceRepository.Instances.Single();
+        instance.PathId.Should().BeNull();
+        instance.PathNarrativeJson.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task CreateFromMatch_with_path_id_persists_structured_narrative()
+    {
+        Guid pathId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        InMemoryRemediationInstanceRepository instanceRepository = new();
+        InMemoryRemediationPatternMatchRepository matchRepository = new();
+        matchRepository.ActiveMatch = CreateMatch(RemediationPatternMatchKind.ExactMatch);
+
+        InMemoryRemediationPatternRepository patternRepository = new();
+        patternRepository.Versions.Add(CreateVersion(RemediationPatternStatus.Approved));
+
+        Mock<IOperationalSecurityFindingRepository> findingRepository = new();
+        findingRepository
+            .Setup(repository => repository.TryGetByIdAsync(TenantId, FindingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateOperationalFinding(pathId: pathId));
+
+        RemediationPathNarrative expectedNarrative = new()
+        {
+            PathId = pathId,
+            PathKind = PathKind.IntendedReachability.ToString(),
+            PathConfidenceBand = PathConfidenceBand.HighlyLikely.ToString(),
+            ProblemStatement = "Intended reachability path breaks isolation.",
+            WhyItMatters = "Highly likely path.",
+            ExposureSummary = "Exposure summary.",
+            AffectedDependencyCloudResourceIds = [CloudResourceId],
+            RecommendedChange = "Disable public access.",
+            BlastRadiusWarning = $"CloudResourceIds: {CloudResourceId:D}",
+            SafeRolloutSteps = ["Create private endpoint"],
+            VerificationQueries = ["property:enablePublicNetworkAccess=false"],
+            WeakestHopReason = "Public access enabled.",
+            CanonicalHopHashHex = Convert.ToHexStringLower(Enumerable.Repeat((byte)0x11, 32).ToArray()),
+        };
+
+        Mock<IRemediationPathNarrativeBuilder> narrativeBuilder = new();
+        narrativeBuilder
+            .Setup(builder => builder.TryBuildAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<OperationalSecurityFindingRecord>(),
+                It.IsAny<RemediationPatternVersionRecord>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedNarrative);
+
+        RemediationInstanceService sut = CreateSut(
+            instanceRepository,
+            matchRepository,
+            patternRepository,
+            findingRepository: findingRepository.Object,
+            pathNarrativeBuilder: narrativeBuilder.Object);
+
+        RemediationInstanceOperationResult result =
+            await sut.CreateFromMatchAsync(CreateScope(), FindingId, "creator");
+
+        result.Succeeded.Should().BeTrue();
+
+        RemediationInstanceRecord instance = instanceRepository.Instances.Single();
+        instance.PathId.Should().Be(pathId);
+        instance.PathNarrativeJson.Should().NotBeNullOrWhiteSpace();
+
+        RemediationPathNarrative? persisted =
+            RemediationPathNarrativeJson.TryDeserialize(instance.PathNarrativeJson);
+
+        persisted.Should().NotBeNull();
+        persisted!.ProblemStatement.Should().Be(expectedNarrative.ProblemStatement);
+        persisted.BlastRadiusWarning.Should().Contain(CloudResourceId.ToString("D"));
+        persisted.VerificationQueries.Should().Contain("property:enablePublicNetworkAccess=false");
+    }
+
+    [Fact]
     public void Remediation_instance_service_source_has_no_cloud_apply_commands()
     {
         string source = File.ReadAllText(
@@ -182,7 +281,10 @@ public sealed class RemediationInstanceServiceTests
         InMemoryRemediationPatternMatchRepository matchRepository,
         InMemoryRemediationPatternRepository patternRepository,
         InMemoryOperationalSecurityExceptionRepository? exceptionRepository = null,
-        InMemorySnapshotRepository? snapshotRepository = null) =>
+        InMemorySnapshotRepository? snapshotRepository = null,
+        IOperationalSecurityFindingRepository? findingRepository = null,
+        IRemediationPathNarrativeBuilder? pathNarrativeBuilder = null,
+        ISecurityEvidencePathRepository? pathRepository = null) =>
         new(
             instanceRepository,
             matchRepository,
@@ -191,7 +293,9 @@ public sealed class RemediationInstanceServiceTests
             snapshotRepository ?? new InMemorySnapshotRepository(),
             Mock.Of<IAdvisoryTerraformRepresentationService>(),
             Mock.Of<IAuditService>(),
-            Mock.Of<IOperationalSecurityFindingRepository>(),
+            findingRepository ?? Mock.Of<IOperationalSecurityFindingRepository>(),
+            pathNarrativeBuilder ?? Mock.Of<IRemediationPathNarrativeBuilder>(),
+            pathRepository ?? Mock.Of<ISecurityEvidencePathRepository>(),
             Mock.Of<IAuditManualEvidenceRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>());
@@ -241,6 +345,28 @@ public sealed class RemediationInstanceServiceTests
             AuthorActorKey = "author",
             ApprovedByActorKey = "approver",
             ApprovedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow,
+        };
+
+    private static OperationalSecurityFindingRecord CreateOperationalFinding(Guid? pathId) =>
+        new()
+        {
+            FindingId = FindingId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            Provider = CloudProvider.Azure,
+            SourceSystem = "Defender",
+            SourceFindingId = FindingId.ToString("N"),
+            Title = "Test finding",
+            Severity = "High",
+            Status = OperationalSecurityFindingStatus.Open,
+            FirstObservedUtc = DateTime.UtcNow,
+            LastObservedUtc = DateTime.UtcNow,
+            PathId = pathId,
+            CloudResourceId = CloudResourceId,
+            PayloadHashSha256 = [],
             CreatedUtc = DateTime.UtcNow,
             UpdatedUtc = DateTime.UtcNow,
         };

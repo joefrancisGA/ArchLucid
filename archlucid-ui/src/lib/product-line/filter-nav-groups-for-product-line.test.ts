@@ -84,12 +84,14 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     expect(infrastructureLinks.some((link) => link.href === "/")).toBe(false);
     expect(infrastructureLinks.some((link) => link.href === GOVERNANCE_INFRASTRUCTURE_PATH)).toBe(false);
     expect(infrastructureLinks.some((link) => link.label === OPERATOR_NAV_LINK_LABELS.infrastructureAsk)).toBe(true);
+    expect(infrastructureLinks.some((link) => link.href === "/infrastructure/diagrams")).toBe(true);
+    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/diagrams")).toBe(false);
     expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/extract-upload")).toBe(true);
     expect(securityLinks.map((link) => link.href)).toEqual([
       "/",
-      "/governance/findings/assigned-to-me",
-      "/governance/remediation-factory",
-      "/governance/remediation-patterns",
+      "/security/assigned-to-me",
+      "/security/remediation-factory",
+      "/security/remediation-patterns",
     ]);
     expect(integrationLinks.map((link) => link.href)).toEqual([
       "/integrations/cloud-connections",

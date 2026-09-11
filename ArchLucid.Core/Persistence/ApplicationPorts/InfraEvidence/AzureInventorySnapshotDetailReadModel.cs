@@ -121,6 +121,12 @@ public sealed class AzureInventoryResourceRelationshipReadModel
         get;
         init;
     }
+
+    public string? InferenceSource
+    {
+        get;
+        init;
+    }
 }
 
 public sealed class AzureInventoryRoleAssignmentReadModel

@@ -41,9 +41,9 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
         if (string.IsNullOrWhiteSpace(findingId))
             throw new ArgumentException("Finding id is required.", nameof(findingId));
 
-        bool includeTypedPayload = options?.IncludeTypedPayload ?? true;
+        bool includeTypedPayload = FindingInspectReadRepositoryCore.ResolveIncludeTypedPayload(options);
 
-        Match m = DemoFindingId.Match(findingId.Trim());
+        Match m = DemoFindingId.Match(FindingInspectReadRepositoryCore.NormalizeFindingId(findingId));
 
         if (!m.Success)
             return null;
@@ -62,10 +62,8 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
         if (match is null)
             return null;
 
-        List<FindingInspectEvidenceItem> evidence = match.RelatedNodeIds
-            .Where(static n => !string.IsNullOrWhiteSpace(n))
-            .Select(static n =>
-                new FindingInspectEvidenceItem { ArtifactId = null, LineRange = null, Excerpt = n.Trim() })
+        List<FindingInspectEvidenceItem> evidence = FindingInspectReadRepositoryCore
+            .BuildEvidenceFromRelatedNodes(match.RelatedNodeIds)
             .ToList();
 
         string? ruleId = null;

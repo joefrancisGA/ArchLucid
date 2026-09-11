@@ -2,6 +2,8 @@ using System.IO.Compression;
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.Core.AzureExtractor;
+
 namespace ArchLucid.Application.AzureExtractor;
 
 /// <summary>Reads <c>manifest.json</c> from the schema-versioned Azure extractor ZIP.</summary>
@@ -81,6 +83,7 @@ public static class AzureExtractorManifestReader
                 scriptVersion,
                 collectionTs,
                 dto.SubscriptionId.Trim(),
+                AzureExtractorSubscriptionDisplayName.Normalize(dto.SubscriptionName),
                 scope,
                 switches,
                 azVersion,
@@ -150,6 +153,12 @@ public static class AzureExtractorManifestReader
             get;
             init;
         } = string.Empty;
+
+        public string? SubscriptionName
+        {
+            get;
+            init;
+        }
 
         public string? Scope
         {

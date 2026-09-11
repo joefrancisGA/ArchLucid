@@ -198,6 +198,8 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             new InMemoryAdvisoryTerraformService(),
             Mock.Of<IAuditService>(),
             Mock.Of<IOperationalSecurityFindingRepository>(),
+            Mock.Of<IRemediationPathNarrativeBuilder>(),
+            Mock.Of<ISecurityEvidencePathRepository>(),
             Mock.Of<IAuditManualEvidenceRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>());
@@ -282,6 +284,12 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             int pageSize,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)>(([], 0));
+
+        public Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdAsync(
+            Guid tenantId,
+            Guid pathId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<Guid>>([]);
 
         public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
             Guid tenantId,
