@@ -62,4 +62,16 @@ public sealed class ExportFormatterServiceTests
 
         name.Should().Be("audit-export-20260101T000000Z-20260102T000000Z.csv");
     }
+
+    [Fact]
+    public void BuildAuditExportCsvFileName_appends_rehearsal_suffix_when_incomplete()
+    {
+        ExportFormatterService sut = new();
+        DateTime from = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+
+        string name = sut.BuildAuditExportCsvFileName(from, to, rehearsalIncomplete: true);
+
+        name.Should().Be("audit-export-20260101T000000Z-20260102T000000Z-rehearsal.csv");
+    }
 }

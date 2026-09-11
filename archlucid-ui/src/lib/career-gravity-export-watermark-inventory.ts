@@ -113,7 +113,7 @@ export const CAREER_GRAVITY_EXPORT_WATERMARK_ROWS: readonly CareerGravityExportW
   },
   {
     relativePath: "ArchLucid.Application/Exports/DecisionReceiptService.cs",
-    leakClass: "assumed-banner",
+    leakClass: "covered",
     ownerPrompt: "CG-025",
   },
   {
@@ -144,7 +144,7 @@ export const CAREER_GRAVITY_EXPORT_WATERMARK_ROWS: readonly CareerGravityExportW
   },
   {
     relativePath: "ArchLucid.Api/Controllers/Admin/AuditController.Export.Csv.cs",
-    leakClass: "related",
+    leakClass: "covered",
     ownerPrompt: "CG-026",
   },
   {

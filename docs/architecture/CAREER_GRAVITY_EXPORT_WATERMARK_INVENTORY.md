@@ -66,12 +66,12 @@ Working Career must not be confused with these waivers.
 | `ArchLucid.Application/Exports/ArchitectureReviewExportService.cs` | **Yes** | Same | covered | CG-022 |
 | `ArchLucid.Application/Analysis/ExportReplayService.cs` | **Yes** | Replay ZIP inherits mapper | assumed-banner | CG-027 |
 | `ArchLucid.Api/Controllers/Authority/DocxExportController.cs` | `EnsureCanExport` + plain-text honesty section | DOCX gets coverage honesty text; rehearsal banner assumed | assumed-banner | CG-043 |
-| `ArchLucid.Application/Exports/DecisionReceiptService.cs` | `MapForExport` | JSON receipt; no visual watermark | assumed-banner | CG-025 / CG-044 |
+| `ArchLucid.Application/Exports/DecisionReceiptService.cs` | `MapForExport` + `DecisionReceiptCareerPostureStamper` | JSON receipt stamps Mode/door + `rehearsalIncomplete` | **covered** | CG-025 |
 | `ArchLucid.Application/Pilots/FirstValueReportBuilder.cs` | `MapForExport` | Markdown honesty; PDF sibling uses **sponsor-circulation** watermarks | assumed-banner | CG-022 / CG-042 |
 | `ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs` | `MapForFinalize` (banner defaults **false**) | Finalize **does** block unlabeled Working Simulator | covered | CG-021 |
 | `ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Download.cs` | ZIP `GET …/export` — **no** `EnsureCanExport` | Sealed-hash only | **bypass** | CG-028 |
 | `ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Push.cs` | Blob push — **no** career gate | Same ZIP contents | **bypass** | CG-028 |
-| `ArchLucid.Api/Controllers/Admin/AuditController.Export.Csv.cs` | Sealed-manifest guard only | CSV of audit rows; no rehearsal column | related | CG-026 |
+| `ArchLucid.Api/Controllers/Admin/AuditController.Export.Csv.cs` | `AuditExportCareerPostureGate` + CSV preamble/columns | Mode/door columns + `-rehearsal` filename when incomplete | **covered** | CG-026 |
 | `ArchLucid.Api/Controllers/Findings/FindingVerificationController.Export.cs` | Markdown/DOCX of verification report | No career honesty mapper | **bypass** | CG-026 |
 | `ArchLucid.Cli/Commands/PilotProofPacketStructuralExecutionModeFormatter.cs` | Caveat line from deltas JSON | Mode-labeled markdown, not a page watermark | covered (caveat) | CG-027 / CG-045 |
 | `ArchLucid.Cli/Commands/FirstValueReportCommand.cs` | Downloads API markdown | Honesty is whatever the API emitted | assumed-banner | CG-027 |

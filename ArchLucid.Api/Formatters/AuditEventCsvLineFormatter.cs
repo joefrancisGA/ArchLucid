@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Core.Audit;
 
@@ -9,10 +10,17 @@ namespace ArchLucid.Api.Formatters;
 /// <summary>Shared RFC 4180-style CSV line formatting for audit export responses.</summary>
 public static class AuditEventCsvLineFormatter
 {
-    public const string HeaderLine =
+    public const string BaseHeaderLine =
         "EventId,OccurredUtc,EventType,ActorUserId,ActorUserName,RunId,ManifestId,CorrelationId,DataJson";
 
-    public static string FormatEventLine(ExportFormatterService exportFormatter, AuditEvent auditEvent)
+    public const string PostureColumns = "StructuralExecutionMode,WorkingCareerRehearsalDoor,RehearsalIncomplete";
+
+    public const string HeaderLine = BaseHeaderLine + "," + PostureColumns;
+
+    public static string FormatEventLine(
+        ExportFormatterService exportFormatter,
+        AuditEvent auditEvent,
+        AuditExportCareerPostureStamp? postureStamp = null)
     {
         ArgumentNullException.ThrowIfNull(exportFormatter);
         ArgumentNullException.ThrowIfNull(auditEvent);
@@ -27,7 +35,39 @@ public static class AuditEventCsvLineFormatter
             EscapeCsvField(FormatNullableGuid(auditEvent.RunId)),
             EscapeCsvField(FormatNullableGuid(auditEvent.ManifestId)),
             EscapeCsvField(auditEvent.CorrelationId),
-            EscapeCsvField(auditEvent.DataJson));
+            EscapeCsvField(auditEvent.DataJson),
+            EscapeCsvField(postureStamp?.StructuralExecutionMode),
+            EscapeCsvField(postureStamp?.WorkingCareerRehearsalDoor),
+            EscapeCsvField(FormatRehearsalIncomplete(postureStamp)));
+    }
+
+    public static async Task WriteHonestyPreambleAsync(
+        TextWriter writer,
+        AuditExportCareerPostureStamp? postureStamp,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
+
+        await writer.WriteLineAsync("# ArchLucid audit CSV export posture (CG-026)".AsMemory(), cancellationToken);
+
+        if (postureStamp is null)
+        {
+            await writer.WriteLineAsync(
+                "# Run-scoped posture stamps apply when runId query filter is set.".AsMemory(),
+                cancellationToken);
+
+            return;
+        }
+
+        await writer.WriteLineAsync(
+            $"# structuralExecutionMode={postureStamp.StructuralExecutionMode}".AsMemory(),
+            cancellationToken);
+        await writer.WriteLineAsync(
+            $"# workingCareerRehearsalDoor={postureStamp.WorkingCareerRehearsalDoor}".AsMemory(),
+            cancellationToken);
+        await writer.WriteLineAsync(
+            $"# rehearsalIncomplete={FormatRehearsalIncomplete(postureStamp)}".AsMemory(),
+            cancellationToken);
     }
 
     public static async Task WriteHeaderLineAsync(TextWriter writer, CancellationToken cancellationToken)
@@ -35,6 +75,18 @@ public static class AuditEventCsvLineFormatter
         ArgumentNullException.ThrowIfNull(writer);
 
         await writer.WriteLineAsync(HeaderLine.AsMemory(), cancellationToken);
+    }
+
+    private static string FormatRehearsalIncomplete(AuditExportCareerPostureStamp? postureStamp)
+    {
+        if (postureStamp is null)
+        {
+            return string.Empty;
+        }
+
+        return postureStamp.RehearsalIncomplete
+            ? bool.TrueString
+            : bool.FalseString;
     }
 
     private static string FormatNullableGuid(Guid? value)
