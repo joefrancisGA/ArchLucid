@@ -38,7 +38,8 @@ public sealed class ArchitectureSpineAs078CareerDoorRequiresRealOrBlockedArchite
         chooser.Should().Contain("useWorkingCareerDoorGate");
         chooser.Should().Contain("WorkingCareerDoorBlockedDialog");
         chooser.Should().Contain("data-effective-door");
-        chooser.Should().Contain("working-career-door-blocked-tag");
+        chooser.Should().Contain("resolveWorkingCareerDoorHostModeMatrixCell");
+        chooser.Should().Contain("data-door-host-mode-cell");
     }
 
     [Fact]
