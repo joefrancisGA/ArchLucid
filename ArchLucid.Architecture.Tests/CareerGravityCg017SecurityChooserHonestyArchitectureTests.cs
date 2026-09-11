@@ -57,13 +57,23 @@ public sealed class CareerGravityCg017SecurityChooserHonestyArchitectureTests
                 "governance",
                 "working-career-rehearsal-help-guide-content.ts"));
 
+        string copy = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "archlucid-ui",
+                "src",
+                "lib",
+                "governance",
+                "working-career-rehearsal-door-copy.ts"));
+
         topBar.Should().Contain("showWorkingCareerRehearsalChooser = productLine !== \"security\"");
         topBar.Should().Contain("SecurityWorkingCareerHonestyStrip");
         topBar.Should().NotContain("G-REAL-06");
-        strip.Should().Contain("Simulator is not Career");
+        strip.Should().Contain("SECURITY_WORKING_CAREER_HONESTY_STRIP_TITLE");
         strip.Should().Contain("shouldShowSecurityWorkingCareerHonestyStrip");
         strip.Should().NotContain("G-REAL-06");
         strip.Should().NotContain("setDoor");
+        copy.Should().Contain("Simulator is not Career");
         inventory.Should().Contain("SecurityWorkingCareerHonestyStrip");
         help.Should().Contain("WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY");
         help.Should().Contain("honesty strip");
