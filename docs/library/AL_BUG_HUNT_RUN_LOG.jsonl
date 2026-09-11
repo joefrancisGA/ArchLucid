@@ -1905,3 +1905,4 @@
 {"at":"2026-09-11T00:15:39.5591284Z","zoneId":"tenant-data-export","outcome":"hit"}
 {"at":"2026-09-11T00:18:41.4818312Z","zoneId":"host-composition","outcome":"seed-only"}
 {"at":"2026-09-11T00:23:39.2081531Z","zoneId":"core-findings-advice","outcome":"hit"}
+{"at":"2026-09-11T00:26:19.1646155Z","zoneId":"commit-output-integrity","outcome":"dry"}
