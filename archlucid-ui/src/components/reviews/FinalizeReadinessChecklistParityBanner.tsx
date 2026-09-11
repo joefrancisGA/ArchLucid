@@ -17,7 +17,7 @@ export function FinalizeReadinessChecklistParityBanner(
 
   return (
     <div
-      className={cn(DESIGN_TOKENS.callout.infoShell, "mb-3 flex-col gap-2")}
+      className={cn(DESIGN_TOKENS.callout.info, "mb-3 flex-col gap-2")}
       data-testid="finalize-readiness-checklist-parity-banner"
       role="status"
     >

@@ -46,12 +46,30 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
             },
             Security = new SecuritySection
             {
-                Controls = [new SecurityPostureItem { ControlName = "Private Link", Status = "Implemented" }],
+                Controls =
+                [
+                    new SecurityPostureItem
+                    {
+                        ControlId = "SC-7",
+                        ControlName = "Private Link",
+                        Status = "Implemented",
+                        Impact = "High",
+                    },
+                ],
                 Gaps = ["Missing WAF"],
             },
             Compliance = new ComplianceSection
             {
-                Controls = [new CompliancePostureItem { ControlId = "AC-2", ControlName = "Account management", Status = "Partial" }],
+                Controls =
+                [
+                    new CompliancePostureItem
+                    {
+                        ControlId = "AC-2",
+                        ControlName = "Account management",
+                        AppliesToCategory = "Identity",
+                        Status = "Partial",
+                    },
+                ],
                 Gaps = ["Audit retention"],
             },
             Cost = new CostSection
@@ -70,7 +88,17 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
             ],
             UnresolvedIssues = new UnresolvedIssuesSection
             {
-                Items = [new ManifestIssue { Severity = "High", Title = "DR gap", Description = "No warm standby." }],
+                Items =
+                [
+                    new ManifestIssue
+                    {
+                        IssueType = "Finding",
+                        Severity = "High",
+                        Title = "DR gap",
+                        Description = "No warm standby.",
+                        SupportingFindingIds = ["finding-dr-1"],
+                    },
+                ],
             },
         };
 
@@ -81,11 +109,12 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
         artifact.ArtifactType.Should().Be(ArtifactType.ReferenceArchitectureMarkdown);
         artifact.Content.Should().Contain("# Reference Architecture - Orders Platform");
         artifact.Content.Should().Contain("- Pattern: Hub-spoke");
-        artifact.Content.Should().Contain("- Private Link: Implemented");
-        artifact.Content.Should().Contain("- AC-2 Account management: Partial");
+        artifact.Content.Should().Contain("- SC-7 Private Link (High): Implemented");
+        artifact.Content.Should().Contain("- AC-2 Account management [Identity]: Partial");
         artifact.Content.Should().Contain("- Max Monthly Cost: 1250.50");
         artifact.Content.Should().Contain("Prefer private endpoints");
-        artifact.Content.Should().Contain("[High] DR gap");
+        artifact.Content.Should().Contain("[High] Finding DR gap");
+        artifact.Content.Should().Contain("supporting findings: finding-dr-1");
         artifact.ContentHash.Should().NotBeNullOrWhiteSpace();
     }
 
@@ -220,7 +249,16 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
             },
             UnresolvedIssues = new UnresolvedIssuesSection
             {
-                Items = [new ManifestIssue { Severity = "Medium", Title = "CDN", Description = "Edge not selected." }],
+                Items =
+                [
+                    new ManifestIssue
+                    {
+                        IssueType = "ArchitectureGap",
+                        Severity = "Medium",
+                        Title = "CDN",
+                        Description = "Edge not selected.",
+                    },
+                ],
             },
             Provenance = new ManifestProvenance
             {
@@ -240,7 +278,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
         artifact.Content.Should().Contain("- Mandatory: Must stay in Canada Central");
         artifact.Content.Should().Contain("- Preference: Prefer Azure-native services");
         artifact.Content.Should().Contain("- Applied Rules: 1");
-        artifact.Content.Should().Contain("[Medium] CDN");
+        artifact.Content.Should().Contain("[Medium] ArchitectureGap CDN");
     }
 
     [Fact]
@@ -415,5 +453,97 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
 
         artifact.Content.Should().Contain("## Decisions");
         artifact.Content.Should().Contain("Security: Use private endpoints -> Enabled");
+    }
+
+    [Fact]
+    public async Task ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_security_control_id_and_impact_matching_docx_export()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Orders Platform" },
+            Security = new SecuritySection
+            {
+                Controls =
+                [
+                    new SecurityPostureItem
+                    {
+                        ControlId = "SC-1",
+                        ControlName = "Encrypt at rest",
+                        Status = "Met",
+                        Impact = "High",
+                    },
+                ],
+            },
+        };
+
+        ReferenceArchitectureMarkdownGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("- SC-1 Encrypt at rest (High): Met");
+    }
+
+    [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_compliance_applies_to_category_matching_docx_export()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Orders Platform" },
+            Compliance = new ComplianceSection
+            {
+                Controls =
+                [
+                    new CompliancePostureItem
+                    {
+                        ControlId = "AC-2",
+                        ControlName = "Account management",
+                        AppliesToCategory = "Identity",
+                        Status = "Partial",
+                    },
+                ],
+            },
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("- AC-2 Account management [Identity]: Partial");
+    }
+
+    [Fact]
+    public async Task ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_issue_type_and_supporting_finding_ids_matching_unresolved_issues_json()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Orders Platform" },
+            UnresolvedIssues = new UnresolvedIssuesSection
+            {
+                Items =
+                [
+                    new ManifestIssue
+                    {
+                        IssueType = "Policy",
+                        Severity = "Medium",
+                        Title = "Retention gap",
+                        Description = "Logs retained 30 days only.",
+                        SupportingFindingIds = ["finding-123"],
+                    },
+                ],
+            },
+        };
+
+        ReferenceArchitectureMarkdownGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("[Medium] Policy Retention gap");
+        artifact.Content.Should().Contain("supporting findings: finding-123");
     }
 }

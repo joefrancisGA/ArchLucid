@@ -39,8 +39,6 @@ public static partial class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        RegisterHostedStartupProbes(services, configuration);
-        RegisterProductLineRequestAccessor(services, configuration);
         services.AddSingleton<ExportFormatterService>();
         services.AddSingleton<TemplateProvider>();
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));

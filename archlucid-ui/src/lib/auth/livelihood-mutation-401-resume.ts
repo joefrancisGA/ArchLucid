@@ -206,6 +206,32 @@ function tryClaimLivelihoodPendingMutationReplay(idempotencyKey: string): boolea
   }
 }
 
+/** Read-only match for the return path after session recovery — does not consume storage. */
+export function peekLivelihoodPendingMutationForReturnPath(
+  returnPath: string,
+): LivelihoodPendingMutation | null {
+  migrateLivelihoodPendingMutationV1ToV2();
+
+  const normalizedReturnPath = normalizeReturnPath(returnPath);
+
+  if (normalizedReturnPath === null || typeof window === "undefined") {
+    return null;
+  }
+
+  const pending = readLivelihoodPendingMutation();
+  const normalizedPendingPath = pending === null ? null : normalizeReturnPath(pending.returnPath);
+
+  if (
+    pending === null
+    || normalizedPendingPath === null
+    || normalizedReturnPath !== normalizedPendingPath
+  ) {
+    return null;
+  }
+
+  return pending;
+}
+
 /** Single-use read for the return path after session recovery. */
 export function consumeLivelihoodPendingMutationForReturnPath(
   returnPath: string,

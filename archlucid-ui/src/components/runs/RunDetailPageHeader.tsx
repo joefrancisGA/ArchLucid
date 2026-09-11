@@ -18,6 +18,7 @@ import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 import { RunStatusBadge } from "@/components/runs/RunStatusBadge";
 import { StructuralExecutionModeBadge } from "@/components/StructuralExecutionModeBadge";
 import { Button } from "@/components/ui/button";
@@ -282,6 +283,8 @@ export type RunDetailPageHeaderProps = {
   /** Buyer-polished: one sentence beside the finalized pipeline pill. */
   buyerHeaderStatusCaption?: string | null;
   commitBlockedReason?: string | null;
+  /** Structured finalize gate blocks from SSR or the unified readiness API. */
+  commitBlockedBlocks?: readonly FinalizeReadinessBlock[];
   /** Open approval alerts linked to this review (TB-107). */
   hasGovernanceWarnings?: boolean;
   /** True when this page rendered curated sample data instead of a backend-persisted review (no exportable run). */
@@ -304,6 +307,7 @@ export function RunDetailPageHeader({
   buyerGovernanceApprovalLabel,
   buyerHeaderStatusCaption,
   commitBlockedReason,
+  commitBlockedBlocks = [],
   hasGovernanceWarnings,
   usedStaticDemoRun = false,
   demoteFinalizeButton = false,
@@ -467,6 +471,7 @@ export function RunDetailPageHeader({
                 runId={runId}
                 disabled={hasGoldenManifest}
                 commitBlockedReason={commitBlockedReason}
+                commitBlockedBlocks={commitBlockedBlocks}
                 buttonVariant={demoteFinalizeButton ? "outline" : "primary"}
               />
               {hasGoldenManifest ? (
@@ -496,10 +501,11 @@ export function RunDetailPageHeader({
               />
             ) : null}
             {!hasGoldenManifest ? <FinalizeSkippedMustStrip transparencyTrail={transparencyTrail} /> : null}
-              <CommitRunButton
+            <CommitRunButton
               runId={runId}
               disabled={hasGoldenManifest}
               commitBlockedReason={commitBlockedReason}
+              commitBlockedBlocks={commitBlockedBlocks}
               buttonVariant={demoteFinalizeButton ? "outline" : "primary"}
             />
             {hasGoldenManifest ? (
