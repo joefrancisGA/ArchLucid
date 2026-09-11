@@ -338,11 +338,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — fractional architecture team size passed client validation
+- **last-bug:** 2026-09-11 — signup readiness hint stayed generic after optional-field validation failed; fractional architecture team size passed client validation
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** 0
 
@@ -375,6 +375,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `SignupForm` successful register omits success toast — **cheap-disproof 2026-09-10 seed hunt #1670:** `showSuccess` on 2xx before verify redirect; regression `submits valid payload to the same-origin proxy`
 
 2026-09-10 seed hunt #1670 (seed-only): reseeded ui-form-validation after #1592; cheap-disproof closed whitespace-only required fields, max-length guards, team-size upper bound, whitespace-only industry Other, in-flight submit lock, keyboard-submit inline validation, and success toast on 2xx; 17 scoped SignupForm tests passed.
+- [x] (proven) `SignupForm` readiness hint stayed generic after optional-field validation failed — **hit 2026-09-11 seed hunt #1732 (seed→hit):** `WhyDisabledCtaHint` always showed required-field copy when `canSubmit` was false even after email/industry/team-size validation failed; `deriveSignupFormReadinessMessage` now maps schema issues to accurate readiness text; regressions `shows email-specific readiness when required fields are filled but email is invalid` and `shows industry readiness when Other is selected without a specification`
+
+2026-09-11 seed hunt #1732 (seed→hit): reseeded ui-form-validation; proved misleading signup readiness hint for industry Other and invalid-email cases; 20 scoped SignupForm tests passed.
+
 - [x] (proven) `SignupForm` readiness hint stayed generic after optional-field validation failed — **hit 2026-09-11 seed hunt #1730 (seed→hit):** `WhyDisabledCtaHint` always showed required-field copy when `canSubmit` was false even after email/industry/team-size validation failed; `deriveSignupFormReadinessMessage` maps schema issues to accurate readiness text; regressions `shows email-specific readiness when required fields are filled but email is invalid` and `shows industry readiness when Other is selected without a specification`
 - [x] (proven) `SignupForm` fractional `architectureTeamSize` kept submit enabled and reached register — **hit 2026-09-11 seed hunt #1730 (seed→hit):** `signupFormSchema.superRefine` accepted finite decimals (e.g. `3.5`) that `RegistrationRequestBaselineValidator` rejects as non-integer; added `Number.isInteger` guard; regressions `keeps submit disabled for fractional optional architecture team size` and `does not send fractional optional architecture team size in the register payload`
 
@@ -11618,11 +11622,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 8
-- **bugs-found:** 10
+- **hunts:** 10
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — evidence promotion catalog slug collision surfaced SQL unique-index failure; null evidence `type` threw instead of rejecting; invisible Unicode curated-evidence descriptions; partial multi-trace cost basis mislabeling
+- **last-bug:** 2026-09-11 — run-level model label duplicated deployment names that differed only by case
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -11651,6 +11655,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-only title or description text — **hit 2026-09-11 seed hunt #1723 (seed→hit):** U+200B is not whitespace under `string.IsNullOrWhiteSpace`, so zero-width-only `description`/`title` values passed normalize and promote validation; fixed via shared `ProposedEvidenceTextValidation.HasSubstantiveText`; regressions `NormalizeResponse_returns_null_when_description_is_zero_width_space_only`, `NormalizeResponse_returns_null_when_title_is_zero_width_space_only`, and `TryParseValid_WhenDescriptionIsZeroWidthSpaceOnly_ReturnsFalse`
 - [x] (proven) `ProposedEvidencePayloadValidator.TryParseValid` throws on `"type":null` instead of rejecting — **hit 2026-09-11 thorough hunt #1724:** `IsSupportedType` called `.Equals` on null JSON `type`; fixed via null/whitespace guard; regression `TryParseValid_WhenTypeIsNull_ReturnsFalse`
 - [x] (proven) `AgentExecutionTraceRunLlmCostAggregator` reports `estimated-from-configured-rates` when only some traces price — **hit 2026-09-11 seed hunt #1715 (seed→hit):** mixed priced/unpriced deployment slices summed partial USD while labeling the full run as rate-estimated; fixed by downgrading basis to `provider-tokens-without-rate` and omitting partial USD when any measurable slice lacks a rate; regression `Compute_WhenOnlySomeTracesPrice_UsesProviderTokensWithoutRateBasis`
+- [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-only `rationale` text — **hit 2026-09-11 seed hunt #1729 (seed→hit):** title/description guards used `HasSubstantiveText` but rationale was unchecked, so U+200B-only rationale persisted and promoted; fixed by validating rationale in both paths; regressions `NormalizeResponse_returns_null_when_rationale_is_zero_width_space_only` and `TryParseValid_WhenRationaleIsZeroWidthSpaceOnly_ReturnsFalse`; repaired corrupted evidence test sources blocking the scoped suite
+
+2026-09-11 seed hunt #1729 (hit): reseeded application-agents; proved invisible-only curated-evidence rationale bypass; restored corrupted `AgentCuratedEvidenceProposerTests` / `ProposedEvidencePayloadValidatorTests` compile health; 80 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-only `rationale` text — **hit 2026-09-11 seed hunt #1730 (seed→hit):** title/description guards used `HasSubstantiveText` but rationale was unchecked; fixed in both paths; regressions `NormalizeResponse_returns_null_when_rationale_is_zero_width_space_only` and `TryParseValid_WhenRationaleIsZeroWidthSpaceOnly_ReturnsFalse`
+- [x] (proven) `AgentExecutionTraceRunLlmCostAggregator.BuildModelLabelFromDeployments` — duplicate deployment names in `ModelLabel` when trace rows differed only by casing — **hit 2026-09-11 seed hunt #1730 (seed→hit):** measurable deployment set used `StringComparer.Ordinal`; fixed with `OrdinalIgnoreCase` on measurable and fallback deployment sets; regression `Compute_deduplicates_model_label_when_deployment_name_differs_only_by_case`
+
+2026-09-11 seed hunt #1730 (hit): reseeded application-agents; proved invisible-only curated-evidence rationale bypass and run-level model-label deployment casing duplication; restored corrupted evidence test sources; 81 scoped Application.Tests.Agents tests passed.
+
 2026-09-11 seed hunt #1715 (hit): reseeded application-agents; proved invisible Unicode curated-evidence descriptions and partial multi-trace cost basis mislabeling; 70 scoped `Application.Tests.Agents` tests passed.
 2026-09-11 seed hunt #1723 (hit): reseeded application-agents; seeded catalog slug-collision candidate; proved invisible-only curated evidence text bypass; 70 scoped Application.Tests.Agents tests passed.
 2026-09-11 thorough hunt #1724 (hit): proved catalog slug collision on evidence promotion and null evidence type validation throw; 72 scoped Application.Tests.Agents tests passed.
