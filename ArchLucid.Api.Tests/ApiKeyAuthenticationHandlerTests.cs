@@ -168,6 +168,50 @@ public sealed class ApiKeyAuthenticationHandlerTests
     }
 
     [SkippableFact]
+    public async Task When_enabled_true_and_comma_separated_reader_keys_with_empty_segment_ignores_blanks()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "only-reader");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:ReadOnlyKey"] = "  only-reader  , , "
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal!.IsInRole(ArchLucidRoles.Reader).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_comma_separated_reader_keys_either_segment_authenticates()
+    {
+        DefaultHttpContext httpFirst = new();
+        httpFirst.Request.Headers.Append("X-Api-Key", "new-reader");
+        DefaultHttpContext httpSecond = new();
+        httpSecond.Request.Headers.Append("X-Api-Key", "old-reader");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        IReadOnlyDictionary<string, string?> cfg = new Dictionary<string, string?>
+        {
+            ["Authentication:ApiKey:Enabled"] = "true",
+            ["Authentication:ApiKey:ReadOnlyKey"] = "new-reader, old-reader"
+        };
+
+        AuthenticateResult first = await CreateHandler(cfg, httpFirst, env).InvokeHandleAuthenticateAsync();
+        AuthenticateResult second = await CreateHandler(cfg, httpSecond, env).InvokeHandleAuthenticateAsync();
+
+        first.Succeeded.Should().BeTrue();
+        first.Principal!.IsInRole(ArchLucidRoles.Reader).Should().BeTrue();
+        second.Succeeded.Should().BeTrue();
+        second.Principal!.IsInRole(ArchLucidRoles.Reader).Should().BeTrue();
+    }
+
+    [SkippableFact]
     public async Task When_enabled_true_and_comma_separated_admin_keys_with_empty_segment_ignores_blanks()
     {
         DefaultHttpContext http = new();
