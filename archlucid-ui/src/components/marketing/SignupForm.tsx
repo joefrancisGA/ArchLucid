@@ -285,11 +285,14 @@ export function SignupForm() {
                 <Select
                   value={industryVertical ?? "__ind_none__"}
                   onValueChange={(v) => {
-                    setValue(
-                      "industryVertical",
-                      v === "__ind_none__" ? undefined : (v as SignupFormValues["industryVertical"]),
-                      { shouldValidate: true },
-                    );
+                    const nextIndustry =
+                      v === "__ind_none__" ? undefined : (v as SignupFormValues["industryVertical"]);
+
+                    setValue("industryVertical", nextIndustry, { shouldValidate: true });
+
+                    if (nextIndustry !== "Other") {
+                      setValue("industryVerticalOther", "", { shouldValidate: true });
+                    }
                   }}
                 >
                   <SelectTrigger id="signup-industry" className="mt-1.5 h-10" data-testid="signup-industry">

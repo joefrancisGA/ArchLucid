@@ -40,7 +40,7 @@ export const signupFormSchema = z
     companySize: z.enum(companySizeOptions).optional(),
     architectureTeamSize: z.string().optional(),
     industryVertical: z.enum(industryVerticalOptions).optional(),
-    industryVerticalOther: z.string().max(200, "At most 200 characters.").optional(),
+    industryVerticalOther: z.string().optional(),
   })
   .superRefine((v, ctx) => {
     const arch = v.architectureTeamSize?.trim() ?? "";
@@ -63,12 +63,22 @@ export const signupFormSchema = z
       }
     }
 
-    if (v.industryVertical === "Other" && (v.industryVerticalOther == null || v.industryVerticalOther.trim().length === 0)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Please specify your industry when you select “Other.”",
-        path: ["industryVerticalOther"],
-      });
+    if (v.industryVertical === "Other") {
+      const other = v.industryVerticalOther?.trim() ?? "";
+
+      if (other.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Please specify your industry when you select “Other.”",
+          path: ["industryVerticalOther"],
+        });
+      } else if (other.length > 200) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "At most 200 characters.",
+          path: ["industryVerticalOther"],
+        });
+      }
     }
   });
 
