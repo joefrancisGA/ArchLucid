@@ -179,6 +179,9 @@ public sealed class AzureInventorySnapshotMaterializer(
                 });
             }
 
+            IReadOnlyList<AzureInventoryDefenderSummaryWrite> defenderSummaries =
+                DefenderSummaryCompanionMaterializer.Materialize(inventory.DefenderSummary);
+
             AzureInventorySecurityEdgeMaterializeResult securityEdges =
                 AzureInventorySecurityEdgeMaterializer.Materialize(
                     inventory.Resources,
@@ -217,6 +220,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                     Tags = tags,
                     Diagnostics = diagnostics,
                     UnknownResources = unknowns,
+                    DefenderSummaries = defenderSummaries,
                 },
                 cancellationToken);
 
