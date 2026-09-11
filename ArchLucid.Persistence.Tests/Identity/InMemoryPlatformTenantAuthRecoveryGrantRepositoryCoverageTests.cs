@@ -54,6 +54,45 @@ public sealed class InMemoryPlatformTenantAuthRecoveryGrantRepositoryCoverageTes
     }
 
     [Fact]
+    public async Task InsertAsync_throws_when_grant_id_already_exists()
+    {
+        InMemoryPlatformTenantAuthRecoveryGrantRepository sut = new();
+        Guid grantId = Guid.NewGuid();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        PlatformTenantAuthRecoveryGrantRecord first = new()
+        {
+            GrantId = grantId,
+            TenantId = Guid.NewGuid(),
+            NormalizedDomain = "example.com",
+            Reason = "lost-idp",
+            EvidenceReference = "ticket-1",
+            GrantedByActorId = "ops",
+            GrantedUtc = now.AddMinutes(-10),
+            ExpiresUtc = now.AddHours(1),
+        };
+
+        await sut.InsertAsync(first, CancellationToken.None);
+
+        Func<Task> duplicate = () => sut.InsertAsync(
+            new PlatformTenantAuthRecoveryGrantRecord
+            {
+                GrantId = grantId,
+                TenantId = Guid.NewGuid(),
+                NormalizedDomain = "other.com",
+                Reason = "lost-idp",
+                EvidenceReference = "ticket-2",
+                GrantedByActorId = "ops",
+                GrantedUtc = now,
+                ExpiresUtc = now.AddHours(2),
+            },
+            CancellationToken.None);
+
+        await duplicate.Should().ThrowAsync<DuplicatePlatformTenantAuthRecoveryGrantException>();
+        (await sut.GetByIdAsync(grantId, CancellationToken.None))!.NormalizedDomain.Should().Be("example.com");
+    }
+
+    [Fact]
     public async Task RevokeAsync_second_call_returns_false_when_grant_already_revoked()
     {
         InMemoryPlatformTenantAuthRecoveryGrantRepository sut = new();

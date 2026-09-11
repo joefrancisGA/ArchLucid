@@ -385,6 +385,42 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculatorTests
     }
 
     [Fact]
+    public void ComputeNextRunsUtc_returns_empty_when_underlying_needs_more_than_one_advance_past_reference()
+    {
+        DateTime reference = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
+        TwoStepPastScanScheduleCalculator stub = new(
+            reference.AddHours(-2),
+            reference.AddHours(-1),
+            reference.AddHours(1));
+        ArchitectureReviewRecurrenceNextRunCalculator sut = new(stub);
+
+        IReadOnlyList<DateTime> runs = sut.ComputeNextRunsUtc("@hourly", reference, 3);
+
+        runs.Should().BeEmpty();
+        stub.CallCount.Should().Be(2);
+    }
+
+    [Fact]
+    public void ComputeNextRunUtc_with_simple_scan_calculator_from_mid_hour_reference_returns_next_hour_without_null()
+    {
+        DateTime reference = new(2026, 3, 26, 10, 30, 0, DateTimeKind.Utc);
+
+        DateTime? next = _sut.ComputeNextRunUtc("@hourly", reference);
+
+        next.Should().Be(new DateTime(2026, 3, 26, 11, 30, 0, DateTimeKind.Utc));
+    }
+
+    [Fact]
+    public void ComputeNextRunUtc_with_simple_scan_calculator_from_exact_hourly_occurrence_advances_to_following_hour()
+    {
+        DateTime reference = new(2026, 3, 26, 11, 0, 0, DateTimeKind.Utc);
+
+        DateTime? next = _sut.ComputeNextRunUtc("@hourly", reference);
+
+        next.Should().Be(new DateTime(2026, 3, 26, 12, 0, 0, DateTimeKind.Utc));
+    }
+
+    [Fact]
     public void ComputeNextRunsUtc_hourly_alias_batch_stays_strictly_increasing()
     {
         DateTime from = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
@@ -395,6 +431,95 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculatorTests
         runs[0].Should().Be(from.AddHours(1));
         runs[1].Should().Be(from.AddHours(2));
         runs[2].Should().Be(from.AddHours(3));
+    }
+
+    [Fact]
+    public void IsSupportedCronExpression_accepts_padded_cron_expression()
+    {
+        _sut.IsSupportedCronExpression("  0 8 * * 1  ").Should().BeTrue();
+    }
+
+    [Fact]
+    public void ComputeNextRunsUtc_daily_alias_batch_stays_strictly_increasing()
+    {
+        DateTime from = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
+
+        IReadOnlyList<DateTime> runs = _sut.ComputeNextRunsUtc("@daily", from, 3);
+
+        runs.Should().HaveCount(3);
+        runs[0].Should().Be(from.AddDays(1));
+        runs[1].Should().Be(from.AddDays(2));
+        runs[2].Should().Be(from.AddDays(3));
+        runs.Should().BeInAscendingOrder();
+    }
+
+    [Fact]
+    public void ComputeNextRunUtc_at_exact_daily_occurrence_returns_next_day()
+    {
+        DateTime from = new(2026, 3, 27, 0, 0, 0, DateTimeKind.Utc);
+
+        DateTime? next = _sut.ComputeNextRunUtc("@daily", from);
+
+        next.Should().Be(new DateTime(2026, 3, 28, 0, 0, 0, DateTimeKind.Utc));
+    }
+
+    [Fact]
+    public void IsSupportedCronExpression_accepts_monthly_alias()
+    {
+        _sut.IsSupportedCronExpression("@monthly").Should().BeTrue();
+    }
+
+    [Fact]
+    public void ComputeNextRunUtc_stamps_utc_kind_when_retry_returns_unspecified_kind()
+    {
+        DateTime reference = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
+        PastThenUnspecifiedScanScheduleCalculator stub = new(reference, reference.AddHours(1));
+        ArchitectureReviewRecurrenceNextRunCalculator sut = new(stub);
+
+        DateTime? next = sut.ComputeNextRunUtc("@hourly", reference);
+
+        next.Should().NotBeNull();
+        next!.Value.Kind.Should().Be(DateTimeKind.Utc);
+        next.Value.Should().Be(reference.AddHours(1));
+    }
+
+    [Fact]
+    public void ComputeNextRunsUtc_monthly_alias_returns_future_instants()
+    {
+        DateTime from = new(2026, 3, 15, 12, 0, 0, DateTimeKind.Utc);
+
+        IReadOnlyList<DateTime> runs = _sut.ComputeNextRunsUtc("@monthly", from, 2);
+
+        runs.Should().HaveCount(2);
+        runs[0].Should().BeAfter(from);
+        runs[1].Should().BeAfter(runs[0]);
+    }
+
+    private sealed class PastThenUnspecifiedScanScheduleCalculator : IScanScheduleCalculator
+    {
+        private readonly DateTime _first;
+        private readonly DateTime _second;
+        private int _calls = 0;
+
+        public PastThenUnspecifiedScanScheduleCalculator(DateTime first, DateTime second)
+        {
+            _first = first;
+            _second = second;
+        }
+
+        public bool IsSupportedCronExpression(string cronExpression) => true;
+
+        public DateTime? ComputeNextRunUtc(string cronExpression, DateTime fromUtc)
+        {
+            _calls++;
+
+            DateTime result = _calls == 1 ? _first : _second;
+
+            return DateTime.SpecifyKind(result, DateTimeKind.Unspecified);
+        }
+
+        public IReadOnlyList<DateTime> ComputeNextRunsUtc(string cronExpression, DateTime fromUtc, int count) =>
+            ScanScheduleNextRuns.Compute(this, cronExpression, fromUtc, count);
     }
 
     private sealed class ThrowingScanScheduleCalculator : IScanScheduleCalculator

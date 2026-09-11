@@ -4,11 +4,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ScopeUnderstandingBullet } from "@/lib/architecture/architecture-scope-understanding-check";
 
 const replaceMock = vi.fn();
+const useSearchParams = vi.fn(() => new URLSearchParams("scopeGate=1"));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock, push: vi.fn() }),
   usePathname: () => "/architecture/reviews/new",
-  useSearchParams: () => new URLSearchParams("scopeGate=1"),
+  useSearchParams: () => useSearchParams(),
 }));
 
 vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
@@ -47,8 +48,10 @@ vi.mock("@/hooks/use-workspace-system-name-availability", () => ({
   }),
 }));
 
+const useRunSummaryQuery = vi.fn(() => ({ data: undefined }));
+
 vi.mock("@/hooks/use-run-summary-query", () => ({
-  useRunSummaryQuery: () => ({ data: undefined }),
+  useRunSummaryQuery: (...args: unknown[]) => useRunSummaryQuery(...args),
 }));
 
 vi.mock("./use-first-pilot-intake-submit", () => ({
@@ -101,10 +104,54 @@ const sampleScopeBullets: ScopeUnderstandingBullet[] = [
   },
 ];
 
+describe("useFirstPilotIntakeWizard prior-run prefill", () => {
+  beforeEach(() => {
+    replaceMock.mockReset();
+    capturedPersistence = null;
+    useSearchParams.mockReturnValue(new URLSearchParams());
+    useRunSummaryQuery.mockReturnValue({ data: undefined });
+  });
+
+  it("does not prefill the run title from orphan rerun= without revised-clone intent", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("rerun=run-guided-only"));
+    useRunSummaryQuery.mockReturnValue({
+      data: { displayName: "Inherited guided rerun title", description: null },
+    });
+
+    const { result } = renderHook(() => useFirstPilotIntakeWizard({}));
+
+    await waitFor(() => {
+      expect(useRunSummaryQuery).toHaveBeenCalled();
+    });
+
+    expect(result.current.runTitle).toBe("");
+    expect(result.current.inheritedPriorTitle).toBeNull();
+  });
+
+  it("prefills the run title when revised-clone intent carries rerun=", async () => {
+    useSearchParams.mockReturnValue(
+      new URLSearchParams("intent=revised-clone&rerun=run-second-review&priorRunId=run-second-review"),
+    );
+    useRunSummaryQuery.mockReturnValue({
+      data: { displayName: "Second review inherited title", description: null },
+    });
+
+    const { result } = renderHook(() => useFirstPilotIntakeWizard({}));
+
+    await waitFor(() => {
+      expect(result.current.runTitle).toBe("Second review inherited title");
+    });
+
+    expect(result.current.inheritedPriorTitle).toBe("Second review inherited title");
+  });
+});
+
 describe("useFirstPilotIntakeWizard session restore", () => {
   beforeEach(() => {
     replaceMock.mockReset();
     capturedPersistence = null;
+    useSearchParams.mockReturnValue(new URLSearchParams("scopeGate=1"));
+    useRunSummaryQuery.mockReturnValue({ data: undefined });
   });
 
   it("persists scope gate and bullets in the quick-start session snapshot", async () => {

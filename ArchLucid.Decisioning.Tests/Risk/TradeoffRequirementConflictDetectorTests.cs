@@ -18,4 +18,15 @@ public sealed class TradeoffRequirementConflictDetectorTests
         result.IsConflicting.Should().BeFalse();
         result.RequirementId.Should().BeNull();
     }
+
+    [Fact]
+    public void DetectConflict_does_not_false_positive_on_non_pci_requirement_when_security_sacrificed()
+    {
+        (bool IsConflicting, string? RequirementId) result = TradeoffRequirementConflictDetector.DetectConflict(
+            WafPillar.Security,
+            ["Workload must remain non-pci scoped"]);
+
+        result.IsConflicting.Should().BeFalse();
+        result.RequirementId.Should().BeNull();
+    }
 }
