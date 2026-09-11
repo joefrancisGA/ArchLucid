@@ -11707,6 +11707,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `SlackIntegrationPageClient` — non-empty `slackDisableId` URL param persists when the subscription id is missing from loaded rows (no stale-param cleanup unlike ask `thread`) — **hit 2026-09-10 thorough hunt #1537:** after list hydration, unknown disable ids clear `slackDisableId` from the URL instead of leaving a dead deep link; regression `clears stale slackDisableId from the URL when the subscription is missing from loaded rows`.
 - [x] (proven) `DiagramReconcileWorkbenchClient` — `selectedCorrespondenceId` and URL `correspondenceId` survive match-kind filter changes that hide the selected row from `filteredRows` (operational-errors filter/detail desync pattern) — **hit 2026-09-10 thorough hunt #1537:** clear selection and `correspondenceId` when the selected row drops out of `filteredRows`; regression `clears selected correspondence when match-kind filter hides the selected row`.
 
+- [x] (proven) `usePilotValueReportQuery` / `operatorQueryKeys.pilotValueReport` — scope-less react-query key reused tenant A sponsor value report after operator scope switch — **hit 2026-09-11 seed hunt #1693 (seed→hit):** keyed query by `useOperatorScopeQueryKey` like `pilotRunDeltas`; regression `use-pilot-value-report-query.test.tsx`.
+
+2026-09-11 seed hunt #1693 (seed→hit): reseeded after #1537; proved pilot value report query cache omitted operator scope; 1 scoped hook test passed.
+
 2026-09-10 thorough hunt #1537 (hit): proved three seeded operator-route URL-sync defects (evidence-graph runId clear/reinject, Slack stale disable deep link, diagram reconcile filter/selection desync); 18 scoped component tests passed (1 pre-existing Slack sources-strip failure unrelated).
 
 2026-09-09 seed hunt #1416 (hit): reseeded operator routes after 204 commits since last hunt; proved compare picker stale run ids on cleared URL params; seeded evidence-graph runId reinjection, Slack disable deep-link, and diagram reconcile filter/selection desync candidates.
