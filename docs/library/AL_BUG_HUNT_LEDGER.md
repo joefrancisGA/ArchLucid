@@ -11549,11 +11549,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 4
-- **bugs-found:** 6
+- **hunts:** 6
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — run-detail completion counts omitted reasoning tokens; curated evidence proposer/validator mismatch; alias resolver audit flag conflation
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — evidence promotion catalog slug collision surfaced SQL unique-index failure; null evidence `type` threw instead of rejecting
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -11571,11 +11571,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-09-07 seed hunt #1194 (hit): reseeded application-agents zone; proved run-detail reasoning token display parity, curated evidence description validation, and alias resolver audit flag conflation.
 
-- [ ] (candidate) `EvidenceProposalPromoter.BuildCatalogEntryId` collapses distinct titles to the same catalog slug — promotion of a second proposal with a title that normalizes to an existing `catalogEntryId` fails at the unique index instead of surfacing a validation conflict
+- [x] (proven) `EvidenceProposalPromoter.BuildCatalogEntryId` collapses distinct titles to the same catalog slug — **hit 2026-09-11 thorough hunt #1724:** titles such as `Encrypt Data` and `encrypt-data` normalize to the same `policy-encrypt-data` id; promotion hit the tenant unique index instead of a validation conflict; fixed by pre-checking `ListByTenantAsync` and throwing `InvalidOperationException` before insert; regression `PromoteAsync_WhenCatalogEntryIdCollidesWithExistingEntry_ThrowsBeforeInsert`
 
 - [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-only title or description text — **hit 2026-09-11 seed hunt #1723 (seed→hit):** U+200B is not whitespace under `string.IsNullOrWhiteSpace`, so zero-width-only `description`/`title` values passed normalize and promote validation; fixed via shared `ProposedEvidenceTextValidation.HasSubstantiveText`; regressions `NormalizeResponse_returns_null_when_description_is_zero_width_space_only`, `NormalizeResponse_returns_null_when_title_is_zero_width_space_only`, and `TryParseValid_WhenDescriptionIsZeroWidthSpaceOnly_ReturnsFalse`
 
-2026-09-11 seed hunt #1723 (hit): reseeded application-agents; seeded catalog slug-collision candidate; proved invisible-only curated evidence text bypass; 74 scoped Application.Tests.Agents tests passed.
+- [x] (proven) `ProposedEvidencePayloadValidator.TryParseValid` throws on `"type":null` instead of rejecting — **hit 2026-09-11 thorough hunt #1724:** `IsSupportedType` called `.Equals` on null JSON `type`; fixed via null/whitespace guard; regression `TryParseValid_WhenTypeIsNull_ReturnsFalse`
+
+2026-09-11 seed hunt #1723 (hit): reseeded application-agents; seeded catalog slug-collision candidate; proved invisible-only curated evidence text bypass; 70 scoped Application.Tests.Agents tests passed.
+
+2026-09-11 thorough hunt #1724 (hit): proved catalog slug collision on evidence promotion and null evidence type validation throw; 72 scoped Application.Tests.Agents tests passed.
 
 ---
 
