@@ -31,5 +31,7 @@ describe("InfraEvidenceDiagramOutline", () => {
 
     expect(within(nodesTable as HTMLTableElement).getByRole("columnheader", { name: "Label" })).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
+    expect(within(edgesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
+    expect(within(edgesTable as HTMLTableElement).getByText("n_dst")).toBeTruthy();
   });
 });
