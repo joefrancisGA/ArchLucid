@@ -16318,6 +16318,16 @@
           },
           "traceConfidenceLabel": {
             "type": "string"
+          },
+          "treatment": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingTreatment"
+              }
+            ]
           }
         },
         "required": [

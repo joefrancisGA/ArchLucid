@@ -8,12 +8,14 @@ import { FindingJobViewLaneCallout } from "@/components/findings/FindingJobViewL
 import { FindingSeverityConstraintNote } from "@/components/findings/FindingSeverityConstraintNote";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
+import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { resolveFindingsQueueNavHref } from "@/lib/findings/finding-evidence-navigation";
 import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { findingDetailLeadSentence } from "@/lib/findings/finding-display-from-inspect";
+import { resolveFindingInspectExportClassification } from "@/lib/findings/finding-inspect-export-classification";
 import { buildFindingDerivationSentence } from "@/lib/findings/finding-derivation-sentence";
 import { findingCausalMiniChainFromInspectPayload } from "@/lib/findings/finding-causal-mini-chain";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
@@ -61,6 +63,22 @@ export type FindingDetailHeaderProps = {
   readonly inspectHref: string;
   readonly findingsQueueNavHref: string;
 };
+
+function resolveInspectTreatment(payload: FindingInspectPayload | null): number | null {
+  const typedPayload = payload?.typedPayload;
+
+  if (typedPayload === null || typedPayload === undefined || typeof typedPayload !== "object") {
+    return null;
+  }
+
+  const treatment = (typedPayload as Record<string, unknown>).treatment;
+
+  if (typeof treatment !== "number" || !Number.isFinite(treatment)) {
+    return null;
+  }
+
+  return treatment;
+}
 
 /** Finding detail header: wayfinding, buyer hero, or operator page header. */
 export function FindingDetailHeader(props: FindingDetailHeaderProps) {
@@ -156,6 +174,13 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
               {labels.severityLabel ? <SeverityTag severity={labels.severityLabel} /> : null}
               {labels.statusLabel ? (
                 <StatusTag kind={findingStatusTagKind(labels.statusLabel)} label={labels.statusLabel} />
+              ) : null}
+              {inspectPayload !== null ? (
+                <FindingClassificationChip
+                  classification={resolveFindingInspectExportClassification(inspectPayload)}
+                  treatment={resolveInspectTreatment(inspectPayload)}
+                  findingId={decodedFindingId}
+                />
               ) : null}
               {labels.categoryLabel ? <StatusTag kind="neutral" label={labels.categoryLabel} /> : null}
               {labels.impactedAreaLabel ? (

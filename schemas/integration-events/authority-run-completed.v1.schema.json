@@ -10,7 +10,10 @@
     "manifestId",
     "tenantId",
     "workspaceId",
-    "projectId"
+    "projectId",
+    "structuralExecutionMode",
+    "workingCareerRehearsalDoor",
+    "careerComplete"
   ],
   "properties": {
     "schemaVersion": { "type": "integer", "const": 1 },
@@ -23,6 +26,20 @@
       "type": ["string", "null"],
       "format": "uuid",
       "description": "Prior committed run in the same tenant/workspace/project scope with a golden manifest, when one exists."
+    },
+    "structuralExecutionMode": {
+      "type": "string",
+      "enum": ["Simulator", "Real", "Fallback", "Mixed"],
+      "description": "CG-093 — INV-002 structural execution mode stamped on the run at finalize."
+    },
+    "workingCareerRehearsalDoor": {
+      "type": "string",
+      "enum": ["career", "rehearsal"],
+      "description": "CG-093 — CG-019 Working Career vs Rehearsal door captured at first execute."
+    },
+    "careerComplete": {
+      "type": "boolean",
+      "description": "CG-093 — true only when Career door + Real mode on a non-sample run; consumers must not infer Career from HTTP 200 alone."
     },
     "findings": {
       "type": "array",
