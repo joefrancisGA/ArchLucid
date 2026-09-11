@@ -12089,11 +12089,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 9
-- **bugs-found:** 10
+- **hunts:** 10
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — orphan scopeGate from quick-start let guided intake skip scope confirmation
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — orphan rerun= from guided-intake deep links prefilled quick-start run title
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12120,6 +12120,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `useGuidedIntakeBriefForm` — `scopeGate=1` URL leaves advance blocked after operator confirms scope bullets — **cheap-disproof 2026-09-10 seed hunt #1682:** `scopeConfirmed` requires gate open and non-empty bullets; regression `clears scope confirmation blocker when scope bullets are confirmed after scopeGate URL prefill`.
 
 - [x] (valid-no-repro) `ReviewsNewPathSwitcher.selectPath` — orphan `intakeStep`/`scopeGate` survive switch to detailed wizard — **cheap-disproof 2026-09-10 seed hunt #1683:** `path !== guided-intake` branch deletes guided-intake params; regression `clears orphan intakeStep when opening detailed wizard from the disclosure`.
+
+- [x] (proven) `use-first-pilot-intake-wizard` — orphan `rerun=` from guided-intake deep links prefilled quick-start run title after path switch back to quick-review — **hit 2026-09-11 seed hunt #1684:** `readPriorRunIdFromSearch` ran for any `rerun=`; #1212 misclassified as valid-no-repro; fixed by gating title prefill on `intent=revised-clone`; regressions `does not prefill the run title from orphan rerun= without revised-clone intent` and `prefills the run title when revised-clone intent carries rerun=`.
+
+2026-09-11 seed hunt #1684 (hit): reseeded ui-review-intake-wizards; proved orphan rerun quick-start title prefill; 4 first-pilot intake wizard unit tests passed.
 
 2026-09-10 seed hunt #1683 (seed-only): reseeded ui-review-intake-wizards after #1682; cheap-disproof closed guided-intake param survival on detailed path switch; 24 scoped intake path + brief-form unit tests passed.
 
