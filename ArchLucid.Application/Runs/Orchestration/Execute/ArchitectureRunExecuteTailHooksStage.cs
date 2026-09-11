@@ -1,6 +1,7 @@
 using ArchLucid.Application.AiUsage;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Diagnostics;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.AiUsage;
@@ -16,7 +17,8 @@ public sealed class ArchitectureRunExecuteTailHooksStage(
     IBaselineMutationAuditService baselineMutationAudit,
     ArchitectureRunExecutePostExecuteHooks postExecuteHooks,
     DemoExpensiveActionGate demoExpensiveActionGate,
-    IAgentExecutionReadinessGuard agentExecutionReadinessGuard) : IArchitectureRunExecuteTailHooksStage
+    IAgentExecutionReadinessGuard agentExecutionReadinessGuard,
+    IExecuteTimeCareerPostureCaptureService careerPostureCaptureService) : IArchitectureRunExecuteTailHooksStage
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -32,6 +34,9 @@ public sealed class ArchitectureRunExecuteTailHooksStage(
 
     private readonly IAgentExecutionReadinessGuard _agentExecutionReadinessGuard =
         agentExecutionReadinessGuard ?? throw new ArgumentNullException(nameof(agentExecutionReadinessGuard));
+
+    private readonly IExecuteTimeCareerPostureCaptureService _careerPostureCaptureService =
+        careerPostureCaptureService ?? throw new ArgumentNullException(nameof(careerPostureCaptureService));
 
     /// <inheritdoc />
     public Task LogFailedRunRetryRequestedAsync(
@@ -54,6 +59,8 @@ public sealed class ArchitectureRunExecuteTailHooksStage(
             .ConfigureAwait(false);
 
         await _agentExecutionReadinessGuard.EnsureReadyForExecuteAsync(cancellationToken).ConfigureAwait(false);
+
+        await _careerPostureCaptureService.TryCaptureAndPersistAsync(runId, cancellationToken).ConfigureAwait(false);
 
         await _baselineMutationAudit
             .RecordAsync(AuditEventTypes.Baseline.Architecture.RunStarted, actor, runId, null, cancellationToken)

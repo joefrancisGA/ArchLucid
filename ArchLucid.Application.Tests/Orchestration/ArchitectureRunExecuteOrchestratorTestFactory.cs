@@ -189,7 +189,8 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             args.BaselineMutationAuditService ?? Mock.Of<IBaselineMutationAuditService>(),
             postExecuteHooks,
             args.DemoExpensiveActionGate ?? CreatePermissiveDemoExpensiveActionGate(),
-            args.AgentExecutionReadinessGuard ?? new PermissiveAgentExecutionReadinessGuard());
+            args.AgentExecutionReadinessGuard ?? new PermissiveAgentExecutionReadinessGuard(),
+            args.ExecuteTimeCareerPostureCaptureService ?? Mock.Of<IExecuteTimeCareerPostureCaptureService>());
 
         return new ArchitectureRunExecuteOrchestrator(
             runRepository,

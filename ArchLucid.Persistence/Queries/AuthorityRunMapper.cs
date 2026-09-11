@@ -35,6 +35,8 @@ internal static class AuthorityRunMapper
             HasGovernanceWarnings = run.HasGovernanceWarnings,
             PackageOrigin = run.PackageOrigin,
             StructuralExecutionMode = run.StructuralExecutionMode,
+            WorkingCareerRehearsalDoor = run.WorkingCareerRehearsalDoor,
+            ExecutePostureCapturedUtc = run.ExecutePostureCapturedUtc,
             AuthorityLifecyclePhase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(run),
             LegacyRunStatus = run.LegacyRunStatus,
         };

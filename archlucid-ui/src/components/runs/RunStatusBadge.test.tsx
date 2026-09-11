@@ -108,6 +108,24 @@ describe("deriveRunListPipelineLabel", () => {
     ).toBe("In pipeline");
   });
 
+  it("keeps rehearsal honesty when the execute stamp is Rehearsal and the live chooser moved to Career (CG-019)", () => {
+    expect(
+      deriveRunListPipelineLabel(
+        {
+          ...base,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          structuralExecutionMode: "Real",
+          workingCareerRehearsalDoor: "rehearsal",
+        },
+        {
+          workingDesk: true,
+          effectiveWorkingCareerRehearsalDoor: "career",
+        },
+      ),
+    ).toBe("In pipeline");
+  });
+
   it("suppresses Ready to finalize when pre-finalize gate is disabled on Working (LP-18)", () => {
     expect(
       deriveRunListPipelineLabel(

@@ -5311,6 +5311,13 @@
               "string"
             ]
           },
+          "executePostureCapturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "findingsSnapshotId": {
             "format": "uuid",
             "type": [
@@ -5380,6 +5387,12 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "workingCareerRehearsalDoor": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "required": [
@@ -32291,6 +32304,13 @@
               "string"
             ]
           },
+          "executePostureCapturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "findingsSnapshotId": {
             "format": "uuid",
             "type": [
@@ -32496,6 +32516,12 @@
           "tenantId": {
             "format": "uuid",
             "type": "string"
+          },
+          "workingCareerRehearsalDoor": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "workspaceId": {
             "format": "uuid",
@@ -32840,6 +32866,13 @@
               "string"
             ]
           },
+          "executePostureCapturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "goldenManifestId": {
             "format": "uuid",
             "type": [
@@ -32904,6 +32937,12 @@
           },
           "structuralExecutionMode": {
             "$ref": "#/components/schemas/StructuralExecutionMode"
+          },
+          "workingCareerRehearsalDoor": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "required": [

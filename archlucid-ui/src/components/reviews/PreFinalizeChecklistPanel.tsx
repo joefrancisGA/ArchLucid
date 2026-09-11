@@ -12,6 +12,7 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { getPreFinalizeChecklist } from "@/lib/api/pre-finalize-checklist";
 import { shouldSuppressReadyToFinalizeForWorkingRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door";
+import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
@@ -24,6 +25,7 @@ import type {
 export type PreFinalizeChecklistPanelProps = {
   readonly runId: string;
   readonly manifestFinalized: boolean;
+  readonly workingCareerRehearsalDoor?: string | null;
 };
 
 function statusTagKind(status: PreFinalizeChecklistItemStatus): EnterpriseStatusKind {
@@ -89,12 +91,16 @@ function ChecklistRow({ item }: { readonly item: PreFinalizeChecklistItem }): Re
 export function PreFinalizeChecklistPanel({
   runId,
   manifestFinalized,
+  workingCareerRehearsalDoor,
 }: PreFinalizeChecklistPanelProps): React.JSX.Element | null {
   const { isWorkingMode } = useWorkspaceMode();
   const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
   const suppressReadyLabel = shouldSuppressReadyToFinalizeForWorkingRehearsalDoor({
     workingDesk: isWorkingMode,
-    effectiveWorkingCareerRehearsalDoor: effectiveDoor,
+    effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
+      stampedDoor: workingCareerRehearsalDoor,
+      liveDoor: effectiveDoor,
+    }),
   });
   const [checklist, setChecklist] = useState<Awaited<ReturnType<typeof getPreFinalizeChecklist>> | null>(null);
   const [loading, setLoading] = useState(true);

@@ -10,6 +10,7 @@ import {
   WORKING_REHEARSAL_READY_SUPPRESSED_TITLE,
 } from "@/lib/governance/working-career-rehearsal-door-copy";
 import { shouldSuppressReadyToFinalizeForWorkingRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door";
+import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
 import {
   PRE_COMMIT_GATE_DISABLED_CAREER_COPY,
   PRE_COMMIT_GATE_DISABLED_TITLE,
@@ -38,6 +39,7 @@ export type RunDetailPreFinalizeGateHonestyStripProps = {
   readonly findings?: readonly QuickDecisionFinding[];
   readonly manifestFinalized?: boolean;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
+  readonly workingCareerRehearsalDoor?: string | null;
 };
 
 /** DR-04 / AS-064 / AS-065: persistent Working banners before finalize. */
@@ -57,7 +59,10 @@ export function RunDetailPreFinalizeGateHonestyStrip(
   const showPreCommitGateHonesty = isWorkingMode && preCommitGateEnabled === false;
   const showRehearsalDoorReadySuppressedHonesty = shouldSuppressReadyToFinalizeForWorkingRehearsalDoor({
     workingDesk: isWorkingMode,
-    effectiveWorkingCareerRehearsalDoor: effectiveDoor,
+    effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
+      stampedDoor: props.workingCareerRehearsalDoor,
+      liveDoor: effectiveDoor,
+    }),
   });
   const showUncheckedSemanticSupportHonesty = shouldShowUncheckedSemanticSupportFinalizeWarning({
     workingDesk: isWorkingMode,

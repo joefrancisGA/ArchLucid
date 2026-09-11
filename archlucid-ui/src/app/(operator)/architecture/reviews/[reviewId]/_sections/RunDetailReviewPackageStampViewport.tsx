@@ -48,6 +48,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly azureInventoryEvidencePresent?: boolean;
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
+  readonly workingCareerRehearsalDoor?: string | null;
   readonly preCommitGateEnabled?: boolean | null;
 };
 
@@ -80,6 +81,7 @@ export function RunDetailReviewPackageStampViewport(
               findings={props.quickDecisionFindings}
               manifestFinalized={props.hasGoldenManifest}
               structuralExecutionMode={props.structuralExecutionMode}
+              workingCareerRehearsalDoor={props.workingCareerRehearsalDoor}
             />
             <RunDetailQualityGateModeStrip
               runId={props.runId}
@@ -146,16 +148,17 @@ export function RunDetailReviewPackageStampViewport(
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
       {!pipelineTerminalFailure ? (
         <>
-          <RunDetailPreFinalizeGateHonestyStrip
-            findings={props.quickDecisionFindings}
-            manifestFinalized={props.hasGoldenManifest}
-            structuralExecutionMode={props.structuralExecutionMode}
-          />
-          <RunDetailQualityGateModeStrip
-            runId={props.runId}
-            structuralExecutionMode={props.structuralExecutionMode}
-            isSample={props.isSample}
-          />
+            <RunDetailPreFinalizeGateHonestyStrip
+              findings={props.quickDecisionFindings}
+              manifestFinalized={props.hasGoldenManifest}
+              structuralExecutionMode={props.structuralExecutionMode}
+              workingCareerRehearsalDoor={props.workingCareerRehearsalDoor}
+            />
+            <RunDetailQualityGateModeStrip
+              runId={props.runId}
+              structuralExecutionMode={props.structuralExecutionMode}
+              isSample={props.isSample}
+            />
         </>
       ) : null}
       <FirstReviewAzureInventoryZipPromptStrip
