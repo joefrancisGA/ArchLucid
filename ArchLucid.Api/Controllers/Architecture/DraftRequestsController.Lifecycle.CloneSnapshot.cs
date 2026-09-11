@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -55,6 +56,10 @@ public sealed partial class DraftRequestsController
                 cancellationToken);
 
             return CreatedAtAction(nameof(GetDraft), new { draftId = result.Clone.DraftId }, result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

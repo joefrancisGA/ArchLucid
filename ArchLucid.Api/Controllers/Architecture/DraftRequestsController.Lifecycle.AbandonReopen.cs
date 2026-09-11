@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Authorization;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Audit;
@@ -47,6 +48,10 @@ public sealed partial class DraftRequestsController
 
             return Ok(result);
         }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
+        }
         catch (InvalidOperationException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
@@ -93,6 +98,10 @@ public sealed partial class DraftRequestsController
                 cancellationToken);
 
             return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
