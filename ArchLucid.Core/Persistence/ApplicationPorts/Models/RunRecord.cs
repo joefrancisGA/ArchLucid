@@ -249,6 +249,16 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>
+    ///     JSON-serialized <see cref="ArchLucid.Contracts.Runs.RunAssumptionAcknowledgementDocument" />;
+    ///     operator confirmation of open assumptions before finalize (TB-2345 item 49).
+    /// </summary>
+    public string? AcknowledgedAssumptionsJson
+    {
+        get;
+        set;
+    }
+
     /// <summary>JSON-serialized last recommendation improve-loop evidence for operator replay.</summary>
     public string? ImproveLoopEvidenceJson
     {

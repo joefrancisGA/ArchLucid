@@ -2,6 +2,7 @@ using ArchLucid.Api.Models.Evolution;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.ProductLearning;
 using ArchLucid.Api.Services.Evolution;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Core.Authorization;
@@ -40,6 +41,10 @@ public sealed partial class EvolutionController
         catch (EvolutionResourceNotFoundException ex)
         {
             return this.NotFoundProblem(ex.Message, ex.ProblemTypeUri);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
@@ -85,6 +90,10 @@ public sealed partial class EvolutionController
         catch (EvolutionResourceNotFoundException ex)
         {
             return this.NotFoundProblem(ex.Message, ex.ProblemTypeUri);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

@@ -53,6 +53,10 @@ public sealed partial class DraftRequestsController
         {
             statuses = DraftRequestListStatusFilter.ParseOrDefault(status);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);

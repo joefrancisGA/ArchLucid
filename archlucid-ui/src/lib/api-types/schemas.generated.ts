@@ -7763,6 +7763,9 @@ export interface components {
             actorOid?: string;
             role?: string;
         };
+        PutRunAssumptionAcknowledgementRequest: {
+            acknowledgedAssumptionIds?: null | string[];
+        };
         PutRunCoverageAcknowledgementRequest: {
             entries?: null | components["schemas"]["RunCoverageAcknowledgementEntryRequest"][];
         };
@@ -9043,6 +9046,13 @@ export interface components {
             /** Format: int32 */
             graphSnapshots?: number;
         };
+        RunAssumptionAcknowledgementDocument: {
+            acknowledgedAssumptionIds?: string[];
+            /** Format: date-time */
+            acknowledgedUtc?: string;
+            actorUserId?: string;
+            evaluationVersion?: string;
+        };
         RunAuthorityRuleAuditExplainabilitySection: {
             acceptedFindingIds?: string[];
             allowedFindingIds?: string[];
@@ -9396,6 +9406,7 @@ export interface components {
             summary?: string;
         };
         RunRecord: {
+            acknowledgedAssumptionsJson?: null | string;
             acknowledgedCoverageJson?: null | string;
             /** Format: uuid */
             architectureId?: null | string;

@@ -26411,6 +26411,20 @@
         },
         "type": "object"
       },
+      "PutRunAssumptionAcknowledgementRequest": {
+        "properties": {
+          "acknowledgedAssumptionIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "PutRunCoverageAcknowledgementRequest": {
         "properties": {
           "entries": {
@@ -30793,6 +30807,27 @@
         },
         "type": "object"
       },
+      "RunAssumptionAcknowledgementDocument": {
+        "properties": {
+          "acknowledgedAssumptionIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "acknowledgedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "actorUserId": {
+            "type": "string"
+          },
+          "evaluationVersion": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "RunAuthorityRuleAuditExplainabilitySection": {
         "properties": {
           "acceptedFindingIds": {
@@ -32161,6 +32196,12 @@
       },
       "RunRecord": {
         "properties": {
+          "acknowledgedAssumptionsJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "acknowledgedCoverageJson": {
             "type": [
               "null",
