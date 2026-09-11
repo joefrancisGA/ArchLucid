@@ -1,9 +1,7 @@
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.User;
-using ArchLucid.Core;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.UserPreferences;
-using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -13,7 +11,7 @@ namespace ArchLucid.Application.Runs;
 public sealed class ExecuteTimeCareerPostureCaptureService(
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
-    IUserSettingsRepository userSettingsRepository,
+    IWorkingCareerRehearsalDoorReader doorReader,
     IActorContext actorContext) : IExecuteTimeCareerPostureCaptureService
 {
     private readonly IRunRepository _runRepository =
@@ -22,8 +20,8 @@ public sealed class ExecuteTimeCareerPostureCaptureService(
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
-    private readonly IUserSettingsRepository _userSettingsRepository =
-        userSettingsRepository ?? throw new ArgumentNullException(nameof(userSettingsRepository));
+    private readonly IWorkingCareerRehearsalDoorReader _doorReader =
+        doorReader ?? throw new ArgumentNullException(nameof(doorReader));
 
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -49,9 +47,7 @@ public sealed class ExecuteTimeCareerPostureCaptureService(
             return;
 
         string actorId = _actorContext.GetActorId();
-        string? stored = await _userSettingsRepository
-            .TryGetAsync(actorId, UserSettingKeys.WorkingCareerRehearsalDoor, cancellationToken)
-            .ConfigureAwait(false);
+        string? stored = await _doorReader.TryGetStoredDoorAsync(actorId, cancellationToken).ConfigureAwait(false);
 
         header.WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.ParseOrDefault(stored);
         header.ExecutePostureCapturedUtc = TimeProvider.System.UtcNowDateTime();

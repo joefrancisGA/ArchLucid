@@ -29,6 +29,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IScimGroupRepository, InMemoryScimGroupRepository>();
         services.AddSingleton<IUserSettingsRepository, InMemoryUserSettingsRepository>();
         services.AddSingleton<IUserWorkspaceModeReader, UserWorkspaceModeReader>();
+        services.AddSingleton<IWorkingCareerRehearsalDoorReader, WorkingCareerRehearsalDoorSettingsReader>();
         services.AddSingleton<IUserInvitationRepository, InMemoryUserInvitationRepository>();
         services.AddSingleton<ITenantTeamsIncomingWebhookConnectionRepository, InMemoryTenantTeamsIncomingWebhookConnectionRepository>();
         services.AddSingleton<ITenantAzureOpenAiConnectionRepository, InMemoryTenantAzureOpenAiConnectionRepository>();

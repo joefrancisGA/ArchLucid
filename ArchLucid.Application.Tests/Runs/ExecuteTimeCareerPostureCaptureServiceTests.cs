@@ -3,7 +3,6 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.User;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.UserPreferences;
-using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -28,12 +27,12 @@ public sealed class ExecuteTimeCareerPostureCaptureServiceTests
         RunRecord header = Header(runId, tenantId, workspaceId, projectId);
 
         Mock<IRunRepository> runs = CreateRuns(scope, runId, header);
-        Mock<IUserSettingsRepository> settings = new();
-        settings
-            .Setup(s => s.TryGetAsync("jwt:operator", UserSettingKeys.WorkingCareerRehearsalDoor, It.IsAny<CancellationToken>()))
+        Mock<IWorkingCareerRehearsalDoorReader> doors = new();
+        doors
+            .Setup(s => s.TryGetStoredDoorAsync("jwt:operator", It.IsAny<CancellationToken>()))
             .ReturnsAsync(WorkingCareerRehearsalDoorValues.Rehearsal);
 
-        ExecuteTimeCareerPostureCaptureService sut = CreateSut(runs.Object, scope, settings.Object);
+        ExecuteTimeCareerPostureCaptureService sut = CreateSut(runs.Object, scope, doors.Object);
 
         await sut.TryCaptureAndPersistAsync(runId.ToString("N"), CancellationToken.None);
 
@@ -57,21 +56,19 @@ public sealed class ExecuteTimeCareerPostureCaptureServiceTests
         header.ExecutePostureCapturedUtc = originalUtc;
 
         Mock<IRunRepository> runs = CreateRuns(scope, runId, header);
-        Mock<IUserSettingsRepository> settings = new();
-        settings
-            .Setup(s => s.TryGetAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        Mock<IWorkingCareerRehearsalDoorReader> doors = new();
+        doors
+            .Setup(s => s.TryGetStoredDoorAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(WorkingCareerRehearsalDoorValues.Career);
 
-        ExecuteTimeCareerPostureCaptureService sut = CreateSut(runs.Object, scope, settings.Object);
+        ExecuteTimeCareerPostureCaptureService sut = CreateSut(runs.Object, scope, doors.Object);
 
         await sut.TryCaptureAndPersistAsync(runId.ToString("N"), CancellationToken.None);
 
         header.WorkingCareerRehearsalDoor.Should().Be(WorkingCareerRehearsalDoorValues.Rehearsal);
         header.ExecutePostureCapturedUtc.Should().Be(originalUtc);
         runs.Verify(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()), Times.Never);
-        settings.Verify(
-            s => s.TryGetAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+        doors.Verify(s => s.TryGetStoredDoorAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -86,18 +83,16 @@ public sealed class ExecuteTimeCareerPostureCaptureServiceTests
         header.GoldenManifestId = Guid.NewGuid();
 
         Mock<IRunRepository> runs = CreateRuns(scope, runId, header);
-        Mock<IUserSettingsRepository> settings = new();
+        Mock<IWorkingCareerRehearsalDoorReader> doors = new();
 
-        ExecuteTimeCareerPostureCaptureService sut = CreateSut(runs.Object, scope, settings.Object);
+        ExecuteTimeCareerPostureCaptureService sut = CreateSut(runs.Object, scope, doors.Object);
 
         await sut.TryCaptureAndPersistAsync(runId.ToString("N"), CancellationToken.None);
 
         header.WorkingCareerRehearsalDoor.Should().BeNull();
         header.ExecutePostureCapturedUtc.Should().BeNull();
         runs.Verify(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()), Times.Never);
-        settings.Verify(
-            s => s.TryGetAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+        doors.Verify(s => s.TryGetStoredDoorAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -111,12 +106,12 @@ public sealed class ExecuteTimeCareerPostureCaptureServiceTests
         RunRecord header = Header(runId, tenantId, workspaceId, projectId);
 
         Mock<IRunRepository> runs = CreateRuns(scope, runId, header);
-        Mock<IUserSettingsRepository> settings = new();
-        settings
-            .Setup(s => s.TryGetAsync("jwt:operator", UserSettingKeys.WorkingCareerRehearsalDoor, It.IsAny<CancellationToken>()))
+        Mock<IWorkingCareerRehearsalDoorReader> doors = new();
+        doors
+            .Setup(s => s.TryGetStoredDoorAsync("jwt:operator", It.IsAny<CancellationToken>()))
             .ReturnsAsync((string?)null);
 
-        ExecuteTimeCareerPostureCaptureService sut = CreateSut(runs.Object, scope, settings.Object);
+        ExecuteTimeCareerPostureCaptureService sut = CreateSut(runs.Object, scope, doors.Object);
 
         await sut.TryCaptureAndPersistAsync(runId.ToString("N"), CancellationToken.None);
 
@@ -127,7 +122,7 @@ public sealed class ExecuteTimeCareerPostureCaptureServiceTests
     private static ExecuteTimeCareerPostureCaptureService CreateSut(
         IRunRepository runs,
         ScopeContext scope,
-        IUserSettingsRepository settings)
+        IWorkingCareerRehearsalDoorReader doors)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
@@ -138,7 +133,7 @@ public sealed class ExecuteTimeCareerPostureCaptureServiceTests
         return new ExecuteTimeCareerPostureCaptureService(
             runs,
             scopeProvider.Object,
-            settings,
+            doors,
             actor.Object);
     }
 

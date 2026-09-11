@@ -69,8 +69,9 @@ public sealed class CareerGravityCg019ExecutePostureStampArchitectureTests
 
         File.Exists(validatorPath).Should().BeTrue();
         File.Exists(adr0078Path).Should().BeTrue();
-        capture.Should().Contain("ExecutePostureCapturedUtc");
+        capture.Should().Contain("IWorkingCareerRehearsalDoorReader");
         capture.Should().Contain("WorkingCareerRehearsalDoorValues.ParseOrDefault");
+        capture.Should().Contain("ExecutePostureCapturedUtc");
         capture.Should().Contain("GoldenManifestId");
         capture.Should().NotContain("ManifestHash");
         capture.Should().NotContain("G-REAL-06");
