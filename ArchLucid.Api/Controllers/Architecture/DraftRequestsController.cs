@@ -152,7 +152,6 @@ public sealed partial class DraftRequestsController(
             if (draft is null)
                 return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
 
-<<<<<<< HEAD
             draft.WorkLease = await _architectureWorkLeaseService.TryGetActiveSnapshotAsync(
                 scope,
                 draftId,
@@ -165,36 +164,6 @@ public sealed partial class DraftRequestsController(
         {
             return MapDraftRequestSealedManifestConflict(ex);
         }
-=======
-<<<<<<< HEAD
-            return Ok(draft);
-        }
-        catch (ConflictException ex)
-        {
-            return MapDraftRequestSealedManifestConflict(ex);
-        }
-=======
-        draft.WorkLease = await _architectureWorkLeaseService.TryGetActiveSnapshotAsync(
-            scope,
-            draftId,
-            _actorContext.GetActorId(),
-            cancellationToken);
-
-        draft.WorkLease = await _architectureWorkLeaseService.TryGetActiveSnapshotAsync(
-            scope,
-            draftId,
-            _actorContext.GetActorId(),
-            cancellationToken);
-
-        draft.WorkLease = await _architectureWorkLeaseService.TryGetActiveSnapshotAsync(
-            scope,
-            draftId,
-            _actorContext.GetActorId(),
-            cancellationToken);
-
-        return Ok(draft);
->>>>>>> origin/master
->>>>>>> origin/master
     }
 
     /// <summary>Patches a draft while <see cref="DraftRequestStatus.Drafting" />.</summary>
