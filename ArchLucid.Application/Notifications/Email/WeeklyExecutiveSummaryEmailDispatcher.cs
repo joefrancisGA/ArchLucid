@@ -51,6 +51,7 @@ public sealed class WeeklySponsorReportEmailDispatcher(
             throw new ArgumentException("Idempotency key is required.", nameof(isoWeekIdempotencyKey));
 
         string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
+        string normalizedWeekLabel = weekLabel.Trim();
 
         List<string> normalizedMailboxes = [];
 
@@ -72,7 +73,7 @@ public sealed class WeeklySponsorReportEmailDispatcher(
         WeeklySponsorReportEmailModel model = new()
         {
             ProductName = productName,
-            WeekLabel = weekLabel,
+            WeekLabel = normalizedWeekLabel,
             RunIdHex = runIdHex.Trim(),
             RunDetailUrl = runDetailUrl.Trim(),
             SummaryMarkdown = summaryMarkdown,
@@ -82,7 +83,7 @@ public sealed class WeeklySponsorReportEmailDispatcher(
         string idempotencyKey = $"weekly-sponsor-report:{tenantId:N}:{normalizedIsoWeekKey}";
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
-        string subject = $"{productName} weekly Sponsor report — {weekLabel}";
+        string subject = $"{productName} weekly Sponsor report — {normalizedWeekLabel}";
 
         return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
             tenantId,
