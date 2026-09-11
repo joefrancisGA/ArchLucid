@@ -28,6 +28,7 @@ public sealed record CareerArtifactCompletenessInput(
     bool LegacySealedReExport = false,
     bool BlockExternalSponsorDistribution = false,
     bool SimulatorRehearsalBannerOnArtifact = false,
+    string? WorkingCareerRehearsalDoor = null,
     FindingsSnapshot? FindingsSnapshot = null,
     bool DegradedFindingCoverage = false,
     IReadOnlyList<string>? DegradedFindingCoverageFailedEngineLabels = null);

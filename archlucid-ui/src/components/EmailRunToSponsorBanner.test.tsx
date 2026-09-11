@@ -15,6 +15,16 @@ vi.mock("@/lib/sponsor-banner-telemetry", () => ({
   recordSponsorBannerFirstCommitBadge: vi.fn(),
 }));
 
+const effectiveDoorMock = vi.hoisted(() => ({ value: "career" as "career" | "rehearsal" }));
+
+vi.mock("@/hooks/use-effective-working-career-rehearsal-door", () => ({
+  useEffectiveWorkingCareerRehearsalDoor: () => ({
+    door: effectiveDoorMock.value,
+    effectiveDoor: effectiveDoorMock.value,
+    mounted: true,
+  }),
+}));
+
 import { downloadFirstValueReportPdf, markSponsorPackSent } from "@/lib/api";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
 
@@ -87,6 +97,7 @@ function stubFetchForBannerMocks(init?: {
 
 describe("EmailRunToSponsorBanner", () => {
   beforeEach(() => {
+    effectiveDoorMock.value = "career";
     stubFetchForBannerMocks();
   });
 
@@ -474,6 +485,57 @@ describe("EmailRunToSponsorBanner", () => {
     expect(screen.queryByTestId("email-run-to-sponsor-estimated-usd-savings")).not.toBeInTheDocument();
     expect(screen.getByTestId("email-run-to-sponsor-primary-action")).toBeDisabled();
     expect(screen.getByTestId("email-run-to-sponsor-mark-sent")).toBeDisabled();
+  });
+
+  it("blocks sponsor PDF for Working Career simulator without rehearsal banner (CG-022)", async () => {
+    stubFetchForBannerMocks({
+      deltasBody: {
+        isDemoTenant: false,
+        structuralExecutionMode: "Real",
+        proofPackageCompleteness: {
+          demoTenantWarningRequired: false,
+          sponsorProofReadiness: "Sendable",
+          proofSendability: "Sendable",
+          publishingTier: "Complete",
+          roiEvidenceConfidence: "Strong",
+          roiBaselineInputs: { projectedDollarClaimsSponsorSafe: true },
+          agentOutputPilotStrictEvidenceSatisfied: true,
+        },
+      },
+    });
+
+    render(
+      <EmailRunToSponsorBanner
+        {...bannerProps}
+        careerArtifactHonesty={{
+          progressSummary: {
+            runId: "run-42",
+            structuralExecutionMode: "Simulator",
+            workingCareerRehearsalDoor: "career",
+          },
+          manifestSummary: null,
+          graphSnapshot: null,
+          enginesSucceeded: 35,
+          workingDesk: true,
+          structuralExecutionMode: "Simulator",
+          transparencyTrail: {
+            asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+            inferred: [],
+            skipped: [],
+          },
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-career-artifact-gap")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-career-artifact-gap")).toHaveTextContent(
+      /Simulator rehearsal cannot be career-complete/i,
+    );
+    expect(screen.getByTestId("email-run-to-sponsor-primary-action")).toBeDisabled();
+    expect(screen.queryByTestId("email-run-to-sponsor-execution-mode-gap")).not.toBeInTheDocument();
   });
 
   it("blocks sponsor PDF when career artifact honesty fails (FC-48)", async () => {

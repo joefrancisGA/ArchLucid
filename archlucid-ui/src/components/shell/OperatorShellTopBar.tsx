@@ -18,6 +18,7 @@ import { OperatorShellDemoWorkspaceTag } from "@/components/shell/OperatorShellD
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { GuidedModeTopBarChip } from "@/components/workspace-mode/GuidedModeTopBarChip";
 import { WorkingCareerRehearsalChooser } from "@/components/workspace-mode/WorkingCareerRehearsalChooser";
+import { SecurityWorkingCareerHonestyStrip } from "@/components/workspace-mode/SecurityWorkingCareerHonestyStrip";
 import { SimulatorModeTopBarChip } from "@/components/usability/SimulatorModeTopBarChip";
 import { useSearchShortcut } from "@/hooks/useSearchShortcut";
 import { useReviewPresenterChromeActive } from "@/hooks/use-review-presenter-chrome-active";
@@ -33,6 +34,7 @@ import {
 } from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { isSecureNowTrainingChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { PRODUCT_LINE_WORDMARK_ARIA_LABEL } from "@/lib/product-line/product-line-copy";
 import { cn } from "@/lib/utils";
@@ -58,9 +60,11 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
     callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const showAuthorityThemeToggle = isUiAuthorityThemeEvalEnabledEnv();
   const showMoreMenu = showAuthorityThemeToggle;
-  const showDevAnalysisTopBarChrome = productLine !== "security";
-  const showWorkspaceScopeSwitcher = productLine !== "security";
-  const showWorkingCareerRehearsalChooser = productLine !== "security";
+  const showTrainingChrome = !isSecureNowTrainingChromeExcluded(productLine);
+  const showDevAnalysisTopBarChrome = showTrainingChrome;
+  const showWorkspaceScopeSwitcher = showTrainingChrome;
+  const showWorkingCareerRehearsalChooser = showTrainingChrome;
+  const showGuidedModeTopBarChip = showTrainingChrome;
 
   useSearchShortcut();
 
@@ -123,7 +127,8 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             <AuthPanel />
             <div className="flex shrink-0 items-center gap-2.5 border-l border-neutral-200 pl-3 dark:border-neutral-700">
               {showWorkingCareerRehearsalChooser ? <WorkingCareerRehearsalChooser /> : null}
-              <GuidedModeTopBarChip />
+              <SecurityWorkingCareerHonestyStrip />
+              {showGuidedModeTopBarChip ? <GuidedModeTopBarChip /> : null}
               {showDevAnalysisTopBarChrome ? <SimulatorModeTopBarChip /> : null}
               <ShellInFlightOperationsAffordanceDeferred />
               <ToolbarHelpTooltip

@@ -14,11 +14,11 @@ Reuse, do not re-run: `evaluateCareerArtifactHonesty`, `CareerArtifactCompletene
 
 ## Gravity gap (quote this)
 
-`CareerArtifactCompletenessInputMapper.MapForExport` sets `SimulatorRehearsalBannerOnArtifact` from `IsRehearsalStructuralExecutionMode(StructuralExecutionMode)` — it **assumes** the rehearsal banner is already on the artifact whenever Mode is Simulator/Fallback.
+**CG-022 (shipped):** `CareerArtifactCompletenessInputMapper.ResolveSimulatorRehearsalBannerOnArtifactForExport` sets `SimulatorRehearsalBannerOnArtifact` only when structural Mode is Simulator/Fallback **and** `WorkingCareerRehearsalDoor` is **Rehearsal**. Working Career + Simulator exports **fail closed** server-side unless bytes carry a real rehearsal banner.
 
-`SimulatorCareerHonestyPresenter.ShouldBlockWorkingCareer` then **does not block** Working Career Simulator exports, even when PDF/DOCX/JSON bytes have no rehearsal watermark.
+`SimulatorCareerHonestyPresenter.ShouldBlockWorkingCareer` still blocks unlabeled Working Career Simulator paths when the door stamp is Career.
 
-UI `evaluateCareerArtifactHonesty` does **not** default that flag. Mounted UI formatters that omit `simulatorRehearsalBannerOnArtifact` therefore **fail closed** on Working Career Simulator. Server `MapForExport` **fail-opens**. CG-022+ must not treat the mapper flag as proof the bytes are labeled.
+UI `evaluateCareerArtifactHonesty` does **not** default the banner flag. Mounted UI formatters that omit `simulatorRehearsalBannerOnArtifact` therefore **fail closed** on Working Career Simulator. **Do not** treat the mapper flag as proof PDF bytes are watermarked — CG-042+ owns visual rehearsal stamps on sponsor PDF bytes.
 
 ## Leak classes
 
@@ -49,7 +49,7 @@ Working Career must not be confused with these waivers.
 |------|----------------|-----------------------------|------------|-------|
 | `archlucid-ui/src/components/GoldenManifestExportMenu.tsx` | **Yes** | Honesty markdown via `formatCareerExportHonestyMarkdown`; banner flag **not** passed | covered | CG-022 leftover if bytes still unlabeled after a server round-trip |
 | `archlucid-ui/src/components/GenerateAdrFromRunModal.tsx` | **Yes** | Honesty markdown prepended to ADR | covered | CG-024 |
-| `archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageClient.tsx` | **Yes** | Header lines; **no** CSS print watermark | covered (block) / print-stamp leftover | CG-023 / CG-041 |
+| `archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageClient.tsx` | **Yes** | Door-stamp rehearsal strip (print-only); repeating watermark is CG-041 | covered | CG-041 |
 | `archlucid-ui/src/lib/export-markdown.ts` | **Yes** | Honesty markdown + demo chrome helper | covered | CG-022 |
 | `archlucid-ui/src/lib/sealed-manifest-json-export.ts` | **Yes** | Working fail-closed; no rehearsal JSON flag unless honesty input carries it | covered | CG-044 |
 | `archlucid-ui/src/components/reviews/RunDetailCareerArtifactHonestyStrip.tsx` | **Yes** | Screen strip, not a file | covered | CG-029 adjacent |
@@ -59,19 +59,19 @@ Working Career must not be confused with these waivers.
 
 | Path | Validator call | Rehearsal watermark on artifact | Leak class | Owner |
 |------|----------------|----------------------------------|------------|-------|
-| `ArchLucid.Application/Exports/CareerArtifactCompletenessInputMapper.cs` | Maps flag from Mode | **Assumes banner on** | **assumed-banner** | CG-022 |
-| `ArchLucid.Application/Exports/CareerArtifactExportCompletenessGate.cs` | `EnsureCanExport` / `FromHonestyMaterial` | Inherits mapper | assumed-banner | CG-022 |
-| `ArchLucid.Application/Exports/SponsorReviewPacketBuilder.cs` | `EnsureCanExportFromHonestyMaterial` | Coverage honesty markdown; rehearsal via mapper | assumed-banner | CG-022 |
-| `ArchLucid.Application/Exports/RunSummaryOnePagerExportService.cs` | **Yes** | Same | assumed-banner | CG-022 |
-| `ArchLucid.Application/Exports/ArchitectureReviewExportService.cs` | **Yes** | Same | assumed-banner | CG-022 |
+| `ArchLucid.Application/Exports/CareerArtifactCompletenessInputMapper.cs` | Door-stamp-aware `ResolveSimulatorRehearsalBannerOnArtifactForExport` | Banner only when Rehearsal door + Simulator | **covered** | CG-022 |
+| `ArchLucid.Application/Exports/CareerArtifactExportCompletenessGate.cs` | `EnsureCanExport` / `FromHonestyMaterial` | Inherits mapper | covered | CG-022 |
+| `ArchLucid.Application/Exports/SponsorReviewPacketBuilder.cs` | `EnsureCanExportFromHonestyMaterial` | Coverage honesty markdown; rehearsal via mapper | covered | CG-022 |
+| `ArchLucid.Application/Exports/RunSummaryOnePagerExportService.cs` | **Yes** | Same | covered | CG-022 |
+| `ArchLucid.Application/Exports/ArchitectureReviewExportService.cs` | **Yes** | Same | covered | CG-022 |
 | `ArchLucid.Application/Analysis/ExportReplayService.cs` | **Yes** | Replay ZIP inherits mapper | assumed-banner | CG-027 |
 | `ArchLucid.Api/Controllers/Authority/DocxExportController.cs` | `EnsureCanExport` + plain-text honesty section | DOCX gets coverage honesty text; rehearsal banner assumed | assumed-banner | CG-043 |
-| `ArchLucid.Application/Exports/DecisionReceiptService.cs` | `MapForExport` | JSON receipt; no visual watermark | assumed-banner | CG-025 / CG-044 |
+| `ArchLucid.Application/Exports/DecisionReceiptService.cs` | `MapForExport` + `DecisionReceiptCareerPostureStamper` | JSON receipt stamps Mode/door + `rehearsalIncomplete` | **covered** | CG-025 |
 | `ArchLucid.Application/Pilots/FirstValueReportBuilder.cs` | `MapForExport` | Markdown honesty; PDF sibling uses **sponsor-circulation** watermarks | assumed-banner | CG-022 / CG-042 |
 | `ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs` | `MapForFinalize` (banner defaults **false**) | Finalize **does** block unlabeled Working Simulator | covered | CG-021 |
 | `ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Download.cs` | ZIP `GET …/export` — **no** `EnsureCanExport` | Sealed-hash only | **bypass** | CG-028 |
 | `ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Push.cs` | Blob push — **no** career gate | Same ZIP contents | **bypass** | CG-028 |
-| `ArchLucid.Api/Controllers/Admin/AuditController.Export.Csv.cs` | Sealed-manifest guard only | CSV of audit rows; no rehearsal column | related | CG-026 |
+| `ArchLucid.Api/Controllers/Admin/AuditController.Export.Csv.cs` | `AuditExportCareerPostureGate` + CSV preamble/columns | Mode/door columns + `-rehearsal` filename when incomplete | **covered** | CG-026 |
 | `ArchLucid.Api/Controllers/Findings/FindingVerificationController.Export.cs` | Markdown/DOCX of verification report | No career honesty mapper | **bypass** | CG-026 |
 | `ArchLucid.Cli/Commands/PilotProofPacketStructuralExecutionModeFormatter.cs` | Caveat line from deltas JSON | Mode-labeled markdown, not a page watermark | covered (caveat) | CG-027 / CG-045 |
 | `ArchLucid.Cli/Commands/FirstValueReportCommand.cs` | Downloads API markdown | Honesty is whatever the API emitted | assumed-banner | CG-027 |

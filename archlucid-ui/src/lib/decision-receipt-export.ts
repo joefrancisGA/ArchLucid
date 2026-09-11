@@ -3,7 +3,13 @@ import {
   type TransparencyTrailExportSection,
 } from "@/lib/feasibility/export-transparency-trail-section";
 import { resolveHardInfeasibleCitationExportBlockedReason } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
+import {
+  resolveDecisionReceiptCareerPosture,
+  type DecisionReceiptCareerPosture,
+} from "@/lib/decision-receipt-career-posture";
 import type { FeasibilityVerdictKind, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
+import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 
 export const DECISION_RECEIPT_SCHEMA_VERSION = "archlucid.decision-receipt.v2";
 
@@ -22,6 +28,11 @@ export type DecisionReceiptContext = {
   readonly freeTextIntent?: string;
   readonly businessOutcome?: string;
   readonly systemName?: string;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
+  readonly liveDoor?: WorkingCareerRehearsalDoorId | null;
+  readonly progressSummary?: {
+    readonly structuralExecutionMode?: StructuralExecutionModeInput;
+  } | null;
 };
 
 export type DecisionReceiptDocument = {
@@ -45,6 +56,7 @@ export type DecisionReceiptDocument = {
     avoidedCalendarWeeksEstimate: string;
     narrative: string;
   };
+  careerPosture?: DecisionReceiptCareerPosture;
 };
 
 export function isExportableDecisionVerdict(kind: FeasibilityVerdictKind): boolean {
@@ -58,6 +70,11 @@ export function resolveDecisionReceiptExportBlockedReason(
 }
 
 export function buildDecisionReceiptDocument(context: DecisionReceiptContext): DecisionReceiptDocument {
+  const careerPosture =
+    context.source === "committed-run"
+      ? resolveDecisionReceiptCareerPosture(context)
+      : undefined;
+
   return {
     schemaVersion: DECISION_RECEIPT_SCHEMA_VERSION,
     generatedUtc: new Date().toISOString(),
@@ -85,6 +102,7 @@ export function buildDecisionReceiptDocument(context: DecisionReceiptContext): D
       narrative:
         "A defensible decision delivered in minutes at low compute cost versus weeks of human architecture review.",
     },
+    careerPosture,
   };
 }
 

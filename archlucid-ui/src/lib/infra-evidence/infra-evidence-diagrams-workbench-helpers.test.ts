@@ -10,8 +10,10 @@ import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra
 describe("parseArchitectureDiagramZoomFromSearch", () => {
   it("parses and clamps zoom values", () => {
     expect(parseArchitectureDiagramZoomFromSearch("1.5")).toBe(1.5);
-    expect(parseArchitectureDiagramZoomFromSearch("9")).toBe(2.5);
-    expect(parseArchitectureDiagramZoomFromSearch("0.1")).toBe(0.5);
+    expect(parseArchitectureDiagramZoomFromSearch("9")).toBe(9);
+    expect(parseArchitectureDiagramZoomFromSearch("12")).toBe(10);
+    expect(parseArchitectureDiagramZoomFromSearch("0.1")).toBe(0.1);
+    expect(parseArchitectureDiagramZoomFromSearch("0.05")).toBe(0.1);
     expect(parseArchitectureDiagramZoomFromSearch(null)).toBeNull();
   });
 

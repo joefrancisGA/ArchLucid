@@ -259,6 +259,8 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
         manifestSummary: m.manifestSummaryForUi ?? m.manifestSummary,
         progressSummary: m.progressForPipelineUi,
         graphSnapshot: m.resolvedDetail.graphSnapshot,
+        structuralExecutionMode: m.resolvedDetail.run.structuralExecutionMode,
+        workingCareerRehearsalDoor: m.progressForPipelineUi.workingCareerRehearsalDoor,
       })}
 
       <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>

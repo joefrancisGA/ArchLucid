@@ -17,6 +17,15 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
@@ -24,6 +33,7 @@ import {
   fetchInfraEvidenceMermaidPreview,
   fetchInfraEvidenceMermaidRender,
   formatInfraEvidenceMermaidApiError,
+  type InfraEvidenceMermaidRenderQuery,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-api";
 import {
   INFRA_DIAGRAMS_DEFAULT_MODE,
@@ -56,6 +66,11 @@ import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-ev
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
 import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra-evidence/infra-evidence-mermaid-render-status-presentation";
 import { parseInfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+import {
+  dependencyNeighborhoodRequiresAppliedSeed,
+  resolveDependencyNeighborhoodSeedBlockedReason,
+  type DependencyNeighborhoodSeedBlockedReason,
+} from "@/lib/infra-evidence/infra-evidence-diagrams-dependency-seed";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_DIAGRAMS_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
@@ -89,6 +104,12 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_DIALOG_DISMISS,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
@@ -205,7 +226,12 @@ export function DiagramsWorkbenchClient() {
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
   const [selectedViewKey, setSelectedViewKey] = useState<string>(urlMermaidView);
-  const [seedNodeId, setSeedNodeId] = useState<string>(urlSeedNodeId);
+  const [seedNodeDraft, setSeedNodeDraft] = useState<string>(urlSeedNodeId);
+  const [appliedSeedNodeId, setAppliedSeedNodeId] = useState<string>(() =>
+    urlMermaidMode === "dependencyNeighborhood" ? urlSeedNodeId : "",
+  );
+  const [dependencySeedBlockedDialog, setDependencySeedBlockedDialog] =
+    useState<DependencyNeighborhoodSeedBlockedReason | null>(null);
   const [modePreviews, setModePreviews] = useState<InfraEvidenceMermaidModePreview[]>([]);
   const [renderResult, setRenderResult] = useState<InfraEvidenceMermaidRenderResponse | null>(null);
   const [loadingSnapshots, setLoadingSnapshots] = useState(true);
@@ -222,6 +248,14 @@ export function DiagramsWorkbenchClient() {
   const { data: brandingPresentation } = useTenantBrandingPresentationQuery({ context: "MermaidDiagram" });
   const tenantBrandActive = brandingPresentation?.usesTenantVisualBrand === true;
   const dark = useDocumentDarkMode();
+
+  useEffect(() => {
+    setSeedNodeDraft(urlSeedNodeId);
+
+    if (urlMermaidMode === "dependencyNeighborhood") {
+      setAppliedSeedNodeId(urlSeedNodeId);
+    }
+  }, [urlMermaidMode, urlSeedNodeId]);
 
   const syncUrl = useCallback(
     (patch: {
@@ -333,9 +367,14 @@ export function DiagramsWorkbenchClient() {
 
   const mermaidSource = renderResult?.mermaid ?? "";
   const metrics = renderResult?.metrics ?? null;
+  const dependencyNeighborhoodAwaitingSeed = dependencyNeighborhoodRequiresAppliedSeed(
+    selectedMode,
+    appliedSeedNodeId,
+  );
   const tooLargeForBrowser = exceedsInfraEvidenceMermaidClientGuard(metrics) || browserRenderBlocked;
   const renderInFlight = loadingPreview || loadingRender;
-  const exportsDisabled = exportBusy || renderInFlight || selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing;
+  const exportsDisabled =
+    exportBusy || renderInFlight || selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing || dependencyNeighborhoodAwaitingSeed;
   const mermaidExportDisabled = exportsDisabled || mermaidSource.trim().length === 0;
 
   const renderStatusPresentation = useMemo(() => {
@@ -375,16 +414,29 @@ export function DiagramsWorkbenchClient() {
     return parts.join(" · ");
   }, [selectedModeLabel, selectedSnapshotId, urlCloudResourceId]);
 
-  const renderQuery = useMemo(() => {
+  const renderQuery = useMemo((): InfraEvidenceMermaidRenderQuery | null => {
     if (effectiveFallbackKey.length > 0) {
       return { fallbackKey: effectiveFallbackKey };
     }
 
+    if (selectedMode === "dependencyNeighborhood") {
+      const trimmedSeed = appliedSeedNodeId.trim();
+
+      if (trimmedSeed.length === 0) {
+        return null;
+      }
+
+      return {
+        mode: selectedMode,
+        seedNodeId: trimmedSeed,
+      };
+    }
+
     return {
       mode: selectedMode,
-      seedNodeId: selectedMode === "dependencyNeighborhood" ? seedNodeId : null,
+      seedNodeId: null,
     };
-  }, [effectiveFallbackKey, seedNodeId, selectedMode]);
+  }, [appliedSeedNodeId, effectiveFallbackKey, selectedMode]);
 
   const retryLoad = useCallback(() => {
     setLoadError(null);
@@ -491,6 +543,14 @@ export function DiagramsWorkbenchClient() {
       return;
     }
 
+    if (renderQuery === null) {
+      setRenderResult(null);
+      setLoadError(null);
+      setLoadingRender(false);
+      setBrowserRenderBlocked(false);
+      return;
+    }
+
     let cancelled = false;
 
     async function loadRender() {
@@ -528,10 +588,37 @@ export function DiagramsWorkbenchClient() {
 
     void loadRender();
 
-    return () => {
+    return (): void => {
       cancelled = true;
     };
   }, [deepLinkedSnapshotMissing, loadGeneration, renderQuery, selectedSnapshotId, selectedViewKey.length]);
+
+  useEffect(() => {
+    if (selectedMode !== "dependencyNeighborhood") {
+      return;
+    }
+
+    if (loadingRender || dependencyNeighborhoodAwaitingSeed) {
+      return;
+    }
+
+    const blockedReason = resolveDependencyNeighborhoodSeedBlockedReason({
+      appliedSeedNodeId,
+      loadError,
+      renderResult,
+    });
+
+    if (blockedReason != null) {
+      setDependencySeedBlockedDialog(blockedReason);
+    }
+  }, [
+    appliedSeedNodeId,
+    dependencyNeighborhoodAwaitingSeed,
+    loadError,
+    loadingRender,
+    renderResult,
+    selectedMode,
+  ]);
 
   const handleSnapshotChange = useCallback(
     (nextSnapshotId: string) => {
@@ -546,9 +633,17 @@ export function DiagramsWorkbenchClient() {
     (nextMode: string) => {
       setSelectedMode(nextMode);
       setSelectedViewKey("");
+      setDependencySeedBlockedDialog(null);
+
+      if (nextMode !== "dependencyNeighborhood") {
+        setAppliedSeedNodeId("");
+      } else if (urlSeedNodeId.trim().length === 0) {
+        setAppliedSeedNodeId("");
+      }
+
       syncUrl({ mermaidMode: nextMode, mermaidView: "" });
     },
-    [syncUrl],
+    [syncUrl, urlSeedNodeId],
   );
 
   const handleFallbackSelect = useCallback(
@@ -560,9 +655,21 @@ export function DiagramsWorkbenchClient() {
   );
 
   const handleSeedNodeApply = useCallback(() => {
+    const trimmedSeed = seedNodeDraft.trim();
+
+    if (trimmedSeed.length === 0) {
+      setDependencySeedBlockedDialog({
+        title: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE,
+        message: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_BODY,
+      });
+      return;
+    }
+
+    setAppliedSeedNodeId(trimmedSeed);
+    setDependencySeedBlockedDialog(null);
     setSelectedMode("dependencyNeighborhood");
-    syncUrl({ mermaidMode: "dependencyNeighborhood", seedNodeId });
-  }, [seedNodeId, syncUrl]);
+    syncUrl({ mermaidMode: "dependencyNeighborhood", seedNodeId: trimmedSeed });
+  }, [seedNodeDraft, syncUrl]);
 
   const runPngExport = useCallback(async () => {
     if (selectedSnapshotId.length === 0 || exportsDisabled) {
@@ -578,7 +685,10 @@ export function DiagramsWorkbenchClient() {
       const query = {
         mode: useFallback ? null : selectedMode,
         fallbackKey: useFallback ? effectiveFallbackKey : null,
-        seedNodeId: selectedMode === "dependencyNeighborhood" ? seedNodeId : null,
+        seedNodeId:
+          selectedMode === "dependencyNeighborhood" && appliedSeedNodeId.trim().length > 0
+            ? appliedSeedNodeId.trim()
+            : null,
       };
 
       if (tooLargeForBrowser) {
@@ -614,7 +724,7 @@ export function DiagramsWorkbenchClient() {
     exportsDisabled,
     exportableSvgMarkup,
     mermaidSource,
-    seedNodeId,
+    appliedSeedNodeId,
     selectedMode,
     selectedSnapshotId,
     tooLargeForBrowser,
@@ -689,7 +799,11 @@ export function DiagramsWorkbenchClient() {
         />
       ) : null}
 
-      {loadError != null ? (
+      {loadError != null
+      && !(
+        selectedMode === "dependencyNeighborhood"
+        && appliedSeedNodeId.trim().length > 0
+      ) ? (
         <EnterpriseCompactEmptyState
           role="alert"
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE}
@@ -898,13 +1012,13 @@ export function DiagramsWorkbenchClient() {
                 <Input
                   id="infra-diagrams-seed-node-input"
                   data-testid="infra-diagrams-seed-node-input"
-                  value={seedNodeId}
-                  onChange={(event) => setSeedNodeId(event.target.value)}
-                  placeholder="/subscriptions/.../resourceGroups/.../providers/..."
+                  value={seedNodeDraft}
+                  onChange={(event) => setSeedNodeDraft(event.target.value)}
+                  placeholder="22222222-2222-2222-2222-222222222222"
                 />
               </div>
               <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
-                Focus neighborhood
+                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
               </Button>
             </>
           ) : (
@@ -914,13 +1028,13 @@ export function DiagramsWorkbenchClient() {
                 <input
                   className={cnField}
                   data-testid="infra-diagrams-seed-node-input"
-                  value={seedNodeId}
-                  onChange={(event) => setSeedNodeId(event.target.value)}
-                  placeholder="/subscriptions/.../resourceGroups/.../providers/..."
+                  value={seedNodeDraft}
+                  onChange={(event) => setSeedNodeDraft(event.target.value)}
+                  placeholder="22222222-2222-2222-2222-222222222222"
                 />
               </label>
               <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
-                Focus neighborhood
+                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
               </Button>
             </>
           )}
@@ -1031,8 +1145,8 @@ export function DiagramsWorkbenchClient() {
               cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
               snapshotId: selectedSnapshotId,
               seedNodeId:
-                selectedMode === "dependencyNeighborhood" && seedNodeId.length > 0
-                  ? seedNodeId
+                selectedMode === "dependencyNeighborhood" && appliedSeedNodeId.trim().length > 0
+                  ? appliedSeedNodeId.trim()
                   : undefined,
               hubTab: "diagram",
               ...mergeInfrastructureAskAuditScope(auditScope),
@@ -1043,7 +1157,13 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
-      {tooLargeForBrowser ? (
+      {dependencyNeighborhoodAwaitingSeed ? (
+        <EnterpriseCompactEmptyState
+          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_TITLE}
+          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_BODY}
+          testId="infra-diagrams-dependency-seed-prompt"
+        />
+      ) : tooLargeForBrowser ? (
         <>
           <div className="rounded-md border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/40">
             <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
@@ -1078,6 +1198,25 @@ export function DiagramsWorkbenchClient() {
 
         <DiagramsClaimOrientationStrip />
       </main>
+
+      <AlertDialog
+        open={dependencySeedBlockedDialog != null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDependencySeedBlockedDialog(null);
+          }
+        }}
+      >
+        <AlertDialogContent data-testid="infra-diagrams-dependency-seed-blocked-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{dependencySeedBlockedDialog?.title ?? ""}</AlertDialogTitle>
+            <AlertDialogDescription>{dependencySeedBlockedDialog?.message ?? ""}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_DIALOG_DISMISS}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </OperatorPageContainer>
   );
 }

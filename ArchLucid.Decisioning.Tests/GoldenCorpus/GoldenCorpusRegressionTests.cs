@@ -13,7 +13,7 @@ namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 [Trait("Suite", "Core")]
 public sealed class GoldenCorpusRegressionTests
 {
-    private const int ExpectedCaseCount = 72;
+    private const int ExpectedCaseCount = 73;
 
     [Fact]
     public void Corpus_contains_expected_case_directories()
@@ -70,7 +70,8 @@ public sealed class GoldenCorpusRegressionTests
                 merge,
                 CancellationToken.None,
                 input.InventoryFixture,
-                input.PriorGraphFixture);
+                input.PriorGraphFixture,
+                input.AssignedPackFixture);
 
             await AssertFileAsync(dir, "expected-findings.json", actual.FindingsJson);
             await AssertFileAsync(dir, "expected-decisions.json", actual.DecisionsJson);

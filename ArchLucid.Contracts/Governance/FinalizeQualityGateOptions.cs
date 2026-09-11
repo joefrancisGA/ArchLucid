@@ -2,7 +2,7 @@ namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
 ///     Server-side enforcement of the finalize quality scorecard (TB-2321). The UI scorecard blocks the
-///     Finalize button on the same five dimensions; this gate makes the API reject finalize for direct callers too.
+///     Finalize button on the same scorecard dimensions; this gate makes the API reject finalize for direct callers too.
 /// </summary>
 public sealed class FinalizeQualityGateOptions
 {

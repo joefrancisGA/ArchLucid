@@ -15,8 +15,10 @@ import {
   PilotRoiValidationHandoffClientDeferred,
 } from "./run-detail-sponsor-briefing-deferred-chunks";
 
+import { resolveCareerArtifactExportHonestyDoorFields } from "@/lib/career-artifact/resolve-career-artifact-export-honesty-input";
 import type { CareerArtifactHonestyInput } from "@/lib/career-artifact/career-artifact-honesty";
 import type { ManifestSummary, RunSummary } from "@/types/authority";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import {
   RUN_DETAIL_SPONSOR_BRIEFING_OPEN_PARAM,
   parseRunDetailSponsorBriefingOpenFromSearch,
@@ -40,6 +42,8 @@ export type RunDetailSponsorBriefingSectionOptions = {
   readonly progressSummary?: RunSummary | null;
   readonly graphSnapshot?: unknown;
   readonly preCommitGateEnabled?: boolean | null;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
+  readonly workingCareerRehearsalDoor?: string | null;
 };
 
 /** Inputs already on the first-screen run-detail model — no below-fold deferred fetch required. */
@@ -87,6 +91,11 @@ export function resolveRunDetailSponsorBriefingSection(
               workingDesk: true,
               preCommitGateEnabled: options?.preCommitGateEnabled,
               isSample: model.usedStaticDemoRun,
+              ...resolveCareerArtifactExportHonestyDoorFields({
+                progressSummary: options?.progressSummary ?? null,
+                structuralExecutionMode: options?.structuralExecutionMode,
+                workingCareerRehearsalDoor: options?.workingCareerRehearsalDoor,
+              }),
             }
           : undefined
       }

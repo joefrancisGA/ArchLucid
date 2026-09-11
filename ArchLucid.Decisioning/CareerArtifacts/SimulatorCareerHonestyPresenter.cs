@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.User;
 
 namespace ArchLucid.Decisioning.CareerArtifacts;
 
@@ -20,7 +21,8 @@ public static class SimulatorCareerHonestyPresenter
         bool workingDesk,
         bool isSampleRun,
         StructuralExecutionMode structuralExecutionMode,
-        bool simulatorRehearsalBannerOnArtifact)
+        bool simulatorRehearsalBannerOnArtifact,
+        string? workingCareerRehearsalDoor = null)
     {
         if (!workingDesk || isSampleRun)
         {
@@ -32,16 +34,34 @@ public static class SimulatorCareerHonestyPresenter
             return false;
         }
 
-        return !simulatorRehearsalBannerOnArtifact;
+        if (simulatorRehearsalBannerOnArtifact)
+        {
+            return false;
+        }
+
+        // CG-021 / LP-06: Rehearsal door may finalize as rehearsal-incomplete on Simulator/Fallback.
+        if (WorkingCareerRehearsalDoorValues.ParseOrDefault(workingCareerRehearsalDoor)
+            == WorkingCareerRehearsalDoorValues.Rehearsal)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     public static string? FormatCareerBlockedReason(
         bool workingDesk,
         bool isSampleRun,
         StructuralExecutionMode structuralExecutionMode,
-        bool simulatorRehearsalBannerOnArtifact)
+        bool simulatorRehearsalBannerOnArtifact,
+        string? workingCareerRehearsalDoor = null)
     {
-        if (!ShouldBlockWorkingCareer(workingDesk, isSampleRun, structuralExecutionMode, simulatorRehearsalBannerOnArtifact))
+        if (!ShouldBlockWorkingCareer(
+                workingDesk,
+                isSampleRun,
+                structuralExecutionMode,
+                simulatorRehearsalBannerOnArtifact,
+                workingCareerRehearsalDoor))
         {
             return null;
         }

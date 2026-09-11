@@ -32,6 +32,17 @@ public sealed class FinalizeQualityGateHostedAppsettingsTests
         ReadOptions(ProductionJsonPath).Enabled.Should().BeTrue();
     }
 
+    private static string DevelopmentJsonPath =>
+        Path.Combine(FindRepoRoot(), "ArchLucid.Api", "appsettings.Development.json");
+
+    [SkippableFact]
+    public void Development_appsettings_enables_finalize_quality_gate()
+    {
+        Skip.IfNot(File.Exists(DevelopmentJsonPath), $"Expected {DevelopmentJsonPath}.");
+
+        ReadOptions(DevelopmentJsonPath).Enabled.Should().BeTrue();
+    }
+
     private static FinalizeQualityGateOptions ReadOptions(string path)
     {
         IConfiguration configuration = new ConfigurationBuilder()
@@ -45,5 +56,20 @@ public sealed class FinalizeQualityGateHostedAppsettingsTests
         options.Should().NotBeNull();
 
         return options!;
+    }
+
+    private static string FindRepoRoot()
+    {
+        DirectoryInfo? dir = new(AppContext.BaseDirectory);
+
+        while (dir is not null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "ArchLucid.sln")))
+                return dir.FullName;
+
+            dir = dir.Parent;
+        }
+
+        throw new InvalidOperationException("Could not locate repo root (ArchLucid.sln).");
     }
 }

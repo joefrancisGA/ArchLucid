@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Contracts.Exports;
 
@@ -79,4 +80,25 @@ public sealed class DecisionReceiptDocument
         get;
         set;
     } = new();
+
+    /// <summary>CG-025 — structural execute Mode stamped on committed-run receipts (not part of sealed receipt hash).</summary>
+    public StructuralExecutionMode? StructuralExecutionMode
+    {
+        get;
+        set;
+    }
+
+    /// <summary>CG-025 — Working Career vs Rehearsal door stamp (<see cref="User.WorkingCareerRehearsalDoorValues" />).</summary>
+    public string? WorkingCareerRehearsalDoor
+    {
+        get;
+        set;
+    }
+
+    /// <summary>CG-025 — true when Simulator/Fallback rehearsal exports are not career-complete.</summary>
+    public bool RehearsalIncomplete
+    {
+        get;
+        set;
+    }
 }

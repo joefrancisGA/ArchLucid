@@ -107,7 +107,8 @@ public static class CareerExportCoverageHonestyMaterialLoader
             aggregateQualityGateOutcome,
             judgeSkippedByCap,
             findingsSnapshot,
-            architectureInventoryBound);
+            architectureInventoryBound,
+            WorkingCareerRehearsalDoor: detail.Run.WorkingCareerRehearsalDoor);
     }
 
     internal static async Task<bool?> ResolveArchitectureInventoryBoundAsync(

@@ -33,7 +33,7 @@ function sampleFinding(
 }
 
 describe("finalize-quality-scorecard-from-findings", () => {
-  it("counts open cannot-determine and coverage-gap job views", () => {
+  it("counts open cannot-determine, verify-hypothesis, and coverage-gap job views", () => {
     const input = deriveFinalizeQualityScorecardInput(
       [
         sampleFinding({
@@ -49,6 +49,14 @@ describe("finalize-quality-scorecard-from-findings", () => {
           },
         }),
         sampleFinding({
+          findingId: "h1",
+          title: "Exploratory adversarial challenge",
+          recommendation: "Verify before treating as publishable fact",
+          severityValue: 2,
+          trustLabel: "Heuristic",
+          evidenceRefCount: 0,
+        }),
+        sampleFinding({
           findingId: "c1",
           title: "Uncovered requirement",
           recommendation: "No design decision for mandatory logging",
@@ -59,7 +67,46 @@ describe("finalize-quality-scorecard-from-findings", () => {
     );
 
     expect(input.openCannotDetermineCount).toBe(1);
+    expect(input.openVerifyHypothesisCount).toBe(1);
     expect(input.uncoveredMandatoryRequirementCount).toBe(1);
+  });
+
+  it("counts deferred and contradiction job views", () => {
+    const input = deriveFinalizeQualityScorecardInput(
+      [
+        sampleFinding({
+          findingId: "d1",
+          title: "Cannot determine recovery target",
+          aiReasoning: {
+            reasoningTrace: "",
+            wireJson: JSON.stringify({ latestDisposition: "Deferred" }),
+          },
+        }),
+        sampleFinding({
+          findingId: "c1",
+          title: "Diagram contradicts narrative on ingress",
+          recommendation: "Opposite conclusion on shared evidence",
+        }),
+      ],
+      0,
+    );
+
+    expect(input.openDeferredCount).toBe(1);
+    expect(input.openContradictionCount).toBe(1);
+  });
+
+  it("derives blocking finding count from live rows when manifest metric is zero", () => {
+    const input = deriveFinalizeQualityScorecardInput(
+      [
+        sampleFinding({
+          findingId: "b1",
+          severityValue: 2,
+        }),
+      ],
+      0,
+    );
+
+    expect(input.blockingFindingCount).toBe(1);
   });
 
   it("does not count cannot-determine findings as uncovered mandatory requirements", () => {
