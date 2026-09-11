@@ -62,6 +62,25 @@ public sealed class AzureExtractorManifestReaderTests
     }
 
     [Fact]
+    public void TryRead_normalized_when_manifest_has_management_group_scope_returns_manifest()
+    {
+        using MemoryStream zip = ZipWithManifest(
+            """
+            {"schemaVersion":1,"scriptVersion":"1.0","collectionTimestamp":"2026-05-06T13:01:02Z",
+            "subscriptionId":null,"managementGroupId":"corp-prod",
+            "scope":"/providers/Microsoft.Management/managementGroups/corp-prod","switchesUsed":[],"azModuleVersion":"test"}
+            """);
+
+        (AzureExtractorNormalizedManifest? m, string? err) =
+            AzureExtractorManifestReader.TryReadNormalizedFromZip(zip);
+
+        err.Should().BeNull();
+        m.Should().NotBeNull();
+        m!.SubscriptionId.Should().BeEmpty();
+        m.ScopeDescriptor.Should().Contain("managementGroups/corp-prod");
+    }
+
+    [Fact]
     public void TryRead_unknown_schema_returns_error()
     {
         using MemoryStream zip = ZipWithManifest(MinimalManifestJson(schemaVersion: 404));

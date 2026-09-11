@@ -1639,6 +1639,29 @@ export interface components {
             /** Format: date-time */
             timestampUtc?: string;
         };
+        ArchitectureWorkLeaseConflictResponse: {
+            /** Format: uuid */
+            draftId?: string;
+            /** Format: date-time */
+            expiresUtc?: string;
+            holderActorOid?: string;
+            /** Format: uuid */
+            holderUserId?: string;
+        };
+        ArchitectureWorkLeaseResponse: {
+            /** Format: date-time */
+            acquiredUtc?: string;
+            /** Format: uuid */
+            architectureId?: string;
+            /** Format: uuid */
+            draftId?: string;
+            /** Format: date-time */
+            expiresUtc?: string;
+            heldByCaller?: boolean;
+            holderActorOid?: string;
+            /** Format: uuid */
+            holderUserId?: string;
+        };
         ArchivedRunScopeRow: {
             /** Format: uuid */
             runId?: string;

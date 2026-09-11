@@ -262,5 +262,9 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.getByTestId("infra-diagrams-png-export-error")).toHaveTextContent(
       "PNG rendering is unavailable in this environment.",
     );
+    expect(screen.getByTestId("operator-error-recovery-what-failed")).toHaveTextContent(
+      "Server-side PNG rendering is unavailable in this environment.",
+    );
+    expect(screen.queryByText("The governance change did not save.")).not.toBeInTheDocument();
   });
 });
