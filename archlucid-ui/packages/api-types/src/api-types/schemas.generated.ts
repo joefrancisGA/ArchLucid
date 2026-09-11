@@ -1551,6 +1551,8 @@ export interface components {
             currentManifestVersion?: null | string;
             /** Format: uuid */
             decisionTraceId?: null | string;
+            /** Format: date-time */
+            executePostureCapturedUtc?: null | string;
             /** Format: uuid */
             findingsSnapshotId?: null | string;
             /** Format: uuid */
@@ -1568,6 +1570,7 @@ export interface components {
             status: components["schemas"]["ArchitectureRunStatus"];
             structuralExecutionMode: components["schemas"]["StructuralExecutionMode"];
             taskIds?: string[];
+            workingCareerRehearsalDoor?: null | string;
         };
         ArchitectureRunDetail: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
@@ -9418,6 +9421,8 @@ export interface components {
             decisionTraceId?: null | string;
             description?: null | string;
             engineProvenanceJson?: null | string;
+            /** Format: date-time */
+            executePostureCapturedUtc?: null | string;
             /** Format: uuid */
             findingsSnapshotId?: null | string;
             /** Format: uuid */
@@ -9482,6 +9487,7 @@ export interface components {
             structuralExecutionMode: components["schemas"]["StructuralExecutionMode"];
             /** Format: uuid */
             tenantId?: string;
+            workingCareerRehearsalDoor?: null | string;
             /** Format: uuid */
             workspaceId?: string;
         };
@@ -9585,6 +9591,8 @@ export interface components {
             degradedExecutionAgents?: string[];
             description?: null | string;
             displayName?: null | string;
+            /** Format: date-time */
+            executePostureCapturedUtc?: null | string;
             /** Format: uuid */
             goldenManifestId?: null | string;
             hasArtifactBundle?: boolean;
@@ -9605,6 +9613,7 @@ export interface components {
             /** Format: uuid */
             runId: string;
             structuralExecutionMode?: components["schemas"]["StructuralExecutionMode"];
+            workingCareerRehearsalDoor?: null | string;
         };
         RunToolInvocationForensicRow: {
             agentType?: string;
