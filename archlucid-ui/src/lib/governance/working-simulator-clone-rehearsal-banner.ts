@@ -37,7 +37,7 @@ export function isWorkingHostPinnedSimulator(
 /**
  * CG-015: Simulator-pinned Working clones grandfather Rehearsal execute chrome.
  * Explicit Career stays AS-078 blocked-honesty (selected Career + blocked) and does not
- * auto-switch Guided. Overlay does not PUT the door or flip AgentExecution:Mode.
+ * auto-switch Guided. Overlay does not PUT the door or flip the host execution Mode default.
  */
 export function resolveWorkingSimulatorCloneRehearsalChrome(
   input: ResolveWorkingSimulatorCloneRehearsalChromeInput,
