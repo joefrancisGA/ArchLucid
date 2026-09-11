@@ -182,6 +182,19 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGate
 
 `FinalizeQualityGateRuntimeConflictTests` proves `POST …/finalize` maps scorecard `ConflictException` (with `FinalizeQualityGate.BlockedPrefix`) to OpenAPI **409** without SQL integration.
 
+## Unified finalize readiness API
+
+`GET /v1/governance/pre-finalize/readiness/{runId}` composes career-artifact, integrity, and scorecard gates into one server contract (`FinalizeReadinessService`). Optional `acknowledgedAssumptionIds` query params union persisted TB-2345 acknowledgements for assumption-gate parity.
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~FinalizeReadinessServiceTests"
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeReadinessControllerTests"
+```
+
+UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available.
+
 ## ConflictException → 409 controller sweep
 
 Twenty controller `try` blocks that returned **400** for `InvalidOperationException` now catch `ConflictException` first. Guard: `ControllerConflictExceptionNotSwallowedAs400ArchitectureTests`.

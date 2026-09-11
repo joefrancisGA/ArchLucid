@@ -75,6 +75,24 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     }
 
     [Fact]
+    public void FinalizeReadinessService_reuses_commit_gate_evaluators()
+    {
+        string readiness = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Governance",
+                "FinalizeReadinessService.cs"));
+
+        readiness.Should().Contain("CareerArtifactCompletenessValidator");
+        readiness.Should().Contain("StructuralExecutionModeCommitGuard.GetBlockingReasons");
+        readiness.Should().Contain("AuthorityRunLifecyclePhaseResolver.Resolve");
+        readiness.Should().Contain("FinalizeAssumptionGateEvaluator.GetBlockingReasons");
+        readiness.Should().Contain("FinalizeQualityScorecardEvaluator.Compute");
+        readiness.Should().Contain("FinalizeQualityScorecardEvaluator.GetBlockingReasons");
+    }
+
+    [Fact]
     public void Ui_scorecard_derives_verify_hypothesis_from_job_view_classifier()
     {
         string derive = File.ReadAllText(
