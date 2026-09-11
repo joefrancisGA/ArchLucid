@@ -1,116 +1,96 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ArchitectureDiagramViewer } from '@/components/architecture/ArchitectureDiagramViewer';
-import {
-  ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL,
-  ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL,
-  ARCHITECTURE_DIAGRAM_VIEWPORT_HINT,
-  ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
-  ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
-  ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL,
-} from '@/lib/architecture/architecture-diagram-copy';
-
-vi.mock('next/navigation', () => ({
-  useRouter: vi.fn(),
-  usePathname: vi.fn(),
-  useSearchParams: vi.fn(),
-}));
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 const replaceMock = vi.fn();
-const searchParamsMock = new URLSearchParams();
+const mermaidRenderMock = vi.fn(async () => ({
+  svg: '<svg xmlns="http://www.w3.org/2000/svg"><text>A</text></svg>',
+}));
 
-const sampleSvg =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#eee"/></svg>';
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/governance/infrastructure/diagrams",
+  useSearchParams: () => new URLSearchParams("diagZoom=1"),
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: replaceMock,
+    refresh: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+}));
 
-describe('ArchitectureDiagramViewer', () => {
-  beforeEach(() => {
-    replaceMock.mockReset();
-    searchParamsMock.forEach((_, key) => searchParamsMock.delete(key));
-    vi.mocked(useRouter).mockReturnValue({
-      replace: replaceMock,
-    } as unknown as ReturnType<typeof useRouter>);
-    vi.mocked(usePathname).mockReturnValue('/securenow/inventory');
-    vi.mocked(useSearchParams).mockReturnValue(
-      searchParamsMock as unknown as ReturnType<typeof useSearchParams>
-    );
-  });
+vi.mock("mermaid", () => ({
+  default: {
+    initialize: vi.fn(),
+    render: mermaidRenderMock,
+  },
+}));
 
-  it('renders labeled zoom controls for HTML diagrams', () => {
-    render(
-      <ArchitectureDiagramViewer source={sampleSvg} sourceKind="html" alt="Inventory topology" />
-    );
+import { ArchitectureDiagramViewer } from "@/components/architecture/ArchitectureDiagramViewer";
 
-    expect(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL })).toBeInTheDocument();
-    expect(screen.getByText(ARCHITECTURE_DIAGRAM_VIEWPORT_HINT)).toBeInTheDocument();
-    expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toBeInTheDocument();
-  });
-
-  it('fit in view clears diagram zoom from the URL and shows 100 percent', async () => {
-    searchParamsMock.set('diagZoom', '1.50');
+describe("ArchitectureDiagramViewer", () => {
+  it("shows renderer failure and retry action", async () => {
+    mermaidRenderMock.mockRejectedValueOnce(new Error("Renderer failed"));
+    const onRetry = vi.fn();
 
     render(
-      <ArchitectureDiagramViewer source={sampleSvg} sourceKind="html" alt="Inventory topology" />
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+        onRetry={onRetry}
+      />,
     );
-
-    expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(150);
-
-    fireEvent.click(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL }));
-
-    expect(replaceMock).toHaveBeenCalled();
-    const lastCall = replaceMock.mock.calls.at(-1);
-
-    expect(lastCall?.[0]).not.toContain('diagZoom=');
-    expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(100);
-  });
-
-  it('applies a custom zoom percentage from the input', async () => {
-    render(
-      <ArchitectureDiagramViewer source={sampleSvg} sourceKind="html" alt="Inventory topology" />
-    );
-
-    const zoomInput = screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL);
-
-    fireEvent.change(zoomInput, { target: { value: '350' } });
-    fireEvent.blur(zoomInput);
 
     await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalledWith('/securenow/inventory?diagZoom=3.50', {
-        scroll: false,
-      });
+      expect(screen.getByTestId("architecture-diagram-render-failure")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(onRetry).toHaveBeenCalled();
+  });
+
+  it("renders sanitized svg in the viewport after mermaid succeeds", async () => {
+    mermaidRenderMock.mockResolvedValueOnce({
+      svg: '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80"><rect width="120" height="80" /></svg>',
+    });
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-viewport").querySelector("svg")).not.toBeNull();
     });
   });
 
-  it('clamps custom zoom percentages to the supported range', async () => {
+  it("syncs zoom changes to the URL after user interaction", async () => {
+    replaceMock.mockClear();
+
     render(
-      <ArchitectureDiagramViewer source={sampleSvg} sourceKind="html" alt="Inventory topology" />
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
     );
 
-    const zoomInput = screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL);
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-viewport")).toBeInTheDocument();
+    });
 
-    fireEvent.change(zoomInput, { target: { value: '1500' } });
-    fireEvent.blur(zoomInput);
+    fireEvent.click(screen.getByRole("button", { name: "Zoom in" }));
 
     await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalledWith('/securenow/inventory?diagZoom=10.00', {
+      expect(replaceMock).toHaveBeenCalledWith("/governance/infrastructure/diagrams?diagZoom=1.25", {
         scroll: false,
       });
     });
-  });
-
-  it('preserves foreignObject labels when sanitizing diagram HTML', () => {
-    const labeledSvg =
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">' +
-      '<foreignObject width="10" height="10"><div xmlns="http://www.w3.org/1999/xhtml">Edge label</div></foreignObject>' +
-      '</svg>';
-
-    render(
-      <ArchitectureDiagramViewer source={labeledSvg} sourceKind="html" alt="Labeled diagram" />
-    );
-
-    expect(screen.getByText('Edge label')).toBeInTheDocument();
   });
 });
