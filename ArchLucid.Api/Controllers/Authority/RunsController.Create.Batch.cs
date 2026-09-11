@@ -53,29 +53,36 @@ public sealed partial class RunsController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        BatchCreateRunOrchestrationResult result = await runLifecycleCommandService.CreateRunBatchAsync(
-            scope,
-            requests,
-            idempotencyKey,
-            correlationId,
-            cancellationToken);
-
-        if (result.Outcome == BatchCreateRunOutcome.IdempotencyKeyPayloadMismatch)
-            return MapRunsSealedManifestConflict(
-                new ConflictException("Idempotency-Key was reused with a different request payload."));
-
-        if (result.Outcome == BatchCreateRunOutcome.IdempotentReplay)
+        try
         {
-            Response.Headers.Append("X-Idempotency-Replayed", "true");
-            LogIdempotencyReplay("batch", user, correlationId);
+            BatchCreateRunOrchestrationResult result = await runLifecycleCommandService.CreateRunBatchAsync(
+                scope,
+                requests,
+                idempotencyKey,
+                correlationId,
+                cancellationToken);
 
-            return Ok(new BatchCreateRunResponse { Items = [] });
-        }
+            if (result.Outcome == BatchCreateRunOutcome.IdempotencyKeyPayloadMismatch)
+                return MapRunsSealedManifestConflict(
+                    new ConflictException("Idempotency-Key was reused with a different request payload."));
 
-        return Accepted(
-            new BatchCreateRunResponse
+            if (result.Outcome == BatchCreateRunOutcome.IdempotentReplay)
             {
-                Items = [.. result.Items.Select(RunResponseMapper.ToBatchCreateRunItemResult)]
-            });
+                Response.Headers.Append("X-Idempotency-Replayed", "true");
+                LogIdempotencyReplay("batch", user, correlationId);
+
+                return Ok(new BatchCreateRunResponse { Items = [] });
+            }
+
+            return Accepted(
+                new BatchCreateRunResponse
+                {
+                    Items = [.. result.Items.Select(RunResponseMapper.ToBatchCreateRunItemResult)]
+                });
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
     }
 }

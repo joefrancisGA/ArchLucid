@@ -109,6 +109,10 @@ public sealed partial class DraftRequestsController(
 
             return CreatedAtAction(nameof(GetDraft), new { draftId = created.DraftId }, created);
         }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
+        }
         catch (InvalidOperationException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);

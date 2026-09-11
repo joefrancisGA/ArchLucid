@@ -21,10 +21,19 @@ Guard waves (132–140) locked pre-read sealed-manifest guards and many runtime 
 | `POST …/draft/{draftId}/skip` | `SkipQuestion` | `MapDraftRequestSealedManifestConflict` |
 | `POST …/draft/{draftId}/reason` | `ReasonDraft` | `MapDraftRequestSealedManifestConflict` |
 | `POST …/draft/{draftId}/branch` | `BranchDraft` | `MapDraftRequestSealedManifestConflict` |
+| `POST …/draft` | `CreateDraft` | `MapDraftRequestSealedManifestConflict` |
+| `POST …/review/{runId}/result` | `SubmitAgentResult` | `MapRunsSealedManifestConflict` |
+| `POST …/request/batch` | `CreateRunBatch` | `MapRunsSealedManifestConflict` |
+| `POST …/governance/promotions` | `Promote` | `MapGovernanceSealedManifestConflict` |
+| `POST …/governance/activations` | `Activate` | `MapGovernanceSealedManifestConflict` |
+| `POST …/governance/approval-requests` | `SubmitApprovalRequest` | `MapGovernanceSealedManifestConflict` |
+| `GET …/pilots/runs/{runId}/pilot-run-deltas` | `GetPilotRunDeltas` | `MapPilotPackSealedManifestConflict` |
+| `GET …/pilots/runs/recent-deltas` | `GetRecentDeltas` | `MapPilotPackSealedManifestConflict` |
 
 ## Proof tests
 
-`ArchLucid.Api.Tests/DraftIntakeSealedManifestRuntimeConflictTests.cs` — mocks pass the pre-read guard (`SealedManifestHashTestSupport`), then asserts each action maps a service-thrown `ConflictException` to **409** with `ProblemTypes.Conflict` and does not audit on failure.
+- `ArchLucid.Api.Tests/DraftIntakeSealedManifestRuntimeConflictTests.cs` — draft/wizard intake (10 tests)
+- `ArchLucid.Api.Tests/SealedManifestRuntimeConflictVerificationBatch2Tests.cs` — governance, runs, pilots (7 tests)
 
 ## Hasher baseline
 

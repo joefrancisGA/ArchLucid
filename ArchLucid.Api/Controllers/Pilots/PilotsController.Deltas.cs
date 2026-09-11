@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Pilots;
 
 using Microsoft.AspNetCore.Mvc;
@@ -19,11 +20,18 @@ public sealed partial class PilotsController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        PilotRunDeltasResponse? response = await _pilots.TryGetPilotRunDeltasAsync(runId, cancellationToken);
+        try
+        {
+            PilotRunDeltasResponse? response = await _pilots.TryGetPilotRunDeltasAsync(runId, cancellationToken);
 
-        return response is null
-            ? this.NotFoundProblem($"Run '{runId}' was not found (or is out of scope).", ProblemTypes.RunNotFound)
-            : Ok(response);
+            return response is null
+                ? this.NotFoundProblem($"Run '{runId}' was not found (or is out of scope).", ProblemTypes.RunNotFound)
+                : Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return MapPilotPackSealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("runs/recent-deltas")]
@@ -39,8 +47,15 @@ public sealed partial class PilotsController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        RecentPilotRunDeltasResponse response = await _pilots.GetRecentDeltasAsync(count, cancellationToken);
+        try
+        {
+            RecentPilotRunDeltasResponse response = await _pilots.GetRecentDeltasAsync(count, cancellationToken);
 
-        return Ok(response);
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return MapPilotPackSealedManifestConflict(ex);
+        }
     }
 }
