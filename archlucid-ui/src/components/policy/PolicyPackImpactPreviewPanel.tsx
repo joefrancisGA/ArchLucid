@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { PolicyPackComplianceRuleKeyDiffView } from "@/components/policy/PolicyPackComplianceRuleKeyDiffView";
@@ -14,7 +15,7 @@ import { usePolicyPackVersionsQuery } from "@/hooks/use-policy-pack-versions-que
 import { simulatePolicyPackAgainstRun } from "@/lib/api/policy-governance-api";
 import { toApiLoadFailure, uiFailureFromMessage, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { policyPackSimulateBlockedReason } from "@/lib/policy/policy-pack-simulate-blocked-reason";
-import { buildPolicyPacksHrefWithReviewId } from "@/lib/policy-packs-review-handoff";
+import { buildPolicyPacksHrefWithReviewId, buildPolicyPacksImpactPreviewHref } from "@/lib/policy-packs-review-handoff";
 import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
 import type { components } from "@/lib/openapi-schemas";
@@ -62,6 +63,7 @@ function packComparisonGateLabel(packLabel: string): string {
  * Prominent policy impact preview — rule-key diff plus pre-commit simulate for the same committed review.
  */
 export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanelProps): React.JSX.Element {
+  const router = useRouter();
   const scopedReviewId = (props.scopedReviewId ?? "").trim();
   const scopedReviewFilterActive = scopedReviewId.length > 0;
   const requiresReviewPick = props.onPickReview !== undefined;
@@ -150,6 +152,20 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
     packAId.trim() !== packBId.trim() &&
     packALatestVersion !== null &&
     packBLatestVersion !== null;
+
+  const syncPackComparisonToUrl = useCallback(
+    (nextPackAId: string, nextPackBId: string) => {
+      router.replace(
+        buildPolicyPacksImpactPreviewHref({
+          reviewId: scopedReviewId,
+          packAId: nextPackAId,
+          packBId: nextPackBId,
+        }),
+        { scroll: false },
+      );
+    },
+    [router, scopedReviewId],
+  );
 
   const baselineSummary = baselineResult !== null ? summarizePolicyImpactGateResult("allow", baselineResult) : null;
   const stricterSummary =
@@ -373,9 +389,11 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
             <select
               value={packAId}
               onChange={(event) => {
-                setPackAId(event.target.value);
+                const nextPackAId = event.target.value;
+                setPackAId(nextPackAId);
                 setPackAResult(null);
                 setPackBResult(null);
+                syncPackComparisonToUrl(nextPackAId, packBId);
               }}
               className="mt-1 block min-w-[220px] rounded-md border border-neutral-300 bg-white p-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950"
               data-testid="policy-impact-preview-pack-a"
@@ -393,9 +411,11 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
             <select
               value={packBId}
               onChange={(event) => {
-                setPackBId(event.target.value);
+                const nextPackBId = event.target.value;
+                setPackBId(nextPackBId);
                 setPackAResult(null);
                 setPackBResult(null);
+                syncPackComparisonToUrl(packAId, nextPackBId);
               }}
               className="mt-1 block min-w-[220px] rounded-md border border-neutral-300 bg-white p-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950"
               data-testid="policy-impact-preview-pack-b"

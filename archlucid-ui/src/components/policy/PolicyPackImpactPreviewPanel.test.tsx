@@ -8,6 +8,12 @@ vi.mock("@/lib/api/policy-governance-api", () => ({
   simulatePolicyPackAgainstRun: vi.fn(),
 }));
 
+const replaceMock = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: replaceMock }),
+}));
+
 vi.mock("@/hooks/use-policy-pack-versions-query", () => ({
   usePolicyPackVersionsQuery: vi.fn((packId: string) => ({
     data:
@@ -79,6 +85,31 @@ describe("PolicyPackComplianceRuleKeyDiffView", () => {
 });
 
 describe("PolicyPackImpactPreviewPanel", () => {
+  it("syncs pack comparison ids to the policy packs URL when selects change", () => {
+    replaceMock.mockClear();
+
+    render(
+      <PolicyPackImpactPreviewPanel
+        effectiveContent={{ complianceRuleKeys: ["alpha"] }}
+        selectedPackId="00000000-0000-0000-0000-000000000001"
+        packVersions={[]}
+        packs={samplePacks}
+        scopedReviewId="run-abc"
+        initialPackAId="00000000-0000-0000-0000-000000000001"
+        initialPackBId="00000000-0000-0000-0000-000000000002"
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("policy-impact-preview-pack-a"), {
+      target: { value: "00000000-0000-0000-0000-000000000002" },
+    });
+
+    expect(replaceMock).toHaveBeenCalledWith(
+      "/governance/policy-packs?reviewId=run-abc&packAId=00000000-0000-0000-0000-000000000002&packBId=00000000-0000-0000-0000-000000000002",
+      { scroll: false },
+    );
+  });
+
   it("runs baseline and stricter simulations and renders gate delta", async () => {
     vi.mocked(simulatePolicyPackAgainstRun)
       .mockResolvedValueOnce({
