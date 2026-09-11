@@ -62,6 +62,7 @@ public static class RequiredAuditEventTypes
         AuditEventTypes.ArchitectureRestrictToSharesEnabled,
         AuditEventTypes.ArchitectureRestrictToSharesDisabled,
         AuditEventTypes.DraftIntakeForceOverwriteApplied,
+        AuditEventTypes.ArchitectureWorkLeaseAcquired,
     ];
 
     /// <summary>
@@ -98,6 +99,7 @@ public static class RequiredAuditEventTypes
         nameof(AuditEventTypes.ArchitectureRestrictToSharesEnabled),
         nameof(AuditEventTypes.ArchitectureRestrictToSharesDisabled),
         nameof(AuditEventTypes.DraftIntakeForceOverwriteApplied),
+        nameof(AuditEventTypes.ArchitectureWorkLeaseAcquired),
     ];
 
     public static bool IsRequired(string? eventType)
