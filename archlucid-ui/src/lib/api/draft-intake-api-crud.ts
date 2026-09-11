@@ -6,11 +6,15 @@ import type {
 } from "@/types/draft-intake";
 
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
-import { architectureDraftBlockedReason, architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
-import { architectureDraftListBlockedReason } from "@/lib/architecture/architecture-draft-list-blocked-reason";
+import {
+  architectureDraftBlockedReason,
+  architectureDraftIntakeMutationBlockedReason,
+} from "@/lib/architecture/architecture-draft-blocked-reason";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiGet, apiPatchJson, apiPostJson } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 const DRAFT_BASE = "/v1/architecture/draft";
 
@@ -78,14 +82,7 @@ export async function listDraftRequests(params?: {
   const query = search.toString();
   const path = query.length > 0 ? `${DRAFT_BASE}?${query}` : DRAFT_BASE;
 
-  try {
-    return await apiGet<DraftRequestSummaryPage>(path);
-  } catch (error: unknown) {
-    const failure = toApiLoadFailure(error);
-    const blockedReason = architectureDraftListBlockedReason(failure);
-
-    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
-  }
+  return apiGetSealedManifestAware<DraftRequestSummaryPage>(path);
 }
 
 export async function getDraftRequest(
@@ -93,7 +90,10 @@ export async function getDraftRequest(
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<DraftRequestResponse> {
   try {
-    return await apiGet<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, options);
+    return await apiGetSealedManifestAware<DraftRequestResponse>(
+      `${DRAFT_BASE}/${encodeURIComponent(draftId)}`,
+      options,
+    );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureDraftBlockedReason(failure);
@@ -120,9 +120,31 @@ export async function patchDraftRequest(
   try {
     return await apiPatchJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, body);
   } catch (error: unknown) {
+    if (isApiRequestError(error) && error.httpStatus === 409) {
+      throw error;
+    }
+
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
+}
+
+export type ArchitectureDraftPatchBody = Parameters<typeof patchDraftRequest>[1];
+
+/** PATCH a draft with ADR 0088 CAS. Resolves the token from GET when the caller has none. */
+export async function patchDraftRequestRequiringCas(
+  draftId: string,
+  body: Omit<ArchitectureDraftPatchBody, "expectedUpdatedUtc" | "forceOverwrite">,
+  expectedUpdatedUtc?: string | null,
+): Promise<DraftRequestResponse> {
+  let token = expectedUpdatedUtc?.trim() ?? "";
+
+  if (token.length === 0) {
+    const current = await getDraftRequest(draftId);
+    token = current.updatedUtc;
+  }
+
+  return patchDraftRequest(draftId, { ...body, expectedUpdatedUtc: token });
 }

@@ -13,6 +13,7 @@ import {
 } from "@/hooks/architecture-draft-autosave-shared";
 import { useArchitectureDraftAutosaveHydrate } from "@/hooks/use-architecture-draft-autosave-hydrate";
 import { useArchitectureDraftAutosavePersist } from "@/hooks/use-architecture-draft-autosave-persist";
+import { useOperatorScopeWriteStamp } from "@/hooks/use-operator-scope-write-stamp";
 import { readArchitectureNewDraftRecovery } from "@/lib/architecture/architecture-new-draft-recovery";
 
 export type { ArchitectureDraftSaveState } from "@/hooks/architecture-draft-autosave-shared";
@@ -42,6 +43,7 @@ export function useArchitectureDraftAutosave(
   scopeBulletsRef.current = args.scopeBullets ?? [];
 
   const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
+  const scopeWriteStamp = useOperatorScopeWriteStamp();
 
   const hydrate = useArchitectureDraftAutosaveHydrate({
     draftId: args.draftId,
@@ -117,6 +119,8 @@ export function useArchitectureDraftAutosave(
     resolvedDraftIdRef: hydrate.resolvedDraftIdRef,
     autosaveBlockedRef,
     markDirty,
+    livelihoodReturnPath: args.livelihoodReturnPath,
+    scopeWriteStamp,
   });
 
   useEffect(() => {
@@ -149,5 +153,6 @@ export function useArchitectureDraftAutosave(
     hasPersistedDraft,
     recoveredLocally,
     keepLocalDraftOnConflict: persistDraftBundle.keepLocalDraftOnConflict,
+    wasLastSaveConflict: persistDraftBundle.wasLastSaveConflict,
   };
 }

@@ -2,9 +2,12 @@ import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import type { ElicitationAnswerKind, ElicitationQuestionTier } from "@/types/policy-packs";
 import type { DraftRequestDocument } from "@/types/draft-intake-document";
 import type { DraftRequestStatus } from "@/types/draft-intake-status";
+import type { ArchitectureWorkLeaseSnapshot } from "@/types/draft-intake-work-lease";
 
 export type DraftRequestSummary = {
   draftId: string;
+  /** Durable architecture identity when ensure-on-create has run (ADR 0074). */
+  architectureId?: string | null;
   status: DraftRequestStatus;
   systemName?: string | null;
   freeTextIntent: string;
@@ -37,6 +40,7 @@ export type DraftRequestResponse = {
   createdByUserId?: string;
   createdUtc: string;
   updatedUtc: string;
+  workLease?: ArchitectureWorkLeaseSnapshot | null;
 };
 
 export type DraftElicitationQuestion = {

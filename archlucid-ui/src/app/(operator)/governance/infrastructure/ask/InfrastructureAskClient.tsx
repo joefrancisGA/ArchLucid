@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
@@ -26,11 +25,6 @@ import {
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
 import { infraEvidenceAskBlockedReason } from "@/lib/infra-evidence/infra-evidence-ask-blocked-reason";
-import {
-  INFRA_ASK_SIMULATOR_DISCLOSURE_OPEN_PARAM,
-  infraAskSimulatorDisclosureHrefFromSearch,
-  parseInfraAskSimulatorDisclosureOpenFromSearch,
-} from "@/lib/infra-evidence/infra-ask-simulator-disclosure-url";
 
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildAuditEvidenceLineageUiPath, buildResourceHubDiagramsWorkbenchHref, resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
@@ -92,8 +86,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_ASK_QUESTION_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_DISCLOSURE_TITLE,
-  GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_LABEL,
   GOVERNANCE_INFRASTRUCTURE_ASK_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_ACTION,
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_BODY,
@@ -154,32 +146,6 @@ export function InfrastructureAskClient() {
   );
 
   const [question, setQuestion] = useState("");
-  const [useSimulator, setUseSimulator] = useState(true);
-  const infraAskSimulatorDisclosureOpenParam = searchParams.get(INFRA_ASK_SIMULATOR_DISCLOSURE_OPEN_PARAM);
-  const [simulatorDisclosureOpen, setSimulatorDisclosureOpenState] = useState(() =>
-    parseInfraAskSimulatorDisclosureOpenFromSearch(infraAskSimulatorDisclosureOpenParam),
-  );
-  const syncSimulatorDisclosureOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        infraAskSimulatorDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-  const setSimulatorDisclosureOpen = useCallback(
-    (open: boolean) => {
-      setSimulatorDisclosureOpenState(open);
-      syncSimulatorDisclosureOpenToUrl(open);
-    },
-    [syncSimulatorDisclosureOpenToUrl],
-  );
-
-  useEffect(() => {
-    setSimulatorDisclosureOpenState(parseInfraAskSimulatorDisclosureOpenFromSearch(infraAskSimulatorDisclosureOpenParam));
-  }, [infraAskSimulatorDisclosureOpenParam]);
-
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [history, setHistory] = useState<InfrastructureAskTurn[]>([]);
@@ -451,7 +417,6 @@ export function InfrastructureAskClient() {
         assessmentId: assessmentId.length > 0 ? assessmentId : null,
         auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
         controlId: controlId.length > 0 ? controlId : null,
-        useSimulator,
       });
       setHistory((current) => [...current, { question: trimmed, response: result }]);
       setQuestion("");
@@ -469,7 +434,6 @@ export function InfrastructureAskClient() {
     diffId,
     runId,
     snapshotId,
-    useSimulator,
   ]);
 
   const onAuditControlChange = useCallback((match: CloudResourceAuditLineageMatch) => {
@@ -592,7 +556,7 @@ export function InfrastructureAskClient() {
 
       <main
         id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID : undefined}
-        className={cn("mx-auto flex w-full max-w-3xl flex-col gap-4", buyerPolishedShell ? "scroll-mt-24" : undefined)}
+        className={cn("flex w-full flex-col gap-4", buyerPolishedShell ? "scroll-mt-24" : undefined)}
         data-testid="infra-ask-primary-content"
       >
       {buyerPolishedShell && auditScope == null ? (
@@ -800,36 +764,6 @@ export function InfrastructureAskClient() {
           ))}
         </div>
 
-        {buyerPolishedShell ? (
-          <CollapsibleSection
-            title={GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_DISCLOSURE_TITLE}
-            sectionTestId="infra-ask-simulator-disclosure"
-            summaryLine="Deterministic demo answers grounded on cited structured rows"
-            open={simulatorDisclosureOpen}
-            onToggle={setSimulatorDisclosureOpen}
-          >
-            <label className="inline-flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                data-testid="infra-ask-use-simulator"
-                checked={useSimulator}
-                onChange={(event) => setUseSimulator(event.target.checked)}
-              />
-              <span>{GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_LABEL}</span>
-            </label>
-          </CollapsibleSection>
-        ) : (
-          <label className="inline-flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              data-testid="infra-ask-use-simulator"
-              checked={useSimulator}
-              onChange={(event) => setUseSimulator(event.target.checked)}
-            />
-            <span>Use simulator (deterministic, citation-grounded template)</span>
-          </label>
-        )}
-
         <Button
           type="button"
           variant="primary"
@@ -864,18 +798,6 @@ export function InfrastructureAskClient() {
           <p className={cn("m-0 text-sm font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Question: {turn.question}
           </p>
-
-          {turn.response.simulatorLabel != null ? (
-            <p
-              className={cn(
-                "m-0 rounded-md border border-dashed border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900/40",
-                OPERATOR_TYPOGRAPHY.helper,
-              )}
-              data-testid="infra-ask-simulator-banner"
-            >
-              {turn.response.simulatorLabel}
-            </p>
-          ) : null}
 
           {turn.response.insufficientEvidence ? (
             <div className="grid gap-2" data-testid="infra-ask-insufficient-evidence">

@@ -66,6 +66,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   fetchInfraEvidenceSnapshots,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import { formatInfraEvidenceSnapshotLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
   approveRemediationInstance,
@@ -653,7 +654,7 @@ export function RemediationWorkbenchClient() {
       <main
         id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PRIMARY_CONTENT_ID : undefined}
         className={cn(
-          "mx-auto flex w-full max-w-6xl flex-col gap-4",
+          "flex w-full flex-col gap-4",
           buyerPolishedShell ? "scroll-mt-24" : undefined,
         )}
         data-testid="infra-remediation-primary-content"
@@ -996,7 +997,7 @@ export function RemediationWorkbenchClient() {
                   >
                     {snapshotOptions.map((snapshot) => (
                       <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                        {snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription"} · {snapshot.capturedUtc}
+                        {formatInfraEvidenceSnapshotLabel(snapshot)}
                       </option>
                     ))}
                   </select>
@@ -1012,7 +1013,7 @@ export function RemediationWorkbenchClient() {
                   >
                     {snapshotOptions.map((snapshot) => (
                       <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                        {snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription"} · {snapshot.capturedUtc}
+                        {formatInfraEvidenceSnapshotLabel(snapshot)}
                       </option>
                     ))}
                   </select>

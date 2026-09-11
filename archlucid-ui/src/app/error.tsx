@@ -2,13 +2,15 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 import { OperatorErrorUiReferenceLine } from "@/components/operator/OperatorErrorUiReferenceLine";
 import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { ERROR_BOUNDARY_IDLE_SNAPSHOT_PRESERVED_COPY } from "@/lib/auth/error-boundary-idle-snapshot-copy";
+import { persistLivelihoodIdleSnapshotsBeforeErrorRecovery } from "@/lib/auth/error-boundary-idle-snapshot";
 import { reportClientError } from "@/lib/error-telemetry";
 
 /**
@@ -22,6 +24,12 @@ export default function AppError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [idleSnapshotsPreserved, setIdleSnapshotsPreserved] = useState(false);
+
+  useLayoutEffect(() => {
+    setIdleSnapshotsPreserved(persistLivelihoodIdleSnapshotsBeforeErrorRecovery());
+  }, [error]);
+
   useEffect(() => {
     console.error("Operator shell route error:", error);
     reportClientError(error, { source: "app-error-boundary", digest: error.digest ?? "" });
@@ -39,6 +47,14 @@ export default function AppError({
             ? "Development build — technical details appear below."
             : "This page hit an unexpected error. You can try again or open Help for guidance."}
         </p>
+        {idleSnapshotsPreserved ? (
+          <p
+            className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="app-error-idle-snapshot-preserved"
+          >
+            {ERROR_BOUNDARY_IDLE_SNAPSHOT_PRESERVED_COPY}
+          </p>
+        ) : null}
         {isDev ? (
           <pre
             className={cn(

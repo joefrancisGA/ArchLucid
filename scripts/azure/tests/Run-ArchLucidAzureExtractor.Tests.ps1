@@ -123,6 +123,24 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
         $connectParams.UseDeviceAuthentication | Should -Be $true
     }
 
+    It "connects with subscription scope when TenantId is omitted" {
+        [string]$subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        [hashtable]$connectParams = @{}
+
+        Mock Get-AzContext { return $null }
+        Mock Connect-AzAccount {
+            param($Subscription, [switch] $UseDeviceAuthentication)
+
+            $connectParams.Subscription = $Subscription
+            $connectParams.UseDeviceAuthentication = [bool]$UseDeviceAuthentication
+        }
+
+        $null = Ensure-ArchLucidAzureLogin -SubscriptionId $subscriptionId
+
+        $connectParams.Subscription | Should -Be $subscriptionId
+        $connectParams.UseDeviceAuthentication | Should -Be $true
+    }
+
     It "does not throw when the delegated extractor completes without setting LASTEXITCODE" {
         [string]$fakeExtractor = Join-Path $TestDrive "Get-ArchLucidAzurePackage.ps1"
 
@@ -137,5 +155,39 @@ Write-Output "fake extractor success"
         }
 
         $true | Should -Be $true
+    }
+
+    It "returns a buyer-facing subscription name from Get-AzSubscription" {
+        Mock Get-AzSubscription {
+            return [PSCustomObject]@{
+                Id = "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+                Name = "Contoso Production"
+            }
+        }
+
+        $name = Resolve-ArchLucidAzureSubscriptionDisplayName -SubscriptionId "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+
+        $name | Should -Be "Contoso Production"
+    }
+
+    It "returns null when the Azure name is a GUID" {
+        Mock Get-AzSubscription {
+            return [PSCustomObject]@{
+                Id = "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+                Name = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+            }
+        }
+
+        $name = Resolve-ArchLucidAzureSubscriptionDisplayName -SubscriptionId "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+
+        $name | Should -Be $null
+    }
+
+    It "returns null when Get-AzSubscription fails" {
+        Mock Get-AzSubscription { throw "subscription not found" }
+
+        $name = Resolve-ArchLucidAzureSubscriptionDisplayName -SubscriptionId "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+
+        $name | Should -Be $null
     }
 }

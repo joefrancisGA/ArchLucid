@@ -23,4 +23,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave127Ar
 
 **Hasher baseline note:** wave 127 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred:** see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE128.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE128.md) (1521–1532).
+**Deferred:** wave 60 seal-delta, export replay, and reviews hub follow-ups — see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE128.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE128.md) (1521–1532) when opened.

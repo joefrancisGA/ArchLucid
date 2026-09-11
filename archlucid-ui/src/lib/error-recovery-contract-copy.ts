@@ -11,7 +11,10 @@ export type ErrorRecoveryContractScenario =
   | "review-package-workspace-mismatch"
   | "governance-mutation"
   | "architecture-draft-load"
-  | "in-flight-cancel-failure";
+  | "architecture-draft-offline-replay-conflict"
+  | "livelihood-mutation-resume-failed"
+  | "in-flight-cancel-failure"
+  | "review-detail-segment-error";
 
 export const ERROR_RECOVERY_CONTRACT_MARKERS = {
   root: "operator-error-recovery-contract",
@@ -63,6 +66,32 @@ const IN_FLIGHT_CANCEL_FAILURE_RECOVERY: ErrorRecoveryContractPresentation = {
   nextStep: "Try cancel again in a moment, or open the operation to check its status.",
 };
 
+const REVIEW_DETAIL_SEGMENT_ERROR_RECOVERY: ErrorRecoveryContractPresentation = {
+  whatFailed: "This review desk could not render.",
+  whatIsIntact:
+    "The review package on the server is unchanged. Typed livelihood fields registered on this page may still restore after Retry when idle snapshots were preserved.",
+  nextStep: "Choose Retry to reload this review desk. Open reviews only if Retry keeps failing.",
+};
+
+const ARCHITECTURE_DRAFT_OFFLINE_REPLAY_CONFLICT_RECOVERY: ErrorRecoveryContractPresentation = {
+  whatFailed: "This architecture draft changed in another browser session or from offline replay.",
+  whatIsIntact: "Your unsaved edits in this tab are still on screen and were not overwritten.",
+  nextStep:
+    "Refresh the draft to load the latest version, then re-apply any edits you still need.",
+};
+
+const ARCHITECTURE_DRAFT_OFFLINE_REPLAY_CONFLICT_WORKING_RECOVERY: ErrorRecoveryContractPresentation = {
+  ...ARCHITECTURE_DRAFT_OFFLINE_REPLAY_CONFLICT_RECOVERY,
+  nextStep: "Keep your edits, load the server copy, or retry save after you choose.",
+};
+
+const LIVELIHOOD_MUTATION_RESUME_FAILED_RECOVERY: ErrorRecoveryContractPresentation = {
+  whatFailed: "Your saved action could not finish after sign-in.",
+  whatIsIntact:
+    "The server may have applied part of this request. Your on-screen work and other reviews are unchanged unless the action already succeeded.",
+  nextStep: "Retry once, discard the saved action, or re-run the change manually from this page.",
+};
+
 export const GOVERNANCE_CONCURRENCY_CONFLICT_RECOVERY: ErrorRecoveryContractPresentation = {
   whatFailed: "Another session saved a newer version of this record first.",
   whatIsIntact: "The server copy is unchanged by this attempt; your unsaved form edits are still on screen.",
@@ -72,7 +101,10 @@ export const GOVERNANCE_CONCURRENCY_CONFLICT_RECOVERY: ErrorRecoveryContractPres
 /** Resolves the three-part operator error recovery copy for a guarded golden-path surface. */
 export function errorRecoveryContractForScenario(
   scenario: ErrorRecoveryContractScenario,
-  context?: { readonly failureSummary?: string | null },
+  context?: {
+    readonly failureSummary?: string | null;
+    readonly workingMode?: boolean;
+  },
 ): ErrorRecoveryContractPresentation {
   switch (scenario) {
     case "api-problem": {
@@ -118,6 +150,24 @@ export function errorRecoveryContractForScenario(
       }
 
       return IN_FLIGHT_CANCEL_FAILURE_RECOVERY;
+    }
+    case "review-detail-segment-error":
+      return REVIEW_DETAIL_SEGMENT_ERROR_RECOVERY;
+    case "architecture-draft-offline-replay-conflict":
+      return context?.workingMode === true
+        ? ARCHITECTURE_DRAFT_OFFLINE_REPLAY_CONFLICT_WORKING_RECOVERY
+        : ARCHITECTURE_DRAFT_OFFLINE_REPLAY_CONFLICT_RECOVERY;
+    case "livelihood-mutation-resume-failed": {
+      const summary = context?.failureSummary?.trim() ?? "";
+
+      if (summary.length > 0) {
+        return {
+          ...LIVELIHOOD_MUTATION_RESUME_FAILED_RECOVERY,
+          whatFailed: summary,
+        };
+      }
+
+      return LIVELIHOOD_MUTATION_RESUME_FAILED_RECOVERY;
     }
     default: {
       const exhaustive: never = scenario;

@@ -86,7 +86,7 @@ public sealed class DraftRequestServiceTests
         await _service.PatchAsync(
             _scope,
             created.DraftId,
-            new PatchDraftRequest { BusinessOutcome = "Faster audit prep" },
+            new PatchDraftRequest { BusinessOutcome = "Faster audit prep", ExpectedUpdatedUtc = created.UpdatedUtc },
             CancellationToken.None);
 
         DraftAdmissionResponse? admission = await _service.RequestAdmissionAsync(
@@ -120,6 +120,7 @@ public sealed class DraftRequestServiceTests
             new PatchDraftRequest
             {
                 BusinessOutcome = "Faster audit prep",
+                ExpectedUpdatedUtc = created.UpdatedUtc,
                 ActorSet = new ActorSet
                 {
                     Actors =
@@ -211,6 +212,7 @@ public sealed class DraftRequestServiceTests
             new PatchDraftRequest
             {
                 BusinessOutcome = "Faster audit prep",
+                ExpectedUpdatedUtc = created.UpdatedUtc,
                 ActorSet = new ActorSet
                 {
                     Actors =
@@ -245,7 +247,7 @@ public sealed class DraftRequestServiceTests
         DraftRequestResponse? patched = await _service.PatchAsync(
             _scope,
             created.DraftId,
-            new PatchDraftRequest { BusinessOutcome = "Edited after unlock" },
+            new PatchDraftRequest { BusinessOutcome = "Edited after unlock", ExpectedUpdatedUtc = reopened.UpdatedUtc },
             CancellationToken.None);
 
         patched.Should().NotBeNull();

@@ -1,4 +1,4 @@
-import { apiGet, apiPostJson } from "@/lib/api";
+import { apiPostJson } from "@/lib/api";
 import type {
   AdvisoryRunRecommendationsList,
   RecommendationActionResult,
@@ -8,10 +8,12 @@ import { advisoryRecommendationApplyMutationBlockedReason } from "@/lib/advisory
 import { advisoryRunReadBlockedReason } from "@/lib/advisory/advisory-run-read-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
+import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
+
 /** Lists persisted recommendation records for a run (approval workflow state). */
 export async function listRecommendations(runId: string): Promise<AdvisoryRunRecommendationsList> {
   try {
-    return await apiGet<AdvisoryRunRecommendationsList>(
+    return await apiGetSealedManifestAware<AdvisoryRunRecommendationsList>(
       `/v1/advisory/runs/${encodeURIComponent(runId)}/recommendations`,
     );
   } catch (error: unknown) {

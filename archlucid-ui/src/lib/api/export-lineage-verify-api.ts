@@ -4,7 +4,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { exportLineageVerifyBlockedReason } from "@/lib/exports/export-lineage-verify-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import { apiGet } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 export type RunExportLineageVerificationResponse =
   components["schemas"]["RunExportLineageVerificationResponse"];
@@ -12,7 +12,7 @@ export type RunExportLineageVerificationResponse =
 /** Recomputes export lineage verification for a committed run (read-only). */
 export async function verifyRunExportLineage(runId: string): Promise<RunExportLineageVerificationResponse> {
   try {
-    return await apiGet<RunExportLineageVerificationResponse>(
+    return await apiGetSealedManifestAware<RunExportLineageVerificationResponse>(
       `/v1/artifacts/runs/${encodeURIComponent(runId)}/export/verify`,
     );
   } catch (error: unknown) {
