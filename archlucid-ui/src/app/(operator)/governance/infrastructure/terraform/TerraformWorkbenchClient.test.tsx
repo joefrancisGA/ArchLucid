@@ -54,7 +54,10 @@ describe("TerraformWorkbenchClient", () => {
   it("renders advisory mapping and hub links for scoped resource", async () => {
     render(<TerraformWorkbenchClient />);
 
-    expect(await screen.findByTestId("infra-terraform-workbench")).toBeInTheDocument();
+    const workbench = await screen.findByTestId("infra-terraform-workbench");
+    expect(workbench).toBeInTheDocument();
+    expect(workbench.className).not.toMatch(/mx-auto/);
+    expect(workbench).toHaveClass("w-full");
     expect(screen.getByText("azurerm_public_ip.gateway")).toBeInTheDocument();
     expect(screen.getByTestId("infra-terraform-open-primary-hub")).toHaveAttribute(
       "href",
