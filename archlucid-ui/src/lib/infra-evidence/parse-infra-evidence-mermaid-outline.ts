@@ -23,23 +23,8 @@ const EDGE_ARROW = /--+(?:\|([^|]+)\|)?>|==+(?:\|([^|]+)\|)?>|\.-+>/u;
 
 const DIAGRAM_HEADER = /^(?:flowchart|graph|sequenceDiagram|classDiagram|stateDiagram-v2|erDiagram|gantt|pie|mindmap|timeline|gitGraph|C4Context)\b/u;
 
-const SUBGRAPH_LINE = /^subgraph\b/u;
-
-function isMermaidOutlineStructureLine(line: string): boolean {
-  if (line === "end") {
-    return true;
-  }
-
-  if (SUBGRAPH_LINE.test(line)) {
-    return true;
-  }
-
-  if (/^direction\b/u.test(line)) {
-    return true;
-  }
-
-  return false;
-}
+const STRUCTURAL_LINE =
+  /^(?:subgraph\b|end\b|direction\s+(?:TB|TD|BT|RL|LR|DT|DR)\b)/iu;
 
 function normalizeOutlineLabel(raw: string | undefined, fallback: string): string {
   const trimmed = raw?.trim() ?? "";
@@ -87,11 +72,14 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
   for (const rawLine of source.split(/\r?\n/u)) {
     const line = rawLine.trim();
 
-    if (line.length === 0 || line.startsWith("%%") || line.startsWith("classDef ") || line.startsWith("class ") || DIAGRAM_HEADER.test(line)) {
-      continue;
-    }
-
-    if (isMermaidOutlineStructureLine(line)) {
+    if (
+      line.length === 0
+      || line.startsWith("%%")
+      || line.startsWith("classDef ")
+      || line.startsWith("class ")
+      || DIAGRAM_HEADER.test(line)
+      || STRUCTURAL_LINE.test(line)
+    ) {
       continue;
     }
 

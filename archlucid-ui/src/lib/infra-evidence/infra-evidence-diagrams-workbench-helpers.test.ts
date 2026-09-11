@@ -32,6 +32,17 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     expect(outline.edges).toHaveLength(2);
     expect(outline.edges[0]).toEqual({ from: "A", to: "B", label: null });
   });
+
+  it("ignores subgraph structural lines", () => {
+    const outline = parseInfraEvidenceMermaidOutline(`flowchart TD
+  subgraph rg1["RG network"]
+    vnet1["vnet-eastus"]
+  end
+  vnet1 --> vnet2["vnet-westus"]`);
+
+    expect(outline.nodes.map((node) => node.id)).toEqual(["vnet1", "vnet2"]);
+    expect(outline.edges).toHaveLength(1);
+  });
 });
 
 describe("resolveInfraEvidenceMermaidRenderStatusPresentation", () => {
