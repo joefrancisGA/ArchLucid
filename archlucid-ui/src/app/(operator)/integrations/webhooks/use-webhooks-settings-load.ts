@@ -34,7 +34,7 @@ export function useWebhooksSettingsLoad(
 ): UseWebhooksSettingsLoadResult {
   const scope = useOperatorScopeQueryKey();
   const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;

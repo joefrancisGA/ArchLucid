@@ -2620,6 +2620,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-11 seed hunt #1713 (hit): reseeded ui-webhooks-settings; cheap-disproved continue-last stale-id fallback; proved post-create form wipe on refresh failure; 43 scoped webhooks page/continue-last tests passed (1 pre-existing sources-strip failure unrelated).
 
+- [x] (valid-no-repro) `WebhooksSettingsClient` configuration status flashes not-configured copy before initial subscription list load — **valid-no-repro 2026-09-11 thorough hunt #1719:** RTL `act` flushes `useEffect` → `load()` → `setLoading(true)` before assertions, so first-paint `StatusTag` flash is not observable in tests; `loading=true` initial state still aligns with subscriptions-section loading guard and prevents theoretical first-paint not-configured copy; regression `shows loading configuration status while subscription list is pending`
+
+- [x] (proven) `useWebhooksSettingsMutations` URL-sync effect clears `webhookEnableId`/`webhookDisableId` before initial `listAlertRoutingSubscriptions` hydration — **hit 2026-09-11 thorough hunt #1719:** `useWebhooksSettingsLoad` started with `loading=false`, so the toggle-confirm effect treated an empty row set as a missing subscription and stripped valid deep links on first paint; fixed by initializing `loading` to `true`; regression `opens enable confirmation from webhookEnableId after subscriptions finish loading`
+
+2026-09-11 thorough hunt #1719 (hit): cheap-disproved configuration-status first-paint flash candidate in RTL; proved pre-hydration toggle-confirm deep-link clearing; 46 scoped webhooks page/continue-last tests passed (1 pre-existing sources-strip failure unrelated).
+
 ---
 
 ## Zone: ui-host-gate
