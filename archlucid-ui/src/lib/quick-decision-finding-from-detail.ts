@@ -55,6 +55,8 @@ export type QuickDecisionFinding = {
   humanReviewStatus?: number | null;
   /** Gate classification after ADR 0070 — DecisionGradeFinding vs ChecklistCoverage. */
   classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
+  /** Insight-density treatment when present (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
+  treatment?: number | null;
   /** LP-05: sealed typed snapshot vs advisory agent stream (WK-09 / WK-19). */
   streamBand?: "sealed" | "agent";
   /** AS-059 / ADR 0085 semantic support band when present on the wire. */
@@ -144,6 +146,9 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
     evidenceRefCount,
     enforcementTier: "PolicyViolation",
     policyRuleId: ruleIdRaw.length > 0 ? ruleIdRaw : null,
+    classification: row.classification ?? null,
+    treatment:
+      typeof row.treatment === "number" && Number.isFinite(row.treatment) ? Math.trunc(row.treatment) : null,
   };
 }
 
@@ -277,6 +282,10 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
           ? classificationRaw
           : null;
 
+      const treatmentRaw = fr.treatment;
+      const treatment =
+        typeof treatmentRaw === "number" && Number.isFinite(treatmentRaw) ? Math.trunc(treatmentRaw) : null;
+
       const semanticSupportBand = normalizeFindingSemanticSupportBand(fr.semanticSupportBand);
 
       out.push({
@@ -303,6 +312,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         assignedToUserId,
         humanReviewStatus,
         classification,
+        treatment,
         semanticSupportBand,
       });
     }

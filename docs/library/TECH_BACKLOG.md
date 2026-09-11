@@ -2222,7 +2222,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-399 | ~~Buyer-facing route aliases~~ ? **Done** (2026-06-27): remove "manifest" from browser URLs (`/manifests` ??? `/signed-records`, `/reviews/{id}/manifest` ??? `/reviews/{id}/signed-record`); permanent redirects + internal link migration; API/persistence unchanged | Adoption friction P2 ? **V1.1**; complements **TB-355** copy sweep | M |
 | TB-389 | ~~Tenant-scope `ItsmFindingCorrelations` unique constraint~~ ? **Done** (2026-06-22): `UNIQUE (TenantId, Provider, ExternalKey)`; migration + integration test | Data consistency P0 ? **V1** | XS |
 | TB-386 | ~~ITSM-aware findings export~~ ? **Done** (2026-06-22): CSV + list/inspect JSON external tracking fields via enrichment service | Interoperability P1 ? **V1** | S |
-| TB-387 | ~~Native ITSM feature flag~~ ? **Done** (2026-06-22): `Integrations:Itsm:NativeEnabled` (default false); gates outbound create API + one-click UI; copy-as-work-item + correlations always on | Adoption friction P1 ? **V1** | XS |
+| TB-387 | ~~Native ITSM feature flag~~ ? **Done** (2026-06-22; default **`true`** per **TB-599** 2026-07-03): `Integrations:Itsm:NativeEnabled` gates outbound create API + one-click UI; copy-as-work-item + correlations always on | Adoption friction P1 ? **V1** | XS |
 | TB-388 | ~~ITSM correlation lifecycle audit events~~ ? **Done** (2026-06-22): `Integration.ItsmFindingCorrelationUpdated` / `Integration.ItsmFindingCorrelationRemoved`; PATCH/DELETE on `ItsmCorrelationController`; audit catalog + matrix | Traceability P1 ? **V1** | XS |
 | TB-390 | ~~ITSM inbound webhook snapshot scoping~~ **Done (2026-06-22)** ??? scope inbound `HumanReviewStatus` UPDATE to correlated `FindingRecordId` / latest committed snapshot fallback | Correctness P1 ? **V1** | S |
 | TB-391 | ~~ServiceNow copy-as-task + `trackedExternally` projection~~ **Done (2026-06-22)** ??? `serviceNowText` clipboard format + `TrackedExternally` on inspect/list | Interoperability P2 ? **V1** | S |
@@ -13075,7 +13075,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-387 ??? Native ITSM feature flag for V1 GA ??? **V1 integration seam**
 
-**Status:** **Done (2026-06-22)** ??? `Integrations:Itsm:NativeEnabled` (default false); `ItsmNativeIntegrationGate`; outbound create 404 when disabled; UI create actions gated via health `nativeEnabled`; copy-as-work-item + correlations unchanged.
+**Status:** **Done (2026-06-22; default promoted to `true` per TB-599 2026-07-03)** — `Integrations:Itsm:NativeEnabled`; `ItsmNativeIntegrationGate`; outbound create 404 when disabled; UI create actions gated via health `nativeEnabled`; copy-as-work-item + correlations unchanged.
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22). Scope/docs drift: **TB-063** shipped native UI while [`V1_DEFERRED.md`](V1_DEFERRED.md) ??6 keeps first-party ITSM in V1.1.
 

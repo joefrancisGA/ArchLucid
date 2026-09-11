@@ -5,6 +5,7 @@ import {
   productLineRootManifestPath,
   productLineRootMetadataIcons,
   productLineTitleTemplate,
+  SECURENOW_BLANK_FAVICON_URL,
 } from "@/lib/product-line/product-line-display-name";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 
@@ -40,7 +41,10 @@ describe("root layout metadata helpers", () => {
 
     expect(productLineDocumentTitle(productLine)).toBe("SecureNow workspace");
     expect(productLineTitleTemplate(productLine)).toBe("%s · SecureNow");
-    expect(productLineRootMetadataIcons(productLine)).toBeUndefined();
+    expect(productLineRootMetadataIcons(productLine)).toEqual({
+      icon: [{ url: SECURENOW_BLANK_FAVICON_URL, type: "image/png", sizes: "32x32" }],
+      shortcut: [{ url: SECURENOW_BLANK_FAVICON_URL, type: "image/png" }],
+    });
     expect(productLineRootManifestPath(productLine)).toBeUndefined();
   });
 });

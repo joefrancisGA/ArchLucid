@@ -432,6 +432,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "insight-density distribution zero gaps",
+        ("python", "scripts/ci/assert_insight_density_distribution_zero_gaps.py"),
+        None,
+    ),
+    GuardCommand(
         "policy-pack finding-delta offline packet",
         ("python", "scripts/ci/check_policy_pack_finding_delta_offline_packet.py"),
         None,

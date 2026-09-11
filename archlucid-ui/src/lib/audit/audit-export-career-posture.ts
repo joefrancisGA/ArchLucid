@@ -54,13 +54,15 @@ export function resolveAuditExportCareerBlockedReason(input: {
 
   const resolved = resolveCareerArtifactExportHonestyDoorFields(input);
   const verdict = evaluateCareerArtifactHonesty({
+    runId: trimmedRunId,
+    artifactKind: "export",
     progressSummary: input.progressSummary ?? null,
+    manifestSummary: null,
+    graphSnapshot: null,
     structuralExecutionMode: resolved.structuralExecutionMode,
     effectiveWorkingCareerRehearsalDoor: resolved.effectiveWorkingCareerRehearsalDoor,
-    enginesSucceeded: input.enginesSucceeded ?? input.progressSummary?.enginesSucceeded ?? null,
+    enginesSucceeded: input.enginesSucceeded ?? null,
     preCommitGateEnabled: true,
-    artifactKind: "export",
-    runId: trimmedRunId,
     workingDesk: true,
     transparencyTrail: {
       asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],

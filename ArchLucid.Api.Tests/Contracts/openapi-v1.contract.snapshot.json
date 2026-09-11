@@ -14248,6 +14248,12 @@
               "string"
             ]
           },
+          "rehearsalRowLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "runIdHex": {
             "type": "string"
           },
@@ -14280,6 +14286,12 @@
             ]
           },
           "findingsDeltaSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "rehearsalBodyDisclaimer": {
             "type": [
               "null",
               "string"
@@ -16306,6 +16318,16 @@
           },
           "traceConfidenceLabel": {
             "type": "string"
+          },
+          "treatment": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingTreatment"
+              }
+            ]
           }
         },
         "required": [

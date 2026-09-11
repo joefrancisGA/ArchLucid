@@ -24,6 +24,13 @@ import {
 export const SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON =
   "Simulator rehearsal cannot be career-complete without explicit rehearsal labeling on the artifact.";
 
+/** CG-030 — review-detail Ready label suppression when Career door meets Simulator execute. */
+export const WORKING_SIMULATOR_CAREER_READY_SUPPRESSED_TITLE =
+  "Simulator cannot read as career-complete";
+
+export const WORKING_SIMULATOR_CAREER_READY_SUPPRESSED_COPY =
+  "Ready-to-finalize labels stay off while structural execute is Simulator or Fallback on the Career door. Switch to Rehearsal for practice runs or re-execute in Real mode.";
+
 export const SIMULATOR_REHEARSAL_GUIDED_WARNING =
   "Simulator rehearsal — not production customer evidence.";
 

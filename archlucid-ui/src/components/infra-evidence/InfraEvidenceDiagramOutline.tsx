@@ -11,6 +11,14 @@ type InfraEvidenceDiagramOutlineProps = {
   readonly outline: InfraEvidenceMermaidOutline;
 };
 
+function formatOutlineCell(value: string | null): string {
+  if (value == null || value.trim().length === 0) {
+    return "—";
+  }
+
+  return value;
+}
+
 /** Structured list alternative to the Mermaid canvas (WCAG 1.1.1 peer affordance). */
 export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlineProps): React.JSX.Element {
   const { outline } = props;
@@ -22,21 +30,23 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       data-testid="infra-diagrams-mermaid-outline"
       className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-700"
     >
-      <div className="grid gap-4 p-3 md:grid-cols-2">
+      <div className="flex flex-col gap-4 p-3">
         <div>
           <h3 className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>Nodes</h3>
           <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
             <thead className="bg-neutral-50 dark:bg-neutral-900/60">
               <tr>
                 <th className="px-3 py-2 font-medium">Label</th>
-                <th className="px-3 py-2 font-medium">Id</th>
+                <th className="px-3 py-2 font-medium">Resource type</th>
+                <th className="px-3 py-2 font-medium">Resource group</th>
               </tr>
             </thead>
             <tbody>
               {nodeRows.map((node) => (
                 <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
                   <td className="px-3 py-2">{node.label}</td>
-                  <td className="px-3 py-2 font-mono text-sm">{node.id}</td>
+                  <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceType)}</td>
+                  <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceGroup)}</td>
                 </tr>
               ))}
             </tbody>

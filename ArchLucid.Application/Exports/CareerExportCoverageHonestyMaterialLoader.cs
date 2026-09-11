@@ -62,6 +62,8 @@ public static class CareerExportCoverageHonestyMaterialLoader
         AgentOutputQualityGateMode? recordedQualityGateMode = null;
         AgentOutputQualityGateOutcome? aggregateQualityGateOutcome = null;
         FindingsSnapshot? findingsSnapshot = null;
+        string? ruleSetId = null;
+        string? ruleSetVersion = null;
 
         if (Guid.TryParse(detail.Run.RunId.Trim(), out Guid runGuid))
         {
@@ -77,6 +79,8 @@ public static class CareerExportCoverageHonestyMaterialLoader
             judgeSkippedByCap = ResolveJudgeSkippedByCap(
                 findingsSnapshot?.InsightDensityCuration?.JudgeSkippedByCap);
             isSampleRun = exportDetail?.Run.IsSample ?? false;
+            ruleSetId = exportDetail?.GoldenManifest?.RuleSetId?.Trim();
+            ruleSetVersion = exportDetail?.GoldenManifest?.RuleSetVersion?.Trim();
 
             IReadOnlyList<AgentExecutionTrace> traces = await agentExecutionTraceRepository
                 .GetByRunIdAsync(scope, detail.Run.RunId.Trim(), cancellationToken)
@@ -108,7 +112,9 @@ public static class CareerExportCoverageHonestyMaterialLoader
             judgeSkippedByCap,
             findingsSnapshot,
             architectureInventoryBound,
-            WorkingCareerRehearsalDoor: detail.Run.WorkingCareerRehearsalDoor);
+            WorkingCareerRehearsalDoor: detail.Run.WorkingCareerRehearsalDoor,
+            RuleSetId: ruleSetId,
+            RuleSetVersion: ruleSetVersion);
     }
 
     internal static async Task<bool?> ResolveArchitectureInventoryBoundAsync(

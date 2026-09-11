@@ -92,7 +92,7 @@
     ],
     "edges": [
       {
-        "edgeId": "7749ca9bb1954b2ab6a396ff1f43173b",
+        "edgeId": "efc1ff90ffb54deabf723d6857b40813",
         "fromNodeId": "context-10000000000040008000000000000065",
         "toNodeId": "obj-4c4c4236ed17a9102ac6f7f5685b558e",
         "edgeType": "CONTAINS",
@@ -103,7 +103,7 @@
         "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
-        "edgeId": "d56887fe579d4dc194d108eb51fc0824",
+        "edgeId": "7660a28400b04822b1d0865d803f4fd4",
         "fromNodeId": "context-10000000000040008000000000000065",
         "toNodeId": "obj-38dedb83731441f9560ff4420b6a55d3",
         "edgeType": "CONTAINS",
@@ -114,7 +114,7 @@
         "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
-        "edgeId": "09ab4c9f71914b2fa124371d2b32a94f",
+        "edgeId": "402add10c71d4c44bfb9a7c4619f1af1",
         "fromNodeId": "context-10000000000040008000000000000065",
         "toNodeId": "obj-57da2b6f068301e5884890d3b30ceedc",
         "edgeType": "CONTAINS",
@@ -125,7 +125,7 @@
         "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
-        "edgeId": "b8d6640a0e5d435bb58e20c584448fe5",
+        "edgeId": "a8bea8868d3d4c4e957733f3dfdcea61",
         "fromNodeId": "context-10000000000040008000000000000065",
         "toNodeId": "declaration-actor-10000000000040008000000000000065-1",
         "edgeType": "CONTAINS",
@@ -136,7 +136,7 @@
         "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
-        "edgeId": "89b45142505942769014e76acd63cb14",
+        "edgeId": "8973f18accc54bcd976b5bbba0881547",
         "fromNodeId": "context-10000000000040008000000000000065",
         "toNodeId": "declaration-actor-10000000000040008000000000000065-2",
         "edgeType": "CONTAINS",
@@ -147,7 +147,7 @@
         "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
-        "edgeId": "1c77466bd0cc45d992212a78d7fbc30a",
+        "edgeId": "86c39916c64d48e6a0c22ed4e25856ad",
         "fromNodeId": "declaration-actor-10000000000040008000000000000065-1",
         "toNodeId": "obj-4c4c4236ed17a9102ac6f7f5685b558e",
         "edgeType": "RELATES_TO",
@@ -158,7 +158,7 @@
         "reasoningTrace": "ArchLucid linked a declaration-seeded Actor to the topology node that declared it."
       },
       {
-        "edgeId": "dc58ab0464f549e99fcbc20c961b313e",
+        "edgeId": "ef65ad495c2f495e923d5c19ccb459df",
         "fromNodeId": "declaration-actor-10000000000040008000000000000065-2",
         "toNodeId": "obj-57da2b6f068301e5884890d3b30ceedc",
         "edgeType": "RELATES_TO",
@@ -169,7 +169,7 @@
         "reasoningTrace": "ArchLucid linked a declaration-seeded Actor to the topology node that declared it."
       },
       {
-        "edgeId": "eff1b0cdc2f54e1ca0df95fe92e19a0b",
+        "edgeId": "21019433220340d7ac6c958620b77985",
         "fromNodeId": "obj-57da2b6f068301e5884890d3b30ceedc",
         "toNodeId": "obj-38dedb83731441f9560ff4420b6a55d3",
         "edgeType": "APPLIES_TO",
@@ -180,7 +180,7 @@
         "reasoningTrace": "ArchLucid linked a machine Actor to a declared role assignment and the assignment\u0027s declared scope when principalId and target resource both already exist on the snapshot."
       },
       {
-        "edgeId": "2acd9960689b494da41f00bdf757bdf8",
+        "edgeId": "2ca4d37baed44afe9ebf88355e8ede33",
         "fromNodeId": "declaration-actor-10000000000040008000000000000065-1",
         "toNodeId": "obj-57da2b6f068301e5884890d3b30ceedc",
         "edgeType": "RELATES_TO",
@@ -195,5 +195,6 @@
   },
   "merge": null,
   "inventoryFixture": null,
-  "priorGraphFixture": null
+  "priorGraphFixture": null,
+  "assignedPackFixture": null
 }
