@@ -15,6 +15,9 @@ export type ResolveClientAwareCommitBlockedReasonInput = {
   readonly acknowledgedAssumptionIds: ReadonlySet<string>;
   readonly requestAssumptionTexts: readonly string[];
   readonly transparencyTrail?: TransparencyTrail | null;
+  readonly degradedFindingCoverage?: boolean;
+  readonly degradedFindingCoverageFailedEngineLabels?: readonly string[];
+  readonly blockDegradedFindingCoverageOnWorking?: boolean;
 };
 
 /** Recompute finalize scorecard on the client when assumption acks change (TB-2314). */
@@ -29,6 +32,9 @@ export function resolveClientAwareCommitBlockedReason(
     acknowledgedAssumptionIds: input.acknowledgedAssumptionIds,
     requestAssumptionTexts: input.requestAssumptionTexts,
     transparencyTrail: input.transparencyTrail,
+    degradedFindingCoverage: input.degradedFindingCoverage,
+    degradedFindingCoverageFailedEngineLabels: input.degradedFindingCoverageFailedEngineLabels,
+    blockDegradedFindingCoverageOnWorking: input.blockDegradedFindingCoverageOnWorking,
   };
   const scorecardInput = deriveFinalizeQualityScorecardInput(
     input.findings,

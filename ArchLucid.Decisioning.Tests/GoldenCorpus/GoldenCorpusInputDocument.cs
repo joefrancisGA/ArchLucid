@@ -40,6 +40,15 @@ public sealed class GoldenCorpusInputDocument
     {
         get; set;
     }
+
+    /// <summary>
+    /// Optional filtered assigned pack for effectful engines only (case-73 policy-declaration-inventory-contradiction).
+    /// Graph engines keep the default unfiltered compliance pack.
+    /// </summary>
+    public GoldenCorpusAssignedPackFixtureDocument? AssignedPackFixture
+    {
+        get; set;
+    }
 }
 
 /// <summary>Pinned Azure and/or AWS/GCP cloud inventory packages for golden corpus inventory-backed engines.</summary>
@@ -140,4 +149,13 @@ public sealed class GoldenCorpusMergeDocument
         DecisionNodes = DecisionNodes,
         ParentManifestVersion = ParentManifestVersion,
     };
+}
+
+/// <summary>Filtered compliance rule keys for effectful engines that gate on assigned pack (case-73).</summary>
+public sealed class GoldenCorpusAssignedPackFixtureDocument
+{
+    public List<string> ComplianceRuleKeys
+    {
+        get; set;
+    } = [];
 }

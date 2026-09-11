@@ -34,8 +34,15 @@ vi.mock("@/lib/operator/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: () => false,
 }));
 
+const productLineMock = vi.hoisted(() => ({ value: "architecture" as "architecture" | "security" }));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: productLineMock.value }),
+}));
+
 describe("WorkingSimulatorCloneRehearsalBanner", () => {
   beforeEach(() => {
+    productLineMock.value = "architecture";
     chromeState.hostPinnedSimulator = true;
     chromeState.showBanner = true;
     chromeState.effectiveDoor = "rehearsal";
@@ -59,6 +66,14 @@ describe("WorkingSimulatorCloneRehearsalBanner", () => {
 
   it("hides when the resolver says the clone banner is off", () => {
     chromeState.showBanner = false;
+
+    const { container } = render(<WorkingSimulatorCloneRehearsalBanner />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("hides in the SecureNow shell even when the resolver would show the banner", () => {
+    productLineMock.value = "security";
 
     const { container } = render(<WorkingSimulatorCloneRehearsalBanner />);
 

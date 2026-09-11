@@ -4,7 +4,9 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkingSimulatorCloneRehearsalBanner } from "@/hooks/use-working-simulator-clone-rehearsal-banner";
+import { isSecureNowTrainingChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -27,7 +29,12 @@ export type WorkingSimulatorCloneRehearsalBannerProps = {
 export function WorkingSimulatorCloneRehearsalBanner(
   props: WorkingSimulatorCloneRehearsalBannerProps,
 ): ReactElement | null {
+  const { productLine } = useProductLine();
   const chrome = useWorkingSimulatorCloneRehearsalBanner();
+
+  if (isSecureNowTrainingChromeExcluded(productLine)) {
+    return null;
+  }
 
   if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
     return null;

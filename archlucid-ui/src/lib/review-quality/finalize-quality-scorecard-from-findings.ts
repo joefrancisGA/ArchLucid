@@ -18,6 +18,10 @@ export type DeriveFinalizeQualityScorecardOptions = {
   readonly acknowledgedAssumptionIds?: ReadonlySet<string>;
   readonly requestAssumptionTexts?: readonly string[];
   readonly transparencyTrail?: TransparencyTrail | null;
+  /** WS-14: Working seats block finalize when finding-engine coverage is degraded. */
+  readonly degradedFindingCoverage?: boolean;
+  readonly degradedFindingCoverageFailedEngineLabels?: readonly string[];
+  readonly blockDegradedFindingCoverageOnWorking?: boolean;
 };
 
 const FINALIZE_RESOLVED_DISPOSITIONS = new Set([
@@ -52,6 +56,18 @@ function isFinalizeResolvedReviewFinding(finding: QuickDecisionFinding): boolean
   const disposition = readDispositionFromReviewFinding(finding);
 
   return disposition !== null && FINALIZE_RESOLVED_DISPOSITIONS.has(disposition);
+}
+
+function isUnresolvedBlockingReviewFinding(finding: QuickDecisionFinding): boolean {
+  if (finding.isMuted || finding.enforcementTier === "Advisory") {
+    return false;
+  }
+
+  if (finding.severityValue < 2 || isFinalizeResolvedReviewFinding(finding)) {
+    return false;
+  }
+
+  return true;
 }
 
 /** TB-2321: derive finalize scorecard inputs from live finding rows when API metrics are absent. */
@@ -89,9 +105,19 @@ export function deriveFinalizeQualityScorecardInput(
   const openCannotDetermineCount = findings.filter(
     (finding) => !finding.isMuted && classifyReviewFindingJobView(finding) === "answer-these-questions",
   ).length;
+  const openVerifyHypothesisCount = findings.filter(
+    (finding) => !finding.isMuted && classifyReviewFindingJobView(finding) === "verify-hypotheses",
+  ).length;
+  const openDeferredCount = findings.filter(
+    (finding) => !finding.isMuted && classifyReviewFindingJobView(finding) === "deferred",
+  ).length;
+  const openContradictionCount = findings.filter(
+    (finding) => !finding.isMuted && classifyReviewFindingJobView(finding) === "resolve-contradictions",
+  ).length;
   const uncoveredMandatoryRequirementCount = findings.filter(
     (finding) => !finding.isMuted && classifyReviewFindingJobView(finding) === "coverage-gaps",
   ).length;
+  const derivedBlockingFindingCount = findings.filter(isUnresolvedBlockingReviewFinding).length;
   let unresolvedHighSeverityDispositionCount = 0;
 
   for (const finding of findings) {
@@ -103,17 +129,23 @@ export function deriveFinalizeQualityScorecardInput(
   }
 
   return {
-    blockingFindingCount: Math.max(0, Math.trunc(blockingFindingCount)),
+    blockingFindingCount: Math.max(Math.trunc(blockingFindingCount), derivedBlockingFindingCount),
     unverifiedAssumptionCount: assumptions.length,
     unacknowledgedExistentialAssumptionCount,
     uncoveredMandatoryRequirementCount,
+    openDeferredCount,
+    openContradictionCount,
     openCannotDetermineCount,
+    openVerifyHypothesisCount,
     lowExtractionConfidenceCount,
     unresolvedHighSeverityDispositionCount,
     skippedMustCount: countSkippedMustQuestions(options?.transparencyTrail),
     transparencyTrailIncomplete:
       options?.transparencyTrail !== undefined &&
       !isTransparencyTrailComplete(options.transparencyTrail),
+    degradedFindingCoverage: options?.degradedFindingCoverage === true,
+    degradedFindingCoverageFailedEngineLabels: options?.degradedFindingCoverageFailedEngineLabels ?? [],
+    blockDegradedFindingCoverageOnWorking: options?.blockDegradedFindingCoverageOnWorking === true,
   };
 }
 
