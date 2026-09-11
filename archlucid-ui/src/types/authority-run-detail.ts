@@ -96,6 +96,10 @@ export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots 
       isArchived?: boolean | null;
       /** Stable architecture identity when the authority run record includes it (CA-45 recurrence scope). */
       architectureId?: string | null;
+      /** CG-019: Working door captured at first execute start. */
+      workingCareerRehearsalDoor?: string | null;
+      /** CG-019: UTC when the Working door stamp was captured. */
+      executePostureCapturedUtc?: string | null;
     };
     contextSnapshot?: unknown;
     graphSnapshot?: unknown;

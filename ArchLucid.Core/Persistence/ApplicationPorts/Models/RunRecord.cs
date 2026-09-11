@@ -215,6 +215,23 @@ public sealed class RunRecord
         set;
     } = StructuralExecutionMode.Simulator;
 
+    /// <summary>
+    ///     Working Career vs Rehearsal door captured at first execute start (CG-019). Null on legacy rows
+    ///     that never executed after the stamp shipped. Career honesty reads this stamp, not the live chooser.
+    /// </summary>
+    public string? WorkingCareerRehearsalDoor
+    {
+        get;
+        set;
+    }
+
+    /// <summary>UTC when <see cref="WorkingCareerRehearsalDoor" /> was first captured; null until execute stamps it.</summary>
+    public DateTime? ExecutePostureCapturedUtc
+    {
+        get;
+        set;
+    }
+
     /// <summary>Optional snapshot of <c>AzureOpenAI:DeploymentName</c> at fallback time (for provenance footer).</summary>
     public string? PilotAoaiDeploymentSnapshot
     {

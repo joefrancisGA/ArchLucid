@@ -180,36 +180,8 @@ public sealed partial class RunDetailPageBundleController
         };
     }
 
-    private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto summary)
-    {
-        return new RunSummaryResponse
-        {
-            RunId = summary.RunId,
-            ProjectId = summary.ProjectId,
-            Description = summary.Description,
-            DisplayName = string.IsNullOrWhiteSpace(summary.Description) ? null : summary.Description.Trim(),
-            IsDemoWelcomeRun = summary.IsDemoWelcomeRun,
-            IsSample = summary.IsSample,
-            IsPinned = summary.IsPinned,
-            CreatedUtc = summary.CreatedUtc,
-            CreatedByUserId = summary.CreatedByUserId,
-            HasContextSnapshot = summary.HasContextSnapshot,
-            HasGraphSnapshot = summary.HasGraphSnapshot,
-            HasFindingsSnapshot = summary.HasFindingsSnapshot,
-            HasGoldenManifest = summary.HasGoldenManifest,
-            GoldenManifestId = summary.GoldenManifestId,
-            HasDecisionTrace = summary.HasDecisionTrace,
-            HasArtifactBundle = summary.HasArtifactBundle,
-            HasWarnings = summary.HasWarnings,
-            HasGovernanceWarnings = summary.HasGovernanceWarnings,
-            RunDegradedExecution = summary.RunDegradedExecution,
-            DegradedExecutionAgents = summary.DegradedExecutionAgents,
-            PackageOrigin = summary.PackageOrigin,
-            StructuralExecutionMode = summary.StructuralExecutionMode,
-            AuthorityLifecyclePhase = summary.AuthorityLifecyclePhase,
-            LegacyRunStatus = summary.LegacyRunStatus,
-        };
-    }
+    private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto summary) =>
+        AuthorityRunReadHandlers.ToRunSummaryResponse(summary);
 
     private static ManifestSummaryResponse ToManifestSummaryResponse(ManifestSummaryDto summary)
     {
