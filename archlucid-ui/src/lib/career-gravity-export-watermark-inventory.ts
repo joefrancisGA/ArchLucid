@@ -18,8 +18,8 @@ export type CareerGravityExportWatermarkRow = {
 };
 
 /**
- * Mapper gravity gap (CG-003): banner flag inferred from structural Mode.
- * Do not treat this as proof bytes are watermarked. CG-022+ must change the mapper.
+ * CG-022: mapper banner flag is door-stamp-aware (Rehearsal door + Simulator only).
+ * Do not treat this as proof PDF bytes are watermarked — CG-042+ owns visual rehearsal stamps.
  */
 export const CAREER_GRAVITY_EXPORT_MAPPER_PATH =
   "ArchLucid.Application/Exports/CareerArtifactCompletenessInputMapper.cs" as const;
@@ -78,27 +78,27 @@ export const CAREER_GRAVITY_EXPORT_WATERMARK_ROWS: readonly CareerGravityExportW
   },
   {
     relativePath: CAREER_GRAVITY_EXPORT_MAPPER_PATH,
-    leakClass: "assumed-banner",
+    leakClass: "covered",
     ownerPrompt: "CG-022",
   },
   {
     relativePath: "ArchLucid.Application/Exports/CareerArtifactExportCompletenessGate.cs",
-    leakClass: "assumed-banner",
+    leakClass: "covered",
     ownerPrompt: "CG-022",
   },
   {
     relativePath: "ArchLucid.Application/Exports/SponsorReviewPacketBuilder.cs",
-    leakClass: "assumed-banner",
+    leakClass: "covered",
     ownerPrompt: "CG-022",
   },
   {
     relativePath: "ArchLucid.Application/Exports/RunSummaryOnePagerExportService.cs",
-    leakClass: "assumed-banner",
+    leakClass: "covered",
     ownerPrompt: "CG-022",
   },
   {
     relativePath: "ArchLucid.Application/Exports/ArchitectureReviewExportService.cs",
-    leakClass: "assumed-banner",
+    leakClass: "covered",
     ownerPrompt: "CG-022",
   },
   {
@@ -118,8 +118,8 @@ export const CAREER_GRAVITY_EXPORT_WATERMARK_ROWS: readonly CareerGravityExportW
   },
   {
     relativePath: "ArchLucid.Application/Pilots/FirstValueReportBuilder.cs",
-    leakClass: "assumed-banner",
-    ownerPrompt: "CG-022",
+    leakClass: "covered",
+    ownerPrompt: "CG-042",
   },
   {
     relativePath: "ArchLucid.Application/Pilots/FirstValueReportPdfBuilder.cs",

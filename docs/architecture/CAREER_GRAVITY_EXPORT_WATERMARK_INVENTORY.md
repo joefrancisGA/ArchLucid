@@ -14,11 +14,11 @@ Reuse, do not re-run: `evaluateCareerArtifactHonesty`, `CareerArtifactCompletene
 
 ## Gravity gap (quote this)
 
-`CareerArtifactCompletenessInputMapper.MapForExport` sets `SimulatorRehearsalBannerOnArtifact` from `IsRehearsalStructuralExecutionMode(StructuralExecutionMode)` — it **assumes** the rehearsal banner is already on the artifact whenever Mode is Simulator/Fallback.
+**CG-022 (shipped):** `CareerArtifactCompletenessInputMapper.ResolveSimulatorRehearsalBannerOnArtifactForExport` sets `SimulatorRehearsalBannerOnArtifact` only when structural Mode is Simulator/Fallback **and** `WorkingCareerRehearsalDoor` is **Rehearsal**. Working Career + Simulator exports **fail closed** server-side unless bytes carry a real rehearsal banner.
 
-`SimulatorCareerHonestyPresenter.ShouldBlockWorkingCareer` then **does not block** Working Career Simulator exports, even when PDF/DOCX/JSON bytes have no rehearsal watermark.
+`SimulatorCareerHonestyPresenter.ShouldBlockWorkingCareer` still blocks unlabeled Working Career Simulator paths when the door stamp is Career.
 
-UI `evaluateCareerArtifactHonesty` does **not** default that flag. Mounted UI formatters that omit `simulatorRehearsalBannerOnArtifact` therefore **fail closed** on Working Career Simulator. Server `MapForExport` **fail-opens**. CG-022+ must not treat the mapper flag as proof the bytes are labeled.
+UI `evaluateCareerArtifactHonesty` does **not** default the banner flag. Mounted UI formatters that omit `simulatorRehearsalBannerOnArtifact` therefore **fail closed** on Working Career Simulator. **Do not** treat the mapper flag as proof PDF bytes are watermarked — CG-042+ owns visual rehearsal stamps on sponsor PDF bytes.
 
 ## Leak classes
 
@@ -59,11 +59,11 @@ Working Career must not be confused with these waivers.
 
 | Path | Validator call | Rehearsal watermark on artifact | Leak class | Owner |
 |------|----------------|----------------------------------|------------|-------|
-| `ArchLucid.Application/Exports/CareerArtifactCompletenessInputMapper.cs` | Maps flag from Mode | **Assumes banner on** | **assumed-banner** | CG-022 |
-| `ArchLucid.Application/Exports/CareerArtifactExportCompletenessGate.cs` | `EnsureCanExport` / `FromHonestyMaterial` | Inherits mapper | assumed-banner | CG-022 |
-| `ArchLucid.Application/Exports/SponsorReviewPacketBuilder.cs` | `EnsureCanExportFromHonestyMaterial` | Coverage honesty markdown; rehearsal via mapper | assumed-banner | CG-022 |
-| `ArchLucid.Application/Exports/RunSummaryOnePagerExportService.cs` | **Yes** | Same | assumed-banner | CG-022 |
-| `ArchLucid.Application/Exports/ArchitectureReviewExportService.cs` | **Yes** | Same | assumed-banner | CG-022 |
+| `ArchLucid.Application/Exports/CareerArtifactCompletenessInputMapper.cs` | Door-stamp-aware `ResolveSimulatorRehearsalBannerOnArtifactForExport` | Banner only when Rehearsal door + Simulator | **covered** | CG-022 |
+| `ArchLucid.Application/Exports/CareerArtifactExportCompletenessGate.cs` | `EnsureCanExport` / `FromHonestyMaterial` | Inherits mapper | covered | CG-022 |
+| `ArchLucid.Application/Exports/SponsorReviewPacketBuilder.cs` | `EnsureCanExportFromHonestyMaterial` | Coverage honesty markdown; rehearsal via mapper | covered | CG-022 |
+| `ArchLucid.Application/Exports/RunSummaryOnePagerExportService.cs` | **Yes** | Same | covered | CG-022 |
+| `ArchLucid.Application/Exports/ArchitectureReviewExportService.cs` | **Yes** | Same | covered | CG-022 |
 | `ArchLucid.Application/Analysis/ExportReplayService.cs` | **Yes** | Replay ZIP inherits mapper | assumed-banner | CG-027 |
 | `ArchLucid.Api/Controllers/Authority/DocxExportController.cs` | `EnsureCanExport` + plain-text honesty section | DOCX gets coverage honesty text; rehearsal banner assumed | assumed-banner | CG-043 |
 | `ArchLucid.Application/Exports/DecisionReceiptService.cs` | `MapForExport` | JSON receipt; no visual watermark | assumed-banner | CG-025 / CG-044 |
