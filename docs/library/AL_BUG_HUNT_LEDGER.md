@@ -1822,11 +1822,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 15
-- **bugs-found:** 9
+- **hunts:** 16
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — guided-desk invisible preview override in notes; bulk duplicate finding ids accepted in one batch
+- **last-bug:** 2026-09-11 — LP-14 note injection; preview override bypass; bulk duplicate ids; 2026-09-11 — guided-desk invisible preview override in notes; bulk duplicate finding ids accepted in one batch
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1891,6 +1891,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `InMemoryFindingDispositionConcurrencyRepository.RecordBulkAsync` — intra-batch duplicate finding ids still succeed when repository is called directly without `FindingDispositionService` duplicate guard (test-double parity only)
 
 2026-09-11 seed hunt #1727 (seed→hit): reseeded finding-disposition after closed hypothesis set; proved guided-desk invisible preview override and bulk duplicate finding-id bypass; seeded in-memory repository direct-call candidate; 58 scoped finding-disposition tests passed.
+- [x] (valid-no-repro) Guided-desk UI sends `ImpactPreviewCompleted` on `Remediated` — **cheap-disproof 2026-09-11 seed hunt #1720:** `buildFindingApplyChangeDispositionAttestation` returns `null` when `isWorkingDesk` is false (`finding-apply-change-preview-gate.ts`).
+- [x] (proven) `FindingDispositionService.BuildImpactPreviewAttestationNote` — API callers persisted Working-desk LP-14 attestation notes on guided desk — **hit 2026-09-11 seed hunt #1720:** note builder ignored workspace mode; fixed by passing `isWorkingDesk`; regressions `RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`, `RecordAsync_guided_remediated_ignores_preview_override_reason_in_notes`
+- [x] (proven) `FindingDispositionValidation.Validate` — optional `PreviewOverrideReason` on guided-desk `Remediated` bypassed `HasSubstantiveText` — **hit 2026-09-11 seed hunt #1720:** fixed with optional-field guard in `Validate()`; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided`, `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
+- [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch appended multiple events — **hit 2026-09-11 seed hunt #1720:** `HashSet<string>` on trimmed finding ids; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
+- [ ] (candidate) `RecordBulkAsync` duplicate detection uses `StringComparer.Ordinal` — case-variant finding ids (`Finding-A` vs `finding-a`) in one batch may still double-append; reachability depends on whether finding ids are case-insensitive in persistence
+
+2026-09-11 seed hunt #1720 (seed→hit): reseeded finding-disposition after zone saturation; proved LP-14 note injection, guided preview override bypass, and bulk duplicate finding ids; seeded case-variant bulk duplicate candidate; 60 scoped FindingDisposition tests passed.
 
 ---
 
@@ -11557,11 +11564,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 4
-- **bugs-found:** 6
+- **hunts:** 5
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — run-detail completion counts omitted reasoning tokens; curated evidence proposer/validator mismatch; alias resolver audit flag conflation
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — invisible Unicode curated-evidence descriptions; partial multi-trace cost basis mislabeling
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -11578,6 +11585,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) External-subprocessor alias resolver conflates missing ack with outside-allowed-set rejection — **hit 2026-09-07:** `ReviewModelAliasResolver.ResolveForRunCreateAsync` returned `RejectedOutsideAllowedSet: true` when the alias was allowed but workspace subprocessor acknowledgment was missing, mislabeling audit events; fixed to `(false, true)`; regression in `ResolveForRunCreateAsync_WhenExternalSubprocessorAckMissing_DoesNotRejectOutsideAllowedSet`
 
 2026-09-07 seed hunt #1194 (hit): reseeded application-agents zone; proved run-detail reasoning token display parity, curated evidence description validation, and alias resolver audit flag conflation.
+
+- [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-Unicode-only descriptions — **hit 2026-09-11 seed hunt #1715 (seed→hit):** zero-width space (`U+200B`) passes `IsNullOrWhiteSpace` but is not catalog-visible; fixed via shared `ProposedEvidenceTextValidation.HasSubstantiveText`; regressions `NormalizeResponse_returns_null_when_description_is_invisible_unicode_only` and `TryParseValid_WhenDescriptionIsInvisibleUnicodeOnly_ReturnsFalse`
+
+- [x] (proven) `AgentExecutionTraceRunLlmCostAggregator` reports `estimated-from-configured-rates` when only some traces price — **hit 2026-09-11 seed hunt #1715 (seed→hit):** mixed priced/unpriced deployment slices summed partial USD while labeling the full run as rate-estimated; fixed by downgrading basis to `provider-tokens-without-rate` and omitting partial USD when any measurable slice lacks a rate; regression `Compute_WhenOnlySomeTracesPrice_UsesProviderTokensWithoutRateBasis`
+
+2026-09-11 seed hunt #1715 (hit): reseeded application-agents; proved invisible Unicode curated-evidence descriptions and partial multi-trace cost basis mislabeling; 70 scoped `Application.Tests.Agents` tests passed.
 
 ---
 
