@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
@@ -292,11 +291,10 @@ public sealed class FinalizeConflictSqlIntegrationTests(ArchLucidApiFactory fact
     {
         string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-PRECOMMIT-409-");
 
-        string? expectedReason = await TryReadPreCommitReadinessBlockReasonAsync(runId);
+        await FinalizeConflictSqlIntegrationFixture.PinPreCommitGateBlockAsync(Factory, runId);
 
-        Skip.If(
-            expectedReason is null,
-            "Pre-commit governance gate did not block this simulator run for SQL integration proof.");
+        string? expectedReason = await TryReadPreCommitReadinessBlockReasonAsync(runId);
+        expectedReason.Should().NotBeNull("pinned critical finding and BlockCommitOnCritical pin must block pre-commit gate");
 
         HttpResponseMessage finalizeResponse = await Client.PostAsync(
             $"/v1/architecture/review/{runId}/finalize",
@@ -315,11 +313,10 @@ public sealed class FinalizeConflictSqlIntegrationTests(ArchLucidApiFactory fact
     {
         string runId = await CreateExecutedRunIdAsync("REQ-READINESS-PRECOMMIT-409-");
 
-        string? expectedReason = await TryReadPreCommitReadinessBlockReasonAsync(runId);
+        await FinalizeConflictSqlIntegrationFixture.PinPreCommitGateBlockAsync(Factory, runId);
 
-        Skip.If(
-            expectedReason is null,
-            "Pre-commit governance gate did not block this simulator run for SQL integration proof.");
+        string? expectedReason = await TryReadPreCommitReadinessBlockReasonAsync(runId);
+        expectedReason.Should().NotBeNull("pinned critical finding and BlockCommitOnCritical pin must block pre-commit gate");
 
         HttpResponseMessage readinessResponse = await Client.GetAsync(
             $"/v1/governance/pre-finalize/readiness/{runId}");
