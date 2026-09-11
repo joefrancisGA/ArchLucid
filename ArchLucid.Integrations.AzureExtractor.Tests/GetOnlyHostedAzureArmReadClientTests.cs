@@ -679,6 +679,50 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Equal("diag-to-law", settings[0].Name);
     }
 
+    [Fact]
+    public async Task ListSubscriptionDefenderSummariesAsync_maps_subscription_secure_score()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                Assert.Contains("Microsoft.Security/secureScores", request.RequestUri?.AbsoluteUri, StringComparison.Ordinal);
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("""
+                                                    {
+                                                      "value": [
+                                                        {
+                                                          "name": "ascScore",
+                                                          "properties": {
+                                                            "score": {
+                                                              "percentage": 0.72
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                    """)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmDefenderSummaryRecord> summaries =
+            await client.ListSubscriptionDefenderSummariesAsync(
+                "token-abc",
+                subscriptionId,
+                CancellationToken.None);
+
+        Assert.Single(summaries);
+        Assert.Equal($"/subscriptions/{subscriptionId}", summaries[0].ResourceId);
+        Assert.Equal(72, summaries[0].SecureScore);
+    }
+
     private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)
         : HttpMessageHandler
     {

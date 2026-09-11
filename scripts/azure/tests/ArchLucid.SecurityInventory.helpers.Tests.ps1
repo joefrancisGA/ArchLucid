@@ -248,4 +248,36 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].targetResourceId | Should -Match 'storageAccounts/sa1'
         $rows[0].workspaceId | Should -Match 'OperationalInsights/workspaces/ws1'
     }
+
+    It 'collects defender secure score rows per subscription' {
+        function Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path
+            )
+
+            $Path | Should -Match 'Microsoft.Security/secureScores'
+
+            return [PSCustomObject]@{
+                Content = (@{
+                    value = @(
+                        @{
+                            name = 'ascScore'
+                            properties = @{
+                                score = @{
+                                    percentage = 0.85
+                                }
+                            }
+                        }
+                    )
+                } | ConvertTo-Json -Depth 8)
+            }
+        }
+
+        [object[]]$rows = @(Get-ArchLucidAzureDefenderSummaryCompanionRows -SubscriptionId '11111111-1111-1111-1111-111111111111')
+
+        $rows.Count | Should -Be 1
+        $rows[0].resourceId | Should -Be '/subscriptions/11111111-1111-1111-1111-111111111111'
+        $rows[0].secureScore | Should -Be 85
+    }
 }

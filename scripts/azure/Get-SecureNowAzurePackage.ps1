@@ -615,12 +615,16 @@ try
         [object[]]$federatedCredentialRows = @(Get-ArchLucidAzureFederatedCredentialCompanionRows -InventoryResources @($resources))
         [object[]]$policyAssignmentRows = @(Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($policyData.policyAssignments))
         [object[]]$diagnosticSettingRows = @(Get-ArchLucidAzureDiagnosticSettingCompanionRows -InventoryResources @($resources))
+        [object[]]$defenderSummaryRows = @(Get-ArchLucidAzureDefenderSummaryCompanionRows `
+            -SubscriptionId $SubscriptionId `
+            -ManagementGroupId $ManagementGroupId)
 
         Write-Utf8NoBom (Join-Path $staging "role-assignments.json") ($roleAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "network-associations.json") ($networkAssociationRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") ($federatedCredentialRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") ($policyAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") ($diagnosticSettingRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "defender-summary.json") ($defenderSummaryRows | ConvertTo-Json -Depth 12 -Compress:$false)
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `
@@ -633,6 +637,7 @@ try
                 federatedCredentialCount = $federatedCredentialRows.Count
                 policyAssignmentCount = $policyAssignmentRows.Count
                 diagnosticSettingCount = $diagnosticSettingRows.Count
+                defenderSummaryCount = $defenderSummaryRows.Count
             }
     }
     catch
@@ -648,6 +653,7 @@ try
         Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "defender-summary.json") "[]"
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `
@@ -657,9 +663,6 @@ try
             -Detail $_.Exception.Message `
             -Context @{ scope = $scopeDescriptor }
     }
-
-  Write-Utf8NoBom (Join-Path $staging "defender-summary.json") "[]"
-
     $retailReadmeTail = ""
 
     if ($IncludeRetailPrices)

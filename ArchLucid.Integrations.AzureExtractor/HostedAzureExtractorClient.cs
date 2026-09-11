@@ -93,6 +93,10 @@ public sealed class HostedAzureExtractorClient(
             .ListDiagnosticSettingsAsync(accessToken.Token, resources, cancellationToken)
             .ConfigureAwait(false);
 
+        IReadOnlyList<HostedAzureArmDefenderSummaryRecord> defenderSummaries = await _armReadClient
+            .ListSubscriptionDefenderSummariesAsync(accessToken.Token, subscriptionId, cancellationToken)
+            .ConfigureAwait(false);
+
         List<HostedAzureArmNetworkAssociationRecord> networkAssociations =
             HostedAzureInventoryNetworkAssociationBuilder.Build(resources).ToList();
 
@@ -125,7 +129,8 @@ public sealed class HostedAzureExtractorClient(
             federatedCredentials,
             managementGroupId: null,
             policyAssignments,
-            diagnosticSettings);
+            diagnosticSettings,
+            defenderSummaries);
 
         string fileName =
             $"archlucid-hosted-azure-{subscriptionId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -161,6 +166,7 @@ public sealed class HostedAzureExtractorClient(
         List<HostedAzureArmRoleAssignmentRecord> standingRoleAssignments = [];
         List<HostedAzureArmRoleAssignmentRecord> eligibleRoleAssignments = [];
         List<HostedAzureArmPolicyAssignmentRecord> policyAssignments = [];
+        List<HostedAzureArmDefenderSummaryRecord> defenderSummaries = [];
 
         standingRoleAssignments.AddRange(
             await _armReadClient
@@ -199,7 +205,17 @@ public sealed class HostedAzureExtractorClient(
                 await _armReadClient
                     .ListSubscriptionPolicyAssignmentsAsync(accessTokenValue, subscriptionId, cancellationToken)
                     .ConfigureAwait(false));
+
+            defenderSummaries.AddRange(
+                await _armReadClient
+                    .ListSubscriptionDefenderSummariesAsync(accessTokenValue, subscriptionId, cancellationToken)
+                    .ConfigureAwait(false));
         }
+
+        defenderSummaries = defenderSummaries
+            .GroupBy(static row => row.ResourceId, StringComparer.OrdinalIgnoreCase)
+            .Select(static group => group.First())
+            .ToList();
 
         IReadOnlyList<HostedAzureArmRoleAssignmentRecord> roleAssignments =
             HostedAzureRoleAssignmentMerger.Merge(standingRoleAssignments, eligibleRoleAssignments);
@@ -244,7 +260,8 @@ public sealed class HostedAzureExtractorClient(
             federatedCredentials,
             managementGroupId: managementGroupId,
             policyAssignments,
-            diagnosticSettings);
+            diagnosticSettings,
+            defenderSummaries);
 
         string fileName =
             $"archlucid-hosted-azure-mg-{managementGroupId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
