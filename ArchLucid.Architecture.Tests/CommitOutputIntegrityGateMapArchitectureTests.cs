@@ -90,6 +90,8 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
         readiness.Should().Contain("FinalizeAssumptionGateEvaluator.GetBlockingReasons");
         readiness.Should().Contain("FinalizeQualityScorecardEvaluator.Compute");
         readiness.Should().Contain("FinalizeQualityScorecardEvaluator.GetBlockingReasons");
+        readiness.Should().Contain("IPreCommitGovernanceGate");
+        readiness.Should().Contain("pre_commit_gate");
     }
 
     [Fact]

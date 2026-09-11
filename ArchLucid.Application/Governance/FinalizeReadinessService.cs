@@ -47,6 +47,8 @@ public sealed class FinalizeReadinessService(
     IUserWorkspaceModeReader userWorkspaceModeReader,
     IActorContext actorContext,
     IPreFinalizeChecklistService preFinalizeChecklistService,
+    IPreCommitGovernanceGate preCommitGovernanceGate,
+    IOptions<PreCommitGovernanceGateOptions> preCommitGovernanceGateOptions,
     IOptions<FinalizeQualityGateOptions> finalizeQualityGateOptions) : IFinalizeReadinessService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
@@ -87,6 +89,12 @@ public sealed class FinalizeReadinessService(
 
     private readonly IPreFinalizeChecklistService _preFinalizeChecklistService =
         preFinalizeChecklistService ?? throw new ArgumentNullException(nameof(preFinalizeChecklistService));
+
+    private readonly IPreCommitGovernanceGate _preCommitGovernanceGate =
+        preCommitGovernanceGate ?? throw new ArgumentNullException(nameof(preCommitGovernanceGate));
+
+    private readonly IOptions<PreCommitGovernanceGateOptions> _preCommitGovernanceGateOptions =
+        preCommitGovernanceGateOptions ?? throw new ArgumentNullException(nameof(preCommitGovernanceGateOptions));
 
     private readonly IOptions<FinalizeQualityGateOptions> _finalizeQualityGateOptions =
         finalizeQualityGateOptions ?? throw new ArgumentNullException(nameof(finalizeQualityGateOptions));
@@ -197,6 +205,8 @@ public sealed class FinalizeReadinessService(
             requestAcknowledgedAssumptionIds,
             cancellationToken).ConfigureAwait(false);
 
+        await AppendPreCommitGovernanceBlocksAsync(blocks, runId, cancellationToken).ConfigureAwait(false);
+
         FinalizeQualityScorecardCounts scorecardCounts = FinalizeQualityScorecardCounts.Empty;
         IReadOnlyList<string> scorecardReasons = [];
 
@@ -258,6 +268,28 @@ public sealed class FinalizeReadinessService(
                 Message = blockReason.Message,
             });
         }
+    }
+
+    private async Task AppendPreCommitGovernanceBlocksAsync(
+        List<FinalizeReadinessBlock> blocks,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!_preCommitGovernanceGateOptions.Value.PreCommitGateEnabled)
+            return;
+
+        PreCommitGateResult gateResult =
+            await _preCommitGovernanceGate.EvaluateAsync(runId, cancellationToken).ConfigureAwait(false);
+
+        if (!gateResult.Blocked || gateResult.WarnOnly)
+            return;
+
+        blocks.Add(new FinalizeReadinessBlock
+        {
+            Code = "pre_commit_gate",
+            Layer = FinalizeReadinessLayers.Governance,
+            Message = gateResult.Reason ?? "Policy pack thresholds would block finalize.",
+        });
     }
 
     private async Task AppendIntegrityBlocksAsync(

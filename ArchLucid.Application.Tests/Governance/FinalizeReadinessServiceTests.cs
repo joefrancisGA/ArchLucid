@@ -74,6 +74,72 @@ public sealed class FinalizeReadinessServiceTests
         result.Blocks.Should().ContainSingle(block => block.Code == "run_already_committed");
     }
 
+    [Fact]
+    public async Task BuildAsync_blocks_when_pre_commit_governance_gate_blocks()
+    {
+        string runId = Guid.NewGuid().ToString("D");
+        Guid runGuid = Guid.Parse(runId);
+
+        Mock<IRunRepository> runs = CreateRunRepository(runId, runGuid, includeRequest: true);
+        Mock<IPreFinalizeChecklistService> checklist = CreateChecklistMock(runId);
+
+        Mock<IPreCommitGovernanceGate> preCommitGate = new();
+        preCommitGate
+            .Setup(gate => gate.EvaluateAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PreCommitGateResult
+            {
+                Blocked = true,
+                Reason = "Critical findings exceed policy pack threshold.",
+                BlockingFindingIds = ["finding-1"],
+            });
+
+        FinalizeReadinessService sut = CreateSut(
+            runs.Object,
+            checklist.Object,
+            transparencyTrail: new TransparencyTrail(),
+            preCommitGate: preCommitGate.Object);
+
+        FinalizeReadinessResult result = await sut.BuildAsync(runId, cancellationToken: CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Governance
+            && block.Code == "pre_commit_gate"
+            && block.Message == "Critical findings exceed policy pack threshold.");
+        preCommitGate.Verify(gate => gate.EvaluateAsync(runId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task BuildAsync_does_not_block_when_pre_commit_gate_warn_only()
+    {
+        string runId = Guid.NewGuid().ToString("D");
+        Guid runGuid = Guid.Parse(runId);
+
+        Mock<IRunRepository> runs = CreateRunRepository(runId, runGuid, includeRequest: true);
+        Mock<IPreFinalizeChecklistService> checklist = CreateChecklistMock(runId);
+
+        Mock<IPreCommitGovernanceGate> preCommitGate = new();
+        preCommitGate
+            .Setup(gate => gate.EvaluateAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PreCommitGateResult
+            {
+                Blocked = true,
+                WarnOnly = true,
+                Reason = "Findings meet threshold but severities are warn-only.",
+                Warnings = ["Advisory only."],
+            });
+
+        FinalizeReadinessService sut = CreateSut(
+            runs.Object,
+            checklist.Object,
+            transparencyTrail: new TransparencyTrail(),
+            preCommitGate: preCommitGate.Object);
+
+        FinalizeReadinessResult result = await sut.BuildAsync(runId, cancellationToken: CancellationToken.None);
+
+        result.Blocks.Should().NotContain(block => block.Layer == FinalizeReadinessLayers.Governance);
+    }
+
     private static Mock<IPreFinalizeChecklistService> CreateChecklistMock(string runId)
     {
         Mock<IPreFinalizeChecklistService> checklist = new();
@@ -116,7 +182,8 @@ public sealed class FinalizeReadinessServiceTests
     private static FinalizeReadinessService CreateSut(
         IRunRepository runRepository,
         IPreFinalizeChecklistService checklistService,
-        TransparencyTrail? transparencyTrail)
+        TransparencyTrail? transparencyTrail,
+        IPreCommitGovernanceGate? preCommitGate = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
@@ -181,6 +248,11 @@ public sealed class FinalizeReadinessServiceTests
         Mock<IActorContext> actor = new();
         actor.Setup(context => context.GetActor()).Returns("operator@test");
 
+        Mock<IPreCommitGovernanceGate> gate = new();
+        gate
+            .Setup(g => g.EvaluateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PreCommitGateResult.Allowed());
+
         return new FinalizeReadinessService(
             scopeProvider.Object,
             runRepository,
@@ -195,6 +267,8 @@ public sealed class FinalizeReadinessServiceTests
             workspaceMode.Object,
             actor.Object,
             checklistService,
+            preCommitGate ?? gate.Object,
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             Options.Create(new FinalizeQualityGateOptions { Enabled = true }));
     }
 }

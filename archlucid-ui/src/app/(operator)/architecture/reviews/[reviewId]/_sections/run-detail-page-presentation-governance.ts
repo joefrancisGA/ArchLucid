@@ -7,6 +7,7 @@ import { shouldShowRunDetailGovernanceCta } from "@/lib/runs/run-detail-governan
 import { tryLoadFinalizeReadinessForRun } from "@/lib/try-load-finalize-readiness-for-run";
 import { tryLoadRequestAssumptionsForRun } from "@/lib/try-load-request-assumptions-for-run";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 import { SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF } from "@/lib/showcase-static-demo";
 
 import type { RunDetailPageModel } from "./run-detail-page-model";
@@ -93,6 +94,7 @@ export function resolveReviewPolicyPackCallout(model: RunDetailPageModel): Revie
 
 export type RunDetailGovernancePresentation = {
   readonly commitBlockedReason: string | null;
+  readonly finalizeReadinessBlocks: readonly FinalizeReadinessBlock[];
   readonly finalizeAssumptionGateApplies: boolean;
   readonly requestAssumptionTexts: readonly string[];
   readonly governanceDecisionLabel: string;
@@ -145,6 +147,7 @@ export async function buildRunDetailGovernancePresentation(
 
   return {
     commitBlockedReason,
+    finalizeReadinessBlocks: serverReadiness?.blocks ?? [],
     finalizeAssumptionGateApplies,
     requestAssumptionTexts,
     governanceDecisionLabel,
