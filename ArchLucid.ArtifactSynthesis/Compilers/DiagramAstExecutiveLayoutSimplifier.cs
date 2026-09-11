@@ -3,8 +3,9 @@ using ArchLucid.ArtifactSynthesis.Models;
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-/// Executive inventory diagrams group nodes by subscription/RG swimlanes. When many swimlanes each hold
-/// a single node, Mermaid emits a wide canvas of mostly empty boxes — unreadable in the browser.
+/// Focused inventory diagrams group nodes by subscription/RG swimlanes. When many swimlanes each hold
+/// a single node, Mermaid emits a canvas of mostly empty boxes — unreadable in the browser.
+/// Executive and Data hit this shape (one VNet or storage/SQL resource per RG across many groups).
 /// </summary>
 internal static class DiagramAstExecutiveLayoutSimplifier
 {
@@ -14,7 +15,7 @@ internal static class DiagramAstExecutiveLayoutSimplifier
     {
         ArgumentNullException.ThrowIfNull(ast);
 
-        if (mode != DiagramMode.Executive || ast.Subgraphs.Count == 0)
+        if (!ModeFlattensSparseSubgraphs(mode) || ast.Subgraphs.Count == 0)
         {
             return;
         }
@@ -32,5 +33,10 @@ internal static class DiagramAstExecutiveLayoutSimplifier
         }
 
         ast.Subgraphs.Clear();
+    }
+
+    private static bool ModeFlattensSparseSubgraphs(DiagramMode mode)
+    {
+        return mode is DiagramMode.Executive or DiagramMode.Data;
     }
 }
