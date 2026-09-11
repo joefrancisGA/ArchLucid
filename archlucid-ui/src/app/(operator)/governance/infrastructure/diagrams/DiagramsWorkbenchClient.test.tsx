@@ -141,6 +141,9 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD)).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
+    const primaryContent = await screen.findByTestId("infra-diagrams-primary-content");
+    expect(primaryContent.className).not.toMatch(/mx-auto/);
+    expect(primaryContent).toHaveClass("w-full");
     expect(await screen.findByTestId("infra-diagrams-snapshot-picker")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-fallback-cards")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-fallback-executive")).toBeInTheDocument();

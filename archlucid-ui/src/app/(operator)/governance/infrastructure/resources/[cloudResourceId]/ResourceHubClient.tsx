@@ -710,7 +710,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       <main
         id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PRIMARY_CONTENT_ID : undefined}
         className={cn(
-          "mx-auto flex w-full max-w-5xl flex-col gap-4",
+          "flex w-full flex-col gap-4",
           buyerPolishedShell ? "scroll-mt-24" : "gap-6",
         )}
         data-testid="infra-resource-hub-primary-content"

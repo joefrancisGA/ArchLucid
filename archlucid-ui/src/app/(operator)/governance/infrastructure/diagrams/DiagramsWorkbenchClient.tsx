@@ -635,7 +635,7 @@ export function DiagramsWorkbenchClient() {
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID}
-        className={cn("mx-auto flex w-full max-w-6xl flex-col gap-4 scroll-mt-24")}
+        className={cn("flex w-full flex-col gap-4 scroll-mt-24")}
         data-testid="infra-diagrams-primary-content"
       >
       {buyerPolishedShell ? (
