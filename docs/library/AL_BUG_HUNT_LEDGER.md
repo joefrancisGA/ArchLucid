@@ -11597,11 +11597,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 6
-- **bugs-found:** 8
+- **hunts:** 8
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — evidence promotion catalog slug collision surfaced SQL unique-index failure; null evidence `type` threw instead of rejecting; 2026-09-11 — invisible Unicode curated-evidence descriptions; partial multi-trace cost basis mislabeling
+- **last-bug:** 2026-09-11 — evidence promotion catalog slug collision surfaced SQL unique-index failure; null evidence `type` threw instead of rejecting; invisible Unicode curated-evidence descriptions; partial multi-trace cost basis mislabeling
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -11616,6 +11616,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) Run-detail LLM completion counts omit reasoning tokens while engine provenance includes them — **hit 2026-09-07:** `RunDetailLlmCostEnrichmentSlice`, `RunDetailQueryService.DetailLoad`, and `RunAgentExecutionLlmCostEstimateAppender` mapped `Completion = summary.CompletionTokens` only; reasoning-only o-series runs showed `Completion=0` despite non-zero provenance output totals; fixed via `AgentExecutionTraceRunLlmCostSummary.CombinedOutputTokens`; regression in `Compute_ReasoningTokensOnlyTrace_ExposesCombinedOutputTokensForRunDetailParity`
 - [x] (proven) Curated evidence proposer accepts title-only payloads that fail promotion validation — **hit 2026-09-07:** `AgentCuratedEvidenceProposer.NormalizeResponse` required only `Title` + `Type` while `ProposedEvidencePayloadValidator` also requires non-empty `Description`, so proposals persisted but failed on promote; fixed by rejecting missing description at normalize time; regression in `NormalizeResponse_returns_null_when_description_is_missing`
 - [x] (proven) External-subprocessor alias resolver conflates missing ack with outside-allowed-set rejection — **hit 2026-09-07:** `ReviewModelAliasResolver.ResolveForRunCreateAsync` returned `RejectedOutsideAllowedSet: true` when the alias was allowed but workspace subprocessor acknowledgment was missing, mislabeling audit events; fixed to `(false, true)`; regression in `ResolveForRunCreateAsync_WhenExternalSubprocessorAckMissing_DoesNotRejectOutsideAllowedSet`
+- [x] (proven) `ProposedEvidencePayloadValidator.TryParseValid` throws on `"type":null` JSON instead of rejecting — **hit 2026-09-11 seed hunt #1717:** `IsSupportedType` called `.Equals` on null-deserialized `Type`; fixed with null-safe guard; regression `TryParseValid_WhenTypeIsNull_ReturnsFalse`
+- [x] (proven) `EvidenceProposalPromoter.PromoteAsync` surfaces SQL unique-index failure when distinct titles slug to the same `CatalogEntryId` — **hit 2026-09-11 seed hunt #1717:** titles `Encrypt Data` and `encrypt-data` both map to `policy-encrypt-data`; fixed with pre-insert `EnsureCatalogEntryIdAvailableAsync`; regression `PromoteAsync_WhenCatalogEntryIdCollidesWithExistingEntry_ThrowsBeforeInsert`
+- [x] (proven) Curated evidence title/description accept invisible-only Unicode (U+200B) that passes `IsNullOrWhiteSpace` — **hit 2026-09-11 seed hunt #1717:** `AgentCuratedEvidenceProposer.NormalizeResponse` and promotion validator accepted format/control-only strings; fixed via shared `ProposedEvidenceTextValidation.HasSubstantiveText`; regressions `TryParseValid_WhenDescriptionIsZeroWidthSpaceOnly_ReturnsFalse`, `NormalizeResponse_returns_null_when_description_is_zero_width_space_only`
+- [x] (proven) `AgentExecutionTraceRunLlmCostAggregator` reports summed USD when only some token-bearing trace slices have configured rates — **hit 2026-09-11 seed hunt #1717:** mixed priced/unpriced deployments still set `EstimatedFromConfiguredRates`; fixed by tracking `anyUnpricedTokenSlice`; regression `Compute_WhenMixedDeploymentsHavePartialRates_OmitsUsdAndUsesProviderTokensWithoutRateBasis`
+- [ ] (candidate) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` generates IaC stubs for muted findings that still carry evidence refs — may waste LLM calls or surface remediation for operator-muted findings; reachability depends on post-mute enrichment path
+
+2026-09-11 seed hunt #1717 (seed→hit): reseeded application-agents after master churn; proved null evidence type, catalog slug collision, invisible-only curated text, and partial LLM cost basis; seeded muted-finding IaC stub candidate; 73 scoped Application.Tests.Agents tests passed.
 
 2026-09-07 seed hunt #1194 (hit): reseeded application-agents zone; proved run-detail reasoning token display parity, curated evidence description validation, and alias resolver audit flag conflation.
 
@@ -11623,11 +11630,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-only title or description text — **hit 2026-09-11 seed hunt #1723 (seed→hit):** U+200B is not whitespace under `string.IsNullOrWhiteSpace`, so zero-width-only `description`/`title` values passed normalize and promote validation; fixed via shared `ProposedEvidenceTextValidation.HasSubstantiveText`; regressions `NormalizeResponse_returns_null_when_description_is_zero_width_space_only`, `NormalizeResponse_returns_null_when_title_is_zero_width_space_only`, and `TryParseValid_WhenDescriptionIsZeroWidthSpaceOnly_ReturnsFalse`
 - [x] (proven) `ProposedEvidencePayloadValidator.TryParseValid` throws on `"type":null` instead of rejecting — **hit 2026-09-11 thorough hunt #1724:** `IsSupportedType` called `.Equals` on null JSON `type`; fixed via null/whitespace guard; regression `TryParseValid_WhenTypeIsNull_ReturnsFalse`
 - [x] (proven) `AgentExecutionTraceRunLlmCostAggregator` reports `estimated-from-configured-rates` when only some traces price — **hit 2026-09-11 seed hunt #1715 (seed→hit):** mixed priced/unpriced deployment slices summed partial USD while labeling the full run as rate-estimated; fixed by downgrading basis to `provider-tokens-without-rate` and omitting partial USD when any measurable slice lacks a rate; regression `Compute_WhenOnlySomeTracesPrice_UsesProviderTokensWithoutRateBasis`
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 
 2026-09-11 seed hunt #1715 (hit): reseeded application-agents; proved invisible Unicode curated-evidence descriptions and partial multi-trace cost basis mislabeling; 70 scoped `Application.Tests.Agents` tests passed.
 2026-09-11 seed hunt #1723 (hit): reseeded application-agents; seeded catalog slug-collision candidate; proved invisible-only curated evidence text bypass; 70 scoped Application.Tests.Agents tests passed.
 2026-09-11 thorough hunt #1724 (hit): proved catalog slug collision on evidence promotion and null evidence type validation throw; 72 scoped Application.Tests.Agents tests passed.
