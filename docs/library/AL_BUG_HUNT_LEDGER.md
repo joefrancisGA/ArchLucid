@@ -11571,6 +11571,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-09-07 seed hunt #1194 (hit): reseeded application-agents zone; proved run-detail reasoning token display parity, curated evidence description validation, and alias resolver audit flag conflation.
 
+- [ ] (candidate) `EvidenceProposalPromoter.BuildCatalogEntryId` collapses distinct titles to the same catalog slug — promotion of a second proposal with a title that normalizes to an existing `catalogEntryId` fails at the unique index instead of surfacing a validation conflict
+
+- [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-only title or description text — **hit 2026-09-11 seed hunt #1723 (seed→hit):** U+200B is not whitespace under `string.IsNullOrWhiteSpace`, so zero-width-only `description`/`title` values passed normalize and promote validation; fixed via shared `ProposedEvidenceTextValidation.HasSubstantiveText`; regressions `NormalizeResponse_returns_null_when_description_is_zero_width_space_only`, `NormalizeResponse_returns_null_when_title_is_zero_width_space_only`, and `TryParseValid_WhenDescriptionIsZeroWidthSpaceOnly_ReturnsFalse`
+
+2026-09-11 seed hunt #1723 (hit): reseeded application-agents; seeded catalog slug-collision candidate; proved invisible-only curated evidence text bypass; 74 scoped Application.Tests.Agents tests passed.
+
 ---
 
 ## Zone: application-governance-policy
