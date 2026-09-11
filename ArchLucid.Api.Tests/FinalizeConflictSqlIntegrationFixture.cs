@@ -1,10 +1,16 @@
 using System.Text.Json;
 
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Contracts.User;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.UserPreferences;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -19,6 +25,8 @@ namespace ArchLucid.Api.Tests;
 internal static class FinalizeConflictSqlIntegrationFixture
 {
     internal const string DeferredScorecardProofFindingId = "scorecard-proof-deferred";
+
+    internal const string IntegrationDevUserId = "dev-user";
 
     private static readonly Guid PreCommitProofPolicyPackId = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
@@ -268,6 +276,114 @@ internal static class FinalizeConflictSqlIntegrationFixture
             cancellationToken).ConfigureAwait(false);
     }
 
+    internal static Task PinSkippedMustTransparencyTrailAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        return ReplaceArchitectureRequestForRunAsync(
+            factory,
+            runId,
+            request =>
+            {
+                request.IntakeTransparencyTrail = new TransparencyTrail
+                {
+                    Skipped =
+                    [
+                        new SkippedQuestionTrailEntry
+                        {
+                            QuestionKey = "scorecard-proof-skipped-must",
+                            Tier = ElicitationQuestionTier.Must,
+                        },
+                    ],
+                };
+            },
+            cancellationToken);
+    }
+
+    internal static Task ClearIntakeTransparencyTrailAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        return ReplaceArchitectureRequestForRunAsync(
+            factory,
+            runId,
+            request => request.IntakeTransparencyTrail = null,
+            cancellationToken);
+    }
+
+    internal static Task PinDegradedFindingCoverageAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        return PinFindingsSnapshotAsync(
+            factory,
+            runId,
+            snapshot =>
+            {
+                snapshot.GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete;
+                snapshot.EngineFailures =
+                [
+                    new FindingEngineFailure
+                    {
+                        EngineType = "cost",
+                        Category = "Cost",
+                        ErrorMessage = "Pinned for degraded coverage SQL proof.",
+                        ExceptionType = nameof(InvalidOperationException),
+                        DurationMs = 1,
+                        OccurredUtc = DateTime.UtcNow,
+                    },
+                ];
+            },
+            cancellationToken);
+    }
+
+    internal static Task InjectDecisionGradeProvenanceViolationAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        return PinFindingsSnapshotAsync(
+            factory,
+            runId,
+            snapshot =>
+            {
+                snapshot.Findings.Clear();
+                snapshot.Findings.Add(new Finding
+                {
+                    FindingId = "scorecard-proof-provenance-violation",
+                    FindingType = "TopologyGap",
+                    Category = "Topology",
+                    EngineType = "topology-gap-proof",
+                    Severity = FindingSeverity.Warning,
+                    Title = "Topology gap without typed-engine provenance.",
+                    Rationale = "Pinned for decision-grade provenance SQL proof.",
+                    RunIdRef = runId,
+                    Trace = new ExplainabilityTrace(),
+                });
+            },
+            cancellationToken);
+    }
+
+    internal static Task PinWorkingDeskModeForDevUserAsync(
+        ArchLucidApiFactory factory,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IUserSettingsRepository userSettingsRepository =
+            serviceScope.ServiceProvider.GetRequiredService<IUserSettingsRepository>();
+
+        return userSettingsRepository.UpsertAsync(
+            IntegrationDevUserId,
+            UserSettingKeys.WorkspaceMode,
+            WorkspaceModeValues.Working,
+            cancellationToken);
+    }
+
     private static string BuildPreCommitProofPinJson()
     {
         PinnedPolicyPackRow[] pinRows =
@@ -323,6 +439,85 @@ internal static class FinalizeConflictSqlIntegrationFixture
         snapshot.Findings.Add(injected);
 
         await findingsSnapshotRepository.SaveAsync(snapshot, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task PinFindingsSnapshotAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        Action<FindingsSnapshot> customize,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentNullException.ThrowIfNull(customize);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IServiceProvider services = serviceScope.ServiceProvider;
+        IRunRepository runRepository = services.GetRequiredService<IRunRepository>();
+        IFindingsSnapshotRepository findingsSnapshotRepository =
+            services.GetRequiredService<IFindingsSnapshotRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run?.FindingsSnapshotId is not Guid snapshotId)
+            throw new InvalidOperationException("Executed run is missing a findings snapshot id.");
+
+        FindingsSnapshot? snapshot = await findingsSnapshotRepository
+            .GetByIdAsync(DefaultScope, snapshotId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (snapshot is null)
+            throw new InvalidOperationException("Findings snapshot was not found for the executed run.");
+
+        customize(snapshot);
+
+        await findingsSnapshotRepository.SaveAsync(snapshot, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task ReplaceArchitectureRequestForRunAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        Action<ArchitectureRequest> customize,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentNullException.ThrowIfNull(customize);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IServiceProvider services = serviceScope.ServiceProvider;
+        IRunRepository runRepository = services.GetRequiredService<IRunRepository>();
+        IArchitectureRequestRepository requestRepository =
+            services.GetRequiredService<IArchitectureRequestRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null || string.IsNullOrWhiteSpace(run.ArchitectureRequestId))
+            throw new InvalidOperationException("Executed run is missing an architecture request id.");
+
+        ArchitectureRequest? request = await requestRepository
+            .GetByIdAsync(run.ArchitectureRequestId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (request is null)
+            throw new InvalidOperationException("Architecture request was not found for the executed run.");
+
+        customize(request);
+
+        bool replaced = await requestRepository.ReplaceAsync(request, cancellationToken).ConfigureAwait(false);
+
+        if (!replaced)
+            throw new InvalidOperationException("Architecture request replace failed for finalize SQL proof pin.");
     }
 
     private static Finding CreateMinimalDecisionGradeFinding(string runId)

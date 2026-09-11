@@ -11,6 +11,7 @@ using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Decisioning.CareerArtifacts;
 
 using FluentAssertions;
 
@@ -633,6 +634,215 @@ public sealed class FinalizeConflictSqlIntegrationTests(ArchLucidApiFactory fact
         MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem!.Type.Should().Be(ProblemTypes.GovernancePreCommitBlocked);
         problem.Detail.Should().Be(expectedReason);
+    }
+
+    [SkippableFact]
+    public async Task Finalize_with_skipped_must_questions_maps_career_artifact_block_to_409()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-SKIPPED-MUST-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.PinSkippedMustTransparencyTrailAsync(Factory, runId);
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem!.Type.Should().Be(ProblemTypes.GovernancePreCommitBlocked);
+        problem.Detail.Should().Contain("required question");
+    }
+
+    [SkippableFact]
+    public async Task Get_readiness_with_skipped_must_questions_matches_finalize_career_artifact_block()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-SKIPPED-MUST-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.PinSkippedMustTransparencyTrailAsync(Factory, runId);
+
+        HttpResponseMessage readinessResponse = await Client.GetAsync(
+            $"/v1/governance/pre-finalize/readiness/{runId}");
+
+        await readinessResponse.EnsureSuccessForTestAsync();
+
+        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
+        JsonElement root = document.RootElement;
+
+        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
+        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("required question");
+
+        JsonElement blocks = root.GetProperty("blocks");
+        blocks.EnumerateArray().Should().Contain(block =>
+            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.CareerArtifact
+            && block.GetProperty("code").GetString() == CareerArtifactCompletenessValidator.SkippedMustCode);
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem!.Type.Should().Be(ProblemTypes.GovernancePreCommitBlocked);
+        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+    }
+
+    [SkippableFact]
+    public async Task Finalize_with_missing_transparency_trail_maps_career_artifact_block_to_409()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-TRAIL-MISSING-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.ClearIntakeTransparencyTrailAsync(Factory, runId);
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem!.Type.Should().Be(ProblemTypes.GovernancePreCommitBlocked);
+        problem.Detail.Should().Contain("transparency trail");
+    }
+
+    [SkippableFact]
+    public async Task Get_readiness_with_missing_transparency_trail_matches_finalize_career_artifact_block()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-TRAIL-MISSING-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.ClearIntakeTransparencyTrailAsync(Factory, runId);
+
+        HttpResponseMessage readinessResponse = await Client.GetAsync(
+            $"/v1/governance/pre-finalize/readiness/{runId}");
+
+        await readinessResponse.EnsureSuccessForTestAsync();
+
+        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
+        JsonElement root = document.RootElement;
+
+        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
+        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("transparency trail");
+
+        JsonElement blocks = root.GetProperty("blocks");
+        blocks.EnumerateArray().Should().Contain(block =>
+            block.GetProperty("code").GetString() == CareerArtifactCompletenessValidator.TrailMissingCode);
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+    }
+
+    [SkippableFact]
+    public async Task Finalize_with_degraded_finding_coverage_maps_career_artifact_block_to_409()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-DEGRADED-COV-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.PinWorkingDeskModeForDevUserAsync(Factory);
+        await FinalizeConflictSqlIntegrationFixture.PinDegradedFindingCoverageAsync(Factory, runId);
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem!.Type.Should().Be(ProblemTypes.GovernancePreCommitBlocked);
+        problem.Detail.Should().Contain("Finding coverage is degraded");
+    }
+
+    [SkippableFact]
+    public async Task Get_readiness_with_degraded_finding_coverage_matches_finalize_career_artifact_block()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-DEGRADED-COV-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.PinWorkingDeskModeForDevUserAsync(Factory);
+        await FinalizeConflictSqlIntegrationFixture.PinDegradedFindingCoverageAsync(Factory, runId);
+
+        HttpResponseMessage readinessResponse = await Client.GetAsync(
+            $"/v1/governance/pre-finalize/readiness/{runId}");
+
+        await readinessResponse.EnsureSuccessForTestAsync();
+
+        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
+        JsonElement root = document.RootElement;
+
+        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
+        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("Finding coverage is degraded");
+
+        JsonElement blocks = root.GetProperty("blocks");
+        blocks.EnumerateArray().Should().Contain(block =>
+            block.GetProperty("code").GetString() == CareerArtifactCompletenessValidator.DegradedFindingCoverageCode);
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+    }
+
+    [SkippableFact]
+    public async Task Finalize_with_provenance_violation_maps_integrity_conflict_to_409()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-PROVENANCE-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.InjectDecisionGradeProvenanceViolationAsync(Factory, runId);
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem!.Type.Should().Be(ProblemTypes.Conflict);
+        problem.Detail.Should().Contain("decision-grade provenance");
+    }
+
+    [SkippableFact]
+    public async Task Get_readiness_with_provenance_violation_matches_finalize_integrity_block()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-PROVENANCE-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.InjectDecisionGradeProvenanceViolationAsync(Factory, runId);
+
+        HttpResponseMessage readinessResponse = await Client.GetAsync(
+            $"/v1/governance/pre-finalize/readiness/{runId}");
+
+        await readinessResponse.EnsureSuccessForTestAsync();
+
+        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
+        JsonElement root = document.RootElement;
+
+        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
+        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("decision-grade provenance");
+
+        JsonElement blocks = root.GetProperty("blocks");
+        blocks.EnumerateArray().Should().Contain(block =>
+            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
+            && block.GetProperty("code").GetString() == "decision_grade_provenance");
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
     }
 
     private async Task<string?> TryReadPreCommitReadinessBlockReasonAsync(string runId)

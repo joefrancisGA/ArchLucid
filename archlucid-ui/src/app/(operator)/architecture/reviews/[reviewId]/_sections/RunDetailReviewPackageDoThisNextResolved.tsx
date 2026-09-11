@@ -305,6 +305,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         />
       ) : null}
       <FinalizeReadinessStrip
+        runId={props.runId}
         commitBlockedReason={
           next.failureRecovery !== null && next.failureRecovery !== undefined
             ? null
