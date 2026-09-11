@@ -373,6 +373,83 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not fire a second register request when the form is submitted again while in flight", async () => {
+    let resolveFetch: (value: Response) => void = () => undefined;
+
+    const fetchMock = vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          resolveFetch = resolve;
+        }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    const form = screen.getByRole("button", { name: /Create evaluation workspace/i }).closest("form")!;
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    resolveFetch(
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows email-specific readiness when required fields are filled but email is invalid", async () => {
+    render(<SignupForm />);
+
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "not-an-email" } });
+    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
+    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/valid work email/i);
+  });
+
+  it("shows industry readiness when Other is selected without a specification", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Other")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Other"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/industry/i);
+  });
+
   it("omits whitespace-only optional architecture team size from the register payload", async () => {
     const fetchMock = vi.fn(async () =>
       new Response(
