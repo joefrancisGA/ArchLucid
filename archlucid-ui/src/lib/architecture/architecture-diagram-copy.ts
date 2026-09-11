@@ -45,6 +45,9 @@ export const ARCHITECTURE_DIAGRAM_LOADING_LABEL = "Generating architecture diagr
 export const ARCHITECTURE_DIAGRAM_RENDER_FAILURE =
   "The architecture diagram could not be rendered. Edit the diagram or regenerate from your brief." as const;
 
+export const ARCHITECTURE_DIAGRAM_PAINT_FAILURE =
+  "The diagram did not paint in the browser. Retry, switch diagram mode, or export Mermaid to inspect the source." as const;
+
 export const ARCHITECTURE_DIAGRAM_ACCEPT_INFERRED_ACTION = "Accept" as const;
 
 export const ARCHITECTURE_DIAGRAM_REMOVE_INFERRED_ACTION = "Remove" as const;

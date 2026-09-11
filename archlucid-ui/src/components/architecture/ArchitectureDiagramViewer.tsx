@@ -15,6 +15,7 @@ import { SeverityTag } from '@/components/ui/severity-tag';
 import {
   ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL,
   ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
+  ARCHITECTURE_DIAGRAM_PAINT_FAILURE,
   ARCHITECTURE_DIAGRAM_RENDER_FAILURE,
   ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL,
   ARCHITECTURE_DIAGRAM_RETRY_ACTION,
@@ -41,6 +42,7 @@ import {
   applyMermaidSvgViewportZoom,
   fitMermaidSvgElementToHost,
   fitMermaidSvgElementToViewport,
+  isMermaidViewportPaintTooSmall,
   type MermaidViewportFitDimensions,
   prepareMermaidSvgForResponsiveLayout,
   readMermaidViewportFitBudget,
@@ -117,6 +119,22 @@ function applyMermaidViewportCamera(
   }
 
   return baseFit;
+}
+
+function reportMermaidViewportPaintFailure(
+  baseFit: MermaidViewportFitDimensions | null,
+  zoom: number,
+  setRenderError: React.Dispatch<React.SetStateAction<string | null>>,
+  onRenderFailure?: () => void,
+): void {
+  if (!isMermaidViewportPaintTooSmall(baseFit, zoom)) {
+    setRenderError((current) => (current === ARCHITECTURE_DIAGRAM_PAINT_FAILURE ? null : current));
+
+    return;
+  }
+
+  setRenderError(ARCHITECTURE_DIAGRAM_PAINT_FAILURE);
+  onRenderFailure?.();
 }
 
 function syncMermaidViewportCamera(
@@ -372,9 +390,10 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     }
 
     baseFitRef.current = baseFit;
+    reportMermaidViewportPaintFailure(baseFit, zoom.zoom, setRenderError, onRenderFailure);
 
     return true;
-  }, [zoom.zoom]);
+  }, [onRenderFailure, zoom.zoom]);
 
   const syncFullscreenViewportCamera = useCallback((): boolean => {
     const host = fullscreenHostRef.current;

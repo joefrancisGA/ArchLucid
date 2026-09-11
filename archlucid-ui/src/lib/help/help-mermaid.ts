@@ -252,6 +252,20 @@ export type MermaidViewportFitDimensions = {
   readonly baseHeightPx: number;
 };
 
+/** Minimum fitted ink height before the inventory mermaid viewport treats the SVG as unpainted. */
+export const MERMAID_VIEWPORT_MIN_INK_HEIGHT_PX = 24;
+
+export function isMermaidViewportPaintTooSmall(
+  baseFit: MermaidViewportFitDimensions | null,
+  zoom: number,
+): boolean {
+  if (baseFit === null) {
+    return true;
+  }
+
+  return baseFit.baseHeightPx * zoom < MERMAID_VIEWPORT_MIN_INK_HEIGHT_PX;
+}
+
 type MermaidInkViewBoxCache = {
   readonly viewWidth: number;
   readonly viewHeight: number;

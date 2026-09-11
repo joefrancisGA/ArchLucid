@@ -3,7 +3,7 @@
 
 # Infrastructure-evidence Composer prompts
 
-**Created:** 2026-09-04 · **Revised:** 2026-09-11 (added **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931).
+**Created:** 2026-09-04 · **Revised:** 2026-09-11 (added **IE-ID-01–IE-ID-03** Identity diagram compiles but does not paint; **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931).
 
 **Status:** ready to run — **one prompt per chat**.
 
@@ -21,6 +21,7 @@ Canonical design: [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md
 | [`INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md) | **IE-UX-00–IE-UX-05** operator workbenches + Infrastructure nav spine |
 | [`INFRA_EVIDENCE_MERMAID_500_COMPOSER_PROMPT.md`](INFRA_EVIDENCE_MERMAID_500_COMPOSER_PROMPT.md) | **IE-HOTFIX** Mermaid snapshot HTTP 500 after **#2931** (missing `AzureInventoryDefenderSummaries` DbUp + fail-soft dirty rows) |
 | [`INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ND-01–IE-ND-05** Network mode empty despite `Microsoft.Network/*` inventory (category substring bug, mermaid contract, sparse flatten, subnet subgraphs, honest empty UX) |
+| [`INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ID-01–IE-ID-03** Identity mode compiles (Succeeded + outline) but the canvas does not paint (sparse flatten leftover from IE-ND-03, mermaid contract, overlay collapse) |
 
 ## Why this set exists
 
@@ -98,10 +99,15 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | **IE-ND-03** | Flatten sparse Network-mode RG swimlanes | IE-ND-01 (parallel with 02) |
 | **IE-ND-04** | VNet/subnet subgraph planner ARM matching | IE-ND-01 (parallel with 02/03) |
 | **IE-ND-05** | Honest empty/failed Network diagram UX (not “too large”) | IE-ND-01, IE-ND-02 |
+| **IE-ID-01** | Flatten sparse Identity-mode RG swimlanes | IE-16, IE-UX-02, IE-ND-03 |
+| **IE-ID-02** | Identity-mode mermaid contract from inventory snapshots | IE-ID-01 |
+| **IE-ID-03** | Inventory mermaid viewport must not collapse to overlay-only | IDV-01–03 (parallel with IE-ID-01) |
 
 Run **IE-UX-00 first** after backend batches land; then IE-UX-01–IE-UX-05 in order (or parallel only when stubs from IE-UX-00 already exist). Nav contract: [`INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md).
 
 **Network diagram empty despite inventory:** run **IE-ND-01 first**, then **IE-ND-02**. **IE-ND-03** and **IE-ND-04** may run in parallel after 01. **IE-ND-05** after 02. Prompts: [`INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md).
+
+**Identity diagram compiles but does not paint:** run **IE-ID-01 first**, then **IE-ID-02**. **IE-ID-03** may run in parallel with 01. Prompts: [`INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-identity-00-index.md`](../../.cursor/prompts/inventory-diagram-identity-00-index.md).
 
 **Run one prompt per chat.** Feature branch per prompt (`cursor/<short-name>-9cc3`). Name the branch in any commit/push request.
 
