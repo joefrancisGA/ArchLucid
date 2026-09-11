@@ -195,6 +195,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getByText(SECURENOW_PATH_INSPECT_PANEL_TITLE)).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_PATH_INSPECT_RANK_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-rank")).toHaveTextContent("Rank 2");
+    expect(screen.getByTestId("security-evidence-path-rank-dimension-blastRadius")).toHaveTextContent(
+      "Shared control blast radius elevated.",
+    );
     expect(screen.getByTestId("security-evidence-path-architect-sentence")).toHaveTextContent(
       "This configuration creates a path from Internet through identity principal:aaaaaaaa to asset sa1.",
     );

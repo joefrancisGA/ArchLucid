@@ -1662,6 +1662,14 @@ export interface components {
             /** Format: uuid */
             holderUserId?: string;
         };
+        ArchitectureWorkLeaseSnapshot: {
+            /** Format: date-time */
+            expiresUtc?: string;
+            heldByCaller?: boolean;
+            holderActorOid?: string;
+            /** Format: uuid */
+            holderUserId?: string;
+        };
         ArchivedRunScopeRow: {
             /** Format: uuid */
             runId?: string;
@@ -3816,6 +3824,7 @@ export interface components {
             tenantId?: string;
             /** Format: date-time */
             updatedUtc?: string;
+            workLease?: null | components["schemas"]["ArchitectureWorkLeaseSnapshot"];
             /** Format: uuid */
             workspaceId?: string;
         };

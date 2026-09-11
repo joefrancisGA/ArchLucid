@@ -19,4 +19,17 @@ public sealed class DefenderSecureScoreRankAdjustmentTests
     {
         DefenderSecureScoreRankAdjustment.BlastRadiusPostureAdjustment(band).Should().Be(expectedAdjustment);
     }
+
+    [Theory]
+    [InlineData("resources:0+defender-posture-low", "Low")]
+    [InlineData("shared-control-fan-out+defender-posture-medium", "Medium")]
+    [InlineData("resources:2+defender-posture-high", "High")]
+    public void TryReadOrdinalBandLabelFromBlastRadiusSource_maps_source_tokens(
+        string source,
+        string expectedLabel)
+    {
+        DefenderSecureScoreRankAdjustment.TryReadOrdinalBandLabelFromBlastRadiusSource(source)
+            .Should()
+            .Be(expectedLabel);
+    }
 }
