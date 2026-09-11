@@ -116,6 +116,9 @@ describe("RemediationWorkbenchClient", () => {
     searchParams = new URLSearchParams("");
     render(<RemediationWorkbenchClient />);
 
+    const primaryContent = await screen.findByTestId("infra-remediation-primary-content");
+    expect(primaryContent.className).not.toMatch(/mx-auto/);
+    expect(primaryContent).toHaveClass("w-full");
     expect(await screen.findByTestId("infra-remediation-board")).toBeInTheDocument();
     expect(screen.getByTestId("infra-remediation-column-preflight")).toBeInTheDocument();
 

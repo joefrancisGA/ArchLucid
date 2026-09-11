@@ -1,9 +1,14 @@
+import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { recurrenceScheduleMutationBlockedReason } from "@/lib/governance/recurrence-schedule-mutation-blocked-reason";
 import { realizedValueAttestationMutationBlockedReason } from "@/lib/governance/realized-value-attestation-mutation-blocked-reason";
 import { riskExceptionMutationBlockedReason } from "@/lib/governance/risk-exception-mutation-blocked-reason";
+import {
+  realizedValueAttestationBlockedReason,
+  recurrenceSchedulesBlockedReason,
+  riskExceptionsBlockedReason,
+} from "@/lib/governance/governance-stickiness-list-blocked-reason";
 import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
@@ -44,9 +49,15 @@ export async function listRiskExceptions(projectId?: string): Promise<RiskExcept
   const query = new URLSearchParams();
   if (projectId) query.set("projectId", projectId);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  return apiGetSealedManifestAware<RiskExceptionRecord[]>(
-    `${governanceStickinessBase()}/risk-exceptions${suffix}`,
-  );
+
+  try {
+    return await apiGet<RiskExceptionRecord[]>(`${governanceStickinessBase()}/risk-exceptions${suffix}`);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = riskExceptionsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function revokeRiskException(riskExceptionId: string): Promise<void> {
@@ -122,15 +133,29 @@ export async function previewRecurrenceScheduleRuns(body: {
 }
 
 export async function listArchitectureReviewRecurrenceSchedules(): Promise<ArchitectureReviewRecurrenceSchedule[]> {
-  return apiGetSealedManifestAware<ArchitectureReviewRecurrenceSchedule[]>(
-    `${governanceStickinessBase()}/recurrence-schedules`,
-  );
+  try {
+    return await apiGet<ArchitectureReviewRecurrenceSchedule[]>(
+      `${governanceStickinessBase()}/recurrence-schedules`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = recurrenceSchedulesBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function getRealizedValueAttestation(): Promise<RealizedValueAttestationResponse> {
-  return apiGetSealedManifestAware<RealizedValueAttestationResponse>(
-    `${governanceStickinessBase()}/realized-value/attestation`,
-  );
+  try {
+    return await apiGetSealedManifestAware<RealizedValueAttestationResponse>(
+      `${governanceStickinessBase()}/realized-value/attestation`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = realizedValueAttestationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function updateArchitectureReviewRecurrenceSchedule(

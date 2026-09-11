@@ -67,13 +67,20 @@ public sealed partial class WizardIntakeDraftsController(
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        WizardIntakeDraftResponse? draft =
-            await wizardIntakeDraftService.GetAsync(scope, wizardId, cancellationToken);
+        try
+        {
+            WizardIntakeDraftResponse? draft =
+                await wizardIntakeDraftService.GetAsync(scope, wizardId, cancellationToken);
 
-        if (draft is null)
-            return this.NotFoundProblem("Wizard intake draft was not found.", ProblemTypes.ResourceNotFound);
+            if (draft is null)
+                return this.NotFoundProblem("Wizard intake draft was not found.", ProblemTypes.ResourceNotFound);
 
-        return Ok(draft);
+            return Ok(draft);
+        }
+        catch (ConflictException ex)
+        {
+            return MapWizardIntakeDraftSealedManifestConflict(ex);
+        }
     }
 
     [HttpPut("{wizardId}")]

@@ -1,5 +1,6 @@
 "use client";
 
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import type { UseReviewPresenterElicitationResult } from "@/hooks/use-review-presenter-elicitation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -85,6 +86,16 @@ export function ReviewRoomElicitationPanel(
             ))}
           </ul>
         </div>
+      ) : null}
+
+      {elicitation.questionsFailure ? <OperatorApiProblem failure={elicitation.questionsFailure} /> : null}
+      {elicitation.questionsBlockedReason ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="review-presenter-questions-blocked-reason"
+        >
+          {elicitation.questionsBlockedReason}
+        </p>
       ) : null}
 
       <div className="flex flex-wrap items-center gap-3">

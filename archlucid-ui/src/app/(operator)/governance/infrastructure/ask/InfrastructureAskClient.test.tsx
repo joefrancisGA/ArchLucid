@@ -81,6 +81,10 @@ describe("InfrastructureAskClient", () => {
     searchParams = new URLSearchParams("");
     render(<InfrastructureAskClient />);
 
+    const primaryContent = screen.getByTestId("infra-ask-primary-content");
+    expect(primaryContent.className).not.toMatch(/mx-auto/);
+    expect(primaryContent).toHaveClass("w-full");
+
     fireEvent.change(screen.getByTestId("infra-ask-question"), {
       target: { value: "What changed since baseline?" },
     });

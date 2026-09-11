@@ -64,21 +64,28 @@ public sealed partial class RetrievalController(
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        try
+        {
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
-        IReadOnlyList<RetrievalHit> result = await retrievalQueryService.SearchAsync(
-            new RetrievalQuery
-            {
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = runId,
-                ManifestId = manifestId,
-                QueryText = q.Trim(),
-                TopK = topK < 1 ? 8 : Math.Min(topK, 50)
-            },
-            ct);
+            IReadOnlyList<RetrievalHit> result = await retrievalQueryService.SearchAsync(
+                new RetrievalQuery
+                {
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    RunId = runId,
+                    ManifestId = manifestId,
+                    QueryText = q.Trim(),
+                    TopK = topK < 1 ? 8 : Math.Min(topK, 50)
+                },
+                ct);
 
-        return Ok(result);
+            return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRetrievalSealedManifestConflict(ex);
+        }
     }
 }

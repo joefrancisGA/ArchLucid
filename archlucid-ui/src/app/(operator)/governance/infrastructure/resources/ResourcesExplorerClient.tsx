@@ -336,7 +336,7 @@ export function ResourcesExplorerClient() {
       <main
         id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID : undefined}
         className={cn(
-          "mx-auto flex w-full max-w-5xl flex-col gap-4",
+          "flex w-full flex-col gap-4",
           buyerPolishedShell ? "scroll-mt-24" : undefined,
         )}
         data-testid="infra-resource-explorer-primary-content"

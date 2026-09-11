@@ -6,6 +6,7 @@ public sealed record AzureExtractorNormalizedManifest(
     string ScriptVersion,
     DateTimeOffset CollectionTimestamp,
     string SubscriptionId,
+    string? SubscriptionName,
     string ScopeDescriptor,
     IReadOnlyList<string> SwitchesUsed,
     string AzModuleVersion,

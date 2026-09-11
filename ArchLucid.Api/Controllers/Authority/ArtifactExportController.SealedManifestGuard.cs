@@ -65,7 +65,16 @@ public sealed partial class ArtifactExportController
         Guid runId,
         CancellationToken cancellationToken)
     {
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapArtifactExportSealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;

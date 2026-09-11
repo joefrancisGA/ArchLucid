@@ -1,6 +1,7 @@
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.Pagination;
@@ -71,28 +72,39 @@ public sealed partial class AuthorityQueryController
                 ? RunPagination.ClampTake(pageSize)
                 : RunPagination.ClampTake(take);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        IActionResult? sealedGuardResult = await EnsureRunInventorySealedManifestReadAllowedAsync(scope, ct);
+            IActionResult? sealedGuardResult = await EnsureRunInventorySealedManifestReadAllowedAsync(scope, ct);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        (IReadOnlyList<RunSummaryDto> Items, bool HasMore) keysetPage =
-            await queryService.ListRunsByProjectKeysetAsync(scope, projectId, cu, rid, effectiveTake, ct);
+            (IReadOnlyList<RunSummaryDto> Items, bool HasMore) keysetPage =
+                await queryService.ListRunsByProjectKeysetAsync(scope, projectId, cu, rid, effectiveTake, ct);
 
-        string? nextCursor =
-            keysetPage is { HasMore: true, Items.Count: > 0 }
-                ? RunCursorCodec.Encode(keysetPage.Items[^1].CreatedUtc, keysetPage.Items[^1].RunId)
-                : null;
+            string? nextCursor =
+                keysetPage is { HasMore: true, Items.Count: > 0 }
+                    ? RunCursorCodec.Encode(keysetPage.Items[^1].CreatedUtc, keysetPage.Items[^1].RunId)
+                    : null;
 
-        IReadOnlyList<RunSummaryResponse> mapped = keysetPage.Items.Select(AuthorityRunReadHandlers.ToRunSummaryResponse).ToList();
+            IReadOnlyList<RunSummaryResponse> mapped =
+                keysetPage.Items.Select(AuthorityRunReadHandlers.ToRunSummaryResponse).ToList();
 
-        return Ok(
-            new CursorPagedResponse<RunSummaryResponse>
-            {
-                Items = mapped, NextCursor = nextCursor, HasMore = keysetPage.HasMore, RequestedTake = effectiveTake
-            });
+            return Ok(
+                new CursorPagedResponse<RunSummaryResponse>
+                {
+                    Items = mapped,
+                    NextCursor = nextCursor,
+                    HasMore = keysetPage.HasMore,
+                    RequestedTake = effectiveTake
+                });
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -138,26 +150,37 @@ public sealed partial class AuthorityQueryController
                 ? RunPagination.ClampTake(pageSize)
                 : RunPagination.ClampTake(take);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        IActionResult? sealedGuardResult = await EnsureRunInventorySealedManifestReadAllowedAsync(scope, ct);
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? sealedGuardResult = await EnsureRunInventorySealedManifestReadAllowedAsync(scope, ct);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        (IReadOnlyList<RunSummaryDto> Items, bool HasMore) keysetPage =
-            await readHandlers.ListRunsInScopeKeysetAsync(cu, rid, effectiveTake, ct);
+            (IReadOnlyList<RunSummaryDto> Items, bool HasMore) keysetPage =
+                await readHandlers.ListRunsInScopeKeysetAsync(cu, rid, effectiveTake, ct);
 
-        string? nextCursor =
-            keysetPage is { HasMore: true, Items.Count: > 0 }
-                ? RunCursorCodec.Encode(keysetPage.Items[^1].CreatedUtc, keysetPage.Items[^1].RunId)
-                : null;
+            string? nextCursor =
+                keysetPage is { HasMore: true, Items.Count: > 0 }
+                    ? RunCursorCodec.Encode(keysetPage.Items[^1].CreatedUtc, keysetPage.Items[^1].RunId)
+                    : null;
 
-        IReadOnlyList<RunSummaryResponse> mapped = keysetPage.Items.Select(AuthorityRunReadHandlers.ToRunSummaryResponse).ToList();
+            IReadOnlyList<RunSummaryResponse> mapped =
+                keysetPage.Items.Select(AuthorityRunReadHandlers.ToRunSummaryResponse).ToList();
 
-        return Ok(
-            new CursorPagedResponse<RunSummaryResponse>
-            {
-                Items = mapped, NextCursor = nextCursor, HasMore = keysetPage.HasMore, RequestedTake = effectiveTake
-            });
+            return Ok(
+                new CursorPagedResponse<RunSummaryResponse>
+                {
+                    Items = mapped,
+                    NextCursor = nextCursor,
+                    HasMore = keysetPage.HasMore,
+                    RequestedTake = effectiveTake
+                });
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunQuerySealedManifestConflict(ex);
+        }
     }
 }

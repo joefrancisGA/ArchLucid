@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Audit;
@@ -38,6 +39,10 @@ public sealed partial class DraftRequestsController
                 return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
 
             return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
