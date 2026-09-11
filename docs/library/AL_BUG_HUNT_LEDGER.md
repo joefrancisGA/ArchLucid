@@ -11571,6 +11571,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-09-07 seed hunt #1194 (hit): reseeded application-agents zone; proved run-detail reasoning token display parity, curated evidence description validation, and alias resolver audit flag conflation.
 
+- [x] (proven) `ReviewRunEngineProvenanceAggregator.DeriveProviderKind` reports `azure-openai` while `EngineProfileId` is `deterministic-simulator` when simulator runs include a non-simulator trace deployment — **hit 2026-09-11 thorough hunt #1722 (seed→hit):** provider kind was derived only from trace deployment names, ignoring `StructuralExecutionMode.Simulator`; fixed by returning `deterministic` for simulator runs before trace inspection; regression `Aggregate_simulator_run_with_mixed_trace_deployments_keeps_deterministic_provider_kind`
+
+- [x] (proven) `AgentExecutionTraceRunLlmCostAggregator.ComputeCore` reports partial USD with `estimated-from-configured-rates` when only some token-bearing deployments have rates — **hit 2026-09-11 thorough hunt #1722 (seed→hit):** mixed priced/unpriced trace slices summed partial `EstimatedCostUsd` while basis claimed full configured-rate estimate; fixed by omitting USD and using `provider-tokens-without-rate` when any priced slice lacks a rate; regression `Compute_WhenMixedDeploymentsHavePartialRates_OmitsUsdAndUsesProviderTokensWithoutRateBasis`
+
+- [x] (proven) `ProposedEvidencePayloadValidator` / `AgentCuratedEvidenceProposer.IsSupportedType` throw on null `type` JSON — **hit 2026-09-11 thorough hunt #1722 (seed→hit):** `"type":null` deserialized to null and `type.Equals(...)` threw instead of rejecting; fixed with null/whitespace guard; regressions `TryParseValid_WhenTypeIsNull_ReturnsFalse` and `NormalizeResponse_returns_null_when_type_is_null`
+
+2026-09-11 thorough hunt #1722 (hit): proved simulator provenance provider-kind mismatch, partial multi-deployment cost basis, and null evidence type validation; 71 scoped Application.Tests.Agents tests passed.
+
 ---
 
 ## Zone: application-governance-policy

@@ -141,8 +141,9 @@ public sealed class AgentCuratedEvidenceProposer(
         }
     }
 
-    private static bool IsSupportedType(string type) =>
-        type.Equals("Policy", StringComparison.OrdinalIgnoreCase)
-        || type.Equals("Pattern", StringComparison.OrdinalIgnoreCase)
-        || type.Equals("Service", StringComparison.OrdinalIgnoreCase);
+    private static bool IsSupportedType(string? type) =>
+        !string.IsNullOrWhiteSpace(type)
+        && (type.Equals("Policy", StringComparison.OrdinalIgnoreCase)
+            || type.Equals("Pattern", StringComparison.OrdinalIgnoreCase)
+            || type.Equals("Service", StringComparison.OrdinalIgnoreCase));
 }

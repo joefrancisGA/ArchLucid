@@ -15,6 +15,17 @@ public sealed class AgentCuratedEvidenceProposerTests
     }
 
     [Fact]
+    public void NormalizeResponse_returns_null_when_type_is_null()
+    {
+        const string json =
+            """
+            {"type":null,"title":"Encrypt SQL TDE","description":"Require TDE on all SQL databases."}
+            """;
+
+        AgentCuratedEvidenceProposer.NormalizeResponse(json).Should().BeNull();
+    }
+
+    [Fact]
     public void NormalizeResponse_returns_null_when_description_is_missing()
     {
         const string json =
