@@ -98,4 +98,11 @@ public sealed class DraftRequestResponse
         get;
         set;
     }
+
+    /// <summary>Active unexpired work lease when another architect holds the edit desk (ADR 0090).</summary>
+    public ArchitectureWorkLeaseSnapshot? WorkLease
+    {
+        get;
+        set;
+    }
 }

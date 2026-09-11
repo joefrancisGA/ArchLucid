@@ -35,6 +35,11 @@ export const ERROR_RECOVERY_CONTRACT_GUARDED_SURFACES: readonly ErrorRecoveryCon
     requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
   },
   {
+    id: "review-detail-segment-error",
+    sourceRoots: ["app/(operator)/architecture/reviews/[reviewId]/error.tsx"],
+    requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
+  },
+  {
     id: "operator-api-problem",
     sourceRoots: ["components/operator/OperatorApiProblem.tsx"],
     requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,

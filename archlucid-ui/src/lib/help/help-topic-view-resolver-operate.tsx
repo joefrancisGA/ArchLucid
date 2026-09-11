@@ -17,6 +17,11 @@ const HelpAlertsGuideView = dynamic(() =>
 const HelpArchitectureDraftsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView").then((module) => module.HelpArchitectureDraftsGuideView),
 );
+const HelpArchitectureDraftEditingGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpArchitectureDraftEditingGuideView").then(
+    (module) => module.HelpArchitectureDraftEditingGuideView,
+  ),
+);
 const HelpArchitectureIntelligenceGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpArchitectureIntelligenceGuideView").then((module) => module.HelpArchitectureIntelligenceGuideView),
 );
@@ -270,6 +275,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "architecture-drafts") {
     return <HelpArchitectureDraftsGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "architecture-draft-editing") {
+    return <HelpArchitectureDraftEditingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "structured-brief") {
     return <HelpStructuredBriefGuideView entry={loaded.entry} />;
