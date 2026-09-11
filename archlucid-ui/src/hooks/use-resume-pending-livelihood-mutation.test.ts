@@ -100,6 +100,41 @@ describe("useResumePendingLivelihoodMutation (LW-052)", () => {
     });
 
     expect(replayLivelihoodPendingMutation).not.toHaveBeenCalled();
+    expect(localStorage.getItem(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY)).not.toBeNull();
+  });
+
+  it("consumes pending mutation only after confirm replay is accepted (LW-101)", async () => {
+    replayLivelihoodPendingMutation.mockResolvedValue({ draftId: "draft-1" });
+
+    writeLivelihoodPendingMutation({
+      kind: "architecture_draft_patch",
+      idempotencyKey: "99999999-9999-4999-8999-999999999999",
+      returnPath: "/architecture/reviews/run-1/findings/f-1",
+      savedAtUtc: "2026-09-10T12:00:00.000Z",
+      requestLeftClient: true,
+      payload: {
+        draftId: "draft-1",
+        body: { expectedUpdatedUtc: "2026-09-10T12:00:00.000Z" },
+      },
+    });
+
+    const { result } = renderHook(() =>
+      useResumePendingLivelihoodMutation({
+        enabled: true,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.chrome?.presentation.requiresConfirm).toBe(true);
+    });
+
+    result.current.confirmReplay();
+
+    await waitFor(() => {
+      expect(replayLivelihoodPendingMutation).toHaveBeenCalledTimes(1);
+    });
+
+    expect(localStorage.getItem(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY)).toBeNull();
   });
 
   it("surfaces TB-2155 recovery contract when replay fails after re-auth (LW-098)", async () => {
