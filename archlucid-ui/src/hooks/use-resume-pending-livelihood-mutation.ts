@@ -7,6 +7,7 @@ import {
   clearLivelihoodPendingMutation,
   consumeLivelihoodPendingMutationForReturnPath,
   LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY,
+  peekLivelihoodPendingMutationForReturnPath,
   type LivelihoodPendingMutation,
 } from "@/lib/auth/livelihood-mutation-401-resume";
 import { replayLivelihoodPendingMutation } from "@/lib/auth/livelihood-mutation-401-resume-replay";
@@ -98,7 +99,7 @@ export function useResumePendingLivelihoodMutation(
       return;
     }
 
-    const pending = consumeLivelihoodPendingMutationForReturnPath(returnPath);
+    const pending = peekLivelihoodPendingMutationForReturnPath(returnPath);
 
     if (pending === null) {
       return;
@@ -117,7 +118,15 @@ export function useResumePendingLivelihoodMutation(
       return;
     }
 
-    runReplay(pending);
+    const consumed = consumeLivelihoodPendingMutationForReturnPath(returnPath);
+
+    if (consumed === null) {
+      replayStartedRef.current = false;
+
+      return;
+    }
+
+    runReplay(consumed);
   }, [args.enabled, returnPath, runReplay]);
 
   const confirmReplay = useCallback(() => {
@@ -125,8 +134,17 @@ export function useResumePendingLivelihoodMutation(
       return;
     }
 
-    runReplay(chromeState.pending, true);
-  }, [chromeState, runReplay]);
+    const consumed = consumeLivelihoodPendingMutationForReturnPath(returnPath);
+
+    if (consumed === null) {
+      replayStartedRef.current = false;
+      setChromeState(null);
+
+      return;
+    }
+
+    runReplay(consumed, true);
+  }, [chromeState, returnPath, runReplay]);
 
   const discardReplay = useCallback(() => {
     clearLivelihoodPendingMutation();
