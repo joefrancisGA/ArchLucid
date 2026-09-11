@@ -287,6 +287,63 @@ public sealed class FinalizeConflictSqlIntegrationTests(ArchLucidApiFactory fact
     }
 
     [SkippableFact]
+    public async Task Finalize_with_open_cannot_determine_finding_maps_scorecard_conflict_to_409()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-CANNOT-DETERMINE-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.InjectCannotDetermineScorecardFindingAsync(Factory, runId);
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem!.Type.Should().Be(ProblemTypes.Conflict);
+        problem.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.Detail.Should().Contain("open question");
+    }
+
+    [SkippableFact]
+    public async Task Get_readiness_with_open_cannot_determine_finding_matches_finalize_scorecard_block()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-CANNOT-DETERMINE-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.InjectCannotDetermineScorecardFindingAsync(Factory, runId);
+
+        HttpResponseMessage readinessResponse = await Client.GetAsync(
+            $"/v1/governance/pre-finalize/readiness/{runId}");
+
+        await readinessResponse.EnsureSuccessForTestAsync();
+
+        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
+        JsonElement root = document.RootElement;
+
+        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
+        root.GetProperty("finalizeQualityGateEnabled").GetBoolean().Should().BeTrue();
+        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("open question");
+
+        JsonElement blocks = root.GetProperty("blocks");
+        blocks.GetArrayLength().Should().BeGreaterThan(0);
+        blocks.EnumerateArray().Should().Contain(block =>
+            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Scorecard
+            && block.GetProperty("code").GetString() == "scorecard"
+            && block.GetProperty("message").GetString()!.Contains("open question", StringComparison.Ordinal));
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem!.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+    }
+
+    [SkippableFact]
     public async Task Finalize_when_pre_commit_gate_blocks_maps_governance_conflict_to_409()
     {
         string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-PRECOMMIT-409-");

@@ -64,6 +64,25 @@ internal static class FinalizeConflictSqlIntegrationFixture
             cancellationToken);
     }
 
+    internal static Task InjectCannotDetermineScorecardFindingAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        return InjectPinnedScorecardFindingAsync(
+            factory,
+            runId,
+            finding =>
+            {
+                finding.FindingId = "scorecard-proof-cannot-determine";
+                finding.Title = "Cannot determine whether ingress allows public exposure.";
+                finding.Rationale = "Insufficient evidence to confirm the ingress posture.";
+                finding.PolicyRuleId = "cannot-determine-scorecard-proof";
+                finding.Severity = FindingSeverity.Error;
+            },
+            cancellationToken);
+    }
+
     internal static async Task PinPreCommitGateBlockAsync(
         ArchLucidApiFactory factory,
         string runId,
