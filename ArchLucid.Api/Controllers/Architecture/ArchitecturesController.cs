@@ -93,22 +93,29 @@ public sealed partial class ArchitecturesController(
         [FromQuery] bool includeArchived = false,
         CancellationToken cancellationToken = default)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        try
+        {
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        ArchitectureIdentityListPage response = await _architectureIdentityService.ListIdentitiesAsync(
-            scope,
-            page,
-            pageSize,
-            includeArchived,
-            cancellationToken);
+            ArchitectureIdentityListPage response = await _architectureIdentityService.ListIdentitiesAsync(
+                scope,
+                page,
+                pageSize,
+                includeArchived,
+                cancellationToken);
 
-        IActionResult? sealedGuardResult =
-            await EnsureArchitectureIdentityListSealedManifestReadAllowedAsync(scope, response, cancellationToken);
+            IActionResult? sealedGuardResult =
+                await EnsureArchitectureIdentityListSealedManifestReadAllowedAsync(scope, response, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        return Ok(response);
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return MapArchitectureSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Gets one architecture identity with child draft and review summaries.</summary>
@@ -119,30 +126,37 @@ public sealed partial class ArchitecturesController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetArchitecture(Guid architectureId, CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-
-        ArchitectureIdentityDetail? detail = await _architectureIdentityService.GetIdentityAsync(
-            scope,
-            architectureId,
-            cancellationToken);
-
-        if (detail is null)
+        try
         {
-            return this.NotFoundProblem(
-                $"Architecture '{architectureId:D}' was not found.",
-                ProblemTypes.ResourceNotFound);
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+            ArchitectureIdentityDetail? detail = await _architectureIdentityService.GetIdentityAsync(
+                scope,
+                architectureId,
+                cancellationToken);
+
+            if (detail is null)
+            {
+                return this.NotFoundProblem(
+                    $"Architecture '{architectureId:D}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            IActionResult? sealedGuardResult = await EnsureArchitectureIdentitySealedManifestReadAllowedAsync(
+                scope,
+                architectureId,
+                detail.LatestSealedManifestId,
+                cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            return Ok(detail);
         }
-
-        IActionResult? sealedGuardResult = await EnsureArchitectureIdentitySealedManifestReadAllowedAsync(
-            scope,
-            architectureId,
-            detail.LatestSealedManifestId,
-            cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        return Ok(detail);
+        catch (ConflictException ex)
+        {
+            return MapArchitectureSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>

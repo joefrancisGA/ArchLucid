@@ -4,11 +4,14 @@ import type {
 } from "@/types/architecture-identity";
 
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import {
+  architectureIdentityBlockedReason,
+  architectureIdentityListBlockedReason,
+} from "@/lib/architecture/architecture-identity-blocked-reason";
 import { architectureIdentityMutationBlockedReason } from "@/lib/architecture/architecture-identity-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { apiPatchJson } from "./http";
+import { apiGet, apiPatchJson } from "./http";
 
 const ARCHITECTURES_BASE = "/v1/architectures";
 
@@ -35,19 +38,34 @@ export async function listArchitectureIdentities(params?: {
   const query = search.toString();
   const path = query.length > 0 ? `${ARCHITECTURES_BASE}?${query}` : ARCHITECTURES_BASE;
 
-  return apiGetSealedManifestAware<ArchitectureIdentityListPage>(path, params?.scopeHeaders !== undefined
-    ? { scopeHeaders: params.scopeHeaders }
-    : undefined);
+  try {
+    return await apiGet<ArchitectureIdentityListPage>(
+      path,
+      params?.scopeHeaders !== undefined ? { scopeHeaders: params.scopeHeaders } : undefined,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureIdentityListBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function getArchitectureIdentity(
   architectureId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ArchitectureIdentityDetail> {
-  return apiGetSealedManifestAware<ArchitectureIdentityDetail>(
-    `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}`,
-    options,
-  );
+  try {
+    return await apiGet<ArchitectureIdentityDetail>(
+      `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}`,
+      options,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureIdentityBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export type PatchArchitectureIdentityBody = {

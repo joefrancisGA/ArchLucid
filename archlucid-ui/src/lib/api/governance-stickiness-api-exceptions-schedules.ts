@@ -1,11 +1,11 @@
 import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { recurrenceScheduleMutationBlockedReason } from "@/lib/governance/recurrence-schedule-mutation-blocked-reason";
 import { realizedValueAttestationMutationBlockedReason } from "@/lib/governance/realized-value-attestation-mutation-blocked-reason";
 import { riskExceptionMutationBlockedReason } from "@/lib/governance/risk-exception-mutation-blocked-reason";
 import {
   recurrenceSchedulesBlockedReason,
+  realizedValueAttestationBlockedReason,
   riskExceptionsBlockedReason,
 } from "@/lib/governance/governance-stickiness-list-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -137,9 +137,16 @@ export async function listArchitectureReviewRecurrenceSchedules(): Promise<Archi
 }
 
 export async function getRealizedValueAttestation(): Promise<RealizedValueAttestationResponse> {
-  return apiGetSealedManifestAware<RealizedValueAttestationResponse>(
-    `${governanceStickinessBase()}/realized-value/attestation`,
-  );
+  try {
+    return await apiGet<RealizedValueAttestationResponse>(
+      `${governanceStickinessBase()}/realized-value/attestation`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = realizedValueAttestationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function updateArchitectureReviewRecurrenceSchedule(
