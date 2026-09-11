@@ -117,8 +117,17 @@ export function deriveSignupFormReadinessMessage(values: SignupFormValues): stri
       return "Enter an organization name of at most 200 characters to continue.";
     case "architectureTeamSize":
       return "Enter a valid architecture team size between 1 and 10,000 to continue.";
-    case "industryVerticalOther":
+    case "industryVerticalOther": {
+      const industryIssue = parsed.error.issues.find(
+        (issue) => issue.path[0] === "industryVerticalOther",
+      );
+
+      if (industryIssue?.message.includes("200")) {
+        return "Enter an industry specification of at most 200 characters to continue.";
+      }
+
       return "Specify your industry when you select Other to continue.";
+    }
     default:
       return "Complete the required fields to continue.";
   }

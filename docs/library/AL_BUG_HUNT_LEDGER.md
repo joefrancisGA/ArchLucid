@@ -338,11 +338,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 6
-- **bugs-found:** 3
+- **hunts:** 7
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — signup readiness hint stayed generic after optional-field validation failed; fractional architecture team size passed client validation; stale overlong industry Other text kept submit disabled after switching industry
+- **last-bug:** 2026-09-11 — signup readiness hint mislabeled overlong industry Other validation as missing specification
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** 0
 
@@ -387,6 +387,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SignupForm` stale overlong `industryVerticalOther` kept submit disabled after switching away from Other — **hit 2026-09-11 seed hunt #1731 (seed→hit):** unconditional `max(200)` on hidden `industryVerticalOther` left `canSubmit` false with no visible field error after the industry select changed; validation now applies only when `industryVertical === "Other"` and the field clears on industry change; regression `re-enables submit after switching away from Other with an overlong specification`
 
 2026-09-11 seed hunt #1731 (seed→hit): reseeded ui-form-validation; proved stale overlong industry Other text blocked submit after switching industry; 18 scoped SignupForm tests passed.
+
+- [x] (proven) `deriveSignupFormReadinessMessage` maps all `industryVerticalOther` validation failures to missing-specification copy — **hit 2026-09-11 seed hunt #1740 (seed→hit):** overlong Other text showed inline `At most 200 characters` but readiness still said `Specify your industry when you select Other`; fixed by branching on the length issue message; regression `shows overlong industry readiness when Other specification exceeds 200 characters`.
+- [x] (valid-no-repro) `SignupForm` negative optional architecture team size keeps submit enabled — **cheap-disproof 2026-09-11 seed hunt #1740:** `signupFormSchema.superRefine` rejects `n <= 0`; regression `keeps submit disabled for invalid optional architecture team size`.
+
+2026-09-11 seed hunt #1740 (seed→hit): reseeded ui-form-validation after #1731; proved misleading readiness hint for overlong industry Other specification; cheap-disproof closed negative team-size bypass candidate; 24 scoped SignupForm tests passed.
 
 ---
 
