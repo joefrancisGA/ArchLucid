@@ -25,7 +25,9 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryFederatedCredentialRow> federatedCredentials,
         bool federatedCredentialsFilePresent,
         IReadOnlyList<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships,
-        bool entraGroupMembershipsFilePresent)
+        bool entraGroupMembershipsFilePresent,
+        IReadOnlyList<AzureInventoryEffectiveNetworkControlRow> effectiveNetworkControls,
+        bool effectiveNetworkControlsFilePresent)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
@@ -34,6 +36,7 @@ public static class AzureInventorySecurityEdgeMaterializer
         ArgumentNullException.ThrowIfNull(diagnosticSettings);
         ArgumentNullException.ThrowIfNull(federatedCredentials);
         ArgumentNullException.ThrowIfNull(entraGroupMemberships);
+        ArgumentNullException.ThrowIfNull(effectiveNetworkControls);
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
@@ -78,6 +81,14 @@ public static class AzureInventorySecurityEdgeMaterializer
 
         AddPolicyAssignmentEdges(policyAssignments, relationships, relationshipKeys);
         AddDiagnosticEdges(diagnosticSettings, relationships, relationshipKeys);
+
+        if (effectiveNetworkControlsFilePresent)
+        {
+            AzureInventoryEffectiveNetworkControlEdgeMapper.MapControls(
+                effectiveNetworkControls,
+                relationships,
+                relationshipKeys);
+        }
 
         return new AzureInventorySecurityEdgeMaterializeResult
         {

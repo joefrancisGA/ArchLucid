@@ -60,6 +60,10 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryLayoutVmVnet = "inventory-layout-vm-vnet";
 
+    public const string InventoryEffectiveNsg = "inventory-effective-nsg";
+
+    public const string InventoryEffectiveRoutes = "inventory-effective-routes";
+
     public const string InventoryFederatedCredential = "inventory-federated-credential";
 
     public const string InventoryEntraGroupMembership = "inventory-entra-group-membership";

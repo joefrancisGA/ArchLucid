@@ -41,7 +41,9 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 federatedCredentialsFilePresent: false,
                 [],
-                entraGroupMembershipsFilePresent: false);
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
 
         result.Relationships.Should().Contain(r =>
             r.RelationshipType == GraphEdgeTypes.HasRole
@@ -70,7 +72,9 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 federatedCredentialsFilePresent: false,
                 [],
-                entraGroupMembershipsFilePresent: false);
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
 
         result.Relationships.Should().ContainSingle(r => r.RelationshipType == GraphEdgeTypes.HasRole);
         result.Relationships.Should().NotContain(r => r.RelationshipType == GraphEdgeTypes.CanRead);
@@ -91,7 +95,9 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 federatedCredentialsFilePresent: false,
                 [],
-                entraGroupMembershipsFilePresent: false);
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
 
         result.Relationships.Should().NotContain(r =>
             r.ProvenanceKind == ProvenanceKind.ObservedFact
@@ -118,7 +124,9 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 federatedCredentialsFilePresent: false,
                 [],
-                entraGroupMembershipsFilePresent: false);
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
 
         result.Relationships.Should().ContainSingle(r =>
             r.RelationshipType == GraphEdgeTypes.RoutesTo
@@ -140,7 +148,9 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 federatedCredentialsFilePresent: false,
                 [],
-                entraGroupMembershipsFilePresent: false);
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
 
         result.Relationships.Should().NotContain(r => r.RelationshipType == GraphEdgeTypes.FederatesAs);
         result.CompletenessWarnings.Should().ContainSingle(w =>
@@ -175,7 +185,9 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [credential],
                 federatedCredentialsFilePresent: true,
                 [],
-                entraGroupMembershipsFilePresent: false);
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
 
         result.Relationships.Should().Contain(r =>
             r.RelationshipType == GraphEdgeTypes.FederatesAs
@@ -203,7 +215,9 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 federatedCredentialsFilePresent: false,
                 [],
-                entraGroupMembershipsFilePresent: false);
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
 
         result.Relationships.Should().NotContain(r => r.RelationshipType == GraphEdgeTypes.MemberOf);
         result.CompletenessWarnings.Should().Contain(w =>
@@ -233,7 +247,9 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 federatedCredentialsFilePresent: false,
                 [membership],
-                entraGroupMembershipsFilePresent: true);
+                entraGroupMembershipsFilePresent: true,
+                [],
+                effectiveNetworkControlsFilePresent: false);
 
         result.Relationships.Should().ContainSingle(r =>
             r.RelationshipType == GraphEdgeTypes.MemberOf
@@ -271,7 +287,9 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 federatedCredentialsFilePresent: false,
                 [],
-                entraGroupMembershipsFilePresent: false);
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
 
         result.Relationships.Should().Contain(r =>
             r.RelationshipType == GraphEdgeTypes.ConnectsTo
@@ -307,7 +325,9 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 federatedCredentialsFilePresent: false,
                 [],
-                entraGroupMembershipsFilePresent: false);
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
 
         result.Relationships.Should().BeEmpty();
         result.CompletenessWarnings.Should().Contain(w =>
@@ -335,7 +355,9 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 federatedCredentialsFilePresent: false,
                 [],
-                entraGroupMembershipsFilePresent: false);
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
 
         result.CompletenessWarnings.Should().Contain(
             AzureInventoryRelationshipCompletenessWarningCodes.ArgVmNicMissing);
@@ -360,7 +382,9 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 federatedCredentialsFilePresent: false,
                 [],
-                entraGroupMembershipsFilePresent: false);
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
 
         result.Relationships.Should().ContainSingle(r =>
             r.RelationshipType == GraphEdgeTypes.HasRole
@@ -368,6 +392,106 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
             && r.ProvenanceKind == ProvenanceKind.DeterministicInference);
         result.Relationships.Should().NotContain(r => r.RelationshipType == GraphEdgeTypes.CanRead);
         result.Relationships.Should().NotContain(r => r.RelationshipType == GraphEdgeTypes.CanWrite);
+    }
+
+    [Fact]
+    public void Materialize_effective_nsg_emits_applies_to_as_deterministic_inference()
+    {
+        const string nic =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1";
+        const string nsg =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/nsg1";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [
+                    new AzureInventoryEffectiveNetworkControlRow
+                    {
+                        NicResourceId = nic,
+                        Kind = AzureInventoryEffectiveNetworkControlKind.EffectiveNsg,
+                        CollectionStatus = AzureInventoryEffectiveNetworkControlCollectionStatus.Succeeded,
+                        EffectiveResourceId = nsg,
+                        PayloadHashSha256 = "abc123",
+                    },
+                ],
+                effectiveNetworkControlsFilePresent: true);
+
+        result.Relationships.Should().ContainSingle(r =>
+            r.RelationshipType == GraphEdgeTypes.AppliesTo
+            && r.ProvenanceKind == ProvenanceKind.DeterministicInference
+            && r.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(nic)
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(nsg)
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryEffectiveNsg);
+        result.Relationships.Should().NotContain(r => r.ProvenanceKind == ProvenanceKind.ObservedFact);
+    }
+
+    [Fact]
+    public void Materialize_skipped_effective_control_does_not_emit_edge()
+    {
+        const string nic =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [
+                    new AzureInventoryEffectiveNetworkControlRow
+                    {
+                        NicResourceId = nic,
+                        Kind = AzureInventoryEffectiveNetworkControlKind.EffectiveNsg,
+                        CollectionStatus = AzureInventoryEffectiveNetworkControlCollectionStatus.Skipped,
+                    },
+                ],
+                effectiveNetworkControlsFilePresent: true);
+
+        result.Relationships.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Materialize_absent_effective_controls_file_does_not_emit_edges()
+    {
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [
+                    new AzureInventoryEffectiveNetworkControlRow
+                    {
+                        NicResourceId =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1",
+                        Kind = AzureInventoryEffectiveNetworkControlKind.EffectiveNsg,
+                        CollectionStatus = AzureInventoryEffectiveNetworkControlCollectionStatus.Succeeded,
+                        EffectiveResourceId =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/nsg1",
+                    },
+                ],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().BeEmpty();
     }
 
     private static JsonElement ParseJson(string json)

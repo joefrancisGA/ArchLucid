@@ -114,6 +114,10 @@ public sealed class HostedAzureExtractorClient(
 
         networkAssociations.AddRange(HostedAzureInventoryNsgAllowRuleBuilder.Build(resources));
 
+        HostedAzureEffectiveNetworkControlCollectResult effectiveNetworkControls = await HostedAzureEffectiveNetworkControlCollector
+            .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
+            .ConfigureAwait(false);
+
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
@@ -142,7 +146,8 @@ public sealed class HostedAzureExtractorClient(
             managementGroupId: null,
             policyAssignments,
             diagnosticSettings,
-            defenderSummaries);
+            defenderSummaries,
+            effectiveNetworkControls.Rows);
 
         string fileName =
             $"archlucid-hosted-azure-{subscriptionId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -255,6 +260,10 @@ public sealed class HostedAzureExtractorClient(
 
         networkAssociations.AddRange(HostedAzureInventoryNsgAllowRuleBuilder.Build(resources));
 
+        HostedAzureEffectiveNetworkControlCollectResult effectiveNetworkControls = await HostedAzureEffectiveNetworkControlCollector
+            .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
+            .ConfigureAwait(false);
+
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
@@ -283,7 +292,8 @@ public sealed class HostedAzureExtractorClient(
             managementGroupId: managementGroupId,
             policyAssignments,
             diagnosticSettings,
-            defenderSummaries);
+            defenderSummaries,
+            effectiveNetworkControls.Rows);
 
         string fileName =
             $"archlucid-hosted-azure-mg-{managementGroupId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";

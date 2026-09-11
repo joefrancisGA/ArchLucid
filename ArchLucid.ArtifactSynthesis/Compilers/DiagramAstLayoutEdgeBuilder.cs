@@ -63,11 +63,11 @@ internal static class DiagramAstLayoutEdgeBuilder
                 continue;
             }
 
-            HashSet<string> vnetIds = ResolveVnetIdsForVirtualMachine(node.NodeId, connectsTo);
+            HashSet<string> vnetNodeIds = ResolveVnetNodeIdsForVirtualMachine(node.NodeId, connectsTo, graph);
 
-            foreach (string vnetId in vnetIds)
+            foreach (string vnetNodeId in vnetNodeIds)
             {
-                if (!nodeIdMap.TryGetValue(vnetId, out string? vnetMermaidId))
+                if (!nodeIdMap.TryGetValue(vnetNodeId, out string? vnetMermaidId))
                 {
                     continue;
                 }
@@ -117,36 +117,59 @@ internal static class DiagramAstLayoutEdgeBuilder
         return adjacency;
     }
 
-    private static HashSet<string> ResolveVnetIdsForVirtualMachine(
+    private static HashSet<string> ResolveVnetNodeIdsForVirtualMachine(
         string vmNodeId,
-        IReadOnlyDictionary<string, List<string>> connectsTo)
+        IReadOnlyDictionary<string, List<string>> connectsTo,
+        GraphSnapshot graph)
     {
-        HashSet<string> vnetIds = new(StringComparer.Ordinal);
+        HashSet<string> vnetNodeIds = new(StringComparer.Ordinal);
+        Dictionary<string, GraphNode> nodesById = graph.Nodes.ToDictionary(
+            candidate => candidate.NodeId,
+            StringComparer.Ordinal);
 
         if (!connectsTo.TryGetValue(vmNodeId, out List<string>? nicIds))
         {
-            return vnetIds;
+            return vnetNodeIds;
         }
 
-        foreach (string nicId in nicIds)
+        foreach (string nicNodeId in nicIds)
         {
-            if (!connectsTo.TryGetValue(nicId, out List<string>? subnetIds))
+            if (!connectsTo.TryGetValue(nicNodeId, out List<string>? subnetNodeIds))
             {
                 continue;
             }
 
-            foreach (string subnetId in subnetIds)
+            foreach (string subnetNodeId in subnetNodeIds)
             {
-                string? vnetId = TryResolveVnetIdFromSubnetArmId(subnetId);
-
-                if (!string.IsNullOrWhiteSpace(vnetId))
+                if (!nodesById.TryGetValue(subnetNodeId, out GraphNode? subnetNode))
                 {
-                    vnetIds.Add(vnetId);
+                    continue;
+                }
+
+                string subnetArmId = DiagramAstGraphNodeClassifier.ReadArmId(subnetNode);
+                string? vnetArmId = TryResolveVnetIdFromSubnetArmId(subnetArmId);
+
+                if (string.IsNullOrWhiteSpace(vnetArmId))
+                {
+                    continue;
+                }
+
+                foreach (GraphNode candidate in graph.Nodes)
+                {
+                    if (!string.Equals(
+                            DiagramAstGraphNodeClassifier.ReadArmId(candidate),
+                            vnetArmId,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    vnetNodeIds.Add(candidate.NodeId);
                 }
             }
         }
 
-        return vnetIds;
+        return vnetNodeIds;
     }
 
     private static string? TryResolveVnetIdFromSubnetArmId(string subnetArmId)

@@ -878,6 +878,159 @@ function Get-ArchLucidAzureFederatedCredentialCompanionRows
     return @($rows.ToArray())
 }
 
+function Get-ArchLucidAzureEffectiveNetworkControlCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+    $nicResourceIds = [System.Collections.Generic.List[string]]::new()
+    $maxNicCount = 200
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not ($resourceType -like "*networkInterfaces*")) { continue }
+        if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
+
+        if (-not $nicResourceIds.Contains($resourceId))
+        {
+            [void]$nicResourceIds.Add($resourceId)
+        }
+    }
+
+    $nicResourceIds.Sort([System.StringComparer]::OrdinalIgnoreCase)
+
+    if ($nicResourceIds.Count -gt $maxNicCount)
+    {
+        $nicResourceIds = [System.Collections.Generic.List[string]]::new(@($nicResourceIds.GetRange(0, $maxNicCount)))
+    }
+
+    foreach ($nicResourceId in @($nicResourceIds))
+    {
+        [void]$rows.Add((Get-ArchLucidAzureEffectiveNetworkControlRow `
+            -NicResourceId $nicResourceId `
+            -Kind 'effectiveNsg' `
+            -RelativePath 'effectiveNetworkSecurityGroups' `
+            -ResolveEffectiveResourceId { param($payload) Get-ArchLucidEffectiveNsgResourceId -Payload $payload }))
+
+        [void]$rows.Add((Get-ArchLucidAzureEffectiveNetworkControlRow `
+            -NicResourceId $nicResourceId `
+            -Kind 'effectiveRoutes' `
+            -RelativePath 'effectiveRouteTable' `
+            -ResolveEffectiveResourceId { param($payload) Get-ArchLucidEffectiveRouteTableResourceId -Payload $payload }))
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureEffectiveNetworkControlRow
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $NicResourceId,
+
+        [Parameter(Mandatory = $true)]
+        [string] $Kind,
+
+        [Parameter(Mandatory = $true)]
+        [string] $RelativePath,
+
+        [Parameter(Mandatory = $true)]
+        [scriptblock] $ResolveEffectiveResourceId
+    )
+
+    $row = [ordered]@{
+        nicResourceId = $NicResourceId
+        kind = $Kind
+        collectionStatus = 'Skipped'
+    }
+
+    try
+    {
+        [string]$path = "$NicResourceId/$RelativePath?api-version=2023-09-01"
+        $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+
+        if ($response.StatusCode -eq 404 -or $response.StatusCode -eq 403)
+        {
+            return $row
+        }
+
+        if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+        {
+            return $row
+        }
+
+        $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+        [string]$effectiveResourceId = & $ResolveEffectiveResourceId $payload
+
+        if ([string]::IsNullOrWhiteSpace($effectiveResourceId))
+        {
+            return $row
+        }
+
+        $hashBytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash(
+            [System.Text.Encoding]::UTF8.GetBytes([string]$response.Content))
+
+        $row.collectionStatus = 'Succeeded'
+        $row.effectiveResourceId = $effectiveResourceId
+        $row.payloadHashSha256 = -join ($hashBytes | ForEach-Object { $_.ToString('x2') })
+    }
+    catch
+    {
+    }
+
+    return $row
+}
+
+function Get-ArchLucidEffectiveNsgResourceId
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object] $Payload
+    )
+
+    foreach ($item in @($Payload.value))
+    {
+        if ($null -eq $item) { continue }
+
+        [string]$nsgId = "$( $item.networkSecurityGroup.id )".Trim()
+
+        if (-not ([string]::IsNullOrWhiteSpace($nsgId)))
+        {
+            return $nsgId
+        }
+    }
+
+    return $null
+}
+
+function Get-ArchLucidEffectiveRouteTableResourceId
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object] $Payload
+    )
+
+    [string]$routeTableId = "$( $Payload.id )".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($routeTableId)) { return $null }
+    if ($routeTableId -notlike '*/routeTables/*') { return $null }
+
+    return $routeTableId
+}
+
 function Get-ArchLucidAzureNsgAllowRuleCompanionRows
 {
     param(

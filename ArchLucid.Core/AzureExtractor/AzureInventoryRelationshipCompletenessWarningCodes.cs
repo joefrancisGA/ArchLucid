@@ -16,4 +16,6 @@ public static class AzureInventoryRelationshipCompletenessWarningCodes
     public const string AgwBackendFqdnUnresolved = "agw-backend-fqdn-unresolved";
 
     public const string AssociationTypeUnmappedPrefix = "association-type-unmapped:";
+
+    public const string EffectiveControlsCapped = "effective-controls-capped";
 }
