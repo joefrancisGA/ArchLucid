@@ -38,6 +38,7 @@ internal static class AuthorityCommitPipelineCompositionRegistrar
         services.Configure<FinalizeQualityGateOptions>(
             configuration.GetSection(FinalizeQualityGateOptions.SectionPath));
         services.AddScoped<IFinalizeQualityGate, FinalizeQualityGate>();
+        services.AddScoped<IRunAssumptionAcknowledgementService, RunAssumptionAcknowledgementService>();
         services.Configure<TechnologyConsistencyFindingEngineOptions>(
             configuration.GetSection(TechnologyConsistencyFindingEngineOptions.SectionPath));
         services.Configure<FindingEvidenceLinkageFindingEngineOptions>(

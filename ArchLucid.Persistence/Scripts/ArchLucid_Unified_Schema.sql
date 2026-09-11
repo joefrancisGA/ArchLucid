@@ -9009,6 +9009,25 @@ END
 
 GO
 
+/* 390: Pre-finalize assumption acknowledgement JSON (ADR 0064 synonym-safe). */
+DECLARE @acknowledgedAssumptionsRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @acknowledgedAssumptionsRunSql NVARCHAR(MAX);
+
+IF @acknowledgedAssumptionsRunTable IS NOT NULL
+   AND COL_LENGTH(@acknowledgedAssumptionsRunTable, N'AcknowledgedAssumptionsJson') IS NULL
+BEGIN
+    SET @acknowledgedAssumptionsRunSql = N'ALTER TABLE ' + @acknowledgedAssumptionsRunTable + N' ADD AcknowledgedAssumptionsJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @acknowledgedAssumptionsRunSql;
+END
+
+GO
+
 /* 334: Platform-scoped operational error inbox for internal staff review (HTTP, database, and unhandled exceptions). */
 IF OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NULL
 BEGIN

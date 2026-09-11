@@ -109,6 +109,7 @@ internal static class RunRecordParameters
             run.EngineProvenanceJson,
             run.GovernanceScopeJson,
             run.AcknowledgedCoverageJson,
+            run.AcknowledgedAssumptionsJson,
             run.ImproveLoopEvidenceJson,
             run.PackageOrigin,
             run.PinnedPolicyPackIdsJson,

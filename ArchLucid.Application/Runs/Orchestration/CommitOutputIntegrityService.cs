@@ -34,7 +34,8 @@ public sealed class CommitOutputIntegrityService(
     IArchitectureKnowledgeModelAccess architectureKnowledgeModelAccess,
     IDraftRequestRepository draftRequestRepository,
     IArchitectureVersionRepository architectureVersionRepository,
-    IFinalizeQualityGate finalizeQualityGate) : ICommitOutputIntegrityService
+    IFinalizeQualityGate finalizeQualityGate,
+    IRunAssumptionAcknowledgementService runAssumptionAcknowledgementService) : ICommitOutputIntegrityService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -68,6 +69,9 @@ public sealed class CommitOutputIntegrityService(
 
     private readonly IFinalizeQualityGate _finalizeQualityGate =
         finalizeQualityGate ?? throw new ArgumentNullException(nameof(finalizeQualityGate));
+
+    private readonly IRunAssumptionAcknowledgementService _runAssumptionAcknowledgementService =
+        runAssumptionAcknowledgementService ?? throw new ArgumentNullException(nameof(runAssumptionAcknowledgementService));
 
     /// <inheritdoc />
     public async Task EnsurePassOrThrowAsync(
@@ -146,9 +150,9 @@ public sealed class CommitOutputIntegrityService(
                 + string.Join(" ", provenanceViolations));
         }
 
-        HashSet<string>? acknowledgedIds = acknowledgedAssumptionIds is null
-            ? null
-            : new HashSet<string>(acknowledgedAssumptionIds, StringComparer.Ordinal);
+        HashSet<string> acknowledgedIds =
+            await LoadAcknowledgedAssumptionIdsAsync(scope, runId, acknowledgedAssumptionIds, cancellationToken)
+                .ConfigureAwait(false);
 
         IReadOnlyList<string> assumptionGateReasons =
             FinalizeAssumptionGateEvaluator.GetBlockingReasons(architectureRequest, findings, acknowledgedIds);
@@ -183,6 +187,30 @@ public sealed class CommitOutputIntegrityService(
                 }
             }
         }
+    }
+
+    /// <summary>
+    ///     Server-persisted acknowledgements (TB-2345 item 49) union the ids the caller sent in the commit body, so a
+    ///     confirmation made in one browser session still counts when finalize is triggered elsewhere.
+    /// </summary>
+    private async Task<HashSet<string>> LoadAcknowledgedAssumptionIdsAsync(
+        ScopeContext scope,
+        string runId,
+        IReadOnlyList<string>? requestAcknowledgedIds,
+        CancellationToken cancellationToken)
+    {
+        HashSet<string> acknowledgedIds = RunAssumptionAcknowledgementJson.NormalizeIds(requestAcknowledgedIds);
+
+        if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
+            return acknowledgedIds;
+
+        IReadOnlySet<string> persistedIds = await _runAssumptionAcknowledgementService
+            .GetAcknowledgedIdsAsync(scope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        acknowledgedIds.UnionWith(persistedIds);
+
+        return acknowledgedIds;
     }
 
     private async Task EnsureArchitectureVersionPinnedOrThrowAsync(
