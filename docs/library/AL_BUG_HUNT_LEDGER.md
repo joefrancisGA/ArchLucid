@@ -3237,13 +3237,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 18
-- **bugs-found:** 17
+- **hunts:** 19
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — BFF session guard blocked anonymous tenant self-registration POST
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — confirm-required livelihood 401 resume dropped pending mutation from localStorage before operator confirmed replay
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -3274,6 +3274,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `isPreAuthSignInAnonymousProxyPath` — omits `v1/auth/sign-in-methods/*` so stale BFF cookie blocks account-security email-otp mutations — **invalid 2026-09-09 seed hunt #1478:** sign-in-methods are post-auth operator account routes; BFF idle/CSRF gates are intentional unlike pre-sign-in `v1/auth/email-otp/*` and marketing paths
 - [x] (invalid) `readLivelihoodPendingMutation` — replays `returnPath` from sessionStorage without `isSafeReturnPath` validation — **invalid 2026-09-09 seed hunt #1478:** `normalizeReturnPath` rejects unsafe paths on read; tampered storage returns null
 - [x] (proven) `enforceProxyBffSessionGuard` blocked anonymous `POST /api/proxy/v1/register` when BFF session is enabled — **hit 2026-09-10 seed hunt #1584 (seed→hit):** `SignupForm` posts to `[AllowAnonymous]` `RegistrationController` but `v1/register` was missing from `isPublicAnonymousProxyPath`; fixed by extending `isPreAuthSignInAnonymousProxyPath`; regressions in `proxy-route-pre-auth-anonymous.test.ts` and `proxy-anonymous-marketing-paths.test.ts`.
+- [x] (candidate) `post-auth-bootstrap-api.ts` — stale HttpOnly BFF cookie blocks `GET /api/proxy/v1/auth/bootstrap/status` during `/auth/bootstrap` — invalid: bootstrap runs after fresh sign-in when BFF session is established; stale-cookie 401 is intentional recovery unlike pre-auth anonymous routes
+- [x] (proven) `useResumePendingLivelihoodMutation` — confirm-required 401 resume consumed `localStorage` pending mutation before operator confirmed replay — **hit 2026-09-11 seed hunt #1721 (seed→hit):** `consumeLivelihoodPendingMutationForReturnPath` ran for `architecture_draft_patch` and other confirm kinds; refresh or navigation during confirm chrome permanently lost the stored POST; fixed with `peekLivelihoodPendingMutationForReturnPath` and consume-on-confirm; regressions in `livelihood-mutation-401-resume.test.ts` and `use-resume-pending-livelihood-mutation.test.ts`.
+
+2026-09-11 seed hunt #1721 (seed→hit): reseeded ui-auth-proxy after LW-051–100 livelihood 401 resume churn; cheap-disproved bootstrap stale-BFF bypass candidate; proved confirm-required resume dropped pending mutation from localStorage before replay; 91 scoped auth/proxy tests passed.
 
 2026-09-10 seed hunt #1584 (seed→hit): reseeded ui-auth-proxy after #1478; proved tenant self-registration proxy blocked by BFF no-session / stale-session / missing-CSRF gates; 157 scoped auth/proxy tests passed.
 
