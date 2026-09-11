@@ -3271,10 +3271,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 17
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-05 — AL0003 missed `[MutatingAuditExcluded]` on implemented interface methods
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3311,6 +3311,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) AL0001 may miss `[Authorize]` on interface explicit implementation when action name differs — cheap-disproof 2026-09-05: separate public actions with different names are not interface implementations; implicit implementations require matching member names and already inherit via `FindImplementationForInterfaceMember`; regression in `Does_not_report_when_default_interface_implementation_carries_Authorize`.
 
 2026-09-05 hunt #815: proved AL0003 interface audit-exclusion inheritance gap; invalidated AL0001 explicit-impl rename candidate.
+
+- [x] (invalid) `MutatingControllerAuditAnalyzer` ignores `[MutatingAuditExcluded]` on interface type — **cheap-disproof 2026-09-11 seed hunt #1702:** attribute targets `class, method` only (`CS0592` on interfaces); method-level exclusion already covered
+- [x] (valid-no-repro) `RequireAuthorizationAnalyzer` misses nested public controller classes inheriting `ControllerBase` — **cheap-disproof 2026-09-11 seed hunt #1702:** nested type analyzed via `RegisterSymbolAction`; regression `Reports_nested_controller_class_without_authorization`
+- [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` misses banned types in method return positions — **cheap-disproof 2026-09-11 seed hunt #1702:** `IdentifierName` walk flags return types; regression `Reports_banned_type_in_method_return_type_in_inner_layer_assembly`
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` skips expression-bodied mutating actions — **cheap-disproof 2026-09-11 seed hunt #1702:** `ExpressionBody` analyzed when body null; regression `AL0003_reports_when_expression_bodied_HttpPost_lacks_IAudit_LogAsync`
+
+2026-09-11 seed hunt #1702 (dry): reseeded security-analyzers after master churn; cheap-disproof closed four hunt-ready rows; 57 scoped analyzer tests passed.
 
 ---
 
