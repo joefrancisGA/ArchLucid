@@ -3791,11 +3791,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 16
-- **bugs-found:** 21
+- **hunts:** 17
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — BFF session sync mapped zero expires_in to 3600 while client session honored zero
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — session hints kept fractional expires_in while BFF sync truncated to whole seconds
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
