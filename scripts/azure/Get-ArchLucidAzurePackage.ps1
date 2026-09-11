@@ -78,7 +78,7 @@ function Write-ArchLucidResourcesJsonStream([string] $Path, $Resources)
             }
 
             $first = $false
-            $json = $resource | ConvertTo-Json -Depth 10 -Compress
+            $json = $resource | ConvertTo-Json -Depth 25 -Compress
             $writer.Write($json)
         }
 
@@ -476,6 +476,7 @@ try
         scriptVersion = $scriptVersion
         collectionTimestamp = $collectionTimestamp
         subscriptionId = if ([string]::IsNullOrWhiteSpace($SubscriptionId)) { $null } else { $SubscriptionId }
+        subscriptionName = Resolve-ArchLucidAzureSubscriptionDisplayName -SubscriptionId $SubscriptionId
         managementGroupId = if ([string]::IsNullOrWhiteSpace($ManagementGroupId)) { $null } else { $ManagementGroupId }
         scope = $scopeDescriptor
         switchesUsed = $switchesUsed
@@ -642,7 +643,7 @@ try
     }
 
     $policyPath = Join-Path $staging "policy.json"
-    Write-Utf8NoBom $policyPath ($policyData | ConvertTo-Json -Depth 10)
+    Write-Utf8NoBom $policyPath ($policyData | ConvertTo-Json -Depth 25)
 
   # Schema v2 optional inventory siblings (empty arrays when not yet collected per resource type).
   Write-Utf8NoBom (Join-Path $staging "role-assignments.json") "[]"

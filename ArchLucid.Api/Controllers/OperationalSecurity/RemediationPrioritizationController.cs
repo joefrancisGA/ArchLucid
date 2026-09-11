@@ -56,7 +56,7 @@ public sealed class RemediationPrioritizationController(
             cancellationToken);
 
         if (explanation is null)
-            return NotFound();
+            return this.NotFoundProblem("Finding was not found.", ProblemTypes.ResourceNotFound);
 
         return Ok(explanation);
     }

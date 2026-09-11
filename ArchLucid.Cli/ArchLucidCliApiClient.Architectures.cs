@@ -15,7 +15,7 @@ public sealed partial class ArchLucidApiClient
         try
         {
             Gen.ArchitectureIdentityListPage response =
-                await _api.ArchitecturesGETAsync(page, pageSize, includeArchived, ct).ConfigureAwait(false);
+                await _api.ArchitecturesGETAsync(page, pageSize, includeArchived, null, ct).ConfigureAwait(false);
 
             return MapGeneratedToContract<ArchitectureIdentityListPage>(response);
         }
@@ -34,7 +34,7 @@ public sealed partial class ArchLucidApiClient
         try
         {
             Gen.ArchitectureIdentityDetail response =
-                await _api.ArchitecturesGET2Async(architectureId, ct).ConfigureAwait(false);
+                await _api.ArchitecturesGET2Async(architectureId, null, ct).ConfigureAwait(false);
 
             return DeserializeRoundTrip<ArchitectureIdentityDetail>(response);
         }

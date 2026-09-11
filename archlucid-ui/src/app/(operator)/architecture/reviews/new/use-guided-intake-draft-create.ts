@@ -81,7 +81,12 @@ export function useGuidedIntakeDraftCreate(options: Options) {
       if (result.draftId !== null) {
         core.setDraftId(result.draftId);
         core.setDraftStatus(result.draft?.status ?? null);
-        await patchDraftRequest(result.draftId, { workflowIntent: CREATE_ARCHITECTURE_INTENT });
+        await patchDraftRequest(result.draftId, {
+          workflowIntent: CREATE_ARCHITECTURE_INTENT,
+          expectedUpdatedUtc:
+            result.draft?.updatedUtc?.trim()
+            || (await getDraftRequest(result.draftId)).updatedUtc,
+        });
       }
 
       const formState = applyArchitectureCreationDraftToFormState(result.draft);
@@ -219,6 +224,7 @@ export function useGuidedIntakeDraftCreate(options: Options) {
 
     try {
       let id = core.draftId;
+      let expectedUpdatedUtc: string | null = null;
 
       if (id === null) {
         const created = await createDraftRequest(
@@ -227,6 +233,7 @@ export function useGuidedIntakeDraftCreate(options: Options) {
           priorRunId,
         );
         id = created.draftId;
+        expectedUpdatedUtc = created.updatedUtc;
         core.setDraftId(id);
         core.setDraftStatus(created.status);
         writeArchitectureCreationDraftId(id);
@@ -240,6 +247,8 @@ export function useGuidedIntakeDraftCreate(options: Options) {
         focusedPilotModeEnabled,
         workflowIntent: CREATE_ARCHITECTURE_INTENT,
         structuredBrief: structuredBriefToPatchPayload(core.structuredBrief),
+        expectedUpdatedUtc:
+          expectedUpdatedUtc?.trim() || (await getDraftRequest(id)).updatedUtc,
       });
 
       const questions = await getDraftQuestions(id);

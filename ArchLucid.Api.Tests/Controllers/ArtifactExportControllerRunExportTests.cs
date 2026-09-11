@@ -451,7 +451,8 @@ public sealed class ArtifactExportControllerRunExportTests
             Mock.Of<ArchLucid.Application.Exports.IDecisionReceiptService>(),
             manifestHashService ?? Mock.Of<IManifestHashService>(),
             Mock.Of<IBrandedDiagramExportService>(),
-            Mock.Of<IFindingVerificationReportQueryService>());
+            Mock.Of<IFindingVerificationReportQueryService>(),
+            Mock.Of<ArchLucid.Api.Support.IArchitectureShareAccessGate>());
 
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 

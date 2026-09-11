@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -20,7 +20,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { commitArchitectureRun, getRunSummary } from "@/lib/api";
+import { getRunSummary } from "@/lib/api";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { commitArchitectureRunWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import { simulatePreCommitSyntheticFindings } from "@/lib/api/pre-finalize-synthetic-simulation-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runSummaryBlockedReason } from "@/lib/runs/run-summary-blocked-reason";
@@ -77,6 +80,9 @@ export function CommitRunButton({
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
   const searchParams = useSearchParams();
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
+  const finalizeIdempotencyKeyRef = useRef<string | null>(null);
   const urlFinalizeConfirm = parseReviewFinalizeConfirmOpenFromSearch(searchParams.get("finalizeConfirm"));
   const urlFinalizeSuccess = parseReviewFinalizeSuccessOpenFromSearch(searchParams.get("finalizeSuccess"));
   const [dialogOpen, setDialogOpenState] = useState(urlFinalizeConfirm);
@@ -172,10 +178,23 @@ export function CommitRunButton({
 
     try {
       await pulseOidcSessionKeepalive();
-      await commitArchitectureRun(runId, {
-        notifySponsor,
-        acknowledgedAssumptionIds: [...readAcknowledgedAssumptionIds(runId)],
-      });
+
+      if (finalizeIdempotencyKeyRef.current === null) {
+        finalizeIdempotencyKeyRef.current = createGovernanceMutationIdempotencyKey();
+      }
+
+      await commitArchitectureRunWith401Resume(
+        runId,
+        {
+          notifySponsor,
+          acknowledgedAssumptionIds: [...readAcknowledgedAssumptionIds(runId)],
+        },
+        {
+          returnPath: livelihoodReturnPath,
+          idempotencyKey: finalizeIdempotencyKeyRef.current,
+        },
+      );
+      finalizeIdempotencyKeyRef.current = null;
       recordFirstTenantFunnelEvent("first_run_committed");
       syncArchitectureDraftRegistryForFinalizedReview(runId);
       await Promise.all([invalidateOperatorHomeRunsCaches(), invalidateTenantTrialStatusCache()]);
@@ -192,6 +211,10 @@ export function CommitRunButton({
       setSuccessModalOpen(true);
       syncFinalizeModalsToUrl(false, true);
     } catch (e: unknown) {
+      if (isLivelihoodMutation401RedirectError(e)) {
+        return;
+      }
+
       const failure = toApiLoadFailure(e);
       const blocked = reviewFinalizeMutationBlockedReason(failure);
 

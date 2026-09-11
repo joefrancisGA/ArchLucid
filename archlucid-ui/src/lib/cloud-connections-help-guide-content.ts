@@ -247,6 +247,14 @@ export function cloudConnectionsHelpPrimaryActions(productLineId: ProductLineId 
     : CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS;
 }
 
+export function cloudConnectionsHelpPrimaryCta(productLineId: ProductLineId = "architecture") {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openExtractUpload;
+  }
+
+  return CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview;
+}
+
 /** Operator Sources — no self-href to `/help/cloud-connections`. */
 export const CLOUD_CONNECTIONS_HELP_SOURCES: readonly CloudConnectionsHelpFollowUpLink[] = [
   { label: "Cloud connections hub", href: "/integrations/cloud-connections", kind: "product" },

@@ -331,7 +331,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "infrastructure-diagrams": {
     layerBadge: "Advanced operations",
-    headline: "Render inventory diagrams at scale with honest partitioned fallbacks.",
+    headline: "Render inventory diagrams from snapshot evidence.",
     useWhen: "Choose a snapshot and diagram mode before exporting PNG or Mermaid.",
     firstPilotNote: "Partitioned views default to Executive when the full graph exceeds readability thresholds.",
     omitReviewPackageScopeHelp: true,
@@ -352,9 +352,9 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "infrastructure-ask": {
     layerBadge: "Advanced operations",
-    headline: "Ask grounded questions about inventory evidence.",
+    headline: "Grounded Q&A over structured inventory rows with citation-backed answers.",
     useWhen: "Use canned prompts or your own question when citations and InsufficientEvidence states are acceptable.",
-    firstPilotNote: "Simulator mode is on by default for deterministic, citation-grounded answers.",
+    firstPilotNote: "Answers cite structured inventory rows in scope — insufficient-evidence outcomes are honest.",
     omitReviewPackageScopeHelp: true,
   },
   "infrastructure-remediation": {

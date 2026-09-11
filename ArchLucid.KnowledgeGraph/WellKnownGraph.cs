@@ -41,6 +41,24 @@ public static class GraphEdgeTypes
     public const string DependsOn = "DEPENDS_ON";
 
     public const string Exposes = "EXPOSES";
+
+    public const string HasRole = "HAS_ROLE";
+
+    public const string UsesIdentity = "USES_IDENTITY";
+
+    public const string CanRead = "CAN_READ";
+
+    public const string CanWrite = "CAN_WRITE";
+
+    public const string CanAssume = "CAN_ASSUME";
+
+    public const string RoutesTo = "ROUTES_TO";
+
+    /// <summary>CI federated credential adapter edge (SA-19); emitted when optional ZIP sibling is present.</summary>
+    public const string FederatesAs = "FEDERATES_AS";
+
+    /// <summary>Entra group membership adapter edge (SA-20); emitted when optional ZIP sibling or Graph GET is present.</summary>
+    public const string MemberOf = "MEMBER_OF";
 }
 
 /// <summary>

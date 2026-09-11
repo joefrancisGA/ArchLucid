@@ -52,4 +52,52 @@ public sealed class CommitRunTransientRetryPolicyTests
 
         interPollDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
     }
+
+    [Fact]
+    public void RetryDelay_and_manifest_poll_delay_reject_non_positive_poll_or_attempt()
+    {
+        CommitRunTransientRetryPolicy.RetryDelay(0).Should().Be(TimeSpan.Zero);
+        CommitRunTransientRetryPolicy.ManifestReconcilePollDelay(0).Should().Be(TimeSpan.Zero);
+    }
+
+    [Fact]
+    public void IsExhausted_returns_false_when_elapsed_is_just_below_retry_budget()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+            11,
+            CommitRunTransientRetryPolicy.RetryBudget - TimeSpan.FromMilliseconds(1))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void RetryDelay_at_max_attempt_uses_linear_backoff_multiplier()
+    {
+        CommitRunTransientRetryPolicy.RetryDelay(CommitRunTransientRetryPolicy.MaxAttempts)
+            .Should()
+            .Be(TimeSpan.FromMilliseconds(150 * CommitRunTransientRetryPolicy.MaxAttempts));
+    }
+    [Fact]
+    public void IsExhausted_returns_false_at_attempt_zero()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(0, TimeSpan.Zero).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ManifestReconcilePollDelay_at_max_poll_uses_linear_backoff_multiplier()
+    {
+        CommitRunTransientRetryPolicy.ManifestReconcilePollDelay(CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts)
+            .Should()
+            .Be(TimeSpan.FromMilliseconds(150 * CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts));
+    }
+
+    [Fact]
+    public void IsExhausted_returns_true_when_attempt_and_elapsed_both_exceed_limits()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+            CommitRunTransientRetryPolicy.MaxAttempts + 1,
+            CommitRunTransientRetryPolicy.RetryBudget + TimeSpan.FromSeconds(1))
+            .Should()
+            .BeTrue();
+    }
 }

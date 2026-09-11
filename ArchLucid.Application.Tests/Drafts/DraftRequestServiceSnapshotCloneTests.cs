@@ -134,6 +134,7 @@ public sealed class DraftRequestServiceSnapshotCloneTests
             new PatchDraftRequest
             {
                 BusinessOutcome = "Faster audit prep",
+                ExpectedUpdatedUtc = created.UpdatedUtc,
                 ActorSet = new ActorSet
                 {
                     Actors =

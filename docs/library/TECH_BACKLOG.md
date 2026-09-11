@@ -52268,3 +52268,11 @@ If the brief is short, `buildEvidenceBackedIntakeBrief` writes boilerplate from 
 **Peers:** Done **TB-2368**. Related **TB-2367** review workspace shell.
 
 **Size estimate:** S.
+
+## TB-2400 — Second HTTP host compile check (OP-07) (P2) — **Open**
+
+**Ship:** V1.1. Details: [`TECH_BACKLOG_TB2400_INDEX.md`](TECH_BACKLOG_TB2400_INDEX.md). Prerequisites Done: **OP-01**–**OP-06** (capability map, ratchet, product-line signal, route gate, composition facades, worker map).
+
+## TB-2401 — Product-line catalog / DDL split (OP-08) (P2) — **Open**
+
+**Ship:** V2 (last). Details: [`TECH_BACKLOG_TB2400_INDEX.md`](TECH_BACKLOG_TB2400_INDEX.md). Not implied by **TB-2400**; requires named integration contract before any second DDL file.
