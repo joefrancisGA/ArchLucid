@@ -180,6 +180,12 @@ public sealed partial class DraftRequestsController(
             _actorContext.GetActorId(),
             cancellationToken);
 
+        draft.WorkLease = await _architectureWorkLeaseService.TryGetActiveSnapshotAsync(
+            scope,
+            draftId,
+            _actorContext.GetActorId(),
+            cancellationToken);
+
         return Ok(draft);
 >>>>>>> origin/master
 >>>>>>> origin/master
