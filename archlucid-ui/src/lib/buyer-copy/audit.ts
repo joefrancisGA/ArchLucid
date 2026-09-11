@@ -27,3 +27,7 @@ export const BUYER_AUDIT_REFERENCE_ID_LABEL = "Reference ID";
 
 export const AUDIT_TRAIL_INTEGRITY_NOTE =
   "Append-only audit trail — every create, finalize, approval decision, and export is recorded with actor, action type, and timestamp. Filter or sort below to inspect the complete event timeline.";
+
+/** Dual-channel honesty: durable SQL ledger vs baseline structured log-only mutations (AUDIT_COVERAGE_MATRIX). */
+export const AUDIT_DUAL_CHANNEL_HONESTY_NOTE =
+  "This page lists durable SQL audit events only. Baseline orchestration also writes structured log-only mutation lines that do not populate dbo.AuditEvents — grep both channels during a security review.";

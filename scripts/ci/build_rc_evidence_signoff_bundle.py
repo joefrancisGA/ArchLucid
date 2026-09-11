@@ -144,6 +144,46 @@ def build_signoff_bundle(root: Path, bundle_dir: Path) -> dict[str, Any]:
         )
     )
 
+    ship_gate_path, ship_gate_rel = _resolve_artifact(
+        root,
+        bundle_dir,
+        [
+            "ship-gate-evidence.json",
+            "artifacts/ship-gate-evidence/ship-gate-evidence.json",
+        ],
+    )
+    if ship_gate_path is None:
+        ship_gate_dir = bundle_dir / "artifacts" / "ship-gate-evidence"
+        if ship_gate_dir.is_dir():
+            candidates = sorted(ship_gate_dir.glob("*/ship-gate-evidence.json"))
+            if candidates:
+                ship_gate_path = candidates[-1]
+                ship_gate_rel = ship_gate_path.relative_to(bundle_dir).as_posix()
+
+    ship_gate_payload = load_json(ship_gate_path) if ship_gate_path else None
+    ship_gate_gate = _gate_from_payload(
+        gate_id="ship-gate-evidence",
+        label="Ship-gate evidence (Gate 1–6 rollup)",
+        artifact_path=ship_gate_rel,
+        payload=ship_gate_payload,
+        status_keys=("overallVerdict", "verdict", "disposition", "status"),
+        reason_keys=("summary", "detail", "reason"),
+        evidence_mode="live",
+        high_risk=True,
+        skipped_reason=(
+            "ship-gate-evidence.json not attached — release-smoke.ps1 -ResultOut runs "
+            "archlucid pilot ship-gate-evidence after successful E2E"
+        ),
+    )
+    if ship_gate_payload is not None:
+        gate5 = ship_gate_payload.get("gate5")
+        if isinstance(gate5, dict):
+            gate5_status = _normalize_status(gate5.get("status") or gate5.get("verdict"))
+            if gate5_status in _BLOCKING_STATUSES and ship_gate_gate["status"] == "PASS":
+                ship_gate_gate["status"] = gate5_status
+                ship_gate_gate["reason"] = str(gate5.get("detail") or gate5.get("summary") or "Gate 5 UI route smoke failed")
+    gates.append(ship_gate_gate)
+
     live_ui_path, live_ui_rel = _resolve_artifact(
         root,
         bundle_dir,
