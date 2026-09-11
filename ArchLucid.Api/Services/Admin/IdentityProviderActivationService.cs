@@ -55,6 +55,7 @@ public sealed class IdentityProviderActivationService(
             throw new ArgumentException("IssuerUri must be an absolute HTTP(S) URL.");
 
         IdentityClaimRoleMappingDocument mapping = IdentityClaimRoleMappingResolver.ToDocument(request.ClaimMapping);
+        EnsureSubstantiveClaimMapping(mapping);
         IdentityClaimRoleMappingResolver.ValidateMapping(mapping);
 
         string claimMappingJson = JsonSerializer.Serialize(mapping, JsonOptions);
@@ -100,5 +101,30 @@ public sealed class IdentityProviderActivationService(
             return null;
 
         return trimmed;
+    }
+
+    private static void EnsureSubstantiveClaimMapping(IdentityClaimRoleMappingDocument mapping)
+    {
+        if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(mapping.RoleClaimName))
+        {
+            throw new ArgumentException(
+                "RoleClaimName is required (IdP claim carrying group or role values).");
+        }
+
+        if (mapping.CustomGroupClaimRegex is not null
+            && !IdentityProviderSubstantiveTextValidation.HasSubstantiveText(mapping.CustomGroupClaimRegex))
+        {
+            throw new ArgumentException("CustomGroupClaimRegex is not valid.");
+        }
+
+        foreach (IdentityClaimRoleMappingEntry entry in mapping.Mappings)
+        {
+
+            if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(entry.IdpValue))
+                throw new ArgumentException("Mapping entry is missing IdpValue.");
+
+            if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(entry.ArchLucidRole))
+                throw new ArgumentException("Mapping entry is missing ArchLucidRole.");
+        }
     }
 }
