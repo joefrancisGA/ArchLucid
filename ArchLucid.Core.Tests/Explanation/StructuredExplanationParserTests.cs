@@ -221,4 +221,28 @@ public sealed class StructuredExplanationParserTests
         s.EvidenceRefs.Should().Equal("dec-1");
         s.AlternativesConsidered.Should().Equal("Keep monolith");
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_alternatives_considered_entries()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":[{"text":"Keep monolith — rejected for scaling."}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Keep monolith — rejected for scaling.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_reasoning_array_entries()
+    {
+        const string json =
+            """{"reasoning":[{"text":"First paragraph."},{"text":"Second paragraph."}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("First paragraph.\n\nSecond paragraph.");
+    }
 }

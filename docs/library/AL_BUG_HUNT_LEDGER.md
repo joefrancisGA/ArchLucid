@@ -2575,7 +2575,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -2613,6 +2613,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `useWebhooksSettingsMutations` URL-sync effect — non-empty `webhookEnableId`/`webhookDisableId` params persist when the subscription id is missing from loaded rows — **hit 2026-09-10 seed hunt #1538 (seed→hit):** after list hydration, unknown toggle-confirm ids clear URL params instead of leaving dead deep links; regressions `clears stale webhookDisableId from the URL when the subscription is missing from loaded rows` and `clears stale webhookEnableId from the URL when the subscription is missing from loaded rows`.
 
 2026-09-10 seed hunt #1538 (hit): reseeded ui-webhooks-settings; proved stale webhook enable/disable deep-link URL params; 40 scoped webhooks folder tests passed (2 pre-existing sources-strip / buyer-polished failures unrelated).
+
+- [x] (valid-no-repro) `resolveContinueLastWebhookSubscription` falls back to another workspace subscription when stored id is stale — **valid-no-repro 2026-09-11 seed hunt #1713:** stale stored ids return `null` instead of newest row; regression `does not show continue-last row for another workspace subscription after scope switch` in `page.test.tsx`
+
+- [x] (proven) `useWebhooksSettingsMutations.submit` resets create form before post-create `load()` completes — **hit 2026-09-11 seed hunt #1713 (seed→hit):** successful create cleared form values even when list refresh failed, leaving operators with an empty form and refresh error despite the subscription being created; fixed by moving `reset()` after refresh success; regression `preserves create form values when list refresh fails after create`
+
+2026-09-11 seed hunt #1713 (hit): reseeded ui-webhooks-settings; cheap-disproved continue-last stale-id fallback; proved post-create form wipe on refresh failure; 43 scoped webhooks page/continue-last tests passed (1 pre-existing sources-strip failure unrelated).
 
 - [x] (proven) `useWebhooksSettingsMutations.submit` resets create form before post-create `load()` completes — **hit 2026-09-11 seed hunt #1714 (seed→hit):** successful create cleared form values even when list refresh failed; fixed by moving `reset()` after refresh success; regression `preserves create form values when list refresh fails after create`
 
@@ -9165,11 +9171,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 5
-- **bugs-found:** 6
+- **hunts:** 6
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — object-shaped reasoning text dropped on structured normalize
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — object-shaped `text` list entries and reasoning paragraphs dropped on normalize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9187,6 +9193,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `StructuredExplanationParser.TryReadReasoningText` — object-shaped `reasoning` (`{"text":"..."}`) still rejects normalize and triggers JSON-object fallback in `BuildRunExplanationFromLlmPayload` — **hit 2026-09-08 hunt #1317:** object token failed `ValueKind.String`/`Array` guards; fixed by extracting case-insensitive `text` property mirroring `TryReadStringListEntry` object `id` extraction; regression `TryNormalizeStructuredJson_coerces_object_shaped_reasoning_text`.
 
 2026-09-08 thorough hunt #1317 (hit): proved object-shaped reasoning text coercion gap; scoped RunExplanation unit tests passed.
+
+- [x] (proven) `StructuredExplanationParser.TryReadStringListEntry` — object-shaped `alternativesConsidered` / `caveats` entries with `text` property silently skipped — **hit 2026-09-11 seed hunt #1716 (seed→hit):** only `id` was extracted while LLM object list items often use `text`; fixed via shared `TryReadObjectStringProperty` accepting `id` then `text`; regression `TryNormalizeStructuredJson_maps_object_shaped_alternatives_considered_entries`
+
+- [x] (proven) `StructuredExplanationParser.TryReadReasoningText` — object-shaped reasoning array paragraphs ignored — **hit 2026-09-11 seed hunt #1716 (seed→hit):** array loop accepted only string tokens so `{"text":"..."}` paragraphs rejected normalize; fixed by mapping object `text` entries; regression `TryNormalizeStructuredJson_maps_object_shaped_reasoning_array_entries`
+
+2026-09-11 seed hunt #1716 (hit): reseeded core-explanation-json; proved object `text` list and reasoning-array coercion gaps; 32 scoped RunExplanation unit tests passed.
 
 2026-09-07 seed hunt #1187 (hit): seeded zone from split catalog; proved aggregate JSON count coercion throw and citation disposition parity gaps.
 
