@@ -11,6 +11,19 @@ import {
   ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL,
 } from '@/lib/architecture/architecture-diagram-copy';
 
+const renderMock = vi.fn().mockResolvedValue({
+  svg:
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#eee"/><text class="nodeLabel">Node A</text></svg>',
+});
+const initializeMock = vi.fn();
+
+vi.mock('mermaid', () => ({
+  default: {
+    initialize: initializeMock,
+    render: renderMock,
+  },
+}));
+
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
   usePathname: vi.fn(),
@@ -99,6 +112,25 @@ describe('ArchitectureDiagramViewer', () => {
         scroll: false,
       });
     });
+  });
+
+  it('renders mermaid source into the diagram viewport', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart LR\n  A-->B'}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-viewport')).toBeInTheDocument();
+    });
+
+    expect(initializeMock).toHaveBeenCalled();
+    expect(renderMock).toHaveBeenCalled();
+    expect(screen.getByText('Node A')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL })).toBeInTheDocument();
   });
 
   it('preserves foreignObject labels when sanitizing diagram HTML', () => {
