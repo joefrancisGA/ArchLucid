@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { patchUserPreferencesCache } from "@/lib/api/user-preferences-cache";
 import {
   extractArchitectureIdentityIdFromPathname,
@@ -24,6 +25,7 @@ import {
   persistWorkingCareerRehearsalDoorToServer,
   syncWorkingCareerRehearsalDoorFromServer,
 } from "@/lib/governance/working-career-rehearsal-door-preference";
+import { resolveWorkingCareerRehearsalDoorFromSearch } from "@/lib/governance/working-career-rehearsal-door-query";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 
 export type UseWorkingCareerRehearsalDoorResult = {
@@ -65,6 +67,7 @@ export function useWorkingCareerRehearsalDoor(): UseWorkingCareerRehearsalDoorRe
   );
   const { mode } = useWorkspaceMode();
   const isWorking = isWorkingWorkspaceMode(mode);
+  const { mode: structuralExecutionMode } = useAgentExecutionMode();
   const [mounted, setMounted] = useState(false);
   const [door, setDoorState] = useState<WorkingCareerRehearsalDoorId>(() =>
     readWorkingCareerRehearsalDoorFromStorage(scope),
@@ -116,8 +119,16 @@ export function useWorkingCareerRehearsalDoor(): UseWorkingCareerRehearsalDoorRe
     [isWorking, scope],
   );
 
+  // CG-013 — share query overlays chrome only. Simulator cannot be unlabeled Career via ?career=1.
+  const displayedDoor = resolveWorkingCareerRehearsalDoorFromSearch({
+    search: searchParams,
+    storedDoor: door,
+    structuralExecutionMode,
+    applyQuery: isWorking,
+  }).door;
+
   return {
-    door,
+    door: displayedDoor,
     mounted,
     setDoor,
   };

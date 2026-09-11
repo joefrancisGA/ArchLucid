@@ -7,6 +7,10 @@ const workspaceModeMock = vi.hoisted(() => ({
   mode: "working" as "guided" | "working",
 }));
 
+const agentExecutionModeMock = vi.hoisted(() => ({
+  mode: "Simulator" as "Simulator" | "Real" | null,
+}));
+
 const getUserPreferencesMock = vi.hoisted(() => vi.fn());
 const setUserWorkingCareerRehearsalDoorMock = vi.hoisted(() => vi.fn());
 
@@ -20,6 +24,14 @@ vi.mock("@/components/WorkspaceModeProvider", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-agent-execution-mode", () => ({
+  useAgentExecutionMode: () => ({
+    mode: agentExecutionModeMock.mode,
+    isSimulator: agentExecutionModeMock.mode === "Simulator",
+    isLoading: false,
+  }),
+}));
+
 vi.mock("@/lib/api/user-preferences", () => ({
   getUserPreferences: (...args: unknown[]) => getUserPreferencesMock(...args),
   setUserWorkingCareerRehearsalDoor: (...args: unknown[]) =>
@@ -30,6 +42,7 @@ describe("useWorkingCareerRehearsalDoor", () => {
   beforeEach(() => {
     window.localStorage.clear();
     workspaceModeMock.mode = "working";
+    agentExecutionModeMock.mode = "Simulator";
     getUserPreferencesMock.mockReset();
     setUserWorkingCareerRehearsalDoorMock.mockReset();
     setUserWorkingCareerRehearsalDoorMock.mockResolvedValue(undefined);
@@ -123,6 +136,7 @@ describe("useWorkingCareerRehearsalDoor cross-tab (CG-012)", () => {
   beforeEach(() => {
     window.localStorage.clear();
     workspaceModeMock.mode = "working";
+    agentExecutionModeMock.mode = "Simulator";
     getUserPreferencesMock.mockReset();
     setUserWorkingCareerRehearsalDoorMock.mockReset();
     setUserWorkingCareerRehearsalDoorMock.mockResolvedValue(undefined);
