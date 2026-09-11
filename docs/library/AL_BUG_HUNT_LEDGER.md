@@ -3180,10 +3180,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-04 — duplicate Stripe-Signature / Authorization headers comma-joined and rejected
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -3203,6 +3203,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-10 thorough hunt #1677 (dry): cheap-disproof closed both open candidates as invalid; 21 scoped billing webhook unit tests passed (`BillingStripeWebhookControllerIntegrationTests` skipped — no SQL Server in cloud VM).
 
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` returns true for duplicate sequential claims — **cheap-disproof 2026-09-11 seed hunt #1797:** second claim returns false; regression `TryRegisterEventAsync_returns_false_when_event_already_registered`.
+
+2026-09-11 seed hunt #1797 (seed-only): reseeded billing-webhooks after #1677; cheap-disproof closed sequential TryRegister duplicate-claim candidate; 1 scoped MemoryCacheBillingWebhookReplayGuard test passed.
+
 2026-09-04 seed hunt #671: proved duplicate billing webhook signature/bearer header comma-join; seeded replay-guard TryRegister wiring and wallet-purpose filter candidates.
 
 ---
@@ -3215,7 +3219,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 12
+- **hunts:** 14
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -3273,6 +3277,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-11 seed hunt #1789 (seed-only): reseeded api-key-auth after #1788; cheap-disproof closed disabled-auth missing-header success candidate; 36 scoped ApiKey auth/settings unit tests passed.
 
+- [x] (valid-no-repro) Comma-separated `ReadOnlyKey` rotation segments authenticate only the first segment — **cheap-disproof 2026-09-11 seed hunt #1790:** `MatchesAnyCommaSeparatedKey` accepts any non-empty trimmed segment; regression `When_enabled_true_and_comma_separated_reader_keys_either_segment_authenticates`.
+
+2026-09-11 seed hunt #1790 (seed-only): reseeded api-key-auth after #1789; cheap-disproof closed reader comma-separated rotation parity; 1 scoped ApiKeyAuthenticationHandler test passed.
+
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` with `InvalidatePrevious=true` on ReadOnly slot returns Append — **cheap-disproof 2026-09-11 seed hunt #1791:** `InvalidatePrevious` short-circuits to Replace for any configured slot; regression `Rotate_with_invalidate_previous_returns_replace_for_readonly_slot`.
+- [x] (valid-no-repro) Comma-separated `ReadOnlyKey` with blank segments fails authentication — **cheap-disproof 2026-09-11 seed hunt #1791:** empty segments ignored like admin slot; regression `When_enabled_true_and_comma_separated_reader_keys_with_empty_segment_ignores_blanks`.
+
+2026-09-11 seed hunt #1791 (seed-only): reseeded api-key-auth after #1790; cheap-disproof closed ReadOnly invalidate-previous rotation and reader comma blank-segment parity; 2 scoped ApiKey auth/settings tests passed.
+
 ---
 
 ## Zone: scope-binding-middleware
@@ -3283,10 +3296,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-04 — production-like guard trusted Guid.Empty claim-bound scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3311,6 +3324,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ScopeResolutionGuardMiddleware` blocks `IAllowAnonymous` endpoints on staging — **cheap-disproof 2026-09-10 thorough hunt #1672:** `ShouldSkip` honors `IAllowAnonymous` metadata; regression `InvokeAsync_staging_host_skips_allow_anonymous_metadata`
 
 2026-09-10 thorough hunt #1672 (dry): closed both open candidates as invalid; cheap-disproof confirmed DevelopmentBypass claim/header `Validate` path and staging unauthenticated fail-closed guard; 44 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) ApiKey principal with `tenant_id` claim accepts hostile `x-project-id` header — **cheap-disproof 2026-09-11 seed hunt #1792:** unbound project dimension rejected like workspace; regression `InvokeAsync_api_key_with_tenant_claim_rejects_x_project_id_header`.
+
+2026-09-11 seed hunt #1792 (seed-only): reseeded scope-binding-middleware after #1672; cheap-disproof closed ApiKey project-header escalation parity; 1 scoped ScopeIdentityBindingMiddleware test passed.
 
 ---
 
@@ -9440,10 +9457,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-07 — alert-routing webhook destinations skipped post-DNS private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9461,9 +9478,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `ConfigureArchLucidOutboundSocketsHandler` — default `rejectPrivateNetworkConnectEndpoints: false` leaves integration clients without connect callback — **2026-09-10 seed hunt #1627:** opt-in wires `OutboundHttpsConnectGuard.RejectPrivateNetworkAndConnectAsync`; webhook dry-run is the only integration client that enables it today (`ConfigureArchLucidOutboundSocketsHandler_opt_in_wires_private_network_connect_callback`)
 
 - [ ] (candidate) `ServiceCollectionExtensions.IntegrationsOutboundHttpClients` — Jira/ServiceNow/AzureBoards `ExternalIntegration` clients register without `rejectPrivateNetworkConnectEndpoints: true`; DNS rebinding between connector URL save and outbound delivery may bypass pre-save literal guard if Integrations layer lacks post-DNS policy parity
-- [ ] (candidate) `PrivateNetworkAddressGuard` — IANA reserved/documentation IPv4 (`192.0.0.0/24`, `192.0.2.0/24`) outside TB-274 RFC1918/link-local scope may be reachable when URL policies accept public hostnames that resolve there
+- [x] (valid-no-repro) `PrivateNetworkAddressGuard` — IANA reserved/documentation IPv4 (`192.0.0.0/24`, `192.0.2.0/24`) outside TB-274 RFC1918/link-local scope may be reachable when URL policies accept public hostnames that resolve there — **cheap-disproof 2026-09-11 seed hunt #1793:** TB-274 scope excludes documentation/reserved blocks; regression `IsForbiddenHostLiteral_allows_documentation_and_reserved_ipv4_outside_tb274_scope`.
 
 2026-09-10 seed hunt #1627 (seed-only): reseeded core-safety-network after #1216; cheap-disproof on CGNAT/benchmark out-of-scope ranges, `0.0.0.0` blocking, pool-only handler settings, and opt-in connect guard wiring; 28 scoped PrivateNetwork + 7 OutboundSockets tests passed.
+
+2026-09-11 seed hunt #1793 (seed-only): reseeded core-safety-network after #1627; cheap-disproof closed documentation/reserved IPv4 candidate; 2 scoped PrivateNetworkAddressGuardEncoding tests passed.
 
 2026-09-07 seed hunt #1215 (hit): reseeded private-network/SSRF guard paths; proved alert-routing webhook destination policy lacked post-DNS resolution guard on create paths.
 2026-09-07 thorough hunt #1216 (dry): cheap-disproved octal/hex IPv4 bypass and Safety-interface DNS-parity meta hypothesis; added encoding regression tests.
@@ -9478,7 +9497,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -9501,6 +9520,10 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — standalone `month` / `months` UOM rejected while quantity-prefixed forms pass — **hit 2026-09-11 seed hunt #1703:** bare `"month"` / `"months"` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `"1 Month"` already matched via bounded tokens; fixed with standalone `month` / `months` synonyms (parity with #1415 hour fix); regressions `TryMonthlyUsdFromRow_accepts_standalone_month_unit_of_measure_synonyms` and `LooksLikeConsumptionUsd_accepts_standalone_month_unit_of_measure_synonyms`
 
 2026-09-11 seed hunt #1703 (hit): reseeded core-costing sibling UOM parity; proved standalone month/months Azure retail gap; 124 scoped Costing tests passed.
+
+- [x] (valid-no-repro) `AzureRetailPricesCatalogClient` accepts annual `Year`/`year` UOM as monthly consumption — **cheap-disproof 2026-09-11 seed hunt #1795:** annual meters intentionally rejected by monthly probe; regression `TryMonthlyUsdFromRow_rejects_annual_unit_of_measure`.
+
+2026-09-11 seed hunt #1795 (seed-only): reseeded core-costing after #1703; cheap-disproof closed annual UOM monthly-probe candidate; 2 scoped AzureRetailPricesSkuMatchersNonMonthly tests passed.
 
 2026-09-07 seed hunt #1186 (hit): seeded zone from split catalog; proved GCP billing catalog pagination gap on live pricing probe.
 
@@ -11880,9 +11903,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-07 — recycle bin advertised purge schedule for soft-deletes missing DeletedUtc
 - **related-pd-tb:** none
@@ -11906,6 +11929,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `ListAsync` returns workspace projects when `scope.WorkspaceId` is absent from `ListWorkspacesAsync` — **cheap-disproof 2026-09-10 seed hunt #1569:** missing workspace membership returns `404 ResourceNotFound`; regression `ListAsync_returns_not_found_when_scope_workspace_missing_from_tenant_list`
 
 2026-09-10 seed hunt #1569 (seed-only): reseeded api-tenancy-workspaces after master merge; cheap-disproof closed default-project delete, empty project id, retention clamp, and scope/workspace membership guards; 26 scoped TenantWorkspaces tests passed.
+
+- [x] (valid-no-repro) `ListAsync` returns workspace projects when `scope.WorkspaceId` is `Guid.Empty` — **cheap-disproof 2026-09-11 seed hunt #1794:** empty workspace id cannot match tenant workspace list; regression `ListAsync_returns_not_found_when_scope_workspace_id_is_empty`.
+
+2026-09-11 seed hunt #1794 (seed-only): reseeded api-tenancy-workspaces after #1569; cheap-disproof closed empty-workspace list candidate; 1 scoped TenantWorkspacesController test passed.
 
 - [x] (valid-no-repro) `ListRecycleBinAsync` returns HTTP 200 when `scope.WorkspaceId` is absent from `ListWorkspacesAsync` — **cheap-disproof 2026-09-11 seed hunt #1701:** identical guard to `ListAsync` at lines 34–38; regression `ListRecycleBinAsync_returns_not_found_when_scope_workspace_missing_from_tenant_list`
 - [x] (valid-no-repro) `ListAsync` exposes unclamped `RetentionDays=0` when purge options misconfigured below minimum — **cheap-disproof 2026-09-11 seed hunt #1701:** `ArchitectureProjectRetentionSchedule.ClampRetentionDays` clamps `0` to `1` on list path; regression `ListAsync_clamps_retention_days_from_configuration`
@@ -12759,10 +12786,10 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-09-10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-07 — InMemory identity directory dropped upserted cloud resources so hub/explorer always 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -12778,7 +12805,9 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — `TenantBrandingResolvedProfileCache` singleton depends on `IMemoryCache` but the module does not register memory cache; standalone module import without ASP.NET host setup may fail service validation — **cheap-disproof 2026-09-10 thorough hunt #1624:** `AddArchLucidApplicationServices` registers `IMemoryCache` via Authority `ContextIngestionCompositionRegistrar` before `AddInfraEvidenceCapability`; InMemory composition resolves branding cache with working memory cache (`InMemory_composition_resolves_tenant_branding_cache_after_platform_pipeline_registers_memory_cache`)
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — repeated `Register` on the same `IServiceCollection` re-adds scoped audit selector implementations without `TryAdd`; duplicate selector registration may duplicate evidence collection passes — **cheap-disproof 2026-09-10 thorough hunt #1624:** `AuditEvidenceSelectorRegistry` injects one typed selector per ctor parameter; repeated Register duplicates descriptors but `ListDescriptors` stays at nine (`InfraEvidenceCompositionModule_repeated_register_keeps_single_selector_descriptor_per_evidence_type`)
 - [ ] (candidate) `InfraEvidenceCompositionModule` — standalone `Register` without persistence repositories may fail `ValidateOnBuild` when resolving audit evidence snapshot services
-- [ ] (candidate) `InfraEvidenceCompositionModule` — repeated `Register` duplicates `MermaidDiagramReadabilityThresholds` singleton descriptors; last-wins resolution may ignore a host-preconfigured thresholds instance
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule` — repeated `Register` duplicates `MermaidDiagramReadabilityThresholds` singleton descriptors; last-wins resolution may ignore a host-preconfigured thresholds instance — **cheap-disproof 2026-09-11 seed hunt #1796:** MS DI last-wins keeps final `Register()` default thresholds, not an earlier host override; regression `InfraEvidenceCompositionModule_repeated_register_last_mermaid_thresholds_singleton_wins`.
+
+2026-09-11 seed hunt #1796 (seed-only): reseeded host-infra-evidence-composition after #1624; cheap-disproof closed duplicate Mermaid thresholds singleton candidate; 1 scoped InfraEvidenceCompositionModule test passed.
 
 2026-09-10 thorough hunt #1624 (dry): cheap-disproof closed memory-cache dependency and duplicate audit-selector registration candidates; seven scoped InfraEvidenceComposition tests passed; reseeded standalone persistence-validation and duplicate thresholds singleton candidates.
 
