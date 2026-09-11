@@ -338,11 +338,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 3
-- **bugs-found:** 0
+- **hunts:** 4
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** never
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — stale overlong industry Other text kept submit disabled after switching industry
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** 0
 
@@ -375,6 +375,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `SignupForm` successful register omits success toast — **cheap-disproof 2026-09-10 seed hunt #1670:** `showSuccess` on 2xx before verify redirect; regression `submits valid payload to the same-origin proxy`
 
 2026-09-10 seed hunt #1670 (seed-only): reseeded ui-form-validation after #1592; cheap-disproof closed whitespace-only required fields, max-length guards, team-size upper bound, whitespace-only industry Other, in-flight submit lock, keyboard-submit inline validation, and success toast on 2xx; 17 scoped SignupForm tests passed.
+- [x] (proven) `SignupForm` stale overlong `industryVerticalOther` kept submit disabled after switching away from Other — **hit 2026-09-11 seed hunt #1731 (seed→hit):** unconditional `max(200)` on hidden `industryVerticalOther` left `canSubmit` false with no visible field error after the industry select changed; validation now applies only when `industryVertical === "Other"` and the field clears on industry change; regression `re-enables submit after switching away from Other with an overlong specification`
+
+2026-09-11 seed hunt #1731 (seed→hit): reseeded ui-form-validation; proved stale overlong industry Other text blocked submit after switching industry; 18 scoped SignupForm tests passed.
 
 ---
 
