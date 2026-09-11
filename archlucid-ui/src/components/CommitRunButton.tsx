@@ -287,7 +287,7 @@ export function CommitRunButton({
         <p className="m-0 font-semibold">Finalize is blocked</p>
         {commitBlockedBlocks.length > 0 ? (
           <div className="mt-2">
-            <FinalizeReadinessBlockList blocks={commitBlockedBlocks} />
+            <FinalizeReadinessBlockList blocks={commitBlockedBlocks} runId={runId} />
           </div>
         ) : (
           <p className="m-0 mt-2 leading-relaxed">{commitBlockedReason?.trim() ?? ""}</p>
