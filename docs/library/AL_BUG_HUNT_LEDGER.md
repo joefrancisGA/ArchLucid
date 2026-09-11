@@ -338,13 +338,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 6
-- **bugs-found:** 3
+- **hunts:** 7
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — signup readiness hint stayed generic after optional-field validation failed; fractional architecture team size passed client validation; stale overlong industry Other text kept submit disabled after switching industry
+- **last-bug:** 2026-09-11 — signup readiness hint mislabeled fractional team size and overlong industry Other optional-field failures
 - **related-pd-tb:** TB-2005
-- **code-changed-since:** 0
+- **code-changed-since:** yes
 
 TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs/library/UI_DESIGN_SYSTEM.md` and `.cursor/rules/UI-Form-Validation-Affordances.mdc` (disable primary until hard client validation passes; field errors on the form; `showError` toasts only for system/async failures).
 
@@ -387,6 +387,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SignupForm` stale overlong `industryVerticalOther` kept submit disabled after switching away from Other — **hit 2026-09-11 seed hunt #1731 (seed→hit):** unconditional `max(200)` on hidden `industryVerticalOther` left `canSubmit` false with no visible field error after the industry select changed; validation now applies only when `industryVertical === "Other"` and the field clears on industry change; regression `re-enables submit after switching away from Other with an overlong specification`
 
 2026-09-11 seed hunt #1731 (seed→hit): reseeded ui-form-validation; proved stale overlong industry Other text blocked submit after switching industry; 18 scoped SignupForm tests passed.
+
+- [x] (proven) `deriveSignupFormReadinessMessage` maps overlong `industryVerticalOther` to empty-industry copy — **hit 2026-09-11 seed hunt #1740 (seed→hit):** 201+ char Other specification showed "Specify your industry…" instead of a 200-character limit hint while inline error was correct; fixed via `readinessMessageForIndustryVerticalOther`; regression `shows overlong-industry readiness when Other specification exceeds 200 characters`.
+- [x] (proven) `deriveSignupFormReadinessMessage` maps fractional `architectureTeamSize` to range copy — **hit 2026-09-11 seed hunt #1740 (seed→hit):** fractional optional team size showed "between 1 and 10,000" readiness while inline error required a whole number; fixed via `readinessMessageForArchitectureTeamSize`; regression `shows whole-number readiness when optional architecture team size is fractional`.
+- [x] (valid-no-repro) `SignupForm` non-numeric `architectureTeamSize` (`abc`) keeps submit enabled — **cheap-disproof 2026-09-11 seed hunt #1740:** `type="number"` input does not accept letter input in jsdom/browser; schema `superRefine` would reject non-finite values if programmatically set.
+
+2026-09-11 seed hunt #1740 (seed→hit): reseeded ui-form-validation; proved optional-field readiness copy mismatches for overlong industry Other and fractional team size; cheap-disproof closed non-numeric team size via number input; 25 scoped SignupForm tests passed.
 
 ---
 
