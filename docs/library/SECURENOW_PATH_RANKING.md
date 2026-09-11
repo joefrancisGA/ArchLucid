@@ -40,6 +40,21 @@ The composite sort key uses a **neutral 2.0** for that dimension — neither zer
 
 When an assertion is linked (SA-18), the stored consequence score reflects that linkage only while the assertion remains **Active** and unexpired. Expired or revoked assertions revert to Unknown.
 
+### Defender posture (IE-02 companion)
+
+When `defender-summary.json` materializes for the snapshot subscription, the ranking engine loads the ordinal posture band (`Low` / `Medium` / `High`) and applies a **blast-radius dimension adjustment** only:
+
+| Ordinal band | Blast-radius adjustment |
+|--------------|-------------------------|
+| Low | +0.50 |
+| Medium | +0.25 |
+| High | +0.00 |
+| Unknown / missing companion | +0.00 |
+
+Breakdown `source` strings include `defender-posture-low|medium|high` when present. Numeric secure scores never appear in rank prose or API buyer fields.
+
+Rank detail GET (`/paths/{pathId}/rank`) dimension prose includes the ordinal Defender posture band in the blast-radius paragraph when breakdown sources carry a defender token.
+
 ## Tenant-configurable weights
 
 Tenants may persist custom weights in `SecurityEvidencePathRankWeights` (JSON map of dimension name → weight). The ranking engine reads these during post-materialize. LLM output must **not** write rank rows.

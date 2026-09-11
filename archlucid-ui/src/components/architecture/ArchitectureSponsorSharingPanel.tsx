@@ -60,7 +60,7 @@ import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
-import { showError, showSuccess } from "@/lib/toast";
+import { showError, showMutationError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 export type ArchitectureSponsorSharingPanelProps = {
@@ -239,7 +239,7 @@ export function ArchitectureSponsorSharingPanel(
       setOverrideConfirmed(false);
     } catch (error) {
       const failure = toApiLoadFailure(error);
-      showError(sponsorPreliminaryShareMutationBlockedReason(failure) ?? failure.message);
+      showMutationError("Share sponsor report", sponsorPreliminaryShareMutationBlockedReason(failure) ?? failure.message);
     } finally {
       setBusy(false);
     }

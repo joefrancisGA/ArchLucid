@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Exports;
@@ -32,25 +33,32 @@ public sealed partial class DraftRequestsController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        DecisionReceiptDocument? receipt =
-            await _decisionReceiptService.BuildForDraftAsync(scope, draftId, cancellationToken);
+        try
+        {
+            DecisionReceiptDocument? receipt =
+                await _decisionReceiptService.BuildForDraftAsync(scope, draftId, cancellationToken);
 
-        if (receipt is null)
-            return this.NotFoundProblem(
-                $"Decision receipt for draft '{draftId}' was not found or is not exportable.",
-                ProblemTypes.ValidationFailed);
+            if (receipt is null)
+                return this.NotFoundProblem(
+                    $"Decision receipt for draft '{draftId}' was not found or is not exportable.",
+                    ProblemTypes.ValidationFailed);
 
-        await _auditService.LogAsync(
-            BuildDraftAuditEvent(
-                scope,
-                AuditEventTypes.DecisionReceiptExported,
-                new { draftId, source = receipt.Source.ToString() }),
-            cancellationToken);
+            await _auditService.LogAsync(
+                BuildDraftAuditEvent(
+                    scope,
+                    AuditEventTypes.DecisionReceiptExported,
+                    new { draftId, source = receipt.Source.ToString() }),
+                cancellationToken);
 
-        string json = JsonSerializer.Serialize(receipt, new JsonSerializerOptions { WriteIndented = true });
-        byte[] body = System.Text.Encoding.UTF8.GetBytes(json);
+            string json = JsonSerializer.Serialize(receipt, new JsonSerializerOptions { WriteIndented = true });
+            byte[] body = System.Text.Encoding.UTF8.GetBytes(json);
 
-        return File(body, "application/json", DecisionReceiptComposer.BuildFilename(receipt.DraftId, receipt.RunId));
+            return File(body, "application/json", DecisionReceiptComposer.BuildFilename(receipt.DraftId, receipt.RunId));
+        }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Returns what-if branch quota and estimated run cost for an admitted parent draft (R12).</summary>
@@ -79,6 +87,10 @@ public sealed partial class DraftRequestsController
                 return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
 
             return Ok(quota);
+        }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

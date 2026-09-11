@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   clearOidcSession,
@@ -184,8 +184,26 @@ describe("consumePkceState", () => {
 });
 
 describe("clearOidcSession", () => {
+  let postMessageMock: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    postMessageMock = vi.fn();
+
+    class TestBroadcastChannel {
+      postMessage = postMessageMock;
+      close = vi.fn();
+      addEventListener = vi.fn();
+      removeEventListener = vi.fn();
+
+      constructor(public readonly name: string) {}
+    }
+
+    vi.stubGlobal("BroadcastChannel", TestBroadcastChannel);
+  });
+
   afterEach(() => {
     sessionStorage.clear();
+    vi.unstubAllGlobals();
   });
 
   it("clears a stored post-sign-in return URL", () => {
@@ -193,5 +211,18 @@ describe("clearOidcSession", () => {
     clearOidcSession();
 
     expect(consumePostSignInReturnUrl()).toBeNull();
+  });
+
+  it("broadcasts auth-cleared by default (LW-083)", () => {
+    clearOidcSession();
+
+    expect(postMessageMock).toHaveBeenCalledWith({ type: "auth-cleared" });
+    expect(JSON.stringify(postMessageMock.mock.calls[0]?.[0])).not.toMatch(/token/i);
+  });
+
+  it("skips auth-cleared broadcast when broadcastAuthCleared is false", () => {
+    clearOidcSession({ broadcastAuthCleared: false });
+
+    expect(postMessageMock).not.toHaveBeenCalled();
   });
 });

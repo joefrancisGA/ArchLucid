@@ -37,4 +37,8 @@ public static class GraphEdgeInferenceSources
     public const string InventoryNsgAllowRule = "inventory-nsg-allow-rule";
 
     public const string InventoryFederatedCredential = "inventory-federated-credential";
+
+    public const string InventoryEntraGroupMembership = "inventory-entra-group-membership";
+
+    public const string PimEligibilityUnknown = "pim-eligibility-unknown";
 }

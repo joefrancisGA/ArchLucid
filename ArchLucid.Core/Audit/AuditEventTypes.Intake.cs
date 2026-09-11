@@ -42,6 +42,12 @@ public static partial class AuditEventTypes
     /// <summary>Restrict-to-shares disabled on an architecture identity (AS-089).</summary>
     public const string ArchitectureRestrictToSharesDisabled = "ArchitectureIdentity.RestrictToSharesDisabled";
 
+    /// <summary>Operator acquired a soft work lease on a drafting intake desk (ADR 0090 / LW-090).</summary>
+    public const string ArchitectureWorkLeaseAcquired = "DraftIntake.WorkLeaseAcquired";
+
+    /// <summary>Operator stole a work lease from another holder after explicit confirm (ADR 0090 / LW-092).</summary>
+    public const string ArchitectureWorkLeaseStolen = "DraftIntake.WorkLeaseStolen";
+
     /// <summary>Pre-run manifest-free reasoning turn on an intake draft (SAQ-013).</summary>
     public const string DraftIntakeReasoned = "DraftIntake.Reasoned";
 

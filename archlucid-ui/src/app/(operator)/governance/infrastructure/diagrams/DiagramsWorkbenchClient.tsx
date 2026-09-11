@@ -11,6 +11,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
 import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -78,8 +79,9 @@ import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
@@ -88,12 +90,11 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
+  formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
-import { GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
 import { cn } from "@/lib/utils";
-import { showError } from "@/lib/toast";
 
 import { DiagramsBreadcrumb } from "./DiagramsBreadcrumb";
 import { DiagramsClaimOrientationStrip } from "./DiagramsClaimOrientationStrip";
@@ -208,6 +209,7 @@ export function DiagramsWorkbenchClient() {
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [loadingRender, setLoadingRender] = useState(false);
   const [exportBusy, setExportBusy] = useState(false);
+  const [pngExportError, setPngExportError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [browserRenderBlocked, setBrowserRenderBlocked] = useState(false);
   const [loadGeneration, setLoadGeneration] = useState(0);
@@ -562,6 +564,7 @@ export function DiagramsWorkbenchClient() {
     }
 
     setExportBusy(true);
+    setPngExportError(null);
 
     try {
       const useFallback = effectiveFallbackKey.length > 0;
@@ -571,7 +574,12 @@ export function DiagramsWorkbenchClient() {
         seedNodeId: selectedMode === "dependencyNeighborhood" ? seedNodeId : null,
       });
     } catch (error: unknown) {
-      showError("Could not download diagram PNG", formatInfraEvidenceMermaidApiError(error));
+      setPngExportError(
+        formatGovernanceInfrastructureInlineActionError(
+          GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE,
+          formatInfraEvidenceMermaidApiError(error),
+        ),
+      );
     } finally {
       setExportBusy(false);
     }
@@ -610,11 +618,9 @@ export function DiagramsWorkbenchClient() {
       </a>
 
       <OperatorPageHeader
-        navHref={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH}
+        navHref={pathname}
         title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}
-        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE}
-        claimDisciplineTestId="infra-diagrams-claim-discipline"
         titleTestId="infra-diagrams-page-title"
         breadcrumb={buyerPolishedShell ? <DiagramsBreadcrumb /> : undefined}
         actions={
@@ -627,11 +633,9 @@ export function DiagramsWorkbenchClient() {
         }
       />
 
-      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-diagrams" /> : null}
-
       <main
         id={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID}
-        className={cn("mx-auto flex w-full max-w-6xl flex-col gap-4 scroll-mt-24")}
+        className={cn("flex w-full flex-col gap-4 scroll-mt-24")}
         data-testid="infra-diagrams-primary-content"
       >
       {buyerPolishedShell ? (
@@ -943,26 +947,36 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
-      <section className={cn("flex flex-wrap items-center gap-2", cnCard)} aria-label="Diagram export actions">
-        <Button
-          type="button"
-          variant="default"
-          data-testid="infra-diagrams-export-png"
-          disabled={exportsDisabled}
-          onClick={() => void runPngExport()}
-        >
-          {exportBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-          Export PNG{tenantBrandActive ? " (branded)" : ""}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          data-testid="infra-diagrams-export-mmd"
-          disabled={mermaidExportDisabled}
-          onClick={runMermaidExport}
-        >
-          Export Mermaid (.mmd)
-        </Button>
+      <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="default"
+            data-testid="infra-diagrams-export-png"
+            disabled={exportsDisabled}
+            aria-describedby={pngExportError != null ? "infra-diagrams-png-export-error" : undefined}
+            onClick={() => void runPngExport()}
+          >
+            {exportBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+            Export PNG{tenantBrandActive ? " (branded)" : ""}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            data-testid="infra-diagrams-export-mmd"
+            disabled={mermaidExportDisabled}
+            onClick={runMermaidExport}
+          >
+            Export Mermaid (.mmd)
+          </Button>
+        </div>
+        {pngExportError != null ? (
+          <OperatorMutationInlineError
+            message={pngExportError}
+            testId="infra-diagrams-png-export-error"
+            recoveryPresentation={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY}
+          />
+        ) : null}
       </section>
 
       {selectedSnapshotId.length > 0 ? (

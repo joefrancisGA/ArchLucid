@@ -10,7 +10,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { firstValueReportMutationBlockedReason } from "@/lib/pilots/first-value-report-mutation-blocked-reason";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { whyDisabledNeedsPrerequisite, whyDisabledPolicy } from "@/lib/why-disabled-cta";
-import { showError, showSuccess } from "@/lib/toast";
+import { showError, showMutationError, showSuccess } from "@/lib/toast";
 
 export type ShareReviewPackageButtonProps = {
   readonly runId: string;
@@ -55,7 +55,7 @@ export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): 
       const failure = toApiLoadFailure(error);
       const blocked = firstValueReportMutationBlockedReason(failure);
 
-      showError("Share review", blocked ?? failure.message);
+      showMutationError("Share review", blocked ?? failure.message);
     } finally {
       setBusy(false);
     }

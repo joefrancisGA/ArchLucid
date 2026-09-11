@@ -9582,6 +9582,25 @@ END;
 
 GO
 
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderSummaries', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderSummaries
+    (
+        DefenderSummaryRowId      UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderSummaries PRIMARY KEY CLUSTERED,
+        SnapshotId                UNIQUEIDENTIFIER NOT NULL,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        ResourceId                NVARCHAR(1024)    NOT NULL,
+        SecureScore               INT               NOT NULL,
+        SourceEvidenceReference   NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderSummaries_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderSummaries_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderSummaries (TenantId, SnapshotId);
+END;
+
+GO
+
 IF OBJECT_ID(N'dbo.CloudResourceIdentities', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.CloudResourceIdentities
@@ -10498,4 +10517,44 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_ArchitectureShares_Scope_Architecture
         ON dbo.ArchitectureShares (TenantId, WorkspaceId, ScopeProjectId, ArchitectureId);
+END;
+
+GO
+
+/*
+  388: LW-089 — soft exclusive architecture draft work leases (ADR 0090).
+*/
+
+IF OBJECT_ID(N'dbo.ArchitectureWorkLeases', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ArchitectureWorkLeases
+    (
+        DraftId           UNIQUEIDENTIFIER NOT NULL,
+        TenantId          UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId       UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId    UNIQUEIDENTIFIER NOT NULL,
+        ArchitectureId    UNIQUEIDENTIFIER NOT NULL,
+        HolderUserId      UNIQUEIDENTIFIER NOT NULL,
+        AcquiredUtc       DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ArchitectureWorkLeases_AcquiredUtc DEFAULT SYSUTCDATETIME(),
+        LastHeartbeatUtc  DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ArchitectureWorkLeases_LastHeartbeatUtc DEFAULT SYSUTCDATETIME(),
+        ExpiresUtc        DATETIME2(7)     NOT NULL,
+        RowVersion        ROWVERSION       NOT NULL,
+        CONSTRAINT PK_ArchitectureWorkLeases PRIMARY KEY CLUSTERED (DraftId),
+        CONSTRAINT FK_ArchitectureWorkLeases_DraftRequests
+            FOREIGN KEY (DraftId) REFERENCES dbo.DraftRequests (DraftId) ON DELETE CASCADE,
+        CONSTRAINT FK_ArchitectureWorkLeases_Tenants
+            FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT FK_ArchitectureWorkLeases_Architectures
+            FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId) ON DELETE CASCADE,
+        CONSTRAINT FK_ArchitectureWorkLeases_PlatformUsers
+            FOREIGN KEY (HolderUserId) REFERENCES dbo.PlatformUsers (Id)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureWorkLeases_ExpiresUtc
+        ON dbo.ArchitectureWorkLeases (ExpiresUtc);
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureWorkLeases_Tenant_Architecture
+        ON dbo.ArchitectureWorkLeases (TenantId, ArchitectureId, DraftId);
 END;

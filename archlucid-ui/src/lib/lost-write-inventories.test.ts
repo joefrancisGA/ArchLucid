@@ -8,6 +8,8 @@ import {
   LOST_WRITE_401_RESUME_KIND_INVENTORY,
   LOST_WRITE_401_RESUME_YES_KIND_IDS,
 } from "@/lib/lost-write-401-resume-inventory";
+import { findLostWrite401ResumeAuthExclusionViolations } from "@/lib/lost-write-401-resume-auth-exclusion-guard";
+import { findLostWrite401ResumeCallSiteViolations } from "@/lib/lost-write-401-resume-call-site-guard";
 import { LOST_WRITE_BROWSER_WIP_KEYS } from "@/lib/lost-write-browser-wip-inventory";
 import { LOST_WRITE_HELP_OVERWRITE_COPY } from "@/lib/lost-write-help-overwrite-copy-inventory";
 import {
@@ -59,29 +61,45 @@ describe("lost-write patch draft client inventory (LW-002)", () => {
   });
 });
 
-describe("lost-write 401 resume inventory (LW-003)", () => {
-  it("keeps LP-19 yes rows and seeds bulk, draft patch, and finalize gaps", () => {
+describe("lost-write 401 resume inventory (LW-003 / LW-054–062)", () => {
+  it("keeps all livelihood pending mutation kinds wrapped for 401 resume", () => {
     const byId = new Map(LOST_WRITE_401_RESUME_KIND_INVENTORY.map((row) => [row.id, row]));
+
+    expect(LOST_WRITE_401_RESUME_KIND_INVENTORY.length).toBe(LOST_WRITE_401_RESUME_YES_KIND_IDS.length);
 
     for (const id of LOST_WRITE_401_RESUME_YES_KIND_IDS) {
       expect(byId.get(id)?.resumeWrapperPresent).toBe("yes");
     }
 
-    expect(byId.get("finding_bulk_disposition")?.resumeWrapperPresent).toBe("no");
-    expect(byId.get("architecture_draft_patch")?.resumeWrapperPresent).toBe("no");
-    expect(byId.get("architecture_review_finalize")?.resumeWrapperPresent).toBe("no");
+    for (const row of LOST_WRITE_401_RESUME_KIND_INVENTORY) {
+      expect(row.resumeWrapperPresent).toBe("yes");
+    }
   });
 
   it("keeps yes-row wrappers in source", () => {
     const disposition = readRepoFile("lib/api/governance-stickiness-api-dispositions.ts");
     const correction = readRepoFile("lib/governance/governance-mutation-correction-api.ts");
     const resumeCore = readRepoFile("lib/auth/livelihood-mutation-401-resume.ts");
+    const wrappers = readRepoFile("lib/auth/livelihood-mutation-401-resume-wrappers.ts");
 
     expect(disposition).toContain("recordFindingDispositionWith401Resume");
     expect(correction).toContain("recordGovernanceMutationCorrectionWith401Resume");
     expect(disposition).toContain("withLivelihood401Resume");
     expect(correction).toContain("withLivelihood401Resume");
     expect(resumeCore).toContain("export async function withLivelihood401Resume");
+    expect(wrappers).toContain("patchDraftRequestWith401Resume");
+    expect(wrappers).toContain("saveItsmConnectorWith401Resume");
+  });
+});
+
+describe("lost-write 401 resume ratchets (LW-069 / LW-070)", () => {
+  it("keeps inventoried mutate sites wrapped and auth routes excluded", () => {
+    const uiRoot = process.cwd();
+    const callSiteViolations = findLostWrite401ResumeCallSiteViolations(uiRoot);
+    const authExclusionViolations = findLostWrite401ResumeAuthExclusionViolations(uiRoot);
+
+    expect(callSiteViolations).toEqual([]);
+    expect(authExclusionViolations).toEqual([]);
   });
 });
 
@@ -170,6 +188,66 @@ describe("lost-write CAS compat matrix (LW-009 / LW-010)", () => {
     expect(patchBlock).toMatch(/draft_cas_token_missing/);
     expect(patchBlock).toMatch(/Never defaults to true/);
     expect(patchBlock).toMatch(/required-unless-forceOverwrite/);
+  });
+});
+
+describe("lost-write prompt file ratchet (LW-099)", () => {
+  it("documents the LW-00 index and numbered prompt inventory test", () => {
+    const inventoryTest = readRepoFile("lib/lost-write-prompt-inventory.test.ts");
+
+    expect(inventoryTest).toMatch(/lost-write-00-index\.md/);
+    expect(inventoryTest).toMatch(/lost-write-\\d\{3\}-/);
+    expect(inventoryTest).toMatch(/toHaveLength\(100\)/);
+  });
+});
+
+describe("lost-write TB-2155 recovery roots (LW-098)", () => {
+  it("documents offline replay conflict and livelihood resume failure surfaces", () => {
+    const inventory = readRepoFile("lib/error-recovery-contract-inventory.ts");
+
+    expect(inventory).toMatch(/architecture-draft-offline-replay-conflict/);
+    expect(inventory).toMatch(/livelihood-mutation-resume-failed/);
+    expect(inventory).toMatch(/ArchitectureDraftWorkspaceIntakeStack/);
+    expect(inventory).toMatch(/LivelihoodMutationResumeChrome/);
+  });
+});
+
+describe("lost-write mutation error toast inventory (LW-097)", () => {
+  it("documents sticky mutation error toast guard module", () => {
+    const guard = readRepoFile("lib/lost-write-mutation-error-toast-guard.ts");
+    const inventory = readRepoFile("lib/lost-write-mutation-error-toast-inventory.ts");
+    const toastHelpers = readRepoFile("lib/toast.ts");
+
+    expect(inventory).toMatch(/showMutationError/);
+    expect(guard).toMatch(/findLostWriteMutationErrorToastViolations/);
+    expect(toastHelpers).toMatch(/TOAST_STICKY_DURATION/);
+  });
+});
+
+describe("lost-write wave close audit (LW-100)", () => {
+  it("documents acceptance markdown and README shipped status", () => {
+    const acceptance = readFileSync(
+      join(REPO_ROOT, "docs/architecture/LOST_WRITE_ACCEPTANCE_2026-09-11.md"),
+      "utf8",
+    );
+    const readme = readFileSync(join(REPO_ROOT, "docs/architecture/README.md"), "utf8");
+    const prompts = readFileSync(
+      join(REPO_ROOT, "docs/architecture/LOST_WRITE_COMPOSER_PROMPTS.md"),
+      "utf8",
+    );
+
+    expect(acceptance).toMatch(/Shipped/);
+    expect(acceptance).toMatch(/omit-token/);
+    expect(acceptance).toMatch(/localStorage/);
+    expect(acceptance).toMatch(/work-lease/);
+    expect(acceptance).toMatch(/## Do not claim/);
+    expect(acceptance).toMatch(/Do not claim[\s\S]*live presence/i);
+
+    expect(readme).toMatch(/LOST_WRITE_ACCEPTANCE_2026-09-11\.md/);
+    expect(readme).toMatch(/shipped/i);
+
+    expect(prompts).toMatch(/LOST_WRITE_ACCEPTANCE_2026-09-11\.md/);
+    expect(prompts).not.toMatch(/ready to run/i);
   });
 });
 

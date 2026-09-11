@@ -36,6 +36,10 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import { architectureDraftAutosavePatchBlockedReason, architectureDraftCreateMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
+import { patchDraftRequestWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import { readOperatorScopeWriteMismatchMessage, type OperatorScopeWriteStamp } from "@/lib/operator/operator-scope-write-stamp";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import type { ActorSet } from "@/types/draft-intake";
@@ -75,6 +79,8 @@ type UseArchitectureDraftAutosavePersistArgs = Pick<
   readonly resolvedDraftIdRef: React.MutableRefObject<string | null>;
   readonly autosaveBlockedRef: React.MutableRefObject<boolean>;
   readonly markDirty: () => void;
+  readonly livelihoodReturnPath?: string;
+  readonly scopeWriteStamp: OperatorScopeWriteStamp;
 };
 
 export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAutosavePersistArgs) {
@@ -86,12 +92,23 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inFlightSaveRef = useRef<Promise<boolean> | null>(null);
   const trailingSaveNeededRef = useRef(false);
+  const lastPersistWasConflictRef = useRef(false);
   const persistDraftRef = useRef<() => Promise<boolean>>(async () => false);
 
   const persistDraft = useCallback(async (options?: { readonly forceOverwrite?: boolean }): Promise<boolean> => {
     const forceOverwrite = options?.forceOverwrite === true;
 
     if (!enabled) return true;
+
+    const scopeMismatchMessage = readOperatorScopeWriteMismatchMessage(args.scopeWriteStamp);
+
+    if (scopeMismatchMessage !== null) {
+      args.setConflictMessage(scopeMismatchMessage);
+      args.setSaveState("error");
+
+      return false;
+    }
+
     if (!isOnline) {
       const draftId = args.resolvedDraftIdRef.current ?? args.draftId;
 
@@ -149,6 +166,7 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
 
     const sequence = saveSequenceRef.current + 1;
     saveSequenceRef.current = sequence;
+    lastPersistWasConflictRef.current = false;
     args.setSaveState("saving");
     args.setConflictMessage(null);
 
@@ -200,6 +218,7 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
         });
 
         if (casDecision.kind === "conflict") {
+          lastPersistWasConflictRef.current = true;
           args.setConflictMessage(architectureDraftCasConflictMessage(DRAFT_CAS_STALE_CODE));
           args.setSaveState("error");
           patchFailedNonRetryable = true;
@@ -216,10 +235,16 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
           args.scopeGateOpenRef.current ? args.scopeBulletsRef.current : undefined,
         );
 
-        const patched = await patchDraftRequest(
-          draftId,
-          applyOnlineDraftPatchCas(patchPayload, casDecision),
-        );
+        const patchBody = applyOnlineDraftPatchCas(patchPayload, casDecision);
+        const livelihoodReturnPath = args.livelihoodReturnPath?.trim() ?? "";
+
+        const patched =
+          livelihoodReturnPath.length > 0
+            ? await patchDraftRequestWith401Resume(draftId, patchBody, {
+                returnPath: livelihoodReturnPath,
+                idempotencyKey: createGovernanceMutationIdempotencyKey(),
+              })
+            : await patchDraftRequest(draftId, patchBody);
 
         if (sequence !== saveSequenceRef.current) return false;
 
@@ -231,10 +256,17 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
         args.setSaveState("saved");
         return true;
       } catch (error) {
+        if (isLivelihoodMutation401RedirectError(error)) {
+          patchFailedNonRetryable = true;
+
+          return false;
+        }
+
         if (sequence === saveSequenceRef.current) {
           args.setSaveState("error");
 
           if (isApiRequestError(error) && error.httpStatus === 409) {
+            lastPersistWasConflictRef.current = true;
             const failure = toApiLoadFailure(error);
             args.setConflictMessage(
               architectureDraftCreateMutationBlockedReason(failure)
@@ -312,5 +344,9 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
     };
   }, [args, args.fields, args.actorSet, args.hasUnsavedChanges, persistDraft]);
 
-  return { persistDraft, keepLocalDraftOnConflict };
+  return {
+    persistDraft,
+    keepLocalDraftOnConflict,
+    wasLastSaveConflict: () => lastPersistWasConflictRef.current,
+  };
 }

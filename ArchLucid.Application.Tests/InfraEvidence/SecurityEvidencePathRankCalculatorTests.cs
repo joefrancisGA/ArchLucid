@@ -196,6 +196,39 @@ public sealed class SecurityEvidencePathRankCalculatorTests
         evaluation.CompositeSortScore.Should().BeGreaterThan(0m);
     }
 
+    [Fact]
+    public void Evaluate_low_defender_posture_increases_blast_radius_without_changing_technical_exposure()
+    {
+        IReadOnlyList<SecurityEvidencePathHopRecord> publicOwnerHops = BuildPublicOwnerHops(PathIdA);
+
+        SecurityEvidencePathRecord path = BuildPath(
+            PathIdA,
+            PathKind.ToxicCombination,
+            PathConfidenceBand.Confirmed,
+            crownJewelAssertionId: null,
+            publicOwnerHops);
+
+        SecurityEvidencePathRankEvaluation withoutPosture =
+            SecurityEvidencePathRankCalculator.Evaluate(path, publicOwnerHops);
+
+        SecurityEvidencePathRankEvaluation withLowPosture =
+            SecurityEvidencePathRankCalculator.Evaluate(
+                path,
+                publicOwnerHops,
+                subscriptionDefenderBand: DefenderSecureScoreOrdinalBand.Low);
+
+        withLowPosture.BlastRadiusScore.Should().BeGreaterThan(withoutPosture.BlastRadiusScore);
+        withLowPosture.TechnicalExposureScore.Should().Be(withoutPosture.TechnicalExposureScore);
+        withLowPosture.CompositeSortScore.Should().BeGreaterThan(withoutPosture.CompositeSortScore);
+
+        SecurityEvidencePathRankDimensionContribution blastContribution = withLowPosture.Contributions
+            .Should()
+            .ContainSingle(item => item.Dimension == SecurityEvidencePathRankDimension.BlastRadius)
+            .Subject;
+
+        blastContribution.Source.Should().Contain("defender-posture-low");
+    }
+
     private static SecurityEvidencePathRecord BuildPath(
         Guid pathId,
         PathKind pathKind,

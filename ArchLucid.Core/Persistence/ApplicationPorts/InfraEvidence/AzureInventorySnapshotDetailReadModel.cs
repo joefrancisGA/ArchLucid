@@ -46,6 +46,12 @@ public sealed class AzureInventorySnapshotDetailReadModel
         get;
         init;
     } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderSummaryReadModel> DefenderSummaries
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class AzureInventoryResourcePropertyReadModel
@@ -117,6 +123,12 @@ public sealed class AzureInventoryResourceRelationshipReadModel
     } = string.Empty;
 
     public ProvenanceKind ProvenanceKind
+    {
+        get;
+        init;
+    }
+
+    public string? InferenceSource
     {
         get;
         init;

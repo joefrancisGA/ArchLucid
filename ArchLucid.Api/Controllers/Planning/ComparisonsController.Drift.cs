@@ -1,6 +1,7 @@
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Authorization;
 
@@ -22,17 +23,24 @@ public sealed partial class ComparisonsController
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult =
-            await EnsureSealedManifestReadAllowedForComparisonRecordIdAsync(comparisonRecordId, cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedForComparisonRecordIdAsync(comparisonRecordId, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        DriftAnalysisResult? drift = await _comparisons.TryAnalyzeDriftAsync(comparisonRecordId, cancellationToken);
+            DriftAnalysisResult? drift = await _comparisons.TryAnalyzeDriftAsync(comparisonRecordId, cancellationToken);
 
-        return drift is null
-            ? this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound)
-            : Ok(MapDriftAnalysis(drift));
+            return drift is null
+                ? this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound)
+                : Ok(MapDriftAnalysis(drift));
+        }
+        catch (ConflictException ex)
+        {
+            return MapComparisonReplaySealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("comparisons/{comparisonRecordId}/drift-report")]
@@ -46,32 +54,39 @@ public sealed partial class ComparisonsController
         [FromQuery] string format = "markdown",
         CancellationToken cancellationToken = default)
     {
-        IActionResult? sealedGuardResult =
-            await EnsureSealedManifestReadAllowedForComparisonRecordIdAsync(comparisonRecordId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        DriftAnalysisResult? drift = await _comparisons.TryAnalyzeDriftAsync(comparisonRecordId, cancellationToken);
-
-        if (drift is null)
+        try
         {
-            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
-                ProblemTypes.ResourceNotFound);
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedForComparisonRecordIdAsync(comparisonRecordId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            DriftAnalysisResult? drift = await _comparisons.TryAnalyzeDriftAsync(comparisonRecordId, cancellationToken);
+
+            if (drift is null)
+            {
+                return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            DriftReportContent? content = _comparisons.TryBuildDriftReportContent(drift, comparisonRecordId, format);
+
+            if (content is null)
+            {
+                return this.BadRequestProblem(
+                    $"Unsupported drift report format '{format}'. Use markdown, html, or docx.",
+                    ProblemTypes.BadRequest);
+            }
+
+            return content.IsText
+                ? ApiFileResults.RangeText(Request, content.TextPayload!, content.ContentType, content.FileName)
+                : ApiFileResults.RangeBytes(Request, content.Payload, content.ContentType, content.FileName);
         }
-
-        DriftReportContent? content = _comparisons.TryBuildDriftReportContent(drift, comparisonRecordId, format);
-
-        if (content is null)
+        catch (ConflictException ex)
         {
-            return this.BadRequestProblem(
-                $"Unsupported drift report format '{format}'. Use markdown, html, or docx.",
-                ProblemTypes.BadRequest);
+            return MapComparisonReplaySealedManifestConflict(ex);
         }
-
-        return content.IsText
-            ? ApiFileResults.RangeText(Request, content.TextPayload!, content.ContentType, content.FileName)
-            : ApiFileResults.RangeBytes(Request, content.Payload, content.ContentType, content.FileName);
     }
 
     private static DriftAnalysisResponse MapDriftAnalysis(DriftAnalysisResult drift) =>

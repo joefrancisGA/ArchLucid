@@ -71,6 +71,41 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_executive_mode_without_graph_edges_emits_layout_edges_and_prunes_vnet_shell_subgraphs()
+    {
+        GraphSnapshot graph = BuildExecutiveVnetOnlyGraph();
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+        string mermaid = renderer.Render(ast);
+
+        ast.Nodes.Should().HaveCount(3);
+        ast.Edges.Should().HaveCount(2);
+        ast.Subgraphs.Should().NotContain(subgraph => subgraph.Label.StartsWith("VNet ", StringComparison.Ordinal));
+        mermaid.Should().Contain("-->");
+        mermaid.Should().Contain("RG network-rg-0");
+    }
+
+    [Fact]
+    public void Compile_collapses_duplicate_topology_node_ids_without_throwing()
+    {
+        GraphSnapshot graph = BuildSampleGraph();
+        GraphNode duplicateNode = CreateTopologyNode(
+            graph.Nodes[0].NodeId,
+            "duplicate-vnet",
+            "Microsoft.Network/virtualNetworks",
+            "network-rg",
+            "11111111-1111-1111-1111-111111111111",
+            GraphTopologyCategories.Network);
+        graph.Nodes.Add(duplicateNode);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+
+        ast.Nodes.Should().HaveCount(graph.Nodes.Count - 1);
+        string mermaid = renderer.Render(ast);
+        mermaid.Should().Contain("flowchart TD");
+    }
+
+    [Fact]
     public void Compile_drops_edges_below_documented_weight_threshold()
     {
         GraphSnapshot graph = BuildSampleGraph();
@@ -150,6 +185,32 @@ public sealed class DiagramAstFromGraphCompilerTests
             Label = "depends",
             Weight = 1d,
         });
+
+        return graph;
+    }
+
+    private static GraphSnapshot BuildExecutiveVnetOnlyGraph()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        const string subscriptionId = "33333333-3333-3333-3333-333333333333";
+
+        for (int index = 0; index < 3; index++)
+        {
+            graph.Nodes.Add(CreateTopologyNode(
+                $"vnet-{index}",
+                $"vnet-eastus-{index}",
+                "Microsoft.Network/virtualNetworks",
+                $"network-rg-{index}",
+                subscriptionId,
+                GraphTopologyCategories.Network));
+        }
 
         return graph;
     }

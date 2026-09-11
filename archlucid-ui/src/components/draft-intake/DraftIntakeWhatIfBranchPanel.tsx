@@ -123,10 +123,8 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
   const [busy, setBusy] = useState(false);
   const quotaQuery = useDraftBranchQuotaQuery(props.draftId, { enabled: branchAllowed });
   const quota = quotaQuery.data ?? null;
-  const quotaError =
-    quotaQuery.isError
-      ? (quotaQuery.error instanceof Error ? quotaQuery.error.message : "Failed to load branch quota.")
-      : null;
+  const quotaFailure = quotaQuery.failure;
+  const quotaBlockedReason = quotaQuery.blockedReason;
   const [error, setError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -246,8 +244,14 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
           </p>
         ) : null}
 
-        {quotaError !== null ? (
-          <p className={cn("m-0 text-amber-700 dark:text-amber-300", OPERATOR_TYPOGRAPHY.helper)}>{quotaError}</p>
+        {quotaFailure ? <OperatorApiProblem failure={quotaFailure} /> : null}
+        {quotaBlockedReason ? (
+          <p
+            className={cn("m-0 text-amber-700 dark:text-amber-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="draft-intake-branch-quota-blocked-reason"
+          >
+            {quotaBlockedReason}
+          </p>
         ) : null}
 
         {!quotaAllowsBranch ? (

@@ -1639,6 +1639,37 @@ export interface components {
             /** Format: date-time */
             timestampUtc?: string;
         };
+        ArchitectureWorkLeaseConflictResponse: {
+            /** Format: uuid */
+            draftId?: string;
+            /** Format: date-time */
+            expiresUtc?: string;
+            holderActorOid?: string;
+            /** Format: uuid */
+            holderUserId?: string;
+        };
+        ArchitectureWorkLeaseResponse: {
+            /** Format: date-time */
+            acquiredUtc?: string;
+            /** Format: uuid */
+            architectureId?: string;
+            /** Format: uuid */
+            draftId?: string;
+            /** Format: date-time */
+            expiresUtc?: string;
+            heldByCaller?: boolean;
+            holderActorOid?: string;
+            /** Format: uuid */
+            holderUserId?: string;
+        };
+        ArchitectureWorkLeaseSnapshot: {
+            /** Format: date-time */
+            expiresUtc?: string;
+            heldByCaller?: boolean;
+            holderActorOid?: string;
+            /** Format: uuid */
+            holderUserId?: string;
+        };
         ArchivedRunScopeRow: {
             /** Format: uuid */
             runId?: string;
@@ -3793,6 +3824,7 @@ export interface components {
             tenantId?: string;
             /** Format: date-time */
             updatedUtc?: string;
+            workLease?: null | components["schemas"]["ArchitectureWorkLeaseSnapshot"];
             /** Format: uuid */
             workspaceId?: string;
         };
@@ -9660,6 +9692,64 @@ export interface components {
             publishedOn?: null | string;
             summaryReference?: string;
         };
+        SecurityAssetAssertionCreateApiRequest: {
+            approvedByActorKey?: string;
+            businessCriticality?: string;
+            /** Format: uuid */
+            cloudResourceId?: string;
+            dataSensitivity?: string;
+            deploymentEnvironment?: string;
+            evidenceReference?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            isPatientImpact?: boolean;
+            isRevenueImpact?: boolean;
+            rationale?: string;
+            regulatoryClass?: string;
+            requestedByActorKey?: string;
+        };
+        SecurityAssetAssertionCreateApiResponse: {
+            /** Format: uuid */
+            assertionId?: string;
+        };
+        SecurityAssetAssertionExpirySweepApiResponse: {
+            /** Format: int32 */
+            expiredCount?: number;
+            /** Format: int32 */
+            observationsCreatedCount?: number;
+        };
+        SecurityAssetAssertionRenewApiRequest: {
+            approvedByActorKey?: string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            renewedByActorKey?: string;
+        };
+        SecurityAssetAssertionResponse: {
+            /** Format: uuid */
+            assertionId?: string;
+            businessCriticality?: string;
+            /** Format: uuid */
+            cloudResourceId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            dataSensitivity?: string;
+            deploymentEnvironment?: string;
+            evidenceReference?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            isPatientImpact?: boolean;
+            isRevenueImpact?: boolean;
+            provenanceKind?: string;
+            qualifiesAsCrownJewel?: boolean;
+            rationale?: string;
+            regulatoryClass?: string;
+            status?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        SecurityAssetAssertionRevokeApiRequest: {
+            revokedByActorKey?: string;
+        };
         SecurityDelta: {
             baseStatus?: null | string;
             controlName?: string;
@@ -9724,9 +9814,11 @@ export interface components {
         };
         SecurityEvidencePathExplanationTemplateResponse: {
             actor?: null | string;
+            architectSentence?: null | string;
             asset?: null | string;
             identity?: null | string;
             network?: null | string;
+            proposedChange?: null | string;
             verify?: null | string;
             weakControl?: null | string;
         };

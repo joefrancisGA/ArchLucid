@@ -25,9 +25,17 @@ public sealed partial class RunComparisonController
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        (IActionResult? error, AgentResultDiffResult? diff) =
-            await CompareAgentResultsCoreAsync(query, cancellationToken);
-        return error ?? Ok(ComparisonResponseMapper.ToAgentResultCompareResponse(diff!));
+        try
+        {
+            (IActionResult? error, AgentResultDiffResult? diff) =
+                await CompareAgentResultsCoreAsync(query, cancellationToken);
+
+            return error ?? Ok(ComparisonResponseMapper.ToAgentResultCompareResponse(diff!));
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunComparisonSealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("review/compare/agents/summary")]
@@ -39,13 +47,21 @@ public sealed partial class RunComparisonController
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        (IActionResult? error, AgentResultDiffResult? diff) =
-            await CompareAgentResultsCoreAsync(query, cancellationToken);
-        if (error is not null)
-            return error;
+        try
+        {
+            (IActionResult? error, AgentResultDiffResult? diff) =
+                await CompareAgentResultsCoreAsync(query, cancellationToken);
 
-        string summary = _agentResultDiffSummaryFormatter.FormatMarkdown(diff!);
-        return Ok(ComparisonResponseMapper.ToAgentResultCompareSummaryResponse(summary, diff!));
+            if (error is not null)
+                return error;
+
+            string summary = _agentResultDiffSummaryFormatter.FormatMarkdown(diff!);
+            return Ok(ComparisonResponseMapper.ToAgentResultCompareSummaryResponse(summary, diff!));
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunComparisonSealedManifestConflict(ex);
+        }
     }
 
     private async Task<(IActionResult? Error, AgentResultDiffResult? Diff)> CompareAgentResultsCoreAsync(

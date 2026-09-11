@@ -13,9 +13,12 @@ describe("error-recovery-contract-guard (TB-2155)", () => {
     const surfaceIds = ERROR_RECOVERY_CONTRACT_GUARDED_SURFACES.map((surface) => surface.id);
 
     expect(surfaceIds).toContain("review-package-load-failure");
+    expect(surfaceIds).toContain("review-detail-segment-error");
     expect(surfaceIds).toContain("operator-api-problem");
     expect(surfaceIds).toContain("operator-connectivity-error");
     expect(surfaceIds).toContain("governance-mutation-inline-error");
+    expect(surfaceIds).toContain("architecture-draft-offline-replay-conflict");
+    expect(surfaceIds).toContain("livelihood-mutation-resume-failed");
     expect(ERROR_RECOVERY_CONTRACT_REQUIRED_MARKERS).toContain("operator-error-recovery-what-failed");
   });
 

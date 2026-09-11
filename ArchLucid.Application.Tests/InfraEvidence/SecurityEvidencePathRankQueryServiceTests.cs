@@ -43,6 +43,51 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
     }
 
     [Fact]
+    public async Task TryGetPathRankAsync_includes_defender_posture_in_blast_radius_prose()
+    {
+        ScopeContext scope = CreateScope();
+        InMemoryPathRepository pathRepository = CreateSamplePathRepository();
+        InMemoryRankRepository rankRepository = new();
+        rankRepository.StoredRanks[(TenantId, PathId)] = new SecurityEvidencePathRankRecord
+        {
+            PathId = PathId,
+            TenantId = TenantId,
+            SnapshotId = SnapshotId,
+            RuleVersion = SecurityEvidencePathRankConstants.RuleVersion,
+            TechnicalExposureScore = 1.5m,
+            PrivilegeDepthScore = 2.0m,
+            BlastRadiusScore = 2.25m,
+            BusinessConsequenceScore = null,
+            ConfidenceBandScore = 2.0m,
+            CompositeSortScore = 1.8m,
+            RankOrder = 1,
+            ExplanationSummary = $"{SecurityEvidencePathRankConstants.RuleVersion}: sample rank.",
+            BreakdownJson =
+                """
+                [
+                  {
+                    "dimension": "BlastRadius",
+                    "rawScore": 2.25,
+                    "weight": 0.2,
+                    "weightedContribution": 0.45,
+                    "source": "resources:0+defender-posture-medium"
+                  }
+                ]
+                """,
+            ComputedUtc = DateTime.UtcNow,
+        };
+
+        SecurityEvidencePathRankQueryService sut = new(pathRepository, rankRepository, new InMemoryCutPointRepository());
+
+        SecurityEvidencePathRankDetailResponse? detail =
+            await sut.TryGetPathRankAsync(scope, PathId, CancellationToken.None);
+
+        detail.Should().NotBeNull();
+        detail!.DimensionProse.BlastRadius.Should().Contain("Defender posture band is Medium");
+        detail.DimensionProse.BlastRadius.Should().NotContain("%");
+    }
+
+    [Fact]
     public async Task ListRankedPathsAsync_returns_paths_in_rank_order()
     {
         ScopeContext scope = CreateScope();

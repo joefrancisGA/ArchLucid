@@ -179,6 +179,9 @@ public sealed class AzureInventorySnapshotMaterializer(
                 });
             }
 
+            IReadOnlyList<AzureInventoryDefenderSummaryWrite> defenderSummaries =
+                DefenderSummaryCompanionMaterializer.Materialize(inventory.DefenderSummary);
+
             AzureInventorySecurityEdgeMaterializeResult securityEdges =
                 AzureInventorySecurityEdgeMaterializer.Materialize(
                     inventory.Resources,
@@ -187,7 +190,9 @@ public sealed class AzureInventorySnapshotMaterializer(
                     inventory.PolicyAssignments,
                     inventory.DiagnosticSettings,
                     inventory.FederatedCredentials,
-                    inventory.FederatedCredentialsFilePresent);
+                    inventory.FederatedCredentialsFilePresent,
+                    inventory.EntraGroupMemberships,
+                    inventory.EntraGroupMembershipsFilePresent);
 
             byte[] contentHash = ComputeContentHash(resources, securityEdges.Relationships);
             AzureInventoryCaptureStatus status = resources.Count == 0
@@ -215,6 +220,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                     Tags = tags,
                     Diagnostics = diagnostics,
                     UnknownResources = unknowns,
+                    DefenderSummaries = defenderSummaries,
                 },
                 cancellationToken);
 

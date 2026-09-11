@@ -807,7 +807,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-10 thorough hunt #1680 (dry): cheap-disproof closed in-memory invitation clock-skew candidate as test-infra only; 42 scoped EmailOtp tests + 1 persistence regression passed.
 
 2026-09-10 seed hunt #1630 (seed-only): reseeded email-otp-auth after #1573; cheap-disproof closed challenge-linked accept without verify token, SelectWorkspace placeholder role, inactive membership filtering, expired linked-invitation routing, and verify rate-limit audit pairing; 41 scoped EmailOtp tests passed.
-
 ---
 
 ## Zone: auth-return-path

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { showMutationError } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { abandonDraftRequest } from "@/lib/api/draft-intake-api";
@@ -131,8 +132,9 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
         return;
       }
 
-      toast.error(
+      showMutationError(
         ARCHITECTURE_DRAFT_DELETE_FAILURE_MESSAGE,
+        undefined,
         isApiRequestError(error)
           ? {
               description:

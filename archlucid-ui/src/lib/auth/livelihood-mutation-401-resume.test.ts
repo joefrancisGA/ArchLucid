@@ -1,6 +1,9 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApiRequestError } from "@/lib/api-request-error";
+import { LIVELIHOOD_PENDING_MUTATION_KINDS } from "@/lib/auth/livelihood-mutation-401-resume-kinds";
 import {
   clearLivelihoodPendingMutation,
   consumeLivelihoodPendingMutationForReturnPath,
@@ -14,14 +17,8 @@ import {
   withLivelihood401Resume,
   writeLivelihoodPendingMutation,
 } from "@/lib/auth/livelihood-mutation-401-resume";
+import * as idleDeskRestore from "@/lib/auth/idle-desk-restore";
 import { replayLivelihoodPendingMutation } from "@/lib/auth/livelihood-mutation-401-resume-replay";
-
-const persistIdleDeskRestoreBeforeSessionClear = vi.fn();
-
-vi.mock("@/lib/auth/idle-desk-restore", () => ({
-  persistIdleDeskRestoreBeforeSessionClear: (...args: unknown[]) =>
-    persistIdleDeskRestoreBeforeSessionClear(...args),
-}));
 
 const recordFindingDisposition = vi.fn();
 const recordGovernanceMutationCorrection = vi.fn();
@@ -36,14 +33,18 @@ vi.mock("@/lib/governance/governance-mutation-correction-api", () => ({
 
 describe("livelihood-mutation-401-resume (LP-19 / LW-051)", () => {
   const assignMock = vi.fn();
+  let persistIdleDeskRestoreBeforeSessionClear: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
-    persistIdleDeskRestoreBeforeSessionClear.mockReset();
+    persistIdleDeskRestoreBeforeSessionClear = vi
+      .spyOn(idleDeskRestore, "persistIdleDeskRestoreBeforeSessionClear")
+      .mockImplementation(() => undefined);
     recordFindingDisposition.mockReset();
     recordGovernanceMutationCorrection.mockReset();
     assignMock.mockReset();
+    persistIdleDeskRestoreBeforeSessionClear.mockClear();
     Object.defineProperty(window, "location", {
       configurable: true,
       value: { assign: assignMock },
@@ -158,6 +159,101 @@ describe("livelihood-mutation-401-resume (LP-19 / LW-051)", () => {
     expect(readLivelihoodPendingMutation()).toBeNull();
   });
 
+  it("does not consume pending mutation on marketing or auth return paths (LW-064)", () => {
+    writeLivelihoodPendingMutation({
+      kind: "finding_disposition",
+      idempotencyKey: "66666666-6666-4666-8666-666666666666",
+      returnPath: "/architecture/reviews/run-6/findings/f-6",
+      savedAtUtc: "2026-09-08T12:00:00.000Z",
+      requestLeftClient: true,
+      payload: {
+        findingId: "f-6",
+        body: {
+          disposition: "Accepted",
+          runId: "run-6",
+        },
+      },
+    });
+
+    expect(consumeLivelihoodPendingMutationForReturnPath("/trust")).toBeNull();
+    expect(consumeLivelihoodPendingMutationForReturnPath("/auth/signin")).toBeNull();
+    expect(readLivelihoodPendingMutation()).not.toBeNull();
+
+    expect(consumeLivelihoodPendingMutationForReturnPath("/architecture/reviews/run-6/findings/f-6")).not.toBeNull();
+    clearLivelihoodPendingMutation();
+  });
+
+  it("survives tab close via localStorage and replays with the same idempotency key (LW-067)", async () => {
+    const idempotencyKey = "77777777-7777-4777-8777-777777777777";
+
+    writeLivelihoodPendingMutation({
+      kind: "finding_disposition",
+      idempotencyKey,
+      returnPath: "/architecture/reviews/run-7/findings/f-7",
+      savedAtUtc: "2026-09-10T12:00:00.000Z",
+      requestLeftClient: true,
+      payload: {
+        findingId: "f-7",
+        body: {
+          disposition: "Accepted",
+          runId: "run-7",
+        },
+      },
+    });
+
+    expect(sessionStorage.getItem(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY_V1)).toBeNull();
+    expect(localStorage.getItem(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY)).not.toBeNull();
+
+    const pending = consumeLivelihoodPendingMutationForReturnPath("/architecture/reviews/run-7/findings/f-7");
+
+    expect(pending?.idempotencyKey).toBe(idempotencyKey);
+
+    recordFindingDisposition.mockResolvedValue({ eventId: "evt-7" });
+
+    await replayLivelihoodPendingMutation(pending!);
+
+    expect(recordFindingDisposition).toHaveBeenCalledWith(
+      "f-7",
+      {
+        disposition: "Accepted",
+        runId: "run-7",
+      },
+      { idempotencyKey },
+    );
+  });
+
+  it("withLivelihood401Resume persists pending mutation on apiPost-style 401 (LW-068)", async () => {
+    const execute = vi.fn().mockRejectedValue(
+      new ApiRequestError("Unauthorized", {
+        problem: null,
+        correlationId: null,
+        httpStatus: 401,
+      }),
+    );
+
+    await expect(
+      withLivelihood401Resume({
+        kind: "finding_bulk_disposition",
+        returnPath: "/governance/findings",
+        idempotencyKey: "88888888-8888-4888-8888-888888888888",
+        payload: {
+          body: {
+            findingIds: ["f-8"],
+            disposition: "Accepted",
+          },
+        },
+        execute,
+      }),
+    ).rejects.toBeInstanceOf(LivelihoodMutation401RedirectError);
+
+    expect(localStorage.getItem(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY)).toContain(
+      "88888888-8888-4888-8888-888888888888",
+    );
+    expect(assignMock).toHaveBeenCalledWith(
+      "/auth/session-expired?reason=idle-timeout&returnUrl=%2Fgovernance%2Ffindings",
+    );
+  });
+
   it("does not consume pending mutation when return path differs", () => {
     writeLivelihoodPendingMutation({
       kind: "governance_mutation_correction",
@@ -178,6 +274,55 @@ describe("livelihood-mutation-401-resume (LP-19 / LW-051)", () => {
     expect(consumeLivelihoodPendingMutationForReturnPath("/architecture/reviews/run-3")).toBeNull();
     expect(readLivelihoodPendingMutation()).not.toBeNull();
     clearLivelihoodPendingMutation();
+  });
+
+  it("persists architecture_draft_patch with expectedUpdatedUtc on 401 (LW-055)", async () => {
+    const expectedUpdatedUtc = "2026-09-10T15:00:00.000Z";
+    const execute = vi.fn().mockRejectedValue(
+      new ApiRequestError("Unauthorized", {
+        problem: null,
+        correlationId: null,
+        httpStatus: 401,
+      }),
+    );
+
+    await expect(
+      withLivelihood401Resume({
+        kind: "architecture_draft_patch",
+        returnPath: "/architecture/drafts/draft-55",
+        idempotencyKey: "55555555-5555-4555-8555-555555555555",
+        payload: {
+          draftId: "draft-55",
+          body: {
+            freeTextIntent: "Resume after sign-in",
+            expectedUpdatedUtc,
+          },
+        },
+        execute,
+      }),
+    ).rejects.toBeInstanceOf(LivelihoodMutation401RedirectError);
+
+    const pending = readLivelihoodPendingMutation();
+
+    expect(pending?.kind).toBe("architecture_draft_patch");
+    expect(pending?.payload).toMatchObject({
+      draftId: "draft-55",
+      body: {
+        freeTextIntent: "Resume after sign-in",
+        expectedUpdatedUtc,
+      },
+    });
+  });
+
+  it("replay switch covers every livelihood pending mutation kind (LW-054)", () => {
+    const replaySource = readFileSync(
+      join(process.cwd(), "src/lib/auth/livelihood-mutation-401-resume-replay.ts"),
+      "utf8",
+    );
+
+    for (const kind of LIVELIHOOD_PENDING_MUTATION_KINDS) {
+      expect(replaySource).toContain(`case "${kind}"`);
+    }
   });
 
   it("withLivelihood401Resume delegates to executeIdempotentLivelihoodMutation", async () => {

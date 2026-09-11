@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
+import { SecureNowArchitectOutcomeMetricsPanel } from "@/components/security/SecureNowArchitectOutcomeMetricsPanel";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   EnterpriseTable,
@@ -18,7 +19,19 @@ import {
   useRemediationFactoryMetricsQuery,
   useRemediationRankedFindingsQuery,
 } from "@/hooks/use-remediation-factory-query";
+import { useSecurityEvidenceRankedPathsQuery } from "@/hooks/use-security-evidence-ranked-paths-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import {
+  formatSecurityEvidencePathConfidenceBandLabel,
+  securityEvidencePathConfidenceBandStatusKind,
+} from "@/lib/security-evidence-path-presentation";
+import type { SecurityEvidencePathRankSummary } from "@/lib/security-evidence-path-types";
+import {
+  SECURENOW_PATH_RANKED_PATHS_EMPTY,
+  SECURENOW_PATH_RANKED_PATHS_ERROR,
+  SECURENOW_PATH_RANKED_PATHS_LEAD,
+  SECURENOW_PATH_RANKED_PATHS_TITLE,
+} from "@/lib/product-line/securenow-path-inspect-copy";
 
 function MetricCard(props: { readonly label: string; readonly value: string; readonly hint?: string }) {
   return (
@@ -83,21 +96,65 @@ function PriorityTable(props: {
   );
 }
 
+function RankedPathsTable(props: {
+  readonly rows: ReadonlyArray<SecurityEvidencePathRankSummary>;
+  readonly selectedPathId: string | null;
+  readonly onSelect: (pathId: string) => void;
+}) {
+  return (
+    <EnterpriseTable ariaLabel={SECURENOW_PATH_RANKED_PATHS_TITLE}>
+      <EnterpriseTableHead>
+        <EnterpriseTableRow>
+          <EnterpriseTableHeaderCell>Rank</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
+        </EnterpriseTableRow>
+      </EnterpriseTableHead>
+      <EnterpriseTableBody>
+        {props.rows.map((row) => (
+          <EnterpriseTableRow
+            key={row.pathId}
+            data-testid={`security-evidence-ranked-path-row-${row.pathId}`}
+            onClick={() => props.onSelect(row.pathId)}
+            className={props.selectedPathId === row.pathId ? "bg-muted/40" : undefined}
+          >
+            <EnterpriseTableCell>{row.rankOrder}</EnterpriseTableCell>
+            <EnterpriseTableCell>{row.pathKind}</EnterpriseTableCell>
+            <EnterpriseTableCell>
+              <StatusTag
+                kind={securityEvidencePathConfidenceBandStatusKind(row.pathConfidenceBand)}
+                label={formatSecurityEvidencePathConfidenceBandLabel(row.pathConfidenceBand)}
+              />
+            </EnterpriseTableCell>
+            <EnterpriseTableCell>{row.compositeSortScore.toFixed(4)}</EnterpriseTableCell>
+            <EnterpriseTableCell className="max-w-md truncate">{row.explanationSummary}</EnterpriseTableCell>
+          </EnterpriseTableRow>
+        ))}
+      </EnterpriseTableBody>
+    </EnterpriseTable>
+  );
+}
+
 export function RemediationFactoryClient() {
   const rankedQuery = useRemediationRankedFindingsQuery();
+  const rankedPathsQuery = useSecurityEvidenceRankedPathsQuery();
   const metricsQuery = useRemediationFactoryMetricsQuery();
   const [selectedFindingId, setSelectedFindingId] = useState<string | null>(null);
+  const [selectedPathId, setSelectedPathId] = useState<string | null>(null);
   const [simulatorSummary, setSimulatorSummary] = useState<string | null>(null);
   const [simulatorError, setSimulatorError] = useState<string | null>(null);
   const pathInspectPanelRef = useRef<HTMLElement | null>(null);
 
   const ranked = rankedQuery.data ?? [];
+  const rankedPaths = rankedPathsQuery.data?.items ?? [];
 
   useEffect(() => {
-    if (selectedFindingId != null) {
+    if (selectedFindingId != null || selectedPathId != null) {
       pathInspectPanelRef.current?.focus();
     }
-  }, [selectedFindingId]);
+  }, [selectedFindingId, selectedPathId]);
 
   async function runSimulator(findingId: string) {
     setSimulatorError(null);
@@ -128,6 +185,8 @@ export function RemediationFactoryClient() {
         <p className={OPERATOR_TYPOGRAPHY.helper}>Loading executive metrics…</p>
       )}
 
+      <SecureNowArchitectOutcomeMetricsPanel />
+
       <section className="space-y-3" aria-label="Operator priority table">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Priority queue</h2>
         {rankedQuery.isError ? (
@@ -135,11 +194,43 @@ export function RemediationFactoryClient() {
         ) : ranked.length === 0 ? (
           <p className={OPERATOR_TYPOGRAPHY.helper}>No open operational security findings to rank.</p>
         ) : (
-          <PriorityTable rows={ranked} selectedFindingId={selectedFindingId} onSelect={setSelectedFindingId} />
+          <PriorityTable
+            rows={ranked}
+            selectedFindingId={selectedFindingId}
+            onSelect={(findingId) => {
+              setSelectedFindingId(findingId);
+              setSelectedPathId(null);
+            }}
+          />
         )}
       </section>
 
-      <SecurityEvidencePathInspectPanel findingId={selectedFindingId} panelRef={pathInspectPanelRef} />
+      <section className="space-y-3" aria-label={SECURENOW_PATH_RANKED_PATHS_TITLE}>
+        <header className="space-y-1">
+          <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_RANKED_PATHS_TITLE}</h2>
+          <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_RANKED_PATHS_LEAD}</p>
+        </header>
+        {rankedPathsQuery.isError ? (
+          <StatusTag kind="needs-attention" label={SECURENOW_PATH_RANKED_PATHS_ERROR} />
+        ) : rankedPaths.length === 0 ? (
+          <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_RANKED_PATHS_EMPTY}</p>
+        ) : (
+          <RankedPathsTable
+            rows={rankedPaths}
+            selectedPathId={selectedPathId}
+            onSelect={(pathId) => {
+              setSelectedPathId(pathId);
+              setSelectedFindingId(null);
+            }}
+          />
+        )}
+      </section>
+
+      <SecurityEvidencePathInspectPanel
+        findingId={selectedFindingId}
+        pathIdOverride={selectedPathId}
+        panelRef={pathInspectPanelRef}
+      />
 
       <section
         className="space-y-3 rounded border border-dashed border-border p-4"

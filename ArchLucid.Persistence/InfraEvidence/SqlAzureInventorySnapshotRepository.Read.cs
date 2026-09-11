@@ -65,7 +65,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                 cancellationToken: cancellationToken));
 
         const string relationshipsSql = """
-                                        SELECT FromAzureResourceId, ToAzureResourceId, RelationshipType, ProvenanceKind
+                                        SELECT FromAzureResourceId, ToAzureResourceId, RelationshipType, ProvenanceKind, InferenceSource
                                         FROM dbo.AzureInventoryResourceRelationships
                                         WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
                                         """;
@@ -102,6 +102,19 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                     new { scope.TenantId, SnapshotId = snapshotId },
                     cancellationToken: cancellationToken));
 
+        const string defenderSummariesSql = """
+                                            SELECT ResourceId, SecureScore, SourceEvidenceReference
+                                            FROM dbo.AzureInventoryDefenderSummaries
+                                            WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+                                            """;
+
+        IEnumerable<AzureInventoryDefenderSummaryReadModel> defenderSummaries =
+            await conn.QueryAsync<AzureInventoryDefenderSummaryReadModel>(
+                new CommandDefinition(
+                    defenderSummariesSql,
+                    new { scope.TenantId, SnapshotId = snapshotId },
+                    cancellationToken: cancellationToken));
+
         return new AzureInventorySnapshotDetailReadModel
         {
             Header = header,
@@ -115,10 +128,12 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                     ToAzureResourceId = r.ToAzureResourceId,
                     RelationshipType = r.RelationshipType,
                     ProvenanceKind = (ProvenanceKind)r.ProvenanceKind,
+                    InferenceSource = r.InferenceSource,
                 })
                 .ToList(),
             RoleAssignments = roleAssignments.ToList(),
             Diagnostics = diagnostics.ToList(),
+            DefenderSummaries = defenderSummaries.ToList(),
         };
     }
 
@@ -143,6 +158,12 @@ public sealed partial class SqlAzureInventorySnapshotRepository
         } = string.Empty;
 
         public int ProvenanceKind
+        {
+            get;
+            init;
+        }
+
+        public string? InferenceSource
         {
             get;
             init;

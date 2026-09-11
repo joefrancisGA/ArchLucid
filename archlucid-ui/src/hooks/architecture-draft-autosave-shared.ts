@@ -34,6 +34,8 @@ export type UseArchitectureDraftAutosaveArgs = {
     readonly fields: ArchitectureDraftFieldState;
     readonly actorSet: ActorSet;
   }) => void;
+  /** Safe return path for livelihood 401 resume (LW-055). */
+  readonly livelihoodReturnPath?: string;
 };
 
 export type UseArchitectureDraftAutosaveResult = {
@@ -59,6 +61,8 @@ export type UseArchitectureDraftAutosaveResult = {
   readonly recoveredLocally: boolean;
   /** LK-12: overwrite server copy with this tab's unsaved edits after a conflict. */
   readonly keepLocalDraftOnConflict: () => Promise<boolean>;
+  /** True when the most recent persist attempt ended in a sealed-manifest or revision conflict. */
+  readonly wasLastSaveConflict: () => boolean;
 };
 
 export function fieldsAreEqual(left: ArchitectureDraftFieldState, right: ArchitectureDraftFieldState): boolean {

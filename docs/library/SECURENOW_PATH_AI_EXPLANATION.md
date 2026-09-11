@@ -41,6 +41,12 @@ There is **no** separate host JSON toggle for path explanations. Behavior matche
 
 Structured path GET (`/paths/{pathId}`) remains authoritative; explanations are interpretive artifacts only.
 
+## Remediation factory UI
+
+- **Generate simulator explanation** button on the path inspect panel calls `POST …/explanations` with `{ useSimulator: true, allowInsufficientEvidence: false }`.
+- Default label and provenance copy come from `securenow-path-inspect-copy.ts` (`SIMULATOR` provenance when the response is deterministic).
+- Ranked-path rows can open the same panel via `pathIdOverride` without a finding citation.
+
 ## Modules
 
 - `SecurityEvidencePathExplanationService`

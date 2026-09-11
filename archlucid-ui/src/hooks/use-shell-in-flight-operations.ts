@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 
 import { getOperation } from "@/lib/api/operations-api";
+import { showMutationSonnerError } from "@/lib/toast";
 import { isApiRequestError } from "@/lib/api-request-error";
 import {
   advisoryDraftOperationMissingMessage,
@@ -96,7 +97,7 @@ function notifyTerminalIfElsewhere(
   }
 
   if (operation.state === "Failed") {
-    toast.error(`${operation.title} failed`, {
+    showMutationSonnerError(`${operation.title} failed`, {
       description,
       action: {
         label: "Open",

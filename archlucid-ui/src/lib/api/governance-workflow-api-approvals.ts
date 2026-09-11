@@ -10,7 +10,9 @@ import type {
 } from "@/types/governance-workflow";
 import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { governanceApprovalLineageBlockedReason } from "@/lib/governance/governance-approval-lineage-blocked-reason";
 import { governanceWorkflowMutationBlockedReason } from "@/lib/governance/governance-workflow-mutation-blocked-reason";
+import { governanceWorkflowRunReadBlockedReason } from "@/lib/governance/governance-workflow-run-read-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
@@ -22,18 +24,32 @@ const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 export async function getApprovalRequestLineage(
   approvalRequestId: string,
 ): Promise<GovernanceLineageResult> {
-  return apiGetSealedManifestAware<GovernanceLineageResult>(
-    `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/lineage`,
-  );
+  try {
+    return await apiGetSealedManifestAware<GovernanceLineageResult>(
+      `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/lineage`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceApprovalLineageBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Deterministic governance rationale (lineage-derived bullets; no LLM). */
 export async function getGovernanceApprovalRationale(
   approvalRequestId: string,
 ): Promise<GovernanceRationaleResult> {
-  return apiGetSealedManifestAware<GovernanceRationaleResult>(
-    `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/rationale`,
-  );
+  try {
+    return await apiGetSealedManifestAware<GovernanceRationaleResult>(
+      `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/rationale`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceApprovalLineageBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Lists approval requests for a run (approval workflow). */
@@ -45,10 +61,17 @@ export async function listApprovalRequests(
     return [];
   }
 
-  return apiGetSealedManifestAware<GovernanceApprovalRequest[]>(
-    `${governanceBase()}/runs/${encodeURIComponent(runId)}/approval-requests`,
-    options,
-  );
+  try {
+    return await apiGetSealedManifestAware<GovernanceApprovalRequest[]>(
+      `${governanceBase()}/runs/${encodeURIComponent(runId)}/approval-requests`,
+      options,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceWorkflowRunReadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Submits a new approval request for manifest promotion between environments. */
@@ -153,7 +176,14 @@ export async function listPromotions(runId: string): Promise<GovernancePromotion
     return [];
   }
 
-  return apiGetSealedManifestAware<GovernancePromotionRecord[]>(
-    `${governanceBase()}/runs/${encodeURIComponent(runId)}/promotions`,
-  );
+  try {
+    return await apiGetSealedManifestAware<GovernancePromotionRecord[]>(
+      `${governanceBase()}/runs/${encodeURIComponent(runId)}/promotions`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceWorkflowRunReadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
