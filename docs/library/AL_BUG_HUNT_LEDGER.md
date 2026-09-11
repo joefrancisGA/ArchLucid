@@ -1822,11 +1822,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 13
-- **bugs-found:** 7
+- **hunts:** 14
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-10 — invisible-only architect restatement and optional rationale bypassed HasSubstantiveText
+- **last-bug:** 2026-09-11 — guided-desk preview override bypass; bulk duplicate finding ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1883,6 +1883,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-10 thorough hunt #1579 (dry): cheap-disproved whitespace row-version concurrency bypass; added invalid-base64 guard regression; seeded bulk row-version decode candidate; 36 scoped finding-disposition tests passed.
 
 2026-09-10 seed hunt #1578 (seed→hit): reseeded finding-disposition; proved invisible architect restatement and optional rationale gaps; seeded whitespace row-version concurrency candidate; 33 scoped finding-disposition tests passed.
+
+- [x] (proven) `FindingDispositionValidation.Validate` — optional `PreviewOverrideReason` on guided-desk `Remediated` bypassed `HasSubstantiveText` because only `ValidateWorkingRemediatedImpactPreviewAttestation` guarded the field — **hit 2026-09-11 seed hunt #1718:** invisible-only override text persisted in disposition notes via `BuildImpactPreviewAttestationNote`; fixed with optional-field guard in `Validate()`; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided`, `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
+- [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch appended multiple events while current pointer kept last only — **hit 2026-09-11 seed hunt #1718:** `HashSet<string>` on trimmed finding ids before repository call; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
+- [ ] (candidate) `FindingDispositionService.BuildImpactPreviewAttestationNote` — guided-desk `Remediated` with `ImpactPreviewCompleted=true` appends “completed preview” audit text without Working-desk attestation requirement; may be intentional enrichment vs misleading proof — reachability depends on whether clients send the flag on guided desk
+
+2026-09-11 seed hunt #1718 (seed→hit): reseeded finding-disposition; proved guided-desk preview override bypass and bulk duplicate finding ids; seeded guided ImpactPreviewCompleted audit-note candidate; 58 scoped FindingDisposition tests passed.
 
 ---
 
