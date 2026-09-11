@@ -11596,10 +11596,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-09 — `TenantTrialFacade` ignored non-canonical Converted casing for identity handoff pending flag
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11625,7 +11625,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TrialLimitGate` used Ordinal `TrialStatus` compares — **hit 2026-09-07 (#1249):** lowercase `active` returned before expiry/run/seat enforcement; lowercase `expired`/`readonly`/`exportonly` skipped post-active write freeze; fixed with `TrialLifecycleStatus.EqualsStatus` throughout; regressions `GuardWriteAsync_lowercase_active_expired_throws_Expired`, `GuardWriteAsync_lowercase_expired_throws_LifecycleWritesFrozen`.
 - [x] (proven) `TenantUsageStatusService` treated trial only when `TrialStatus` equals `Active` ordinally — **hit 2026-09-07 (#1249):** lowercase `active` omitted trial packaging snapshot; fixed with `TrialLifecycleStatus.EqualsStatus`; regression `BuildAsync_marks_lowercase_active_trial_and_null_commercial_tier`.
 - [x] (proven) `TenantTrialFacade.ComputeIdentityHandoffPending` — Ordinal `Converted` compare hid pending Entra handoff for legacy/import lowercase `converted` rows — **hit 2026-09-09 seed hunt #1423:** trial status API returned `IdentityHandoffPending=false` after #1248/#1249 lifecycle casing fixes elsewhere; fixed with `TrialLifecycleStatus.EqualsStatus`; regression in `GetTrialStatusAsync_sets_identity_handoff_pending_when_converted_status_differs_only_by_casing`
-- [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — unrecognized non-empty `TrialStatus` values that are not Active/Converted/Deleted/Expired/ReadOnly/ExportOnly fall through without blocking mutating work (fail-open vs corrupted or future lifecycle labels)
+- [x] (valid-no-repro) `TrialLimitGate.GuardWriteAsync` — unrecognized non-empty `TrialStatus` values that are not Active/Converted/Deleted/Expired/ReadOnly/ExportOnly fall through without blocking mutating work — **cheap-disproof 2026-09-11 thorough hunt #1705:** lifecycle commit hooks write only canonical labels (`DapperTenantRepository.TrialLifecycle.*`); commercial tenants use null/empty status; intentional fail-open for non-frozen unrecognized labels; regression `GuardWriteAsync_unrecognized_trial_status_does_not_enforce_trial_limits`
+
+2026-09-11 thorough hunt #1705 (dry): cheap-disproof closed unrecognized TrialStatus fail-open candidate; 115 scoped tenancy tests passed.
 
 2026-09-09 seed hunt #1423 (hit): reseeded application-tenancy-lifecycle; proved facade identity-handoff pending ignored non-canonical Converted casing; seeded unrecognized TrialStatus fail-open candidate; 114 scoped tenancy tests passed.
 
