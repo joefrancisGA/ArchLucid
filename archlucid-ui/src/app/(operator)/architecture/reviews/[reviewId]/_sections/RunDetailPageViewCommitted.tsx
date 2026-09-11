@@ -115,6 +115,8 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
         <RunDetailPreFinalizeChecklistSection
           runId={m.resolvedDetail.run.runId}
           manifestFinalized={Boolean(m.manifestId)}
+          workingCareerRehearsalDoor={m.progressForPipelineUi.workingCareerRehearsalDoor}
+          structuralExecutionMode={m.resolvedDetail.run.structuralExecutionMode}
         />
       ) : null}
 

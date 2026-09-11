@@ -2652,4 +2652,120 @@ public sealed class FindingInspectReadRepositoryCoreTests
 
         projection.LatestDisposition.Should().Be(expected);
     }
+
+    [Fact]
+    public void BuildMetadataTypedPayload_returns_null_when_only_invisible_unicode_title_is_present()
+    {
+        // U+200B is not whitespace per string.IsNullOrWhiteSpace; inspect metadata should not surface empty-looking payloads.
+        FindingInspectReadRepositoryCore.BuildMetadataTypedPayload("\u200B", null).Should().BeNull();
+    }
+
+    [Fact]
+    public void BuildMetadataTypedPayload_returns_null_when_only_invisible_unicode_rationale_is_present()
+    {
+        FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(null, "\u200B").Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_null_metadata_when_corrupt_payload_and_invisible_unicode_title()
+    {
+        FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            "\u200B",
+            null).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspectRead_metadata_only_returns_null_when_only_invisible_unicode_fields_present()
+    {
+        FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload: false,
+            payloadJson: null,
+            title: "\u200B",
+            rationale: "\u200B").Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_numeric_elements_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            "[1, 2]",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
+
+    [Theory]
+    [InlineData("00", FindingDisposition.Accepted)]
+    [InlineData("0x0", null)]
+    public void ParseDisposition_handles_leading_zero_and_hex_prefixed_numeric_strings(string raw, FindingDisposition? expected)
+    {
+        FindingInspectReadModelMapper.ParseDisposition(raw).Should().Be(expected);
+    }
+
+    [Fact]
+    public void MainInspect_scopes_agent_execution_trace_by_run_id_without_tenant_column()
+    {
+        // AgentExecutionTraces has no TenantId column; run + trace id binding is the isolation boundary.
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("aet.TraceId = fr.AgentExecutionTraceId");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("aet.RunId = r.RunId");
+    }
+
+    [Fact]
+    public void BuildEvidenceFromRelatedNodes_drops_invisible_unicode_only_related_nodes()
+    {
+        FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes(["\u200B"]).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FilterNonBlankTrimmedStrings_drops_invisible_unicode_recommended_action_text()
+    {
+        FindingInspectReadRepositoryCore.FilterNonBlankTrimmedStrings(["\u200B", "Rotate keys"]).Should()
+            .Equal("Rotate keys");
+    }
+
+    [Fact]
+    public void ResolveTraceRuleFields_returns_nulls_when_trace_text_is_invisible_unicode_only()
+    {
+        FindingInspectReadRepositoryCore.ResolveTraceRuleFields("\u200B").Should().Be((null, null));
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_only_invisible_unicode_entries_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["\u200B"]""",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
+
+    [Theory]
+    [InlineData("\u200B")]
+    [InlineData(" \u200B ")]
+    public void NormalizeInspectDisplayText_returns_null_for_invisible_unicode_only_governance_strings(string value)
+    {
+        FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(value).Should().BeNull();
+    }
+
+    [Fact]
+    public void NormalizeInspectDisplayText_trims_and_preserves_substantive_mute_reason_reasoning_trace_and_assignee()
+    {
+        FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(" noise ").Should().Be("noise");
+        FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(" trace ").Should().Be("trace");
+        FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(" user-1 ").Should().Be("user-1");
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_invisible_unicode_then_valid_rule_uses_first_substantive_id()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["\u200B", "cost-guardrail"]""",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("cost-guardrail");
+        ruleName.Should().Be("cost-guardrail");
+    }
 }

@@ -30,7 +30,7 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
                 NodeId = nodeId,
                 NodeType = GraphNodeTypes.TopologyResource,
                 Label = ResolveLabel(resource),
-                Category = ResolveCategory(resource.ResourceType),
+                Category = AzureInventoryTopologyCategory.Resolve(resource.ResourceType),
                 SourceType = ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot,
                 SourceId = resource.AzureResourceId,
             };
@@ -139,39 +139,4 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
         return resource.ResourceType;
     }
 
-    private static string ResolveCategory(string resourceType)
-    {
-        if (resourceType.Contains("/network", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("networksecuritygroups", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Network;
-        }
-
-        if (resourceType.Contains("/storage", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Storage;
-        }
-
-        if (resourceType.Contains("/compute", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("sites", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("serverfarms", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Compute;
-        }
-
-        if (resourceType.Contains("/sql", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("/documentdb", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("/dbfor", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Data;
-        }
-
-        if (resourceType.Contains("managedidentity", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("authorization", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Identity;
-        }
-
-        return GraphTopologyCategories.Compute;
-    }
 }
