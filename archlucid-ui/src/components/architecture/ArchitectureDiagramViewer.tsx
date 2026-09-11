@@ -43,6 +43,7 @@ import {
   fitMermaidSvgElementToViewport,
   type MermaidViewportFitDimensions,
   prepareMermaidSvgForResponsiveLayout,
+  readMermaidViewportFitBudget,
   sanitizeMermaidRenderId,
 } from '@/lib/help/help-mermaid';
 import { OPERATOR_TYPOGRAPHY } from '@/lib/design-tokens';
@@ -52,8 +53,6 @@ import { cn } from '@/lib/utils';
 const ZOOM_STEP = 0.1;
 const MAX_INITIAL_FIT_RETRIES = 8;
 const INITIAL_FIT_RETRY_DELAY_MS = 120;
-/** Matches Tailwind max-h-[36rem] on the inventory diagram viewport. */
-const MERMAID_VIEWPORT_MAX_HEIGHT_PX = 576;
 
 export type ArchitectureDiagramSourceKind = 'html' | 'image';
 
@@ -99,19 +98,6 @@ function scrollViewportToOrigin(viewport: HTMLDivElement | null): void {
   viewport.scrollTop = 0;
 }
 
-function readMermaidViewportFitTarget(viewport: HTMLDivElement): { widthPx: number; heightPx: number } {
-  const style = getComputedStyle(viewport);
-  const paddingX = Number.parseFloat(style.paddingLeft) + Number.parseFloat(style.paddingRight);
-  const paddingY = Number.parseFloat(style.paddingTop) + Number.parseFloat(style.paddingBottom);
-  const widthPx = Math.max(1, viewport.clientWidth - paddingX);
-  const measuredHeight = viewport.clientHeight - paddingY;
-  const fallbackHeight = Math.min(MERMAID_VIEWPORT_MAX_HEIGHT_PX, Math.max(240, widthPx * 0.5));
-  const heightPx =
-    measuredHeight > 1 ? Math.min(MERMAID_VIEWPORT_MAX_HEIGHT_PX, measuredHeight) : fallbackHeight;
-
-  return { widthPx, heightPx };
-}
-
 function applyMermaidViewportCamera(
   host: HTMLDivElement,
   viewport: HTMLDivElement,
@@ -123,7 +109,7 @@ function applyMermaidViewportCamera(
     return null;
   }
 
-  const { widthPx, heightPx } = readMermaidViewportFitTarget(viewport);
+  const { widthPx, heightPx } = readMermaidViewportFitBudget(viewport);
   const baseFit = fitMermaidSvgElementToViewport(svg, widthPx, heightPx);
 
   if (baseFit !== null) {
@@ -131,6 +117,18 @@ function applyMermaidViewportCamera(
   }
 
   return baseFit;
+}
+
+function syncMermaidViewportCamera(
+  host: HTMLDivElement | null,
+  viewport: HTMLDivElement | null,
+  zoom: number,
+): MermaidViewportFitDimensions | null {
+  if (host === null || viewport === null) {
+    return null;
+  }
+
+  return applyMermaidViewportCamera(host, viewport, zoom);
 }
 
 function useDiagramZoomState(pathname: string) {
@@ -293,6 +291,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   const baseFitRef = useRef<MermaidViewportFitDimensions | null>(null);
   const fullscreenBaseFitRef = useRef<MermaidViewportFitDimensions | null>(null);
   const fullscreenOpenRef = useRef<boolean>(fullscreenOpen);
+  const mermaidFitRetryCountRef = useRef(0);
+  const mermaidFitRetryTimeoutRef = useRef<number | null>(null);
   const zoom = useDiagramZoomState(pathname);
 
   fullscreenOpenRef.current = fullscreenOpen;
@@ -357,26 +357,42 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     props.onExportableSvgMarkupChange?.(sanitizedSvg);
   }, [props.onExportableSvgMarkupChange, sanitizedSvg]);
 
-  const syncInlineViewportCamera = useCallback((): void => {
+  const syncInlineViewportCamera = useCallback((): boolean => {
     const host = svgHostRef.current;
     const viewport = viewportRef.current;
 
     if (host === null || viewport === null) {
-      return;
+      return false;
     }
 
-    baseFitRef.current = applyMermaidViewportCamera(host, viewport, zoom.zoom);
+    const baseFit = syncMermaidViewportCamera(host, viewport, zoom.zoom);
+
+    if (baseFit === null) {
+      return false;
+    }
+
+    baseFitRef.current = baseFit;
+
+    return true;
   }, [zoom.zoom]);
 
-  const syncFullscreenViewportCamera = useCallback((): void => {
+  const syncFullscreenViewportCamera = useCallback((): boolean => {
     const host = fullscreenHostRef.current;
     const viewport = fullscreenViewportRef.current;
 
     if (host === null || viewport === null) {
-      return;
+      return false;
     }
 
-    fullscreenBaseFitRef.current = applyMermaidViewportCamera(host, viewport, zoom.zoom);
+    const baseFit = syncMermaidViewportCamera(host, viewport, zoom.zoom);
+
+    if (baseFit === null) {
+      return false;
+    }
+
+    fullscreenBaseFitRef.current = baseFit;
+
+    return true;
   }, [zoom.zoom]);
 
   const fitToView = useCallback(() => {
@@ -401,11 +417,49 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       return;
     }
 
-    syncInlineViewportCamera();
+    mermaidFitRetryCountRef.current = 0;
 
-    const rafId = window.requestAnimationFrame(() => {
-      syncInlineViewportCamera();
-    });
+    if (mermaidFitRetryTimeoutRef.current !== null) {
+      window.clearTimeout(mermaidFitRetryTimeoutRef.current);
+      mermaidFitRetryTimeoutRef.current = null;
+    }
+
+    const scheduleFitRetry = (): void => {
+      mermaidFitRetryCountRef.current += 1;
+
+      if (mermaidFitRetryCountRef.current > MAX_INITIAL_FIT_RETRIES) {
+        return;
+      }
+
+      mermaidFitRetryTimeoutRef.current = window.setTimeout(() => {
+        mermaidFitRetryTimeoutRef.current = null;
+
+        if (syncInlineViewportCamera()) {
+          scrollViewportToOrigin(viewportRef.current);
+          return;
+        }
+
+        scheduleFitRetry();
+      }, INITIAL_FIT_RETRY_DELAY_MS);
+    };
+
+    const runInitialFit = (): void => {
+      if (syncInlineViewportCamera()) {
+        scrollViewportToOrigin(viewportRef.current);
+        return;
+      }
+
+      window.requestAnimationFrame(() => {
+        if (syncInlineViewportCamera()) {
+          scrollViewportToOrigin(viewportRef.current);
+          return;
+        }
+
+        scheduleFitRetry();
+      });
+    };
+
+    runInitialFit();
 
     const viewport = viewportRef.current;
     const resizeObserver =
@@ -420,7 +474,11 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     }
 
     return (): void => {
-      window.cancelAnimationFrame(rafId);
+      if (mermaidFitRetryTimeoutRef.current !== null) {
+        window.clearTimeout(mermaidFitRetryTimeoutRef.current);
+        mermaidFitRetryTimeoutRef.current = null;
+      }
+
       resizeObserver?.disconnect();
     };
   }, [sanitizedSvg, syncInlineViewportCamera]);
@@ -430,11 +488,19 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       return;
     }
 
-    syncFullscreenViewportCamera();
+    const runFullscreenFit = (): void => {
+      if (syncFullscreenViewportCamera()) {
+        scrollViewportToOrigin(fullscreenViewportRef.current);
+        return;
+      }
 
-    const rafId = window.requestAnimationFrame(() => {
-      syncFullscreenViewportCamera();
-    });
+      window.requestAnimationFrame(() => {
+        syncFullscreenViewportCamera();
+        scrollViewportToOrigin(fullscreenViewportRef.current);
+      });
+    };
+
+    runFullscreenFit();
 
     const viewport = fullscreenViewportRef.current;
     const resizeObserver =
@@ -449,7 +515,6 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     }
 
     return (): void => {
-      window.cancelAnimationFrame(rafId);
       resizeObserver?.disconnect();
     };
   }, [fullscreenOpen, sanitizedSvg, syncFullscreenViewportCamera]);
