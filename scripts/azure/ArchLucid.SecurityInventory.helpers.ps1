@@ -115,6 +115,57 @@ function Add-ArchLucidSecurityInventoryResourceProperties
         {
         }
     }
+
+    if ($AzResource.ResourceType -like "*userAssignedIdentities*")
+    {
+        try
+        {
+            [string]$principalId = "$( $AzResource.Properties.principalId )".Trim()
+
+            if (-not ([string]::IsNullOrWhiteSpace($principalId)))
+            {
+                $Properties["principalId"] = $principalId
+            }
+
+            [string]$clientId = "$( $AzResource.Properties.clientId )".Trim()
+
+            if (-not ([string]::IsNullOrWhiteSpace($clientId)))
+            {
+                $Properties["clientId"] = $clientId
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    if ($AzResource.ResourceType -like "*networkSecurityGroups*")
+    {
+        try
+        {
+            if ($null -ne $AzResource.Properties.securityRules)
+            {
+                $Properties["securityRules"] = ($AzResource.Properties.securityRules | ConvertTo-Json -Depth 20 -Compress)
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    if ($AzResource.ResourceType -like "*virtualNetworks*")
+    {
+        try
+        {
+            if ($null -ne $AzResource.Properties.subnets)
+            {
+                $Properties["subnets"] = ($AzResource.Properties.subnets | ConvertTo-Json -Depth 20 -Compress)
+            }
+        }
+        catch
+        {
+        }
+    }
 }
 
 function Get-ArchLucidAzureRoleAssignmentCompanionRows
@@ -171,6 +222,7 @@ function Get-ArchLucidAzureRoleAssignmentCompanionRows
             principalId = $assignment.ObjectId
             principalType = $assignment.ObjectType
             roleDefinitionId = $assignment.RoleDefinitionId
+            pimEligibilityKind = "standing"
         }
     }
 
@@ -248,6 +300,19 @@ function Get-ArchLucidAzureNetworkAssociationCompanionRows
         }
     }
 
+    [object[]]$nsgAllowRuleRows = @(Get-ArchLucidAzureNsgAllowRuleCompanionRows -InventoryResources @($InventoryResources))
+
+    foreach ($nsgAllowRuleRow in @($nsgAllowRuleRows))
+    {
+        Add-ArchLucidNetworkAssociationRow `
+            -Rows $rows `
+            -Seen $seen `
+            -FromResourceId $nsgAllowRuleRow.fromResourceId `
+            -ToResourceId $nsgAllowRuleRow.toResourceId `
+            -AssociationType $nsgAllowRuleRow.associationType `
+            -RuleName $nsgAllowRuleRow.ruleName
+    }
+
     return @($rows.ToArray())
 }
 
@@ -295,4 +360,303 @@ function Resolve-ArchLucidAssociatedResourceFromIpConfiguration([string] $IpConf
     if ($index -le 0) { return $null }
 
     return $normalized.Substring(0, $index)
+}
+
+function Get-ArchLucidAzureFederatedCredentialCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not ($resourceType -like "*userAssignedIdentities*")) { continue }
+        if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
+
+        [string]$principalId = "$( $resource.properties.principalId )".Trim()
+        [string]$clientId = "$( $resource.properties.clientId )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($principalId)) { continue }
+
+        try
+        {
+            [string]$path = "$resourceId/federatedIdentityCredentials?api-version=2023-01-31"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($credential in @($payload.value))
+            {
+                [string]$issuer = "$( $credential.properties.issuer )".Trim()
+                [string]$subject = "$( $credential.properties.subject )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($issuer)) { continue }
+                if ([string]::IsNullOrWhiteSpace($subject)) { continue }
+
+                [void]$rows.Add([ordered]@{
+                    issuer = $issuer
+                    subject = $subject
+                    principalId = $principalId
+                    appId = $(if ([string]::IsNullOrWhiteSpace($clientId)) { $null } else { $clientId })
+                    parentResourceId = $resourceId
+                    credentialName = $credential.name
+                    provenanceKind = "ObservedFact"
+                })
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureNsgAllowRuleCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    $rows = [System.Collections.ArrayList]::new()
+    $allowRulesByNsgId = @{}
+    $subnetResourceGroups = @{}
+    $storageAccountsByResourceGroup = @{}
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
+
+        if ($resourceType -like "*networkSecurityGroups*")
+        {
+            Add-ArchLucidNsgAllowRulesForResource -AllowRulesByNsgId $allowRulesByNsgId -Resource $resource
+            continue
+        }
+
+        if ($resourceType -like "*virtualNetworks*")
+        {
+            Add-ArchLucidSubnetResourceGroups -SubnetResourceGroups $subnetResourceGroups -Resource $resource
+            continue
+        }
+
+        if ($resourceType -like "*storageAccounts*")
+        {
+            [string]$resourceGroupName = Get-ArchLucidResourceGroupNameFromResourceId -ResourceId $resourceId
+
+            if (-not ([string]::IsNullOrWhiteSpace($resourceGroupName)))
+            {
+                if (-not $storageAccountsByResourceGroup.ContainsKey($resourceGroupName))
+                {
+                    $storageAccountsByResourceGroup[$resourceGroupName] = [System.Collections.ArrayList]::new()
+                }
+
+                [void]$storageAccountsByResourceGroup[$resourceGroupName].Add($resourceId)
+            }
+        }
+    }
+
+    foreach ($subnetEntry in $subnetResourceGroups.GetEnumerator())
+    {
+        [string]$subnetId = $subnetEntry.Key
+        [string]$resourceGroupName = $subnetEntry.Value
+        [string]$nsgId = Get-ArchLucidSubnetNetworkSecurityGroupId -SubnetId $subnetId -InventoryResources $InventoryResources
+
+        if ([string]::IsNullOrWhiteSpace($nsgId)) { continue }
+        if (-not $allowRulesByNsgId.ContainsKey($nsgId)) { continue }
+        if (-not $storageAccountsByResourceGroup.ContainsKey($resourceGroupName)) { continue }
+
+        foreach ($allowRule in @($allowRulesByNsgId[$nsgId]))
+        {
+            foreach ($storageAccountId in @($storageAccountsByResourceGroup[$resourceGroupName]))
+            {
+                [void]$rows.Add([ordered]@{
+                    fromResourceId = $subnetId
+                    toResourceId = $storageAccountId
+                    associationType = "nsgAllowRule"
+                    ruleName = $allowRule
+                })
+            }
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Add-ArchLucidNsgAllowRulesForResource
+{
+    param(
+        [hashtable] $AllowRulesByNsgId,
+        [object] $Resource
+    )
+
+    [string]$resourceId = "$( $Resource.resourceId )".Trim()
+    [string]$securityRulesJson = "$( $Resource.properties.securityRules )".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($securityRulesJson)) { return }
+
+    try
+    {
+        [object[]]$securityRules = @($securityRulesJson | ConvertFrom-Json -ErrorAction Stop)
+    }
+    catch
+    {
+        return
+    }
+
+    $allowRules = [System.Collections.ArrayList]::new()
+
+    foreach ($rule in @($securityRules))
+    {
+        [string]$ruleName = "$( $rule.name )".Trim()
+        [string]$access = "$( $rule.properties.access )".Trim()
+        [string]$direction = "$( $rule.properties.direction )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($ruleName)) { continue }
+        if (-not ($access -eq "Allow")) { continue }
+        if (-not ($direction -eq "Inbound")) { continue }
+
+        if (Test-ArchLucidNsgRuleTargetsStorageServiceTag -RuleProperties $rule.properties)
+        {
+            [void]$allowRules.Add($ruleName)
+        }
+    }
+
+    if ($allowRules.Count -gt 0)
+    {
+        $AllowRulesByNsgId[$resourceId] = @($allowRules.ToArray())
+    }
+}
+
+function Test-ArchLucidNsgRuleTargetsStorageServiceTag([object] $RuleProperties)
+{
+    [string]$prefix = "$( $RuleProperties.destinationAddressPrefix )".Trim()
+
+    if ($prefix -eq "Storage") { return $true }
+
+    foreach ($candidate in @($RuleProperties.destinationAddressPrefixes))
+    {
+        if ("$( $candidate )".Trim() -eq "Storage") { return $true }
+    }
+
+    foreach ($serviceTag in @($RuleProperties.destinationServiceTags))
+    {
+        if ("$( $serviceTag )".Trim() -eq "Storage") { return $true }
+    }
+
+    return $false
+}
+
+function Add-ArchLucidSubnetResourceGroups
+{
+    param(
+        [hashtable] $SubnetResourceGroups,
+        [object] $Resource
+    )
+
+    [string]$resourceGroupName = Get-ArchLucidResourceGroupNameFromResourceId -ResourceId "$( $Resource.resourceId )"
+
+    if ([string]::IsNullOrWhiteSpace($resourceGroupName)) { return }
+
+    [string]$subnetsJson = "$( $Resource.properties.subnets )".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($subnetsJson)) { return }
+
+    try
+    {
+        [object[]]$subnets = @($subnetsJson | ConvertFrom-Json -ErrorAction Stop)
+    }
+    catch
+    {
+        return
+    }
+
+    foreach ($subnet in @($subnets))
+    {
+        [string]$subnetId = "$( $subnet.id )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($subnetId)) { continue }
+
+        $SubnetResourceGroups[$subnetId] = $resourceGroupName
+    }
+}
+
+function Get-ArchLucidSubnetNetworkSecurityGroupId
+{
+    param(
+        [string] $SubnetId,
+        [object[]] $InventoryResources
+    )
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+
+        if (-not ($resourceType -like "*virtualNetworks*")) { continue }
+
+        [string]$subnetsJson = "$( $resource.properties.subnets )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($subnetsJson)) { continue }
+
+        try
+        {
+            [object[]]$subnets = @($subnetsJson | ConvertFrom-Json -ErrorAction Stop)
+        }
+        catch
+        {
+            continue
+        }
+
+        foreach ($subnet in @($subnets))
+        {
+            [string]$candidateSubnetId = "$( $subnet.id )".Trim()
+
+            if (-not ($candidateSubnetId -eq $SubnetId)) { continue }
+
+            [string]$nsgId = "$( $subnet.properties.networkSecurityGroup.id )".Trim()
+
+            if (-not ([string]::IsNullOrWhiteSpace($nsgId)))
+            {
+                return $nsgId
+            }
+        }
+    }
+
+    return $null
+}
+
+function Get-ArchLucidResourceGroupNameFromResourceId([string] $ResourceId)
+{
+    if ([string]::IsNullOrWhiteSpace($ResourceId)) { return $null }
+
+    [string]$marker = "/resourceGroups/"
+    [int]$markerIndex = $ResourceId.IndexOf($marker, [System.StringComparison]::OrdinalIgnoreCase)
+
+    if ($markerIndex -lt 0) { return $null }
+
+    [int]$startIndex = $markerIndex + $marker.Length
+    [int]$endIndex = $ResourceId.IndexOf("/", $startIndex)
+
+    if ($endIndex -lt 0) { return $null }
+
+    return $ResourceId.Substring($startIndex, $endIndex - $startIndex)
 }

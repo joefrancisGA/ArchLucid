@@ -15,6 +15,11 @@ public interface IHostedAzureArmReadClient
         string subscriptionId,
         CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<HostedAzureArmFederatedCredentialRecord>> ListFederatedCredentialsAsync(
+        string accessToken,
+        IReadOnlyList<HostedAzureArmResourceRecord> resources,
+        CancellationToken cancellationToken);
+
     /// <summary>
     ///     GET <c>/subscriptions/{id}</c> for ARM <c>displayName</c>. Returns null when the name is missing, a GUID, or the call fails.
     /// </summary>

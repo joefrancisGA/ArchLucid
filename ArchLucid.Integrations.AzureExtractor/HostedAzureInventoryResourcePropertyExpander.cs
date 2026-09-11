@@ -37,7 +37,63 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             AddPrivateEndpointTargetProperty(propertiesElement, properties);
         }
 
+        if (resourceType.Contains("networkSecurityGroups", StringComparison.OrdinalIgnoreCase))
+        {
+            AddJsonArrayProperty(propertiesElement, properties, "securityRules");
+        }
+
+        if (resourceType.Contains("virtualNetworks", StringComparison.OrdinalIgnoreCase))
+        {
+            AddJsonArrayProperty(propertiesElement, properties, "subnets");
+        }
+
+        if (resourceType.Contains("userAssignedIdentities", StringComparison.OrdinalIgnoreCase))
+        {
+            AddManagedIdentityPrincipalProperties(propertiesElement, properties);
+        }
+
         return properties;
+    }
+
+    private static void AddJsonArrayProperty(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties,
+        string propertyName)
+    {
+        if (!propertiesElement.TryGetProperty(propertyName, out JsonElement arrayElement)
+            || arrayElement.ValueKind is not JsonValueKind.Array)
+        {
+            return;
+        }
+
+        properties[propertyName] = arrayElement.GetRawText();
+    }
+
+    private static void AddManagedIdentityPrincipalProperties(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (propertiesElement.TryGetProperty("principalId", out JsonElement principalIdElement)
+            && principalIdElement.ValueKind is JsonValueKind.String)
+        {
+            string? principalId = principalIdElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(principalId))
+            {
+                properties["principalId"] = principalId.Trim();
+            }
+        }
+
+        if (propertiesElement.TryGetProperty("clientId", out JsonElement clientIdElement)
+            && clientIdElement.ValueKind is JsonValueKind.String)
+        {
+            string? clientId = clientIdElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(clientId))
+            {
+                properties["clientId"] = clientId.Trim();
+            }
+        }
     }
 
     private static void AddIdentityProperties(

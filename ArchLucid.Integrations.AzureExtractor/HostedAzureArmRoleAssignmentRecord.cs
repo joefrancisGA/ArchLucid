@@ -7,4 +7,5 @@ public sealed record HostedAzureArmRoleAssignmentRecord(
     string Scope,
     string PrincipalId,
     string? PrincipalType,
-    string RoleDefinitionId);
+    string RoleDefinitionId,
+    string PimEligibilityKind = "standing");

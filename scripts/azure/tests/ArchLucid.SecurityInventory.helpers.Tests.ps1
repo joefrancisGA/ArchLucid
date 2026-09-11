@@ -53,5 +53,34 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].principalId | Should -Be '11111111-1111-1111-1111-111111111111'
         $rows[0].principalType | Should -Be 'User'
         $rows[0].roleDefinitionId | Should -Not -BeNullOrEmpty
+        $rows[0].pimEligibilityKind | Should -Be 'standing'
+    }
+
+    It 'builds nsg allow rule rows for storage service tag inbound allow rules' {
+        $inventory = @(
+            [ordered]@{
+                resourceType = 'Microsoft.Network/networkSecurityGroups'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/nsg1'
+                properties = @{
+                    securityRules = '[{"name":"AllowStorageInbound","properties":{"access":"Allow","direction":"Inbound","destinationAddressPrefix":"Storage"}}]'
+                }
+            },
+            [ordered]@{
+                resourceType = 'Microsoft.Network/virtualNetworks'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1'
+                properties = @{
+                    subnets = '[{"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/default","properties":{"networkSecurityGroup":{"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/nsg1"}}}]'
+                }
+            },
+            [ordered]@{
+                resourceType = 'Microsoft.Storage/storageAccounts'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1'
+                properties = @{}
+            }
+        )
+
+        [object[]]$rows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources $inventory)
+
+        @($rows | Where-Object { $_.associationType -eq 'nsgAllowRule' }).Count | Should -Be 1
     }
 }

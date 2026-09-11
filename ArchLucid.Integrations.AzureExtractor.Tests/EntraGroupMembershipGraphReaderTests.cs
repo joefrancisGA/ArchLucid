@@ -155,6 +155,13 @@ public sealed class EntraGroupMembershipGraphReaderTests
             .ReturnsAsync([]);
 
         armClient
+            .Setup(c => c.ListFederatedCredentialsAsync(
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        armClient
             .Setup(c => c.TryGetSubscriptionDisplayNameAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -224,11 +231,11 @@ public sealed class EntraGroupMembershipGraphReaderTests
             ]);
 
         armClient
-            .Setup(c => c.TryGetSubscriptionDisplayNameAsync(
+            .Setup(c => c.ListFederatedCredentialsAsync(
                 It.IsAny<string>(),
-                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((string?)null);
+            .ReturnsAsync([]);
 
         IReadOnlyList<string>? capturedSeedGroupIds = null;
 
