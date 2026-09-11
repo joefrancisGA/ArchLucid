@@ -1,8 +1,10 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Roi;
@@ -141,5 +143,63 @@ public sealed class SponsorReviewPacketComposerTests
 
         markdown.Should().Contain("Trial notice");
         markdown.Should().Contain(ActiveTrialExportNoticeFormatter.BaseSuffix);
+    }
+
+    [Fact]
+    public void ComposeMarkdown_prepends_sendable_export_cover_when_honesty_material_present()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1"
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow }
+            }
+        };
+
+        SponsorRoiSummaryResponse roiSummary = new()
+        {
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.Retail,
+            CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Fresh
+        };
+
+        CareerExportCoverageHonestyInput careerExportHonesty = new(
+            new SponsorReviewCoverageHonestyContext(
+                RunId: detail.Run!.RunId,
+                Verdict: new FeasibilityVerdict { Kind = FeasibilityVerdictKind.SoftInfeasible, Summary = "Blocked" },
+                AnalysisStagesComplete: true,
+                ActorNodeCount: 1),
+            EnginesSucceeded: 4,
+            WorkingDesk: true,
+            ClassificationCounts: null,
+            CatalogAdvisoryEngineFailureCount: 0,
+            PreCommitGateEnabled: true,
+            StructuralExecutionMode: StructuralExecutionMode.Simulator,
+            IsSampleRun: false,
+            RuleSetId: "azure-waf",
+            RuleSetVersion: "2024.1");
+
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
+            detail,
+            "Sponsor report prose.",
+            ["Finding one"],
+            roiSummary,
+            DateTime.UtcNow,
+            careerExportHonesty: careerExportHonesty);
+
+        markdown.Should().Contain("## Sendable export cover");
+        markdown.Should().Contain("Policy pack: azure-waf @ 2024.1");
+        markdown.Should().Contain("## Measurement floor");
     }
 }

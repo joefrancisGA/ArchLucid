@@ -131,4 +131,58 @@ describe("CompareGovernanceDiffPanel", () => {
     expect(screen.getByTestId("compare-governance-baseline-cloud-mismatch")).toHaveTextContent("AWS");
     expect(screen.getByTestId("compare-governance-target-cloud-mismatch")).toHaveTextContent("Google Cloud");
   });
+
+  it("links to policy pack impact preview when target run and rule set delta exist", () => {
+    const view = buildCompareGovernanceDiffView({
+      baselineManifest: parseCompareManifestGovernanceSnapshot({
+        ruleSetId: "pack-a",
+        ruleSetVersion: "1.0.0",
+        effectiveGovernanceAtCommit: {
+          complianceRuleKeyCount: 1,
+          complianceRuleKeys: ["sec-base-010"],
+          conflictCount: 0,
+          packAssignments: [
+            {
+              policyPackId: "pack-a",
+              policyPackVersion: "1.0.0",
+              scopeLevel: "Project",
+            },
+          ],
+          hasEffectivePolicy: true,
+        },
+      }),
+      targetManifest: parseCompareManifestGovernanceSnapshot({
+        ruleSetId: "pack-b",
+        ruleSetVersion: "2.0.0",
+        effectiveGovernanceAtCommit: {
+          complianceRuleKeyCount: 1,
+          complianceRuleKeys: ["sec-base-010"],
+          conflictCount: 0,
+          packAssignments: [
+            {
+              policyPackId: "pack-b",
+              policyPackVersion: "2.0.0",
+              scopeLevel: "Project",
+            },
+          ],
+          hasEffectivePolicy: true,
+        },
+      }),
+      currentEffective: null,
+    });
+
+    render(
+      <CompareGovernanceDiffPanel
+        view={view}
+        loading={false}
+        softFailureMessage={null}
+        targetRunId="run-target"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Open pack impact preview for this comparison" })).toHaveAttribute(
+      "href",
+      "/governance/policy-packs?reviewId=run-target&packAId=pack-a&packBId=pack-b",
+    );
+  });
 });

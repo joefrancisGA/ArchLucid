@@ -155,7 +155,11 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
         ) : null}
         {row.recordKind === "finding" && row.classification !== null && row.classification !== undefined ? (
           <div className="mt-1">
-            <FindingClassificationChip classification={row.classification} findingId={row.findingId} />
+            <FindingClassificationChip
+              classification={row.classification}
+              treatment={row.treatment}
+              findingId={row.findingId}
+            />
           </div>
         ) : null}
         {showInsightDensityScore &&

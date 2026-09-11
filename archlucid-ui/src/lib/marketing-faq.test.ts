@@ -30,11 +30,12 @@ describe("marketing-faq", () => {
   it("lists buyer-ordered questions with category coverage", () => {
     const items = getMarketingFaqItems();
 
-    expect(items).toHaveLength(21);
+    expect(items).toHaveLength(22);
     expect(items[0]?.question).toBe("What is ArchLucid?");
     expect(items[4]?.question).toBe("Can I start with one architect or one license?");
     expect(items[6]?.question).toBe("How do I sign in to ArchLucid?");
     expect(items[8]?.question).toBe("Do I need cloud access to get value?");
+    expect(items.some((item) => item.id === "itsm-connectors-v1")).toBe(true);
 
     for (const category of MARKETING_FAQ_CATEGORIES) {
       expect(items.some((item) => item.categoryId === category.id)).toBe(true);
