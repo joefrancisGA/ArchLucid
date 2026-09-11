@@ -192,6 +192,7 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGate
 - Execute run, bulk-disposition one finding as **Deferred** with revisit → 409 + readiness `scorecard` layer block (open deferred dimension).
 - Execute run with pinned **verify-hypothesis** finding → 409 + readiness `scorecard` layer block containing `hypothesis` (TB-2315 parity).
 - Execute run with pinned **contradiction** finding → 409 + readiness `scorecard` layer block containing `contradiction` (TB-2179 parity).
+- Execute run with pinned **cannot-determine** finding → 409 + readiness `scorecard` layer block containing `open question` (TB-2302 parity).
 - Execute run blocked by **pre-commit governance** → finalize **409** with `ProblemTypes.GovernancePreCommitBlocked` aligned with readiness `pre_commit_gate` layer block (deterministic via pinned critical finding + `BlockCommitOnCritical` policy pack pin).
 
 ```bash
@@ -206,6 +207,15 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeConflictSql
 - `POST …/findings/bulk-disposition` (`RecordBulkDisposition`)
 - `POST …/runs/{runId}/finding-merge-conflicts/{findingId}/resolve` (`ResolveFindingMergeConflict`)
 
+`Wave73SealedManifestRuntimeConflictTests` proves wave-73 suggestions **861–866** map runtime `ConflictException` to OpenAPI **409**:
+
+- `GET …/runs/{runId}/sponsor-proof-pack.zip` (`GetSponsorProofPackZip`)
+- `GET …/runs/{runId}/sponsor-review-packet` (`GetExecutiveReviewPacket`)
+- `GET …/runs/{runId}/first-value-report` (`GetFirstValueReport`)
+- `GET …/roi/sponsor-report/board-pack` (`GetSponsorReportBoardPackAsync`)
+- `POST …/review/{runId}/analysis-report` (`AnalyzeRun`)
+- `POST …/governance/risk-exceptions` (`CreateRiskException`)
+
 UI copy parity: `finding-disposition-mutation-blocked-reason.ts` → `compareRunPairBlockedReason` for lifecycle/sealed-hash **409** detail.
 
 Wave-73 export helpers (868–872) delegate to the same `compareRunPairBlockedReason` path; `wave-73-export-mutation-blocked-reason.test.ts` covers pilot collateral, sponsor ROI board pack, consulting DOCX, run summary/package export, and architecture package DOCX helpers.
@@ -215,6 +225,7 @@ pnpm --dir archlucid-ui exec vitest run src/lib/wave-73-export-mutation-blocked-
 ```
 
 ```bash
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~Wave73SealedManifestRuntimeConflictTests"
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~GovernanceStickinessDispositionSealedManifestRuntimeConflictTests"
 cd archlucid-ui && npx vitest run src/lib/findings/finding-disposition-mutation-blocked-reason.test.ts
 ```
