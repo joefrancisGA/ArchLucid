@@ -150,7 +150,9 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashMonthWordToken(trimmed)
             || ContainsSlashMonthToken(trimmed)
             || ContainsBoundedToken(trimmed, " mo")
-            || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase);
+            || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "month", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "months", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ContainsMonthWordToken(string trimmed)
