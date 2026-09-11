@@ -1,7 +1,7 @@
 import type { components } from "@/lib/openapi-schemas";
 
 import { formatExportSealedManifestAwareApiError } from "./export-sealed-manifest-conflict";
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiGet } from "./http";
 import { governanceScopeCoverageBlockedReason } from "@/lib/governance/governance-coverage-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
@@ -11,7 +11,7 @@ export type CoverageSummaryResponse = components["schemas"]["CoverageSummaryResp
 /** GET /v1/governance/coverage — scope coverage disclosure for the active tenant/workspace/project. */
 export async function getGovernanceScopeCoverage(): Promise<CoverageSummaryResponse> {
   try {
-    return await apiGetSealedManifestAware<CoverageSummaryResponse>(`/${ApiV1Routes.governance}/coverage`);
+    return await apiGet<CoverageSummaryResponse>(`/${ApiV1Routes.governance}/coverage`);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceScopeCoverageBlockedReason(failure);

@@ -6,6 +6,7 @@ import type {
 import type { RunComparison } from "@/types/authority";
 import type { components } from "@/lib/openapi-schemas";
 import {
+  apiGet,
   ensureOidcBearerReady,
   resolveRequest,
   withCorrelationHeaders,
