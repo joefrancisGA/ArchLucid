@@ -69,6 +69,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Account persist (CG-011):** GET `/v1/user/preferences` returns `workingCareerRehearsalDoor` and `workingCareerRehearsalDoorIsExplicit`. `PUT /v1/user/preferences/working-career-rehearsal-door` stores an explicit Working pick in UserSettings. Working reads the server first when the row is explicit; `localStorage` is interrupt recovery only. Guided does not PUT this field.
 
+**Simulator clones (CG-015):** local/dev hosts with `AgentExecution:Mode=Simulator` keep Working usable and obviously **Rehearsal**. A persistent shell banner (`WorkingSimulatorCloneRehearsalBanner`) labels the clone as rehearsal — not a sample workspace and not Guided teaching. Effective execute chrome is Rehearsal. Explicit Career still uses AS-078 blocked honesty (no silent Career execute, no auto-switch to Guided, no host Mode flip). AOAI-less clones must not mint career packets.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
