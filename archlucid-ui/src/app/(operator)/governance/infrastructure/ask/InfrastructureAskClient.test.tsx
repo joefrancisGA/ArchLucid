@@ -77,13 +77,18 @@ describe("InfrastructureAskClient", () => {
     window.sessionStorage.clear();
   });
 
-  it("shows insufficient evidence state, simulator banner, and citation link", async () => {
+  it("left-aligns the Ask workbench without mx-auto centering", () => {
     searchParams = new URLSearchParams("");
     render(<InfrastructureAskClient />);
 
     const primaryContent = screen.getByTestId("infra-ask-primary-content");
     expect(primaryContent.className).not.toMatch(/mx-auto/);
     expect(primaryContent).toHaveClass("w-full");
+  });
+
+  it("shows insufficient evidence state, simulator banner, and citation link", async () => {
+    searchParams = new URLSearchParams("");
+    render(<InfrastructureAskClient />);
 
     fireEvent.change(screen.getByTestId("infra-ask-question"), {
       target: { value: "What changed since baseline?" },

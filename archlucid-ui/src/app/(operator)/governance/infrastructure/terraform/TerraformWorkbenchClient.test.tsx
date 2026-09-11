@@ -9,6 +9,8 @@ let searchParams = new URLSearchParams(
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParams,
+  usePathname: () => "/governance/infrastructure/terraform",
+  useRouter: () => ({ replace: vi.fn() }),
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
@@ -50,15 +52,29 @@ vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
   formatInfraEvidenceHubApiError: (error: unknown) => String(error),
 }));
 
+vi.mock("@/lib/use-nav-surface", () => ({
+  useNavSurface: () => ({
+    layerGuidance: {
+      layerBadge: "Advanced operations",
+      headline: "Terraform mapping",
+      useWhen: "Review advisory mapping",
+      firstPilotNote: null,
+    },
+    contextHints: { layerHeaderEnterpriseRankCue: null },
+  }),
+}));
+
 describe("TerraformWorkbenchClient", () => {
   it("renders advisory mapping and hub links for scoped resource", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
+    );
     render(<TerraformWorkbenchClient />);
 
     const workbench = await screen.findByTestId("infra-terraform-workbench");
-    expect(workbench).toBeInTheDocument();
     expect(workbench.className).not.toMatch(/mx-auto/);
     expect(workbench).toHaveClass("w-full");
-    expect(screen.getByText("azurerm_public_ip.gateway")).toBeInTheDocument();
+    expect(await screen.findByText("azurerm_public_ip.gateway")).toBeInTheDocument();
     expect(screen.getByTestId("infra-terraform-open-primary-hub")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=terraform&snapshotId=22222222-2222-2222-2222-222222222222",
@@ -71,9 +87,12 @@ describe("TerraformWorkbenchClient", () => {
   });
 
   it("shows empty state when terraform address is missing", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=33333333-3333-3333-3333-333333333333",
+    );
     const { fetchCloudResourceEvidenceHub } = await import("@/lib/infra-evidence/infra-evidence-hub-api");
     vi.mocked(fetchCloudResourceEvidenceHub).mockResolvedValueOnce({
-      cloudResourceId: "11111111-1111-1111-1111-111111111111",
+      cloudResourceId: "33333333-3333-3333-3333-333333333333",
       externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
       terraformAddress: null,
       terraformGenerationMethod: null,
