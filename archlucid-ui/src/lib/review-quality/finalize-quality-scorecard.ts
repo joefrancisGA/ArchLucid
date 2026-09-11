@@ -7,7 +7,10 @@ export type FinalizeQualityScorecardInput = {
   readonly unverifiedAssumptionCount: number;
   readonly unacknowledgedExistentialAssumptionCount: number;
   readonly uncoveredMandatoryRequirementCount: number;
+  readonly openDeferredCount: number;
+  readonly openContradictionCount: number;
   readonly openCannotDetermineCount: number;
+  readonly openVerifyHypothesisCount: number;
   readonly lowExtractionConfidenceCount: number;
   readonly unresolvedHighSeverityDispositionCount: number;
   readonly skippedMustCount: number;
@@ -42,9 +45,27 @@ export function evaluateFinalizeQualityScorecard(input: FinalizeQualityScorecard
     );
   }
 
+  if (input.openDeferredCount > 0) {
+    blockingReasons.push(
+      `${input.openDeferredCount} deferred finding${input.openDeferredCount === 1 ? "" : "s"} still need revisit before finalize.`,
+    );
+  }
+
+  if (input.openContradictionCount > 0) {
+    blockingReasons.push(
+      `${input.openContradictionCount} contradiction finding${input.openContradictionCount === 1 ? "" : "s"} still need reconciliation before finalize.`,
+    );
+  }
+
   if (input.openCannotDetermineCount > 0) {
     blockingReasons.push(
       `${input.openCannotDetermineCount} open question${input.openCannotDetermineCount === 1 ? "" : "s"} still need answers before the package is defensible.`,
+    );
+  }
+
+  if (input.openVerifyHypothesisCount > 0) {
+    blockingReasons.push(
+      `${input.openVerifyHypothesisCount} hypothesis finding${input.openVerifyHypothesisCount === 1 ? "" : "s"} still need evidence before treating ${input.openVerifyHypothesisCount === 1 ? "it" : "them"} as publishable fact.`,
     );
   }
 

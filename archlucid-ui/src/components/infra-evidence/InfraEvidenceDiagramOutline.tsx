@@ -2,7 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+import {
+  resolveInfraEvidenceOutlineNodeLabel,
+  type InfraEvidenceMermaidOutline,
+} from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
 type InfraEvidenceDiagramOutlineProps = {
   readonly outline: InfraEvidenceMermaidOutline;
@@ -25,15 +28,15 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
           <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
             <thead className="bg-neutral-50 dark:bg-neutral-900/60">
               <tr>
-                <th className="px-3 py-2 font-medium">Id</th>
                 <th className="px-3 py-2 font-medium">Label</th>
+                <th className="px-3 py-2 font-medium">Id</th>
               </tr>
             </thead>
             <tbody>
               {nodeRows.map((node) => (
                 <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
-                  <td className="px-3 py-2 font-mono text-sm">{node.id}</td>
                   <td className="px-3 py-2">{node.label}</td>
+                  <td className="px-3 py-2 font-mono text-sm">{node.id}</td>
                 </tr>
               ))}
             </tbody>
@@ -59,8 +62,8 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   key={`${edge.from}-${edge.to}-${index}`}
                   className="border-t border-neutral-200 dark:border-neutral-800"
                 >
-                  <td className="px-3 py-2 font-mono text-sm">{edge.from}</td>
-                  <td className="px-3 py-2 font-mono text-sm">{edge.to}</td>
+                  <td className="px-3 py-2">{resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from)}</td>
+                  <td className="px-3 py-2">{resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.to)}</td>
                 </tr>
               ))}
             </tbody>

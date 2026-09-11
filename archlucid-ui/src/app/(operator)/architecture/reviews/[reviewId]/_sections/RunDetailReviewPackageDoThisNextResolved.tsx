@@ -67,6 +67,8 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly architectureRequestId?: string | null;
   readonly azureInventoryEvidencePresent?: boolean;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
+  readonly degradedFindingCoverage?: boolean;
+  readonly degradedFindingCoverageFailedEngineLabels?: readonly string[];
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -118,6 +120,9 @@ export function RunDetailReviewPackageDoThisNextResolved(
     blockingFindingCount: props.blockingFindingCount,
     requestAssumptionTexts: props.requestAssumptionTexts,
     transparencyTrail: props.transparencyTrail,
+    degradedFindingCoverage: props.degradedFindingCoverage,
+    degradedFindingCoverageFailedEngineLabels: props.degradedFindingCoverageFailedEngineLabels,
+    blockDegradedFindingCoverageOnWorking: props.buyerPolishedArtifactTable !== true,
   });
   const unsupportedSemanticSupportCommitBlockedReason =
     useUnsupportedSemanticSupportFinalizeBlockedReason({

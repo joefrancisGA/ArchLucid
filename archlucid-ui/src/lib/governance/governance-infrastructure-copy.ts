@@ -146,16 +146,38 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE =
   "Could not download diagram PNG" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY = {
-  whatFailed: "Server-side PNG rendering is unavailable in this environment.",
+  whatFailed: "Server-side PNG rendering is unavailable in this environment and the browser could not rasterize the diagram.",
   whatIsIntact: "The in-browser diagram and Mermaid export remain available.",
   nextStep: "Use Export Mermaid (.mmd), screenshot the canvas, or ask your operator to enable Mermaid CLI on the API host.",
 } as const;
+
+/** Shown after a successful browser PNG fallback when the API host lacks mmdc. */
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE =
+  "Downloaded a browser-rendered PNG because server-side rasterization is unavailable in this environment. Branded server PNG requires Mermaid CLI on the API host." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL = "Snapshot" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL = "Diagram mode" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL = "Seed cloud resource id" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE =
+  "Pick a seed resource before rendering" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_BODY =
+  "Dependency neighborhood mode needs a graph node id. Paste the cloud resource GUID from the node table (not an ARM resource path), then choose Focus neighborhood." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_TITLE =
+  "Choose a seed to render the dependency neighborhood" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_BODY =
+  "Enter a graph node id below and choose Focus neighborhood. The diagram will not render until a seed is applied." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION =
+  "Focus neighborhood" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_DIALOG_DISMISS =
+  "Got it" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureDrift;
 
