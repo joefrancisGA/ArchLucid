@@ -86,6 +86,22 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_executive_mode_flattens_sparse_swimlanes_when_many_resource_groups_each_hold_one_node()
+    {
+        GraphSnapshot graph = BuildExecutiveSparseVnetGraph(resourceGroupCount: 12);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+        string mermaid = renderer.Render(ast);
+
+        ast.Nodes.Should().HaveCount(12);
+        ast.Subgraphs.Should().BeEmpty();
+        ast.Nodes.Should().OnlyContain(node => string.IsNullOrWhiteSpace(node.SubgraphId));
+        mermaid.Should().NotContain("subgraph");
+        mermaid.Should().Contain("vnet-eastus-0");
+        mermaid.Should().Contain("vnet-eastus-11");
+    }
+
+    [Fact]
     public void Compile_collapses_duplicate_topology_node_ids_without_throwing()
     {
         GraphSnapshot graph = BuildSampleGraph();
@@ -191,6 +207,11 @@ public sealed class DiagramAstFromGraphCompilerTests
 
     private static GraphSnapshot BuildExecutiveVnetOnlyGraph()
     {
+        return BuildExecutiveSparseVnetGraph(resourceGroupCount: 3);
+    }
+
+    private static GraphSnapshot BuildExecutiveSparseVnetGraph(int resourceGroupCount)
+    {
         GraphSnapshot graph = new()
         {
             GraphSnapshotId = Guid.NewGuid(),
@@ -201,7 +222,7 @@ public sealed class DiagramAstFromGraphCompilerTests
 
         const string subscriptionId = "33333333-3333-3333-3333-333333333333";
 
-        for (int index = 0; index < 3; index++)
+        for (int index = 0; index < resourceGroupCount; index++)
         {
             graph.Nodes.Add(CreateTopologyNode(
                 $"vnet-{index}",
