@@ -121,6 +121,10 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Digests cannot present rehearsal as Career (CG-037):** `ExecDigestComposer` stamps per-run rehearsal labels on highlighted commits and adds digest-level honesty (`[Rehearsal]` subject prefix when every committed run in the ISO week is rehearsal; body disclaimer when any run requires honesty). Weekly email (`ExecDigestEmailDispatcher` + Razor templates) and sponsor digest hub (`ExecDigestSponsorDeepLinkPanel`) surface the same labels — mixed Career + Rehearsal weeks label each row without a career-complete subject.
 
+**ITSM tickets cannot present rehearsal as Career (CG-038):** `ItsmOutboundIssueCreationService` loads the finding run summary and applies `ItsmOutboundCareerHonestyPresenter` before vendor create (`[Rehearsal]` summary prefix plus mode/door block in description; skips career-complete custom-field sync on rehearsal). `ItsmOutboundCreateIssueDialog` shows `ItsmOutboundCareerHonestyStrip` on Working when the scoped run is not Career + Real. ADR 0076 pointer CAS is unchanged.
+
+**Value report rehearsal honesty (CG-090):** Sponsor value report (`PilotValueReportPageView`) shows `ValueReportCareerHonestyStrip` at route level on Working when a deep-linked review (`runId` query) or the reporting-period timeline includes contributing runs that are not Career + Real. Claim discipline gains a measured-savings disclaimer — directional figures are not G-REAL-06 procurement proof. Sample sponsor report keeps its sample banner (with the same disclaimer) — no duplicate strip. CG-035 `RoiTileCareerHonestyStrip` remains above scoped metrics for tile qualifiers.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.

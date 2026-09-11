@@ -6,10 +6,12 @@ using ArchLucid.Application.Findings;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Integrations;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -19,6 +21,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutboundConnectorTestFixture;
+using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutboundSealedManifestTestSupport;
 
 namespace ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
 
@@ -634,6 +637,83 @@ public sealed class ItsmOutboundIssueCreationServiceTests
                 It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task Jira_rehearsal_run_stamps_summary_and_description_before_vendor_create()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        RecordingHandler handler = new(_ =>
+            new HttpResponseMessage(HttpStatusCode.Created)
+            {
+                Content = new StringContent("{\"id\":\"9\",\"key\":\"DP-42\"}", Encoding.UTF8, "application/json")
+            });
+
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(f => f.GetInspectAsync(It.IsAny<ScopeContext>(), "x", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Inspect(FindingSeverity.Error));
+
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.RegisterAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId },
+                GoldenManifest = CreateSealedGoldenManifest(Scope(), runId),
+            });
+        authority
+            .Setup(query => query.GetRunSummaryAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateRehearsalSimulatorRunSummary(runId));
+
+        ItsmOutboundIssueCreationService sut = new(
+            findings.Object,
+            correlations.Object,
+            Mock.Of<ITenantItsmOutboundSettingsRepository>(),
+            ConnectorRegistry(
+                correlations.Object,
+                Mock.Of<ITenantItsmOutboundSettingsRepository>(),
+                Mock.Of<IRunRepository>(),
+                Mock.Of<IArchitectureRequestRepository>(),
+                CredentialResolver(OutboundJiraConfigured()),
+                Monitor(OutboundJiraConfigured()).Object,
+                PublicSiteMonitor().Object,
+                JiraClient(handler),
+                new ServiceNowOutboundIncidentClient(new HttpClient(new BoomHttpMessageHandler()),
+                    NullLogger<ServiceNowOutboundIncidentClient>.Instance)),
+            authority.Object,
+            CreateManifestHashService());
+
+        ItsmOutboundIssueCreationResult result = await sut.TryCreateForFindingAsync(
+            ItsmOutboundIssueProvider.Jira,
+            Scope(),
+            "x",
+            CancellationToken.None);
+
+        result.Kind.Should().Be(ItsmOutboundCreateTerminalKind.Succeeded);
+        handler.LastBody.Should().Contain(ItsmOutboundCareerHonestyPresenter.RehearsalSummaryPrefix);
+        handler.LastBody.Should().Contain(ItsmOutboundCareerHonestyPresenter.DescriptionHeader);
+        handler.LastBody.Should().Contain("structuralExecutionMode: Simulator");
     }
 
     [Fact]

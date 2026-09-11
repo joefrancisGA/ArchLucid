@@ -30,9 +30,9 @@ Outbound is how rehearsal leaks into another system of record. Sponsors and tick
 | Weekly digest | `ArchLucid.Application/SponsorDigest/SponsorDigestWeeklyDeliveryScanner.cs` | Per-tenant send | Same composition honesty | **covered** | CG-037 |
 | Board pack | `ArchLucid.Application/Pilots/BoardPackPdfBuilder.cs` | Digest markdown + value-report | Markdown formatter rehearsal labels | **covered** | CG-037 |
 | Weekly digest | `archlucid-ui/.../ExecDigestSponsorDeepLinkPanel.tsx` | Sponsor digest hub rows | Per-row rehearsal label + disclaimer | **covered** | CG-037 |
-| ITSM ticket | `ArchLucid.Application/Integrations/Itsm/Outbound/ItsmOutboundIssueCreationService.cs` | Finding title/body to Jira/ServiceNow | Sealed-hash on finding run; **no** Mode/door | **bypass** | CG-038 |
-| ITSM ticket | `ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs` | `POST …/itsm/outbound/issues` | Same | **bypass** | CG-038 |
-| ITSM ticket | `archlucid-ui/src/components/itsm/ItsmOutboundCreateIssueDialog.tsx` | Operator create dialog | No door | **bypass** | CG-038 |
+| ITSM ticket | `ArchLucid.Application/Integrations/Itsm/Outbound/ItsmOutboundIssueCreationService.cs` | Finding title/body to Jira/ServiceNow | Run stamp via `ItsmOutboundCareerHonestyPresenter` | **covered** | CG-038 |
+| ITSM ticket | `ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs` | `POST …/itsm/outbound/issues` | Same service path | **covered** | CG-038 |
+| ITSM ticket | `archlucid-ui/src/components/itsm/ItsmOutboundCreateIssueDialog.tsx` | Operator create dialog | `ItsmOutboundCareerHonestyStrip` on Working | **covered** | CG-038 |
 | Webhook | `ArchLucid.Core/Integration/IntegrationWebhookPayloadSamples.cs` | Event payloads (finding verification, etc.) | Manifest hash; **no** rehearsal door | **bypass** | CG-036 / CG-094 |
 | Alerts | `ArchLucid.Application/Advisory/AdvisoryScanRunner.cs` | Alert fire from advisory scan | Run stamp via `AlertCareerHonestyApplicator` on persist | **covered** | CG-036 |
 | Alerts | `ArchLucid.Application/Alerts/AlertActionLoopReader.cs` | Delivery attempts | Stamped alert copy from persist path | **covered** | CG-036 |

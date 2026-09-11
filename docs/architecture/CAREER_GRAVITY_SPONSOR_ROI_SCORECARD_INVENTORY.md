@@ -21,7 +21,7 @@ Sponsors never open the chooser. KPI tiles are the packet.
 
 | Surface | Path | Sample vs live | Mode honesty | Leak class | Owner |
 |---------|------|----------------|--------------|------------|-------|
-| Sponsor report | `archlucid-ui/src/app/(operator)/insights/sponsor-report/page.tsx` | Value-report page | CG-035 strip + Rehearsal ROI qualifiers | **covered** | CG-035 / CG-091 |
+| Sponsor report | `archlucid-ui/src/app/(operator)/insights/sponsor-report/page.tsx` | Value-report page | CG-090 route strip + CG-035 tile qualifiers | **covered** | CG-090 / CG-035 |
 | ROI summary | `archlucid-ui/src/app/(operator)/insights/roi-summary/_sections/RoiSummaryBuyerChrome.tsx` | Claim orientation | CG-035 strip on scoped ROI tiles | **covered** | CG-035 |
 | Architecture scorecard | `archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx` | Pilot KPIs | CG-034 strip + rehearsal section qualifier | **covered** | CG-034 |
 | Scorecard ROI panel | `archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardRoiPanel.tsx` | ROI panel | CG-034 strip context | **covered** | CG-034 / CG-035 |

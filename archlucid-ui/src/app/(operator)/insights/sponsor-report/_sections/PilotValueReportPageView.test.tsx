@@ -69,6 +69,25 @@ vi.mock("@/components/roi/RoiTileCareerHonestyStrip", () => ({
     roiTileHonestyMock.presentation === null ? null : <div data-testid="roi-tile-career-honesty-strip" />,
 }));
 
+const valueReportHonestyMock = vi.hoisted(() => ({
+  presentation: null as {
+    kind: "scoped" | "period-mix";
+    title: string;
+    body: string;
+  } | null,
+}));
+
+vi.mock("@/hooks/use-value-report-career-honesty", () => ({
+  useValueReportCareerHonesty: () => valueReportHonestyMock.presentation,
+}));
+
+vi.mock("@/components/insights/ValueReportCareerHonestyStrip", () => ({
+  ValueReportCareerHonestyStrip: () =>
+    valueReportHonestyMock.presentation === null
+      ? null
+      : <div data-testid="value-report-career-honesty-strip" />,
+}));
+
 function buildModel(overrides: Partial<PilotValueReportPilotPageViewModel> = {}): PilotValueReportPilotPageViewModel {
   return {
     fromUtc: "2026-03-01T00:00",
@@ -104,6 +123,7 @@ function buildModel(overrides: Partial<PilotValueReportPilotPageViewModel> = {})
 describe("PilotValueReportPageView", () => {
   beforeEach(() => {
     roiTileHonestyMock.presentation = null;
+    valueReportHonestyMock.presentation = null;
   });
 
   it("mounts contextual help (TB-1968)", () => {
@@ -299,6 +319,85 @@ describe("PilotValueReportPageView", () => {
 
     expect(screen.getByTestId("roi-tile-career-honesty-strip")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Review activity — Rehearsal ROI" })).toBeInTheDocument();
+  });
+
+  it("shows CG-090 route honesty strip for deep-linked rehearsal reviews", () => {
+    valueReportHonestyMock.presentation = {
+      kind: "scoped",
+      title: "Rehearsal incomplete — sponsor report is rehearsal only",
+      body: "Not measured procurement savings.",
+    };
+
+    render(
+      <PilotValueReportPageView
+        model={buildModel({
+          data: {
+            tenantId: "tenant-1",
+            fromUtc: "2026-03-01T00:00:00.000Z",
+            toUtc: "2026-04-01T00:00:00.000Z",
+            totalRunsCommitted: 1,
+            runDetailsTruncated: false,
+            runDetailCap: 50,
+            totalFindings: 1,
+            findingsBySeverity: { critical: 0, high: 1, medium: 0, low: 0, info: 0 },
+            totalRecommendationsProduced: 1,
+            averagePipelineCompletionSeconds: 90,
+            governanceApprovals: 0,
+            governanceRejections: 0,
+            policyPackAssignments: 0,
+            comparisonOrDriftDetections: 0,
+            uniqueAgentTypes: ["ArchitectureReviewer"],
+            committedRunsTimeline: [
+              {
+                runId: "run-sponsor-test",
+                createdUtc: "2026-03-10T08:00:00.000Z",
+                committedUtc: "2026-03-11T08:00:00.000Z",
+                systemName: "Claims Intake",
+              },
+            ],
+            governancePendingApprovalsNow: 0,
+            auditExportTruncated: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("value-report-career-honesty-strip")).toBeInTheDocument();
+  });
+
+  it("labels sample sponsor report without a duplicate CG-090 strip", () => {
+    render(
+      <PilotValueReportPageView
+        model={buildModel({
+          includesSampleData: true,
+          data: {
+            tenantId: "tenant-1",
+            fromUtc: "2026-03-01T00:00:00.000Z",
+            toUtc: "2026-04-01T00:00:00.000Z",
+            totalRunsCommitted: 1,
+            runDetailsTruncated: false,
+            runDetailCap: 50,
+            totalFindings: 0,
+            findingsBySeverity: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
+            totalRecommendationsProduced: 0,
+            averagePipelineCompletionSeconds: null,
+            governanceApprovals: 0,
+            governanceRejections: 0,
+            policyPackAssignments: 0,
+            comparisonOrDriftDetections: 0,
+            uniqueAgentTypes: [],
+            committedRunsTimeline: [],
+            governancePendingApprovalsNow: 0,
+            auditExportTruncated: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("pilot-outcomes-sample-banner").textContent).toContain(
+      "not measured procurement savings",
+    );
+    expect(screen.queryByTestId("value-report-career-honesty-strip")).not.toBeInTheDocument();
   });
 });
 

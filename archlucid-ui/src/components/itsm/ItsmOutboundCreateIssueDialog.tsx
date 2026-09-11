@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { ItsmOutboundCareerHonestyStrip } from "@/components/itsm/ItsmOutboundCareerHonestyStrip";
 import { ItsmOutboundTriadClarityStrip } from "@/components/itsm/ItsmOutboundTriadClarityStrip";
 import {
   Dialog,
@@ -44,6 +45,7 @@ export type ItsmOutboundProvider = "Jira" | "ServiceNow" | "Azure Boards";
 
 export type ItsmOutboundCreateIssueDialogProps = {
   readonly findingId: string;
+  readonly scopedRunId?: string;
   readonly prominent?: boolean;
 };
 
@@ -57,6 +59,7 @@ function isProviderLinked(
 /** Finding detail CTA: create a linked Jira issue or ServiceNow incident when native ITSM is enabled. */
 export function ItsmOutboundCreateIssueDialog({
   findingId,
+  scopedRunId,
   prominent = false,
 }: ItsmOutboundCreateIssueDialogProps): React.JSX.Element | null {
   const nativeCreateEnabled = useItsmNativeCreateEnabled();
@@ -215,6 +218,7 @@ export function ItsmOutboundCreateIssueDialog({
           </DialogHeader>
 
           <ItsmOutboundTriadClarityStrip className="mb-0" />
+          <ItsmOutboundCareerHonestyStrip scopedRunId={scopedRunId} className="mb-0" />
 
           <div className="space-y-4">
             <div className="space-y-2">
