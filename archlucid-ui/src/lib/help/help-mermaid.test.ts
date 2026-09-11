@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  applyMermaidSvgViewportZoom,
   fitMermaidSvgElementToHost,
+  fitMermaidSvgElementToViewport,
   isMermaidDiagramSource,
   prepareMermaidSvgForResponsiveLayout,
   sanitizeMermaidRenderId,
@@ -130,6 +132,77 @@ describe("help-mermaid", () => {
     fitMermaidSvgElementToHost(svg, 500, 10);
 
     expect(svg.getAttribute("viewBox")).toBe("350 60 200 68");
+
+    svg.remove();
+  });
+
+  it("contains tall narrow ink inside a bounded viewport without width-stretching height", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("x", "0");
+    rect.setAttribute("y", "0");
+    rect.setAttribute("width", "200");
+    rect.setAttribute("height", "900");
+    group.appendChild(rect);
+    svg.appendChild(group);
+    document.body.appendChild(svg);
+
+    const graphics = group as SVGGraphicsElement;
+    graphics.getBBox = () =>
+      ({
+        x: 0,
+        y: 0,
+        width: 200,
+        height: 900,
+        top: 0,
+        right: 200,
+        bottom: 900,
+        left: 0,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    const baseFit = fitMermaidSvgElementToViewport(svg, 1000, 360, 10);
+
+    expect(baseFit).not.toBeNull();
+    expect(Number(svg.getAttribute("height"))).toBeLessThanOrEqual(360);
+    expect(Number(svg.getAttribute("width"))).toBeLessThanOrEqual(1000);
+
+    svg.remove();
+  });
+
+  it("applies layout-affecting zoom on top of a viewport contain-fit", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("width", "100");
+    rect.setAttribute("height", "100");
+    group.appendChild(rect);
+    svg.appendChild(group);
+    document.body.appendChild(svg);
+
+    const graphics = group as SVGGraphicsElement;
+    graphics.getBBox = () =>
+      ({
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 100,
+        top: 0,
+        right: 100,
+        bottom: 100,
+        left: 0,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    const baseFit = fitMermaidSvgElementToViewport(svg, 400, 400, 10);
+
+    expect(baseFit).not.toBeNull();
+
+    applyMermaidSvgViewportZoom(svg, baseFit!, 2);
+
+    expect(svg.getAttribute("width")).toBe(String(baseFit!.baseWidthPx * 2));
+    expect(svg.getAttribute("height")).toBe(String(baseFit!.baseHeightPx * 2));
 
     svg.remove();
   });

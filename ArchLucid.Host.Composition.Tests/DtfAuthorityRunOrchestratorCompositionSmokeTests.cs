@@ -7,6 +7,7 @@ using ArchLucid.Host.Core.Hosting;
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -53,6 +54,54 @@ public sealed class DtfAuthorityRunOrchestratorCompositionSmokeTests
     }
 
     [Fact]
+    public void AddArchLucidApplicationServices_Api_role_with_DurableTask_backend_registers_client_not_worker()
+    {
+        IConfiguration configuration = CreateSqlCompositionConfiguration(
+            orchestratorBackend: "DurableTask",
+            durableTaskGrpcEndpoint: "http://127.0.0.1:5001");
+        ServiceCollection services = CreateCompositionServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        services.Should().Contain(static descriptor =>
+            descriptor.ServiceType == typeof(IDurableTaskClientProvider));
+
+        DescribeDurableTaskWorkerDescriptors(services).Should().BeEmpty(
+            "Api-only hosts must not register Durable Task worker infrastructure in split deployments");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Worker_role_with_DurableTask_backend_registers_client_and_worker()
+    {
+        IConfiguration configuration = CreateSqlCompositionConfiguration(
+            orchestratorBackend: "DurableTask",
+            durableTaskGrpcEndpoint: "http://127.0.0.1:5001",
+            hostingRole: ArchLucidHostingRole.Worker);
+        ServiceCollection services = CreateCompositionServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        services.Should().Contain(static descriptor =>
+            descriptor.ServiceType == typeof(IDurableTaskClientProvider));
+
+        IReadOnlyList<string> workerDescriptors = DescribeDurableTaskWorkerDescriptors(services);
+
+        workerDescriptors.Should().NotBeEmpty(
+            "Worker/Combined hosts must register Durable Task worker infrastructure when the DurableTask backend is enabled");
+    }
+
+    private static IReadOnlyList<string> DescribeDurableTaskWorkerDescriptors(IServiceCollection services)
+    {
+        return services
+            .Where(static descriptor =>
+                (descriptor.ImplementationType?.FullName?.Contains("Microsoft.DurableTask.Worker", StringComparison.Ordinal) ?? false)
+                || (descriptor.ServiceType.FullName?.Contains("Microsoft.DurableTask.Worker", StringComparison.Ordinal) ?? false))
+            .Select(static descriptor =>
+                $"{descriptor.ServiceType.FullName} -> {descriptor.ImplementationType?.FullName ?? "factory"}")
+            .ToList();
+    }
+
+    [Fact]
     public void Sql_storage_full_composition_with_DurableTask_backend_validates_on_build()
     {
         IConfiguration configuration = CreateSqlCompositionConfiguration(
@@ -88,11 +137,19 @@ public sealed class DtfAuthorityRunOrchestratorCompositionSmokeTests
 
     private static IConfiguration CreateSqlCompositionConfiguration(
         string? orchestratorBackend,
-        string? durableTaskGrpcEndpoint = null)
+        string? durableTaskGrpcEndpoint = null,
+        ArchLucidHostingRole hostingRole = ArchLucidHostingRole.Api)
     {
+        string roleString = hostingRole switch
+        {
+            ArchLucidHostingRole.Api => "Api",
+            ArchLucidHostingRole.Worker => "Worker",
+            _ => "Combined"
+        };
+
         Dictionary<string, string?> values = new()
         {
-            ["Hosting:Role"] = "Api",
+            ["Hosting:Role"] = roleString,
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidDtfSmokeTests;Trusted_Connection=True;TrustServerCertificate=True",
             ["ArchLucid:StorageProvider"] = "Sql",

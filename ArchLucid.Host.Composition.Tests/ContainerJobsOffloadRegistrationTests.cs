@@ -745,6 +745,28 @@ public sealed class ContainerJobsOffloadRegistrationTests
 
     [Fact]
     public void
+        AddArchLucidApplicationServices_Worker_offloads_trial_lifecycle_still_registers_TrialArchitecturePreseedHostedService_when_enabled()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.TrialLifecycle;
+        data["TrialArchitecturePreseed:Enabled"] = "true";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasPreseed = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(TrialArchitecturePreseedHostedService));
+
+        hasPreseed.Should().BeTrue(
+            "trial architecture preseed is leader-elected worker automation with no container-job slug; "
+            + "offloading trial-lifecycle must not drop preseed when enabled");
+    }
+
+    [Fact]
+    public void
         AddArchLucidApplicationServices_Worker_offloads_exec_digest_weekly_still_registers_job_not_hosted_service()
     {
         Dictionary<string, string?> data = CreateWorkerCompositionDictionary();

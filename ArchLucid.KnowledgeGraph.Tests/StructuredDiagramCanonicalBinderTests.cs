@@ -265,6 +265,77 @@ public sealed class StructuredDiagramCanonicalBinderTests
             && edge.InferenceSource == GraphEdgeInferenceSources.StructuredParse);
     }
 
+    [Fact]
+    public void BindToCanonicalNodes_deduplicates_parallel_edges_after_endpoint_remap()
+    {
+        GraphNode apiNode = CreateTopologyNode("obj-api-1", "API Gateway", []);
+        GraphNode sqlNode = CreateTopologyNode(
+            "obj-sql-1",
+            "pay-sql",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["azureResourceId"] = ArmSqlServerId,
+            });
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "api",
+                        Label = "API Gateway",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "sql-a",
+                        Label = ArmSqlServerId,
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "sql-b",
+                        Label = ArmSqlServerId,
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                Edges =
+                [
+                    new ArchitectureDiagramEdgeRecord
+                    {
+                        Id = "e1",
+                        SourceId = "api",
+                        TargetId = "sql-a",
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                    new ArchitectureDiagramEdgeRecord
+                    {
+                        Id = "e2",
+                        SourceId = "api",
+                        TargetId = "sql-b",
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+            },
+            CreateCompileOptions());
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [apiNode, sqlNode]);
+
+        bound.Snapshot.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == "obj-api-1"
+            && edge.ToNodeId == "obj-sql-1"
+            && edge.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
     private static GraphNode CreateTopologyNode(
         string nodeId,
         string label,
