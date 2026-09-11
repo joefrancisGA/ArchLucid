@@ -21,4 +21,30 @@ public static class DefenderSecureScoreRankAdjustment
             DefenderSecureScoreOrdinalBand.Unknown => string.Empty,
             _ => string.Empty,
         };
+
+    public static string? TryReadOrdinalBandLabelFromBlastRadiusSource(string? source)
+    {
+
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            return null;
+        }
+
+        if (source.Contains("defender-posture-low", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Low";
+        }
+
+        if (source.Contains("defender-posture-medium", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Medium";
+        }
+
+        if (source.Contains("defender-posture-high", StringComparison.OrdinalIgnoreCase))
+        {
+            return "High";
+        }
+
+        return null;
+    }
 }

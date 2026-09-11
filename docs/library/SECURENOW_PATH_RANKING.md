@@ -53,6 +53,8 @@ When `defender-summary.json` materializes for the snapshot subscription, the ran
 
 Breakdown `source` strings include `defender-posture-low|medium|high` when present. Numeric secure scores never appear in rank prose or API buyer fields.
 
+Rank detail GET (`/paths/{pathId}/rank`) dimension prose includes the ordinal Defender posture band in the blast-radius paragraph when breakdown sources carry a defender token.
+
 ## Tenant-configurable weights
 
 Tenants may persist custom weights in `SecurityEvidencePathRankWeights` (JSON map of dimension name → weight). The ranking engine reads these during post-materialize. LLM output must **not** write rank rows.
