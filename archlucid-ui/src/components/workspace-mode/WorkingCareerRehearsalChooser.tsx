@@ -6,10 +6,12 @@ import { useCallback, useState, type ReactElement } from "react";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { OperatorSegmentedModeToolbar } from "@/components/advisory/OperatorSegmentedModeToolbar";
 import { WorkingCareerDoorBlockedDialog } from "@/components/workspace-mode/WorkingCareerDoorBlockedDialog";
+import { WorkingCareerRehearsalDoorChangeConfirmDialog } from "@/components/workspace-mode/WorkingCareerRehearsalDoorChangeConfirmDialog";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
+import { useHasInFlightReviewPipeline } from "@/hooks/use-has-in-flight-review-pipeline";
 import {
   useEvaluateWorkingCareerDoorGate,
   useWorkingCareerDoorGate,
@@ -35,6 +37,7 @@ import {
   WORKING_CAREER_REHEARSAL_CHOOSER_TEST_ID,
   type WorkingCareerRehearsalChooserSource,
 } from "@/lib/governance/working-career-rehearsal-chooser-keyboard";
+import { shouldConfirmWorkingCareerRehearsalDoorChange } from "@/lib/governance/working-career-rehearsal-door-mid-review-confirm";
 import { WORKING_CAREER_REHEARSAL_DOOR_SHORTCUT_KEY } from "@/lib/governance/working-career-rehearsal-door-shortcuts";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
@@ -61,6 +64,7 @@ export { WORKING_CAREER_REHEARSAL_CHOOSER_TEST_ID };
  * Persistent Working execution door control (Career vs Rehearsal) for the operator shell top bar.
  * Hidden on Guided seats — not a buyer pill (ADR 0086 / AS-077). Career is blocked when the host
  * cannot run Real execute (AS-078 / TB-1299). AS-082 learn-more handoff: `/help/career-rehearsal-doors`.
+ * In-flight analysis requires confirm before the account door changes (CG-018); stamp lock is CG-019.
  */
 export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChooserProps): ReactElement | null {
   const source = props.source ?? "command-bar";
@@ -68,6 +72,7 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
   const { door, mounted: doorMounted, setDoor } = useWorkingCareerRehearsalDoor();
   const gate = useWorkingCareerDoorGate(door);
   const evaluateGate = useEvaluateWorkingCareerDoorGate();
+  const hasInFlightReview = useHasInFlightReviewPipeline();
   const { mode: sessionMode } = useAgentExecutionMode();
   const readiness = useSessionAiReadiness();
   const matrix = resolveWorkingCareerDoorHostModeMatrixCell({
@@ -79,6 +84,7 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
   });
   const [blockedDialogOpen, setBlockedDialogOpen] = useState(false);
   const [blockedDialogGate, setBlockedDialogGate] = useState<WorkingCareerDoorGateResult | null>(null);
+  const [pendingDoor, setPendingDoor] = useState<WorkingCareerRehearsalDoorId | null>(null);
   const canShow = workspaceMounted && doorMounted && isWorkingWorkspaceMode(mode);
 
   const requestDoor = useCallback(
@@ -92,9 +98,21 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
         return;
       }
 
+      if (
+        shouldConfirmWorkingCareerRehearsalDoorChange({
+          currentDoor: door,
+          nextDoor,
+          hasInFlightReviewPipeline: hasInFlightReview,
+        })
+      ) {
+        setPendingDoor(nextDoor);
+
+        return;
+      }
+
       setDoor(nextDoor);
     },
-    [evaluateGate, setDoor],
+    [door, evaluateGate, hasInFlightReview, setDoor],
   );
 
   const cycleDoor = useCallback(() => {
@@ -175,6 +193,23 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
         gate={blockedDialogGate ?? gate}
         onSwitchToRehearsal={() => {
           setDoor("rehearsal");
+        }}
+      />
+      <WorkingCareerRehearsalDoorChangeConfirmDialog
+        open={pendingDoor !== null}
+        currentDoor={door}
+        nextDoor={pendingDoor}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDoor(null);
+          }
+        }}
+        onConfirm={() => {
+          if (pendingDoor !== null) {
+            setDoor(pendingDoor);
+          }
+
+          setPendingDoor(null);
         }}
       />
     </>
