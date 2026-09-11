@@ -147,6 +147,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
           theme: dark ? "dark" : "neutral",
           securityLevel: "strict",
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
+          flowchart: { htmlLabels: false },
         });
 
         const result = await mermaid.render(renderId, mermaidSource.trim());
@@ -283,7 +284,10 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
       ) : (
         <div
           ref={svgHostRef}
-          className={cn("origin-top-left transition-transform", canvasStale ? "opacity-60" : undefined)}
+          className={cn(
+            "w-full min-w-0 origin-top-left transition-transform [&_svg]:block",
+            canvasStale ? "opacity-60" : undefined,
+          )}
           style={{ transform: `scale(${zoom})` }}
           dangerouslySetInnerHTML={{ __html: sanitizedSvg }}
         />
