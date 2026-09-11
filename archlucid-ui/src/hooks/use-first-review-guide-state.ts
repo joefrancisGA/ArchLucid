@@ -4,9 +4,13 @@ import { useCallback, useMemo } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+import { resolveFirstReviewGuideCareerHonestyContext } from "@/lib/first-review-guide-career-honesty";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { SealedReviewRecordSummary } from "@/lib/core-pilot-commit-context";
@@ -40,6 +44,7 @@ export type FirstReviewGuideViewState = {
   readonly latestRunHref: string | null;
   readonly hasCommittedManifest: boolean;
   readonly sealedReviewRecord: SealedReviewRecordSummary | null;
+  readonly evaluationScopeHelper: string | null;
 };
 
 const loadingReadiness: FirstReviewGuideReadiness = {
@@ -81,12 +86,29 @@ function resolveLoadingHeaderActions(): FirstReviewGuideHeaderActions {
 export function useFirstReviewGuideState(): FirstReviewGuideViewState {
   const canExecute = useOperateCapability();
   const { isWorkingMode } = useWorkspaceMode();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
   const commitQuery = useCorePilotCommitContextQuery();
   const finishSetup = useFinishSetupReadinessContext();
+  const latestRunId = (commitQuery.data?.latestRunId ?? "").trim();
+  const runSummaryQuery = useRunSummaryQuery(latestRunId, {
+    enabled: isWorkingMode && latestRunId.length > 0 && commitQuery.isSuccess,
+  });
+  const healthQuery = useHealthReadySummaryQuery({ enabled: isWorkingMode });
 
   const retry = useCallback(() => {
     void commitQuery.refetch();
   }, [commitQuery]);
+
+  const careerHonesty = useMemo(
+    () =>
+      resolveFirstReviewGuideCareerHonestyContext({
+        workingMode: isWorkingMode,
+        runSummary: runSummaryQuery.data,
+        healthSummary: healthQuery.data,
+        effectiveWorkingCareerRehearsalDoor: effectiveDoor,
+      }),
+    [effectiveDoor, healthQuery.data, isWorkingMode, runSummaryQuery.data],
+  );
 
   return useMemo((): FirstReviewGuideViewState => {
     const isPending = commitQuery.isPending || finishSetup.phase === "loading";
@@ -111,6 +133,7 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
         latestRunHref: null,
         hasCommittedManifest: false,
         sealedReviewRecord: null,
+        evaluationScopeHelper: careerHonesty.evaluationScopeHelper,
       };
     }
 
@@ -121,7 +144,14 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
       finishSetupLoaded: finishSetup.phase === "ready",
       workingMode: isWorkingMode,
       architectureId: readCachedLastOpenArchitectureId(),
+      suppressReadyToFinalize: careerHonesty.suppressReadyToFinalize,
+      hideSampleRecovery: careerHonesty.hideSampleRecovery,
     };
+
+    const readyToFinalize =
+      commitContext.latestRunReadyToFinalize
+      && !commitContext.hasCommittedManifest
+      && !careerHonesty.suppressReadyToFinalize;
 
     return {
       hasLoadedContext: true,
@@ -130,21 +160,25 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
       errorMessage: null,
       retry,
       readiness: resolveFirstReviewGuideReadiness(stateInput),
-      progress: resolveFirstReviewGuideProgress(commitContext),
+      progress: resolveFirstReviewGuideProgress(commitContext, careerHonesty.suppressReadyToFinalize),
       steps: resolveFirstReviewGuideSteps(stateInput),
       headerActions: resolveFirstReviewGuideHeaderActions(stateInput),
       requiredBlockers: resolveFirstReviewGuideRequiredBlockers(stateInput),
       canExecute,
-      readyToFinalize: commitContext.latestRunReadyToFinalize && !commitContext.hasCommittedManifest,
+      readyToFinalize,
       latestRunHref:
         commitContext.latestRunId !== null
           ? resolveFirstReviewGuideRunHref(commitContext.latestRunId, stateInput)
           : null,
       hasCommittedManifest: commitContext.hasCommittedManifest,
       sealedReviewRecord: commitContext.sealedReviewRecord,
+      evaluationScopeHelper: careerHonesty.evaluationScopeHelper,
     };
   }, [
     canExecute,
+    careerHonesty.evaluationScopeHelper,
+    careerHonesty.hideSampleRecovery,
+    careerHonesty.suppressReadyToFinalize,
     commitQuery.data,
     commitQuery.isError,
     commitQuery.isPending,
