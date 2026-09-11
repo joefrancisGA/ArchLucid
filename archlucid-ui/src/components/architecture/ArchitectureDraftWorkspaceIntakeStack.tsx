@@ -35,6 +35,7 @@ type ArchitectureDraftWorkspaceIntakeStackProps = Pick<
   | "draftStartReviewChecklistDescription"
   | "draftStartReviewSteps"
   | "draftStartReviewEmphasizedStepId"
+  | "workLeaseBanner"
 >;
 
 export function ArchitectureDraftWorkspaceIntakeStack(
@@ -59,6 +60,7 @@ export function ArchitectureDraftWorkspaceIntakeStack(
     draftStartReviewChecklistDescription,
     draftStartReviewSteps,
     draftStartReviewEmphasizedStepId,
+    workLeaseBanner,
   } = props;
   const { isWorkingMode } = useWorkspaceMode();
   const startReviewHref = startReviewFromDraftContextHref({
@@ -81,6 +83,8 @@ export function ArchitectureDraftWorkspaceIntakeStack(
           parentArchitectureId={parentArchitectureId}
         />
       ) : null}
+
+      {workLeaseBanner ?? null}
 
       {intakeModeActive && linkedReviewId === null ? (
         <ArchitectureDraftIntakeModeBanner
