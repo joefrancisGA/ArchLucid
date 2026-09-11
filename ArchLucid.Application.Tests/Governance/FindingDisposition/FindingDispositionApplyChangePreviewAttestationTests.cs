@@ -87,6 +87,39 @@ public sealed class FindingDispositionApplyChangePreviewAttestationTests
     }
 
     [Fact]
+    public void Validate_rejects_zero_width_space_only_preview_override_reason_when_provided()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = Disposition.Remediated,
+            PreviewOverrideReason = new string('\u200B', FindingDispositionValidation.MinimumRationaleLength),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Preview override reason*");
+    }
+
+    [Fact]
+    public async Task RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = FindingDispositionServiceTestFactory.Create(trailRepository, isWorkingDesk: false);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = Disposition.Remediated,
+            PreviewOverrideReason = new string('\u200B', FindingDispositionValidation.MinimumRationaleLength),
+        };
+
+        Func<Task> act = () => sut.RecordAsync(request, Scope, "alice", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithMessage("*Preview override reason*");
+    }
+
+    [Fact]
     public async Task RecordAsync_working_remediated_rejects_session_storage_only_attestation()
     {
         ConcurrentFindingReviewTrailRepository trailRepository = new();
