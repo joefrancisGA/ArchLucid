@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   buildAfterAssignmentComplianceRuleKeys,
   buildPolicyImpactPreviewSimulateRequest,
+  resolveInitialPackComparisonIds,
+  resolvePolicyPackDisplayName,
   summarizePolicyImpactGateResult,
 } from "@/lib/policy/policy-pack-impact-preview";
 
@@ -31,6 +33,28 @@ describe("buildAfterAssignmentComplianceRuleKeys", () => {
         { complianceRuleKeys: ["beta", "alpha"] },
       ),
     ).toEqual(["alpha", "beta"]);
+  });
+});
+
+describe("resolveInitialPackComparisonIds", () => {
+  it("defaults pack A to selected pack and pack B to a different pack", () => {
+    expect(
+      resolveInitialPackComparisonIds(
+        [
+          { policyPackId: "pack-a", name: "Pack A" },
+          { policyPackId: "pack-b", name: "Pack B" },
+        ] as never,
+        "pack-a",
+      ),
+    ).toEqual({ packAId: "pack-a", packBId: "pack-b" });
+  });
+});
+
+describe("resolvePolicyPackDisplayName", () => {
+  it("prefers pack name over id", () => {
+    expect(
+      resolvePolicyPackDisplayName([{ policyPackId: "pack-a", name: "Alpha baseline" }] as never, "pack-a"),
+    ).toBe("Alpha baseline");
   });
 });
 
