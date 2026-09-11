@@ -464,6 +464,45 @@ describe("SignupForm", () => {
     expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/valid work email/i);
   });
 
+  it("shows overlong-industry readiness when Other specification exceeds 200 characters", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Other")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Other"));
+    fireEvent.change(screen.getByTestId("signup-industry-specify"), {
+      target: { value: "A".repeat(201) },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/200 characters/i);
+    expect(screen.getByTestId("signup-form-readiness")).not.toHaveTextContent(/specify your industry/i);
+  });
+
+  it("shows whole-number readiness when optional architecture team size is fractional", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.change(screen.getByTestId("signup-architecture-team-size"), { target: { value: "3.5" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/whole-number/i);
+    expect(screen.getByTestId("signup-form-readiness")).not.toHaveTextContent(/between 1 and 10,000/i);
+  });
+
   it("shows industry readiness when Other is selected without a specification", async () => {
     render(<SignupForm />);
     fillRequiredFields();
@@ -482,6 +521,31 @@ describe("SignupForm", () => {
     });
 
     expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/industry/i);
+  });
+
+  it("shows overlong industry readiness when Other specification exceeds 200 characters", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Other")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Other"));
+    fireEvent.change(screen.getByTestId("signup-industry-specify"), {
+      target: { value: "A".repeat(201) },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/at most 200 characters/i)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/200 characters/i);
+    expect(screen.getByTestId("signup-form-readiness")).not.toHaveTextContent(/specify your industry/i);
   });
 
   it("keeps submit disabled for fractional optional architecture team size", async () => {
