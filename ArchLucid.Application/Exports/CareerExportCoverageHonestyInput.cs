@@ -23,4 +23,5 @@ public sealed record CareerExportCoverageHonestyInput(
     int? JudgeSkippedByCap = null,
     FindingsSnapshot? FindingsSnapshot = null,
     bool? ArchitectureInventoryBound = null,
-    DateTime? ArchitectureInventorySnapshotCapturedUtc = null);
+    DateTime? ArchitectureInventorySnapshotCapturedUtc = null,
+    string? WorkingCareerRehearsalDoor = null);

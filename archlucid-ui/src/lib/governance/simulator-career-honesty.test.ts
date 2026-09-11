@@ -19,10 +19,11 @@ describe("simulator-career-honesty (LP-06)", () => {
     expect(isRehearsalStructuralExecutionMode(StructuralExecutionModeWire.Mixed)).toBe(false);
   });
 
-  it("blocks Working simulator career paths without rehearsal banner on artifact", () => {
+  it("blocks Working Career simulator paths without rehearsal banner on artifact (CG-021)", () => {
     expect(
       shouldBlockWorkingCareerForSimulatorRehearsal({
         workingDesk: true,
+        effectiveWorkingCareerRehearsalDoor: "career",
         structuralExecutionMode: StructuralExecutionModeWire.Simulator,
       }),
     ).toBe(true);
@@ -30,10 +31,21 @@ describe("simulator-career-honesty (LP-06)", () => {
     expect(
       formatSimulatorRehearsalCareerBlockedReason({
         workingDesk: true,
+        effectiveWorkingCareerRehearsalDoor: "career",
         structuralExecutionMode: StructuralExecutionModeWire.Simulator,
         artifactKind: "export",
       }),
     ).toBe(SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON);
+  });
+
+  it("allows Working Rehearsal simulator finalize without explicit banner (LP-06 / CG-021)", () => {
+    expect(
+      shouldBlockWorkingCareerForSimulatorRehearsal({
+        workingDesk: true,
+        effectiveWorkingCareerRehearsalDoor: "rehearsal",
+        structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+      }),
+    ).toBe(false);
   });
 
   it("allows Working simulator career paths when rehearsal banner is on the artifact", () => {

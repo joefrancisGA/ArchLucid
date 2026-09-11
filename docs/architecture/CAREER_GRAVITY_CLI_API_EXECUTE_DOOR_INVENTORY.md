@@ -33,7 +33,7 @@ UI doors do not bind curl. Livelihood packets leave through CLI/API.
 | `SecondRunCommand.cs` | Host Mode | None | Same | **none** | CG-054 |
 | `GoldenCohortLockBaselineCommand.cs` / `GoldenCohortDriftCommand.cs` | Host Mode | None | Eval/CI — not Working Career | eval-ok | leave |
 | `archlucid first-value-report` | N/A (download) | None | Honesty is API markdown | assumed-banner (CG-003) | CG-027 |
-| `archlucid proof-packet` / `pilot proof-packet` | Deltas JSON mode | Caveat via `PilotProofPacketStructuralExecutionModeFormatter` | Sponsor caveat line | covered (caveat) | CG-027 / CG-045 |
+| `archlucid proof-packet` / `pilot proof-packet` | `ExportBundleCareerPostureResolver` on deltas JSON | `careerPosture` in `artifact-manifest.json` | Fail-closed Career + Simulator; REHEARSAL stamp when allowed | **covered** | CG-027 |
 | `archlucid buyer-proof-pack` / `sponsor-packet` | API first-value + PDF | None | Sponsor-circulation watermarks, not door | assumed-banner | CG-027 |
 
 ## API routes

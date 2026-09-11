@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { shouldSuppressReadyToFinalizeForCareerHonesty } from "@/lib/runs/run-pipeline-finalize-blocked-honesty";
+import {
+  shouldBlockFinalizeForCareerHonesty,
+  shouldSuppressReadyToFinalizeForCareerHonesty,
+} from "@/lib/runs/run-pipeline-finalize-blocked-honesty";
 import { SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON } from "@/lib/governance/simulator-career-honesty";
 import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
 
@@ -48,10 +51,11 @@ describe("shouldSuppressReadyToFinalizeForCareerHonesty (FC-70)", () => {
     ).toBe(true);
   });
 
-  it("suppresses Ready for Working simulator finalize without rehearsal banner (LP-06)", () => {
+  it("suppresses Ready for Working Career simulator finalize (CG-021)", () => {
     expect(
       shouldSuppressReadyToFinalizeForCareerHonesty({
         workingDesk: true,
+        effectiveWorkingCareerRehearsalDoor: "career",
         structuralExecutionMode: StructuralExecutionModeWire.Simulator,
         transparencyTrail: {
           asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
@@ -90,6 +94,38 @@ describe("shouldSuppressReadyToFinalizeForCareerHonesty (FC-70)", () => {
         },
       }),
     ).toBe(false);
+  });
+
+  it("blocks finalize for Working Career simulator but not Ready label only (CG-021)", () => {
+    const input = {
+      workingDesk: true,
+      effectiveWorkingCareerRehearsalDoor: "career" as const,
+      structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+      transparencyTrail: {
+        asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+        inferred: [],
+        skipped: [],
+      },
+    };
+
+    expect(shouldBlockFinalizeForCareerHonesty(input)).toBe(true);
+    expect(shouldSuppressReadyToFinalizeForCareerHonesty(input)).toBe(true);
+  });
+
+  it("allows finalize for Working Rehearsal simulator with complete trail (LP-06)", () => {
+    const input = {
+      workingDesk: true,
+      effectiveWorkingCareerRehearsalDoor: "rehearsal" as const,
+      structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+      transparencyTrail: {
+        asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+        inferred: [],
+        skipped: [],
+      },
+    };
+
+    expect(shouldBlockFinalizeForCareerHonesty(input)).toBe(false);
+    expect(shouldSuppressReadyToFinalizeForCareerHonesty(input)).toBe(true);
   });
 
   it("suppresses Ready when pre-finalize gate is disabled on Working (LP-18)", () => {

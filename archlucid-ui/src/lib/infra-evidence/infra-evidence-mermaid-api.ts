@@ -1,7 +1,10 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { exportMermaidSourceToPngBlob } from "@/lib/infra-evidence/export-mermaid-source-to-png";
+import {
+  exportMermaidSourceToPngBlob,
+  exportSanitizedMermaidSvgMarkupToPngBlob,
+} from "@/lib/infra-evidence/export-mermaid-source-to-png";
 import { infraEvidenceMermaidMutationBlockedReason } from "@/lib/infra-evidence/infra-evidence-mermaid-mutation-blocked-reason";
 import { isInfraEvidenceMermaidServerPngUnavailableError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-unavailable";
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
@@ -31,6 +34,7 @@ export type InfraEvidenceMermaidRenderQuery = {
 
 export type InfraEvidenceMermaidPngDownloadOptions = {
   readonly fallbackMermaidSource?: string | null;
+  readonly fallbackSvgMarkup?: string | null;
   readonly dark?: boolean;
 };
 
@@ -135,10 +139,16 @@ export async function downloadInfraEvidenceMermaidPng(
       throw error;
     }
 
-    const blob = await exportMermaidSourceToPngBlob(fallbackMermaidSource, {
-      dark: options.dark ?? false,
-      renderId: `infra-evidence-mermaid-export-${snapshotId}`,
-    });
+    const fallbackSvgMarkup = options.fallbackSvgMarkup?.trim() ?? "";
+    const dark = options.dark ?? false;
+
+    const blob =
+      fallbackSvgMarkup.length > 0
+        ? await exportSanitizedMermaidSvgMarkupToPngBlob(fallbackSvgMarkup, { dark })
+        : await exportMermaidSourceToPngBlob(fallbackMermaidSource, {
+            dark,
+            renderId: `infra-evidence-mermaid-export-${snapshotId}`,
+          });
     await triggerBrowserBlobDownload(blob, buildInfraEvidenceMermaidPngFileName(snapshotId, query));
 
     return { usedBrowserFallback: true };

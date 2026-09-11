@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useAssumptionAwareCommitBlockedReason } from "@/hooks/use-assumption-aware-commit-blocked-reason";
+import { useCareerFinalizeBlockedReason } from "@/hooks/use-career-finalize-blocked-reason";
 import { useUnsupportedSemanticSupportFinalizeBlockedReason } from "@/hooks/use-unsupported-semantic-support-finalize-blocked-reason";
 import { mergeFinalizeCommitBlockedReasons } from "@/lib/findings/semantic-support-band-finalize-honesty";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
@@ -129,11 +130,18 @@ export function RunDetailReviewPackageDoThisNextResolved(
       manifestFinalized: props.hasGoldenManifest,
       structuralExecutionMode: props.structuralExecutionMode,
     });
+  const careerFinalizeBlockedReason = useCareerFinalizeBlockedReason({
+    manifestFinalized: props.hasGoldenManifest,
+    structuralExecutionMode: props.structuralExecutionMode ?? props.pipelineSummary?.structuralExecutionMode,
+    workingCareerRehearsalDoor: props.pipelineSummary?.workingCareerRehearsalDoor,
+    transparencyTrail: props.transparencyTrail,
+  });
   const effectiveCommitBlockedReason = mergeFinalizeCommitBlockedReasons(
     commitBlockedState.blockedReason,
     commitBlockedState.readinessUnavailable || commitBlockedState.blocks.length > 0
       ? null
       : unsupportedSemanticSupportCommitBlockedReason,
+    careerFinalizeBlockedReason,
   );
   const effectiveCommitBlockedBlocks = commitBlockedState.blocks;
 

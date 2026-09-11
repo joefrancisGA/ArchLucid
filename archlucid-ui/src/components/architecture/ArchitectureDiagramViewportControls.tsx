@@ -1,26 +1,28 @@
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
-import { Button } from "@/components/ui/button";
-import {
-  ARCHITECTURE_DIAGRAM_FIT_TO_VIEW_LABEL,
-  ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
-  ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL,
-  ARCHITECTURE_DIAGRAM_VIEWPORT_HINT,
-  ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
-  ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
-} from "@/lib/architecture/architecture-diagram-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL } from '@/lib/architecture/architecture-diagram-copy';
+import { OPERATOR_TYPOGRAPHY } from '@/lib/design-tokens';
 
 export type ArchitectureDiagramViewportControlsProps = {
-  readonly zoomPercentLabel: string;
+  readonly zoomPercentInputValue: string;
+  readonly minZoomPercent: number;
+  readonly maxZoomPercent: number;
   readonly atMinZoom: boolean;
   readonly atMaxZoom: boolean;
-  readonly canvasStale: boolean;
-  readonly onZoomOut: () => void;
+  readonly onZoomPercentDraftChange: (value: string) => void;
+  readonly onZoomPercentFocus: () => void;
+  readonly onCommitZoomPercent: (raw: string) => void;
   readonly onZoomIn: () => void;
+  readonly onZoomOut: () => void;
   readonly onResetZoom: () => void;
-  readonly onFitToView: () => void;
-  readonly onFullscreen: () => void;
+  readonly onFitInView: () => void;
+  readonly zoomInLabel: string;
+  readonly zoomOutLabel: string;
+  readonly resetZoomLabel: string;
+  readonly fitInViewLabel: string;
+  readonly viewportHint: string;
 };
 
 /** Labeled zoom and pan controls for the architecture / inventory diagram canvas. */
@@ -42,15 +44,34 @@ export function ArchitectureDiagramViewportControls(
           disabled={props.atMinZoom}
           onClick={props.onZoomOut}
         >
-          {ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL}
+          {props.zoomOutLabel}
         </Button>
-        <span
-          className={cn("min-w-[3.25rem] text-center tabular-nums text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="architecture-diagram-zoom-readout"
-          aria-live="polite"
-        >
-          {props.zoomPercentLabel}
-        </span>
+        <div className="flex items-center gap-1" data-testid="architecture-diagram-zoom-readout" aria-live="polite">
+          <Input
+            type="number"
+            min={props.minZoomPercent}
+            max={props.maxZoomPercent}
+            step="any"
+            inputMode="decimal"
+            aria-label={ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL}
+            data-testid="architecture-diagram-zoom-input"
+            className={cn('h-8 w-[4.75rem] px-2 text-center tabular-nums', OPERATOR_TYPOGRAPHY.helper)}
+            value={props.zoomPercentInputValue}
+            onChange={(event) => props.onZoomPercentDraftChange(event.target.value)}
+            onFocus={props.onZoomPercentFocus}
+            onBlur={(event) => props.onCommitZoomPercent(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                props.onCommitZoomPercent(event.currentTarget.value);
+                event.currentTarget.blur();
+              }
+            }}
+          />
+          <span className={cn('text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)} aria-hidden="true">
+            %
+          </span>
+        </div>
         <Button
           type="button"
           variant="outline"
@@ -59,28 +80,26 @@ export function ArchitectureDiagramViewportControls(
           disabled={props.atMaxZoom}
           onClick={props.onZoomIn}
         >
-          {ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL}
+          {props.zoomInLabel}
         </Button>
-        <Button type="button" variant="outline" size="sm" title="Keyboard: 0 after focusing the diagram" onClick={props.onResetZoom}>
-          {ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          title="Keyboard: 0 after focusing the diagram"
+          onClick={props.onResetZoom}
+        >
+          {props.resetZoomLabel}
         </Button>
-        <Button type="button" variant="outline" size="sm" onClick={props.onFitToView}>
-          {ARCHITECTURE_DIAGRAM_FIT_TO_VIEW_LABEL}
+        <Button type="button" variant="outline" size="sm" onClick={props.onFitInView}>
+          {props.fitInViewLabel}
         </Button>
-        <Button type="button" variant="outline" size="sm" onClick={props.onFullscreen}>
-          {ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION}
-        </Button>
-        {props.canvasStale ? (
-          <span className={cn("text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
-            Canvas may be stale while a new render loads.
-          </span>
-        ) : null}
       </div>
       <p
-        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        className={cn('m-0 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
         data-testid="architecture-diagram-viewport-hint"
       >
-        {ARCHITECTURE_DIAGRAM_VIEWPORT_HINT}
+        {props.viewportHint}
       </p>
     </div>
   );

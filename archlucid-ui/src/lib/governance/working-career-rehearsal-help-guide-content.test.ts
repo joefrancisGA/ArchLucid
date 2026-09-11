@@ -39,10 +39,10 @@ describe("working-career-rehearsal-help-guide-content (AS-082)", () => {
     expect(WORKING_CAREER_REHEARSAL_HELP_GUIDED_NOTE).not.toContain("github.com");
   });
 
-  it("documents the Security product-line chooser skip as labeled honesty", () => {
-    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).toContain("Security");
-    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).toContain("honesty strip");
-    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY.toLowerCase()).toContain("simulator");
+  it("documents the SecureNow product-line omission of Career / Rehearsal chrome", () => {
+    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).toContain("SecureNow");
+    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).toContain("Career");
+    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).toContain("Rehearsal");
     expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).not.toContain("github.com");
   });
 

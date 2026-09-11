@@ -245,7 +245,8 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
             input.WorkingDesk,
             input.IsSampleRun,
             input.StructuralExecutionMode,
-            input.SimulatorRehearsalBannerOnArtifact);
+            input.SimulatorRehearsalBannerOnArtifact,
+            input.WorkingCareerRehearsalDoor);
 
         if (blockedReason is not null)
         {

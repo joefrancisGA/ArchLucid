@@ -15,15 +15,12 @@ export type CareerGravityBadgePipelineRow = {
   readonly ownerPrompt: string;
 };
 
-/** Security product line hides the Working Career/Rehearsal chooser (AS-077 leftover / CG-017). */
+/** Security product line hides ArchLucid training and Career/Rehearsal chrome (CG-017 / SecureNow production shell). */
 export const CAREER_GRAVITY_SECURITY_CHOOSER_SKIP_PATH =
   "archlucid-ui/src/components/shell/OperatorShellTopBar.tsx" as const;
 
 export const CAREER_GRAVITY_SECURITY_CHOOSER_SKIP_MARKER =
-  'showWorkingCareerRehearsalChooser = productLine !== "security"' as const;
-
-export const CAREER_GRAVITY_SECURITY_HONESTY_STRIP_PATH =
-  "archlucid-ui/src/components/workspace-mode/SecurityWorkingCareerHonestyStrip.tsx" as const;
+  'showTrainingChrome = !isSecureNowTrainingChromeExcluded(productLine)' as const;
 
 export const CAREER_GRAVITY_BADGE_PIPELINE_COPY_ROWS: readonly CareerGravityBadgePipelineRow[] = [
   {
@@ -83,11 +80,6 @@ export const CAREER_GRAVITY_BADGE_PIPELINE_COPY_ROWS: readonly CareerGravityBadg
   },
   {
     relativePath: CAREER_GRAVITY_SECURITY_CHOOSER_SKIP_PATH,
-    leakClass: "security-skip",
-    ownerPrompt: "CG-017",
-  },
-  {
-    relativePath: CAREER_GRAVITY_SECURITY_HONESTY_STRIP_PATH,
     leakClass: "security-skip",
     ownerPrompt: "CG-017",
   },
