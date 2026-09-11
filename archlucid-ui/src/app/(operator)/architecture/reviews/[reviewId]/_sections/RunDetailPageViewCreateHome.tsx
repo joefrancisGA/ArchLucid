@@ -127,6 +127,8 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         architectureRequestId={m.resolvedDetail.run.architectureRequestId}
         azureInventoryEvidencePresent={hasAzureInventoryZipEvidence(evidenceInventoryItems)}
         structuralExecutionMode={m.resolvedDetail.run.structuralExecutionMode}
+        degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}
+        degradedFindingCoverageFailedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
         {...reviewPackageDoThisNextEvidenceProps}
       />
       {!m.manifestId ? (

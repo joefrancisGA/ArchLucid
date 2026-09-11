@@ -18,6 +18,10 @@ export type DeriveFinalizeQualityScorecardOptions = {
   readonly acknowledgedAssumptionIds?: ReadonlySet<string>;
   readonly requestAssumptionTexts?: readonly string[];
   readonly transparencyTrail?: TransparencyTrail | null;
+  /** WS-14: Working seats block finalize when finding-engine coverage is degraded. */
+  readonly degradedFindingCoverage?: boolean;
+  readonly degradedFindingCoverageFailedEngineLabels?: readonly string[];
+  readonly blockDegradedFindingCoverageOnWorking?: boolean;
 };
 
 const FINALIZE_RESOLVED_DISPOSITIONS = new Set([
@@ -114,6 +118,9 @@ export function deriveFinalizeQualityScorecardInput(
     transparencyTrailIncomplete:
       options?.transparencyTrail !== undefined &&
       !isTransparencyTrailComplete(options.transparencyTrail),
+    degradedFindingCoverage: options?.degradedFindingCoverage === true,
+    degradedFindingCoverageFailedEngineLabels: options?.degradedFindingCoverageFailedEngineLabels ?? [],
+    blockDegradedFindingCoverageOnWorking: options?.blockDegradedFindingCoverageOnWorking === true,
   };
 }
 
