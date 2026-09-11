@@ -3180,7 +3180,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 6
+- **hunts:** 8
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -3206,6 +3206,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` returns true for duplicate sequential claims — **cheap-disproof 2026-09-11 seed hunt #1797:** second claim returns false; regression `TryRegisterEventAsync_returns_false_when_event_already_registered`.
 
 2026-09-11 seed hunt #1797 (seed-only): reseeded billing-webhooks after #1677; cheap-disproof closed sequential TryRegister duplicate-claim candidate; 1 scoped MemoryCacheBillingWebhookReplayGuard test passed.
+
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard` treats provider-name case variants as distinct replay keys — **cheap-disproof 2026-09-11 seed hunt #1799:** `BuildCacheKey` lowercases provider names; regression `HasSeenAsync_treats_provider_name_case_variants_as_same_event`.
+- [x] (valid-no-repro) Whitespace-padded billing event ids bypass replay guard — **cheap-disproof 2026-09-11 seed hunt #1799:** `BuildCacheKey` trims event ids; regression `HasSeenAsync_treats_whitespace_padded_event_id_as_same_event`.
+- [x] (valid-no-repro) Wallet `payment_intent.succeeded` credits tenant when `tenant_id` metadata is `Guid.Empty` — **cheap-disproof 2026-09-11 seed hunt #1799:** processor throws before wallet credit; regression `ProcessPaymentIntentEventAsync_throws_when_tenant_metadata_is_empty_guid`.
+- [x] (invalid) Blank `payment_intent` id still credits wallet on `payment_intent.succeeded` — **cheap-disproof 2026-09-11 seed hunt #1799:** early return when id is whitespace; regression `ProcessPaymentIntentEventAsync_skips_wallet_credit_when_payment_intent_id_blank`.
+
+2026-09-11 seed hunt #1799 (seed-only): reseeded billing-webhooks after #1797; cheap-disproof closed replay-key normalization and wallet metadata/id guard gaps; 11 scoped unit tests passed (`BillingStripeWebhookControllerIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `TryRegisterEventAsync` succeeds after `RememberAsync` marked the same billing event — **cheap-disproof 2026-09-11 seed hunt #1800:** `TryAdd` on shared cache key fails; regression `TryRegisterEventAsync_returns_false_when_event_remembered_first`.
+- [x] (valid-no-repro) Wallet `payment_intent.succeeded` credits tenant when `tenant_id` metadata is a non-GUID string — **cheap-disproof 2026-09-11 seed hunt #1800:** `Guid.TryParse` guard throws; regression `ProcessPaymentIntentEventAsync_throws_when_tenant_metadata_is_not_guid`.
+- [x] (invalid) `BillingWebhookLedgerReplayPolicy` blocks Stripe retry after prior `Failed` ledger status — **cheap-disproof 2026-09-11 seed hunt #1800:** failed deliveries are intentionally retryable; regression `ShouldRejectDuplicateLedgerEntry_returns_false_for_failed_or_missing_status`.
+
+2026-09-11 seed hunt #1800 (seed-only): reseeded billing-webhooks after #1799; cheap-disproof closed Remember/TryRegister interaction, non-GUID wallet metadata, and failed-ledger retry policy; 13 scoped unit tests passed.
 
 2026-09-04 seed hunt #671: proved duplicate billing webhook signature/bearer header comma-join; seeded replay-guard TryRegister wiring and wallet-purpose filter candidates.
 
@@ -3296,7 +3309,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 6
+- **hunts:** 8
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -3328,6 +3341,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) ApiKey principal with `tenant_id` claim accepts hostile `x-project-id` header — **cheap-disproof 2026-09-11 seed hunt #1792:** unbound project dimension rejected like workspace; regression `InvokeAsync_api_key_with_tenant_claim_rejects_x_project_id_header`.
 
 2026-09-11 seed hunt #1792 (seed-only): reseeded scope-binding-middleware after #1672; cheap-disproof closed ApiKey project-header escalation parity; 1 scoped ScopeIdentityBindingMiddleware test passed.
+
+- [x] (invalid) Whitespace-padded `tenant_id` claim bypasses `Validate` / header-only guard while `x-tenant-id` steers scope — **cheap-disproof 2026-09-11 seed hunt #1798:** `Guid.TryParse` accepts padded GUID strings; claim and header both bind; no steering gap.
+- [x] (valid-no-repro) Duplicate `x-project-id` headers bypass header-only escalation without `project_id` claim — **cheap-disproof 2026-09-11 seed hunt #1798:** `TryParseHeaderGuid` iterates segments like tenant/workspace; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_project_headers_without_claim_for_bearer`.
+- [x] (valid-no-repro) Production-like guard accepts `Guid.Empty` workspace/project from Claim source — **cheap-disproof 2026-09-11 seed hunt #1798:** `IsUntrusted` rejects any `Guid.Empty` dimension; regressions `RequiresTrustedScopeRejection_true_when_workspace_claim_is_empty_guid` and `RequiresTrustedScopeRejection_true_when_project_claim_is_empty_guid`.
+
+2026-09-11 seed hunt #1798 (seed-only): reseeded scope-binding-middleware after #1792; cheap-disproof closed whitespace-padded claim steering, duplicate project-header escalation, and empty workspace/project claim gaps; 54 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) ApiKey principal with duplicate `x-workspace-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-11 seed hunt #1801:** `TryParseHeaderGuid` parity with tenant/project; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_workspace_headers_without_claim_for_api_key`.
+- [x] (valid-no-repro) `RouteTenantScopeBindingFilter` enforces route tenant on `AllowUnscopedRoute` endpoints — **cheap-disproof 2026-09-11 seed hunt #1801:** `ShouldSkip` honors `AllowUnscopedRouteAttribute`; regression `OnActionExecutionAsync_allow_unscoped_route_metadata_skips_binding`.
+- [x] (invalid) Mixed-case `/INTERNAL/` path segments bypass `ScopeResolutionGuardMiddleware` skip — **cheap-disproof 2026-09-11 seed hunt #1801:** `path.Contains("/internal/", OrdinalIgnoreCase)`; regression `InvokeAsync_staging_host_skips_internal_paths_with_mixed_case`.
+
+2026-09-11 seed hunt #1801 (seed-only): reseeded scope-binding-middleware after #1798; cheap-disproof closed ApiKey duplicate-workspace headers, AllowUnscoped route skip, and internal-path casing; 57 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
 
 ---
 

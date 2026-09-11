@@ -2065,3 +2065,7 @@
 {"at":"2026-09-11T23:12:52.1250571Z","zoneId":"core-costing","outcome":"seed-only"}
 {"at":"2026-09-11T23:12:52.9187935Z","zoneId":"host-infra-evidence-composition","outcome":"seed-only"}
 {"at":"2026-09-11T23:12:53.7287509Z","zoneId":"billing-webhooks","outcome":"seed-only"}
+{"at":"2026-09-11T23:51:13.4333098Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
+{"at":"2026-09-11T23:51:14.336294Z","zoneId":"billing-webhooks","outcome":"seed-only"}
+{"at":"2026-09-11T23:51:15.0711189Z","zoneId":"billing-webhooks","outcome":"seed-only"}
+{"at":"2026-09-11T23:51:15.8079910Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
