@@ -76,6 +76,8 @@ UI alignment: **`docs/operator-shell.md`**.
 
 ## Changing the HTTP contract (PR checklist)
 
+**2026-09-11 (CG-011):** `GET /v1/user/preferences` adds additive `workingCareerRehearsalDoor` / `workingCareerRehearsalDoorIsExplicit`. `PUT /v1/user/preferences/working-career-rehearsal-door` persists an explicit Working Career vs Rehearsal pick (`career` | `rehearsal`) in UserSettings. Unset GET defaults to `career` with `isExplicit=false` (AS-080 clients must not treat that as a stored pick). Guided does not PUT this field. Non-breaking.
+
 **2026-09-10 (LW-024):** `PatchDraftRequest` OpenAPI descriptions document fail-closed CAS (ADR 0088): `expectedUpdatedUtc` is required unless `forceOverwrite`; omit is HTTP 409 `draft_cas_token_missing`; `forceOverwrite` never defaults true. Fields stay JSON-optional. Non-breaking documentation.
 
 **2026-09-09 (Wave 68 / QR-03):** OpenAPI snapshot refresh — additive **409** `ProblemDetails` content types on sealed-manifest-guard routes (draft submit, governance approve/reject, policy-pack assign, run replay, and related Wave 67–68 mutations); **`GET /v1/roi/cross-tenant-portfolio`** **403** documents **`ProblemDetails`** (portfolio-key-not-configured), not the success DTO. Non-breaking.

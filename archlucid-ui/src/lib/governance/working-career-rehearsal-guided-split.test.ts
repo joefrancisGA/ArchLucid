@@ -75,5 +75,7 @@ describe("working-career-rehearsal guided split (AS-081 / WS-23)", () => {
     expect(docSource).toContain("Rehearsal");
     expect(docSource).toContain("AS-081");
     expect(docSource).toContain("WorkingCareerRehearsalChooser");
+    expect(docSource).toContain("workingCareerRehearsalDoor");
+    expect(docSource).toContain("CG-011");
   });
 });
