@@ -47,7 +47,8 @@ public static class CareerArtifactCompletenessInputMapper
         bool preCommitGateEnabled,
         StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Simulator,
         bool degradedFindingCoverage = false,
-        IReadOnlyList<string>? degradedFindingCoverageFailedEngineLabels = null)
+        IReadOnlyList<string>? degradedFindingCoverageFailedEngineLabels = null,
+        string? workingCareerRehearsalDoor = null)
     {
         return new CareerArtifactCompletenessInput(
             ArtifactKind: CareerArtifactKind.Finalize,
@@ -57,6 +58,7 @@ public static class CareerArtifactCompletenessInputMapper
             PreCommitGateEnabled: preCommitGateEnabled,
             StructuralExecutionMode: structuralExecutionMode,
             DegradedFindingCoverage: degradedFindingCoverage,
-            DegradedFindingCoverageFailedEngineLabels: degradedFindingCoverageFailedEngineLabels);
+            DegradedFindingCoverageFailedEngineLabels: degradedFindingCoverageFailedEngineLabels,
+            WorkingCareerRehearsalDoor: workingCareerRehearsalDoor);
     }
 }

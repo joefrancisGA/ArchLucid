@@ -8,6 +8,8 @@ import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSe
 import { RunDetailReviewPackageClassificationSummary } from "./RunDetailReviewPackageClassificationSummary";
 import { RunDetailReviewPackageSemanticSupportBandSummary } from "./RunDetailReviewPackageSemanticSupportBandSummary";
 import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPackageDecisionReceiptStrip";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
+import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
 import { RunDetailPreFinalizeGateHonestyStrip } from "@/components/reviews/RunDetailPreFinalizeGateHonestyStrip";
 import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQualityGateModeStrip";
 import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
@@ -57,6 +59,11 @@ export function RunDetailReviewPackageStampViewport(
   props: RunDetailReviewPackageStampViewportProps,
 ): React.JSX.Element | null {
   const { isWorkingMode } = useWorkspaceMode();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
+  const honestyWorkingCareerRehearsalDoor = resolveHonestyWorkingCareerRehearsalDoor({
+    stampedDoor: props.workingCareerRehearsalDoor,
+    liveDoor: effectiveDoor,
+  });
   const feasibilityVerdict = props.feasibilityVerdict ?? null;
   const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);
   const pipelineTerminalFailure = props.pipelineTerminalFailure === true;
@@ -104,6 +111,7 @@ export function RunDetailReviewPackageStampViewport(
           preCommitGateEnabled={props.preCommitGateEnabled}
           structuralExecutionMode={props.structuralExecutionMode}
           isSample={props.isSample}
+          effectiveWorkingCareerRehearsalDoor={honestyWorkingCareerRehearsalDoor}
         />
         <RunDetailReviewPackageClassificationSummary
           findings={props.quickDecisionFindings ?? []}
@@ -183,6 +191,7 @@ export function RunDetailReviewPackageStampViewport(
         preCommitGateEnabled={props.preCommitGateEnabled}
         structuralExecutionMode={props.structuralExecutionMode}
         isSample={props.isSample}
+        effectiveWorkingCareerRehearsalDoor={honestyWorkingCareerRehearsalDoor}
       />
       <RunDetailReviewPackageClassificationSummary
         findings={props.quickDecisionFindings ?? []}

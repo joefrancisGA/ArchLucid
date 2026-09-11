@@ -16,6 +16,10 @@ import {
 } from "@/lib/simulator-mode-chrome-copy";
 
 import type { CareerArtifactKind } from "@/lib/career-artifact/career-artifact-honesty";
+import {
+  DEFAULT_WORKING_CAREER_REHEARSAL_DOOR,
+  type WorkingCareerRehearsalDoorId,
+} from "@/lib/governance/working-career-rehearsal-door";
 
 export const SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON =
   "Simulator rehearsal cannot be career-complete without explicit rehearsal labeling on the artifact.";
@@ -46,6 +50,7 @@ export function shouldBlockWorkingCareerForSimulatorRehearsal(input: {
   readonly isSample?: boolean | null;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly simulatorRehearsalBannerOnArtifact?: boolean;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
 }): boolean {
   if (input.workingDesk !== true) {
     return false;
@@ -59,7 +64,19 @@ export function shouldBlockWorkingCareerForSimulatorRehearsal(input: {
     return false;
   }
 
-  return input.simulatorRehearsalBannerOnArtifact !== true;
+  if (input.simulatorRehearsalBannerOnArtifact === true) {
+    return false;
+  }
+
+  const effectiveDoor =
+    input.effectiveWorkingCareerRehearsalDoor ?? DEFAULT_WORKING_CAREER_REHEARSAL_DOOR;
+
+  // CG-021 / LP-06: Rehearsal door may finalize as rehearsal-incomplete on Simulator/Fallback.
+  if (effectiveDoor === "rehearsal") {
+    return false;
+  }
+
+  return true;
 }
 
 export function formatSimulatorRehearsalCareerBlockedReason(input: {
@@ -67,6 +84,7 @@ export function formatSimulatorRehearsalCareerBlockedReason(input: {
   readonly isSample?: boolean | null;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly simulatorRehearsalBannerOnArtifact?: boolean;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
   readonly artifactKind?: CareerArtifactKind;
 }): string | null {
   if (!shouldBlockWorkingCareerForSimulatorRehearsal(input)) {
@@ -81,6 +99,7 @@ export function shouldSuppressReadyToFinalizeForSimulatorRehearsal(input: {
   readonly isSample?: boolean | null;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly simulatorRehearsalBannerOnArtifact?: boolean;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
 }): boolean {
   return shouldBlockWorkingCareerForSimulatorRehearsal(input);
 }
