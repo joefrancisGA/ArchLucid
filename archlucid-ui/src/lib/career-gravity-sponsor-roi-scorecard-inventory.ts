@@ -14,7 +14,7 @@ export const CAREER_GRAVITY_SPONSOR_ROI_SCORECARD_ROWS: readonly CareerGravitySp
   {
     relativePath: "archlucid-ui/src/app/(operator)/insights/sponsor-report/page.tsx",
     leakClass: "covered",
-    ownerPrompt: "CG-035",
+    ownerPrompt: "CG-090",
   },
   {
     relativePath: "archlucid-ui/src/app/(operator)/insights/roi-summary/_sections/RoiSummaryBuyerChrome.tsx",
