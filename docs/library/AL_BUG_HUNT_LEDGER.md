@@ -2639,6 +2639,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-11 seed hunt #1744 (seed→hit): reseeded ui-help-docs; proved protocol-relative external link handling gap; 22 scoped `HelpDocsClient` tests passed.
 
+- [x] (valid-no-repro) `?q=` deep link initializes the search box but leaves the full index visible until the operator types — **cheap-disproof 2026-09-11 seed hunt #1745:** `query` state seeds from `urlQuery` and `filtered` applies on first render; regression `filters documentation on mount when q= is in the URL`.
+
+2026-09-11 seed hunt #1745 (seed-only): reseeded ui-help-docs after #1744; cheap-disproof closed q= mount filtering candidate; 23 scoped `HelpDocsClient` tests passed.
+
 ## Zone: ui-webhooks-settings
 
 - **id:** ui-webhooks-settings
@@ -3660,11 +3664,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 13
-- **bugs-found:** 16
+- **hunts:** 14
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-09 — equal-count snapshot severity tie kept agent buckets; muted cost findings inflated estimated USD savings rollups
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — ROI freshness regression used Simulator mode and tripped career-artifact PDF gate before ZIP build
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -3713,6 +3717,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `BoardPackQuarterWindow.Resolve` ignores configured calendar quarter when only one override bound is set — **cheap-disproof 2026-09-10 seed hunt #1570:** partial overrides fall back to `year`/`quarter` window; regression `Resolve_returns_calendar_quarter_window_when_overrides_absent`
 
 2026-09-10 seed hunt #1570 (seed-only): reseeded application-pilots after master merge; cheap-disproof closed commit-guard and board-pack quarter-window candidates; restored `BuyerProofPackBuilderRoiFreshnessTests` career-export test doubles; 22 scoped BuyerProofPack/BoardPack tests passed.
+
+- [x] (proven) `BuyerProofPackBuilderRoiFreshnessTests` committed detail used `StructuralExecutionMode.Simulator` so `TryBuildZipAsync` threw `SponsorFirstValuePdfBlockedException` before stale ROI freshness could be asserted — **hit 2026-09-11 seed hunt #1746 (seed→hit):** test fixture now uses `StructuralExecutionMode.Real` for sendable sponsor proof; regression `TryBuildZipAsync_when_extractor_is_stale_emits_hold_freshness_in_deltas_json` passes; 22 scoped BuyerProofPack/BoardPack tests green.
+
+2026-09-11 seed hunt #1746 (seed→hit): reseeded application-pilots; restored ROI freshness ZIP regression blocked by simulator career-artifact gate; 22 scoped BuyerProofPack/BoardPack tests passed.
 
 ---
 
