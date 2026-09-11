@@ -41,6 +41,7 @@ public sealed class ExecDigestEmailDispatcher(
 
         string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
         ArgumentNullException.ThrowIfNull(composition);
+        string normalizedWeekLabel = composition.WeekLabel.Trim();
 
         List<string> normalizedMailboxes = [];
 
@@ -63,7 +64,7 @@ public sealed class ExecDigestEmailDispatcher(
         ExecDigestEmailModel model = new()
         {
             ProductName = productName,
-            WeekLabel = composition.WeekLabel,
+            WeekLabel = normalizedWeekLabel,
             ComplianceDriftMarkdown = composition.ComplianceDriftMarkdown,
             CommittedManifestsInWeek = composition.CommittedManifestsInWeek,
             TopRuns = composition.TopManifestRuns,
@@ -76,7 +77,7 @@ public sealed class ExecDigestEmailDispatcher(
         string idempotencyKey = $"exec-digest:{tenantId:N}:{normalizedIsoWeekKey}";
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
-        string subject = $"{productName} weekly digest — {composition.WeekLabel}";
+        string subject = $"{productName} weekly digest — {normalizedWeekLabel}";
 
         return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
             tenantId,
