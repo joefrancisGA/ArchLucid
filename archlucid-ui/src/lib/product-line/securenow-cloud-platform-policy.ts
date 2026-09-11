@@ -15,6 +15,7 @@ export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "choose-your-next-step",
   "accelerator-chooser",
   "billing-and-plans",
+  "career-rehearsal-doors",
 ];
 
 /** Help topic slugs shown only in the SecureNow Security shell. */
@@ -38,10 +39,16 @@ export const SECURENOW_EXCLUDED_HELP_SEARCH_TOPIC_IDS: readonly string[] = [
   "close-evidence-gaps",
   "improvement-planning-help",
   "billing-and-plans",
+  "career-rehearsal-doors",
 ];
 
 export function isSecureNowProductLine(productLineId: ProductLineId): boolean {
   return productLineId === "security";
+}
+
+/** SecureNow is a production security shell — ArchLucid training, simulator, and Career/Rehearsal chrome do not apply. */
+export function isSecureNowTrainingChromeExcluded(productLineId: ProductLineId): boolean {
+  return isSecureNowProductLine(productLineId);
 }
 
 export function isCloudProviderSupportedForProductLine(

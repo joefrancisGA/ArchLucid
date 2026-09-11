@@ -15,6 +15,12 @@ const navigationMock = vi.hoisted(() => ({
   search: "",
 }));
 
+const productLineMock = vi.hoisted(() => ({ value: "architecture" as "architecture" | "security" }));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: productLineMock.value }),
+}));
+
 vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => ({
     mode: workspaceModeMock.mode,
@@ -49,6 +55,7 @@ import { WorkspaceModeGuidedWorkingOfferHost } from "@/components/workspace-mode
 
 describe("WorkspaceModeGuidedWorkingOfferHost (FD-10)", () => {
   beforeEach(() => {
+    productLineMock.value = "architecture";
     workspaceModeMock.mode = "guided";
     workspaceModeMock.setAndPersist.mockClear();
     evalChromeMock.value = true;
@@ -82,6 +89,15 @@ describe("WorkspaceModeGuidedWorkingOfferHost (FD-10)", () => {
 
     expect(screen.getByTestId("workspace-mode-guided-working-offer-host")).toBeInTheDocument();
     expect(screen.getByTestId("workspace-mode-graduation-offer")).toBeInTheDocument();
+  });
+
+  it("does not show the Guided-to-Working training invitation in the SecureNow shell", () => {
+    productLineMock.value = "security";
+    commitContextMock.hasCommittedManifest = true;
+
+    const { container } = render(<WorkspaceModeGuidedWorkingOfferHost />);
+
+    expect(container).toBeEmptyDOMElement();
   });
 
   it("writes graduationOfferOpen once when the invitation becomes eligible", () => {

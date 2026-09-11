@@ -61,6 +61,7 @@ describe("SecureNow help guide content", () => {
 
     const topics = listHelpCenterTopics({ showAdvanced: true, isAdmin: true, productLineId: "security" });
     expect(topics.map((entry) => entry.slug)).not.toContain("billing-and-plans");
+    expect(topics.map((entry) => entry.slug)).not.toContain("career-rehearsal-doors");
   });
 
   it("serves SecureNow findings help copy without review-finalize language", () => {

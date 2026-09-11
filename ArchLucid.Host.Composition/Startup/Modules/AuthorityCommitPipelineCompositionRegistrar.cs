@@ -53,6 +53,7 @@ internal static class AuthorityCommitPipelineCompositionRegistrar
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
         services.AddScoped<PreFinalizeExecuteBaselineDriftEvaluator>();
         services.AddScoped<IPreFinalizeChecklistService, PreFinalizeChecklistService>();
+        services.AddScoped<IFinalizeReadinessService, FinalizeReadinessService>();
         services.AddScoped<IFindingMergeConflictResolutionService, FindingMergeConflictResolutionService>();
         services.AddScoped<ITechnologyConsistencyFindingEngine, TechnologyConsistencyFindingEngine>();
         services.AddScoped<ICommittedEffectiveGovernanceSnapshotCapturer, CommittedEffectiveGovernanceSnapshotCapturer>();

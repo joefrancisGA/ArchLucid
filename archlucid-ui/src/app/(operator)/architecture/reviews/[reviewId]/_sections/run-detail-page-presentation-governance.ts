@@ -4,11 +4,10 @@ import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { resolvePartialRunCommitBlockPresentation } from "@/lib/runs/run-detail-partial-run-commit-block";
 import { resolveAuthorityLifecycleCommitBlock } from "@/lib/runs/authority-lifecycle-commit-block";
 import { shouldShowRunDetailGovernanceCta } from "@/lib/runs/run-detail-governance-cta-visibility";
-import { evaluateFinalizeQualityScorecard } from "@/lib/review-quality/finalize-quality-scorecard";
-import { deriveFinalizeQualityScorecardInput } from "@/lib/review-quality/finalize-quality-scorecard-from-findings";
-import { formatDegradedFindingCoverageBlockedReason } from "@/lib/review-quality/degraded-finding-coverage-blocked-reason";
+import { tryLoadFinalizeReadinessForRun } from "@/lib/try-load-finalize-readiness-for-run";
 import { tryLoadRequestAssumptionsForRun } from "@/lib/try-load-request-assumptions-for-run";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 import { SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF } from "@/lib/showcase-static-demo";
 
 import type { RunDetailPageModel } from "./run-detail-page-model";
@@ -53,15 +52,6 @@ export function resolveCommitBlockedReason(
     return `Finding coverage is commit-blocking. Failed engines: ${failedEngines}.`;
   }
 
-  if (
-    model.buyerPolishedArtifactTable !== true
-    && model.resolvedDetail.degradedFindingCoverage === true
-  ) {
-    return formatDegradedFindingCoverageBlockedReason(
-      findingCoverageSummary?.failedEngineLabels ?? [],
-    );
-  }
-
   const partialRunCommitBlock = resolvePartialRunCommitBlockPresentation({
     legacyRunStatus: model.resolvedDetail.run.legacyRunStatus ?? null,
     agentExecutionOutcomes: model.resolvedDetail.agentExecutionOutcomes ?? null,
@@ -104,6 +94,7 @@ export function resolveReviewPolicyPackCallout(model: RunDetailPageModel): Revie
 
 export type RunDetailGovernancePresentation = {
   readonly commitBlockedReason: string | null;
+  readonly finalizeReadinessBlocks: readonly FinalizeReadinessBlock[];
   readonly finalizeAssumptionGateApplies: boolean;
   readonly requestAssumptionTexts: readonly string[];
   readonly governanceDecisionLabel: string;
@@ -128,24 +119,15 @@ export async function buildRunDetailGovernancePresentation(
   const baseCommitBlockedReason = resolveCommitBlockedReason(model, input.findingCoverageSummary);
   const finalizeAssumptionGateApplies = baseCommitBlockedReason === null && !input.hasManifest;
   const requestAssumptionTexts = await tryLoadRequestAssumptionsForRun(model.routeRunId);
-  const transparencyTrail =
-    model.manifestSummaryForUi?.feasibilityVerdict?.transparencyTrail ??
-    model.manifestSummary?.feasibilityVerdict?.transparencyTrail ??
-    null;
-  const finalizeScorecard =
+  const serverReadiness =
     finalizeAssumptionGateApplies
-      ? evaluateFinalizeQualityScorecard(
-          deriveFinalizeQualityScorecardInput(input.quickDecisionFindings, input.blockingApprovalCount, {
-            requestAssumptionTexts,
-            transparencyTrail,
-          }),
-        )
+      ? await tryLoadFinalizeReadinessForRun(model.routeRunId)
       : null;
   const commitBlockedReason =
     baseCommitBlockedReason !== null
       ? baseCommitBlockedReason
-      : finalizeScorecard !== null && !finalizeScorecard.ready
-        ? finalizeScorecard.blockingReasons.join(" ")
+      : serverReadiness !== null && !serverReadiness.readyToFinalize
+        ? serverReadiness.blockedReasonSummary
         : null;
 
   const showGovernanceCta = shouldShowRunDetailGovernanceCta({
@@ -165,6 +147,7 @@ export async function buildRunDetailGovernancePresentation(
 
   return {
     commitBlockedReason,
+    finalizeReadinessBlocks: serverReadiness?.blocks ?? [],
     finalizeAssumptionGateApplies,
     requestAssumptionTexts,
     governanceDecisionLabel,

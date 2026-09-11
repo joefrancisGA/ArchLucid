@@ -8,7 +8,10 @@ const BASE_INPUT = {
   unverifiedAssumptionCount: 0,
   unacknowledgedExistentialAssumptionCount: 0,
   uncoveredMandatoryRequirementCount: 0,
+  openDeferredCount: 0,
+  openContradictionCount: 0,
   openCannotDetermineCount: 0,
+  openVerifyHypothesisCount: 0,
   lowExtractionConfidenceCount: 0,
   unresolvedHighSeverityDispositionCount: 0,
 };
