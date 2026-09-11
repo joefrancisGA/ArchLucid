@@ -247,7 +247,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 20
+- **hunts:** 23
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-11
@@ -336,6 +336,22 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (invalid) `SqlTenantSettingsRepository.DeleteCoreAsync` should invoke `TenantSettingsWriteGuard` — **cheap-disproof 2026-09-11 seed hunt #1765:** delete removes a key only; no `SettingValue` payload exists on the delete path.
 
 2026-09-11 seed hunt #1765 (seed-only): reseeded tenant-settings-sql after #1757; cheap-disproof closed ten-alias JSON budget, trim-aware write guard, whitespace read normalization, write-in-flight cache bypass, empty-tenant upsert guard, and delete write-guard candidate; 12 scoped SqlTenantSettingsRepository tests passed.
+
+- [x] (invalid) Nine-alias allowed-engine JSON exceeds migration `NVARCHAR(512)` — **cheap-disproof 2026-09-11 seed hunt #1778:** nine `managed-azure-openai-alias-*` ids fit under the 512-char budget (ten fits per #1765; fourteen exceeds per #1323).
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.DeleteCoreAsync` rejects `Guid.Empty` before opening a SQL connection — **cheap-disproof 2026-09-11 seed hunt #1778:** `tenantId == Guid.Empty` throws `ArgumentException` before `CreateOpenConnectionAsync`, symmetric to upsert path (#1765).
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` with padded `settingKey` misses normalized cache slot — **cheap-disproof 2026-09-11 seed hunt #1778:** `TenantSettingKeyNormalizer.Normalize` runs before cache slot lookup; regression `TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`.
+
+2026-09-11 seed hunt #1778 (seed-only): reseeded tenant-settings-sql after #1765; cheap-disproof closed nine-alias JSON budget, delete empty-tenant guard, and padded setting-key cache slot; 12 scoped SqlTenantSettingsRepository tests passed.
+
+- [x] (invalid) Eight-alias allowed-engine JSON exceeds migration `NVARCHAR(512)` — **cheap-disproof 2026-09-11 seed hunt #1784:** eight `managed-azure-openai-alias-*` ids fit under budget (nine fits per #1778).
+- [x] (valid-no-repro) `InMemoryTenantSettingsRepository.TryGetAsync` returns untrimmed `SettingValue` unlike SQL read path — **cheap-disproof 2026-09-11 seed hunt #1784:** upsert stores trimmed values only; no public path seeds padded payloads.
+
+2026-09-11 seed hunt #1784 (seed-only): reseeded tenant-settings-sql after #1778; cheap-disproof closed eight-alias JSON budget and in-memory read trim parity; 12 scoped SqlTenantSettingsRepository tests passed.
+
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` stores untrimmed `SettingValue` when input has only internal spaces — **cheap-disproof 2026-09-11 seed hunt #1785:** upsert trims before MERGE; internal spaces preserved intentionally.
+- [x] (invalid) Seven-alias allowed-engine JSON exceeds migration `NVARCHAR(512)` — **cheap-disproof 2026-09-11 seed hunt #1785:** seven aliases fit under budget.
+
+2026-09-11 seed hunt #1785 (seed-only): reseeded tenant-settings-sql after #1784; cheap-disproof closed internal-space value trim and seven-alias JSON budget; 12 scoped SqlTenantSettingsRepository tests passed.
 
 2026-09-08 seed hunt #1358 (seed-only): reseeded after #1347; cheap-disproof closed failed-delete generation-bump and empty-tenant-id cache-poison candidates; seeded out-of-band SQL cache staleness and multi-key partial-write candidates; no hunt-ready row reproduces.
 
@@ -701,7 +717,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -783,6 +799,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `CommitRunTransientRetryPolicy.IsExhausted` false at attempt zero when elapsed exceeds budget — **cheap-disproof 2026-09-11 seed hunt #1767:** elapsed ceiling triggers exhaustion regardless of attempt; regression `IsExhausted_returns_true_at_attempt_zero_when_elapsed_exceeds_budget`.
 
 2026-09-11 seed hunt #1767 (seed-only): reseeded orchestrator-transient-retry after #1766; cheap-disproof closed network `10053`/`10054`/`10060`, resource `10929`, generic `49919`, and attempt-zero budget exhaustion; 49 scoped transient-retry tests passed (33 Persistence + 16 Application).
+
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry Azure throttling error `49920` — **cheap-disproof 2026-09-11 seed hunt #1781:** `49920` is in transient detector set; regression `ExecuteAsync_retries_azure_throttling_error_49920`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` sum for eight polls exceeds `RetryBudget` — **cheap-disproof 2026-09-11 seed hunt #1781:** inter-poll delay sum fits inside 20s budget; regression `ManifestReconcilePollDelay_sum_for_inter_poll_waits_fits_inside_retry_budget`.
+
+2026-09-11 seed hunt #1781 (seed-only): reseeded orchestrator-transient-retry after #1767; cheap-disproof closed Azure `49920` throttling and eight-poll reconcile delay budget; 49 scoped transient-retry tests passed.
 
 ---
 
@@ -1173,11 +1194,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 7
-- **bugs-found:** 11
+- **hunts:** 8
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — ternary local initializer and `string.Format(IFormatProvider, …)` overload bypassed ARCH006 static resolution
+- **last-bug:** 2026-09-11 — null-coalescing local initializer bypassed ARCH006 static resolution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1198,6 +1219,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Ternary local initializer bypassed ARCH006 static resolution — **hit 2026-09-11 hunt #1761:** `ResolveCore` ignored `ConditionalExpressionSyntax`, so `string sql = cond ? "SELECT … dbo.Runs …" : "SELECT 1"` passed through unanalyzed; fixed `ResolveConditional` with branch folding; regression `ARCH006_reports_unscoped_sql_for_ternary_local_initializer`
 - [x] (proven) `string.Format(IFormatProvider, string, …)` overload bypassed static SQL resolution — **hit 2026-09-11 hunt #1761:** `TryResolveStringFormatInvocation` always used `Arguments[0]` as the format string, so culture-first overloads evaded ARCH006; fixed `TryGetFormatStringArgumentIndex`; regression `ARCH006_reports_unscoped_sql_for_string_format_with_format_provider`
 - [x] (valid-no-repro) `const` field SQL initializers already fold via `IFieldSymbol.IsConst` in `ResolveFromSymbol` — same path as proven local/readonly fixes; no separate property-vs-field gap
+- [x] (proven) `switch` expression local initializer bypassed ARCH006 static resolution — **hit 2026-09-11 seed hunt #1780:** `ResolveCore` ignored `SwitchExpressionSyntax`, so `string sql = flag switch { true => "SELECT … dbo.Runs …", false => "SELECT 1" }` passed through unanalyzed; fixed `ResolveSwitchExpression` with branch folding; regression `ARCH006_reports_unscoped_sql_for_switch_expression_local_initializer`
+- [x] (proven) Null-coalescing local initializer bypassed ARCH006 static resolution — **hit 2026-09-11 seed hunt #1780:** `ResolveCore` ignored `CoalesceExpression`, so `string sql = configured ?? "SELECT … dbo.Runs …"` passed through unanalyzed; fixed `ResolveNullCoalescing` with branch folding; regression `ARCH006_reports_unscoped_sql_for_null_coalescing_local_initializer`
+
+2026-09-11 seed hunt #1780 (hit): reseeded tenant-scoped-analyzer after #1761; proved switch-expression and null-coalescing local initializer resolver bypasses; 16 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
 2026-09-11 seed hunt #1761 (hit): reseeded tenant-scoped-analyzer after #1750 closed all open rows; proved ternary local initializer and `string.Format(IFormatProvider, …)` resolver bypasses; 14 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
@@ -2019,7 +2044,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -2093,6 +2118,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `IsSupportedCronExpression` / `ComputeNextRunsUtc` — `@yearly` alias rejected or returns past instants — **cheap-disproof 2026-09-11 seed hunt #1775:** Cronos parses `@yearly` like `@monthly`; batch preview advances to future instants; regressions `IsSupportedCronExpression_accepts_yearly_alias` / `ComputeNextRunsUtc_yearly_alias_returns_future_instants`.
 
 2026-09-11 seed hunt #1775 (seed-only): reseeded review-recurrence after #1762; cheap-disproof closed `@yearly` alias candidate; 47 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
+
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — `@daily` alias batch returns fewer than requested count when cron is invalid mid-loop — **cheap-disproof 2026-09-11 seed hunt #1782:** invalid cron returns null on first iteration and stops; regression `ComputeNextRunsUtc_returns_empty_for_invalid_cron_expression`.
+- [x] (valid-no-repro) `NormalizeReferenceUtc` — `DateTimeKind.Unspecified` reference shifts next-run by local offset — **cheap-disproof 2026-09-11 seed hunt #1782:** unspecified kind is relabeled UTC without `ToUniversalTime`; regression `ComputeNextRunUtc_normalizes_unspecified_reference_kind_to_utc`.
+
+2026-09-11 seed hunt #1782 (seed-only): reseeded review-recurrence after #1775; cheap-disproof closed invalid-cron mid-batch stop and unspecified-reference normalization; 47 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
 ---
 
@@ -2529,7 +2559,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 10
+- **hunts:** 12
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -2588,6 +2618,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Consumption APIM root `infra/terraform` is ordered after longer `infra/terraform-*` siblings so substring `Contains` checks mis-rank apply order — **cheap-disproof 2026-09-11 seed hunt #1768:** edge → terraform → monitoring ordering matches `$appWaveLeaves`; regression `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`.
 
 2026-09-11 seed hunt #1768 (seed-only): reseeded cli-terraform-evidence after #1759; cheap-disproof closed plain-leaf annotation and consumption-APIM ordering candidates; 25 scoped DeploymentEvidenceTerraformReference tests passed.
+
+- [x] (valid-no-repro) Annotated composition/pilot/orchestrator evidence lines carry trailing whitespace that corrupts path extraction — **cheap-disproof 2026-09-11 seed hunt #1779:** plain-leaf guard `DefaultApplyOrderRoots_plain_leaf_lines_are_unannotated_exact_paths` plus em-dash split on annotated lines; all twenty paths trim-clean.
+- [x] (valid-no-repro) `infra/terraform-private` is not the first hosted leaf after composition roots — **cheap-disproof 2026-09-11 seed hunt #1779:** first leaf after composition is private per `$foundationWaveLeaves`; regression `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_ps1_multiRootSequence`.
+- [x] (invalid) Evidence omits `infra/terraform-servicebus` from hosted wave leaves — **cheap-disproof 2026-09-11 seed hunt #1779:** servicebus listed between cosmos and logicapps; on-disk directory exists per `DefaultApplyOrderRoots_every_listed_root_directory_exists_on_disk`.
+
+2026-09-11 seed hunt #1779 (seed-only): reseeded cli-terraform-evidence after #1768; cheap-disproof closed annotated-line whitespace, private-first leaf, and servicebus omission candidates; 25 scoped DeploymentEvidenceTerraformReference tests passed.
+
+- [x] (valid-no-repro) `infra/terraform-orchestrator` legacy annotation omits `-LegacyLeafRoots` flag text — **cheap-disproof 2026-09-11 seed hunt #1783:** line cites `legacy isolation path only (-LegacyLeafRoots)`; regression `DefaultApplyOrderRoots_lists_orchestrator_only_once_as_legacy_leaf`.
+- [x] (valid-no-repro) Composition wave 3 cites `infra/terraform-monitoring` instead of `infra/terraform-app` — **cheap-disproof 2026-09-11 seed hunt #1783:** third composition root is app metadata wave; regression `DefaultApplyOrderRoots_lists_three_composition_waves_in_foundation_platform_app_order`.
+
+2026-09-11 seed hunt #1783 (seed-only): reseeded cli-terraform-evidence after #1779; cheap-disproof closed orchestrator legacy annotation and composition wave-3 root; 25 scoped DeploymentEvidenceTerraformReference tests passed.
 
 2026-09-09 seed hunt #1436 (seed-only): re-read static apply-order reference; cheap-disproved pilot-profile and hardcoded-leaf drift candidates; added `$pilotProfileOnly` sync regression; 6 scoped DeploymentEvidenceTerraformReference tests passed.
 
@@ -3174,7 +3215,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 8
+- **hunts:** 12
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -3214,6 +3255,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AdminApiKeySettingsService.Rotate` treats comma-only `Authentication:ApiKey:AdminKey` as configured and returns Append — **hit 2026-09-11 seed hunt #1769:** `string.IsNullOrWhiteSpace` is false for `" , , "` while `MaskCommaSeparatedSegments` is empty and auth cannot match; fixed by `HasConfiguredKeyMaterial`; regression `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_has_only_comma_segments`.
 
 2026-09-11 seed hunt #1769 (seed→hit): reseeded api-key-auth; proved comma-only slot material Append/Replace mismatch; 8 scoped AdminApiKeySettingsService tests passed.
+
+- [x] (valid-no-repro) `HasConfiguredKeyMaterial` treats comma-only ReadOnly slot as unconfigured — **cheap-disproof 2026-09-11 seed hunt #1786:** symmetric to #1769 admin fix; regression `Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_has_only_comma_segments`.
+- [x] (valid-no-repro) `ExtractProvidedApiKey` comma-joins duplicate headers when first segment is valid — **cheap-disproof 2026-09-11 seed hunt #1786:** first non-empty segment wins; regression `When_enabled_true_and_duplicate_api_key_headers_use_first_value`.
+
+2026-09-11 seed hunt #1786 (seed-only): reseeded api-key-auth after #1769; cheap-disproof closed comma-only ReadOnly slot and duplicate-header first-value parity; 36 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) `DevelopmentBypassAll` ignores valid `X-Api-Key` when bypass enabled — **cheap-disproof 2026-09-11 seed hunt #1787:** bypass returns synthetic admin before header compare; regression `When_development_bypass_and_allow_test_actor_headers_overrides_display_name`.
+
+2026-09-11 seed hunt #1787 (seed-only): reseeded api-key-auth after #1786; cheap-disproof closed development-bypass header bypass; 36 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` masks configured keys but leaves comma-only slots as configured — **cheap-disproof 2026-09-11 seed hunt #1788:** `HasConfiguredKeyMaterial` marks comma-only slots unconfigured; regression `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_has_only_comma_segments`.
+
+2026-09-11 seed hunt #1788 (seed-only): reseeded api-key-auth after #1787; cheap-disproof closed comma-only snapshot configured flag; 9 scoped AdminApiKeySettingsService tests passed.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` treats `Authentication:ApiKey:Enabled=false` with missing header as success — **cheap-disproof 2026-09-11 seed hunt #1789:** disabled auth fails without header; regression `When_enabled_false_and_bypass_false_returns_failure`.
+
+2026-09-11 seed hunt #1789 (seed-only): reseeded api-key-auth after #1788; cheap-disproof closed disabled-auth missing-header success candidate; 36 scoped ApiKey auth/settings unit tests passed.
 
 ---
 
