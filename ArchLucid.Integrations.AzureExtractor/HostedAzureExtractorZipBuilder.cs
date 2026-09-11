@@ -22,7 +22,7 @@ public static class HostedAzureExtractorZipBuilder
         };
 
     public static byte[] BuildZip(
-        string subscriptionId,
+        string? subscriptionId,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         bool includeCostRequested,
         DateTimeOffset collectionTimestampUtc,
@@ -30,11 +30,20 @@ public static class HostedAzureExtractorZipBuilder
         IReadOnlyList<AzureInventoryEntraGroupMembershipRow>? entraGroupMemberships = null,
         IReadOnlyList<HostedAzureArmRoleAssignmentRecord>? roleAssignments = null,
         IReadOnlyList<HostedAzureArmNetworkAssociationRecord>? networkAssociations = null,
-        IReadOnlyList<HostedAzureArmFederatedCredentialRecord>? federatedCredentials = null)
+        IReadOnlyList<HostedAzureArmFederatedCredentialRecord>? federatedCredentials = null,
+        string? managementGroupId = null)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionId);
+        bool hasSubscriptionId = !string.IsNullOrWhiteSpace(subscriptionId);
+        bool hasManagementGroupId = !string.IsNullOrWhiteSpace(managementGroupId);
 
-        string scope = $"/subscriptions/{subscriptionId.Trim()}";
+        if (hasSubscriptionId == hasManagementGroupId)
+        {
+            throw new ArgumentException("Specify exactly one of subscriptionId or managementGroupId.");
+        }
+
+        string scope = hasManagementGroupId
+            ? $"/providers/Microsoft.Management/managementGroups/{managementGroupId!.Trim()}"
+            : $"/subscriptions/{subscriptionId!.Trim()}";
         List<string> switchesUsed = [];
 
         if (includeCostRequested)
@@ -45,8 +54,9 @@ public static class HostedAzureExtractorZipBuilder
             ["schemaVersion"] = SchemaVersion,
             ["scriptVersion"] = HostedScriptVersion,
             ["collectionTimestamp"] = collectionTimestampUtc.ToString("o"),
-            ["subscriptionId"] = subscriptionId.Trim(),
+            ["subscriptionId"] = hasSubscriptionId ? subscriptionId!.Trim() : null,
             ["subscriptionName"] = AzureExtractorSubscriptionDisplayName.Normalize(subscriptionName),
+            ["managementGroupId"] = hasManagementGroupId ? managementGroupId!.Trim() : null,
             ["scope"] = scope,
             ["switchesUsed"] = switchesUsed,
             ["azModuleVersion"] = "hosted-extractor",
@@ -82,7 +92,7 @@ public static class HostedAzureExtractorZipBuilder
             ["schemaVersion"] = 1,
             ["collectionTimestampUtc"] = collectionTimestampUtc.ToString("o"),
             ["scope"] = scope,
-            ["subscriptionId"] = subscriptionId.Trim(),
+            ["subscriptionId"] = hasSubscriptionId ? subscriptionId!.Trim() : null,
             ["policyStates"] = Array.Empty<object>(),
             ["note"] =
                 "Hosted Tier 2 collector uses GET-only management.azure.com calls; policy states require POST and are not collected in this path."

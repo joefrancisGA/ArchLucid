@@ -32,4 +32,19 @@ public interface IHostedAzureArmReadClient
         string accessToken,
         string subscriptionId,
         CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<string>> ListManagementGroupSubscriptionIdsAsync(
+        string accessToken,
+        string managementGroupId,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListManagementGroupRoleAssignmentsAsync(
+        string accessToken,
+        string managementGroupId,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListManagementGroupRoleEligibilitySchedulesAsync(
+        string accessToken,
+        string managementGroupId,
+        CancellationToken cancellationToken);
 }

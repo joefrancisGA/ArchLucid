@@ -495,6 +495,89 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Null(name);
     }
 
+    [Fact]
+    public async Task ListManagementGroupSubscriptionIdsAsync_maps_subscription_ids()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                Assert.Contains("/managementGroups/corp/subscriptions", request.RequestUri?.AbsoluteUri);
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("""
+                                                    {
+                                                      "value": [
+                                                        {
+                                                          "id": "/subscriptions/11111111-1111-1111-1111-111111111111",
+                                                          "name": "11111111-1111-1111-1111-111111111111"
+                                                        },
+                                                        {
+                                                          "id": "/subscriptions/22222222-2222-2222-2222-222222222222",
+                                                          "name": "22222222-2222-2222-2222-222222222222"
+                                                        }
+                                                      ]
+                                                    }
+                                                    """)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<string> subscriptionIds = await client.ListManagementGroupSubscriptionIdsAsync(
+            "token-abc",
+            "corp",
+            CancellationToken.None);
+
+        Assert.Equal(2, subscriptionIds.Count);
+        Assert.Contains("11111111-1111-1111-1111-111111111111", subscriptionIds);
+        Assert.Contains("22222222-2222-2222-2222-222222222222", subscriptionIds);
+    }
+
+    [Fact]
+    public async Task ListManagementGroupRoleAssignmentsAsync_maps_management_group_assignments()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                Assert.Contains("/managementGroups/corp/providers/Microsoft.Authorization/roleAssignments", request.RequestUri?.AbsoluteUri);
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("""
+                                                    {
+                                                      "value": [
+                                                        {
+                                                          "properties": {
+                                                            "scope": "/providers/Microsoft.Management/managementGroups/corp",
+                                                            "principalId": "11111111-1111-1111-1111-111111111111",
+                                                            "principalType": "User",
+                                                            "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                    """)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> assignments =
+            await client.ListManagementGroupRoleAssignmentsAsync(
+                "token-abc",
+                "corp",
+                CancellationToken.None);
+
+        Assert.Single(assignments);
+        Assert.Equal("standing", assignments[0].PimEligibilityKind);
+        Assert.Contains("managementGroups/corp", assignments[0].Scope, StringComparison.Ordinal);
+    }
+
     private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)
         : HttpMessageHandler
     {
