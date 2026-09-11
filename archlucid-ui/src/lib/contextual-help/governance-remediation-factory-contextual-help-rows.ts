@@ -11,12 +11,12 @@ const GOVERNANCE_REMEDIATION_PATTERNS_PATH = "/governance/remediation-patterns" 
 
 const GOVERNANCE_REMEDIATION_FACTORY_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Remediation factory — explainable prioritization, executive metrics, and a ranked queue of operational security findings. Advisory only — no cloud apply.",
+    "Remediation factory — explainable prioritization, executive metrics, ranked architect paths, and a priority queue of operational security findings. Advisory only — no cloud apply.",
   whatToDoNext:
-    "Select a priority row, run the score simulator to explain ranking, then follow the finding for remediation follow-up.",
-  whyEmpty: "No open operational security findings to rank.",
+    "Compare architect outcome metrics across two inventory snapshots, select a ranked path or priority finding, then inspect hops, rank breakdown, and optional simulator explanations.",
+  whyEmpty: "No open operational security findings to rank and no architect paths for the current scope.",
   whereToConfigurePrerequisite:
-    "Open findings and remediation patterns when pattern ExactMatch % or automation coverage needs attention.",
+    "Inventory snapshots from Azure connections or extract and upload must exist before architect metrics, ranked paths, and path inspect panels populate.",
   whatToDoNextAction: {
     label: "Open assigned to me",
     href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
@@ -26,8 +26,9 @@ const GOVERNANCE_REMEDIATION_FACTORY_HUB_CONTEXTUAL_HELP = {
     href: GOVERNANCE_REMEDIATION_PATTERNS_PATH,
   },
   taskSteps: [
-    "Review executive metrics for open findings, risk-weighted exposure, and pattern coverage.",
-    "Select a priority row and run the advisory score simulator — not a live scanner feed.",
+    "Review executive metrics and architect outcome metrics (SA-11) — ordinal bands only, no percentage confidence.",
+    "Select a ranked architect path or priority finding row; path inspect loads hops, rank, and optional simulator explanation.",
+    "Run the advisory score simulator on a finding when IE-15 ranking needs explanation — not a live scanner feed.",
     "Follow the finding or open remediation patterns when coverage gaps block automation.",
   ],
 } as const;
