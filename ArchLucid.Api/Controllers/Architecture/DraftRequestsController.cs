@@ -153,6 +153,20 @@ public sealed partial class DraftRequestsController(
                 return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
 
 <<<<<<< HEAD
+            draft.WorkLease = await _architectureWorkLeaseService.TryGetActiveSnapshotAsync(
+                scope,
+                draftId,
+                _actorContext.GetActorId(),
+                cancellationToken);
+
+            return Ok(draft);
+        }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
+        }
+=======
+<<<<<<< HEAD
             return Ok(draft);
         }
         catch (ConflictException ex)
@@ -167,6 +181,7 @@ public sealed partial class DraftRequestsController(
             cancellationToken);
 
         return Ok(draft);
+>>>>>>> origin/master
 >>>>>>> origin/master
     }
 
