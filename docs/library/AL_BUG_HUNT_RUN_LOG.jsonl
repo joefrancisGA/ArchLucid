@@ -2018,3 +2018,6 @@
 {"at":"2026-09-11T22:14:55.168392Z","zoneId":"weekly-digest-email","outcome":"hit"}
 {"at":"2026-09-11T22:16:36.4019311Z","zoneId":"weekly-digest-email","outcome":"hit"}
 {"at":"2026-09-11T22:19:56.4160755Z","zoneId":"cli-terraform-evidence","outcome":"seed-only"}
+{"at":"2026-09-11T22:20:13.9982919Z","zoneId":"api-key-auth","outcome":"hit","severity":"high","defectClass":"authz-scope"}
+{"at":"2026-09-11T22:20:21.8101124Z","zoneId":"weekly-digest-email","outcome":"hit","severity":"low","defectClass":"other"}
+{"at":"2026-09-11T22:20:22.6458696Z","zoneId":"weekly-digest-email","outcome":"hit"}
