@@ -2847,11 +2847,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 8
-- **bugs-found:** 8
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — activation persisted invisible-only claim-mapping role claim names
+- **last-bug:** 2026-09-11 — activation persisted invisible-only claim-mapping IdpValue/ArchLucidRole entries
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2899,6 +2899,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` returns another tenant's IdP row — **cheap-disproof 2026-09-11 seed hunt #1735:** repository lookup uses `scope.TenantId` only; tenant override is not present on the request surface.
 
 2026-09-11 seed hunt #1735 (seed→hit): reseeded identity-provider-config after #1734; proved invisible-only claim-mapping role claim and custom regex persistence; cheap-disproof closed cross-tenant configuration GET candidate; 41 scoped activation/controller/test-login tests passed.
+
+- [x] (proven) `IdentityClaimRoleMappingResolver.ToDocument` / `IdentityClaimRoleMappingValidator` — invisible-only `IdpValue` or `ArchLucidRole` entries passed `IsNullOrWhiteSpace` and persisted in `ClaimMappingJson` because `ToDocument` only filters whitespace emptiness — **hit 2026-09-11 seed hunt #1737 (seed→hit):** `EnsureSubstantiveClaimMapping` now rejects format/control-only mapping entries before `ValidateMapping`; regressions `ActivateAsync_rejects_invisible_unicode_only_idp_value_in_mapping` and `ActivateAsync_rejects_invisible_unicode_only_arch_lucid_role_in_mapping`.
+- [x] (valid-no-repro) Invisible-only `Protocol` string (`U+200B`) accepted as OIDC/SAML — **cheap-disproof 2026-09-11 seed hunt #1737:** trimmed protocol fails the `oidc`/`saml` switch and throws `Protocol must be oidc or saml.` before upsert.
+
+2026-09-11 seed hunt #1737 (seed→hit): reseeded identity-provider-config after #1735; proved invisible-only claim-mapping entry persistence bypassing validator whitespace checks; cheap-disproof closed invisible-only protocol candidate; 43 scoped activation/controller/test-login tests passed.
 
 ---
 
