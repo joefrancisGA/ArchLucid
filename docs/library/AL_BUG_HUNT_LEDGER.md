@@ -1822,13 +1822,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 13
-- **bugs-found:** 7
+- **hunts:** 14
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-10 — invisible-only architect restatement and optional rationale bypassed HasSubstantiveText
+- **last-bug:** 2026-09-11 — invisible-only preview override reason on guided Remediated bypassed validation and polluted disposition notes
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** 0
 
 ### Hypotheses
 
@@ -1883,6 +1883,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-10 thorough hunt #1579 (dry): cheap-disproved whitespace row-version concurrency bypass; added invalid-base64 guard regression; seeded bulk row-version decode candidate; 36 scoped finding-disposition tests passed.
 
 2026-09-10 seed hunt #1578 (seed→hit): reseeded finding-disposition; proved invisible architect restatement and optional rationale gaps; seeded whitespace row-version concurrency candidate; 33 scoped finding-disposition tests passed.
+
+- [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format-only `PreviewOverrideReason` on guided (non-Working) `Remediated` bypassed `ValidateWorkingRemediatedImpactPreviewAttestation` and persisted via `BuildImpactPreviewAttestationNote` — **hit 2026-09-11 seed hunt #1725 (seed→hit):** optional override text only validated on Working desk attestation path; added substantive-text and max-length guard when override is provided; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided` and `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
+
+- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch with null expected row versions may stage multiple pointer updates for the same key without conflict detection (verify SQL bulk path parity)
+
+2026-09-11 seed hunt #1725 (seed→hit): reseeded finding-disposition; proved guided-desk invisible preview override bypass; seeded bulk duplicate-finding-id candidate; 57 scoped finding-disposition tests passed.
 
 ---
 
