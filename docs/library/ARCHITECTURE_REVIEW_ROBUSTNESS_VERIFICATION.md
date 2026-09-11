@@ -184,7 +184,10 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGate
 
 ## Finalize conflict SQL integration proof
 
-`FinalizeConflictSqlIntegrationTests` proves lifecycle integrity blocks on `POST …/finalize` and `GET …/readiness` stay aligned through real SQL persistence (create run without execute → 409 + readiness `lifecycle_phase_incomplete` block).
+`FinalizeConflictSqlIntegrationTests` proves lifecycle integrity blocks and scorecard blocks on `POST …/finalize` stay aligned with `GET …/readiness` through real SQL persistence:
+
+- Create run without execute → 409 + readiness `lifecycle_phase_incomplete` integrity block.
+- Execute run, bulk-disposition one finding as **Deferred** with revisit → 409 + readiness `scorecard` layer block (open deferred dimension).
 
 ```bash
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeConflictSqlIntegrationTests"
@@ -201,7 +204,7 @@ dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~FinalizeRea
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeReadinessControllerTests"
 ```
 
-UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton`. `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority. SSR `buildRunDetailGovernancePresentation` loads readiness via `tryLoadFinalizeReadinessForRun`.
+UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton`. SSR `finalizeReadinessBlocks` from `buildRunDetailGovernancePresentation` hydrate the hook during client fetch and flow through `RunDetailPageHeader`, `ReviewPackagePrimaryAction`, and `RunDetailWorkspaceStickyActions`. `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority.
 
 ## ConflictException → 409 controller sweep
 
