@@ -2524,6 +2524,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-11 seed hunt #1742 (seed→hit): reseeded ui-runs-list; proved pagination href dropped q= and sort=; 35 scoped `RunsListClient` tests passed.
 
+- [x] (valid-no-repro) Previous pagination link on page 2 drops active `q=`/`sort=` — **cheap-disproof 2026-09-11 seed hunt #1743:** `runsListPreviousPageHrefFromSearch` preserves search params; regression `preserves q= and sort= in the Previous pagination link on page 2`.
+
+2026-09-11 seed hunt #1743 (seed-only): reseeded ui-runs-list after #1742; cheap-disproof closed Previous-link param preservation; 36 scoped `RunsListClient` tests passed.
+
 2026-09-10 thorough hunt #1580 (hit): proved stale compareRuns persistence under buyer package cards; 20 scoped `RunsListClient` tests passed.
 
 2026-09-10 seed hunt #1556 (seed→hit): reseeded ui-runs-list; proved displayName filter gap; seeded compareRuns persistence under buyer card layout; 20 scoped `RunsListClient` tests passed.
