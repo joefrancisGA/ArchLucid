@@ -9717,11 +9717,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 12
-- **bugs-found:** 24
+- **hunts:** 13
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — finding verification DOCX table omitted sanitizer/severity parity; markdown requirement metadata; Mermaid label control chars
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — compliance-matrix gap substring mis-attribution; markdown security/compliance/issue metadata parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9759,6 +9759,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — omit `RequirementCoverageItem.CoverageStatus` and `.IsMandatory` while DOCX coverage table and `inventory.json` expose them — **hit 2026-09-10 thorough hunt #1534:** requirement bullets now include coverage status and mandatory flag; regressions `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_requirement_coverage_status_and_mandatory_flag` and `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_requirement_coverage_status_and_mandatory_flag`
 - [x] (proven) `MermaidDiagramRenderer.EscapeLabel` — control/bidi characters in node/edge labels bypass sanitizer (distinct from bracket/pipe/newline fixes in #890/#1328) — **hit 2026-09-10 thorough hunt #1534:** `EscapeLabel` now prefixes `LlmArtifactFreeTextSanitizer.Sanitize`; regression `MermaidDiagramRenderer_Render_strips_control_chars_from_labels`
 - [x] (proven) `DocxExportService.BuildDocumentAsync` — Requirements coverage three-column table bypasses `SanitizeArtifactText` — **hit 2026-09-09 seed hunt #1412:** raw `RequirementName`/`CoverageStatus` reached `AddThreeColumnTable`; ASCII control chars could throw on OpenXML save; fixed with per-cell `SanitizeArtifactText`; regression `ExportAsync_strips_control_chars_from_requirements_coverage_table_cells`
+- [ ] (candidate) `InventoryArtifactGenerator` — `inventory.json` omits `RequirementCoverageItem.IsMandatory` while markdown/DOCX export expose mandatory flag post-#1534 — deferred to next hunt
+- [x] (proven) `ComplianceMatrixArtifactGenerator.GenerateAsync` — substring `Contains(control.ControlName)` mis-attributed gap notes to shorter control names when one name is a prefix of another — **hit 2026-09-11 hunt #1707 (seed→hit):** gap `"Encrypt data: …"` attached to both `Encrypt` and `Encrypt data`; fixed with longest-name-wins `ComplianceMatrixGapMatcher`; regression `GenerateAsync_does_not_attribute_gap_to_shorter_substring_control_name`
+- [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — security posture lines omitted `ControlId` and `Impact` present in DOCX four-column table — **hit 2026-09-11 hunt #1707 (seed→hit):** markdown emitted `{ControlName}: {Status}` only; fixed with `{ControlId} {ControlName} ({Impact}): {Status}`; regressions `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_security_control_id_and_impact_matching_docx_export` and updated narrative coverage batch
+- [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — compliance posture lines omitted `AppliesToCategory` present in DOCX export and `compliance-matrix.json` — **hit 2026-09-11 hunt #1707 (seed→hit):** fixed with `[{AppliesToCategory}]` suffix; regression `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_compliance_applies_to_category_matching_docx_export`
+- [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — unresolved-issue bullets omitted `IssueType` and `SupportingFindingIds` present in `unresolved-issues.json` — **hit 2026-09-11 hunt #1707 (seed→hit):** fixed with issue type prefix and supporting-finding suffix; regression `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_issue_type_and_supporting_finding_ids_matching_unresolved_issues_json`
+
+2026-09-11 seed hunt #1707 (seed→hit): reseeded artifact-synthesis after master merge; proved compliance-matrix gap substring mis-attribution and three markdown cross-surface parity gaps; 200 scoped ArtifactSynthesis tests passed.
 
 2026-09-08 thorough hunt #1328 (hit): proved five seed candidates — DOCX decisions/issues/comparison sanitization, Mermaid pipe escaping, and line-boundary diagram truncation.
 
