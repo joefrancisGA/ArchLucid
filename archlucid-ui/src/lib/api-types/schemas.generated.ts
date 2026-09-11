@@ -10015,6 +10015,9 @@ export interface components {
         SetWhereToGoNextVisibilityRequest: {
             enabled?: boolean;
         };
+        SetWorkingCareerRehearsalDoorRequest: {
+            door?: string;
+        };
         SetWorkspaceModeGraduationOfferRequest: {
             state?: string;
         };
@@ -11564,6 +11567,8 @@ export interface components {
             sampleReviewsOnOverviewIsExplicit?: boolean;
             whereToGoNextEnabled?: boolean;
             whereToGoNextIsExplicit?: boolean;
+            workingCareerRehearsalDoor?: string;
+            workingCareerRehearsalDoorIsExplicit?: boolean;
             workspaceMode?: string;
             workspaceModeGraduationOffer?: string;
             workspaceModeGraduationOfferIsExplicit?: boolean;
