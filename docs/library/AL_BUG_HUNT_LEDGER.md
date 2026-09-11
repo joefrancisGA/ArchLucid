@@ -2863,8 +2863,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 9
-- **bugs-found:** 9
+- **hunts:** 10
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-11 — activation persisted invisible-only claim-mapping IdpValue/ArchLucidRole entries
@@ -2920,6 +2920,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Invisible-only `Protocol` string (`U+200B`) accepted as OIDC/SAML — **cheap-disproof 2026-09-11 seed hunt #1737:** trimmed protocol fails the `oidc`/`saml` switch and throws `Protocol must be oidc or saml.` before upsert.
 
 2026-09-11 seed hunt #1737 (seed→hit): reseeded identity-provider-config after #1735; proved invisible-only claim-mapping entry persistence bypassing validator whitespace checks; cheap-disproof closed invisible-only protocol candidate; 43 scoped activation/controller/test-login tests passed.
+
+- [x] (proven) `IdentityProviderUriValidator` / `IdentityProviderActivationService` — issuer URIs with embedded format characters (U+200B) passed `Uri.TryCreate` and persisted mismatched authority values — **hit 2026-09-11 seed hunt #1738 (seed→hit):** substantive-text guard rejects format/control characters before HTTP(S) parsing; regressions `ActivateAsync_rejects_issuer_uri_with_embedded_zero_width_character` and `TestLogin_rejects_issuer_uri_with_embedded_zero_width_character`.
+- [x] (proven) `IdentityProviderActivationService` — invisible-only `actorId`, `KeyVaultSecretName`, and `MetadataXml` passed `IsNullOrWhiteSpace` and persisted unusable values — **hit 2026-09-11 seed hunt #1738 (seed→hit):** substantive-text guards on actor id and optional persisted fields; regressions `ActivateAsync_rejects_invisible_unicode_only_actor_id`, `ActivateAsync_clears_key_vault_secret_when_invisible_unicode_only_string_provided`, and `ActivateAsync_clears_metadata_xml_when_invisible_unicode_only_string_provided`.
+- [x] (proven) `IdentityProviderActivationService` — invisible-only `RoleClaimName`, `CustomGroupClaimRegex`, `IdpValue`, and `ArchLucidRole` passed `IsNullOrWhiteSpace` and persisted in `ClaimMappingJson` — **hit 2026-09-11 seed hunt #1738 (seed→hit):** `EnsureSubstantiveClaimMapping` rejects format/control-only mapping fields before `ValidateMapping`; regressions `ActivateAsync_rejects_invisible_unicode_only_role_claim_name`, `ActivateAsync_rejects_invisible_unicode_only_custom_group_claim_regex`, `ActivateAsync_rejects_invisible_unicode_only_idp_value_in_mapping`, and `ActivateAsync_rejects_invisible_unicode_only_arch_lucid_role_in_mapping`.
+- [x] (valid-no-repro) Invisible-only `IssuerUri` (`U+200B`) accepted as valid HTTP(S) URL — **cheap-disproof 2026-09-11 seed hunt #1738:** zero-width-only issuer fails substantive-text validation before upsert.
+
+2026-09-11 seed hunt #1738 (seed→hit): reseeded identity-provider-config after #1731; proved invisible-only and embedded format-character SSO wizard inputs across issuer URIs, actor/optional fields, and claim-mapping persistence; 43 scoped activation/controller/test-login tests passed.
 
 ---
 
