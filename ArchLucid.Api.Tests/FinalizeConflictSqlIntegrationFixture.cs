@@ -1,4 +1,8 @@
+using System.Text.Json;
+
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -14,6 +18,8 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 internal static class FinalizeConflictSqlIntegrationFixture
 {
+    private static readonly Guid PreCommitProofPolicyPackId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
     private static readonly ScopeContext DefaultScope = new()
     {
         TenantId = ScopeIds.DefaultTenant,
@@ -56,6 +62,59 @@ internal static class FinalizeConflictSqlIntegrationFixture
                 finding.PolicyRuleId = "contradiction-scorecard-proof";
             },
             cancellationToken);
+    }
+
+    internal static async Task PinPreCommitGateBlockAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IServiceProvider services = serviceScope.ServiceProvider;
+        IRunRepository runRepository = services.GetRequiredService<IRunRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for pre-commit proof pin.");
+
+        run.PinnedPolicyPackIdsJson = BuildPreCommitProofPinJson();
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+
+        await InjectPinnedScorecardFindingAsync(
+            factory,
+            runId,
+            finding =>
+            {
+                finding.FindingId = "scorecard-proof-precommit-critical";
+                finding.Title = "Critical control gap blocks commit per pinned policy pack.";
+                finding.Rationale = "Pinned by FinalizeConflictSqlIntegrationFixture for pre-commit gate proof.";
+                finding.Severity = FindingSeverity.Critical;
+                finding.PolicyRuleId = "precommit-scorecard-proof";
+            },
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private static string BuildPreCommitProofPinJson()
+    {
+        PinnedPolicyPackRow[] pinRows =
+        [
+            new PinnedPolicyPackRow(
+                PreCommitProofPolicyPackId.ToString("D"),
+                "1.0.0",
+                BlockCommitOnCritical: true),
+        ];
+
+        return JsonSerializer.Serialize(pinRows, ContractJson.CamelCaseIgnoreNullCompact);
     }
 
     private static async Task InjectPinnedScorecardFindingAsync(
