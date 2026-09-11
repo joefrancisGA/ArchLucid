@@ -79,6 +79,16 @@ class BuildRcEvidenceSignoffBundleTests(unittest.TestCase):
             + "\n",
             encoding="utf-8",
         )
+        (bundle / "ship-gate-evidence.json").write_text(
+            json.dumps(
+                {
+                    "overallVerdict": "PASS",
+                    "gate5": {"status": "PASS", "detail": "Synthetic PASS for signoff bundle unit test"},
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
         (bundle / "release-smoke-live-ui-sql-result.json").write_text(
             json.dumps(
                 {
@@ -169,6 +179,7 @@ class BuildRcEvidenceSignoffBundleTests(unittest.TestCase):
 
         gate_ids = {gate["id"]: gate["status"] for gate in payload["gates"]}
         self.assertEqual(gate_ids["release-smoke"], "PASS")
+        self.assertEqual(gate_ids["ship-gate-evidence"], "PASS")
         self.assertEqual(gate_ids["live-ui-api-parity"], "PASS")
         self.assertEqual(gate_ids["procurement-claim-boundary"], "PASS")
 

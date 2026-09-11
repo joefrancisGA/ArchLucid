@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { PolicyAtCommitScopeSummary } from "@/components/policy/PolicyAtCommitScopeSummary";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
 import {
@@ -126,6 +127,28 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Policy pack basis and compliance rule keys for approval and compliance buyers — alongside the manifest structural diff above.
       </p>
+      <PolicyPackInfluenceHonestyChip className="mt-3" />
+
+      {props.targetRunId !== null &&
+      props.targetRunId !== undefined &&
+      props.targetRunId.trim().length > 0 &&
+      view.manifestRuleSetChanges.length > 0 ? (
+        <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-governance-impact-preview-link">
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={buildPolicyPacksImpactPreviewHref(
+              resolveCompareGovernancePackImpactHandoff(
+                props.targetRunId,
+                view.baselineManifest.atCommit?.packAssignments[0]?.policyPackId ??
+                  view.baselineManifest.ruleSetId,
+                view.targetManifest.atCommit?.packAssignments[0]?.policyPackId ?? view.targetManifest.ruleSetId,
+              ),
+            )}
+          >
+            Open pack impact preview for this comparison
+          </Link>
+        </p>
+      ) : null}
 
       {props.targetRunId !== null &&
       props.targetRunId !== undefined &&

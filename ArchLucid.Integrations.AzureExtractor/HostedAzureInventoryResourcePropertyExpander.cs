@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace ArchLucid.Integrations.AzureExtractor;
 
 /// <summary>
-///     Flattens ARM resource properties needed by SecureNow inventory materializers (IE-02 fidelity).
+///     Flattens ARM resource properties needed by SecureNow inventory materializers (IE-RF-04–06).
 /// </summary>
 internal static class HostedAzureInventoryResourcePropertyExpander
 {
@@ -22,9 +22,14 @@ internal static class HostedAzureInventoryResourcePropertyExpander
 
         AddIdentityProperties(propertiesElement, properties);
 
+        if (resourceType.Contains("virtualMachines", StringComparison.OrdinalIgnoreCase))
+        {
+            AddVirtualMachineNetworkProfileProperties(propertiesElement, properties);
+        }
+
         if (resourceType.Contains("networkInterfaces", StringComparison.OrdinalIgnoreCase))
         {
-            AddNicSubnetProperty(propertiesElement, properties);
+            AddNicProperties(propertiesElement, properties);
         }
 
         if (resourceType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase))
@@ -34,7 +39,7 @@ internal static class HostedAzureInventoryResourcePropertyExpander
 
         if (resourceType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase))
         {
-            AddPrivateEndpointTargetProperty(propertiesElement, properties);
+            AddPrivateEndpointProperties(propertiesElement, properties);
         }
 
         if (resourceType.Contains("networkSecurityGroups", StringComparison.OrdinalIgnoreCase))
@@ -45,6 +50,27 @@ internal static class HostedAzureInventoryResourcePropertyExpander
         if (resourceType.Contains("virtualNetworks", StringComparison.OrdinalIgnoreCase))
         {
             AddJsonArrayProperty(propertiesElement, properties, "subnets");
+            AddJsonArrayProperty(propertiesElement, properties, "virtualNetworkPeerings");
+        }
+
+        if (resourceType.Contains("applicationGateways", StringComparison.OrdinalIgnoreCase))
+        {
+            AddJsonArrayProperty(propertiesElement, properties, "backendAddressPools");
+        }
+
+        if (resourceType.Contains("loadBalancers", StringComparison.OrdinalIgnoreCase))
+        {
+            AddJsonArrayProperty(propertiesElement, properties, "backendAddressPools");
+        }
+
+        if (resourceType.Contains("virtualNetworkLinks", StringComparison.OrdinalIgnoreCase))
+        {
+            AddPrivateDnsLinkProperties(propertiesElement, properties);
+        }
+
+        if (resourceType.Contains("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase))
+        {
+            AddAppServiceSubnetProperty(propertiesElement, properties);
         }
 
         if (resourceType.Contains("userAssignedIdentities", StringComparison.OrdinalIgnoreCase))
@@ -67,6 +93,245 @@ internal static class HostedAzureInventoryResourcePropertyExpander
         }
 
         properties[propertyName] = arrayElement.GetRawText();
+    }
+
+    private static void AddVirtualMachineNetworkProfileProperties(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (!propertiesElement.TryGetProperty("networkProfile", out JsonElement networkProfile)
+            || networkProfile.ValueKind is not JsonValueKind.Object
+            || !networkProfile.TryGetProperty("networkInterfaces", out JsonElement networkInterfaces)
+            || networkInterfaces.ValueKind is not JsonValueKind.Array)
+        {
+            return;
+        }
+
+        int index = 0;
+
+        foreach (JsonElement networkInterface in networkInterfaces.EnumerateArray())
+        {
+            if (!networkInterface.TryGetProperty("id", out JsonElement idElement)
+                || idElement.ValueKind is not JsonValueKind.String)
+            {
+                continue;
+            }
+
+            string? nicId = idElement.GetString();
+
+            if (string.IsNullOrWhiteSpace(nicId))
+            {
+                continue;
+            }
+
+            properties[$"networkProfile.networkInterfaces[{index}]"] = nicId.Trim();
+            index++;
+        }
+
+        if (index > 0)
+        {
+            properties["networkProfile.networkInterfaces"] = string.Join(
+                '|',
+                properties.Where(pair => pair.Key.StartsWith("networkProfile.networkInterfaces[", StringComparison.Ordinal))
+                    .OrderBy(pair => pair.Key, StringComparer.Ordinal)
+                    .Select(pair => pair.Value?.ToString())
+                    .Where(value => !string.IsNullOrWhiteSpace(value))!);
+        }
+    }
+
+    private static void AddNicProperties(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (propertiesElement.TryGetProperty("networkSecurityGroup", out JsonElement nsgElement)
+            && nsgElement.ValueKind is JsonValueKind.Object
+            && nsgElement.TryGetProperty("id", out JsonElement nsgIdElement)
+            && nsgIdElement.ValueKind is JsonValueKind.String)
+        {
+            string? nsgId = nsgIdElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(nsgId))
+            {
+                properties["networkSecurityGroup.id"] = nsgId.Trim();
+            }
+        }
+
+        if (!propertiesElement.TryGetProperty("ipConfigurations", out JsonElement ipConfigurations)
+            || ipConfigurations.ValueKind is not JsonValueKind.Array)
+        {
+            return;
+        }
+
+        int index = 0;
+
+        foreach (JsonElement ipConfiguration in ipConfigurations.EnumerateArray())
+        {
+            if (!ipConfiguration.TryGetProperty("properties", out JsonElement ipConfigurationProperties)
+                || ipConfigurationProperties.ValueKind is not JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            string? subnetId = TryReadNestedString(ipConfigurationProperties, "subnet", "id");
+            string? publicIpId = TryReadNestedString(ipConfigurationProperties, "publicIPAddress", "id");
+
+            if (!string.IsNullOrWhiteSpace(subnetId))
+            {
+                properties[$"ipConfiguration.subnet.id[{index}]"] = subnetId;
+            }
+
+            if (!string.IsNullOrWhiteSpace(publicIpId))
+            {
+                properties[$"ipConfiguration.publicIPAddress.id[{index}]"] = publicIpId;
+            }
+
+            if (index == 0)
+            {
+                if (!string.IsNullOrWhiteSpace(subnetId))
+                {
+                    properties["ipConfiguration.subnet.id"] = subnetId;
+                }
+            }
+
+            index++;
+        }
+    }
+
+    private static void AddPrivateEndpointProperties(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        AddPrivateLinkConnections(propertiesElement, properties, "privateLinkServiceConnections");
+        AddPrivateLinkConnections(propertiesElement, properties, "manualPrivateLinkServiceConnections");
+
+        if (propertiesElement.TryGetProperty("subnet", out JsonElement subnetElement)
+            && subnetElement.ValueKind is JsonValueKind.Object
+            && subnetElement.TryGetProperty("id", out JsonElement subnetIdElement)
+            && subnetIdElement.ValueKind is JsonValueKind.String)
+        {
+            string? subnetId = subnetIdElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(subnetId))
+            {
+                properties["subnet.id"] = subnetId.Trim();
+            }
+        }
+
+        if (propertiesElement.TryGetProperty("networkInterfaces", out JsonElement networkInterfaces)
+            && networkInterfaces.ValueKind is JsonValueKind.Array)
+        {
+            int index = 0;
+
+            foreach (JsonElement networkInterface in networkInterfaces.EnumerateArray())
+            {
+                if (!networkInterface.TryGetProperty("id", out JsonElement idElement)
+                    || idElement.ValueKind is not JsonValueKind.String)
+                {
+                    continue;
+                }
+
+                string? nicId = idElement.GetString();
+
+                if (string.IsNullOrWhiteSpace(nicId))
+                {
+                    continue;
+                }
+
+                properties[$"networkInterfaces[{index}]"] = nicId.Trim();
+                index++;
+            }
+
+            if (index > 0)
+            {
+                properties["networkInterfaces"] = string.Join(
+                    '|',
+                    properties.Where(pair => pair.Key.StartsWith("networkInterfaces[", StringComparison.Ordinal))
+                        .OrderBy(pair => pair.Key, StringComparer.Ordinal)
+                        .Select(pair => pair.Value?.ToString())
+                        .Where(value => !string.IsNullOrWhiteSpace(value))!);
+            }
+        }
+    }
+
+    private static void AddPrivateLinkConnections(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties,
+        string propertyName)
+    {
+        if (!propertiesElement.TryGetProperty(propertyName, out JsonElement connections)
+            || connections.ValueKind is not JsonValueKind.Array)
+        {
+            return;
+        }
+
+        int index = 0;
+
+        foreach (JsonElement connection in connections.EnumerateArray())
+        {
+            if (!connection.TryGetProperty("properties", out JsonElement connectionProperties)
+                || connectionProperties.ValueKind is not JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            if (!connectionProperties.TryGetProperty("privateLinkServiceId", out JsonElement targetElement)
+                || targetElement.ValueKind is not JsonValueKind.String)
+            {
+                continue;
+            }
+
+            string? targetId = targetElement.GetString();
+
+            if (string.IsNullOrWhiteSpace(targetId))
+            {
+                continue;
+            }
+
+            properties[$"privateLinkServiceId[{index}]"] = targetId.Trim();
+
+            if (!properties.ContainsKey("privateLinkServiceId"))
+            {
+                properties["privateLinkServiceId"] = targetId.Trim();
+            }
+
+            index++;
+        }
+    }
+
+    private static void AddPrivateDnsLinkProperties(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (propertiesElement.TryGetProperty("virtualNetwork", out JsonElement virtualNetwork)
+            && virtualNetwork.ValueKind is JsonValueKind.Object
+            && virtualNetwork.TryGetProperty("id", out JsonElement vnetIdElement)
+            && vnetIdElement.ValueKind is JsonValueKind.String)
+        {
+            string? vnetId = vnetIdElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(vnetId))
+            {
+                properties["virtualNetwork.id"] = vnetId.Trim();
+            }
+        }
+    }
+
+    private static void AddAppServiceSubnetProperty(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (!propertiesElement.TryGetProperty("virtualNetworkSubnetId", out JsonElement subnetIdElement)
+            || subnetIdElement.ValueKind is not JsonValueKind.String)
+        {
+            return;
+        }
+
+        string? subnetId = subnetIdElement.GetString();
+
+        if (!string.IsNullOrWhiteSpace(subnetId))
+        {
+            properties["virtualNetworkSubnetId"] = subnetId.Trim();
+        }
     }
 
     private static void AddManagedIdentityPrincipalProperties(
@@ -109,20 +374,6 @@ internal static class HostedAzureInventoryResourcePropertyExpander
         properties["identity"] = identityElement.GetRawText();
     }
 
-    private static void AddNicSubnetProperty(
-        JsonElement propertiesElement,
-        Dictionary<string, object?> properties)
-    {
-        string? subnetId = TryReadFirstIpConfigurationProperty(propertiesElement, "subnet", "id");
-
-        if (string.IsNullOrWhiteSpace(subnetId))
-        {
-            return;
-        }
-
-        properties["ipConfiguration.subnet.id"] = subnetId;
-    }
-
     private static void AddPublicIpConfigurationProperty(
         JsonElement propertiesElement,
         Dictionary<string, object?> properties)
@@ -137,88 +388,13 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             if (!string.IsNullOrWhiteSpace(ipConfigurationId))
             {
                 properties["ipConfiguration.id"] = ipConfigurationId.Trim();
-                return;
             }
-        }
-
-        string? ipConfigurationIdFromArray = TryReadFirstIpConfigurationProperty(propertiesElement, "id");
-
-        if (string.IsNullOrWhiteSpace(ipConfigurationIdFromArray))
-        {
-            return;
-        }
-
-        properties["ipConfiguration.id"] = ipConfigurationIdFromArray;
-    }
-
-    private static void AddPrivateEndpointTargetProperty(
-        JsonElement propertiesElement,
-        Dictionary<string, object?> properties)
-    {
-        if (!propertiesElement.TryGetProperty("privateLinkServiceConnections", out JsonElement connections)
-            || connections.ValueKind is not JsonValueKind.Array)
-        {
-            return;
-        }
-
-        foreach (JsonElement connection in connections.EnumerateArray())
-        {
-            if (!connection.TryGetProperty("properties", out JsonElement connectionProperties)
-                || connectionProperties.ValueKind is not JsonValueKind.Object)
-            {
-                continue;
-            }
-
-            if (!connectionProperties.TryGetProperty("privateLinkServiceId", out JsonElement targetElement)
-                || targetElement.ValueKind is not JsonValueKind.String)
-            {
-                continue;
-            }
-
-            string? targetId = targetElement.GetString();
-
-            if (string.IsNullOrWhiteSpace(targetId))
-            {
-                continue;
-            }
-
-            properties["privateLinkServiceId"] = targetId.Trim();
-            return;
         }
     }
 
-    private static string? TryReadFirstIpConfigurationProperty(
-        JsonElement propertiesElement,
-        params string[] nestedPropertyNames)
+    private static string? TryReadNestedString(JsonElement current, params string[] nestedPropertyNames)
     {
-        if (!propertiesElement.TryGetProperty("ipConfigurations", out JsonElement ipConfigurations)
-            || ipConfigurations.ValueKind is not JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        foreach (JsonElement ipConfiguration in ipConfigurations.EnumerateArray())
-        {
-            if (!ipConfiguration.TryGetProperty("properties", out JsonElement ipConfigurationProperties)
-                || ipConfigurationProperties.ValueKind is not JsonValueKind.Object)
-            {
-                continue;
-            }
-
-            string? value = TryReadNestedString(ipConfigurationProperties, nestedPropertyNames);
-
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                return value;
-            }
-        }
-
-        return null;
-    }
-
-    private static string? TryReadNestedString(JsonElement current, IReadOnlyList<string> nestedPropertyNames)
-    {
-        for (int index = 0; index < nestedPropertyNames.Count; index++)
+        for (int index = 0; index < nestedPropertyNames.Length; index++)
         {
             string propertyName = nestedPropertyNames[index];
 
@@ -227,7 +403,7 @@ internal static class HostedAzureInventoryResourcePropertyExpander
                 return null;
             }
 
-            if (index == nestedPropertyNames.Count - 1)
+            if (index == nestedPropertyNames.Length - 1)
             {
                 return next.ValueKind is JsonValueKind.String ? next.GetString() : null;
             }

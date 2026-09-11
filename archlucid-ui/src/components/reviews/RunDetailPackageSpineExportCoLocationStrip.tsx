@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { RunScopedAuditExportButton } from "@/components/runs/RunScopedAuditExportButton";
 import { ExportDeliverableDialog } from "@/components/usability/ExportDeliverableDialog";
 import { Button } from "@/components/ui/button";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -33,6 +34,7 @@ export function RunDetailPackageSpineExportCoLocationStrip(
       </p>
       <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
         <ExportDeliverableDialog runId={props.runId} manifestId={manifestId} />
+        <RunScopedAuditExportButton runId={props.runId} manifestVersion={manifestId} />
         <Button type="button" variant="outline" size="sm" asChild>
           <Link href="#artifacts-exports" data-testid="run-detail-package-spine-all-deliverables-link">
             All deliverables
