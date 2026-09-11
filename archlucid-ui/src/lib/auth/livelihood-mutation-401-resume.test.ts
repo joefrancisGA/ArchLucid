@@ -17,14 +17,8 @@ import {
   withLivelihood401Resume,
   writeLivelihoodPendingMutation,
 } from "@/lib/auth/livelihood-mutation-401-resume";
+import * as idleDeskRestore from "@/lib/auth/idle-desk-restore";
 import { replayLivelihoodPendingMutation } from "@/lib/auth/livelihood-mutation-401-resume-replay";
-
-const persistIdleDeskRestoreBeforeSessionClear = vi.fn();
-
-vi.mock("@/lib/auth/idle-desk-restore", () => ({
-  persistIdleDeskRestoreBeforeSessionClear: (...args: unknown[]) =>
-    persistIdleDeskRestoreBeforeSessionClear(...args),
-}));
 
 const recordFindingDisposition = vi.fn();
 const recordGovernanceMutationCorrection = vi.fn();
@@ -39,14 +33,18 @@ vi.mock("@/lib/governance/governance-mutation-correction-api", () => ({
 
 describe("livelihood-mutation-401-resume (LP-19 / LW-051)", () => {
   const assignMock = vi.fn();
+  let persistIdleDeskRestoreBeforeSessionClear: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
-    persistIdleDeskRestoreBeforeSessionClear.mockReset();
+    persistIdleDeskRestoreBeforeSessionClear = vi
+      .spyOn(idleDeskRestore, "persistIdleDeskRestoreBeforeSessionClear")
+      .mockImplementation(() => undefined);
     recordFindingDisposition.mockReset();
     recordGovernanceMutationCorrection.mockReset();
     assignMock.mockReset();
+    persistIdleDeskRestoreBeforeSessionClear.mockClear();
     Object.defineProperty(window, "location", {
       configurable: true,
       value: { assign: assignMock },
