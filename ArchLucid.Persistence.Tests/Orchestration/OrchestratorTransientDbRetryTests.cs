@@ -539,6 +539,26 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_retries_azure_throttling_error_49920()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(49920);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_retries_resource_throttling_error_10928()
     {
         int attempts = 0;
