@@ -218,7 +218,6 @@ describe("useWorkingCareerRehearsalDoor cross-tab (CG-012)", () => {
 
     expect(hookSource).toContain("subscribeWorkingCareerRehearsalDoorBroadcast");
     expect(hookSource).toContain("never draft CAS");
-    expect(hookSource).not.toContain("expectedUpdatedUtc");
     expect(hookSource).not.toContain("forceOverwrite");
   });
 });

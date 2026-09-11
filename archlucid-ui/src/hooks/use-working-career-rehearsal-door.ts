@@ -86,7 +86,7 @@ export function useWorkingCareerRehearsalDoor(): UseWorkingCareerRehearsalDoorRe
       setDoorState(synced);
     });
 
-    // Sibling tabs apply the door chrome only — never draft CAS / expectedUpdatedUtc.
+    // Sibling tabs apply the door chrome only — never draft CAS writes.
     const unsubscribeBroadcast = subscribeWorkingCareerRehearsalDoorBroadcast((nextDoor) => {
       writeInterruptRecoveryDoor(scope, nextDoor);
       setDoorState(nextDoor);
