@@ -3,6 +3,10 @@ import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiGet } from "./http";
 import { governanceAssignedToMeCountBlockedReason } from "@/lib/governance/governance-assigned-to-me-count-blocked-reason";
 import { governancePostureBlockedReason } from "@/lib/governance/governance-posture-blocked-reason";
+import {
+  decisionsNeededSummaryBlockedReason,
+  reviewsAwaitingActionBlockedReason,
+} from "@/lib/governance/governance-stickiness-register-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   type ArchitectureDecisionRegisterFilters,
@@ -104,9 +108,16 @@ export async function getArchitectureDecisionRegister(
 }
 
 export async function getGovernanceReviewsAwaitingAction(): Promise<GovernanceReviewsAwaitingActionResponse> {
-  return apiGetSealedManifestAware<GovernanceReviewsAwaitingActionResponse>(
-    `${governanceStickinessBase()}/reviews-awaiting-action`,
-  );
+  try {
+    return await apiGet<GovernanceReviewsAwaitingActionResponse>(
+      `${governanceStickinessBase()}/reviews-awaiting-action`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewsAwaitingActionBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function getGovernanceDecisionsNeededSummary(
@@ -115,9 +126,17 @@ export async function getGovernanceDecisionsNeededSummary(
   const query = new URLSearchParams();
   if (projectId) query.set("projectId", projectId);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  return apiGetSealedManifestAware<GovernanceDecisionsNeededSummary>(
-    `${governanceStickinessBase()}/decisions-needed-summary${suffix}`,
-  );
+
+  try {
+    return await apiGet<GovernanceDecisionsNeededSummary>(
+      `${governanceStickinessBase()}/decisions-needed-summary${suffix}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = decisionsNeededSummaryBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function getGovernancePosture(projectId?: string): Promise<ArchitecturePostureSummary> {
@@ -126,7 +145,7 @@ export async function getGovernancePosture(projectId?: string): Promise<Architec
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
 
   try {
-    return await apiGetSealedManifestAware(`${governanceStickinessBase()}/posture${suffix}`);
+    return await apiGet<ArchitecturePostureSummary>(`${governanceStickinessBase()}/posture${suffix}`);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governancePostureBlockedReason(failure);

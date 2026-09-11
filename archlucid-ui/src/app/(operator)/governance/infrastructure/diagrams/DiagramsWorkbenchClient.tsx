@@ -80,6 +80,7 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
@@ -973,6 +974,7 @@ export function DiagramsWorkbenchClient() {
           <OperatorMutationInlineError
             message={pngExportError}
             testId="infra-diagrams-png-export-error"
+            recoveryPresentation={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY}
           />
         ) : null}
       </section>

@@ -145,6 +145,12 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE = "Inventory di
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE =
   "Could not download diagram PNG" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY = {
+  whatFailed: "Server-side PNG rendering is unavailable in this environment.",
+  whatIsIntact: "The in-browser diagram and Mermaid export remain available.",
+  nextStep: "Use Export Mermaid (.mmd), screenshot the canvas, or ask your operator to enable Mermaid CLI on the API host.",
+} as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL = "Snapshot" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL = "Diagram mode" as const;

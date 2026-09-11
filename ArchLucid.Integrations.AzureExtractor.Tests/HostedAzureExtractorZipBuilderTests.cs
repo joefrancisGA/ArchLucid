@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text.Json;
 
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Core.AzureExtractor;
 
 using Xunit;
 
@@ -34,6 +35,7 @@ public sealed class HostedAzureExtractorZipBuilderTests
         Assert.NotNull(archive.GetEntry("manifest.json"));
         Assert.NotNull(archive.GetEntry("resources.json"));
         Assert.NotNull(archive.GetEntry("policy-compliance.json"));
+        Assert.NotNull(archive.GetEntry(AzureExtractorPackageZipEntryNames.FederatedCredentials));
         Assert.NotNull(archive.GetEntry("README.txt"));
 
         stream.Position = 0;
@@ -87,5 +89,39 @@ public sealed class HostedAzureExtractorZipBuilderTests
         using JsonDocument document = JsonDocument.Parse(json);
         Assert.Equal(2, document.RootElement.GetProperty("schemaVersion").GetInt32());
         Assert.Equal(JsonValueKind.Null, document.RootElement.GetProperty("actualCostSummary").ValueKind);
+    }
+
+    [Fact]
+    public void BuildZip_manifest_includes_management_group_scope()
+    {
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            subscriptionId: null,
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            managementGroupId: "corp-prod");
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream manifestStream = archive.GetEntry("manifest.json")!.Open();
+        using StreamReader reader = new(manifestStream);
+        string json = reader.ReadToEnd();
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Assert.Equal("corp-prod", document.RootElement.GetProperty("managementGroupId").GetString());
+        Assert.Equal(JsonValueKind.Null, document.RootElement.GetProperty("subscriptionId").ValueKind);
+        Assert.Equal(
+            "/providers/Microsoft.Management/managementGroups/corp-prod",
+            document.RootElement.GetProperty("scope").GetString());
+
+        stream.Position = 0;
+
+        (AzureExtractorNormalizedManifest? manifest, string? error) =
+            AzureExtractorManifestReader.TryReadNormalizedFromZip(stream);
+
+        Assert.Null(error);
+        Assert.NotNull(manifest);
+        Assert.Equal(string.Empty, manifest!.SubscriptionId);
     }
 }
