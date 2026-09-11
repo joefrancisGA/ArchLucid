@@ -103,6 +103,29 @@ describe("PackagePrintPageView (TB-2205)", () => {
     expect(screen.queryByTestId("package-print-sponsor-synopsis")).toBeNull();
   });
 
+  it("renders meeting capture blockedReason callout when capture is blocked (sealed-manifest 409)", () => {
+    render(
+      <PackagePrintPageView
+        presentation={{
+          title: "Payments edge",
+          statusLabel: "Active",
+          statusKind: "in-progress",
+          findingsSummary: "2 findings.",
+          sponsorSynopsis: null,
+          createdUtc: "2026-08-01T12:00:00Z",
+          runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+          manifestVersionForGuard: "manifest-active",
+        }}
+        meetingCaptureBlockedReason="Meeting capture blocked: sealed manifest hash verification failed."
+      />,
+    );
+
+    expect(screen.getByTestId("package-print-meeting-capture-blocked")).toHaveTextContent(
+      "Meeting capture blocked: sealed manifest hash verification failed.",
+    );
+    expect(screen.queryByTestId("package-print-meeting-capture")).not.toBeInTheDocument();
+  });
+
   it("renders meeting capture when presenter room answers exist (PC-09 optional)", () => {
     render(
       <PackagePrintPageView

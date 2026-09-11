@@ -36,7 +36,7 @@ Guard waves (132–140) locked pre-read sealed-manifest guards and many runtime 
 | `GET …/pilots/runs/recent-deltas` | `GetRecentDeltas` | `MapPilotPackSealedManifestConflict` |
 | `POST …/pilots/closeout` | `PostCloseout` | `MapPilotPackSealedManifestConflict` |
 
-## Proof tests
+## Proof tests — API (backend)
 
 ```bash
 dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj \
@@ -48,6 +48,27 @@ dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj \
 - `SealedManifestRuntimeConflictVerificationBatch3Tests.cs` — architecture request curation, pin, closeout (5 tests)
 
 `BatchReviewApprovalRequests` has a controller-level mapper for defense; per-item batch conflicts remain item-scoped in the facade.
+
+## Proof tests — UI (`blockedReason`)
+
+High-traffic mutation paths surface lifecycle/sealed-hash **409** copy via `compareRunPairBlockedReason` (or `runSummaryBlockedReason` for package print meeting capture):
+
+| Path | Helper | Wiring test |
+|------|--------|-------------|
+| Draft autosave PATCH / create POST | `architectureDraftAutosavePatchBlockedReason`, `architectureDraftCreateMutationBlockedReason` | `use-architecture-draft-autosave.test.ts` |
+| Finalize commit POST | `reviewFinalizeMutationBlockedReason` | `architecture-runs-lifecycle.test.ts`, `CommitRunButton.test.tsx` |
+| Package print meeting capture GET | `packagePrintMeetingCaptureBlockedReason` | `PackagePrintPageView.test.tsx` |
+
+Helper wrappers are covered in `architecture-review-mutation-blocked-reason.test.ts`.
+
+```bash
+cd archlucid-ui && npm test -- --run \
+  architecture-review-mutation-blocked-reason.test.ts \
+  architecture-runs-lifecycle.test.ts \
+  use-architecture-draft-autosave.test.ts \
+  CommitRunButton.test.tsx \
+  PackagePrintPageView.test.tsx
+```
 
 ## Hasher baseline
 
