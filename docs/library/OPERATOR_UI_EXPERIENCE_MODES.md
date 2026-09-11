@@ -111,6 +111,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Pipeline complete copy honesty (CG-033):** Working review-detail “complete” vocabulary is stamp-gated via `pipeline-complete-career-honesty-copy.ts`. `deriveRunDetailWorkspaceStatus` and engineering progress-tracker terminal copy use **Rehearsal complete — not career-complete**, **Career blocked — not complete**, or **Practice complete — not career-complete** instead of generic **Review complete** when Simulator/Rehearsal honesty applies. `resolvePipelineStatusTooltip` (re-exported from `@/lib/i18n`) keeps Guided teaching strings unchanged.
 
+**Scorecard KPIs are not Career proof (CG-034):** Architecture scorecard on Working (`PilotScorecardPageView`) shows `ScorecardKpiCareerHonestyStrip` above the KPI grid when CG-031 door×Mode cells are not **Career complete**. KPI numbers stay visible; **Operational metrics** gains a **Rehearsal metrics** or **Practice metrics** qualifier. Sample scorecard (`sample=1`) keeps the existing sample banner — no duplicate strip.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
