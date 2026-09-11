@@ -43,6 +43,7 @@ Rejected patterns include:
 
 - `GET /v1/operational-security/paths/{pathId}` → `explanationTemplate`
 - Remediation factory **Path inspect** panel (`SecurityEvidencePathInspectPanel`)
+- Remediation factory **Ranked architect paths** table and **Architect outcome metrics** panel
 - Optional help slug: `/help/security-evidence-paths` (Security shell)
 
 Architecture `:3000` review finding copy is unchanged.
