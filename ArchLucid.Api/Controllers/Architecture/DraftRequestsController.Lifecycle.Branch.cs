@@ -149,6 +149,10 @@ public sealed partial class DraftRequestsController
 
             return CreatedAtAction(nameof(GetDraft), new { draftId = result.Branch.DraftId }, result);
         }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
+        }
         catch (InvalidOperationException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);

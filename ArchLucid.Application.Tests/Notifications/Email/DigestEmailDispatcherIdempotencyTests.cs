@@ -1263,4 +1263,95 @@ public sealed class DigestEmailDispatcherIdempotencyTests
         sendCounts["b@example.test"].Should().Be(2);
         sendCounts.Should().ContainKey("a@example.test");
     }
+
+    [Fact]
+    public async Task WeeklySponsorSummaryEmailDispatcher_throws_for_empty_tenant_id()
+    {
+        WeeklySponsorSummaryEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            Mock.Of<ISentEmailLedger>(),
+            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
+            NullLogger<WeeklySponsorSummaryEmailDispatcher>.Instance);
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Empty,
+            "2026-W29",
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "W29",
+            toMailboxes: ["exec@example.test"],
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithParameterName("tenantId");
+    }
+
+    [Fact]
+    public async Task WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_iso_week_key()
+    {
+        WeeklySponsorSummaryEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            Mock.Of<ISentEmailLedger>(),
+            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
+            NullLogger<WeeklySponsorSummaryEmailDispatcher>.Instance);
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Parse("29292929-2929-2929-2929-292929292929"),
+            "   ",
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "W29",
+            toMailboxes: ["exec@example.test"],
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithParameterName("isoWeekIdempotencyKey");
+    }
+
+    [Fact]
+    public async Task WeeklySponsorSummaryEmailDispatcher_tags_outbound_message_with_weekly_sponsor_summary_event_type()
+    {
+        List<EmailMessage> sentMessages = [];
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessages.Add(message))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>summary</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("summary");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        Guid tenantId = Guid.Parse("30303030-3030-3030-3030-303030303030");
+
+        WeeklySponsorSummaryEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            new InMemorySentEmailLedger(),
+            options.Object,
+            NullLogger<WeeklySponsorSummaryEmailDispatcher>.Instance);
+
+        bool sent = await sut.TryDispatchAsync(
+            tenantId,
+            "2026-W30",
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "W30",
+            toMailboxes: ["exec@example.test"],
+            CancellationToken.None);
+
+        sent.Should().BeTrue();
+        sentMessages.Should().ContainSingle();
+        sentMessages[0].Tags!.TenantId.Should().Be(tenantId);
+        sentMessages[0].Tags!.EventType.Should().Be("weekly-sponsor-summary");
+    }
 }

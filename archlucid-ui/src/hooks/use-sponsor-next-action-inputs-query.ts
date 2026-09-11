@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { getComplianceDriftTrend } from "@/lib/api";
 import { isBrowser } from "@/lib/api/http";
 import { type SponsorTimeRange, windowForSponsorRange } from "@/lib/sponsor-time-range";
@@ -32,6 +33,7 @@ export function useSponsorNextActionInputsQuery(
   options?: { enabled?: boolean },
 ) {
   const queryClient = useQueryClient();
+  const scope = useOperatorScopeQueryKey();
 
   return useQuery<SponsorNextActionInputs>({
     queryKey: operatorQueryKeys.executiveNextActionInputs(range),
@@ -40,7 +42,7 @@ export function useSponsorNextActionInputsQuery(
       const fromKey = fromUtc ?? "open";
 
       const report = await queryClient.fetchQuery({
-        queryKey: operatorQueryKeys.pilotValueReport(fromKey, toUtc),
+        queryKey: operatorQueryKeys.pilotValueReport(scope, fromKey, toUtc),
         queryFn: () => fetchPilotValueReportJson(fromUtc, toUtc),
         staleTime: OPERATOR_QUERY_STALE_MS,
         gcTime: OPERATOR_QUERY_GC_MS,

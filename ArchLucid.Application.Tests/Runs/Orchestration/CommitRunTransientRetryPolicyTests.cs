@@ -77,6 +77,7 @@ public sealed class CommitRunTransientRetryPolicyTests
             .Should()
             .Be(TimeSpan.FromMilliseconds(150 * CommitRunTransientRetryPolicy.MaxAttempts));
     }
+
     [Fact]
     public void IsExhausted_returns_false_at_attempt_zero()
     {
