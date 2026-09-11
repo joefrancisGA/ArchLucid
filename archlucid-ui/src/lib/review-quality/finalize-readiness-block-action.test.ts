@@ -31,4 +31,47 @@ describe("resolveFinalizeReadinessBlockAction", () => {
     expect(action?.href).toContain("#architecture-assessment-progress");
     expect(action?.label).toBe("Complete required intake questions");
   });
+
+  it("deep-links existential assumption blocks to the activity finalize anchor", () => {
+    const block: FinalizeReadinessBlock = {
+      layer: "integrity",
+      code: "existential_assumption",
+      message: "1 existential assumption still needs confirmation before finalize.",
+    };
+
+    const action = resolveFinalizeReadinessBlockAction("run-123", block);
+
+    expect(action?.href).toContain("#architecture-assessment-progress");
+    expect(action?.label).toBe("Acknowledge assumptions");
+  });
+
+  it("deep-links agent output quality blocks to the activity tab", () => {
+    const block: FinalizeReadinessBlock = {
+      layer: "integrity",
+      code: "agent_output_quality",
+      message: "Commit blocked: agent output quality gate rejected one or more traces.",
+    };
+
+    const action = resolveFinalizeReadinessBlockAction("run-123", block);
+
+    expect(action).toEqual({
+      href: "/architecture/reviews/run-123?reviewTab=activity",
+      label: "Review agent output quality",
+    });
+  });
+
+  it("deep-links unsupported semantic support blocks to findings", () => {
+    const block: FinalizeReadinessBlock = {
+      layer: "integrity",
+      code: "unsupported_semantic_support",
+      message: "Semantic support hold still applies.",
+    };
+
+    const action = resolveFinalizeReadinessBlockAction("run-123", block);
+
+    expect(action).toEqual({
+      href: "/architecture/reviews/run-123?reviewTab=findings",
+      label: "Review semantic support gaps",
+    });
+  });
 });
