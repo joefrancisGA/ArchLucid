@@ -18,6 +18,7 @@ import {
 import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import { resolveFirstReviewGuideOutcomeLinks } from "@/lib/first-review-guide-state";
+import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
@@ -61,7 +62,7 @@ export function FirstReviewGuideSupportPanel({ sealedRunId, className }: FirstRe
         </ul>
       </section>
 
-      {hasSealedRecord ? (
+      {hasSealedRecord && !isLiveOperatorShellRecoveryContext() ? (
         <section
           aria-labelledby="first-review-guide-sample-rail-heading"
           className={cn(OPERATOR_SURFACE_CARD_CLASS, "border border-neutral-200 p-4 dark:border-neutral-800")}

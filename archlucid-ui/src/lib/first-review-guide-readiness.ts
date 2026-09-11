@@ -47,7 +47,9 @@ export function resolveFirstReviewGuideReadiness(input: FirstReviewGuideStateInp
       kind: "ready-to-start",
       headline: "Ready to explore",
       detail:
-        "Your role can read this guide and open the sample review. Ask a workspace administrator for review creation permission to begin your own review.",
+        input.hideSampleRecovery === true
+          ? "Your role can read this guide. Ask a workspace administrator for review creation permission to begin your own review."
+          : "Your role can read this guide and open the sample review. Ask a workspace administrator for review creation permission to begin your own review.",
     };
   }
 

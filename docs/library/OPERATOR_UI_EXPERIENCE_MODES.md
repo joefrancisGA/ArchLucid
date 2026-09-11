@@ -123,6 +123,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Value report rehearsal honesty (CG-090):** Sponsor value report (`PilotValueReportPageView`) shows `ValueReportCareerHonestyStrip` at route level on Working when a deep-linked review (`runId` query) or the reporting-period timeline includes contributing runs that are not Career + Real. Claim discipline gains a measured-savings disclaimer — directional figures are not G-REAL-06 procurement proof. Sample sponsor report keeps its sample banner (with the same disclaimer) — no duplicate strip. CG-035 `RoiTileCareerHonestyStrip` remains above scoped metrics for tile qualifiers.
 
+**First-review guide does not launder Career (CG-091):** `/architecture/first-review-guide` on Working applies `shouldSuppressReadyToFinalizeForCareerHonesty` before walkthrough steps or header actions show **Seal review**. Evaluation scope helper names **Career + Real** vs explicit **Rehearsal** practice. Sample recovery (`OnboardingSampleReviewShortcut`, walkthrough step 6, support-panel sample rail) stays off live tenant shells via `isLiveOperatorShellRecoveryContext`. Guided guide copy is unchanged when not on Working.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
