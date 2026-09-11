@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ArchitectureDiagramViewer } from '@/components/architecture/ArchitectureDiagramViewer';
+import * as helpMermaid from '@/lib/help/help-mermaid';
 import {
   ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL,
   ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
@@ -235,10 +236,10 @@ describe('ArchitectureDiagramViewer', () => {
     expect(onRetry).toHaveBeenCalled();
   });
 
-  it('shows in-flow paint failure when mermaid ink cannot be measured', async () => {
-    restoreMermaidInkGeometry();
-    renderMock.mockResolvedValueOnce({
-      svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"></svg>',
+  it('shows in-flow paint failure when fitted ink height is too small', async () => {
+    const fitSpy = vi.spyOn(helpMermaid, 'fitMermaidSvgElementToViewport').mockReturnValue({
+      baseWidthPx: 10,
+      baseHeightPx: 10,
     });
 
     render(
@@ -260,6 +261,8 @@ describe('ArchitectureDiagramViewer', () => {
 
     expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-render-failure'));
     expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-viewport-controls'));
+
+    fitSpy.mockRestore();
   });
 
   it('keeps mermaid viewport controls and fullscreen inside the diagram viewport', async () => {
@@ -332,5 +335,26 @@ describe('ArchitectureDiagramViewer', () => {
         scroll: false,
       });
     });
+  });
+
+  it('sizes mermaid svg above the overlay-only floor after render', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    const host = screen.getByTestId('architecture-diagram-svg-host');
+    const svg = host.querySelector('svg');
+
+    expect(svg).not.toBeNull();
+    expect(Number(svg?.getAttribute('height') ?? 0)).toBeGreaterThanOrEqual(240);
   });
 });

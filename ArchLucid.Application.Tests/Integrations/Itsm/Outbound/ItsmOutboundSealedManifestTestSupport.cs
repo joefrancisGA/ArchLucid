@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.User;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Core.Scoping;
@@ -51,9 +53,33 @@ internal static class ItsmOutboundSealedManifestTestSupport
                 Run = new RunRecord { RunId = runId },
                 GoldenManifest = goldenManifest,
             });
+        authority
+            .Setup(query => query.GetRunSummaryAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateCareerRealRunSummary(runId));
 
         return authority.Object;
     }
+
+    internal static RunSummaryDto CreateCareerRealRunSummary(Guid runId) =>
+        new()
+        {
+            RunId = runId,
+            ProjectId = "default",
+            StructuralExecutionMode = StructuralExecutionMode.Real,
+            WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Career,
+        };
+
+    internal static RunSummaryDto CreateRehearsalSimulatorRunSummary(Guid runId) =>
+        new()
+        {
+            RunId = runId,
+            ProjectId = "default",
+            StructuralExecutionMode = StructuralExecutionMode.Simulator,
+            WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
+        };
 
     internal static IManifestHashService CreateManifestHashService()
     {

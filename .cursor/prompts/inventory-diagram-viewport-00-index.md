@@ -76,6 +76,10 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-viewport-<sho
 
 Summarize: files changed, tests run, whether an 11-node Executive TD chain fits in the visible frame at default zoom without a mostly-empty 36rem hole, residual risk.
 
+## Follow-on (2026-09-11 — do not re-run IDV)
+
+After IDV-01–03 landed, a second owner screenshot showed **Render succeeded** with outline tables filled but **no visible graph** (overlay-only canvas). That is a **camera collapse** regression, not a compile failure. Use **`.cursor/prompts/inventory-diagram-collapsed-canvas-00-index.md`** (IDC-01–IDC-04). Do **not** paste IDV-01–04 again.
+
 ## Global constraints (every prompt)
 
 Working-tree safety: `pwsh -NoProfile -File scripts/agent/check-working-tree-path.ps1 -Path <file>` before editing a tracked file. Exit 2 → skip and report.

@@ -51,6 +51,32 @@ describe("ExecDigestSponsorDeepLinkPanel", () => {
     );
   });
 
+  it("shows rehearsal disclaimer and per-row labels when server stamps honesty (CG-037)", () => {
+    render(
+      <ExecDigestSponsorDeepLinkPanel
+        view={{
+          ...view,
+          rehearsalBodyDisclaimer: "This digest includes rehearsal runs.",
+          topRuns: [
+            {
+              runIdHex: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              significanceScore: 91,
+              caption: "Payments edge",
+              rehearsalRowLabel: "Rehearsal incomplete",
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("digest-sponsor-rehearsal-disclaimer")).toHaveTextContent(
+      "This digest includes rehearsal runs.",
+    );
+    expect(screen.getByTestId("digest-sponsor-rehearsal-row-label-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")).toHaveTextContent(
+      "Rehearsal incomplete",
+    );
+  });
+
   it("run collateral sign-in preserves tokenized deep link return path (DIU)", () => {
     const runCollateralView: ExecDigestSponsorDeepLinkView = {
       ...view,

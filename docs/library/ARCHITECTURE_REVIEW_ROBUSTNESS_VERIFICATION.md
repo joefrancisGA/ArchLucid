@@ -184,10 +184,33 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGate
 
 ## Finalize conflict SQL integration proof
 
-`FinalizeConflictSqlIntegrationTests` proves lifecycle integrity blocks on `POST …/finalize` and `GET …/readiness` stay aligned through real SQL persistence (create run without execute → 409 + readiness `lifecycle_phase_incomplete` block).
+`FinalizeConflictSqlIntegrationFixture` pins scorecard-shaped findings on an executed run's SQL findings snapshot so verify-hypothesis and contradiction proofs no longer depend on simulator output shape.
+
+`FinalizeConflictSqlIntegrationTests` proves lifecycle integrity blocks, scorecard blocks, and pre-commit governance blocks on `POST …/finalize` stay aligned with `GET …/readiness` through real SQL persistence:
+
+- Create run without execute → 409 + readiness `lifecycle_phase_incomplete` integrity block.
+- Execute run, bulk-disposition one finding as **Deferred** with revisit → 409 + readiness `scorecard` layer block (open deferred dimension).
+- Execute run with pinned **verify-hypothesis** finding → 409 + readiness `scorecard` layer block containing `hypothesis` (TB-2315 parity).
+- Execute run with pinned **contradiction** finding → 409 + readiness `scorecard` layer block containing `contradiction` (TB-2179 parity).
+- Execute run blocked by **pre-commit governance** → finalize **409** with `ProblemTypes.GovernancePreCommitBlocked` aligned with readiness `pre_commit_gate` layer block (self-skips when gate does not block).
 
 ```bash
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeConflictSqlIntegrationTests"
+```
+
+## Wave-73 finding disposition sealed-manifest 409 proof
+
+`GovernanceStickinessDispositionSealedManifestRuntimeConflictTests` proves governance disposition mutations map runtime `ConflictException` from persistence to OpenAPI **409** (`ProblemTypes.Conflict`):
+
+- `POST …/findings/{findingId}/dispositions` (`RecordDisposition`)
+- `POST …/findings/bulk-disposition` (`RecordBulkDisposition`)
+- `POST …/runs/{runId}/finding-merge-conflicts/{findingId}/resolve` (`ResolveFindingMergeConflict`)
+
+UI copy parity: `finding-disposition-mutation-blocked-reason.ts` → `compareRunPairBlockedReason` for lifecycle/sealed-hash **409** detail.
+
+```bash
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~GovernanceStickinessDispositionSealedManifestRuntimeConflictTests"
+cd archlucid-ui && npx vitest run src/lib/findings/finding-disposition-mutation-blocked-reason.test.ts
 ```
 
 ## Unified finalize readiness API
@@ -201,7 +224,7 @@ dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~FinalizeRea
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeReadinessControllerTests"
 ```
 
-UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton`. `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority. SSR `buildRunDetailGovernancePresentation` loads readiness via `tryLoadFinalizeReadinessForRun`.
+UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton`. SSR `finalizeReadinessBlocks` from `buildRunDetailGovernancePresentation` hydrate the hook during client fetch and flow through `RunDetailPageHeader`, `ReviewPackagePrimaryAction`, and `RunDetailWorkspaceStickyActionsResolved` (deferred sticky bar on standard review detail). `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority.
 
 ## ConflictException → 409 controller sweep
 

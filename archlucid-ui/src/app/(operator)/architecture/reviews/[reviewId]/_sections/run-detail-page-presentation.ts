@@ -174,6 +174,8 @@ export async function buildRunDetailPresentation(
     operatorGovernanceDecision: model.resolvedDetail.run.operatorGovernanceDecision,
     buyerPolishedArtifactTable: model.buyerPolishedArtifactTable,
     blockingFindingCount: blockingApprovalCount,
+    workingDesk: model.buyerPolishedArtifactTable !== true,
+    effectiveWorkingCareerRehearsalDoor: model.progressForPipelineUi.workingCareerRehearsalDoor,
   });
 
   const evidenceGapsCount = filterUnresolvedFindings(quickDecisionFindings).filter(

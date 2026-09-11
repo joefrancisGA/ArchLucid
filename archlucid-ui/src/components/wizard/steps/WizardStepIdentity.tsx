@@ -188,7 +188,7 @@ export function WizardStepIdentity() {
           <WizardFieldHint
             htmlFor="wizard-cloud-provider"
             label="Cloud target"
-            hint="Choose the cloud target that matches your workload. AWS and GCP inventory ZIPs are available as accelerated evidence sources."
+            hint={CLOUD_NEUTRAL_PRIMARY_COPY.wizardCloudTargetHint}
           />
           <Controller
             name="cloudProvider"
