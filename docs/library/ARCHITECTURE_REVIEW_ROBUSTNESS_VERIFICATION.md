@@ -182,6 +182,14 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGate
 
 `FinalizeQualityGateRuntimeConflictTests` proves `POST …/finalize` maps scorecard `ConflictException` (with `FinalizeQualityGate.BlockedPrefix`) to OpenAPI **409** without SQL integration.
 
+## Finalize conflict SQL integration proof
+
+`FinalizeConflictSqlIntegrationTests` proves lifecycle integrity blocks on `POST …/finalize` and `GET …/readiness` stay aligned through real SQL persistence (create run without execute → 409 + readiness `lifecycle_phase_incomplete` block).
+
+```bash
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeConflictSqlIntegrationTests"
+```
+
 ## Unified finalize readiness API
 
 `GET /v1/governance/pre-finalize/readiness/{runId}` composes career-artifact, integrity, scorecard, and pre-commit governance gates into one server contract (`FinalizeReadinessService`). Optional `acknowledgedAssumptionIds` query params union persisted TB-2345 acknowledgements for assumption-gate parity. Pre-commit governance reuses `IPreCommitGovernanceGate.EvaluateAsync(runId)` (same snapshot + supplemental findings path as checklist/commit; no manifest dry-run required for blocking parity).
@@ -193,7 +201,7 @@ dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~FinalizeRea
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeReadinessControllerTests"
 ```
 
-UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton`. SSR `buildRunDetailGovernancePresentation` loads readiness via `tryLoadFinalizeReadinessForRun`.
+UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton`. `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority. SSR `buildRunDetailGovernancePresentation` loads readiness via `tryLoadFinalizeReadinessForRun`.
 
 ## ConflictException → 409 controller sweep
 

@@ -12,6 +12,9 @@ export type AssumptionAwareCommitBlockedState = {
   readonly blocks: readonly FinalizeReadinessBlock[];
   readonly readinessLoading: boolean;
   readonly readinessUnavailable: boolean;
+  readonly checklistReadyToFinalize: boolean | null;
+  readonly readinessReadyToFinalize: boolean | null;
+  readonly readinessChecklistMismatch: boolean;
 };
 
 const READINESS_UNAVAILABLE_MESSAGE =
@@ -42,6 +45,9 @@ export function useAssumptionAwareCommitBlockedReason(input: {
       blocks: [],
       readinessLoading: false,
       readinessUnavailable: false,
+      checklistReadyToFinalize: null,
+      readinessReadyToFinalize: null,
+      readinessChecklistMismatch: false,
     };
   }
 
@@ -51,6 +57,9 @@ export function useAssumptionAwareCommitBlockedReason(input: {
       blocks: [],
       readinessLoading: false,
       readinessUnavailable: false,
+      checklistReadyToFinalize: null,
+      readinessReadyToFinalize: null,
+      readinessChecklistMismatch: false,
     };
   }
 
@@ -60,6 +69,9 @@ export function useAssumptionAwareCommitBlockedReason(input: {
       blocks: [],
       readinessLoading: true,
       readinessUnavailable: false,
+      checklistReadyToFinalize: null,
+      readinessReadyToFinalize: null,
+      readinessChecklistMismatch: false,
     };
   }
 
@@ -69,6 +81,9 @@ export function useAssumptionAwareCommitBlockedReason(input: {
       blocks: readiness.blocks,
       readinessLoading: false,
       readinessUnavailable: false,
+      checklistReadyToFinalize: readiness.checklist.readyToFinalize,
+      readinessReadyToFinalize: readiness.readyToFinalize,
+      readinessChecklistMismatch: readiness.readyToFinalize !== readiness.checklist.readyToFinalize,
     };
   }
 
@@ -77,5 +92,8 @@ export function useAssumptionAwareCommitBlockedReason(input: {
     blocks: [],
     readinessLoading: false,
     readinessUnavailable: true,
+    checklistReadyToFinalize: null,
+    readinessReadyToFinalize: null,
+    readinessChecklistMismatch: false,
   };
 }

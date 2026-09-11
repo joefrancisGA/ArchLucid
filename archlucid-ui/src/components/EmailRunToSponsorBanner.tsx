@@ -7,12 +7,15 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { SponsorArtifactEvidenceBadge } from "@/components/SponsorArtifactEvidenceBadge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
+import { EMAIL_RUN_TO_SPONSOR_REHEARSAL_ACK_LABEL } from "@/lib/email-run-to-sponsor-rehearsal-gate";
 import { isProjectedUsdSponsorBadgeVisible } from "@/lib/pilot-proof-readiness";
 import { cn } from "@/lib/utils";
 
@@ -161,6 +164,32 @@ export function EmailRunToSponsorBanner({
         </div>
       ) : null}
 
+      {banner.rehearsalEmailGate.requiresRehearsalEmailHonestyAck ? (
+        <div
+          role="group"
+          data-testid="email-run-to-sponsor-rehearsal-email-gate"
+          className={cn("mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50", OPERATOR_TYPOGRAPHY.body)}
+        >
+          <p className="m-0 font-semibold">Rehearsal email requires explicit labeling</p>
+          <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
+            Subject and body include rehearsal language. Acknowledge before composing or recording send.
+          </p>
+          <div className="mt-2 flex items-start gap-3">
+            <Checkbox
+              id="email-run-to-sponsor-rehearsal-ack"
+              checked={banner.rehearsalEmailHonestyAcknowledged}
+              onCheckedChange={(checked) => {
+                banner.setRehearsalEmailHonestyAcknowledged(checked === true);
+              }}
+              data-testid="email-run-to-sponsor-rehearsal-ack-checkbox"
+            />
+            <Label htmlFor="email-run-to-sponsor-rehearsal-ack" className={OPERATOR_TYPOGRAPHY.body}>
+              {EMAIL_RUN_TO_SPONSOR_REHEARSAL_ACK_LABEL}
+            </Label>
+          </div>
+        </div>
+      ) : null}
+
       {banner.careerArtifactVerdict !== null && banner.careerArtifactVerdict.blockedReasons.length > 0 ? (
         <div
           role="alert"
@@ -266,12 +295,14 @@ export function EmailRunToSponsorBanner({
         markSentBusy={banner.markSentBusy}
         sentToSponsorUtc={banner.sentToSponsorUtc}
         blockSponsorPdf={banner.blockSponsorPdf}
+        blockSponsorEmailSend={banner.blockSponsorEmailSend}
         blockSponsorPdfForExecutionMode={banner.blockSponsorPdfForExecutionMode}
         blockSponsorPdfForAiGate={banner.blockSponsorPdfForAiGate}
         blockSponsorPdfForProjectedDollar={banner.blockSponsorPdfForProjectedDollar}
         blockSponsorPdfForRoi={banner.blockSponsorPdfForRoi}
         onDownloadPdf={banner.onDownloadPdf}
         onMarkSentToSponsor={banner.onMarkSentToSponsor}
+        onComposeEmailToSponsor={banner.onComposeEmailToSponsor}
       />
 
       <div className="mt-3">
