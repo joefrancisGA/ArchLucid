@@ -79,9 +79,9 @@ describe("help-mermaid", () => {
 
     expect(svg.getAttribute("viewBox")).toBe("0 10 120 60");
     expect(svg.getAttribute("width")).toBe("500");
-    expect(svg.getAttribute("height")).toBe("250");
+    expect(svg.getAttribute("height")).toBe("280");
     expect(svg.style.width).toBe("500px");
-    expect(svg.style.height).toBe("250px");
+    expect(svg.style.height).toBe("280px");
 
     svg.remove();
   });

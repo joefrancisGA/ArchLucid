@@ -73,6 +73,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Share URL (CG-013):** `?career=1` (and `door` / `workingDoor` / `workingCareerRehearsalDoor`) cannot mint unlabeled Career chrome when structural execute is Simulator. Rehearsal query overlays stay labeled. Query never PUTs. Inventory: [`CAREER_GRAVITY_URL_QUERY_DOOR_INVENTORY.md`](../architecture/CAREER_GRAVITY_URL_QUERY_DOOR_INVENTORY.md).
 
+**New tenant (CG-014):** unset GET and empty-browser first-run Working default to **Career**. Implicit GET does not PUT. Legacy Simulator usage signals still grandfather **Rehearsal** (banner is CG-015). Host `AgentExecution:Mode` stays Simulator.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.

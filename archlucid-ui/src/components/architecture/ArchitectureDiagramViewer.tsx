@@ -28,6 +28,7 @@ import {
   parseArchitectureDiagramFullscreenOpenFromSearch,
   parseArchitectureDiagramZoomFromSearch,
 } from "@/lib/architecture/architecture-diagram-fullscreen-url";
+import { createArchitectureDiagramMermaidConfig } from "@/lib/architecture/architecture-diagram-mermaid-config";
 import {
   fitMermaidSvgElementToHost,
   prepareMermaidSvgForResponsiveLayout,
@@ -142,13 +143,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         const mermaidModule = await import("mermaid");
         const mermaid = mermaidModule.default;
 
-        mermaid.initialize({
-          startOnLoad: false,
-          theme: dark ? "dark" : "neutral",
-          securityLevel: "strict",
-          fontFamily: "ui-sans-serif, system-ui, sans-serif",
-          flowchart: { htmlLabels: false },
-        });
+        mermaid.initialize(createArchitectureDiagramMermaidConfig(dark));
 
         const result = await mermaid.render(renderId, mermaidSource.trim());
 
@@ -285,7 +280,10 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         <div
           ref={svgHostRef}
           className={cn(
-            "w-full min-w-0 origin-top-left transition-transform [&_svg]:block",
+            "w-full min-w-0 origin-top-left transition-transform",
+            "[&_svg]:block [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200",
+            "[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:fill-neutral-900 dark:[&_svg_.nodeLabel]:fill-neutral-100",
+            "[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]",
             canvasStale ? "opacity-60" : undefined,
           )}
           style={{ transform: `scale(${zoom})` }}
@@ -362,7 +360,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         role="img"
         aria-label={viewportAriaLabel}
         aria-describedby={`${renderId}-alt`}
-        className="max-h-[28rem] overflow-auto rounded-md border border-neutral-200 bg-white p-4 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950/80"
+        className="min-h-[18rem] max-h-[36rem] overflow-auto rounded-md border border-neutral-200 bg-neutral-50 p-4 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950/80"
         data-testid="architecture-diagram-viewport"
       >
         {diagramBody}

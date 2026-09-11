@@ -63,10 +63,73 @@ export function prepareMermaidSvgForResponsiveLayout(svgMarkup: string): string 
   return new XMLSerializer().serializeToString(svg);
 }
 
-function readSvgContentBBox(svg: SVGSVGElement): DOMRect | null {
+function readGraphicsElementBBox(element: SVGGraphicsElement): DOMRect | null {
+  try {
+    const box = element.getBBox();
+
+    if (box.width > 1 && box.height > 1) {
+      return box;
+    }
+  }
+  catch {
+    // getBBox throws when the node is not rendered yet.
+  }
+
+  return null;
+}
+
+function unionDomRects(rects: DOMRect[]): DOMRect | null {
+  if (rects.length === 0) {
+    return null;
+  }
+
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (const rect of rects) {
+    minX = Math.min(minX, rect.x);
+    minY = Math.min(minY, rect.y);
+    maxX = Math.max(maxX, rect.x + rect.width);
+    maxY = Math.max(maxY, rect.y + rect.height);
+  }
+
+  if (!Number.isFinite(minX) || !Number.isFinite(minY) || maxX <= minX || maxY <= minY) {
+    return null;
+  }
+
+  return new DOMRect(minX, minY, maxX - minX, maxY - minY);
+}
+
+/** Prefer node/edge ink over cluster shells — subgraph boxes can dwarf the readable content. */
+function readMermaidInkBBox(svg: SVGSVGElement): DOMRect | null {
+  const inkElements = svg.querySelectorAll("g.node, g.edgePaths path, g.edgeLabel");
+
+  const inkBoxes: DOMRect[] = [];
+
+  for (const element of inkElements) {
+    if (!(element instanceof SVGGraphicsElement)) {
+      continue;
+    }
+
+    const box = readGraphicsElementBBox(element);
+
+    if (box !== null) {
+      inkBoxes.push(box);
+    }
+  }
+
+  const inkUnion = unionDomRects(inkBoxes);
+
+  if (inkUnion !== null) {
+    return inkUnion;
+  }
+
   const candidates: Element[] = [
+    ...svg.querySelectorAll("g.nodes, g.edgePaths, g.flowchart, g.output"),
     ...svg.querySelectorAll(":scope > g"),
-    ...svg.querySelectorAll("g.nodes, g.edgePaths, g.clusters, g.flowchart, g.output"),
+    ...svg.querySelectorAll("g.clusters"),
   ];
 
   for (const candidate of candidates) {
@@ -74,38 +137,29 @@ function readSvgContentBBox(svg: SVGSVGElement): DOMRect | null {
       continue;
     }
 
-    try {
-      const box = candidate.getBBox();
+    const box = readGraphicsElementBBox(candidate);
 
-      if (box.width > 1 && box.height > 1) {
-        return box;
-      }
-    }
-    catch {
-      // getBBox throws when the node is not rendered yet.
+    if (box !== null) {
+      return box;
     }
   }
 
-  try {
-    const rootBox = svg.getBBox();
-
-    if (rootBox.width > 1 && rootBox.height > 1) {
-      return rootBox;
-    }
-  }
-  catch {
-    return null;
-  }
-
-  return null;
+  return readGraphicsElementBBox(svg);
 }
 
 /**
  * After mount: crop the viewBox to drawn content and size the SVG to the host width in pixels.
  * Mermaid sometimes emits a large empty canvas with the graph clustered in one corner.
  */
-export function fitMermaidSvgElementToHost(svg: SVGSVGElement, hostWidthPx: number, paddingPx = 12): void {
-  const bbox = readSvgContentBBox(svg);
+const MERMAID_FIT_MIN_HEIGHT_PX = 280;
+
+export function fitMermaidSvgElementToHost(
+  svg: SVGSVGElement,
+  hostWidthPx: number,
+  paddingPx = 12,
+  minHeightPx = MERMAID_FIT_MIN_HEIGHT_PX,
+): void {
+  const bbox = readMermaidInkBBox(svg);
 
   if (bbox === null) {
     svg.setAttribute("width", "100%");
@@ -121,7 +175,8 @@ export function fitMermaidSvgElementToHost(svg: SVGSVGElement, hostWidthPx: numb
   const viewWidth = bbox.width + paddingPx * 2;
   const viewHeight = bbox.height + paddingPx * 2;
   const width = Math.max(1, Math.floor(hostWidthPx));
-  const height = Math.max(1, Math.round(width * (viewHeight / viewWidth)));
+  const proportionalHeight = Math.max(1, Math.round(width * (viewHeight / viewWidth)));
+  const height = Math.max(minHeightPx, proportionalHeight);
 
   svg.setAttribute(
     "viewBox",
