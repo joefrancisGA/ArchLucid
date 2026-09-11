@@ -5,6 +5,13 @@ import { Input } from '@/components/ui/input';
 import { ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL } from '@/lib/architecture/architecture-diagram-copy';
 import { OPERATOR_TYPOGRAPHY } from '@/lib/design-tokens';
 
+export type ArchitectureDiagramViewportControlsLayout = 'stacked' | 'overlay';
+
+export type ArchitectureDiagramViewportFullscreenAction = {
+  readonly label: string;
+  readonly onClick: () => void;
+};
+
 export type ArchitectureDiagramViewportControlsProps = {
   readonly zoomPercentInputValue: string;
   readonly minZoomPercent: number;
@@ -23,19 +30,35 @@ export type ArchitectureDiagramViewportControlsProps = {
   readonly resetZoomLabel: string;
   readonly fitInViewLabel: string;
   readonly viewportHint: string;
+  readonly layout?: ArchitectureDiagramViewportControlsLayout;
+  readonly fullscreenAction?: ArchitectureDiagramViewportFullscreenAction;
 };
 
 /** Labeled zoom and pan controls for the architecture / inventory diagram canvas. */
 export function ArchitectureDiagramViewportControls(
   props: ArchitectureDiagramViewportControlsProps,
 ): React.JSX.Element {
+  const layout = props.layout ?? 'stacked';
+  const isOverlay = layout === 'overlay';
+
   return (
     <div
-      className="mb-2 flex flex-col gap-2"
+      className={cn(
+        'flex flex-col gap-2',
+        isOverlay
+          ? 'pointer-events-none absolute right-2 top-2 z-10 max-w-[calc(100%-1rem)]'
+          : 'mb-2',
+      )}
       data-testid="architecture-diagram-viewport-controls"
       aria-label="Diagram viewport controls"
     >
-      <div className="flex flex-wrap items-center gap-2">
+      <div
+        className={cn(
+          'flex flex-wrap items-center gap-2',
+          isOverlay &&
+            'pointer-events-auto rounded-md border border-neutral-200 bg-white/95 p-1.5 shadow-sm backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95',
+        )}
+      >
         <Button
           type="button"
           variant="outline"
@@ -94,9 +117,18 @@ export function ArchitectureDiagramViewportControls(
         <Button type="button" variant="outline" size="sm" onClick={props.onFitInView}>
           {props.fitInViewLabel}
         </Button>
+        {props.fullscreenAction != null ? (
+          <Button type="button" variant="outline" size="sm" onClick={props.fullscreenAction.onClick}>
+            {props.fullscreenAction.label}
+          </Button>
+        ) : null}
       </div>
       <p
-        className={cn('m-0 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
+        className={cn(
+          'm-0 text-al-text-secondary',
+          OPERATOR_TYPOGRAPHY.helper,
+          isOverlay ? 'pointer-events-auto sr-only' : undefined,
+        )}
         data-testid="architecture-diagram-viewport-hint"
       >
         {props.viewportHint}

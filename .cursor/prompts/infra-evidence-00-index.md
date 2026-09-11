@@ -18,5 +18,9 @@ One Azure collection feeds architecture, drift, security remediation, ARC-AMPE a
 | `INFRA_EVIDENCE_COMPOSER_PROMPTS_AE.md` | AE-01–AE-10 + CW-01 (no second collector) |
 | `INFRA_EVIDENCE_COMPOSER_PROMPTS_BR.md` | BR-01–BR-09 tenant branding |
 | `INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md` | IE-UX-00–IE-UX-05 operator workbenches + Infrastructure nav |
+| [`docs/architecture/INFRA_EVIDENCE_MERMAID_500_COMPOSER_PROMPT.md`](../../docs/architecture/INFRA_EVIDENCE_MERMAID_500_COMPOSER_PROMPT.md) | **IE-HOTFIX** Mermaid snapshot HTTP 500 |
+| [`docs/architecture/INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md`](../../docs/architecture/INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ND-01–IE-ND-05** Network mode empty despite inventory |
+| [`inventory-diagram-identity-00-index.md`](inventory-diagram-identity-00-index.md) | **IE-ID-01–IE-ID-03** Identity mode compiles but the canvas does not paint |
+| [`docs/architecture/INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md`](../../docs/architecture/INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ID** wave doc + copy-below (same set) |
 
 Do **not** re-run FIT/WK coverage-engine holds. Do **not** add ARM write or `terraform apply`. Do **not** invent ARC-AMPE controls. Do **not** treat pack #24 as this assessment plane.
