@@ -1,16 +1,19 @@
 import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { recurrenceScheduleMutationBlockedReason } from "@/lib/governance/recurrence-schedule-mutation-blocked-reason";
 import { realizedValueAttestationMutationBlockedReason } from "@/lib/governance/realized-value-attestation-mutation-blocked-reason";
 import { riskExceptionMutationBlockedReason } from "@/lib/governance/risk-exception-mutation-blocked-reason";
 import {
-  recurrenceSchedulesBlockedReason,
   realizedValueAttestationBlockedReason,
+  recurrenceSchedulesBlockedReason,
   riskExceptionsBlockedReason,
 } from "@/lib/governance/governance-stickiness-list-blocked-reason";
+import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import type { components } from "@/lib/openapi-schemas";
+
 import {
   type ArchitectureReviewRecurrenceSchedule,
   type PreviewRecurrenceScheduleRunsResponse,
@@ -33,6 +36,8 @@ export async function createRiskException(body: {
   try {
     return await apiPostJson<RiskExceptionRecord>(`${governanceStickinessBase()}/risk-exceptions`, body);
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = riskExceptionMutationBlockedReason(failure);
 
@@ -62,6 +67,8 @@ export async function revokeRiskException(riskExceptionId: string): Promise<void
       {},
     );
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = riskExceptionMutationBlockedReason(failure);
 
@@ -79,6 +86,8 @@ export async function renewRiskException(
       body,
     );
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = riskExceptionMutationBlockedReason(failure);
 
@@ -138,7 +147,7 @@ export async function listArchitectureReviewRecurrenceSchedules(): Promise<Archi
 
 export async function getRealizedValueAttestation(): Promise<RealizedValueAttestationResponse> {
   try {
-    return await apiGet<RealizedValueAttestationResponse>(
+    return await apiGetSealedManifestAware<RealizedValueAttestationResponse>(
       `${governanceStickinessBase()}/realized-value/attestation`,
     );
   } catch (error: unknown) {

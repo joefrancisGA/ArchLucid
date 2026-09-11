@@ -12,6 +12,17 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
         function Get-AzPolicyDefinition { }
         function Get-AzPolicyAssignment { }
 
+        function Get-AzRoleAssignment {
+            return @(
+                [PSCustomObject]@{
+                    Scope = '/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1'
+                    ObjectId = '11111111-1111-1111-1111-111111111111'
+                    ObjectType = 'User'
+                    RoleDefinitionId = '/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+                }
+            )
+        }
+
         # Pester 5 discovery can run before $PSScriptRoot is populated at script scope.
         [string]$script:scriptRoot = Split-Path -Parent $PSScriptRoot
         [string]$script:extractorScript = Join-Path $script:scriptRoot 'Get-ArchLucidAzurePackage.ps1'
@@ -57,6 +68,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
                 Id = "/subscriptions/$SubscriptionId"
                 SubscriptionId = $SubscriptionId
                 TenantId = '99999999-8888-7777-6666-555555555555'
+                Name = 'Contoso Production'
             }
         }
 
@@ -113,6 +125,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
 
                 $manifest.schemaVersion | Should -Be 2
                 $manifest.subscriptionId | Should -Be 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+                $manifest.subscriptionName | Should -Be 'Contoso Production'
                 [string]::IsNullOrWhiteSpace($( $manifest.scriptVersion )) | Should -Be $false
                 $manifest.extractionTelemetry | Should -Not -BeNullOrEmpty
                 $manifest.extractionTelemetry.steps | Should -Not -BeNullOrEmpty
@@ -121,6 +134,16 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
                 [object[]]$resources = @(Get-Content -LiteralPath $resourcesPath -Raw -Encoding Utf8 | ConvertFrom-Json)
 
                 $resources.Count | Should -Be 2
+
+                [string]$roleAssignmentsPath = Join-Path $staging 'role-assignments.json'
+                [string]$networkAssociationsPath = Join-Path $staging 'network-associations.json'
+
+                Test-Path -LiteralPath $roleAssignmentsPath | Should -Be $true
+                Test-Path -LiteralPath $networkAssociationsPath | Should -Be $true
+
+                [object[]]$roleAssignments = @(Get-Content -LiteralPath $roleAssignmentsPath -Raw -Encoding Utf8 | ConvertFrom-Json)
+                $roleAssignments.Count | Should -Be 1
+                $roleAssignments[0].principalId | Should -Be '11111111-1111-1111-1111-111111111111'
 
                 [object[]]$resourceTypes = @( $resources | ForEach-Object { $_.resourceType } )
 

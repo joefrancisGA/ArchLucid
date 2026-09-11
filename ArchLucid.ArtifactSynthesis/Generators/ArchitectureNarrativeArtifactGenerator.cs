@@ -35,11 +35,13 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         {
             foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
 
-                sb.AppendLine($"- Covered: {item.RequirementName}");
+                sb.AppendLine(
+                    $"- Covered: {item.RequirementName} ({item.CoverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})");
 
             foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
 
-                sb.AppendLine($"- Uncovered: {item.RequirementName}");
+                sb.AppendLine(
+                    $"- Uncovered: {item.RequirementName} ({item.CoverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})");
         }
 
         sb.AppendLine();

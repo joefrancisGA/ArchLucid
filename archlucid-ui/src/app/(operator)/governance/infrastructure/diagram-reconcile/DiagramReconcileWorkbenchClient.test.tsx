@@ -1,7 +1,12 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DiagramReconcileWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagram-reconcile/DiagramReconcileWorkbenchClient";
+
+const { ingestArchitectureDiagramMock, reconcileArchitectureDiagramMock } = vi.hoisted(() => ({
+  ingestArchitectureDiagramMock: vi.fn(async () => ({ warnings: [], sourceFingerprints: ["fp1"], model: { nodes: [], edges: [] } })),
+  reconcileArchitectureDiagramMock: vi.fn(),
+}));
 
 let searchParams = new URLSearchParams(
   "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
@@ -74,8 +79,8 @@ vi.mock("@/lib/infra-evidence/infra-evidence-diagram-reconcile-api", () => ({
       },
     ],
   })),
-  ingestArchitectureDiagram: vi.fn(async () => ({ warnings: [], sourceFingerprints: ["fp1"], model: { nodes: [], edges: [] } })),
-  reconcileArchitectureDiagram: vi.fn(),
+  ingestArchitectureDiagram: ingestArchitectureDiagramMock,
+  reconcileArchitectureDiagram: reconcileArchitectureDiagramMock,
   ingestOperationalSecurityFindings: vi.fn(async () => ({ items: [] })),
   formatInfraEvidenceDiagramReconcileApiError: (error: unknown) => String(error),
 }));
@@ -93,6 +98,19 @@ vi.mock("@/lib/use-nav-surface", () => ({
 }));
 
 describe("DiagramReconcileWorkbenchClient", () => {
+  beforeEach(() => {
+    searchParams = new URLSearchParams(
+      "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    ingestArchitectureDiagramMock.mockReset();
+    ingestArchitectureDiagramMock.mockResolvedValue({
+      warnings: [],
+      sourceFingerprints: ["fp1"],
+      model: { nodes: [], edges: [] },
+    });
+    reconcileArchitectureDiagramMock.mockReset();
+  });
+
   it("renders wizard controls, filter, and conflict row with both sides", async () => {
     render(<DiagramReconcileWorkbenchClient />);
 
@@ -121,6 +139,20 @@ describe("DiagramReconcileWorkbenchClient", () => {
 
     expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+  });
+
+  it("clears selected correspondence when match-kind filter hides the selected row", async () => {
+    render(<DiagramReconcileWorkbenchClient />);
+
+    const infraOnlyRow = await screen.findByTestId("infra-diagram-reconcile-row-infra-only-1");
+    fireEvent.click(infraOnlyRow);
+    expect(infraOnlyRow).toHaveClass("bg-neutral-100");
+
+    const filter = screen.getByTestId("infra-diagram-reconcile-filter");
+    fireEvent.change(filter, { target: { value: "Conflict" } });
+
+    expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).not.toHaveClass("bg-neutral-100");
   });
 
   it("highlights and scrolls to a deep-linked correspondence row", async () => {
@@ -180,5 +212,29 @@ describe("DiagramReconcileWorkbenchClient", () => {
     );
     expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+  });
+
+  it("shows an inline validation error instead of a toast when ingest is missing diagram source", async () => {
+    render(<DiagramReconcileWorkbenchClient />);
+
+    fireEvent.click(await screen.findByTestId("infra-diagram-reconcile-ingest"));
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-diagram-source-error")).toHaveTextContent(
+      "Diagram source required",
+    );
+    expect(ingestArchitectureDiagramMock).not.toHaveBeenCalled();
+  });
+
+  it("shows an inline error instead of a toast when reconciliation fails", async () => {
+    reconcileArchitectureDiagramMock.mockRejectedValueOnce(new Error("Reconciliation blocked for this snapshot."));
+
+    render(<DiagramReconcileWorkbenchClient />);
+
+    fireEvent.click(await screen.findByTestId("infra-diagram-reconcile-run"));
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-run-error")).toHaveTextContent("Reconciliation failed");
+    expect(screen.getByTestId("infra-diagram-reconcile-run-error")).toHaveTextContent(
+      "Reconciliation blocked for this snapshot.",
+    );
   });
 });

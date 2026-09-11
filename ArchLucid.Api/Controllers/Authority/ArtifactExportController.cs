@@ -1,4 +1,5 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Findings.FindingVerification;
@@ -52,7 +53,10 @@ public sealed partial class ArtifactExportController(
     IDecisionReceiptService decisionReceiptService,
     IManifestHashService manifestHashService,
     IBrandedDiagramExportService brandedDiagramExportService,
-    IFindingVerificationReportQueryService findingVerificationReportQueryService)
+    IFindingVerificationReportQueryService findingVerificationReportQueryService,
+    IArchitectureShareAccessGate architectureShareAccessGate)
     : ControllerBase
 {
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
 }

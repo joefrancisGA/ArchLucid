@@ -223,4 +223,128 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
         AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
             .Should().Be(AuthorityRunLifecyclePhase.Failed);
     }
+
+    [Fact]
+    public void ResolveFromRunHeader_tasks_generated_without_progress_markers_returns_in_progress_not_not_started()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa06"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_ready_for_commit_without_progress_markers_returns_in_progress_not_not_started()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa07"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_quality_rejected_without_progress_markers_returns_failed_not_not_started()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa08"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+            LastFailureReason = """{"schemaVersion":1,"failureClass":"qualityGate"}""",
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_numeric_ordinal_committed_with_golden_manifest_returns_in_progress_not_complete_for_in_memory_rows()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa09"),
+            LegacyRunStatus = ((int)ArchitectureRunStatus.Committed).ToString(),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        };
+
+        // IsCommittedWithGoldenManifest matches enum name only; SQL CK_Runs_LegacyRunStatus allowlist blocks numeric ordinals on persisted rows.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_created_with_context_snapshot_returns_in_progress_not_not_started()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa10"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            GoldenManifestId = null,
+        };
+
+        // Progress-marker branch follows legacy-status checks; Created is not an in-progress legacy status.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_failed_partial_without_progress_markers_returns_failed_not_not_started()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa11"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.FailedPartial),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_retrying_without_progress_markers_returns_in_progress_not_not_started()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa12"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Retrying),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_pipeline_dead_letter_on_created_status_returns_failed_not_not_started()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa13"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+            LastFailureReason = """{"schemaVersion":1,"failureClass":"PipelineDeadLetter"}""",
+        };
+
+        // Dead-letter detection precedes legacy-status and progress-marker branches.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
 }

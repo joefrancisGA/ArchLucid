@@ -10,12 +10,15 @@ import { clearFrictionlessTrialSessionForAuthenticatedOperator } from "@/lib/ope
 import { clearOperatorShellStatusScopeAgnosticCaches } from "@/lib/operator/operator-shell-status-scope-cache";
 import { clearOperatorHomeRunsSnapshotStale } from "@/lib/operator/operator-home-lifecycle-notify";
 import { clearOperatorShellStableCache } from "@/lib/operator/operator-shell-stable-cache";
+import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { registrationScopeHeaders } from "@/lib/registration-session";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID, getScopeHeaders } from "@/lib/scope";
 
-const STORAGE_KEY = "archlucid_operator_scope_v1";
+export const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
+
+const STORAGE_KEY = OPERATOR_SCOPE_STORAGE_KEY;
 
 /** Fired when {@link writeOperatorScopeToStorage} or {@link clearOperatorScopeStorage} mutates scope. */
 export const ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT = "archlucid:operator-scope-changed";
@@ -71,7 +74,7 @@ export function readOperatorScopeFromStorage(): OperatorScopeRecord | null {
   }
 }
 
-function notifyOperatorScopeChanged(): void {
+function refreshOperatorScopeDependentClientState(): void {
   if (typeof window === "undefined") {
     return;
   }
@@ -85,6 +88,41 @@ function notifyOperatorScopeChanged(): void {
   clearHasSeenWelcomeOnboarding();
   clearOperatorHomeDisclosureStorage();
   clearOperatorHomeRunsSnapshotStale();
+}
+
+function notifyOperatorScopeChanged(): void {
+  refreshOperatorScopeDependentClientState();
+}
+
+/** Sibling-tab scope writes: refresh shell state and drop stale operator lists (LW-085 / LW-086). */
+export function refreshOperatorScopeFromCrossTabStorage(): void {
+  refreshOperatorScopeDependentClientState();
+  void invalidateOperatorHomeRunsCaches();
+}
+
+export function subscribeOperatorScopeStorageChanges(onChange: () => void): () => void {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  const onCustomEvent = () => {
+    onChange();
+  };
+
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === OPERATOR_SCOPE_STORAGE_KEY) {
+      // refresh dispatches ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, which invokes onChange once.
+      refreshOperatorScopeFromCrossTabStorage();
+    }
+  };
+
+  window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onCustomEvent);
+  window.addEventListener("storage", onStorage);
+
+  return () => {
+    window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onCustomEvent);
+    window.removeEventListener("storage", onStorage);
+  };
 }
 
 export function writeOperatorScopeToStorage(record: OperatorScopeRecord): void {

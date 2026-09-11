@@ -9,9 +9,10 @@ import {
   fetchTeamsIncomingWebhookPageBundle,
   getTeamsIncomingWebhookConnection,
   testTeamsIncomingWebhookConnection,
-  upsertTeamsIncomingWebhookConnection,
   validateTeamsIncomingWebhookSecret,
 } from "@/lib/api";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { saveItsmConnectorWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -317,12 +318,22 @@ export function useTeamsNotificationsIntegrationPage(
         label: label.trim().length > 0 ? label.trim() : null,
         enabledTriggers: orderedTriggers,
       };
-      const saved = await upsertTeamsIncomingWebhookConnection(body);
+      const saved = await saveItsmConnectorWith401Resume(
+        {
+          connector: "teams_webhook",
+          body,
+        },
+        { returnPath: pathname },
+      ) as TeamsIncomingWebhookConnectionResponse;
 
       setConn(saved);
       setEnabledTriggers(new Set(saved.enabledTriggers));
       setMutationSuccessMessage(TEAMS_INTEGRATION_SAVE_SUCCESS_MESSAGE);
-    } catch {
+    } catch (error: unknown) {
+      if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
       setFailure({
         message: SAVE_FAILURE_MESSAGE,
         problem: null,
@@ -333,7 +344,7 @@ export function useTeamsNotificationsIntegrationPage(
     } finally {
       setSaving(false);
     }
-  }, [canMutate, catalog, enabledTriggers, label, secretName]);
+  }, [canMutate, catalog, enabledTriggers, label, pathname, secretName]);
 
   const requestRemove = useCallback((): void => {
     if (!canMutate) {
