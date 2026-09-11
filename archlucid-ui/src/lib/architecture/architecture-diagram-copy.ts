@@ -5,5 +5,6 @@ export const ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL = 'Zoom out';
 export const ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL = 'Reset to 100%';
 export const ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL = 'Diagram zoom percentage';
 export const ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL = 'Fit in view';
+export const ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION = 'Fullscreen';
 export const ARCHITECTURE_DIAGRAM_VIEWPORT_HINT =
   'Ctrl+scroll to zoom · + / − keys · 0 resets to 100%';
