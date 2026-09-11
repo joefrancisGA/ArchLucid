@@ -50,7 +50,9 @@ import { resolveNextArchitectureDraftInList } from "@/lib/resolve-next-architect
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
+import { ArchitectureDraftWorkLeaseBanner } from "@/components/architecture/ArchitectureDraftWorkLeaseBanner";
 import { ArchitectureDraftWorkspaceBody } from "@/components/architecture/ArchitectureDraftWorkspaceBody";
+import { useArchitectureDraftWorkLease } from "@/hooks/use-architecture-draft-work-lease";
 import { useArchitectureDraftWorkspaceEffects } from "@/components/architecture/ArchitectureDraftWorkspaceEffects";
 import { ReviewRoomElicitationShortcutHost } from "@/components/reviews/ReviewRoomElicitationShortcutHost";
 
@@ -153,6 +155,33 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const refinementDraftId =
     draft?.draftId?.trim() || resolvedDraftId || (isNewDraft ? null : props.draftId.trim() || null);
 
+  const workLeaseEnabled = refinementDraftId !== null && !handoffEditorLocked && !briefFrozen;
+  const {
+    lease: workLease,
+    leaseLost: workLeaseLost,
+    heldByOther: workLeaseHeldByOther,
+    stealBusy: workLeaseStealBusy,
+    stealError: workLeaseStealError,
+    stealLease,
+  } = useArchitectureDraftWorkLease(refinementDraftId, draft, workLeaseEnabled);
+
+  const workLeaseBanner =
+    workLeaseHeldByOther || workLeaseLost
+      ? (
+        <ArchitectureDraftWorkLeaseBanner
+          heldByOther={workLeaseHeldByOther}
+          leaseLost={workLeaseLost}
+          holderActorOid={workLease?.holderActorOid}
+          expiresUtc={workLease?.expiresUtc}
+          stealBusy={workLeaseStealBusy}
+          stealError={workLeaseStealError}
+          onStealLease={() => {
+            void stealLease();
+          }}
+        />
+      )
+      : null;
+
   const handleDraftCreated = useCallback(
     (created: ArchitectureDraftCreatedPayload) => {
       writeArchitectureCreationDraftId(created.draftId);
@@ -188,8 +217,12 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     [setActorSet, setFields],
   );
 
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
+
   const {
     saveState,
+    lastSavedUtc,
     conflictMessage,
     saveDraft,
     reloadDraft,
@@ -199,6 +232,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     recoveredLocally,
     markDirty,
     keepLocalDraftOnConflict,
+    wasLastSaveConflict,
   } = useArchitectureDraftAutosave({
       draftId: props.draftId,
       fields,
@@ -207,6 +241,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       deferCreateUntilFirstSave: isNewDraft,
       scopeGateOpen,
       scopeBullets,
+      livelihoodReturnPath,
       onDraftCreated: isNewDraft ? handleDraftCreated : undefined,
       onDraftLoaded: handleDraftLoaded,
       onImmutableDraftDetected: handleImmutableDraftDetected,
@@ -283,6 +318,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     saveState,
     conflictMessage,
     saveDraft,
+    lastSavedUtc,
     syncServerUpdatedUtc,
     scopeGateOpen,
     setScopeGateOpen,
@@ -456,6 +492,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       canStartReview={canStartReview}
       handleStartReview={handleStartReview}
       saveDraft={saveDraft}
+      wasLastSaveConflict={wasLastSaveConflict}
       setExitPending={setExitPending}
       hasPersistedDraft={hasPersistedDraft}
       qualityAttributesEncouragementOpen={qualityAttributesEncouragementOpen}
@@ -463,6 +500,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       handleEncourageAddQualityAttributes={handleEncourageAddQualityAttributes}
       handleContinueWithoutQualityAttributes={handleContinueWithoutQualityAttributes}
       nextDraft={nextDraft}
+      workLeaseBanner={workLeaseBanner}
     />
     </>
   );

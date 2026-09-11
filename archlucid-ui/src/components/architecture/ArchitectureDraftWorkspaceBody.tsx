@@ -132,6 +132,7 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly canStartReview: boolean;
   readonly handleStartReview: () => void | Promise<void>;
   readonly saveDraft: () => Promise<boolean>;
+  readonly wasLastSaveConflict?: () => boolean;
   readonly setExitPending: (pending: boolean) => void;
   readonly hasPersistedDraft: boolean;
   readonly qualityAttributesEncouragementOpen: boolean;
@@ -139,6 +140,7 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly handleEncourageAddQualityAttributes: () => void;
   readonly handleContinueWithoutQualityAttributes: () => void;
   readonly nextDraft: Parameters<typeof ArchitectureDraftNextDraftFooter>[0]["target"] | null;
+  readonly workLeaseBanner?: React.ReactNode;
 };
 
 function WorkingNestedDraftIdentityAnchors(props: {

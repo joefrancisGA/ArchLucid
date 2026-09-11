@@ -8,6 +8,8 @@ import {
 import {
   LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_COUNT_BASELINE,
   LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES,
+  LIVELIHOOD_DOCUMENT_GUARD_MISSING_COUNT_BASELINE,
+  LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES,
   LIVELIHOOD_DOCUMENT_GUARD_PRIMITIVE_SURFACES,
   LIVELIHOOD_DOCUMENT_GUARD_SURFACES,
 } from "@/lib/livelihood-document-guard-inventory";
@@ -29,6 +31,10 @@ describe("livelihood-document-guard inventory (RS-07)", () => {
     expect(surfaceIds).toContain("integrations/teams-connection");
     expect(surfaceIds).toContain("governance/risk-exception-renew");
     expect(surfaceIds).toContain("tenant-cost-settings");
+    expect(surfaceIds).toContain("governance-approval-rationale");
+    expect(surfaceIds).toContain("architecture-identity-rename");
+    expect(surfaceIds).toContain("architecture-intake-wizards");
+    expect(surfaceIds).toContain("governance-remediation-patterns-yaml");
   });
 
   it("documents deferred livelihood guard surfaces with explicit reasons", () => {
@@ -58,5 +64,33 @@ describe("livelihood-document-guard shrink ratchet (LP-11)", () => {
 
   it("keeps the deferred inventory at or below the LP-11 baseline count", () => {
     expect(findLivelihoodDocumentGuardDeferredShrinkViolations()).toEqual([]);
+  });
+
+  it("shrinks missing inventory after governance approval rationale is guarded (LW-071)", () => {
+    const missingIds = LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES.map((surface) => surface.id);
+
+    expect(missingIds).not.toContain("governance-approval-rationale");
+    expect(LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES.length).toBeLessThanOrEqual(
+      LIVELIHOOD_DOCUMENT_GUARD_MISSING_COUNT_BASELINE,
+    );
+  });
+
+  it("removes identity rename and intake wizard from deferred after LW-074/LW-075", () => {
+    const deferredIds = LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES.map((surface) => surface.id);
+
+    expect(deferredIds).not.toContain("architecture-identity-rename");
+    expect(deferredIds).not.toContain("architecture-intake-wizards");
+    expect(LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES.length).toBe(
+      LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_COUNT_BASELINE,
+    );
+  });
+
+  it("removes remediation YAML from deferred after LW-081", () => {
+    const deferredIds = LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES.map((surface) => surface.id);
+
+    expect(deferredIds).not.toContain("governance-remediation-patterns-yaml");
+    expect(LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES.length).toBe(
+      LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_COUNT_BASELINE,
+    );
   });
 });

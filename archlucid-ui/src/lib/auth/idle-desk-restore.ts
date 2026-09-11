@@ -168,6 +168,41 @@ export function clearIdleDeskRestorePayload(): void {
   }
 }
 
+/** Merges one livelihood snapshot into idle desk restore storage without clearing the registry (LW-095). */
+export function mergeLivelihoodIdleFormSnapshotIntoDeskRestore(
+  snapshotKey: string,
+  snapshot: LivelihoodIdleFormSnapshot,
+): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const safeReturnPath = normalizeReturnPath(snapshot.returnPath);
+
+  if (safeReturnPath === null) {
+    return;
+  }
+
+  const scope = readOperatorScopeFromStorage();
+
+  if (scope === null) {
+    return;
+  }
+
+  const existing = readIdleDeskRestorePayload();
+  const formSnapshots = {
+    ...(existing?.formSnapshots ?? {}),
+    [snapshotKey]: snapshot,
+  };
+
+  writeIdleDeskRestorePayload({
+    returnPath: safeReturnPath,
+    scope: existing?.scope ?? scope,
+    savedAtUtc: new Date().toISOString(),
+    formSnapshots,
+  });
+}
+
 /** Copies operator scope + return path before idle/session clear wipes live desk state. */
 export function persistIdleDeskRestoreBeforeSessionClear(returnPath: string): void {
   if (typeof window === "undefined") {

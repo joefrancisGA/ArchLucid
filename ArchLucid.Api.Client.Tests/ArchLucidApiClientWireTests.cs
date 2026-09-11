@@ -73,7 +73,7 @@ public sealed class ArchLucidApiClientWireTests
             BaseUrl = "https://unit.test/",
         };
 
-        BuildInfoResponse info = await client.Version2Async();
+        BuildInfoResponse info = await client.Version2Async(x_ArchLucid_Product_Line: null);
 
         Assert.Equal("ArchLucid", info.Application);
         Assert.Equal("1.0.0.0", info.AssemblyVersion);
@@ -90,7 +90,7 @@ public sealed class ArchLucidApiClientWireTests
             BaseUrl = "https://unit.test/",
         };
 
-        CallerIdentityResponse me = await client.MeAsync();
+        CallerIdentityResponse me = await client.MeAsync(x_ArchLucid_Product_Line: null);
 
         Assert.Equal("u1", me.Name);
         Assert.False(me.HasCommittedArchitectureReview);
@@ -109,7 +109,7 @@ public sealed class ArchLucidApiClientWireTests
         };
 
         ArchLucidApiException<ProblemDetails> ex = await Assert.ThrowsAsync<ArchLucidApiException<ProblemDetails>>(
-            () => client.SponsorReportAsync());
+            () => client.SponsorReportAsync(x_ArchLucid_Product_Line: null));
 
         Assert.Equal(401, ex.StatusCode);
         Assert.NotNull(ex.Result);

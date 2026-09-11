@@ -1,11 +1,16 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 const useAuditEvidenceLineageQueryMock = vi.hoisted(() => vi.fn());
 const refetchMock = vi.fn();
+const downloadAuditEvidencePackageZipMock = vi.hoisted(() => vi.fn(async () => undefined));
 
 vi.mock("@/hooks/use-audit-evidence-lineage-query", () => ({
   useAuditEvidenceLineageQuery: (...args: unknown[]) => useAuditEvidenceLineageQueryMock(...args),
+}));
+
+vi.mock("@/lib/governance/audit-evidence-package-api", () => ({
+  downloadAuditEvidencePackageZip: (...args: unknown[]) => downloadAuditEvidencePackageZipMock(...args),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -129,5 +134,28 @@ describe("AuditEvidenceControlLineageClient", () => {
 
     expect(screen.getByTestId("audit-evidence-broken-link-reasons")).toHaveTextContent("Snapshot hash unverified");
     expect(screen.getByTestId("audit-evidence-missing-links-ev-2")).toHaveTextContent("RawApiBlob");
+  });
+
+  it("shows an inline error instead of a toast when evidence package download fails", async () => {
+    downloadAuditEvidencePackageZipMock.mockRejectedValueOnce(new Error("Package export unavailable in this environment."));
+    useAuditEvidenceLineageQueryMock.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isPending: false,
+      refetch: refetchMock,
+    });
+
+    render(<AuditEvidenceControlLineageClient {...ids} />);
+
+    fireEvent.click(screen.getByTestId("audit-evidence-package-download"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("audit-evidence-package-download-error")).toHaveTextContent(
+        "Audit evidence package download failed",
+      );
+    });
+    expect(screen.getByTestId("audit-evidence-package-download-error")).toHaveTextContent(
+      "Package export unavailable in this environment.",
+    );
   });
 });

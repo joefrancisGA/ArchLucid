@@ -23,4 +23,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave131Ar
 
 **Hasher baseline note:** wave 131 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred:** see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE132.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE132.md) (1569–1580).
+**Deferred:** see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE132.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE132.md) (1569–1580) for wave-64 follow-ups (753–764).

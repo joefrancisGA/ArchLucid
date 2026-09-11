@@ -1,14 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { ArchitectureDiagramViewer } from "@/components/architecture/ArchitectureDiagramViewer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
 import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -46,11 +49,12 @@ import type {
   InfraEvidenceMermaidModePreview,
   InfraEvidenceMermaidRenderResponse,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-types";
-import {
-  fetchInfraEvidenceSnapshots,
-} from "@/lib/infra-evidence/infra-evidence-drift-api";
+import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import { formatInfraEvidenceDiagramsApiError } from "@/lib/infra-evidence/infra-evidence-diagrams-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
+import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
+import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra-evidence/infra-evidence-mermaid-render-status-presentation";
+import { parseInfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_DIAGRAMS_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
@@ -73,10 +77,11 @@ import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHub
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
@@ -85,12 +90,11 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
+  formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
-import { GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
 import { cn } from "@/lib/utils";
-import { showError } from "@/lib/toast";
 
 import { DiagramsBreadcrumb } from "./DiagramsBreadcrumb";
 import { DiagramsClaimOrientationStrip } from "./DiagramsClaimOrientationStrip";
@@ -100,13 +104,6 @@ const cnCard =
 
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
-
-function formatSnapshotLabel(snapshot: InfraEvidenceSnapshotSummary): string {
-  const captured = snapshot.capturedUtc != null ? new Date(snapshot.capturedUtc).toLocaleString() : "unknown time";
-  const subscription = snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription";
-
-  return `${subscription} · ${captured} · ${snapshot.resourceCount} resources`;
-}
 
 function resolveDefaultFallbackKey(
   artifacts: readonly InfraEvidenceMermaidFallbackArtifactSummary[],
@@ -124,6 +121,16 @@ function resolveDefaultFallbackKey(
   }
 
   return artifacts[0]?.key ?? "";
+}
+
+function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string): string {
+  if (fallbackKey.length > 0) {
+    return `Partitioned view · ${fallbackKey}`;
+  }
+
+  const option = INFRA_DIAGRAMS_MODE_OPTIONS.find((entry) => entry.value === mode);
+
+  return option?.label ?? mode;
 }
 
 function FallbackCard(props: {
@@ -202,8 +209,10 @@ export function DiagramsWorkbenchClient() {
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [loadingRender, setLoadingRender] = useState(false);
   const [exportBusy, setExportBusy] = useState(false);
+  const [pngExportError, setPngExportError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [browserRenderBlocked, setBrowserRenderBlocked] = useState(false);
+  const [loadGeneration, setLoadGeneration] = useState(0);
 
   const { data: brandingPresentation } = useTenantBrandingPresentationQuery({ context: "MermaidDiagram" });
   const tenantBrandActive = brandingPresentation?.usesTenantVisualBrand === true;
@@ -221,6 +230,10 @@ export function DiagramsWorkbenchClient() {
     },
     [pathname, router, searchParams],
   );
+
+  const syncUrlRef = useRef(syncUrl);
+
+  syncUrlRef.current = syncUrl;
 
   const activeModePreview = useMemo(
     () => modePreviews.find((preview) => preview.mode === selectedMode) ?? null,
@@ -280,17 +293,81 @@ export function DiagramsWorkbenchClient() {
 
     return !snapshots.some((snapshot) => snapshot.snapshotId === urlSnapshotId);
   }, [loadingSnapshots, snapshots, urlSnapshotId]);
+
+  const selectedModeLabel = useMemo(
+    () => resolveInfraDiagramsModeLabel(selectedMode, effectiveFallbackKey),
+    [effectiveFallbackKey, selectedMode],
+  );
+
   const selectionAnnouncement = useMemo(() => {
+    if (deepLinkedSnapshotMissing) {
+      return "Linked snapshot is not available. Pick a snapshot from the list.";
+    }
+
     if (selectedSnapshotId.length === 0) {
       return null;
     }
 
-    return `Diagram snapshot ${selectedSnapshotId} selected. Mode ${selectedMode}.`;
-  }, [selectedMode, selectedSnapshotId]);
+    const status = renderResult?.status ?? activeModePreview?.status ?? "loading";
+    const metrics = renderResult?.metrics;
+    const metricLine =
+      metrics != null
+        ? `${metrics.nodeCount} nodes, ${metrics.edgeCount} edges, ${metrics.subgraphCount} subgraphs.`
+        : "";
+
+    return `Diagram snapshot ${selectedSnapshotId} selected. Mode ${selectedModeLabel}. Render status ${status}.${metricLine.length > 0 ? ` ${metricLine}` : ""}`;
+  }, [
+    activeModePreview?.status,
+    deepLinkedSnapshotMissing,
+    renderResult?.metrics,
+    renderResult?.status,
+    selectedModeLabel,
+    selectedSnapshotId,
+  ]);
 
   const mermaidSource = renderResult?.mermaid ?? "";
   const metrics = renderResult?.metrics ?? null;
   const tooLargeForBrowser = exceedsInfraEvidenceMermaidClientGuard(metrics) || browserRenderBlocked;
+  const renderInFlight = loadingPreview || loadingRender;
+  const exportsDisabled = exportBusy || renderInFlight || selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing;
+  const mermaidExportDisabled = exportsDisabled || mermaidSource.trim().length === 0;
+
+  const renderStatusPresentation = useMemo(() => {
+    const status = renderResult?.status ?? activeModePreview?.status ?? "";
+
+    if (status.length === 0) {
+      return null;
+    }
+
+    return resolveInfraEvidenceMermaidRenderStatusPresentation({
+      status,
+      mermaidEmpty: mermaidSource.trim().length === 0 && status === "Succeeded",
+    });
+  }, [activeModePreview?.status, mermaidSource, renderResult?.status]);
+
+  const mermaidOutline = useMemo(() => {
+    if (mermaidSource.trim().length === 0) {
+      return null;
+    }
+
+    return parseInfraEvidenceMermaidOutline(mermaidSource);
+  }, [mermaidSource]);
+
+  const diagramScopeContextLine = useMemo(() => {
+    const parts: string[] = [];
+
+    if (selectedSnapshotId.length > 0) {
+      parts.push(`Snapshot ${selectedSnapshotId}`);
+    }
+
+    parts.push(selectedModeLabel);
+
+    if (urlCloudResourceId.length > 0) {
+      parts.push(`resource ${urlCloudResourceId}`);
+    }
+
+    return parts.join(" · ");
+  }, [selectedModeLabel, selectedSnapshotId, urlCloudResourceId]);
 
   const renderQuery = useMemo(() => {
     if (effectiveFallbackKey.length > 0) {
@@ -302,6 +379,19 @@ export function DiagramsWorkbenchClient() {
       seedNodeId: selectedMode === "dependencyNeighborhood" ? seedNodeId : null,
     };
   }, [effectiveFallbackKey, seedNodeId, selectedMode]);
+
+  const retryLoad = useCallback(() => {
+    setLoadError(null);
+    setLoadGeneration((current) => current + 1);
+  }, []);
+
+  const handleRenderFailure = useCallback(() => {
+    setBrowserRenderBlocked(true);
+  }, []);
+
+  const handleRenderRetry = useCallback(() => {
+    setBrowserRenderBlocked(false);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -317,14 +407,20 @@ export function DiagramsWorkbenchClient() {
         if (!cancelled) {
           setSnapshots(items);
 
-          const resolvedSnapshotId = urlSnapshotId.length > 0
-            ? urlSnapshotId
-            : items[0]?.snapshotId ?? "";
+          const urlSnapshotAvailable =
+            urlSnapshotId.length > 0 && items.some((snapshot) => snapshot.snapshotId === urlSnapshotId);
+
+          const resolvedSnapshotId =
+            urlSnapshotId.length > 0
+              ? urlSnapshotAvailable
+                ? urlSnapshotId
+                : ""
+              : items[0]?.snapshotId ?? "";
 
           setSelectedSnapshotId(resolvedSnapshotId);
 
           if (urlSnapshotId.length === 0 && resolvedSnapshotId.length > 0) {
-            syncUrl({ snapshotId: resolvedSnapshotId });
+            syncUrlRef.current({ snapshotId: resolvedSnapshotId });
           }
         }
       } catch (error: unknown) {
@@ -343,10 +439,10 @@ export function DiagramsWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [syncUrl, urlSnapshotId]);
+  }, [loadGeneration, urlSnapshotId]);
 
   useEffect(() => {
-    if (selectedSnapshotId.length === 0) {
+    if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
       setModePreviews([]);
       setRenderResult(null);
       return;
@@ -381,10 +477,10 @@ export function DiagramsWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [selectedSnapshotId]);
+  }, [deepLinkedSnapshotMissing, loadGeneration, selectedSnapshotId]);
 
   useEffect(() => {
-    if (selectedSnapshotId.length === 0) {
+    if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
       setRenderResult(null);
       return;
     }
@@ -409,7 +505,7 @@ export function DiagramsWorkbenchClient() {
           ) {
             const defaultKey = resolveDefaultFallbackKey(response.fallbackArtifacts);
             setSelectedViewKey(defaultKey);
-            syncUrl({ mermaidView: defaultKey });
+            syncUrlRef.current({ mermaidView: defaultKey });
           }
         }
       } catch (error: unknown) {
@@ -429,7 +525,7 @@ export function DiagramsWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [renderQuery, selectedSnapshotId, selectedViewKey, syncUrl]);
+  }, [deepLinkedSnapshotMissing, loadGeneration, renderQuery, selectedSnapshotId, selectedViewKey.length]);
 
   const handleSnapshotChange = useCallback(
     (nextSnapshotId: string) => {
@@ -463,11 +559,12 @@ export function DiagramsWorkbenchClient() {
   }, [seedNodeId, syncUrl]);
 
   const runPngExport = useCallback(async () => {
-    if (selectedSnapshotId.length === 0) {
+    if (selectedSnapshotId.length === 0 || exportsDisabled) {
       return;
     }
 
     setExportBusy(true);
+    setPngExportError(null);
 
     try {
       const useFallback = effectiveFallbackKey.length > 0;
@@ -477,23 +574,35 @@ export function DiagramsWorkbenchClient() {
         seedNodeId: selectedMode === "dependencyNeighborhood" ? seedNodeId : null,
       });
     } catch (error: unknown) {
-      showError("Could not download diagram PNG", formatInfraEvidenceMermaidApiError(error));
+      setPngExportError(
+        formatGovernanceInfrastructureInlineActionError(
+          GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE,
+          formatInfraEvidenceMermaidApiError(error),
+        ),
+      );
     } finally {
       setExportBusy(false);
     }
-  }, [effectiveFallbackKey, seedNodeId, selectedMode, selectedSnapshotId]);
+  }, [effectiveFallbackKey, exportsDisabled, seedNodeId, selectedMode, selectedSnapshotId]);
 
   const runMermaidExport = useCallback(() => {
-    if (mermaidSource.trim().length === 0) {
+    if (mermaidExportDisabled) {
       return;
     }
 
+    const exportModeToken = effectiveFallbackKey.length > 0 ? effectiveFallbackKey : selectedMode;
+
     downloadBrowserTextFile(
-      `infra-evidence-mermaid-${selectedSnapshotId}.mmd`,
+      `infra-evidence-mermaid-${selectedSnapshotId}-${exportModeToken}.mmd`,
       mermaidSource,
       "text/plain;charset=utf-8",
     );
-  }, [mermaidSource, selectedSnapshotId]);
+  }, [effectiveFallbackKey, mermaidExportDisabled, mermaidSource, selectedMode, selectedSnapshotId]);
+
+  const selectedSnapshot = useMemo(
+    () => snapshots.find((snapshot) => snapshot.snapshotId === selectedSnapshotId) ?? null,
+    [selectedSnapshotId, snapshots],
+  );
 
   return (
     <OperatorPageContainer
@@ -501,21 +610,17 @@ export function DiagramsWorkbenchClient() {
       className="py-4"
       data-testid="infra-diagrams-workbench"
     >
-      {buyerPolishedShell ? (
-        <a
-          href={`#${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID}`}
-          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-        >
-          {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL}
-        </a>
-      ) : null}
+      <a
+        href={`#${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL}
+      </a>
 
       <OperatorPageHeader
-        navHref={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH}
+        navHref={pathname}
         title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}
-        claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE : undefined}
-        claimDisciplineTestId="infra-diagrams-claim-discipline"
         titleTestId="infra-diagrams-page-title"
         breadcrumb={buyerPolishedShell ? <DiagramsBreadcrumb /> : undefined}
         actions={
@@ -528,14 +633,9 @@ export function DiagramsWorkbenchClient() {
         }
       />
 
-      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-diagrams" /> : null}
-
       <main
-        id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID : undefined}
-        className={cn(
-          "mx-auto flex w-full max-w-6xl flex-col gap-4",
-          buyerPolishedShell ? "scroll-mt-24" : undefined,
-        )}
+        id={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID}
+        className={cn("flex w-full flex-col gap-4 scroll-mt-24")}
         data-testid="infra-diagrams-primary-content"
       >
       {buyerPolishedShell ? (
@@ -544,40 +644,28 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
-      {!buyerPolishedShell ? (
-        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          Render inventory diagrams from snapshot evidence with partitioned fallbacks when graphs exceed readability
-          thresholds. Server PNG export applies tenant branding on the container only — never inside graph nodes.
-        </p>
-      ) : null}
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-diagrams-selection-announcer" />
 
       {deepLinkedSnapshotMissing ? (
-        <p
-          className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        <StatusTag
+          kind="needs-attention"
+          label="Linked snapshot is not available in the diagrams workbench scope. Pick a snapshot below."
           data-testid="infra-diagrams-snapshot-deep-link-missing"
-          role="status"
-        >
-          The linked snapshot is not available in the diagrams workbench scope.
-        </p>
+        />
       ) : null}
 
       {loadError != null ? (
-        buyerPolishedShell ? (
-          <EnterpriseCompactEmptyState
-            role="alert"
-            title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE}
-            description={loadError}
-            testId="infra-diagrams-load-error-panel"
-            footer={
-              <Button type="button" size="sm" variant="primary" onClick={() => window.location.reload()}>
-                Reload page
-              </Button>
-            }
-          />
-        ) : (
-          <StatusTag kind="needs-attention" label={loadError} />
-        )
+        <EnterpriseCompactEmptyState
+          role="alert"
+          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE}
+          description={loadError}
+          testId="infra-diagrams-load-error-panel"
+          footer={
+            <Button type="button" size="sm" variant="primary" onClick={retryLoad}>
+              Retry load
+            </Button>
+          }
+        />
       ) : null}
 
       {urlCloudResourceId.length > 0 ? (
@@ -651,14 +739,17 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
-      <section className={cn("grid gap-4 md:grid-cols-2", cnCard)} aria-label="Snapshot and mode selection">
+      <section
+        className={cn("grid gap-4 md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]", cnCard)}
+        aria-label="Snapshot and mode selection"
+      >
         {buyerPolishedShell ? (
           <>
-            <div className="grid gap-2">
+            <div className="grid min-w-0 gap-2">
               <Label htmlFor="infra-diagrams-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL}</Label>
               <select
                 id="infra-diagrams-snapshot-picker"
-                className={cnField}
+                className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-snapshot-picker"
                 disabled={loadingSnapshots || snapshots.length === 0}
                 value={selectedSnapshotId}
@@ -667,21 +758,34 @@ export function DiagramsWorkbenchClient() {
                 {snapshots.length === 0 ? (
                   <option value="">No snapshots available</option>
                 ) : (
-                  snapshots.map((snapshot) => (
-                    <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                      {formatSnapshotLabel(snapshot)}
-                    </option>
-                  ))
+                  <>
+                    {selectedSnapshotId.length === 0 ? (
+                      <option value="">Select a snapshot</option>
+                    ) : null}
+                    {snapshots.map((snapshot) => (
+                      <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                        {formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot)}
+                      </option>
+                    ))}
+                  </>
                 )}
               </select>
+              {selectedSnapshot != null ? (
+                <div className="flex items-start gap-2" data-testid="infra-diagrams-snapshot-id-readout">
+                  <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {selectedSnapshot.snapshotId}
+                  </span>
+                  <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
+                </div>
+              ) : null}
             </div>
-            <div className="grid gap-2">
+            <div className="grid min-w-0 gap-2">
               <Label htmlFor="infra-diagrams-mode-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL}</Label>
               <select
                 id="infra-diagrams-mode-picker"
-                className={cnField}
+                className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-mode-picker"
-                disabled={loadingPreview || selectedSnapshotId.length === 0}
+                disabled={loadingPreview || selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
                 value={selectedMode}
                 onChange={(event) => handleModeChange(event.target.value)}
               >
@@ -695,10 +799,10 @@ export function DiagramsWorkbenchClient() {
           </>
         ) : (
           <>
-            <label className="flex flex-col gap-1">
-              <span className={OPERATOR_TYPOGRAPHY.helper}>Snapshot</span>
+            <label className="flex min-w-0 flex-col gap-1">
+              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>Snapshot</span>
               <select
-                className={cnField}
+                className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-snapshot-picker"
                 disabled={loadingSnapshots || snapshots.length === 0}
                 value={selectedSnapshotId}
@@ -707,20 +811,33 @@ export function DiagramsWorkbenchClient() {
                 {snapshots.length === 0 ? (
                   <option value="">No snapshots available</option>
                 ) : (
-                  snapshots.map((snapshot) => (
-                    <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                      {formatSnapshotLabel(snapshot)}
-                    </option>
-                  ))
+                  <>
+                    {selectedSnapshotId.length === 0 ? (
+                      <option value="">Select a snapshot</option>
+                    ) : null}
+                    {snapshots.map((snapshot) => (
+                      <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                        {formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot)}
+                      </option>
+                    ))}
+                  </>
                 )}
               </select>
+              {selectedSnapshot != null ? (
+                <div className="mt-1 flex items-start gap-2" data-testid="infra-diagrams-snapshot-id-readout">
+                  <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {selectedSnapshot.snapshotId}
+                  </span>
+                  <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
+                </div>
+              ) : null}
             </label>
-            <label className="flex flex-col gap-1">
-              <span className={OPERATOR_TYPOGRAPHY.helper}>Diagram mode</span>
+            <label className="flex min-w-0 flex-col gap-1">
+              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>Diagram mode</span>
               <select
-                className={cnField}
+                className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-mode-picker"
-                disabled={loadingPreview || selectedSnapshotId.length === 0}
+                disabled={loadingPreview || selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
                 value={selectedMode}
                 onChange={(event) => handleModeChange(event.target.value)}
               >
@@ -775,7 +892,7 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
-      {loadingPreview || loadingRender ? (
+      {renderInFlight ? (
         <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400" aria-live="polite">
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
           <span className={OPERATOR_TYPOGRAPHY.body}>Loading diagram…</span>
@@ -801,69 +918,121 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
-      <section className={cn("flex flex-wrap items-center gap-2", cnCard)} aria-label="Diagram export actions">
-        <Button
-          type="button"
-          variant="default"
-          data-testid="infra-diagrams-export-png"
-          disabled={exportBusy || selectedSnapshotId.length === 0}
-          onClick={() => void runPngExport()}
+      {renderInFlight ? (
+        <div
+          className={cn(
+            "sticky top-0 z-10 flex flex-wrap items-center gap-2 rounded-md border border-neutral-200 bg-white/95 p-3 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95",
+          )}
+          data-testid="infra-diagrams-render-status-strip"
+          aria-label="Diagram render status"
+          aria-live="polite"
         >
-          {exportBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-          Export PNG{tenantBrandActive ? " (branded)" : ""}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          data-testid="infra-diagrams-export-mmd"
-          disabled={mermaidSource.trim().length === 0}
-          onClick={runMermaidExport}
+          <StatusTag kind="in-progress" label="Rendering diagram…" />
+        </div>
+      ) : renderStatusPresentation != null ? (
+        <div
+          className={cn(
+            "sticky top-0 z-10 flex flex-wrap items-center gap-2 rounded-md border border-neutral-200 bg-white/95 p-3 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95",
+          )}
+          data-testid="infra-diagrams-render-status-strip"
+          aria-label="Diagram render status"
         >
-          Export Mermaid (.mmd)
-        </Button>
-        {selectedSnapshotId.length > 0 ? (
-          <Button asChild variant="outline" data-testid="infra-diagrams-open-ask">
-            <Link
-              href={buildInfrastructureAskHref({
-                cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
-                snapshotId: selectedSnapshotId,
-                seedNodeId:
-                  selectedMode === "dependencyNeighborhood" && seedNodeId.length > 0
-                    ? seedNodeId
-                    : undefined,
-                hubTab: "diagram",
-                ...mergeInfrastructureAskAuditScope(auditScope),
-              })}
-            >
-              Ask about this snapshot
-            </Link>
+          <StatusTag kind={renderStatusPresentation.kind} label={renderStatusPresentation.label} />
+          {metrics != null ? (
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {metrics.nodeCount} nodes · {metrics.edgeCount} edges · {metrics.subgraphCount} subgraphs
+            </span>
+          ) : null}
+          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{selectedModeLabel}</span>
+        </div>
+      ) : null}
+
+      <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="default"
+            data-testid="infra-diagrams-export-png"
+            disabled={exportsDisabled}
+            aria-describedby={pngExportError != null ? "infra-diagrams-png-export-error" : undefined}
+            onClick={() => void runPngExport()}
+          >
+            {exportBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+            Export PNG{tenantBrandActive ? " (branded)" : ""}
           </Button>
+          <Button
+            type="button"
+            variant="outline"
+            data-testid="infra-diagrams-export-mmd"
+            disabled={mermaidExportDisabled}
+            onClick={runMermaidExport}
+          >
+            Export Mermaid (.mmd)
+          </Button>
+        </div>
+        {pngExportError != null ? (
+          <OperatorMutationInlineError
+            message={pngExportError}
+            testId="infra-diagrams-png-export-error"
+            recoveryPresentation={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY}
+          />
         ) : null}
       </section>
 
-      {tooLargeForBrowser ? (
-        <div className="rounded-md border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/40">
-          <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
-            {INFRA_EVIDENCE_MERMAID_TOO_LARGE_FOR_BROWSER_MESSAGE}
-          </p>
-          <div className="mt-3">
-            <Button type="button" variant="outline" size="sm" onClick={() => void runPngExport()}>
-              Download server PNG
-            </Button>
-          </div>
+      {selectedSnapshotId.length > 0 ? (
+        <div className={cn("flex flex-wrap items-center gap-2", cnCard)} aria-label="Diagram follow-up links">
+          <Link
+            className={OPERATOR_LINK.inline}
+            data-testid="infra-diagrams-open-ask"
+            href={buildInfrastructureAskHref({
+              cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
+              snapshotId: selectedSnapshotId,
+              seedNodeId:
+                selectedMode === "dependencyNeighborhood" && seedNodeId.length > 0
+                  ? seedNodeId
+                  : undefined,
+              hubTab: "diagram",
+              ...mergeInfrastructureAskAuditScope(auditScope),
+            })}
+          >
+            Ask about this snapshot
+          </Link>
         </div>
+      ) : null}
+
+      {tooLargeForBrowser ? (
+        <>
+          <div className="rounded-md border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/40">
+            <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+              {INFRA_EVIDENCE_MERMAID_TOO_LARGE_FOR_BROWSER_MESSAGE}
+            </p>
+            <div className="mt-3">
+              <Button type="button" variant="outline" size="sm" disabled={exportsDisabled} onClick={() => void runPngExport()}>
+                Download server PNG
+              </Button>
+            </div>
+          </div>
+          {mermaidOutline != null ? <InfraEvidenceDiagramOutline outline={mermaidOutline} /> : null}
+        </>
       ) : mermaidSource.trim().length > 0 ? (
-        <ArchitectureDiagramViewer
-          mermaidSource={mermaidSource}
-          textAlternative={`Inventory diagram for snapshot ${selectedSnapshotId} in ${selectedMode} mode.`}
-          onRenderFailure={() => setBrowserRenderBlocked(true)}
-          onRetry={() => setBrowserRenderBlocked(false)}
-        />
+        <>
+          <ArchitectureDiagramViewer
+            mermaidSource={mermaidSource}
+            textAlternative={`Inventory diagram for snapshot ${selectedSnapshotId} in ${selectedModeLabel} mode.`}
+            viewportAriaLabel={`Inventory diagram for snapshot ${selectedSnapshotId}`}
+            fullscreenTitle={`Inventory diagram · ${selectedModeLabel}`}
+            scopeContextLine={diagramScopeContextLine}
+            canvasStale={renderInFlight}
+            onRenderFailure={handleRenderFailure}
+            onRetry={handleRenderRetry}
+          />
+          {mermaidOutline != null ? <InfraEvidenceDiagramOutline outline={mermaidOutline} /> : null}
+        </>
       ) : renderResult?.status === "Failed" ? (
         <StatusTag kind="needs-attention" label="Diagram render failed for the selected mode." />
       ) : null}
 
-        {buyerPolishedShell ? <DiagramsClaimOrientationStrip /> : null}
+        <DiagramsClaimOrientationStrip />
       </main>
     </OperatorPageContainer>
   );

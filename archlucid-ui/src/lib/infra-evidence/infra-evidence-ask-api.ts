@@ -22,7 +22,6 @@ export async function submitInfraEvidenceAsk(
     assessmentId: request.assessmentId ?? undefined,
     auditEvidenceSnapshotId: request.auditEvidenceSnapshotId ?? undefined,
     controlId: request.controlId ?? undefined,
-    useSimulator: request.useSimulator ?? false,
   });
 
   return {

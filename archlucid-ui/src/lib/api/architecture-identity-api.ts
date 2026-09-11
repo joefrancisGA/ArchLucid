@@ -11,7 +11,8 @@ import {
 import { architectureIdentityMutationBlockedReason } from "@/lib/architecture/architecture-identity-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import { apiGet, apiPatchJson } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiPatchJson } from "./http";
 
 const ARCHITECTURES_BASE = "/v1/architectures";
 
@@ -39,7 +40,7 @@ export async function listArchitectureIdentities(params?: {
   const path = query.length > 0 ? `${ARCHITECTURES_BASE}?${query}` : ARCHITECTURES_BASE;
 
   try {
-    return await apiGet<ArchitectureIdentityListPage>(
+    return await apiGetSealedManifestAware<ArchitectureIdentityListPage>(
       path,
       params?.scopeHeaders !== undefined ? { scopeHeaders: params.scopeHeaders } : undefined,
     );
@@ -56,7 +57,7 @@ export async function getArchitectureIdentity(
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ArchitectureIdentityDetail> {
   try {
-    return await apiGet<ArchitectureIdentityDetail>(
+    return await apiGetSealedManifestAware<ArchitectureIdentityDetail>(
       `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}`,
       options,
     );

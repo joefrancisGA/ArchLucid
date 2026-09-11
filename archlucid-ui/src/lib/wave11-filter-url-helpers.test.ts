@@ -5791,11 +5791,7 @@ describe("wave72 filter url helpers", () => {
 });
 
 describe("wave73 filter url helpers", () => {
-  it("infra ask simulator, remediation/drift/diagram workbench resource ids, resource row arm id, governance findings resource group, advisory schedule advanced params", async () => {
-    const {
-      infraAskSimulatorDisclosureHrefFromSearch,
-      parseInfraAskSimulatorDisclosureOpenFromSearch,
-    } = await import("@/lib/infra-evidence/infra-ask-simulator-disclosure-url");
+  it("remediation/drift/diagram workbench resource ids, resource row arm id, governance findings resource group, advisory schedule advanced params", async () => {
     const {
       infraRemediationResourceIdDisclosureHrefFromSearch,
       parseInfraRemediationResourceIdDisclosureOpenFromSearch,
@@ -5833,10 +5829,6 @@ describe("wave73 filter url helpers", () => {
       parseAdvisoryScheduleAdvancedOpenFromSearch,
     } = await import("@/lib/advisory/advisory-schedule-advanced-disclosure-url");
 
-    expect(parseInfraAskSimulatorDisclosureOpenFromSearch("1")).toBe(true);
-    expect(infraAskSimulatorDisclosureHrefFromSearch("cloudResourceId=res-1", true, "/governance/infrastructure/ask")).toBe(
-      "/governance/infrastructure/ask?cloudResourceId=res-1&infraAskSimulatorDisclosureOpen=1",
-    );
     expect(parseInfraRemediationResourceIdDisclosureOpenFromSearch("true")).toBe(true);
     expect(
       infraRemediationResourceIdDisclosureHrefFromSearch("", true, "/governance/infrastructure/remediation"),

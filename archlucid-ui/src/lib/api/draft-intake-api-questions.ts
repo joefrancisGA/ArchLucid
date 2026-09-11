@@ -2,22 +2,15 @@ import type { DraftQuestionsResponse, DraftRequestResponse } from "@/types/draft
 
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
-import { architectureDraftQuestionsBlockedReason } from "@/lib/architecture/architecture-draft-list-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import { apiGet, apiPostJson } from "./http";
+import { apiPostJson } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 const DRAFT_BASE = "/v1/architecture/draft";
 
 export async function getDraftQuestions(draftId: string): Promise<DraftQuestionsResponse> {
-  try {
-    return await apiGet<DraftQuestionsResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/questions`);
-  } catch (error: unknown) {
-    const failure = toApiLoadFailure(error);
-    const blockedReason = architectureDraftQuestionsBlockedReason(failure);
-
-    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
-  }
+  return apiGetSealedManifestAware<DraftQuestionsResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/questions`);
 }
 
 export type AnswerDraftQuestionOptions = {

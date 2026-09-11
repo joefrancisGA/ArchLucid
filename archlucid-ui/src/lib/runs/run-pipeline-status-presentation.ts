@@ -1,11 +1,11 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { resolveEnterpriseStatusKind } from "@/lib/enterprise-status-kind-resolver";
-import type { WorkingCareerRehearsalIntentId } from "@/lib/governance/working-career-rehearsal-intent";
 import { shouldSuppressReadyToFinalizeForCareerHonesty } from "@/lib/runs/run-pipeline-finalize-blocked-honesty";
 import { PIPELINE_STATUS_LABELS, type RunPipelineInternalLabel } from "@/lib/pipeline-status-labels";
 import { resolvePipelineStatusDisplayLabel } from "@/lib/resolve-pipeline-status-display-label";
 import { resolveTerminalPipelineLabelFromLegacyStatus } from "@/lib/runs/run-pipeline-legacy-terminal-label";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
+import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import type { RunSummary } from "@/types/authority";
 
 export type RunPipelineLabel = RunPipelineInternalLabel;
@@ -18,7 +18,7 @@ export type RunPipelineStatusPresentationInput = {
   readonly hostQualityGateMode?: string | null;
   readonly aggregateQualityGateOutcome?: number | null;
   readonly transparencyTrail?: TransparencyTrail | null;
-  readonly workingCareerRehearsalIntent?: WorkingCareerRehearsalIntentId | null;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
 };
 
 /**
@@ -49,7 +49,7 @@ export function deriveRunListPipelineLabel(
         hostQualityGateMode: qualityGateHonesty?.hostQualityGateMode,
         aggregateQualityGateOutcome: qualityGateHonesty?.aggregateQualityGateOutcome,
         transparencyTrail: qualityGateHonesty?.transparencyTrail,
-        workingCareerRehearsalIntent: qualityGateHonesty?.workingCareerRehearsalIntent,
+        effectiveWorkingCareerRehearsalDoor: qualityGateHonesty?.effectiveWorkingCareerRehearsalDoor,
       })
     ) {
       return PIPELINE_STATUS_LABELS.inPipeline;

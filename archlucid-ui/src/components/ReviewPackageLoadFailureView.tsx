@@ -239,7 +239,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
       <div className={cn("mt-4 flex flex-wrap items-center gap-3 font-medium", OPERATOR_TYPOGRAPHY.body)}>
         <Button
           type="button"
-          variant="outline"
+          variant="primary"
           size="sm"
           disabled={isRetryPending || runId.trim().length === 0}
           data-testid="retry-loading-review"
@@ -247,9 +247,11 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
         >
           {isRetryPending ? "Retrying…" : "Retry loading review"}
         </Button>
-        <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={REVIEW_PACKAGES_HREF} data-testid="open-review-packages">
-          Open reviews
-        </Link>
+        <Button type="button" variant="outline" size="sm" asChild>
+          <Link href={REVIEW_PACKAGES_HREF} data-testid="open-review-packages">
+            Open reviews
+          </Link>
+        </Button>
         <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={START_REVIEW_HREF} data-testid="start-new-review">
           {OPERATOR_NAV_LINK_LABELS.capture}
         </Link>

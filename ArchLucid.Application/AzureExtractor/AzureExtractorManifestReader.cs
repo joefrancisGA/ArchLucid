@@ -2,6 +2,8 @@ using System.IO.Compression;
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.Core.AzureExtractor;
+
 namespace ArchLucid.Application.AzureExtractor;
 
 /// <summary>Reads <c>manifest.json</c> from the schema-versioned Azure extractor ZIP.</summary>
@@ -51,9 +53,10 @@ public static class AzureExtractorManifestReader
 
                 return (null, $"Unsupported manifest schemaVersion: {dto.SchemaVersion}.");
 
-            if (string.IsNullOrWhiteSpace(dto.SubscriptionId))
+            if (string.IsNullOrWhiteSpace(dto.SubscriptionId)
+                && string.IsNullOrWhiteSpace(dto.ManagementGroupId))
 
-                return (null, "manifest subscriptionId is required.");
+                return (null, "manifest must include subscriptionId or managementGroupId.");
 
             if (!TryParseCollectionTimestamp(dto.CollectionTimestamp, out DateTimeOffset collectionTs))
 
@@ -76,11 +79,16 @@ public static class AzureExtractorManifestReader
 
             string rawJson = document.RootElement.GetRawText();
 
+            string subscriptionId = string.IsNullOrWhiteSpace(dto.SubscriptionId)
+                ? string.Empty
+                : dto.SubscriptionId.Trim();
+
             AzureExtractorNormalizedManifest normalized = new(
                 dto.SchemaVersion,
                 scriptVersion,
                 collectionTs,
-                dto.SubscriptionId.Trim(),
+                subscriptionId,
+                AzureExtractorSubscriptionDisplayName.Normalize(dto.SubscriptionName),
                 scope,
                 switches,
                 azVersion,
@@ -150,6 +158,18 @@ public static class AzureExtractorManifestReader
             get;
             init;
         } = string.Empty;
+
+        public string? SubscriptionName
+        {
+            get;
+            init;
+        }
+
+        public string? ManagementGroupId
+        {
+            get;
+            init;
+        }
 
         public string? Scope
         {

@@ -31,6 +31,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "roi-summary": "product-help",
   "architecture-scorecard": "product-help",
   "connection-status": "product-help",
+  "career-rehearsal-doors": "product-help",
   "standards-and-rules": "product-help",
   "baseline-settings": "product-help",
   "slack-integration": "product-help",
@@ -82,6 +83,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "users-and-roles": "product-help",
   "career-vs-rehearsal": "product-help",
   "architecture-sharing": "product-help",
+  "architecture-draft-editing": "product-help",
   "choose-your-next-step": "product-help",
   "pilot-feedback": "internal-runbook",
   "pilot-guide": "product-help",
@@ -99,6 +101,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   scope: "product-help",
   glossary: "product-help",
   "security-trust": "product-help",
+  "security-evidence-paths": "product-help",
   "specialty-walkthroughs": "product-help",
   troubleshooting: "product-help",
 };

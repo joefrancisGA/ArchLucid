@@ -78,6 +78,13 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/glossary", helpSlug: "glossary" },
   },
   {
+    id: "career-rehearsal-doors",
+    title: "Career and Rehearsal doors",
+    description: "Working execution intent — practice in Rehearsal, sealed-record proof in Career. Simulator is not sponsor proof.",
+    keywords: ["career", "rehearsal", "working door", "simulator", "sealed record", "finalize"],
+    action: { kind: "route", href: "/help/career-rehearsal-doors", helpSlug: "career-rehearsal-doors" },
+  },
+  {
     id: "create-first-review",
     title: "Create your first review",
     description: "Start with a brief, diagram, IaC file, or evidence ZIP.",

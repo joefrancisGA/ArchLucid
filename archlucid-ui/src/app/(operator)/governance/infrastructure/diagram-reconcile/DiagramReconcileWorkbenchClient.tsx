@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { LayerHeader } from "@/components/LayerHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -61,6 +62,7 @@ import {
   fetchInfraEvidenceSnapshots,
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import { formatInfraEvidenceSnapshotLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
@@ -88,18 +90,27 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_COPY_ERROR_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_DIAGRAM_SOURCE_REQUIRED_ERROR,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_FINDING_ERROR_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_INGEST_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_MODEL_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PRIMARY_CONTENT_ID,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RECONCILE_ERROR_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_REVIEW_ID_REQUIRED_ERROR,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RUN_ID_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RUN_SNAPSHOT_REQUIRED_ERROR,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SCOPE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SKIP_LINK_LABEL,
+  formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
-import { showError, showSuccess } from "@/lib/toast";
+import { showSuccess } from "@/lib/toast";
 
 import { DiagramReconcileBreadcrumb } from "./DiagramReconcileBreadcrumb";
 import { DiagramReconcileClaimOrientationStrip } from "./DiagramReconcileClaimOrientationStrip";
@@ -112,13 +123,6 @@ const MATCH_KIND_FILTERS: readonly { value: DiagramReconcileMatchKindFilter; lab
   { value: "Exact", label: "Exact" },
   { value: "Probable", label: "Probable" },
 ];
-
-function formatSnapshotLabel(snapshot: InfraEvidenceSnapshotSummary): string {
-  const captured = snapshot.capturedUtc != null ? new Date(snapshot.capturedUtc).toLocaleString() : "unknown time";
-  const subscription = snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription";
-
-  return `${subscription} · ${captured} · ${snapshot.resourceCount} resources`;
-}
 
 function buildDiagramReconcileCorrespondenceAskHref(
   row: DiagramInfrastructureCorrespondenceRow,
@@ -225,6 +229,9 @@ export function DiagramReconcileWorkbenchClient() {
   const [findingBusyId, setFindingBusyId] = useState<string | null>(null);
   const [ingestedFindingIds, setIngestedFindingIds] = useState<Record<string, string>>({});
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [diagramSourceActionError, setDiagramSourceActionError] = useState<string | null>(null);
+  const [reconcileActionError, setReconcileActionError] = useState<string | null>(null);
+  const [rowActionError, setRowActionError] = useState<{ correspondenceId: string; message: string } | null>(null);
 
   const syncUrl = useCallback(
     (patch: {
@@ -316,6 +323,23 @@ export function DiagramReconcileWorkbenchClient() {
       .querySelector(`[data-testid="infra-diagram-reconcile-row-${urlCorrespondenceId}"]`)
       ?.scrollIntoView({ block: "nearest" });
   }, [filteredRows.length, selectedCorrespondenceId, urlCorrespondenceId]);
+
+  useEffect(() => {
+    if (selectedCorrespondenceId === null || selectedCorrespondenceId.length === 0) {
+      return;
+    }
+
+    if (loadingReconciliation) {
+      return;
+    }
+
+    const stillVisible = filteredRows.some((row) => row.correspondenceId === selectedCorrespondenceId);
+
+    if (!stillVisible) {
+      setSelectedCorrespondenceId(null);
+      syncUrl({ correspondenceId: "" });
+    }
+  }, [filteredRows, loadingReconciliation, selectedCorrespondenceId, syncUrl]);
 
   useEffect(() => {
     let cancelled = false;
@@ -441,6 +465,7 @@ export function DiagramReconcileWorkbenchClient() {
     }
 
     setLoadError(null);
+    setDiagramSourceActionError(null);
 
     try {
       const model = await fetchArchitectureDiagramModel(runId.trim());
@@ -452,23 +477,29 @@ export function DiagramReconcileWorkbenchClient() {
       const failure = toApiLoadFailure(error);
       const blocked = diagramReconcileLoadModelBlockedReason(failure);
 
-      showError("Could not load diagram model", blocked ?? formatInfraEvidenceDiagramReconcileApiError(error));
+      setDiagramSourceActionError(
+        formatGovernanceInfrastructureInlineActionError(
+          GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_MODEL_ERROR_TITLE,
+          blocked ?? formatInfraEvidenceDiagramReconcileApiError(error),
+        ),
+      );
     }
   }, [runId]);
 
   const runIngest = useCallback(async () => {
     if (runId.trim().length === 0) {
-      showError("Review id required", "Enter a sealed review record id before ingesting a diagram.");
+      setDiagramSourceActionError(GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_REVIEW_ID_REQUIRED_ERROR);
       return;
     }
 
     if (diagramMermaid.trim().length === 0) {
-      showError("Diagram source required", "Paste Mermaid diagram text before ingesting.");
+      setDiagramSourceActionError(GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_DIAGRAM_SOURCE_REQUIRED_ERROR);
       return;
     }
 
     setIngestBusy(true);
     setLoadError(null);
+    setDiagramSourceActionError(null);
 
     try {
       const result = await ingestArchitectureDiagram(runId.trim(), {
@@ -492,7 +523,12 @@ export function DiagramReconcileWorkbenchClient() {
       const failure = toApiLoadFailure(error);
       const blocked = diagramIngestMutationBlockedReason(failure);
 
-      showError("Diagram ingest failed", blocked ?? formatInfraEvidenceDiagramReconcileApiError(error));
+      setDiagramSourceActionError(
+        formatGovernanceInfrastructureInlineActionError(
+          GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_INGEST_ERROR_TITLE,
+          blocked ?? formatInfraEvidenceDiagramReconcileApiError(error),
+        ),
+      );
     } finally {
       setIngestBusy(false);
     }
@@ -500,12 +536,13 @@ export function DiagramReconcileWorkbenchClient() {
 
   const runReconcile = useCallback(async () => {
     if (runId.trim().length === 0 || selectedSnapshotId.trim().length === 0) {
-      showError("Run and snapshot required", "Select a sealed run and inventory snapshot before reconciling.");
+      setReconcileActionError(GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RUN_SNAPSHOT_REQUIRED_ERROR);
       return;
     }
 
     setReconcileBusy(true);
     setLoadError(null);
+    setReconcileActionError(null);
 
     try {
       const result = await reconcileArchitectureDiagram(runId.trim(), selectedSnapshotId.trim());
@@ -515,7 +552,12 @@ export function DiagramReconcileWorkbenchClient() {
       const failure = toApiLoadFailure(error);
       const blocked = diagramReconcileMutationBlockedReason(failure);
 
-      showError("Reconciliation failed", blocked ?? formatInfraEvidenceDiagramReconcileApiError(error));
+      setReconcileActionError(
+        formatGovernanceInfrastructureInlineActionError(
+          GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RECONCILE_ERROR_TITLE,
+          blocked ?? formatInfraEvidenceDiagramReconcileApiError(error),
+        ),
+      );
     } finally {
       setReconcileBusy(false);
     }
@@ -528,6 +570,7 @@ export function DiagramReconcileWorkbenchClient() {
       }
 
       setFindingBusyId(row.correspondenceId);
+      setRowActionError(null);
 
       try {
         const item = buildDiagramReconcileOperationalFindingRequestItem(row, runId.trim(), selectedSnapshotId.trim());
@@ -553,7 +596,13 @@ export function DiagramReconcileWorkbenchClient() {
             : `Operational finding submitted — outcome: ${outcome}`,
         );
       } catch (error: unknown) {
-        showError("Could not create operational finding", formatInfraEvidenceDiagramReconcileApiError(error));
+        setRowActionError({
+          correspondenceId: row.correspondenceId,
+          message: formatGovernanceInfrastructureInlineActionError(
+            GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_FINDING_ERROR_TITLE,
+            formatInfraEvidenceDiagramReconcileApiError(error),
+          ),
+        });
       } finally {
         setFindingBusyId(null);
       }
@@ -561,16 +610,24 @@ export function DiagramReconcileWorkbenchClient() {
     [runId, selectedSnapshotId],
   );
 
-  const runCopyArmId = useCallback(async (azureResourceId: string | null) => {
+  const runCopyArmId = useCallback(async (row: DiagramInfrastructureCorrespondenceRow, azureResourceId: string | null) => {
     if (azureResourceId == null || azureResourceId.trim().length === 0) {
       return;
     }
+
+    setRowActionError(null);
 
     try {
       await copyTextToClipboard(azureResourceId);
       showSuccess("ARM id copied");
     } catch (error: unknown) {
-      showError("Copy failed", error instanceof Error ? error.message : "Clipboard unavailable.");
+      setRowActionError({
+        correspondenceId: row.correspondenceId,
+        message: formatGovernanceInfrastructureInlineActionError(
+          GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_COPY_ERROR_TITLE,
+          error instanceof Error ? error.message : "Clipboard unavailable.",
+        ),
+      });
     }
   }, []);
 
@@ -626,7 +683,7 @@ export function DiagramReconcileWorkbenchClient() {
       <main
         id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PRIMARY_CONTENT_ID : undefined}
         className={cn(
-          "mx-auto flex w-full max-w-6xl flex-col gap-4",
+          "flex w-full flex-col gap-4",
           buyerPolishedShell ? "scroll-mt-24" : undefined,
         )}
         data-testid="infra-diagram-reconcile-primary-content"
@@ -809,11 +866,18 @@ export function DiagramReconcileWorkbenchClient() {
           variant="outline"
           data-testid="infra-diagram-reconcile-ingest"
           disabled={ingestBusy}
+          aria-describedby={diagramSourceActionError != null ? "infra-diagram-reconcile-diagram-source-error" : undefined}
           onClick={() => void runIngest()}
         >
           {ingestBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
           Ingest diagram on run
         </Button>
+        {diagramSourceActionError != null ? (
+          <OperatorMutationInlineError
+            message={diagramSourceActionError}
+            testId="infra-diagram-reconcile-diagram-source-error"
+          />
+        ) : null}
       </section>
 
       <section className={cn("grid gap-4", cnCard)} aria-label="Snapshot selection">
@@ -832,7 +896,7 @@ export function DiagramReconcileWorkbenchClient() {
             ) : (
               snapshots.map((snapshot) => (
                 <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                  {formatSnapshotLabel(snapshot)}
+                  {formatInfraEvidenceSnapshotLabel(snapshot)}
                 </option>
               ))
             )}
@@ -840,21 +904,30 @@ export function DiagramReconcileWorkbenchClient() {
         </label>
       </section>
 
-      <section className="flex flex-wrap items-center gap-3" aria-label="Run reconciliation">
-        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>3. Reconcile</h2>
-        <Button
-          type="button"
-          data-testid="infra-diagram-reconcile-run"
-          disabled={reconcileBusy || runId.trim().length === 0 || selectedSnapshotId.trim().length === 0}
-          onClick={() => void runReconcile()}
-        >
-          {reconcileBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-          Run reconciliation
-        </Button>
-        {loadingReconciliation ? (
-          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Loading saved reconciliation…
-          </span>
+      <section className="flex flex-col gap-3" aria-label="Run reconciliation">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>3. Reconcile</h2>
+          <Button
+            type="button"
+            data-testid="infra-diagram-reconcile-run"
+            disabled={reconcileBusy || runId.trim().length === 0 || selectedSnapshotId.trim().length === 0}
+            aria-describedby={reconcileActionError != null ? "infra-diagram-reconcile-run-error" : undefined}
+            onClick={() => void runReconcile()}
+          >
+            {reconcileBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+            Run reconciliation
+          </Button>
+          {loadingReconciliation ? (
+            <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              Loading saved reconciliation…
+            </span>
+          ) : null}
+        </div>
+        {reconcileActionError != null ? (
+          <OperatorMutationInlineError
+            message={reconcileActionError}
+            testId="infra-diagram-reconcile-run-error"
+          />
         ) : null}
       </section>
 
@@ -993,7 +1066,10 @@ export function DiagramReconcileWorkbenchClient() {
                           variant="outline"
                           size="sm"
                           disabled={row.azureResourceId == null || row.azureResourceId.trim().length === 0}
-                          onClick={() => void runCopyArmId(row.azureResourceId)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            void runCopyArmId(row, row.azureResourceId);
+                          }}
                         >
                           Copy ARM id
                         </Button>
@@ -1002,13 +1078,22 @@ export function DiagramReconcileWorkbenchClient() {
                           variant="outline"
                           size="sm"
                           disabled={findingBusyId === row.correspondenceId}
-                          onClick={() => void runCreateFinding(row)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            void runCreateFinding(row);
+                          }}
                         >
                           {findingBusyId === row.correspondenceId ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
                           ) : null}
                           Create operational finding
                         </Button>
+                        {rowActionError != null && rowActionError.correspondenceId === row.correspondenceId ? (
+                          <OperatorMutationInlineError
+                            message={rowActionError.message}
+                            testId={`infra-diagram-reconcile-row-error-${row.correspondenceId}`}
+                          />
+                        ) : null}
                         {remediationHref != null ? (
                           <Button asChild variant="outline" size="sm">
                             <Link

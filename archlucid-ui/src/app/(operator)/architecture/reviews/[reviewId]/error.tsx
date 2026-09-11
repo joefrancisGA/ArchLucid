@@ -2,15 +2,19 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 import { OperatorErrorUiReferenceLine } from "@/components/operator/OperatorErrorUiReferenceLine";
 import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunDetailMinimalChromeMount } from "@/components/runs/RunDetailMinimalChromeMount";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { Button } from "@/components/ui/button";
+import { ERROR_BOUNDARY_IDLE_SNAPSHOT_PRESERVED_COPY } from "@/lib/auth/error-boundary-idle-snapshot-copy";
+import { persistLivelihoodIdleSnapshotsBeforeErrorRecovery } from "@/lib/auth/error-boundary-idle-snapshot";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { reportClientError } from "@/lib/error-telemetry";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -27,6 +31,12 @@ export default function RunDetailSegmentError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [idleSnapshotsPreserved, setIdleSnapshotsPreserved] = useState(false);
+
+  useLayoutEffect(() => {
+    setIdleSnapshotsPreserved(persistLivelihoodIdleSnapshotsBeforeErrorRecovery());
+  }, [error]);
+
   useEffect(() => {
     reportClientError(error, { source: "run-detail-segment-error-boundary", digest: error.digest ?? "" });
   }, [error]);
@@ -57,6 +67,9 @@ export default function RunDetailSegmentError({
           ) : null}
         </OperatorErrorCallout>
         <div className="flex flex-wrap items-center gap-2">
+          <Button type="button" variant="primary" onClick={() => reset()}>
+            Retry
+          </Button>
           <Button type="button" variant="outline" asChild>
             <Link href={signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}>
               Open sample review
@@ -95,8 +108,19 @@ export default function RunDetailSegmentError({
         <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {isDev
             ? "Development build — technical details appear below."
-            : "This review could not render. Return to your reviews list or open Help."}
+            : "This review desk hit an unexpected error. Choose Retry to reload the package before leaving."}
         </p>
+        <OperatorErrorRecoveryContract
+          presentation={errorRecoveryContractForScenario("review-detail-segment-error")}
+        />
+        {idleSnapshotsPreserved ? (
+          <p
+            className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="review-detail-error-idle-snapshot-preserved"
+          >
+            {ERROR_BOUNDARY_IDLE_SNAPSHOT_PRESERVED_COPY}
+          </p>
+        ) : null}
         {isDev ? (
           <pre
             className={cn(
@@ -136,11 +160,11 @@ export default function RunDetailSegmentError({
         />
       )}
       <div className="flex flex-wrap items-center gap-2">
-        <Button type="button" variant="primary" asChild>
-          <Link href="/architecture/reviews">Back to reviews</Link>
-        </Button>
-        <Button type="button" variant="outline" onClick={() => reset()}>
+        <Button type="button" variant="primary" onClick={() => reset()} data-testid="review-detail-segment-error-retry">
           Retry
+        </Button>
+        <Button type="button" variant="outline" asChild data-testid="review-detail-segment-error-back">
+          <Link href="/architecture/reviews">Back to reviews</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/help">Help</Link>

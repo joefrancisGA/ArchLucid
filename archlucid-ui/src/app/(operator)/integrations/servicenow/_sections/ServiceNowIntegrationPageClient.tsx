@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
@@ -15,9 +16,10 @@ import { useItsmConnectorPage } from "@/hooks/use-itsm-connector-page";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   probeItsmIntegrationHealth,
-  upsertTenantItsmOutboundSettings,
   type TenantItsmOutboundSettingsResponse,
 } from "@/lib/api/itsm-outbound-api";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { saveItsmConnectorWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -66,6 +68,10 @@ import { ServiceNowIntegrationAside } from "./ServiceNowIntegrationAside";
 import { ServiceNowIntegrationPageHeader } from "./ServiceNowIntegrationPageHeader";
 
 export function ServiceNowIntegrationPageClient(): React.ReactElement {
+  const pathname = usePathname() ?? "/integrations/servicenow";
+  const searchParams = useSearchParams();
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
   const canMutate = useOperateCapability();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canConfigureAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
@@ -232,17 +238,27 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     setSaveSuccess(null);
 
     try {
-      const saved = await upsertTenantItsmOutboundSettings({
-        serviceNowAutoCreateCmdbCi: snowAutoCmdb,
-      });
+      const saved = await saveItsmConnectorWith401Resume(
+        {
+          connector: "servicenow_settings",
+          body: {
+            serviceNowAutoCreateCmdbCi: snowAutoCmdb,
+          },
+        },
+        { returnPath: livelihoodReturnPath },
+      ) as TenantItsmOutboundSettingsResponse;
       applySettings(saved);
       setSaveSuccess(SERVICENOW_SAVE_SUCCESS);
     } catch (error: unknown) {
+      if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
       setSaveError(error instanceof Error ? error.message : "Could not save incident creation settings.");
     } finally {
       setIsSaving(false);
     }
-  }, [applySettings, canMutate, settings, settingsLoadFailed, snowAutoCmdb]);
+  }, [applySettings, canMutate, livelihoodReturnPath, settings, settingsLoadFailed, snowAutoCmdb]);
 
   const instanceUrl = connection?.instanceBaseUrl?.trim() || SERVICENOW_INSTANCE_URL_NOT_SET;
   const authMethod = formatServiceNowAuthMethod(connection?.authMode);

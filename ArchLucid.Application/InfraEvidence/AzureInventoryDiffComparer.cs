@@ -201,17 +201,26 @@ public static class AzureInventoryDiffComparer
                 continue;
 
             AzureInventoryChangeType changeType =
-                AzureInventoryDiffHeuristics.IsPrivateEndpointResource(string.Empty, relationship.RelationshipType)
+                AzureInventoryDiffHeuristics.IsPrivateEndpointRelationship(
+                    relationship.FromAzureResourceId,
+                    relationship.ToAzureResourceId,
+                    relationship.RelationshipType)
                     ? AzureInventoryChangeType.RelationshipAdded
                     : AzureInventoryChangeType.RelationshipAdded;
 
+            string propertyName = AzureInventoryDiffHeuristics.IsPrivateEndpointRelationship(
+                relationship.FromAzureResourceId,
+                relationship.ToAzureResourceId,
+                relationship.RelationshipType)
+                ? "privateEndpoint"
+                : relationship.RelationshipType;
             changes.Add(CreateChange(
                 snapshotAId,
                 snapshotBId,
                 cloudResourceId: null,
                 relationship.FromAzureResourceId,
                 changeType,
-                relationship.RelationshipType,
+                propertyName,
                 oldValue: null,
                 newValue: relationship.ToAzureResourceId));
         }

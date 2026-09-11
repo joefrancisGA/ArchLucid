@@ -104,6 +104,17 @@ public sealed partial class ArtifactExportController
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        IActionResult? shareGuardResult = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this,
+            User,
+            scope,
+            runId,
+            ct);
+
+        if (shareGuardResult is not null)
+            return shareGuardResult;
+
         IActionResult? sealedGuardResult = await EnsureRunSealedManifestHashOrConflictAsync(scope, runId, ct);
 
         if (sealedGuardResult is not null)

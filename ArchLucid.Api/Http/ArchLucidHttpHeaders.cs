@@ -1,3 +1,5 @@
+using ArchLucid.Core.ProductLine;
+
 namespace ArchLucid.Api.Http;
 
 /// <summary>
@@ -57,4 +59,10 @@ public static class ArchLucidHttpHeaders
     ///     Value is <c>true</c>.
     /// </summary>
     public const string DryRun = "X-ArchLucid-DryRun";
+
+    /// <summary>
+    ///     Optional request header: <c>architecture</c> or <c>security</c>. Omitted inherits
+    ///     <c>ProductLine:Deployment</c>. Documented in OpenAPI as optional (OP-03).
+    /// </summary>
+    public const string ProductLine = ProductLineHttpHeaderNames.Header;
 }

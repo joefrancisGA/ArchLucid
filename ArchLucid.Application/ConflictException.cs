@@ -13,6 +13,16 @@ public sealed class ConflictException : InvalidOperationException
         ArgumentNullException.ThrowIfNull(message);
     }
 
+    /// <summary>Creates a conflict exception with a stable machine-readable code (ProblemDetails errorCode).</summary>
+    /// <param name="message">Human-readable conflict description.</param>
+    /// <param name="code">Stable client branch key (for example <c>draft_cas_stale</c>).</param>
+    public ConflictException(string message, string code) : base(message)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+        Code = code.Trim();
+    }
+
     /// <summary>Creates a conflict exception with an inner cause.</summary>
     /// <param name="message">Human-readable conflict description.</param>
     /// <param name="innerException">Underlying exception.</param>
@@ -21,4 +31,8 @@ public sealed class ConflictException : InvalidOperationException
         ArgumentNullException.ThrowIfNull(message);
         ArgumentNullException.ThrowIfNull(innerException);
     }
+
+    /// <summary>Optional ProblemDetails <c>errorCode</c> so clients can branch without parsing messages.</summary>
+    public string? Code { get; }
 }
+

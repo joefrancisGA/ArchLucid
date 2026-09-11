@@ -17,6 +17,11 @@ const HelpAlertsGuideView = dynamic(() =>
 const HelpArchitectureDraftsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView").then((module) => module.HelpArchitectureDraftsGuideView),
 );
+const HelpArchitectureDraftEditingGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpArchitectureDraftEditingGuideView").then(
+    (module) => module.HelpArchitectureDraftEditingGuideView,
+  ),
+);
 const HelpArchitectureIntelligenceGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpArchitectureIntelligenceGuideView").then((module) => module.HelpArchitectureIntelligenceGuideView),
 );
@@ -199,6 +204,11 @@ const HelpStructuredBriefGuideView = dynamic(() =>
 const HelpTroubleshootingGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpTroubleshootingGuideView").then((module) => module.HelpTroubleshootingGuideView),
 );
+const HelpWorkingCareerRehearsalGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpWorkingCareerRehearsalGuideView").then(
+    (module) => module.HelpWorkingCareerRehearsalGuideView,
+  ),
+);
 
 export function tryResolveOperateHelpTopicView(
   loaded: LoadedHelpTopicContent,
@@ -242,6 +252,9 @@ export function tryResolveOperateHelpTopicView(
   if (loaded.entry.slug === "connection-status") {
     return <HelpConnectionStatusGuideView entry={loaded.entry} />;
   }
+  if (loaded.entry.slug === "career-rehearsal-doors") {
+    return <HelpWorkingCareerRehearsalGuideView entry={loaded.entry} />;
+  }
   if (loaded.entry.slug === "standards-and-rules") {
     return <HelpStandardsRulesGuideView entry={loaded.entry} />;
   }
@@ -262,6 +275,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "architecture-drafts") {
     return <HelpArchitectureDraftsGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "architecture-draft-editing") {
+    return <HelpArchitectureDraftEditingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "structured-brief") {
     return <HelpStructuredBriefGuideView entry={loaded.entry} />;

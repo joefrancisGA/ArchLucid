@@ -11,10 +11,10 @@ import type { CloneSnapshotDraftResponse } from "@/types/draft-intake-clone-snap
 
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
-import { architectureDraftBranchQuotaBlockedReason } from "@/lib/architecture/architecture-draft-list-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import { apiGet, apiPostJson } from "./http";
+import { apiPostJson } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 const DRAFT_BASE = "/v1/architecture/draft";
 
@@ -98,16 +98,9 @@ export async function reasonDraftRequest(
 
 /** Branch quota and estimated run cost for an admitted parent draft (R12). */
 export async function getDraftBranchQuota(draftId: string): Promise<DraftBranchQuotaResponse> {
-  try {
-    return await apiGet<DraftBranchQuotaResponse>(
-      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch-quota`,
-    );
-  } catch (error: unknown) {
-    const failure = toApiLoadFailure(error);
-    const blockedReason = architectureDraftBranchQuotaBlockedReason(failure);
-
-    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
-  }
+  return apiGetSealedManifestAware<DraftBranchQuotaResponse>(
+    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch-quota`,
+  );
 }
 
 /** Clone an admitted draft with one ceteris-paribus override (R12). */
