@@ -37,7 +37,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     }
 
     [Fact]
-    public void FinalizeQualityScorecard_evaluator_counts_six_ui_parity_dimensions()
+    public void FinalizeQualityScorecard_evaluator_counts_nine_ui_parity_dimensions()
     {
         string evaluator = File.ReadAllText(
             Path.Combine(

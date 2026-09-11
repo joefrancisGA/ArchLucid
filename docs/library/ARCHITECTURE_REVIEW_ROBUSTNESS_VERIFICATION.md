@@ -94,6 +94,7 @@ Proof tests:
 ```bash
 dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~FinalizeQuality|RunAssumptionAcknowledgement"
 dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~FinalizeQualityScorecardUiCopyParity"
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGateRuntimeConflict|FinalizeQualityGateHostedAppsettings"
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~OpenApiContractSnapshotTests"
 cd archlucid-ui && npx vitest run src/lib/review-quality/review-assumption-ack-sync.test.ts src/hooks/use-review-assumption-acknowledgements.test.tsx
 ```
@@ -156,6 +157,30 @@ Pre-manifest finalize derives `blockingFindingCount` from live finding rows (Err
 | UI-only scorecard rows | Blocking finding count, existential assumption ack UI, skipped MUST / transparency / degraded coverage (client recompute via `resolveClientAwareCommitBlockedReason`). |
 
 Guard: `CommitOutputIntegrityGateMapArchitectureTests`.
+
+## Golden corpus engine registration (requirement-gap + policy-declaration-inventory-contradiction)
+
+| Engine | Harness | Case |
+|--------|---------|------|
+| `requirement-gap` | Registered (43→44 engine inventory) | Factory cases **02, 08, 14, 20, 26, 32** (unlinked requirement nodes) |
+| `policy-declaration-inventory-contradiction` | Registered (44→45); effectful engine only when `assignedPackFixture` present | **case-73** — case-37 graph + inventory + filtered **`cis-az-006`** pack |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~GoldenCorpusRegressionTests|FullyQualifiedName~GoldenCorpusHarnessEngineInventoryTests"
+dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~PolicyDeclarationInventoryContradictionGoldenCorpus"
+```
+
+Golden normalization stabilizes **DecisionGradeFusion** rationale lines (surrogate constituent ids, engine-type sort) so case-73 record/replay is deterministic.
+
+## Finalize quality gate API 409 proof (controller-level)
+
+```bash
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGateRuntimeConflict"
+```
+
+`FinalizeQualityGateRuntimeConflictTests` proves `POST …/finalize` maps scorecard `ConflictException` (with `FinalizeQualityGate.BlockedPrefix`) to OpenAPI **409** without SQL integration.
 
 ## ConflictException → 409 controller sweep
 
