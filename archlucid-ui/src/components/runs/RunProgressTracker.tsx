@@ -205,6 +205,7 @@ export function RunProgressTracker({
         pipelineTerminalFailure={tracker.showPipelineTerminalFailure}
         suppressIntakeDescription={deferFailureRecoveryToDoThisNext}
         suppressStageCountLine={deferFailureRecoveryToDoThisNext && tracker.buyerAssessmentCopy}
+        careerHonestyPresentation={tracker.careerHonestyPresentation}
       />
 
       {tracker.pipelineDebugEnabled ? (

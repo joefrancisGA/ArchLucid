@@ -78,4 +78,40 @@ describe("RunProgressTrackerStagesView (WA-22)", () => {
 
     expect(screen.queryByTestId("run-progress-stage-count")).toBeNull();
   });
+
+  it("uses rehearsal step labels and pending copy when career honesty applies (CG-032)", () => {
+    render(
+      <RunProgressTrackerStagesView
+        buyerAssessmentCopy={true}
+        pipelineJobLabel={{
+          heading: "Assessment progress",
+          progressAriaLabel: "Assessment progress",
+          stageSummaryNoun: "assessment",
+        }}
+        completedStages={3}
+        totalProgressStages={3}
+        ctx={true}
+        graph={true}
+        findings={true}
+        manifest={false}
+        stageTimeline={[]}
+        activeSummary={null}
+        careerHonestyPresentation={{
+          cellId: "career-simulator-blocked",
+          terminalLiveStatus: "blocked",
+          signedRecordStepLabel: "Career seal blocked",
+          signedRecordPendingLabel: "Career blocked",
+          findingsStepLabel: "Findings ready (rehearsal)",
+          completeStageStatusLabel: "Rehearsal complete",
+          completeStageStatusKind: "needs-attention",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Findings ready (rehearsal)")).toBeInTheDocument();
+    expect(screen.getByText("Career seal blocked")).toBeInTheDocument();
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Career blocked");
+    expect(screen.getAllByText("Rehearsal complete")).toHaveLength(3);
+    expect(screen.queryByText("Complete")).not.toBeInTheDocument();
+  });
 });
