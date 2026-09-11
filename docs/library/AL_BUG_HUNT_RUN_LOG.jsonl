@@ -2003,3 +2003,5 @@
 {"at":"2026-09-11T21:38:44.2817695Z","zoneId":"api-key-auth","outcome":"seed-only"}
 {"at":"2026-09-11T21:39:22.6325584Z","zoneId":"cli-terraform-evidence","outcome":"seed-only"}
 {"at":"2026-09-11T21:42:12.6608076Z","zoneId":"api-key-auth","outcome":"seed-only"}
+{"at":"2026-09-11T21:44:19.9572705Z","zoneId":"tenant-scoped-analyzer","outcome":"hit"}
+{"at":"2026-09-11T21:45:03.5221205Z","zoneId":"tenant-scoped-analyzer","outcome":"hit","paths":["ArchLucid.Analyzers/TenantScopedSqlExpressionResolver.cs"],"severity":"high","defectClass":"authz-scope"}
