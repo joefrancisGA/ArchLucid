@@ -16,6 +16,8 @@ using FluentAssertions;
 
 using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
+using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
+
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
