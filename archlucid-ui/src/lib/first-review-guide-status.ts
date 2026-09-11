@@ -62,6 +62,10 @@ export type FirstReviewGuideStateInput = {
   /** Working seat uses nested architecture URLs when architectureId is known (SY-18). */
   readonly workingMode?: boolean;
   readonly architectureId?: string | null;
+  /** CG-091 — suppress Ready-to-finalize teaching when career honesty blocks Career proof. */
+  readonly suppressReadyToFinalize?: boolean;
+  /** CG-091 — omit sample recovery CTAs on live tenant shells. */
+  readonly hideSampleRecovery?: boolean;
 };
 
 type FirstReviewGuideHrefScope = {
@@ -117,9 +121,19 @@ export function resolveFirstReviewGuideRunHref(
   return reviewDetailHref(runId, resolveGuideHrefScope(input));
 }
 
-function baseStepStatuses(commitContext: CorePilotCommitContext): FirstReviewGuideStepUiStatus[] {
+function effectiveReadyToFinalize(
+  commitContext: CorePilotCommitContext,
+  suppressReadyToFinalize: boolean,
+): boolean {
+  return commitContext.latestRunReadyToFinalize && !suppressReadyToFinalize;
+}
+
+function baseStepStatuses(
+  commitContext: CorePilotCommitContext,
+  suppressReadyToFinalize = false,
+): FirstReviewGuideStepUiStatus[] {
   const hasRun = commitContext.latestRunId !== null;
-  const readyToFinalize = commitContext.latestRunReadyToFinalize;
+  const readyToFinalize = effectiveReadyToFinalize(commitContext, suppressReadyToFinalize);
   const committed = hasSealedReviewRecord(commitContext);
 
   return [
@@ -156,7 +170,13 @@ function resolveStepAction(
   commitContext: CorePilotCommitContext,
   canExecute: boolean,
   hrefScope: FirstReviewGuideHrefScope,
+  options: {
+    readonly suppressReadyToFinalize?: boolean;
+    readonly hideSampleRecovery?: boolean;
+  } = {},
 ): { readonly label: string | null; readonly href: string | null } {
+  const suppressReadyToFinalize = options.suppressReadyToFinalize === true;
+  const hideSampleRecovery = options.hideSampleRecovery === true;
   if (hasSealedReviewRecord(commitContext)) {
     return { label: null, href: null };
   }
@@ -200,8 +220,16 @@ function resolveStepAction(
         return { label: null, href: null };
       }
 
-      return { label: "Seal review", href: reviewFinalizeHref(latestRunId, hrefScope) };
+      if (effectiveReadyToFinalize(commitContext, suppressReadyToFinalize)) {
+        return { label: "Seal review", href: reviewFinalizeHref(latestRunId, hrefScope) };
+      }
+
+      return { label: "Continue review", href: reviewDetailHref(latestRunId, hrefScope) };
     case 6:
+      if (hideSampleRecovery) {
+        return { label: null, href: null };
+      }
+
       return { label: "Explore sample review", href: reviewShareHref(SHOWCASE_STATIC_DEMO_RUN_ID, hrefScope) };
     default:
       return { label: null, href: null };
@@ -220,14 +248,18 @@ function resolveCurrentStepIndex(statuses: readonly FirstReviewGuideStepUiStatus
   return firstIncomplete >= 0 ? firstIncomplete : null;
 }
 
-function countCompletedSteps(commitContext: CorePilotCommitContext): number {
-  return baseStepStatuses(commitContext).filter((status) => status === "complete").length;
+function countCompletedSteps(
+  commitContext: CorePilotCommitContext,
+  suppressReadyToFinalize = false,
+): number {
+  return baseStepStatuses(commitContext, suppressReadyToFinalize).filter((status) => status === "complete").length;
 }
 
 export function resolveFirstReviewGuideProgress(
   commitContext: CorePilotCommitContext,
+  suppressReadyToFinalize = false,
 ): FirstReviewGuideProgress {
-  const completedStepCount = countCompletedSteps(commitContext);
+  const completedStepCount = countCompletedSteps(commitContext, suppressReadyToFinalize);
   const totalStepCount = FIRST_REVIEW_GUIDE_STEP_COUNT;
   const progressFraction = completedStepCount / totalStepCount;
   const stepProgressLabel = formatStepProgressCompleteLabel(completedStepCount, totalStepCount);
@@ -267,12 +299,16 @@ export function resolveFirstReviewGuideProgress(
 export function resolveFirstReviewGuideSteps(
   input: FirstReviewGuideStateInput,
 ): readonly FirstReviewGuideStepPresentation[] {
-  const statuses = baseStepStatuses(input.commitContext);
+  const suppressReadyToFinalize = input.suppressReadyToFinalize === true;
+  const statuses = baseStepStatuses(input.commitContext, suppressReadyToFinalize);
   const currentIndex = resolveCurrentStepIndex(statuses);
   const hrefScope = resolveGuideHrefScope(input);
 
   return FIRST_REVIEW_GUIDE_STEPS.map((step, index) => {
-    const action = resolveStepAction(index, input.commitContext, input.canExecute, hrefScope);
+    const action = resolveStepAction(index, input.commitContext, input.canExecute, hrefScope, {
+      suppressReadyToFinalize,
+      hideSampleRecovery: input.hideSampleRecovery,
+    });
 
     return {
       index,
@@ -311,7 +347,7 @@ export function resolveFirstReviewGuideHeaderActions(
   }
 
   if (commitContext.latestRunId !== null) {
-    if (commitContext.latestRunReadyToFinalize) {
+    if (effectiveReadyToFinalize(commitContext, input.suppressReadyToFinalize === true)) {
       return {
         primaryLabel: "Seal review",
         primaryHref: reviewDetailHref(commitContext.latestRunId, hrefScope),

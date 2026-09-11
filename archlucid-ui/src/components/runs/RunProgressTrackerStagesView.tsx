@@ -12,10 +12,17 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import { formatStageDurationMs } from "@/lib/format-stage-duration";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
+
+import type { RunProgressTrackerCareerHonestyPresentation } from "@/lib/runs/run-progress-tracker-career-honesty";
+import {
+  RUN_PROGRESS_TRACKER_CAREER_COMPLETE_STAGE_LABEL,
+  RUN_PROGRESS_TRACKER_CAREER_FINDINGS_LABEL,
+  RUN_PROGRESS_TRACKER_CAREER_SIGNED_RECORD_LABEL,
+} from "@/lib/runs/run-progress-tracker-career-honesty";
 
 import type { RunProgressTrackerViewModel } from "./use-run-progress-tracker";
 
@@ -35,6 +42,7 @@ type RunProgressTrackerStagesViewProps = Pick<
   readonly pipelineTerminalFailure?: boolean;
   readonly suppressIntakeDescription?: boolean;
   readonly suppressStageCountLine?: boolean;
+  readonly careerHonestyPresentation?: RunProgressTrackerCareerHonestyPresentation | null;
 };
 
 type StageRow = {
@@ -47,9 +55,32 @@ function stageStatusTag(
   complete: boolean,
   pipelineTerminalFailure: boolean,
   isFailureBoundary: boolean,
-): { readonly kind: "ready" | "draft" | "blocked"; readonly label: string } {
+  careerHonestyPresentation: RunProgressTrackerCareerHonestyPresentation | null | undefined,
+  stageKey: string,
+): { readonly kind: EnterpriseStatusKind; readonly label: string } {
   if (complete) {
-    return { kind: "ready", label: "Complete" };
+    if (careerHonestyPresentation !== null && careerHonestyPresentation !== undefined) {
+      return {
+        kind: careerHonestyPresentation.completeStageStatusKind,
+        label: careerHonestyPresentation.completeStageStatusLabel,
+      };
+    }
+
+    return { kind: "ready", label: RUN_PROGRESS_TRACKER_CAREER_COMPLETE_STAGE_LABEL };
+  }
+
+  if (
+    stageKey === "manifest"
+    && careerHonestyPresentation !== null
+    && careerHonestyPresentation !== undefined
+  ) {
+    return {
+      kind:
+        careerHonestyPresentation.cellId === "career-simulator-blocked"
+          ? "blocked"
+          : "needs-attention",
+      label: careerHonestyPresentation.signedRecordPendingLabel,
+    };
   }
 
   if (pipelineTerminalFailure) {
@@ -86,14 +117,22 @@ export function RunProgressTrackerStagesView({
   pipelineTerminalFailure = false,
   suppressIntakeDescription = false,
   suppressStageCountLine = false,
+  careerHonestyPresentation = null,
 }: RunProgressTrackerStagesViewProps) {
+  const signedRecordStepLabel =
+    careerHonestyPresentation?.signedRecordStepLabel
+    ?? (buyerAssessmentCopy
+      ? RUN_PROGRESS_TRACKER_CAREER_SIGNED_RECORD_LABEL
+      : `${RUN_PROGRESS_TRACKER_CAREER_SIGNED_RECORD_LABEL} ready`);
+  const findingsStepLabel =
+    careerHonestyPresentation?.findingsStepLabel ?? RUN_PROGRESS_TRACKER_CAREER_FINDINGS_LABEL;
   const stageRows: StageRow[] = [
     { key: "ctx", label: "Source context captured", complete: Boolean(ctx) },
     { key: "graph", label: "Evidence graph ready", complete: Boolean(graph) },
-    { key: "findings", label: "Findings complete", complete: Boolean(findings) },
+    { key: "findings", label: findingsStepLabel, complete: Boolean(findings) },
     {
       key: "manifest",
-      label: buyerAssessmentCopy ? "Finalized review record" : "Finalized review record ready",
+      label: signedRecordStepLabel,
       complete: Boolean(manifest),
     },
   ];
@@ -121,6 +160,8 @@ export function RunProgressTrackerStagesView({
             stage.complete,
             pipelineTerminalFailure,
             failureBoundaryStageKey === stage.key,
+            careerHonestyPresentation,
+            stage.key,
           );
 
           return (

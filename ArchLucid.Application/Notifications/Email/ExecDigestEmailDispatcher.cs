@@ -72,12 +72,17 @@ public sealed class ExecDigestEmailDispatcher(
             DashboardUrl = composition.DashboardUrl,
             SponsorValueReportUrl = composition.SponsorValueReportUrl,
             UnsubscribeUrl = unsubscribeAbsoluteUrl.Trim(),
-            LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase)
+            LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase),
+            RehearsalSubjectPrefix = composition.RehearsalSubjectPrefix,
+            RehearsalBodyDisclaimer = composition.RehearsalBodyDisclaimer,
         };
         string idempotencyKey = $"exec-digest:{tenantId:N}:{normalizedIsoWeekKey}";
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
-        string subject = $"{productName} weekly digest — {normalizedWeekLabel}";
+        string subjectPrefix = string.IsNullOrWhiteSpace(composition.RehearsalSubjectPrefix)
+            ? string.Empty
+            : composition.RehearsalSubjectPrefix.Trim();
+        string subject = $"{subjectPrefix}{productName} weekly digest — {normalizedWeekLabel}";
 
         return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
             tenantId,

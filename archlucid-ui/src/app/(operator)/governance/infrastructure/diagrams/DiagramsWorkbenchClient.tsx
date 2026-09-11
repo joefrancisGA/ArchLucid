@@ -65,6 +65,7 @@ import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/i
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
 import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra-evidence/infra-evidence-mermaid-render-status-presentation";
+import { isInfraEvidenceMermaidDiagramEmpty } from "@/lib/infra-evidence/infra-evidence-mermaid-empty-content";
 import { parseInfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import {
   dependencyNeighborhoodRequiresAppliedSeed,
@@ -107,6 +108,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_DIALOG_DISMISS,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE,
@@ -242,7 +245,6 @@ export function DiagramsWorkbenchClient() {
   const [pngBrowserFallbackNote, setPngBrowserFallbackNote] = useState<string | null>(null);
   const [exportableSvgMarkup, setExportableSvgMarkup] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [browserRenderBlocked, setBrowserRenderBlocked] = useState(false);
   const [loadGeneration, setLoadGeneration] = useState(0);
 
   const { data: brandingPresentation } = useTenantBrandingPresentationQuery({ context: "MermaidDiagram" });
@@ -371,7 +373,8 @@ export function DiagramsWorkbenchClient() {
     selectedMode,
     appliedSeedNodeId,
   );
-  const tooLargeForBrowser = exceedsInfraEvidenceMermaidClientGuard(metrics) || browserRenderBlocked;
+  const tooLargeForBrowser = exceedsInfraEvidenceMermaidClientGuard(metrics);
+  const diagramContentEmpty = isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount);
   const renderInFlight = loadingPreview || loadingRender;
   const exportsDisabled =
     exportBusy || renderInFlight || selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing || dependencyNeighborhoodAwaitingSeed;
@@ -386,9 +389,9 @@ export function DiagramsWorkbenchClient() {
 
     return resolveInfraEvidenceMermaidRenderStatusPresentation({
       status,
-      mermaidEmpty: mermaidSource.trim().length === 0 && status === "Succeeded",
+      mermaidEmpty: diagramContentEmpty && status === "Succeeded",
     });
-  }, [activeModePreview?.status, mermaidSource, renderResult?.status]);
+  }, [activeModePreview?.status, diagramContentEmpty, mermaidSource, renderResult?.status]);
 
   const mermaidOutline = useMemo(() => {
     if (mermaidSource.trim().length === 0) {
@@ -444,11 +447,11 @@ export function DiagramsWorkbenchClient() {
   }, []);
 
   const handleRenderFailure = useCallback(() => {
-    setBrowserRenderBlocked(true);
+    // ArchitectureDiagramViewer surfaces retry; client render failures are not oversized-graph guards.
   }, []);
 
   const handleRenderRetry = useCallback(() => {
-    setBrowserRenderBlocked(false);
+    // Retry is owned by ArchitectureDiagramViewer.
   }, []);
 
   useEffect(() => {
@@ -547,19 +550,18 @@ export function DiagramsWorkbenchClient() {
       setRenderResult(null);
       setLoadError(null);
       setLoadingRender(false);
-      setBrowserRenderBlocked(false);
       return;
     }
 
+    const activeRenderQuery = renderQuery;
     let cancelled = false;
 
     async function loadRender() {
       setLoadingRender(true);
       setLoadError(null);
-      setBrowserRenderBlocked(false);
 
       try {
-        const response = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, renderQuery);
+        const response = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, activeRenderQuery);
 
         if (!cancelled) {
           setRenderResult(response);
@@ -1177,6 +1179,12 @@ export function DiagramsWorkbenchClient() {
           </div>
           {mermaidOutline != null ? <InfraEvidenceDiagramOutline outline={mermaidOutline} /> : null}
         </>
+      ) : diagramContentEmpty && renderResult?.status === "Succeeded" ? (
+        <EnterpriseCompactEmptyState
+          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE}
+          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY}
+          testId="infra-diagrams-empty-content"
+        />
       ) : mermaidSource.trim().length > 0 ? (
         <>
           <ArchitectureDiagramViewer

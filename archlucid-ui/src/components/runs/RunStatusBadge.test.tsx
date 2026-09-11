@@ -2,13 +2,19 @@ import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const runStatusVocabularyPassForced = vi.hoisted(() => ({ on: null as boolean | null }));
+const workingDeskMock = vi.hoisted(() => ({ value: false }));
+const effectiveDoorMock = vi.hoisted(() => ({ value: "career" as "career" | "rehearsal" }));
 
 vi.mock("@/hooks/use-effective-working-career-rehearsal-door", () => ({
   useEffectiveWorkingCareerRehearsalDoor: () => ({
-    door: "career",
-    effectiveDoor: "career",
+    door: effectiveDoorMock.value,
+    effectiveDoor: effectiveDoorMock.value,
     mounted: true,
   }),
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => workingDeskMock.value,
 }));
 
 vi.mock("@/hooks/use-health-ready-summary-query", () => ({
@@ -55,6 +61,8 @@ const base: RunSummary = {
 
 afterEach(() => {
   runStatusVocabularyPassForced.on = null;
+  workingDeskMock.value = false;
+  effectiveDoorMock.value = "career";
 });
 
 describe("deriveRunListPipelineLabel", () => {
@@ -117,6 +125,23 @@ describe("deriveRunListPipelineLabel", () => {
           hasGoldenManifest: false,
           structuralExecutionMode: "Real",
           workingCareerRehearsalDoor: "rehearsal",
+        },
+        {
+          workingDesk: true,
+          effectiveWorkingCareerRehearsalDoor: "career",
+        },
+      ),
+    ).toBe("In pipeline");
+  });
+
+  it("suppresses Ready to finalize on Working Career + Simulator (CG-030)", () => {
+    expect(
+      deriveRunListPipelineLabel(
+        {
+          ...base,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          structuralExecutionMode: "Simulator",
         },
         {
           workingDesk: true,
@@ -202,5 +227,67 @@ describe("RunStatusBadge", () => {
     );
 
     expect(screen.getByLabelText(/Review status: Needs attention/i)).toBeInTheDocument();
+  });
+
+  it("shows Career blocked on Working finalized Career + Simulator (CG-031)", () => {
+    runStatusVocabularyPassForced.on = true;
+    workingDeskMock.value = true;
+    effectiveDoorMock.value = "career";
+
+    const { container } = renderRunStatusBadge({
+      ...base,
+      hasGoldenManifest: true,
+      structuralExecutionMode: "Simulator",
+    });
+
+    expect(screen.getByLabelText(/Review status: Career blocked/i)).toBeInTheDocument();
+    const pill = container.querySelector('[aria-label="Review status: Career blocked"]');
+    expect(pill?.className).not.toContain("bg-[var(--al-status-ready-bg)]");
+    expect(pill?.className).toContain("bg-[var(--al-status-blocked-bg)]");
+  });
+
+  it("shows Rehearsal incomplete on Working finalized Rehearsal + Simulator (CG-031)", () => {
+    runStatusVocabularyPassForced.on = true;
+    workingDeskMock.value = true;
+    effectiveDoorMock.value = "rehearsal";
+
+    const { container } = renderRunStatusBadge({
+      ...base,
+      hasGoldenManifest: true,
+      structuralExecutionMode: "Simulator",
+    });
+
+    expect(screen.getByLabelText(/Review status: Rehearsal incomplete/i)).toBeInTheDocument();
+    const pill = container.querySelector('[aria-label="Review status: Rehearsal incomplete"]');
+    expect(pill?.className).not.toContain("bg-[var(--al-status-ready-bg)]");
+  });
+
+  it("shows Practice on Working finalized Rehearsal + Real (CG-031)", () => {
+    runStatusVocabularyPassForced.on = true;
+    workingDeskMock.value = true;
+    effectiveDoorMock.value = "rehearsal";
+
+    renderRunStatusBadge({
+      ...base,
+      hasGoldenManifest: true,
+      structuralExecutionMode: "Real",
+    });
+
+    expect(screen.getByLabelText(/Review status: Practice/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Review status: Ready/i)).not.toBeInTheDocument();
+  });
+
+  it("keeps Ready on Working finalized Career + Real (CG-031)", () => {
+    runStatusVocabularyPassForced.on = true;
+    workingDeskMock.value = true;
+    effectiveDoorMock.value = "career";
+
+    renderRunStatusBadge({
+      ...base,
+      hasGoldenManifest: true,
+      structuralExecutionMode: "Real",
+    });
+
+    expect(screen.getByLabelText(/Review status: Ready/i)).toBeInTheDocument();
   });
 });

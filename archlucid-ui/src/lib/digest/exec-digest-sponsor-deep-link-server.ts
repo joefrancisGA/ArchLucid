@@ -6,6 +6,7 @@ export type ExecDigestSponsorDeepLinkHighlightedRun = {
   readonly runIdHex: string;
   readonly significanceScore: number;
   readonly caption?: string | null;
+  readonly rehearsalRowLabel?: string | null;
 };
 
 export type ExecDigestSponsorDeepLinkView = {
@@ -16,6 +17,7 @@ export type ExecDigestSponsorDeepLinkView = {
   readonly complianceDriftMarkdown?: string | null;
   readonly findingsDeltaSummary?: string | null;
   readonly decisionNeededMarkdown?: string | null;
+  readonly rehearsalBodyDisclaimer?: string | null;
   readonly runIdHex?: string | null;
   readonly runSummaryMarkdown?: string | null;
   readonly signInUrl: string;
@@ -29,6 +31,7 @@ type ExecDigestSponsorDeepLinkViewResponse = {
   complianceDriftMarkdown?: string | null;
   findingsDeltaSummary?: string | null;
   decisionNeededMarkdown?: string | null;
+  rehearsalBodyDisclaimer?: string | null;
   runIdHex?: string | null;
   runSummaryMarkdown?: string | null;
   signInUrl?: string;
@@ -38,6 +41,7 @@ type ExecDigestSponsorDeepLinkHighlightedRunResponse = {
   runIdHex?: string;
   significanceScore?: number;
   caption?: string | null;
+  rehearsalRowLabel?: string | null;
 };
 
 export async function fetchExecDigestSponsorDeepLinkView(
@@ -79,10 +83,12 @@ function mapResponse(payload: ExecDigestSponsorDeepLinkViewResponse): ExecDigest
       runIdHex: run.runIdHex ?? "",
       significanceScore: run.significanceScore ?? 0,
       caption: run.caption,
+      rehearsalRowLabel: run.rehearsalRowLabel,
     })),
     complianceDriftMarkdown: payload.complianceDriftMarkdown,
     findingsDeltaSummary: payload.findingsDeltaSummary,
     decisionNeededMarkdown: payload.decisionNeededMarkdown,
+    rehearsalBodyDisclaimer: payload.rehearsalBodyDisclaimer,
     runIdHex: payload.runIdHex,
     runSummaryMarkdown: payload.runSummaryMarkdown,
     signInUrl: normalizeSignInUrl(payload.signInUrl),

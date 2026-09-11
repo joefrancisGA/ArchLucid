@@ -94,6 +94,7 @@ const bannedStaticImports = [
   './RunDetailArtifactsExportsSection"',
   './RunDetailWorkspaceChrome"',
   './RunDetailWorkspaceStickyActions"',
+  './RunDetailWorkspaceStickyActionsResolved"',
   './ReviewPackagePrimaryAction"',
   './ReviewPackageDoThisNextStrip"',
   './RunDetailSponsorBottomLine"',
@@ -301,7 +302,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
       'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceSummaryStripTabAware")',
     );
     expect(manifestLoaderSource).toContain(
-      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceStickyActions")',
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceStickyActionsResolved")',
     );
     expect(manifestLoaderSource).toContain('import("@/components/runs/RunDetailSectionNav")');
     expect(manifestLoaderSource).toContain('import("@/components/runs/RunDetailOutcomeCards")');
@@ -489,6 +490,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).not.toContain('import("./RunDetailGovernanceDecisionSection")');
     expect(deferredChunksSource).not.toContain('import("./RunDetailReviewPackageSection")');
     expect(deferredChunksSource).not.toContain('import("./RunDetailSubmittedArchitectureSection")');
+    expect(deferredChunksSource).toContain("RunDetailWorkspaceStickyActionsResolvedDeferred");
     expect(deferredChunksSource).toContain("RunDetailWorkspaceStickyActionsDeferred");
     expect(deferredChunksSource).toContain("ReviewPackagePrimaryActionDeferred");
     expect(deferredChunksSource).toContain("RunDetailSponsorBottomLineDeferred");
@@ -501,6 +503,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain("RunDetailBuyerModeFallbackBannerDeferred");
     expect(deferredChunksSource).not.toContain('import("./RunDetailWorkspaceChrome")');
     expect(deferredChunksSource).not.toContain('import("./RunDetailWorkspaceStickyActions")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailWorkspaceStickyActionsResolved")');
     expect(deferredChunksSource).not.toContain('import("@/components/runs/RunDetailSectionNav")');
     expect(deferredChunksSource).not.toContain(
       'import("./RunDetailWorkspaceSummaryStripTabAware")',

@@ -244,6 +244,18 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
       "Reviews can pass through approval workflows, produce finalized review records, and maintain an audit trail linking findings, evidence, and decisions. Exports support diligence and architecture review board accountability.",
   },
   {
+    id: "itsm-connectors-v1",
+    categoryId: "governance-audit",
+    question: "Does ArchLucid integrate with Jira or ServiceNow?",
+    answer:
+      "Yes. First-party Jira and ServiceNow connectors are part of the V1 GA buyer contract. You can correlate findings, export ITSM-ready payloads, and create outbound issues or incidents when your workspace enables native ITSM actions. See the integration catalog and product pages for connector setup.",
+    relatedLinks: [
+      { label: "Integration catalog", href: inAppHelpHref("integrations") },
+      { label: "Jira integration", href: "/integrations/jira" },
+      { label: "ServiceNow integration", href: "/integrations/servicenow" },
+    ],
+  },
+  {
     id: "security-assurance-materials",
     categoryId: "security-trust",
     question: "What security assurance materials are available?",

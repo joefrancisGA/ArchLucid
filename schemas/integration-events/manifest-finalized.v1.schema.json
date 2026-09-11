@@ -12,7 +12,10 @@
     "tenantId",
     "workspaceId",
     "projectId",
-    "findingsSnapshotId"
+    "findingsSnapshotId",
+    "structuralExecutionMode",
+    "workingCareerRehearsalDoor",
+    "careerComplete"
   ],
   "properties": {
     "schemaVersion": { "type": "integer", "const": 1 },
@@ -24,7 +27,21 @@
     "projectId": { "type": "string", "format": "uuid" },
     "findingsSnapshotId": { "type": "string", "format": "uuid" },
     "artifactBundleId": { "type": "string", "format": "uuid" },
-    "manifestVersion": { "type": "string" }
+    "manifestVersion": { "type": "string" },
+    "structuralExecutionMode": {
+      "type": "string",
+      "enum": ["Simulator", "Real", "Fallback", "Mixed"],
+      "description": "CG-093 — INV-002 structural execution mode stamped on the run at finalize."
+    },
+    "workingCareerRehearsalDoor": {
+      "type": "string",
+      "enum": ["career", "rehearsal"],
+      "description": "CG-093 — CG-019 Working Career vs Rehearsal door captured at first execute."
+    },
+    "careerComplete": {
+      "type": "boolean",
+      "description": "CG-093 — true only when Career door + Real mode on a non-sample run."
+    }
   },
   "additionalProperties": true
 }

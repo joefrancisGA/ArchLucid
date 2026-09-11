@@ -169,11 +169,13 @@ public sealed class ExecDigestSponsorDeepLinkReadService(
                     RunIdHex = run.RunIdHex,
                     SignificanceScore = run.SignificanceScore,
                     Caption = run.Caption,
+                    RehearsalRowLabel = run.RehearsalRowLabel,
                 })
                 .ToArray(),
             ComplianceDriftMarkdown = composition.ComplianceDriftMarkdown,
             FindingsDeltaSummary = composition.FindingsDeltaSummary,
             DecisionNeededMarkdown = composition.DecisionNeededMarkdown,
+            RehearsalBodyDisclaimer = composition.RehearsalBodyDisclaimer,
             SignInUrl = signInUrl,
         };
     }

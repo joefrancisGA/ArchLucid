@@ -57,6 +57,13 @@ import { getRunStageTimeline } from "@/lib/api/architecture-runs";
 import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
 import { useReviewPipelineInFlightForRun } from "@/hooks/use-review-pipeline-in-flight-for-run";
 import { REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE } from "@/lib/review-execution-background-safety-copy";
+import {
+  RUN_PROGRESS_TRACKER_CAREER_BLOCKED_TERMINAL_STATUS,
+  RUN_PROGRESS_TRACKER_CAREER_BLOCKED_SIGNED_RECORD_LABEL,
+  RUN_PROGRESS_TRACKER_REHEARSAL_INCOMPLETE_TERMINAL_STATUS,
+  RUN_PROGRESS_TRACKER_REHEARSAL_PRACTICE_TERMINAL_STATUS,
+  RUN_PROGRESS_TRACKER_REHEARSAL_SIGNED_RECORD_LABEL,
+} from "@/lib/runs/run-progress-tracker-career-honesty";
 
 const mockGetRunSummary = vi.mocked(getRunSummary);
 const mockGetRunStageTimeline = vi.mocked(getRunStageTimeline);
@@ -139,6 +146,34 @@ describe("RunProgressTracker", () => {
     expect(screen.queryByRole("button", { name: /retry polling/i })).not.toBeInTheDocument();
   });
 
+  it("suppresses Ready to finalize copy on Working Career + Simulator (CG-030)", async () => {
+    effectiveDoorMock.value = "career";
+    workingDeskMock.value = true;
+
+    render(
+      <RunProgressTracker
+        runId="prefinalize-simulator-career-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "prefinalize-simulator-career-1",
+          hasContextSnapshot: true,
+          hasGraphSnapshot: true,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          structuralExecutionMode: "Simulator",
+        }}
+        preFinalizeReadyToFinalize
+        buyerAssessmentCopy
+      />,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.queryByText(/Ready to finalize/i)).not.toBeInTheDocument();
+  });
+
   it("suppresses Ready to finalize copy on Working Rehearsal door (AS-079)", async () => {
     effectiveDoorMock.value = "rehearsal";
     workingDeskMock.value = true;
@@ -164,6 +199,105 @@ describe("RunProgressTracker", () => {
     });
 
     expect(screen.queryByText(/Ready to finalize/i)).not.toBeInTheDocument();
+    expect(screen.getByText(RUN_PROGRESS_TRACKER_REHEARSAL_PRACTICE_TERMINAL_STATUS)).toBeInTheDocument();
+    expect(screen.getByText("Rehearsal record")).toBeInTheDocument();
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Practice");
+  });
+
+  it("shows Career blocked terminal copy on Working Career + Simulator (CG-032)", async () => {
+    workingDeskMock.value = true;
+    effectiveDoorMock.value = "career";
+
+    render(
+      <RunProgressTracker
+        runId="prefinalize-simulator-career-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "prefinalize-simulator-career-1",
+          hasContextSnapshot: true,
+          hasGraphSnapshot: true,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          structuralExecutionMode: "Simulator",
+        }}
+        preFinalizeReadyToFinalize
+        buyerAssessmentCopy
+      />,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText(RUN_PROGRESS_TRACKER_CAREER_BLOCKED_TERMINAL_STATUS)).toBeInTheDocument();
+    expect(screen.queryByText(/Ready to finalize/i)).not.toBeInTheDocument();
+    expect(screen.getByText(RUN_PROGRESS_TRACKER_CAREER_BLOCKED_SIGNED_RECORD_LABEL)).toBeInTheDocument();
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Career blocked");
+    expect(screen.getByText("Findings ready (rehearsal)")).toBeInTheDocument();
+  });
+
+  it("shows Rehearsal incomplete terminal copy on Working Rehearsal + Simulator (CG-032)", async () => {
+    workingDeskMock.value = true;
+    effectiveDoorMock.value = "rehearsal";
+
+    render(
+      <RunProgressTracker
+        runId="prefinalize-rehearsal-simulator-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "prefinalize-rehearsal-simulator-1",
+          hasContextSnapshot: true,
+          hasGraphSnapshot: true,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          structuralExecutionMode: "Simulator",
+        }}
+        preFinalizeReadyToFinalize
+        buyerAssessmentCopy
+      />,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText(RUN_PROGRESS_TRACKER_REHEARSAL_INCOMPLETE_TERMINAL_STATUS)).toBeInTheDocument();
+    expect(screen.getByText(RUN_PROGRESS_TRACKER_REHEARSAL_SIGNED_RECORD_LABEL)).toBeInTheDocument();
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Rehearsal incomplete");
+  });
+
+  it("uses engineering rehearsal-complete status on Working Career + Simulator (CG-033)", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    workingDeskMock.value = true;
+    effectiveDoorMock.value = "career";
+
+    mockGetRunSummary.mockResolvedValue({
+      ...baseSummary,
+      runId: "engineering-simulator-career-1",
+      hasContextSnapshot: true,
+      hasGraphSnapshot: true,
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      structuralExecutionMode: "Simulator",
+    });
+
+    render(
+      <RunProgressTracker
+        runId="engineering-simulator-career-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "engineering-simulator-career-1",
+          hasContextSnapshot: true,
+        }}
+      />,
+    );
+
+    await act(async () => {
+      await vi.runOnlyPendingTimersAsync();
+    });
+
+    expect(screen.getByText(/Career blocked on Simulator/i)).toBeInTheDocument();
+    expect(screen.queryByText("Pipeline complete — refresh for full detail.")).not.toBeInTheDocument();
   });
 
   it("enters pre-finalize terminal from live summary while assessment is still running on mount", async () => {
