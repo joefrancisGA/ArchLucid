@@ -29,3 +29,18 @@ export const WORKING_SIMULATOR_CLONE_REHEARSAL_BANNER_TITLE =
 
 export const WORKING_SIMULATOR_CLONE_REHEARSAL_BANNER_BODY =
   "This host is pinned to rule-based analysis. Working stays in Rehearsal so clones without live AI keep running. This is rehearsal, not a sample workspace and not Guided teaching. Career execute stays blocked until live AI is ready.";
+
+export const SECURITY_WORKING_CAREER_HONESTY_STRIP_TITLE =
+  "Security Working — Simulator is not Career";
+
+export const SECURITY_WORKING_CAREER_HONESTY_STRIP_BODY =
+  "This product line hides the Career / Rehearsal control. Hiding it does not make Simulator Career.";
+
+export const SECURITY_WORKING_CAREER_HONESTY_STRIP_HELP_LABEL = "Career / Rehearsal doors";
+
+export const WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_TITLE =
+  "Change execution door during in-flight analysis?";
+
+export const WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_ACTION = "Change door";
+
+export const WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CANCEL_ACTION = "Keep current door";

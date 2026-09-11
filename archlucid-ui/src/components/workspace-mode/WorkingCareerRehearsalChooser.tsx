@@ -6,16 +6,20 @@ import { useCallback, useState, type ReactElement } from "react";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { OperatorSegmentedModeToolbar } from "@/components/advisory/OperatorSegmentedModeToolbar";
 import { WorkingCareerDoorBlockedDialog } from "@/components/workspace-mode/WorkingCareerDoorBlockedDialog";
+import { WorkingCareerRehearsalDoorChangeConfirmDialog } from "@/components/workspace-mode/WorkingCareerRehearsalDoorChangeConfirmDialog";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
+import { useHasInFlightReviewPipeline } from "@/hooks/use-has-in-flight-review-pipeline";
 import {
   useEvaluateWorkingCareerDoorGate,
   useWorkingCareerDoorGate,
 } from "@/hooks/use-working-career-door-gate";
+import { useSessionAiReadiness } from "@/hooks/session-ai-readiness-context";
 import type { WorkingCareerDoorGateResult } from "@/lib/governance/working-career-door-gate";
+import { resolveWorkingCareerDoorHostModeMatrixCell } from "@/lib/governance/working-career-door-host-mode-matrix";
 import { useWorkingCareerRehearsalDoor } from "@/hooks/use-working-career-rehearsal-door";
-import { WORKING_CAREER_DOOR_BLOCKED_TITLE } from "@/lib/governance/working-career-door-gate-copy";
 import {
   WORKING_CAREER_DOOR_DETAIL,
   WORKING_CAREER_REHEARSAL_CHOOSER_ARIA_LABEL,
@@ -28,6 +32,12 @@ import {
   labelForWorkingCareerRehearsalDoor,
   type WorkingCareerRehearsalDoorId,
 } from "@/lib/governance/working-career-rehearsal-door";
+import {
+  shouldRegisterWorkingCareerRehearsalChooserShortcut,
+  WORKING_CAREER_REHEARSAL_CHOOSER_TEST_ID,
+  type WorkingCareerRehearsalChooserSource,
+} from "@/lib/governance/working-career-rehearsal-chooser-keyboard";
+import { shouldConfirmWorkingCareerRehearsalDoorChange } from "@/lib/governance/working-career-rehearsal-door-mid-review-confirm";
 import { WORKING_CAREER_REHEARSAL_DOOR_SHORTCUT_KEY } from "@/lib/governance/working-career-rehearsal-door-shortcuts";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
@@ -35,6 +45,8 @@ import { cn } from "@/lib/utils";
 
 export type WorkingCareerRehearsalChooserProps = {
   readonly className?: string;
+  /** Command bar is the keyboard host. Findings is the same control without a second shortcut. */
+  readonly source?: WorkingCareerRehearsalChooserSource;
 };
 
 const DOOR_OPTIONS: readonly { readonly id: WorkingCareerRehearsalDoorId; readonly detail: string }[] = [
@@ -46,18 +58,34 @@ export function workingCareerRehearsalDoorTestId(door: WorkingCareerRehearsalDoo
   return `working-career-rehearsal-door-${door}`;
 }
 
+export { WORKING_CAREER_REHEARSAL_CHOOSER_TEST_ID };
+
 /**
  * Persistent Working execution door control (Career vs Rehearsal) for the operator shell top bar.
  * Hidden on Guided seats — not a buyer pill (ADR 0086 / AS-077). Career is blocked when the host
  * cannot run Real execute (AS-078 / TB-1299). AS-082 learn-more handoff: `/help/career-rehearsal-doors`.
+ * In-flight analysis requires confirm before the account door changes (CG-018); stamp lock is CG-019.
  */
 export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChooserProps): ReactElement | null {
+  const source = props.source ?? "command-bar";
   const { mode, mounted: workspaceMounted } = useWorkspaceMode();
   const { door, mounted: doorMounted, setDoor } = useWorkingCareerRehearsalDoor();
   const gate = useWorkingCareerDoorGate(door);
   const evaluateGate = useEvaluateWorkingCareerDoorGate();
+  const hasInFlightReview = useHasInFlightReviewPipeline();
+  const { mode: sessionMode } = useAgentExecutionMode();
+  const readiness = useSessionAiReadiness();
+  const matrix = resolveWorkingCareerDoorHostModeMatrixCell({
+    selectedDoor: door,
+    gate,
+    isSessionReal: readiness.isSessionReal,
+    hostMode: readiness.hostMode,
+    sessionMode,
+  });
   const [blockedDialogOpen, setBlockedDialogOpen] = useState(false);
   const [blockedDialogGate, setBlockedDialogGate] = useState<WorkingCareerDoorGateResult | null>(null);
+  const [pendingDoor, setPendingDoor] = useState<WorkingCareerRehearsalDoorId | null>(null);
+  const canShow = workspaceMounted && doorMounted && isWorkingWorkspaceMode(mode);
 
   const requestDoor = useCallback(
     (nextDoor: WorkingCareerRehearsalDoorId) => {
@@ -70,9 +98,21 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
         return;
       }
 
+      if (
+        shouldConfirmWorkingCareerRehearsalDoorChange({
+          currentDoor: door,
+          nextDoor,
+          hasInFlightReviewPipeline: hasInFlightReview,
+        })
+      ) {
+        setPendingDoor(nextDoor);
+
+        return;
+      }
+
       setDoor(nextDoor);
     },
-    [evaluateGate, setDoor],
+    [door, evaluateGate, hasInFlightReview, setDoor],
   );
 
   const cycleDoor = useCallback(() => {
@@ -81,27 +121,33 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
     requestDoor(nextDoor);
   }, [door, requestDoor]);
 
-  useKeyboardShortcuts({
-    [WORKING_CAREER_REHEARSAL_DOOR_SHORTCUT_KEY]: {
-      description: "Cycle Working execution door",
-      handler: cycleDoor,
-    },
-  });
+  useKeyboardShortcuts(
+    canShow && shouldRegisterWorkingCareerRehearsalChooserShortcut(source)
+      ? {
+          [WORKING_CAREER_REHEARSAL_DOOR_SHORTCUT_KEY]: {
+            description: "Cycle Working execution door",
+            handler: cycleDoor,
+          },
+        }
+      : {},
+  );
 
-  if (!workspaceMounted || !doorMounted || !isWorkingWorkspaceMode(mode)) {
+  if (!canShow) {
     return null;
   }
 
-  const activeDetail = gate.isCareerExecuteBlocked
-    ? gate.blockedDetail ?? WORKING_CAREER_DOOR_BLOCKED_TITLE
+  const activeDetail = matrix.showStatusTag
+    ? matrix.detail
     : DOOR_OPTIONS.find((option) => option.id === door)?.detail ?? WORKING_REHEARSAL_DOOR_DETAIL;
 
   return (
     <>
       <span
         className={cn("inline-flex max-w-[min(100%,20rem)] items-center gap-1.5 sm:max-w-none", props.className)}
-        data-testid="working-career-rehearsal-chooser"
-        data-effective-door={gate.isCareerExecuteBlocked ? "rehearsal" : door}
+        data-testid={WORKING_CAREER_REHEARSAL_CHOOSER_TEST_ID}
+        data-chooser-source={source}
+        data-effective-door={matrix.effectiveDoor}
+        data-door-host-mode-cell={matrix.cellId}
         aria-keyshortcuts={registryKeyToAriaKeyShortcuts(WORKING_CAREER_REHEARSAL_DOOR_SHORTCUT_KEY)}
       >
         <OperatorSegmentedModeToolbar
@@ -116,15 +162,16 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
               requestDoor(tabId);
             }
           }}
+          enableArrowKeyboard
           ariaLabel={WORKING_CAREER_REHEARSAL_CHOOSER_ARIA_LABEL}
           className="mb-0 gap-1"
         />
-        {gate.isCareerExecuteBlocked ? (
+        {matrix.showStatusTag ? (
           <StatusTag
-            kind="blocked"
-            label="Blocked"
+            kind={matrix.statusTagKind}
+            label={matrix.statusLabel}
             className="shrink-0"
-            data-testid="working-career-door-blocked-tag"
+            data-testid={matrix.matrixTestId}
           />
         ) : null}
         <FieldHelpTooltip
@@ -146,6 +193,23 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
         gate={blockedDialogGate ?? gate}
         onSwitchToRehearsal={() => {
           setDoor("rehearsal");
+        }}
+      />
+      <WorkingCareerRehearsalDoorChangeConfirmDialog
+        open={pendingDoor !== null}
+        currentDoor={door}
+        nextDoor={pendingDoor}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDoor(null);
+          }
+        }}
+        onConfirm={() => {
+          if (pendingDoor !== null) {
+            setDoor(pendingDoor);
+          }
+
+          setPendingDoor(null);
         }}
       />
     </>
