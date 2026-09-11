@@ -105,6 +105,10 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Email-to-sponsor gate (CG-029):** `EmailRunToSponsorBanner` inherits the sponsor PDF honesty gate (`evaluateCareerArtifactHonesty` with CG-019 door stamp and `simulatorRehearsalBannerOnArtifact`). Working **Career** door + Simulator/Fallback cannot compose or mark-sent. **Rehearsal** door on Simulator requires TB-2005 rehearsal honesty acknowledgment before compose/mark-sent; `mailto` subject is forced to `[Rehearsal] …` and body carries rehearsal disclaimer lines so outbox drafts cannot look Career-complete.
 
+**Run status badge rehearsal honesty (CG-031):** `RunStatusBadge` on Working reads CG-019 door stamp plus effective door and applies `applyRunStatusBadgeWorkingCareerHonesty` on finalized runs via `resolveRunPipelineStatusPresentation`. Career + Real keeps buyer **Ready**; Career + Simulator shows **Career blocked** (blocked chip, not green); Rehearsal + Simulator shows **Rehearsal incomplete**; Rehearsal + Real shows **Practice**. Labels are grayscale-safe text — not color-only.
+
+**Progress tracker rehearsal honesty (CG-032):** `use-run-progress-tracker` reuses CG-031 door×Mode cells via `resolveRunProgressTrackerCareerHonesty`. When analysis finishes but career honesty blocks a Career seal, terminal copy names **Career blocked**, **Rehearsal incomplete**, or **Practice** instead of Ready-to-finalize or generic “stages complete.” `RunProgressTrackerStagesView` swaps step labels (**Rehearsal record**, **Findings ready (rehearsal)**) and uses **Rehearsal complete** / blocked pending tags — not green Career-complete chips. Background wait (PC-08) is unchanged; no fake `percentComplete`.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
