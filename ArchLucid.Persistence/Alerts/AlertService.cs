@@ -125,6 +125,8 @@ public sealed class AlertService(
             manifestHashService,
             ct);
 
+        await AlertCareerHonestyApplicator.ApplyAsync(alert, context, authorityQueryService, ct);
+
         await alertRepository.CreateAsync(alert, ct);
 
         await auditService.LogAsync(

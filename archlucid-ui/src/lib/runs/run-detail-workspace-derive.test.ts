@@ -100,6 +100,31 @@ describe("run-detail-workspace-derive", () => {
     expect(status.kind).toBe("review-complete");
   });
 
+  it("uses rehearsal complete copy on Working Career + Simulator (CG-033)", () => {
+    const status = deriveRunDetailWorkspaceStatus({
+      run: {
+        runId: "r1",
+        projectId: "p1",
+        createdUtc: "2026-01-01T00:00:00Z",
+        hasContextSnapshot: true,
+        hasGraphSnapshot: true,
+        hasFindingsSnapshot: true,
+        structuralExecutionMode: "Simulator",
+        completedUtc: "2026-01-02T00:00:00Z",
+      } as RunSummary,
+      manifestId: null,
+      manifestStatus: null,
+      showProgressTracker: false,
+      operatorGovernanceDecision: null,
+      buyerPolishedArtifactTable: false,
+      workingDesk: true,
+      effectiveWorkingCareerRehearsalDoor: "career",
+    });
+
+    expect(status.label).toBe("Career blocked — not complete");
+    expect(status.statusTagKind).toBe("blocked");
+  });
+
   it("distinguishes quality-gate reject from execution failed (TB-965)", () => {
     const quality = deriveRunDetailWorkspaceStatus({
       run: {

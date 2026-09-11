@@ -65,6 +65,24 @@ vi.mock("./RoiSummaryNextReviewFooterClient", () => ({
   RoiSummaryNextReviewFooterClient: () => <div data-testid="roi-summary-next-review-footer-stub" />,
 }));
 
+const roiTileHonestyMock = vi.hoisted(() => ({
+  presentation: null as {
+    cellId: string;
+    title: string;
+    body: string;
+    roiSectionQualifier: string;
+  } | null,
+}));
+
+vi.mock("@/hooks/use-roi-tile-career-honesty", () => ({
+  useRoiTileCareerHonesty: () => roiTileHonestyMock.presentation,
+}));
+
+vi.mock("@/components/roi/RoiTileCareerHonestyStrip", () => ({
+  RoiTileCareerHonestyStrip: () =>
+    roiTileHonestyMock.presentation === null ? null : <div data-testid="roi-tile-career-honesty-strip" />,
+}));
+
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: { href: string; children: ReactNode; [key: string]: unknown }) => (
     <a href={href} {...rest}>
@@ -125,6 +143,7 @@ function buildModel(overrides: Partial<RoiSummaryPageViewModel> = {}): RoiSummar
 describe("RoiSummaryPageView", () => {
   beforeEach(() => {
     searchParamsState.value = "runId=run-roi-1";
+    roiTileHonestyMock.presentation = null;
   });
 
   it("mounts contextual help on ready state (TB-1973)", () => {
@@ -142,6 +161,20 @@ describe("RoiSummaryPageView", () => {
       "/architecture/reviews/new",
     );
     expect(screen.queryByRole("link", { name: "Start review" })).not.toBeInTheDocument();
+  });
+
+  it("shows CG-035 rehearsal honesty strip above ROI hero when stamp is not career-complete", () => {
+    roiTileHonestyMock.presentation = {
+      cellId: "career-simulator-blocked",
+      title: "Career blocked — ROI tiles are not career proof",
+      body: "Directional savings stay visible for rehearsal.",
+      roiSectionQualifier: "Rehearsal ROI",
+    };
+
+    render(<RoiSummaryPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("roi-tile-career-honesty-strip")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Value at a glance — Rehearsal ROI" })).toBeInTheDocument();
   });
 
   it("asks the operator to pick a review before summarizing", () => {

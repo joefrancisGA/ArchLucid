@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PilotValueReportPageView } from "./PilotValueReportPageView";
 import type { PilotValueReportPilotPageViewModel } from "./pilot-value-report-pilot-page-view-model";
@@ -42,12 +42,50 @@ vi.mock("@/components/WorkspaceActiveRunContext", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/insights/sponsor-report",
   useRouter: () => ({ replace: vi.fn() }),
   useSearchParams: () => new URLSearchParams("runId=run-sponsor-test"),
 }));
 
 vi.mock("./SponsorReportNextReviewFooterClient", () => ({
   SponsorReportNextReviewFooterClient: () => <div data-testid="sponsor-report-next-review-footer-client" />,
+}));
+
+const roiTileHonestyMock = vi.hoisted(() => ({
+  presentation: null as {
+    cellId: string;
+    title: string;
+    body: string;
+    roiSectionQualifier: string;
+  } | null,
+}));
+
+vi.mock("@/hooks/use-roi-tile-career-honesty", () => ({
+  useRoiTileCareerHonesty: () => roiTileHonestyMock.presentation,
+}));
+
+vi.mock("@/components/roi/RoiTileCareerHonestyStrip", () => ({
+  RoiTileCareerHonestyStrip: () =>
+    roiTileHonestyMock.presentation === null ? null : <div data-testid="roi-tile-career-honesty-strip" />,
+}));
+
+const valueReportHonestyMock = vi.hoisted(() => ({
+  presentation: null as {
+    kind: "scoped" | "period-mix";
+    title: string;
+    body: string;
+  } | null,
+}));
+
+vi.mock("@/hooks/use-value-report-career-honesty", () => ({
+  useValueReportCareerHonesty: () => valueReportHonestyMock.presentation,
+}));
+
+vi.mock("@/components/insights/ValueReportCareerHonestyStrip", () => ({
+  ValueReportCareerHonestyStrip: () =>
+    valueReportHonestyMock.presentation === null
+      ? null
+      : <div data-testid="value-report-career-honesty-strip" />,
 }));
 
 function buildModel(overrides: Partial<PilotValueReportPilotPageViewModel> = {}): PilotValueReportPilotPageViewModel {
@@ -83,6 +121,11 @@ function buildModel(overrides: Partial<PilotValueReportPilotPageViewModel> = {})
 }
 
 describe("PilotValueReportPageView", () => {
+  beforeEach(() => {
+    roiTileHonestyMock.presentation = null;
+    valueReportHonestyMock.presentation = null;
+  });
+
   it("mounts contextual help (TB-1968)", () => {
     render(<PilotValueReportPageView model={buildModel()} />);
 
@@ -230,6 +273,131 @@ describe("PilotValueReportPageView", () => {
     expect(screen.getByRole("heading", { name: "Finalized reviews" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Download report" })).toBeEnabled();
     expect(screen.queryByTestId("pilot-outcomes-empty-state")).not.toBeInTheDocument();
+  });
+
+  it("shows CG-035 rehearsal honesty strip above sponsor metrics when stamp is not career-complete", () => {
+    roiTileHonestyMock.presentation = {
+      cellId: "rehearsal-simulator",
+      title: "Rehearsal incomplete — ROI is rehearsal only",
+      body: "Directional savings stay visible for practice.",
+      roiSectionQualifier: "Rehearsal ROI",
+    };
+
+    render(
+      <PilotValueReportPageView
+        model={buildModel({
+          data: {
+            tenantId: "tenant-1",
+            fromUtc: "2026-03-01T00:00:00.000Z",
+            toUtc: "2026-04-01T00:00:00.000Z",
+            totalRunsCommitted: 2,
+            runDetailsTruncated: false,
+            runDetailCap: 50,
+            totalFindings: 3,
+            findingsBySeverity: { critical: 1, high: 1, medium: 1, low: 0, info: 0 },
+            totalRecommendationsProduced: 2,
+            averagePipelineCompletionSeconds: 90,
+            governanceApprovals: 1,
+            governanceRejections: 0,
+            policyPackAssignments: 1,
+            comparisonOrDriftDetections: 0,
+            uniqueAgentTypes: ["ArchitectureReviewer"],
+            committedRunsTimeline: [
+              {
+                runId: "run-1",
+                createdUtc: "2026-03-10T08:00:00.000Z",
+                committedUtc: "2026-03-11T08:00:00.000Z",
+                systemName: "Claims Intake",
+              },
+            ],
+            governancePendingApprovalsNow: 0,
+            auditExportTruncated: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("roi-tile-career-honesty-strip")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Review activity — Rehearsal ROI" })).toBeInTheDocument();
+  });
+
+  it("shows CG-090 route honesty strip for deep-linked rehearsal reviews", () => {
+    valueReportHonestyMock.presentation = {
+      kind: "scoped",
+      title: "Rehearsal incomplete — sponsor report is rehearsal only",
+      body: "Not measured procurement savings.",
+    };
+
+    render(
+      <PilotValueReportPageView
+        model={buildModel({
+          data: {
+            tenantId: "tenant-1",
+            fromUtc: "2026-03-01T00:00:00.000Z",
+            toUtc: "2026-04-01T00:00:00.000Z",
+            totalRunsCommitted: 1,
+            runDetailsTruncated: false,
+            runDetailCap: 50,
+            totalFindings: 1,
+            findingsBySeverity: { critical: 0, high: 1, medium: 0, low: 0, info: 0 },
+            totalRecommendationsProduced: 1,
+            averagePipelineCompletionSeconds: 90,
+            governanceApprovals: 0,
+            governanceRejections: 0,
+            policyPackAssignments: 0,
+            comparisonOrDriftDetections: 0,
+            uniqueAgentTypes: ["ArchitectureReviewer"],
+            committedRunsTimeline: [
+              {
+                runId: "run-sponsor-test",
+                createdUtc: "2026-03-10T08:00:00.000Z",
+                committedUtc: "2026-03-11T08:00:00.000Z",
+                systemName: "Claims Intake",
+              },
+            ],
+            governancePendingApprovalsNow: 0,
+            auditExportTruncated: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("value-report-career-honesty-strip")).toBeInTheDocument();
+  });
+
+  it("labels sample sponsor report without a duplicate CG-090 strip", () => {
+    render(
+      <PilotValueReportPageView
+        model={buildModel({
+          includesSampleData: true,
+          data: {
+            tenantId: "tenant-1",
+            fromUtc: "2026-03-01T00:00:00.000Z",
+            toUtc: "2026-04-01T00:00:00.000Z",
+            totalRunsCommitted: 1,
+            runDetailsTruncated: false,
+            runDetailCap: 50,
+            totalFindings: 0,
+            findingsBySeverity: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
+            totalRecommendationsProduced: 0,
+            averagePipelineCompletionSeconds: null,
+            governanceApprovals: 0,
+            governanceRejections: 0,
+            policyPackAssignments: 0,
+            comparisonOrDriftDetections: 0,
+            uniqueAgentTypes: [],
+            committedRunsTimeline: [],
+            governancePendingApprovalsNow: 0,
+            auditExportTruncated: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("pilot-outcomes-sample-banner").textContent).toContain(
+      "not measured procurement savings",
+    );
+    expect(screen.queryByTestId("value-report-career-honesty-strip")).not.toBeInTheDocument();
   });
 });
 

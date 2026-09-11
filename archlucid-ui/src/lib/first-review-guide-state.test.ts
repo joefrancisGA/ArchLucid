@@ -158,6 +158,37 @@ describe("first-review-guide-state", () => {
     expect(actions.primaryHref).toBe("/architecture/reviews/run-123");
   });
 
+  it("uses continue review when CG-091 suppresses ready-to-finalize on Working", () => {
+    const actions = resolveFirstReviewGuideHeaderActions({
+      commitContext: {
+        ...emptyContext,
+        latestRunId: "run-123",
+        latestRunReadyToFinalize: true,
+      },
+      canExecute: true,
+      finishSetupContext: null,
+      finishSetupLoaded: true,
+      workingMode: true,
+      suppressReadyToFinalize: true,
+    });
+
+    expect(actions.primaryLabel).toBe("Continue review");
+    expect(actions.primaryHref).toBe("/architecture/reviews/run-123");
+  });
+
+  it("omits sample walkthrough step on live tenant recovery shells (CG-091)", () => {
+    const steps = resolveFirstReviewGuideSteps({
+      commitContext: emptyContext,
+      canExecute: true,
+      finishSetupContext: null,
+      finishSetupLoaded: true,
+      hideSampleRecovery: true,
+    });
+
+    expect(steps[6]?.actionLabel).toBeNull();
+    expect(steps[6]?.actionHref).toBeNull();
+  });
+
   it("disables start when the caller cannot execute", () => {
     const actions = resolveFirstReviewGuideHeaderActions({
       commitContext: emptyContext,

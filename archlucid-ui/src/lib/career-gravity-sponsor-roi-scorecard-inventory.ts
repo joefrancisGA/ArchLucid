@@ -13,33 +13,33 @@ export type CareerGravitySponsorRoiRow = {
 export const CAREER_GRAVITY_SPONSOR_ROI_SCORECARD_ROWS: readonly CareerGravitySponsorRoiRow[] = [
   {
     relativePath: "archlucid-ui/src/app/(operator)/insights/sponsor-report/page.tsx",
-    leakClass: "bypass",
-    ownerPrompt: "CG-035",
+    leakClass: "covered",
+    ownerPrompt: "CG-090",
   },
   {
     relativePath: "archlucid-ui/src/app/(operator)/insights/roi-summary/_sections/RoiSummaryBuyerChrome.tsx",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-035",
   },
   {
     relativePath: "archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-034",
   },
   {
     relativePath: "archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardRoiPanel.tsx",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-034",
   },
   {
     relativePath:
       "archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPrimaryOutcomes.tsx",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-034",
   },
   {
     relativePath: "ArchLucid.Application/Roi/SponsorRoiSummaryService.cs",
-    leakClass: "bypass",
+    leakClass: "related",
     ownerPrompt: "CG-035",
   },
   {
