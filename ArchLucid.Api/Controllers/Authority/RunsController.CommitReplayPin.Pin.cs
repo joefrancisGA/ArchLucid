@@ -1,6 +1,7 @@
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -45,6 +46,10 @@ public sealed partial class RunsController
         try
         {
             await _runRepository.UpdateAsync(run, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
