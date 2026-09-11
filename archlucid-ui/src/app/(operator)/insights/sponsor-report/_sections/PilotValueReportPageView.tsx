@@ -50,6 +50,9 @@ import {
   resolveValueReportReportingSteps,
 } from "@/lib/value-report-reporting-checklist";
 
+import { RoiTileCareerHonestyStrip } from "@/components/roi/RoiTileCareerHonestyStrip";
+import { useRoiTileCareerHonesty } from "@/hooks/use-roi-tile-career-honesty";
+
 import { PilotOutcomesEmailConfirmDialog } from "./PilotOutcomesEmailConfirmDialog";
 import { PilotOutcomesEmptyState } from "./PilotOutcomesEmptyState";
 import { PilotOutcomesLoadFailure } from "./PilotOutcomesLoadFailure";
@@ -143,6 +146,10 @@ export function PilotValueReportPageView(props: Props) {
     reviewPicked: scopedRunFilterActive,
     reportReviewed: hasFinalizedReviews && m.data !== null,
     exportReady: m.canMutate && hasFinalizedReviews && !m.busy,
+  });
+  const roiTileCareerHonesty = useRoiTileCareerHonesty({
+    isSample: m.includesSampleData,
+    scopedRunId: scopedRunId,
   });
 
   return (
@@ -291,6 +298,7 @@ export function PilotValueReportPageView(props: Props) {
 
         {m.data !== null && hasFinalizedReviews && scopedRunFilterActive ? (
           <div className={OPERATOR_LAYOUT.sectionStack}>
+            <RoiTileCareerHonestyStrip isSample={m.includesSampleData} scopedRunId={scopedRunId} />
             <PilotValueReportMetricsSection
               data={m.data}
               executiveNarrative={executiveNarrative}
@@ -298,6 +306,7 @@ export function PilotValueReportPageView(props: Props) {
               criticalFindings={criticalFindings}
               highFindings={highFindings}
               materialFindings={materialFindings}
+              roiSectionQualifier={roiTileCareerHonesty?.roiSectionQualifier ?? null}
             />
             <PilotValueReportFindingsSection
               data={m.data}

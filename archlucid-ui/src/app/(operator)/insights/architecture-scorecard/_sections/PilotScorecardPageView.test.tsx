@@ -61,6 +61,26 @@ vi.mock("./ScorecardNextReviewFooterClient", () => ({
   ScorecardNextReviewFooterClient: () => <div data-testid="scorecard-next-review-footer-stub" />,
 }));
 
+const scorecardKpiHonestyMock = vi.hoisted(() => ({
+  presentation: null as {
+    cellId: string;
+    title: string;
+    body: string;
+    kpiSectionQualifier: string;
+  } | null,
+}));
+
+vi.mock("@/hooks/use-scorecard-kpi-career-honesty", () => ({
+  useScorecardKpiCareerHonesty: () => scorecardKpiHonestyMock.presentation,
+}));
+
+vi.mock("@/components/scorecard/ScorecardKpiCareerHonestyStrip", () => ({
+  ScorecardKpiCareerHonestyStrip: () =>
+    scorecardKpiHonestyMock.presentation === null
+      ? null
+      : <div data-testid="scorecard-kpi-career-honesty-strip" />,
+}));
+
 const mockUseSearchParams = vi.mocked(useSearchParams);
 
 const scorecardData: PilotScorecardJson = {
@@ -107,6 +127,7 @@ function buildModel(overrides: Partial<UsePilotScorecardPageModel> = {}): UsePil
 describe("PilotScorecardPageView", () => {
   beforeEach(() => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams("runId=run-scorecard-test"));
+    scorecardKpiHonestyMock.presentation = null;
   });
 
   it("mounts contextual help (TB-1959)", () => {
@@ -185,6 +206,20 @@ describe("PilotScorecardPageView", () => {
     );
     expect(screen.getByTestId("review-scorecard-empty-preview")).toBeInTheDocument();
     expect(screen.queryByTestId("review-scorecard-summary-row")).not.toBeInTheDocument();
+  });
+
+  it("shows CG-034 rehearsal honesty strip above KPI grid when stamp is not career-complete", () => {
+    scorecardKpiHonestyMock.presentation = {
+      cellId: "career-simulator-blocked",
+      title: "Career blocked — scorecard KPIs are not career proof",
+      body: "Numbers stay visible for rehearsal.",
+      kpiSectionQualifier: "Rehearsal metrics",
+    };
+
+    render(<PilotScorecardPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("scorecard-kpi-career-honesty-strip")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Operational metrics — Rehearsal metrics" })).toBeInTheDocument();
   });
 
   it("renders the sample scorecard when sample=1 is present", () => {

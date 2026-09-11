@@ -58,6 +58,8 @@ export const PIPELINE_STATUS_TOOLTIPS = {
   starting: "ArchLucid is preparing your architecture review.",
 } as const;
 
+export { resolvePipelineStatusTooltip } from "@/lib/runs/pipeline-complete-career-honesty-copy";
+
 export const RUNS_DASHBOARD_LABELS = {
   sectionHeading: ARCHITECTURE_REVIEW_LABELS.plural,
   tabRecent: "Recent",

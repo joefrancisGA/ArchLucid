@@ -35,7 +35,7 @@ public sealed class CareerGravityCg032ProgressTrackerRehearsalArchitectureTests
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-032");
-        docs.Should().Contain("progress tracker");
+        docs.Should().Contain("Progress tracker rehearsal honesty");
     }
 
     private static string FindRepoRoot()

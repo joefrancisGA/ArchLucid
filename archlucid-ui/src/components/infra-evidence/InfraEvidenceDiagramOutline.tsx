@@ -39,7 +39,6 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                 <th className="px-3 py-2 font-medium">Label</th>
                 <th className="px-3 py-2 font-medium">Resource type</th>
                 <th className="px-3 py-2 font-medium">Resource group</th>
-                <th className="px-3 py-2 font-medium">Id</th>
               </tr>
             </thead>
             <tbody>
@@ -48,7 +47,6 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   <td className="px-3 py-2">{node.label}</td>
                   <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceType)}</td>
                   <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceGroup)}</td>
-                  <td className="px-3 py-2 font-mono text-sm">{node.id}</td>
                 </tr>
               ))}
             </tbody>

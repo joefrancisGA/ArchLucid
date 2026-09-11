@@ -12,6 +12,8 @@ import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-wo
 import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
 import { RunDetailPreFinalizeGateHonestyStrip } from "@/components/reviews/RunDetailPreFinalizeGateHonestyStrip";
 import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQualityGateModeStrip";
+import { RunDetailFirstReviewSpineBand } from "@/components/reviews/RunDetailFirstReviewSpineBand";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
 import { FirstReviewAzureInventoryZipPromptStrip } from "@/components/reviews/FirstReviewAzureInventoryZipPromptStrip";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
@@ -21,6 +23,7 @@ import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-ass
 import type { PixelDiagramNotVerifiableSource } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
 import type { ManifestFeasibilityVerdict, TransparencyTrail } from "@/types/feasibility-verdict";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
+import { deriveFirstReviewSpineBandSummary } from "@/lib/reviews/first-review-spine-band";
 
 export type RunDetailReviewPackageStampViewportProps = {
   readonly hasGoldenManifest: boolean;
@@ -52,6 +55,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly isSample?: boolean | null;
   readonly workingCareerRehearsalDoor?: string | null;
   readonly preCommitGateEnabled?: boolean | null;
+  readonly unmappedFindingCount?: number;
 };
 
 /** Receipt + transparency trail on the review-package stamp band (FD-05 / WA-13). */
@@ -74,6 +78,11 @@ export function RunDetailReviewPackageStampViewport(
     judgeConfiguredCap: props.judgeConfiguredCap ?? null,
     judgeEffectiveCap: props.judgeEffectiveCap ?? null,
   };
+  const firstReviewSpineSummary = deriveFirstReviewSpineBandSummary({
+    feasibilityVerdict,
+    structuralExecutionMode: props.structuralExecutionMode,
+    findings: props.quickDecisionFindings ?? [],
+  });
 
   if (props.hasGoldenManifest) {
     if (feasibilityVerdict === null) {
@@ -82,6 +91,9 @@ export function RunDetailReviewPackageStampViewport(
 
     return (
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
+        {firstReviewSpineSummary !== null ? (
+          <RunDetailFirstReviewSpineBand summary={firstReviewSpineSummary} />
+        ) : null}
         {!pipelineTerminalFailure ? (
           <>
             <RunDetailPreFinalizeGateHonestyStrip
@@ -118,6 +130,7 @@ export function RunDetailReviewPackageStampViewport(
           withheldFindingCount={props.withheldFindingCount}
           catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
         />
+        <PolicyPackInfluenceHonestyChip unmappedFindingCount={props.unmappedFindingCount} />
         <RunDetailReviewPackageSemanticSupportBandSummary
           findings={props.quickDecisionFindings ?? []}
           structuralExecutionMode={props.structuralExecutionMode}
@@ -154,6 +167,9 @@ export function RunDetailReviewPackageStampViewport(
 
   return (
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
+      {firstReviewSpineSummary !== null ? (
+        <RunDetailFirstReviewSpineBand summary={firstReviewSpineSummary} />
+      ) : null}
       {!pipelineTerminalFailure ? (
         <>
             <RunDetailPreFinalizeGateHonestyStrip
@@ -198,6 +214,7 @@ export function RunDetailReviewPackageStampViewport(
         withheldFindingCount={props.withheldFindingCount}
         catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
       />
+      <PolicyPackInfluenceHonestyChip unmappedFindingCount={props.unmappedFindingCount} />
       <RunDetailReviewPackageSemanticSupportBandSummary
         findings={props.quickDecisionFindings ?? []}
         structuralExecutionMode={props.structuralExecutionMode}

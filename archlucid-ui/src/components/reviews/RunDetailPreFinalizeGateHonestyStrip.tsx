@@ -6,6 +6,11 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import {
+  shouldSuppressReadyToFinalizeForSimulatorRehearsal,
+  WORKING_SIMULATOR_CAREER_READY_SUPPRESSED_COPY,
+  WORKING_SIMULATOR_CAREER_READY_SUPPRESSED_TITLE,
+} from "@/lib/governance/simulator-career-honesty";
+import {
   WORKING_REHEARSAL_READY_SUPPRESSED_COPY,
   WORKING_REHEARSAL_READY_SUPPRESSED_TITLE,
 } from "@/lib/governance/working-career-rehearsal-door-copy";
@@ -57,13 +62,21 @@ export function RunDetailPreFinalizeGateHonestyStrip(
   const manifestFinalized = props.manifestFinalized === true;
 
   const showPreCommitGateHonesty = isWorkingMode && preCommitGateEnabled === false;
+  const effectiveWorkingCareerRehearsalDoor = resolveHonestyWorkingCareerRehearsalDoor({
+    stampedDoor: props.workingCareerRehearsalDoor,
+    liveDoor: effectiveDoor,
+  });
   const showRehearsalDoorReadySuppressedHonesty = shouldSuppressReadyToFinalizeForWorkingRehearsalDoor({
     workingDesk: isWorkingMode,
-    effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
-      stampedDoor: props.workingCareerRehearsalDoor,
-      liveDoor: effectiveDoor,
-    }),
+    effectiveWorkingCareerRehearsalDoor,
   });
+  const showSimulatorCareerReadySuppressedHonesty =
+    isWorkingMode
+    && shouldSuppressReadyToFinalizeForSimulatorRehearsal({
+      workingDesk: isWorkingMode,
+      structuralExecutionMode: props.structuralExecutionMode,
+      effectiveWorkingCareerRehearsalDoor,
+    });
   const showUncheckedSemanticSupportHonesty = shouldShowUncheckedSemanticSupportFinalizeWarning({
     workingDesk: isWorkingMode,
     manifestFinalized,
@@ -95,6 +108,7 @@ export function RunDetailPreFinalizeGateHonestyStrip(
   if (
     !showPreCommitGateHonesty
     && !showRehearsalDoorReadySuppressedHonesty
+    && !showSimulatorCareerReadySuppressedHonesty
     && !showUncheckedSemanticSupportHonesty
     && !showUnsupportedHoldOffHonesty
     && !showUnsupportedHoldBlocking
@@ -132,6 +146,20 @@ export function RunDetailPreFinalizeGateHonestyStrip(
           </p>
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {WORKING_REHEARSAL_READY_SUPPRESSED_COPY}
+          </p>
+        </div>
+      ) : null}
+      {showSimulatorCareerReadySuppressedHonesty ? (
+        <div
+          className={cn(DESIGN_TOKENS.callout.warnShell, "p-4")}
+          data-testid="run-detail-pre-finalize-simulator-career-honesty-strip"
+          role="status"
+        >
+          <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {WORKING_SIMULATOR_CAREER_READY_SUPPRESSED_TITLE}
+          </p>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {WORKING_SIMULATOR_CAREER_READY_SUPPRESSED_COPY}
           </p>
         </div>
       ) : null}

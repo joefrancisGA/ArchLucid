@@ -8,13 +8,13 @@ using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 
 using FluentAssertions;
 
 using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
-
 
 namespace ArchLucid.Api.Tests;
 
@@ -413,5 +413,141 @@ public sealed class FinalizeConflictSqlIntegrationTests(ArchLucidApiFactory fact
         }
 
         return findingIds;
+    }
+
+    private async Task<bool> RunHasOpenVerifyHypothesisFindingAsync(string runId)
+    {
+        HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
+        await getRunResponse.EnsureSuccessForTestAsync();
+
+        GetRunResponseDto? runPayload = await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
+        runPayload.Should().NotBeNull();
+
+        string resultsJson = JsonSerializer.Serialize(runPayload!.Results, JsonOptions);
+        List<AgentResult>? typedResults = JsonSerializer.Deserialize<List<AgentResult>>(resultsJson, JsonOptions);
+        typedResults.Should().NotBeNull();
+
+        IReadOnlyDictionary<string, Disposition> latestDispositions =
+            await LoadLatestDispositionsFromCsvAsync(runId);
+
+        foreach (AgentResult result in typedResults!)
+        {
+            if (result.Findings is null || result.Findings.Count == 0)
+                continue;
+
+            foreach (ArchitectureFinding architectureFinding in result.Findings)
+            {
+                if (architectureFinding is null || architectureFinding.IsMuted)
+                    continue;
+
+                latestDispositions.TryGetValue(
+                    architectureFinding.FindingId,
+                    out Disposition latestDisposition);
+
+                Finding scorecardFinding = ToScorecardFinding(architectureFinding);
+
+                Disposition? dispositionForSignal = latestDispositions.ContainsKey(architectureFinding.FindingId)
+                    ? latestDisposition
+                    : null;
+
+                if (FinalizeQualityFindingSignals.IsOpenVerifyHypothesisJobView(
+                        scorecardFinding,
+                        dispositionForSignal))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private async Task<IReadOnlyDictionary<string, Disposition>> LoadLatestDispositionsFromCsvAsync(string runId)
+    {
+        HttpResponseMessage csvResponse = await Client.GetAsync(
+            $"/v1/architecture/review/{runId}/findings/export/csv");
+
+        await csvResponse.EnsureSuccessForTestAsync();
+
+        string csv = await csvResponse.Content.ReadAsStringAsync();
+        Dictionary<string, Disposition> dispositions = new(StringComparer.OrdinalIgnoreCase);
+        string[] lines = csv.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        for (int lineIndex = 1; lineIndex < lines.Length; lineIndex++)
+        {
+            string[] fields = SplitCsvLine(lines[lineIndex]);
+
+            if (fields.Length < 18)
+                continue;
+
+            string findingId = fields[0].Trim();
+
+            if (string.IsNullOrWhiteSpace(findingId))
+                continue;
+
+            string dispositionRaw = fields[17].Trim();
+
+            if (string.IsNullOrWhiteSpace(dispositionRaw))
+                continue;
+
+            if (Enum.TryParse(dispositionRaw, ignoreCase: true, out Disposition disposition))
+                dispositions[findingId] = disposition;
+        }
+
+        return dispositions;
+    }
+
+    private static Finding ToScorecardFinding(ArchitectureFinding architectureFinding)
+    {
+        return new Finding
+        {
+            FindingId = architectureFinding.FindingId,
+            Title = architectureFinding.Message,
+            Rationale = architectureFinding.ReasoningTrace ?? string.Empty,
+            Severity = architectureFinding.Severity,
+            IsMuted = architectureFinding.IsMuted,
+            PolicyRuleId = architectureFinding.PolicyRuleId,
+            EvidenceRefs = architectureFinding.EvidenceRefs?.ToList() ?? [],
+            RecommendedActions = [],
+            Properties = new Dictionary<string, string>(),
+        };
+    }
+
+    private static string[] SplitCsvLine(string line)
+    {
+        List<string> fields = [];
+        StringBuilder current = new();
+        bool inQuotes = false;
+
+        for (int index = 0; index < line.Length; index++)
+        {
+            char character = line[index];
+
+            if (character == '"')
+            {
+                if (inQuotes && index + 1 < line.Length && line[index + 1] == '"')
+                {
+                    current.Append('"');
+                    index++;
+                    continue;
+                }
+
+                inQuotes = !inQuotes;
+                continue;
+            }
+
+            if (character == ',' && !inQuotes)
+            {
+                fields.Add(current.ToString());
+                current.Clear();
+                continue;
+            }
+
+            current.Append(character);
+        }
+
+        fields.Add(current.ToString());
+
+        return fields.ToArray();
     }
 }
