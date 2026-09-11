@@ -2612,4 +2612,44 @@ public sealed class FindingInspectReadRepositoryCoreTests
 
         projection.LatestDisposition.Should().BeNull();
     }
+
+    [Fact]
+    public void ResolveRuleFields_preserves_plus_sign_in_rule_id_tokens()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["+cost-guardrail"]""",
+            firstRuleText: null);
+
+        ruleId.Should().Be("+cost-guardrail");
+        ruleName.Should().Be("+cost-guardrail");
+    }
+
+    [Theory]
+    [InlineData("+0", FindingDisposition.Accepted)]
+    [InlineData("+1", FindingDisposition.Deferred)]
+    [InlineData("+999", null)]
+    public void MapLatestDisposition_maps_plus_sign_prefixed_numeric_strings(string dispositionRaw, FindingDisposition? expected)
+    {
+        FindingInspectReadRepositoryCore.MapLatestDisposition(dispositionRaw, hasDispositionRow: true).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("+0", FindingDisposition.Accepted)]
+    [InlineData("+1", FindingDisposition.Deferred)]
+    [InlineData("+999", null)]
+    public void MapDispositionPointerProjection_maps_plus_sign_prefixed_numeric_disposition_strings(
+        string dispositionRaw,
+        FindingDisposition? expected)
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: dispositionRaw,
+            hasDispositionRow: true,
+            occurredAtUtc: new DateTimeOffset(2026, 10, 8, 14, 30, 0, TimeSpan.Zero),
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(expected);
+    }
 }
