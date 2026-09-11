@@ -184,18 +184,20 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGate
 
 ## Finalize conflict SQL integration proof
 
-`FinalizeConflictSqlIntegrationFixture` pins scorecard-shaped findings on an executed run's SQL findings snapshot so verify-hypothesis, contradiction, cannot-determine, blocking findings, low-confidence extractions, unverified assumptions, and pre-commit proofs no longer depend on simulator output shape. Pre-commit proof pins a `BlockCommitOnCritical` policy pack row on the run header and injects a **Critical** finding into the findings snapshot.
+`FinalizeConflictSqlIntegrationFixture` pins scorecard-shaped findings on an executed run's SQL findings snapshot so all nine finalize scorecard dimensions (blocking findings, uncovered requirements, deferred, contradictions, cannot-determine, verify-hypothesis, unverified assumptions, low-confidence extractions, unresolved high-severity dispositions) plus pre-commit proofs no longer depend on simulator output shape. Pre-commit proof pins a `BlockCommitOnCritical` policy pack row on the run header and injects a **Critical** finding into the findings snapshot.
 
 `FinalizeConflictSqlIntegrationTests` proves lifecycle integrity blocks, scorecard blocks, and pre-commit governance blocks on `POST …/finalize` stay aligned with `GET …/readiness` through real SQL persistence:
 
 - Create run without execute → 409 + readiness `lifecycle_phase_incomplete` integrity block.
-- Execute run, bulk-disposition one finding as **Deferred** with revisit → 409 + readiness `scorecard` layer block (open deferred dimension).
+- Execute run, bulk-disposition pinned finding as **Deferred** with revisit → 409 + readiness `scorecard` layer block (open deferred dimension).
 - Execute run with pinned **verify-hypothesis** finding → 409 + readiness `scorecard` layer block containing `hypothesis` (TB-2315 parity).
 - Execute run with pinned **contradiction** finding → 409 + readiness `scorecard` layer block containing `contradiction` (TB-2179 parity).
 - Execute run with pinned **cannot-determine** finding → 409 + readiness `scorecard` layer block containing `open question` (TB-2302 parity).
 - Execute run with pinned **blocking** finding → 409 + readiness `scorecard` layer block containing `unresolved blocking`.
 - Execute run with pinned **low-confidence** critical finding → 409 + readiness `scorecard` layer block containing `low confidence`.
 - Execute run with pinned **unverified assumptions** (threshold met) → 409 + readiness `scorecard` layer block containing `unverified assumptions`.
+- Execute run with pinned **coverage-gap** finding → 409 + readiness `scorecard` layer block containing `mandatory requirement` / `design decision`.
+- Execute run with pinned **unresolved high-severity** finding → 409 + readiness `scorecard` layer block containing `accepted-risk disposition`.
 - Execute run blocked by **pre-commit governance** → finalize **409** with `ProblemTypes.GovernancePreCommitBlocked` aligned with readiness `pre_commit_gate` layer block (deterministic via pinned critical finding + `BlockCommitOnCritical` policy pack pin).
 
 ```bash
