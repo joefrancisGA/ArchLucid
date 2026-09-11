@@ -21,7 +21,7 @@ Depends on [`CAREER_GRAVITY_UNLABELED_READY_INVENTORY.md`](CAREER_GRAVITY_UNLABE
 | `Failed` | Stopped | `blocked` |
 | `Partially failed` | Incomplete | `needs-attention` |
 
-Buyer **Ready** is the finalized pill (`PIPELINE_STATUS_BUYER_DISPLAY_LABELS.finalized`). It is not the Ready-to-finalize literal. Screenshots of **Ready** still read as Career-complete.
+Buyer `Ready` is the finalized pill (`PIPELINE_STATUS_BUYER_DISPLAY_LABELS.finalized`). It is not the Ready-to-finalize literal. Screenshots of `Ready` still read as Career-complete.
 
 Honesty helper: `shouldSuppressReadyToFinalizeForCareerHonesty` (pre-commit gate, Rehearsal door, quality gate, Simulator rehearsal). When it fires, Ready-to-finalize becomes **In pipeline**.
 
