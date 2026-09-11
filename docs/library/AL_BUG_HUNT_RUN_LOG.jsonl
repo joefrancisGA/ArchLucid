@@ -2021,3 +2021,16 @@
 {"at":"2026-09-11T22:20:13.9982919Z","zoneId":"api-key-auth","outcome":"hit","severity":"high","defectClass":"authz-scope"}
 {"at":"2026-09-11T22:20:21.8101124Z","zoneId":"weekly-digest-email","outcome":"hit","severity":"low","defectClass":"other"}
 {"at":"2026-09-11T22:20:22.6458696Z","zoneId":"weekly-digest-email","outcome":"hit"}
+{"at":"2026-09-11T22:22:56.1816628Z","zoneId":"notifications-pipeline","outcome":"hit"}
+{"at":"2026-09-11T22:24:11.4457795Z","zoneId":"weekly-digest-email","outcome":"hit"}
+{"at":"2026-09-11T22:26:28.1629474Z","zoneId":"llm-wallet","outcome":"hit"}
+{"at":"2026-09-11T22:29:36.7520838Z","zoneId":"review-recurrence","outcome":"seed-only"}
+{"at":"2026-09-11T22:32:47.2602114Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-09-11T22:33:32.5349009Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-09-11T22:35:35.5864024Z","zoneId":"notifications-pipeline","outcome":"hit","severity":"low","defectClass":"other"}
+{"at":"2026-09-11T22:35:51.3424996Z","zoneId":"notifications-pipeline","outcome":"hit"}
+{"at":"2026-09-11T22:35:52.2143649Z","zoneId":"weekly-digest-email","outcome":"hit"}
+{"at":"2026-09-11T22:35:53.0580499Z","zoneId":"llm-wallet","outcome":"hit","severity":"high","defectClass":"fail-open-validation"}
+{"at":"2026-09-11T22:35:53.900769Z","zoneId":"review-recurrence","outcome":"seed-only"}
+{"at":"2026-09-11T22:35:54.7113988Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-09-11T22:35:55.5336963Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}

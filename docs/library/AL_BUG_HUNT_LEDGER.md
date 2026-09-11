@@ -169,11 +169,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 52
-- **bugs-found:** 53
+- **hunts:** 54
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — `azurerm_purview_account` Terraform id omitted from `LooksLikeTerraformServiceSourceId` (`purview` was only listed for datastore aliases)
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — padded declared endpoint alias keys skipped edge resolution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -228,6 +228,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases` (overlay path) with `ManifestService.ServiceId` = full ARM resource id and relationship `SourceId` = normalized ARM form only — overlay omits `AddArmResourceIdResolutionAliases` unlike `AddDeclaredManifestServiceEndpointAliases`, but endpoint dictionaries use `OrdinalIgnoreCase` and `TryResolveNodeId` normalizes ARM lookups, so mixed/normalized casing does not drop edges on current code.
 - [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` with relationship endpoint = mixed-case ARM id — `FilterRelationshipOnlyProposals` uses raw `Contains`, but `declaredBatchEndpointKeys` is case-insensitive and `AddArmResourceIdEndpointKeys` registers normalized ARM aliases during batch declaration, so batch-local relationships are not dropped.
 - [x] (proven) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeSyntheticLabelEndpointKeys` on inventoried node `Category = Data/Storage` and `SourceId` not matching `LooksLikeTerraformServiceSourceId` — **hit 2026-08-26:** `azurerm_purview_account` omitted from service heuristic list; Data-category nodes indexed only `ds-{label}` so `svc-catalog` relationships were filtered and edges dropped; regression in gate + merge tests
+
+- [x] (proven) `TopologyProposalRelationshipEndpointIndex.BuildSyntheticServiceNodeId` / `BuildSyntheticDatastoreNodeId` — padded graph `Label` built `svc-  api  ` / `ds-  sql  ` aliases while manifest paths trim before synthesis — **hit 2026-09-11 seed hunt #1776:** Data-category Terraform service nodes with whitespace-padded labels indexed non-canonical synthetic keys so `svc-api` relationships failed edge mapping; fixed by trimming names in builders; regression `MapRelationships_resolves_synthetic_service_id_when_graph_node_label_has_surrounding_whitespace`
+
+2026-09-11 seed hunt #1776 (hit): reseeded arm-terraform-source-ids; proved padded-label synthetic endpoint key gap; 1 scoped edge mapper regression passed.
+
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — `endpointAliases` keys copied without trim so padded declared aliases missed relationship resolution — **hit 2026-09-11 seed hunt #1777:** manifest alias dictionaries trim on insert but merge path used raw `alias.Key`; relationships referencing trimmed endpoints dropped edges; fixed by trimming alias keys before `TryAdd`; regression `MapRelationships_resolves_endpoints_when_declared_alias_key_has_surrounding_whitespace`
+
+2026-09-11 seed hunt #1777 (hit): reseeded arm-terraform-source-ids after #1776; proved padded endpoint alias key resolution gap; 1 scoped edge mapper regression passed.
 
 ---
 
@@ -1866,11 +1874,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 6
-- **bugs-found:** 8
+- **hunts:** 7
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — partial wallet PUT could not enable auto-replenish when monthly cap already persisted
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — enabling auto-replenish skipped step validation on persisted invalid monthly cap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1892,6 +1900,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `UpdateWalletAsync` allows enabling auto-replenish without Stripe payment method on file — **cheap-disproof 2026-09-09 hunt #1432:** billing UI blocks save without payment method; GET exposes `hasPaymentMethod`; `TryAutoRefillAsync` no-ops safely when customer/payment method missing; no charge or overspend wrong outcome
 
 2026-09-09 thorough hunt #1432 (hit): proved partial auto-replenish enable regression; cheap-disproved payment-method UX candidate; 16 scoped LlmTenantWalletServiceTests passed.
+
+- [x] (proven) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enabling auto-replenish without resubmitting `MonthlyCapUsd` only checked persisted cap `> 0`, not step alignment — **hit 2026-09-11 seed hunt #1774:** legacy/seeded cap `75m` could enable auto-replenish despite `$50` step rule; fixed by validating persisted cap with `IsValidMonthlyCap` when cap omitted; regression `UpdateWalletAsync_rejects_enabling_auto_replenish_when_persisted_monthly_cap_is_invalid_step`
+
+2026-09-11 seed hunt #1774 (hit): reseeded llm-wallet; proved auto-replenish enable bypassed persisted invalid monthly-cap step validation; 1 scoped wallet test passed.
 
 2026-09-03 seed hunt #584: reseeded llm-wallet; proved wallet read month-rollover display gap vs `CanAutoRefill` parity; seeded auto-replenish-without-payment-method UX candidate.
 
@@ -2007,7 +2019,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -2078,6 +2090,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-11 seed hunt #1762 (seed-only): reseeded review-recurrence after #1679; cheap-disproof closed `@weekly` alias support/monotonicity, single-run `@monthly`, and Local-kind `SpecifyUtc` relabel candidate; 45 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
+- [x] (valid-no-repro) `IsSupportedCronExpression` / `ComputeNextRunsUtc` — `@yearly` alias rejected or returns past instants — **cheap-disproof 2026-09-11 seed hunt #1775:** Cronos parses `@yearly` like `@monthly`; batch preview advances to future instants; regressions `IsSupportedCronExpression_accepts_yearly_alias` / `ComputeNextRunsUtc_yearly_alias_returns_future_instants`.
+
+2026-09-11 seed hunt #1775 (seed-only): reseeded review-recurrence after #1762; cheap-disproof closed `@yearly` alias candidate; 47 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
+
 ---
 
 ## Zone: alert-simulation
@@ -2138,11 +2154,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 11
-- **bugs-found:** 7
+- **hunts:** 12
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — padded `weekLabel` leaked into weekly sponsor summary subject and template model
+- **last-bug:** 2026-09-11 — whitespace-only `weekLabel` sent weekly sponsor report with blank subject week segment
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2185,6 +2201,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `WeeklySponsorSummaryEmailDispatcher` passes padded `weekLabel` into subject and template while trimming sibling fields — **hit 2026-09-11 seed hunt #1771:** summary subject showed padded week label; fixed by trimming `weekLabel` parity with report dispatcher #1770; regression `WeeklySponsorSummaryEmailDispatcher_trims_week_label_in_template_model_and_subject`.
 
 2026-09-11 seed hunt #1771 (seed→hit): reseeded weekly-digest-email; proved sibling summary dispatcher weekLabel trim gap; 10 scoped summary dispatcher idempotency tests passed.
+
+- [x] (proven) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` — whitespace-only `weekLabel` trimmed to empty and still sent weekly report — **hit 2026-09-11 seed hunt #1773:** `isoWeekIdempotencyKey` rejects whitespace-only input but `weekLabel` did not, producing buyer-facing subject `weekly Sponsor report — ` and empty template week segment; fixed with `ArgumentException` parity; regression `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_week_label`
+
+2026-09-11 seed hunt #1773 (hit): reseeded weekly-digest-email; proved weekLabel whitespace-only validation gap vs iso-week guard; 3 scoped tests passed.
 
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 
@@ -9949,11 +9969,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 18
-- **bugs-found:** 29
+- **hunts:** 19
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — ExecDigest padded ISO week idempotency key bypassed weekly ledger
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — ExecDigest padded WeekLabel leaked into subject and template model
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -10020,6 +10040,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ExecDigestEmailDispatcher.TryDispatchAsync` — padded `isoWeekIdempotencyKey` built a distinct weekly ledger scope from the trimmed key used by sibling weekly dispatchers — **hit 2026-09-10 seed hunt #1614:** whitespace-padded ISO week keys could send duplicate exec digest emails in the same week; fixed with `normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim()`; regression `ExecDigestEmailDispatcher_padded_iso_week_idempotency_key_does_not_duplicate_weekly_send`
 
 2026-09-10 seed hunt #1614 (hit): reseeded notifications-pipeline after sponsor ISO-week trim fixes; proved ExecDigest padded-key duplicate-send gap; 111 scoped Application notifications tests passed.
+
+- [x] (proven) `ExecDigestEmailDispatcher.TryDispatchAsync` — padded `composition.WeekLabel` copied into template model and subject without trim — **hit 2026-09-11 seed hunt #1772:** sibling weekly Sponsor report/summary dispatchers trim `weekLabel` but ExecDigest still used raw `composition.WeekLabel`; fixed with `normalizedWeekLabel = composition.WeekLabel.Trim()`; regression `ExecDigestEmailDispatcher_trims_week_label_in_template_model_and_subject`
+
+2026-09-11 seed hunt #1772 (hit): reseeded notifications-pipeline after #1770-1771 weekLabel trim parity for sponsor dispatchers; proved ExecDigest padded WeekLabel gap; 1 scoped regression test passed.
 
 ## Zone: artifact-synthesis
 
