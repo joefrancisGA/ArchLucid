@@ -1826,9 +1826,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — LP-14 note injection; preview override bypass; bulk duplicate ids; 2026-09-11 — guided-desk LP-14 attestation note injection; 2026-09-11 — guided-desk preview override text bypass; bulk duplicate finding ids in one batch
-- **last-bug:** 2026-09-11 — LP-14 note injection; preview override bypass; bulk duplicate ids; 2026-09-11 — guided-desk LP-14 attestation note injection; 2026-09-11 — bulk disposition accepted duplicate finding ids and persisted multiple events while current pointer kept only the last
-- **last-bug:** 2026-09-11 — LP-14 note injection; preview override bypass; bulk duplicate ids; guided-desk LP-14 attestation note injection; guided-desk invisible preview override in notes; bulk disposition accepted duplicate finding ids and persisted multiple events while current pointer kept only the last
+- **last-bug:** 2026-09-11 — LP-14 note injection; preview override bypass; bulk duplicate ids; guided-desk LP-14 attestation note injection; guided-desk preview override text bypass; bulk disposition accepted duplicate finding ids and persisted multiple events while current pointer kept only the last
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1886,6 +1884,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-10 seed hunt #1578 (seed→hit): reseeded finding-disposition; proved invisible architect restatement and optional rationale gaps; seeded whitespace row-version concurrency candidate; 33 scoped finding-disposition tests passed.
 
+- [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch appended multiple events while current pointer kept last only — **hit 2026-09-11 seed hunt #1718:** `HashSet<string>` on trimmed finding ids before repository call; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
+- [x] (proven) `FindingDispositionValidation.Validate` — optional `PreviewOverrideReason` on guided-desk `Remediated` bypassed `HasSubstantiveText` because only `ValidateWorkingRemediatedImpactPreviewAttestation` guarded the field — **hit 2026-09-11 seed hunt #1718:** invisible-only override text persisted in disposition notes via `BuildImpactPreviewAttestationNote`; fixed with optional-field guard in `Validate()`; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided`, `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
+2026-09-11 seed hunt #1718 (seed→hit): reseeded finding-disposition; proved guided-desk preview override bypass and bulk duplicate finding ids; seeded guided ImpactPreviewCompleted audit-note candidate; 58 scoped FindingDisposition tests passed.
 2026-09-11 thorough hunt #1719 (hit): cheap-disproved guided UI attestation reachability; proved API-side LP-14 note injection, guided preview override bypass, and bulk duplicate finding ids; 60 scoped FindingDisposition tests passed.
 2026-09-11 seed hunt #1725 (seed→hit): reseeded finding-disposition; proved guided-desk invisible preview override bypass; seeded bulk duplicate-finding-id candidate; 57 scoped finding-disposition tests passed.
 2026-09-11 thorough hunt #1728 (hit): cheap-disproved in-memory repository direct-call candidate; proved guided-desk invisible preview override and bulk duplicate finding-id bypass; 58 scoped finding-disposition tests passed.
@@ -2838,13 +2839,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 5
-- **bugs-found:** 6
+- **hunts:** 6
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-08-24 — activation accepted non-HTTP(S) issuer URIs that discovery rejects
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — SSO wizard test-login accepted non-HTTP(S) issuer URIs that activate rejects
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -2870,6 +2871,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Whitespace-only `MetadataXml` preserves prior metadata — **cheap-disproof 2026-09-10 seed hunt #1669:** `ResolveOptionalPersistedField` clears on whitespace; regression `ActivateAsync_clears_metadata_xml_when_whitespace_only_string_provided`
 - [x] (valid-no-repro) Missing or relative issuer URI accepted — **cheap-disproof 2026-09-10 seed hunt #1669:** `IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps` rejects empty/relative; regression `ActivateAsync_rejects_missing_or_relative_issuer_uri`
 - [x] (valid-no-repro) Unsupported `ArchLucidRole` in mapping persisted — **cheap-disproof 2026-09-10 seed hunt #1669:** `IdentityClaimRoleMappingResolver.ValidateMapping` fails before upsert; regression `ActivateAsync_rejects_unsupported_arch_lucid_role_in_mapping`
+- [x] (proven) `IdentityProviderConfigurationController.TestLogin` accepted non-HTTP(S) `IssuerUri` values that `ActivateAsync` rejects — **hit 2026-09-11 seed hunt #1723:** `SsoWizardTestLoginService` only checked non-whitespace issuer while activation uses `IdentityProviderUriValidator`; wizard test-login returned sandbox success for `file://` / `javascript:` issuers; fixed with shared HTTP(S) validation on controller `test-login`; regressions in `IdentityProviderConfigurationControllerTests` and `Execute_succeeds_with_non_http_issuer_uri_before_controller_validation`
+- [x] (valid-no-repro) `ActivateAsync` accepts duplicate case-variant `IdpValue` mappings in persisted JSON — **cheap-disproof 2026-09-11 seed hunt #1723:** `IdentityClaimRoleMappingValidator.Evaluate` warns and `ResolveRoles` uses first-wins `GroupBy(OrdinalIgnoreCase)`; intentional warn-only until product tightens mapping persistence
+
+2026-09-11 seed hunt #1723 (seed→hit): reseeded identity-provider-config; proved test-login issuer HTTP(S) parity gap vs activate; cheap-disproof closed duplicate case-variant mapping persistence candidate; 28 scoped `IdentityProviderActivationServiceTests` + controller tests passed.
 
 2026-09-10 seed hunt #1669 (seed-only): reseeded identity-provider-config after 2026-08-25; cheap-disproof closed empty-tenant guard, blank-actor guard, null-request guard, invalid-protocol guard, case-insensitive protocol acceptance, issuer/actor trim, whitespace-only secret/metadata clear, missing/relative issuer rejection, and unsupported role mapping rejection; 26 scoped `IdentityProviderActivationServiceTests` passed.
 
@@ -9672,13 +9677,25 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `ArchitectureKnowledgeModelGraphProjector.Project` — second structural element silently dropped when `ElementId` differs only by case — **cheap-disproof 2026-09-09 thorough hunt #1426:** node materialization uses `canonicalNodeIdsByKey` with `StringComparer.OrdinalIgnoreCase`; case-variant `ElementId` values are duplicate ids under graph case-insensitive semantics, not a missing node parity gap; regression `Project_deduplicates_structural_elements_when_element_id_differs_only_by_case`
 - [x] (proven) `ProvenanceBuilder.Build` — duplicate `ContainedInManifest` edges when `manifest.Decisions` lists two entries whose `DecisionId` differs only by case (`nodeMap` collapses nodes; manifest edge loop iterated every list entry) — **hit 2026-09-09 thorough hunt #1426:** `DistinctDecisionKeys()` case-insensitive dedup on manifest decision edge loops; merged case-variant `SupportingFindingIds` in SupportedBy path; regression `Build_deduplicates_contained_in_manifest_when_manifest_lists_case_variant_decision_ids`
 - [x] (proven) `ArchitectureKnowledgeModelGraphProjector` — duplicate RELATES edges when `RelatedElementIds` lists case variants of the same target (`trust-1` / `TRUST-1`) on one element — **hit 2026-09-11 seed hunt #1727:** loop emitted one edge per list entry without case-insensitive dedup though `canonicalNodeIdsByKey` resolves both; fixed with `RelatedElementIds.Distinct(StringComparer.OrdinalIgnoreCase)`; regression `Project_deduplicates_relates_edges_when_related_element_ids_list_case_variants`
+
 - [x] (proven) `ProvenanceBuilder` — duplicate `InfluencedByGraphNode` edges when `findings.Findings` lists two rows whose `FindingId` differs only by case — **hit 2026-09-11 seed hunt #1727:** node map collapses finding nodes but the influence loop iterated every list entry; fixed with `GroupBy(FindingId, OrdinalIgnoreCase)` before edge emission; regression `Build_deduplicates_influenced_by_graph_node_when_findings_list_case_variant_finding_ids`
+
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder` — duplicate parallel edges after AS-050 diagram endpoint remap collided with existing inventory edge — **hit 2026-09-11 seed hunt #1727:** `RemapEdges` remapped diagram edge onto inventory node id already present on a parallel inventory edge; fixed with case-insensitive edge-key dedup in `RemapEdges`; regression `Rebind_matchingDisplayName_deduplicates_parallel_edges_after_endpoint_remap`
 - [x] (proven) `StructuredDiagramCompiledGraphBinder` — duplicate parallel edges when two diagram connectors bind to the same canonical endpoints after AS-018 remap — **hit 2026-09-11 seed hunt #1728:** `RemapEdges` lacked edge-key dedup parity with AS-050 rebinder; duplicate ARM-labeled diagram targets collapsed to one canonical node but both remapped edges survived; fixed with case-insensitive edge-key dedup; regression `BindToCanonicalNodes_deduplicates_parallel_edges_after_endpoint_remap`
 
 2026-09-11 seed hunt #1728 (hit): reseeded knowledge-graph-provenance; proved AS-018 compiled-graph binder parallel-edge collision after canonical bind (parity gap vs AS-050 rebinder fix); 266 scoped KnowledgeGraph + 43 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
 2026-09-11 seed hunt #1727 (hit): reseeded knowledge-graph-provenance after 10 commits since last hunt; proved κ→Γ projector RelatedElementIds duplicate-edge gap, findings-list case-variant InfluencedByGraphNode dedup gap, and AS-050 rebinder parallel-edge collision; 265 scoped KnowledgeGraph + 43 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
+
+- [x] (proven) `ArchitectureKnowledgeModelGraphProjector.Project` — duplicate `RELATES` edges when `RelatedElementIds` lists case variants of the same target on one element — **hit 2026-09-11 seed hunt #1722:** `foreach` lacked `Distinct(OrdinalIgnoreCase)` though `canonicalNodeIdsByKey` resolves both to one node; regression `Project_deduplicates_relates_edges_when_related_element_ids_list_case_variants`
+
+- [x] (proven) `ProvenanceBuilder.Build` — duplicate `InfluencedByGraphNode` edges when `findings.Findings` lists case-variant `FindingId` rows for the same finding — **hit 2026-09-11 seed hunt #1722:** graph→finding loop iterated every list entry though `nodeMap` collapses finding nodes; fixed with `GroupBy(FindingId, OrdinalIgnoreCase)`; regression `Build_deduplicates_influenced_by_graph_node_when_findings_list_case_variant_finding_ids`
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.RemapEdges` — duplicate parallel edges after diagram endpoint remap collides with existing inventory edge — **hit 2026-09-11 seed hunt #1722:** AS-050 rebind remapped `diagram-node:*` onto inventory `cloudResourceId` without deduping `from|to|type`; fixed with case-insensitive edge-key set matching overlay merger; regression `Rebind_matchingDisplayName_deduplicates_parallel_edges_after_endpoint_remap`
+
+- [x] (candidate) `StructuredDiagramCanonicalModelReconstructor` — `GroupBy(SourceId, Ordinal)` splits multi-diagram uploads whose `SourceId` differs only by case — invalid 2026-09-11 seed hunt #1722: `StructuredDiagramGraphMerger` only merges within one reconstructor pass; duplicate `SourceId` casing would be separate compile inputs, not a single merged snapshot defect today
+
+2026-09-11 seed hunt #1722 (seed→hit): reseeded after AS-050/SA-16–21 churn; proved κ→Γ `RelatedElementIds` dedup gap, findings-list `InfluencedByGraphNode` dedup gap, and AS-050 rebind parallel-edge dedup; cheap-disproved diagram `SourceId` ordinal split candidate; 265 scoped KnowledgeGraph + 43 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
 2026-09-09 thorough hunt #1426 (hit): cheap-disproof closed κ→Γ projector duplicate-element candidate; proved manifest decision-id duplicate `ContainedInManifest`/`TriggeredByRule`/`SupportedBy` edges; 209 scoped KnowledgeGraph + 42 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
@@ -11597,8 +11614,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 7
-- **bugs-found:** 10
+- **hunts:** 10
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-11 — run-level model label duplicated deployment names that differed only by case
@@ -11616,6 +11633,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) Run-detail LLM completion counts omit reasoning tokens while engine provenance includes them — **hit 2026-09-07:** `RunDetailLlmCostEnrichmentSlice`, `RunDetailQueryService.DetailLoad`, and `RunAgentExecutionLlmCostEstimateAppender` mapped `Completion = summary.CompletionTokens` only; reasoning-only o-series runs showed `Completion=0` despite non-zero provenance output totals; fixed via `AgentExecutionTraceRunLlmCostSummary.CombinedOutputTokens`; regression in `Compute_ReasoningTokensOnlyTrace_ExposesCombinedOutputTokensForRunDetailParity`
 - [x] (proven) Curated evidence proposer accepts title-only payloads that fail promotion validation — **hit 2026-09-07:** `AgentCuratedEvidenceProposer.NormalizeResponse` required only `Title` + `Type` while `ProposedEvidencePayloadValidator` also requires non-empty `Description`, so proposals persisted but failed on promote; fixed by rejecting missing description at normalize time; regression in `NormalizeResponse_returns_null_when_description_is_missing`
 - [x] (proven) External-subprocessor alias resolver conflates missing ack with outside-allowed-set rejection — **hit 2026-09-07:** `ReviewModelAliasResolver.ResolveForRunCreateAsync` returned `RejectedOutsideAllowedSet: true` when the alias was allowed but workspace subprocessor acknowledgment was missing, mislabeling audit events; fixed to `(false, true)`; regression in `ResolveForRunCreateAsync_WhenExternalSubprocessorAckMissing_DoesNotRejectOutsideAllowedSet`
+- [x] (proven) `ProposedEvidencePayloadValidator.TryParseValid` throws on `"type":null` JSON instead of rejecting — **hit 2026-09-11 seed hunt #1717:** `IsSupportedType` called `.Equals` on null-deserialized `Type`; fixed with null-safe guard; regression `TryParseValid_WhenTypeIsNull_ReturnsFalse`
+- [x] (proven) `EvidenceProposalPromoter.PromoteAsync` surfaces SQL unique-index failure when distinct titles slug to the same `CatalogEntryId` — **hit 2026-09-11 seed hunt #1717:** titles `Encrypt Data` and `encrypt-data` both map to `policy-encrypt-data`; fixed with pre-insert `EnsureCatalogEntryIdAvailableAsync`; regression `PromoteAsync_WhenCatalogEntryIdCollidesWithExistingEntry_ThrowsBeforeInsert`
+- [x] (proven) Curated evidence title/description accept invisible-only Unicode (U+200B) that passes `IsNullOrWhiteSpace` — **hit 2026-09-11 seed hunt #1717:** `AgentCuratedEvidenceProposer.NormalizeResponse` and promotion validator accepted format/control-only strings; fixed via shared `ProposedEvidenceTextValidation.HasSubstantiveText`; regressions `TryParseValid_WhenDescriptionIsZeroWidthSpaceOnly_ReturnsFalse`, `NormalizeResponse_returns_null_when_description_is_zero_width_space_only`
+- [x] (proven) `AgentExecutionTraceRunLlmCostAggregator` reports summed USD when only some token-bearing trace slices have configured rates — **hit 2026-09-11 seed hunt #1717:** mixed priced/unpriced deployments still set `EstimatedFromConfiguredRates`; fixed by tracking `anyUnpricedTokenSlice`; regression `Compute_WhenMixedDeploymentsHavePartialRates_OmitsUsdAndUsesProviderTokensWithoutRateBasis`
+- [ ] (candidate) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` generates IaC stubs for muted findings that still carry evidence refs — may waste LLM calls or surface remediation for operator-muted findings; reachability depends on post-mute enrichment path
+
+2026-09-11 seed hunt #1717 (seed→hit): reseeded application-agents after master churn; proved null evidence type, catalog slug collision, invisible-only curated text, and partial LLM cost basis; seeded muted-finding IaC stub candidate; 73 scoped Application.Tests.Agents tests passed.
 
 2026-09-07 seed hunt #1194 (hit): reseeded application-agents zone; proved run-detail reasoning token display parity, curated evidence description validation, and alias resolver audit flag conflation.
 
@@ -11623,6 +11647,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-only title or description text — **hit 2026-09-11 seed hunt #1723 (seed→hit):** U+200B is not whitespace under `string.IsNullOrWhiteSpace`, so zero-width-only `description`/`title` values passed normalize and promote validation; fixed via shared `ProposedEvidenceTextValidation.HasSubstantiveText`; regressions `NormalizeResponse_returns_null_when_description_is_zero_width_space_only`, `NormalizeResponse_returns_null_when_title_is_zero_width_space_only`, and `TryParseValid_WhenDescriptionIsZeroWidthSpaceOnly_ReturnsFalse`
 - [x] (proven) `ProposedEvidencePayloadValidator.TryParseValid` throws on `"type":null` instead of rejecting — **hit 2026-09-11 thorough hunt #1724:** `IsSupportedType` called `.Equals` on null JSON `type`; fixed via null/whitespace guard; regression `TryParseValid_WhenTypeIsNull_ReturnsFalse`
 - [x] (proven) `AgentExecutionTraceRunLlmCostAggregator` reports `estimated-from-configured-rates` when only some traces price — **hit 2026-09-11 seed hunt #1715 (seed→hit):** mixed priced/unpriced deployment slices summed partial USD while labeling the full run as rate-estimated; fixed by downgrading basis to `provider-tokens-without-rate` and omitting partial USD when any measurable slice lacks a rate; regression `Compute_WhenOnlySomeTracesPrice_UsesProviderTokensWithoutRateBasis`
+- [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-only `rationale` text — **hit 2026-09-11 seed hunt #1729 (seed→hit):** title/description guards used `HasSubstantiveText` but rationale was unchecked, so U+200B-only rationale persisted and promoted; fixed by validating rationale in both paths; regressions `NormalizeResponse_returns_null_when_rationale_is_zero_width_space_only` and `TryParseValid_WhenRationaleIsZeroWidthSpaceOnly_ReturnsFalse`; repaired corrupted evidence test sources blocking the scoped suite
+
+2026-09-11 seed hunt #1729 (hit): reseeded application-agents; proved invisible-only curated-evidence rationale bypass; restored corrupted `AgentCuratedEvidenceProposerTests` / `ProposedEvidencePayloadValidatorTests` compile health; 80 scoped Application.Tests.Agents tests passed.
+
 - [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-only `rationale` text — **hit 2026-09-11 seed hunt #1730 (seed→hit):** title/description guards used `HasSubstantiveText` but rationale was unchecked; fixed in both paths; regressions `NormalizeResponse_returns_null_when_rationale_is_zero_width_space_only` and `TryParseValid_WhenRationaleIsZeroWidthSpaceOnly_ReturnsFalse`
 - [x] (proven) `AgentExecutionTraceRunLlmCostAggregator.BuildModelLabelFromDeployments` — duplicate deployment names in `ModelLabel` when trace rows differed only by casing — **hit 2026-09-11 seed hunt #1730 (seed→hit):** measurable deployment set used `StringComparer.Ordinal`; fixed with `OrdinalIgnoreCase` on measurable and fallback deployment sets; regression `Compute_deduplicates_model_label_when_deployment_name_differs_only_by_case`
 
