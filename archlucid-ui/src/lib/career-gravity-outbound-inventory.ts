@@ -73,8 +73,8 @@ export const CAREER_GRAVITY_OUTBOUND_ROWS: readonly CareerGravityOutboundRow[] =
   },
   {
     relativePath: "ArchLucid.Core/Integration/IntegrationWebhookPayloadSamples.cs",
-    leakClass: "bypass",
-    ownerPrompt: "CG-036",
+    leakClass: "covered",
+    ownerPrompt: "CG-093",
   },
   {
     relativePath: "ArchLucid.Application/Advisory/AdvisoryScanRunner.cs",

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Common;
+
 namespace ArchLucid.Persistence.Models;
 
 /// <summary>
@@ -41,4 +43,22 @@ public sealed class ManifestFinalizationLockedRunRow
         get;
         init;
     } = null!;
+
+    public bool IsSample
+    {
+        get;
+        init;
+    }
+
+    public StructuralExecutionMode StructuralExecutionMode
+    {
+        get;
+        init;
+    } = StructuralExecutionMode.Simulator;
+
+    public string? WorkingCareerRehearsalDoor
+    {
+        get;
+        init;
+    }
 }
