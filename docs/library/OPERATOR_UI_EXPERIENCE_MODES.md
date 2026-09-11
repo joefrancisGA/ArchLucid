@@ -69,6 +69,10 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Account persist (CG-011):** GET `/v1/user/preferences` returns `workingCareerRehearsalDoor` and `workingCareerRehearsalDoorIsExplicit`. `PUT /v1/user/preferences/working-career-rehearsal-door` stores an explicit Working pick in UserSettings. Working reads the server first when the row is explicit; `localStorage` is interrupt recovery only. Guided does not PUT this field.
 
+**Cross-tab (CG-012):** Sibling Working tabs share the door on the LW-083 `archlucid.session.idle` bus. Receivers patch chrome only — no second PUT and no draft CAS.
+
+**Share URL (CG-013):** `?career=1` (and `door` / `workingDoor` / `workingCareerRehearsalDoor`) cannot mint unlabeled Career chrome when structural execute is Simulator. Rehearsal query overlays stay labeled. Query never PUTs. Inventory: [`CAREER_GRAVITY_URL_QUERY_DOOR_INVENTORY.md`](../architecture/CAREER_GRAVITY_URL_QUERY_DOOR_INVENTORY.md).
+
 **New tenant (CG-014):** unset GET and empty-browser first-run Working default to **Career**. Implicit GET does not PUT. Legacy Simulator usage signals still grandfather **Rehearsal** (banner is CG-015). Host `AgentExecution:Mode` stays Simulator.
 
 **Simulator clones (CG-015):** local/dev hosts with `AgentExecution:Mode=Simulator` keep Working usable and obviously **Rehearsal**. A persistent shell banner (`WorkingSimulatorCloneRehearsalBanner`) labels the clone as rehearsal — not a sample workspace and not Guided teaching. Effective execute chrome is Rehearsal. Explicit Career still uses AS-078 blocked honesty (no silent Career execute, no auto-switch to Guided, no host Mode flip). AOAI-less clones must not mint career packets.
