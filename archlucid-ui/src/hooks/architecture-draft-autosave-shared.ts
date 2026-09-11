@@ -61,6 +61,8 @@ export type UseArchitectureDraftAutosaveResult = {
   readonly recoveredLocally: boolean;
   /** LK-12: overwrite server copy with this tab's unsaved edits after a conflict. */
   readonly keepLocalDraftOnConflict: () => Promise<boolean>;
+  /** True when the last persist attempt ended in HTTP 409 (server baseline moved). */
+  readonly wasLastSaveConflict: () => boolean;
 };
 
 export function fieldsAreEqual(left: ArchitectureDraftFieldState, right: ArchitectureDraftFieldState): boolean {

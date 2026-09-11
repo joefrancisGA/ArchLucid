@@ -46,6 +46,12 @@ public sealed class AzureInventorySnapshotDetailReadModel
         get;
         init;
     } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderSummaryReadModel> DefenderSummaries
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class AzureInventoryResourcePropertyReadModel

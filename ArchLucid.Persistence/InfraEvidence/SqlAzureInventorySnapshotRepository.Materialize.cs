@@ -302,6 +302,35 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                 }
             }
 
+            if (writeRequest.DefenderSummaries.Count > 0)
+            {
+                const string insertDefenderSummary = """
+                                                     INSERT INTO dbo.AzureInventoryDefenderSummaries
+                                                     (DefenderSummaryRowId, SnapshotId, TenantId, ResourceId, SecureScore, SourceEvidenceReference)
+                                                     VALUES
+                                                     (@DefenderSummaryRowId, @SnapshotId, @TenantId, @ResourceId, @SecureScore, @SourceEvidenceReference);
+                                                     """;
+
+                foreach (AzureInventoryDefenderSummaryWrite defenderSummary in writeRequest.DefenderSummaries)
+                {
+                    await sqlConn.ExecuteAsync(
+                        new CommandDefinition(
+                            insertDefenderSummary,
+                            new
+                            {
+                                DefenderSummaryRowId = Guid.NewGuid(),
+                                SnapshotId = snapshotId,
+                                scope.TenantId,
+                                defenderSummary.ResourceId,
+                                defenderSummary.SecureScore,
+                                defenderSummary.SourceEvidenceReference,
+                            },
+                            transaction: tx,
+                            commandTimeout: DapperCommandTimeoutSeconds.Report,
+                            cancellationToken: cancellationToken));
+                }
+            }
+
             tx.Commit();
         }
         catch
