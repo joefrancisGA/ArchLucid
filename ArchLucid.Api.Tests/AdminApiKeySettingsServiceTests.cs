@@ -41,6 +41,27 @@ public sealed class AdminApiKeySettingsServiceTests
     }
 
     [Fact]
+    public void Rotate_with_invalidate_previous_returns_replace_for_readonly_slot()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = AdminKey,
+                ReadOnlyKey = ReaderKey
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "ReadOnly", InvalidatePrevious = true });
+
+        response.Slot.Should().Be("ReadOnly");
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+        response.ConfigPath.Should().Be($"{ApiKeyAuthenticationOptions.SectionPath}:ReadOnlyKey");
+    }
+
+    [Fact]
     public void Rotate_with_invalidate_previous_returns_replace_deployment_action()
     {
         AdminApiKeySettingsService sut = CreateService(
@@ -103,6 +124,43 @@ public sealed class AdminApiKeySettingsServiceTests
     }
 
     [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = AdminKey
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "ReadOnly", InvalidatePrevious = false });
+
+        response.Slot.Should().Be("ReadOnly");
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_appends_when_readonly_slot_is_configured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                ReadOnlyKey = ReaderKey
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "ReadOnly", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Append");
+        response.AppendConfigSuffix.Should().StartWith(",");
+        response.AppendConfigSuffix.Should().Contain(response.PlaintextKey);
+    }
+
+    [Fact]
     public void Rotate_with_padded_slot_string_succeeds()
     {
         AdminApiKeySettingsService sut = CreateService(
@@ -117,6 +175,49 @@ public sealed class AdminApiKeySettingsServiceTests
 
         response.Slot.Should().Be("Admin");
         response.DeploymentAction.Should().Be("Replace");
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_admin_slot_has_only_comma_segments()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = " , , "
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "comma-only config is not authenticatable key material");
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "Admin", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_has_only_comma_segments()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "configured-admin-key",
+                ReadOnlyKey = " , , "
+            });
+
+        sut.GetSnapshot().ReadOnly.IsConfigured.Should().BeFalse(
+            "comma-only config is not authenticatable key material");
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "ReadOnly", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
     }
 
     private static AdminApiKeySettingsService CreateService(ApiKeyAuthenticationOptions options)
