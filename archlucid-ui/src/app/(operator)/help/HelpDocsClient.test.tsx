@@ -436,6 +436,27 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("filters documentation on mount when q= is in the URL", async () => {
+    helpDocsNavigation.params = new URLSearchParams("q=security");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Reviews list" })).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
   it("initializes the search box from the q URL parameter", async () => {
     helpDocsNavigation.params = new URLSearchParams("q=security");
 
