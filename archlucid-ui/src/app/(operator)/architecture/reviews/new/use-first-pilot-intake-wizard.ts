@@ -73,7 +73,10 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const { isSimulator } = useAgentExecutionMode();
   const exampleTemplatePrefillAppliedRef = useRef(false);
   const priorPackagePrefillAppliedRef = useRef(false);
-  const priorRunId = useMemo(() => readPriorRunIdFromSearch(searchParams), [searchParams]);
+  const priorRunIdFromSearch = useMemo(() => readPriorRunIdFromSearch(searchParams), [searchParams]);
+  const isSecondReviewContinuation = searchParams?.get("intent")?.trim() === "revised-clone";
+  const priorRunIdForTitlePrefill = isSecondReviewContinuation ? priorRunIdFromSearch : null;
+  const priorRunId = priorRunIdFromSearch;
   const incrementalRereview = useMemo(
     () => readIncrementalRereviewFromSearch(new URLSearchParams(searchParams?.toString() ?? "")),
     [searchParams],
@@ -199,12 +202,16 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     setBriefText(exampleTemplate.briefText);
   }, [exampleTemplate]);
 
-  const priorSummaryQuery = useRunSummaryQuery(priorRunId ?? "", {
-    enabled: priorRunId !== null,
+  const priorSummaryQuery = useRunSummaryQuery(priorRunIdForTitlePrefill ?? "", {
+    enabled: priorRunIdForTitlePrefill !== null,
   });
 
   useEffect(() => {
-    if (priorRunId === null || priorPackagePrefillAppliedRef.current || priorSummaryQuery.data === undefined) {
+    if (
+      priorRunIdForTitlePrefill === null ||
+      priorPackagePrefillAppliedRef.current ||
+      priorSummaryQuery.data === undefined
+    ) {
       return;
     }
 
@@ -217,7 +224,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
     setInheritedPriorTitle(inheritedTitle);
     setRunTitle((current) => (current.trim().length > 0 ? current : inheritedTitle));
-  }, [priorRunId, priorSummaryQuery.data]);
+  }, [priorRunIdForTitlePrefill, priorSummaryQuery.data]);
 
   const resolvedBrief = useMemo(
     () => buildEvidenceBackedIntakeBrief(runTitle, evidenceFiles, briefText),
