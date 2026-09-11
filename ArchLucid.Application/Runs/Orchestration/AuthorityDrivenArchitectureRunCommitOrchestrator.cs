@@ -361,7 +361,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             preCommitGateEnabled: true,
             structuralExecutionMode: runRecord.StructuralExecutionMode,
             degradedFindingCoverage,
-            degradedFindingCoverageFailedEngineLabels);
+            degradedFindingCoverageFailedEngineLabels,
+            workingCareerRehearsalDoor: runRecord.WorkingCareerRehearsalDoor);
         CareerArtifactCompletenessResult finalizeArtifactResult =
             new CareerArtifactCompletenessValidator().Evaluate(finalizeArtifactInput);
 

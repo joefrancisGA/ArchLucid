@@ -177,12 +177,19 @@ public sealed class DecisionReceiptService(
             _manifestHashService,
             cancellationToken);
 
-        return ManifestDecisionReceiptExportBinder.BuildVerifiedExportReceipt(
+        DecisionReceiptRunBuildResult buildResult = ManifestDecisionReceiptExportBinder.BuildVerifiedExportReceipt(
             runId,
             compareDetail.GoldenManifest,
             verdict!,
             manifestVersion!.Trim(),
             _manifestHashService);
+
+        if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.Success && buildResult.Receipt is not null)
+        {
+            DecisionReceiptCareerPostureStamper.ApplyCommittedRunPosture(buildResult.Receipt, careerExportHonesty);
+        }
+
+        return buildResult;
     }
 
     private static DecisionReceiptRunBuildResult NotFound() =>

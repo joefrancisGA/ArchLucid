@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { render, screen } from "@testing-library/react";
 
@@ -51,10 +51,22 @@ vi.mock("@/components/usability/SetupHealthShellBanner", () => ({
   SetupHealthShellBanner: () => null,
 }));
 
+vi.mock("@/components/workspace-mode/WorkingSimulatorCloneRehearsalBanner", () => ({
+  WorkingSimulatorCloneRehearsalBanner: () => (
+    <div data-testid="working-simulator-clone-rehearsal-banner" />
+  ),
+}));
+
 import { AppShellStatusBanners } from "@/components/shell/AppShellStatusBanners";
 
 vi.mock("@/hooks/use-review-presenter-chrome-active", () => ({
   useReviewPresenterChromeActive: vi.fn(() => false),
+}));
+
+const productLineMock = vi.hoisted(() => ({ value: "architecture" as "architecture" | "security" }));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: productLineMock.value }),
 }));
 
 import { useReviewPresenterChromeActive } from "@/hooks/use-review-presenter-chrome-active";
@@ -62,6 +74,10 @@ import { useReviewPresenterChromeActive } from "@/hooks/use-review-presenter-chr
 const mockUseReviewPresenterChromeActive = vi.mocked(useReviewPresenterChromeActive);
 
 describe("AppShellStatusBanners", () => {
+  beforeEach(() => {
+    productLineMock.value = "architecture";
+  });
+
   it("renders nothing in presenter mode (WA-21)", () => {
     mockUseReviewPresenterChromeActive.mockReturnValue(true);
 
@@ -76,10 +92,21 @@ describe("AppShellStatusBanners", () => {
 
     expect(screen.getByTestId("operator-offline-reconnect")).toBeInTheDocument();
     expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
+    expect(screen.getByTestId("working-simulator-clone-rehearsal-banner")).toBeInTheDocument();
 
     rerender(<AppShellStatusBanners variant="full" />);
 
     expect(screen.getByTestId("operator-offline-reconnect")).toBeInTheDocument();
     expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
+    expect(screen.getByTestId("working-simulator-clone-rehearsal-banner")).toBeInTheDocument();
+  });
+
+  it("hides the Simulator clone rehearsal banner in the SecureNow shell", () => {
+    mockUseReviewPresenterChromeActive.mockReturnValue(false);
+    productLineMock.value = "security";
+
+    render(<AppShellStatusBanners variant="full" />);
+
+    expect(screen.queryByTestId("working-simulator-clone-rehearsal-banner")).not.toBeInTheDocument();
   });
 });

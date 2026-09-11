@@ -192,6 +192,21 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
             schema.Properties,
             "receiptHashSha256",
             "Wave-15 suggestion 150: canonical SHA-256 over exportable receipt fields.");
+
+        SetPinHashDescriptionIfMissing(
+            schema.Properties,
+            "structuralExecutionMode",
+            "CG-025: structural execute Mode stamped on committed-run receipts (export overlay, not sealed hash).");
+
+        SetPinHashDescriptionIfMissing(
+            schema.Properties,
+            "workingCareerRehearsalDoor",
+            "CG-025: Working Career vs Rehearsal door stamp on committed-run receipts.");
+
+        SetPinHashDescriptionIfMissing(
+            schema.Properties,
+            "rehearsalIncomplete",
+            "CG-025: true when Simulator/Fallback rehearsal receipts are not career-complete.");
     }
 
     private static void SetPinHashDescriptionIfMissing(

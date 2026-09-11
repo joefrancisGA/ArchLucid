@@ -128,6 +128,38 @@ public sealed partial class UserPreferencesController
         return NoContent();
     }
 
+    /// <summary>Persists the authenticated user's Working Career vs Rehearsal door.</summary>
+    [HttpPut("working-career-rehearsal-door")]
+    [MutatingAuditExcluded("Personal Working Career/Rehearsal door stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetWorkingCareerRehearsalDoor(
+        [FromBody] SetWorkingCareerRehearsalDoorRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string? normalized = WorkingCareerRehearsalDoorValues.NormalizeOrNull(body.Door);
+
+        if (normalized is null)
+        {
+            return this.BadRequestProblem("door must be 'career' or 'rehearsal'.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.WorkingCareerRehearsalDoor,
+            normalized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
     /// <summary>Persists the authenticated user's workspace-mode graduation-offer preference.</summary>
     [HttpPut("workspace-mode-graduation-offer")]
     [MutatingAuditExcluded("Personal workspace-mode graduation offer stored in dbo.UserSettings; no durable tenant audit row required.")]

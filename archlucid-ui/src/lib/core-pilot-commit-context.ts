@@ -1,4 +1,5 @@
 import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
+import { shouldSkipArchitectureOnlyProxyApi } from "@/lib/product-line/architecture-only-proxy-api";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
@@ -182,6 +183,10 @@ export async function fetchCorePilotCommitContext(): Promise<CorePilotCommitCont
   }
 
   const trialAnchor = await fetchTrialCommitAnchor();
+
+  if (shouldSkipArchitectureOnlyProxyApi()) {
+    return buildCorePilotCommitContextFromRunItems([], trialAnchor.anchored, trialAnchor.firstCommitUtc);
+  }
 
   try {
     const scopeHeaders =

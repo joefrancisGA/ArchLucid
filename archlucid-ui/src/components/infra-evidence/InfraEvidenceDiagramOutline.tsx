@@ -2,11 +2,22 @@
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+import {
+  resolveInfraEvidenceOutlineNodeLabel,
+  type InfraEvidenceMermaidOutline,
+} from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
 type InfraEvidenceDiagramOutlineProps = {
   readonly outline: InfraEvidenceMermaidOutline;
 };
+
+function formatOutlineCell(value: string | null): string {
+  if (value == null || value.trim().length === 0) {
+    return "—";
+  }
+
+  return value;
+}
 
 /** Structured list alternative to the Mermaid canvas (WCAG 1.1.1 peer affordance). */
 export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlineProps): React.JSX.Element {
@@ -19,21 +30,25 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       data-testid="infra-diagrams-mermaid-outline"
       className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-700"
     >
-      <div className="grid gap-4 p-3 md:grid-cols-2">
+      <div className="flex flex-col gap-4 p-3">
         <div>
           <h3 className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>Nodes</h3>
           <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
             <thead className="bg-neutral-50 dark:bg-neutral-900/60">
               <tr>
-                <th className="px-3 py-2 font-medium">Id</th>
                 <th className="px-3 py-2 font-medium">Label</th>
+                <th className="px-3 py-2 font-medium">Resource type</th>
+                <th className="px-3 py-2 font-medium">Resource group</th>
+                <th className="px-3 py-2 font-medium">Id</th>
               </tr>
             </thead>
             <tbody>
               {nodeRows.map((node) => (
                 <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
-                  <td className="px-3 py-2 font-mono text-sm">{node.id}</td>
                   <td className="px-3 py-2">{node.label}</td>
+                  <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceType)}</td>
+                  <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceGroup)}</td>
+                  <td className="px-3 py-2 font-mono text-sm">{node.id}</td>
                 </tr>
               ))}
             </tbody>
@@ -59,8 +74,8 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   key={`${edge.from}-${edge.to}-${index}`}
                   className="border-t border-neutral-200 dark:border-neutral-800"
                 >
-                  <td className="px-3 py-2 font-mono text-sm">{edge.from}</td>
-                  <td className="px-3 py-2 font-mono text-sm">{edge.to}</td>
+                  <td className="px-3 py-2">{resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from)}</td>
+                  <td className="px-3 py-2">{resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.to)}</td>
                 </tr>
               ))}
             </tbody>

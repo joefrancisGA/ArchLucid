@@ -115,6 +115,10 @@ public sealed partial class GovernanceController
 
             return Ok(result);
         }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
         catch (ArgumentException ex)
         {
             logger.LogWarning(ex, "Promote failed: validation error.");
@@ -207,6 +211,10 @@ public sealed partial class GovernanceController
                 cancellationToken);
 
             return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
         }
         catch (ArgumentException ex)
         {

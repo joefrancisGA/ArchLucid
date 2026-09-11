@@ -79,9 +79,57 @@ describe("help-mermaid", () => {
 
     expect(svg.getAttribute("viewBox")).toBe("0 10 120 60");
     expect(svg.getAttribute("width")).toBe("500");
-    expect(svg.getAttribute("height")).toBe("250");
+    expect(svg.getAttribute("height")).toBe("280");
     expect(svg.style.width).toBe("500px");
-    expect(svg.style.height).toBe("250px");
+    expect(svg.style.height).toBe("280px");
+
+    svg.remove();
+  });
+
+  it("uses parent g.nodes bounds instead of unmapped local .node boxes", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const nodesGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    nodesGroup.setAttribute("class", "nodes");
+    const node = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    node.setAttribute("class", "node");
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    node.appendChild(rect);
+    nodesGroup.appendChild(node);
+    svg.appendChild(nodesGroup);
+    document.body.appendChild(svg);
+
+    const localNode = node as SVGGraphicsElement;
+    localNode.getCTM = () => null;
+    localNode.getBBox = () =>
+      ({
+        x: -40,
+        y: -14,
+        width: 80,
+        height: 28,
+        top: -14,
+        right: 40,
+        bottom: 14,
+        left: -40,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    const parentGroup = nodesGroup as SVGGraphicsElement;
+    parentGroup.getBBox = () =>
+      ({
+        x: 360,
+        y: 70,
+        width: 180,
+        height: 48,
+        top: 70,
+        right: 540,
+        bottom: 118,
+        left: 360,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    fitMermaidSvgElementToHost(svg, 500, 10);
+
+    expect(svg.getAttribute("viewBox")).toBe("350 60 200 68");
 
     svg.remove();
   });

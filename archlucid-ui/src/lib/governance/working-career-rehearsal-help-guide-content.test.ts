@@ -12,6 +12,7 @@ import {
   WORKING_CAREER_REHEARSAL_HELP_PAGE_TITLE,
   WORKING_CAREER_REHEARSAL_HELP_PRIMARY_ACTION,
   WORKING_CAREER_REHEARSAL_HELP_RELATED,
+  WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY,
   WORKING_CAREER_REHEARSAL_HELP_SIMULATOR_HONESTY_COPY,
 } from "@/lib/governance/working-career-rehearsal-help-guide-content";
 
@@ -38,10 +39,18 @@ describe("working-career-rehearsal-help-guide-content (AS-082)", () => {
     expect(WORKING_CAREER_REHEARSAL_HELP_GUIDED_NOTE).not.toContain("github.com");
   });
 
+  it("documents the SecureNow product-line omission of Career / Rehearsal chrome", () => {
+    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).toContain("SecureNow");
+    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).toContain("Career");
+    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).toContain("Rehearsal");
+    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).not.toContain("github.com");
+  });
+
   it("uses in-app help links only — no GitHub blob URLs", () => {
     const serialized = JSON.stringify({
       overview: WORKING_CAREER_REHEARSAL_HELP_OVERVIEW,
       honesty: WORKING_CAREER_REHEARSAL_HELP_SIMULATOR_HONESTY_COPY,
+      security: WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY,
       primary: WORKING_CAREER_REHEARSAL_HELP_PRIMARY_ACTION,
       related: WORKING_CAREER_REHEARSAL_HELP_RELATED,
       tiles: WORKING_CAREER_REHEARSAL_HELP_DOOR_TILES,

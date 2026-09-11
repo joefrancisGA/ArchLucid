@@ -1,1 +1,6 @@
 export const WORKING_CAREER_REHEARSAL_HELP_PATH = "/help/career-rehearsal-doors" as const;
+
+export const WORKING_CAREER_REHEARSAL_HELP_SECURITY_HEADING_ID = "security-product-line" as const;
+
+export const WORKING_CAREER_REHEARSAL_HELP_SECURITY_HREF =
+  `${WORKING_CAREER_REHEARSAL_HELP_PATH}#${WORKING_CAREER_REHEARSAL_HELP_SECURITY_HEADING_ID}` as const;

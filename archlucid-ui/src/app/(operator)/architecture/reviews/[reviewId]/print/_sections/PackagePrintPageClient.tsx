@@ -7,6 +7,7 @@ import { useMemo } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-honesty-query";
 import { usePackagePrintMeetingCaptureQuery } from "@/hooks/use-package-print-meeting-capture-query";
 import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
@@ -16,7 +17,9 @@ import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { resolveCareerExportCoverageHonesty } from "@/lib/career-export-coverage-honesty";
+import { resolveCareerArtifactExportHonestyDoorFields } from "@/lib/career-artifact/resolve-career-artifact-export-honesty-input";
 import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
+import { resolvePackagePrintRehearsalHonestyStrip } from "@/lib/package-print-rehearsal-honesty";
 import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
 import { resolveReviewWorkspaceArchitectureId } from "@/lib/architecture/working-architecture-review-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -48,6 +51,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   const pathname = usePathname() ?? "";
   const parentArchitectureId = resolveReviewWorkspaceArchitectureId(null, pathname);
   const workingDesk = useProductionDeskChrome();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
   const { reviewJobHref: printBackHref } = useWorkingBackLocator({
     reviewId: runId,
     reviewTab: "review-package",
@@ -88,6 +92,15 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       workingDesk: true,
     });
 
+    const doorFields = resolveCareerArtifactExportHonestyDoorFields({
+      progressSummary: bundle.progressSummary ?? summaryQuery.data,
+      structuralExecutionMode:
+        bundle.progressSummary?.structuralExecutionMode ?? summaryQuery.data.structuralExecutionMode,
+      workingCareerRehearsalDoor:
+        bundle.progressSummary?.workingCareerRehearsalDoor ?? summaryQuery.data.workingCareerRehearsalDoor,
+      liveDoor: effectiveDoor,
+    });
+
     return evaluateCareerArtifactHonesty({
       artifactKind: "export",
       runId: summaryQuery.data.runId,
@@ -98,8 +111,31 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       enginesSucceeded: bundle.buyerSummary.findingCoverageSummary?.enginesSucceeded ?? null,
       workingDesk: true,
       transparencyTrail: bundle.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null,
+      ...doorFields,
     }).headerLines.join("\n");
-  }, [coverageHonestyQuery.data, summaryQuery.data, workingDesk]);
+  }, [coverageHonestyQuery.data, effectiveDoor, summaryQuery.data, workingDesk]);
+
+  const rehearsalHonestyStrip = useMemo(() => {
+    if (!workingDesk || summaryQuery.data === undefined) {
+      return null;
+    }
+
+    const bundle = coverageHonestyQuery.data;
+    const doorFields = resolveCareerArtifactExportHonestyDoorFields({
+      progressSummary: bundle?.progressSummary ?? summaryQuery.data,
+      structuralExecutionMode:
+        bundle?.progressSummary?.structuralExecutionMode ?? summaryQuery.data.structuralExecutionMode,
+      workingCareerRehearsalDoor:
+        bundle?.progressSummary?.workingCareerRehearsalDoor ?? summaryQuery.data.workingCareerRehearsalDoor,
+      liveDoor: effectiveDoor,
+    });
+
+    return resolvePackagePrintRehearsalHonestyStrip({
+      workingDesk: true,
+      structuralExecutionMode: doorFields.structuralExecutionMode,
+      effectiveWorkingCareerRehearsalDoor: doorFields.effectiveWorkingCareerRehearsalDoor,
+    });
+  }, [coverageHonestyQuery.data, effectiveDoor, summaryQuery.data, workingDesk]);
 
   const semanticSupportBandStampLine = useMemo(() => {
     if (!workingDesk || summaryQuery.data === undefined || coverageHonestyQuery.data === undefined) {
@@ -170,6 +206,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       && coverageHonestyQuery.data !== undefined
       && analysisStagesCompleteOnSummary(summaryQuery.data)
       && countActorNodesInGraphSnapshot(coverageHonestyQuery.data.buyerSummary.graphSnapshot ?? null) === 0,
+    rehearsalHonestyStrip,
 
   });
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({

@@ -200,6 +200,8 @@ public sealed partial class AuthorityRunReadHandlers(
             DegradedExecutionAgents = x.DegradedExecutionAgents,
             PackageOrigin = x.PackageOrigin,
             StructuralExecutionMode = x.StructuralExecutionMode,
+            WorkingCareerRehearsalDoor = x.WorkingCareerRehearsalDoor,
+            ExecutePostureCapturedUtc = x.ExecutePostureCapturedUtc,
             AuthorityLifecyclePhase = x.AuthorityLifecyclePhase,
             LegacyRunStatus = x.LegacyRunStatus,
         };

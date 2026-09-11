@@ -3,6 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PackagePrintPageView } from "./PackagePrintPageView";
 import {
+  PACKAGE_PRINT_REHEARSAL_CAREER_DOOR_BODY,
+  PACKAGE_PRINT_REHEARSAL_STRIP_TITLE,
+} from "@/lib/package-print-rehearsal-honesty";
+import {
   PACKAGE_PRINT_FINDINGS_HEADING,
   PACKAGE_PRINT_STATUS_HEADING,
   PACKAGE_PRINT_SYNOPSIS_HEADING,
@@ -103,6 +107,29 @@ describe("PackagePrintPageView (TB-2205)", () => {
     expect(screen.queryByTestId("package-print-sponsor-synopsis")).toBeNull();
   });
 
+  it("renders meeting capture blockedReason callout when capture is blocked (sealed-manifest 409)", () => {
+    render(
+      <PackagePrintPageView
+        presentation={{
+          title: "Payments edge",
+          statusLabel: "Active",
+          statusKind: "in-progress",
+          findingsSummary: "2 findings.",
+          sponsorSynopsis: null,
+          createdUtc: "2026-08-01T12:00:00Z",
+          runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+          manifestVersionForGuard: "manifest-active",
+        }}
+        meetingCaptureBlockedReason="Meeting capture blocked: sealed manifest hash verification failed."
+      />,
+    );
+
+    expect(screen.getByTestId("package-print-meeting-capture-blocked")).toHaveTextContent(
+      "Meeting capture blocked: sealed manifest hash verification failed.",
+    );
+    expect(screen.queryByTestId("package-print-meeting-capture")).not.toBeInTheDocument();
+  });
+
   it("renders meeting capture when presenter room answers exist (PC-09 optional)", () => {
     render(
       <PackagePrintPageView
@@ -178,5 +205,38 @@ describe("PackagePrintPageView (TB-2205)", () => {
 
     expect(screen.getByTestId("package-print-quiet-engines-hint")).toBeInTheDocument();
     expect(screen.getByTestId("actor-dependent-quiet-engines-hint-stub")).toBeInTheDocument();
+  });
+
+  it("renders print-only rehearsal honesty strip for simulator runs (CG-023)", () => {
+    render(
+      <PackagePrintPageView
+        presentation={{
+          title: "Payments edge",
+          statusLabel: "Finalized",
+          statusKind: "approved",
+          findingsSummary: "3 findings",
+          sponsorSynopsis: null,
+          createdUtc: "2026-08-01T12:00:00Z",
+          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          manifestVersionForGuard: "manifest-1",
+          rehearsalHonestyStrip: {
+            title: PACKAGE_PRINT_REHEARSAL_STRIP_TITLE,
+            body: PACKAGE_PRINT_REHEARSAL_CAREER_DOOR_BODY,
+            modeNoticeTitle: "Simulator AI operation",
+            modeNoticeBody: "Rule-based analysis only — not live AI output.",
+          },
+        }}
+      />,
+    );
+
+    const strip = screen.getByTestId("package-print-rehearsal-honesty-strip");
+
+    expect(strip).toBeInTheDocument();
+    expect(strip).toHaveClass("hidden");
+    expect(strip).toHaveClass("print:block");
+    expect(screen.getByTestId("package-print-rehearsal-honesty-title")).toHaveTextContent(
+      PACKAGE_PRINT_REHEARSAL_STRIP_TITLE,
+    );
+    expect(screen.getByTestId("package-print-rehearsal-honesty-title")).toHaveTextContent(/Rehearsal/i);
   });
 });

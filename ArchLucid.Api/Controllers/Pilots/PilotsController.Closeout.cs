@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Pilots;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -48,6 +49,10 @@ public sealed partial class PilotsController
                 cancellationToken);
 
             return StatusCode(StatusCodes.Status201Created, new { closeoutId = result.CloseoutId });
+        }
+        catch (ConflictException ex)
+        {
+            return MapPilotPackSealedManifestConflict(ex);
         }
         catch (ArgumentException ex)
         {

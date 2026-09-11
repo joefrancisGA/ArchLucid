@@ -47,6 +47,7 @@ import { cn } from "@/lib/utils";
 
 import { PackagePrintBreadcrumb } from "./PackagePrintBreadcrumb";
 import { PackagePrintBuyerChrome } from "./PackagePrintBuyerChrome";
+import { PackagePrintRehearsalHonestyStripView } from "./PackagePrintRehearsalHonestyStrip";
 import { PackagePrintNextReviewFooterClient } from "./PackagePrintNextReviewFooterClient";
 import { PackagePrintTransparencyTrailSection } from "./PackagePrintTransparencyTrailSection";
 import { ActorDependentFindingsQuietEnginesHint } from "@/components/findings/ActorDependentFindingsQuietEnginesHint";
@@ -129,6 +130,10 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
 
   const packagePrintWorkspaceBody = (
     <>
+      {presentation.rehearsalHonestyStrip !== null && presentation.rehearsalHonestyStrip !== undefined ? (
+        <PackagePrintRehearsalHonestyStripView strip={presentation.rehearsalHonestyStrip} />
+      ) : null}
+
       <section className="space-y-2" aria-labelledby="package-print-status-heading">
         <h2 id="package-print-status-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {PACKAGE_PRINT_STATUS_HEADING}

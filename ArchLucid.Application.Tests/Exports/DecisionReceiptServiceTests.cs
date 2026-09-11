@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.User;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Manifest;
@@ -310,6 +311,44 @@ public sealed class DecisionReceiptServiceTests
     }
 
     [Fact]
+    public async Task BuildForRunAsync_WorkingCareerSimulator_ReturnsCareerArtifactBlocked()
+    {
+        SetupCommittedRunDetail(
+            structuralExecutionMode: StructuralExecutionMode.Simulator,
+            workingCareerRehearsalDoor: WorkingCareerRehearsalDoorValues.Career);
+        FeasibilityVerdict verdict = CreateFeasibleVerdict();
+        SetupVerifiedCommittedManifest(verdict, out _);
+
+        DecisionReceiptService sut = CreateSut();
+
+        DecisionReceiptRunBuildResult buildResult = await sut.BuildForRunAsync(Scope, RunId, CancellationToken.None);
+
+        buildResult.Outcome.Should().Be(DecisionReceiptRunBuildOutcome.CareerArtifactBlocked);
+        buildResult.BlockReasonCode.Should().Be(CareerArtifactCompletenessValidator.SimulatorRehearsalCode);
+        buildResult.Receipt.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task BuildForRunAsync_WorkingRehearsalSimulator_stamps_posture_on_receipt()
+    {
+        SetupCommittedRunDetail(
+            structuralExecutionMode: StructuralExecutionMode.Simulator,
+            workingCareerRehearsalDoor: WorkingCareerRehearsalDoorValues.Rehearsal);
+        FeasibilityVerdict verdict = CreateFeasibleVerdict();
+        SetupVerifiedCommittedManifest(verdict, out _);
+
+        DecisionReceiptService sut = CreateSut();
+
+        DecisionReceiptRunBuildResult buildResult = await sut.BuildForRunAsync(Scope, RunId, CancellationToken.None);
+
+        buildResult.Outcome.Should().Be(DecisionReceiptRunBuildOutcome.Success);
+        buildResult.Receipt.Should().NotBeNull();
+        buildResult.Receipt!.StructuralExecutionMode.Should().Be(StructuralExecutionMode.Simulator);
+        buildResult.Receipt.WorkingCareerRehearsalDoor.Should().Be(WorkingCareerRehearsalDoorValues.Rehearsal);
+        buildResult.Receipt.RehearsalIncomplete.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task BuildForRunAsync_UsesSealedManifestVerdictAndVersion()
     {
         SetupCommittedRunDetail();
@@ -328,7 +367,9 @@ public sealed class DecisionReceiptServiceTests
             Times.Never);
     }
 
-    private void SetupCommittedRunDetail()
+    private void SetupCommittedRunDetail(
+        StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Real,
+        string? workingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Career)
     {
         ArchitectureRunDetail detail = new()
         {
@@ -337,6 +378,8 @@ public sealed class DecisionReceiptServiceTests
                 RunId = RunId.ToString("N"),
                 Status = ArchitectureRunStatus.Committed,
                 CurrentManifestVersion = "v1",
+                StructuralExecutionMode = structuralExecutionMode,
+                WorkingCareerRehearsalDoor = workingCareerRehearsalDoor,
             },
             AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
             Manifest = new GoldenManifest

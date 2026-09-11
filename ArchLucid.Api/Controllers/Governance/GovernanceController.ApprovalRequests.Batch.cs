@@ -1,5 +1,6 @@
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Authorization;
@@ -48,16 +49,23 @@ public sealed partial class GovernanceController
         string reviewedByActorKey = actorContext.GetActorId();
         string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
-        Application.Governance.GovernanceBatchReviewResponse batchResult =
-            await _approvalRequestsFacade.BatchReviewAsync(
-                body.ApprovalRequestIds,
-                approve,
-                body.ReviewComment,
-                reviewedBy,
-                reviewedByActorKey,
-                reviewedByMailbox,
-                cancellationToken);
+        try
+        {
+            Application.Governance.GovernanceBatchReviewResponse batchResult =
+                await _approvalRequestsFacade.BatchReviewAsync(
+                    body.ApprovalRequestIds,
+                    approve,
+                    body.ReviewComment,
+                    reviewedBy,
+                    reviewedByActorKey,
+                    reviewedByMailbox,
+                    cancellationToken);
 
-        return Ok(GovernanceApprovalRequestsHttpMapper.MapBatchReviewResponse(batchResult));
+            return Ok(GovernanceApprovalRequestsHttpMapper.MapBatchReviewResponse(batchResult));
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
     }
 }

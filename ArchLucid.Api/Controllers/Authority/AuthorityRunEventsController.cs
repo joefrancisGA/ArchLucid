@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Authorization;
@@ -135,34 +136,6 @@ public sealed partial class AuthorityRunEventsController(
         await Response.Body.FlushAsync(cancellationToken);
     }
 
-    private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto x)
-    {
-        return new RunSummaryResponse
-        {
-            RunId = x.RunId,
-            ProjectId = x.ProjectId,
-            Description = x.Description,
-            DisplayName = string.IsNullOrWhiteSpace(x.Description) ? null : x.Description.Trim(),
-            IsDemoWelcomeRun = x.IsDemoWelcomeRun,
-            IsSample = x.IsSample,
-            IsPinned = x.IsPinned,
-            CreatedUtc = x.CreatedUtc,
-            CreatedByUserId = x.CreatedByUserId,
-            HasContextSnapshot = x.HasContextSnapshot,
-            HasGraphSnapshot = x.HasGraphSnapshot,
-            HasFindingsSnapshot = x.HasFindingsSnapshot,
-            HasGoldenManifest = x.HasGoldenManifest,
-            GoldenManifestId = x.GoldenManifestId,
-            HasDecisionTrace = x.HasDecisionTrace,
-            HasArtifactBundle = x.HasArtifactBundle,
-            HasWarnings = x.HasWarnings,
-            HasGovernanceWarnings = x.HasGovernanceWarnings,
-            RunDegradedExecution = x.RunDegradedExecution,
-            DegradedExecutionAgents = x.DegradedExecutionAgents,
-            PackageOrigin = x.PackageOrigin,
-            StructuralExecutionMode = x.StructuralExecutionMode,
-            AuthorityLifecyclePhase = x.AuthorityLifecyclePhase,
-            LegacyRunStatus = x.LegacyRunStatus,
-        };
-    }
+    private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto x) =>
+        AuthorityRunReadHandlers.ToRunSummaryResponse(x);
 }

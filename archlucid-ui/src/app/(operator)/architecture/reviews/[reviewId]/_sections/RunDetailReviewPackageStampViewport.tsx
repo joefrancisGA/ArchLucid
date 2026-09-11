@@ -8,6 +8,8 @@ import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSe
 import { RunDetailReviewPackageClassificationSummary } from "./RunDetailReviewPackageClassificationSummary";
 import { RunDetailReviewPackageSemanticSupportBandSummary } from "./RunDetailReviewPackageSemanticSupportBandSummary";
 import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPackageDecisionReceiptStrip";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
+import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
 import { RunDetailPreFinalizeGateHonestyStrip } from "@/components/reviews/RunDetailPreFinalizeGateHonestyStrip";
 import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQualityGateModeStrip";
 import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
@@ -48,6 +50,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly azureInventoryEvidencePresent?: boolean;
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
+  readonly workingCareerRehearsalDoor?: string | null;
   readonly preCommitGateEnabled?: boolean | null;
 };
 
@@ -56,6 +59,11 @@ export function RunDetailReviewPackageStampViewport(
   props: RunDetailReviewPackageStampViewportProps,
 ): React.JSX.Element | null {
   const { isWorkingMode } = useWorkspaceMode();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
+  const honestyWorkingCareerRehearsalDoor = resolveHonestyWorkingCareerRehearsalDoor({
+    stampedDoor: props.workingCareerRehearsalDoor,
+    liveDoor: effectiveDoor,
+  });
   const feasibilityVerdict = props.feasibilityVerdict ?? null;
   const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);
   const pipelineTerminalFailure = props.pipelineTerminalFailure === true;
@@ -80,6 +88,7 @@ export function RunDetailReviewPackageStampViewport(
               findings={props.quickDecisionFindings}
               manifestFinalized={props.hasGoldenManifest}
               structuralExecutionMode={props.structuralExecutionMode}
+              workingCareerRehearsalDoor={props.workingCareerRehearsalDoor}
             />
             <RunDetailQualityGateModeStrip
               runId={props.runId}
@@ -102,6 +111,7 @@ export function RunDetailReviewPackageStampViewport(
           preCommitGateEnabled={props.preCommitGateEnabled}
           structuralExecutionMode={props.structuralExecutionMode}
           isSample={props.isSample}
+          effectiveWorkingCareerRehearsalDoor={honestyWorkingCareerRehearsalDoor}
         />
         <RunDetailReviewPackageClassificationSummary
           findings={props.quickDecisionFindings ?? []}
@@ -146,16 +156,17 @@ export function RunDetailReviewPackageStampViewport(
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
       {!pipelineTerminalFailure ? (
         <>
-          <RunDetailPreFinalizeGateHonestyStrip
-            findings={props.quickDecisionFindings}
-            manifestFinalized={props.hasGoldenManifest}
-            structuralExecutionMode={props.structuralExecutionMode}
-          />
-          <RunDetailQualityGateModeStrip
-            runId={props.runId}
-            structuralExecutionMode={props.structuralExecutionMode}
-            isSample={props.isSample}
-          />
+            <RunDetailPreFinalizeGateHonestyStrip
+              findings={props.quickDecisionFindings}
+              manifestFinalized={props.hasGoldenManifest}
+              structuralExecutionMode={props.structuralExecutionMode}
+              workingCareerRehearsalDoor={props.workingCareerRehearsalDoor}
+            />
+            <RunDetailQualityGateModeStrip
+              runId={props.runId}
+              structuralExecutionMode={props.structuralExecutionMode}
+              isSample={props.isSample}
+            />
         </>
       ) : null}
       <FirstReviewAzureInventoryZipPromptStrip
@@ -180,6 +191,7 @@ export function RunDetailReviewPackageStampViewport(
         preCommitGateEnabled={props.preCommitGateEnabled}
         structuralExecutionMode={props.structuralExecutionMode}
         isSample={props.isSample}
+        effectiveWorkingCareerRehearsalDoor={honestyWorkingCareerRehearsalDoor}
       />
       <RunDetailReviewPackageClassificationSummary
         findings={props.quickDecisionFindings ?? []}

@@ -62,6 +62,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 NodeType = node.NodeType,
                 SubgraphId = subgraphPlanner.ResolveSubgraphId(node, subgraphs),
                 OrderKey = order++,
+                ArmResourceType = DiagramAstGraphNodeClassifier.ReadArmType(node),
+                ArmResourceGroup = DiagramAstGraphNodeClassifier.ReadResourceGroup(node),
             });
         }
 
@@ -82,6 +84,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         }
 
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
+        DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode);
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
 
         return ast;

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useAssumptionAwareCommitBlockedReason } from "@/hooks/use-assumption-aware-commit-blocked-reason";
+import { useCareerFinalizeBlockedReason } from "@/hooks/use-career-finalize-blocked-reason";
 import { useUnsupportedSemanticSupportFinalizeBlockedReason } from "@/hooks/use-unsupported-semantic-support-finalize-blocked-reason";
 import { mergeFinalizeCommitBlockedReasons } from "@/lib/findings/semantic-support-band-finalize-honesty";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
@@ -18,6 +19,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
 import { RunDetailReviewPackageStampViewport } from "./RunDetailReviewPackageStampViewport";
+import { FinalizeReadinessChecklistParityBanner } from "@/components/reviews/FinalizeReadinessChecklistParityBanner";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
 import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
@@ -66,6 +68,8 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly architectureRequestId?: string | null;
   readonly azureInventoryEvidencePresent?: boolean;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
+  readonly degradedFindingCoverage?: boolean;
+  readonly degradedFindingCoverageFailedEngineLabels?: readonly string[];
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -109,7 +113,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
   const sessionAiReadiness = useSessionAiReadiness({ requireLiveProbe });
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canConfigureWorkspaceAi = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
-  const assumptionAwareCommitBlockedReason = useAssumptionAwareCommitBlockedReason({
+  const commitBlockedState = useAssumptionAwareCommitBlockedReason({
     runId: props.runId,
     serverCommitBlockedReason: props.commitBlockedReason,
     finalizeAssumptionGateApplies: props.finalizeAssumptionGateApplies,
@@ -117,6 +121,9 @@ export function RunDetailReviewPackageDoThisNextResolved(
     blockingFindingCount: props.blockingFindingCount,
     requestAssumptionTexts: props.requestAssumptionTexts,
     transparencyTrail: props.transparencyTrail,
+    degradedFindingCoverage: props.degradedFindingCoverage,
+    degradedFindingCoverageFailedEngineLabels: props.degradedFindingCoverageFailedEngineLabels,
+    blockDegradedFindingCoverageOnWorking: props.buyerPolishedArtifactTable !== true,
   });
   const unsupportedSemanticSupportCommitBlockedReason =
     useUnsupportedSemanticSupportFinalizeBlockedReason({
@@ -124,10 +131,20 @@ export function RunDetailReviewPackageDoThisNextResolved(
       manifestFinalized: props.hasGoldenManifest,
       structuralExecutionMode: props.structuralExecutionMode,
     });
+  const careerFinalizeBlockedReason = useCareerFinalizeBlockedReason({
+    manifestFinalized: props.hasGoldenManifest,
+    structuralExecutionMode: props.structuralExecutionMode ?? props.pipelineSummary?.structuralExecutionMode,
+    workingCareerRehearsalDoor: props.pipelineSummary?.workingCareerRehearsalDoor,
+    transparencyTrail: props.transparencyTrail,
+  });
   const effectiveCommitBlockedReason = mergeFinalizeCommitBlockedReasons(
-    assumptionAwareCommitBlockedReason,
-    unsupportedSemanticSupportCommitBlockedReason,
+    commitBlockedState.blockedReason,
+    commitBlockedState.readinessUnavailable || commitBlockedState.blocks.length > 0
+      ? null
+      : unsupportedSemanticSupportCommitBlockedReason,
+    careerFinalizeBlockedReason,
   );
+  const effectiveCommitBlockedBlocks = commitBlockedState.blocks;
 
   useEffect(() => {
     let canceled = false;
@@ -267,13 +284,28 @@ export function RunDetailReviewPackageDoThisNextResolved(
         pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
         azureInventoryEvidencePresent={props.azureInventoryEvidencePresent === true}
         structuralExecutionMode={props.structuralExecutionMode}
+        workingCareerRehearsalDoor={props.pipelineSummary?.workingCareerRehearsalDoor}
       />
+      {commitBlockedState.readinessChecklistMismatch
+      && commitBlockedState.checklistReadyToFinalize !== null
+      && commitBlockedState.readinessReadyToFinalize !== null ? (
+        <FinalizeReadinessChecklistParityBanner
+          checklistReadyToFinalize={commitBlockedState.checklistReadyToFinalize}
+          readinessReadyToFinalize={commitBlockedState.readinessReadyToFinalize}
+        />
+      ) : null}
       <FinalizeReadinessStrip
         commitBlockedReason={
           next.failureRecovery !== null && next.failureRecovery !== undefined
             ? null
             : effectiveCommitBlockedReason
         }
+        commitBlockedBlocks={
+          next.failureRecovery !== null && next.failureRecovery !== undefined
+            ? []
+            : effectiveCommitBlockedBlocks
+        }
+        readinessLoading={commitBlockedState.readinessLoading}
       />
       <ReviewPackageDoThisNextStrip
         next={next}
@@ -281,6 +313,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         retryCount={props.pipelineDiagnosticContext?.retryCount ?? props.pipelineSummary?.retryCount ?? null}
         hasGoldenManifest={props.hasGoldenManifest}
         commitBlockedReason={effectiveCommitBlockedReason}
+        commitBlockedBlocks={effectiveCommitBlockedBlocks}
         sessionAiReadiness={sessionAiReadiness}
         canConfigureWorkspaceAi={canConfigureWorkspaceAi}
         usesCustomerAiConnection={usesCustomerAiConnection}

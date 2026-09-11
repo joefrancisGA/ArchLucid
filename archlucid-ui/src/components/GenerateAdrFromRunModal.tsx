@@ -7,6 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
@@ -20,7 +21,13 @@ import {
   resolveCareerExportMaxFindings,
 } from "@/lib/career-export-finding-inventory";
 import { formatCareerExportHonestyMarkdown, resolveCareerExportCoverageHonesty } from "@/lib/career-export-coverage-honesty";
+import { formatCareerAdrExportRehearsalHeaderMarkdown } from "@/lib/career-artifact/format-career-adr-export-rehearsal-header-markdown";
 import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
+import {
+  resolveCareerArtifactExportHonestyDoorFields,
+  resolveSimulatorRehearsalBannerOnArtifactForExport,
+} from "@/lib/career-artifact/resolve-career-artifact-export-honesty-input";
+import { SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON } from "@/lib/governance/simulator-career-honesty";
 import {
   Dialog,
   DialogContent,
@@ -69,6 +76,7 @@ export function GenerateAdrFromRunModal({
   buyerPolished = false,
 }: GenerateAdrFromRunModalProps) {
   const workingDesk = useProductionDeskChrome();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
   const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
   const preCommitGateEnabled = healthQuery.data?.preCommitGateEnabled ?? null;
   const hostQualityGateMode = healthQuery.data?.agentOutputQualityGateMode ?? null;
@@ -94,6 +102,13 @@ export function GenerateAdrFromRunModal({
     total: totalEligibleFindings,
   });
   const exportInventoryLine = formatCareerExportFindingInventoryLine(exportInventory);
+  const doorFields = resolveCareerArtifactExportHonestyDoorFields({
+    progressSummary,
+    structuralExecutionMode: input.structuralExecutionMode ?? null,
+    workingCareerRehearsalDoor: progressSummary?.workingCareerRehearsalDoor,
+    liveDoor: effectiveDoor,
+  });
+  const simulatorRehearsalBannerOnArtifact = resolveSimulatorRehearsalBannerOnArtifactForExport(doorFields);
   const coverageHonesty = resolveCareerExportCoverageHonesty({
     runId: input.runId,
     progressSummary,
@@ -103,7 +118,7 @@ export function GenerateAdrFromRunModal({
     enginesSucceeded,
     workingDesk,
     preCommitGateEnabled,
-    structuralExecutionMode: input.structuralExecutionMode ?? null,
+    structuralExecutionMode: doorFields.structuralExecutionMode ?? null,
     isSample: input.isSample ?? null,
     hostAgentExecutionMode,
     hostQualityGateMode,
@@ -119,18 +134,36 @@ export function GenerateAdrFromRunModal({
     enginesSucceeded,
     workingDesk,
     preCommitGateEnabled,
-    structuralExecutionMode: input.structuralExecutionMode ?? null,
+    structuralExecutionMode: doorFields.structuralExecutionMode ?? null,
     isSample: input.isSample ?? null,
     hostAgentExecutionMode,
     hostQualityGateMode,
     aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
+    simulatorRehearsalBannerOnArtifact,
+    effectiveWorkingCareerRehearsalDoor: doorFields.effectiveWorkingCareerRehearsalDoor,
   });
+  const careerSimulatorHardBlocked = careerArtifactVerdict.blockedReasons.includes(
+    SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON,
+  );
+  const otherCareerArtifactBlocked =
+    !careerArtifactVerdict.canRender && !careerSimulatorHardBlocked;
+  const inventoryExportBlocked =
+    workingDesk && !exportInventory.isComplete && !incompleteExportConfirmed;
   const exportBlocked =
-    (workingDesk && !exportInventory.isComplete && !incompleteExportConfirmed)
-    || (!careerArtifactVerdict.canRender && !incompleteExportConfirmed);
+    inventoryExportBlocked
+    || careerSimulatorHardBlocked
+    || (otherCareerArtifactBlocked && !incompleteExportConfirmed);
 
   const buildExportMarkdown = useCallback(
     (exportInput: AdrGeneratorRunInput): string => {
+      const rehearsalHeaderMarkdown = workingDesk
+        ? formatCareerAdrExportRehearsalHeaderMarkdown({
+            workingDesk: true,
+            isSample: input.isSample ?? null,
+            structuralExecutionMode: doorFields.structuralExecutionMode ?? null,
+            effectiveWorkingCareerRehearsalDoor: doorFields.effectiveWorkingCareerRehearsalDoor,
+          })
+        : null;
       const careerExportHonestyMarkdown = workingDesk
         ? formatCareerExportHonestyMarkdown({
             runId: input.runId,
@@ -141,7 +174,7 @@ export function GenerateAdrFromRunModal({
             enginesSucceeded,
             workingDesk: true,
             preCommitGateEnabled,
-            structuralExecutionMode: input.structuralExecutionMode ?? null,
+            structuralExecutionMode: doorFields.structuralExecutionMode ?? null,
             isSample: input.isSample ?? null,
             hostAgentExecutionMode,
             hostQualityGateMode,
@@ -154,10 +187,30 @@ export function GenerateAdrFromRunModal({
             })) as QuickDecisionFinding[],
           })
         : null;
+      const careerExportHonestyPrefix = [rehearsalHeaderMarkdown, careerExportHonestyMarkdown]
+        .filter((section) => section !== null && section.trim().length > 0)
+        .join("\n\n");
 
-      return buildMadrMarkdownFromRun(exportInput, { careerExportHonestyMarkdown });
+      return buildMadrMarkdownFromRun(exportInput, {
+        careerExportHonestyMarkdown:
+          careerExportHonestyPrefix.length > 0 ? careerExportHonestyPrefix : null,
+      });
     },
-    [enginesSucceeded, findingsSnapshot, graphSnapshot, hostAgentExecutionMode, hostQualityGateMode, input.aggregateQualityGateOutcome, input.isSample, input.runId, input.structuralExecutionMode, preCommitGateEnabled, progressSummary, workingDesk],
+    [
+      doorFields.effectiveWorkingCareerRehearsalDoor,
+      doorFields.structuralExecutionMode,
+      enginesSucceeded,
+      findingsSnapshot,
+      graphSnapshot,
+      hostAgentExecutionMode,
+      hostQualityGateMode,
+      input.aggregateQualityGateOutcome,
+      input.isSample,
+      input.runId,
+      preCommitGateEnabled,
+      progressSummary,
+      workingDesk,
+    ],
   );
 
   const seedFromInput = useCallback(() => {
@@ -289,12 +342,29 @@ export function GenerateAdrFromRunModal({
               {coverageHonesty.measurementFloor.line}
             </p>
           ) : null}
+          {careerSimulatorHardBlocked ? (
+            <div
+              role="alert"
+              data-testid="generate-adr-career-artifact-gap"
+              className={cn(
+                "m-0 rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
+            >
+              <p className="m-0 font-semibold">Career artifact honesty blocks ADR export</p>
+              {careerArtifactVerdict.blockedReasons.map((reason) => (
+                <p key={reason} className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
+                  {reason}
+                </p>
+              ))}
+            </div>
+          ) : null}
           {evalSampleExport ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="generate-adr-eval-sample-label">
               Includes up to {CAREER_EXPORT_EVAL_SAMPLE_MAX_FINDINGS} findings in this sample export.
             </p>
           ) : null}
-          {exportBlocked ? (
+          {inventoryExportBlocked ? (
             <Button
               type="button"
               variant="outline"

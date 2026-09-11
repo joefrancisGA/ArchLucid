@@ -6,7 +6,14 @@ import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEv
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
 const outline: InfraEvidenceMermaidOutline = {
-  nodes: [{ id: "n_src", label: "core-vnet" }],
+  nodes: [
+    {
+      id: "n_src",
+      label: "core-vnet",
+      resourceType: "Microsoft.Network/virtualNetworks",
+      resourceGroup: "rg-network",
+    },
+  ],
   edges: [{ from: "n_src", to: "n_dst", label: null }],
 };
 
@@ -30,6 +37,12 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(edgesTable as HTMLTableElement).queryByText("—")).toBeNull();
 
     expect(within(nodesTable as HTMLTableElement).getByRole("columnheader", { name: "Label" })).toBeTruthy();
+    expect(within(nodesTable as HTMLTableElement).getByRole("columnheader", { name: "Resource type" })).toBeTruthy();
+    expect(within(nodesTable as HTMLTableElement).getByRole("columnheader", { name: "Resource group" })).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
+    expect(within(nodesTable as HTMLTableElement).getByText("Microsoft.Network/virtualNetworks")).toBeTruthy();
+    expect(within(nodesTable as HTMLTableElement).getByText("rg-network")).toBeTruthy();
+    expect(within(edgesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
+    expect(within(edgesTable as HTMLTableElement).getByText("n_dst")).toBeTruthy();
   });
 });

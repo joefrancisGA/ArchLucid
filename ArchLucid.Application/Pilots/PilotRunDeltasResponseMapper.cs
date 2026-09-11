@@ -1,4 +1,5 @@
 using ArchLucid.Application.Value;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
@@ -50,7 +51,14 @@ public static class PilotRunDeltasResponseMapper
             roiSources,
             evaluationUtc);
 
-        return MapCore(deltas, extractorCollectionTimestampUtc, completeness, roiSources, roiFreshnessDisposition);
+        return MapCore(
+            deltas,
+            extractorCollectionTimestampUtc,
+            completeness,
+            roiSources,
+            roiFreshnessDisposition,
+            run.StructuralExecutionMode,
+            run.WorkingCareerRehearsalDoor);
     }
 
     private static PilotRunDeltasResponse MapCore(
@@ -58,7 +66,9 @@ public static class PilotRunDeltasResponseMapper
         DateTime? extractorCollectionTimestampUtc,
         ProofPackageCompletenessResponse? proofPackage,
         IReadOnlyList<RoiMetricSourceRow>? roiMetricSources = null,
-        string? roiSourceFreshnessDisposition = null)
+        string? roiSourceFreshnessDisposition = null,
+        StructuralExecutionMode? structuralExecutionMode = null,
+        string? workingCareerRehearsalDoor = null)
     {
         return new PilotRunDeltasResponse
         {
@@ -80,6 +90,8 @@ public static class PilotRunDeltasResponseMapper
             RoiMetricSources = roiMetricSources ?? [],
             RoiSourceFreshnessDisposition = roiSourceFreshnessDisposition ?? "PASS",
             GovernedFindingCoverage = deltas.GovernedFindingCoverage,
+            StructuralExecutionMode = structuralExecutionMode,
+            WorkingCareerRehearsalDoor = workingCareerRehearsalDoor,
         };
     }
 }

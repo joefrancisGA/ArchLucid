@@ -142,7 +142,7 @@ export function RunsDashboardPanelFilters({
       )}
       <div
         className={cn(
-          "flex flex-wrap items-center gap-2",
+          "flex flex-wrap items-center gap-2 overflow-visible",
           buyerPolishedShell && !hideHeading ? "justify-between" : OPERATOR_LAYOUT.inlineGap,
         )}
       >

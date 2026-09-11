@@ -57,13 +57,14 @@ public sealed class AzureInventorySnapshotGraphResolver(
         HashSet<string> seenNodeIds = new(StringComparer.Ordinal);
 
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources
-                     .OrderBy(candidate => candidate.AzureResourceId, StringComparer.Ordinal))
+                     .OrderBy(candidate => ReadAzureResourceId(candidate), StringComparer.Ordinal))
         {
             string nodeId = ResolveNodeId(resource);
+            string azureResourceId = ReadAzureResourceId(resource);
 
-            if (!string.IsNullOrWhiteSpace(resource.AzureResourceId))
+            if (!string.IsNullOrWhiteSpace(azureResourceId))
             {
-                nodeIdByArmId[resource.AzureResourceId] = nodeId;
+                nodeIdByArmId[azureResourceId] = nodeId;
             }
 
             if (!seenNodeIds.Add(nodeId))
@@ -76,13 +77,22 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 NodeId = nodeId,
                 NodeType = GraphNodeTypes.TopologyResource,
                 Label = ResolveLabel(resource),
-                Category = ResolveCategory(resource.ResourceType),
+                Category = ResolveCategory(ReadResourceType(resource)),
                 SourceType = "azure-inventory-snapshot",
-                SourceId = resource.AzureResourceId,
+                SourceId = string.IsNullOrWhiteSpace(azureResourceId) ? null : azureResourceId,
             };
 
-            node.Properties["arm.id"] = resource.AzureResourceId;
-            node.Properties["arm.type"] = resource.ResourceType;
+            if (!string.IsNullOrWhiteSpace(azureResourceId))
+            {
+                node.Properties["arm.id"] = azureResourceId;
+            }
+
+            string resourceType = ReadResourceType(resource);
+
+            if (!string.IsNullOrWhiteSpace(resourceType))
+            {
+                node.Properties["arm.type"] = resourceType;
+            }
 
             if (!string.IsNullOrWhiteSpace(resource.ResourceGroup))
             {
@@ -111,12 +121,15 @@ public sealed class AzureInventorySnapshotGraphResolver(
         HashSet<string> edgeKeys = new(StringComparer.Ordinal);
 
         foreach (AzureInventoryResourceRelationshipReadModel relationship in snapshot.Relationships
-                     .OrderBy(candidate => candidate.FromAzureResourceId, StringComparer.Ordinal)
-                     .ThenBy(candidate => candidate.ToAzureResourceId, StringComparer.Ordinal)
-                     .ThenBy(candidate => candidate.RelationshipType, StringComparer.Ordinal))
+                     .OrderBy(candidate => ReadRelationshipArmId(candidate.FromAzureResourceId), StringComparer.Ordinal)
+                     .ThenBy(candidate => ReadRelationshipArmId(candidate.ToAzureResourceId), StringComparer.Ordinal)
+                     .ThenBy(candidate => ReadRelationshipArmId(candidate.RelationshipType), StringComparer.Ordinal))
         {
-            if (!nodeIdByArmId.TryGetValue(relationship.FromAzureResourceId, out string? fromNodeId)
-                || !nodeIdByArmId.TryGetValue(relationship.ToAzureResourceId, out string? toNodeId))
+            string fromArmId = ReadRelationshipArmId(relationship.FromAzureResourceId);
+            string toArmId = ReadRelationshipArmId(relationship.ToAzureResourceId);
+
+            if (!nodeIdByArmId.TryGetValue(fromArmId, out string? fromNodeId)
+                || !nodeIdByArmId.TryGetValue(toArmId, out string? toNodeId))
             {
                 continue;
             }
@@ -170,19 +183,50 @@ public sealed class AzureInventorySnapshotGraphResolver(
 
     private static string ResolveLabel(AzureInventoryResourceRecord resource)
     {
-        string armId = resource.AzureResourceId;
-        int lastSlash = armId.LastIndexOf('/');
+        string armId = ReadAzureResourceId(resource);
 
-        if (lastSlash >= 0 && lastSlash < armId.Length - 1)
+        if (!string.IsNullOrWhiteSpace(armId))
         {
-            return armId[(lastSlash + 1)..];
+            int lastSlash = armId.LastIndexOf('/');
+
+            if (lastSlash >= 0 && lastSlash < armId.Length - 1)
+            {
+                return armId[(lastSlash + 1)..];
+            }
         }
 
-        return resource.ResourceType;
+        string resourceType = ReadResourceType(resource);
+
+        if (!string.IsNullOrWhiteSpace(resourceType))
+        {
+            return resourceType;
+        }
+
+        return $"resource-row-{resource.ResourceRowId:D}";
+    }
+
+    private static string ReadAzureResourceId(AzureInventoryResourceRecord resource)
+    {
+        return resource.AzureResourceId ?? string.Empty;
+    }
+
+    private static string ReadResourceType(AzureInventoryResourceRecord resource)
+    {
+        return resource.ResourceType ?? string.Empty;
+    }
+
+    private static string ReadRelationshipArmId(string? armId)
+    {
+        return armId ?? string.Empty;
     }
 
     private static string ResolveCategory(string resourceType)
     {
+        if (string.IsNullOrWhiteSpace(resourceType))
+        {
+            return GraphTopologyCategories.Compute;
+        }
+
         if (resourceType.Contains("/network", StringComparison.OrdinalIgnoreCase)
             || resourceType.Contains("networksecuritygroups", StringComparison.OrdinalIgnoreCase))
         {

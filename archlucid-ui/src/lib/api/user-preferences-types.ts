@@ -1,6 +1,7 @@
 import type { CloudPlatformScope } from "@/lib/cloud-platform-scope-storage";
 import type { ColorModePreference } from "@/lib/color-mode-preference";
 import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
+import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import { DEFAULT_LOADED_HOURLY_USD } from "@/lib/roi-assumptions";
 import type { WorkspaceModeId } from "@/lib/workspace-mode/workspace-mode";
 import type { WorkspaceModeGraduationOfferState } from "@/lib/workspace-mode/workspace-mode-preference";
@@ -27,6 +28,8 @@ export type UserPreferencesResponse = {
   workspaceModeIsExplicit: boolean;
   workspaceModeGraduationOffer: WorkspaceModeGraduationOfferState;
   workspaceModeGraduationOfferIsExplicit: boolean;
+  workingCareerRehearsalDoor: WorkingCareerRehearsalDoorId;
+  workingCareerRehearsalDoorIsExplicit: boolean;
   professionalWorkbenchEnabled: boolean;
   professionalWorkbenchEnabledIsExplicit: boolean;
   roiLoadedHourlyCostUsd: number;
@@ -74,6 +77,10 @@ export type SetWorkspaceModeRequest = {
 
 export type SetWorkspaceModeGraduationOfferRequest = {
   state: WorkspaceModeGraduationOfferState;
+};
+
+export type SetWorkingCareerRehearsalDoorRequest = {
+  door: WorkingCareerRehearsalDoorId;
 };
 
 export type SetProfessionalWorkbenchEnabledRequest = {
@@ -128,6 +135,8 @@ export function defaultUserPreferencesResponse(): UserPreferencesResponse {
     workspaceModeIsExplicit: false,
     workspaceModeGraduationOffer: "pending",
     workspaceModeGraduationOfferIsExplicit: false,
+    workingCareerRehearsalDoor: "career",
+    workingCareerRehearsalDoorIsExplicit: false,
     professionalWorkbenchEnabled: true,
     professionalWorkbenchEnabledIsExplicit: false,
     roiLoadedHourlyCostUsd: DEFAULT_LOADED_HOURLY_USD,

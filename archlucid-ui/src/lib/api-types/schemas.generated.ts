@@ -1551,6 +1551,8 @@ export interface components {
             currentManifestVersion?: null | string;
             /** Format: uuid */
             decisionTraceId?: null | string;
+            /** Format: date-time */
+            executePostureCapturedUtc?: null | string;
             /** Format: uuid */
             findingsSnapshotId?: null | string;
             /** Format: uuid */
@@ -1568,6 +1570,7 @@ export interface components {
             status: components["schemas"]["ArchitectureRunStatus"];
             structuralExecutionMode: components["schemas"]["StructuralExecutionMode"];
             taskIds?: string[];
+            workingCareerRehearsalDoor?: null | string;
         };
         ArchitectureRunDetail: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
@@ -4341,6 +4344,41 @@ export interface components {
             /** Format: date-time */
             lastModified?: null | string;
         };
+        FinalizeQualityScorecardCountsDto: {
+            /** Format: int32 */
+            blockingFindingCount?: number;
+            /** Format: int32 */
+            lowExtractionConfidenceCount?: number;
+            /** Format: int32 */
+            openCannotDetermineCount?: number;
+            /** Format: int32 */
+            openContradictionCount?: number;
+            /** Format: int32 */
+            openDeferredCount?: number;
+            /** Format: int32 */
+            openVerifyHypothesisCount?: number;
+            /** Format: int32 */
+            uncoveredMandatoryRequirementCount?: number;
+            /** Format: int32 */
+            unresolvedHighSeverityDispositionCount?: number;
+            /** Format: int32 */
+            unverifiedAssumptionCount?: number;
+        };
+        FinalizeReadinessBlock: {
+            code?: string;
+            layer?: string;
+            message?: string;
+        };
+        FinalizeReadinessResult: {
+            blockedReasonSummary?: null | string;
+            blocks?: components["schemas"]["FinalizeReadinessBlock"][];
+            checklist?: components["schemas"]["PreFinalizeChecklistResult"];
+            finalizeQualityGateEnabled?: boolean;
+            readyToFinalize?: boolean;
+            runId?: string;
+            scorecard?: components["schemas"]["FinalizeQualityScorecardCountsDto"];
+            scorecardBlockingReasons?: string[];
+        };
         Finding: {
             agentExecutionTraceId?: null | string;
             assignedToUserId?: null | string;
@@ -6904,11 +6942,13 @@ export interface components {
             roiSourceFreshnessDisposition?: string;
             /** Format: date-time */
             runCreatedUtc?: string;
+            structuralExecutionMode?: null | components["schemas"]["StructuralExecutionMode"];
             /** Format: double */
             timeToCommittedManifestTotalSeconds?: null | number | string;
             topFindingEvidenceChain?: null | components["schemas"]["FindingEvidenceChainResponse"];
             topFindingId?: null | string;
             topFindingSeverity?: null | string;
+            workingCareerRehearsalDoor?: null | string;
         };
         PilotScorecardBaselinesPutRequest: {
             /** Format: double */
@@ -7762,6 +7802,9 @@ export interface components {
         PutArchitectureShareRequest: {
             actorOid?: string;
             role?: string;
+        };
+        PutRunAssumptionAcknowledgementRequest: {
+            acknowledgedAssumptionIds?: null | string[];
         };
         PutRunCoverageAcknowledgementRequest: {
             entries?: null | components["schemas"]["RunCoverageAcknowledgementEntryRequest"][];
@@ -9043,6 +9086,13 @@ export interface components {
             /** Format: int32 */
             graphSnapshots?: number;
         };
+        RunAssumptionAcknowledgementDocument: {
+            acknowledgedAssumptionIds?: string[];
+            /** Format: date-time */
+            acknowledgedUtc?: string;
+            actorUserId?: string;
+            evaluationVersion?: string;
+        };
         RunAuthorityRuleAuditExplainabilitySection: {
             acceptedFindingIds?: string[];
             allowedFindingIds?: string[];
@@ -9396,6 +9446,7 @@ export interface components {
             summary?: string;
         };
         RunRecord: {
+            acknowledgedAssumptionsJson?: null | string;
             acknowledgedCoverageJson?: null | string;
             /** Format: uuid */
             architectureId?: null | string;
@@ -9418,6 +9469,8 @@ export interface components {
             decisionTraceId?: null | string;
             description?: null | string;
             engineProvenanceJson?: null | string;
+            /** Format: date-time */
+            executePostureCapturedUtc?: null | string;
             /** Format: uuid */
             findingsSnapshotId?: null | string;
             /** Format: uuid */
@@ -9482,6 +9535,7 @@ export interface components {
             structuralExecutionMode: components["schemas"]["StructuralExecutionMode"];
             /** Format: uuid */
             tenantId?: string;
+            workingCareerRehearsalDoor?: null | string;
             /** Format: uuid */
             workspaceId?: string;
         };
@@ -9585,6 +9639,8 @@ export interface components {
             degradedExecutionAgents?: string[];
             description?: null | string;
             displayName?: null | string;
+            /** Format: date-time */
+            executePostureCapturedUtc?: null | string;
             /** Format: uuid */
             goldenManifestId?: null | string;
             hasArtifactBundle?: boolean;
@@ -9605,6 +9661,7 @@ export interface components {
             /** Format: uuid */
             runId: string;
             structuralExecutionMode?: components["schemas"]["StructuralExecutionMode"];
+            workingCareerRehearsalDoor?: null | string;
         };
         RunToolInvocationForensicRow: {
             agentType?: string;
@@ -10015,6 +10072,9 @@ export interface components {
         SetWhereToGoNextVisibilityRequest: {
             enabled?: boolean;
         };
+        SetWorkingCareerRehearsalDoorRequest: {
+            door?: string;
+        };
         SetWorkspaceModeGraduationOfferRequest: {
             state?: string;
         };
@@ -10368,7 +10428,6 @@ export interface components {
             offset?: number;
             value?: null | string;
         };
-        /** @enum {string} */
         StructuralExecutionMode: "Simulator" | "Real" | "Fallback" | "Mixed";
         /** @enum {string} */
         StructuredBriefSuggestionKind: "Constraint" | "Assumption" | "RequiredCapability";
@@ -11564,6 +11623,8 @@ export interface components {
             sampleReviewsOnOverviewIsExplicit?: boolean;
             whereToGoNextEnabled?: boolean;
             whereToGoNextIsExplicit?: boolean;
+            workingCareerRehearsalDoor?: string;
+            workingCareerRehearsalDoorIsExplicit?: boolean;
             workspaceMode?: string;
             workspaceModeGraduationOffer?: string;
             workspaceModeGraduationOfferIsExplicit?: boolean;

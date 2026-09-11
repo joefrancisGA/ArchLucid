@@ -1,7 +1,11 @@
+using System.Reflection;
+
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.ArtifactSynthesis.Compilers;
+using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Mermaid;
+using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Contracts.Persistence.Graph;
@@ -154,6 +158,84 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
+    public async Task Snapshot_with_null_arm_id_and_resource_type_still_renders_executive_mermaid()
+    {
+        AzureInventoryResourceRecord resource = new()
+        {
+            ResourceRowId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000004"),
+            SnapshotId = SnapshotId,
+            TenantId = TenantId,
+            CloudResourceId = null,
+            ResourceGroup = "rg-network",
+            SubscriptionId = "sub",
+        };
+
+        SetNullableStringProperty(resource, nameof(AzureInventoryResourceRecord.AzureResourceId), null);
+        SetNullableStringProperty(resource, nameof(AzureInventoryResourceRecord.ResourceType), null);
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = [resource],
+        };
+
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> executiveResult =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, CancellationToken.None);
+
+        executiveResult.Succeeded.Should().BeTrue();
+        executiveResult.Value.Should().NotBeNull();
+        executiveResult.Value!.Mode.Should().Be("executive");
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> previewResult =
+            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+
+        previewResult.Succeeded.Should().BeTrue();
+        previewResult.Value.Should().NotBeNull();
+        previewResult.Value!.Modes.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task Preview_continues_other_modes_when_one_mode_render_throws()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateServiceWithThrowingNetworkCompiler(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
+            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+
+        InfraEvidenceMermaidModePreview networkPreview = result.Value!.Modes
+            .Should()
+            .ContainSingle(mode => mode.Mode == "network")
+            .Subject;
+
+        networkPreview.Status.Should().Be(MermaidDiagramRenderStatus.Failed.ToString());
+        networkPreview.Mermaid.Should().BeNull();
+
+        result.Value.Modes
+            .Should()
+            .Contain(mode => mode.Mode == "executive" && mode.Status != MermaidDiagramRenderStatus.Failed.ToString());
+    }
+
+    [Fact]
     public async Task Over_threshold_graph_returns_partitioned_status_in_preview()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 500);
@@ -180,9 +262,35 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         fullPreview.NodeCount.Should().BeGreaterThan(400);
     }
 
-    private static InfraEvidenceSnapshotMermaidService CreateService(
+    private static InfraEvidenceSnapshotMermaidService CreateServiceWithThrowingNetworkCompiler(
         IAzureInventorySnapshotRepository repository,
         MermaidDiagramReadabilityThresholds thresholds)
+    {
+        Mock<IDiagramAstFromGraphCompiler> compiler = new();
+        DiagramAstFromGraphCompiler realCompiler = new();
+
+        compiler
+            .Setup(candidate => candidate.Compile(
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<DiagramMode>(),
+                It.IsAny<DiagramAstCompileOptions?>()))
+            .Returns((GraphSnapshot graph, DiagramMode mode, DiagramAstCompileOptions? options) =>
+            {
+                if (mode == DiagramMode.Network)
+                {
+                    throw new InvalidOperationException("Simulated network mode compile failure.");
+                }
+
+                return realCompiler.Compile(graph, mode, options);
+            });
+
+        return CreateService(repository, thresholds, compiler.Object);
+    }
+
+    private static InfraEvidenceSnapshotMermaidService CreateService(
+        IAzureInventorySnapshotRepository repository,
+        MermaidDiagramReadabilityThresholds thresholds,
+        IDiagramAstFromGraphCompiler? graphCompiler = null)
     {
         MermaidDiagramRenderPipeline pipeline = new(
             new MermaidDiagramRenderer(),
@@ -216,7 +324,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
 
         return new InfraEvidenceSnapshotMermaidService(
             new AzureInventorySnapshotGraphResolver(repository),
-            new DiagramAstFromGraphCompiler(),
+            graphCompiler ?? new DiagramAstFromGraphCompiler(),
             pipeline,
             brandedDiagramExportService.Object,
             new NullDiagramImageRenderer(),
@@ -286,6 +394,18 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             WorkspaceId = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),
         };
+    }
+
+    private static void SetNullableStringProperty(object target, string propertyName, string? value)
+    {
+        PropertyInfo? property = target.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
+
+        if (property is null)
+        {
+            throw new InvalidOperationException($"Property '{propertyName}' was not found.");
+        }
+
+        property.SetValue(target, value);
     }
 
     private sealed class InMemorySnapshotRepository : IAzureInventorySnapshotRepository

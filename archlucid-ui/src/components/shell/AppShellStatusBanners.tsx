@@ -14,7 +14,10 @@ import { TrialUsageUpgradeNudge } from "@/components/trial/TrialUsageUpgradeNudg
 import { PersistentTrialStatusStrip } from "@/components/usability/PersistentTrialStatusStrip";
 import { SetupHealthShellBanner } from "@/components/usability/SetupHealthShellBanner";
 import { RealModeAiReadinessShellBanner } from "@/components/usability/RealModeAiReadinessShellBanner";
+import { WorkingSimulatorCloneRehearsalBanner } from "@/components/workspace-mode/WorkingSimulatorCloneRehearsalBanner";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useReviewPresenterChromeActive } from "@/hooks/use-review-presenter-chrome-active";
+import { isSecureNowTrainingChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 type AppShellStatusBannersProps = {
   readonly variant: "minimal" | "full";
@@ -23,6 +26,8 @@ type AppShellStatusBannersProps = {
 /** Operator shell readiness, budget, and trial banners loaded outside the AppShell critical path. */
 export function AppShellStatusBanners({ variant }: AppShellStatusBannersProps) {
   const presenterQuiet = useReviewPresenterChromeActive();
+  const { productLine } = useProductLine();
+  const showTrainingChrome = !isSecureNowTrainingChromeExcluded(productLine);
 
   if (presenterQuiet) {
     return null;
@@ -38,6 +43,7 @@ export function AppShellStatusBanners({ variant }: AppShellStatusBannersProps) {
       <ServiceBusHealthBanner />
       {variant === "full" ? <SetupHealthShellBanner /> : null}
       {variant === "full" ? <RealModeAiReadinessShellBanner /> : null}
+      {showTrainingChrome ? <WorkingSimulatorCloneRehearsalBanner /> : null}
       <LlmBudgetApproachingLimitBanner />
       <TrialAiBudgetStatusBanner />
       <TrialUsageUpgradeNudge />

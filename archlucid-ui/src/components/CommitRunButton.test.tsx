@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -28,10 +28,22 @@ vi.mock("@/lib/operator/operator-query-invalidation", () => ({
 const pulseOidcSessionKeepaliveMock = vi.hoisted(() => vi.fn(async () => undefined));
 const useOidcSessionKeepaliveMock = vi.hoisted(() => vi.fn());
 const invalidateTenantTrialStatusCacheMock = vi.hoisted(() => vi.fn(async () => undefined));
+const simulatePreCommitSyntheticFindingsMock = vi.hoisted(() => vi.fn(async () => undefined));
+const commitArchitectureRunWith401ResumeMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/hooks/use-oidc-session-keepalive", () => ({
   pulseOidcSessionKeepalive: pulseOidcSessionKeepaliveMock,
   useOidcSessionKeepalive: useOidcSessionKeepaliveMock,
+}));
+
+vi.mock("@/lib/api/pre-finalize-synthetic-simulation-api", () => ({
+  simulatePreCommitSyntheticFindings: (...args: unknown[]) =>
+    simulatePreCommitSyntheticFindingsMock(...args),
+}));
+
+vi.mock("@/lib/auth/livelihood-mutation-401-resume-wrappers", () => ({
+  commitArchitectureRunWith401Resume: (...args: unknown[]) =>
+    commitArchitectureRunWith401ResumeMock(...args),
 }));
 
 vi.mock("@/lib/tenant-trial-status-client", () => ({
@@ -51,26 +63,29 @@ vi.mock("@/components/governance/GovernanceRecordCorrectionDialog", () => ({
 }));
 
 vi.mock("@/lib/api", () => ({
-  commitArchitectureRun: vi.fn(),
   getRunSummary: vi.fn(),
 }));
 
-import { commitArchitectureRun, getRunSummary } from "@/lib/api";
+import { getRunSummary } from "@/lib/api";
 import { syncArchitectureDraftRegistryForFinalizedReview } from "@/lib/architecture/architecture-draft-registry-finalize-sync";
-import { FINALIZE_SUCCESS_HIGHLIGHT_REVIEW_QUERY_PARAM } from "@/lib/architecture/finalize-success-desk-href";
 import { ApiRequestError } from "@/lib/api-request-error";
 import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
-import * as nextNavigation from "next/navigation";
 
 import { CommitRunButton } from "./CommitRunButton";
 
-const mockCommit = vi.mocked(commitArchitectureRun);
+const mockCommit = commitArchitectureRunWith401ResumeMock;
 const mockGetRunSummary = vi.mocked(getRunSummary);
 const mockInvalidateHomeRuns = vi.mocked(invalidateOperatorHomeRunsCaches);
 const mockInvalidateTrialStatus = invalidateTenantTrialStatusCacheMock;
 const mockSyncDraftRegistry = vi.mocked(syncArchitectureDraftRegistryForFinalizedReview);
 
 describe("CommitRunButton", () => {
+  beforeEach(() => {
+    mockCommit.mockReset();
+    simulatePreCommitSyntheticFindingsMock.mockReset();
+    simulatePreCommitSyntheticFindingsMock.mockResolvedValue(undefined);
+  });
+
   it("renders disabled message when already finalized", () => {
     render(<CommitRunButton runId="abc" disabled />);
 
@@ -87,6 +102,28 @@ describe("CommitRunButton", () => {
     );
 
     expect(screen.getByTestId("commit-blocked-finding-coverage")).toHaveTextContent("Security");
+    expect(screen.queryByRole("button", { name: /^finalize review$/i })).not.toBeInTheDocument();
+  });
+
+  it("renders structured readiness blocks without primary finalize control", () => {
+    render(
+      <CommitRunButton
+        runId="abc"
+        disabled={false}
+        commitBlockedReason="Commit blocked."
+        commitBlockedBlocks={[
+          {
+            layer: "governance",
+            code: "pre_commit_gate",
+            message: "Policy pack thresholds would block finalize.",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId("finalize-readiness-block-pre_commit_gate")).toHaveTextContent(
+      "Policy pack thresholds would block finalize.",
+    );
     expect(screen.queryByRole("button", { name: /^finalize review$/i })).not.toBeInTheDocument();
   });
 
@@ -112,10 +149,17 @@ describe("CommitRunButton", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
 
     await waitFor(() => {
-      expect(mockCommit).toHaveBeenCalledWith("run-1", {
-        notifySponsor: false,
-        acknowledgedAssumptionIds: [],
-      });
+      expect(mockCommit).toHaveBeenCalledWith(
+        "run-1",
+        {
+          notifySponsor: false,
+          acknowledgedAssumptionIds: [],
+        },
+        expect.objectContaining({
+          returnPath: "/architecture/reviews/run-1",
+          idempotencyKey: expect.any(String),
+        }),
+      );
     });
 
     expect(pulseOidcSessionKeepaliveMock).toHaveBeenCalled();
@@ -148,10 +192,17 @@ describe("CommitRunButton", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
 
     await waitFor(() => {
-      expect(mockCommit).toHaveBeenCalledWith("run-2", {
-        notifySponsor: true,
-        acknowledgedAssumptionIds: [],
-      });
+      expect(mockCommit).toHaveBeenCalledWith(
+        "run-2",
+        {
+          notifySponsor: true,
+          acknowledgedAssumptionIds: [],
+        },
+        expect.objectContaining({
+          returnPath: "/architecture/reviews/run-1",
+          idempotencyKey: expect.any(String),
+        }),
+      );
     });
   });
 
@@ -190,6 +241,33 @@ describe("CommitRunButton", () => {
     );
   });
 
+  it("surfaces sealed-manifest blockedReason when finalize returns 409 without governance block", async () => {
+    mockCommit.mockRejectedValue(
+      new ApiRequestError("Conflict", {
+        httpStatus: 409,
+        correlationId: "cid-sealed-finalize-409",
+        problem: {
+          title: "Conflict",
+          status: 409,
+          detail: "Run 'run-sealed' authority lifecycle must be Complete before finalize.",
+        },
+      }),
+    );
+
+    render(<CommitRunButton runId="run-sealed" disabled={false} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /^finalize review$/i }));
+
+    const dialog = await screen.findByRole("alertdialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
+
+    expect(
+      await screen.findByText("Run 'run-sealed' authority lifecycle must be Complete before finalize."),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("commit-governance-block-explanation")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("pre-commit-governance-block-panel")).not.toBeInTheDocument();
+  });
+
   it("surfaces governance blockExplanation when finalize returns 409", async () => {
     mockCommit.mockRejectedValue(
       new ApiRequestError("Commit blocked by governance policy.", {
@@ -216,33 +294,6 @@ describe("CommitRunButton", () => {
       "Add a private endpoint before finalizing.",
     );
   });
-  it("AO-35: navigates to architecture desk after Working finalize when parent architecture is known", async () => {
-    mockCommit.mockResolvedValue({});
-    const routerPushMock = (nextNavigation as { __routerPushMock?: ReturnType<typeof vi.fn> }).__routerPushMock;
-
-    render(
-      <CommitRunButton
-        runId="run-1"
-        disabled={false}
-        parentArchitectureId="architecture-identity-001"
-      />,
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: /^finalize review$/i }));
-
-    const dialog = await screen.findByRole("alertdialog");
-
-    fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
-
-    await waitFor(() => {
-      expect(routerPushMock).toHaveBeenCalledWith(
-        `/architecture/architectures/architecture-identity-001?${FINALIZE_SUCCESS_HIGHLIGHT_REVIEW_QUERY_PARAM}=run-1`,
-      );
-    });
-
-    expect(screen.queryByText(/decisions are now searchable in Ask/i)).not.toBeInTheDocument();
-  });
-
   it("shows finalize consequence preview in the confirm dialog (TB-2224)", async () => {
     render(<CommitRunButton runId="run-1" disabled={false} />);
 

@@ -120,6 +120,11 @@ public sealed partial class ArtifactExportController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
+        IActionResult? careerBlockedResult = await ResolveRunExportCareerPostureBlockedResultAsync(runId, scope, ct);
+
+        if (careerBlockedResult is not null)
+            return careerBlockedResult;
+
         byte[]? renderedPng = null;
 
         if (configuration.GetValue("ArchLucid:MermaidCli:Enabled", false))

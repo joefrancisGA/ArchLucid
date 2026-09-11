@@ -67,6 +67,44 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Guided split (AS-081):** `WorkingCareerRehearsalChooser` returns `null` when `isWorkingWorkspaceMode(mode)` is false. Guided screenshots and teaching flows keep Simulator coaching without requiring the Career door. Vitest ratchet: `working-career-rehearsal-guided-split.test.ts`. C# ratchet: `ArchitectureSpineAs081GuidedKeepsSimulatorTeachingArchitectureTests`.
 
+**Account persist (CG-011):** GET `/v1/user/preferences` returns `workingCareerRehearsalDoor` and `workingCareerRehearsalDoorIsExplicit`. `PUT /v1/user/preferences/working-career-rehearsal-door` stores an explicit Working pick in UserSettings. Working reads the server first when the row is explicit; `localStorage` is interrupt recovery only. Guided does not PUT this field.
+
+**Cross-tab (CG-012):** Sibling Working tabs share the door on the LW-083 `archlucid.session.idle` bus. Receivers patch chrome only — no second PUT and no draft CAS.
+
+**Share URL (CG-013):** `?career=1` (and `door` / `workingDoor` / `workingCareerRehearsalDoor`) cannot mint unlabeled Career chrome when structural execute is Simulator. Rehearsal query overlays stay labeled. Query never PUTs. Inventory: [`CAREER_GRAVITY_URL_QUERY_DOOR_INVENTORY.md`](../architecture/CAREER_GRAVITY_URL_QUERY_DOOR_INVENTORY.md).
+
+**New tenant (CG-014):** unset GET and empty-browser first-run Working default to **Career**. Implicit GET does not PUT. Legacy Simulator usage signals still grandfather **Rehearsal** (banner is CG-015). Host `AgentExecution:Mode` stays Simulator.
+
+**Simulator clones (CG-015):** local/dev hosts with `AgentExecution:Mode=Simulator` keep Working usable and obviously **Rehearsal**. A persistent shell banner (`WorkingSimulatorCloneRehearsalBanner`) labels the clone as rehearsal — not a sample workspace and not Guided teaching. Effective execute chrome is Rehearsal. Explicit Career still uses AS-078 blocked honesty (no silent Career execute, no auto-switch to Guided, no host Mode flip). AOAI-less clones must not mint career packets.
+
+**Chooser (CG-016):** one `WorkingCareerRehearsalChooser` implementation (`workspace-mode`). The findings workspace re-exports via `components/governance/WorkingCareerRehearsalChooser.tsx` and mounts `source="findings"` so Alt+Shift+E stays on the command bar only. Segmented control keeps `aria-pressed` (not a fake tablist) and supports Arrow/Home/End. Guided still returns null (AS-081). Do not add a third chooser.
+
+**Security product line (CG-017):** `OperatorShellTopBar` skips `WorkingCareerRehearsalChooser`, Guided training chips, and simulator dev chrome when `isSecureNowTrainingChromeExcluded(productLine)` is true (SecureNow). There is no Career / Rehearsal concept on the Security product line.
+
+**Mid-review door change (CG-018):** Changing Career ↔ Rehearsal while a review pipeline is in flight requires confirm. Copy names artifact impact. The in-flight execute keeps the door it started under (run stamp is CG-019). New execute uses the confirmed door. Confirm does **not** cancel the run (AD-02 cancel stays on the in-flight affordance).
+
+**Execute posture stamp (CG-019):** First execute writes `workingCareerRehearsalDoor` and `executePostureCapturedUtc` onto the run header (plus existing `structuralExecutionMode`). Career honesty reads the **stamp**, not a later chooser change. A Rehearsal execute cannot later look like Career because the operator moved the door. Host `AgentExecution:Mode` stays Simulator. Full export block is CG-022.
+
+**Door × host Mode matrix (CG-020):** `resolveWorkingCareerDoorHostModeMatrixCell` names four cells on the Working chooser: Career+Real (allowed), Career+Simulator (blocked — not green Career), Rehearsal+Simulator (labeled rehearsal), Rehearsal+Real (labeled practice even when live AI is ready). `WorkingCareerRehearsalChooser` surfaces the active cell via `data-door-host-mode-cell` and a mismatch `StatusTag`. Host `AgentExecution:Mode` stays Simulator.
+
+**Career finalize gate (CG-021):** Working **Career** door + structural **Simulator** or **Fallback** cannot finalize — server returns a governance block (4xx) and the UI disables the finalize CTA with blocked-honesty copy (no Ready label). **Rehearsal** door on Simulator/Fallback may still seal as rehearsal-incomplete per LP-06; Ready-to-finalize labels stay suppressed (AS-079) even when finalize is allowed. `MapForFinalize` passes the CG-019 door stamp into `CareerArtifactCompletenessValidator`; TS uses `shouldBlockFinalizeForCareerHonesty` for mutation parity.
+
+**Sponsor PDF gate (CG-022):** Working **Career** door + Simulator/Fallback cannot produce an unwatermarked sponsor PDF — `MapForExport` is door-stamp aware (not Mode-assumed banner), `FirstValueReportBuilder` blocks via `CareerArtifactExportCompletenessGate`, and `EmailRunToSponsorBanner` disables download when `evaluateCareerArtifactHonesty` fails. **Rehearsal** door on Simulator may export with rehearsal labeling (LP-06). Demo/sample waiver paths stay off Working Career.
+
+**Package print rehearsal strip (CG-023):** Ctrl+P / Save as PDF on Working Career keeps print enabled but adds a **print-only** rehearsal honesty strip when structural Mode is Simulator/Fallback and the CG-019 door stamp is not career-complete. `PackagePrintPageClient` resolves the stamped door via `resolveCareerArtifactExportHonestyDoorFields`; `PackagePrintRehearsalHonestyStripView` is hidden on screen and visible in print CSS. Repeating page watermarks are CG-041.
+
+**ADR export gate (CG-024):** `GenerateAdrFromRunModal` calls `evaluateCareerArtifactHonesty` with CG-019 door stamp and door-aware `simulatorRehearsalBannerOnArtifact`. Working **Career** door + Simulator/Fallback **hard-blocks** ADR copy/download (no incomplete-export confirm bypass). **Rehearsal** door on Simulator prepends a rehearsal header in the exported Markdown before the `# ADR:` body so rehearsal exports cannot look sealed-Career. ADR vocabulary is unchanged.
+
+**Decision receipt posture (CG-025):** Committed-run decision receipt JSON from `DecisionReceiptService` and the client `decision-receipt-export` helper stamp `structuralExecutionMode`, `workingCareerRehearsalDoor`, and `rehearsalIncomplete` after sealed-hash verification (posture is an export overlay, not part of `receiptHashSha256`). Working **Career** door + Simulator/Fallback remains **blocked** server-side. **Rehearsal** door on Simulator exports with `rehearsalIncomplete: true` so forwarded receipts cannot omit Mode/door.
+
+**Audit CSV posture (CG-026):** Run-scoped audit CSV (`GET /v1/audit/export/csv?runId=…`) prepends CG-026 `#` honesty comment lines and adds `StructuralExecutionMode`, `WorkingCareerRehearsalDoor`, and `RehearsalIncomplete` columns on every row. Working **Career** door + Simulator/Fallback is **blocked** server-side; **Rehearsal** exports use a `-rehearsal` filename suffix. Audit event rows stay immutable — posture is export overlay only.
+
+**CLI proof-packet posture (CG-027):** `archlucid proof-packet` / `pilot proof-packet` read execute posture from `pilot-run-deltas` (`structuralExecutionMode`, `workingCareerRehearsalDoor`). Working **Career** door + Simulator/Fallback **fails closed** before the ZIP is written. **Rehearsal** door on Simulator stamps `careerPosture: REHEARSAL` (plus Mode/door fields) in `artifact-manifest.json` and the sponsor index so automation cannot archive an unlabeled Simulator bundle as Career.
+
+**API run export posture (CG-028):** `GET /v1/artifacts/runs/{runId}/export` and `POST …/export/push` apply the same Working Career completeness gate as DOCX/sponsor exports. Unlabeled Simulator + Career door returns **409** `CareerArtifactBlocked` ProblemDetails with `blockReasonCode` (e.g. `simulator_rehearsal_not_career_complete`) — not a generic 500. Rehearsal door may export when other gates pass.
+
+**Email-to-sponsor gate (CG-029):** `EmailRunToSponsorBanner` inherits the sponsor PDF honesty gate (`evaluateCareerArtifactHonesty` with CG-019 door stamp and `simulatorRehearsalBannerOnArtifact`). Working **Career** door + Simulator/Fallback cannot compose or mark-sent. **Rehearsal** door on Simulator requires TB-2005 rehearsal honesty acknowledgment before compose/mark-sent; `mailto` subject is forced to `[Rehearsal] …` and body carries rehearsal disclaimer lines so outbox drafts cannot look Career-complete.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
