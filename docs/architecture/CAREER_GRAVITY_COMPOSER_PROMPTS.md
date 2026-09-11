@@ -55,6 +55,10 @@ Load-bearing ADRs: **0091** (this wave); **0086** doors not rewritten.
 - No 40th coverage engine.
 - No GTM **M-90 / M-44 / M-91 / M-92**. No reopen **TB-135 / TB-136**.
 
+## Out-of-wave residuals
+
+Explicit skips recorded for **CG-100** close audit — **do not pretend shipped**. See [`CAREER_GRAVITY_OUT_OF_WAVE_RESIDUALS.md`](CAREER_GRAVITY_OUT_OF_WAVE_RESIDUALS.md) (ratchet: `career-gravity-out-of-wave-residuals.ts`). **CG-098:** in-app changelog / What's new remains product backlog (LW-100 residual).
+
 ## Global constraints
 
 See the index. Working-tree safety; TB-645; TB-2005; focused tests; scoped compile; OpenAPI when wire changes.
