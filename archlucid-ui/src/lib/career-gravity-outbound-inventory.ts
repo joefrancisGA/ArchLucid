@@ -28,27 +28,32 @@ export const CAREER_GRAVITY_OUTBOUND_ROWS: readonly CareerGravityOutboundRow[] =
   },
   {
     relativePath: "ArchLucid.Application/ExecDigest/ExecDigestComposition.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-037",
   },
   {
     relativePath: "ArchLucid.Application/ExecDigest/ExecDigestCompositionMarkdownFormatter.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-037",
   },
   {
     relativePath: "ArchLucid.Application/Notifications/Email/ExecDigestEmailDispatcher.cs",
-    leakClass: "related",
+    leakClass: "covered",
     ownerPrompt: "CG-037",
   },
   {
     relativePath: "ArchLucid.Application/SponsorDigest/SponsorDigestWeeklyDeliveryScanner.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-037",
   },
   {
     relativePath: "ArchLucid.Application/Pilots/BoardPackPdfBuilder.cs",
-    leakClass: "related",
+    leakClass: "covered",
+    ownerPrompt: "CG-037",
+  },
+  {
+    relativePath: "archlucid-ui/src/app/(marketing)/digest/sponsor/_sections/ExecDigestSponsorDeepLinkPanel.tsx",
+    leakClass: "covered",
     ownerPrompt: "CG-037",
   },
   {

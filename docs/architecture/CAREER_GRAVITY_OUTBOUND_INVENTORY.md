@@ -24,11 +24,12 @@ Outbound is how rehearsal leaks into another system of record. Sponsors and tick
 | Email to sponsor | `archlucid-ui/src/components/use-email-run-to-sponsor-banner.ts` | Career artifact honesty + sponsor-proof readiness + rehearsal mailto gate | Mode + CG-019 Career/Rehearsal door stamp | **covered** | CG-029 |
 | Email to sponsor | `archlucid-ui/src/components/EmailRunToSponsorBanner.tsx` | CTA chrome | Inherits banner hook | covered | CG-029 |
 | Email to sponsor | `archlucid-ui/src/components/EmailRunToSponsorExportActions.tsx` | PDF / mark-sent | Honesty block reasons | covered | CG-029 |
-| Weekly digest | `ArchLucid.Application/ExecDigest/ExecDigestComposition.cs` | Week label, committed counts, highlighted runs | **No** structural Mode or door | **bypass** | CG-037 |
-| Weekly digest | `ArchLucid.Application/ExecDigest/ExecDigestCompositionMarkdownFormatter.cs` | Markdown body | No rehearsal line | **bypass** | CG-037 |
-| Weekly digest | `ArchLucid.Application/Notifications/Email/ExecDigestEmailDispatcher.cs` | Subject `{product} weekly digest` | Sealed-hash guard only | related | CG-037 |
-| Weekly digest | `ArchLucid.Application/SponsorDigest/SponsorDigestWeeklyDeliveryScanner.cs` | Per-tenant send | No Mode | **bypass** | CG-037 |
-| Board pack | `ArchLucid.Application/Pilots/BoardPackPdfBuilder.cs` | Digest markdown + value-report | Completeness watermarks, not rehearsal | assumed-banner (CG-003) | CG-037 / CG-042 |
+| Weekly digest | `ArchLucid.Application/ExecDigest/ExecDigestComposition.cs` | Week label, committed counts, highlighted runs | Run stamp via `ExecDigestCareerHonestyPresenter` | **covered** | CG-037 |
+| Weekly digest | `ArchLucid.Application/ExecDigest/ExecDigestCompositionMarkdownFormatter.cs` | Markdown body | Rehearsal disclaimer + per-row labels | **covered** | CG-037 |
+| Weekly digest | `ArchLucid.Application/Notifications/Email/ExecDigestEmailDispatcher.cs` | Subject `{product} weekly digest` | `[Rehearsal]` prefix when all commits are rehearsal | **covered** | CG-037 |
+| Weekly digest | `ArchLucid.Application/SponsorDigest/SponsorDigestWeeklyDeliveryScanner.cs` | Per-tenant send | Same composition honesty | **covered** | CG-037 |
+| Board pack | `ArchLucid.Application/Pilots/BoardPackPdfBuilder.cs` | Digest markdown + value-report | Markdown formatter rehearsal labels | **covered** | CG-037 |
+| Weekly digest | `archlucid-ui/.../ExecDigestSponsorDeepLinkPanel.tsx` | Sponsor digest hub rows | Per-row rehearsal label + disclaimer | **covered** | CG-037 |
 | ITSM ticket | `ArchLucid.Application/Integrations/Itsm/Outbound/ItsmOutboundIssueCreationService.cs` | Finding title/body to Jira/ServiceNow | Sealed-hash on finding run; **no** Mode/door | **bypass** | CG-038 |
 | ITSM ticket | `ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs` | `POST …/itsm/outbound/issues` | Same | **bypass** | CG-038 |
 | ITSM ticket | `archlucid-ui/src/components/itsm/ItsmOutboundCreateIssueDialog.tsx` | Operator create dialog | No door | **bypass** | CG-038 |
