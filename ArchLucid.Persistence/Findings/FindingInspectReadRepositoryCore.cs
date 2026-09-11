@@ -122,6 +122,8 @@ internal static class FindingInspectReadRepositoryCore
         return JsonSerializer.SerializeToElement(slim);
     }
 
+    public static string? NormalizeInspectDisplayText(string? value) => NormalizeInspectText(value);
+
     /// <summary>
     ///     Rejects blank and invisible-only inspect strings (for example U+200B) that pass
     ///     <see cref="string.IsNullOrWhiteSpace(string?)" /> but are not usable operator-facing text.

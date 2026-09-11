@@ -2741,4 +2741,31 @@ public sealed class FindingInspectReadRepositoryCoreTests
         ruleId.Should().Be("Encrypt data at rest");
         ruleName.Should().Be("Encrypt data at rest");
     }
+
+    [Theory]
+    [InlineData("\u200B")]
+    [InlineData(" \u200B ")]
+    public void NormalizeInspectDisplayText_returns_null_for_invisible_unicode_only_governance_strings(string value)
+    {
+        FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(value).Should().BeNull();
+    }
+
+    [Fact]
+    public void NormalizeInspectDisplayText_trims_and_preserves_substantive_mute_reason_reasoning_trace_and_assignee()
+    {
+        FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(" noise ").Should().Be("noise");
+        FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(" trace ").Should().Be("trace");
+        FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(" user-1 ").Should().Be("user-1");
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_invisible_unicode_then_valid_rule_uses_first_substantive_id()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["\u200B", "cost-guardrail"]""",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("cost-guardrail");
+        ruleName.Should().Be("cost-guardrail");
+    }
 }

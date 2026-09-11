@@ -1317,11 +1317,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 56
-- **bugs-found:** 14
+- **hunts:** 57
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — inspect metadata typed payload accepted invisible-only title/rationale (U+200B)
+- **last-bug:** 2026-09-11 — inspect map path surfaced invisible-only mute reason, reasoning trace, and assignee (U+200B)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1786,7 +1786,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ParseDisposition` mishandles leading-zero (`"00"`) or hex-prefixed (`"0x0"`) numeric disposition strings — **cheap-disproof 2026-09-11 seed hunt #1733:** `"00"` maps to defined `Accepted`; `"0x0"` fails `Enum.TryParse`; regression `ParseDisposition_handles_leading_zero_and_hex_prefixed_numeric_strings`.
 - [x] (invalid) `MainInspect*` `AgentExecutionTraces` join omits tenant predicate and can pair another tenant's trace row — **cheap-disproof 2026-09-11 seed hunt #1733:** `dbo.AgentExecutionTraces` has no `TenantId` column; isolation is via `aet.TraceId = fr.AgentExecutionTraceId` and `aet.RunId = r.RunId` on run-scoped joins; regression `MainInspect_scopes_agent_execution_trace_by_run_id_without_tenant_column`.
 
-2026-09-11 seed hunt #1733 (seed→hit): reseeded finding-inspect-sql after #1698; proved invisible-only metadata typed-payload fallback; cheap-disproof closed numeric applied-rule-id array elements, leading-zero/hex disposition strings, and unscoped agent-trace tenant join; 409 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+2026-09-11 seed hunt #1733 (seed→hit): reseeded finding-inspect-sql after #1698; proved invisible-only metadata typed-payload fallback; cheap-disproof closed numeric applied-rule-id array elements, leading-zero/hex disposition strings, and unscoped agent-trace tenant join; 413 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (proven) `DapperFindingInspectReadRepository.MapInspectResponse` — `MuteReason`, `ReasoningTrace`, and `AssignedToUserId` passed raw DB strings without substantive-text normalization so invisible-only values (U+200B) surfaced on inspect responses — **hit 2026-09-11 seed hunt #1736 (seed→hit):** map path now calls `NormalizeInspectDisplayText` for governance display fields; regressions `NormalizeInspectDisplayText_returns_null_for_invisible_unicode_only_governance_strings` and `NormalizeInspectDisplayText_trims_and_preserves_substantive_mute_reason_reasoning_trace_and_assignee`.
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` contains invisible-only entry before a substantive rule id — **cheap-disproof 2026-09-11 seed hunt #1736:** `NormalizeInspectText` skips invisible elements and selects the first substantive id; regression `ResolveRuleFields_when_applied_rule_ids_json_contains_invisible_unicode_then_valid_rule_uses_first_substantive_id`.
+
+2026-09-11 seed hunt #1736 (seed→hit): reseeded finding-inspect-sql after #1733; proved invisible-only governance display fields on Dapper map path; cheap-disproof closed invisible-then-valid applied-rule-id array selection; 417 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
