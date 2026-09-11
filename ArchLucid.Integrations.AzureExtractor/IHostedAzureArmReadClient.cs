@@ -47,4 +47,19 @@ public interface IHostedAzureArmReadClient
         string accessToken,
         string managementGroupId,
         CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<HostedAzureArmPolicyAssignmentRecord>> ListSubscriptionPolicyAssignmentsAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<HostedAzureArmPolicyAssignmentRecord>> ListManagementGroupPolicyAssignmentsAsync(
+        string accessToken,
+        string managementGroupId,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<HostedAzureArmDiagnosticSettingRecord>> ListDiagnosticSettingsAsync(
+        string accessToken,
+        IReadOnlyList<HostedAzureArmResourceRecord> resources,
+        CancellationToken cancellationToken);
 }

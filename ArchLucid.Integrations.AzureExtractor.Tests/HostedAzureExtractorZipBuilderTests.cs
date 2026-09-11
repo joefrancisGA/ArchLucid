@@ -124,4 +124,42 @@ public sealed class HostedAzureExtractorZipBuilderTests
         Assert.NotNull(manifest);
         Assert.Equal(string.Empty, manifest!.SubscriptionId);
     }
+
+    [Fact]
+    public void BuildZip_writes_policy_and_diagnostic_companion_entries()
+    {
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            policyAssignments:
+            [
+                new HostedAzureArmPolicyAssignmentRecord(
+                    "/providers/Microsoft.Management/managementGroups/corp",
+                    "/providers/Microsoft.Authorization/policyDefinitions/audit-storage",
+                    "assign1",
+                    "/providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization/policyAssignments/assign1"),
+            ],
+            diagnosticSettings:
+            [
+                new HostedAzureArmDiagnosticSettingRecord(
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                    "diag-to-law",
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1"),
+            ]);
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream policyStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.PolicyAssignments)!.Open();
+        using StreamReader policyReader = new(policyStream);
+        using JsonDocument policyDocument = JsonDocument.Parse(policyReader.ReadToEnd());
+        Assert.Equal("assign1", policyDocument.RootElement[0].GetProperty("name").GetString());
+
+        using Stream diagnosticStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.DiagnosticSettings)!.Open();
+        using StreamReader diagnosticReader = new(diagnosticStream);
+        using JsonDocument diagnosticDocument = JsonDocument.Parse(diagnosticReader.ReadToEnd());
+        Assert.Equal("diag-to-law", diagnosticDocument.RootElement[0].GetProperty("name").GetString());
+    }
 }
