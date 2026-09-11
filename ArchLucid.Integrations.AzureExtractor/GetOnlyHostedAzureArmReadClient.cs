@@ -20,6 +20,7 @@ public sealed class GetOnlyHostedAzureArmReadClient(
     private const string FederatedCredentialsApiVersion = "2023-01-31";
     private const string PolicyAssignmentsApiVersion = "2022-06-01";
     private const string DiagnosticSettingsApiVersion = "2021-05-01-preview";
+    private const string SecureScoresApiVersion = "2020-01-01";
     private const int MaxPaginationRequests = 64;
 
     private readonly HttpClient _httpClient =
@@ -776,6 +777,135 @@ public sealed class GetOnlyHostedAzureArmReadClient(
         }
 
         return settings;
+    }
+
+    public async Task<IReadOnlyList<HostedAzureArmDefenderSummaryRecord>> ListSubscriptionDefenderSummariesAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
+
+        string trimmedSubscriptionId = subscriptionId.Trim();
+        string url =
+            $"https://management.azure.com/subscriptions/{trimmedSubscriptionId}/providers/Microsoft.Security/secureScores?api-version={SecureScoresApiVersion}";
+
+        using HttpRequestMessage request = new(HttpMethod.Get, url);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        using HttpResponseMessage response =
+            await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            if (_logger.IsEnabled(LogLevel.Debug))
+            {
+                _logger.LogDebug(
+                    "Hosted Azure extractor skipped Defender secure score for subscription {SubscriptionId}; HTTP {StatusCode}.",
+                    trimmedSubscriptionId,
+                    (int)response.StatusCode);
+            }
+
+            return [];
+        }
+
+        await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+        using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
+        int? secureScore = TryReadSubscriptionSecureScorePercent(document.RootElement);
+
+        if (secureScore is null)
+        {
+            return [];
+        }
+
+        return
+        [
+            new HostedAzureArmDefenderSummaryRecord
+            {
+                ResourceId = $"/subscriptions/{trimmedSubscriptionId}",
+                SecureScore = secureScore.Value,
+            },
+        ];
+    }
+
+    private static int? TryReadSubscriptionSecureScorePercent(JsonElement root)
+    {
+        if (!root.TryGetProperty("value", out JsonElement valueElement)
+            || valueElement.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        int? bestScore = null;
+
+        foreach (JsonElement item in valueElement.EnumerateArray())
+        {
+            int? candidate = TryReadSecureScoreFromSecureScoreItem(item);
+
+            if (candidate is null)
+            {
+                continue;
+            }
+
+            if (bestScore is null || candidate.Value > bestScore.Value)
+            {
+                bestScore = candidate.Value;
+            }
+        }
+
+        return bestScore;
+    }
+
+    private static int? TryReadSecureScoreFromSecureScoreItem(JsonElement item)
+    {
+        if (!item.TryGetProperty("properties", out JsonElement propertiesElement)
+            || propertiesElement.ValueKind != JsonValueKind.Object
+            || !propertiesElement.TryGetProperty("score", out JsonElement scoreElement)
+            || scoreElement.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        if (scoreElement.TryGetProperty("percentage", out JsonElement percentageElement)
+            && percentageElement.TryGetDouble(out double percentage))
+        {
+            return ClampSecureScorePercent(percentage * 100d);
+        }
+
+        if (scoreElement.TryGetProperty("current", out JsonElement currentElement)
+            && currentElement.TryGetDouble(out double current)
+            && scoreElement.TryGetProperty("max", out JsonElement maxElement)
+            && maxElement.TryGetDouble(out double max)
+            && max > 0d)
+        {
+            return ClampSecureScorePercent(current / max * 100d);
+        }
+
+        return null;
+    }
+
+    private static int ClampSecureScorePercent(double percent)
+    {
+        if (double.IsNaN(percent) || double.IsInfinity(percent))
+        {
+            return 0;
+        }
+
+        if (percent < 0d)
+        {
+            return 0;
+        }
+
+        if (percent > 100d)
+        {
+            return 100;
+        }
+
+        return (int)Math.Round(percent, MidpointRounding.AwayFromZero);
     }
 
     private async Task<IReadOnlyList<HostedAzureArmPolicyAssignmentRecord>> ListPolicyAssignmentsAtRestPathAsync(

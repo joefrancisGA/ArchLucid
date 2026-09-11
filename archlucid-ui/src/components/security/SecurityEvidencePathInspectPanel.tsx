@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { Ref } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { StatusTag } from "@/components/ui/status-tag";
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { useOperationalSecurityFindingDetailQuery } from "@/hooks/use-operational-security-finding-detail-query";
 import { useSecurityEvidencePathDetailQuery } from "@/hooks/use-security-evidence-path-detail-query";
+import { useSecurityEvidencePathRankQuery } from "@/hooks/use-security-evidence-path-rank-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { buildRemediationWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-remediation-api";
@@ -24,10 +26,19 @@ import {
   SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE,
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
   SECURENOW_PATH_INSPECT_ERROR,
+  SECURENOW_PATH_INSPECT_EXPLANATION_BUTTON,
+  SECURENOW_PATH_INSPECT_EXPLANATION_ERROR,
+  SECURENOW_PATH_INSPECT_EXPLANATION_LEAD,
+  SECURENOW_PATH_INSPECT_EXPLANATION_LOADING,
+  SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG,
+  SECURENOW_PATH_INSPECT_EXPLANATION_TITLE,
   SECURENOW_PATH_INSPECT_HOPS_TITLE,
   SECURENOW_PATH_INSPECT_LOADING,
   SECURENOW_PATH_INSPECT_PANEL_LEAD,
   SECURENOW_PATH_INSPECT_PANEL_TITLE,
+  SECURENOW_PATH_INSPECT_RANK_LOADING,
+  SECURENOW_PATH_INSPECT_RANK_TITLE,
+  SECURENOW_PATH_INSPECT_RANK_UNAVAILABLE,
   SECURENOW_PATH_INSPECT_ROUTING_TITLE,
   SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
   SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE,
@@ -41,7 +52,12 @@ import {
   formatSecurityEvidenceProvenanceKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
 } from "@/lib/security-evidence-path-presentation";
-import type { SecurityEvidencePathHop } from "@/lib/security-evidence-path-types";
+import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
+import type {
+  SecurityEvidencePathExplanation,
+  SecurityEvidencePathHop,
+  SecurityEvidencePathRankDetail,
+} from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
 
 function PathHopsTable(props: {
@@ -92,13 +108,92 @@ function PathHopsTable(props: {
   );
 }
 
+function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail }) {
+  return (
+    <div className="rounded border border-border bg-muted/30 p-3" data-testid="security-evidence-path-rank">
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_RANK_TITLE}</h3>
+        <StatusTag kind="neutral" label={`Rank ${props.rank.rankOrder}`} />
+      </div>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+        Composite score {props.rank.compositeSortScore.toFixed(4)} · {props.rank.explanationSummary}
+      </p>
+      {props.rank.dimensionProse.overall.trim().length > 0 ? (
+        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{props.rank.dimensionProse.overall}</p>
+      ) : null}
+    </div>
+  );
+}
+
+function PathExplanationSection(props: {
+  readonly pathId: string;
+  readonly explanation: SecurityEvidencePathExplanation | null;
+  readonly explanationError: string | null;
+  readonly isGenerating: boolean;
+  readonly onGenerate: () => void;
+}) {
+  return (
+    <div
+      className="space-y-3 rounded border border-dashed border-border p-3"
+      data-testid="security-evidence-path-explanation"
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_EXPLANATION_TITLE}</h3>
+        <StatusTag kind="neutral" label={SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG} />
+      </div>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_PATH_INSPECT_EXPLANATION_LEAD}</p>
+      <button
+        type="button"
+        className="rounded bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50"
+        disabled={props.isGenerating}
+        onClick={props.onGenerate}
+        data-testid="security-evidence-path-explanation-button"
+      >
+        {props.isGenerating ? SECURENOW_PATH_INSPECT_EXPLANATION_LOADING : SECURENOW_PATH_INSPECT_EXPLANATION_BUTTON}
+      </button>
+      {props.explanationError != null ? (
+        <StatusTag kind="needs-attention" label={props.explanationError} />
+      ) : null}
+      {props.explanation != null ? (
+        <div className="space-y-2" data-testid="security-evidence-path-explanation-output">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{props.explanation.executiveSummary}</p>
+          {props.explanation.businessImpactHypotheses.length > 0 ? (
+            <ul className="m-0 list-disc space-y-1 pl-5">
+              {props.explanation.businessImpactHypotheses.map((hypothesis) => (
+                <li key={hypothesis} className={OPERATOR_TYPOGRAPHY.helper}>
+                  {hypothesis}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {props.explanation.proposedRemediation.recommendedChange.trim().length > 0 ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              Recommended change: {props.explanation.proposedRemediation.recommendedChange}
+            </p>
+          ) : null}
+          {props.explanation.citedEvidenceRefs.length > 0 ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              Cited evidence: {props.explanation.citedEvidenceRefs.join(", ")}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function SecurityEvidencePathInspectPanel(props: {
   readonly findingId: string | null;
+  readonly pathIdOverride?: string | null;
   readonly panelRef?: Ref<HTMLElement | null>;
 }) {
   const findingQuery = useOperationalSecurityFindingDetailQuery(props.findingId);
-  const pathId = findingQuery.data?.pathId ?? null;
-  const pathQuery = useSecurityEvidencePathDetailQuery(pathId);
+  const resolvedPathId = props.pathIdOverride ?? findingQuery.data?.pathId ?? null;
+  const pathQuery = useSecurityEvidencePathDetailQuery(resolvedPathId);
+  const pathRankQuery = useSecurityEvidencePathRankQuery(resolvedPathId);
+  const [explanation, setExplanation] = useState<SecurityEvidencePathExplanation | null>(null);
+  const [explanationError, setExplanationError] = useState<string | null>(null);
+  const [isGeneratingExplanation, setIsGeneratingExplanation] = useState(false);
   const instancesQuery = useQuery({
     queryKey: ["remediation-instances", "by-finding", props.findingId],
     queryFn: () => fetchRemediationInstances({ findingId: props.findingId }),
@@ -108,6 +203,44 @@ export function SecurityEvidencePathInspectPanel(props: {
     retry: false,
   });
   const advisoryInstance = instancesQuery.data?.[0] ?? null;
+  const hasSelection = props.findingId != null || props.pathIdOverride != null;
+  const isLoadingFinding = props.findingId != null && findingQuery.isLoading;
+  const isLoadingPath = resolvedPathId != null && pathQuery.isLoading;
+
+  useEffect(() => {
+    setExplanation(null);
+    setExplanationError(null);
+    setIsGeneratingExplanation(false);
+  }, [resolvedPathId]);
+
+  async function generateExplanation() {
+    if (resolvedPathId == null) {
+      return;
+    }
+
+    setExplanationError(null);
+    setIsGeneratingExplanation(true);
+
+    try {
+      const result = await buildSecurityEvidencePathExplanation(resolvedPathId, {
+        useSimulator: true,
+        allowInsufficientEvidence: false,
+      });
+
+      if (!result.succeeded || result.explanation == null) {
+        setExplanation(null);
+        setExplanationError(result.errorMessage ?? SECURENOW_PATH_INSPECT_EXPLANATION_ERROR);
+        return;
+      }
+
+      setExplanation(result.explanation);
+    } catch {
+      setExplanation(null);
+      setExplanationError(SECURENOW_PATH_INSPECT_EXPLANATION_ERROR);
+    } finally {
+      setIsGeneratingExplanation(false);
+    }
+  }
 
   return (
     <section
@@ -124,15 +257,15 @@ export function SecurityEvidencePathInspectPanel(props: {
         <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_PANEL_LEAD}</p>
       </header>
 
-      {props.findingId == null ? (
+      {hasSelection === false ? (
         <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="security-evidence-path-inspect-select-hint">
           {SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT}
         </p>
-      ) : findingQuery.isLoading || (pathId != null && pathQuery.isLoading) ? (
+      ) : isLoadingFinding || isLoadingPath ? (
         <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_LOADING}</p>
       ) : findingQuery.isError || pathQuery.isError ? (
         <StatusTag kind="needs-attention" label={SECURENOW_PATH_INSPECT_ERROR} />
-      ) : pathId == null ? (
+      ) : resolvedPathId == null ? (
         <p className={OPERATOR_TYPOGRAPHY.body} data-testid="security-evidence-path-inspect-empty">
           {SECURENOW_PATH_INSPECT_EMPTY_NO_PATH}
         </p>
@@ -147,6 +280,22 @@ export function SecurityEvidencePathInspectPanel(props: {
               label={formatSecurityEvidencePathConfidenceBandLabel(pathQuery.data.pathConfidenceBand)}
             />
           </div>
+
+          {pathRankQuery.isLoading ? (
+            <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_RANK_LOADING}</p>
+          ) : pathRankQuery.isError ? (
+            <StatusTag kind="needs-attention" label={SECURENOW_PATH_INSPECT_RANK_UNAVAILABLE} />
+          ) : pathRankQuery.data != null ? (
+            <PathRankSection rank={pathRankQuery.data} />
+          ) : null}
+
+          <PathExplanationSection
+            pathId={resolvedPathId}
+            explanation={explanation}
+            explanationError={explanationError}
+            isGenerating={isGeneratingExplanation}
+            onGenerate={generateExplanation}
+          />
 
           {pathQuery.data.explanationTemplate?.architectSentence != null
           && pathQuery.data.explanationTemplate.architectSentence.trim().length > 0 ? (
@@ -234,7 +383,7 @@ export function SecurityEvidencePathInspectPanel(props: {
             </div>
           ) : null}
 
-          {advisoryInstance != null ? (
+          {advisoryInstance != null && props.findingId != null ? (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               <Link
                 className="text-al-link hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

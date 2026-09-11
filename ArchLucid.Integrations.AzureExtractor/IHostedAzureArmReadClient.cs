@@ -62,4 +62,9 @@ public interface IHostedAzureArmReadClient
         string accessToken,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<HostedAzureArmDefenderSummaryRecord>> ListSubscriptionDefenderSummariesAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken);
 }

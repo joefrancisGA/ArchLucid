@@ -26,6 +26,7 @@ function AppShellLivelihoodMutationResumeInner(): ReactNode {
       onConfirm={confirmReplay}
       onDiscard={discardReplay}
       presentation={chrome.presentation}
+      replayErrorMessage={chrome.replayErrorMessage}
     />
   );
 }

@@ -101,4 +101,35 @@ describe("useResumePendingLivelihoodMutation (LW-052)", () => {
 
     expect(replayLivelihoodPendingMutation).not.toHaveBeenCalled();
   });
+
+  it("surfaces TB-2155 recovery contract when replay fails after re-auth (LW-098)", async () => {
+    replayLivelihoodPendingMutation.mockRejectedValue(new Error("Conflict — draft version moved on the server."));
+
+    writeLivelihoodPendingMutation({
+      kind: "finding_disposition",
+      idempotencyKey: "66666666-6666-4666-8666-666666666666",
+      returnPath: "/architecture/reviews/run-1/findings/f-1",
+      savedAtUtc: "2026-09-10T12:00:00.000Z",
+      requestLeftClient: true,
+      payload: {
+        findingId: "f-1",
+        body: {
+          disposition: "Accepted",
+          runId: "run-1",
+        },
+      },
+    });
+
+    const { result } = renderHook(() =>
+      useResumePendingLivelihoodMutation({
+        enabled: true,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.chrome?.replayErrorMessage).toMatch(/Conflict/i);
+    });
+
+    expect(result.current.chrome?.presentation.requiresConfirm).toBe(false);
+  });
 });

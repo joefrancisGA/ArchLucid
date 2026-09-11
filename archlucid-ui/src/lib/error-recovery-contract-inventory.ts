@@ -67,4 +67,21 @@ export const ERROR_RECOVERY_CONTRACT_GUARDED_SURFACES: readonly ErrorRecoveryCon
     sourceRoots: ["components/shell/ShellInFlightOperationsAffordance.tsx"],
     requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
   },
+  {
+    id: "architecture-draft-offline-replay-conflict",
+    sourceRoots: [
+      "components/architecture/ArchitectureDraftWorkspaceIntakeStack.tsx",
+      "components/operator/OperatorMutationInlineError.tsx",
+    ],
+    requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
+  },
+  {
+    id: "livelihood-mutation-resume-failed",
+    sourceRoots: [
+      "components/shell/LivelihoodMutationResumeChrome.tsx",
+      "components/operator/OperatorMutationInlineError.tsx",
+      "hooks/use-resume-pending-livelihood-mutation.ts",
+    ],
+    requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
+  },
 ] as const;

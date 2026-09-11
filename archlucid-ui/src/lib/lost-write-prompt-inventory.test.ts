@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 const PROMPTS_DIR = join(process.cwd(), "..", ".cursor", "prompts");
 
-describe("lost-write prompt inventory (LW-100)", () => {
+describe("lost-write prompt inventory (LW-099)", () => {
   it("includes the LW-00 index and LW-001 through LW-100 paste-ready files", () => {
     const files = readdirSync(PROMPTS_DIR)
       .filter((name) => name.startsWith("lost-write-") && name.endsWith(".md"))
