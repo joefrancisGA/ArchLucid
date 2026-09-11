@@ -104,7 +104,8 @@ public static class SecurityEvidencePathRankCalculator
         SecurityEvidencePathRecord path,
         IReadOnlyList<SecurityEvidencePathHopRecord> hops,
         IReadOnlyDictionary<SecurityEvidencePathRankDimension, decimal>? weights = null,
-        IReadOnlySet<Guid>? activeCrownJewelAssertionIds = null)
+        IReadOnlySet<Guid>? activeCrownJewelAssertionIds = null,
+        DefenderSecureScoreOrdinalBand subscriptionDefenderBand = DefenderSecureScoreOrdinalBand.Unknown)
     {
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(hops);
@@ -114,7 +115,7 @@ public static class SecurityEvidencePathRankCalculator
 
         decimal technicalExposure = Cap(ScoreTechnicalExposure(path, hops));
         decimal privilegeDepth = Cap(ScorePrivilegeDepth(path, hops));
-        decimal blastRadius = Cap(ScoreBlastRadius(path, hops));
+        decimal blastRadius = Cap(ScoreBlastRadius(path, hops, subscriptionDefenderBand));
         (decimal? businessConsequence, string businessSource) =
             ScoreBusinessConsequence(path, activeCrownJewelAssertionIds);
         decimal confidenceBand = Cap(ScoreConfidenceBand(path.PathConfidenceBand));
@@ -140,7 +141,7 @@ public static class SecurityEvidencePathRankCalculator
             SecurityEvidencePathRankDimension.BlastRadius,
             effectiveWeights,
             blastRadius,
-            DescribeBlastRadius(path, hops));
+            DescribeBlastRadius(path, hops, subscriptionDefenderBand));
 
         decimal consequenceForSort = businessConsequence ?? SecurityEvidencePathRankConstants.NeutralBusinessConsequenceScore;
 
@@ -330,11 +331,12 @@ public static class SecurityEvidencePathRankCalculator
 
     private static decimal ScoreBlastRadius(
         SecurityEvidencePathRecord path,
-        IReadOnlyList<SecurityEvidencePathHopRecord> hops)
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops,
+        DefenderSecureScoreOrdinalBand subscriptionDefenderBand)
     {
         if (path.PathKind == PathKind.SharedControlBlastRadius)
         {
-            return 3.5m;
+            return 3.5m + DefenderSecureScoreRankAdjustment.BlastRadiusPostureAdjustment(subscriptionDefenderBand);
         }
 
         int distinctResources = hops
@@ -355,6 +357,8 @@ public static class SecurityEvidencePathRankCalculator
         {
             score += 0.75m;
         }
+
+        score += DefenderSecureScoreRankAdjustment.BlastRadiusPostureAdjustment(subscriptionDefenderBand);
 
         return score;
     }
@@ -455,15 +459,28 @@ public static class SecurityEvidencePathRankCalculator
 
     private static string DescribeBlastRadius(
         SecurityEvidencePathRecord path,
-        IReadOnlyList<SecurityEvidencePathHopRecord> hops)
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops,
+        DefenderSecureScoreOrdinalBand subscriptionDefenderBand)
     {
         if (path.PathKind == PathKind.SharedControlBlastRadius)
         {
-            return "shared-control-fan-out";
+            string postureSource =
+                DefenderSecureScoreRankAdjustment.DescribeBlastRadiusPostureSource(subscriptionDefenderBand);
+
+            return string.IsNullOrEmpty(postureSource)
+                ? "shared-control-fan-out"
+                : $"shared-control-fan-out+{postureSource}";
         }
 
         int resourceCount = hops.Count(hop => hop.CloudResourceId is not null);
+        string postureSuffix =
+            DefenderSecureScoreRankAdjustment.DescribeBlastRadiusPostureSource(subscriptionDefenderBand);
 
-        return FormattableString.Invariant($"resources:{resourceCount}");
+        if (string.IsNullOrEmpty(postureSuffix))
+        {
+            return FormattableString.Invariant($"resources:{resourceCount}");
+        }
+
+        return FormattableString.Invariant($"resources:{resourceCount}+{postureSuffix}");
     }
 }
