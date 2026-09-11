@@ -9794,8 +9794,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 25
-- **bugs-found:** 16
+- **hunts:** 26
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-11
@@ -9804,6 +9804,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `SqlDtfOrchestrationInfrastructureRegistrar` registers Durable Task worker on Api role — **hit 2026-09-11 seed hunt #1711:** `Register` wired `AddDurableTaskWorker` + client for every SQL host role, so split Api+Worker deployments with `OrchestratorBackend=DurableTask` started competing worker infrastructure on Api replicas; fixed by registering client in storage bootstrap and gating worker registration to Worker+Combined in authority capability; regressions `AddArchLucidApplicationServices_Api_role_with_DurableTask_backend_registers_client_not_worker` and `AddArchLucidApplicationServices_Worker_role_with_DurableTask_backend_registers_client_and_worker`
 - [x] (proven) `AddPlatformCapability` double-registers `IProductLineRequestAccessor` — **hit 2026-09-11 seed hunt #1710:** root `AddArchLucidApplicationServices` and `PlatformCapabilityCompositionRegistrar` each called `RegisterProductLineRequestAccessor`, yielding two singleton descriptors per replica; fixed by removing the duplicate from platform capability; regression `AddArchLucidApplicationServices_registers_product_line_accessor_once`
 - [x] (valid-no-repro) `trial-lifecycle` container offload drops `TrialArchitecturePreseedHostedService` — **cheap-disproof 2026-09-11 seed hunt #1710:** preseed is leader-elected worker automation with no `IArchLucidJob` slug (sibling pattern to architecture-review recurrence surviving advisory-scan offload); regression `AddArchLucidApplicationServices_Worker_offloads_trial_lifecycle_still_registers_TrialArchitecturePreseedHostedService_when_enabled`
 - [x] (valid-no-repro) `RegisterHostedStartupProbes` double-call from root and platform duplicates startup probe hosted services — **cheap-disproof 2026-09-11 seed hunt #1710:** MS.DI collapses duplicate `AddHostedService` descriptors to one runtime instance; regression `AddArchLucidApplicationServices_registers_configuration_validation_startup_probe_once`
@@ -9872,6 +9873,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `DraftIntakeCompositionRegistrar` — `DecisionReceiptService` expanded constructor after #1686 may lack graph/trace/run-repository registrations — **cheap-disproof 2026-09-11 seed hunt #1687:** global storage registrars already wire `IGraphSnapshotRepository`, `IAgentExecutionTraceRepository`, `IRunRepository`, and `IArchitectureInventoryBindingRepository`; regression `DraftIntakeCompositionRegistrar_registers_decision_receipt_service`.
 
 2026-09-11 seed hunt #1687 (seed-only): reseeded host-composition after #1686 career-export DI expansion; cheap-disproved missing DecisionReceiptService dependency registrations; 1 scoped registration discipline test passed.
+
+2026-09-11 seed hunt #1711 (seed→hit): reseeded host-composition after #1710; proved Durable Task worker registered on Api role when `OrchestratorBackend=DurableTask`; 363/373 scoped host-composition tests passed (10 pre-existing unrelated failures).
 
 2026-09-11 seed hunt #1710 (seed→hit): reseeded host-composition after #1709; proved duplicate `IProductLineRequestAccessor` registration from platform capability facade; cheap-disproved trial-preseed offload drop and startup-probe duplicate hosted-service descriptors; 361/371 scoped host-composition tests passed (10 pre-existing unrelated failures).
 
