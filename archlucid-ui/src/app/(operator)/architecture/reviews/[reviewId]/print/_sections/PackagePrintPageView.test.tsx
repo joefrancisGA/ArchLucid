@@ -1,205 +1,59 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { PackagePrintPageView } from "./PackagePrintPageView";
 import {
-  PACKAGE_PRINT_FINDINGS_HEADING,
-  PACKAGE_PRINT_STATUS_HEADING,
-  PACKAGE_PRINT_SYNOPSIS_HEADING,
-} from "@/lib/package-print-view";
+  PACKAGE_PRINT_REHEARSAL_CAREER_DOOR_BODY,
+  PACKAGE_PRINT_REHEARSAL_STRIP_TITLE,
+} from "@/lib/package-print-rehearsal-honesty";
+import { buildPackagePrintPresentation } from "@/lib/package-print-view";
+import type { RunSummary } from "@/types/authority";
 
-vi.mock("./PackagePrintNextReviewFooterClient", () => ({
-  PackagePrintNextReviewFooterClient: () => <div data-testid="package-print-next-review-footer-stub" />,
+import { PackagePrintPageView } from "./PackagePrintPageView";
+
+vi.mock("@/hooks/use-working-back-locator", () => ({
+  useWorkingBackLocator: () => ({ reviewJobHref: "/architecture/reviews/run-print-1?reviewTab=review-package" }),
 }));
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => false,
 }));
 
-vi.mock("@/hooks/use-working-back-locator", () => ({
-  useWorkingBackLocator: () => ({
-    reviewJobHref:
-      "/architecture/reviews/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa?reviewTab=review-package",
-    architectureDeskHref: null,
-  }),
-}));
+function summary(): RunSummary {
+  return {
+    runId: "run-print-1",
+    projectId: "project-1",
+    createdUtc: "2026-08-01T12:00:00Z",
+    description: "Payments edge",
+    displayName: "Payments edge",
+    hasGoldenManifest: true,
+    findingCount: 2,
+    warningCount: 0,
+    structuralExecutionMode: "Simulator",
+    workingCareerRehearsalDoor: "career",
+  } as RunSummary;
+}
 
-vi.mock("@/components/findings/ActorDependentFindingsQuietEnginesHint", () => ({
-  ActorDependentFindingsQuietEnginesHint: () => (
-    <div data-testid="actor-dependent-quiet-engines-hint-stub">Quiet engines hint</div>
-  ),
-}));
+describe("PackagePrintPageView (CG-023)", () => {
+  it("renders print-only rehearsal honesty strip for simulator runs", () => {
+    const presentation = buildPackagePrintPresentation(summary(), {
+      rehearsalHonestyStrip: {
+        title: PACKAGE_PRINT_REHEARSAL_STRIP_TITLE,
+        body: PACKAGE_PRINT_REHEARSAL_CAREER_DOOR_BODY,
+        modeNoticeTitle: "Simulator AI operation",
+        modeNoticeBody: "Rule-based analysis only — not live AI output.",
+      },
+    });
 
-describe("PackagePrintPageView (TB-2205)", () => {
-  it("renders title, status, findings, and sponsor synopsis", () => {
-    render(
-      <PackagePrintPageView
-        presentation={{
-          title: "Payments edge",
-          statusLabel: "Finalized",
-          statusKind: "approved",
-          findingsSummary: "3 findings · 1 warning. Included in the finalized architecture review.",
-          sponsorSynopsis: 'Sponsor synopsis for "Payments edge": finalized architecture review with 3 findings recorded.',
-          createdUtc: "2026-08-01T12:00:00Z",
-          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-          manifestVersionForGuard: "manifest-1",
-        }}
-      />,
+    render(<PackagePrintPageView presentation={presentation} />);
+
+    const strip = screen.getByTestId("package-print-rehearsal-honesty-strip");
+
+    expect(strip).toBeInTheDocument();
+    expect(strip).toHaveClass("hidden");
+    expect(strip).toHaveClass("print:block");
+    expect(screen.getByTestId("package-print-rehearsal-honesty-title")).toHaveTextContent(
+      PACKAGE_PRINT_REHEARSAL_STRIP_TITLE,
     );
-
-    expect(screen.getByTestId("package-print-page")).toBeInTheDocument();
-    expect(screen.getByTestId("package-print-title")).toHaveTextContent("Payments edge");
-    expect(screen.getByText(PACKAGE_PRINT_STATUS_HEADING)).toBeInTheDocument();
-    expect(screen.getByTestId("package-print-status")).toHaveTextContent("Finalized");
-    expect(screen.getByText(PACKAGE_PRINT_FINDINGS_HEADING)).toBeInTheDocument();
-    expect(screen.getByTestId("package-print-findings-summary")).toHaveTextContent("3 findings");
-    expect(screen.getByText(PACKAGE_PRINT_SYNOPSIS_HEADING)).toBeInTheDocument();
-    expect(screen.getByTestId("package-print-sponsor-synopsis")).toHaveTextContent("Sponsor synopsis");
-    expect(screen.getByTestId("package-print-pdf")).toBeInTheDocument();
-    expect(screen.getByTestId("package-print-back")).toHaveAttribute(
-      "href",
-      "/architecture/reviews/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa?reviewTab=review-package",
-    );
-  });
-
-  it("renders semantic support stamp line when provided (AS-071)", () => {
-    render(
-      <PackagePrintPageView
-        presentation={{
-          title: "Payments edge",
-          statusLabel: "Finalized",
-          statusKind: "approved",
-          findingsSummary: "3 findings",
-          sponsorSynopsis: null,
-          createdUtc: "2026-08-01T12:00:00Z",
-          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-          manifestVersionForGuard: "manifest-1",
-          semanticSupportBandStampLine: "Semantic support (decision-grade): 1 Supported",
-        }}
-      />,
-    );
-
-    expect(screen.getByTestId("package-print-semantic-support-band-line")).toHaveTextContent(
-      "1 Supported",
-    );
-  });
-
-  it("omits synopsis section when null", () => {
-    render(
-      <PackagePrintPageView
-        presentation={{
-          title: "Draft review",
-          statusLabel: "Draft",
-          statusKind: "draft",
-          findingsSummary: "No findings summary is available yet.",
-          sponsorSynopsis: null,
-          createdUtc: "2026-08-01T12:00:00Z",
-          runId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-          manifestVersionForGuard: "manifest-draft",
-        }}
-      />,
-    );
-
-    expect(screen.queryByTestId("package-print-sponsor-synopsis")).toBeNull();
-  });
-
-  it("renders meeting capture blockedReason callout when capture is blocked (sealed-manifest 409)", () => {
-    render(
-      <PackagePrintPageView
-        presentation={{
-          title: "Payments edge",
-          statusLabel: "Active",
-          statusKind: "in-progress",
-          findingsSummary: "2 findings.",
-          sponsorSynopsis: null,
-          createdUtc: "2026-08-01T12:00:00Z",
-          runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
-          manifestVersionForGuard: "manifest-active",
-        }}
-        meetingCaptureBlockedReason="Meeting capture blocked: sealed manifest hash verification failed."
-      />,
-    );
-
-    expect(screen.getByTestId("package-print-meeting-capture-blocked")).toHaveTextContent(
-      "Meeting capture blocked: sealed manifest hash verification failed.",
-    );
-    expect(screen.queryByTestId("package-print-meeting-capture")).not.toBeInTheDocument();
-  });
-
-  it("renders meeting capture when presenter room answers exist (PC-09 optional)", () => {
-    render(
-      <PackagePrintPageView
-        presentation={{
-          title: "Payments edge",
-          statusLabel: "Active",
-          statusKind: "in-progress",
-          findingsSummary: "2 findings.",
-          sponsorSynopsis: null,
-          createdUtc: "2026-08-01T12:00:00Z",
-          runId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
-          manifestVersionForGuard: "manifest-active",
-          meetingCaptureEntries: [
-            {
-              questionLabel: "latency",
-              answer: "Yes",
-              responderLabel: "Room",
-              recordedAtLabel: "Aug 1, 2026",
-            },
-          ],
-        }}
-      />,
-    );
-
-    expect(screen.getByTestId("package-print-meeting-capture")).toBeInTheDocument();
-    expect(screen.getByTestId("package-print-meeting-capture")).toHaveTextContent("Room answers on record");
-    expect(screen.getByTestId("package-print-meeting-capture")).toHaveTextContent("not a sealed record");
-    expect(screen.getByTestId("package-print-meeting-capture")).toHaveTextContent("latency");
-    expect(screen.getByTestId("package-print-meeting-capture")).toHaveTextContent("Yes");
-  });
-
-  it("renders transparency trail sections when trail is present (FC-53)", () => {
-    render(
-      <PackagePrintPageView
-        presentation={{
-          title: "Payments edge",
-          statusLabel: "Finalized",
-          statusKind: "approved",
-          findingsSummary: "3 findings",
-          sponsorSynopsis: null,
-          createdUtc: "2026-08-01T12:00:00Z",
-          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-          manifestVersionForGuard: "manifest-1",
-          transparencyTrail: {
-            asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
-            inferred: [],
-            skipped: [],
-          },
-        }}
-      />,
-    );
-
-    expect(screen.getByTestId("package-print-transparency-trail")).toBeInTheDocument();
-    expect(screen.getByTestId("package-print-trail-asserted")).toHaveTextContent("businessOutcome");
-  });
-
-  it("renders quiet-engine hint when flagged (FC-54)", () => {
-    render(
-      <PackagePrintPageView
-        presentation={{
-          title: "Payments edge",
-          statusLabel: "Finalized",
-          statusKind: "approved",
-          findingsSummary: "3 findings",
-          sponsorSynopsis: null,
-          createdUtc: "2026-08-01T12:00:00Z",
-          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-          manifestVersionForGuard: "manifest-1",
-          showQuietEnginesHint: true,
-        }}
-      />,
-    );
-
-    expect(screen.getByTestId("package-print-quiet-engines-hint")).toBeInTheDocument();
-    expect(screen.getByTestId("actor-dependent-quiet-engines-hint-stub")).toBeInTheDocument();
+    expect(screen.getByTestId("package-print-rehearsal-honesty-title")).toHaveTextContent(/Rehearsal/i);
   });
 });
