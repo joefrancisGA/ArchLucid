@@ -1907,3 +1907,4 @@
 {"at":"2026-09-11T00:23:39.2081531Z","zoneId":"core-findings-advice","outcome":"hit"}
 {"at":"2026-09-11T00:26:19.1646155Z","zoneId":"commit-output-integrity","outcome":"dry"}
 {"at":"2026-09-11T00:27:39.9487534Z","zoneId":"ui-oidc","outcome":"hit"}
+{"at":"2026-09-11T00:33:13.1275619Z","zoneId":"api-authority-admin-controllers","outcome":"seed-only"}

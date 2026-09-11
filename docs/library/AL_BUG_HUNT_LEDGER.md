@@ -3832,6 +3832,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `bff-session-sync.resolveExpiresInSeconds` maps `expires_in` zero/negative to default 3600 while `session.resolveExpiresInSeconds` honors zero — **hit 2026-09-10 (#1577):** zero `expires_in` left client hints expired while BFF cookie synced with 3600s TTL; aligned BFF resolver with session parity (zero honored, negative defaulted); regression in `bff-session-sync.test.ts`.
 - [x] (valid-no-repro) `resolveRpLogoutUrlFromBffSession` returns BFF-built logout URLs without client-side scheme validation before `window.location.assign` — **cheap-disproof 2026-09-10 (#1577):** `GET /api/auth/bff-session/rp-logout-url` builds from `loadDiscoveryDocument` / `parseDiscoveryDocument`, which already omits non-http(s) `end_session_endpoint`; client trusts same-origin BFF output — defense-in-depth only without reachable attacker input.
 - [x] (valid-no-repro) `CallbackClient` skips id_token nonce binding when the token response omits `id_token` — primary OIDC scopes request `openid`; supplemental Google flow uses the same nonce check when `id_token` is present; absent id_token is treated as provider non-compliance rather than a reachable cross-flow bypass in these files.
+- [x] (proven) `session.resolveExpiresInSeconds` kept fractional `expires_in` while `bff-session-sync.resolveExpiresInSeconds` truncated — **hit 2026-09-11 seed hunt #1690 (seed→hit):** `expires_in: 10.9` wrote client expiry 10.9s ahead while BFF cookie synced 10s TTL; fixed with `Math.trunc` parity in `session.ts`; regressions in `session.test.ts` and `bff-session-sync.test.ts`.
+
+2026-09-11 seed hunt #1690 (seed→hit): reseeded after #1577; proved fractional expires_in client/BFF skew; 30 scoped ui-oidc tests passed.
 
 2026-09-10 thorough hunt #1577 (hit): proved BFF zero expires_in skew vs client session hints; cheap-disproved client logout URL scheme re-validation as server-gated; 28 scoped ui-oidc tests passed.
 
@@ -9897,10 +9900,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-10 — technology ledger PATCH omitted free-text max-length guard on Rationale and TechnologyName
 - **related-pd-tb:** none
 - **code-changed-since:** yes
