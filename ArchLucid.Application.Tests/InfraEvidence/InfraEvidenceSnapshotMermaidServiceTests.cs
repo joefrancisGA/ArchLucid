@@ -236,6 +236,91 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
+    public async Task Snapshot_graph_stamps_microsoft_network_virtual_networks_as_network_category()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 2);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        AzureInventorySnapshotGraphResolver resolver = new(repository);
+        ScopeContext scope = CreateScope();
+
+        AzureInventorySnapshotGraphResolveResult graphResult =
+            await resolver.TryResolveGraphAsync(scope, SnapshotId, CancellationToken.None);
+
+        graphResult.Succeeded.Should().BeTrue();
+        graphResult.Graph.Should().NotBeNull();
+        graphResult.Graph!.Nodes.Should().OnlyContain(node => node.Category == GraphTopologyCategories.Network);
+    }
+
+    [Fact]
+    public async Task Network_mode_renders_mermaid_for_virtual_network_snapshot()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "network", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.Mode.Should().Be("network");
+        result.Value.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded.ToString());
+        result.Value.Metrics.Should().NotBeNull();
+        result.Value.Metrics!.NodeCount.Should().Be(3);
+        result.Value.Mermaid.Should().NotBeNullOrWhiteSpace();
+        result.Value.Mermaid.Should().Contain("flowchart TD");
+        result.Value.Mermaid.Should().Contain("resource-0");
+        result.Value.Mermaid.Should().Contain("resource-2");
+    }
+
+    [Fact]
+    public async Task Network_mode_preview_reports_nodes_for_virtual_network_snapshot()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
+            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+
+        InfraEvidenceMermaidModePreview networkPreview = result.Value!.Modes
+            .Should()
+            .ContainSingle(mode => mode.Mode == "network")
+            .Subject;
+
+        networkPreview.NodeCount.Should().Be(3);
+        networkPreview.Status.Should().NotBe(MermaidDiagramRenderStatus.Failed.ToString());
+        networkPreview.Mermaid.Should().NotBeNullOrWhiteSpace();
+        networkPreview.Mermaid.Should().Contain("resource-0");
+    }
+
+    [Fact]
+    public async Task Network_mode_excludes_storage_accounts_from_mermaid()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildMixedNetworkAndStorageSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "network", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.Mermaid.Should().Contain("core-vnet");
+        result.Value.Mermaid.Should().NotContain("logs-storage");
+    }
+
+    [Fact]
     public async Task Over_threshold_graph_returns_partitioned_status_in_preview()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 500);
@@ -332,6 +417,47 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             thresholds);
+    }
+
+    private static AzureInventorySnapshotDetailReadModel BuildMixedNetworkAndStorageSnapshot()
+    {
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    CloudResourceId = Guid.Parse("11111111-2222-3333-4444-000000000001"),
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/core-vnet",
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg-network",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    CloudResourceId = Guid.Parse("11111111-2222-3333-4444-000000000002"),
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/logsstorage",
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                    ResourceGroup = "rg-data",
+                    SubscriptionId = "sub",
+                },
+            ],
+        };
     }
 
     private static AzureInventorySnapshotDetailReadModel BuildSnapshot(int resourceCount)
