@@ -184,7 +184,7 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGate
 
 ## Unified finalize readiness API
 
-`GET /v1/governance/pre-finalize/readiness/{runId}` composes career-artifact, integrity, and scorecard gates into one server contract (`FinalizeReadinessService`). Optional `acknowledgedAssumptionIds` query params union persisted TB-2345 acknowledgements for assumption-gate parity.
+`GET /v1/governance/pre-finalize/readiness/{runId}` composes career-artifact, integrity, scorecard, and pre-commit governance gates into one server contract (`FinalizeReadinessService`). Optional `acknowledgedAssumptionIds` query params union persisted TB-2345 acknowledgements for assumption-gate parity. Pre-commit governance reuses `IPreCommitGovernanceGate.EvaluateAsync(runId)` (same snapshot + supplemental findings path as checklist/commit; no manifest dry-run required for blocking parity).
 
 Proof tests:
 
