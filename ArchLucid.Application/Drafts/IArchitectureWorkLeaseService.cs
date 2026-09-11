@@ -8,7 +8,16 @@ public enum ArchitectureWorkLeaseAcquireStatus
     Acquired,
     DraftNotFound,
     HolderNotResolved,
+    NotAuthorized,
     HeldByOther,
+}
+
+public enum ArchitectureWorkLeaseStealStatus
+{
+    Stolen,
+    DraftNotFound,
+    HolderNotResolved,
+    NotAuthorized,
 }
 
 public enum ArchitectureWorkLeaseHeartbeatStatus
@@ -51,6 +60,27 @@ public sealed class ArchitectureWorkLeaseAcquireResult
     }
 }
 
+public sealed class ArchitectureWorkLeaseStealResult
+{
+    public ArchitectureWorkLeaseStealStatus Status
+    {
+        get;
+        init;
+    }
+
+    public ArchitectureWorkLeaseResponse? Response
+    {
+        get;
+        init;
+    }
+
+    public Guid? PreviousHolderUserId
+    {
+        get;
+        init;
+    }
+}
+
 public sealed class ArchitectureWorkLeaseHeartbeatResult
 {
     public ArchitectureWorkLeaseHeartbeatStatus Status
@@ -77,10 +107,24 @@ public sealed class ArchitectureWorkLeaseReleaseResult
 
 public interface IArchitectureWorkLeaseService
 {
+    Task<ArchitectureWorkLeaseSnapshot?> TryGetActiveSnapshotAsync(
+        ScopeContext scope,
+        Guid draftId,
+        string actorId,
+        CancellationToken cancellationToken = default);
+
     Task<ArchitectureWorkLeaseAcquireResult> AcquireAsync(
         ScopeContext scope,
         Guid draftId,
         string actorId,
+        bool hasExecuteAuthority,
+        CancellationToken cancellationToken = default);
+
+    Task<ArchitectureWorkLeaseStealResult> StealAsync(
+        ScopeContext scope,
+        Guid draftId,
+        string actorId,
+        bool hasExecuteAuthority,
         CancellationToken cancellationToken = default);
 
     Task<ArchitectureWorkLeaseHeartbeatResult> HeartbeatAsync(

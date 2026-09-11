@@ -150,6 +150,12 @@ public sealed partial class DraftRequestsController(
         if (draft is null)
             return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
 
+        draft.WorkLease = await _architectureWorkLeaseService.TryGetActiveSnapshotAsync(
+            scope,
+            draftId,
+            _actorContext.GetActorId(),
+            cancellationToken);
+
         return Ok(draft);
     }
 
