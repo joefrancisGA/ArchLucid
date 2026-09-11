@@ -182,6 +182,28 @@ public sealed class FinalizeQualityFindingSignalsTests
     }
 
     [Fact]
+    public void IsOpenDeferredJobView_counts_only_deferred_rows()
+    {
+        Finding deferred = NewFinding(title: "cannot determine ingress exposure");
+        Finding open = NewFinding(title: "cannot determine ingress exposure");
+
+        FinalizeQualityFindingSignals.IsOpenDeferredJobView(deferred, FindingDisposition.Deferred).Should().BeTrue();
+        FinalizeQualityFindingSignals.IsOpenDeferredJobView(open, null).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsOpenContradictionJobView_yields_to_deferred_and_closed()
+    {
+        Finding open = NewFinding(title: "diagram contradicts narrative on ingress");
+        Finding deferred = NewFinding(title: "diagram contradicts narrative on ingress");
+        Finding closed = NewFinding(title: "diagram contradicts narrative on ingress");
+
+        FinalizeQualityFindingSignals.IsOpenContradictionJobView(open, null).Should().BeTrue();
+        FinalizeQualityFindingSignals.IsOpenContradictionJobView(deferred, FindingDisposition.Deferred).Should().BeFalse();
+        FinalizeQualityFindingSignals.IsOpenContradictionJobView(closed, FindingDisposition.Accepted).Should().BeFalse();
+    }
+
+    [Fact]
     public void IsOpenVerifyHypothesisJobView_yields_to_higher_priority_buckets()
     {
         Finding open = NewFinding(title: "Exploratory adversarial challenge on ingress");

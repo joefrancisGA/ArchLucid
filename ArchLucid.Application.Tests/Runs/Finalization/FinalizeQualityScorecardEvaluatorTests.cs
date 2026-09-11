@@ -28,18 +28,57 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     }
 
     [Fact]
+    public void Compute_counts_blocking_findings_at_or_above_minimum_severity()
+    {
+        Finding open = NewFinding("Public storage account", FindingSeverity.Critical);
+        Finding remediated = NewFinding("Fixed risk", FindingSeverity.Critical);
+        Dictionary<string, FindingDisposition> dispositions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [remediated.FindingId] = FindingDisposition.Remediated,
+        };
+
+        FinalizeQualityScorecardCounts counts = Compute([open, remediated], dispositions);
+
+        counts.BlockingFindingCount.Should().Be(1);
+    }
+
+    [Fact]
     public void Compute_counts_uncovered_mandatory_requirements_from_coverage_gap_findings()
     {
         Finding gap = NewFinding("Uncovered requirement REQ-1", FindingSeverity.Warning);
-        gap.EvidenceRefs.Add("doc-1");
         Finding mutedGap = NewFinding("Uncovered requirement REQ-2", FindingSeverity.Warning);
-        mutedGap.EvidenceRefs.Add("doc-1");
         mutedGap.IsMuted = true;
 
         FinalizeQualityScorecardCounts counts = Compute([gap, mutedGap]);
 
         counts.UncoveredMandatoryRequirementCount.Should().Be(1);
         counts.UnresolvedHighSeverityDispositionCount.Should().Be(0);
+    }
+
+    [Fact]
+    public void Compute_counts_open_deferred_findings()
+    {
+        Finding deferred = NewFinding("Cannot determine ingress exposure", FindingSeverity.Warning);
+        Dictionary<string, FindingDisposition> dispositions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [deferred.FindingId] = FindingDisposition.Deferred,
+        };
+
+        FinalizeQualityScorecardCounts counts = Compute([deferred], dispositions);
+
+        counts.OpenDeferredCount.Should().Be(1);
+        counts.OpenCannotDetermineCount.Should().Be(0);
+    }
+
+    [Fact]
+    public void Compute_counts_open_contradiction_findings()
+    {
+        Finding contradiction = NewFinding("Diagram contradicts narrative on ingress", FindingSeverity.Warning);
+
+        FinalizeQualityScorecardCounts counts = Compute([contradiction]);
+
+        counts.OpenContradictionCount.Should().Be(1);
+        counts.OpenCannotDetermineCount.Should().Be(0);
     }
 
     [Fact]
@@ -61,7 +100,9 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     public void Compute_counts_open_verify_hypothesis_findings_and_excludes_closed_dispositions()
     {
         Finding open = NewFinding("Exploratory adversarial challenge on ingress", FindingSeverity.Warning);
+        open.EvidenceRefs.Clear();
         Finding accepted = NewFinding("Speculative hypothesis about WAF", FindingSeverity.Warning);
+        accepted.EvidenceRefs.Clear();
         Dictionary<string, FindingDisposition> dispositions = new(StringComparer.OrdinalIgnoreCase)
         {
             [accepted.FindingId] = FindingDisposition.Accepted,
@@ -102,6 +143,7 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
 
         FinalizeQualityScorecardCounts counts = Compute([criticalLow, errorHigh, warningLow]);
 
+        counts.BlockingFindingCount.Should().Be(2);
         counts.UnresolvedHighSeverityDispositionCount.Should().Be(2);
         counts.LowExtractionConfidenceCount.Should().Be(1);
     }
@@ -124,6 +166,7 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
 
         FinalizeQualityScorecardCounts counts = Compute([approved, remediated, muted, advisory, open], dispositions);
 
+        counts.BlockingFindingCount.Should().Be(1);
         counts.UnresolvedHighSeverityDispositionCount.Should().Be(1);
     }
 
@@ -139,6 +182,7 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
             NoDispositions,
             options);
 
+        counts.BlockingFindingCount.Should().Be(1);
         counts.UnresolvedHighSeverityDispositionCount.Should().Be(1);
     }
 
@@ -155,6 +199,7 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
             NoDispositions,
             options);
 
+        counts.BlockingFindingCount.Should().Be(1);
         counts.UnresolvedHighSeverityDispositionCount.Should().Be(1);
     }
 
@@ -172,7 +217,10 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     public void GetBlockingReasons_emits_ui_copy_in_ui_order()
     {
         FinalizeQualityScorecardCounts counts = new(
+            BlockingFindingCount: 1,
             UncoveredMandatoryRequirementCount: 1,
+            OpenDeferredCount: 0,
+            OpenContradictionCount: 0,
             OpenCannotDetermineCount: 2,
             OpenVerifyHypothesisCount: 0,
             UnverifiedAssumptionCount: 3,
@@ -184,6 +232,7 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
             new FinalizeQualityGateOptions());
 
         reasons.Should().Equal(
+            "1 unresolved blocking finding still need disposition.",
             "1 mandatory requirement lack a design decision.",
             "2 open questions still need answers before the package is defensible.",
             "3 unverified assumptions remain — confirm or caveat existential ones before finalize.",
@@ -194,7 +243,7 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     [Fact]
     public void GetBlockingReasons_pluralises_like_the_ui()
     {
-        FinalizeQualityScorecardCounts counts = new(2, 1, 0, 0, 2, 1);
+        FinalizeQualityScorecardCounts counts = new(0, 2, 0, 0, 1, 0, 0, 2, 1);
 
         IReadOnlyList<string> reasons = FinalizeQualityScorecardEvaluator.GetBlockingReasons(
             counts,
@@ -210,8 +259,8 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     [Fact]
     public void GetBlockingReasons_applies_unverified_assumption_threshold()
     {
-        FinalizeQualityScorecardCounts twoOpen = new(0, 0, 0, 2, 0, 0);
-        FinalizeQualityScorecardCounts threeOpen = new(0, 0, 0, 3, 0, 0);
+        FinalizeQualityScorecardCounts twoOpen = new(0, 0, 0, 0, 0, 0, 2, 0, 0);
+        FinalizeQualityScorecardCounts threeOpen = new(0, 0, 0, 0, 0, 0, 3, 0, 0);
 
         FinalizeQualityScorecardEvaluator.GetBlockingReasons(twoOpen, new FinalizeQualityGateOptions())
             .Should().BeEmpty();
@@ -225,7 +274,7 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     [Fact]
     public void GetBlockingReasons_disables_assumption_check_when_threshold_is_below_one()
     {
-        FinalizeQualityScorecardCounts manyOpen = new(0, 0, 0, 50, 0, 0);
+        FinalizeQualityScorecardCounts manyOpen = new(0, 0, 0, 0, 0, 0, 50, 0, 0);
         FinalizeQualityGateOptions options = new() { UnverifiedAssumptionBlockThreshold = 0 };
 
         FinalizeQualityScorecardEvaluator.GetBlockingReasons(manyOpen, options).Should().BeEmpty();
@@ -263,7 +312,7 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
 
     private static Finding NewFinding(string title, FindingSeverity severity)
     {
-        return new Finding
+        Finding finding = new()
         {
             FindingId = Guid.NewGuid().ToString("N"),
             Title = title,
@@ -273,5 +322,9 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
             Category = "test",
             EngineType = "test",
         };
+
+        finding.EvidenceRefs.Add("doc-1");
+
+        return finding;
     }
 }

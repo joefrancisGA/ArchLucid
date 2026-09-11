@@ -39,7 +39,10 @@ public sealed class FinalizeQualityScorecardUiCopyParityTests
 
     public static TheoryData<string, Func<int, string>> ScorecardReasons => new()
     {
+        { "blockingFindingCount", FinalizeQualityScorecardBlockedReasonFormatter.BlockingFindings },
         { "uncoveredMandatoryRequirementCount", FinalizeQualityScorecardBlockedReasonFormatter.UncoveredMandatoryRequirements },
+        { "openDeferredCount", FinalizeQualityScorecardBlockedReasonFormatter.OpenDeferred },
+        { "openContradictionCount", FinalizeQualityScorecardBlockedReasonFormatter.OpenContradictions },
         { "openCannotDetermineCount", FinalizeQualityScorecardBlockedReasonFormatter.OpenCannotDetermine },
         { "openVerifyHypothesisCount", FinalizeQualityScorecardBlockedReasonFormatter.OpenVerifyHypotheses },
         { "unverifiedAssumptionCount", FinalizeQualityScorecardBlockedReasonFormatter.UnverifiedAssumptions },

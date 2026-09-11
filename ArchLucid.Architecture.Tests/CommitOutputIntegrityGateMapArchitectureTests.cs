@@ -48,8 +48,11 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
                 "FinalizeQualityScorecardEvaluator.cs"));
 
         evaluator.Should().Contain("IsCoverageGapJobView");
+        evaluator.Should().Contain("IsOpenDeferredJobView");
+        evaluator.Should().Contain("IsOpenContradictionJobView");
         evaluator.Should().Contain("IsOpenCannotDetermineJobView");
         evaluator.Should().Contain("IsOpenVerifyHypothesisJobView");
+        evaluator.Should().Contain("BlockingFindingCount");
         evaluator.Should().Contain("FinalizeAssumptionGateEvaluator.CollectOpenAssumptions");
         evaluator.Should().Contain("LowExtractionConfidenceCount");
         evaluator.Should().Contain("UnresolvedHighSeverityDispositionCount");
@@ -84,7 +87,10 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
                 "finalize-quality-scorecard-from-findings.ts"));
 
         derive.Should().Contain("verify-hypotheses");
-        derive.Should().Contain("openVerifyHypothesisCount");
+        derive.Should().Contain("resolve-contradictions");
+        derive.Should().Contain("openDeferredCount");
+        derive.Should().Contain("openContradictionCount");
+        derive.Should().Contain("isUnresolvedBlockingReviewFinding");
     }
 
     private static string FindRepoRoot()

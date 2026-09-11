@@ -7,6 +7,8 @@ export type FinalizeQualityScorecardInput = {
   readonly unverifiedAssumptionCount: number;
   readonly unacknowledgedExistentialAssumptionCount: number;
   readonly uncoveredMandatoryRequirementCount: number;
+  readonly openDeferredCount: number;
+  readonly openContradictionCount: number;
   readonly openCannotDetermineCount: number;
   readonly openVerifyHypothesisCount: number;
   readonly lowExtractionConfidenceCount: number;
@@ -40,6 +42,18 @@ export function evaluateFinalizeQualityScorecard(input: FinalizeQualityScorecard
   if (input.uncoveredMandatoryRequirementCount > 0) {
     blockingReasons.push(
       `${input.uncoveredMandatoryRequirementCount} mandatory requirement${input.uncoveredMandatoryRequirementCount === 1 ? "" : "s"} lack a design decision.`,
+    );
+  }
+
+  if (input.openDeferredCount > 0) {
+    blockingReasons.push(
+      `${input.openDeferredCount} deferred finding${input.openDeferredCount === 1 ? "" : "s"} still need revisit before finalize.`,
+    );
+  }
+
+  if (input.openContradictionCount > 0) {
+    blockingReasons.push(
+      `${input.openContradictionCount} contradiction finding${input.openContradictionCount === 1 ? "" : "s"} still need reconciliation before finalize.`,
     );
   }
 
