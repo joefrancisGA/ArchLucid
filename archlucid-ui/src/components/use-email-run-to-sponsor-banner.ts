@@ -30,7 +30,15 @@ import {
   evaluateCareerArtifactHonesty,
   type CareerArtifactHonestyInput,
 } from "@/lib/career-artifact/career-artifact-honesty";
-import { resolveCareerArtifactExportHonestyDoorFields } from "@/lib/career-artifact/resolve-career-artifact-export-honesty-input";
+import {
+  resolveCareerArtifactExportHonestyDoorFields,
+  resolveSimulatorRehearsalBannerOnArtifactForExport,
+} from "@/lib/career-artifact/resolve-career-artifact-export-honesty-input";
+import {
+  buildEmailRunToSponsorMailtoHref,
+  resolveEmailRunToSponsorRehearsalGate,
+  resolveEmailRunToSponsorSendBlocked,
+} from "@/lib/email-run-to-sponsor-rehearsal-gate";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
 
 import type { EmailRunToSponsorBannerProps } from "./EmailRunToSponsorBanner";
@@ -73,6 +81,7 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
   } | null>(null);
   const [badgeDayN, setBadgeDayN] = useState<number | null>(null);
   const [timeToFirstCommitHours, setTimeToFirstCommitHours] = useState<number | null>(null);
+  const [rehearsalEmailHonestyAcknowledged, setRehearsalEmailHonestyAcknowledged] = useState(false);
 
   const skipSidecarFetches =
     AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn();
@@ -253,28 +262,42 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     proofGate.status === "ok"
     && isExternalSponsorPdfBlockedForExecutionMode(proofGate.payload)
     && !curatedSampleRun;
-  const careerArtifactVerdict = useMemo(() => {
+  const careerArtifactDoorFields = useMemo(() => {
     if (careerArtifactHonesty === undefined) {
       return null;
     }
 
-    const doorFields = resolveCareerArtifactExportHonestyDoorFields({
+    return resolveCareerArtifactExportHonestyDoorFields({
       progressSummary: careerArtifactHonesty.progressSummary,
       structuralExecutionMode: careerArtifactHonesty.structuralExecutionMode,
+      workingCareerRehearsalDoor:
+        careerArtifactHonesty.progressSummary?.workingCareerRehearsalDoor ?? null,
       liveDoor: effectiveDoor,
     });
+  }, [careerArtifactHonesty, effectiveDoor]);
+
+  const careerArtifactVerdict = useMemo(() => {
+    if (careerArtifactHonesty === undefined || careerArtifactDoorFields === null) {
+      return null;
+    }
+
+    const simulatorRehearsalBannerOnArtifact = resolveSimulatorRehearsalBannerOnArtifactForExport(
+      careerArtifactDoorFields,
+    );
     const input: CareerArtifactHonestyInput = {
       ...careerArtifactHonesty,
-      ...doorFields,
+      ...careerArtifactDoorFields,
       artifactKind: "export",
       runId,
       curatedSampleRun,
       blockExternalSponsorDistribution: true,
       workingDesk: careerArtifactHonesty.workingDesk ?? true,
+      simulatorRehearsalBannerOnArtifact,
+      effectiveWorkingCareerRehearsalDoor: careerArtifactDoorFields.effectiveWorkingCareerRehearsalDoor,
     };
 
     return evaluateCareerArtifactHonesty(input);
-  }, [careerArtifactHonesty, curatedSampleRun, effectiveDoor, runId]);
+  }, [careerArtifactDoorFields, careerArtifactHonesty, curatedSampleRun, runId]);
   const blockSponsorPdfForCareerArtifact =
     careerArtifactVerdict !== null && !careerArtifactVerdict.canRender;
   const blockSponsorPdf =
@@ -283,8 +306,44 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     || blockSponsorPdfForAiGate
     || blockSponsorPdfForExecutionMode
     || blockSponsorPdfForCareerArtifact;
+  const rehearsalEmailGate = useMemo(() => {
+    const structuralExecutionMode =
+      careerArtifactDoorFields?.structuralExecutionMode
+      ?? (proofGate.status === "ok" ? proofGate.payload.structuralExecutionMode : undefined);
+
+    return resolveEmailRunToSponsorRehearsalGate({
+      workingDesk: careerArtifactHonesty?.workingDesk ?? true,
+      curatedSampleRun,
+      structuralExecutionMode,
+      effectiveWorkingCareerRehearsalDoor: careerArtifactDoorFields?.effectiveWorkingCareerRehearsalDoor ?? effectiveDoor,
+    });
+  }, [
+    careerArtifactDoorFields,
+    careerArtifactHonesty?.workingDesk,
+    curatedSampleRun,
+    effectiveDoor,
+    proofGate,
+  ]);
+  const blockSponsorEmailSend = resolveEmailRunToSponsorSendBlocked({
+    blockSponsorPdf,
+    requiresRehearsalEmailHonestyAck: rehearsalEmailGate.requiresRehearsalEmailHonestyAck,
+    rehearsalEmailHonestyAcknowledged,
+  });
+  const sponsorEmailMailtoHref = buildEmailRunToSponsorMailtoHref({
+    runId,
+    rehearsalSubjectPrefix: rehearsalEmailGate.rehearsalSubjectPrefix,
+    requiresRehearsalBodyDisclaimer: rehearsalEmailGate.requiresRehearsalEmailHonestyAck,
+  });
   const executionModeLabel =
     proofGate.status === "ok" ? formatStructuralExecutionModeLabel(proofGate.payload) : null;
+
+  function onComposeEmailToSponsor(): void {
+    if (blockSponsorEmailSend) {
+      return;
+    }
+
+    window.location.href = sponsorEmailMailtoHref;
+  }
 
   return {
     runId,
@@ -314,6 +373,12 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     blockSponsorPdfForCareerArtifact,
     careerArtifactVerdict,
     blockSponsorPdf,
+    blockSponsorEmailSend,
+    rehearsalEmailGate,
+    rehearsalEmailHonestyAcknowledged,
+    setRehearsalEmailHonestyAcknowledged,
+    sponsorEmailMailtoHref,
+    onComposeEmailToSponsor,
     executionModeLabel,
   };
 }

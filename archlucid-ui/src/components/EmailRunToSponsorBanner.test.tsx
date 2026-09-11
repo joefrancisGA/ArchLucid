@@ -678,4 +678,119 @@ describe("EmailRunToSponsorBanner", () => {
 
     expect(screen.getByTestId("email-run-to-sponsor-proof-pack-zip").className).toContain("border-neutral-300");
   });
+
+  it("blocks compose and mark-sent until rehearsal honesty is acknowledged (CG-029)", async () => {
+    effectiveDoorMock.value = "rehearsal";
+    stubFetchForBannerMocks({
+      deltasBody: {
+        isDemoTenant: false,
+        structuralExecutionMode: "Real",
+        proofPackageCompleteness: {
+          demoTenantWarningRequired: false,
+          sponsorProofReadiness: "Sendable",
+          proofSendability: "Sendable",
+          publishingTier: "Complete",
+          roiEvidenceConfidence: "Strong",
+          roiBaselineInputs: { projectedDollarClaimsSponsorSafe: true },
+          agentOutputPilotStrictEvidenceSatisfied: true,
+        },
+      },
+    });
+
+    const locationAssign = vi.fn();
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { ...window.location, href: "", assign: locationAssign },
+    });
+
+    render(
+      <EmailRunToSponsorBanner
+        {...bannerProps}
+        careerArtifactHonesty={{
+          progressSummary: {
+            runId: "run-42",
+            structuralExecutionMode: "Simulator",
+            workingCareerRehearsalDoor: "rehearsal",
+          },
+          manifestSummary: null,
+          graphSnapshot: null,
+          enginesSucceeded: 41,
+          workingDesk: true,
+          structuralExecutionMode: "Simulator",
+          transparencyTrail: {
+            asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+            inferred: [],
+            skipped: [],
+          },
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-rehearsal-email-gate")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-compose-email")).toBeDisabled();
+    expect(screen.getByTestId("email-run-to-sponsor-mark-sent")).toBeDisabled();
+
+    fireEvent.click(screen.getByLabelText(/rehearsal practice/i));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-compose-email")).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTestId("email-run-to-sponsor-compose-email"));
+
+    expect(window.location.href).toContain("subject=");
+    expect(decodeURIComponent(window.location.href)).toContain("[Rehearsal]");
+  });
+
+  it("blocks unlabeled Career email when Working Career door is Simulator (CG-029)", async () => {
+    effectiveDoorMock.value = "career";
+    stubFetchForBannerMocks({
+      deltasBody: {
+        isDemoTenant: false,
+        structuralExecutionMode: "Real",
+        proofPackageCompleteness: {
+          demoTenantWarningRequired: false,
+          sponsorProofReadiness: "Sendable",
+          proofSendability: "Sendable",
+          publishingTier: "Complete",
+          roiEvidenceConfidence: "Strong",
+          roiBaselineInputs: { projectedDollarClaimsSponsorSafe: true },
+          agentOutputPilotStrictEvidenceSatisfied: true,
+        },
+      },
+    });
+
+    render(
+      <EmailRunToSponsorBanner
+        {...bannerProps}
+        careerArtifactHonesty={{
+          progressSummary: {
+            runId: "run-42",
+            structuralExecutionMode: "Simulator",
+            workingCareerRehearsalDoor: "career",
+          },
+          manifestSummary: null,
+          graphSnapshot: null,
+          enginesSucceeded: 35,
+          workingDesk: true,
+          structuralExecutionMode: "Simulator",
+          transparencyTrail: {
+            asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+            inferred: [],
+            skipped: [],
+          },
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-career-artifact-gap")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-compose-email")).toBeDisabled();
+    expect(screen.queryByTestId("email-run-to-sponsor-rehearsal-email-gate")).toBeNull();
+  });
 });
