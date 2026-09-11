@@ -146,6 +146,9 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
     evidenceRefCount,
     enforcementTier: "PolicyViolation",
     policyRuleId: ruleIdRaw.length > 0 ? ruleIdRaw : null,
+    classification: row.classification ?? null,
+    treatment:
+      typeof row.treatment === "number" && Number.isFinite(row.treatment) ? Math.trunc(row.treatment) : null,
   };
 }
 

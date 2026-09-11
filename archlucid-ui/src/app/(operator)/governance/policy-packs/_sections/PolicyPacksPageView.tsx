@@ -148,6 +148,8 @@ export function PolicyPacksPageView(props: Props) {
             packVersions={m.packVersions}
             packs={m.packs}
             scopedReviewId={m.pickedReviewId}
+            initialPackAId={m.pickedPackAId}
+            initialPackBId={m.pickedPackBId}
             onPickReview={m.setPickedReviewId}
           />
         ) : null}

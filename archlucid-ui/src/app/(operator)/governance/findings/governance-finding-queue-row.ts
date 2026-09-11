@@ -43,6 +43,8 @@ export type GovernanceFindingQueueRow = {
   insightDensityScore?: number | null;
   /** Gate classification after ADR 0070 when returned by explainability. */
   classification?: FindingClassification | null;
+  /** Insight-density treatment when returned by explainability (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
+  treatment?: number | null;
 };
 
 export function formatGovernanceQueueRecordKind(

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { PolicyAtCommitScopeSummary } from "@/components/policy/PolicyAtCommitScopeSummary";
@@ -10,8 +11,12 @@ import {
   type CompareGovernanceDiffView,
   type CompareManifestGovernanceSnapshot,
 } from "@/lib/compare-effective-governance-diff";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_CLOUD_MISMATCH_MESSAGE } from "@/lib/review-quality/review-intake-quality-gates";
+import {
+  buildPolicyPacksImpactPreviewHref,
+  resolveCompareGovernancePackImpactHandoff,
+} from "@/lib/policy-packs-review-handoff";
 
 export type CompareGovernanceDiffPanelProps = {
   readonly view: CompareGovernanceDiffView | null;
@@ -20,6 +25,7 @@ export type CompareGovernanceDiffPanelProps = {
   readonly hideCurrentEffectiveDisclaimer?: boolean;
   readonly baselineCloudMismatchDetail?: string | null;
   readonly targetCloudMismatchDetail?: string | null;
+  readonly targetRunId?: string | null;
 };
 
 function formatRuleSetLabel(ruleSetId: string | null, ruleSetVersion: string | null): string {
@@ -120,6 +126,27 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Policy pack basis and compliance rule keys for approval and compliance buyers — alongside the manifest structural diff above.
       </p>
+
+      {props.targetRunId !== null &&
+      props.targetRunId !== undefined &&
+      props.targetRunId.trim().length > 0 &&
+      view.manifestRuleSetChanges.length > 0 ? (
+        <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-governance-impact-preview-link">
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={buildPolicyPacksImpactPreviewHref(
+              resolveCompareGovernancePackImpactHandoff(
+                props.targetRunId,
+                view.baselineManifest.atCommit?.packAssignments[0]?.policyPackId ??
+                  view.baselineManifest.ruleSetId,
+                view.targetManifest.atCommit?.packAssignments[0]?.policyPackId ?? view.targetManifest.ruleSetId,
+              ),
+            )}
+          >
+            Open pack impact preview for this comparison
+          </Link>
+        </p>
+      ) : null}
 
       {view.usesCurrentEffectiveOnly && props.hideCurrentEffectiveDisclaimer !== true ? (
         <p

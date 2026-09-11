@@ -48,6 +48,20 @@ describe("resolveInitialPackComparisonIds", () => {
       ),
     ).toEqual({ packAId: "pack-a", packBId: "pack-b" });
   });
+
+  it("prefers URL pack ids when they match published packs", () => {
+    expect(
+      resolveInitialPackComparisonIds(
+        [
+          { policyPackId: "pack-a", name: "Pack A" },
+          { policyPackId: "pack-b", name: "Pack B" },
+        ] as never,
+        "pack-a",
+        "pack-b",
+        "pack-a",
+      ),
+    ).toEqual({ packAId: "pack-b", packBId: "pack-a" });
+  });
 });
 
 describe("resolvePolicyPackDisplayName", () => {

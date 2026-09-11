@@ -100,14 +100,27 @@ export function resolvePolicyPackDisplayName(
 export function resolveInitialPackComparisonIds(
   packs: readonly PolicyPack[],
   selectedPackId: string,
+  urlPackAId?: string | null,
+  urlPackBId?: string | null,
 ): { readonly packAId: string; readonly packBId: string } {
   const trimmedSelected = selectedPackId.trim();
+  const trimmedUrlA = urlPackAId?.trim() ?? "";
+  const trimmedUrlB = urlPackBId?.trim() ?? "";
   const publishedPackIds = packs
     .map((pack) => pack.policyPackId.trim())
     .filter((packId) => packId.length > 0);
 
   if (publishedPackIds.length === 0) {
     return { packAId: trimmedSelected, packBId: "" };
+  }
+
+  if (trimmedUrlA.length > 0 && publishedPackIds.includes(trimmedUrlA)) {
+    const packBId =
+      trimmedUrlB.length > 0 && publishedPackIds.includes(trimmedUrlB) && trimmedUrlB !== trimmedUrlA
+        ? trimmedUrlB
+        : (publishedPackIds.find((packId) => packId !== trimmedUrlA) ?? "");
+
+    return { packAId: trimmedUrlA, packBId };
   }
 
   const packAId =

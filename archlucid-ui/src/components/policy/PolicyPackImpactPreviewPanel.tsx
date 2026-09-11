@@ -37,6 +37,8 @@ export type PolicyPackImpactPreviewPanelProps = {
   readonly packVersions: readonly PolicyPackVersion[];
   readonly packs: readonly PolicyPack[];
   readonly scopedReviewId?: string;
+  readonly initialPackAId?: string;
+  readonly initialPackBId?: string;
   readonly onPickReview?: (reviewId: string) => void;
 };
 
@@ -65,8 +67,14 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
   const requiresReviewPick = props.onPickReview !== undefined;
   const previewClearScopeHref = buildPolicyPacksHrefWithReviewId("");
   const initialPackComparison = useMemo(
-    () => resolveInitialPackComparisonIds(props.packs, props.selectedPackId),
-    [props.packs, props.selectedPackId],
+    () =>
+      resolveInitialPackComparisonIds(
+        props.packs,
+        props.selectedPackId,
+        props.initialPackAId,
+        props.initialPackBId,
+      ),
+    [props.initialPackAId, props.initialPackBId, props.packs, props.selectedPackId],
   );
   const [packAId, setPackAId] = useState(initialPackComparison.packAId);
   const [packBId, setPackBId] = useState(initialPackComparison.packBId);
