@@ -54,6 +54,12 @@ export const signupFormSchema = z
           message: "Enter a valid number for architecture team size.",
           path: ["architectureTeamSize"],
         });
+      } else if (!Number.isInteger(n)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Architecture team size must be a whole number when provided.",
+          path: ["architectureTeamSize"],
+        });
       } else if (n <= 0 || n > 10_000) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

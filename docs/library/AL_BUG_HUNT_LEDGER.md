@@ -338,11 +338,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 4
-- **bugs-found:** 1
+- **hunts:** 5
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — signup readiness hint stayed generic after optional-field validation failed
+- **last-bug:** 2026-09-11 — signup readiness hint stayed generic after optional-field validation failed; fractional architecture team size passed client validation
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** 0
 
@@ -378,6 +378,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SignupForm` readiness hint stayed generic after optional-field validation failed — **hit 2026-09-11 seed hunt #1732 (seed→hit):** `WhyDisabledCtaHint` always showed required-field copy when `canSubmit` was false even after email/industry/team-size validation failed; `deriveSignupFormReadinessMessage` now maps schema issues to accurate readiness text; regressions `shows email-specific readiness when required fields are filled but email is invalid` and `shows industry readiness when Other is selected without a specification`
 
 2026-09-11 seed hunt #1732 (seed→hit): reseeded ui-form-validation; proved misleading signup readiness hint for industry Other and invalid-email cases; 20 scoped SignupForm tests passed.
+
+- [x] (proven) `SignupForm` readiness hint stayed generic after optional-field validation failed — **hit 2026-09-11 seed hunt #1730 (seed→hit):** `WhyDisabledCtaHint` always showed required-field copy when `canSubmit` was false even after email/industry/team-size validation failed; `deriveSignupFormReadinessMessage` maps schema issues to accurate readiness text; regressions `shows email-specific readiness when required fields are filled but email is invalid` and `shows industry readiness when Other is selected without a specification`
+- [x] (proven) `SignupForm` fractional `architectureTeamSize` kept submit enabled and reached register — **hit 2026-09-11 seed hunt #1730 (seed→hit):** `signupFormSchema.superRefine` accepted finite decimals (e.g. `3.5`) that `RegistrationRequestBaselineValidator` rejects as non-integer; added `Number.isInteger` guard; regressions `keeps submit disabled for fractional optional architecture team size` and `does not send fractional optional architecture team size in the register payload`
+
+2026-09-11 seed hunt #1730 (seed→hit): reseeded ui-form-validation; proved misleading signup readiness hints and fractional architecture team size client bypass; 21 scoped SignupForm tests passed.
 
 ---
 
