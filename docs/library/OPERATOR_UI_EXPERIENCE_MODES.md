@@ -127,6 +127,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **First-review guide does not launder Career (CG-091):** `/architecture/first-review-guide` on Working applies `shouldSuppressReadyToFinalizeForCareerHonesty` before walkthrough steps or header actions show **Seal review**. Evaluation scope helper names **Career + Real** vs explicit **Rehearsal** practice. Sample recovery (`OnboardingSampleReviewShortcut`, walkthrough step 6, support-panel sample rail) stays off live tenant shells via `isLiveOperatorShellRecoveryContext`. Guided guide copy is unchanged when not on Working.
 
+**Support bundle includes door/Mode (CG-092):** `archlucid support-bundle --run-id <runId>` writes **`triage-index.json`** / **`triage-index.md`** with CG-019 **`careerPosture`** (door, posture label, rehearsal-incomplete, career-blocked) plus **`structuralExecutionModeLabel`**. Identifiers only — no secrets, prompts, or evidence bodies. On-call can distinguish Rehearsal vs Career blocked without a UI screenshot. See [`FIRST_PILOT_SUPPORT_TRIAGE.md`](../runbooks/FIRST_PILOT_SUPPORT_TRIAGE.md).
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
