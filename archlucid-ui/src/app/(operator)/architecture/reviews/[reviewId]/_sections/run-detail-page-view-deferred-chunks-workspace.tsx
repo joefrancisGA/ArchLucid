@@ -76,12 +76,15 @@ export const RunDetailWorkspaceBlockingBannerDeferred = createDeferredComponentF
   { suppressLoading: true },
 );
 
-export const RunDetailWorkspaceStickyActionsDeferred = createDeferredComponentFromManifest(
+export const RunDetailWorkspaceStickyActionsResolvedDeferred = createDeferredComponentFromManifest(
   "run-detail-workspace-sticky-actions",
   {
     loadingClassName: "h-14 hidden rounded-lg dark:bg-neutral-900/40 lg:block",
   },
 );
+
+/** @deprecated Use {@link RunDetailWorkspaceStickyActionsResolvedDeferred}. */
+export const RunDetailWorkspaceStickyActionsDeferred = RunDetailWorkspaceStickyActionsResolvedDeferred;
 
 export const RunDetailSectionNavDeferred = createDeferredComponentFromManifest("run-detail-section-nav", {
   loadingClassName: "h-10",

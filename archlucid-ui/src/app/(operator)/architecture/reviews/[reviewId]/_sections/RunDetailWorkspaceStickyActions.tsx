@@ -20,12 +20,14 @@ import {
 } from "./resolve-review-package-approval-blocker";
 import type { ResolveReviewPackagePrimaryActionInput } from "./resolve-review-package-primary-action";
 import type { ReviewPackagePrimaryAction as ReviewPackagePrimaryActionModel } from "./resolve-review-package-primary-action";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 
 export type RunDetailWorkspaceStickyActionsProps = {
   readonly runId: string;
   readonly primaryAction: ReviewPackagePrimaryActionModel;
   readonly primaryActionContext: ResolveReviewPackagePrimaryActionInput;
   readonly commitBlockedReason: string | null;
+  readonly commitBlockedBlocks?: readonly FinalizeReadinessBlock[];
   readonly commitBlockedTechnicalDetail?: string | null;
   readonly showProgressTracker: boolean;
   readonly manifestId: string | null | undefined;
@@ -155,6 +157,7 @@ export function RunDetailWorkspaceStickyActions(
         runId={props.runId}
         hasGoldenManifest={Boolean(props.manifestId)}
         commitBlockedReason={stickyCommitBlockedReason}
+        commitBlockedBlocks={props.commitBlockedBlocks}
         demoted={props.pagePrimaryOwnedElsewhere === true}
       />
     </div>
