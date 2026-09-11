@@ -6,7 +6,7 @@
 
 # System-not-job Composer prompts (SN-001–SN-040)
 
-**Created:** 2026-09-11 · **Status:** ready to run · **Do not re-run** prior waves except as a numbered leftover.
+**Created:** 2026-09-11 · **Status:** in progress (SN-001 shipped ADR **0092**) · **Do not re-run** prior waves except as a numbered leftover.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record.
 
@@ -40,7 +40,7 @@ After this wave:
 
 See [`.cursor/prompts/system-not-job-00-index.md`](../../.cursor/prompts/system-not-job-00-index.md).
 
-Load-bearing ADRs: **0092**; 0068/0072/0079 not rewritten.
+Load-bearing ADRs: **0092** ([`0092-working-cheap-what-if-envelope.md`](adrs/0092-working-cheap-what-if-envelope.md), SN-001); 0068/0072/0079 not rewritten.
 
 ## Intentional — do not “fix”
 
