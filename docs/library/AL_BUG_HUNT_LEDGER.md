@@ -1066,16 +1066,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 249
-- **bugs-found:** 483
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-08-24
+- **hunts:** 250
+- **bugs-found:** 484
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
+- [x] (proven) Restore quarantine leaves active erasure legal hold on operational tenant — **hit 2026-09-11 seed hunt #1709:** `TryRestoreTenantErasureQuarantineAsync` and `CopyTenant(clearErasureQuarantine: true)` cleared offboard/suspend/approval but preserved `LegalHoldUntilUtc` and related columns, so a restored tenant could remain blocked by `TrialLifecycleTransitionEngine` and stale hold metadata; fixed by clearing legal-hold columns in Dapper restore SQL and when `clearErasureQuarantine` is true; regression `TryRestoreQuarantineAsync_clears_active_legal_hold_from_erasure_quarantine`
 - [x] (invalid) Erasure proceeds while a legal hold is still active — `IsEligibleForScheduledHardPurge` and SQL list queries exclude rows with future `LegalHoldUntilUtc`; orphan cleanup skips active holds in `OrphanedTenantCatalogCleanupBackgroundWork`
 - [x] (proven) Quarantine middleware lets mutating requests through after erasure has started — **hit 2026-08-23:** `TrialSeatReservationMiddleware` ran before `TenantErasureQuarantineMiddleware`, so offboarded active-trial tenants still incremented `TrialSeatsUsed` before the 403; fixed by running erasure quarantine first in `PipelineExtensions`
 - [x] (proven) Restore quarantine leaves stale `TenantErasureApprovedUtc` on in-memory tenants — **hit 2026-08-23:** `InMemoryTenantRepository` `CopyTenant(clearErasureQuarantine: true)` kept prior approval, so a restored tenant could be hard-purged after re-offboard without a fresh admin approval; aligned with Dapper restore SQL that nulls approval columns
@@ -1086,6 +1087,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantErasureCommandService.TryRestoreQuarantineAsync` after `TryOffboardTenantAsync` (which calls `SuspendTenantAsync`) — restore clears offboard/eligible timestamps via repository only and never reverses suspend — **cheap-disproof 2026-09-05 (#855):** `TryRestoreTenantErasureQuarantineAsync` SQL and `CopyTenant(clearErasureQuarantine: true)` clear `SuspendedUtc`; regression in `TryRestoreQuarantineAsync_clears_suspend_set_during_offboard` (see also tenancy-zone row 2026-09-03).
 
 2026-09-05 thorough hunt #855 (dry): cheap-disproved all three hunt-ready quarantine/restore hypotheses with regression tests; zone candidate backlog cleared.
+
+2026-09-11 seed hunt #1709 (seed→hit): reseeded tenant-erasure after #855; proved restore quarantine left active legal hold; 32 scoped TenantErasure tests passed.
 
 ---
 
