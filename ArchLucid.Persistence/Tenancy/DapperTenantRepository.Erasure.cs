@@ -86,7 +86,11 @@ public sealed partial class DapperTenantRepository
                                SuspendedUtc = NULL,
                                TenantErasureRequestedUtc = NULL,
                                TenantErasureApprovedUtc = NULL,
-                               TenantErasureApprovedByUserId = NULL
+                               TenantErasureApprovedByUserId = NULL,
+                               LegalHoldUntilUtc = NULL,
+                               LegalHoldReason = NULL,
+                               LegalHoldSetByUserId = NULL,
+                               LegalHoldSetUtc = NULL
                            WHERE Id = @Id AND OffboardedUtc IS NOT NULL;
                            """;
 

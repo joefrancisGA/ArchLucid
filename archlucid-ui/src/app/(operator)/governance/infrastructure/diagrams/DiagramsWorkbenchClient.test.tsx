@@ -2,6 +2,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { DiagramsWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient";
@@ -318,6 +320,40 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-dependency-seed-blocked-dialog")).toHaveTextContent(
       "Seed did not match this snapshot",
     );
+  });
+
+  it("shows honest empty content when render succeeds with no drawable nodes", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "network",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "",
+      metrics: {
+        nodeCount: 0,
+        edgeCount: 0,
+        subgraphCount: 0,
+        maxDegree: 0,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 0,
+        layoutEstimate: 0,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=network",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-empty-content")).toHaveTextContent(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
+    );
+    expect(screen.getByTestId("infra-diagrams-empty-content")).toHaveTextContent(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
+    );
+    expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
+    expect(screen.queryByText(/graph is too large/i)).not.toBeInTheDocument();
   });
 
   it("shows deep-linked missing snapshot status and suppresses render strip", async () => {
