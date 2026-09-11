@@ -415,7 +415,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             syncInlineViewportCamera();
           });
 
-    resizeObserver?.observe(viewport);
+    if (resizeObserver !== null && viewport !== null) {
+      resizeObserver.observe(viewport);
+    }
 
     return (): void => {
       window.cancelAnimationFrame(rafId);
@@ -442,7 +444,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             syncFullscreenViewportCamera();
           });
 
-    resizeObserver?.observe(viewport);
+    if (resizeObserver !== null && viewport !== null) {
+      resizeObserver.observe(viewport);
+    }
 
     return (): void => {
       window.cancelAnimationFrame(rafId);

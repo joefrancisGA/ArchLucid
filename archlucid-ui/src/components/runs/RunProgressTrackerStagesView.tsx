@@ -12,7 +12,7 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import { formatStageDurationMs } from "@/lib/format-stage-duration";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
@@ -57,7 +57,7 @@ function stageStatusTag(
   isFailureBoundary: boolean,
   careerHonestyPresentation: RunProgressTrackerCareerHonestyPresentation | null | undefined,
   stageKey: string,
-): { readonly kind: "ready" | "draft" | "blocked" | "needs-attention"; readonly label: string } {
+): { readonly kind: EnterpriseStatusKind; readonly label: string } {
   if (complete) {
     if (careerHonestyPresentation !== null && careerHonestyPresentation !== undefined) {
       return {
