@@ -191,6 +191,18 @@ describe("lost-write CAS compat matrix (LW-009 / LW-010)", () => {
   });
 });
 
+describe("lost-write mutation error toast inventory (LW-097)", () => {
+  it("documents sticky mutation error toast guard module", () => {
+    const guard = readRepoFile("lib/lost-write-mutation-error-toast-guard.ts");
+    const inventory = readRepoFile("lib/lost-write-mutation-error-toast-inventory.ts");
+    const toastHelpers = readRepoFile("lib/toast.ts");
+
+    expect(inventory).toMatch(/showMutationError/);
+    expect(guard).toMatch(/findLostWriteMutationErrorToastViolations/);
+    expect(toastHelpers).toMatch(/TOAST_STICKY_DURATION/);
+  });
+});
+
 describe("lost-write help overwrite copy (LW-012)", () => {
   it("inventories Keep mine without live-presence language", () => {
     const ids = LOST_WRITE_HELP_OVERWRITE_COPY.map((row) => row.id);

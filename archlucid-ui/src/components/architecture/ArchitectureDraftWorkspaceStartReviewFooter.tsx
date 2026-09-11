@@ -36,6 +36,7 @@ type ArchitectureDraftWorkspaceStartReviewFooterProps = Pick<
   | "hasPersistedDraft"
   | "fields"
   | "saveDraft"
+  | "wasLastSaveConflict"
   | "setExitPending"
   | "intakeModeActive"
   | "effectiveDraftId"
@@ -145,6 +146,7 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
           hasPersistedDraft={hasPersistedDraft}
           fields={fields}
           saveDraft={saveDraft}
+          wasLastSaveConflict={props.wasLastSaveConflict}
           onExitPendingChange={setExitPending}
         >
           {intakeModeActive && linkedReviewId === null ? (

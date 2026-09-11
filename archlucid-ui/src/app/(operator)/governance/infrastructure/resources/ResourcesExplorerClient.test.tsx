@@ -65,6 +65,9 @@ describe("ResourcesExplorerClient", () => {
     listOperatorSavedViews.mockResolvedValue([]);
     render(<ResourcesExplorerClient />);
 
+    const primaryContent = screen.getByTestId("infra-resource-explorer-primary-content");
+    expect(primaryContent.className).not.toMatch(/mx-auto/);
+    expect(primaryContent).toHaveClass("w-full");
     expect(screen.getByTestId("operator-saved-views-infra-resources")).toBeInTheDocument();
 
     expect(screen.getByTestId("infra-resource-explorer-name-prefix")).toBeInTheDocument();

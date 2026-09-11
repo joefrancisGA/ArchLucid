@@ -114,6 +114,9 @@ describe("DiagramReconcileWorkbenchClient", () => {
   it("renders wizard controls, filter, and conflict row with both sides", async () => {
     render(<DiagramReconcileWorkbenchClient />);
 
+    const primaryContent = await screen.findByTestId("infra-diagram-reconcile-primary-content");
+    expect(primaryContent.className).not.toMatch(/mx-auto/);
+    expect(primaryContent).toHaveClass("w-full");
     expect(await screen.findByTestId("infra-diagram-reconcile-run-id")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagram-reconcile-snapshot-picker")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagram-reconcile-filter")).toBeInTheDocument();
