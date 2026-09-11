@@ -21,6 +21,12 @@ public static class ExecDigestCompositionMarkdownFormatter
         StringBuilder sb = new();
         sb.AppendLine("# Sponsor digest highlights (weekly pipeline)");
         sb.AppendLine();
+        if (!string.IsNullOrWhiteSpace(composition.RehearsalBodyDisclaimer))
+        {
+            sb.AppendLine($"**Rehearsal honesty:** {composition.RehearsalBodyDisclaimer}");
+            sb.AppendLine();
+        }
+
         sb.AppendLine($"**Week label:** {composition.WeekLabel}");
         sb.AppendLine($"**Dashboard:** {composition.DashboardUrl}");
         sb.AppendLine($"**Sponsor value link:** {composition.SponsorValueReportUrl}");
@@ -40,7 +46,10 @@ public static class ExecDigestCompositionMarkdownFormatter
             sb.AppendLine("## Highlighted runs");
             foreach (ExecDigestHighlightedRun run in runs)
             {
-                sb.AppendLine($"- `{run.RunIdHex}` — score {run.SignificanceScore.ToString(CultureInfo.InvariantCulture)}" +
+                string rehearsalLabel = string.IsNullOrWhiteSpace(run.RehearsalRowLabel)
+                    ? string.Empty
+                    : $" [{run.RehearsalRowLabel}]";
+                sb.AppendLine($"- `{run.RunIdHex}`{rehearsalLabel} — score {run.SignificanceScore.ToString(CultureInfo.InvariantCulture)}" +
                               (string.IsNullOrWhiteSpace(run.Caption) ? string.Empty : $" — {run.Caption}"));
             }
         }

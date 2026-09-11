@@ -39,6 +39,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(nodesTable as HTMLTableElement).getByRole("columnheader", { name: "Label" })).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).getByRole("columnheader", { name: "Resource type" })).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).getByRole("columnheader", { name: "Resource group" })).toBeTruthy();
+    expect(within(nodesTable as HTMLTableElement).queryByRole("columnheader", { name: "Id" })).toBeNull();
     expect(within(nodesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).getByText("Microsoft.Network/virtualNetworks")).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).getByText("rg-network")).toBeTruthy();

@@ -7,19 +7,21 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import type { ReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 
 export type ReviewPackagePrimaryActionProps = {
   readonly action: ReviewPackagePrimaryAction;
   readonly runId: string;
   readonly hasGoldenManifest: boolean;
   readonly commitBlockedReason: string | null | undefined;
+  readonly commitBlockedBlocks?: readonly FinalizeReadinessBlock[];
   /** Secondary placement when Do this next owns the page primary (TB-2175). */
   readonly demoted?: boolean;
 };
 
 /** Single green primary next-action control for the Review Package summary header (TB-618). */
 export function ReviewPackagePrimaryAction(props: ReviewPackagePrimaryActionProps): React.JSX.Element {
-  const { action, runId, hasGoldenManifest, commitBlockedReason, demoted = false } = props;
+  const { action, runId, hasGoldenManifest, commitBlockedReason, commitBlockedBlocks = [], demoted = false } = props;
   const linkVariant = demoted ? "outline" : "primary";
   const commitVariant = demoted ? "outline" : "primary";
 
@@ -31,6 +33,7 @@ export function ReviewPackagePrimaryAction(props: ReviewPackagePrimaryActionProp
             runId={runId}
             disabled={hasGoldenManifest}
             commitBlockedReason={commitBlockedReason}
+            commitBlockedBlocks={commitBlockedBlocks}
             buttonVariant={commitVariant}
           />
         </div>

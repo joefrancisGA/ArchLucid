@@ -37,10 +37,12 @@ import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/l
 import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
 import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import type { PixelDiagramNotVerifiableSource } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
   readonly hasGoldenManifest: boolean;
   readonly commitBlockedReason: string | null | undefined;
+  readonly serverFinalizeReadinessBlocks?: readonly FinalizeReadinessBlock[];
   readonly finalizeAssumptionGateApplies: boolean;
   readonly quickDecisionFindings: readonly QuickDecisionFinding[];
   readonly requestAssumptionTexts: readonly string[];
@@ -117,6 +119,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
   const commitBlockedState = useAssumptionAwareCommitBlockedReason({
     runId: props.runId,
     serverCommitBlockedReason: props.commitBlockedReason,
+    serverFinalizeReadinessBlocks: props.serverFinalizeReadinessBlocks,
     finalizeAssumptionGateApplies: props.finalizeAssumptionGateApplies,
     findings: props.quickDecisionFindings,
     blockingFindingCount: props.blockingFindingCount,

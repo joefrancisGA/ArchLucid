@@ -130,7 +130,7 @@ export const CAREER_GRAVITY_UNLABELED_READY_ROWS: readonly CareerGravityUnlabele
   {
     relativePath:
       "app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuideWalkthrough.tsx",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-091",
     inLiteralScan: false,
   },

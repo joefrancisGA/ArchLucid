@@ -16,12 +16,13 @@ import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-sectio
 import { formatSandboxStyleGoldenManifest } from "./export-markdown-sandbox-manifest";
 import { isRecord } from "./export-markdown-text";
 import { formatSendableExportCoverMarkdown } from "./export-markdown-sendable-cover";
+import { appendTrustEvidenceMarkdownSection } from "./export-markdown-trust-evidence";
 
 export {
   buildGoldenManifestMarkdownFilename,
   triggerGoldenManifestMarkdownDownload,
 } from "./export-markdown-download";
-export { formatTrustEvidenceCardMarkdown };
+export { formatTrustEvidenceCardMarkdown } from "./export-markdown-trust-evidence";
 
 export type GoldenManifestMarkdownOptions = {
   /** Echoed in metadata. */

@@ -65,4 +65,18 @@ public sealed class ExecDigestEmailModel
         get;
         init;
     }
+
+    /// <summary>CG-037 — prepended to subject when every committed run in the digest window is rehearsal.</summary>
+    public string? RehearsalSubjectPrefix
+    {
+        get;
+        init;
+    }
+
+    /// <summary>CG-037 — body disclaimer when any committed run in the digest window requires rehearsal honesty.</summary>
+    public string? RehearsalBodyDisclaimer
+    {
+        get;
+        init;
+    }
 }

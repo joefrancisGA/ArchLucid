@@ -8,6 +8,7 @@ import {
   type DecisionReceiptCareerPosture,
 } from "@/lib/decision-receipt-career-posture";
 import type { FeasibilityVerdictKind, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+import type { RunSummary } from "@/types/authority";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 
@@ -30,9 +31,7 @@ export type DecisionReceiptContext = {
   readonly systemName?: string;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly liveDoor?: WorkingCareerRehearsalDoorId | null;
-  readonly progressSummary?: {
-    readonly structuralExecutionMode?: StructuralExecutionModeInput;
-  } | null;
+  readonly progressSummary?: RunSummary | null;
 };
 
 export type DecisionReceiptDocument = {

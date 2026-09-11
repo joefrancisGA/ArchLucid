@@ -10,4 +10,6 @@ public sealed record ExecDigestComposition(
     string DashboardUrl,
     string SponsorValueReportUrl,
     string? LatestCommittedRunIdHex,
-    string? DecisionNeededMarkdown = null);
+    string? DecisionNeededMarkdown = null,
+    string? RehearsalSubjectPrefix = null,
+    string? RehearsalBodyDisclaimer = null);

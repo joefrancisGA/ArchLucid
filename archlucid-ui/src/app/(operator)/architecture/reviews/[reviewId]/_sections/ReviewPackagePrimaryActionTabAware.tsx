@@ -39,6 +39,7 @@ export function ReviewPackagePrimaryActionTabAware(
       runId={props.runId}
       hasGoldenManifest={props.hasGoldenManifest}
       commitBlockedReason={props.commitBlockedReason}
+      commitBlockedBlocks={props.commitBlockedBlocks}
       demoted={props.demoted === true || props.pagePrimaryOwnedElsewhere === true}
     />
   );

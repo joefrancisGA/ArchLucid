@@ -301,6 +301,7 @@ type FirstReviewGuideNextActionCardProps = {
   readonly readyToFinalize: boolean;
   readonly finalizeHref: string | null;
   readonly canExecute: boolean;
+  readonly suppressReadyToFinalize?: boolean;
 };
 
 export function FirstReviewGuideNextActionCard({
@@ -308,9 +309,10 @@ export function FirstReviewGuideNextActionCard({
   readyToFinalize,
   finalizeHref,
   canExecute,
+  suppressReadyToFinalize = false,
 }: FirstReviewGuideNextActionCardProps) {
   const finalizeAction =
-    readyToFinalize && finalizeHref !== null && canExecute
+    readyToFinalize && !suppressReadyToFinalize && finalizeHref !== null && canExecute
       ? { label: "Seal review", href: finalizeHref }
       : null;
   const action =

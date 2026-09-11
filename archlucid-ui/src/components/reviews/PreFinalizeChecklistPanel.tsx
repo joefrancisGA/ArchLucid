@@ -10,9 +10,11 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { getPreFinalizeChecklist } from "@/lib/api/pre-finalize-checklist";
-import { shouldSuppressReadyToFinalizeForWorkingRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door";
 import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
+import { shouldSuppressReadyToFinalizeForCareerHonesty } from "@/lib/runs/run-pipeline-finalize-blocked-honesty";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
@@ -26,6 +28,7 @@ export type PreFinalizeChecklistPanelProps = {
   readonly runId: string;
   readonly manifestFinalized: boolean;
   readonly workingCareerRehearsalDoor?: string | null;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
 };
 
 function statusTagKind(status: PreFinalizeChecklistItemStatus): EnterpriseStatusKind {
@@ -92,11 +95,15 @@ export function PreFinalizeChecklistPanel({
   runId,
   manifestFinalized,
   workingCareerRehearsalDoor,
+  structuralExecutionMode,
 }: PreFinalizeChecklistPanelProps): React.JSX.Element | null {
   const { isWorkingMode } = useWorkspaceMode();
   const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
-  const suppressReadyLabel = shouldSuppressReadyToFinalizeForWorkingRehearsalDoor({
+  const healthQuery = useHealthReadySummaryQuery({ enabled: isWorkingMode });
+  const suppressReadyLabel = shouldSuppressReadyToFinalizeForCareerHonesty({
     workingDesk: isWorkingMode,
+    preCommitGateEnabled: healthQuery.data?.preCommitGateEnabled,
+    structuralExecutionMode,
     effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
       stampedDoor: workingCareerRehearsalDoor,
       liveDoor: effectiveDoor,

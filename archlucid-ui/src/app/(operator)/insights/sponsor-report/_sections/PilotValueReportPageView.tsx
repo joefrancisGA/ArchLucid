@@ -50,6 +50,15 @@ import {
   resolveValueReportReportingSteps,
 } from "@/lib/value-report-reporting-checklist";
 
+import { ValueReportCareerHonestyStrip } from "@/components/insights/ValueReportCareerHonestyStrip";
+import { RoiTileCareerHonestyStrip } from "@/components/roi/RoiTileCareerHonestyStrip";
+import { useRoiTileCareerHonesty } from "@/hooks/use-roi-tile-career-honesty";
+import { useValueReportCareerHonesty } from "@/hooks/use-value-report-career-honesty";
+import {
+  resolveValueReportClaimDiscipline,
+  VALUE_REPORT_SAMPLE_BANNER_SUFFIX,
+} from "@/lib/insights/value-report-career-honesty";
+
 import { PilotOutcomesEmailConfirmDialog } from "./PilotOutcomesEmailConfirmDialog";
 import { PilotOutcomesEmptyState } from "./PilotOutcomesEmptyState";
 import { PilotOutcomesLoadFailure } from "./PilotOutcomesLoadFailure";
@@ -144,6 +153,23 @@ export function PilotValueReportPageView(props: Props) {
     reportReviewed: hasFinalizedReviews && m.data !== null,
     exportReady: m.canMutate && hasFinalizedReviews && !m.busy,
   });
+  const contributingRunIds = useMemo(
+    () => (m.data?.committedRunsTimeline ?? []).map((row) => row.runId),
+    [m.data?.committedRunsTimeline],
+  );
+  const valueReportCareerHonesty = useValueReportCareerHonesty({
+    isSample: m.includesSampleData,
+    scopedRunId,
+    contributingRunIds,
+  });
+  const claimDiscipline = resolveValueReportClaimDiscipline(
+    PILOT_OUTCOMES_CLAIM_DISCIPLINE,
+    valueReportCareerHonesty,
+  );
+  const roiTileCareerHonesty = useRoiTileCareerHonesty({
+    isSample: m.includesSampleData,
+    scopedRunId: scopedRunId,
+  });
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4 print:w-full" data-testid="pilot-outcomes-page">
@@ -170,7 +196,7 @@ export function PilotValueReportPageView(props: Props) {
                 </>
               ) : null
             }
-            claimDiscipline={PILOT_OUTCOMES_CLAIM_DISCIPLINE}
+            claimDiscipline={claimDiscipline}
             claimDisciplineTestId="pilot-outcomes-claim-discipline"
             actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
           />
@@ -235,9 +261,16 @@ export function PilotValueReportPageView(props: Props) {
             )}
             data-testid="pilot-outcomes-sample-banner"
           >
-            Sample sponsor report — figures come from the demonstration workspace, not production pilot performance.
+            Sample sponsor report — figures come from the demonstration workspace, not production pilot
+            performance.{VALUE_REPORT_SAMPLE_BANNER_SUFFIX}
           </div>
         ) : null}
+
+        <ValueReportCareerHonestyStrip
+          isSample={m.includesSampleData}
+          scopedRunId={scopedRunId}
+          contributingRunIds={contributingRunIds}
+        />
 
         <PilotValueReportExportControls
           model={m}
@@ -291,6 +324,7 @@ export function PilotValueReportPageView(props: Props) {
 
         {m.data !== null && hasFinalizedReviews && scopedRunFilterActive ? (
           <div className={OPERATOR_LAYOUT.sectionStack}>
+            <RoiTileCareerHonestyStrip isSample={m.includesSampleData} scopedRunId={scopedRunId} />
             <PilotValueReportMetricsSection
               data={m.data}
               executiveNarrative={executiveNarrative}
@@ -298,6 +332,7 @@ export function PilotValueReportPageView(props: Props) {
               criticalFindings={criticalFindings}
               highFindings={highFindings}
               materialFindings={materialFindings}
+              roiSectionQualifier={roiTileCareerHonesty?.roiSectionQualifier ?? null}
             />
             <PilotValueReportFindingsSection
               data={m.data}

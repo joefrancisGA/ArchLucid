@@ -62,6 +62,9 @@ import {
   roiSummaryMethodologyDisclosureHrefFromSearch,
 } from "@/lib/insights/roi-summary-methodology-disclosure-url";
 
+import { RoiTileCareerHonestyStrip } from "@/components/roi/RoiTileCareerHonestyStrip";
+import { useRoiTileCareerHonesty } from "@/hooks/use-roi-tile-career-honesty";
+
 import { RoiSummaryBuyerChrome } from "./RoiSummaryBuyerChrome";
 import { RoiSummaryHeroStrip } from "./RoiSummaryHeroStrip";
 import { RoiSummaryLoadedHourlyCostField } from "./RoiSummaryLoadedHourlyCostField";
@@ -186,6 +189,9 @@ export function RoiSummaryPageView(props: Props) {
     metricsReviewed: scopedRunFilterActive && !showZeroState,
     exportReady: scopedRunFilterActive && !showZeroState,
   });
+  const roiTileCareerHonesty = useRoiTileCareerHonesty({
+    scopedRunId: scopedRunId,
+  });
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4">
@@ -285,11 +291,13 @@ export function RoiSummaryPageView(props: Props) {
 
           {scopedRunFilterActive ? (
             <>
+              <RoiTileCareerHonestyStrip scopedRunId={scopedRunId} />
               <RoiSummaryHeroStrip
                 period={heroPeriod}
                 hourlyUsd={hourly.hourlyUsd}
                 windowLabel={rollingWindowLabel}
                 isDefaultRate={hourly.isDefaultRate}
+                roiSectionQualifier={roiTileCareerHonesty?.roiSectionQualifier ?? null}
               />
 
         {showZeroState ? (
@@ -394,12 +402,14 @@ export function RoiSummaryPageView(props: Props) {
             period={heroPeriod}
             hourlyUsd={hourly.hourlyUsd}
             isDefaultRate={hourly.isDefaultRate}
+            roiSectionQualifier={roiTileCareerHonesty?.roiSectionQualifier ?? null}
           />
           <RoiTelemetryCard
             window="pilotToDate"
             period={{ report: pilotToDate.report, blocks: pilotToDate.blocks }}
             hourlyUsd={hourly.hourlyUsd}
             isDefaultRate={hourly.isDefaultRate}
+            roiSectionQualifier={roiTileCareerHonesty?.roiSectionQualifier ?? null}
           />
         </div>
 

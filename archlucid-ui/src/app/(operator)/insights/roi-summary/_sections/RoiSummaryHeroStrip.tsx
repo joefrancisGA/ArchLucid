@@ -10,6 +10,7 @@ import {
   formatRoiSummaryUsdWithRateBasis,
   type RoiSummaryPeriodInput,
 } from "@/lib/roi-summary-sponsor-presentation";
+import { resolveRoiTileSectionHeading } from "@/lib/roi/roi-tile-career-honesty";
 
 type Props = {
   readonly period: RoiSummaryPeriodInput;
@@ -17,9 +18,14 @@ type Props = {
   readonly windowLabel: string;
   readonly isDefaultRate?: boolean;
   readonly demoDerived?: boolean;
+  readonly roiSectionQualifier?: string | null;
 };
 
 export function RoiSummaryHeroStrip(props: Props) {
+  const heroHeading = resolveRoiTileSectionHeading(
+    "Value at a glance",
+    props.roiSectionQualifier ?? null,
+  );
   const metrics = computeRoiSummaryPeriodMetrics(props.period, props.hourlyUsd);
   const usd = formatRoiSummaryUsdWithRateBasis(
     metrics.hours,
@@ -37,7 +43,7 @@ export function RoiSummaryHeroStrip(props: Props) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 id="roi-summary-hero-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Value at a glance
+            {heroHeading}
           </h2>
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.windowLabel}</p>
         </div>

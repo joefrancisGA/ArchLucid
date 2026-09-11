@@ -34,6 +34,7 @@ import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-
 import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
 import { shouldSuppressReadyToFinalizeForCareerHonesty } from "@/lib/runs/run-pipeline-finalize-blocked-honesty";
+import { resolveWorkingPipelineEngineeringCompleteStatus } from "@/lib/runs/pipeline-complete-career-honesty-copy";
 import { resolveRunProgressTrackerCareerHonesty } from "@/lib/runs/run-progress-tracker-career-honesty";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
@@ -369,6 +370,16 @@ export function useRunProgressTracker({
     }
 
     if (clientPhase === "complete") {
+      const engineeringCompleteStatus = resolveWorkingPipelineEngineeringCompleteStatus({
+        workingDesk,
+        structuralExecutionMode: activeSummary?.structuralExecutionMode,
+        effectiveWorkingCareerRehearsalDoor: honestyWorkingCareerRehearsalDoor,
+      });
+
+      if (engineeringCompleteStatus !== null) {
+        return engineeringCompleteStatus;
+      }
+
       return "Pipeline complete — refresh for full detail.";
     }
 
@@ -387,7 +398,9 @@ export function useRunProgressTracker({
     activeSummary,
     careerHonestyPresentation,
     gateSuppressesReady,
+    honestyWorkingCareerRehearsalDoor,
     preFinalizeTerminal,
+    workingDesk,
     workingDeskProgressCopy,
     buyerAssessmentCopy,
     pipelineJobLabel.stageSummaryNoun,
