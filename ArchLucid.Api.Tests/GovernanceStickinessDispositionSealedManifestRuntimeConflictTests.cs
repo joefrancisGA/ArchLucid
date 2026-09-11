@@ -104,9 +104,100 @@ public sealed class GovernanceStickinessDispositionSealedManifestRuntimeConflict
         problem.Detail.Should().Be(SealedConflictMessage);
     }
 
+    [Fact]
+    public async Task RecordBulkDisposition_maps_sealed_manifest_ConflictException_to_409()
+    {
+        const string findingId = "finding-bulk-1";
+
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        findingInspect
+            .Setup(repository => repository.GetInspectAsync(
+                Scope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = findingId,
+                RunId = RunId,
+            });
+
+        Mock<IFindingDispositionService> dispositionService = new(MockBehavior.Strict);
+        dispositionService
+            .Setup(service => service.RecordBulkAsync(
+                It.IsAny<IReadOnlyList<RecordFindingDispositionRequest>>(),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(SealedConflict);
+
+        GovernanceStickinessController sut = BuildController(
+            findingInspect.Object,
+            dispositionService.Object);
+
+        sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "bulk-disposition-idem-1";
+
+        IActionResult action = await sut.RecordBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = [findingId],
+                Disposition = FindingDisposition.Accepted,
+                Rationale = "Bulk accepted for sealed-manifest runtime conflict proof.",
+                TradeOffAcknowledgment = "Trade-offs acknowledged for bulk sealed-manifest runtime conflict proof.",
+            },
+            CancellationToken.None);
+
+        ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
+        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+
+        MvcProblemDetails problem = conflict.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.Conflict);
+        problem.Detail.Should().Be(SealedConflictMessage);
+    }
+
+    [Fact]
+    public async Task ResolveFindingMergeConflict_maps_sealed_manifest_ConflictException_to_409()
+    {
+        const string findingId = "finding-merge-conflict-1";
+
+        Mock<IFindingMergeConflictResolutionService> mergeConflicts = new(MockBehavior.Strict);
+        mergeConflicts
+            .Setup(service => service.TryResolveAsync(
+                Scope,
+                RunId,
+                findingId,
+                FindingMergeConflictResolutionAction.AcceptPrimary,
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(SealedConflict);
+
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+
+        GovernanceStickinessController sut = BuildController(
+            findingInspect.Object,
+            Mock.Of<IFindingDispositionService>(),
+            mergeConflicts.Object);
+
+        IActionResult action = await sut.ResolveFindingMergeConflict(
+            RunId,
+            findingId,
+            new ResolveFindingMergeConflictRequest
+            {
+                Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+            },
+            CancellationToken.None);
+
+        ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
+        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+
+        MvcProblemDetails problem = conflict.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.Conflict);
+        problem.Detail.Should().Be(SealedConflictMessage);
+    }
+
     private static GovernanceStickinessController BuildController(
         IFindingInspectReadRepository findingInspect,
-        IFindingDispositionService dispositionService)
+        IFindingDispositionService dispositionService,
+        IFindingMergeConflictResolutionService? mergeConflictResolutionService = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
@@ -149,7 +240,7 @@ public sealed class GovernanceStickinessDispositionSealedManifestRuntimeConflict
             Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
             Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
             runRepository.Object,
-            Mock.Of<IFindingMergeConflictResolutionService>(),
+            mergeConflictResolutionService ?? Mock.Of<IFindingMergeConflictResolutionService>(),
             Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
             Mock.Of<IReviewsAwaitingActionQueryService>(),
             Mock.Of<IRealizedValueAttestationService>(),

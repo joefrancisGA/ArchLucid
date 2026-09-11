@@ -180,9 +180,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(ArchLucidApiFactory fact
     {
         string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-VERIFY-HYP-409-");
 
-        Skip.IfNot(
-            await RunHasOpenVerifyHypothesisFindingAsync(runId),
-            "Simulator run did not emit an open verify-hypothesis finding for SQL integration proof.");
+        await FinalizeConflictSqlIntegrationFixture.InjectVerifyHypothesisScorecardFindingAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostAsync(
             $"/v1/architecture/review/{runId}/finalize",
@@ -202,9 +200,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(ArchLucidApiFactory fact
     {
         string runId = await CreateExecutedRunIdAsync("REQ-READINESS-VERIFY-HYP-409-");
 
-        Skip.IfNot(
-            await RunHasOpenVerifyHypothesisFindingAsync(runId),
-            "Simulator run did not emit an open verify-hypothesis finding for SQL integration proof.");
+        await FinalizeConflictSqlIntegrationFixture.InjectVerifyHypothesisScorecardFindingAsync(Factory, runId);
 
         HttpResponseMessage readinessResponse = await Client.GetAsync(
             $"/v1/governance/pre-finalize/readiness/{runId}");
@@ -224,6 +220,63 @@ public sealed class FinalizeConflictSqlIntegrationTests(ArchLucidApiFactory fact
             block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Scorecard
             && block.GetProperty("code").GetString() == "scorecard"
             && block.GetProperty("message").GetString()!.Contains("hypothesis", StringComparison.Ordinal));
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem!.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+    }
+
+    [SkippableFact]
+    public async Task Finalize_with_open_contradiction_finding_maps_scorecard_conflict_to_409()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-CONTRADICTION-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.InjectContradictionScorecardFindingAsync(Factory, runId);
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem!.Type.Should().Be(ProblemTypes.Conflict);
+        problem.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.Detail.Should().Contain("contradiction");
+    }
+
+    [SkippableFact]
+    public async Task Get_readiness_with_open_contradiction_finding_matches_finalize_scorecard_block()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-CONTRADICTION-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.InjectContradictionScorecardFindingAsync(Factory, runId);
+
+        HttpResponseMessage readinessResponse = await Client.GetAsync(
+            $"/v1/governance/pre-finalize/readiness/{runId}");
+
+        await readinessResponse.EnsureSuccessForTestAsync();
+
+        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
+        JsonElement root = document.RootElement;
+
+        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
+        root.GetProperty("finalizeQualityGateEnabled").GetBoolean().Should().BeTrue();
+        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("contradiction");
+
+        JsonElement blocks = root.GetProperty("blocks");
+        blocks.GetArrayLength().Should().BeGreaterThan(0);
+        blocks.EnumerateArray().Should().Contain(block =>
+            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Scorecard
+            && block.GetProperty("code").GetString() == "scorecard"
+            && block.GetProperty("message").GetString()!.Contains("contradiction", StringComparison.Ordinal));
 
         HttpResponseMessage finalizeResponse = await Client.PostAsync(
             $"/v1/architecture/review/{runId}/finalize",
