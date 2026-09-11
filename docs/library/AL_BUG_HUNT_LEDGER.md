@@ -2620,6 +2620,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-11 seed hunt #1713 (hit): reseeded ui-webhooks-settings; cheap-disproved continue-last stale-id fallback; proved post-create form wipe on refresh failure; 43 scoped webhooks page/continue-last tests passed (1 pre-existing sources-strip failure unrelated).
 
+- [ ] (candidate) `WebhooksSettingsClient` create checklist marks `subscriptionEnabled` from `activeSubscriptionCount` without a `loading` guard — while the subscription list is pending, the enable step may show incomplete even when the workspace already has enabled webhooks (`WebhooksSettingsClient.tsx` `resolveWebhooksCreateSteps`)
+
+- [x] (proven) `useWebhooksSettingsMutations` URL-sync effect clears `webhookEnableId`/`webhookDisableId` before initial `listAlertRoutingSubscriptions` hydration — **hit 2026-09-11 seed hunt #1720 (seed→hit):** `useWebhooksSettingsLoad` started with `loading=false`, so the toggle-confirm effect treated an empty row set as a missing subscription and stripped valid deep links on first paint; fixed by initializing `loading` to `true`; regressions `opens enable confirmation from webhookEnableId after subscriptions finish loading`, `opens disable confirmation from webhookDisableId after subscriptions finish loading`, and `shows loading configuration status while subscription list is pending`
+
+2026-09-11 seed hunt #1720 (hit): reseeded ui-webhooks-settings; seeded create-checklist loading candidate; proved pre-hydration toggle-confirm deep-link clearing for enable and disable params; 47 scoped webhooks page/continue-last tests passed (1 pre-existing sources-strip failure unrelated).
+
 ---
 
 ## Zone: ui-host-gate
