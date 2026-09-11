@@ -60,7 +60,8 @@ public sealed class InsightDensityEngineDistributionReportTests
                 graph,
                 CancellationToken.None,
                 input!.InventoryFixture,
-                input.PriorGraphFixture);
+                input.PriorGraphFixture,
+                input.AssignedPackFixture);
 
             InsightDensityEngineDistribution distribution = InsightDensityEngineDistributionCalculator.Calculate(
                 snapshot,
@@ -132,7 +133,8 @@ public sealed class InsightDensityEngineDistributionReportTests
                 graph,
                 CancellationToken.None,
                 input.InventoryFixture,
-                input.PriorGraphFixture);
+                input.PriorGraphFixture,
+                input.AssignedPackFixture);
 
             IInsightDensityGate scoringGate = InsightDensityGateScoringFactory.CreateScoringGate(
                 gate,
@@ -190,8 +192,8 @@ public sealed class InsightDensityEngineDistributionReportTests
 
         markdown.Should().Contain(InsightDensityEngineDistributionMarkdown.ClaimBoundaryMarker);
         markdown.Should().Contain("typed-engine-scored");
-        markdown.Should().Contain("**43** engines");
-        markdown.Should().Contain("registers **43** engines");
+        markdown.Should().Contain("**45** engines");
+        markdown.Should().Contain("registers **45** engines");
         markdown.Should().Contain("WouldDemoteIfUnprotectedCount");
         markdown.Should().Contain("matches production demotion");
         markdown.Should().Contain("WouldDemoteAt65Count");

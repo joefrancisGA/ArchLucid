@@ -7,7 +7,7 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
-using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Requests;
@@ -65,13 +65,14 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         GoldenCorpusMergeInput? merge,
         CancellationToken ct,
         GoldenCorpusInventoryFixtureDocument? inventoryFixture = null,
-        GoldenCorpusPriorGraphFixtureDocument? priorGraphFixture = null)
+        GoldenCorpusPriorGraphFixtureDocument? priorGraphFixture = null,
+        GoldenCorpusAssignedPackFixtureDocument? assignedPackFixture = null)
     {
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(audit);
 
         (FindingsOrchestrator orchestrator, FindingAnalysisContext? analysisContext) =
-            CreateOrchestrator(runId, contextSnapshotId, inventoryFixture, priorGraphFixture);
+            CreateOrchestrator(runId, contextSnapshotId, inventoryFixture, priorGraphFixture, assignedPackFixture);
 
         FindingsSnapshot findings = await orchestrator.GenerateFindingsSnapshotAsync(
             runId,
@@ -123,12 +124,13 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         GraphSnapshot graph,
         CancellationToken ct,
         GoldenCorpusInventoryFixtureDocument? inventoryFixture = null,
-        GoldenCorpusPriorGraphFixtureDocument? priorGraphFixture = null)
+        GoldenCorpusPriorGraphFixtureDocument? priorGraphFixture = null,
+        GoldenCorpusAssignedPackFixtureDocument? assignedPackFixture = null)
     {
         ArgumentNullException.ThrowIfNull(graph);
 
         (FindingsOrchestrator orchestrator, FindingAnalysisContext? analysisContext) =
-            CreateOrchestrator(runId, contextSnapshotId, inventoryFixture, priorGraphFixture);
+            CreateOrchestrator(runId, contextSnapshotId, inventoryFixture, priorGraphFixture, assignedPackFixture);
 
         return await orchestrator.GenerateFindingsSnapshotAsync(
             runId,
@@ -142,7 +144,8 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         Guid runId,
         Guid contextSnapshotId,
         GoldenCorpusInventoryFixtureDocument? inventoryFixture,
-        GoldenCorpusPriorGraphFixtureDocument? priorGraphFixture)
+        GoldenCorpusPriorGraphFixtureDocument? priorGraphFixture,
+        GoldenCorpusAssignedPackFixtureDocument? assignedPackFixture)
     {
         (
             IAzureExtractorPackageRepository azureRepository,
@@ -163,13 +166,17 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
 
         IFindingEngine[] engines = CreateEngines(graphSnapshotRepository);
         FileComplianceRulePackLoader complianceLoader = new(_complianceRulesPath);
-        FileComplianceRulePackProvider complianceProvider = new(complianceLoader);
+        FileComplianceRulePackProvider defaultComplianceProvider = new(complianceLoader);
+        ArchLucid.Decisioning.Compliance.Loaders.IComplianceRulePackProvider effectfulRulePackProvider = assignedPackFixture is null
+            ? defaultComplianceProvider
+            : GoldenCorpusAssignedPackSupport.CreateProvider(assignedPackFixture);
         IEffectfulFindingEngine[] effectfulEngines = GoldenCorpusEffectfulEngineFactory.Create(
             _scopeContextProvider,
             azureRepository,
             cloudRepository,
-            complianceProvider,
-            _timeProvider);
+            effectfulRulePackProvider,
+            _timeProvider,
+            assignedPackFixture);
 
         FindingsOrchestrator orchestrator = FindingsOrchestratorComposer.Compose(
             engines,
@@ -301,6 +308,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         return
         [
             new RequirementFindingEngine(),
+            new RequirementGapFindingEngine(),
             new RequirementExpectationFindingEngine(analyzer),
             new RequirementCoverageFindingEngine(analyzer),
             new TopologyCoverageFindingEngine(analyzer),
@@ -410,14 +418,100 @@ public static class GoldenCorpusNormalization
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        List<FindingGoldenRow> rows = snapshot.Findings
+        List<Finding> findings = snapshot.Findings
             .Concat(snapshot.ChecklistCoverage)
-            .Select(FindingGoldenRow.FromFinding)
+            .ToList();
+
+        Dictionary<string, string> stableIdByRuntimeId = BuildStableFindingIdMap(findings);
+
+        Dictionary<string, Finding> findingsByRuntimeId = findings
+            .ToDictionary(static finding => finding.FindingId, static finding => finding, StringComparer.Ordinal);
+
+        List<FindingGoldenRow> rows = findings
+            .Select(finding => ToGoldenRow(finding, stableIdByRuntimeId, findingsByRuntimeId))
             .OrderBy(static r => r.FindingType, StringComparer.Ordinal)
             .ThenBy(static r => r.Title, StringComparer.Ordinal)
             .ToList();
 
         return JsonSerializer.Serialize(rows, WriteOptions);
+    }
+
+    private static Dictionary<string, string> BuildStableFindingIdMap(IReadOnlyList<Finding> findings)
+    {
+        Dictionary<string, Finding> findingsByRuntimeId = findings
+            .ToDictionary(static finding => finding.FindingId, static finding => finding, StringComparer.Ordinal);
+
+        Dictionary<string, string> stableIdByRuntimeId = new(StringComparer.Ordinal);
+
+        foreach (Finding finding in findings)
+        {
+            if (string.Equals(finding.FindingType, "DecisionGradeFusionFinding", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            stableIdByRuntimeId[finding.FindingId] = FindingGoldenRow.ComputeStableFindingId(
+                finding,
+                finding.Rationale);
+        }
+
+        foreach (Finding finding in findings)
+        {
+            if (!string.Equals(finding.FindingType, "DecisionGradeFusionFinding", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            string normalizedRationale = NormalizeFusionRationale(finding, findingsByRuntimeId, stableIdByRuntimeId);
+            stableIdByRuntimeId[finding.FindingId] = FindingGoldenRow.ComputeStableFindingId(
+                finding,
+                normalizedRationale);
+        }
+
+        return stableIdByRuntimeId;
+    }
+
+    internal static string NormalizeFusionRationale(
+        Finding fusionFinding,
+        IReadOnlyDictionary<string, Finding> findingsByRuntimeId,
+        IReadOnlyDictionary<string, string> stableIdByRuntimeId)
+    {
+        if (fusionFinding.Payload is not DecisionGradeFusionFindingPayload payload)
+        {
+            return fusionFinding.Rationale;
+        }
+
+        List<string> descriptionLines = payload.ConstituentFindingIds
+            .Where(findingsByRuntimeId.ContainsKey)
+            .Select(runtimeId => findingsByRuntimeId[runtimeId])
+            .OrderBy(static finding => finding.EngineType, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(static finding => finding.Title, StringComparer.Ordinal)
+            .Select(finding => $"- {stableIdByRuntimeId[finding.FindingId]}: {finding.Title}")
+            .ToList();
+
+        return string.Join('\n', descriptionLines);
+    }
+
+    private static FindingGoldenRow ToGoldenRow(
+        Finding finding,
+        IReadOnlyDictionary<string, string> stableIdByRuntimeId,
+        IReadOnlyDictionary<string, Finding> findingsByRuntimeId)
+    {
+        string rationale = string.Equals(finding.FindingType, "DecisionGradeFusionFinding", StringComparison.Ordinal)
+            ? NormalizeFusionRationale(finding, findingsByRuntimeId, stableIdByRuntimeId)
+            : finding.Rationale;
+
+        return new FindingGoldenRow(
+            stableIdByRuntimeId[finding.FindingId],
+            finding.FindingType,
+            finding.Category,
+            finding.Severity.ToString(),
+            finding.Title,
+            rationale,
+            finding.RelatedNodeIds.OrderBy(static x => x, StringComparer.Ordinal).ToList(),
+            finding.PayloadType,
+            finding.Trace.RulesApplied.OrderBy(static x => x, StringComparer.Ordinal).ToList(),
+            finding.Trace.DecisionsTaken.OrderBy(static x => x, StringComparer.Ordinal).ToList());
     }
 
     public static string SerializeDecisions(ManifestDocument manifest, GoldenCorpusMergeSummary? merge)
@@ -473,23 +567,23 @@ public static class GoldenCorpusNormalization
         /// Production engines assign runtime <see cref="Finding.FindingId"/> values; golden JSON must not depend on those.
         /// This surrogate is stable for the same logical finding across record/replay and CI machines.
         /// </summary>
-        private static string StableFindingId(Finding f)
+        internal static string ComputeStableFindingId(Finding finding, string rationale)
         {
-            ArgumentNullException.ThrowIfNull(f);
+            ArgumentNullException.ThrowIfNull(finding);
 
-            string related = string.Join('|', f.RelatedNodeIds.OrderBy(static x => x, StringComparer.Ordinal));
-            string rules = string.Join('|', f.Trace.RulesApplied.OrderBy(static x => x, StringComparer.Ordinal));
-            string decisions = string.Join('|', f.Trace.DecisionsTaken.OrderBy(static x => x, StringComparer.Ordinal));
+            string related = string.Join('|', finding.RelatedNodeIds.OrderBy(static x => x, StringComparer.Ordinal));
+            string rules = string.Join('|', finding.Trace.RulesApplied.OrderBy(static x => x, StringComparer.Ordinal));
+            string decisions = string.Join('|', finding.Trace.DecisionsTaken.OrderBy(static x => x, StringComparer.Ordinal));
             string canonical = string.Join(
                 '\n',
                 new[]
                 {
-                    f.FindingType,
-                    f.Category,
-                    f.Title,
-                    f.Rationale,
+                    finding.FindingType,
+                    finding.Category,
+                    finding.Title,
+                    rationale,
                     related,
-                    f.PayloadType ?? string.Empty,
+                    finding.PayloadType ?? string.Empty,
                     rules,
                     decisions,
                 });
@@ -500,18 +594,6 @@ public static class GoldenCorpusNormalization
 
             return new Guid(guidBytes).ToString("d");
         }
-
-        public static FindingGoldenRow FromFinding(Finding f) => new(
-            StableFindingId(f),
-            f.FindingType,
-            f.Category,
-            f.Severity.ToString(),
-            f.Title,
-            f.Rationale,
-            f.RelatedNodeIds.OrderBy(static x => x, StringComparer.Ordinal).ToList(),
-            f.PayloadType,
-            f.Trace.RulesApplied.OrderBy(static x => x, StringComparer.Ordinal).ToList(),
-            f.Trace.DecisionsTaken.OrderBy(static x => x, StringComparer.Ordinal).ToList());
     }
 
     private sealed record DecisionGoldenRow(string Category, [UsedImplicitly] string SelectedOption, string Title, string Rationale);

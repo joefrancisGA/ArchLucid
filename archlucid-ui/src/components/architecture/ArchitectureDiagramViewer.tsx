@@ -1,370 +1,372 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type SetStateAction } from "react";
-
-import { ArchitectureDiagramViewportControls } from "@/components/architecture/ArchitectureDiagramViewportControls";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { ArchitectureDiagramViewportControls } from '@/components/architecture/ArchitectureDiagramViewportControls';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { SeverityTag } from "@/components/ui/severity-tag";
-import {
-  ARCHITECTURE_DIAGRAM_RENDER_FAILURE,
-  ARCHITECTURE_DIAGRAM_RETRY_ACTION,
-} from "@/lib/architecture/architecture-diagram-copy";
-import {
-  architectureDiagramFullscreenHrefFromSearch,
-  architectureDiagramZoomHrefFromSearch,
-  parseArchitectureDiagramFullscreenOpenFromSearch,
-  parseArchitectureDiagramZoomFromSearch,
-} from "@/lib/architecture/architecture-diagram-fullscreen-url";
-import { createArchitectureDiagramMermaidConfig } from "@/lib/architecture/architecture-diagram-mermaid-config";
-import { sanitizeArchitectureDiagramSvg } from "@/lib/architecture/architecture-diagram-svg";
-import {
-  fitMermaidSvgElementToHost,
-  prepareMermaidSvgForResponsiveLayout,
-  sanitizeMermaidRenderId,
-} from "@/lib/help/help-mermaid";
-import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+  ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL,
+  ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL,
+  ARCHITECTURE_DIAGRAM_VIEWPORT_HINT,
+  ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
+  ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
+} from '@/lib/architecture/architecture-diagram-copy';
+import { sanitizeArchitectureDiagramSvg } from '@/lib/architecture/architecture-diagram-svg';
+import { fitMermaidSvgElementToHost } from '@/lib/help/help-mermaid';
+import { cn } from '@/lib/utils';
 
-const MIN_ZOOM = 0.5;
-const MAX_ZOOM = 2.5;
-const ZOOM_STEP = 0.25;
+const MIN_ZOOM = 0.1;
+const MAX_ZOOM = 10;
+const MIN_ZOOM_PERCENT = 10;
+const MAX_ZOOM_PERCENT = 1000;
+const ZOOM_STEP = 0.1;
+const MAX_INITIAL_FIT_RETRIES = 8;
+const INITIAL_FIT_RETRY_DELAY_MS = 120;
 
-export type ArchitectureDiagramViewerProps = {
-  readonly mermaidSource: string;
-  readonly textAlternative: string;
-  readonly viewportAriaLabel?: string;
-  readonly fullscreenTitle?: string;
-  readonly scopeContextLine?: string | null;
-  readonly canvasStale?: boolean;
-  readonly onRenderFailure?: () => void;
-  readonly onRetry?: () => void;
-};
+export type ArchitectureDiagramSourceKind = 'html' | 'image';
 
-/** Interactive architecture diagram canvas with zoom, pan, fullscreen, and accessible fallback text. */
-export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps): React.JSX.Element {
-  const {
-    mermaidSource,
-    onRenderFailure,
-    viewportAriaLabel = "Architecture diagram",
-    fullscreenTitle = "Architecture diagram",
-    scopeContextLine = null,
-    canvasStale = false,
-  } = props;
+export interface ArchitectureDiagramViewerProps {
+  /** Raw SVG string or image URL from inventory metadata. */
+  source: string;
+  sourceKind: ArchitectureDiagramSourceKind;
+  alt: string;
+  className?: string;
+  /** When true, wheel zoom and keyboard shortcuts are enabled (detail / expanded views). */
+  interactive?: boolean;
+}
+
+function clampZoom(value: number): number {
+  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number(value.toFixed(2))));
+}
+
+function zoomToPercent(value: number): number {
+  return Math.round(clampZoom(value) * 100);
+}
+
+function percentToZoom(percent: number): number {
+  return clampZoom(percent / 100);
+}
+
+function parseZoomParam(raw: string | null): number | null {
+  if (raw === null || raw.trim() === '') {
+    return null;
+  }
+
+  const parsed = Number.parseFloat(raw);
+
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+
+  return clampZoom(parsed);
+}
+
+function scrollViewportToOrigin(viewport: HTMLDivElement | null): void {
+  if (viewport === null) {
+    return;
+  }
+
+  viewport.scrollLeft = 0;
+  viewport.scrollTop = 0;
+}
+
+export function ArchitectureDiagramViewer({
+  source,
+  sourceKind,
+  alt,
+  className,
+  interactive = false,
+}: ArchitectureDiagramViewerProps) {
   const router = useRouter();
-  const pathname = usePathname() ?? "";
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const diagFullscreenParam = searchParams.get("diagFullscreen");
-  const diagZoomParam = searchParams.get("diagZoom");
-  const reactId = useId();
-  const renderId = useMemo(() => sanitizeMermaidRenderId(`arch-diagram-${reactId}`), [reactId]);
-  const dark = useDocumentDarkMode();
-  const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
-  const [renderError, setRenderError] = useState<string | null>(null);
-  const urlZoom = parseArchitectureDiagramZoomFromSearch(diagZoomParam);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const diagramHostRef = useRef<HTMLDivElement>(null);
+  const fitRetryCountRef = useRef(0);
+  const fitRetryTimeoutRef = useRef<number | null>(null);
+  const urlZoom = parseZoomParam(searchParams.get('diagZoom'));
   const [zoom, setZoomState] = useState<number>(() => urlZoom ?? 1);
-  const [fullscreenOpen, setFullscreenOpenState] = useState(() =>
-    parseArchitectureDiagramFullscreenOpenFromSearch(diagFullscreenParam),
-  );
-  const viewportRef = useRef<HTMLDivElement | null>(null);
-  const svgHostRef = useRef<HTMLDivElement | null>(null);
-  const zoomRef = useRef<number>(zoom);
-  const fullscreenOpenRef = useRef<boolean>(fullscreenOpen);
+  const [zoomPercentDraft, setZoomPercentDraft] = useState<string | null>(null);
+  const isInteractiveView = interactive || sourceKind === 'html';
 
-  zoomRef.current = zoom;
-  fullscreenOpenRef.current = fullscreenOpen;
+  const setZoomClamped = useCallback((value: number) => {
+    setZoomState(clampZoom(value));
+  }, []);
 
-  const syncDiagramFullscreenToUrl = useCallback(
-    (nextOpen: boolean) => {
-      router.replace(architectureDiagramFullscreenHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams],
-  );
+  const applySvgFitToHost = useCallback((): boolean => {
+    if (sourceKind !== 'html') {
+      return false;
+    }
 
-  const syncDiagramZoomToUrl = useCallback(
-    (nextZoom: number) => {
-      router.replace(architectureDiagramZoomHrefFromSearch(searchParams.toString(), nextZoom, pathname), {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams],
-  );
+    const host = diagramHostRef.current;
 
-  const setZoom = useCallback(
-    (value: SetStateAction<number>) => {
-      const current = zoomRef.current;
-      const nextRaw = typeof value === "function" ? value(current) : value;
-      const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number(nextRaw.toFixed(2))));
+    if (host === null) {
+      return false;
+    }
 
-      setZoomState(next);
-      syncDiagramZoomToUrl(next);
-    },
-    [syncDiagramZoomToUrl],
-  );
+    const svg = host.querySelector('svg');
 
-  const setFullscreenOpen = useCallback(
-    (value: SetStateAction<boolean>) => {
-      const current = fullscreenOpenRef.current;
-      const next = typeof value === "function" ? value(current) : value;
+    if (!(svg instanceof SVGSVGElement)) {
+      return false;
+    }
 
-      setFullscreenOpenState(next);
-      syncDiagramFullscreenToUrl(next);
-    },
-    [syncDiagramFullscreenToUrl],
-  );
+    const width = host.clientWidth;
+
+    if (width <= 0) {
+      return false;
+    }
+
+    fitMermaidSvgElementToHost(svg, width);
+
+    return true;
+  }, [sourceKind]);
 
   useEffect(() => {
-    if (urlZoom != null) {
+    if (urlZoom !== null) {
       setZoomState(urlZoom);
     }
   }, [urlZoom]);
 
   useEffect(() => {
-    let canceled = false;
-
-    async function renderDiagram(): Promise<void> {
-      setRenderError(null);
-      setSvgMarkup(null);
-
-      try {
-        const mermaidModule = await import("mermaid");
-        const mermaid = mermaidModule.default;
-
-        mermaid.initialize(createArchitectureDiagramMermaidConfig(dark));
-
-        const result = await mermaid.render(renderId, mermaidSource.trim());
-
-        if (!canceled) {
-          setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));
-        }
-      } catch (error) {
-        if (!canceled) {
-          const message = error instanceof Error ? error.message : ARCHITECTURE_DIAGRAM_RENDER_FAILURE;
-          setRenderError(message);
-          onRenderFailure?.();
-        }
-      }
+    if (typeof window === 'undefined') {
+      return;
     }
 
-    void renderDiagram();
+    const params = new URLSearchParams(searchParams.toString());
 
-    return (): void => {
-      canceled = true;
-    };
-  }, [mermaidSource, dark, renderId, onRenderFailure]);
+    if (Math.abs(zoom - 1) < 0.001) {
+      params.delete('diagZoom');
+    } else {
+      params.set('diagZoom', zoom.toFixed(2));
+    }
 
-  const adjustZoom = useCallback(
-    (delta: number) => {
-      setZoom((current) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number((current + delta).toFixed(2)))));
+    const nextQuery = params.toString();
+    const currentQuery = searchParams.toString();
+
+    if (nextQuery === currentQuery) {
+      return;
+    }
+
+    const nextUrl = nextQuery.length > 0 ? `${pathname}?${nextQuery}` : pathname;
+    router.replace(nextUrl, { scroll: false });
+  }, [zoom, pathname, router, searchParams]);
+
+  const zoomIn = useCallback(() => {
+    setZoomClamped(zoom + ZOOM_STEP);
+  }, [setZoomClamped, zoom]);
+
+  const zoomOut = useCallback(() => {
+    setZoomClamped(zoom - ZOOM_STEP);
+  }, [setZoomClamped, zoom]);
+
+  const resetZoom = useCallback(() => {
+    setZoomClamped(1);
+    scrollViewportToOrigin(viewportRef.current);
+  }, [setZoomClamped]);
+
+  const commitZoomPercent = useCallback(
+    (raw: string) => {
+      setZoomPercentDraft(null);
+
+      const trimmed = raw.trim().replace(/%$/, '');
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const parsed = Number.parseFloat(trimmed);
+
+      if (!Number.isFinite(parsed)) {
+        return;
+      }
+
+      setZoomClamped(percentToZoom(parsed));
     },
-    [setZoom],
+    [setZoomClamped],
   );
 
   const fitToView = useCallback(() => {
-    const viewport = viewportRef.current;
-    const host = svgHostRef.current;
-    const svg = host?.querySelector("svg");
-
-    if (viewport === null || host === null || svg === null || !(svg instanceof SVGSVGElement)) {
+    if (sourceKind !== 'html') {
       return;
     }
 
-    const currentZoom = zoomRef.current;
-    const scaled = svg.getBoundingClientRect();
-    const unscaledHeight = scaled.height / Math.max(currentZoom, 0.01);
-    const unscaledWidth = scaled.width / Math.max(currentZoom, 0.01);
-    const availableHeight = Math.max(1, viewport.clientHeight - 16);
-    const availableWidth = Math.max(1, viewport.clientWidth - 16);
-    const next = Math.min(availableHeight / unscaledHeight, availableWidth / unscaledWidth, MAX_ZOOM);
-    setZoom(Number(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, next)).toFixed(2)));
-  }, [setZoom]);
-
-  useEffect(() => {
-    const viewport = viewportRef.current;
-
-    if (viewport === null) {
-      return;
-    }
-
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === "+" || event.key === "=") {
-        event.preventDefault();
-        adjustZoom(ZOOM_STEP);
-      }
-
-      if (event.key === "-") {
-        event.preventDefault();
-        adjustZoom(-ZOOM_STEP);
-      }
-
-      if (event.key === "0") {
-        event.preventDefault();
-        setZoom(1);
-      }
-    };
-
-    viewport.addEventListener("keydown", onKeyDown);
-
-    return (): void => {
-      viewport.removeEventListener("keydown", onKeyDown);
-    };
-  }, [adjustZoom, setZoom]);
-
-  const sanitizedSvg = useMemo(() => {
-    if (svgMarkup === null) {
-      return null;
-    }
-
-    return sanitizeArchitectureDiagramSvg(svgMarkup);
-  }, [svgMarkup]);
+    applySvgFitToHost();
+    setZoomClamped(1);
+    scrollViewportToOrigin(viewportRef.current);
+  }, [applySvgFitToHost, setZoomClamped, sourceKind]);
 
   useLayoutEffect(() => {
-    if (sanitizedSvg === null) {
+    if (sourceKind !== 'html') {
       return;
     }
 
-    const host = svgHostRef.current;
-    const svg = host?.querySelector("svg");
+    fitRetryCountRef.current = 0;
 
-    if (host === null || host === undefined || svg === null || !(svg instanceof SVGSVGElement)) {
+    if (fitRetryTimeoutRef.current !== null) {
+      window.clearTimeout(fitRetryTimeoutRef.current);
+      fitRetryTimeoutRef.current = null;
+    }
+
+    const scheduleFitRetry = (): void => {
+      fitRetryCountRef.current += 1;
+
+      if (fitRetryCountRef.current > MAX_INITIAL_FIT_RETRIES) {
+        return;
+      }
+
+      fitRetryTimeoutRef.current = window.setTimeout(() => {
+        fitRetryTimeoutRef.current = null;
+
+        if (applySvgFitToHost()) {
+          scrollViewportToOrigin(viewportRef.current);
+          return;
+        }
+
+        scheduleFitRetry();
+      }, INITIAL_FIT_RETRY_DELAY_MS);
+    };
+
+    const runInitialFit = (): void => {
+      if (applySvgFitToHost()) {
+        scrollViewportToOrigin(viewportRef.current);
+        return;
+      }
+
+      window.requestAnimationFrame(() => {
+        if (applySvgFitToHost()) {
+          scrollViewportToOrigin(viewportRef.current);
+          return;
+        }
+
+        scheduleFitRetry();
+      });
+    };
+
+    runInitialFit();
+
+    return () => {
+      if (fitRetryTimeoutRef.current !== null) {
+        window.clearTimeout(fitRetryTimeoutRef.current);
+        fitRetryTimeoutRef.current = null;
+      }
+    };
+  }, [applySvgFitToHost, source, sourceKind]);
+
+  useEffect(() => {
+    if (!isInteractiveView) {
       return;
     }
 
-    const applyFit = (): void => {
-      const width = host.clientWidth;
-
-      if (width <= 0) {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
         return;
       }
 
-      fitMermaidSvgElementToHost(svg, width);
+      if (event.key === '+' || event.key === '=') {
+        event.preventDefault();
+        zoomIn();
+      } else if (event.key === '-') {
+        event.preventDefault();
+        zoomOut();
+      } else if (event.key === '0') {
+        event.preventDefault();
+        resetZoom();
+      }
+    };
 
-      const viewport = viewportRef.current;
-      const firstInk = svg.querySelector(".node, text.nodeLabel, text");
+    window.addEventListener('keydown', onKeyDown);
 
-      if (viewport === null || firstInk === null) {
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isInteractiveView, resetZoom, zoomIn, zoomOut]);
+
+  const onWheel = useCallback(
+    (event: React.WheelEvent<HTMLDivElement>) => {
+      if (!isInteractiveView) {
         return;
       }
 
-      const nodeRect = firstInk.getBoundingClientRect();
-      const viewRect = viewport.getBoundingClientRect();
-      viewport.scrollLeft += nodeRect.left - viewRect.left - 16;
-      viewport.scrollTop += nodeRect.top - viewRect.top - 16;
-    };
+      if (event.ctrlKey || event.metaKey) {
+        event.preventDefault();
 
-    applyFit();
+        if (event.deltaY < 0) {
+          zoomIn();
+        } else if (event.deltaY > 0) {
+          zoomOut();
+        }
+      }
+    },
+    [isInteractiveView, zoomIn, zoomOut]
+  );
 
-    const rafId = window.requestAnimationFrame(applyFit);
-
-    const resizeObserver =
-      typeof ResizeObserver === "undefined"
-        ? null
-        : new ResizeObserver(() => {
-            applyFit();
-          });
-
-    resizeObserver?.observe(host);
-
-    return (): void => {
-      window.cancelAnimationFrame(rafId);
-      resizeObserver?.disconnect();
-    };
-  }, [sanitizedSvg]);
-
-  const zoomPercentLabel = `${Math.round(zoom * 100)}%`;
+  const zoomPercent = zoomToPercent(zoom);
+  const zoomPercentInputValue = zoomPercentDraft ?? String(zoomPercent);
   const atMinZoom = zoom <= MIN_ZOOM + 0.001;
   const atMaxZoom = zoom >= MAX_ZOOM - 0.001;
 
-  const diagramBody = (
-    <>
-      {renderError !== null ? (
-        <div className="space-y-3" role="alert" data-testid="architecture-diagram-render-failure">
-          <SeverityTag severity="high" label="Diagram render error" />
-          <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.body)}>{renderError}</p>
-          {props.onRetry !== undefined ? (
-            <Button type="button" variant="outline" size="sm" onClick={props.onRetry}>
-              {ARCHITECTURE_DIAGRAM_RETRY_ACTION}
-            </Button>
-          ) : null}
-        </div>
-      ) : sanitizedSvg === null ? (
-        <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} aria-live="polite">
-          Rendering architecture diagram…
-        </p>
-      ) : (
-        <div
-          ref={svgHostRef}
-          className={cn(
-            "w-full min-w-0 origin-top-left text-neutral-900 transition-transform dark:text-neutral-100",
-            "[&_svg]:block [&_svg]:overflow-visible",
-            "[&_svg_text]:fill-current [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200",
-            "[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:leading-snug [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100",
-            "[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]",
-            canvasStale ? "opacity-60" : undefined,
-          )}
-          style={{ transform: `scale(${zoom})` }}
-          dangerouslySetInnerHTML={{ __html: sanitizedSvg }}
-        />
-      )}
-    </>
+  const viewportControls = (
+    <ArchitectureDiagramViewportControls
+      zoomPercentInputValue={zoomPercentInputValue}
+      minZoomPercent={MIN_ZOOM_PERCENT}
+      maxZoomPercent={MAX_ZOOM_PERCENT}
+      atMinZoom={atMinZoom}
+      atMaxZoom={atMaxZoom}
+      onZoomPercentDraftChange={setZoomPercentDraft}
+      onZoomPercentFocus={() => setZoomPercentDraft(String(zoomPercent))}
+      onCommitZoomPercent={commitZoomPercent}
+      onZoomIn={zoomIn}
+      onZoomOut={zoomOut}
+      onResetZoom={resetZoom}
+      onFitInView={fitToView}
+      zoomInLabel={ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL}
+      zoomOutLabel={ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL}
+      resetZoomLabel={ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL}
+      fitInViewLabel={ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL}
+      viewportHint={ARCHITECTURE_DIAGRAM_VIEWPORT_HINT}
+    />
   );
 
-  return (
-    <figure data-testid="architecture-diagram-viewer">
-      {scopeContextLine != null && scopeContextLine.trim().length > 0 ? (
-        <p
-          className={cn("mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="architecture-diagram-scope-context"
+  if (sourceKind === 'image') {
+    return (
+      <div className={cn('relative flex flex-col gap-2', className)}>
+        {isInteractiveView ? viewportControls : null}
+        <div
+          ref={viewportRef}
+          className="overflow-auto rounded-md border border-border bg-muted/20"
+          onWheel={onWheel}
+          role="region"
+          aria-label={`${alt} diagram viewport`}
         >
-          {scopeContextLine}
-        </p>
-      ) : null}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={source}
+            alt={alt}
+            className="max-w-full transition-transform duration-150 ease-out"
+            style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}
+            draggable={false}
+          />
+        </div>
+      </div>
+    );
+  }
 
-      <ArchitectureDiagramViewportControls
-        zoomPercentLabel={zoomPercentLabel}
-        atMinZoom={atMinZoom}
-        atMaxZoom={atMaxZoom}
-        canvasStale={canvasStale}
-        onZoomOut={() => adjustZoom(-ZOOM_STEP)}
-        onZoomIn={() => adjustZoom(ZOOM_STEP)}
-        onResetZoom={() => setZoom(1)}
-        onFitToView={fitToView}
-        onFullscreen={() => setFullscreenOpen(true)}
-      />
+  const sanitizedHtml = sanitizeArchitectureDiagramSvg(source);
 
+  return (
+    <div className={cn('relative flex flex-col gap-2', className)}>
+      {isInteractiveView ? viewportControls : null}
       <div
         ref={viewportRef}
-        tabIndex={0}
-        role="img"
-        aria-label={viewportAriaLabel}
-        aria-describedby={`${renderId}-alt`}
-        className="min-h-[18rem] max-h-[36rem] overflow-auto rounded-md border border-neutral-200 bg-neutral-50 p-4 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950/80"
-        data-testid="architecture-diagram-viewport"
+        className="overflow-auto rounded-md border border-border bg-muted/20 p-2"
+        onWheel={onWheel}
+        role="region"
+        aria-label={`${alt} diagram viewport`}
       >
-        {diagramBody}
+        <div
+          ref={diagramHostRef}
+          className="inline-block min-w-full origin-top-left transition-transform duration-150 ease-out [&_svg]:max-w-none"
+          style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}
+          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+        />
       </div>
-
-      <p id={`${renderId}-alt`} className="sr-only">
-        {props.textAlternative}
-      </p>
-
-      <Dialog open={fullscreenOpen} onOpenChange={setFullscreenOpen}>
-        <DialogContent className="max-h-[95vh] max-w-[95vw] overflow-hidden">
-          <DialogHeader>
-            <DialogTitle>{fullscreenTitle}</DialogTitle>
-          </DialogHeader>
-          <div className="max-h-[80vh] overflow-auto p-2">{diagramBody}</div>
-        </DialogContent>
-      </Dialog>
-    </figure>
+    </div>
   );
 }

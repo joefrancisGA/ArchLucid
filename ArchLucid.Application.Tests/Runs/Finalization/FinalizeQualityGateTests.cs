@@ -66,6 +66,7 @@ public sealed class FinalizeQualityGateTests
         await act.Should().ThrowAsync<ConflictException>()
             .WithMessage(
                 FinalizeQualityGate.BlockedPrefix
+                + "1 unresolved blocking finding still need disposition. "
                 + "1 high-severity finding still need an accepted-risk disposition or decision-register row before finalize.");
     }
 
@@ -112,6 +113,7 @@ public sealed class FinalizeQualityGateTests
         await act.Should().ThrowAsync<ConflictException>()
             .WithMessage(
                 FinalizeQualityGate.BlockedPrefix
+                + "1 unresolved blocking finding still need disposition. "
                 + "1 open question still need answers before the package is defensible. "
                 + "1 high-severity finding still need an accepted-risk disposition or decision-register row before finalize.");
     }
@@ -174,7 +176,7 @@ public sealed class FinalizeQualityGateTests
 
     private static Finding OpenCritical(string title)
     {
-        return new Finding
+        Finding finding = new()
         {
             FindingId = Guid.NewGuid().ToString("N"),
             Title = title,
@@ -184,5 +186,9 @@ public sealed class FinalizeQualityGateTests
             Category = "test",
             EngineType = "test",
         };
+
+        finding.EvidenceRefs.Add("doc-1");
+
+        return finding;
     }
 }
