@@ -184,6 +184,15 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
 
   return (
     <div className="mt-4 space-y-4" data-testid="architecture-draft-list">
+      {listFailure ? <OperatorApiProblem failure={listFailure} /> : null}
+      {listBlockedReason ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-draft-list-blocked-reason"
+        >
+          {listBlockedReason}
+        </p>
+      ) : null}
       {!buyerPolishedShell ? (
         <>
           <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="architecture-drafts" />

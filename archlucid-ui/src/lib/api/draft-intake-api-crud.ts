@@ -7,10 +7,10 @@ import type {
 
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { architectureDraftBlockedReason, architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { architectureDraftListBlockedReason } from "@/lib/architecture/architecture-draft-list-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiGet, apiPatchJson, apiPostJson } from "./http";
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 const DRAFT_BASE = "/v1/architecture/draft";
 
@@ -78,7 +78,14 @@ export async function listDraftRequests(params?: {
   const query = search.toString();
   const path = query.length > 0 ? `${DRAFT_BASE}?${query}` : DRAFT_BASE;
 
-  return apiGetSealedManifestAware<DraftRequestSummaryPage>(path);
+  try {
+    return await apiGet<DraftRequestSummaryPage>(path);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftListBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function getDraftRequest(

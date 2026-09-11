@@ -119,34 +119,41 @@ public sealed partial class DraftRequestsController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetDraft(Guid draftId, CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        try
+        {
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        IActionResult? sealedGuardResult =
-            await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
+            IActionResult? sealedGuardResult =
+                await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        DraftGetHangDiagnostics.Log(
-            "controller_get_draft_entered",
-            ("correlationId", HttpContext.TraceIdentifier),
-            ("draftId", draftId),
-            ("tenantId", scope.TenantId));
+            DraftGetHangDiagnostics.Log(
+                "controller_get_draft_entered",
+                ("correlationId", HttpContext.TraceIdentifier),
+                ("draftId", draftId),
+                ("tenantId", scope.TenantId));
 
-        long startedMs = Environment.TickCount64;
-        DraftRequestResponse? draft = await _draftRequestService.GetAsync(scope, draftId, cancellationToken);
+            long startedMs = Environment.TickCount64;
+            DraftRequestResponse? draft = await _draftRequestService.GetAsync(scope, draftId, cancellationToken);
 
-        DraftGetHangDiagnostics.Log(
-            "controller_get_draft_completed",
-            ("correlationId", HttpContext.TraceIdentifier),
-            ("draftId", draftId),
-            ("durationMs", Environment.TickCount64 - startedMs),
-            ("found", draft is not null));
+            DraftGetHangDiagnostics.Log(
+                "controller_get_draft_completed",
+                ("correlationId", HttpContext.TraceIdentifier),
+                ("draftId", draftId),
+                ("durationMs", Environment.TickCount64 - startedMs),
+                ("found", draft is not null));
 
-        if (draft is null)
-            return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
+            if (draft is null)
+                return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
 
-        return Ok(draft);
+            return Ok(draft);
+        }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Patches a draft while <see cref="DraftRequestStatus.Drafting" />.</summary>
