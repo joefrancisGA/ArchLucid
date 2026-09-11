@@ -89,6 +89,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Decision receipt posture (CG-025):** Committed-run decision receipt JSON from `DecisionReceiptService` and the client `decision-receipt-export` helper stamp `structuralExecutionMode`, `workingCareerRehearsalDoor`, and `rehearsalIncomplete` after sealed-hash verification (posture is an export overlay, not part of `receiptHashSha256`). Working **Career** door + Simulator/Fallback remains **blocked** server-side. **Rehearsal** door on Simulator exports with `rehearsalIncomplete: true` so forwarded receipts cannot omit Mode/door.
 
+**Audit CSV posture (CG-026):** Run-scoped audit CSV (`GET /v1/audit/export/csv?runId=…`) prepends CG-026 `#` honesty comment lines and adds `StructuralExecutionMode`, `WorkingCareerRehearsalDoor`, and `RehearsalIncomplete` columns on every row. Working **Career** door + Simulator/Fallback is **blocked** server-side; **Rehearsal** exports use a `-rehearsal` filename suffix. Audit event rows stay immutable — posture is export overlay only.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
