@@ -85,7 +85,7 @@ public sealed class SsoWizardTestLoginServiceTests
     }
 
     [Fact]
-    public void Execute_succeeds_with_non_http_issuer_uri_before_controller_validation()
+    public void Execute_rejects_non_http_scheme_issuer_uri_when_called_directly()
     {
         SsoWizardTestLoginService sut = new();
         ScopeContext scope = new()
@@ -116,7 +116,8 @@ public sealed class SsoWizardTestLoginServiceTests
             },
             scope);
 
-        response.Success.Should().BeTrue();
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("HTTP(S)");
     }
 
     [Fact]

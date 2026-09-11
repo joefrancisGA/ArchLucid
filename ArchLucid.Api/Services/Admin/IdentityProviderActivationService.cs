@@ -35,7 +35,10 @@ public sealed class IdentityProviderActivationService(
         if (tenantId == Guid.Empty)
             throw new ArgumentException("tenantId is required.", nameof(tenantId));
 
-        ArgumentException.ThrowIfNullOrWhiteSpace(actorId);
+        string trimmedActorId = actorId.Trim();
+
+        if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(trimmedActorId))
+            throw new ArgumentException("actorId is required.", nameof(actorId));
 
         string protocol = request.Protocol?.Trim().ToLowerInvariant() ?? string.Empty;
 
@@ -74,7 +77,7 @@ public sealed class IdentityProviderActivationService(
                 request.KeyVaultSecretName,
                 sameProtocol ? existing?.KeyVaultSecretName : null),
             UpdatedUtc = TimeProvider.System.GetUtcNow(),
-            UpdatedByActorId = actorId.Trim(),
+            UpdatedByActorId = trimmedActorId,
             IsActive = true
         };
 
@@ -91,9 +94,11 @@ public sealed class IdentityProviderActivationService(
         if (requestValue is null)
             return existingValue;
 
-        if (string.IsNullOrWhiteSpace(requestValue))
+        string trimmed = requestValue.Trim();
+
+        if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(trimmed))
             return null;
 
-        return requestValue.Trim();
+        return trimmed;
     }
 }
