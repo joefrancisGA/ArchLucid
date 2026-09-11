@@ -420,3 +420,41 @@ describe("setUserIanaTimeZonePreference", () => {
     expect(apiPutJsonMock).not.toHaveBeenCalled();
   });
 });
+
+describe("setUserWorkingCareerRehearsalDoor", () => {
+  let getUserPreferences: typeof import("@/lib/api/user-preferences").getUserPreferences;
+  let resetUserPreferencesCacheForTests: typeof import("@/lib/api/user-preferences").resetUserPreferencesCacheForTests;
+  let setUserWorkingCareerRehearsalDoor: typeof import("@/lib/api/user-preferences").setUserWorkingCareerRehearsalDoor;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    apiGetMock.mockReset();
+    apiPutJsonMock.mockReset();
+    resetOperatorQueryClientForTests();
+    const mod = await import("@/lib/api/user-preferences");
+    getUserPreferences = mod.getUserPreferences;
+    resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
+    setUserWorkingCareerRehearsalDoor = mod.setUserWorkingCareerRehearsalDoor;
+    resetUserPreferencesCacheForTests();
+  });
+
+  afterEach(() => {
+    resetUserPreferencesCacheForTests();
+    resetOperatorQueryClientForTests();
+  });
+
+  it("persists the Working door and seeds cache without a follow-up GET", async () => {
+    apiPutJsonMock.mockResolvedValue(undefined);
+
+    await setUserWorkingCareerRehearsalDoor("rehearsal");
+
+    const preferences = await getUserPreferences();
+
+    expect(preferences.workingCareerRehearsalDoor).toBe("rehearsal");
+    expect(preferences.workingCareerRehearsalDoorIsExplicit).toBe(true);
+    expect(apiGetMock).not.toHaveBeenCalled();
+    expect(apiPutJsonMock).toHaveBeenCalledWith("/v1/user/preferences/working-career-rehearsal-door", {
+      door: "rehearsal",
+    });
+  });
+});

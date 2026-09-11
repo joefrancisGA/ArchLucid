@@ -1,14 +1,16 @@
 /**
- * Working Career vs Rehearsal door preference (ADR 0086 / AS-077).
+ * Working Career vs Rehearsal door preference (ADR 0086 / AS-077 / CG-011).
  *
  * **Persistence scope (documented choice):**
- * - **Architecture-level** when `architectureId` is known (desk continuity or architecture route) —
- *   mixed reviews on one tenant keep per-architecture intent in `localStorage`.
- * - **Tenant-level** fallback when no architecture context is active — same browser profile default
- *   for new desks until an architecture is opened.
+ * - **Account/workspace** — UserSettings `WorkingCareerRehearsalDoor` via GET/PUT
+ *   `/v1/user/preferences` (CG-011). Working reads the **server first** when the row is explicit.
+ * - **Architecture-level** `localStorage` when `architectureId` is known (desk continuity or architecture
+ *   route) — interrupt recovery for mixed reviews in this browser.
+ * - **Tenant-level** `localStorage` fallback when no architecture context is active — interrupt recovery
+ *   for the account door until GET completes.
  *
- * Server-backed user preferences are intentionally **not** extended in AS-077; AS-080 may add tenant
- * UI intent default on the API. Until then, `localStorage` is the source of truth for the chooser.
+ * Guided never shows the chooser and never PUTs this field (AS-081). Implicit GET defaults are not an
+ * explicit pick — AS-080 grandfather stays local until the operator chooses.
  *
  * **AS-080 grandfather:** Pre-chooser Working profiles and Simulator clones keep **Rehearsal** until
  * the operator explicitly picks Career. New first-run Working tenants default to **Career** (AS-078 may
@@ -259,6 +261,24 @@ export function writeWorkingCareerRehearsalDoorToStorage(
   door: WorkingCareerRehearsalDoorId,
 ): void {
   writeDoorToStorageKey(storageKeyForScope(scope), door);
+}
+
+/**
+ * Explicit localStorage door for interrupt recovery. Returns null when no key is set so callers can
+ * distinguish a stored pick from the AS-080 implicit default.
+ */
+export function tryReadExplicitWorkingCareerRehearsalDoorFromStorage(
+  scope: WorkingCareerRehearsalDoorScope,
+): WorkingCareerRehearsalDoorId | null {
+  if (scope.kind === "architecture") {
+    const architectureDoor = readDoorFromStorageKey(storageKeyForScope(scope));
+
+    if (architectureDoor !== null) {
+      return architectureDoor;
+    }
+  }
+
+  return readDoorFromStorageKey(WORKING_CAREER_REHEARSAL_TENANT_STORAGE_KEY);
 }
 
 export function cycleWorkingCareerRehearsalDoor(
