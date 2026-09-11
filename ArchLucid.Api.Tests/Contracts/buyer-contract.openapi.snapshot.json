@@ -5311,6 +5311,13 @@
               "string"
             ]
           },
+          "executePostureCapturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "findingsSnapshotId": {
             "format": "uuid",
             "type": [
@@ -5380,6 +5387,12 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "workingCareerRehearsalDoor": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "required": [
@@ -26411,6 +26424,20 @@
         },
         "type": "object"
       },
+      "PutRunAssumptionAcknowledgementRequest": {
+        "properties": {
+          "acknowledgedAssumptionIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "PutRunCoverageAcknowledgementRequest": {
         "properties": {
           "entries": {
@@ -30793,6 +30820,27 @@
         },
         "type": "object"
       },
+      "RunAssumptionAcknowledgementDocument": {
+        "properties": {
+          "acknowledgedAssumptionIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "acknowledgedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "actorUserId": {
+            "type": "string"
+          },
+          "evaluationVersion": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "RunAuthorityRuleAuditExplainabilitySection": {
         "properties": {
           "acceptedFindingIds": {
@@ -32161,6 +32209,12 @@
       },
       "RunRecord": {
         "properties": {
+          "acknowledgedAssumptionsJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "acknowledgedCoverageJson": {
             "type": [
               "null",
@@ -32245,6 +32299,13 @@
             ]
           },
           "engineProvenanceJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "executePostureCapturedUtc": {
+            "format": "date-time",
             "type": [
               "null",
               "string"
@@ -32455,6 +32516,12 @@
           "tenantId": {
             "format": "uuid",
             "type": "string"
+          },
+          "workingCareerRehearsalDoor": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "workspaceId": {
             "format": "uuid",
@@ -32799,6 +32866,13 @@
               "string"
             ]
           },
+          "executePostureCapturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "goldenManifestId": {
             "format": "uuid",
             "type": [
@@ -32863,6 +32937,12 @@
           },
           "structuralExecutionMode": {
             "$ref": "#/components/schemas/StructuralExecutionMode"
+          },
+          "workingCareerRehearsalDoor": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "required": [
