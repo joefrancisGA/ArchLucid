@@ -6,6 +6,10 @@ import {
   resolveEffectiveWorkingCareerRehearsalDoor,
   resolveWorkingCareerDoorGate,
 } from "@/lib/governance/working-career-door-gate";
+import { resolveWorkingCareerDoorHostModeMatrixCell } from "@/lib/governance/working-career-door-host-mode-matrix";
+import {
+  WORKING_CAREER_DOOR_HOST_MODE_MATRIX_REHEARSAL_REAL_PRACTICE_DETAIL,
+} from "@/lib/governance/working-career-door-host-mode-matrix-copy";
 import {
   WORKING_CAREER_DOOR_HOST_SIMULATOR_BLOCKED_DETAIL,
 } from "@/lib/governance/working-career-door-gate-copy";
@@ -100,6 +104,32 @@ const AS084_CAREER_REHEARSAL_CHROME_MATRIX_CASES: readonly CareerRehearsalChrome
       expect(presentation.isRehearsalPresentation).toBe(true);
       expect(presentation.label).toBe(SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_LABEL);
       expect(presentation.label).not.toBe("Supported");
+    },
+  },
+  {
+    caseName: "working_rehearsal_real_labeled_practice",
+    run: () => {
+      const gate = resolveWorkingCareerDoorGate({
+        selectedDoor: "rehearsal",
+        hostMode: "Real",
+        sessionMode: "Real",
+        isSessionReal: true,
+        isLiveAiReady: true,
+        isLoading: false,
+      });
+      const matrix = resolveWorkingCareerDoorHostModeMatrixCell({
+        selectedDoor: "rehearsal",
+        gate,
+        isSessionReal: true,
+        hostMode: "Real",
+        sessionMode: "Real",
+      });
+
+      expect(matrix.cellId).toBe("rehearsal-real-practice");
+      expect(matrix.labelAsRehearsal).toBe(true);
+      expect(matrix.showStatusTag).toBe(true);
+      expect(matrix.detail).toBe(WORKING_CAREER_DOOR_HOST_MODE_MATRIX_REHEARSAL_REAL_PRACTICE_DETAIL);
+      expect(resolveEffectiveWorkingCareerRehearsalDoor("rehearsal", gate)).toBe("rehearsal");
     },
   },
   {

@@ -55,6 +55,7 @@ export function prepareMermaidSvgForResponsiveLayout(svgMarkup: string): string 
   svg.setAttribute("width", "100%");
   svg.removeAttribute("height");
   svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  svg.setAttribute("overflow", "visible");
   svg.style.removeProperty("max-width");
   svg.style.setProperty("width", "100%");
   svg.style.setProperty("height", "auto");
@@ -102,10 +103,59 @@ function unionDomRects(rects: DOMRect[]): DOMRect | null {
   return new DOMRect(minX, minY, maxX - minX, maxY - minY);
 }
 
-/** Prefer node/edge ink over cluster shells — subgraph boxes can dwarf the readable content. */
-function readMermaidInkBBox(svg: SVGSVGElement): DOMRect | null {
-  const inkElements = svg.querySelectorAll("g.node, g.edgePaths path, g.edgeLabel");
+function mapLocalBBoxToSvgUserSpace(
+  element: SVGGraphicsElement,
+  svg: SVGSVGElement,
+  box: DOMRect,
+): DOMRect | null {
+  if (typeof svg.createSVGPoint !== "function" || typeof element.getCTM !== "function") {
+    return null;
+  }
 
+  const elementCtm = element.getCTM();
+  const svgCtm = svg.getScreenCTM();
+
+  if (elementCtm === null || svgCtm === null) {
+    return null;
+  }
+
+  const toSvg = svgCtm.inverse().multiply(elementCtm);
+  const corners: Array<readonly [number, number]> = [
+    [box.x, box.y],
+    [box.x + box.width, box.y],
+    [box.x, box.y + box.height],
+    [box.x + box.width, box.y + box.height],
+  ];
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (const [x, y] of corners) {
+    const point = svg.createSVGPoint();
+    point.x = x;
+    point.y = y;
+    const mapped = point.matrixTransform(toSvg);
+    minX = Math.min(minX, mapped.x);
+    minY = Math.min(minY, mapped.y);
+    maxX = Math.max(maxX, mapped.x);
+    maxY = Math.max(maxY, mapped.y);
+  }
+
+  if (!Number.isFinite(minX) || !Number.isFinite(minY) || maxX <= minX || maxY <= minY) {
+    return null;
+  }
+
+  return new DOMRect(minX, minY, maxX - minX, maxY - minY);
+}
+
+/**
+ * Prefer node/edge ink over cluster shells, but only in SVG user space.
+ * Mermaid `.node` getBBox is local to a translated group; using it unmapped
+ * crops the viewBox to the origin and hides the graph until the user scrolls.
+ */
+function readMappedNodeInkBBox(svg: SVGSVGElement): DOMRect | null {
+  const inkElements = svg.querySelectorAll("g.node, g.edgePaths path, g.edgeLabel");
   const inkBoxes: DOMRect[] = [];
 
   for (const element of inkElements) {
@@ -113,17 +163,27 @@ function readMermaidInkBBox(svg: SVGSVGElement): DOMRect | null {
       continue;
     }
 
-    const box = readGraphicsElementBBox(element);
+    const localBox = readGraphicsElementBBox(element);
 
-    if (box !== null) {
-      inkBoxes.push(box);
+    if (localBox === null) {
+      continue;
+    }
+
+    const mapped = mapLocalBBoxToSvgUserSpace(element, svg, localBox);
+
+    if (mapped !== null) {
+      inkBoxes.push(mapped);
     }
   }
 
-  const inkUnion = unionDomRects(inkBoxes);
+  return unionDomRects(inkBoxes);
+}
 
-  if (inkUnion !== null) {
-    return inkUnion;
+function readMermaidInkBBox(svg: SVGSVGElement): DOMRect | null {
+  const mappedInk = readMappedNodeInkBBox(svg);
+
+  if (mappedInk !== null) {
+    return mappedInk;
   }
 
   const candidates: Element[] = [

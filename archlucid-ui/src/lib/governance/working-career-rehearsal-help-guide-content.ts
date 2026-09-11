@@ -8,7 +8,10 @@ import {
   WORKING_REHEARSAL_DOOR_LABEL,
 } from "@/lib/governance/working-career-rehearsal-door-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { WORKING_CAREER_REHEARSAL_HELP_PATH } from "@/lib/governance/working-career-rehearsal-help-route";
+import {
+  WORKING_CAREER_REHEARSAL_HELP_PATH,
+  WORKING_CAREER_REHEARSAL_HELP_SECURITY_HEADING_ID,
+} from "@/lib/governance/working-career-rehearsal-help-route";
 
 export const WORKING_CAREER_REHEARSAL_HELP_PAGE_TITLE = "Career and Rehearsal doors";
 
@@ -48,6 +51,11 @@ export const WORKING_CAREER_REHEARSAL_HELP_SIMULATOR_HONESTY_COPY =
 export const WORKING_CAREER_REHEARSAL_HELP_GUIDED_NOTE =
   "Guided workspace mode keeps teaching chrome and does not show the Career / Rehearsal chooser. Switch to Working when you need explicit livelihood intent on the paying desk.";
 
+export const WORKING_CAREER_REHEARSAL_HELP_SECURITY_TITLE = "Security product line";
+
+export const WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY =
+  "The Security product shell skips the Career / Rehearsal chooser in the operator top bar. Working Security still cannot treat Simulator as Career. A compact honesty strip labels that skip so omitting the control cannot launder unlabeled Career gravity. Change the door from Architecture Working chrome or Account preferences — not by hiding the control.";
+
 export const WORKING_CAREER_REHEARSAL_HELP_PRIMARY_ACTION = {
   label: "Check connection status",
   href: CONNECTION_STATUS_HELP_CANONICAL_PATH,
@@ -62,6 +70,11 @@ export const WORKING_CAREER_REHEARSAL_HELP_GUIDE_HEADINGS: readonly HelpMarkdown
   { level: 2, id: "which-door", title: "Which door should I use?" },
   { level: 2, id: "simulator-honesty", title: WORKING_CAREER_REHEARSAL_HELP_SIMULATOR_HONESTY_TITLE },
   { level: 2, id: "guided-vs-working", title: "Guided vs Working" },
+  {
+    level: 2,
+    id: WORKING_CAREER_REHEARSAL_HELP_SECURITY_HEADING_ID,
+    title: WORKING_CAREER_REHEARSAL_HELP_SECURITY_TITLE,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 
