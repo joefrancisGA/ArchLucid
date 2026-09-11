@@ -3,7 +3,7 @@
 import DOMPurify from "dompurify";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type SetStateAction } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { ShortcutHint } from "@/components/ShortcutHint";
 import {
@@ -28,7 +28,11 @@ import {
   parseArchitectureDiagramFullscreenOpenFromSearch,
   parseArchitectureDiagramZoomFromSearch,
 } from "@/lib/architecture/architecture-diagram-fullscreen-url";
-import { sanitizeMermaidRenderId } from "@/lib/help/help-mermaid";
+import {
+  fitMermaidSvgElementToHost,
+  prepareMermaidSvgForResponsiveLayout,
+  sanitizeMermaidRenderId,
+} from "@/lib/help/help-mermaid";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -73,6 +77,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     parseArchitectureDiagramFullscreenOpenFromSearch(diagFullscreenParam),
   );
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const svgHostRef = useRef<HTMLDivElement | null>(null);
   const zoomRef = useRef<number>(zoom);
   const fullscreenOpenRef = useRef<boolean>(fullscreenOpen);
 
@@ -147,7 +152,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         const result = await mermaid.render(renderId, mermaidSource.trim());
 
         if (!canceled) {
-          setSvgMarkup(result.svg);
+          setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));
         }
       } catch (error) {
         if (!canceled) {
@@ -214,6 +219,47 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     });
   }, [svgMarkup]);
 
+  useLayoutEffect(() => {
+    if (sanitizedSvg === null) {
+      return;
+    }
+
+    const host = svgHostRef.current;
+    const svg = host?.querySelector("svg");
+
+    if (host === null || host === undefined || svg === null || !(svg instanceof SVGSVGElement)) {
+      return;
+    }
+
+    const applyFit = (): void => {
+      const width = host.clientWidth;
+
+      if (width <= 0) {
+        return;
+      }
+
+      fitMermaidSvgElementToHost(svg, width);
+    };
+
+    applyFit();
+
+    const rafId = window.requestAnimationFrame(applyFit);
+
+    const resizeObserver =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(() => {
+            applyFit();
+          });
+
+    resizeObserver?.observe(host);
+
+    return (): void => {
+      window.cancelAnimationFrame(rafId);
+      resizeObserver?.disconnect();
+    };
+  }, [sanitizedSvg]);
+
   const zoomPercentLabel = `${Math.round(zoom * 100)}%`;
   const atMinZoom = zoom <= MIN_ZOOM + 0.001;
   const atMaxZoom = zoom >= MAX_ZOOM - 0.001;
@@ -236,6 +282,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         </p>
       ) : (
         <div
+          ref={svgHostRef}
           className={cn("origin-top-left transition-transform", canvasStale ? "opacity-60" : undefined)}
           style={{ transform: `scale(${zoom})` }}
           dangerouslySetInnerHTML={{ __html: sanitizedSvg }}

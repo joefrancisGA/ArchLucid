@@ -79,7 +79,6 @@ import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL,
@@ -621,8 +620,6 @@ export function DiagramsWorkbenchClient() {
         navHref={pathname}
         title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}
-        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE}
-        claimDisciplineTestId="infra-diagrams-claim-discipline"
         titleTestId="infra-diagrams-page-title"
         breadcrumb={buyerPolishedShell ? <DiagramsBreadcrumb /> : undefined}
         actions={
