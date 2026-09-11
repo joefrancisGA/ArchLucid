@@ -201,6 +201,40 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("re-enables submit after switching away from Other with an overlong specification", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Other")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Other"));
+    fireEvent.change(screen.getByTestId("signup-industry-specify"), {
+      target: { value: "A".repeat(201) },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Technology")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Technology"));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("signup-industry-specify")).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+  });
+
   it("keeps submit disabled when industry Other is selected without a specification", async () => {
     render(<SignupForm />);
     fillRequiredFields();
@@ -369,6 +403,182 @@ describe("SignupForm", () => {
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(showError).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not fire a second register request when the form is submitted again while in flight", async () => {
+    let resolveFetch: (value: Response) => void = () => undefined;
+
+    const fetchMock = vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          resolveFetch = resolve;
+        }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    const form = screen.getByRole("button", { name: /Create evaluation workspace/i }).closest("form")!;
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    resolveFetch(
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows email-specific readiness when required fields are filled but email is invalid", async () => {
+    render(<SignupForm />);
+
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "not-an-email" } });
+    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
+    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/valid work email/i);
+  });
+
+  it("shows overlong-industry readiness when Other specification exceeds 200 characters", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Other")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Other"));
+    fireEvent.change(screen.getByTestId("signup-industry-specify"), {
+      target: { value: "A".repeat(201) },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/200 characters/i);
+    expect(screen.getByTestId("signup-form-readiness")).not.toHaveTextContent(/specify your industry/i);
+  });
+
+  it("shows whole-number readiness when optional architecture team size is fractional", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.change(screen.getByTestId("signup-architecture-team-size"), { target: { value: "3.5" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/whole-number/i);
+    expect(screen.getByTestId("signup-form-readiness")).not.toHaveTextContent(/between 1 and 10,000/i);
+  });
+
+  it("shows industry readiness when Other is selected without a specification", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Other")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Other"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/industry/i);
+  });
+
+  it("shows overlong industry readiness when Other specification exceeds 200 characters", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Other")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Other"));
+    fireEvent.change(screen.getByTestId("signup-industry-specify"), {
+      target: { value: "A".repeat(201) },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/at most 200 characters/i)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/200 characters/i);
+    expect(screen.getByTestId("signup-form-readiness")).not.toHaveTextContent(/specify your industry/i);
+  });
+
+  it("keeps submit disabled for fractional optional architecture team size", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.change(screen.getByTestId("signup-architecture-team-size"), { target: { value: "3.5" } });
+
+    await waitFor(() => {
+      expect(screen.getByText(/whole number when provided/i)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+  });
+
+  it("does not send fractional optional architecture team size in the register payload", async () => {
+    const fetchMock = vi.fn();
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.change(screen.getByTestId("signup-architecture-team-size"), { target: { value: "3.5" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    fireEvent.submit(screen.getByRole("button", { name: /Create evaluation workspace/i }).closest("form")!);
+
+    expect(fetchMock).not.toHaveBeenCalled();
 
     vi.unstubAllGlobals();
   });

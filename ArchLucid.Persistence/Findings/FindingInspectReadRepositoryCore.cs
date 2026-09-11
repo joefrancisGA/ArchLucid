@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
@@ -42,8 +43,9 @@ internal static class FindingInspectReadRepositoryCore
 
     public static IReadOnlyList<string> FilterNonBlankTrimmedStrings(IEnumerable<string> values) =>
         values
-            .Where(static value => !string.IsNullOrWhiteSpace(value))
-            .Select(static value => value.Trim())
+            .Select(NormalizeInspectText)
+            .Where(static value => value is not null)
+            .Cast<string>()
             .ToList();
 
     public static IReadOnlyList<string> FilterRecommendedActions(IEnumerable<string> values) =>
@@ -68,8 +70,12 @@ internal static class FindingInspectReadRepositoryCore
 
     public static string? ResolveDecisionRuleName(string? ruleName, string? ruleId) => ruleName ?? ruleId;
 
-    public static (string? RuleId, string? RuleName) ResolveTraceRuleFields(string? firstRuleText) =>
-        !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
+    public static (string? RuleId, string? RuleName) ResolveTraceRuleFields(string? firstRuleText)
+    {
+        string? normalized = NormalizeInspectText(firstRuleText);
+
+        return normalized is null ? (null, null) : (normalized, normalized);
+    }
 
     public static (string? RuleId, string? RuleName) ResolveRuleFields(string? appliedRuleIdsJson, string? firstRuleText)
     {
@@ -83,9 +89,8 @@ internal static class FindingInspectReadRepositoryCore
             if (ids is { Count: > 0 })
             {
                 string? firstValid = ids
-                    .Where(static id => !string.IsNullOrWhiteSpace(id))
-                    .Select(static id => id.Trim())
-                    .FirstOrDefault();
+                    .Select(NormalizeInspectText)
+                    .FirstOrDefault(normalized => normalized is not null);
 
                 if (firstValid is not null)
                     return (firstValid, firstValid);
@@ -101,17 +106,63 @@ internal static class FindingInspectReadRepositoryCore
 
     public static JsonElement? BuildMetadataTypedPayload(string? title, string? rationale)
     {
-        if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(rationale))
+        string? normalizedTitle = NormalizeInspectText(title);
+        string? normalizedRationale = NormalizeInspectText(rationale);
+
+        if (normalizedTitle is null && normalizedRationale is null)
             return null;
 
         Dictionary<string, string?> slim = new(StringComparer.Ordinal)
         {
-            ["title"] = string.IsNullOrWhiteSpace(title) ? null : title.Trim(),
-            ["rationale"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
-            ["whyThisMatters"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
+            ["title"] = normalizedTitle,
+            ["rationale"] = normalizedRationale,
+            ["whyThisMatters"] = normalizedRationale,
         };
 
         return JsonSerializer.SerializeToElement(slim);
+    }
+
+    public static string? NormalizeInspectDisplayText(string? value) => NormalizeInspectText(value);
+
+    /// <summary>
+    ///     Rejects blank and invisible-only inspect strings (for example U+200B) that pass
+    ///     <see cref="string.IsNullOrWhiteSpace(string?)" /> but are not usable operator-facing text.
+    /// </summary>
+    private static string? NormalizeInspectText(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        string trimmed = value.Trim();
+
+        if (!HasSubstantiveInspectText(trimmed))
+            return null;
+
+        return trimmed;
+    }
+
+    private static bool HasSubstantiveInspectText(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return false;
+
+        bool hasSubstantive = false;
+
+        foreach (char character in value)
+        {
+
+            if (char.IsWhiteSpace(character))
+                continue;
+
+            UnicodeCategory category = char.GetUnicodeCategory(character);
+
+            if (category is UnicodeCategory.Format or UnicodeCategory.Control)
+                return false;
+
+            hasSubstantive = true;
+        }
+
+        return hasSubstantive;
     }
 
     public static JsonElement? TryParsePayloadJson(string? payloadJson)
