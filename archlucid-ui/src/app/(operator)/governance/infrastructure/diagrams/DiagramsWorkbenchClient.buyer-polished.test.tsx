@@ -85,7 +85,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-mermaid-api", () => ({
       },
     ],
   })),
-  downloadInfraEvidenceMermaidPng: vi.fn(async () => undefined),
+  downloadInfraEvidenceMermaidPng: vi.fn(async () => ({ usedBrowserFallback: false })),
   formatInfraEvidenceMermaidApiError: (error: unknown) => String(error),
 }));
 
