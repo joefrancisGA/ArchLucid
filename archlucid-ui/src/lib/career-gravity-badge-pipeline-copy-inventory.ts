@@ -22,6 +22,9 @@ export const CAREER_GRAVITY_SECURITY_CHOOSER_SKIP_PATH =
 export const CAREER_GRAVITY_SECURITY_CHOOSER_SKIP_MARKER =
   'showWorkingCareerRehearsalChooser = productLine !== "security"' as const;
 
+export const CAREER_GRAVITY_SECURITY_HONESTY_STRIP_PATH =
+  "archlucid-ui/src/components/workspace-mode/SecurityWorkingCareerHonestyStrip.tsx" as const;
+
 export const CAREER_GRAVITY_BADGE_PIPELINE_COPY_ROWS: readonly CareerGravityBadgePipelineRow[] = [
   {
     relativePath: "archlucid-ui/src/lib/pipeline-status-labels.ts",
@@ -80,6 +83,11 @@ export const CAREER_GRAVITY_BADGE_PIPELINE_COPY_ROWS: readonly CareerGravityBadg
   },
   {
     relativePath: CAREER_GRAVITY_SECURITY_CHOOSER_SKIP_PATH,
+    leakClass: "security-skip",
+    ownerPrompt: "CG-017",
+  },
+  {
+    relativePath: CAREER_GRAVITY_SECURITY_HONESTY_STRIP_PATH,
     leakClass: "security-skip",
     ownerPrompt: "CG-017",
   },

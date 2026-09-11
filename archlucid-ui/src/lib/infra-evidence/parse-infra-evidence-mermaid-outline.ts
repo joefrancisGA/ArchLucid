@@ -65,6 +65,19 @@ function upsertNode(
   nodeMap.set(node.id, node);
 }
 
+export function resolveInfraEvidenceOutlineNodeLabel(
+  nodes: readonly InfraEvidenceMermaidOutlineNode[],
+  nodeId: string,
+): string {
+  const match = nodes.find((node) => node.id === nodeId);
+
+  if (match == null || match.label.trim().length === 0) {
+    return nodeId;
+  }
+
+  return match.label;
+}
+
 export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceMermaidOutline {
   const nodeMap = new Map<string, InfraEvidenceMermaidOutlineNode>();
   const edges: InfraEvidenceMermaidOutlineEdge[] = [];

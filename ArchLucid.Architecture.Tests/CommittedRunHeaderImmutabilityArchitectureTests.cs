@@ -35,7 +35,7 @@ public sealed class CommittedRunHeaderImmutabilityArchitectureTests
             RepoRoot,
             "ArchLucid.Persistence",
             "Migrations",
-            "321_Runs_GovernanceScopeJson.sql");
+            "390_Runs_ExecutePostureStamp.sql");
 
         string migrationText = File.ReadAllText(migrationPath);
         HashSet<string> migrationColumns = Migration250ColumnRegex

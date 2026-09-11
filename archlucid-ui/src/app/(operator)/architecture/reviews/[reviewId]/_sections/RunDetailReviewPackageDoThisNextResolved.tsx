@@ -272,6 +272,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
         azureInventoryEvidencePresent={props.azureInventoryEvidencePresent === true}
         structuralExecutionMode={props.structuralExecutionMode}
+        workingCareerRehearsalDoor={props.pipelineSummary?.workingCareerRehearsalDoor}
       />
       <FinalizeReadinessStrip
         commitBlockedReason={
