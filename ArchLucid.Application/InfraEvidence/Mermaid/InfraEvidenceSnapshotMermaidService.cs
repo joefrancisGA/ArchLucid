@@ -88,13 +88,14 @@ public sealed class InfraEvidenceSnapshotMermaidService(
 
         foreach ((string modeKey, DiagramMode diagramMode) in PreviewModes)
         {
-            MermaidDiagramRenderResult renderResult = await RenderModeAsync(
+            InfraEvidenceMermaidModePreview modePreview = await TryRenderModePreviewAsync(
                 graphResult.Graph,
+                modeKey,
                 diagramMode,
                 null,
                 cancellationToken);
 
-            modePreviews.Add(MapModePreview(modeKey, renderResult));
+            modePreviews.Add(modePreview);
         }
 
         return new InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse>
@@ -149,7 +150,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             return BadRequest<InfraEvidenceMermaidRenderResponse>(parsedMode.ErrorMessage ?? "Invalid mode.");
         }
 
-        MermaidDiagramRenderResult renderResult = await RenderModeAsync(
+        InfraEvidenceMermaidRenderResponse renderResponse = await TryRenderModeResponseAsync(
+            snapshotId,
+            parsedMode.ModeKey,
+            null,
             graphResult.Graph,
             parsedMode.DiagramMode,
             parsedMode.CompileOptions,
@@ -158,7 +162,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         return new InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse>
         {
             Succeeded = true,
-            Value = MapRenderResponse(snapshotId, parsedMode.ModeKey, null, renderResult),
+            Value = renderResponse,
         };
     }
 
@@ -258,6 +262,54 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         };
     }
 
+    private async Task<InfraEvidenceMermaidModePreview> TryRenderModePreviewAsync(
+        GraphSnapshot graph,
+        string modeKey,
+        DiagramMode diagramMode,
+        DiagramAstCompileOptions? compileOptions,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            MermaidDiagramRenderResult renderResult = await RenderModeAsync(
+                graph,
+                diagramMode,
+                compileOptions,
+                cancellationToken);
+
+            return MapModePreview(modeKey, renderResult);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return CreateFailedModePreview(modeKey);
+        }
+    }
+
+    private async Task<InfraEvidenceMermaidRenderResponse> TryRenderModeResponseAsync(
+        Guid snapshotId,
+        string modeKey,
+        string? fallbackKey,
+        GraphSnapshot graph,
+        DiagramMode diagramMode,
+        DiagramAstCompileOptions? compileOptions,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            MermaidDiagramRenderResult renderResult = await RenderModeAsync(
+                graph,
+                diagramMode,
+                compileOptions,
+                cancellationToken);
+
+            return MapRenderResponse(snapshotId, modeKey, fallbackKey, renderResult);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return CreateFailedRenderResponse(snapshotId, modeKey, fallbackKey);
+        }
+    }
+
     private async Task<MermaidDiagramRenderResult> RenderModeAsync(
         GraphSnapshot graph,
         DiagramMode diagramMode,
@@ -274,6 +326,36 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             },
             graph,
             cancellationToken);
+    }
+
+    private static InfraEvidenceMermaidModePreview CreateFailedModePreview(string modeKey)
+    {
+        return new InfraEvidenceMermaidModePreview
+        {
+            Mode = modeKey,
+            Status = MermaidDiagramRenderStatus.Failed.ToString(),
+            NodeCount = 0,
+            EdgeCount = 0,
+            Mermaid = null,
+            FallbackArtifacts = [],
+        };
+    }
+
+    private static InfraEvidenceMermaidRenderResponse CreateFailedRenderResponse(
+        Guid snapshotId,
+        string modeKey,
+        string? fallbackKey)
+    {
+        return new InfraEvidenceMermaidRenderResponse
+        {
+            SnapshotId = snapshotId,
+            Mode = modeKey,
+            FallbackKey = fallbackKey,
+            Status = MermaidDiagramRenderStatus.Failed.ToString(),
+            Mermaid = null,
+            Metrics = null,
+            FallbackArtifacts = [],
+        };
     }
 
     private InfraEvidenceMermaidModePreview MapModePreview(string modeKey, MermaidDiagramRenderResult renderResult)
