@@ -95,6 +95,7 @@ function Write-ArchLucidResourcesJsonStream([string] $Path, $Resources)
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.PolicyCompliance.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.CostManagement.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ResourceGraph.helpers.ps1')
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorTelemetry.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.SecurityInventory.helpers.ps1')
 
@@ -612,6 +613,32 @@ try
             -ManagementGroupId $ManagementGroupId)
 
         [object[]]$networkAssociationRows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources @($resources))
+
+        if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+        {
+            foreach ($subId in @(Get-ArchLucidManagementGroupSubscriptionIds -ManagementGroupId $ManagementGroupId))
+            {
+                [object[]]$argRows = @(Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph `
+                    -SubscriptionId $subId `
+                    -ResourceGroupScope $ResourceGroupScope)
+
+                foreach ($argRow in @($argRows))
+                {
+                    $networkAssociationRows += $argRow
+                }
+            }
+        }
+        else
+        {
+            [object[]]$argRows = @(Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph `
+                -SubscriptionId $SubscriptionId `
+                -ResourceGroupScope $ResourceGroupScope)
+
+            foreach ($argRow in @($argRows))
+            {
+                $networkAssociationRows += $argRow
+            }
+        }
         [object[]]$federatedCredentialRows = @(Get-ArchLucidAzureFederatedCredentialCompanionRows -InventoryResources @($resources))
         [object[]]$policyAssignmentRows = @(Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($policyData.policyAssignments))
         [object[]]$diagnosticSettingRows = @(Get-ArchLucidAzureDiagnosticSettingCompanionRows -InventoryResources @($resources))

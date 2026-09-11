@@ -244,6 +244,104 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
     }
 
     [Fact]
+    public void Materialize_catalog_associations_emit_vm_nic_subnet_nsg_and_peering_edges()
+    {
+        const string vm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+        const string nic =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1";
+        const string subnet =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/app";
+        const string nsg =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/nsg1";
+        const string remoteVnet =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet2";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [],
+                [
+                    ParseJson($$"""{"fromResourceId":"{{vm}}","toResourceId":"{{nic}}","associationType":"vmToNic"}"""),
+                    ParseJson($$"""{"fromResourceId":"{{subnet}}","toResourceId":"{{nsg}}","associationType":"subnetToNsg"}"""),
+                    ParseJson($$"""{"fromResourceId":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1","toResourceId":"{{remoteVnet}}","associationType":"vnetPeering"}"""),
+                ],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false);
+
+        result.Relationships.Should().Contain(r =>
+            r.RelationshipType == GraphEdgeTypes.ConnectsTo
+            && r.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(vm)
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(nic)
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryVmNic);
+
+        result.Relationships.Should().Contain(r =>
+            r.RelationshipType == GraphEdgeTypes.AppliesTo
+            && r.InferenceSource == GraphEdgeInferenceSources.InventorySubnetNsg);
+
+        result.Relationships.Should().Contain(r =>
+            r.RelationshipType == GraphEdgeTypes.PeersWith
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryVnetPeering);
+    }
+
+    [Fact]
+    public void Materialize_unknown_association_type_adds_warning_and_skips_edge()
+    {
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [],
+                [ParseJson("""
+                          {
+                            "fromResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1",
+                            "toResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1",
+                            "associationType": "notARealType"
+                          }
+                          """)],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false);
+
+        result.Relationships.Should().BeEmpty();
+        result.CompletenessWarnings.Should().Contain(w =>
+            w == $"{AzureInventoryRelationshipCompletenessWarningCodes.AssociationTypeUnmappedPrefix}notARealType");
+    }
+
+    [Fact]
+    public void Materialize_vms_without_vm_to_nic_adds_completeness_warning()
+    {
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [
+                    new AzureExtractorExtendedResourceRow
+                    {
+                        AzureResourceId =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1",
+                        ResourceType = "Microsoft.Compute/virtualMachines",
+                        Name = "vm1",
+                    },
+                ],
+                [],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false);
+
+        result.CompletenessWarnings.Should().Contain(
+            AzureInventoryRelationshipCompletenessWarningCodes.ArgVmNicMissing);
+    }
+
+    [Fact]
     public void Materialize_pim_eligibility_unknown_skips_derived_can_read_and_marks_has_role()
     {
         const string scope =

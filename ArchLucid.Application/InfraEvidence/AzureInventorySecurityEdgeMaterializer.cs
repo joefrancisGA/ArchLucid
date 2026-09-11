@@ -62,7 +62,20 @@ public static class AzureInventorySecurityEdgeMaterializer
         AddRoleAssignmentEdges(roleAssignments, relationships, relationshipKeys, warnings);
         AddFederatedCredentialEdges(federatedCredentials, relationships, relationshipKeys);
         AddEntraGroupMembershipEdges(entraGroupMemberships, relationships, relationshipKeys);
-        AddNetworkAssociationEdges(networkAssociations, relationships, relationshipKeys);
+        foreach (JsonElement association in networkAssociations)
+        {
+            AzureInventoryNetworkAssociationEdgeMapper.MapAssociation(
+                association,
+                relationships,
+                relationshipKeys,
+                warnings);
+        }
+
+        AzureInventoryNetworkAssociationEdgeMapper.AddRelationshipCompletenessWarnings(
+            resources,
+            networkAssociations,
+            warnings);
+
         AddPolicyAssignmentEdges(policyAssignments, relationships, relationshipKeys);
         AddDiagnosticEdges(diagnosticSettings, relationships, relationshipKeys);
 
@@ -384,88 +397,6 @@ public static class AzureInventorySecurityEdgeMaterializer
                     ? ObservedFactConfidence
                     : DerivedFactConfidence,
                 GraphEdgeInferenceSources.InventoryFederatedCredential);
-        }
-    }
-
-    private static void AddNetworkAssociationEdges(
-        IReadOnlyList<JsonElement> networkAssociations,
-        List<AzureInventoryResourceRelationshipWrite> relationships,
-        HashSet<string> relationshipKeys)
-    {
-        foreach (JsonElement association in networkAssociations)
-        {
-            string? fromResourceId = TryReadJsonString(association, "fromResourceId");
-            string? toResourceId = TryReadJsonString(association, "toResourceId");
-            string? associationType = TryReadJsonString(association, "associationType");
-
-            if (string.IsNullOrWhiteSpace(fromResourceId)
-                || string.IsNullOrWhiteSpace(toResourceId)
-                || string.IsNullOrWhiteSpace(associationType))
-            {
-                continue;
-            }
-
-            string normalizedFrom = ArmResourceIdNormalizer.Normalize(fromResourceId);
-            string normalizedTo = ArmResourceIdNormalizer.Normalize(toResourceId);
-
-            if (associationType.Equals("nicToSubnet", StringComparison.OrdinalIgnoreCase))
-            {
-                AddRelationship(
-                    relationships,
-                    relationshipKeys,
-                    normalizedFrom,
-                    normalizedTo,
-                    GraphEdgeTypes.ConnectsTo,
-                    ProvenanceKind.ObservedFact,
-                    ObservedFactConfidence,
-                    GraphEdgeInferenceSources.InventoryNicSubnet);
-
-                continue;
-            }
-
-            if (associationType.Equals("publicIpToNic", StringComparison.OrdinalIgnoreCase))
-            {
-                AddRelationship(
-                    relationships,
-                    relationshipKeys,
-                    normalizedFrom,
-                    normalizedTo,
-                    GraphEdgeTypes.Exposes,
-                    ProvenanceKind.ObservedFact,
-                    ObservedFactConfidence,
-                    GraphEdgeInferenceSources.InventoryPublicIp);
-
-                continue;
-            }
-
-            if (associationType.Equals("privateEndpointTarget", StringComparison.OrdinalIgnoreCase))
-            {
-                AddRelationship(
-                    relationships,
-                    relationshipKeys,
-                    normalizedFrom,
-                    normalizedTo,
-                    GraphEdgeTypes.ConnectsTo,
-                    ProvenanceKind.ObservedFact,
-                    ObservedFactConfidence,
-                    GraphEdgeInferenceSources.InventoryPrivateEndpoint);
-
-                continue;
-            }
-
-            if (associationType.Equals("nsgAllowRule", StringComparison.OrdinalIgnoreCase)
-                && !string.IsNullOrWhiteSpace(TryReadJsonString(association, "ruleName")))
-            {
-                AddRelationship(
-                    relationships,
-                    relationshipKeys,
-                    normalizedFrom,
-                    normalizedTo,
-                    GraphEdgeTypes.RoutesTo,
-                    ProvenanceKind.DeterministicInference,
-                    DeterministicInferenceConfidence,
-                    GraphEdgeInferenceSources.InventoryNsgAllowRule);
-            }
         }
     }
 
