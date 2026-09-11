@@ -5704,6 +5704,25 @@
         },
         "type": "object"
       },
+      "ArchitectureWorkLeaseSnapshot": {
+        "properties": {
+          "expiresUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "heldByCaller": {
+            "type": "boolean"
+          },
+          "holderActorOid": {
+            "type": "string"
+          },
+          "holderUserId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ArchivedRunScopeRow": {
         "properties": {
           "runId": {
@@ -13057,6 +13076,16 @@
           "updatedUtc": {
             "format": "date-time",
             "type": "string"
+          },
+          "workLease": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ArchitectureWorkLeaseSnapshot"
+              }
+            ]
           },
           "workspaceId": {
             "format": "uuid",

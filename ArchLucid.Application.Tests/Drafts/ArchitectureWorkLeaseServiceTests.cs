@@ -31,6 +31,7 @@ public sealed class ArchitectureWorkLeaseServiceTests
     private readonly Mock<IDraftRequestRepository> _drafts = new();
     private readonly InMemoryArchitectureWorkLeaseRepository _leases = new();
     private readonly Mock<IArchitectureWorkLeaseHolderResolver> _holderResolver = new();
+    private readonly Mock<IArchitectureShareAccessService> _shareAccess = new();
 
     public ArchitectureWorkLeaseServiceTests()
     {
@@ -44,6 +45,22 @@ public sealed class ArchitectureWorkLeaseServiceTests
                 ProjectId = Scope.ProjectId,
                 ArchitectureId = ArchitectureId,
                 Status = DraftRequestStatus.Drafting,
+            });
+
+        _shareAccess
+            .Setup(s => s.EvaluateAsync(
+                Scope,
+                ArchitectureId,
+                It.IsAny<string>(),
+                true,
+                true,
+                false,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureShareAccessEvaluation
+            {
+                ArchitectureFound = true,
+                RestrictToShares = false,
+                CanDecide = true,
             });
     }
 
@@ -60,8 +77,8 @@ public sealed class ArchitectureWorkLeaseServiceTests
 
         ArchitectureWorkLeaseService sut = BuildSut();
 
-        ArchitectureWorkLeaseAcquireResult first = await sut.AcquireAsync(Scope, DraftId, actorA, CancellationToken.None);
-        ArchitectureWorkLeaseAcquireResult second = await sut.AcquireAsync(Scope, DraftId, actorB, CancellationToken.None);
+        ArchitectureWorkLeaseAcquireResult first = await sut.AcquireAsync(Scope, DraftId, actorA, true, CancellationToken.None);
+        ArchitectureWorkLeaseAcquireResult second = await sut.AcquireAsync(Scope, DraftId, actorB, true, CancellationToken.None);
 
         first.Status.Should().Be(ArchitectureWorkLeaseAcquireStatus.Acquired);
         second.Status.Should().Be(ArchitectureWorkLeaseAcquireStatus.HeldByOther);
@@ -99,10 +116,63 @@ public sealed class ArchitectureWorkLeaseServiceTests
 
         ArchitectureWorkLeaseService sut = BuildSut();
 
-        ArchitectureWorkLeaseAcquireResult result = await sut.AcquireAsync(Scope, DraftId, actorB, CancellationToken.None);
+        ArchitectureWorkLeaseAcquireResult result = await sut.AcquireAsync(Scope, DraftId, actorB, true, CancellationToken.None);
 
         result.Status.Should().Be(ArchitectureWorkLeaseAcquireStatus.Acquired);
         result.Response?.HolderUserId.Should().Be(HolderB);
+    }
+
+    [Fact]
+    public async Task Acquire_restricted_architecture_without_share_returns_not_authorized()
+    {
+        string actorA = ArchitectureSharePlatformUserActorOid.FromUserId(HolderA);
+
+        _holderResolver.Setup(r => r.TryResolveHolderUserIdAsync(Scope, actorA, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(HolderA);
+
+        _shareAccess
+            .Setup(s => s.EvaluateAsync(
+                Scope,
+                ArchitectureId,
+                actorA,
+                true,
+                true,
+                false,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureShareAccessEvaluation
+            {
+                ArchitectureFound = true,
+                RestrictToShares = true,
+                CanDecide = false,
+            });
+
+        ArchitectureWorkLeaseService sut = BuildSut();
+
+        ArchitectureWorkLeaseAcquireResult result = await sut.AcquireAsync(Scope, DraftId, actorA, true, CancellationToken.None);
+
+        result.Status.Should().Be(ArchitectureWorkLeaseAcquireStatus.NotAuthorized);
+    }
+
+    [Fact]
+    public async Task Steal_replaces_active_holder()
+    {
+        string actorA = ArchitectureSharePlatformUserActorOid.FromUserId(HolderA);
+        string actorB = ArchitectureSharePlatformUserActorOid.FromUserId(HolderB);
+
+        _holderResolver.Setup(r => r.TryResolveHolderUserIdAsync(Scope, actorA, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(HolderA);
+        _holderResolver.Setup(r => r.TryResolveHolderUserIdAsync(Scope, actorB, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(HolderB);
+
+        ArchitectureWorkLeaseService sut = BuildSut();
+
+        await sut.AcquireAsync(Scope, DraftId, actorA, true, CancellationToken.None);
+
+        ArchitectureWorkLeaseStealResult stolen = await sut.StealAsync(Scope, DraftId, actorB, true, CancellationToken.None);
+
+        stolen.Status.Should().Be(ArchitectureWorkLeaseStealStatus.Stolen);
+        stolen.PreviousHolderUserId.Should().Be(HolderA);
+        stolen.Response?.HolderUserId.Should().Be(HolderB);
     }
 
     [Fact]
@@ -139,6 +209,28 @@ public sealed class ArchitectureWorkLeaseServiceTests
         result.Response?.ExpiresUtc.Should().BeAfter(soon);
     }
 
+    [Fact]
+    public async Task Cross_tenant_draft_lookup_returns_not_found()
+    {
+        ScopeContext otherTenant = new()
+        {
+            TenantId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+        };
+
+        ArchitectureWorkLeaseService sut = BuildSut();
+
+        ArchitectureWorkLeaseAcquireResult result = await sut.AcquireAsync(
+            otherTenant,
+            DraftId,
+            ArchitectureSharePlatformUserActorOid.FromUserId(HolderA),
+            true,
+            CancellationToken.None);
+
+        result.Status.Should().Be(ArchitectureWorkLeaseAcquireStatus.DraftNotFound);
+    }
+
     private ArchitectureWorkLeaseService BuildSut() =>
-        new(_drafts.Object, _leases, _holderResolver.Object);
+        new(_drafts.Object, _leases, _holderResolver.Object, _shareAccess.Object);
 }

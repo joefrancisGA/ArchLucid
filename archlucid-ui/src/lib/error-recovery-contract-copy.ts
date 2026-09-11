@@ -11,7 +11,8 @@ export type ErrorRecoveryContractScenario =
   | "review-package-workspace-mismatch"
   | "governance-mutation"
   | "architecture-draft-load"
-  | "in-flight-cancel-failure";
+  | "in-flight-cancel-failure"
+  | "review-detail-segment-error";
 
 export const ERROR_RECOVERY_CONTRACT_MARKERS = {
   root: "operator-error-recovery-contract",
@@ -61,6 +62,13 @@ const IN_FLIGHT_CANCEL_FAILURE_RECOVERY: ErrorRecoveryContractPresentation = {
   whatFailed: "Could not cancel this in-flight operation.",
   whatIsIntact: "The operation may still be running on the server until cancel succeeds.",
   nextStep: "Try cancel again in a moment, or open the operation to check its status.",
+};
+
+const REVIEW_DETAIL_SEGMENT_ERROR_RECOVERY: ErrorRecoveryContractPresentation = {
+  whatFailed: "This review desk could not render.",
+  whatIsIntact:
+    "The review package on the server is unchanged. Typed livelihood fields registered on this page may still restore after Retry when idle snapshots were preserved.",
+  nextStep: "Choose Retry to reload this review desk. Open reviews only if Retry keeps failing.",
 };
 
 export const GOVERNANCE_CONCURRENCY_CONFLICT_RECOVERY: ErrorRecoveryContractPresentation = {
@@ -119,6 +127,8 @@ export function errorRecoveryContractForScenario(
 
       return IN_FLIGHT_CANCEL_FAILURE_RECOVERY;
     }
+    case "review-detail-segment-error":
+      return REVIEW_DETAIL_SEGMENT_ERROR_RECOVERY;
     default: {
       const exhaustive: never = scenario;
 

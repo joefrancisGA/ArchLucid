@@ -139,6 +139,7 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly handleEncourageAddQualityAttributes: () => void;
   readonly handleContinueWithoutQualityAttributes: () => void;
   readonly nextDraft: Parameters<typeof ArchitectureDraftNextDraftFooter>[0]["target"] | null;
+  readonly workLeaseBanner?: React.ReactNode;
 };
 
 function WorkingNestedDraftIdentityAnchors(props: {
