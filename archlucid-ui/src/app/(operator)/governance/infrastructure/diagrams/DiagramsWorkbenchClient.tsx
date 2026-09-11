@@ -80,6 +80,7 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL,
@@ -94,6 +95,7 @@ import {
 } from "@/lib/governance/governance-infrastructure-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
+import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 import { cn } from "@/lib/utils";
 
 import { DiagramsBreadcrumb } from "./DiagramsBreadcrumb";
@@ -210,12 +212,14 @@ export function DiagramsWorkbenchClient() {
   const [loadingRender, setLoadingRender] = useState(false);
   const [exportBusy, setExportBusy] = useState(false);
   const [pngExportError, setPngExportError] = useState<string | null>(null);
+  const [pngBrowserFallbackNote, setPngBrowserFallbackNote] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [browserRenderBlocked, setBrowserRenderBlocked] = useState(false);
   const [loadGeneration, setLoadGeneration] = useState(0);
 
   const { data: brandingPresentation } = useTenantBrandingPresentationQuery({ context: "MermaidDiagram" });
   const tenantBrandActive = brandingPresentation?.usesTenantVisualBrand === true;
+  const dark = useDocumentDarkMode();
 
   const syncUrl = useCallback(
     (patch: {
@@ -565,14 +569,29 @@ export function DiagramsWorkbenchClient() {
 
     setExportBusy(true);
     setPngExportError(null);
+    setPngBrowserFallbackNote(null);
 
     try {
       const useFallback = effectiveFallbackKey.length > 0;
-      await downloadInfraEvidenceMermaidPng(selectedSnapshotId, {
+      const query = {
         mode: useFallback ? null : selectedMode,
         fallbackKey: useFallback ? effectiveFallbackKey : null,
         seedNodeId: selectedMode === "dependencyNeighborhood" ? seedNodeId : null,
+      };
+
+      if (tooLargeForBrowser) {
+        await downloadInfraEvidenceMermaidPng(selectedSnapshotId, query);
+        return;
+      }
+
+      const result = await downloadInfraEvidenceMermaidPng(selectedSnapshotId, query, {
+        fallbackMermaidSource: mermaidSource,
+        dark,
       });
+
+      if (result.usedBrowserFallback) {
+        setPngBrowserFallbackNote(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE);
+      }
     } catch (error: unknown) {
       setPngExportError(
         formatGovernanceInfrastructureInlineActionError(
@@ -583,7 +602,16 @@ export function DiagramsWorkbenchClient() {
     } finally {
       setExportBusy(false);
     }
-  }, [effectiveFallbackKey, exportsDisabled, seedNodeId, selectedMode, selectedSnapshotId]);
+  }, [
+    dark,
+    effectiveFallbackKey,
+    exportsDisabled,
+    mermaidSource,
+    seedNodeId,
+    selectedMode,
+    selectedSnapshotId,
+    tooLargeForBrowser,
+  ]);
 
   const runMermaidExport = useCallback(() => {
     if (mermaidExportDisabled) {
@@ -976,6 +1004,14 @@ export function DiagramsWorkbenchClient() {
             testId="infra-diagrams-png-export-error"
             recoveryPresentation={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY}
           />
+        ) : null}
+        {pngBrowserFallbackNote != null ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="infra-diagrams-png-browser-fallback-note"
+          >
+            {pngBrowserFallbackNote}
+          </p>
         ) : null}
       </section>
 
