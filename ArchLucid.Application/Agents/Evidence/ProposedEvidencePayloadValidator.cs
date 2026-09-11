@@ -25,10 +25,10 @@ public static class ProposedEvidencePayloadValidator
             if (!IsSupportedType(parsed.Type))
                 return false;
 
-            if (string.IsNullOrWhiteSpace(parsed.Title))
+            if (!ProposedEvidenceTextValidation.HasSubstantiveText(parsed.Title))
                 return false;
 
-            if (string.IsNullOrWhiteSpace(parsed.Description))
+            if (!ProposedEvidenceTextValidation.HasSubstantiveText(parsed.Description))
                 return false;
 
             payload = parsed;
@@ -40,8 +40,9 @@ public static class ProposedEvidencePayloadValidator
         }
     }
 
-    private static bool IsSupportedType(string type) =>
-        type.Equals("Policy", StringComparison.OrdinalIgnoreCase)
-        || type.Equals("Pattern", StringComparison.OrdinalIgnoreCase)
-        || type.Equals("Service", StringComparison.OrdinalIgnoreCase);
+    private static bool IsSupportedType(string? type) =>
+        !string.IsNullOrWhiteSpace(type)
+        && (type.Equals("Policy", StringComparison.OrdinalIgnoreCase)
+            || type.Equals("Pattern", StringComparison.OrdinalIgnoreCase)
+            || type.Equals("Service", StringComparison.OrdinalIgnoreCase));
 }
