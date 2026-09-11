@@ -2,6 +2,7 @@ using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Inventory;
 using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence.Mermaid;
@@ -77,7 +78,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 NodeId = nodeId,
                 NodeType = GraphNodeTypes.TopologyResource,
                 Label = ResolveLabel(resource),
-                Category = ResolveCategory(ReadResourceType(resource)),
+                Category = AzureInventoryTopologyCategory.Resolve(ReadResourceType(resource)),
                 SourceType = "azure-inventory-snapshot",
                 SourceId = string.IsNullOrWhiteSpace(azureResourceId) ? null : azureResourceId,
             };
@@ -220,44 +221,4 @@ public sealed class AzureInventorySnapshotGraphResolver(
         return armId ?? string.Empty;
     }
 
-    private static string ResolveCategory(string resourceType)
-    {
-        if (string.IsNullOrWhiteSpace(resourceType))
-        {
-            return GraphTopologyCategories.Compute;
-        }
-
-        if (resourceType.Contains("/network", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("networksecuritygroups", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Network;
-        }
-
-        if (resourceType.Contains("/storage", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Storage;
-        }
-
-        if (resourceType.Contains("/compute", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("sites", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("serverfarms", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Compute;
-        }
-
-        if (resourceType.Contains("/sql", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("/documentdb", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("/dbfor", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Data;
-        }
-
-        if (resourceType.Contains("managedidentity", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("authorization", StringComparison.OrdinalIgnoreCase))
-        {
-            return GraphTopologyCategories.Identity;
-        }
-
-        return GraphTopologyCategories.Compute;
-    }
 }
