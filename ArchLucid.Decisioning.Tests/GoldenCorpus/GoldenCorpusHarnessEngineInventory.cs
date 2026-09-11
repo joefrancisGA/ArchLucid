@@ -17,7 +17,6 @@ public static class GoldenCorpusHarnessEngineInventory
     private static readonly IReadOnlyDictionary<string, string> AbsentReasons =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            ["requirement-gap"] = "Needs cross-run requirement diff graph — not present on golden corpus graphs.",
             ["requirement-cross-run-diff"] = "Cross-run diff engine — golden corpus is single-snapshot per case.",
             ["topology-cross-run-diff"] = "Cross-run topology diff — golden corpus is single-snapshot per case.",
             ["policy-applicability"] = "Policy-filtered packs exercised in WK-22 sibling tests, not merge harness.",
@@ -27,7 +26,6 @@ public static class GoldenCorpusHarnessEngineInventory
             // Post-gate join of Decision-grade members; AnalyzeAsync is a catalog placeholder (DX-51).
             ["decision-grade-fusion"] = "Post-gate synthesis; needs Decision-grade members — see DecisionGradeFusionApplicatorTests.",
             ["insight-generator"] = "Insight generator is a real-mode Premium LLM pass — harness uses NoOpInsightFindingGenerator.",
-            ["policy-declaration-inventory-contradiction"] = "Three-way pack contradiction needs filtered assigned pack — see PolicyDeclarationInventoryContradictionGoldenCorpusTests (DX-36).",
             ["portfolio-shared-topology"] = "Effectful cross-system graph join; not in single-snapshot corpus.",
         };
 
