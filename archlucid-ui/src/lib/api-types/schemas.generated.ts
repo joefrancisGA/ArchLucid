@@ -6907,11 +6907,13 @@ export interface components {
             roiSourceFreshnessDisposition?: string;
             /** Format: date-time */
             runCreatedUtc?: string;
+            structuralExecutionMode?: null | components["schemas"]["StructuralExecutionMode"];
             /** Format: double */
             timeToCommittedManifestTotalSeconds?: null | number | string;
             topFindingEvidenceChain?: null | components["schemas"]["FindingEvidenceChainResponse"];
             topFindingId?: null | string;
             topFindingSeverity?: null | string;
+            workingCareerRehearsalDoor?: null | string;
         };
         PilotScorecardBaselinesPutRequest: {
             /** Format: double */
@@ -10391,7 +10393,6 @@ export interface components {
             offset?: number;
             value?: null | string;
         };
-        /** @enum {string} */
         StructuralExecutionMode: "Simulator" | "Real" | "Fallback" | "Mixed";
         /** @enum {string} */
         StructuredBriefSuggestionKind: "Constraint" | "Assumption" | "RequiredCapability";
