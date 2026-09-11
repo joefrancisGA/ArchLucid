@@ -89,57 +89,13 @@ function Write-ArchLucidResourcesJsonStream([string] $Path, $Resources)
     }
 }
 
-function New-ArchLucidCollectedArmResourceRecord([object] $AzResource)
-{
-    if ($null -eq $AzResource) { throw [System.ArgumentNullException]::new("AzResource") }
-
-    $props = @{
-        provisioningState = $AzResource.Properties.provisioningState
-    }
-
-    if ([string]::Equals($AzResource.ResourceType, "Microsoft.Compute/virtualMachines",
-            [System.StringComparison]::OrdinalIgnoreCase))
-    {
-
-        try
-        {
-
-            [string]$vs = "$( $AzResource.Properties.hardwareProfile.vmSize )".Trim()
-
-            if (-not ([string]::IsNullOrWhiteSpace($vs)))
-            {
-
-                $props["vmSize"] = $vs
-
-            }
-
-        }
-
-        catch
-        {
-
-        }
-
-    }
-
-    return [ordered]@{
-        resourceType = $AzResource.ResourceType
-        resourceId = $AzResource.ResourceId
-        name = $AzResource.Name
-        location = $AzResource.Location
-        sku = $AzResource.Sku
-        tags = $AzResource.Tags
-        properties = $props
-    }
-
-}
-
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorQuickStart.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.RetailPrices.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.PolicyCompliance.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.CostManagement.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ResourceGraph.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorTelemetry.helpers.ps1')
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.SecurityInventory.helpers.ps1')
 
 function Get-ArchLucidExtractorInventoryResources
 {
@@ -645,10 +601,55 @@ try
     $policyPath = Join-Path $staging "policy.json"
     Write-Utf8NoBom $policyPath ($policyData | ConvertTo-Json -Depth 25)
 
-  # Schema v2 optional inventory siblings (empty arrays when not yet collected per resource type).
-  Write-Utf8NoBom (Join-Path $staging "role-assignments.json") "[]"
+    [System.Diagnostics.Stopwatch]$securityInventoryWatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+    try
+    {
+        [object[]]$roleAssignmentRows = @(Get-ArchLucidAzureRoleAssignmentCompanionRows `
+            -SubscriptionId $SubscriptionId `
+            -ResourceGroupScope $ResourceGroupScope `
+            -ManagementGroupId $ManagementGroupId)
+
+        [object[]]$networkAssociationRows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources @($resources))
+        [object[]]$federatedCredentialRows = @(Get-ArchLucidAzureFederatedCredentialCompanionRows -InventoryResources @($resources))
+
+        Write-Utf8NoBom (Join-Path $staging "role-assignments.json") ($roleAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "network-associations.json") ($networkAssociationRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") ($federatedCredentialRows | ConvertTo-Json -Depth 12 -Compress:$false)
+
+        Complete-ArchLucidExtractorStep `
+            -Telemetry $telemetry `
+            -Step SecurityInventory `
+            -Outcome Succeeded `
+            -Stopwatch $securityInventoryWatch `
+            -Context @{
+                roleAssignmentCount = $roleAssignmentRows.Count
+                networkAssociationCount = $networkAssociationRows.Count
+                federatedCredentialCount = $federatedCredentialRows.Count
+            }
+    }
+    catch
+    {
+        Add-ArchLucidExtractorWarning `
+            -Telemetry $telemetry `
+            -Step SecurityInventory `
+            -Message ("Failed to collect role assignments or network associations; companion files will contain empty arrays. {0}" -f $_.Exception.Message) `
+            -Context @{ scope = $scopeDescriptor }
+
+        Write-Utf8NoBom (Join-Path $staging "role-assignments.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "network-associations.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") "[]"
+
+        Complete-ArchLucidExtractorStep `
+            -Telemetry $telemetry `
+            -Step SecurityInventory `
+            -Outcome Skipped `
+            -Stopwatch $securityInventoryWatch `
+            -Detail $_.Exception.Message `
+            -Context @{ scope = $scopeDescriptor }
+    }
+
   Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") "[]"
-  Write-Utf8NoBom (Join-Path $staging "network-associations.json") "[]"
   Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") "[]"
   Write-Utf8NoBom (Join-Path $staging "defender-summary.json") "[]"
 

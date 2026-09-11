@@ -5,6 +5,7 @@ import { recurrenceScheduleMutationBlockedReason } from "@/lib/governance/recurr
 import { realizedValueAttestationMutationBlockedReason } from "@/lib/governance/realized-value-attestation-mutation-blocked-reason";
 import { riskExceptionMutationBlockedReason } from "@/lib/governance/risk-exception-mutation-blocked-reason";
 import {
+  realizedValueAttestationBlockedReason,
   recurrenceSchedulesBlockedReason,
   riskExceptionsBlockedReason,
 } from "@/lib/governance/governance-stickiness-list-blocked-reason";
@@ -145,9 +146,16 @@ export async function listArchitectureReviewRecurrenceSchedules(): Promise<Archi
 }
 
 export async function getRealizedValueAttestation(): Promise<RealizedValueAttestationResponse> {
-  return apiGetSealedManifestAware<RealizedValueAttestationResponse>(
-    `${governanceStickinessBase()}/realized-value/attestation`,
-  );
+  try {
+    return await apiGetSealedManifestAware<RealizedValueAttestationResponse>(
+      `${governanceStickinessBase()}/realized-value/attestation`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = realizedValueAttestationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function updateArchitectureReviewRecurrenceSchedule(
