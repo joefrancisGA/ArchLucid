@@ -16,11 +16,17 @@ import {
   GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE,
   GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST,
 } from "@/lib/governance/governance-workflow-release-copy";
-import type { GovernanceApprovalRequest, GovernancePromotionRecord } from "@/types/governance-workflow";
+import type {
+  GovernanceApprovalRequest,
+  GovernanceEnvironmentActivation,
+  GovernancePromotionRecord,
+} from "@/types/governance-workflow";
 
 import type { GovernanceWorkflowPendingReview } from "@/app/(operator)/governance/_sections/governance-workflow-helpers";
 import type { GovernanceMutationCorrectionTarget } from "@/lib/governance/governance-mutation-correction-api";
 import type { GovernanceMutationReversibilityId } from "@/lib/mutation-reversibility-registry";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { submitGovernanceWorkflowTransitionWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
 
 type GovernanceWorkflowPromotePending = {
   manifestId: string;
@@ -43,6 +49,7 @@ export type UseGovernanceWorkflowMutationsOptions = {
   readonly submitComment: string;
   readonly setSubmitComment: (value: string) => void;
   readonly workflowActor: string;
+  readonly livelihoodReturnPath: string;
 };
 
 export type UseGovernanceWorkflowMutationsResult = {
@@ -94,6 +101,7 @@ export function useGovernanceWorkflowMutations(
     submitComment,
     setSubmitComment,
     workflowActor,
+    livelihoodReturnPath,
   } = options;
 
   const [mutationSuccessMessage, setMutationSuccessMessage] = useState<string | null>(null);
@@ -171,14 +179,19 @@ export function useGovernanceWorkflowMutations(
     setSubmitBusy(true);
 
     try {
-      const { submitApprovalRequest } = await import("@/lib/api");
-      await submitApprovalRequest({
-        runId,
-        manifestVersion: submitManifestVersion.trim(),
-        sourceEnvironment: submitSource,
-        targetEnvironment: submitTarget,
-        requestComment: submitComment.trim() || undefined,
-      });
+      await submitGovernanceWorkflowTransitionWith401Resume(
+        {
+          action: "submit_approval",
+          body: {
+            runId,
+            manifestVersion: submitManifestVersion.trim(),
+            sourceEnvironment: submitSource,
+            targetEnvironment: submitTarget,
+            requestComment: submitComment.trim() || undefined,
+          },
+        },
+        { returnPath: livelihoodReturnPath },
+      );
       setMutationSuccessMessage(GOVERNANCE_WORKFLOW_APPROVAL_SUBMITTED_SUCCESS);
       clearMutationFailure();
       setSubmitComment("");
@@ -188,6 +201,10 @@ export function useGovernanceWorkflowMutations(
         await refetchRunLists();
       }
     } catch (e) {
+      if (isLivelihoodMutation401RedirectError(e)) {
+        return;
+      }
+
       reportMutationFailure(e);
     } finally {
       setSubmitBusy(false);
@@ -195,6 +212,7 @@ export function useGovernanceWorkflowMutations(
   }, [
     activeRunId,
     canMutateWorkflow,
+    livelihoodReturnPath,
     refetchRunLists,
     setSubmitComment,
     submitComment,
@@ -223,13 +241,18 @@ export function useGovernanceWorkflowMutations(
     setReviewBusy(true);
 
     try {
-      const { approveRequest, rejectRequest } = await import("@/lib/api");
-
       if (pendingReview.mode === "approve") {
-        await approveRequest(pendingReview.approvalRequestId, {
-          reviewedBy: reviewedBy.trim(),
-          reviewComment: reviewComment.trim() || undefined,
-        });
+        await submitGovernanceWorkflowTransitionWith401Resume(
+          {
+            action: "approve",
+            approvalRequestId: pendingReview.approvalRequestId,
+            body: {
+              reviewedBy: reviewedBy.trim(),
+              reviewComment: reviewComment.trim() || undefined,
+            },
+          },
+          { returnPath: livelihoodReturnPath },
+        );
         setMutationSuccessMessage(GOVERNANCE_WORKFLOW_REQUEST_APPROVED_SUCCESS);
         setMutationCorrectionTarget({
           mutationKind: "governance_workflow_approve",
@@ -240,10 +263,17 @@ export function useGovernanceWorkflowMutations(
         setMutationErrorMessage(null);
         setMutationErrorIsConcurrencyConflict(false);
       } else {
-        await rejectRequest(pendingReview.approvalRequestId, {
-          reviewedBy: reviewedBy.trim(),
-          reviewComment: reviewComment.trim() || undefined,
-        });
+        await submitGovernanceWorkflowTransitionWith401Resume(
+          {
+            action: "reject",
+            approvalRequestId: pendingReview.approvalRequestId,
+            body: {
+              reviewedBy: reviewedBy.trim(),
+              reviewComment: reviewComment.trim() || undefined,
+            },
+          },
+          { returnPath: livelihoodReturnPath },
+        );
         setMutationSuccessMessage(GOVERNANCE_WORKFLOW_REQUEST_REJECTED_SUCCESS);
         setMutationCorrectionTarget({
           mutationKind: "governance_workflow_reject",
@@ -260,11 +290,15 @@ export function useGovernanceWorkflowMutations(
       setReviewComment("");
       await refreshIfActive();
     } catch (e) {
+      if (isLivelihoodMutation401RedirectError(e)) {
+        return;
+      }
+
       reportMutationFailure(e);
     } finally {
       setReviewBusy(false);
     }
-  }, [canMutateWorkflow, pendingReview, refreshIfActive, reviewComment, reviewedBy]);
+  }, [canMutateWorkflow, livelihoodReturnPath, pendingReview, refreshIfActive, reviewComment, reviewedBy]);
 
   const onConfirmPromote = useCallback(async () => {
     const promoteFor = pendingPromoteRequestRef.current;
@@ -289,15 +323,20 @@ export function useGovernanceWorkflowMutations(
     setPromoteBusy(true);
 
     try {
-      const { promoteManifest } = await import("@/lib/api");
-      const promotion = await promoteManifest({
-        runId: promoteFor.runId,
-        manifestVersion: promoteFor.manifestVersion,
-        sourceEnvironment: promoteFor.sourceEnvironment,
-        targetEnvironment: promoteFor.targetEnvironment,
-        promotedBy: by,
-        approvalRequestId: promoteFor.approvalRequestId ?? undefined,
-      });
+      const promotion = await submitGovernanceWorkflowTransitionWith401Resume(
+        {
+          action: "promote",
+          body: {
+            runId: promoteFor.runId,
+            manifestVersion: promoteFor.manifestVersion,
+            sourceEnvironment: promoteFor.sourceEnvironment,
+            targetEnvironment: promoteFor.targetEnvironment,
+            promotedBy: by,
+            approvalRequestId: promoteFor.approvalRequestId ?? undefined,
+          },
+        },
+        { returnPath: livelihoodReturnPath },
+      ) as GovernancePromotionRecord;
       setMutationSuccessMessage(GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST);
       setMutationCorrectionTarget({
         mutationKind: "governance_workflow_promote",
@@ -310,11 +349,15 @@ export function useGovernanceWorkflowMutations(
       pendingPromoteRequestRef.current = null;
       await refreshIfActive();
     } catch (e) {
+      if (isLivelihoodMutation401RedirectError(e)) {
+        return;
+      }
+
       reportMutationFailure(e);
     } finally {
       setPromoteBusy(false);
     }
-  }, [canMutateWorkflow, refreshIfActive, workflowActor]);
+  }, [canMutateWorkflow, livelihoodReturnPath, refreshIfActive, workflowActor]);
 
   const onConfirmActivateFromPromotion = useCallback(async () => {
     const row = pendingActivatePromotionRef.current;
@@ -339,13 +382,18 @@ export function useGovernanceWorkflowMutations(
     setActivateBusyId(row.promotionRecordId);
 
     try {
-      const { activateEnvironment } = await import("@/lib/api");
-      const activation = await activateEnvironment({
-        runId: row.runId,
-        manifestVersion: row.manifestVersion,
-        environment: row.targetEnvironment,
-        activatedBy: by,
-      });
+      const activation = await submitGovernanceWorkflowTransitionWith401Resume(
+        {
+          action: "activate",
+          body: {
+            runId: row.runId,
+            manifestVersion: row.manifestVersion,
+            environment: row.targetEnvironment,
+            activatedBy: by,
+          },
+        },
+        { returnPath: livelihoodReturnPath },
+      ) as GovernanceEnvironmentActivation;
       setMutationSuccessMessage(governanceWorkflowActivateSuccessMessage(row.manifestVersion, row.targetEnvironment));
       setMutationCorrectionTarget({
         mutationKind: "governance_workflow_activate",
@@ -358,11 +406,15 @@ export function useGovernanceWorkflowMutations(
       pendingActivatePromotionRef.current = null;
       await refreshIfActive();
     } catch (e) {
+      if (isLivelihoodMutation401RedirectError(e)) {
+        return;
+      }
+
       reportMutationFailure(e);
     } finally {
       setActivateBusyId(null);
     }
-  }, [canMutateWorkflow, refreshIfActive, workflowActor]);
+  }, [canMutateWorkflow, livelihoodReturnPath, refreshIfActive, workflowActor]);
 
   return {
     mutationSuccessMessage,

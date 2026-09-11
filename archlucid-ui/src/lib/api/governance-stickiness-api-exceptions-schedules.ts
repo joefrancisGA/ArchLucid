@@ -8,9 +8,11 @@ import {
   recurrenceSchedulesBlockedReason,
   riskExceptionsBlockedReason,
 } from "@/lib/governance/governance-stickiness-list-blocked-reason";
+import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import type { components } from "@/lib/openapi-schemas";
+
 import {
   type ArchitectureReviewRecurrenceSchedule,
   type PreviewRecurrenceScheduleRunsResponse,
@@ -33,6 +35,8 @@ export async function createRiskException(body: {
   try {
     return await apiPostJson<RiskExceptionRecord>(`${governanceStickinessBase()}/risk-exceptions`, body);
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = riskExceptionMutationBlockedReason(failure);
 
@@ -62,6 +66,8 @@ export async function revokeRiskException(riskExceptionId: string): Promise<void
       {},
     );
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = riskExceptionMutationBlockedReason(failure);
 
@@ -79,6 +85,8 @@ export async function renewRiskException(
       body,
     );
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = riskExceptionMutationBlockedReason(failure);
 

@@ -17,6 +17,11 @@ export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "billing-and-plans",
 ];
 
+/** Help topic slugs shown only in the SecureNow Security shell. */
+export const ARCHITECTURE_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
+  "security-evidence-paths",
+];
+
 /** Help search drawer topic ids hidden in the SecureNow shell. */
 export const SECURENOW_EXCLUDED_HELP_SEARCH_TOPIC_IDS: readonly string[] = [
   "connect-aws",
@@ -58,11 +63,11 @@ export function filterCloudProvidersForProductLine(
 }
 
 export function isHelpTopicExcludedForProductLine(slug: string, productLineId: ProductLineId): boolean {
-  if (!isSecureNowProductLine(productLineId)) {
-    return false;
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS.includes(slug);
   }
 
-  return SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS.includes(slug);
+  return ARCHITECTURE_EXCLUDED_HELP_TOPIC_SLUGS.includes(slug);
 }
 
 export function isHelpSearchTopicExcludedForProductLine(topicId: string, productLineId: ProductLineId): boolean {

@@ -20,6 +20,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
@@ -159,7 +160,6 @@ const GOVERNANCE_INFRASTRUCTURE_ASK_CONTEXTUAL_HELP = {
   taskSteps: [
     "Scope Ask to a resource hub — unscoped Ask stays empty until a cloud resource id is present.",
     "Ask grounded questions and follow citations; insufficient-evidence outcomes are honest.",
-    "Use simulator mode only as a deterministic demo template — not a live model guarantee.",
   ],
 } as const;
 
@@ -232,6 +232,10 @@ export const GOVERNANCE_INFRASTRUCTURE_WORKBENCH_CONTEXTUAL_HELP_ROWS: readonly 
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
     entry: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CONTEXTUAL_HELP,
+  },
+  {
+    prefix: SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+    entry: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CONTEXTUAL_HELP,
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,

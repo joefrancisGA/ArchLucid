@@ -16,7 +16,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { findingDispositionMutationBlockedReason } from "@/lib/findings/finding-disposition-mutation-blocked-reason";
 import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
-import { useResumePendingLivelihoodMutation } from "@/hooks/use-resume-pending-livelihood-mutation";
+import { subscribeLivelihoodMutationReplayed } from "@/lib/auth/livelihood-mutation-replay-notify";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
@@ -220,9 +220,22 @@ export function useFindingInspectGovernanceStickinessDispositions({
     setDispositionConflict(null);
   }, []);
 
-  useResumePendingLivelihoodMutation({
-    enabled: canMutate,
-    onReplayed: (_kind, result) => {
+  useEffect(() => {
+    if (!canMutate) {
+      return;
+    }
+
+    return subscribeLivelihoodMutationReplayed(({ pending, result }) => {
+      if (pending.kind !== "finding_disposition") {
+        return;
+      }
+
+      const payload = pending.payload as { findingId: string };
+
+      if (payload.findingId !== findingId) {
+        return;
+      }
+
       void (async () => {
         try {
           await handleDispositionSaved(
@@ -235,13 +248,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
           setErrorMessage(message);
         }
       })();
-    },
-    onReplayError: (error: unknown) => {
-      const message = resolveMutationError(error);
-      setDispositionInlineSaveError(message);
-      setErrorMessage(message);
-    },
-  });
+    });
+  }, [canMutate, findingId, handleDispositionSaved, resolveMutationError, setDispositionInlineSaveError, setErrorMessage]);
 
   async function submitDisposition(): Promise<void> {
     if (!canMutate || busyAction !== null) {
@@ -297,6 +305,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
       const failure = toApiLoadFailure(error);
       const message =
         findingDispositionMutationBlockedReason(failure) ?? resolveMutationError(error);
+
       if (isLivelihoodMutation401RedirectError(error)) {
         return;
       }
@@ -363,6 +372,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
       const failure = toApiLoadFailure(error);
       const message =
         findingDispositionMutationBlockedReason(failure) ?? resolveMutationError(error);
+
       if (isLivelihoodMutation401RedirectError(error)) {
         return;
       }

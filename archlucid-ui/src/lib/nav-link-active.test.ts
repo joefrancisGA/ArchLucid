@@ -20,6 +20,8 @@ describe("isNavLinkActive", () => {
     expect(isNavLinkActive("/governance/findings", GOVERNANCE_FINDINGS_PATH)).toBe(true);
     expect(isNavLinkActive("/governance/findings/assigned-to-me", GOVERNANCE_FINDINGS_PATH)).toBe(false);
     expect(isNavLinkActive("/governance/findings/assigned-to-me", "/governance/findings/assigned-to-me")).toBe(true);
+    expect(isNavLinkActive("/security/assigned-to-me", GOVERNANCE_FINDINGS_PATH)).toBe(false);
+    expect(isNavLinkActive("/security/assigned-to-me", "/security/assigned-to-me")).toBe(true);
   });
 
   it("matches /architecture/reviews/new exactly", () => {

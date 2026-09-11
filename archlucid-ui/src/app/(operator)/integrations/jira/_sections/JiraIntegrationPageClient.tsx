@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { JiraIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
@@ -13,9 +14,10 @@ import { useItsmConnectorPage } from "@/hooks/use-itsm-connector-page";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   probeItsmIntegrationHealth,
-  upsertTenantItsmOutboundSettings,
   type TenantItsmOutboundSettingsResponse,
 } from "@/lib/api/itsm-outbound-api";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { saveItsmConnectorWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
 import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
@@ -70,6 +72,10 @@ import { JiraIntegrationSourcesOrientationStrip } from "./JiraIntegrationSources
 import { JiraWorkspaceRoutingPanel } from "./JiraWorkspaceRoutingPanel";
 
 export function JiraIntegrationPageClient(): React.ReactElement {
+  const pathname = usePathname() ?? "/integrations/jira";
+  const searchParams = useSearchParams();
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
   const canMutate = useOperateCapability();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canConfigureAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
@@ -232,19 +238,29 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     }
 
     try {
-      const saved = await upsertTenantItsmOutboundSettings({
-        jiraProjectKeyOverride: jiraProjectKey.trim().length > 0 ? jiraProjectKey.trim() : null,
-        jiraSendInfoSeverity: jiraSendInfo,
-        jiraIssueTypeBySeverityJson: issueTypeJsonTrimmed.length > 0 ? issueTypeJsonTrimmed : null,
-      });
+      const saved = await saveItsmConnectorWith401Resume(
+        {
+          connector: "jira_settings",
+          body: {
+            jiraProjectKeyOverride: jiraProjectKey.trim().length > 0 ? jiraProjectKey.trim() : null,
+            jiraSendInfoSeverity: jiraSendInfo,
+            jiraIssueTypeBySeverityJson: issueTypeJsonTrimmed.length > 0 ? issueTypeJsonTrimmed : null,
+          },
+        },
+        { returnPath: livelihoodReturnPath },
+      ) as TenantItsmOutboundSettingsResponse;
       applySettings(saved);
       setSaveSuccess(JIRA_SAVE_SUCCESS);
     } catch (error: unknown) {
+      if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
       setSaveError(error instanceof Error ? error.message : "Could not save workspace routing settings.");
     } finally {
       setIsSaving(false);
     }
-  }, [applySettings, issueTypeJson, jiraProjectKey, jiraSendInfo, workspaceRoutingEditable]);
+  }, [applySettings, issueTypeJson, jiraProjectKey, jiraSendInfo, livelihoodReturnPath, workspaceRoutingEditable]);
 
   const connectWithAtlassian = useCallback(async () => {
     if (!connectGate.allowed || connection === null) {

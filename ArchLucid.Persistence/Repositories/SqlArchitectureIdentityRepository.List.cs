@@ -17,6 +17,7 @@ public sealed partial class SqlArchitectureIdentityRepository
         int page,
         int pageSize,
         bool includeArchived = false,
+        string? actorOidForShareFilter = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -25,6 +26,19 @@ public sealed partial class SqlArchitectureIdentityRepository
         int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
 
         string archivedFilterSql = includeArchived ? string.Empty : " AND a.ArchivedUtc IS NULL";
+        string shareFilterSql = string.IsNullOrWhiteSpace(actorOidForShareFilter)
+            ? string.Empty
+            : """
+               AND (
+                   a.RestrictToShares = 0
+                   OR EXISTS (
+                       SELECT 1
+                       FROM dbo.ArchitectureShares s
+                       WHERE s.ArchitectureId = a.ArchitectureId
+                         AND s.ActorOid = @ActorOid
+                   )
+               )
+              """;
 
         string countSql = $"""
                            SELECT COUNT(1)
@@ -32,7 +46,8 @@ public sealed partial class SqlArchitectureIdentityRepository
                            WHERE a.TenantId = @TenantId
                              AND a.WorkspaceId = @WorkspaceId
                              AND a.ScopeProjectId = @ScopeProjectId
-                             {archivedFilterSql};
+                             {archivedFilterSql}
+                             {shareFilterSql};
                            """;
 
         string listSql = $"""
@@ -83,6 +98,7 @@ public sealed partial class SqlArchitectureIdentityRepository
                             AND a.WorkspaceId = @WorkspaceId
                             AND a.ScopeProjectId = @ScopeProjectId
                             {archivedFilterSql}
+                            {shareFilterSql}
                           ORDER BY a.UpdatedUtc DESC, a.ArchitectureId DESC
                           OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                           """;
@@ -94,6 +110,7 @@ public sealed partial class SqlArchitectureIdentityRepository
             ScopeProjectId = scope.ProjectId,
             Skip = skip,
             PageSize = safePageSize,
+            ActorOid = actorOidForShareFilter?.Trim(),
         };
 
         await using SqlConnection connection =

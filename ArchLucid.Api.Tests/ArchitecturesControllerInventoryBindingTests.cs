@@ -46,6 +46,7 @@ public sealed class ArchitecturesControllerInventoryBindingTests
     {
         _scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);
         _actorContext.Setup(static a => a.GetActor()).Returns("actor@example.com");
+        _actorContext.Setup(static a => a.GetActorId()).Returns("jwt:tenant:actor");
         _bindingAuditSupport = new ArchitectureInventoryBindingAuditSupport(
             _auditService.Object,
             NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance);
@@ -249,20 +250,13 @@ public sealed class ArchitecturesControllerInventoryBindingTests
     }
 
     private ArchitecturesController BuildSut() =>
-        new(
-            _scopeProvider.Object,
-            _actorContext.Object,
-            _identityService.Object,
-            _bindingService.Object,
-            _bindingAuditSupport,
-            _sealDeltaService.Object,
-            _auditService.Object,
-            _runRepository.Object,
-            _goldenManifestRepository.Object,
-            SealedManifestHashTestSupport.CreateManifestHashService(),
-            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
-            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun())
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        ArchitecturesControllerTestSupport.BuildController(
+            _scopeProvider,
+            _actorContext,
+            _identityService,
+            _bindingService,
+            _sealDeltaService,
+            _auditService,
+            _runRepository,
+            _goldenManifestRepository);
 }
