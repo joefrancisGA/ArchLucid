@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { InAppNavigationGuardDialog } from "@/components/navigation/InAppNavigationGuardDialog";
 import { useInAppNavigationGuard } from "@/hooks/use-in-app-navigation-guard";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 import { consumeIdleDeskRestoreFormSnapshot } from "@/lib/auth/idle-desk-restore";
+import { flushLivelihoodIdleFormSnapshotBeforeUnmount } from "@/lib/auth/error-boundary-idle-snapshot";
 import {
   buildLivelihoodIdleFormSnapshotKey,
   registerLivelihoodIdleFormSnapshot,
@@ -69,8 +70,23 @@ export function useLivelihoodIdleFormSnapshotPersistence(
       fields: args.fields,
       savedAtUtc: new Date().toISOString(),
     });
+  }, [args.entityKey, args.fields, args.surfaceId, args.when, returnPath, snapshotKey]);
+
+  useLayoutEffect(() => {
+    if (!args.when) {
+      return;
+    }
+
+    const snapshot = {
+      surfaceId: args.surfaceId,
+      returnPath,
+      entityKey: args.entityKey,
+      fields: args.fields,
+      savedAtUtc: new Date().toISOString(),
+    };
 
     return () => {
+      flushLivelihoodIdleFormSnapshotBeforeUnmount(snapshotKey, snapshot);
       registerLivelihoodIdleFormSnapshot(snapshotKey, null);
     };
   }, [args.entityKey, args.fields, args.surfaceId, args.when, returnPath, snapshotKey]);

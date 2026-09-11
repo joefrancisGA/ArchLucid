@@ -27,6 +27,7 @@ vi.mock("next/navigation", async (importOriginal) => {
     refresh: refreshMock,
   }),
   usePathname: () => "/architecture/reviews/22222222-2222-2222-2222-222222222222",
+  useSearchParams: () => new URLSearchParams(),
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
