@@ -22,3 +22,11 @@ export const WORKING_REHEARSAL_READY_SUPPRESSED_COPY =
   "Ready-to-finalize labels stay off in Rehearsal so screenshots cannot borrow career proof. Switch to Career when live AI is ready.";
 
 export const WORKING_CAREER_REHEARSAL_HELP_LEARN_MORE_LABEL = "Learn about Career and Rehearsal doors";
+
+export const SECURITY_WORKING_CAREER_HONESTY_STRIP_TITLE =
+  "Security Working — Simulator is not Career";
+
+export const SECURITY_WORKING_CAREER_HONESTY_STRIP_BODY =
+  "This product line hides the Career / Rehearsal control. Hiding it does not make Simulator Career.";
+
+export const SECURITY_WORKING_CAREER_HONESTY_STRIP_HELP_LABEL = "Career / Rehearsal doors";

@@ -75,6 +75,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **New tenant (CG-014):** unset GET and empty-browser first-run Working default to **Career**. Implicit GET does not PUT. Legacy Simulator usage signals still grandfather **Rehearsal** (banner is CG-015). Host `AgentExecution:Mode` stays Simulator.
 
+**Security product line (CG-017):** `OperatorShellTopBar` still skips `WorkingCareerRehearsalChooser` when `productLine === "security"`. Working Security mounts `SecurityWorkingCareerHonestyStrip` instead — Simulator is not Career. The strip does not PUT the door. Guided, demo, and trial seats do not mount it. Help: [`/help/career-rehearsal-doors#security-product-line`](/help/career-rehearsal-doors#security-product-line).
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.

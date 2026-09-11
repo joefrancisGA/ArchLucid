@@ -8,6 +8,7 @@ import {
   CAREER_GRAVITY_BADGE_PIPELINE_COPY_ROWS,
   CAREER_GRAVITY_SECURITY_CHOOSER_SKIP_MARKER,
   CAREER_GRAVITY_SECURITY_CHOOSER_SKIP_PATH,
+  CAREER_GRAVITY_SECURITY_HONESTY_STRIP_PATH,
 } from "@/lib/career-gravity-badge-pipeline-copy-inventory";
 
 const REPO_ROOT = join(process.cwd(), "..");
@@ -44,6 +45,12 @@ describe("career-gravity badge and pipeline copy inventory (CG-004)", () => {
     const topBar = readFileSync(join(REPO_ROOT, CAREER_GRAVITY_SECURITY_CHOOSER_SKIP_PATH), "utf8");
 
     expect(topBar).toContain(CAREER_GRAVITY_SECURITY_CHOOSER_SKIP_MARKER);
+    expect(topBar).toContain("SecurityWorkingCareerHonestyStrip");
+
+    const honestyStrip = readFileSync(join(REPO_ROOT, CAREER_GRAVITY_SECURITY_HONESTY_STRIP_PATH), "utf8");
+
+    expect(honestyStrip).toContain("Simulator is not Career");
+    expect(honestyStrip).not.toContain("G-REAL-06");
 
     const rail = readFileSync(
       join(REPO_ROOT, "archlucid-ui/src/lib/first-pilot-operating-rail-status.ts"),

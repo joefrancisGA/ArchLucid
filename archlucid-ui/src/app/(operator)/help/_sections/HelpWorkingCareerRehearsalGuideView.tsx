@@ -23,6 +23,8 @@ import {
   WORKING_CAREER_REHEARSAL_HELP_PAGE_TITLE,
   WORKING_CAREER_REHEARSAL_HELP_PRIMARY_ACTION,
   WORKING_CAREER_REHEARSAL_HELP_RELATED,
+  WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY,
+  WORKING_CAREER_REHEARSAL_HELP_SECURITY_TITLE,
   WORKING_CAREER_REHEARSAL_HELP_SIMULATOR_HONESTY_COPY,
   WORKING_CAREER_REHEARSAL_HELP_SIMULATOR_HONESTY_TITLE,
 } from "@/lib/governance/working-career-rehearsal-help-guide-content";
@@ -30,6 +32,7 @@ import {
   WORKING_CAREER_REHEARSAL_HELP_GUIDE_TEST_ID,
   WORKING_CAREER_REHEARSAL_HELP_PRIMARY_CONTENT_ID,
 } from "@/lib/governance/working-career-rehearsal-help-page-copy";
+import { WORKING_CAREER_REHEARSAL_HELP_SECURITY_HEADING_ID } from "@/lib/governance/working-career-rehearsal-help-route";
 import { HELP_PAGE_LAYOUT, HELP_PAGE_TOC, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -121,6 +124,15 @@ export function HelpWorkingCareerRehearsalGuideView(
             <HelpSectionHeading id="guided-vs-working">Guided vs Working</HelpSectionHeading>
             <p className={readingBodyClass} data-testid="help-career-rehearsal-doors-guided-note">
               {WORKING_CAREER_REHEARSAL_HELP_GUIDED_NOTE}
+            </p>
+          </section>
+
+          <section aria-labelledby={WORKING_CAREER_REHEARSAL_HELP_SECURITY_HEADING_ID} className="space-y-3">
+            <HelpSectionHeading id={WORKING_CAREER_REHEARSAL_HELP_SECURITY_HEADING_ID}>
+              {WORKING_CAREER_REHEARSAL_HELP_SECURITY_TITLE}
+            </HelpSectionHeading>
+            <p className={readingBodyClass} data-testid="help-career-rehearsal-doors-security-note">
+              {WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY}
             </p>
           </section>
 
