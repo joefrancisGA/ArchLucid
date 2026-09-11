@@ -109,4 +109,25 @@ public sealed class CommitRunTransientRetryPolicyTests
             .Should()
             .BeTrue();
     }
+
+    [Fact]
+    public void RetryDelay_sum_for_inter_attempt_waits_fits_inside_retry_budget()
+    {
+        TimeSpan interAttemptDelayTotal = Enumerable
+            .Range(1, CommitRunTransientRetryPolicy.MaxAttempts - 1)
+            .Select(CommitRunTransientRetryPolicy.RetryDelay)
+            .Aggregate(TimeSpan.Zero, static (sum, delay) => sum + delay);
+
+        interAttemptDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+    }
+
+    [Fact]
+    public void IsExhausted_returns_false_at_attempt_one_below_max_with_zero_elapsed()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+                CommitRunTransientRetryPolicy.MaxAttempts - 1,
+                TimeSpan.Zero)
+            .Should()
+            .BeFalse();
+    }
 }
