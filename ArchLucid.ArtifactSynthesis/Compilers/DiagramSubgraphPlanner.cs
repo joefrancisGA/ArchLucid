@@ -44,37 +44,45 @@ internal sealed class DiagramSubgraphPlanner
                 nodeSubgraphAssignments[node.NodeId] = resourceGroupSubgraphId;
             }
 
-            if (armType.Contains("/virtualnetworks/", StringComparison.OrdinalIgnoreCase)
-                && !string.IsNullOrWhiteSpace(resourceGroup)
-                && !string.IsNullOrWhiteSpace(subscriptionId))
-            {
-                string vnetSubgraphId = MermaidIdSanitizer.Sanitize($"vnet-{armId}");
-                string parentSubgraphId = MermaidIdSanitizer.Sanitize($"rg-{subscriptionId}-{resourceGroup}");
-
-                EnsureSubgraph(
-                    subgraphs,
-                    vnetSubgraphId,
-                    $"VNet {node.Label}",
-                    parentSubgraphId,
-                    orderKey: 2);
-
-                nodeSubgraphAssignments[node.NodeId] = vnetSubgraphId;
-            }
-
             if (armType.Contains("/subnets/", StringComparison.OrdinalIgnoreCase))
             {
                 string? parentArmId = node.Properties.TryGetValue("arm.parentId", out string? parentId) ? parentId : null;
 
-                if (!string.IsNullOrWhiteSpace(parentArmId))
+                if (!string.IsNullOrWhiteSpace(parentArmId)
+                    && !string.IsNullOrWhiteSpace(subscriptionId)
+                    && !string.IsNullOrWhiteSpace(resourceGroup))
                 {
+                    string subscriptionSubgraphId = MermaidIdSanitizer.Sanitize($"sub-{subscriptionId}");
+                    string resourceGroupSubgraphId = MermaidIdSanitizer.Sanitize($"rg-{subscriptionId}-{resourceGroup}");
+                    string vnetSubgraphId = MermaidIdSanitizer.Sanitize($"vnet-{parentArmId}");
                     string subnetSubgraphId = MermaidIdSanitizer.Sanitize($"subnet-{armId}");
-                    string parentSubgraphId = MermaidIdSanitizer.Sanitize($"vnet-{parentArmId}");
+
+                    EnsureSubgraph(
+                        subgraphs,
+                        subscriptionSubgraphId,
+                        $"Subscription {subscriptionId}",
+                        parentSubgraphId: null,
+                        orderKey: 0);
+
+                    EnsureSubgraph(
+                        subgraphs,
+                        resourceGroupSubgraphId,
+                        $"RG {resourceGroup}",
+                        subscriptionSubgraphId,
+                        orderKey: 1);
+
+                    EnsureSubgraph(
+                        subgraphs,
+                        vnetSubgraphId,
+                        $"VNet {ReadParentVnetLabel(nodes, parentArmId)}",
+                        resourceGroupSubgraphId,
+                        orderKey: 2);
 
                     EnsureSubgraph(
                         subgraphs,
                         subnetSubgraphId,
                         $"Subnet {node.Label}",
-                        parentSubgraphId,
+                        vnetSubgraphId,
                         orderKey: 3);
 
                     nodeSubgraphAssignments[node.NodeId] = subnetSubgraphId;
@@ -100,9 +108,13 @@ internal sealed class DiagramSubgraphPlanner
             return MermaidIdSanitizer.Sanitize($"subnet-{armId}");
         }
 
-        if (armType.Contains("/virtualnetworks/", StringComparison.OrdinalIgnoreCase))
+        if (armType.Contains("/virtualnetworks/", StringComparison.OrdinalIgnoreCase)
+            && !armType.Contains("/subnets/", StringComparison.OrdinalIgnoreCase))
         {
-            return MermaidIdSanitizer.Sanitize($"vnet-{armId}");
+            if (!string.IsNullOrWhiteSpace(resourceGroup) && !string.IsNullOrWhiteSpace(subscriptionId))
+            {
+                return MermaidIdSanitizer.Sanitize($"rg-{subscriptionId}-{resourceGroup}");
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(resourceGroup) && !string.IsNullOrWhiteSpace(subscriptionId))
@@ -116,6 +128,26 @@ internal sealed class DiagramSubgraphPlanner
         }
 
         return subgraphs.FirstOrDefault()?.SubgraphId;
+    }
+
+    private static string ReadParentVnetLabel(IReadOnlyList<GraphNode> nodes, string parentArmId)
+    {
+        GraphNode? parentVnet = nodes.FirstOrDefault(candidate =>
+            string.Equals(DiagramAstGraphNodeClassifier.ReadArmId(candidate), parentArmId, StringComparison.OrdinalIgnoreCase));
+
+        if (parentVnet != null && !string.IsNullOrWhiteSpace(parentVnet.Label))
+        {
+            return parentVnet.Label;
+        }
+
+        int nameStart = parentArmId.LastIndexOf('/');
+
+        if (nameStart >= 0 && nameStart < parentArmId.Length - 1)
+        {
+            return parentArmId[(nameStart + 1)..];
+        }
+
+        return parentArmId;
     }
 
     private static void EnsureSubgraph(

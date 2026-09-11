@@ -39,6 +39,7 @@ import { createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/ap
 import { patchDraftRequestWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
 import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import { readOperatorScopeWriteMismatchMessage, type OperatorScopeWriteStamp } from "@/lib/operator/operator-scope-write-stamp";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import type { ActorSet } from "@/types/draft-intake";
@@ -79,6 +80,7 @@ type UseArchitectureDraftAutosavePersistArgs = Pick<
   readonly autosaveBlockedRef: React.MutableRefObject<boolean>;
   readonly markDirty: () => void;
   readonly livelihoodReturnPath?: string;
+  readonly scopeWriteStamp: OperatorScopeWriteStamp;
 };
 
 export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAutosavePersistArgs) {
@@ -96,6 +98,16 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
     const forceOverwrite = options?.forceOverwrite === true;
 
     if (!enabled) return true;
+
+    const scopeMismatchMessage = readOperatorScopeWriteMismatchMessage(args.scopeWriteStamp);
+
+    if (scopeMismatchMessage !== null) {
+      args.setConflictMessage(scopeMismatchMessage);
+      args.setSaveState("error");
+
+      return false;
+    }
+
     if (!isOnline) {
       const draftId = args.resolvedDraftIdRef.current ?? args.draftId;
 
