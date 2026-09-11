@@ -1826,7 +1826,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — LP-14 note injection; preview override bypass; bulk duplicate ids
+- **last-bug:** 2026-09-11 — LP-14 note injection; preview override bypass; bulk duplicate ids; 2026-09-11 — guided-desk LP-14 attestation note injection; preview override bypass; bulk duplicate ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1884,6 +1884,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-10 seed hunt #1578 (seed→hit): reseeded finding-disposition; proved invisible architect restatement and optional rationale gaps; seeded whitespace row-version concurrency candidate; 33 scoped finding-disposition tests passed.
 
+- [x] (valid-no-repro) Guided-desk UI sends `ImpactPreviewCompleted` on `Remediated` — **cheap-disproof 2026-09-11 thorough hunt #1719:** `buildFindingApplyChangeDispositionAttestation` returns `null` when `isWorkingDesk` is false (`finding-apply-change-preview-gate.ts`); production UI never populates the field on guided desk.
+- [x] (proven) `FindingDispositionService.BuildImpactPreviewAttestationNote` — non-UI callers could persist Working-desk LP-14 attestation notes on guided desk when `ImpactPreviewCompleted=true` or `PreviewOverrideReason` is set — **hit 2026-09-11 thorough hunt #1719:** note builder ignored workspace mode; fixed by passing `isWorkingDesk` into attestation projection; regressions `RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`, `RecordAsync_guided_remediated_ignores_preview_override_reason_in_notes`
+- [x] (proven) `FindingDispositionValidation.Validate` — optional `PreviewOverrideReason` on guided-desk `Remediated` bypassed `HasSubstantiveText` because only `ValidateWorkingRemediatedImpactPreviewAttestation` guarded the field — **hit 2026-09-11 thorough hunt #1719:** invisible-only override text persisted when provided via API; fixed with optional-field guard in `Validate()`; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided`, `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
+- [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch appended multiple events while current pointer kept last only — **hit 2026-09-11 thorough hunt #1719:** `HashSet<string>` on trimmed finding ids before repository call; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
+
+2026-09-11 thorough hunt #1719 (hit): cheap-disproved guided UI attestation reachability; proved API-side LP-14 note injection, guided preview override bypass, and bulk duplicate finding ids; 60 scoped FindingDisposition tests passed.
 - [x] (valid-no-repro) Guided-desk UI sends `ImpactPreviewCompleted` on `Remediated` — **cheap-disproof 2026-09-11 seed hunt #1720:** `buildFindingApplyChangeDispositionAttestation` returns `null` when `isWorkingDesk` is false (`finding-apply-change-preview-gate.ts`).
 - [x] (proven) `FindingDispositionService.BuildImpactPreviewAttestationNote` — API callers persisted Working-desk LP-14 attestation notes on guided desk — **hit 2026-09-11 seed hunt #1720:** note builder ignored workspace mode; fixed by passing `isWorkingDesk`; regressions `RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`, `RecordAsync_guided_remediated_ignores_preview_override_reason_in_notes`
 - [x] (proven) `FindingDispositionValidation.Validate` — optional `PreviewOverrideReason` on guided-desk `Remediated` bypassed `HasSubstantiveText` — **hit 2026-09-11 seed hunt #1720:** fixed with optional-field guard in `Validate()`; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided`, `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
