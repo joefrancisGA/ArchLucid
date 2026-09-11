@@ -2420,10 +2420,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2464,6 +2464,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DocumentationRelativePath` uses repo-absolute leading slash — **cheap-disproof 2026-09-10 seed hunt #1675:** path stays repo-relative without leading `/`; regression `DocumentationRelativePath_does_not_use_leading_slash`.
 
 2026-09-10 seed hunt #1675 (seed-only): reseeded cli-terraform-evidence after master merge; cheap-disproof closed entry count, pilot placement, composition wave order, and documentation leading-slash shape; 19 scoped DeploymentEvidenceTerraformReference tests passed.
+
+- [x] (valid-no-repro) Evidence lists `infra/terraform-orchestrator` more than once or without the legacy isolation annotation — **cheap-disproof 2026-09-11 seed hunt #1749:** single orchestrator line with legacy note; regression `DefaultApplyOrderRoots_lists_orchestrator_only_once_as_legacy_leaf`.
+
+2026-09-11 seed hunt #1749 (seed-only): reseeded cli-terraform-evidence; cheap-disproof closed duplicate orchestrator legacy entry candidate; 20 scoped DeploymentEvidenceTerraformReference tests passed.
 
 2026-09-09 seed hunt #1436 (seed-only): re-read static apply-order reference; cheap-disproved pilot-profile and hardcoded-leaf drift candidates; added `$pilotProfileOnly` sync regression; 6 scoped DeploymentEvidenceTerraformReference tests passed.
 
@@ -9345,11 +9349,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 17
-- **bugs-found:** 26
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-05 — architecture finding numeric sourceAgent ordinal ignored
+- **hunts:** 18
+- **bugs-found:** 27
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — unknown sourceAgent string silently left invalid default AgentType
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9399,6 +9403,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-10 thorough hunt #1581 (dry): cheap-disproved whitespace-severity default candidate; documented intentional Info default for blank severity in architecture-finding and eval-corpus converters.
 
 2026-09-05 seed hunt #796 (hit): reseeded archlucid-contracts after wave-21 churn; proved architecture-finding numeric sourceAgent ordinal gap; seeded whitespace-severity default candidate.
+
+- [x] (proven) `ArchitectureFindingJsonConverter.TryReadSourceAgent` — unknown string labels (`"bogus"`) silently left `SourceAgent` at invalid default `0` while out-of-range ordinals throw — **hit 2026-09-11 seed hunt #1748 (seed→hit):** non-empty unknown labels now throw `JsonException`; regression `Deserialize_unknown_source_agent_string_throws`.
+
+2026-09-11 seed hunt #1748 (seed→hit): reseeded archlucid-contracts; proved unknown sourceAgent string silent default; 20 scoped `ArchitectureFindingJsonConverter` tests passed.
 
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
 

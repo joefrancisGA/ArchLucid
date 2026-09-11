@@ -259,6 +259,18 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
             .NotStartWith("/");
     }
 
+    [Fact]
+    public void DefaultApplyOrderRoots_lists_orchestrator_only_once_as_legacy_leaf()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+        List<string> orchestratorLines = roots
+            .Where(line => line.Contains("infra/terraform-orchestrator", StringComparison.Ordinal))
+            .ToList();
+
+        orchestratorLines.Should().ContainSingle();
+        orchestratorLines[0].Should().Contain("legacy isolation path only");
+    }
+
     private static string RequireRepositoryRoot()
     {
         string? repoRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot(AppContext.BaseDirectory);
