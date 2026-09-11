@@ -1,8 +1,32 @@
 export const ARCHITECTURE_DIAGRAM_FULLSCREEN_PARAM = "diagFullscreen";
 export const ARCHITECTURE_DIAGRAM_ZOOM_PARAM = "diagZoom";
 
-const MIN_DIAGRAM_ZOOM = 0.5;
-const MAX_DIAGRAM_ZOOM = 2.5;
+/** Minimum diagram zoom as a scale factor (10%). */
+export const MIN_ARCHITECTURE_DIAGRAM_ZOOM = 0.1;
+
+/** Maximum diagram zoom as a scale factor (1000%). */
+export const MAX_ARCHITECTURE_DIAGRAM_ZOOM = 10;
+
+/** Minimum diagram zoom shown in the percent input. */
+export const MIN_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT = 10;
+
+/** Maximum diagram zoom shown in the percent input. */
+export const MAX_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT = 1000;
+
+export function clampArchitectureDiagramZoom(zoom: number): number {
+  return Math.min(
+    MAX_ARCHITECTURE_DIAGRAM_ZOOM,
+    Math.max(MIN_ARCHITECTURE_DIAGRAM_ZOOM, Number(zoom.toFixed(2))),
+  );
+}
+
+export function architectureDiagramZoomToPercent(zoom: number): number {
+  return Math.round(clampArchitectureDiagramZoom(zoom) * 100);
+}
+
+export function architectureDiagramPercentToZoom(percent: number): number {
+  return clampArchitectureDiagramZoom(percent / 100);
+}
 
 export function parseArchitectureDiagramFullscreenOpenFromSearch(raw: string | null | undefined): boolean {
   if (raw === null || raw === undefined) {
@@ -31,7 +55,7 @@ export function parseArchitectureDiagramZoomFromSearch(raw: string | null | unde
     return null;
   }
 
-  return Math.min(MAX_DIAGRAM_ZOOM, Math.max(MIN_DIAGRAM_ZOOM, Number(parsed.toFixed(2))));
+  return clampArchitectureDiagramZoom(parsed);
 }
 
 export function architectureDiagramFullscreenHrefFromSearch(

@@ -99,3 +99,5 @@ export const ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL = "Zoom in" as const;
 export const ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL = "Zoom out" as const;
 
 export const ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL = "Reset zoom" as const;
+
+export const ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL = "Diagram zoom percentage" as const;

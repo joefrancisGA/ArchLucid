@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import {
   ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
@@ -21,10 +22,18 @@ import {
   ARCHITECTURE_DIAGRAM_RETRY_ACTION,
   ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
   ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
+  ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL,
 } from "@/lib/architecture/architecture-diagram-copy";
 import {
   architectureDiagramFullscreenHrefFromSearch,
+  architectureDiagramPercentToZoom,
   architectureDiagramZoomHrefFromSearch,
+  architectureDiagramZoomToPercent,
+  clampArchitectureDiagramZoom,
+  MAX_ARCHITECTURE_DIAGRAM_ZOOM,
+  MAX_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT,
+  MIN_ARCHITECTURE_DIAGRAM_ZOOM,
+  MIN_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT,
   parseArchitectureDiagramFullscreenOpenFromSearch,
   parseArchitectureDiagramZoomFromSearch,
 } from "@/lib/architecture/architecture-diagram-fullscreen-url";
@@ -37,8 +46,6 @@ import {
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-const MIN_ZOOM = 0.5;
-const MAX_ZOOM = 2.5;
 const ZOOM_STEP = 0.25;
 
 export type ArchitectureDiagramViewerProps = {
@@ -74,6 +81,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
   const [renderError, setRenderError] = useState<string | null>(null);
   const urlZoom = parseArchitectureDiagramZoomFromSearch(diagZoomParam);
   const [zoom, setZoomState] = useState<number>(() => urlZoom ?? 1);
+  const [zoomPercentDraft, setZoomPercentDraft] = useState<string | null>(null);
   const [fullscreenOpen, setFullscreenOpenState] = useState(() =>
     parseArchitectureDiagramFullscreenOpenFromSearch(diagFullscreenParam),
   );
@@ -107,7 +115,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     (value: SetStateAction<number>) => {
       const current = zoomRef.current;
       const nextRaw = typeof value === "function" ? value(current) : value;
-      const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number(nextRaw.toFixed(2))));
+      const next = clampArchitectureDiagramZoom(nextRaw);
 
       setZoomState(next);
       syncDiagramZoomToUrl(next);
@@ -168,7 +176,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
 
   const adjustZoom = useCallback(
     (delta: number) => {
-      setZoom((current) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number((current + delta).toFixed(2)))));
+      setZoom((current) => clampArchitectureDiagramZoom(current + delta));
     },
     [setZoom],
   );
@@ -256,9 +264,31 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     };
   }, [sanitizedSvg]);
 
-  const zoomPercentLabel = `${Math.round(zoom * 100)}%`;
-  const atMinZoom = zoom <= MIN_ZOOM + 0.001;
-  const atMaxZoom = zoom >= MAX_ZOOM - 0.001;
+  const zoomPercent = architectureDiagramZoomToPercent(zoom);
+  const zoomPercentInputValue = zoomPercentDraft ?? String(zoomPercent);
+  const atMinZoom = zoom <= MIN_ARCHITECTURE_DIAGRAM_ZOOM + 0.001;
+  const atMaxZoom = zoom >= MAX_ARCHITECTURE_DIAGRAM_ZOOM - 0.001;
+
+  const commitZoomPercent = useCallback(
+    (raw: string) => {
+      setZoomPercentDraft(null);
+
+      const trimmed = raw.trim().replace(/%$/, "");
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const parsed = Number.parseFloat(trimmed);
+
+      if (!Number.isFinite(parsed)) {
+        return;
+      }
+
+      setZoom(architectureDiagramPercentToZoom(parsed));
+    },
+    [setZoom],
+  );
 
   const diagramBody = (
     <>
@@ -319,13 +349,32 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         >
           −
         </Button>
-        <span
-          className={cn("min-w-[3.25rem] text-center tabular-nums text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="architecture-diagram-zoom-readout"
-          aria-live="polite"
-        >
-          {zoomPercentLabel}
-        </span>
+        <div className="flex items-center gap-1" data-testid="architecture-diagram-zoom-readout" aria-live="polite">
+          <Input
+            type="number"
+            min={MIN_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT}
+            max={MAX_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT}
+            step="any"
+            inputMode="decimal"
+            aria-label={ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL}
+            data-testid="architecture-diagram-zoom-input"
+            className={cn("h-8 w-[4.75rem] px-2 text-center tabular-nums", OPERATOR_TYPOGRAPHY.helper)}
+            value={zoomPercentInputValue}
+            onChange={(event) => setZoomPercentDraft(event.target.value)}
+            onFocus={() => setZoomPercentDraft(String(zoomPercent))}
+            onBlur={(event) => commitZoomPercent(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                commitZoomPercent(event.currentTarget.value);
+                event.currentTarget.blur();
+              }
+            }}
+          />
+          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} aria-hidden="true">
+            %
+          </span>
+        </div>
         <Button
           type="button"
           variant="outline"

@@ -93,4 +93,58 @@ describe("ArchitectureDiagramViewer", () => {
       });
     });
   });
+
+  it("applies a custom zoom percentage from the input", async () => {
+    replaceMock.mockClear();
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-zoom-input")).toBeInTheDocument();
+    });
+
+    const zoomInput = screen.getByLabelText("Diagram zoom percentage");
+
+    fireEvent.change(zoomInput, { target: { value: "350" } });
+    fireEvent.blur(zoomInput);
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith("/governance/infrastructure/diagrams?diagZoom=3.50", {
+        scroll: false,
+      });
+    });
+  });
+
+  it("clamps custom zoom percentages to the supported range", async () => {
+    replaceMock.mockClear();
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-zoom-input")).toBeInTheDocument();
+    });
+
+    const zoomInput = screen.getByLabelText("Diagram zoom percentage");
+
+    fireEvent.change(zoomInput, { target: { value: "1500" } });
+    fireEvent.blur(zoomInput);
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith("/governance/infrastructure/diagrams?diagZoom=10.00", {
+        scroll: false,
+      });
+    });
+  });
 });
