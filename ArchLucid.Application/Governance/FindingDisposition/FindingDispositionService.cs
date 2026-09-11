@@ -84,12 +84,23 @@ public sealed class FindingDispositionService(
         List<byte[]?> expectedRowVersions = new(requests.Count);
 
         bool isWorkingDesk = await _userWorkspaceModeReader.IsWorkingDeskAsync(reviewerUserId, cancellationToken);
+        HashSet<string> seenFindingIds = new(StringComparer.Ordinal);
 
         foreach (RecordFindingDispositionRequest request in requests)
         {
             ArgumentNullException.ThrowIfNull(request);
             FindingDispositionValidation.Validate(request);
             FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation(request, isWorkingDesk);
+
+            string normalizedFindingId = request.FindingId.Trim();
+
+            if (!seenFindingIds.Add(normalizedFindingId))
+            {
+                throw new ArgumentException(
+                    $"Duplicate finding id '{normalizedFindingId}' in bulk disposition request.",
+                    nameof(requests));
+            }
+
             records.Add(BuildReviewEventRecord(request, scope, reviewerUserId));
             expectedRowVersions.Add(TryDecodeRowVersion(request.ExpectedCurrentDispositionRowVersionBase64));
         }
