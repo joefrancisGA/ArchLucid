@@ -29,7 +29,7 @@ Outbound is how rehearsal leaks into another system of record. Sponsors and tick
 | Weekly digest | `ArchLucid.Application/Notifications/Email/ExecDigestEmailDispatcher.cs` | Subject `{product} weekly digest` | `[Rehearsal]` prefix when all commits are rehearsal | **covered** | CG-037 |
 | Weekly digest | `ArchLucid.Application/SponsorDigest/SponsorDigestWeeklyDeliveryScanner.cs` | Per-tenant send | Same composition honesty | **covered** | CG-037 |
 | Board pack | `ArchLucid.Application/Pilots/BoardPackPdfBuilder.cs` | Digest markdown + value-report | Markdown formatter rehearsal labels | **covered** | CG-037 |
-| Weekly digest | `archlucid-ui/.../ExecDigestSponsorDeepLinkPanel.tsx` | Sponsor digest hub rows | Per-row rehearsal label + disclaimer | **covered** | CG-037 |
+| Weekly digest | `archlucid-ui/src/app/(marketing)/digest/sponsor/_sections/ExecDigestSponsorDeepLinkPanel.tsx` | Sponsor digest hub rows | Per-row rehearsal label + disclaimer | **covered** | CG-037 |
 | ITSM ticket | `ArchLucid.Application/Integrations/Itsm/Outbound/ItsmOutboundIssueCreationService.cs` | Finding title/body to Jira/ServiceNow | Run stamp via `ItsmOutboundCareerHonestyPresenter` | **covered** | CG-038 |
 | ITSM ticket | `ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs` | `POST …/itsm/outbound/issues` | Same service path | **covered** | CG-038 |
 | ITSM ticket | `archlucid-ui/src/components/itsm/ItsmOutboundCreateIssueDialog.tsx` | Operator create dialog | `ItsmOutboundCareerHonestyStrip` on Working | **covered** | CG-038 |
