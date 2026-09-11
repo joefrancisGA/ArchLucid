@@ -320,6 +320,27 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
     }
 
     [Fact]
+    public async Task EvaluateAsync_returns_null_for_non_guid_target_run_id_without_id_format_oracle()
+    {
+        PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
+            new InMemoryRunRepository(),
+            new InMemoryFindingsSnapshotRepository(),
+            new InMemoryGoldenManifestRepository(),
+            Options.Create(new PreCommitGovernanceGateOptions()));
+
+        PolicyPackGovernanceDryRunResult? result = await fixture.Sut.EvaluateAsync(
+            "{}",
+            "not-a-guid",
+            null,
+            true,
+            null,
+            null,
+            CancellationToken.None);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
     public async Task EvaluateAsync_blocks_when_technology_consistency_supplemental_findings_would_block_live_gate()
     {
         Guid runGuid = Guid.NewGuid();
