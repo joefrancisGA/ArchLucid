@@ -50,6 +50,9 @@ public sealed class WeeklySponsorReportEmailDispatcher(
         if (string.IsNullOrWhiteSpace(isoWeekIdempotencyKey))
             throw new ArgumentException("Idempotency key is required.", nameof(isoWeekIdempotencyKey));
 
+        if (string.IsNullOrWhiteSpace(weekLabel))
+            throw new ArgumentException("Week label is required.", nameof(weekLabel));
+
         string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
         string normalizedWeekLabel = weekLabel.Trim();
 
