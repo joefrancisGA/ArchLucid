@@ -28,6 +28,7 @@ import type {
   ReviewPackageDoThisNext,
 } from "./resolve-review-package-do-this-next";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { summarizePolicyPackFindingImpact } from "@/lib/group-findings-by-policy-pack";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
@@ -254,6 +255,10 @@ export function RunDetailReviewPackageDoThisNextResolved(
       isDeadLettered: props.isDeadLettered,
     },
   );
+  const policyPackImpact = useMemo(
+    () => summarizePolicyPackFindingImpact(props.quickDecisionFindings),
+    [props.quickDecisionFindings],
+  );
 
   return (
     <>
@@ -285,6 +290,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         azureInventoryEvidencePresent={props.azureInventoryEvidencePresent === true}
         structuralExecutionMode={props.structuralExecutionMode}
         workingCareerRehearsalDoor={props.pipelineSummary?.workingCareerRehearsalDoor}
+        unmappedFindingCount={policyPackImpact.unmappedFindingCount}
       />
       {commitBlockedState.readinessChecklistMismatch
       && commitBlockedState.checklistReadyToFinalize !== null
