@@ -1913,4 +1913,5 @@
 {"at":"2026-09-11T00:41:59.9229523Z","zoneId":"application-governance-policy","outcome":"seed-only"}
 {"at":"2026-09-11T00:43:43.1847016Z","zoneId":"ui-operator-lib","outcome":"hit"}
 {"at":"2026-09-11T00:47:51.4546208Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-11T00:50:11.8060500Z","zoneId":"finding-disposition","outcome":"seed-only"}
+{"at":"2026-09-11T00:50:11.80605Z","zoneId":"finding-disposition","outcome":"seed-only"}
+{"at":"2026-09-11T00:54:27.3286133Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}

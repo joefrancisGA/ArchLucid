@@ -1307,10 +1307,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 54
+- **hunts:** 55
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-08 — inspect `TryParseEvaluationConfidenceLevel` accepted undefined numeric confidence strings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1765,6 +1765,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MapDispositionPointerProjection` accepts whitespace-padded fractional numeric disposition strings — **cheap-disproof 2026-09-10 seed hunt #1678:** mapper trims before `Enum.TryParse` and returns null disposition; regression `MapDispositionPointerProjection_returns_null_disposition_for_whitespace_padded_fractional_numeric_string`.
 
 2026-09-10 seed hunt #1678 (seed-only): reseeded finding-inspect-sql after #1676; cheap-disproof closed whitespace-padded fractional numeric enum guards at mapper and pointer-projection layers; 377 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `FindingInspectReadModelMapper` / `MapDispositionPointerProjection` — plus-sign-prefixed numeric enum strings bypass `Enum.IsDefined` guards — **cheap-disproof 2026-09-11 seed hunt #1698:** `+0`/`+1` parse to defined ordinals like `0`/`1`; `+999` still maps to null/default; regressions `ParseDisposition_maps_plus_sign_prefixed_numeric_strings`, `MapDispositionPointerProjection_maps_plus_sign_prefixed_numeric_disposition_strings`, and sibling mapper tests.
+- [x] (valid-no-repro) `ResolveRuleFields` strips leading `+` from applied rule ids — **cheap-disproof 2026-09-11 seed hunt #1698:** `+cost-guardrail` token preserved verbatim; regression `ResolveRuleFields_preserves_plus_sign_in_rule_id_tokens`.
+
+2026-09-11 seed hunt #1698 (seed-only): reseeded finding-inspect-sql after #1678; cheap-disproof closed plus-sign numeric enum parsing and plus-prefixed rule-id token candidates; 401 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
