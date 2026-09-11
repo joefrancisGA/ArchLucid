@@ -58,17 +58,17 @@ export const CAREER_GRAVITY_OUTBOUND_ROWS: readonly CareerGravityOutboundRow[] =
   },
   {
     relativePath: "ArchLucid.Application/Integrations/Itsm/Outbound/ItsmOutboundIssueCreationService.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-038",
   },
   {
     relativePath: "ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-038",
   },
   {
     relativePath: "archlucid-ui/src/components/itsm/ItsmOutboundCreateIssueDialog.tsx",
-    leakClass: "bypass",
+    leakClass: "covered",
     ownerPrompt: "CG-038",
   },
   {

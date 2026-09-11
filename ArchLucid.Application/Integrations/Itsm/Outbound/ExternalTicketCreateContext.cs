@@ -10,4 +10,6 @@ public sealed record ExternalTicketCreateContext(
     TenantItsmOutboundSettings? TenantSettings,
     FindingSeverity Severity,
     string Summary,
-    string Description);
+    string Description,
+    bool IncludeCareerCompleteCustomField = true,
+    string? RehearsalRowLabel = null);
