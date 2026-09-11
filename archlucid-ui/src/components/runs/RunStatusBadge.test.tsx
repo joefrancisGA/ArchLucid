@@ -134,6 +134,23 @@ describe("deriveRunListPipelineLabel", () => {
     ).toBe("In pipeline");
   });
 
+  it("suppresses Ready to finalize on Working Career + Simulator (CG-030)", () => {
+    expect(
+      deriveRunListPipelineLabel(
+        {
+          ...base,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          structuralExecutionMode: "Simulator",
+        },
+        {
+          workingDesk: true,
+          effectiveWorkingCareerRehearsalDoor: "career",
+        },
+      ),
+    ).toBe("In pipeline");
+  });
+
   it("suppresses Ready to finalize when pre-finalize gate is disabled on Working (LP-18)", () => {
     expect(
       deriveRunListPipelineLabel(

@@ -37,4 +37,16 @@ public class DiagramNode
         get;
         set;
     }
+
+    public string? ArmResourceType
+    {
+        get;
+        set;
+    }
+
+    public string? ArmResourceGroup
+    {
+        get;
+        set;
+    }
 }

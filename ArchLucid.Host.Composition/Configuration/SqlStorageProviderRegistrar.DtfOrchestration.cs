@@ -19,6 +19,6 @@ internal sealed partial class SqlStorageProviderRegistrar
         IConfiguration configuration,
         string connectionString)
     {
-        SqlDtfOrchestrationInfrastructureRegistrar.Register(services, configuration, connectionString);
+        SqlDtfOrchestrationInfrastructureRegistrar.RegisterClient(services, configuration, connectionString);
     }
 }
