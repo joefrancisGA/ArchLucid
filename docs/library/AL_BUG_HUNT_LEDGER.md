@@ -9632,11 +9632,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 14
-- **bugs-found:** 17
+- **hunts:** 15
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — duplicate parallel edges after AS-050 diagram endpoint rebind
+- **last-bug:** 2026-09-11 — duplicate parallel edges after AS-018 diagram canonical bind remap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9666,6 +9666,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ArchitectureKnowledgeModelGraphProjector` — duplicate RELATES edges when `RelatedElementIds` lists case variants of the same target (`trust-1` / `TRUST-1`) on one element — **hit 2026-09-11 seed hunt #1727:** loop emitted one edge per list entry without case-insensitive dedup though `canonicalNodeIdsByKey` resolves both; fixed with `RelatedElementIds.Distinct(StringComparer.OrdinalIgnoreCase)`; regression `Project_deduplicates_relates_edges_when_related_element_ids_list_case_variants`
 - [x] (proven) `ProvenanceBuilder` — duplicate `InfluencedByGraphNode` edges when `findings.Findings` lists two rows whose `FindingId` differs only by case — **hit 2026-09-11 seed hunt #1727:** node map collapses finding nodes but the influence loop iterated every list entry; fixed with `GroupBy(FindingId, OrdinalIgnoreCase)` before edge emission; regression `Build_deduplicates_influenced_by_graph_node_when_findings_list_case_variant_finding_ids`
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder` — duplicate parallel edges after AS-050 diagram endpoint remap collided with existing inventory edge — **hit 2026-09-11 seed hunt #1727:** `RemapEdges` remapped diagram edge onto inventory node id already present on a parallel inventory edge; fixed with case-insensitive edge-key dedup in `RemapEdges`; regression `Rebind_matchingDisplayName_deduplicates_parallel_edges_after_endpoint_remap`
+- [x] (proven) `StructuredDiagramCompiledGraphBinder` — duplicate parallel edges when two diagram connectors bind to the same canonical endpoints after AS-018 remap — **hit 2026-09-11 seed hunt #1728:** `RemapEdges` lacked edge-key dedup parity with AS-050 rebinder; duplicate ARM-labeled diagram targets collapsed to one canonical node but both remapped edges survived; fixed with case-insensitive edge-key dedup; regression `BindToCanonicalNodes_deduplicates_parallel_edges_after_endpoint_remap`
+
+2026-09-11 seed hunt #1728 (hit): reseeded knowledge-graph-provenance; proved AS-018 compiled-graph binder parallel-edge collision after canonical bind (parity gap vs AS-050 rebinder fix); 266 scoped KnowledgeGraph + 43 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
 2026-09-11 seed hunt #1727 (hit): reseeded knowledge-graph-provenance after 10 commits since last hunt; proved κ→Γ projector RelatedElementIds duplicate-edge gap, findings-list case-variant InfluencedByGraphNode dedup gap, and AS-050 rebinder parallel-edge collision; 265 scoped KnowledgeGraph + 43 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
