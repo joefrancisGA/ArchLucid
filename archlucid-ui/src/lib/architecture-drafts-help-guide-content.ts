@@ -7,6 +7,8 @@ import {
   ARCHITECTURE_DRAFTS_LIST_LABEL,
   CREATE_ARCHITECTURE_LABEL,
 } from "@/lib/architecture/architecture-workflow-labels";
+import { ARCHITECTURE_DRAFT_EDITING_HELP_LEARN_MORE_LABEL } from "@/lib/architecture/architecture-draft-editing-help-evidence-copy";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
 export const ARCHITECTURE_DRAFTS_HELP_BREADCRUMB_TOPIC_TITLE = "Architecture drafts";
@@ -73,7 +75,7 @@ export const ARCHITECTURE_DRAFTS_HELP_FEATURE_ITEMS: readonly ArchitectureDrafts
   },
   {
     label: "Resume editing",
-    detail: "Open a draft to continue refining the brief before evidence intake.",
+    detail: `Open a draft to continue refining the brief before evidence intake. When two architects edit the same draft, see ${ARCHITECTURE_DRAFT_EDITING_HELP_LEARN_MORE_LABEL.toLowerCase()} (${inAppHelpHref("architecture-draft-editing")}).`,
   },
   {
     label: CREATE_ARCHITECTURE_LABEL,

@@ -410,6 +410,17 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
     "releaseApplicability": "architecture drafts orientation",
   },
   {
+    "slug": "architecture-draft-editing",
+    "title": "Two people on one draft",
+    "summary": "Soft edit lease, 409 Keep mine, and offline reconnect when two architects edit the same draft — not live co-editing.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/architecture/adrs/0090-architecture-work-lease-without-presence.md",
+    ],
+    "lastReviewed": "2026-09-11",
+    "releaseApplicability": "Architecture work lease without presence (LW-094)",
+  },
+  {
     "slug": "structured-brief",
     "title": "Structured brief fields",
     "summary": "How to fill constraints, assumptions, required capabilities, and quality attributes before evidence intake.",
