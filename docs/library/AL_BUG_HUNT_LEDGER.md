@@ -1826,7 +1826,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — LP-14 note injection; preview override bypass; bulk duplicate ids; 2026-09-11 — invisible-only preview override reason on guided Remediated bypassed validation and polluted disposition notes
+- **last-bug:** 2026-09-11 — LP-14 note injection; preview override bypass; bulk duplicate ids; 2026-09-11 — guided-desk LP-14 attestation note injection; 2026-09-11 — invisible-only preview override reason on guided Remediated bypassed validation and polluted disposition notes
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1884,11 +1884,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-10 seed hunt #1578 (seed→hit): reseeded finding-disposition; proved invisible architect restatement and optional rationale gaps; seeded whitespace row-version concurrency candidate; 33 scoped finding-disposition tests passed.
 
-- [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format-only `PreviewOverrideReason` on guided (non-Working) `Remediated` bypassed `ValidateWorkingRemediatedImpactPreviewAttestation` and persisted via `BuildImpactPreviewAttestationNote` — **hit 2026-09-11 seed hunt #1725 (seed→hit):** optional override text only validated on Working desk attestation path; added substantive-text and max-length guard when override is provided; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided` and `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
-
-- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch with null expected row versions may stage multiple pointer updates for the same key without conflict detection (verify SQL bulk path parity)
-
+2026-09-11 thorough hunt #1719 (hit): cheap-disproved guided UI attestation reachability; proved API-side LP-14 note injection, guided preview override bypass, and bulk duplicate finding ids; 60 scoped FindingDisposition tests passed.
 2026-09-11 seed hunt #1725 (seed→hit): reseeded finding-disposition; proved guided-desk invisible preview override bypass; seeded bulk duplicate-finding-id candidate; 57 scoped finding-disposition tests passed.
+- [x] (proven) `FindingDispositionService.BuildImpactPreviewAttestationNote` — non-UI callers could persist Working-desk LP-14 attestation notes on guided desk when `ImpactPreviewCompleted=true` or `PreviewOverrideReason` is set — **hit 2026-09-11 thorough hunt #1719:** note builder ignored workspace mode; fixed by passing `isWorkingDesk` into attestation projection; regressions `RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`, `RecordAsync_guided_remediated_ignores_preview_override_reason_in_notes`
+- [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch appended multiple events while current pointer kept last only — **hit 2026-09-11 thorough hunt #1719:** `HashSet<string>` on trimmed finding ids before repository call; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
+- [x] (proven) `FindingDispositionValidation.Validate` — optional `PreviewOverrideReason` on guided-desk `Remediated` bypassed `HasSubstantiveText` because only `ValidateWorkingRemediatedImpactPreviewAttestation` guarded the field — **hit 2026-09-11 thorough hunt #1719:** invisible-only override text persisted when provided via API; fixed with optional-field guard in `Validate()`; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided`, `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
+- [x] (valid-no-repro) Guided-desk UI sends `ImpactPreviewCompleted` on `Remediated` — **cheap-disproof 2026-09-11 thorough hunt #1719:** `buildFindingApplyChangeDispositionAttestation` returns `null` when `isWorkingDesk` is false (`finding-apply-change-preview-gate.ts`); production UI never populates the field on guided desk.
+- [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format-only `PreviewOverrideReason` on guided (non-Working) `Remediated` bypassed `ValidateWorkingRemediatedImpactPreviewAttestation` and persisted via `BuildImpactPreviewAttestationNote` — **hit 2026-09-11 seed hunt #1725 (seed→hit):** optional override text only validated on Working desk attestation path; added substantive-text and max-length guard when override is provided; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided` and `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
+- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch with null expected row versions may stage multiple pointer updates for the same key without conflict detection (verify SQL bulk path parity)
 - [x] (valid-no-repro) Guided-desk UI sends `ImpactPreviewCompleted` on `Remediated` — **cheap-disproof 2026-09-11 seed hunt #1720:** `buildFindingApplyChangeDispositionAttestation` returns `null` when `isWorkingDesk` is false (`finding-apply-change-preview-gate.ts`).
 - [x] (proven) `FindingDispositionService.BuildImpactPreviewAttestationNote` — API callers persisted Working-desk LP-14 attestation notes on guided desk — **hit 2026-09-11 seed hunt #1720:** note builder ignored workspace mode; fixed by passing `isWorkingDesk`; regressions `RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`, `RecordAsync_guided_remediated_ignores_preview_override_reason_in_notes`
 - [x] (proven) `FindingDispositionValidation.Validate` — optional `PreviewOverrideReason` on guided-desk `Remediated` bypassed `HasSubstantiveText` — **hit 2026-09-11 seed hunt #1720:** fixed with optional-field guard in `Validate()`; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided`, `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
@@ -3236,13 +3239,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 18
-- **bugs-found:** 17
+- **hunts:** 19
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — BFF session guard blocked anonymous tenant self-registration POST
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — confirm-required livelihood 401 resume dropped pending mutation from localStorage before operator confirmed replay
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -3273,6 +3276,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `isPreAuthSignInAnonymousProxyPath` — omits `v1/auth/sign-in-methods/*` so stale BFF cookie blocks account-security email-otp mutations — **invalid 2026-09-09 seed hunt #1478:** sign-in-methods are post-auth operator account routes; BFF idle/CSRF gates are intentional unlike pre-sign-in `v1/auth/email-otp/*` and marketing paths
 - [x] (invalid) `readLivelihoodPendingMutation` — replays `returnPath` from sessionStorage without `isSafeReturnPath` validation — **invalid 2026-09-09 seed hunt #1478:** `normalizeReturnPath` rejects unsafe paths on read; tampered storage returns null
 - [x] (proven) `enforceProxyBffSessionGuard` blocked anonymous `POST /api/proxy/v1/register` when BFF session is enabled — **hit 2026-09-10 seed hunt #1584 (seed→hit):** `SignupForm` posts to `[AllowAnonymous]` `RegistrationController` but `v1/register` was missing from `isPublicAnonymousProxyPath`; fixed by extending `isPreAuthSignInAnonymousProxyPath`; regressions in `proxy-route-pre-auth-anonymous.test.ts` and `proxy-anonymous-marketing-paths.test.ts`.
+- [x] (candidate) `post-auth-bootstrap-api.ts` — stale HttpOnly BFF cookie blocks `GET /api/proxy/v1/auth/bootstrap/status` during `/auth/bootstrap` — invalid: bootstrap runs after fresh sign-in when BFF session is established; stale-cookie 401 is intentional recovery unlike pre-auth anonymous routes
+- [x] (proven) `useResumePendingLivelihoodMutation` — confirm-required 401 resume consumed `localStorage` pending mutation before operator confirmed replay — **hit 2026-09-11 seed hunt #1721 (seed→hit):** `consumeLivelihoodPendingMutationForReturnPath` ran for `architecture_draft_patch` and other confirm kinds; refresh or navigation during confirm chrome permanently lost the stored POST; fixed with `peekLivelihoodPendingMutationForReturnPath` and consume-on-confirm; regressions in `livelihood-mutation-401-resume.test.ts` and `use-resume-pending-livelihood-mutation.test.ts`.
+
+2026-09-11 seed hunt #1721 (seed→hit): reseeded ui-auth-proxy after LW-051–100 livelihood 401 resume churn; cheap-disproved bootstrap stale-BFF bypass candidate; proved confirm-required resume dropped pending mutation from localStorage before replay; 91 scoped auth/proxy tests passed.
 
 2026-09-10 seed hunt #1584 (seed→hit): reseeded ui-auth-proxy after #1478; proved tenant self-registration proxy blocked by BFF no-session / stale-session / missing-CSRF gates; 157 scoped auth/proxy tests passed.
 
