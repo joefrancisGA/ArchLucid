@@ -984,3 +984,127 @@ function Get-ArchLucidAzureDiagnosticSettingCompanionRows
 
     return @($rows.ToArray())
 }
+
+function Get-ArchLucidAzureDefenderSummaryCompanionRows
+{
+    param(
+        [string] $SubscriptionId,
+
+        [string] $ManagementGroupId
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $subscriptionIds = [System.Collections.ArrayList]::new()
+
+    if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
+    {
+        [void]$subscriptionIds.Add($SubscriptionId.Trim())
+    }
+    elseif (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+    {
+        if (Get-Command Get-ArchLucidManagementGroupSubscriptionIds -ErrorAction SilentlyContinue)
+        {
+            foreach ($subId in @(Get-ArchLucidManagementGroupSubscriptionIds -ManagementGroupId $ManagementGroupId))
+            {
+                if (-not ([string]::IsNullOrWhiteSpace($subId)))
+                {
+                    [void]$subscriptionIds.Add($subId.Trim())
+                }
+            }
+        }
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+    $seen = @{}
+
+    foreach ($subId in @($subscriptionIds))
+    {
+        try
+        {
+            [string]$path = "/subscriptions/$subId/providers/Microsoft.Security/secureScores?api-version=2020-01-01"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+            [int]$secureScore = Get-ArchLucidAzureDefenderSecureScorePercent -SecureScoresPayload $payload
+
+            if ($secureScore -lt 0)
+            {
+                continue
+            }
+
+            [string]$resourceId = "/subscriptions/$subId"
+
+            if ($seen.ContainsKey($resourceId))
+            {
+                continue
+            }
+
+            $seen[$resourceId] = $true
+
+            [void]$rows.Add([ordered]@{
+                resourceId = $resourceId
+                secureScore = $secureScore
+            })
+        }
+        catch
+        {
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureDefenderSecureScorePercent
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        $SecureScoresPayload
+    )
+
+    [int]$bestScore = -1
+
+    foreach ($item in @($SecureScoresPayload.value))
+    {
+        if ($null -eq $item) { continue }
+
+        [double]$percent = -1
+
+        try
+        {
+            if ($null -ne $item.properties.score.percentage)
+            {
+                $percent = [double]$item.properties.score.percentage * 100.0
+            }
+            elseif ($null -ne $item.properties.score.current -and $null -ne $item.properties.score.max)
+            {
+                [double]$max = [double]$item.properties.score.max
+
+                if ($max -gt 0)
+                {
+                    $percent = ([double]$item.properties.score.current / $max) * 100.0
+                }
+            }
+        }
+        catch
+        {
+            continue
+        }
+
+        if ($percent -lt 0)
+        {
+            continue
+        }
+
+        [int]$rounded = [int][Math]::Round([Math]::Min(100.0, [Math]::Max(0.0, $percent)), [MidpointRounding]::AwayFromZero)
+
+        if ($rounded -gt $bestScore)
+        {
+            $bestScore = $rounded
+        }
+    }
+
+    return $bestScore
+}

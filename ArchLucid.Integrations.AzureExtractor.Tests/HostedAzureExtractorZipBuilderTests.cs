@@ -162,4 +162,30 @@ public sealed class HostedAzureExtractorZipBuilderTests
         using JsonDocument diagnosticDocument = JsonDocument.Parse(diagnosticReader.ReadToEnd());
         Assert.Equal("diag-to-law", diagnosticDocument.RootElement[0].GetProperty("name").GetString());
     }
+
+    [Fact]
+    public void BuildZip_writes_defender_summary_companion_entries()
+    {
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            defenderSummaries:
+            [
+                new HostedAzureArmDefenderSummaryRecord
+                {
+                    ResourceId = "/subscriptions/11111111-1111-1111-1111-111111111111",
+                    SecureScore = 72,
+                },
+            ]);
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream defenderStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.DefenderSummary)!.Open();
+        using StreamReader defenderReader = new(defenderStream);
+        using JsonDocument defenderDocument = JsonDocument.Parse(defenderReader.ReadToEnd());
+        Assert.Equal(72, defenderDocument.RootElement[0].GetProperty("secureScore").GetInt32());
+    }
 }

@@ -33,7 +33,8 @@ public static class HostedAzureExtractorZipBuilder
         IReadOnlyList<HostedAzureArmFederatedCredentialRecord>? federatedCredentials = null,
         string? managementGroupId = null,
         IReadOnlyList<HostedAzureArmPolicyAssignmentRecord>? policyAssignments = null,
-        IReadOnlyList<HostedAzureArmDiagnosticSettingRecord>? diagnosticSettings = null)
+        IReadOnlyList<HostedAzureArmDiagnosticSettingRecord>? diagnosticSettings = null,
+        IReadOnlyList<HostedAzureArmDefenderSummaryRecord>? defenderSummaries = null)
     {
         bool hasSubscriptionId = !string.IsNullOrWhiteSpace(subscriptionId);
         bool hasManagementGroupId = !string.IsNullOrWhiteSpace(managementGroupId);
@@ -171,6 +172,14 @@ public static class HostedAzureExtractorZipBuilder
             })
             .ToArray<object>();
 
+        object[] defenderSummaryRows = (defenderSummaries ?? [])
+            .Select(static row => new
+            {
+                resourceId = row.ResourceId,
+                secureScore = row.SecureScore,
+            })
+            .ToArray<object>();
+
         using MemoryStream zipStream = new();
 
         using (ZipArchive archive = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
@@ -197,7 +206,10 @@ public static class HostedAzureExtractorZipBuilder
                 archive,
                 AzureExtractorPackageZipEntryNames.FederatedCredentials,
                 JsonSerializer.Serialize(federatedCredentialRows, SerializerOptions));
-            AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.DefenderSummary, "[]");
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DefenderSummary,
+                JsonSerializer.Serialize(defenderSummaryRows, SerializerOptions));
             AddUtf8Entry(
                 archive,
                 AzureExtractorPackageZipEntryNames.EntraGroupMemberships,

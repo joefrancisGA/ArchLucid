@@ -70,6 +70,12 @@ vi.mock("@/hooks/use-security-evidence-ranked-paths-query", () => ({
   }),
 }));
 
+vi.mock("@/components/security/SecureNowArchitectOutcomeMetricsPanel", () => ({
+  SecureNowArchitectOutcomeMetricsPanel: () => (
+    <section data-testid="securenow-architect-outcome-metrics-panel">Architect outcome metrics</section>
+  ),
+}));
+
 vi.mock("@/hooks/use-operational-security-finding-detail-query", () => ({
   useOperationalSecurityFindingDetailQuery: () => ({
     data: { findingId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", pathId: null, title: "Sample" },
@@ -104,6 +110,7 @@ describe("RemediationFactoryClient", () => {
     expect(screen.getByText("Open findings")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_PATH_RANKED_PATHS_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-architect-outcome-metrics-panel")).toBeInTheDocument();
     expect(
       screen.getByTestId("security-evidence-ranked-path-row-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
     ).toBeInTheDocument();

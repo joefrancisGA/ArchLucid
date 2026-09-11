@@ -90,6 +90,13 @@ public sealed class HostedAzureExtractorClientTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        armClient
+            .Setup(c => c.ListSubscriptionDefenderSummariesAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         HostedAzureExtractorClient sut = new(
             credentialFactory.Object,
             armClient.Object,
@@ -197,6 +204,12 @@ public sealed class HostedAzureExtractorClientTests
             .Setup(c => c.ListDiagnosticSettingsAsync(
                 It.IsAny<string>(),
                 It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        armClient
+            .Setup(c => c.ListSubscriptionDefenderSummariesAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         armClient
