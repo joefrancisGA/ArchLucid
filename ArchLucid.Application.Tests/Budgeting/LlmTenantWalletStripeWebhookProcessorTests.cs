@@ -47,6 +47,72 @@ public sealed class LlmTenantWalletStripeWebhookProcessorTests
     }
 
     [Fact]
+    public async Task ProcessPaymentIntentEventAsync_throws_when_tenant_metadata_is_not_guid()
+    {
+        Mock<ILlmTenantWalletService> walletService = new();
+        LlmTenantWalletStripeWebhookProcessor sut = new(walletService.Object);
+
+        Func<Task> act = () => sut.ProcessPaymentIntentEventAsync(
+            "payment_intent.succeeded",
+            "pi_bad_tenant",
+            "division-east",
+            1000,
+            null,
+            Guid.NewGuid());
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*invalid tenant_id*");
+    }
+
+    [Fact]
+    public async Task ProcessPaymentIntentEventAsync_throws_when_tenant_metadata_is_empty_guid()
+    {
+        Mock<ILlmTenantWalletService> walletService = new();
+        LlmTenantWalletStripeWebhookProcessor sut = new(walletService.Object);
+
+        Func<Task> act = () => sut.ProcessPaymentIntentEventAsync(
+            "payment_intent.succeeded",
+            "pi_empty_tenant",
+            Guid.Empty.ToString("D"),
+            1000,
+            null,
+            Guid.NewGuid());
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*invalid tenant_id*");
+        walletService.Verify(
+            s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessPaymentIntentEventAsync_skips_wallet_credit_when_payment_intent_id_blank()
+    {
+        Mock<ILlmTenantWalletService> walletService = new();
+        LlmTenantWalletStripeWebhookProcessor sut = new(walletService.Object);
+
+        await sut.ProcessPaymentIntentEventAsync(
+            "payment_intent.succeeded",
+            paymentIntentId: "   ",
+            tenantIdRaw: Guid.NewGuid().ToString("D"),
+            1000,
+            null,
+            Guid.NewGuid());
+
+        walletService.Verify(
+            s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ProcessPaymentIntentEventAsync_throws_when_tenant_metadata_missing_on_success()
     {
         Mock<ILlmTenantWalletService> walletService = new();
