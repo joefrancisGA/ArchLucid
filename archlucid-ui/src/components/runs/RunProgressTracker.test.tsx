@@ -238,6 +238,40 @@ describe("RunProgressTracker", () => {
     expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Rehearsal incomplete");
   });
 
+  it("uses engineering rehearsal-complete status on Working Career + Simulator (CG-033)", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    workingDeskMock.value = true;
+    effectiveDoorMock.value = "career";
+
+    mockGetRunSummary.mockResolvedValue({
+      ...baseSummary,
+      runId: "engineering-simulator-career-1",
+      hasContextSnapshot: true,
+      hasGraphSnapshot: true,
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      structuralExecutionMode: "Simulator",
+    });
+
+    render(
+      <RunProgressTracker
+        runId="engineering-simulator-career-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "engineering-simulator-career-1",
+          hasContextSnapshot: true,
+        }}
+      />,
+    );
+
+    await act(async () => {
+      await vi.runOnlyPendingTimersAsync();
+    });
+
+    expect(screen.getByText(/Career blocked on Simulator/i)).toBeInTheDocument();
+    expect(screen.queryByText("Pipeline complete — refresh for full detail.")).not.toBeInTheDocument();
+  });
+
   it("enters pre-finalize terminal from live summary while assessment is still running on mount", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
 

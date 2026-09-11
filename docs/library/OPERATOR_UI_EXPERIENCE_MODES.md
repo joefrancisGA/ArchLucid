@@ -109,6 +109,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Progress tracker rehearsal honesty (CG-032):** `use-run-progress-tracker` reuses CG-031 door×Mode cells via `resolveRunProgressTrackerCareerHonesty`. When analysis finishes but career honesty blocks a Career seal, terminal copy names **Career blocked**, **Rehearsal incomplete**, or **Practice** instead of Ready-to-finalize or generic “stages complete.” `RunProgressTrackerStagesView` swaps step labels (**Rehearsal record**, **Findings ready (rehearsal)**) and uses **Rehearsal complete** / blocked pending tags — not green Career-complete chips. Background wait (PC-08) is unchanged; no fake `percentComplete`.
 
+**Pipeline complete copy honesty (CG-033):** Working review-detail “complete” vocabulary is stamp-gated via `pipeline-complete-career-honesty-copy.ts`. `deriveRunDetailWorkspaceStatus` and engineering progress-tracker terminal copy use **Rehearsal complete — not career-complete**, **Career blocked — not complete**, or **Practice complete — not career-complete** instead of generic **Review complete** when Simulator/Rehearsal honesty applies. `resolvePipelineStatusTooltip` (re-exported from `@/lib/i18n`) keeps Guided teaching strings unchanged.
+
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 **Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
