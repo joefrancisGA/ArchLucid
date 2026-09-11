@@ -1991,5 +1991,4 @@
 {"at":"2026-09-11T20:48:38.412798Z","zoneId":"cli-terraform-evidence","outcome":"seed-only"}
 {"at":"2026-09-11T20:54:02.4578237Z","zoneId":"tenant-scoped-analyzer","outcome":"hit","paths":["ArchLucid.Analyzers/TenantScopedSqlExpressionResolver.cs"],"severity":"high","defectClass":"authz-scope"}
 {"at":"2026-09-11T20:56:49.5826181Z","zoneId":"ui-runs-list","outcome":"hit","paths":["archlucid-ui/src/lib/runs/runs-list-search-url.ts"],"severity":"low","defectClass":"state-machine-gap"}
-{"at":"2026-09-11T20:59:10Z","zoneId":"ui-runs-list","outcome":"hit","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/use-runs-list.ts"],"severity":"low","defectClass":"state-machine-gap"}
 {"at":"2026-09-11T20:59:58.2240103Z","zoneId":"ui-runs-list","outcome":"hit","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/use-runs-list.ts"],"severity":"low","defectClass":"state-machine-gap"}
