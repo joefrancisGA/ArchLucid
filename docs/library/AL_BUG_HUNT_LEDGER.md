@@ -3625,11 +3625,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 15
-- **bugs-found:** 21
+- **hunts:** 16
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — IdentityRegulatedDatastoreClassifier non-pci/insensitive label false positives on pci/sensitive substring tokens
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — TradeoffRequirementConflictDetector non-pci requirement false positive on pci token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9950,6 +9950,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `InternalArchitectureTraceForensicsController.GetRunTraceForensics` — whitespace `runId` returned HTTP 400 (`runId must be a GUID`) while sibling `GetRunTraces` returned 404 via `AuthorityRunIdentifier.TryParse` — **hit 2026-09-09 seed hunt #1413:** map invalid route ids to NotFound before pagination; regression `GetRunTraceForensics_returns_not_found_for_whitespace_run_id_like_GetRunTraces`
 
 2026-09-08 thorough hunt: cheap-disproved cursor BadRequest vs NotFound candidate; proved analysis-report whitespace runId 404 parity via `RunDetailQueryService`.
+
+- [x] (valid-no-repro) `RunQueryController.GetRunDecisions` / `GetRunEvidence` / `GetRunToolInvocationForensics` — whitespace `runId` may return 400 while siblings return 404 — **cheap-disproof 2026-09-11 seed hunt #1691:** `RunProvenanceQueryService.AuthorityRunExistsInScopeAsync` uses `AuthorityRunIdentifier.TryParse`; whitespace maps to NotFound (`GetRunDecisions_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory`, `GetRunEvidence_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory`, `GetRunToolInvocationForensics_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory`)
+
+2026-09-11 seed hunt #1691 (seed-only): reseeded api-authority-admin-controllers after #1530; cheap-disproof on provenance read whitespace 404 parity; 3 new `RunQueryControllerTests` passed.
 
 2026-09-10 thorough hunt #1530 (hit): cheap-disproved both #1413 seed candidates; proved technology ledger PATCH free-text max-length gap; 6 scoped `TechnologyLedgerControllerTests` passed.
 2026-09-09 seed hunt #1413 (hit): reseeded clarification question-id and prompt-variant Unicode guard candidates; proved trace-forensics whitespace runId 404 parity; `ArchLucid.Api` compile verified (Api.Tests project has pre-existing signature drift on bugsmash).
