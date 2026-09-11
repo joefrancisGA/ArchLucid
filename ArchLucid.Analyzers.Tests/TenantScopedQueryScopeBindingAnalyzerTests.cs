@@ -493,6 +493,71 @@ public sealed class FormatProviderRunsRepository
     }
 
     [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_null_coalescing_local_initializer()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class NullCoalescingRunsRepository
+{
+    public void Load(IDbConnection connection)
+    {
+        string? configured = null;
+        string sql = configured ?? "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL";
+        _ = SqlMapper.Query<int>(connection, sql);
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(70, 13, 70, 50)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_switch_expression_local_initializer()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class SwitchExpressionRunsRepository
+{
+    public void Load(IDbConnection connection, bool includeArchived)
+    {
+        string sql = includeArchived switch
+        {
+            true => "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL",
+            false => "SELECT 1",
+        };
+        _ = SqlMapper.Query<int>(connection, sql);
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(73, 13, 73, 50)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
     public async Task ARCH006_does_not_crash_when_sql_field_lives_in_partial_class_sibling_file()
     {
         const string sqlFieldFile =

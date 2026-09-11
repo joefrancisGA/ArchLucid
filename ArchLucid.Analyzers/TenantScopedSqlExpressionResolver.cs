@@ -95,6 +95,9 @@ internal static class TenantScopedSqlExpressionResolver
             case BinaryExpressionSyntax { RawKind: (int)SyntaxKind.AddExpression } add:
                 return ResolveBinaryAdd(add, semanticModel);
 
+            case BinaryExpressionSyntax { RawKind: (int)SyntaxKind.CoalesceExpression } coalesce:
+                return ResolveNullCoalescing(coalesce, semanticModel, visitingInterpolatedHole);
+
             case InterpolatedStringExpressionSyntax interpolated:
                 return ResolveInterpolatedString(interpolated, semanticModel);
 
@@ -103,6 +106,9 @@ internal static class TenantScopedSqlExpressionResolver
 
             case ConditionalExpressionSyntax conditional:
                 return ResolveConditional(conditional, semanticModel, visitingInterpolatedHole);
+
+            case SwitchExpressionSyntax switchExpression:
+                return ResolveSwitchExpression(switchExpression, semanticModel, visitingInterpolatedHole);
 
             default:
                 if (visitingInterpolatedHole)
@@ -122,12 +128,66 @@ internal static class TenantScopedSqlExpressionResolver
         bool hasScopeHelper = whenTrue.HasScopeHelperInvocation || whenFalse.HasScopeHelperInvocation;
         List<string> branchSqlTexts = new();
 
-        if (whenTrue.IsStaticallyResolved && whenTrue.SqlText is not null)
-            branchSqlTexts.Add(whenTrue.SqlText);
+        AppendDistinctBranchSqlTexts(branchSqlTexts, whenTrue);
+        AppendDistinctBranchSqlTexts(branchSqlTexts, whenFalse);
 
-        if (whenFalse.IsStaticallyResolved && whenFalse.SqlText is not null &&
-            !branchSqlTexts.Contains(whenFalse.SqlText, StringComparer.Ordinal))
-            branchSqlTexts.Add(whenFalse.SqlText);
+        if (branchSqlTexts.Count == 0)
+            return new ResolutionResult(null, false, hasScopeHelper);
+
+        return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
+    }
+
+    private static ResolutionResult ResolveSwitchExpression(
+        SwitchExpressionSyntax switchExpression,
+        SemanticModel semanticModel,
+        bool visitingInterpolatedHole)
+    {
+        bool hasScopeHelper = false;
+        List<string> branchSqlTexts = new();
+
+        foreach (SwitchExpressionArmSyntax arm in switchExpression.Arms)
+        {
+            ResolutionResult armResolution = ResolveCore(arm.Expression, semanticModel, visitingInterpolatedHole);
+            hasScopeHelper |= armResolution.HasScopeHelperInvocation;
+            AppendDistinctBranchSqlTexts(branchSqlTexts, armResolution);
+        }
+
+        if (branchSqlTexts.Count == 0)
+            return new ResolutionResult(null, false, hasScopeHelper);
+
+        return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
+    }
+
+    private static void AppendDistinctBranchSqlTexts(List<string> branchSqlTexts, ResolutionResult resolution)
+    {
+        if (resolution.BranchSqlTexts.Count > 0)
+        {
+            foreach (string branchSqlText in resolution.BranchSqlTexts)
+            {
+                if (!branchSqlTexts.Contains(branchSqlText, StringComparer.Ordinal))
+                    branchSqlTexts.Add(branchSqlText);
+            }
+
+            return;
+        }
+
+        if (resolution.IsStaticallyResolved && resolution.SqlText is not null &&
+            !branchSqlTexts.Contains(resolution.SqlText, StringComparer.Ordinal))
+            branchSqlTexts.Add(resolution.SqlText);
+    }
+
+    private static ResolutionResult ResolveNullCoalescing(
+        BinaryExpressionSyntax coalesce,
+        SemanticModel semanticModel,
+        bool visitingInterpolatedHole)
+    {
+        ResolutionResult left = ResolveCore(coalesce.Left, semanticModel, visitingInterpolatedHole);
+        ResolutionResult right = ResolveCore(coalesce.Right, semanticModel, visitingInterpolatedHole);
+        bool hasScopeHelper = left.HasScopeHelperInvocation || right.HasScopeHelperInvocation;
+        List<string> branchSqlTexts = new();
+
+        AppendDistinctBranchSqlTexts(branchSqlTexts, left);
+        AppendDistinctBranchSqlTexts(branchSqlTexts, right);
 
         if (branchSqlTexts.Count == 0)
             return new ResolutionResult(null, false, hasScopeHelper);
