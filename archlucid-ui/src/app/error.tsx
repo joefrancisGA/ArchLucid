@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ERROR_BOUNDARY_IDLE_SNAPSHOT_PRESERVED_COPY } from "@/lib/auth/error-boundary-idle-snapshot-copy";
 import { persistLivelihoodIdleSnapshotsBeforeErrorRecovery } from "@/lib/auth/error-boundary-idle-snapshot";
+import { ErrorRecoveryCareerHonestyStrip } from "@/components/usability/ErrorRecoveryCareerHonestyStrip";
 import { reportClientError } from "@/lib/error-telemetry";
 
 /**
@@ -55,6 +56,7 @@ export default function AppError({
             {ERROR_BOUNDARY_IDLE_SNAPSHOT_PRESERVED_COPY}
           </p>
         ) : null}
+        <ErrorRecoveryCareerHonestyStrip />
         {isDev ? (
           <pre
             className={cn(
