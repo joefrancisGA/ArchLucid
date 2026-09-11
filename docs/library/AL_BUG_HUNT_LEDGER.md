@@ -3514,11 +3514,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 19
-- **bugs-found:** 31
+- **hunts:** 20
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — E2E export pairing mispaired same-profile exports with different compare-run ids
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — replay cost estimator ignored confidence-only agent deltas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3581,10 +3581,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 thorough hunt #769: proved consulting Appendix C manifest-count parity; cheap-disproved GCP inventory alternate-key and comparison scope OR-gate candidates.
 
 - [x] (proven) `ConsultingDocxSupplementalSections.AddArchitectureDetails` omits manifest relationships and returns before rendering when `Datastores` is empty — **hit 2026-09-04 (#771):** Architecture Details listed services/datastores only; relationship-only manifests (no datastores) silently dropped relationships; fixed with Relationships section and removed datastore early-return; regression in `AddArchitectureDetails_includes_relationships_when_datastores_are_empty`.
-- [ ] (candidate) `ComparisonReplayPayloadComplexity.ScoreManifestDiff` ignores `manifestDiff.warnings` when structural lists are empty — warnings-only replay payloads may score as zero manifest complexity while materiality treats warnings as drift; verify whether cost-band under-scoring is intentional before hunt-ready promotion.
+- [x] (valid-no-repro) `ComparisonReplayPayloadComplexity.ScoreManifestDiff` ignores `manifestDiff.warnings` when structural lists are empty — **cheap-disproof 2026-09-11 thorough hunt #1739:** warnings-only manifest diffs already add complexity bump +1 via the `warning-only drift` branch; regression `ComparisonReplayPayloadComplexity_scores_warnings_only_manifest_diff`.
+- [x] (proven) `ComparisonReplayPayloadComplexity.ScoreAgentResultDiff` ignores confidence-only agent deltas when list surfaces are empty — **hit 2026-09-11 thorough hunt #1739:** `AgentResultDeltaMateriality` treats confidence drift as material but replay cost scoring only counted list deltas and presence flips; fixed via `DeltaIndicatesConfidenceChange`; regression `ComparisonReplayPayloadComplexity_scores_confidence_only_agent_delta`.
 - [x] (proven) `ReplayComparisonExportsDiffSlice.BuildExportPairingKey` pairs exports on `ExportType|TemplateProfile|Format` only — **hit 2026-09-05 (#797):** same-profile exports with different `CompareRunId` / `CompareManifestVersion` mispaired when creation order differed across runs (same defect shape as proven #430 template-profile fix); fixed by extending pairing key with compare dimensions; regression in `BuildAsync_pairs_export_records_by_compare_run_id_not_creation_order`.
 
-2026-09-05 thorough hunt #797: proved export compare-run pairing mispairing; warnings-only replay complexity candidate remains open.
+2026-09-11 thorough hunt #1739: cheap-disproved warnings-only manifest replay complexity candidate; proved confidence-only agent delta under-scoring in replay cost estimator; 25 scoped application-analysis tests passed.
+
+2026-09-05 thorough hunt #797: proved export compare-run pairing mispairing.
 
 2026-09-04 seed hunt #768: reseeded GCP inventory key asymmetry, comparison scope OR-gate, and consulting appendix manifest-count candidates; proved architecture-analysis DOCX agent evidence-ref/warning diff gap promoted from seed read.
 
