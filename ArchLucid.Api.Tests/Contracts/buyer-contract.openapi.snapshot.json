@@ -5653,6 +5653,57 @@
         ],
         "type": "object"
       },
+      "ArchitectureWorkLeaseConflictResponse": {
+        "properties": {
+          "draftId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "expiresUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "holderActorOid": {
+            "type": "string"
+          },
+          "holderUserId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureWorkLeaseResponse": {
+        "properties": {
+          "acquiredUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "architectureId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "draftId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "expiresUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "heldByCaller": {
+            "type": "boolean"
+          },
+          "holderActorOid": {
+            "type": "string"
+          },
+          "holderUserId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ArchivedRunScopeRow": {
         "properties": {
           "runId": {
