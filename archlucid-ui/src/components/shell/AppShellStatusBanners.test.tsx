@@ -51,6 +51,12 @@ vi.mock("@/components/usability/SetupHealthShellBanner", () => ({
   SetupHealthShellBanner: () => null,
 }));
 
+vi.mock("@/components/workspace-mode/WorkingSimulatorCloneRehearsalBanner", () => ({
+  WorkingSimulatorCloneRehearsalBanner: () => (
+    <div data-testid="working-simulator-clone-rehearsal-banner" />
+  ),
+}));
+
 import { AppShellStatusBanners } from "@/components/shell/AppShellStatusBanners";
 
 vi.mock("@/hooks/use-review-presenter-chrome-active", () => ({
@@ -76,10 +82,12 @@ describe("AppShellStatusBanners", () => {
 
     expect(screen.getByTestId("operator-offline-reconnect")).toBeInTheDocument();
     expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
+    expect(screen.getByTestId("working-simulator-clone-rehearsal-banner")).toBeInTheDocument();
 
     rerender(<AppShellStatusBanners variant="full" />);
 
     expect(screen.getByTestId("operator-offline-reconnect")).toBeInTheDocument();
     expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
+    expect(screen.getByTestId("working-simulator-clone-rehearsal-banner")).toBeInTheDocument();
   });
 });
