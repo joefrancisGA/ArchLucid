@@ -3329,7 +3329,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3338,6 +3338,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-12 seed hunt #1964 (seed-only): reseeded api-key-auth; no new hunt-ready rows.
 
 2026-09-12 seed hunt #1959 (seed-only): picker repeat after `-Refresh`; reseeded api-key-auth; no new hunt-ready rows.
 
@@ -10774,7 +10776,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 27
+- **hunts:** 33
 - **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -10783,6 +10785,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-12 seed hunts #1965–#1970 (seed-only): reseeded api-authority-admin-controllers; no new hunt-ready rows.
 
 - [x] Admin mutating endpoint lacks tenant binding on route parameters — (proven): `RunsController` request endpoints (2026-08-18); `AdminController.ArchiveRunsByIds` called global `ArchiveRunsByIdsAsync` without `GetByIdAsync(scope, …)` filter (2026-08-18); `AdminController.ArchiveRunsBatch` called global `ArchiveRunsCreatedBeforeAsync` without scoped cutoff filter (2026-08-22); `AdminDiagnosticsService` integration outbox dead-letter list/retry/suppress/curl called `IIntegrationEventOutboxRepository` without `scope.TenantId` (2026-08-23); bulk `RetryIntegrationOutboxDeadLettersAsync` still passed `request.TenantId` to `RetryMatchingDeadLettersAsync` (2026-08-24)
 - [x] (proven) Unrecognized `ReplayMode` on authority replay fell through to `DecideAsync` + manifest persist — `AuthorityReplayService.ReplayAsync` only special-cased `ReconstructOnly`; unknown modes matched rebuild path (2026-08-24)
