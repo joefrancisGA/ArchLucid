@@ -1,5 +1,6 @@
 > **Scope:** Family spine for livelihood UX waves 24–30 — mitigations for the 2026-09-11 all-day / livelihood diagnosis. Internal engineering only.
 > **Paste-ready indexes:** career-gravity · system-not-job · livelihood-grade-no · mode-gravity · desk-ia · cheap-exploration · daytime-wait
+> **Copy overlay (wave 31):** [`RECORD_PRACTICE_COMPOSER_PROMPTS.md`](RECORD_PRACTICE_COMPOSER_PROMPTS.md) (**RP-001–024**) — user-facing Record / Practice. Do not re-run CG.
 > **Issue 4 (in-flight writes):** already [`LOST_WRITE_COMPOSER_PROMPTS.md`](LOST_WRITE_COMPOSER_PROMPTS.md) (**LW-001–LW-100**) — **do not re-run**.
 
 # Livelihood-gravity Composer prompts (waves 24–30)
@@ -50,6 +51,7 @@ Owner indexes:
 - [`CHEAP_EXPLORATION_COMPOSER_PROMPTS.md`](CHEAP_EXPLORATION_COMPOSER_PROMPTS.md)
 - [`DAYTIME_WAIT_COMPOSER_PROMPTS.md`](DAYTIME_WAIT_COMPOSER_PROMPTS.md)
 - Issue 4: [`LOST_WRITE_COMPOSER_PROMPTS.md`](LOST_WRITE_COMPOSER_PROMPTS.md)
+- Wave 31 copy overlay: [`RECORD_PRACTICE_COMPOSER_PROMPTS.md`](RECORD_PRACTICE_COMPOSER_PROMPTS.md) — not a ninth diagnosis issue; do not re-run CG
 
 ## Family forbids (every wave)
 

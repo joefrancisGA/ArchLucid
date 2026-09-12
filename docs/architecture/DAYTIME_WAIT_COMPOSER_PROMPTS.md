@@ -2,7 +2,7 @@
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/daytime-wait-00-index.md`](../../.cursor/prompts/daytime-wait-00-index.md) (**DW-001–DW-024**)
 > **Predecessor:** [`CHEAP_EXPLORATION_COMPOSER_PROMPTS.md`](CHEAP_EXPLORATION_COMPOSER_PROMPTS.md).
-> **Successor:** Family close — see [`LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md`](LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md).
+> **Successor overlay:** [`RECORD_PRACTICE_COMPOSER_PROMPTS.md`](RECORD_PRACTICE_COMPOSER_PROMPTS.md) (**RP-001–024**, wave 31). Family close remains [`LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md`](LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md).
 
 # Daytime-wait Composer prompts (DW-001–DW-024)
 
