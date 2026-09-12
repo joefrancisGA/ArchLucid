@@ -2561,3 +2561,4 @@
 {"at":"2026-09-12T22:30:31.1883429Z","zoneId":"decisioning","outcome":"seed-only"}
 {"at":"2026-09-12T22:32:15.6889936Z","zoneId":"cloud-extractors","outcome":"seed-only"}
 {"at":"2026-09-12T22:34:01.0376855Z","zoneId":"context-ingestion","outcome":"seed-only"}
+{"at":"2026-09-12T22:35:45.2927311Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
