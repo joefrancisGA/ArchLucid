@@ -293,6 +293,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("storage_blob", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("storage_container", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("storage_data_lake", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("data_lake_gen2", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("site_recovery", StringComparison.OrdinalIgnoreCase);
     }
 

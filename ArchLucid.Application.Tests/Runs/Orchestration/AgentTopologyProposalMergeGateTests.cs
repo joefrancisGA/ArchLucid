@@ -3381,6 +3381,22 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_data_lake_gen2_node_has_data_category_but_synthetic_service_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "gen2-1", label: "lakegen2", sourceId: "azurerm_data_lake_gen2_filesystem.main"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-lakegen2")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_stack_hci_cluster_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
