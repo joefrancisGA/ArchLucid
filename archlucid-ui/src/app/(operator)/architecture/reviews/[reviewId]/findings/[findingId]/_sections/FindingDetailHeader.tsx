@@ -183,12 +183,6 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
                   showReason
                 />
               ) : null}
-              {inspectPayload !== null ? (
-                <FindingSemanticSupportBandChip
-                  finding={mapInspectPayloadToQuickDecisionFinding(inspectPayload)}
-                  showReason
-                />
-              ) : null}
               {labels.categoryLabel ? <StatusTag kind="neutral" label={labels.categoryLabel} /> : null}
               {labels.impactedAreaLabel ? (
                 <StatusTag kind="neutral" label={`Business impact: ${labels.impactedAreaLabel}`} />

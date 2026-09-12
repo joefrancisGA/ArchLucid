@@ -167,6 +167,8 @@ export const CORE_PILOT_HELP_DEFERRED_ITEMS: readonly CorePilotHelpDeferredItem[
 /** TB-1334: single post-stepper optional cluster title. */
 export const CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE = "Optional paths for your first review";
 
+export const CORE_PILOT_HELP_SPONSOR_HONESTY_TITLE = "Before sponsor send";
+
 export const CORE_PILOT_HELP_OPTIONAL_PATHS_SUMMARY =
   "Cloud connectors are optional. You can run an evidence-only review first, then add connectors or advanced topics later.";
 

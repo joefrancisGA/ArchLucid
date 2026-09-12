@@ -2,8 +2,10 @@
 
 import { cn } from "@/lib/utils";
 
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { Button } from "@/components/ui/button";
 import { ARCHITECTURE_SCORECARD_DIRECTIONAL_ROI_HELPER } from "@/lib/architecture/architecture-scorecard-page-copy";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveRoiTileSectionHeading } from "@/lib/roi/roi-tile-career-honesty";
 
@@ -77,6 +79,10 @@ export function PilotScorecardRoiPanel({
             : "Enter baseline assumptions to preview review-time savings, then save for the workspace."}{" "}
           {ARCHITECTURE_SCORECARD_DIRECTIONAL_ROI_HELPER}
         </p>
+        <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-scorecard-roi-non-summing">
+          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+        </p>
+        <PolicyPackInfluenceHonestyChip className="mt-2" />
         <div className="mt-4 grid gap-3">
           <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
             <span className="text-al-text-primary">Hours saved per review</span>
@@ -175,6 +181,10 @@ export function PilotScorecardRoiPanel({
               Live preview — save to persist for sponsor exports.
             </p>
           ) : null}
+          <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-scorecard-estimate-non-summing">
+            {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+          </p>
+          <PolicyPackInfluenceHonestyChip className="mt-2" />
           {annualSavingsLabel !== null ? (
             <div className="mt-4 space-y-3">
               <div>
