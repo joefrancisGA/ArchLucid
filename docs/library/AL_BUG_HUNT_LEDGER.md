@@ -3645,11 +3645,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 17
-- **bugs-found:** 17
+- **hunts:** 18
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — watchdog mid-batch notify failure left orphan Pending rows
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — invalid WorkUnitJson path overwrote cancel before terminal failure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3693,6 +3693,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-08 seed hunt #1354 (hit): seeded post-backoff cancel gap before durable `SendMessageAsync`; fixed third cancel re-read; 92 unit job-queue tests passed.
 
+
+- [x] (proven) `BackgroundJobQueueProcessorHostedService` invalid WorkUnitJson branch called `MarkFailedTerminalAsync` before cancel registry check and without `GetAsync` cancel re-read — **hit 2026-09-12 seed hunt #1926:** moved registry cancel check before deserialize; invalid-payload branch skips terminal failure when row is already `Canceled`; regressions `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_requested_before_invalid_payload` and `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_invalid_payload_job_already_canceled`.
+
+2026-09-12 seed hunt #1926 (hit): reseeded host-core-jobs; proved invalid WorkUnitJson path skipped cancel before terminal failure; 3 scoped processor tests passed.
 
 2026-09-12 seed hunt #1924 (seed-only): reseeded host-core-jobs; scoped hosted/job tests passed; no new hunt-ready defect proven this pass.
 ---
