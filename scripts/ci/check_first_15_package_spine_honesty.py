@@ -40,6 +40,9 @@ UI_SCAN_FILES: tuple[Path, ...] = (
     Path("archlucid-ui/src/lib/cloud-neutral-primary-copy.ts"),
     Path("archlucid-ui/src/lib/export-markdown-sendable-cover.ts"),
     Path("archlucid-ui/src/components/reviews/RunDetailPackageSpineExportCoLocationStrip.tsx"),
+    Path("archlucid-ui/src/components/runs/RunScopedAuditExportButton.tsx"),
+    Path("archlucid-ui/src/components/audit/AuditDualChannelHonestyNote.tsx"),
+    Path("archlucid-ui/src/lib/audit/audit-export-career-posture.ts"),
 )
 
 SKIP_DOC_SUFFIXES: tuple[str, ...] = (

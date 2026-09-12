@@ -25,7 +25,7 @@ export function useAssumptionAwareCommitBlockedReason(input: {
   readonly serverCommitBlockedReason: string | null | undefined;
   /** SSR-hydrated structured blocks from buildRunDetailGovernancePresentation. */
   readonly serverFinalizeReadinessBlocks?: readonly FinalizeReadinessBlock[];
-  readonly finalizeAssumptionGateApplies: boolean;
+  readonly finalizeReadinessEnabled: boolean;
   readonly findings: readonly QuickDecisionFinding[];
   readonly blockingFindingCount: number;
   readonly requestAssumptionTexts: readonly string[];
@@ -38,27 +38,11 @@ export function useAssumptionAwareCommitBlockedReason(input: {
   const { acknowledgedIds } = useReviewAssumptionAcknowledgements(input.runId);
   const { readiness, loading } = useFinalizeReadiness({
     runId: input.runId,
-    enabled: input.finalizeAssumptionGateApplies,
+    enabled: input.finalizeReadinessEnabled,
     acknowledgedAssumptionIds: acknowledgedIds,
   });
 
-  if (
-    input.serverCommitBlockedReason !== null
-    && input.serverCommitBlockedReason !== undefined
-    && !input.finalizeAssumptionGateApplies
-  ) {
-    return {
-      blockedReason: input.serverCommitBlockedReason,
-      blocks: [],
-      readinessLoading: false,
-      readinessUnavailable: false,
-      checklistReadyToFinalize: null,
-      readinessReadyToFinalize: null,
-      readinessChecklistMismatch: false,
-    };
-  }
-
-  if (!input.finalizeAssumptionGateApplies) {
+  if (!input.finalizeReadinessEnabled) {
     return {
       blockedReason: null,
       blocks: [],
@@ -94,11 +78,18 @@ export function useAssumptionAwareCommitBlockedReason(input: {
     };
   }
 
+  const hasLegacyBlockedReason =
+    input.serverCommitBlockedReason !== null
+    && input.serverCommitBlockedReason !== undefined
+    && input.serverCommitBlockedReason.trim().length > 0;
+
   return {
-    blockedReason: READINESS_UNAVAILABLE_MESSAGE,
-    blocks: [],
+    blockedReason: hasLegacyBlockedReason
+      ? input.serverCommitBlockedReason
+      : READINESS_UNAVAILABLE_MESSAGE,
+    blocks: serverFinalizeReadinessBlocks,
     readinessLoading: false,
-    readinessUnavailable: true,
+    readinessUnavailable: !hasLegacyBlockedReason,
     checklistReadyToFinalize: null,
     readinessReadyToFinalize: null,
     readinessChecklistMismatch: false,

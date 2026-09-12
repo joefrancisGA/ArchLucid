@@ -10,7 +10,7 @@ namespace ArchLucid.Integrations.AzureExtractor;
 /// <summary>
 ///     GET-only ARM reader for subscription resource inventory.
 /// </summary>
-public sealed class GetOnlyHostedAzureArmReadClient(
+public sealed partial class GetOnlyHostedAzureArmReadClient(
     HttpClient httpClient,
     ILogger<GetOnlyHostedAzureArmReadClient> logger) : IHostedAzureArmReadClient
 {
