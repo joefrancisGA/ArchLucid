@@ -10495,13 +10495,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 91
+- **hunts:** 92
 - **bugs-found:** 152
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — snake_case `ephemeral_containers` skipped privileged projection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2111 (seed-only): reseeded context-ingestion; cheap-disproof closed snake_case `allow_privilege_escalation` as already covered by `TryGetPropertyIgnoreCaseOrSnakeCase`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2102 (seed→hit): reseeded context-ingestion; proved snake_case `ephemeral_containers` projection gap; regression `ParseAsync_snake_case_ephemeral_containers_projects_privileged_security_context`.
 
