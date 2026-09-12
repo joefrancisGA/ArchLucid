@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
 import { ComplianceDriftChart } from "./ComplianceDriftChart";
@@ -78,6 +79,7 @@ export function ComplianceDriftChartPdfExport(props: Props) {
           {busy ? "Preparing PDF…" : "Export drift chart as PDF"}
         </Button>
       </div>
+      <SponsorExportSendHonestyStrip className="mt-0" testIdPrefix="compliance-drift-pdf-export" />
 
       <div
         ref={captureRef}

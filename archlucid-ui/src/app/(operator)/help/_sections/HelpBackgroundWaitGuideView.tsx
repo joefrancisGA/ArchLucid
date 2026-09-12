@@ -1,4 +1,5 @@
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -38,6 +39,8 @@ export function HelpBackgroundWaitGuideView(props: HelpBackgroundWaitGuideViewPr
       <p className={cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody)} data-testid="help-background-wait-overview">
         {DAYTIME_WAIT_HELP_BACKGROUND_WAIT_OVERVIEW}
       </p>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-background-wait" showSsoOptional={false} />
     </article>
   );
 }

@@ -4,6 +4,7 @@ import { HelpDpaTemplateClaimOrientationStrip } from "@/app/(operator)/help/_sec
 import { HelpDpaTemplateHeaderActions } from "@/app/(operator)/help/_sections/HelpDpaTemplateHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpStaticSection } from "@/components/help/HelpStaticSection";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
@@ -154,6 +155,8 @@ export function HelpDpaTemplateGuideView(props: HelpDpaTemplateGuideViewProps): 
               </Button>
             </div>
           </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-dpa-template" showSsoOptional={false} />
         </div>
 
         <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn, "max-w-[52rem]")}>

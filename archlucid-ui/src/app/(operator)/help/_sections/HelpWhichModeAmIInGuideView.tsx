@@ -1,4 +1,5 @@
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -49,6 +50,8 @@ export function HelpWhichModeAmIInGuideView(
       >
         {MODE_GRAVITY_HELP_WHICH_MODE_OVERVIEW}
       </p>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-which-mode-am-i-in" showSsoOptional={false} />
 
       <section className={OPERATOR_LAYOUT.sectionStack} aria-labelledby="help-which-mode-working-heading">
         <h2

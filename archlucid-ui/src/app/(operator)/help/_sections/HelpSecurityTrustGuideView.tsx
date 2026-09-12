@@ -8,6 +8,7 @@ import { SecurityTrustHelpClaimDisciplineStrip } from "@/components/help/Securit
 import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/SecurityTrustHelpEvidenceOrientationStrip";
 import { SecurityTrustHelpNextSteps } from "@/components/help/SecurityTrustHelpNextSteps";
 import { SecurityTrustHelpPostureSummary } from "@/components/help/SecurityTrustHelpPostureSummary";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -156,6 +157,8 @@ export function HelpSecurityTrustGuideView(props: HelpSecurityTrustGuideViewProp
             </section>
           ) : null}
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-security-trust" showSsoOptional={false} />
 
         <div className={contentGridClass}>
           <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-topic-content">

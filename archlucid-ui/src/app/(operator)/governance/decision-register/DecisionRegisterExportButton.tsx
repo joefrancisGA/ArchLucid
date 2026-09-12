@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import {
   Select,
   SelectContent,
@@ -64,6 +65,7 @@ export function DecisionRegisterExportButton(props: DecisionRegisterExportButton
         </SelectContent>
       </Select>
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{exportHint}</p>
+      <SponsorExportSendHonestyStrip className="mt-1" testIdPrefix="decision-register-export" />
     </div>
   );
 }
