@@ -22,9 +22,9 @@ import { ArchitectureIdentityRenameForm } from "@/components/architecture/Archit
 import { Button } from "@/components/ui/button";
 import {
   architectureIdentityPath,
-  resolveArchitectureReviewHref,
   startReviewFromArchitectureNestedHref,
 } from "@/lib/architecture/architecture-routes";
+import { resolveSystemNotJobDeskSealedChildReviewHref } from "@/lib/system-not-job-sealed-child-not-second-desk";
 import {
   ARCHITECTURE_IDENTITY_DESK_HONESTY_LINE,
   ARCHITECTURE_IDENTITY_DESK_LATEST_SEAL_LABEL,
@@ -138,7 +138,10 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
           <span className="font-medium">{ARCHITECTURE_IDENTITY_DESK_LATEST_SEAL_LABEL}:</span>
           {" "}
           <Link
-            href={resolveArchitectureReviewHref(identity.latestReviewId, identity.architectureId)}
+            href={resolveSystemNotJobDeskSealedChildReviewHref(
+              identity.latestReviewId,
+              identity.architectureId,
+            )}
             className={OPERATOR_LINK.nav}
             data-testid="architecture-identity-latest-seal-link"
           >
