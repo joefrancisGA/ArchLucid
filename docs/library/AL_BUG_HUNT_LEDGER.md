@@ -12498,11 +12498,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 18
-- **bugs-found:** 28
+- **hunts:** 19
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-09 — home preview tab counts ignored deduped previewItems pool
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — tenant counting snapshot omitted paginated totalCount
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
