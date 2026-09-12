@@ -102,14 +102,41 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
         const rect = node.getBoundingClientRect();
         return { x: rect.x, y: rect.y, w: rect.width, h: rect.height };
       });
+      const sortedByRow = [...nodes].sort((left, right) => left.y - right.y || left.x - right.x);
+      const rowTolerance = Math.max(8, (sortedByRow[0]?.h ?? 0) * 0.35);
+      const firstRow = sortedByRow.filter((node) => Math.abs(node.y - (sortedByRow[0]?.y ?? 0)) <= rowTolerance);
+      firstRow.sort((left, right) => left.x - right.x);
+      const horizontalGaps: number[] = [];
+
+      for (let index = 1; index < firstRow.length; index += 1) {
+        horizontalGaps.push(firstRow[index]!.x - (firstRow[index - 1]!.x + firstRow[index - 1]!.w));
+      }
 
       const minX = nodes.reduce((acc, node) => Math.min(acc, node.x), Number.POSITIVE_INFINITY);
       const maxX = nodes.reduce((acc, node) => Math.max(acc, node.x + node.w), Number.NEGATIVE_INFINITY);
+      const minY = nodes.reduce((acc, node) => Math.min(acc, node.y), Number.POSITIVE_INFINITY);
+      const maxY = nodes.reduce((acc, node) => Math.max(acc, node.y + node.h), Number.NEGATIVE_INFINITY);
+      const viewBox = svg.getAttribute("viewBox");
+      const viewBoxParts = (viewBox ?? "").trim().split(/[\s,]+/u).map((part) => Number.parseFloat(part));
+      const viewBoxWidth = viewBoxParts.length === 4 ? viewBoxParts[2]! : Number.NaN;
+      const viewBoxHeight = viewBoxParts.length === 4 ? viewBoxParts[3]! : Number.NaN;
+      const zoomPercent = Number.parseInt(
+        (document.querySelector('[data-testid="architecture-diagram-zoom-input"]') as HTMLInputElement | null)?.value ?? "100",
+        10,
+      );
 
       return {
         nodeCount: nodes.length,
         minNodeHeight: nodes.reduce((acc, node) => Math.min(acc, node.h), Number.POSITIVE_INFINITY),
         widthSpanRatio: (maxX - minX) / viewportRect.width,
+        heightSpanRatio: (maxY - minY) / viewportRect.height,
+        maxHorizontalGapRatio:
+          horizontalGaps.length === 0
+            ? 0
+            : Math.max(...horizontalGaps) / Math.max(1, firstRow[0]?.w ?? 1),
+        viewBoxWidthRatio: Number.isFinite(viewBoxWidth) ? viewBoxWidth / Math.max(1, svgRect.width) : Number.NaN,
+        viewBoxHeightRatio: Number.isFinite(viewBoxHeight) ? viewBoxHeight / Math.max(1, svgRect.height) : Number.NaN,
+        zoomPercent,
         allInsideSvg:
           nodes.every(
             (node) =>
@@ -123,6 +150,10 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
           Array.from(document.querySelectorAll("h3"))
             .find((heading) => heading.textContent?.trim() === "Edges")
             ?.parentElement?.querySelectorAll("tbody tr").length ?? 0,
+        statusEdgeCount:
+          document
+            .querySelector('[data-testid="infra-diagrams-render-status-strip"]')
+            ?.textContent?.match(/(\d+)\s+edges/u)?.[1] ?? null,
       };
     }, minNodeHeightPx);
 
@@ -130,9 +161,15 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
     expect(metrics?.nodeCount).toBe(11);
     expect(metrics?.minNodeHeight).toBeGreaterThanOrEqual(minNodeHeightPx);
     expect(metrics?.widthSpanRatio).toBeGreaterThanOrEqual(0.5);
+    expect(metrics?.heightSpanRatio).toBeLessThanOrEqual(0.85);
+    expect(metrics?.maxHorizontalGapRatio).toBeLessThanOrEqual(0.75);
+    expect(metrics?.viewBoxWidthRatio).toBeLessThanOrEqual(1.25);
+    expect(metrics?.viewBoxHeightRatio).toBeLessThanOrEqual(1.25);
+    expect(metrics?.zoomPercent).toBeGreaterThanOrEqual(80);
     expect(metrics?.allInsideSvg).toBe(true);
     expect(metrics?.edgePathCount).toBe(0);
     expect(metrics?.outlineEdgeRows).toBe(0);
+    expect(metrics?.statusEdgeCount).toBe("0");
   });
 
   test("legacy chain uses scroll instead of unreadable shrink at default zoom", async ({ page }) => {
