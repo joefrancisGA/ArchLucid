@@ -24,6 +24,7 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
@@ -55,8 +56,11 @@ public sealed class FinalizeReadinessService(
     IArchitectureKnowledgeModelAccess architectureKnowledgeModelAccess,
     IDraftRequestRepository draftRequestRepository,
     IArchitectureVersionRepository architectureVersionRepository,
+    IPreCommitGovernanceBlockExplainer preCommitGovernanceBlockExplainer,
     IOptions<PreCommitGovernanceGateOptions> preCommitGovernanceGateOptions,
-    IOptions<FinalizeQualityGateOptions> finalizeQualityGateOptions) : IFinalizeReadinessService
+    IOptions<FinalizeQualityGateOptions> finalizeQualityGateOptions,
+    IOptions<ExplainGovernanceBlocksOptions> explainGovernanceBlocksOptions,
+    ILogger<FinalizeReadinessService> logger) : IFinalizeReadinessService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -115,11 +119,20 @@ public sealed class FinalizeReadinessService(
     private readonly IArchitectureVersionRepository _architectureVersionRepository =
         architectureVersionRepository ?? throw new ArgumentNullException(nameof(architectureVersionRepository));
 
+    private readonly IPreCommitGovernanceBlockExplainer _preCommitGovernanceBlockExplainer =
+        preCommitGovernanceBlockExplainer ?? throw new ArgumentNullException(nameof(preCommitGovernanceBlockExplainer));
+
     private readonly IOptions<PreCommitGovernanceGateOptions> _preCommitGovernanceGateOptions =
         preCommitGovernanceGateOptions ?? throw new ArgumentNullException(nameof(preCommitGovernanceGateOptions));
 
     private readonly IOptions<FinalizeQualityGateOptions> _finalizeQualityGateOptions =
         finalizeQualityGateOptions ?? throw new ArgumentNullException(nameof(finalizeQualityGateOptions));
+
+    private readonly IOptions<ExplainGovernanceBlocksOptions> _explainGovernanceBlocksOptions =
+        explainGovernanceBlocksOptions ?? throw new ArgumentNullException(nameof(explainGovernanceBlocksOptions));
+
+    private readonly ILogger<FinalizeReadinessService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task<FinalizeReadinessResult> BuildAsync(
         string runId,
@@ -334,11 +347,21 @@ public sealed class FinalizeReadinessService(
         if (!gateResult.Blocked || gateResult.WarnOnly)
             return;
 
+        string? blockExplanation = await PreCommitGovernanceBlockExplanationAttacher.TryExplainAsync(
+            _preCommitGovernanceBlockExplainer,
+            _explainGovernanceBlocksOptions,
+            _logger,
+            runId,
+            gateResult,
+            PreCommitGovernanceBlockExplanationAttacher.BuildReadinessGateContextExcerpt(gateResult),
+            cancellationToken).ConfigureAwait(false);
+
         blocks.Add(new FinalizeReadinessBlock
         {
             Code = "pre_commit_gate",
             Layer = FinalizeReadinessLayers.Governance,
             Message = gateResult.Reason ?? "Policy pack thresholds would block finalize.",
+            BlockExplanation = blockExplanation,
         });
     }
 
