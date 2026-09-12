@@ -20,6 +20,7 @@ export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; rea
   { value: "identity", label: "Identity" },
   { value: "data", label: "Data" },
   { value: "full", label: "Full subscription" },
+  { value: "resourceGroup", label: "Pick a Resource Group" },
   { value: "dependencyNeighborhood", label: "Dependency neighborhood" },
 ];
 

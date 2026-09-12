@@ -19,4 +19,7 @@ public static class DiagramAstFromGraphCompilerConstants
 
     /// <summary>Minimum nodes in a subgraph before intra-subgraph grid links are applied.</summary>
     public const int PeerGridSubgraphMinNodes = 4;
+
+    /// <summary>Title suffix when Full subscription compiles as an RG map (IE-17).</summary>
+    public const string ResourceGroupMapTitleSuffix = "resource group map";
 }

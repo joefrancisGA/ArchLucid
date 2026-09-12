@@ -6,6 +6,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { DiagramsWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient";
 
@@ -554,5 +556,103 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("dependencyNeighborhood");
     expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue(seedId);
+  });
+
+  it("shows resource group cards when Pick a Resource Group is selected", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
+      const mode = query.mode ?? "executive";
+      const isPicker = mode === "resourceGroup";
+      const isNamedGroup = typeof mode === "string" && mode.startsWith("resourceGroup:");
+
+      return {
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        mode,
+        fallbackKey: null,
+        status: "Succeeded",
+        mermaid: isNamedGroup ? "flowchart TD\n    %% al-type=Microsoft.Resources/resourceGroups al-rg=rg-net\n    n1[\"rg-net\"]" : "",
+        metrics: isNamedGroup
+          ? {
+              nodeCount: 4,
+              edgeCount: 2,
+              subgraphCount: 0,
+              maxDegree: 2,
+              crossSubgraphEdgeCount: 0,
+              textSizeBytes: 200,
+              layoutEstimate: 100,
+            }
+          : {
+              nodeCount: 0,
+              edgeCount: 0,
+              subgraphCount: 0,
+              maxDegree: 0,
+              crossSubgraphEdgeCount: 0,
+              textSizeBytes: 0,
+              layoutEstimate: 0,
+            },
+        fallbackArtifacts: isPicker || isNamedGroup
+          ? [
+              {
+                key: "resourceGroup:rg-net",
+                label: "rg-net",
+                status: "Succeeded",
+                nodeCount: 4,
+                edgeCount: 2,
+              },
+              {
+                key: "resourceGroup:rg-data",
+                label: "rg-data",
+                status: "Succeeded",
+                nodeCount: 2,
+                edgeCount: 1,
+              },
+            ]
+          : [],
+      };
+    });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DiagramsWorkbenchClient />);
+
+    fireEvent.change(await screen.findByTestId("infra-diagrams-mode-picker"), {
+      target: { value: "resourceGroup" },
+    });
+
+    expect(await screen.findByTestId("infra-diagrams-resource-group-cards")).toBeInTheDocument();
+    expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-resource-group-picker-prompt")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-fallback-full-machine")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /rg-net/i }));
+
+    expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-resource-group-picker-prompt")).not.toBeInTheDocument();
+  });
+
+  it("shows the resource group map caption for a collapsed full subscription diagram", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "full",
+      fallbackKey: null,
+      status: "Succeeded",
+      mermaid: "flowchart TD\n    %% al-view=resource-group-map\n    n1[\"rg-net (40 resources)\"]",
+      metrics: {
+        nodeCount: 12,
+        edgeCount: 4,
+        subgraphCount: 0,
+        maxDegree: 3,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 400,
+        layoutEstimate: 200,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=full");
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-resource-group-map-caption")).toHaveTextContent(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
+    );
+    expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
   });
 });

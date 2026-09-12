@@ -72,7 +72,7 @@ export class OperateInfrastructureNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/governance/infrastructure/diagrams" as typeof GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
           label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
-          title: "Render inventory diagrams with partitioned fallbacks for large graphs",
+          title: "Render inventory diagrams, including a resource group map for large subscriptions",
           icon: Network,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
