@@ -121,13 +121,15 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 46
-- **bugs-found:** 25
+- **hunts:** 47
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — hunt #2208: oracle_autonomous svc- synthetic alias on Data-category nodes
+- **last-bug:** 2026-09-12 — hunt #2209: storage_mover svc- synthetic alias on Data-category nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2209 (seed→hit): reseeded topology-proposal-merge with `-Hint terraform source ids`; proved `azurerm_storage_mover` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_storage_mover_node_has_data_category_but_synthetic_service_id_used`.
 
 2026-09-12 seed hunt #2208 (seed→hit): reseeded topology-proposal-merge with `-Hint ARM`; proved `azurerm_oracle_autonomous_database` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_oracle_autonomous_database_node_has_data_category_but_synthetic_service_id_used`.
 
@@ -188,6 +190,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+- [x] (proven) `azurerm_storage_mover` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2209:** `storage_mover` was only in the datastore list; `azurerm_storage_mover.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_storage_mover_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_oracle_autonomous_database` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2208:** `oracle_autonomous` was only in the datastore list; `azurerm_oracle_autonomous_database.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_oracle_autonomous_database_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_oracle_cloud_vm_cluster` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2207:** `oracle_cloud` was only in the datastore list; `azurerm_oracle_cloud_vm_cluster.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_oracle_cloud_vm_cluster_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_neptune_cluster` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2206:** `neptune_cluster` was only in the datastore list; `azurerm_neptune_cluster.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_neptune_cluster_node_has_data_category_but_synthetic_service_id_used`.
