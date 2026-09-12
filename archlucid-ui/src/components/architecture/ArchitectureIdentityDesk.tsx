@@ -7,6 +7,7 @@ import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-
 import { useArchitectureDeskShortcuts } from "@/hooks/useArchitectureDeskShortcuts";
 import { useRehydrateInFlightOperationsFromArchitecture } from "@/hooks/use-rehydrate-in-flight-from-architecture";
 import { ArchitectureIdentityArchiveControl } from "@/components/architecture/ArchitectureIdentityArchiveControl";
+import { ArchitectureIdentityDeskCommandBar } from "@/components/architecture/ArchitectureIdentityDeskCommandBar";
 import { ArchitectureIdentityDeskCompareAction } from "@/components/architecture/ArchitectureIdentityDeskCompareAction";
 import { ArchitectureIdentityDeskCurrentDraft } from "@/components/architecture/ArchitectureIdentityDeskCurrentDraft";
 import { ArchitectureIdentityDeskDiagramSourcesStrip } from "@/components/architecture/ArchitectureIdentityDeskDiagramSourcesStrip";
@@ -110,6 +111,12 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
         architectureId={identity.architectureId}
         displayName={identity.displayName}
         onRenamed={(displayName) => setHeadingOverride(displayName)}
+      />
+
+      <ArchitectureIdentityDeskCommandBar
+        architectureId={identity.architectureId}
+        reviews={identity.reviews}
+        latestReviewId={identity.latestReviewId}
       />
 
       <ArchitectureIdentityDeskCurrentDraft
