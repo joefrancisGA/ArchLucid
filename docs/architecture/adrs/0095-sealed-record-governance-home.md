@@ -4,8 +4,9 @@
 
 # ADR 0095: Sealed record inventory is a Governance home
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-12
+- **Accepted:** 2026-09-12 (owner)
 - **Owner decision:** Finalized review records get a **Governance nav home** at `/governance/sealed-records`. The package detail route stays immutable. Desktop review workspace tabs stay a full strip — no **More** menu. Architecture desk remains the day’s work surface.
 
 ## Context

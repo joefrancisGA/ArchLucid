@@ -1,3 +1,4 @@
+import { CHEAP_EXPLORATION_SKETCH_A_CHANGE_DESK_CTA_LABEL } from "@/lib/cheap-exploration-adr-inventory";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export const ARCHITECTURE_IDENTITY_DESK_PAGE_TITLE = "Architecture" as const;
@@ -10,7 +11,8 @@ export const ARCHITECTURE_IDENTITY_DESK_CONTINUE_ARCHITECTURE_LABEL = "Continue 
 
 export const ARCHITECTURE_IDENTITY_DESK_NO_OPEN_DRAFT = "No open draft" as const;
 
-export const ARCHITECTURE_IDENTITY_DESK_NEW_VERSION_LABEL = "New version (clone)" as const;
+export const ARCHITECTURE_IDENTITY_DESK_NEW_VERSION_LABEL =
+  CHEAP_EXPLORATION_SKETCH_A_CHANGE_DESK_CTA_LABEL;
 
 export const ARCHITECTURE_IDENTITY_DESK_REVIEWS_SECTION_TITLE = "Reviews" as const;
 

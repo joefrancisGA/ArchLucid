@@ -24,8 +24,9 @@ describe("desk-ia ADR guard (DI-001 / ADR 0095)", () => {
 
     const statusMatch = adr.match(/\*\*Status:\*\*\s*(Proposed|Accepted)/);
 
-    expect(statusMatch, "ADR 0095 must declare Proposed or Accepted status").not.toBeNull();
+    expect(statusMatch, "ADR 0095 must declare Accepted status").not.toBeNull();
     expect(DESK_IA_ADR_0095_ACCEPTED_STATUSES).toContain(statusMatch![1]);
+    expect(statusMatch![1]).toBe("Accepted");
 
     expect(adr).toMatch(/Governance/i);
     expect(adr).toMatch(/sealed review records/i);

@@ -1,3 +1,4 @@
+import { CHEAP_EXPLORATION_SKETCH_A_CHANGE_DESK_CTA_LABEL } from "@/lib/cheap-exploration-adr-inventory";
 import {
   labelForWorkingCareerRehearsalDoor,
   type WorkingCareerRehearsalDoorId,
@@ -8,8 +9,9 @@ import { BILLING_ARCHITECTURE_PACKAGE_OVERAGE_UNIT_LABEL } from "@/lib/vocabular
 export const SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DOC_ANCHOR =
   "docs/architecture/adrs/0092-working-cheap-what-if-envelope.md" as const;
 
-/** SN-008 desk CTA after spawn — architecture sketch path, not editable snapshot (ADR 0092). */
-export const SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DESK_CTA_LABEL = "New version (clone)" as const;
+/** SN-008 / CE-001 desk CTA after spawn — architecture sketch path (ADR 0092). */
+export const SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DESK_CTA_LABEL =
+  CHEAP_EXPLORATION_SKETCH_A_CHANGE_DESK_CTA_LABEL;
 
 export const SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_CONFIRM_TITLE =
   "Start new version from snapshot?" as const;
