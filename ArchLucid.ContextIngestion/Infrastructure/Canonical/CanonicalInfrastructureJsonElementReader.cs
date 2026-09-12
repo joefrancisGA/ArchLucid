@@ -98,14 +98,29 @@ public static class CanonicalInfrastructureJsonElementReader
 
     public static string? ReadMetadataString(JsonElement resource, string objectName, string propertyName)
     {
-        if (!TryGetPropertyIgnoreCase(resource, objectName, out JsonElement objectElement) || objectElement.ValueKind is not JsonValueKind.Object)
+        if (!TryGetMetadataObject(resource, objectName, out JsonElement objectElement))
             return null;
 
-        if (!TryGetPropertyIgnoreCase(objectElement, propertyName, out JsonElement value) || value.ValueKind is not JsonValueKind.String)
+        if (!TryGetPropertyIgnoreCaseOrSnakeCase(objectElement, propertyName, out JsonElement value) || value.ValueKind is not JsonValueKind.String)
             return null;
 
         string? text = value.GetString();
 
         return string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+    }
+
+    private static bool TryGetMetadataObject(JsonElement resource, string objectName, out JsonElement metadata)
+    {
+        if (TryGetPropertyIgnoreCase(resource, objectName, out metadata) && metadata.ValueKind is JsonValueKind.Object)
+            return true;
+
+        if (string.Equals(objectName, "metadata", StringComparison.OrdinalIgnoreCase)
+            && TryGetPropertyIgnoreCase(resource, "meta_data", out metadata)
+            && metadata.ValueKind is JsonValueKind.Object)
+            return true;
+
+        metadata = default;
+
+        return false;
     }
 }
