@@ -1,4 +1,5 @@
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -43,6 +44,8 @@ export function HelpProxyTimeoutRealExecuteGuideView(
       >
         {DAYTIME_WAIT_HELP_PROXY_TIMEOUT_OVERVIEW}
       </p>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-proxy-timeout-real-execute" showSsoOptional={false} />
     </article>
   );
 }

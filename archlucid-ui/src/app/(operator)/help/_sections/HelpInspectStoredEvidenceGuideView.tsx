@@ -1,4 +1,5 @@
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -43,6 +44,8 @@ export function HelpInspectStoredEvidenceGuideView(
       >
         {EVIDENCE_SOURCE_INSPECT_HELP_STORED_EVIDENCE_OVERVIEW}
       </p>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-inspect-stored-evidence" showSsoOptional={false} />
     </article>
   );
 }

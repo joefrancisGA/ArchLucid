@@ -8,6 +8,7 @@ import { CaiqSigResponseHelpClaimDisciplineStrip } from "@/components/help/CaiqS
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
 import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -228,6 +229,8 @@ export function HelpCaiqSigResponseGuideView(props: HelpCaiqSigResponseGuideView
             {firstViewportPanel}
           </div>
 
+          <SponsorSendPathHonestyPanel testIdPrefix="help-caiq-sig-response" showSsoOptional={false} />
+
           <div className={contentGridClass}>
             <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-topic-content">
               <HelpCaiqSigResponseGuideMarkdown
@@ -263,6 +266,8 @@ export function HelpCaiqSigResponseGuideView(props: HelpCaiqSigResponseGuideView
           <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
             {firstViewportPanel}
           </div>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-caiq-sig-response" showSsoOptional={false} />
 
           <div className={contentGridClass}>
             <div className={HELP_PAGE_LAYOUT.technicalReferenceColumn} data-testid="help-topic-content">

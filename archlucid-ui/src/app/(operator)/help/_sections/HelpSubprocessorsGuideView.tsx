@@ -8,6 +8,7 @@ import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { SubprocessorsHelpClaimDisciplineStrip } from "@/components/help/SubprocessorsHelpClaimDisciplineStrip";
 import { SubprocessorsHelpEvidenceOrientationStrip } from "@/components/help/SubprocessorsHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -157,6 +158,8 @@ export function HelpSubprocessorsGuideView(
           </div>
         </section>
       </div>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-subprocessors" showSsoOptional={false} />
 
       <section
         aria-labelledby="help-subprocessors-job-matrix-heading"

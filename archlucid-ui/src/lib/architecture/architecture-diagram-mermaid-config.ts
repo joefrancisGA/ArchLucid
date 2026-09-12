@@ -59,7 +59,7 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
       background: "transparent",
       primaryColor: dark ? "#334155" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill,
       mainBkg: dark ? "#334155" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill,
-      clusterBkg: dark ? "#1e293b" : "#e2e8f0",
+      clusterBkg: dark ? "transparent" : "transparent",
       clusterBorder: dark ? "#94a3b8" : "#475569",
       primaryBorderColor: dark ? "#cbd5e1" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.border,
       lineColor: dark ? "#cbd5e1" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.border,

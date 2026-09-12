@@ -8,6 +8,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { ProcurementHelpClaimDisciplineStrip } from "@/components/help/ProcurementHelpClaimDisciplineStrip";
 import { ProcurementHelpDiligenceCtaSection } from "@/components/help/ProcurementHelpDiligenceCtaSection";
 import { ProcurementHelpEvidenceOrientationStrip } from "@/components/help/ProcurementHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -201,6 +202,8 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
               preparedMarkdownOverride={preparedMarkdown}
             />
           </div>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-procurement" showSsoOptional={false} />
 
           {buyerPolishedShell ? null : (
             <section

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, type SetStateAction } from "react";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -120,7 +121,7 @@ export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
             Create deliverable
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Create deliverable</DialogTitle>
             <DialogDescription>Choose an audience and open the matching export workflow.</DialogDescription>
@@ -147,6 +148,7 @@ export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
               </label>
             ))}
           </fieldset>
+          <SponsorExportSendHonestyStrip className="mt-3" testIdPrefix="export-deliverable" />
           <div className="flex justify-end gap-2 pt-2">
             {deliverableDisabledReason === null ? (
               <Button type="button" variant="default" size="sm" asChild>
