@@ -121,13 +121,15 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 35
-- **bugs-found:** 14
+- **hunts:** 36
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — hunt #2197: video_indexer svc- synthetic alias on Data-category nodes
+- **last-bug:** 2026-09-12 — hunt #2198: hpc_cache svc- synthetic alias on Data-category nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2198 (seed→hit): reseeded topology-proposal-merge with `-Hint merge gate`; proved `azurerm_hpc_cache` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_hpc_cache_node_has_data_category_but_synthetic_service_id_used`.
 
 2026-09-12 seed hunt #2197 (seed→hit): reseeded topology-proposal-merge with `-Hint topology merge`; proved `azurerm_video_indexer` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_video_indexer_node_has_data_category_but_synthetic_service_id_used`.
 
@@ -166,6 +168,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+- [x] (proven) `azurerm_hpc_cache` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2198:** `hpc_cache` was only in the datastore list; `azurerm_hpc_cache.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_hpc_cache_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_video_indexer` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2197:** `video_indexer` was only in the datastore list; `azurerm_video_indexer.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_video_indexer_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_managed_lustre_file_system` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2196:** `managed_lustre` was only in the datastore list; `azurerm_managed_lustre_file_system.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_managed_lustre_file_system_node_has_data_category_but_synthetic_service_id_used`.
 - [x] Renamed manifest labels not aliased to inventoried graph node ids
