@@ -788,36 +788,78 @@ public sealed class GetOnlyHostedAzureArmReadClient(
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
         string trimmedSubscriptionId = subscriptionId.Trim();
-        string url =
+        string? nextLink =
             $"https://management.azure.com/subscriptions/{trimmedSubscriptionId}/providers/Microsoft.Security/secureScores?api-version={SecureScoresApiVersion}";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+        int? bestSecureScore = null;
 
-        using HttpRequestMessage request = new(HttpMethod.Get, url);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-        using HttpResponseMessage response =
-            await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-        if (!response.IsSuccessStatusCode)
+        while (!string.IsNullOrWhiteSpace(nextLink))
         {
-            if (_logger.IsEnabled(LogLevel.Debug))
+            if (!visitedLinks.Add(nextLink))
             {
-                _logger.LogDebug(
-                    "Hosted Azure extractor skipped Defender secure score for subscription {SubscriptionId}; HTTP {StatusCode}.",
-                    trimmedSubscriptionId,
-                    (int)response.StatusCode);
+                throw new InvalidOperationException(
+                    "Hosted Azure extractor stopped Defender secure score listing due to repeating nextLink.");
             }
 
-            return [];
+            requestCount++;
+
+            if (requestCount > MaxPaginationRequests)
+            {
+                throw new InvalidOperationException(
+                    $"Hosted Azure extractor stopped Defender secure score listing after {MaxPaginationRequests} pages.");
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped Defender secure score for subscription {SubscriptionId}; HTTP {StatusCode}.",
+                        trimmedSubscriptionId,
+                        (int)response.StatusCode);
+                }
+
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            int? pageScore = TryReadSubscriptionSecureScorePercent(document.RootElement);
+
+            if (pageScore is not null
+                && (bestSecureScore is null || pageScore.Value > bestSecureScore.Value))
+            {
+                bestSecureScore = pageScore;
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(
+                        candidateNextLink,
+                        trimmedSubscriptionId);
+                    nextLink = candidateNextLink;
+                }
+            }
         }
 
-        await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-        using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-
-        int? secureScore = TryReadSubscriptionSecureScorePercent(document.RootElement);
-
-        if (secureScore is null)
+        if (bestSecureScore is null)
         {
             return [];
         }
@@ -827,7 +869,7 @@ public sealed class GetOnlyHostedAzureArmReadClient(
             new HostedAzureArmDefenderSummaryRecord
             {
                 ResourceId = $"/subscriptions/{trimmedSubscriptionId}",
-                SecureScore = secureScore.Value,
+                SecureScore = bestSecureScore.Value,
             },
         ];
     }
