@@ -3238,10 +3238,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — comma-only AdminKey config made zero-downtime rotation Append instead of Replace
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3304,6 +3304,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Comma-separated `ReadOnlyKey` with blank segments fails authentication — **cheap-disproof 2026-09-11 seed hunt #1791:** empty segments ignored like admin slot; regression `When_enabled_true_and_comma_separated_reader_keys_with_empty_segment_ignores_blanks`.
 
 2026-09-11 seed hunt #1791 (seed-only): reseeded api-key-auth after #1790; cheap-disproof closed ReadOnly invalidate-previous rotation and reader comma blank-segment parity; 2 scoped ApiKey auth/settings tests passed.
+
+- [x] (valid-no-repro) Lowercase slot string in `AdminApiKeySettingsService.Rotate` rejects rotation — **cheap-disproof 2026-09-12 seed hunt #1822:** `ParseSlot` uses `OrdinalIgnoreCase` for `admin`/`readonly`; regression `Rotate_with_lowercase_slot_string_succeeds`.
+- [x] (valid-no-repro) `GetSnapshot` masks only the first comma-separated admin key segment — **cheap-disproof 2026-09-12 seed hunt #1822:** `MaskCommaSeparatedSegments` emits one masked entry per segment; regression `GetSnapshot_returns_multiple_masked_segments_for_comma_separated_admin_key`.
+
+2026-09-12 seed hunt #1822 (seed-only): reseeded api-key-auth after #1791; cheap-disproof closed lowercase slot parsing and comma-separated snapshot masking; 43 scoped ApiKey auth/settings unit tests passed.
 
 ---
 
@@ -10377,11 +10382,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 21
-- **bugs-found:** 18
+- **hunts:** 35
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — Federated credential ARM pagination followed cross-identity nextLink without validation
+- **last-bug:** 2026-09-12 — Entra Graph membership pagination followed cross-group @odata.nextLink without validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10440,6 +10445,38 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListFederatedCredentialsForIdentityAsync` followed ARM `nextLink` without validating identity resource scope — **hit 2026-09-12 hunt #1812 (seed→hit):** malicious or mis-issued `nextLink` to another user-assigned identity's federated credentials could leak credential metadata; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsFederatedCredentialsIdentity`; regression in `ListFederatedCredentialsAsync_rejects_next_link_for_different_identity_resource_id`
 
 2026-09-12 seed hunt #1812 (seed→hit): reseeded cloud-extractors federated-credential pagination; proved cross-identity nextLink gap; 18 scoped GetOnlyHostedAzureArmReadClient tests passed.
+
+- [x] (proven) `ListSubscriptionDefenderSummariesAsync` ignored ARM `nextLink` and returned lower secure score from first page only — **hit 2026-09-12 seed hunt #1823:** single GET dropped paginated secureScores; fixed with subscription-validated pagination loop picking highest score across pages; regression in `ListSubscriptionDefenderSummariesAsync_follows_next_link_and_picks_highest_score`.
+
+2026-09-12 seed hunt #1823 (seed→hit): reseeded cloud-extractors Defender secureScores pagination; proved missing nextLink follow; 58 scoped Azure extractor tests + AWS/GCP extractor unit tests passed.
+
+- [x] (proven) `EntraGroupMembershipGraphReader` followed `@odata.nextLink` to a different group's members and misattributed rows — **hit 2026-09-12 seed hunt #1824:** no group-id guard on Graph pagination; fixed with `EnsureNextLinkTargetsGroup`; regression in `TryReadDirectMembershipsAsync_rejects_odata_next_link_for_different_group`.
+
+2026-09-12 seed hunt #1824 (seed→hit): reseeded cloud-extractors Entra Graph pagination; proved cross-group nextLink gap; 59 scoped Azure extractor tests passed.
+
+- [x] (valid-no-repro) Defender secureScores `nextLink` to another subscription is followed — **cheap-disproof 2026-09-12 seed hunt #1825:** `EnsureTargetsSubscription` rejects cross-subscription pagination; regression `ListSubscriptionDefenderSummariesAsync_throws_when_next_link_targets_different_subscription`.
+
+2026-09-12 seed hunt #1825 (seed-only): reseeded cloud-extractors Defender nextLink scope guard; 3 scoped Defender summary tests passed.
+
+- [x] (valid-no-repro) Defender secureScores repeating `nextLink` loops indefinitely — **cheap-disproof 2026-09-12 seed hunt #1826:** visited-link guard throws on repeat; regression `ListSubscriptionDefenderSummariesAsync_throws_when_next_link_repeats`.
+
+2026-09-12 seed hunt #1826 (seed-only): reseeded cloud-extractors Defender repeating nextLink guard; 61 scoped Azure extractor tests passed.
+
+- [x] (valid-no-repro) Entra Graph `@odata.nextLink` with malformed URL is followed — **cheap-disproof 2026-09-12 seed hunt #1827:** `EnsureNextLinkTargetsGroup` rejects non-absolute URLs; regression `TryReadDirectMembershipsAsync_rejects_invalid_odata_next_link_url`.
+
+2026-09-12 seed hunt #1827 (seed-only): reseeded cloud-extractors Entra invalid nextLink guard; 62 scoped Azure extractor tests passed.
+
+- [x] (valid-no-repro) AWS China partition regions use commercial `arn:aws:*` Resource Explorer query — **cheap-disproof 2026-09-12 seed hunt #1828:** `ResolveForRegion_returns_china_partition_for_cn_region` confirms `arn:aws-cn:*` branch.
+- [x] (valid-no-repro) GCP Asset search paginates unbounded without page cap — **cheap-disproof 2026-09-12 seed hunt #1829:** `GcpAssetInventoryCollector` enforces `MaxPaginationRequests = 64`; regression `CollectFromRawPagesAsync_throws_after_max_pages`.
+- [x] (valid-no-repro) AWS Resource Explorer repeating `NextToken` loops indefinitely — **cheap-disproof 2026-09-12 seed hunt #1830:** visited-token guard throws; regression `CollectAsync_throws_when_next_token_repeats`.
+- [x] (valid-no-repro) Subscription policy assignment listing follows cross-subscription `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1831:** `EnsureTargetsSubscription` on policy pagination path (same validator family as resource listing).
+- [x] (valid-no-repro) Management group subscription listing follows cross-management-group `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1832:** `EnsureTargetsManagementGroup` on MG subscription pagination.
+- [x] (valid-no-repro) Diagnostic settings pagination follows cross-resource `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1833:** `EnsureTargetsDiagnosticSettingsResource`; regression `ListDiagnosticSettingsAsync_rejects_next_link_for_different_resource_id` (#1706).
+- [x] (valid-no-repro) Federated credential pagination follows cross-identity `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1834:** `EnsureTargetsFederatedCredentialsIdentity`; regression `ListFederatedCredentialsAsync_rejects_next_link_for_different_identity_resource_id` (#1812).
+- [x] (valid-no-repro) Whitespace-only GCP `ProjectId` reaches Asset search — **cheap-disproof 2026-09-12 seed hunt #1835:** `CollectZipAsync_rejects_blank_project_id_before_token_fetch` (#1806).
+- [x] (valid-no-repro) Whitespace-only AWS `Region` reaches Resource Explorer — **cheap-disproof 2026-09-12 seed hunt #1836:** `CollectZipAsync_rejects_blank_region_before_token_fetch` (#1805).
+
+2026-09-12 seed hunts #1828–#1836 (seed-only): reseeded cloud-extractors pagination/input-guard parity rows; 62 scoped Azure extractor + 51 AWS/GCP extractor unit tests passed.
 
 ---
 
