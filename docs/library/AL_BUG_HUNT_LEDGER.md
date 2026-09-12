@@ -12498,11 +12498,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 21
-- **bugs-found:** 31
+- **hunts:** 23
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — compliance drift range query cache omitted operator scope
+- **last-bug:** 2026-09-12 — sponsor dashboard bundle query cache omitted operator scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12562,6 +12562,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `useComplianceDriftTrendQuery` / `operatorQueryKeys.complianceDriftTrend30d` — scope-less react-query key reused tenant A 30d drift trend after operator scope switch — **hit 2026-09-12 thorough hunt #1855:** keyed query by `useOperatorScopeQueryKey`; regression `use-compliance-drift-trend-query.test.tsx`.
 
 2026-09-12 thorough hunt #1855 (hit): proved compliance drift 30d query cache omitted operator scope; 1 scoped hook test passed.
+
+- [x] (proven) `usePilotScorecardQuery` / `operatorQueryKeys.pilotScorecard` — scope-less react-query key reused tenant A scorecard after operator scope switch — **hit 2026-09-12 thorough hunt #1856:** keyed query by `useOperatorScopeQueryKey`; regression `use-pilot-scorecard-query.test.tsx`.
+
+2026-09-12 thorough hunt #1856 (hit): proved pilot scorecard query cache omitted operator scope; 1 scoped hook test passed.
 
 - [x] (proven) `invalidateOperatorHomeRunsCaches` / `invalidateOperatorSponsorRoiCaches` — omitted scoped `pilotValueReport` TanStack invalidation after run commit or sponsor seed changes — **hit 2026-09-11 thorough hunt #1695:** sponsor value report `totalRunsCommitted` stayed stale until `staleTime` expired; fixed via `invalidatePilotValueReportCache`; regression `invalidateOperatorHomeRunsCaches_invalidates_scoped_pilot_value_report_queries`.
 

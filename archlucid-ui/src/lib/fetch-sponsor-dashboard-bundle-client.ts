@@ -4,6 +4,10 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { sponsorDashboardBundleBlockedReason } from "@/lib/roi/sponsor-dashboard-bundle-blocked-reason";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import {
+  getOperatorScopeQueryKeySnapshot,
+  parseOperatorScopeQueryKey,
+} from "@/lib/operator/operator-scope-query-key";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
 import type { SponsorRoiSummary } from "@/lib/sponsor/sponsor-report-markdown";
@@ -39,7 +43,9 @@ export async function fetchSponsorDashboardBundleCached(
   }
 
   return queryClient.fetchQuery({
-    queryKey: operatorQueryKeys.sponsorDashboardBundle,
+    queryKey: operatorQueryKeys.sponsorDashboardBundle(
+      parseOperatorScopeQueryKey(getOperatorScopeQueryKeySnapshot()),
+    ),
     queryFn: fetchSponsorDashboardBundleClient,
     staleTime: OPERATOR_QUERY_STALE_MS,
   });
@@ -47,5 +53,7 @@ export async function fetchSponsorDashboardBundleCached(
 
 /** Clears cached sponsor dashboard bundle (for example after demo seed or sample purge). */
 export async function invalidateSponsorDashboardBundleCache(): Promise<void> {
-  await getOperatorQueryClient().invalidateQueries({ queryKey: operatorQueryKeys.sponsorDashboardBundle });
+  await getOperatorQueryClient().invalidateQueries({
+    queryKey: operatorQueryKeys.sponsorDashboardBundlePrefix,
+  });
 }
