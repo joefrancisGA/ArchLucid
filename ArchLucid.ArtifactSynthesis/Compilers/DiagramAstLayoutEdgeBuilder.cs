@@ -10,25 +10,18 @@ internal static class DiagramAstLayoutEdgeBuilder
     {
         ArgumentNullException.ThrowIfNull(ast);
 
-        if (ast.Edges.Count > 0 || ast.Nodes.Count <= 1)
+        if (DiagramEdgeVisibility.CountVisible(ast.Edges) > 0 || ast.Nodes.Count <= 1)
         {
             return;
         }
 
-        List<DiagramNode> orderedNodes = ast.Nodes
-            .OrderBy(node => node.OrderKey)
-            .ThenBy(node => node.NodeId, StringComparer.Ordinal)
-            .ToList();
-
-        for (int index = 0; index < orderedNodes.Count - 1; index++)
+        if (ast.Subgraphs.Count == 0)
         {
-            ast.Edges.Add(new DiagramEdge
-            {
-                FromNodeId = orderedNodes[index].NodeId,
-                ToNodeId = orderedNodes[index + 1].NodeId,
-                Label = string.Empty,
-            });
+            AppendGridLinks(ast, ast.Nodes);
+            return;
         }
+
+        EnsureSubgraphGridLinks(ast);
     }
 
     public static void AddDerivedVmVnetLayoutEdges(
@@ -63,7 +56,10 @@ internal static class DiagramAstLayoutEdgeBuilder
                 continue;
             }
 
-            HashSet<string> vnetNodeIds = ResolveVnetNodeIdsForVirtualMachine(node.NodeId, connectsTo, graph);
+            HashSet<string> vnetNodeIds = DiagramAstVnetTopologyResolver.ResolveVnetNodeIdsForVirtualMachine(
+                node.NodeId,
+                connectsTo,
+                graph);
 
             foreach (string vnetNodeId in vnetNodeIds)
             {
@@ -86,6 +82,66 @@ internal static class DiagramAstLayoutEdgeBuilder
                     Label = "in",
                 });
             }
+        }
+    }
+
+    private static void EnsureSubgraphGridLinks(DiagramAst ast)
+    {
+        HashSet<string> subgraphIds = ast.Subgraphs
+            .Select(subgraph => subgraph.SubgraphId)
+            .ToHashSet(StringComparer.Ordinal);
+        bool addedSubgraphGridLinks = false;
+
+        foreach (string subgraphId in subgraphIds)
+        {
+            List<DiagramNode> members = ast.Nodes
+                .Where(node => string.Equals(node.SubgraphId, subgraphId, StringComparison.Ordinal))
+                .OrderBy(node => node.OrderKey)
+                .ThenBy(node => node.NodeId, StringComparer.Ordinal)
+                .ToList();
+
+            if (members.Count < DiagramAstFromGraphCompilerConstants.PeerGridSubgraphMinNodes)
+            {
+                continue;
+            }
+
+            HashSet<string> memberIds = members
+                .Select(node => node.NodeId)
+                .ToHashSet(StringComparer.Ordinal);
+
+            bool hasIntraSubgraphVisibleEdge = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
+                .Any(edge => memberIds.Contains(edge.FromNodeId) && memberIds.Contains(edge.ToNodeId));
+
+            if (hasIntraSubgraphVisibleEdge)
+            {
+                continue;
+            }
+
+            int layoutEdgeCountBefore = ast.Edges.Count;
+            AppendGridLinks(ast, members);
+
+            if (ast.Edges.Count > layoutEdgeCountBefore)
+            {
+                addedSubgraphGridLinks = true;
+            }
+        }
+
+        if (!addedSubgraphGridLinks && ast.Nodes.Count > 1)
+        {
+            AppendGridLinks(ast, ast.Nodes);
+        }
+    }
+
+    private static void AppendGridLinks(DiagramAst ast, IReadOnlyList<DiagramNode> orderedNodes)
+    {
+        List<DiagramNode> sortedNodes = orderedNodes
+            .OrderBy(node => node.OrderKey)
+            .ThenBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToList();
+
+        foreach (DiagramEdge link in DiagramPeerGridPlanner.BuildGridLinks(sortedNodes))
+        {
+            ast.Edges.Add(link);
         }
     }
 
@@ -115,74 +171,5 @@ internal static class DiagramAstLayoutEdgeBuilder
         }
 
         return adjacency;
-    }
-
-    private static HashSet<string> ResolveVnetNodeIdsForVirtualMachine(
-        string vmNodeId,
-        IReadOnlyDictionary<string, List<string>> connectsTo,
-        GraphSnapshot graph)
-    {
-        HashSet<string> vnetNodeIds = new(StringComparer.Ordinal);
-        Dictionary<string, GraphNode> nodesById = graph.Nodes.ToDictionary(
-            candidate => candidate.NodeId,
-            StringComparer.Ordinal);
-
-        if (!connectsTo.TryGetValue(vmNodeId, out List<string>? nicIds))
-        {
-            return vnetNodeIds;
-        }
-
-        foreach (string nicNodeId in nicIds)
-        {
-            if (!connectsTo.TryGetValue(nicNodeId, out List<string>? subnetNodeIds))
-            {
-                continue;
-            }
-
-            foreach (string subnetNodeId in subnetNodeIds)
-            {
-                if (!nodesById.TryGetValue(subnetNodeId, out GraphNode? subnetNode))
-                {
-                    continue;
-                }
-
-                string subnetArmId = DiagramAstGraphNodeClassifier.ReadArmId(subnetNode);
-                string? vnetArmId = TryResolveVnetIdFromSubnetArmId(subnetArmId);
-
-                if (string.IsNullOrWhiteSpace(vnetArmId))
-                {
-                    continue;
-                }
-
-                foreach (GraphNode candidate in graph.Nodes)
-                {
-                    if (!string.Equals(
-                            DiagramAstGraphNodeClassifier.ReadArmId(candidate),
-                            vnetArmId,
-                            StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
-
-                    vnetNodeIds.Add(candidate.NodeId);
-                }
-            }
-        }
-
-        return vnetNodeIds;
-    }
-
-    private static string? TryResolveVnetIdFromSubnetArmId(string subnetArmId)
-    {
-        const string marker = "/subnets/";
-
-        int subnetsIndex = subnetArmId.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
-
-        if (subnetsIndex <= 0)
-        {
-            return null;
-        }
-
-        return subnetArmId[..subnetsIndex];
     }
 }

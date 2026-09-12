@@ -46,6 +46,7 @@ export const HELP_APP_GUIDED_TOPIC_SLUGS = [
   "search-review-evidence",
   "architecture-intelligence",
   "sponsor-dashboard",
+  "architecture-desk",
   "architecture-drafts",
   "architecture-draft-editing",
   "structured-brief",

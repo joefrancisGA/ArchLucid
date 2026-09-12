@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
@@ -21,6 +22,7 @@ public sealed class AuthorityPipelineDecisioningStage(
     IAuthorityPipelineStagePersistence stagePersistence,
     IAuditService auditService,
     IAuthorityClosedLoopStrengtheningPass closedLoopStrengtheningPass,
+    IManifestHashService manifestHashService,
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
     ILogger<AuthorityPipelineDecisioningStage> logger) : IAuthorityPipelineDecisioningStage
 {
@@ -35,6 +37,9 @@ public sealed class AuthorityPipelineDecisioningStage(
 
     private readonly IAuthorityClosedLoopStrengtheningPass _closedLoopStrengtheningPass =
         closedLoopStrengtheningPass ?? throw new ArgumentNullException(nameof(closedLoopStrengtheningPass));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IOptionsMonitor<AuthorityPipelineOptions> _authorityPipelineOptions =
         authorityPipelineOptions ?? throw new ArgumentNullException(nameof(authorityPipelineOptions));
@@ -63,6 +68,16 @@ public sealed class AuthorityPipelineDecisioningStage(
         ApplyScope(manifest, scope);
 
         await _stagePersistence.SaveTraceAsync(trace, context.UnitOfWork, cancellationToken);
+
+        await _closedLoopStrengtheningPass.TryStrengthenManifestAsync(
+            scope,
+            run,
+            context.Request,
+            manifest,
+            cancellationToken);
+
+        manifest.ManifestHash = _manifestHashService.ComputeHash(manifest);
+
         await _stagePersistence.SaveManifestAsync(manifest, context.UnitOfWork, cancellationToken);
 
         await _auditService.LogAsync(
@@ -84,13 +99,6 @@ public sealed class AuthorityPipelineDecisioningStage(
 
         context.Manifest = manifest;
         context.Trace = trace;
-
-        await _closedLoopStrengtheningPass.TryStrengthenManifestAsync(
-            scope,
-            run,
-            context.Request,
-            manifest,
-            cancellationToken);
 
         if (trace is not RuleAuditTraceDto)
             throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");

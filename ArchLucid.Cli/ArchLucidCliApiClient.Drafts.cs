@@ -205,6 +205,35 @@ public sealed partial class ArchLucidApiClient
         }
     }
 
+    /// <summary>POST <c>/v1/architecture/draft/{draftId}/clone-snapshot</c> — new editable draft from spawn-locked source (WA-10).</summary>
+    public async Task<DraftApiResult<CloneSnapshotDraftResponse>> CloneDraftSnapshotAsync(
+        Guid draftId,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            Gen.CloneSnapshotDraftResponse cloned = await _api.CloneSnapshotAsync(draftId, null, ct);
+            CloneSnapshotDraftResponse? mapped = MapGeneratedToContract<CloneSnapshotDraftResponse>(cloned);
+
+            if (mapped is null)
+                return DraftApiResult<CloneSnapshotDraftResponse>.Fail(null, "Draft clone-snapshot returned an empty body.");
+
+            return DraftApiResult<CloneSnapshotDraftResponse>.Ok(mapped);
+        }
+        catch (Gen.ArchLucidApiException ex)
+        {
+            return DraftApiResult<CloneSnapshotDraftResponse>.Fail(ex.StatusCode, ResolveApiErrorMessage(ex), TryReadCorrelationId(ex));
+        }
+        catch (HttpRequestException ex)
+        {
+            return DraftApiResult<CloneSnapshotDraftResponse>.Fail(null, $"Cannot connect to ArchLucid API: {ex.Message}");
+        }
+        catch (TaskCanceledException)
+        {
+            return DraftApiResult<CloneSnapshotDraftResponse>.Fail(null, "Request timed out.");
+        }
+    }
+
     /// <summary>POST <c>/v1/architecture/draft/{draftId}/submit</c> — spawn canonical architecture run.</summary>
     public async Task<DraftApiResult<SubmitDraftResponse>> SubmitDraftAsync(Guid draftId, CancellationToken ct = default)
     {

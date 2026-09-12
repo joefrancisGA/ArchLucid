@@ -30,4 +30,17 @@ public sealed class PolicyPackChunkerTests
         chunks.Should().NotBeEmpty();
         chunks.Should().OnlyContain(c => c.StartsWith("[pack v1.0]", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void Chunk_url_in_control_name_splits_on_category_colon_not_url_colon()
+    {
+        PolicyPackChunker sut = new();
+        string body = string.Join(' ', Enumerable.Repeat("Egress detail sentence.", 60));
+        string text = "[pack v1.0] [High] Allow https://api.example.com:443 egress (Network): " + body;
+
+        IReadOnlyList<string> chunks = sut.Chunk(text, maxChars: 400, overlap: 40);
+
+        chunks.Should().NotBeEmpty();
+        chunks.Should().OnlyContain(c => c.StartsWith("[pack v1.0] [High] Allow https://api.example.com:443 egress (Network):", StringComparison.Ordinal));
+    }
 }

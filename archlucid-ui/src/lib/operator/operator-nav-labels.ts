@@ -8,10 +8,7 @@ import {
   resolveWorkingSingleStartNavPresentation,
   WORKING_SINGLE_START_NAV_TOOLTIP,
 } from "@/lib/system-not-job-no-create-architecture-vs-review-fork-working";
-import {
-  ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE,
-  ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE,
-} from "@/lib/architecture/architecture-identity-desk-copy";
+import { resolveSystemNotJobWorkingArchitecturesListNavTitle } from "@/lib/system-not-job-draft-list-reachable-from-portfolio";
 import {
   ARCHITECTURES_LIST_PATH,
   ARCHITECTURES_NEW_PATH,
@@ -68,9 +65,9 @@ export function resolveGuidedArchitecturesListNavTitle(): string {
   return `${ARCHITECTURE_DRAFTS_LIST_LABEL} — saved architecture drafts; create and resume without starting a review`;
 }
 
-/** Sidebar tooltip for `/architecture/architectures` on Working — durable identity portfolio (CA-32). */
+/** Sidebar tooltip for `/architecture/architectures` on Working — identities plus open drafts (CA-32 / SN-029). */
 export function resolveWorkingArchitecturesListNavTitle(): string {
-  return `${ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE} — ${ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE}`;
+  return resolveSystemNotJobWorkingArchitecturesListNavTitle();
 }
 
 /** @deprecated Use {@link resolveGuidedArchitecturesListNavTitle} or {@link resolveWorkingArchitecturesListNavTitle}. */

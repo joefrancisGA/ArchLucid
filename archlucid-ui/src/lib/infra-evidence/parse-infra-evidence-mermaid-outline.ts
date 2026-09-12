@@ -24,7 +24,9 @@ export type InfraEvidenceMermaidOutline = {
 const NODE_WITH_LABEL =
   /^([A-Za-z0-9_-]+)(?:\[\[([^\]]+)\]\]|\[([^\]]+)\]|\(\(([^)]+)\)\)|\(([^)]+)\)|\{\{([^}]+)\}\}|\{([^}]+)\}|>([^<]+)<)?/u;
 
-const EDGE_ARROW = /--+(?:\|([^|]+)\|)?>|==+(?:\|([^|]+)\|)?>|\.-+>/u;
+const EDGE_ARROW = /-->(?:\|([^|]+)\|)?|==+(?:\|([^|]+)\|)?|\.-+>/u;
+
+const INVISIBLE_LAYOUT_LINK = /~{2,}/u;
 
 const DIAGRAM_HEADER = /^(?:flowchart|graph|sequenceDiagram|classDiagram|stateDiagram-v2|erDiagram|gantt|pie|mindmap|timeline|gitGraph|C4Context)\b/u;
 
@@ -311,6 +313,12 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
 
     const activeSubgraphResourceGroup =
       subgraphResourceGroups.length > 0 ? subgraphResourceGroups[subgraphResourceGroups.length - 1] : null;
+
+    const invisibleLinkMatch = INVISIBLE_LAYOUT_LINK.exec(line);
+
+    if (invisibleLinkMatch != null) {
+      continue;
+    }
 
     const arrowMatch = EDGE_ARROW.exec(line);
 

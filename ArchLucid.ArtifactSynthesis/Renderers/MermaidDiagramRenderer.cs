@@ -164,9 +164,17 @@ public class MermaidDiagramRenderer : IDiagramRenderer
     {
         foreach (DiagramEdge edge in ast.Edges)
         {
-            string safeLabel = EscapeLabel(edge.Label);
             string fromId = MermaidIdSanitizer.Sanitize(edge.FromNodeId);
             string toId = MermaidIdSanitizer.Sanitize(edge.ToNodeId);
+
+            if (edge.IsLayoutOnly)
+            {
+                // Mermaid invisible link — steers dagre ranks without drawing an arrow.
+                sb.AppendLine($"    {fromId} ~~~ {toId}");
+                continue;
+            }
+
+            string safeLabel = EscapeLabel(edge.Label);
 
             if (string.IsNullOrWhiteSpace(safeLabel))
             {

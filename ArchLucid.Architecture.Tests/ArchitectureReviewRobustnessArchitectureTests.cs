@@ -246,6 +246,27 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     }
 
     [Fact]
+    public void TB2351_manifest_diagram_service_emits_semantic_overlay_subgraphs()
+    {
+        string service = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Diagrams", "ManifestDiagramService.cs"));
+
+        service.Should().Contain("AppendSemanticOverlay");
+        service.Should().Contain("\"actors\", \"Actors\"");
+        service.Should().Contain("DiagramSemantics");
+
+        string projection = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Decisioning",
+                "Manifest",
+                "AuthorityCommitProjectionBuilder.cs"));
+
+        projection.Should().Contain("MapDiagramSemantics");
+        projection.Should().Contain("DiagramSemantics");
+    }
+
+    [Fact]
     public void TB2350_prior_package_semantics_merge_service_and_create_stage()
     {
         string mergeService = File.ReadAllText(
@@ -301,6 +322,48 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
         postProcessor.Should().Contain("ApplyBriefGroundingToProposal");
         postProcessor.Should().Contain("PruneRelationshipsAfterGroundingDrops");
         postProcessor.Should().Contain("IsConfirmedBriefEntry");
+    }
+
+    [Fact]
+    public void TB2352_closed_loop_strengthening_runs_before_manifest_persist()
+    {
+        string decisioningStage = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Orchestration",
+                "Pipeline",
+                "Stages",
+                "AuthorityPipelineDecisioningStage.cs"));
+
+        int strengthenIndex = decisioningStage.IndexOf("TryStrengthenManifestAsync", StringComparison.Ordinal);
+        int saveManifestIndex = decisioningStage.IndexOf("SaveManifestAsync", StringComparison.Ordinal);
+        int computeHashIndex = decisioningStage.IndexOf("ComputeHash", StringComparison.Ordinal);
+
+        strengthenIndex.Should().BeGreaterThan(0);
+        saveManifestIndex.Should().BeGreaterThan(strengthenIndex);
+        computeHashIndex.Should().BeGreaterThan(strengthenIndex);
+        computeHashIndex.Should().BeLessThan(saveManifestIndex);
+
+        string strengtheningPass = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "ArchitectureIntelligence",
+                "AuthorityClosedLoopStrengtheningPass.cs"));
+
+        strengtheningPass.Should().Contain("IClosedLoopManifestMerger");
+        strengtheningPass.Should().Contain("PublishToProduct = true");
+
+        string manifestMerger = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "ArchitectureIntelligence",
+                "ClosedLoopManifestMerger.cs"));
+
+        manifestMerger.Should().Contain("ClosedLoopRecommendationBriefGroundingFilter");
     }
 
     [Fact]
