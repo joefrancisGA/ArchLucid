@@ -121,13 +121,57 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 31
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 6
+- **hunts:** 53
+- **bugs-found:** 32
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-08-23 — hunt #50: greenfield compliance declared endpoints but graph merge dropped dangling edges
+- **last-bug:** 2026-09-12 — hunt #2215: data_lake_gen2 svc- synthetic alias on Data-category nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2215 (seed→hit): reseeded topology-proposal-merge with `-Hint graph merge`; proved `azurerm_data_lake_gen2_filesystem` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_data_lake_gen2_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2214 (seed→hit): reseeded topology-proposal-merge with `-Hint topology merge`; proved `azurerm_storage_data_lake` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_storage_data_lake_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2213 (seed→hit): reseeded topology-proposal-merge with `-Hint graph merge`; proved `azurerm_storage_container` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_storage_container_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2212 (seed→hit): reseeded topology-proposal-merge with `-Hint merge gate`; proved `azurerm_storage_blob` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_storage_blob_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2211 (seed→hit): reseeded topology-proposal-merge with `-Hint topology merge`; proved `azurerm_storage_table` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_storage_table_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2210 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_storage_queue` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_storage_queue_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2209 (seed→hit): reseeded topology-proposal-merge with `-Hint terraform source ids`; proved `azurerm_storage_mover` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_storage_mover_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2208 (seed→hit): reseeded topology-proposal-merge with `-Hint ARM`; proved `azurerm_oracle_autonomous_database` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_oracle_autonomous_database_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2207 (seed→hit): reseeded topology-proposal-merge with `-Hint topology`; proved `azurerm_oracle_cloud_vm_cluster` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_oracle_cloud_vm_cluster_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2206 (seed→hit): reseeded topology-proposal-merge with `-Hint graph merge`; proved `azurerm_neptune_cluster` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_neptune_cluster_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2205 (seed→hit): reseeded topology-proposal-merge with `-Hint merge gate`; proved `azurerm_elastic_cloud_elasticsearch` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_elastic_cloud_elasticsearch_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2204 (seed→hit): reseeded topology-proposal-merge with `-Hint topology merge`; proved `azurerm_mongo_cluster` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_mongo_cluster_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2203 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_pinecone` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_pinecone_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2202 (seed→hit): reseeded topology-proposal-merge with `-Hint terraform`; proved `azurerm_fabric_capacity` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_fabric_capacity_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2201 (seed→hit): reseeded topology-proposal-merge with `-Hint ARM resource ids`; proved `azurerm_graph_account` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_graph_account_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2200 (seed→hit): reseeded topology-proposal-merge with `-Hint topology`; proved `azurerm_dev_center` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_dev_center_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2199 (seed→hit): reseeded topology-proposal-merge with `-Hint graph merge`; proved `azurerm_mobile_network` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_mobile_network_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2198 (seed→hit): reseeded topology-proposal-merge with `-Hint merge gate`; proved `azurerm_hpc_cache` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_hpc_cache_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2197 (seed→hit): reseeded topology-proposal-merge with `-Hint topology merge`; proved `azurerm_video_indexer` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_video_indexer_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2196 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_managed_lustre_file_system` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_managed_lustre_file_system_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2195 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_site_recovery_vault` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_site_recovery_vault_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-12 seed hunt #2187 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_confidential_ledger` Data-category node omitted `svc-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_confidential_ledger_node_has_data_category_but_synthetic_service_id_used` and graph-merge parity.
 
 2026-09-12 seed hunt #2151 (seed-only): reseeded topology-proposal-merge with `-Refresh`; no new hunt-ready rows.
 
@@ -158,6 +202,26 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+- [x] (proven) `azurerm_data_lake_gen2_filesystem` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2215:** `data_lake_gen2` was only in the datastore list; `azurerm_data_lake_gen2_filesystem.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_data_lake_gen2_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_storage_data_lake` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2214:** `storage_data_lake` was only in the datastore list; `azurerm_storage_data_lake.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_storage_data_lake_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_storage_container` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2213:** `storage_container` was only in the datastore list; `azurerm_storage_container.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_storage_container_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_storage_blob` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2212:** `storage_blob` was only in the datastore list; `azurerm_storage_blob.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_storage_blob_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_storage_table` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2211:** `storage_table` was only in the datastore list; `azurerm_storage_table.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_storage_table_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_storage_queue` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2210:** `storage_queue` was only in the datastore list; `azurerm_storage_queue.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_storage_queue_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_storage_mover` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2209:** `storage_mover` was only in the datastore list; `azurerm_storage_mover.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_storage_mover_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_oracle_autonomous_database` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2208:** `oracle_autonomous` was only in the datastore list; `azurerm_oracle_autonomous_database.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_oracle_autonomous_database_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_oracle_cloud_vm_cluster` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2207:** `oracle_cloud` was only in the datastore list; `azurerm_oracle_cloud_vm_cluster.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_oracle_cloud_vm_cluster_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_neptune_cluster` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2206:** `neptune_cluster` was only in the datastore list; `azurerm_neptune_cluster.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_neptune_cluster_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_elastic_cloud_elasticsearch` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2205:** `elastic_cloud` was only in the datastore list; `azurerm_elastic_cloud_elasticsearch.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_elastic_cloud_elasticsearch_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_mongo_cluster` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2204:** `mongo_cluster` was only in the datastore list; `azurerm_mongo_cluster.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_mongo_cluster_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_pinecone` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2203:** `pinecone` was only in the datastore list; `azurerm_pinecone.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_pinecone_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_fabric_capacity` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2202:** `fabric_capacity` was only in the datastore list; `azurerm_fabric_capacity.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_fabric_capacity_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_graph_account` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2201:** `graph_account` was only in the datastore list; `azurerm_graph_account.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_graph_account_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_dev_center` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2200:** `dev_center` was only in the datastore list; `azurerm_dev_center.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_dev_center_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_mobile_network` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2199:** `mobile_network` was only in the datastore list; `azurerm_mobile_network.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_mobile_network_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_hpc_cache` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2198:** `hpc_cache` was only in the datastore list; `azurerm_hpc_cache.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_hpc_cache_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_video_indexer` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2197:** `video_indexer` was only in the datastore list; `azurerm_video_indexer.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_video_indexer_node_has_data_category_but_synthetic_service_id_used`.
+- [x] (proven) `azurerm_managed_lustre_file_system` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2196:** `managed_lustre` was only in the datastore list; `azurerm_managed_lustre_file_system.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_managed_lustre_file_system_node_has_data_category_but_synthetic_service_id_used`.
 - [x] Renamed manifest labels not aliased to inventoried graph node ids
 - [x] Synthetic `svc-` / `ds-` keys vs graph SourceId
 - [x] Terraform SourceId vs graph SourceId
@@ -165,6 +229,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] Storage vs data category for datastore synthetic ids
 - [x] Cost/compliance relationship-only edges with a rename overlay
 - [x] Classic `azurerm_cdn_profile` / `cdn_endpoint` Data-category nodes omit `svc-` synthetic (only `cdn_frontdoor` was recognized)
+- [x] (proven) `azurerm_site_recovery_vault` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2195:** `site_recovery` was only in the datastore list; `azurerm_site_recovery_vault.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression in gate tests.
+- [x] (proven) `azurerm_site_recovery_vault` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2195:** `site_recovery` was only in the datastore list; `azurerm_site_recovery_vault.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression in gate tests.
+- [x] (proven) `azurerm_confidential_ledger` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2187:** `confidential_ledger` was only in the datastore list; `azurerm_confidential_ledger.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regressions in gate + merge tests.
 - [x] (proven) Merge gate keeps a relationship but graph merge drops the edge for a type family not in parameterized tests — **hit 2026-08-23 hunt #50:** greenfield compliance-only proposals materialized endpoint aliases but not nodes, so `DropDanglingEdges` removed relationships the gate kept; fixed by materializing declared services/datastores on empty graphs.
 - [x] (valid-no-repro) Duplicate node-id collision when overlay and inventoried node share SourceId but different labels — `TryClaimService` blocks materialization when terraform id already indexed
 - [x] (valid-no-repro) Gate vs merge disagreement after structural post-processor strips a relationship — post-processor defers undeclared endpoints to gate; strip branch unreachable when both declared
@@ -849,7 +916,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -889,7 +956,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -927,10 +994,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -1027,7 +1094,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-09-12
@@ -1462,7 +1529,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -1642,7 +1709,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 58
+- **hunts:** 59
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -2175,13 +2242,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 28
+- **hunts:** 30
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-12 seed hunt #2194 (seed-only): reseeded finding-disposition with `-Hint finding-disposition`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2186 (seed-only): reseeded finding-disposition with `-Hint finding-disposition`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2150 (seed-only): reseeded finding-disposition with `-Refresh`; no new hunt-ready rows.
 
@@ -2733,7 +2804,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 14
+- **hunts:** 16
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -2741,6 +2812,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-12 seed hunt #2169 (seed-only): reseeded extraction-router with `-Hint extraction-router`; no new hunt-ready rows.
+2026-09-12 seed hunt #2169 (seed-only): reseeded extraction-router with `-Hint extraction-router`; no new hunt-ready rows.
+
 
 
 2026-09-12 seed hunt #2135 (seed-only): reseeded extraction-router; no new hunt-ready rows.
@@ -3210,7 +3283,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -4139,13 +4212,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 25
-- **bugs-found:** 30
+- **hunts:** 28
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — CLI proof-packet career gate ignored string isDemoTenant/isSampleRun on pilot-run-deltas JSON
+- **last-bug:** 2026-09-12 — hunt #2218: snake_case working_career_rehearsal_door ignored on CLI career export gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2218 (seed→hit): reseeded tenant-data-export with `-Hint tenant export`; proved snake_case `working_career_rehearsal_door` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_stamps_career_when_working_career_rehearsal_door_snake_case`.
+
+2026-09-12 seed hunt #2217 (seed→hit): reseeded tenant-data-export with `-Hint career export`; proved snake_case `structural_execution_mode` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_stamps_career_when_structural_execution_mode_snake_case_real`.
+
+2026-09-12 seed hunt #2189 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved snake_case `is_demo_tenant`/`is_sample_run` career gate gap; regression `ExportBundleCareerPostureResolverSnakeCaseTests`.
 
 2026-09-12 seed hunt #2145 (seed-only): reseeded tenant-data-export with `-Refresh`; no new hunt-ready rows.
 
@@ -4831,13 +4910,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 25
+- **hunts:** 27
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — IdentityRegulatedDatastoreClassifier non-private baseline false positive on pci token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-12 seed hunt #2190 (seed-only): reseeded decisioning with `-Hint decisioning`; no new hunt-ready rows.
+
 2026-09-12 seed hunt #2156 (seed-only): reseeded decisioning with `-Hint decisioning`; no new hunt-ready rows.
 2026-09-12 seed hunt #2156 (seed-only): reseeded decisioning with `-Hint decisioning`; no new hunt-ready rows.
 
@@ -4981,14 +5062,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 19
+- **hunts:** 22
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — Louvain community detection dropped edges when endpoint casing differed from node ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-12 seed hunt #2191 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
+
 2026-09-12 seed hunt #2167 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
+2026-09-12 seed hunt #2167 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
+
 
 
 2026-09-12 seed hunt #2116 (seed-only): reseeded retrieval; no new hunt-ready rows.
@@ -10244,7 +10329,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -10252,6 +10337,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-12 seed hunt #2168 (seed-only): reseeded core-tenancy-commercial with `-Hint billing-webhooks`; no new hunt-ready rows.
+2026-09-12 seed hunt #2168 (seed-only): reseeded core-tenancy-commercial with `-Hint billing-webhooks`; no new hunt-ready rows.
+
 
 
 2026-09-12 seed hunt #2123 (seed-only): reseeded core-tenancy-commercial; no new hunt-ready rows.
@@ -10369,13 +10456,19 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 18
-- **bugs-found:** 15
+- **hunts:** 21
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — slash `/w` week UOM rejected while `/wk` and standalone `w` synonyms matched
+- **last-bug:** 2026-09-12 — slash `/mins` minute UOM rejected while `/min` and standalone `mins` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2216 (seed→hit): reseeded core-costing with `-Hint retail prices`; proved slash `/mins` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashMinsTests`.
+
+2026-09-12 seed hunt #2193 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/hrs` hour UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashHrsTests`.
+
+2026-09-12 seed hunt #2185 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/m` month UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashMonthShortTests`.
 
 2026-09-12 seed hunt #2153 (seed→hit): reseeded core-costing with `-Hint retail prices`; proved slash `/w` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashWeekTests`.
 
@@ -10434,6 +10527,9 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — standalone `w` UOM rejected while `wk`/`week` synonyms matched — **hit 2026-09-12 seed hunt #2141:** Azure Retail weekly consumption meters with bare `w` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `d`/`h` standalone parity already existed; fixed with standalone `w` synonym; regressions in `AzureRetailPricesSkuMatchersSlashWeekTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — standalone `m` UOM rejected while `mo`/`month` synonyms matched — **hit 2026-09-12 seed hunt #2149:** Azure Retail monthly consumption meters with bare `m` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `h`/`d`/`w` standalone parity already existed; fixed with standalone `m` synonym; regressions in `AzureRetailPricesSkuMatchersStandaloneMonthTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — slash `/d` UOM rejected while `/day` and standalone `d` synonyms matched — **hit 2026-09-12 seed hunt #2152:** Azure Retail daily consumption meters with bare `/d` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/day` and `d` already matched (parity with `/h` and `/wk`); fixed with `ContainsSlashDToken`; regressions in `AzureRetailPricesSkuMatchersSlashDayTests`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — slash `/hrs` UOM rejected while `/hr` and standalone `hrs` synonyms matched — **hit 2026-09-12 seed hunt #2193:** Azure Retail hourly consumption meters with bare `/hrs` or `1/hrs` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/hr` and `hrs` already matched; fixed with `ContainsSlashHrsToken`; regressions in `AzureRetailPricesSkuMatchersSlashHrsTests`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — slash `/hrs` UOM rejected while `/hr` and standalone `hrs` synonyms matched — **hit 2026-09-12 seed hunt #2193:** Azure Retail hourly consumption meters with bare `/hrs` or `1/hrs` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/hr` and `hrs` already matched; fixed with `ContainsSlashHrsToken`; regressions in `AzureRetailPricesSkuMatchersSlashHrsTests`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — slash `/m` UOM rejected while `/mo` and standalone `m` synonyms matched — **hit 2026-09-12 seed hunt #2185:** Azure Retail monthly consumption meters with bare `/m` or `1/m` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/mo` and `m` already matched (parity with `/d` and `/w`); fixed with `ContainsSlashMToken`; regressions in `AzureRetailPricesSkuMatchersSlashMonthShortTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — slash `/w` UOM rejected while `/wk` and standalone `w` synonyms matched — **hit 2026-09-12 seed hunt #2153:** Azure Retail weekly consumption meters with bare `/w` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/wk` and `w` already matched (parity with `/d` and `/h`); fixed with `ContainsSlashWToken`; regressions in `AzureRetailPricesSkuMatchersSlashWeekTests`.
 
 2026-09-12 seed hunt #1910 (hit): reseeded core-costing sibling UOM parity; proved standalone/slash weekly Azure retail gap; 142 scoped Costing tests passed.
@@ -10613,13 +10709,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 97
-- **bugs-found:** 155
+- **hunts:** 100
+- **bugs-found:** 156
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — snake_case `pod_template` omitted workload pod security projection
+- **last-bug:** 2026-09-12 — CronJob `job_template.spec.pod_template` omitted pod security projection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2192 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2184 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved CronJob `job_template.spec.pod_template` pod security projection gap; regression `ParseAsync_snake_case_cron_job_pod_template_projects_host_network_exposure`.
 
 2026-09-12 seed hunt #2155 (seed→hit): reseeded context-ingestion with `-Hint canonicalization`; proved snake_case `pod_template` workload template gap; regression `ParseAsync_snake_case_pod_template_projects_privileged`.
 
@@ -10895,6 +10995,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ProjectContainerSecurityContext` — snake_case `ephemeral_containers` not walked — **hit 2026-09-12 seed hunt #2102:** exporter kubernetes-json with `ephemeral_containers` and `security_context.privileged` missed `k8s.privileged` while `init_containers` and `containers` worked; fixed with `TryGetPropertyIgnoreCaseOrSnakeCase` on ephemeral container array; regression `ParseAsync_snake_case_ephemeral_containers_projects_privileged_security_context`.
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.TryAddResource` — snake_case `api_version` not projected — **hit 2026-09-12 seed hunt #2140:** exporter kubernetes-json with `api_version` omitted `k8s.apiVersion` while camelCase `apiVersion` worked; fixed with `ReadTopLevelStringIgnoreCaseOrSnakeCase`; regression `ParseAsync_snake_case_api_version_projects_k8s_api_version`.
 - [x] (proven) `CanonicalInfrastructureJsonElementReader.ReadMetadataString` — snake_case `meta_data` omitted resource name/namespace — **hit 2026-09-12 seed hunt #2154:** exporter kubernetes-json with `meta_data` instead of `metadata` dropped the entire resource because `ReadMetadataString` only resolved camelCase `metadata`; fixed with `TryGetMetadataObject` alias; regression `ParseAsync_snake_case_meta_data_key_resolves_resource_name`.
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.ResolvePodSpec` — CronJob `job_template.spec.pod_template` omitted pod security projection — **hit 2026-09-12 seed hunt #2184:** exporter kubernetes-json CronJob with `pod_template` under `job_template.spec` skipped `host_network` and container security projection while Deployment `pod_template` worked; fixed by reusing `TryGetWorkloadPodTemplate` for CronJob inner template; regression `ParseAsync_snake_case_cron_job_pod_template_projects_host_network_exposure`.
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ResolvePodSpec` — snake_case `pod_template` omitted pod security projection — **hit 2026-09-12 seed hunt #2155:** exporter kubernetes-json with `pod_template` instead of `template` under Deployment spec skipped `ProjectContainerSecurityContext`; fixed with `TryGetWorkloadPodTemplate` alias; regression `ParseAsync_snake_case_pod_template_projects_privileged`.
 - [x] (invalid) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` — `values` loop skips `ShouldRedactKey` when `sensitive_values` absent — **cheap-disproof 2026-09-12 thorough hunt #1958:** terraform-show-json only redacts fields terraform marks in `sensitive_values`; absent marking means plaintext is intentional state output, not a parser leak.
 
@@ -11364,13 +11465,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 49
+- **hunts:** 51
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — Entra Graph membership pagination followed cross-group @odata.nextLink without validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-12 seed hunt #2188 (seed-only): reseeded cloud-extractors with `-Hint cloud-extractors`; no new hunt-ready rows.
+
 2026-09-12 seed hunt #2157 (seed-only): reseeded cloud-extractors with `-Hint cloud-extractors`; no new hunt-ready rows.
 2026-09-12 seed hunt #2157 (seed-only): reseeded cloud-extractors with `-Hint cloud-extractors`; no new hunt-ready rows.
 
