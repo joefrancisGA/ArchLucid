@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type SetStateAction } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
+import { ArchitectureDiagramMermaidViewportFrame } from '@/components/architecture/ArchitectureDiagramMermaidViewportFrame';
 import { ArchitectureDiagramViewportControls } from '@/components/architecture/ArchitectureDiagramViewportControls';
 import {
   Dialog,
@@ -328,6 +329,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   const [fullscreenOpen, setFullscreenOpenState] = useState(() =>
     parseArchitectureDiagramFullscreenOpenFromSearch(searchParams.get('diagFullscreen')),
   );
+  const viewportFrameRef = useRef<HTMLDivElement | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const svgHostRef = useRef<HTMLDivElement | null>(null);
   const fullscreenViewportRef = useRef<HTMLDivElement | null>(null);
@@ -592,9 +594,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   }, [fullscreenOpen, sanitizedSvg, syncFullscreenViewportCamera]);
 
   useEffect(() => {
-    const viewport = viewportRef.current;
+    const frame = viewportFrameRef.current;
 
-    if (viewport === null) {
+    if (frame === null) {
       return;
     }
 
@@ -616,14 +618,14 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       if (event.key === '0') {
         event.preventDefault();
         zoom.resetZoom();
-        scrollViewportToOrigin(viewport);
+        scrollViewportToOrigin(viewportRef.current);
       }
     };
 
-    viewport.addEventListener('keydown', onKeyDown);
+    frame.addEventListener('keydown', onKeyDown);
 
     return (): void => {
-      viewport.removeEventListener('keydown', onKeyDown);
+      frame.removeEventListener('keydown', onKeyDown);
     };
   }, [zoom]);
 
@@ -708,19 +710,20 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         </p>
       ) : null}
 
-      <div
-        ref={viewportRef}
+      <ArchitectureDiagramMermaidViewportFrame
+        frameRef={viewportFrameRef}
+        cameraRef={viewportRef}
+        viewportTestId="architecture-diagram-viewport"
+        cameraTestId="architecture-diagram-camera"
+        ariaLabel={viewportAriaLabel}
+        describedBy={`${renderId}-alt`}
         tabIndex={0}
-        role="img"
-        aria-label={viewportAriaLabel}
-        aria-describedby={`${renderId}-alt`}
-        className="relative w-full max-h-[36rem] overflow-auto rounded-md border border-neutral-200 bg-white p-4 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950/80"
-        data-testid="architecture-diagram-viewport"
         onWheel={onWheel}
+        controls={renderDiagramViewportControls(zoom, fitToView, viewportControlOptions)}
+        cameraMaxHeightClassName="max-h-[36rem]"
       >
-        {renderDiagramViewportControls(zoom, fitToView, viewportControlOptions)}
         {renderMermaidInk(svgHostRef, 'architecture-diagram-svg-host')}
-      </div>
+      </ArchitectureDiagramMermaidViewportFrame>
 
       <p id={`${renderId}-alt`} className="sr-only">
         {props.textAlternative}
@@ -731,16 +734,17 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           <DialogHeader>
             <DialogTitle>{fullscreenTitle}</DialogTitle>
           </DialogHeader>
-          <div
-            ref={fullscreenViewportRef}
+          <ArchitectureDiagramMermaidViewportFrame
+            cameraRef={fullscreenViewportRef}
+            viewportTestId="architecture-diagram-fullscreen-viewport"
+            cameraTestId="architecture-diagram-fullscreen-camera"
             tabIndex={0}
-            className="relative max-h-[80vh] overflow-auto rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950/80"
-            data-testid="architecture-diagram-fullscreen-viewport"
             onWheel={onWheel}
+            controls={renderDiagramViewportControls(zoom, fitToView, viewportControlOptions)}
+            cameraMaxHeightClassName="max-h-[80vh]"
           >
-            {renderDiagramViewportControls(zoom, fitToView, viewportControlOptions)}
             {renderMermaidInk(fullscreenHostRef, 'architecture-diagram-fullscreen-svg-host')}
-          </div>
+          </ArchitectureDiagramMermaidViewportFrame>
         </DialogContent>
       </Dialog>
     </figure>
