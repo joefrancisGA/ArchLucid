@@ -106,7 +106,7 @@ Working seats block finalize when engine coverage is degraded:
 | Layer | Gate |
 |-------|------|
 | **Server** | `CareerArtifactCompletenessValidator.EvaluateDegradedFindingCoverage` when `WorkingDesk && Finalize && DegradedFindingCoverage` (via `AuthorityDrivenArchitectureRunCommitOrchestrator`). |
-| **UI scorecard** | `blockDegradedFindingCoverageOnWorking` wired from `buyerPolishedArtifactTable !== true` in `run-detail-page-presentation-governance.ts` and client recompute (`resolveClientAwareCommitBlockedReason`). |
+| **UI scorecard** | `blockDegradedFindingCoverageOnWorking` wired from `buyerPolishedArtifactTable !== true` in `run-detail-page-presentation-governance.ts`; finalize blocking uses server `GET …/readiness` via `useAssumptionAwareCommitBlockedReason`. |
 
 Copy parity: `DegradedFindingCoverageBlockedReasonUiCopyParityTests` (Decisioning) + `degraded-finding-coverage-blocked-reason.ts`.
 
@@ -154,7 +154,7 @@ Pre-manifest finalize derives `blockingFindingCount` from live finding rows (Err
 |-------|----------------|
 | `CommitOutputIntegrityService` | Structural mode, lifecycle phase, agent output quality, unsupported semantic support hold, decision-grade provenance, existential assumptions, TB-2321 scorecard (nine dimensions), evidence referential integrity. |
 | `AuthorityDrivenArchitectureRunCommitOrchestrator` | Skipped MUST, transparency trail, WS-14 degraded coverage on Working desk (`CareerArtifactCompletenessValidator`). |
-| UI scorecard recompute (fallback) | Blocking finding count and existential assumption ack UI when server readiness is unavailable (`resolveClientAwareCommitBlockedReason`). |
+| UI finalize fallback | When server readiness is unavailable, `useAssumptionAwareCommitBlockedReason` surfaces `READINESS_UNAVAILABLE_MESSAGE` instead of client scorecard recompute. |
 
 Guard: `CommitOutputIntegrityGateMapArchitectureTests`.
 
@@ -203,6 +203,8 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGate
 - Execute run with **missing transparency trail** → finalize **409** aligned with readiness `career-artifact` / `transparency_trail_incomplete` block.
 - Execute run with **degraded finding coverage** on Working desk → finalize **409** aligned with readiness `career-artifact` / `degraded_finding_coverage` block.
 - Execute run with **decision-grade provenance violation** → finalize **409** with `ProblemTypes.Conflict` aligned with readiness `integrity` / `decision_grade_provenance` block.
+- Execute run with **unacknowledged existential assumption** on request → finalize **409** aligned with readiness `integrity` / `existential_assumption` block.
+- Execute run with **rejected agent output quality trace** (Real + PilotStrict) → finalize **409** aligned with readiness `integrity` / `agent_output_quality` block.
 
 ```bash
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeConflictSqlIntegrationTests"
@@ -216,9 +218,21 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeConflictSql
 - `GET …/reviews/{runId}/export/verify` (`VerifyRunExportLineage`) — lineage verifier conflict
 - `GET …/reviews/{runId}/terraform-advisory-export` (`DownloadTerraformAdvisoryExport`) — sealed hash drift
 - `GET …/reviews/{runId}/decision-receipt` (`DownloadRunDecisionReceipt`) — sealed-hash mismatch outcome
+- `GET …/architecture/reviews/{runId}/artifacts` (`ListArtifactsForRun`) — manifest compare guard
 
 ```bash
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~ArtifactExportSealedManifestRuntimeConflictTests"
+```
+
+## DOCX export sealed-manifest runtime 409 proof
+
+`DocxExportSealedManifestRuntimeConflictTests` proves consulting DOCX export maps lifecycle and compare-run sealed-manifest conflicts to OpenAPI **409**:
+
+- `GET …/docx/reviews/{runId}/architecture-package` (`ExportRunDocx`) — lifecycle incomplete guard
+- `GET …/docx/reviews/{runId}/architecture-package?compareWithRunId=` — compare-run sealed-manifest guard
+
+```bash
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~DocxExportSealedManifestRuntimeConflictTests"
 ```
 
 ## Wave-73 finding disposition sealed-manifest 409 proof
@@ -266,7 +280,7 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeReadinessCo
 UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton` with per-block deep links via `resolveFinalizeReadinessBlockAction` (findings job views, activity tab, intake finalize-readiness anchor). SSR `finalizeReadinessBlocks` from `buildRunDetailGovernancePresentation` hydrate the hook during client fetch and flow through `RunDetailPageHeader`, `ReviewPackagePrimaryAction`, and `RunDetailWorkspaceStickyActionsResolved` (deferred sticky bar on standard review detail). `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority.
 
 ```bash
-cd archlucid-ui && npx vitest run src/lib/review-quality/finalize-readiness-block-action.test.ts
+cd archlucid-ui && npx vitest run src/lib/review-quality/finalize-readiness-block-action.test.ts src/components/reviews/FinalizeReadinessBlockList.test.tsx
 ```
 
 ## TB-184 governance-block explainer (Staging)

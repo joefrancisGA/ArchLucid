@@ -2,17 +2,22 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Contracts.User;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.UserPreferences;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -382,6 +387,71 @@ internal static class FinalizeConflictSqlIntegrationFixture
             UserSettingKeys.WorkspaceMode,
             WorkspaceModeValues.Working,
             cancellationToken);
+    }
+
+    internal static Task PinExistentialAssumptionOnRequestAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        return ReplaceArchitectureRequestForRunAsync(
+            factory,
+            runId,
+            request =>
+            {
+                request.Assumptions = ["Recovery RTO is 4 hours for tier-1 workloads"];
+            },
+            cancellationToken);
+    }
+
+    internal static async Task PinRejectedAgentOutputQualityTraceAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IServiceProvider services = serviceScope.ServiceProvider;
+        IRunRepository runRepository = services.GetRequiredService<IRunRepository>();
+        ITenantSettingsRepository tenantSettingsRepository =
+            services.GetRequiredService<ITenantSettingsRepository>();
+        IAgentExecutionTraceRepository traceRepository =
+            services.GetRequiredService<IAgentExecutionTraceRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for agent output quality proof pin.");
+
+        run.StructuralExecutionMode = StructuralExecutionMode.Real;
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+
+        await tenantSettingsRepository
+            .UpsertAsync(
+                DefaultScope.TenantId,
+                TenantSettingKeys.AgentOutputQualityGateMode,
+                AgentOutputQualityGateMode.PilotStrict.ToString(),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "scorecard-proof-quality-rejected",
+            RunId = runId,
+            TaskId = "scorecard-proof-quality-task",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+        };
+
+        await traceRepository.CreateAsync(trace, cancellationToken).ConfigureAwait(false);
     }
 
     private static string BuildPreCommitProofPinJson()
