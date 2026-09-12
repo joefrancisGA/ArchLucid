@@ -143,11 +143,11 @@ export const SYSTEM_NOT_JOB_DUAL_EDITOR_ROWS: readonly SystemNotJobDualEditorRow
   {
     field: "editSourceGuidedIntakeRerun",
     draftRoute: "N/A",
-    reviewArchitectureTab: "Edit source → guided-intake rerun when !manifestId",
-    spawnLocked: false,
-    parallelLiveEditAfterSpawn: true,
-    parallelClass: "alternate-writer",
-    ownerPrompt: "SN-003",
+    reviewArchitectureTab: "Edit source suppressed for Created-origin; Reviewed-origin rerun when !manifestId",
+    spawnLocked: true,
+    parallelLiveEditAfterSpawn: false,
+    parallelClass: "read-only-snapshot",
+    ownerPrompt: "SN-004",
   },
   {
     field: "technologyBaseline",
@@ -178,5 +178,5 @@ export const SYSTEM_NOT_JOB_DUAL_EDITOR_ROWS: readonly SystemNotJobDualEditorRow
   },
 ];
 
-/** Exactly one row may remain parallel-live-edit after spawn (guided-intake rerun). */
-export const SYSTEM_NOT_JOB_DUAL_EDITOR_PARALLEL_LIVE_EDIT_COUNT_BASELINE = 1;
+/** Shrink-only: zero parallel-live-edit rows after SN-004 one-writer ratchet. */
+export const SYSTEM_NOT_JOB_DUAL_EDITOR_PARALLEL_LIVE_EDIT_COUNT_BASELINE = 0;
