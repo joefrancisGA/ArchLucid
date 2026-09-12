@@ -2333,3 +2333,4 @@
 {"at":"2026-09-12T16:29:11.6366516Z","zoneId":"api-key-auth","outcome":"seed-only"}
 {"at":"2026-09-12T16:29:32.5353983Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
 {"at":"2026-09-12T16:29:54.3649724Z","zoneId":"commit-output-integrity","outcome":"seed-only"}
+{"at":"2026-09-12T16:30:06.8888250Z","zoneId":"finding-disposition","outcome":"seed-only"}

@@ -1942,21 +1942,7 @@ P26-09-12 seed hunt #2013 (seed-only): reseeded commit-output-integrity; no new 
 
 ---
 
-## Zone: finding-disposition
-
-- **id:** finding-disposition
-- **status:** open
-- **impact:** medium
-- **aliases:** disposition; finding decision
-- **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
-- **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 16
-- **bugs-found:** 13
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — LP-14 note injection; preview override bypass; bulk duplicate ids; guided-desk LP-14 attestation note injection; guided-desk preview override text bypass; bulk disposition accepted duplicate finding ids and persisted multiple events while current pointer kept only the last
-- **related-pd-tb:** none
-- **code-changed-since:** 0
+P26-09-12 seed hunt #2014 (seed-only): reseeded finding-disposition; no new hunt-ready rows.
 
 ### Hypotheses
 
