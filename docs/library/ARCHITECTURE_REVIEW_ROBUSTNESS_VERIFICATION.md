@@ -308,6 +308,40 @@ dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~PreCommitGo
 cd archlucid-ui && npx vitest run src/components/reviews/FinalizeReadinessBlockList.test.tsx
 ```
 
+## TB-2343 unknown sentinel intake gate (structured brief)
+
+Unknown `"Unknown — confirm before review"` placeholders must not unlock **Start architecture review** or project into requirement-like graph inputs (TB-2343).
+
+| Layer | Gate |
+|-------|------|
+| **Server readiness** | `ArchitectureDraftReviewReadinessValidator` treats sentinel-only structured-brief slots as blockers (`structured brief placeholders`); `EnsureReviewReady` throws before `DraftAdmissionService.SubmitAsync` creates a run. |
+| **Graph projection** | `DraftRequestProjector` filters sentinel strings via `ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry` — constraints, assumptions, capabilities, and inline requirements omit unknowns. |
+| **UI readiness** | `architecture-draft-readiness.ts` blocker id `structured-brief-placeholders`; field copy in `architecture-review-readiness-copy.ts`. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~ArchitectureDraftReviewReadinessValidator|DraftAdmissionServiceSubmitTests.SubmitAsync_WhenStructuredBriefHasUnknownSentinels|DraftRequestProjectorTests.Project_ExcludesUnknownSentinel"
+dotnet test ArchLucid.Contracts.Tests --filter "FullyQualifiedName~ArchitectureDraftStructuredBrief"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~Suggestion7_intake_gates_block_sentinels"
+cd archlucid-ui && npx vitest run src/lib/architecture/architecture-draft-readiness.test.ts src/lib/architecture/architecture-review-readiness-copy.test.ts
+```
+
+## TB-2348 projected spend on cost-constraint nodes
+
+Cost engines need projected monthly spend on cost-constraint graph nodes before `CostBreachFindingEngine` can fire (TB-2348).
+
+| Layer | Behavior |
+|-------|----------|
+| **Request materialization** | `RequestCostConstraintMaterializer` writes projected spend properties when constraints carry spend hints. |
+| **Graph enrichment** | `CostConstraintProjectedSpendEnricher` (via `CostConstraintProjectedSpendEnrichmentStage`) derives spend from topology when absent. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.KnowledgeGraph.Tests --filter "FullyQualifiedName~CostConstraintProjectedSpend|RequestCostConstraintMaterializer"
+```
+
 ## ConflictException → 409 controller sweep
 
 Twenty controller `try` blocks that returned **400** for `InvalidOperationException` now catch `ConflictException` first. Guard: `ControllerConflictExceptionNotSwallowedAs400ArchitectureTests`.

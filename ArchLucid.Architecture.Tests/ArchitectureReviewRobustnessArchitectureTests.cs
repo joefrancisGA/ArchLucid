@@ -116,6 +116,20 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
 
         draftValidator.Should().Contain("HasUnconfirmedStructuredBriefPlaceholders");
 
+        string submit = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Drafts",
+                "DraftAdmissionService.SubmitAndHeal.cs"));
+
+        submit.Should().Contain("ArchitectureDraftReviewReadinessValidator.EnsureReviewReady");
+
+        string projector = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "DraftRequestProjector.cs"));
+
+        projector.Should().Contain("IsConfirmedBriefEntry");
+
         string apiValidator = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Validators", "ArchitectureRequestValidator.cs"));
 
