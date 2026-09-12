@@ -11,6 +11,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { SPONSOR_KPI_DRILL_THROUGH } from "@/lib/sponsor-kpi-drill-through-hrefs";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
@@ -23,6 +24,7 @@ import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { computePilotDayNumber } from "@/lib/sponsor-pilot-day";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import {
   sponsorDecisionsNeededPresentation,
   sponsorExpiringWaiversPresentation,
@@ -153,6 +155,15 @@ export function SponsorRoiDashboardLiveKpiCards({
 
   return (
     <>
+      {!executiveDetails ? (
+        <p
+          className={cn("m-0 text-al-text-secondary sm:col-span-2 lg:col-span-3", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="exec-kpi-live-non-summing"
+        >
+          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+        </p>
+      ) : null}
+      {!executiveDetails ? <PolicyPackInfluenceHonestyChip className="sm:col-span-2 lg:col-span-3" /> : null}
       {pilotDayNumber !== null && !buyerPolished ? (
         <p
           className={cn("m-0 text-al-text-secondary sm:col-span-2 lg:col-span-3", OPERATOR_TYPOGRAPHY.body)}

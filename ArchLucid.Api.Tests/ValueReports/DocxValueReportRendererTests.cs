@@ -65,6 +65,9 @@ public sealed class DocxValueReportRendererTests
         string xml = await reader.ReadToEndAsync();
 
         xml.Should().Contain("ArchLucid \u2014 tenant value report");
+        xml.Should().Contain("Sendable export cover");
+        xml.Should().Contain("Portfolio headline savings are disposition-aware and deduplicated by FindingId");
+        xml.Should().Contain("Pack-mapped findings cite assigned policy rules");
         xml.Should().Contain("ROI vs ROI_MODEL.md baseline");
         xml.Should().Contain("Governance-class audit events");
         xml.Should().Contain("Drift / alert-class audit events");
