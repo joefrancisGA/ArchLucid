@@ -23,9 +23,9 @@ class TestRoiBatch10DriftGuards(unittest.TestCase):
             encoding="utf-8",
         )
 
-        self.assertIn("core-pilot-roi-non-summing", panel)
-        self.assertIn("PolicyPackInfluenceHonestyChip", panel)
-        self.assertIn("core-pilot-sso-optional", panel)
+        self.assertIn("SponsorSendPathHonestyPanel", panel)
+        self.assertIn("core-pilot", panel)
+        self.assertIn("CORE_PILOT_HELP_SPONSOR_HONESTY_TITLE", panel)
 
     def test_scorecard_roi_panel_includes_non_summing_and_wk21(self) -> None:
         panel = (
