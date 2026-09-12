@@ -42,6 +42,13 @@ public sealed partial class RunsController
         if (comment is { Length: > 2000 })
             return this.BadRequestProblem("Comment exceeds maximum length (2000).", ProblemTypes.ValidationFailed);
 
+        if (comment is not null && !IsValidUnicodeText(comment))
+        {
+            return this.BadRequestProblem(
+                "Comment must not contain invalid Unicode surrogate pairs.",
+                ProblemTypes.ValidationFailed);
+        }
+
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();

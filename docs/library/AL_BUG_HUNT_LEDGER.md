@@ -10776,11 +10776,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 36
-- **bugs-found:** 31
+- **hunts:** 37
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — run operator governance disposition POST omitted 2000-char rationale cap matching `dbo.Runs.OperatorGovernanceDecisionRationale`
+- **last-bug:** 2026-09-12 — finding feedback POST omitted invalid-Unicode surrogate guard on Comment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
