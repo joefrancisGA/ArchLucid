@@ -195,7 +195,9 @@ describe('ArchitectureDiagramViewer', () => {
       expect(screen.getByTestId('architecture-diagram-viewport')).toBeInTheDocument();
     });
 
-    expect(initializeMock).toHaveBeenCalled();
+    expect(initializeMock).toHaveBeenCalledWith(
+      expect.objectContaining({ suppressErrorRendering: true, startOnLoad: false }),
+    );
     expect(renderMock).toHaveBeenCalled();
     expect(screen.getByText('Node A')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL })).toBeInTheDocument();
@@ -217,6 +219,7 @@ describe('ArchitectureDiagramViewer', () => {
   it('shows renderer failure and retry action', async () => {
     renderMock.mockRejectedValueOnce(new Error('Renderer failed'));
     const onRetry = vi.fn();
+    const removeBindSpy = vi.spyOn(helpMermaid, 'removeMermaidRenderBindElement');
 
     render(
       <ArchitectureDiagramViewer
@@ -232,7 +235,11 @@ describe('ArchitectureDiagramViewer', () => {
       expect(screen.getByTestId('architecture-diagram-render-failure')).toBeInTheDocument();
     });
 
+    expect(removeBindSpy).toHaveBeenCalled();
+
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(onRetry).toHaveBeenCalled();
+    removeBindSpy.mockRestore();
     expect(onRetry).toHaveBeenCalled();
   });
 
