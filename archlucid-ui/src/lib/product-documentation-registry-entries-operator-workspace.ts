@@ -340,6 +340,26 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
     "releaseApplicability": "Working system-not-job help (SN-032 / WS-20 / ADR 0079)",
   },
   {
+    "slug": "false-hard-infeasibility",
+    "title": "Hard vs soft infeasibility",
+    "summary": "Working Career export honesty — hard infeasible requires law citations; soft infeasible is an explicit envelope with assumptions.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-09-12",
+    "releaseApplicability": "Livelihood-grade-no help (LN-024 / ADR 0093)",
+  },
+  {
+    "slug": "extraction-fidelity",
+    "title": "Extraction fidelity",
+    "summary": "Evidence-backed findings must point at stored sources; NotVerifiable diagram shapes cannot mint decision-grade resources silently.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-09-12",
+    "releaseApplicability": "Livelihood-grade-no help (LN-034 / ADR 0082)",
+  },
+  {
     "slug": "career-rehearsal-doors",
     "title": "Record and Practice",
     "summary": "Working Record review type and Practice intent — dry-runs in Practice, sealed-record proof in Record. Simulator output is not sponsor proof; record-complete follows the run stamp. Search aliases: career door, career-complete, rehearsal.",
