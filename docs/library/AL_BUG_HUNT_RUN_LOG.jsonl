@@ -2389,3 +2389,4 @@
 {"at":"2026-09-12T17:39:00.0000000Z","zoneId":"core-costing","outcome":"seed-only"}
 {"at":"2026-09-12T17:40:00.0000000Z","zoneId":"tenant-data-export","outcome":"seed-only"}
 {"at":"2026-09-12T17:41:00.0000000Z","zoneId":"retrieval","outcome":"seed-only"}
+{"at":"2026-09-12T17:42:00.0000000Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
