@@ -2520,3 +2520,4 @@
 {"at":"2026-09-12T20:52:54.1995662Z","zoneId":"core-tenancy-commercial","outcome":"seed-only"}
 {"at":"2026-09-12T20:53:18.0644352Z","zoneId":"finding-disposition","outcome":"seed-only"}
 {"at":"2026-09-12T21:01:02.3704901Z","zoneId":"extraction-router","outcome":"seed-only"}
+{"at":"2026-09-12T21:03:32.0500184Z","zoneId":"topology-proposal-merge","outcome":"hit"}
