@@ -4,6 +4,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { GovernanceInfrastructureDriftHelpEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-help-infrastructure-strips";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -256,6 +257,8 @@ export function HelpGovernanceInfrastructureDriftGuideView(
               testId="help-governance-infrastructure-drift-table-columns"
             />
           </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-governance-infrastructure-drift" showSsoOptional={false} />
 
           {!buyerPolishedShell ? (
             <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -141,6 +142,8 @@ export function HelpArchitectureShareRestrictGuideView(
               </Button>
             </div>
           </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-architecture-share-restrict" showSsoOptional={false} />
         </div>
 
         <aside className={HELP_PAGE_TOC.nav}>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -151,6 +152,8 @@ export function HelpWorkingCareerRehearsalGuideView(
               </Button>
             </div>
           </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-career-rehearsal-doors" showSsoOptional={false} />
         </div>
 
         <aside className={HELP_PAGE_TOC.nav}>
