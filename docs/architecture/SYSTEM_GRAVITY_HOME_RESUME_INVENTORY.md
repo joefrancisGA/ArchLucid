@@ -5,7 +5,7 @@
 | Path | Status | SG |
 |------|--------|-----|
 | `working-start-route.ts` | Returns architecture path — **green** | — |
-| `system-not-job-portfolio-resume-href.ts` | Working → nested locator | **SG-040** leftover |
+| `system-not-job-portfolio-resume-href.ts` | Working → architecture desk with highlight | — |
 | `unfinished-work-rail.ts` | Desk or nested job | **SG-044** |
 | `reviews-hub-continue-review.ts` | Inbox continue | **SG-043** |
 

@@ -377,6 +377,7 @@ export function FindingInspectView({
 
         <FindingInspectItsmWorkflowPanel
           findingId={decodedFindingId}
+          parentArchitectureId={parentArchitectureId}
           humanReviewStatusLabel={formatFindingHumanReviewStatusLabel(payload.humanReviewStatus)}
           humanReviewDispositionDivergence={humanReviewDispositionDivergence}
         />

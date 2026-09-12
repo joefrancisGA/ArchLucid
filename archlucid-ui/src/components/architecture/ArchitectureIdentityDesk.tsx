@@ -15,6 +15,7 @@ import { ArchitectureIdentityDeskSharePanel } from "@/components/architecture/Ar
 import { ArchitectureIdentityDeskOpenQuestions } from "@/components/architecture/ArchitectureIdentityDeskOpenQuestions";
 import { ArchitectureIdentityDeskInFlightSection } from "@/components/architecture/ArchitectureIdentityDeskInFlightSection";
 import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
+import { ArchitectureIdentityDeskSealedReceiptStrip } from "@/components/architecture/ArchitectureIdentityDeskSealedReceiptStrip";
 import { ArchitectureIdentityDeskSkeleton } from "@/components/architecture/ArchitectureIdentityDeskSkeleton";
 import { ArchitectureIdentityDeskVersionsSection } from "@/components/architecture/ArchitectureIdentityDeskVersionsSection";
 import { ArchitectureSealDeltaPanel } from "@/components/architecture/ArchitectureSealDeltaPanel";
@@ -134,20 +135,26 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
       <ArchitectureIdentityDeskInFlightSection architectureId={identity.architectureId} />
 
       {latestSealedManifestId.length > 0 && identity.latestReviewId !== null && identity.latestReviewId !== undefined ? (
-        <p className={OPERATOR_TYPOGRAPHY.body}>
-          <span className="font-medium">{ARCHITECTURE_IDENTITY_DESK_LATEST_SEAL_LABEL}:</span>
-          {" "}
-          <Link
-            href={resolveSystemNotJobDeskSealedChildReviewHref(
-              identity.latestReviewId,
-              identity.architectureId,
-            )}
-            className={OPERATOR_LINK.nav}
-            data-testid="architecture-identity-latest-seal-link"
-          >
-            Open sealed review record
-          </Link>
-        </p>
+        <div className="space-y-3">
+          <p className={OPERATOR_TYPOGRAPHY.body}>
+            <span className="font-medium">{ARCHITECTURE_IDENTITY_DESK_LATEST_SEAL_LABEL}:</span>
+            {" "}
+            <Link
+              href={resolveSystemNotJobDeskSealedChildReviewHref(
+                identity.latestReviewId,
+                identity.architectureId,
+              )}
+              className={OPERATOR_LINK.nav}
+              data-testid="architecture-identity-latest-seal-link"
+            >
+              Open sealed review record
+            </Link>
+          </p>
+          <ArchitectureIdentityDeskSealedReceiptStrip
+            runId={identity.latestReviewId}
+            manifestVersion={latestSealedManifestId}
+          />
+        </div>
       ) : null}
 
       <ArchitectureSealDeltaPanel architectureId={identity.architectureId} />

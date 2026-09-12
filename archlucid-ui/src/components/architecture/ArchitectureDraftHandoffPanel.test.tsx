@@ -28,7 +28,7 @@ describe("ArchitectureDraftHandoffPanel (SD-10 / AO-07)", () => {
     structuredBrief: emptyArchitectureDraftStructuredBrief(),
   };
 
-  it("AO-07: Working nested handoff opens review under the architecture, not peer reviewDetailPath", () => {
+  it("AO-07 / SG-049: Working nested handoff primary returns to desk with job highlighted", () => {
     render(
       <ArchitectureDraftHandoffPanel
         draftId="draft-1"
@@ -41,6 +41,10 @@ describe("ArchitectureDraftHandoffPanel (SD-10 / AO-07)", () => {
     );
 
     expect(screen.getByTestId("architecture-draft-spawn-lock-back-honesty")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-handoff-return-desk")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001?highlightReviewId=run-42",
+    );
     expect(screen.getByTestId("architecture-draft-handoff-open-review")).toHaveAttribute(
       "href",
       "/architecture/architectures/architecture-identity-001/reviews/run-42",
