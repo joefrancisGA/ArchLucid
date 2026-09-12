@@ -60,4 +60,50 @@ public sealed class HostedGcpExtractorClientTests
             p => p.GetSubjectTokenAsync(It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task CollectZipAsync_rejects_blank_project_id_before_token_fetch()
+    {
+        Mock<IGcpSubjectTokenProvider> tokenProvider = new();
+        GcpWorkloadIdentityCredentialFactory credentialFactory = new(tokenProvider.Object);
+        HostedGcpExtractorClient client = new(credentialFactory, NullLogger<HostedGcpExtractorClient>.Instance);
+
+        HostedGcpExtractorCollectionRequest request = new()
+        {
+            ProjectId = "   ",
+            WorkloadIdentityPoolProvider = "projects/my-pool/locations/global/workloadIdentityPools/pool/providers/provider",
+            ServiceAccountEmail = "readonly@my-gcp-project.iam.gserviceaccount.com"
+        };
+
+        Func<Task> act = () => client.CollectZipAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+
+        tokenProvider.Verify(
+            p => p.GetSubjectTokenAsync(It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CollectZipAsync_rejects_blank_service_account_email_before_token_fetch()
+    {
+        Mock<IGcpSubjectTokenProvider> tokenProvider = new();
+        GcpWorkloadIdentityCredentialFactory credentialFactory = new(tokenProvider.Object);
+        HostedGcpExtractorClient client = new(credentialFactory, NullLogger<HostedGcpExtractorClient>.Instance);
+
+        HostedGcpExtractorCollectionRequest request = new()
+        {
+            ProjectId = "my-gcp-project",
+            WorkloadIdentityPoolProvider = "projects/my-pool/locations/global/workloadIdentityPools/pool/providers/provider",
+            ServiceAccountEmail = "   "
+        };
+
+        Func<Task> act = () => client.CollectZipAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+
+        tokenProvider.Verify(
+            p => p.GetSubjectTokenAsync(It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

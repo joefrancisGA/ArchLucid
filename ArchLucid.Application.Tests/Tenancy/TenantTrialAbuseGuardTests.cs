@@ -48,4 +48,43 @@ public sealed class TenantTrialAbuseGuardTests
         result.Failure!.Outcome.Should().Be(TenantTrialHttpOutcome.ValidationFailed);
         result.Failure.Message.Should().Contain(TrialIdentityUserFieldLimits.LinkedEntraOidMaxLength.ToString());
     }
+
+    [Fact]
+    public async Task ValidateIdentityLinkAsync_allows_same_entra_oid_when_casing_differs_from_linked_row()
+    {
+        Guid tenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        const string normalizedEmail = "ADMIN@CUSTOMER.COM";
+
+        Mock<ITrialIdentityUserRepository> trialUsers = new();
+        trialUsers
+            .Setup(r => r.GetByNormalizedEmailAsync(normalizedEmail, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TrialIdentityUserRecord
+                {
+                    Id = Guid.NewGuid(),
+                    NormalizedEmail = normalizedEmail,
+                    Email = "admin@customer.com",
+                    LinkedEntraOid = "oid-home",
+                });
+
+        Mock<ISelfServiceTrialAbuseRepository> abuseRepository = new();
+        abuseRepository
+            .Setup(r => r.HasEmailClaimForTenantAsync(normalizedEmail, tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        TenantTrialAbuseGuard sut = new(trialUsers.Object, abuseRepository.Object);
+
+        TenantTrialIdentityLinkPrecheckResult result = await sut.ValidateIdentityLinkAsync(
+            new TenantTrialLinkEntraBody
+            {
+                LocalEmail = "admin@customer.com",
+                EntraOid = "OID-HOME",
+            },
+            tenantId,
+            CancellationToken.None);
+
+        result.Failure.Should().BeNull();
+        result.HasIdentityPayload.Should().BeTrue();
+        result.NormalizedLocalEmail.Should().Be(normalizedEmail);
+    }
 }

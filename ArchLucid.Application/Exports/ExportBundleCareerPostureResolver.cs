@@ -69,9 +69,19 @@ public static class ExportBundleCareerPostureResolver
         bool isDemoTenant = root.TryGetProperty("isDemoTenant", out JsonElement demoEl)
             && demoEl.ValueKind == JsonValueKind.True;
 
+        bool isSampleRun = TryParseSampleRun(root) || isDemoTenant;
+
+        if (isSampleRun)
+        {
+            return new ExportBundleCareerPostureResult(
+                IsBlocked: true,
+                BlockReason: CareerArtifactCompletenessValidator.SampleWorkspaceExportBlockMessage,
+                Stamp: null);
+        }
+
         bool shouldBlock = SimulatorCareerHonestyPresenter.ShouldBlockWorkingCareer(
             workingDesk: true,
-            isSampleRun: isDemoTenant,
+            isSampleRun: false,
             structuralExecutionMode: structuralExecutionMode,
             simulatorRehearsalBannerOnArtifact: false,
             workingCareerRehearsalDoor: workingCareerRehearsalDoor);
@@ -100,6 +110,16 @@ public static class ExportBundleCareerPostureResolver
             IsBlocked: false,
             BlockReason: null,
             Stamp: stamp);
+    }
+
+    private static bool TryParseSampleRun(JsonElement root)
+    {
+        if (root.TryGetProperty("isSampleRun", out JsonElement sampleEl))
+        {
+            return sampleEl.ValueKind == JsonValueKind.True;
+        }
+
+        return false;
     }
 
     private static StructuralExecutionMode? TryParseStructuralExecutionMode(JsonElement root)
