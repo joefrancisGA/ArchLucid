@@ -155,6 +155,57 @@ public sealed class RouteTenantScopeBindingFilterTests
     }
 
     [SkippableFact]
+    public async Task OnActionExecutionAsync_non_guid_route_tenant_skips_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantB, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContextWithRawTenantId(
+            "not-a-guid",
+            "/v1/value-report/not-a-guid/generate");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_allow_anonymous_metadata_skips_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantB, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContext(
+            TenantA,
+            "/v1/value-report/" + TenantA + "/preview",
+            new AllowAnonymousAttribute());
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeTrue();
+    }
+
+    [SkippableFact]
     public async Task OnActionExecutionAsync_allow_cross_tenant_route_metadata_skips_binding()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -178,6 +229,33 @@ public sealed class RouteTenantScopeBindingFilterTests
             });
 
         next.Should().BeTrue();
+    }
+
+    private static ActionExecutingContext BuildExecutingContextWithRawTenantId(
+        object routeTenantId,
+        string path,
+        params object[] endpointMetadata)
+    {
+        DefaultHttpContext httpContext = new() { Request = { Path = path } };
+        httpContext.User = new ClaimsPrincipal(
+            new ClaimsIdentity([new Claim(ClaimTypes.Name, "unit-test")], "Bearer"));
+
+        RouteData routeData = new();
+        routeData.Values["tenantId"] = routeTenantId;
+
+        ActionDescriptor descriptor = new() { EndpointMetadata = endpointMetadata.ToList() };
+
+        ActionContext actionContext = new(
+            httpContext,
+            routeData,
+            descriptor,
+            new ModelStateDictionary());
+
+        return new ActionExecutingContext(
+            actionContext,
+            [],
+            new Dictionary<string, object?>(),
+            new object());
     }
 
     private static ActionExecutingContext BuildExecutingContext(
