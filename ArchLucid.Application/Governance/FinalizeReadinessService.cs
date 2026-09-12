@@ -4,6 +4,7 @@ using ArchLucid.Application.Findings;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -13,6 +14,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.UserPreferences;
 using ArchLucid.Decisioning.CareerArtifacts;
@@ -48,6 +50,11 @@ public sealed class FinalizeReadinessService(
     IActorContext actorContext,
     IPreFinalizeChecklistService preFinalizeChecklistService,
     IPreCommitGovernanceGate preCommitGovernanceGate,
+    IRunPolicyPackPinService runPolicyPackPinService,
+    IRunEvidencePackagePinService runEvidencePackagePinService,
+    IArchitectureKnowledgeModelAccess architectureKnowledgeModelAccess,
+    IDraftRequestRepository draftRequestRepository,
+    IArchitectureVersionRepository architectureVersionRepository,
     IOptions<PreCommitGovernanceGateOptions> preCommitGovernanceGateOptions,
     IOptions<FinalizeQualityGateOptions> finalizeQualityGateOptions) : IFinalizeReadinessService
 {
@@ -92,6 +99,21 @@ public sealed class FinalizeReadinessService(
 
     private readonly IPreCommitGovernanceGate _preCommitGovernanceGate =
         preCommitGovernanceGate ?? throw new ArgumentNullException(nameof(preCommitGovernanceGate));
+
+    private readonly IRunPolicyPackPinService _runPolicyPackPinService =
+        runPolicyPackPinService ?? throw new ArgumentNullException(nameof(runPolicyPackPinService));
+
+    private readonly IRunEvidencePackagePinService _runEvidencePackagePinService =
+        runEvidencePackagePinService ?? throw new ArgumentNullException(nameof(runEvidencePackagePinService));
+
+    private readonly IArchitectureKnowledgeModelAccess _architectureKnowledgeModelAccess =
+        architectureKnowledgeModelAccess ?? throw new ArgumentNullException(nameof(architectureKnowledgeModelAccess));
+
+    private readonly IDraftRequestRepository _draftRequestRepository =
+        draftRequestRepository ?? throw new ArgumentNullException(nameof(draftRequestRepository));
+
+    private readonly IArchitectureVersionRepository _architectureVersionRepository =
+        architectureVersionRepository ?? throw new ArgumentNullException(nameof(architectureVersionRepository));
 
     private readonly IOptions<PreCommitGovernanceGateOptions> _preCommitGovernanceGateOptions =
         preCommitGovernanceGateOptions ?? throw new ArgumentNullException(nameof(preCommitGovernanceGateOptions));
@@ -195,7 +217,7 @@ public sealed class FinalizeReadinessService(
             degradedFindingCoverage,
             degradedLabels);
 
-        await AppendIntegrityBlocksAsync(
+        await AppendPreScorecardIntegrityBlocksAsync(
             blocks,
             architectureRun,
             runRecord,
@@ -205,8 +227,6 @@ public sealed class FinalizeReadinessService(
             findings,
             requestAcknowledgedAssumptionIds,
             cancellationToken).ConfigureAwait(false);
-
-        await AppendPreCommitGovernanceBlocksAsync(blocks, runId, cancellationToken).ConfigureAwait(false);
 
         FinalizeQualityScorecardCounts scorecardCounts = FinalizeQualityScorecardCounts.Empty;
         IReadOnlyList<string> scorecardReasons = [];
@@ -236,6 +256,10 @@ public sealed class FinalizeReadinessService(
                 });
             }
         }
+
+        AppendEvidenceReferentialIntegrityBlock(blocks, runRecord, findings);
+
+        await AppendPreCommitGovernanceBlocksAsync(blocks, runId, cancellationToken).ConfigureAwait(false);
 
         return BuildResult(runId, blocks, scorecardCounts, scorecardReasons, gateOptions.Enabled, checklist);
     }
@@ -318,7 +342,7 @@ public sealed class FinalizeReadinessService(
         });
     }
 
-    private async Task AppendIntegrityBlocksAsync(
+    private async Task AppendPreScorecardIntegrityBlocksAsync(
         List<FinalizeReadinessBlock> blocks,
         ArchitectureRun architectureRun,
         RunRecord runRecord,
@@ -359,6 +383,49 @@ public sealed class FinalizeReadinessService(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        IReadOnlyList<string> architectureVersionPinReasons =
+            await CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync(
+                scope,
+                runId,
+                request,
+                _runRepository,
+                _architectureVersionRepository,
+                _architectureKnowledgeModelAccess,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        foreach (string reason in architectureVersionPinReasons)
+        {
+            blocks.Add(new FinalizeReadinessBlock
+            {
+                Code = "architecture_version_pin",
+                Layer = FinalizeReadinessLayers.Integrity,
+                Message = reason,
+            });
+        }
+
+        IReadOnlyList<string> createTimePinReasons =
+            await CommitCreateTimePinIntegrityEvaluator.GetBlockingReasonsAsync(
+                scope,
+                runId,
+                runRecord,
+                _runPolicyPackPinService,
+                _runEvidencePackagePinService,
+                _draftRequestRepository,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        foreach (string reason in createTimePinReasons)
+        {
+            blocks.Add(new FinalizeReadinessBlock
+            {
+                Code = "create_time_pin_integrity",
+                Layer = FinalizeReadinessLayers.Integrity,
+                Message = reason,
+            });
+        }
+
         IReadOnlyList<AgentExecutionTrace> traces =
             await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
@@ -424,21 +491,27 @@ public sealed class FinalizeReadinessService(
                     + reason,
             });
         }
+    }
 
+    private static void AppendEvidenceReferentialIntegrityBlock(
+        List<FinalizeReadinessBlock> blocks,
+        RunRecord runRecord,
+        FindingsSnapshot findings)
+    {
         IReadOnlyList<string> evidenceIntegrityReasons =
             FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons(runRecord, findings.Findings);
 
-        if (evidenceIntegrityReasons.Count > 0)
+        if (evidenceIntegrityReasons.Count == 0)
+            return;
+
+        blocks.Add(new FinalizeReadinessBlock
         {
-            blocks.Add(new FinalizeReadinessBlock
-            {
-                Code = "evidence_referential_integrity",
-                Layer = FinalizeReadinessLayers.Integrity,
-                Message =
-                    "Commit blocked: finding evidence referential integrity failed. "
-                    + string.Join(" ", evidenceIntegrityReasons),
-            });
-        }
+            Code = "evidence_referential_integrity",
+            Layer = FinalizeReadinessLayers.Integrity,
+            Message =
+                "Commit blocked: finding evidence referential integrity failed. "
+                + string.Join(" ", evidenceIntegrityReasons),
+        });
     }
 
     private async Task<HashSet<string>> LoadAcknowledgedAssumptionIdsAsync(

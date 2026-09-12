@@ -511,6 +511,62 @@ internal static class FinalizeConflictSqlIntegrationFixture
         string runId,
         CancellationToken cancellationToken = default)
     {
+        await PinStructuralExecutionModeAsync(factory, runId, StructuralExecutionMode.Mixed, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    internal static async Task PinStructuralExecutionModeFallbackAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        await PinStructuralExecutionModeAsync(factory, runId, StructuralExecutionMode.Fallback, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    internal static async Task PinArchitectureVersionContentHashDriftAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IRunRepository runRepository =
+            serviceScope.ServiceProvider.GetRequiredService<IRunRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for architecture version pin proof pin.");
+
+        if (run.PinnedArchitectureVersionContentHashSha256 is not { Length: > 0 } pinnedHash)
+        {
+            throw new InvalidOperationException(
+                "Executed run is missing create-time architecture version content hash pin.");
+        }
+
+        byte[] driftedHash = new byte[pinnedHash.Length];
+        pinnedHash.CopyTo(driftedHash, 0);
+        driftedHash[0] = (byte)(driftedHash[0] == 0xFF ? (byte)0x00 : (byte)0xFF);
+
+        run.PinnedArchitectureVersionContentHashSha256 = driftedHash;
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task PinStructuralExecutionModeAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        StructuralExecutionMode mode,
+        CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(factory);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
@@ -528,7 +584,7 @@ internal static class FinalizeConflictSqlIntegrationFixture
         if (run is null)
             throw new InvalidOperationException("Executed run was not found for structural execution mode proof pin.");
 
-        run.StructuralExecutionMode = StructuralExecutionMode.Mixed;
+        run.StructuralExecutionMode = mode;
 
         await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
     }
