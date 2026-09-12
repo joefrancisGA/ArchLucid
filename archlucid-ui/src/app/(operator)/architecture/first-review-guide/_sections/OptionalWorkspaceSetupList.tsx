@@ -11,6 +11,7 @@ import {
   type FinishSetupWizardContext,
 } from "@/lib/finish-setup-wizard-steps";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
+import { FIRST_REVIEW_GUIDE_SSO_OPTIONAL_COPY } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
@@ -32,7 +33,7 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
     {
       id: "identity",
       title: "Identity and single sign-on (optional)",
-      benefit: "Allow users to sign in with corporate credentials.",
+      benefit: FIRST_REVIEW_GUIDE_SSO_OPTIONAL_COPY,
       statusLabel: context.identityConfigured === true ? "Ready" : "Draft",
       statusKind: context.identityConfigured === true ? "ready" : "draft",
       href: "/administration/identity/sso-wizard",
