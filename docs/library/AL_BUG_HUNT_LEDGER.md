@@ -194,7 +194,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -203,6 +203,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **code-changed-since:** yes
 
 2026-09-12 seed hunt #2071 (seed-only): reseeded arm-terraform-source-ids after `-Refresh`; 219 scoped edge-mapper/graph-merge tests passed; no new hunt-ready rows.
+2026-09-12 seed hunt #2182 (seed-only): reseeded arm-terraform-source-ids with `-Hint ARM -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
 
