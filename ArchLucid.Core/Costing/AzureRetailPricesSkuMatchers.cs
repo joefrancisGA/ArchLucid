@@ -158,6 +158,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " hrs")
             || ContainsBoundedToken(trimmed, " hr")
             || ContainsSlashHrToken(trimmed)
+            || ContainsSlashHrsToken(trimmed)
             || ContainsSlashHourToken(trimmed)
             || ContainsBoundedToken(trimmed, " h")
             || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
@@ -190,6 +191,28 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterHr;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashHrsToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/hrs", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterHrs = index + 4;
+
+            if (afterHrs >= trimmed.Length || !char.IsLetter(trimmed[afterHrs]))
+                return true;
+
+            index = afterHrs;
         }
 
         return false;
