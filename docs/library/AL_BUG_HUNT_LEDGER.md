@@ -10121,10 +10121,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-09 — Enterprise one-seat subscription mapped to Architect LLM spend plan; exclude/excluding/except marketplace negation gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10132,6 +10132,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-12 seed hunt #2022 (seed-only): reseeded core-tenancy-commercial; no new hunt-ready rows.
 
 Split from retired `archlucid-core` (ABQ-08).
+
+2026-09-12 thorough hunt #2088 (seed-only): reseeded core-tenancy-commercial; 6 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
 
