@@ -2,6 +2,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.ExecDigest;
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Explanation.Models;
 using ArchLucid.Application.Import;
@@ -116,6 +117,8 @@ public sealed class ApplicationPackageCoverageBatch4Tests
         markdown.Should().Contain("Findings delta");
         markdown.Should().Contain("Compliance drift");
         markdown.Should().Contain("abc");
+        markdown.Should().Contain(SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine);
+        markdown.Should().Contain(SendableExportCoverComposer.PolicyPackInfluenceHonestyLine);
     }
 
     [Fact]

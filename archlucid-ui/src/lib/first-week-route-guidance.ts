@@ -1,5 +1,6 @@
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY } from "@/lib/buyer/buyer-polish-copy";
 
 /** Guided first-session deferral — Operate groups stay hidden until first commit. */
 export const GUIDED_OPERATE_SIDEBAR_DEFERRAL_NOTE =
@@ -41,6 +42,7 @@ export type FirstWeekRouteGuidanceConfig = {
   /** Omitted when the page already surfaces the next step (e.g. wizard visible on `/architecture/reviews/new`). */
   readonly primaryAction?: FirstWeekRouteGuidanceAction;
   readonly operateDeferralNote: string;
+  readonly dispositionBeforeSponsorNote?: string;
 };
 
 /** Buyer-polished shell renders finalize in the page header — anchor must match {@link RunDetailPageHeader} (BDA-001). */
@@ -64,7 +66,7 @@ const WORKING_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig =
 };
 
 export const FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY =
-  "When to use a finalized review and where exports live.";
+  "When to use a finalized review, disposition before sponsor send, and where exports live.";
 
 export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, FirstWeekRouteGuidanceConfig> = {
   home: {
@@ -99,6 +101,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
     useWhen: "The review is finalized and you need export-ready outputs or a board summary.",
     bridgeCopy:
       "This review is complete — use the exports section in Review when you need deliverables for sponsors or auditors.",
+    dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
     // Primary CTA lives in ReviewPackageDoThisNextStrip above this callout.
     operateDeferralNote: GUIDED_COMMITTED_OPERATE_UNLOCK_NOTE,
   },

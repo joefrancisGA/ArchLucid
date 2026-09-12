@@ -22,10 +22,12 @@ class TestRoiBatch10DriftGuards(unittest.TestCase):
         panel = (_UI / "src/app/(operator)/help/_sections/CorePilotHelpPostStepperPanel.tsx").read_text(
             encoding="utf-8",
         )
+        shared = (_UI / "src/components/help/SponsorSendPathHonestyPanel.tsx").read_text(encoding="utf-8")
 
-        self.assertIn("core-pilot-roi-non-summing", panel)
-        self.assertIn("PolicyPackInfluenceHonestyChip", panel)
-        self.assertIn("core-pilot-sso-optional", panel)
+        self.assertIn("SponsorSendPathHonestyPanel", panel)
+        self.assertIn("SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE", shared)
+        self.assertIn("PolicyPackInfluenceHonestyChip", shared)
+        self.assertIn("-sso-optional", shared)
 
     def test_scorecard_roi_panel_includes_non_summing_and_wk21(self) -> None:
         panel = (
