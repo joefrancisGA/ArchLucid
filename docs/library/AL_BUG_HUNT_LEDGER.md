@@ -4689,7 +4689,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -4729,6 +4729,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `IdentityRegulatedDatastoreClassifier.HasSensitiveLabel` — bare substring `.Contains("pci")` / `.Contains("sensitive")` false-classifies `non-pci-*` and `insensitive-*` SQL labels as regulated datastores — **hit 2026-09-10 seed hunt #1535:** standalone-word matching via `DecisioningTextTokenMatcher` plus `non-` / `non ` negation prefix; regressions `IsRegulatedDatastore_does_not_treat_non_pci_label_as_pci_sensitive`, `IsRegulatedDatastore_does_not_treat_insensitive_label_as_sensitive`, and `IsRegulatedDatastore_still_treats_pci_label_as_regulated`.
 - [x] (proven) `TradeoffRequirementConflictDetector.DetectConflict` — standalone `pci` token matched inside `non-pci` requirement prose when Security pillar was sacrificed — **hit 2026-09-11 thorough hunt #1692:** `DecisioningTextTokenMatcher` treated hyphen-bounded `pci` in `non-pci` as affirmative; fixed with `non-`/`non ` prefix negation in standalone token matching; regression `DetectConflict_does_not_false_positive_on_non_pci_requirement_when_security_sacrificed`.
 - [x] (proven) `IdentityRegulatedDatastoreClassifier.IsPrivateOnlyBaseline` — bare `.Contains("private")` matched `non-private-network-baseline` labels and falsely classified telemetry SQL nodes as regulated via PROTECTS edges — **hit 2026-09-12 seed hunt #1848:** standalone-word `private` matching with `non-`/`non ` negation prefix; regressions `IsRegulatedDatastore_does_not_treat_non_private_baseline_protection_as_regulated` and `IsRegulatedDatastore_still_treats_private_only_baseline_protection_as_regulated`.
+
+2026-09-12 seed hunt #2057 (seed-only): reseeded decisioning; no new hunt-ready rows.
 
 2026-09-12 seed hunt #1848 (hit): reseeded decisioning; proved non-private baseline false positive on regulated datastore classification; 9 scoped IdentityRegulatedDatastoreClassifier + TradeoffRequirementConflictDetector tests passed.
 
