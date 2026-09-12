@@ -30,6 +30,19 @@ internal static partial class CliCommandHandlers
     }
 
 
+    internal static Task<int> HandleInfeasible(string[] normalized)
+    {
+        if (normalized.Length > 1 && string.Equals(normalized[1], "honesty", StringComparison.OrdinalIgnoreCase))
+        {
+            return InfeasibleHonestyCommand.RunAsync(normalized.Skip(2).ToArray());
+        }
+
+        CliInfeasibleHonesty.WriteHelp();
+
+        return Task.FromResult(CliExitCode.UsageError);
+    }
+
+
     internal static async Task<int> HandleDraft(string[] normalized)
     {
         if (normalized.Length > 1 && string.Equals(normalized[1], "new", StringComparison.OrdinalIgnoreCase))

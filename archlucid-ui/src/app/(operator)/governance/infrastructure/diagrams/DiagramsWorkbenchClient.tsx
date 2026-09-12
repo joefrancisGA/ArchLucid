@@ -80,9 +80,17 @@ import {
   resolveInfraDiagramsDefaultFallbackKey,
   resolveInfraDiagramsEffectiveFallbackKey,
   resolveInfraDiagramsFallbackArtifacts,
+  resolveInfraDiagramsResourceGroupFallbackArtifacts,
+  resolveInfraDiagramsThematicFallbackArtifacts,
   shouldPaintInfraDiagramsMermaidSource,
   shouldShowInfraDiagramsPartitionedViews,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-partitioned-view";
+import {
+  buildInfraDiagramsResourceGroupModeToken,
+  isInfraDiagramsResourceGroupMode,
+  isInfraEvidenceResourceGroupMapMermaid,
+  parseInfraDiagramsResourceGroupName,
+} from "@/lib/infra-evidence/infra-evidence-diagrams-resource-group-view";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_DIAGRAMS_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
@@ -121,6 +129,12 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_PROMPT_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_PROMPT_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PARTITIONED_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE,
@@ -145,7 +159,15 @@ const cnCard =
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
 
-function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string): string {
+function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resourceGroupName: string): string {
+  if (isInfraDiagramsResourceGroupMode(mode)) {
+    if (resourceGroupName.length > 0) {
+      return `Resource group · ${resourceGroupName}`;
+    }
+
+    return "Pick a Resource Group";
+  }
+
   if (fallbackKey.length > 0) {
     return `Partitioned view · ${fallbackKey}`;
   }
@@ -282,27 +304,45 @@ export function DiagramsWorkbenchClient() {
     () => resolveInfraDiagramsFallbackArtifacts(renderResult?.fallbackArtifacts, activeModePreview?.fallbackArtifacts),
     [activeModePreview?.fallbackArtifacts, renderResult?.fallbackArtifacts],
   );
+  const thematicFallbackArtifacts = useMemo(
+    () => resolveInfraDiagramsThematicFallbackArtifacts(fallbackArtifacts),
+    [fallbackArtifacts],
+  );
+  const resourceGroupFallbackArtifacts = useMemo(
+    () => resolveInfraDiagramsResourceGroupFallbackArtifacts(fallbackArtifacts),
+    [fallbackArtifacts],
+  );
+  const selectedResourceGroupName = useMemo(
+    () => (isInfraDiagramsResourceGroupMode(selectedMode) ? parseInfraDiagramsResourceGroupName(selectedViewKey) : ""),
+    [selectedMode, selectedViewKey],
+  );
+  const resourceGroupPickerAwaitingSelection =
+    isInfraDiagramsResourceGroupMode(selectedMode) && selectedResourceGroupName.length === 0;
 
   const showFallbackCards = useMemo(
     () =>
       selectedMode !== "dependencyNeighborhood"
+      && !isInfraDiagramsResourceGroupMode(selectedMode)
       && shouldShowInfraDiagramsPartitionedViews({
         selectedViewKey,
         previewStatus: activeModePreview?.status ?? "",
         renderStatus: renderResult?.status ?? "",
-        fallbackArtifactCount: fallbackArtifacts.length,
+        fallbackArtifactCount: thematicFallbackArtifacts.length,
       }),
-    [activeModePreview?.status, fallbackArtifacts.length, renderResult?.status, selectedMode, selectedViewKey],
+    [activeModePreview?.status, renderResult?.status, selectedMode, selectedViewKey, thematicFallbackArtifacts.length],
   );
+
+  const showResourceGroupCards =
+    isInfraDiagramsResourceGroupMode(selectedMode) && resourceGroupFallbackArtifacts.length > 0;
 
   const effectiveFallbackKey = useMemo(
     () =>
       resolveInfraDiagramsEffectiveFallbackKey({
         showPartitionedViews: showFallbackCards,
         selectedViewKey,
-        fallbackArtifacts,
+        fallbackArtifacts: thematicFallbackArtifacts,
       }),
-    [fallbackArtifacts, selectedViewKey, showFallbackCards],
+    [showFallbackCards, selectedViewKey, thematicFallbackArtifacts],
   );
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
@@ -336,9 +376,26 @@ export function DiagramsWorkbenchClient() {
     return !snapshots.some((snapshot) => snapshot.snapshotId === urlSnapshotId);
   }, [loadingSnapshots, snapshots, urlSnapshotId]);
 
+  const selectedSnapshot = useMemo(
+    () => snapshots.find((snapshot) => snapshot.snapshotId === selectedSnapshotId) ?? null,
+    [selectedSnapshotId, snapshots],
+  );
+
+  const selectedSnapshotDisplayLabel = useMemo(() => {
+    if (selectedSnapshot != null) {
+      return formatInfraEvidenceDiagramsSnapshotPickerLabel(selectedSnapshot);
+    }
+
+    if (selectedSnapshotId.length > 0) {
+      return selectedSnapshotId;
+    }
+
+    return null;
+  }, [selectedSnapshot, selectedSnapshotId]);
+
   const selectedModeLabel = useMemo(
-    () => resolveInfraDiagramsModeLabel(selectedMode, effectiveFallbackKey),
-    [effectiveFallbackKey, selectedMode],
+    () => resolveInfraDiagramsModeLabel(selectedMode, effectiveFallbackKey, selectedResourceGroupName),
+    [effectiveFallbackKey, selectedMode, selectedResourceGroupName],
   );
 
   const selectionAnnouncement = useMemo(() => {
@@ -357,13 +414,14 @@ export function DiagramsWorkbenchClient() {
         ? `${metrics.nodeCount} nodes, ${metrics.edgeCount} edges, ${metrics.subgraphCount} subgraphs.`
         : "";
 
-    return `Diagram snapshot ${selectedSnapshotId} selected. Mode ${selectedModeLabel}. Render status ${status}.${metricLine.length > 0 ? ` ${metricLine}` : ""}`;
+    return `Diagram snapshot ${selectedSnapshotDisplayLabel} selected. Mode ${selectedModeLabel}. Render status ${status}.${metricLine.length > 0 ? ` ${metricLine}` : ""}`;
   }, [
     activeModePreview?.status,
     deepLinkedSnapshotMissing,
     renderResult?.metrics,
     renderResult?.status,
     selectedModeLabel,
+    selectedSnapshotDisplayLabel,
     selectedSnapshotId,
   ]);
 
@@ -378,12 +436,17 @@ export function DiagramsWorkbenchClient() {
     effectiveFallbackKey,
     renderFallbackKey: renderResult?.fallbackKey,
   });
-  const tooLargeForBrowser =
-    effectiveFallbackKey.length === 0 && exceedsInfraEvidenceMermaidClientGuard(metrics);
+  const tooLargeForBrowser = exceedsInfraEvidenceMermaidClientGuard(metrics);
+  const isResourceGroupMapDiagram = isInfraEvidenceResourceGroupMapMermaid(mermaidSource);
   const diagramContentEmpty = isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount);
   const renderInFlight = loadingPreview || loadingRender;
   const exportsDisabled =
-    exportBusy || renderInFlight || selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing || dependencyNeighborhoodAwaitingSeed;
+    exportBusy
+    || renderInFlight
+    || selectedSnapshotId.length === 0
+    || deepLinkedSnapshotMissing
+    || dependencyNeighborhoodAwaitingSeed
+    || resourceGroupPickerAwaitingSelection;
   const mermaidExportDisabled = exportsDisabled || !paintMermaidSource;
 
   const renderStatusPresentation = useMemo(() => {
@@ -422,8 +485,8 @@ export function DiagramsWorkbenchClient() {
   const diagramScopeContextLine = useMemo(() => {
     const parts: string[] = [];
 
-    if (selectedSnapshotId.length > 0) {
-      parts.push(`Snapshot ${selectedSnapshotId}`);
+    if (selectedSnapshotDisplayLabel != null) {
+      parts.push(`Snapshot ${selectedSnapshotDisplayLabel}`);
     }
 
     parts.push(selectedModeLabel);
@@ -433,9 +496,17 @@ export function DiagramsWorkbenchClient() {
     }
 
     return parts.join(" · ");
-  }, [selectedModeLabel, selectedSnapshotId, urlCloudResourceId]);
+  }, [selectedModeLabel, selectedSnapshotDisplayLabel, urlCloudResourceId]);
 
   const renderQuery = useMemo((): InfraEvidenceMermaidRenderQuery | null => {
+    if (isInfraDiagramsResourceGroupMode(selectedMode)) {
+      if (selectedResourceGroupName.length === 0) {
+        return { mode: "resourceGroup" };
+      }
+
+      return { mode: buildInfraDiagramsResourceGroupModeToken(selectedResourceGroupName) };
+    }
+
     if (effectiveFallbackKey.length > 0) {
       return { fallbackKey: effectiveFallbackKey };
     }
@@ -457,7 +528,7 @@ export function DiagramsWorkbenchClient() {
       mode: selectedMode,
       seedNodeId: null,
     };
-  }, [appliedSeedNodeId, effectiveFallbackKey, selectedMode]);
+  }, [appliedSeedNodeId, effectiveFallbackKey, selectedMode, selectedResourceGroupName]);
 
   const retryLoad = useCallback(() => {
     setLoadError(null);
@@ -670,10 +741,17 @@ export function DiagramsWorkbenchClient() {
 
   const handleFallbackSelect = useCallback(
     (fallbackKey: string) => {
+      if (isInfraDiagramsResourceGroupMode(selectedMode)) {
+        const resourceGroupName = parseInfraDiagramsResourceGroupName(fallbackKey);
+        setSelectedViewKey(resourceGroupName);
+        syncUrl({ mermaidView: resourceGroupName });
+        return;
+      }
+
       setSelectedViewKey(fallbackKey);
       syncUrl({ mermaidView: fallbackKey });
     },
-    [syncUrl],
+    [selectedMode, syncUrl],
   );
 
   const applySeedNode = useCallback(
@@ -781,11 +859,6 @@ export function DiagramsWorkbenchClient() {
       "text/plain;charset=utf-8",
     );
   }, [effectiveFallbackKey, mermaidExportDisabled, mermaidSource, selectedMode, selectedSnapshotId]);
-
-  const selectedSnapshot = useMemo(
-    () => snapshots.find((snapshot) => snapshot.snapshotId === selectedSnapshotId) ?? null,
-    [selectedSnapshotId, snapshots],
-  );
 
   return (
     <OperatorPageContainer
@@ -1136,14 +1209,35 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
+      {showResourceGroupCards ? (
+        <section className={cn("grid gap-3", cnCard)} aria-label="Resource groups" data-testid="infra-diagrams-resource-group-cards">
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE}
+          </h2>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_BODY}
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {resourceGroupFallbackArtifacts.map((artifact) => (
+              <FallbackCard
+                key={artifact.key}
+                artifact={artifact}
+                selected={parseInfraDiagramsResourceGroupName(artifact.key) === selectedResourceGroupName}
+                onSelect={() => handleFallbackSelect(artifact.key)}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {showFallbackCards ? (
         <section className={cn("grid gap-3", cnCard)} aria-label="Partitioned diagram views" data-testid="infra-diagrams-fallback-cards">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Partitioned views</h2>
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            This snapshot is too large for a single diagram. Pick a focused view — Executive is the default.
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PARTITIONED_BODY}
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {fallbackArtifacts.map((artifact) => (
+            {thematicFallbackArtifacts.map((artifact) => (
               <FallbackCard
                 key={artifact.key}
                 artifact={artifact}
@@ -1251,6 +1345,12 @@ export function DiagramsWorkbenchClient() {
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_BODY}
           testId="infra-diagrams-dependency-seed-prompt"
         />
+      ) : resourceGroupPickerAwaitingSelection ? (
+        <EnterpriseCompactEmptyState
+          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_PROMPT_TITLE}
+          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_PROMPT_BODY}
+          testId="infra-diagrams-resource-group-picker-prompt"
+        />
       ) : tooLargeForBrowser ? (
         <>
           <div className="rounded-md border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/40">
@@ -1278,10 +1378,18 @@ export function DiagramsWorkbenchClient() {
         />
       ) : paintMermaidSource ? (
         <>
+          {isResourceGroupMapDiagram ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="infra-diagrams-resource-group-map-caption"
+            >
+              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION}
+            </p>
+          ) : null}
           <ArchitectureDiagramViewer
             mermaidSource={mermaidSource}
-            textAlternative={`Inventory diagram for snapshot ${selectedSnapshotId} in ${selectedModeLabel} mode.`}
-            viewportAriaLabel={`Inventory diagram for snapshot ${selectedSnapshotId}`}
+            textAlternative={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId} in ${selectedModeLabel} mode.`}
+            viewportAriaLabel={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId}`}
             fullscreenTitle={`Inventory diagram · ${selectedModeLabel}`}
             scopeContextLine={diagramScopeContextLine}
             canvasStale={renderInFlight}

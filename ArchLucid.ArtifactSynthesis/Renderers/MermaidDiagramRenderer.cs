@@ -1,6 +1,8 @@
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Sanitization;
 
@@ -16,6 +18,11 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
         StringBuilder sb = new();
         sb.AppendLine("flowchart TD");
+
+        if (InventoryDiagramResourceGroupMapBuilder.TitleMarksResourceGroupMap(ast.Title))
+        {
+            sb.AppendLine($"    %% {InventoryDiagramResourceGroupMapBuilder.ViewMarker}");
+        }
 
         if (ast.Subgraphs.Count == 0)
         {
@@ -97,6 +104,11 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         }
 
         sb.AppendLine($"{indentText}end");
+
+        if (DiagramSparseComponentPacker.IsPackingSubgraph(subgraph))
+        {
+            sb.AppendLine($"    style {safeSubgraphId} fill:transparent,stroke:none");
+        }
     }
 
     private static void AppendNodeLine(StringBuilder sb, DiagramNode node, int indent)

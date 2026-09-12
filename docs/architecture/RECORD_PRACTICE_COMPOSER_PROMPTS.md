@@ -6,7 +6,7 @@
 
 # Record-practice Composer prompts (RP-001–RP-024)
 
-**Created:** 2026-09-12 · **Status:** ready to run · **Do not re-run** CG / AS-076–085 bodies except as a numbered leftover.
+**Created:** 2026-09-12 · **Status:** shipped (close audit [`RECORD_PRACTICE_ACCEPTANCE_2026-09-12.md`](RECORD_PRACTICE_ACCEPTANCE_2026-09-12.md)) · **Do not re-run** CG / AS-076–085 bodies except as a numbered leftover.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record.
 

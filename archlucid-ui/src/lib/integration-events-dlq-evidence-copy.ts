@@ -9,7 +9,7 @@ export const INTEGRATION_EVENTS_DLQ_HELP_TOPIC_LABEL = "How integration dead let
 export const INTEGRATION_EVENTS_DLQ_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const INTEGRATION_EVENTS_DLQ_SOURCES_INTRO =
-  "Dead-letter rows are ops triage — not sealed Career proof. Use these follow-ups when a message needs readiness checks, channel config, or operational health context.";
+  "Dead-letter rows are ops triage — not sealed-record proof. Use these follow-ups when a message needs readiness checks, channel config, or operational health context.";
 
 
 /** Operator Sources — no self-href to the DLQ page. */

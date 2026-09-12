@@ -25,7 +25,7 @@ describe("command-palette-work-action-dom (LD-09)", () => {
 
   it("SN-008: detects visible spawn-locked clone controls", () => {
     document.body.innerHTML = `
-      <button data-testid="architecture-spawn-lock-clone-snapshot" type="button">New version (clone)</button>
+      <button data-testid="architecture-spawn-lock-clone-snapshot" type="button">Sketch a change</button>
     `;
 
     expect(queryVisibleSpawnLockCloneSnapshotControl()).not.toBeNull();

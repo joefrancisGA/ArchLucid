@@ -96,8 +96,18 @@ describe("infra-evidence-diagrams-partitioned-view", () => {
       resolveInfraDiagramsDefaultFallbackKey([
         { key: "other", label: "Other", status: "Failed", nodeCount: 0, edgeCount: 0 },
       ]),
-    ).toBe("other");
+    ).toBe("");
     expect(resolveInfraDiagramsDefaultFallbackKey([])).toBe("");
+  });
+
+  it("ignores full-machine and resource-group view keys when resolving the effective fallback", () => {
+    expect(
+      resolveInfraDiagramsEffectiveFallbackKey({
+        showPartitionedViews: true,
+        selectedViewKey: "full-machine",
+        fallbackArtifacts: [executiveArtifact, networkArtifact],
+      }),
+    ).toBe("executive");
   });
 
   it("keeps the selected fallback key while partitioned chrome is visible", () => {

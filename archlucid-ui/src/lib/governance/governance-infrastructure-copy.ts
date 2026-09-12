@@ -136,7 +136,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID = "infra-diag
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL = "Skip to diagram viewer" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
-  "Render inventory diagrams from snapshot evidence with partitioned fallbacks when graphs exceed readability thresholds. Choose a snapshot and diagram mode before exporting PNG or Mermaid. Partitioned views default to Executive when the full graph exceeds readability thresholds." as const;
+  "Render inventory diagrams from snapshot evidence. Full subscription shows every resource when readable, or one node per resource group when the leaf graph exceeds readability thresholds. Pick a Resource Group to see resources inside a group." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL = "Scoped to resource" as const;
 
@@ -202,7 +202,24 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE =
   "No diagram nodes for this mode" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY =
-  "This snapshot has no topology nodes for the selected diagram mode. Try Executive or Full subscription, open the resource explorer, or pick a partitioned fallback view below." as const;
+  "This snapshot has no topology nodes for the selected diagram mode. Try Executive, Full subscription, or Pick a Resource Group, or open the resource explorer." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE = "Resource groups" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_BODY =
+  "Choose a resource group to render its inventory diagram." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_PROMPT_TITLE =
+  "Pick a resource group" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_PROMPT_BODY =
+  "This list shows resource groups in the selected snapshot. Select a card to render that group." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION =
+  "This diagram shows one node per resource group, not every Azure resource. Pick a Resource Group to see resources inside a group." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PARTITIONED_BODY =
+  "This snapshot is too large for a single diagram in the selected mode. Pick a focused view — Executive is the default — or choose Pick a Resource Group." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureDrift;
 
@@ -368,7 +385,7 @@ export const INFRASTRUCTURE_WORKBENCH_ROWS: readonly InfrastructureWorkbenchRow[
   {
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
-    summary: "Render large inventory diagrams with partitioned fallbacks and server PNG export.",
+    summary: "Render inventory diagrams, a resource group map for large subscriptions, and server PNG export.",
   },
   {
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,

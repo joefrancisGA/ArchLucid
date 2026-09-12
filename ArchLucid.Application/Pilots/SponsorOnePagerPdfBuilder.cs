@@ -177,6 +177,21 @@ public sealed class SponsorOnePagerPdfBuilder(
                         column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     }
 
+                    IReadOnlyList<string> feasibilityCitationLines =
+                        SponsorFeasibilityHardCitationHonestyFormatter.RenderPlainTextLines(careerExportHonesty.CoverageContext.Verdict);
+
+                    if (feasibilityCitationLines.Count > 0)
+                    {
+                        column.Item().PaddingTop(8).Text("Feasibility citation honesty").Bold().FontSize(12);
+
+                        foreach (string line in feasibilityCitationLines)
+                        {
+                            column.Item().PaddingTop(2).Text(line).FontSize(9);
+                        }
+
+                        column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                    }
+
                     if (sendableCoverLines.Count > 0)
                     {
                         column.Item().PaddingTop(8).Text("Sendable export cover").Bold().FontSize(12);

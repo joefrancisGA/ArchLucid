@@ -16,6 +16,7 @@ namespace ArchLucid.Application.InfraEvidence.Mermaid;
 public sealed class InfraEvidenceSnapshotMermaidService(
     IAzureInventorySnapshotGraphResolver graphResolver,
     IMermaidDiagramInventoryRenderOrchestrator inventoryRenderOrchestrator,
+    IMermaidDiagramFallbackSetBuilder fallbackSetBuilder,
     IBrandedDiagramExportService brandedDiagramExportService,
     IDiagramImageRenderer diagramImageRenderer,
     IArchitectureDiagramReconciliationRepository reconciliationRepository,
@@ -37,6 +38,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
 
     private readonly IMermaidDiagramInventoryRenderOrchestrator _inventoryRenderOrchestrator =
         inventoryRenderOrchestrator ?? throw new ArgumentNullException(nameof(inventoryRenderOrchestrator));
+
+    private readonly IMermaidDiagramFallbackSetBuilder _fallbackSetBuilder =
+        fallbackSetBuilder ?? throw new ArgumentNullException(nameof(fallbackSetBuilder));
 
     private readonly IBrandedDiagramExportService _brandedDiagramExportService =
         brandedDiagramExportService ?? throw new ArgumentNullException(nameof(brandedDiagramExportService));
@@ -146,6 +150,12 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             return BadRequest<InfraEvidenceMermaidRenderResponse>(parsedMode.ErrorMessage ?? "Invalid mode.");
         }
 
+        if (parsedMode.DiagramMode == DiagramMode.ResourceGroup
+            && string.IsNullOrWhiteSpace(parsedMode.CompileOptions?.ResourceGroupName))
+        {
+            return CreateResourceGroupPickerResponse(snapshotId, graphResult.Graph);
+        }
+
         InfraEvidenceMermaidRenderResponse renderResponse = await TryRenderModeResponseAsync(
             snapshotId,
             parsedMode.ModeKey,
@@ -236,6 +246,16 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         MermaidDiagramRenderArtifact? artifact = fullRender.FallbackArtifacts
             .FirstOrDefault(candidate => string.Equals(candidate.Key, fallbackKey, StringComparison.OrdinalIgnoreCase));
 
+        if (artifact is null
+            && InventoryDiagramFallbackArtifactKeys.TryReadResourceGroupName(fallbackKey, out string resourceGroupName))
+        {
+            artifact = _fallbackSetBuilder
+                .BuildResourceGroupFallbackSet(graph, _thresholds)
+                .FirstOrDefault(candidate =>
+                    string.Equals(candidate.Key, InventoryDiagramFallbackArtifactKeys.ForResourceGroup(resourceGroupName), StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(candidate.Key, fallbackKey, StringComparison.OrdinalIgnoreCase));
+        }
+
         if (artifact is null)
         {
             return BadRequest<InfraEvidenceMermaidRenderResponse>(
@@ -298,7 +318,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 compileOptions,
                 cancellationToken);
 
-            return MapRenderResponse(snapshotId, modeKey, fallbackKey, renderResult);
+            return MapRenderResponse(snapshotId, modeKey, fallbackKey, renderResult, graph);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -318,6 +338,29 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             compileOptions,
             _thresholds,
             cancellationToken);
+    }
+
+    private InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> CreateResourceGroupPickerResponse(
+        Guid snapshotId,
+        GraphSnapshot graph)
+    {
+        IReadOnlyList<MermaidDiagramRenderArtifact> artifacts =
+            _fallbackSetBuilder.BuildResourceGroupFallbackSet(graph, _thresholds);
+
+        return new InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse>
+        {
+            Succeeded = true,
+            Value = new InfraEvidenceMermaidRenderResponse
+            {
+                SnapshotId = snapshotId,
+                Mode = InventoryDiagramFallbackArtifactKeys.ResourceGroupModeKey,
+                FallbackKey = null,
+                Status = MermaidDiagramRenderStatus.Succeeded.ToString(),
+                Mermaid = null,
+                Metrics = null,
+                FallbackArtifacts = MapFallbackSummaries(artifacts),
+            },
+        };
     }
 
     private static InfraEvidenceMermaidModePreview CreateFailedModePreview(string modeKey)
@@ -372,10 +415,22 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         Guid snapshotId,
         string modeKey,
         string? fallbackKey,
-        MermaidDiagramRenderResult renderResult)
+        MermaidDiagramRenderResult renderResult,
+        GraphSnapshot? sourceGraph = null)
     {
         bool includeMermaid = renderResult.Status == MermaidDiagramRenderStatus.Succeeded
             || renderResult.Status == MermaidDiagramRenderStatus.Partitioned;
+
+        List<InfraEvidenceMermaidFallbackArtifactSummary> fallbackArtifacts =
+            MapFallbackSummaries(renderResult.FallbackArtifacts);
+
+        if (sourceGraph is not null
+            && (string.Equals(modeKey, InventoryDiagramFallbackArtifactKeys.ResourceGroupModeKey, StringComparison.OrdinalIgnoreCase)
+                || modeKey.StartsWith(InventoryDiagramFallbackArtifactKeys.ResourceGroupKeyPrefix, StringComparison.OrdinalIgnoreCase)))
+        {
+            fallbackArtifacts = MapFallbackSummaries(
+                _fallbackSetBuilder.BuildResourceGroupFallbackSet(sourceGraph, _thresholds));
+        }
 
         return new InfraEvidenceMermaidRenderResponse
         {
@@ -388,7 +443,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 renderResult.PrimaryMermaid,
                 renderResult.Metrics),
             Metrics = MapMetrics(renderResult.Metrics),
-            FallbackArtifacts = MapFallbackSummaries(renderResult.FallbackArtifacts),
+            FallbackArtifacts = fallbackArtifacts,
         };
     }
 
@@ -399,6 +454,11 @@ public sealed class InfraEvidenceSnapshotMermaidService(
 
         foreach (MermaidDiagramRenderArtifact artifact in artifacts)
         {
+            if (InventoryDiagramFallbackArtifactKeys.IsFullMachine(artifact.Key))
+            {
+                continue;
+            }
+
             summaries.Add(new InfraEvidenceMermaidFallbackArtifactSummary
             {
                 Key = artifact.Key,

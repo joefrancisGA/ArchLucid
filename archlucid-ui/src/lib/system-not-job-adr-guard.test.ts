@@ -25,8 +25,9 @@ describe("system-not-job ADR guard (SN-001 / ADR 0092)", () => {
 
     const statusMatch = adr.match(/\*\*Status:\*\*\s*(Proposed|Accepted)/);
 
-    expect(statusMatch, "ADR 0092 must declare Proposed or Accepted status").not.toBeNull();
+    expect(statusMatch, "ADR 0092 must declare Accepted status").not.toBeNull();
     expect(SYSTEM_NOT_JOB_ADR_0092_ACCEPTED_STATUSES).toContain(statusMatch![1]);
+    expect(statusMatch![1]).toBe("Accepted");
 
     expect(adr).toMatch(/labeled what-if envelope/i);
     expect(adr).toMatch(/May we Compare two unsealed drafts as Career\?/);

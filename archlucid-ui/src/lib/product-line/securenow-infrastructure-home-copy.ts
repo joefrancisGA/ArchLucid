@@ -31,7 +31,7 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
   {
     href: SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
-    summary: "Render large inventory diagrams with partitioned fallbacks and server PNG export.",
+    summary: "Render inventory diagrams, a resource group map for large subscriptions, and server PNG export.",
   },
   {
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,

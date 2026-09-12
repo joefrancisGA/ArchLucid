@@ -1,4 +1,9 @@
 import type { InfraEvidenceMermaidFallbackArtifactSummary } from "@/lib/infra-evidence/infra-evidence-mermaid-types";
+import {
+  isInfraDiagramsFullMachineFallbackKey,
+  isInfraDiagramsThematicPartitionKey,
+  parseInfraDiagramsResourceGroupName,
+} from "@/lib/infra-evidence/infra-evidence-diagrams-resource-group-view";
 
 export const INFRA_DIAGRAMS_PARTITIONED_STATUS = "Partitioned";
 
@@ -60,22 +65,35 @@ export function resolveInfraDiagramsFallbackArtifacts(
   return [];
 }
 
+export function resolveInfraDiagramsThematicFallbackArtifacts(
+  artifacts: readonly InfraEvidenceMermaidFallbackArtifactSummary[],
+): readonly InfraEvidenceMermaidFallbackArtifactSummary[] {
+  return artifacts.filter((artifact) => isInfraDiagramsThematicPartitionKey(artifact.key));
+}
+
+export function resolveInfraDiagramsResourceGroupFallbackArtifacts(
+  artifacts: readonly InfraEvidenceMermaidFallbackArtifactSummary[],
+): readonly InfraEvidenceMermaidFallbackArtifactSummary[] {
+  return artifacts.filter((artifact) => parseInfraDiagramsResourceGroupName(artifact.key).length > 0);
+}
+
 export function resolveInfraDiagramsDefaultFallbackKey(
   artifacts: readonly InfraEvidenceMermaidFallbackArtifactSummary[],
 ): string {
-  const executive = artifacts.find((artifact) => artifact.key === "executive");
+  const thematic = resolveInfraDiagramsThematicFallbackArtifacts(artifacts);
+  const executive = thematic.find((artifact) => artifact.key === "executive");
 
   if (executive != null) {
     return executive.key;
   }
 
-  const succeeded = artifacts.find((artifact) => artifact.status === "Succeeded");
+  const succeeded = thematic.find((artifact) => artifact.status === "Succeeded");
 
   if (succeeded != null) {
     return succeeded.key;
   }
 
-  return artifacts[0]?.key ?? "";
+  return thematic[0]?.key ?? "";
 }
 
 export function resolveInfraDiagramsEffectiveFallbackKey(
@@ -87,7 +105,11 @@ export function resolveInfraDiagramsEffectiveFallbackKey(
 
   const selectedViewKey = input.selectedViewKey.trim();
 
-  if (selectedViewKey.length > 0) {
+  if (
+    selectedViewKey.length > 0
+    && isInfraDiagramsThematicPartitionKey(selectedViewKey)
+    && !isInfraDiagramsFullMachineFallbackKey(selectedViewKey)
+  ) {
     return selectedViewKey;
   }
 

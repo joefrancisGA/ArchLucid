@@ -93,9 +93,10 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             ExecutiveVnetSummaryBuilder.ApplyExecutiveVnetLabels(ast, graph, topologyNodes);
         }
 
-        DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode);
+        DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode, options);
         DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
+        DiagramSparseComponentPacker.Pack(ast);
 
         return ast;
     }
@@ -105,6 +106,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         if (mode == DiagramMode.ResourceGroup && !string.IsNullOrWhiteSpace(options.ResourceGroupName))
         {
             return $"Azure inventory ({mode}) — {options.ResourceGroupName}";
+        }
+
+        if (mode == DiagramMode.FullSubscription && options.CollapseToResourceGroupMap)
+        {
+            return $"Azure inventory ({mode}) — {DiagramAstFromGraphCompilerConstants.ResourceGroupMapTitleSuffix}";
         }
 
         return $"Azure inventory ({mode})";

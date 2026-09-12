@@ -65,6 +65,43 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
         artifact.Metrics!.NodeCount.Should().BeLessThanOrEqualTo(400);
     }
 
+    [Fact]
+    public async Task RenderFromGraphAsync_full_subscription_collapses_to_resource_group_map_when_leaf_exceeds_budget()
+    {
+        GraphSnapshot graph = BuildMultiResourceGroupVnetGraph(resourceGroupCount: 12, vnetsPerGroup: 40);
+
+        MermaidDiagramRenderResult result = await orchestrator.RenderFromGraphAsync(
+            graph,
+            DiagramMode.FullSubscription,
+            null,
+            new MermaidDiagramReadabilityThresholds { MaxNodes = 400 });
+
+        result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
+        result.Metrics.NodeCount.Should().Be(12);
+        result.PrimaryMermaid.Should().Contain("al-view=resource-group-map");
+        result.CollapseReport!.Entries.Should().Contain(entry =>
+            entry.Kind == InventoryDiagramResourceGroupMapBuilder.CollapseKind);
+    }
+
+    [Fact]
+    public async Task RenderFromGraphAsync_full_subscription_stays_partitioned_when_a_single_resource_group_exceeds_budget()
+    {
+        GraphSnapshot graph = BuildMultiResourceGroupVnetGraph(resourceGroupCount: 1, vnetsPerGroup: 500);
+
+        MermaidDiagramRenderResult result = await orchestrator.RenderFromGraphAsync(
+            graph,
+            DiagramMode.FullSubscription,
+            null,
+            new MermaidDiagramReadabilityThresholds { MaxNodes = 400 });
+
+        result.Status.Should().Be(MermaidDiagramRenderStatus.Partitioned);
+        result.Metrics.NodeCount.Should().BeGreaterThan(400);
+        result.CollapseReport!.Entries.Should().NotContain(entry =>
+            entry.Kind == InventoryDiagramResourceGroupMapBuilder.CollapseKind);
+        result.FallbackArtifacts.Should().NotContain(artifact =>
+            InventoryDiagramFallbackArtifactKeys.IsFullMachine(artifact.Key));
+    }
+
     private static MermaidDiagramInventoryRenderOrchestrator CreateOrchestrator()
     {
         MermaidDiagramRenderPipeline pipeline = new(
@@ -83,6 +120,50 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
             new MermaidDiagramComplexityAnalyzer(),
             new MermaidDiagramDeterministicRepairer(),
             new MermaidDiagramStructuralValidator());
+    }
+
+    private static GraphSnapshot BuildMultiResourceGroupVnetGraph(int resourceGroupCount, int vnetsPerGroup)
+    {
+        List<GraphNode> nodes = [];
+        List<GraphEdge> edges = [];
+        int edgeIndex = 0;
+
+        for (int groupIndex = 0; groupIndex < resourceGroupCount; groupIndex++)
+        {
+            string resourceGroup = $"rg-{groupIndex}";
+
+            for (int vnetIndex = 0; vnetIndex < vnetsPerGroup; vnetIndex++)
+            {
+                string vnetNodeId = Guid.NewGuid().ToString("D");
+                string vnetArmId =
+                    $"/subscriptions/sub/resourceGroups/{resourceGroup}/providers/Microsoft.Network/virtualNetworks/vnet-{groupIndex}-{vnetIndex}";
+
+                nodes.Add(CreateTopologyNode(
+                    vnetNodeId,
+                    $"vnet-{groupIndex}-{vnetIndex}",
+                    "Microsoft.Network/virtualNetworks",
+                    vnetArmId,
+                    resourceGroup));
+
+                if (vnetIndex > 0)
+                {
+                    edges.Add(new GraphEdge
+                    {
+                        EdgeId = $"edge-{edgeIndex++}",
+                        FromNodeId = nodes[^2].NodeId,
+                        ToNodeId = vnetNodeId,
+                        EdgeType = GraphEdgeTypes.ConnectsTo,
+                        Weight = 1.0d,
+                    });
+                }
+            }
+        }
+
+        return new GraphSnapshot
+        {
+            Nodes = nodes,
+            Edges = edges,
+        };
     }
 
     private static GraphSnapshot BuildNetworkHeavyGraph(int vnetCount, int nicPerVnet)
@@ -163,6 +244,13 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
     private sealed class EmptyMermaidDiagramFallbackSetBuilder : IMermaidDiagramFallbackSetBuilder
     {
         public IReadOnlyList<MermaidDiagramRenderArtifact> BuildFallbackSet(
+            GraphSnapshot graph,
+            MermaidDiagramReadabilityThresholds thresholds)
+        {
+            return [];
+        }
+
+        public IReadOnlyList<MermaidDiagramRenderArtifact> BuildResourceGroupFallbackSet(
             GraphSnapshot graph,
             MermaidDiagramReadabilityThresholds thresholds)
         {

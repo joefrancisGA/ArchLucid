@@ -12,7 +12,7 @@ public static class ItsmOutboundCareerHonestyPresenter
 
     public const string DescriptionHeader = "Rehearsal honesty:";
 
-    public const string CareerBlockedRowLabel = "Career blocked";
+    public const string CareerBlockedRowLabel = "Sealed record blocked";
 
     public const string RehearsalIncompleteRowLabel = "Rehearsal incomplete";
 
