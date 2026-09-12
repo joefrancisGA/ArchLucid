@@ -439,21 +439,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `SignupForm` fractional `architectureTeamSize` keeps submit enabled — **cheap-disproof 2026-09-12 seed hunt #1919:** `Number.isInteger` guard (#1730).
 ---
 
-## Zone: commit-output-integrity
-
-- **id:** commit-output-integrity
-- **status:** open
-- **impact:** medium
-- **aliases:** output integrity; commit integrity
-- **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
-- **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 36
-- **bugs-found:** 11
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-10 — selector treated null RecordedQualityGateOutcome as Accepted rank on duplicate rows
-- **related-pd-tb:** TB-2226
-- **code-changed-since:** yes
+P26-09-12 seed hunt #2013 (seed-only): reseeded commit-output-integrity; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2010 (seed-only): picker repeat after `-Refresh`; no new hunt-ready rows.
 
