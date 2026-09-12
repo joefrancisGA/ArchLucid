@@ -227,7 +227,8 @@ public sealed partial class AzureRetailPricesCatalogClient
         return ContainsDayWordToken(trimmed)
             || ContainsSlashDayToken(trimmed)
             || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase);
+            || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "d", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ContainsDayWordToken(string trimmed)
