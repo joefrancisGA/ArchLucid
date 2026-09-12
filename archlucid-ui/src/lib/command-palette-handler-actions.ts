@@ -70,6 +70,9 @@ export type CommandPaletteHandlerAction = {
 
 const architectureDraftPathPattern = /^\/architecture\/architectures(\/|$)/;
 const reviewDetailPathPattern = /^\/architecture\/reviews\/[^/]+/;
+const nestedReviewDetailPathPattern = /^\/architecture\/architectures\/[^/]+\/reviews\/[^/]+/;
+const nestedArchitectureFindingsPathPattern =
+  /^\/architecture\/architectures\/[^/]+\/findings(\/|$)/;
 const findingsQueuePathPattern = /^\/governance\/findings(\/|$)/;
 const alertsPathPattern = /^\/governance\/alerts(\/|$)/;
 const workspaceSettingsPathPattern = /^\/administration\/workspace-settings(\/|$)/;
@@ -83,11 +86,16 @@ export function isArchitectureDraftWorkPath(pathname: string): boolean {
 }
 
 export function isFindingsWorkPath(pathname: string): boolean {
-  return findingsQueuePathPattern.test(pathname) || reviewDetailPathPattern.test(pathname);
+  return (
+    findingsQueuePathPattern.test(pathname)
+    || nestedArchitectureFindingsPathPattern.test(pathname)
+    || reviewDetailPathPattern.test(pathname)
+    || nestedReviewDetailPathPattern.test(pathname)
+  );
 }
 
 export function isReviewDetailWorkPath(pathname: string): boolean {
-  return reviewDetailPathPattern.test(pathname);
+  return reviewDetailPathPattern.test(pathname) || nestedReviewDetailPathPattern.test(pathname);
 }
 
 export function isAlertsWorkPath(pathname: string): boolean {

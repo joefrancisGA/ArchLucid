@@ -1,6 +1,14 @@
 const GOVERNANCE_FINDINGS_RETURN_HREF_KEY = "archlucid_governance_findings_return_href_v1";
 
-/** Persists the governance findings queue URL (including filters) for hub continue navigation. */
+function isPersistableFindingsReturnHref(href: string): boolean {
+  if (href.startsWith("/governance/findings")) {
+    return true;
+  }
+
+  return /^\/architecture\/architectures\/[^/]+\/findings(\/|$|\?)/.test(href);
+}
+
+/** Persists the scoped findings queue URL (including filters) for hub continue navigation. */
 export function persistGovernanceFindingsReturnHref(href: string): void {
   if (typeof window === "undefined") {
     return;
@@ -8,7 +16,7 @@ export function persistGovernanceFindingsReturnHref(href: string): void {
 
   const trimmed = href.trim();
 
-  if (!trimmed.startsWith("/governance/findings")) {
+  if (!isPersistableFindingsReturnHref(trimmed)) {
     return;
   }
 
@@ -27,7 +35,7 @@ export function readGovernanceFindingsReturnHref(): string {
   try {
     const raw = window.localStorage.getItem(GOVERNANCE_FINDINGS_RETURN_HREF_KEY)?.trim();
 
-    if (raw !== undefined && raw.length > 0 && raw.startsWith("/governance/findings")) {
+    if (raw !== undefined && raw.length > 0 && isPersistableFindingsReturnHref(raw)) {
       return raw;
     }
   } catch {
