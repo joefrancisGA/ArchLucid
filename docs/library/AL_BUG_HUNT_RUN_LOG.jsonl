@@ -2418,3 +2418,4 @@
 {"at":"2026-09-12T18:21:19.8770761Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
 {"at":"2026-09-12T18:21:22.5681878Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-12T18:21:24.8819204Z","zoneId":"finding-disposition","outcome":"dry"}
+{"at":"2026-09-12T18:21:27.1660424Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
