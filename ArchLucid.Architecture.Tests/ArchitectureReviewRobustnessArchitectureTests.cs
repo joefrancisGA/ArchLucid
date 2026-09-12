@@ -137,6 +137,33 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     }
 
     [Fact]
+    public void TB2344_request_actors_materialize_and_security_engines_read_graph_nodes()
+    {
+        string materializer = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "RequestActorMaterializer.cs"));
+
+        materializer.Should().Contain("GraphNodeTypes.TrustBoundary");
+        materializer.Should().Contain("TrustOrigin.External");
+
+        string stages = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "GraphMaterializationStages.cs"));
+
+        stages.Should().Contain("request-actors");
+        stages.Should().Contain("RequestActorMaterializer.MaterializeFromActorsJson");
+
+        string externalExposure = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ExternalExposureFindingEngine.cs"));
+
+        externalExposure.Should().Contain("GraphNodeTypes.TrustBoundary");
+        externalExposure.Should().Contain("actorNodeId");
+
+        string request = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Requests", "ArchitectureRequest.cs"));
+
+        request.Should().Contain("DraftActors");
+    }
+
+    [Fact]
     public void Suggestion8_topology_proposals_validate_before_overlay()
     {
         string path = Path.Combine(

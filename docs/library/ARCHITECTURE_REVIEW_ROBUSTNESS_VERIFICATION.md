@@ -342,6 +342,24 @@ Proof tests:
 dotnet test ArchLucid.KnowledgeGraph.Tests --filter "FullyQualifiedName~CostConstraintProjectedSpend|RequestCostConstraintMaterializer"
 ```
 
+## TB-2344 actor/trust-boundary axes into security engines
+
+Draft `ActorSet` JSON materializes onto the context graph as typed `Actor` and `TrustBoundary` nodes (`RequestActorMaterializer`, `request-actors` stage). Security engines (`trust-boundary`, `external-exposure`, `privileged-access`) read graph nodes — not parallel assumption strings.
+
+| Layer | Behavior |
+|-------|----------|
+| **Materialization** | `RequestActorMaterializer` emits `TrustBoundary` nodes for external/public-anonymous actors with `actorNodeId` linkage. |
+| **Pipeline** | `GraphMaterializationStages` stage `request-actors` reads `ContextScopeMetadataKeys.Actors` from the context snapshot. |
+| **Engines** | `ExternalExposureFindingEngine` skips external actors with matching trust-boundary nodes; `TrustBoundaryFindingEngine` skips mixed-origin graphs that already have boundaries; `PrivilegedAccessFindingEngine` fires on internal human actors. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.KnowledgeGraph.Tests --filter "FullyQualifiedName~RequestActorMaterializer|RequestActorsStage"
+dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~ActorSecurityFindingEngine|GoldenCorpusActorEngineHarness"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2344_request_actors_materialize"
+```
+
 ## ConflictException → 409 controller sweep
 
 Twenty controller `try` blocks that returned **400** for `InvalidOperationException` now catch `ConflictException` first. Guard: `ControllerConflictExceptionNotSwallowedAs400ArchitectureTests`.
