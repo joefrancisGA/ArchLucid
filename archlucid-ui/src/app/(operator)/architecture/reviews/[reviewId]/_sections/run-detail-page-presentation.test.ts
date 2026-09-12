@@ -130,15 +130,33 @@ describe("buildRunDetailPresentation", () => {
     expect(direct.architectureCreatedHomeModel).toBeNull();
   });
 
-  it("offers a rerun correction href only while the review has no finalized manifest", async () => {
-    const inProgress = await buildRunDetailPresentation(model(), false);
+  it("offers a rerun correction href for Reviewed-origin in-flight reviews without a manifest", async () => {
+    const reviewedInProgressModel = model();
+    reviewedInProgressModel.progressForPipelineUi = {
+      ...reviewedInProgressModel.progressForPipelineUi,
+      packageOrigin: "Reviewed",
+    };
+    const reviewed = await buildRunDetailPresentation(reviewedInProgressModel, false);
     const finalized = await buildRunDetailPresentation(model({ manifestId: "manifest-1" }), false);
 
-    expect(inProgress.architectureEditHref).toBe(
+    expect(reviewed.architectureEditHref).toBe(
       "/architecture/reviews/new?path=guided-intake&rerun=run-1",
     );
     expect(finalized.architectureEditHref).toBeNull();
     expect(finalized.reviewPipelineIncomplete).toBe(false);
+  });
+
+  it("suppresses edit source for Created-origin in-flight reviews (SN-004 one writer)", async () => {
+    const createdInProgress = model();
+    createdInProgress.progressForPipelineUi = {
+      ...createdInProgress.progressForPipelineUi,
+      packageOrigin: "Created",
+    };
+
+    const presentation = await buildRunDetailPresentation(createdInProgress, false);
+
+    expect(presentation.architectureEditHref).toBeNull();
+    expect(presentation.architectureTabSubmittedHelperText).toMatch(/Review snapshot/i);
   });
 
   it("demotes the governance CTA card when governance is already the primary action", async () => {

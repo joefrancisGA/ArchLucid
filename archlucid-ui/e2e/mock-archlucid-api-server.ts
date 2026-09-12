@@ -12,6 +12,7 @@ import {
   FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,
   FIXTURE_MANIFEST_ID,
   FIXTURE_RUN_ID,
+  FIXTURE_PRE_FINALIZE_RUN_ID,
   SCREENSHOT_RUN_ID,
   SHOWCASE_DEMO_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -21,12 +22,14 @@ import {
   fixtureManifestSummaryEmptyArtifacts,
   fixtureManifestSummaryForShowcase,
   fixtureRunDetail,
+  fixturePreFinalizeRunDetail,
   fixtureRunDetailAlignedToShowcase,
   fixtureRunExplanationSummary,
   fixtureOperatorDemoReviewRunDetail,
   operatorDemoReviewApiResponse,
   OPERATOR_DEMO_REVIEW_RUN_ID,
 } from "./fixtures/index";
+import { buildFinalizeReadinessDeferredBlockMock } from "./fixtures/finalize-readiness-mock";
 import { toMockBuyerRunDetailSummary } from "./fixtures/buyer-run-detail-summary";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
@@ -53,6 +56,10 @@ function fixtureRunDetailForRunId(runId: string): RunDetail {
 function resolveRunDetailBodyForRunId(runId: string): RunDetail | null {
   if (runId === FIXTURE_RUN_ID) {
     return fixtureRunDetail();
+  }
+
+  if (runId === FIXTURE_PRE_FINALIZE_RUN_ID) {
+    return fixturePreFinalizeRunDetail();
   }
 
   if (runId === MOCK_TRIAL_WELCOME_RUN_ID) {
@@ -618,6 +625,13 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
 
       if (stageTimelineMatch) {
         sendJson(res, 200, []);
+        return;
+      }
+
+      const finalizeReadinessMatch = /^\/v1\/governance\/pre-finalize\/readiness\/([^/]+)$/.exec(pathname);
+
+      if (req.method === "GET" && finalizeReadinessMatch) {
+        sendJson(res, 200, buildFinalizeReadinessDeferredBlockMock(finalizeReadinessMatch[1] ?? ""));
         return;
       }
 

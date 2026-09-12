@@ -198,6 +198,7 @@ public sealed class FinalizeReadinessService(
         await AppendIntegrityBlocksAsync(
             blocks,
             architectureRun,
+            runRecord,
             runId,
             runKey,
             request,
@@ -320,6 +321,7 @@ public sealed class FinalizeReadinessService(
     private async Task AppendIntegrityBlocksAsync(
         List<FinalizeReadinessBlock> blocks,
         ArchitectureRun architectureRun,
+        RunRecord runRecord,
         string runId,
         Guid runGuid,
         ArchitectureRequest request,
@@ -420,6 +422,21 @@ public sealed class FinalizeReadinessService(
                 Message =
                     "Commit blocked: existential assumptions require confirmation before finalize. "
                     + reason,
+            });
+        }
+
+        IReadOnlyList<string> evidenceIntegrityReasons =
+            FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons(runRecord, findings.Findings);
+
+        if (evidenceIntegrityReasons.Count > 0)
+        {
+            blocks.Add(new FinalizeReadinessBlock
+            {
+                Code = "evidence_referential_integrity",
+                Layer = FinalizeReadinessLayers.Integrity,
+                Message =
+                    "Commit blocked: finding evidence referential integrity failed. "
+                    + string.Join(" ", evidenceIntegrityReasons),
             });
         }
     }

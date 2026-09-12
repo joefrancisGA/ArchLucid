@@ -145,12 +145,17 @@ export type ArchitectureDraftWorkspaceBodyProps = {
 
 function WorkingNestedDraftIdentityAnchors(props: {
   readonly parentArchitectureId?: string | null;
+  readonly handoffEditorLocked?: boolean;
 }): React.JSX.Element | null {
   const { isWorkingMode } = useWorkspaceMode();
   const architectureId = props.parentArchitectureId?.trim() ?? "";
 
   if (!isWorkingMode || architectureId.length === 0) {
     return null;
+  }
+
+  if (props.handoffEditorLocked === true) {
+    return <WorkingNestedArchitectureIdentityChromeMount parentArchitectureId={architectureId} />;
   }
 
   return (
@@ -238,7 +243,10 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
   if (handoffEditorLocked && linkedReviewId !== null) {
     return (
       <div className="space-y-4" data-testid="architecture-draft-workspace">
-        <WorkingNestedDraftIdentityAnchors parentArchitectureId={props.parentArchitectureId} />
+        <WorkingNestedDraftIdentityAnchors
+          parentArchitectureId={props.parentArchitectureId}
+          handoffEditorLocked={handoffEditorLocked}
+        />
         <ArchitectureDraftWorkspaceHeaderChrome {...props} />
         <ArchitectureDraftHandoffPanel
           draftId={draftId}
@@ -317,7 +325,10 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
           {ARCHITECTURE_IDENTITY_DESK_LEGACY_DRAFT_HONESTY}
         </p>
       ) : null}
-      <WorkingNestedDraftIdentityAnchors parentArchitectureId={props.parentArchitectureId} />
+      <WorkingNestedDraftIdentityAnchors
+        parentArchitectureId={props.parentArchitectureId}
+        handoffEditorLocked={props.handoffEditorLocked}
+      />
     </>
   );
 

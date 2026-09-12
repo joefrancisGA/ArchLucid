@@ -35,7 +35,7 @@ describe("system-not-job dual editor inventory (SN-002)", () => {
     expect(existsSync(join(REPO_ROOT, HANDOFF_GATE_PATH))).toBe(true);
   });
 
-  it("keeps parallel-live-edit rows at or below baseline and lists guided-intake alternate writer", () => {
+  it("keeps parallel-live-edit rows at or below baseline (SN-004 one-writer)", () => {
     const parallelRows = SYSTEM_NOT_JOB_DUAL_EDITOR_ROWS.filter(
       (row) => row.parallelLiveEditAfterSpawn,
     );
@@ -45,11 +45,14 @@ describe("system-not-job dual editor inventory (SN-002)", () => {
     );
     expect(parallelRows).toHaveLength(SYSTEM_NOT_JOB_DUAL_EDITOR_PARALLEL_LIVE_EDIT_COUNT_BASELINE);
 
-    const alternateWriter = parallelRows[0];
+    const editSourceRow = SYSTEM_NOT_JOB_DUAL_EDITOR_ROWS.find(
+      (row) => row.field === "editSourceGuidedIntakeRerun",
+    );
 
-    expect(alternateWriter.field).toBe("editSourceGuidedIntakeRerun");
-    expect(alternateWriter.parallelClass).toBe("alternate-writer");
-    expect(alternateWriter.ownerPrompt).toBe("SN-003");
+    expect(editSourceRow).toBeDefined();
+    expect(editSourceRow!.parallelLiveEditAfterSpawn).toBe(false);
+    expect(editSourceRow!.parallelClass).toBe("read-only-snapshot");
+    expect(editSourceRow!.ownerPrompt).toBe("SN-004");
   });
 
   it("locks all synthesis narrative PATCH fields when spawnedRunId is set", () => {

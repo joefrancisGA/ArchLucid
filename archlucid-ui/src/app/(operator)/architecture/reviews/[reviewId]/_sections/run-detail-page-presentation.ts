@@ -39,7 +39,7 @@ export type RunDetailPresentation = {
   readonly findingCoverageSummary: FindingCoverageSummary | null;
   readonly commitBlockedReason: string | null;
   readonly finalizeReadinessBlocks: readonly FinalizeReadinessBlock[];
-  readonly finalizeAssumptionGateApplies: boolean;
+  readonly finalizeReadinessEnabled: boolean;
   readonly requestAssumptionTexts: readonly string[];
 
   readonly quickDecisionFindings: readonly QuickDecisionFinding[];
@@ -78,6 +78,7 @@ export type RunDetailPresentation = {
   readonly submittedArchitectureText: string | null;
   readonly hasSubmittedArchitecture: boolean;
   readonly architectureEditHref: string | null;
+  readonly architectureTabSubmittedHelperText: string;
 
   readonly evidenceCoverageSummary: EvidenceCoverageSummary;
   readonly evidenceInventoryItems: ReturnType<typeof buildRunDetailEvidencePresentation>["evidenceInventoryItems"];
@@ -234,7 +235,7 @@ export async function buildRunDetailPresentation(
     findingCoverageSummary,
     commitBlockedReason: governancePresentation.commitBlockedReason,
     finalizeReadinessBlocks: governancePresentation.finalizeReadinessBlocks,
-    finalizeAssumptionGateApplies: governancePresentation.finalizeAssumptionGateApplies,
+    finalizeReadinessEnabled: governancePresentation.finalizeReadinessEnabled,
     requestAssumptionTexts: governancePresentation.requestAssumptionTexts,
 
     ...findingsPresentation,

@@ -5,7 +5,16 @@ import Link from "next/link";
 import { ArchitectureDraftCloneSnapshotControl } from "@/components/architecture/ArchitectureDraftCloneSnapshotControl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
+import {
+  architectureDraftPath,
+  architectureIdentityDraftHref,
+  resolveArchitectureReviewHref,
+} from "@/lib/architecture/architecture-routes";
+import {
+  ARCHITECTURE_SPAWN_LOCKED_DRAFT_BACK_TO_REVIEW_LABEL,
+  assertSpawnLockedDraftBackHrefHonest,
+  resolveSpawnLockedDraftBackLocator,
+} from "@/lib/architecture/working-back-href";
 import {
   ARCHITECTURE_DRAFT_SPAWN_LOCK_CLONE_LEGAL_SENTENCE,
   ARCHITECTURE_DRAFT_SPAWN_LOCK_PANEL_TITLE,
@@ -32,6 +41,18 @@ export function ArchitectureDraftHandoffPanel(
   props: ArchitectureDraftHandoffPanelProps,
 ): React.JSX.Element {
   const reviewHref = resolveArchitectureReviewHref(props.linkedReviewId, props.parentArchitectureId);
+  const spawnLockedBackLocator = resolveSpawnLockedDraftBackLocator({
+    linkedReviewId: props.linkedReviewId,
+    parentArchitectureId: props.parentArchitectureId,
+  });
+  const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
+  const draftEditorHref =
+    parentArchitectureId.length > 0
+      ? architectureIdentityDraftHref(parentArchitectureId, props.draftId)
+      : architectureDraftPath(props.draftId);
+
+  assertSpawnLockedDraftBackHrefHonest(spawnLockedBackLocator.reviewJobHref, draftEditorHref);
+
   const reviewLabel = props.linkedReviewTitle.trim().length > 0
     ? props.linkedReviewTitle
     : "Linked review";
@@ -42,6 +63,19 @@ export function ArchitectureDraftHandoffPanel(
       data-testid="architecture-draft-handoff-panel"
       data-spawn-lock-url-honesty="snapshot"
     >
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-spawn-lock-back-honesty">
+        <Link href={spawnLockedBackLocator.reviewJobHref} className={OPERATOR_LINK.nav}>
+          {ARCHITECTURE_SPAWN_LOCKED_DRAFT_BACK_TO_REVIEW_LABEL}
+        </Link>
+        {spawnLockedBackLocator.architectureDeskHref !== null ? (
+          <>
+            <span className="text-al-text-secondary"> · </span>
+            <Link href={spawnLockedBackLocator.architectureDeskHref} className={OPERATOR_LINK.nav}>
+              Back to architecture desk
+            </Link>
+          </>
+        ) : null}
+      </p>
       <Card>
         <CardContent className="space-y-4 pt-6">
           <div className="space-y-1">
