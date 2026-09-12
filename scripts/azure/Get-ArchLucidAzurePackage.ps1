@@ -94,6 +94,7 @@ function Write-ArchLucidResourcesJsonStream([string] $Path, $Resources)
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.PolicyCompliance.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.CostManagement.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ResourceGraph.helpers.ps1')
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorTelemetry.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.SecurityInventory.helpers.ps1')
 
@@ -611,7 +612,34 @@ try
             -ManagementGroupId $ManagementGroupId)
 
         [object[]]$networkAssociationRows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources @($resources))
+
+        if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+        {
+            foreach ($subId in @(Get-ArchLucidManagementGroupSubscriptionIds -ManagementGroupId $ManagementGroupId))
+            {
+                [object[]]$argRows = @(Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph `
+                    -SubscriptionId $subId `
+                    -ResourceGroupScope $ResourceGroupScope)
+
+                foreach ($argRow in @($argRows))
+                {
+                    $networkAssociationRows += $argRow
+                }
+            }
+        }
+        else
+        {
+            [object[]]$argRows = @(Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph `
+                -SubscriptionId $SubscriptionId `
+                -ResourceGroupScope $ResourceGroupScope)
+
+            foreach ($argRow in @($argRows))
+            {
+                $networkAssociationRows += $argRow
+            }
+        }
         [object[]]$federatedCredentialRows = @(Get-ArchLucidAzureFederatedCredentialCompanionRows -InventoryResources @($resources))
+        [object[]]$effectiveNetworkControlRows = @(Get-ArchLucidAzureEffectiveNetworkControlCompanionRows -InventoryResources @($resources))
         [object[]]$policyAssignmentRows = @(Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($policyData.policyAssignments))
         [object[]]$diagnosticSettingRows = @(Get-ArchLucidAzureDiagnosticSettingCompanionRows -InventoryResources @($resources))
         [object[]]$defenderSummaryRows = @(Get-ArchLucidAzureDefenderSummaryCompanionRows `
@@ -621,6 +649,7 @@ try
         Write-Utf8NoBom (Join-Path $staging "role-assignments.json") ($roleAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "network-associations.json") ($networkAssociationRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") ($federatedCredentialRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "effective-network-controls.json") ($effectiveNetworkControlRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") ($policyAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") ($diagnosticSettingRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "defender-summary.json") ($defenderSummaryRows | ConvertTo-Json -Depth 12 -Compress:$false)
@@ -634,6 +663,7 @@ try
                 roleAssignmentCount = $roleAssignmentRows.Count
                 networkAssociationCount = $networkAssociationRows.Count
                 federatedCredentialCount = $federatedCredentialRows.Count
+                effectiveNetworkControlCount = $effectiveNetworkControlRows.Count
                 policyAssignmentCount = $policyAssignmentRows.Count
                 diagnosticSettingCount = $diagnosticSettingRows.Count
                 defenderSummaryCount = $defenderSummaryRows.Count
@@ -650,6 +680,7 @@ try
         Write-Utf8NoBom (Join-Path $staging "role-assignments.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "network-associations.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "effective-network-controls.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "defender-summary.json") "[]"

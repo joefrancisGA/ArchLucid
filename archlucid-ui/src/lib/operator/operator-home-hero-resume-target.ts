@@ -5,6 +5,7 @@ import {
   resolveRecommendedUnfinishedWorkRailItem,
   type IncompleteWizardSignal,
 } from "@/lib/unfinished-work-rail";
+import { resolveRunIdFromWorkingReviewHref } from "@/lib/system-not-job-portfolio-resume-href";
 import type { RunSummary } from "@/types/authority";
 
 export type OperatorHomeHeroResumeTarget = {
@@ -21,18 +22,6 @@ export type ResolveOperatorHomeHeroResumeTargetInput = {
   /** When true, also considers the recommended-next unfinished item (default false). */
   readonly includeRecommendedUnfinishedItem?: boolean;
 };
-
-function runIdFromReviewHref(href: string): string | null {
-  const match = /^\/architecture\/reviews\/([^/?#]+)/.exec(href.split("?")[0] ?? "");
-
-  if (match === null) {
-    return null;
-  }
-
-  const runId = decodeURIComponent(match[1]).trim();
-
-  return runId.length > 0 ? runId : null;
-}
 
 function draftIdFromDraftHref(href: string): string | null {
   const match = /^\/architecture\/architectures\/([^/?#]+)/.exec(href.split("?")[0] ?? "");
@@ -65,7 +54,7 @@ export function resolveOperatorHomeHeroResumeTarget(
     return {
       href: latestDraftPrimary.href,
       draftId: latestDraft?.draftId?.trim() ?? undefined,
-      runId: runIdFromReviewHref(latestDraftPrimary.href) ?? undefined,
+      runId: resolveRunIdFromWorkingReviewHref(latestDraftPrimary.href) ?? undefined,
     };
   }
 
@@ -90,7 +79,7 @@ export function resolveOperatorHomeHeroResumeTarget(
   return {
     href: recommendedItem.href,
     draftId: draftId !== undefined && draftId.trim().length > 0 ? draftId : undefined,
-    runId: runIdFromReviewHref(recommendedItem.href) ?? undefined,
+    runId: resolveRunIdFromWorkingReviewHref(recommendedItem.href) ?? undefined,
   };
 }
 
@@ -120,8 +109,8 @@ export function matchesOperatorHomeHeroResumeTarget(
     return true;
   }
 
-  const heroRunId = runIdFromReviewHref(target.href);
-  const itemHrefRunId = runIdFromReviewHref(item.href);
+  const heroRunId = resolveRunIdFromWorkingReviewHref(target.href);
+  const itemHrefRunId = resolveRunIdFromWorkingReviewHref(item.href);
 
   if (heroRunId !== null && itemHrefRunId !== null && heroRunId === itemHrefRunId) {
     return true;
@@ -138,5 +127,5 @@ export function matchesOperatorHomeHeroResumeTarget(
 }
 
 export function resolveRunIdFromHomeReviewHref(href: string): string | null {
-  return runIdFromReviewHref(href);
+  return resolveRunIdFromWorkingReviewHref(href);
 }

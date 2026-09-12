@@ -27,6 +27,7 @@ export type GraphPageControlsProps = {
   showPresentationTabs: boolean;
   /** When true, demote the review picker below the empty-state card (no completed packages). */
   compactEmptyWorkspace?: boolean;
+  readonly pinnedArchitectureId?: string | null;
 };
 
 export function GraphPageControls(props: GraphPageControlsProps) {

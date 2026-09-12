@@ -78,11 +78,27 @@ export function parseArchitectureNestedAskArchitectureId(pathname: string): stri
   return parseArchitectureNestedToolArchitectureId(pathname, "ask");
 }
 
-export type ArchitectureNestedToolSegment = "ask" | "compare" | "graph" | "findings" | "search";
+export type ArchitectureNestedToolSegment =
+  | "ask"
+  | "compare"
+  | "graph"
+  | "findings"
+  | "search"
+  | "impact-preview";
 
 /** Working nested Compare tool — ADR 0079 / SY-38. */
 export function architectureNestedComparePath(architectureId: string): string {
   return `${architectureIdentityPath(architectureId.trim())}/compare`;
+}
+
+/** Working nested Impact preview — policy cheap envelope on the architecture desk (SN-007 / ADR 0092). */
+export function architectureNestedImpactPreviewPath(architectureId: string): string {
+  return `${architectureIdentityPath(architectureId.trim())}/impact-preview`;
+}
+
+/** Parses `/architecture/architectures/{id}/impact-preview` for nested policy envelope routes (SN-007). */
+export function parseArchitectureNestedImpactPreviewArchitectureId(pathname: string): string | null {
+  return parseArchitectureNestedToolArchitectureId(pathname, "impact-preview");
 }
 
 /** Working nested Evidence graph tool — ADR 0079 / SY-40. */
@@ -131,6 +147,7 @@ export function parseArchitectureNestedDeskArchitectureId(pathname: string): str
     "graph",
     "findings",
     "search",
+    "impact-preview",
   ];
 
   for (const segment of segments) {

@@ -1,4 +1,5 @@
 import {
+  isCommandPaletteCloneFromSnapshotAvailable,
   isCommandPaletteExtractUploadCopyQuickStartAvailable,
   isCommandPaletteExtractUploadFocusAvailable,
   isCommandPaletteFinalizeReviewAvailable,
@@ -29,6 +30,8 @@ export const COMMAND_PALETTE_ROOM_ELICITATION_EVENT = "archlucid-command-palette
 export const COMMAND_PALETTE_EXTRACT_UPLOAD_FOCUS_EVENT = "archlucid-command-palette-extract-upload-focus";
 export const COMMAND_PALETTE_EXTRACT_UPLOAD_COPY_QUICK_START_EVENT =
   "archlucid-command-palette-extract-upload-copy-quick-start";
+export const COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT =
+  "archlucid-command-palette-clone-from-snapshot";
 
 export type CommandPaletteHandlerActionId =
   | "action-save-draft"
@@ -37,6 +40,7 @@ export type CommandPaletteHandlerActionId =
   | "action-room-elicitation"
   | "action-extract-upload-focus"
   | "action-extract-upload-copy-quick-start"
+  | "action-clone-from-snapshot"
   | "action-undo-mutation"
   | "action-finding-next"
   | "action-finding-prev"
@@ -141,6 +145,13 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
       isExtractUploadSettingsRoutePath(pathname) && isCommandPaletteExtractUploadCopyQuickStartAvailable(),
   },
   {
+    id: "action-clone-from-snapshot",
+    label: "New version (clone)",
+    searchValue: "action clone snapshot spawn locked new version architecture sketch",
+    isAvailable: (pathname) =>
+      isArchitectureDraftWorkPath(pathname) && isCommandPaletteCloneFromSnapshotAvailable(),
+  },
+  {
     id: "action-undo-mutation",
     label: "Undo last reversible change",
     searchValue: "action undo disposition mutation reversible",
@@ -222,6 +233,7 @@ const HANDLER_ACTION_EVENTS: Record<CommandPaletteHandlerActionId, string> = {
   "action-room-elicitation": COMMAND_PALETTE_ROOM_ELICITATION_EVENT,
   "action-extract-upload-focus": COMMAND_PALETTE_EXTRACT_UPLOAD_FOCUS_EVENT,
   "action-extract-upload-copy-quick-start": COMMAND_PALETTE_EXTRACT_UPLOAD_COPY_QUICK_START_EVENT,
+  "action-clone-from-snapshot": COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT,
   "action-undo-mutation": COMMAND_PALETTE_UNDO_MUTATION_EVENT,
   "action-finding-next": COMMAND_PALETTE_FINDING_NEXT_EVENT,
   "action-finding-prev": COMMAND_PALETTE_FINDING_PREV_EVENT,

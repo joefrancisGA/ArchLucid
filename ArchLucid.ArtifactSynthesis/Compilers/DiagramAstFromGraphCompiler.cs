@@ -62,6 +62,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 NodeType = node.NodeType,
                 SubgraphId = subgraphPlanner.ResolveSubgraphId(node, subgraphs),
                 OrderKey = order++,
+                CloudResourceId = DiagramAstGraphNodeClassifier.ReadCloudResourceId(node),
+                SeedNodeId = node.NodeId,
                 ArmResourceType = DiagramAstGraphNodeClassifier.ReadArmType(node),
                 ArmResourceGroup = DiagramAstGraphNodeClassifier.ReadResourceGroup(node),
             });
@@ -85,6 +87,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
         DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode);
+        DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
 
         return ast;
@@ -109,7 +112,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         switch (mode)
         {
             case DiagramMode.Executive:
-                return ApplyExecutiveFilter(nodes);
+                return IncludeInventoryConnectedVirtualMachines(graph, ApplyExecutiveFilter(nodes));
             case DiagramMode.Architecture:
                 return FilterByCategories(
                     nodes,
@@ -117,7 +120,9 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                     GraphTopologyCategories.Network,
                     GraphTopologyCategories.Storage);
             case DiagramMode.Network:
-                return FilterByCategories(nodes, GraphTopologyCategories.Network);
+                return IncludeInventoryConnectedVirtualMachines(
+                    graph,
+                    FilterByCategories(nodes, GraphTopologyCategories.Network));
             case DiagramMode.Security:
                 return FilterSecurityNodes(nodes);
             case DiagramMode.Identity:
@@ -153,6 +158,60 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         return summaryNodes
             .Take(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes)
             .ToList();
+    }
+
+    private static List<GraphNode> IncludeInventoryConnectedVirtualMachines(
+        GraphSnapshot graph,
+        List<GraphNode> nodes)
+    {
+        HashSet<string> includedNodeIds = nodes
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        Dictionary<string, GraphNode> nodesById = graph.Nodes.ToDictionary(
+            node => node.NodeId,
+            StringComparer.Ordinal);
+
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (edge.Weight < DiagramAstFromGraphCompilerConstants.MinimumEdgeWeight)
+            {
+                continue;
+            }
+
+            if (!edge.EdgeType.Equals(GraphEdgeTypes.ConnectsTo, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (!nodesById.TryGetValue(edge.FromNodeId, out GraphNode? fromNode)
+                || !nodesById.TryGetValue(edge.ToNodeId, out GraphNode? toNode))
+            {
+                continue;
+            }
+
+            if (includedNodeIds.Contains(edge.FromNodeId) && IsVirtualMachineNode(toNode))
+            {
+                nodes.Add(toNode);
+                includedNodeIds.Add(toNode.NodeId);
+            }
+
+            if (includedNodeIds.Contains(edge.ToNodeId) && IsVirtualMachineNode(fromNode))
+            {
+                nodes.Add(fromNode);
+                includedNodeIds.Add(fromNode.NodeId);
+            }
+        }
+
+        return nodes
+            .OrderBy(DiagramAstGraphNodeClassifier.ReadArmId, StringComparer.Ordinal)
+            .ToList();
+    }
+
+    private static bool IsVirtualMachineNode(GraphNode node)
+    {
+        return DiagramAstGraphNodeClassifier.ReadArmType(node)
+            .Contains("virtualMachines", StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<GraphNode> FilterByCategories(List<GraphNode> nodes, params string[] categories)
@@ -217,7 +276,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         List<GraphNode> nodes,
         DiagramAstCompileOptions options)
     {
-        if (string.IsNullOrWhiteSpace(options.NeighborhoodSeedNodeId))
+        string? resolvedSeedNodeId = DiagramNeighborhoodSeedResolver.TryResolveGraphNodeId(
+            nodes,
+            options.NeighborhoodSeedNodeId);
+
+        if (string.IsNullOrWhiteSpace(resolvedSeedNodeId))
         {
             return [];
         }
@@ -244,21 +307,12 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             adjacency[edge.ToNodeId].Add(edge.FromNodeId);
         }
 
-        foreach (GraphNode node in nodes)
-        {
-            if (node.Properties.TryGetValue("arm.parentId", out string? parentId)
-                && !string.IsNullOrWhiteSpace(parentId)
-                && adjacency.ContainsKey(parentId))
-            {
-                adjacency[parentId].Add(node.NodeId);
-                adjacency[node.NodeId].Add(parentId);
-            }
-        }
+        AddParentInventoryAdjacency(nodes, adjacency);
 
         HashSet<string> visited = new(StringComparer.Ordinal);
         Queue<(string NodeId, int Depth)> queue = new();
-        queue.Enqueue((options.NeighborhoodSeedNodeId, 0));
-        visited.Add(options.NeighborhoodSeedNodeId);
+        queue.Enqueue((resolvedSeedNodeId, 0));
+        visited.Add(resolvedSeedNodeId);
 
         while (queue.Count > 0)
         {
@@ -286,5 +340,47 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         return nodes
             .Where(node => visited.Contains(node.NodeId))
             .ToList();
+    }
+
+    private static void AddParentInventoryAdjacency(
+        List<GraphNode> nodes,
+        Dictionary<string, List<string>> adjacency)
+    {
+        Dictionary<string, string> nodeIdByArmId = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (GraphNode node in nodes)
+        {
+            string armId = DiagramAstGraphNodeClassifier.ReadArmId(node);
+
+            if (string.IsNullOrWhiteSpace(armId) || nodeIdByArmId.ContainsKey(armId))
+            {
+                continue;
+            }
+
+            nodeIdByArmId[armId] = node.NodeId;
+        }
+
+        foreach (GraphNode node in nodes)
+        {
+            if (node.Properties == null
+                || !node.Properties.TryGetValue("arm.parentId", out string? parentId)
+                || string.IsNullOrWhiteSpace(parentId))
+            {
+                continue;
+            }
+
+            if (!nodeIdByArmId.TryGetValue(parentId, out string? parentNodeId))
+            {
+                continue;
+            }
+
+            if (!adjacency.ContainsKey(parentNodeId) || !adjacency.ContainsKey(node.NodeId))
+            {
+                continue;
+            }
+
+            adjacency[parentNodeId].Add(node.NodeId);
+            adjacency[node.NodeId].Add(parentNodeId);
+        }
     }
 }

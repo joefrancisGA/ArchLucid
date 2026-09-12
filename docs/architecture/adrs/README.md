@@ -87,6 +87,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0089](0089-livelihood-mutation-401-resume.md) | Livelihood **mutating** writes resume after 401 from `localStorage` with the same idempotency key — not GET, not auth bootstrap (**Status: Proposed** 2026-09-10; LW-007) |
 | [0090](0090-architecture-work-lease-without-presence.md) | Soft exclusive **work-lease** on a draft (acquire / heartbeat / release / steal-with-confirm) — not live presence; ADR 0088 CAS still required (**Status: Proposed** 2026-09-10; LW-008) |
 | [0091](0091-career-is-working-default-day.md) | Working production **Career is the default execute gravity** — Rehearsal is explicit; unlabeled Simulator is not the day’s work; host `AgentExecution:Mode` default stays Simulator (**Status: Proposed** 2026-09-11; CG-001; **not** G-REAL-06; does not rewrite 0086) |
+| [0092](0092-working-cheap-what-if-envelope.md) | Working **labeled what-if envelope** without Career seal — cheap Rehearsal-stamped sketch; Career what-if stays R12 full run; **no** draft-diff Compare; kernels unmerged (**Status: Proposed** 2026-09-11; SN-001; runner in CE; **not** G-REAL-06; does not rewrite 0068/R12) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, and Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.User;
 using ArchLucid.Core.Integration;
 
 using FluentAssertions;
@@ -18,6 +20,10 @@ public sealed class IntegrationEventPayloadContractTests
     public void AuthorityRunCompleted_payload_has_expected_contract()
     {
         Guid runId = Guid.NewGuid();
+        IntegrationEventCareerPostureFields careerPosture = IntegrationEventCareerHonestyPresenter.Resolve(
+            isSampleRun: false,
+            StructuralExecutionMode.Real,
+            WorkingCareerRehearsalDoorValues.Career);
 
         object payload = new
         {
@@ -37,15 +43,24 @@ public sealed class IntegrationEventPayloadContractTests
                         .ToString(),
                     severity = "High"
                 }
-            }
+            },
+            structuralExecutionMode = careerPosture.StructuralExecutionMode,
+            workingCareerRehearsalDoor = careerPosture.WorkingCareerRehearsalDoor,
+            careerComplete = careerPosture.CareerComplete
         };
 
+        careerPosture.CareerComplete.Should().BeTrue();
         AssertPayloadMatchesCommittedSchema("authority-run-completed.v1.schema.json", payload);
     }
 
     [Fact]
     public void ManifestFinalized_payload_has_expected_contract()
     {
+        IntegrationEventCareerPostureFields careerPosture = IntegrationEventCareerHonestyPresenter.Resolve(
+            isSampleRun: false,
+            StructuralExecutionMode.Simulator,
+            WorkingCareerRehearsalDoorValues.Rehearsal);
+
         object payload = new
         {
             schemaVersion = 1,
@@ -57,9 +72,13 @@ public sealed class IntegrationEventPayloadContractTests
             projectId = Guid.NewGuid(),
             findingsSnapshotId = Guid.NewGuid(),
             artifactBundleId = Guid.NewGuid(),
-            manifestVersion = "v1"
+            manifestVersion = "v1",
+            structuralExecutionMode = careerPosture.StructuralExecutionMode,
+            workingCareerRehearsalDoor = careerPosture.WorkingCareerRehearsalDoor,
+            careerComplete = careerPosture.CareerComplete
         };
 
+        careerPosture.CareerComplete.Should().BeFalse();
         AssertPayloadMatchesCommittedSchema("manifest-finalized.v1.schema.json", payload);
     }
 

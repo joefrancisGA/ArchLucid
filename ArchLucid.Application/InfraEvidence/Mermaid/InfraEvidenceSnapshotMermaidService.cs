@@ -15,8 +15,7 @@ namespace ArchLucid.Application.InfraEvidence.Mermaid;
 
 public sealed class InfraEvidenceSnapshotMermaidService(
     IAzureInventorySnapshotGraphResolver graphResolver,
-    IDiagramAstFromGraphCompiler graphCompiler,
-    IMermaidDiagramRenderPipeline renderPipeline,
+    IMermaidDiagramInventoryRenderOrchestrator inventoryRenderOrchestrator,
     IBrandedDiagramExportService brandedDiagramExportService,
     IDiagramImageRenderer diagramImageRenderer,
     IArchitectureDiagramReconciliationRepository reconciliationRepository,
@@ -36,11 +35,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
     private readonly IAzureInventorySnapshotGraphResolver _graphResolver =
         graphResolver ?? throw new ArgumentNullException(nameof(graphResolver));
 
-    private readonly IDiagramAstFromGraphCompiler _graphCompiler =
-        graphCompiler ?? throw new ArgumentNullException(nameof(graphCompiler));
-
-    private readonly IMermaidDiagramRenderPipeline _renderPipeline =
-        renderPipeline ?? throw new ArgumentNullException(nameof(renderPipeline));
+    private readonly IMermaidDiagramInventoryRenderOrchestrator _inventoryRenderOrchestrator =
+        inventoryRenderOrchestrator ?? throw new ArgumentNullException(nameof(inventoryRenderOrchestrator));
 
     private readonly IBrandedDiagramExportService _brandedDiagramExportService =
         brandedDiagramExportService ?? throw new ArgumentNullException(nameof(brandedDiagramExportService));
@@ -310,21 +306,17 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         }
     }
 
-    private async Task<MermaidDiagramRenderResult> RenderModeAsync(
+    private Task<MermaidDiagramRenderResult> RenderModeAsync(
         GraphSnapshot graph,
         DiagramMode diagramMode,
         DiagramAstCompileOptions? compileOptions,
         CancellationToken cancellationToken)
     {
-        DiagramAst ast = _graphCompiler.Compile(graph, diagramMode, compileOptions);
-
-        return await _renderPipeline.RenderAsync(
-            new MermaidDiagramRenderRequest
-            {
-                Ast = ast,
-                Thresholds = _thresholds,
-            },
+        return _inventoryRenderOrchestrator.RenderFromGraphAsync(
             graph,
+            diagramMode,
+            compileOptions,
+            _thresholds,
             cancellationToken);
     }
 

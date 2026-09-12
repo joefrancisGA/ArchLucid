@@ -56,7 +56,7 @@ export function FindingSemanticSupportBandInspectSection(
         Semantic support
       </p>
       <div className="mt-2">
-        <FindingSemanticSupportBandChip finding={props.finding} />
+        <FindingSemanticSupportBandChip finding={props.finding} showReason />
       </div>
       {showRestatementSplit ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
