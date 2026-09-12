@@ -10718,13 +10718,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 101
+- **hunts:** 102
 - **bugs-found:** 157
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — camelCase `podTemplate` workload template omitted pod security projection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2239 (seed-only): reseeded context-ingestion with `-Hint context-ingestion` -Refresh; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2231 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved camelCase `podTemplate` workload template gap; regression `ParseAsync_camel_case_podTemplate_projects_privileged`.
 
