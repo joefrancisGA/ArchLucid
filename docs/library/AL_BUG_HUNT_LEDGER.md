@@ -1444,13 +1444,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-09 — pipeline-dead-letter runs matched committed-run lookups via retained manifest headers
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2122 (seed-only): reseeded sql-run-repository with `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2020 (seed-only): reseeded sql-run-repository; no new hunt-ready rows.
 
