@@ -33,6 +33,8 @@ partial class CoordinatorArtifactsCompositionModule
         services.AddSingleton<IMermaidDiagramDeterministicRepairer, MermaidDiagramDeterministicRepairer>();
         services.AddSingleton<IMermaidDiagramStructuralValidator, MermaidDiagramStructuralValidator>();
         services.AddSingleton<IMermaidDiagramSemanticIntegrityGuard, MermaidDiagramSemanticIntegrityGuard>();
+        services.AddSingleton<IDiagramPeelCatalogProvider, DiagramPeelCatalogDefaultProvider>();
+        services.AddSingleton<IMermaidDiagramInventoryRenderOrchestrator, MermaidDiagramInventoryRenderOrchestrator>();
         services.AddSingleton<IMermaidDiagramFallbackSetBuilder, MermaidDiagramFallbackSetBuilder>();
         services.AddSingleton<IMermaidDiagramRenderPipeline, MermaidDiagramRenderPipeline>();
         services.AddSingleton<IMermaidDiagramAiRepairer, NoOpMermaidDiagramAiRepairer>();

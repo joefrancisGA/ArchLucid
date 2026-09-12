@@ -121,6 +121,15 @@ def _resolve_bundle_artifact_path(bundle_dir: Path, artifact: str) -> Path | Non
     if artifact == "faithfulness-nightly-warn-status.json":
         candidates.append(Path(repo_root()) / "docs" / "quality" / "faithfulness-nightly-warn-status.json")
 
+    if artifact == "simulator-live-divergence-summary.json":
+        candidates.extend(
+            [
+                bundle_dir / "simulator-live-divergence-summary.json",
+                bundle_dir / "simulator-live-divergence.json",
+                Path(repo_root()) / "artifacts" / "release" / "simulator-live-divergence.json",
+            ]
+        )
+
     for candidate in candidates:
         if candidate.is_file():
             return candidate

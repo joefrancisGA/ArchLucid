@@ -5,7 +5,7 @@ import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { useWorkingStartHref } from "@/hooks/use-working-start-href";
+import { useWorkingCreateStartHref } from "@/hooks/use-working-start-href";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
@@ -28,7 +28,7 @@ export function OperatorHomeWorkingPrimaryCta(
   const drafts = useArchitectureDraftRegistryEntries();
   const latestDraft = drafts[0] ?? null;
   const draftResume = resolveOperatorHomeLatestDraftPrimaryAction(latestDraft);
-  const workingStartHref = useWorkingStartHref();
+  const workingCreateStartHref = useWorkingCreateStartHref();
 
   if (architectureTarget !== null) {
     return (
@@ -57,7 +57,7 @@ export function OperatorHomeWorkingPrimaryCta(
   return (
     <div className="space-y-2" data-testid="operator-home-working-primary-cta">
       <Button asChild variant={variant} size="sm" className="h-8 w-fit">
-        <Link href={workingStartHref} data-testid="operator-home-working-new-review-primary">
+        <Link href={workingCreateStartHref} data-testid="operator-home-working-new-review-primary">
           {START_REVIEW_LABEL}
         </Link>
       </Button>

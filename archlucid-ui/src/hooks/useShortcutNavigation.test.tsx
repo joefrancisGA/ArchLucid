@@ -38,13 +38,34 @@ vi.mock("@/lib/operations/in-flight-operations-store", () => ({
   subscribeInFlightOperations: () => () => {},
 }));
 
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+const { mockReadCachedLastOpenArchitectureId } = vi.hoisted(() => ({
+  mockReadCachedLastOpenArchitectureId: vi.fn(() => null as string | null),
+}));
+
+vi.mock("@/lib/desk-continuity-preference", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/desk-continuity-preference")>();
+
+  return {
+    ...actual,
+    readCachedLastOpenArchitectureId: () => mockReadCachedLastOpenArchitectureId(),
+    readCachedDeskContinuity: () => actual.readCachedDeskContinuity(),
+  };
+});
+
+import {
+  ARCHITECTURES_NEW_PATH,
+  architectureNestedAskPath,
+  architectureNestedComparePath,
+  architectureNestedGraphPath,
+  startReviewFromArchitectureNestedHref,
+} from "@/lib/architecture/architecture-routes";
 
 import { useShortcutNavigation } from "./useShortcutNavigation";
 
 describe("useShortcutNavigation", () => {
   beforeEach(() => {
     routerPush.mockClear();
+    mockReadCachedLastOpenArchitectureId.mockReturnValue(null);
     mockPathname.mockReturnValue("/");
     mockWorkspaceMode.mockReturnValue({
       mode: "guided",
@@ -70,6 +91,25 @@ describe("useShortcutNavigation", () => {
     expect(routerPush).toHaveBeenCalledWith(ARCHITECTURES_NEW_PATH);
   });
 
+  it("SN-019: Working Alt+N opens nested start-review under last-open architecture", () => {
+    mockWorkspaceMode.mockReturnValue({
+      mode: "working",
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: true,
+      setAndPersist: vi.fn(),
+    });
+    mockReadCachedLastOpenArchitectureId.mockReturnValue("architecture-identity-001");
+
+    renderHook(() => useShortcutNavigation());
+
+    fireEvent.keyDown(window, { key: "n", altKey: true });
+
+    expect(routerPush).toHaveBeenCalledWith(
+      startReviewFromArchitectureNestedHref("architecture-identity-001"),
+    );
+  });
+
   it("opens unscoped Compare from Overview with Alt+C", () => {
     renderHook(() => useShortcutNavigation());
 
@@ -89,7 +129,10 @@ describe("useShortcutNavigation", () => {
   });
 
   it("prefills Compare base review when Alt+C is pressed on review-detail in Working mode", () => {
+    const architectureId = "architecture-identity-001";
+
     mockPathname.mockReturnValue("/architecture/reviews/run-abc");
+    mockReadCachedLastOpenArchitectureId.mockReturnValue(architectureId);
     mockWorkspaceMode.mockReturnValue({
       mode: "working",
       mounted: true,
@@ -102,11 +145,16 @@ describe("useShortcutNavigation", () => {
 
     fireEvent.keyDown(window, { key: "c", altKey: true });
 
-    expect(routerPush).toHaveBeenCalledWith("/insights/compare-two-reviews?priorRunId=run-abc");
+    expect(routerPush).toHaveBeenCalledWith(
+      `${architectureNestedComparePath(architectureId)}?priorRunId=run-abc&architectureId=${architectureId}`,
+    );
   });
 
   it("scopes Ask to the open review when Alt+A is pressed on review-detail in Working mode", () => {
-    mockPathname.mockReturnValue("/architecture/reviews/run-abc/findings/f-1");
+    const architectureId = "architecture-identity-001";
+
+    mockPathname.mockReturnValue("/architecture/reviews/run-abc");
+    mockReadCachedLastOpenArchitectureId.mockReturnValue(architectureId);
     mockWorkspaceMode.mockReturnValue({
       mode: "working",
       mounted: true,
@@ -119,11 +167,16 @@ describe("useShortcutNavigation", () => {
 
     fireEvent.keyDown(window, { key: "a", altKey: true });
 
-    expect(routerPush).toHaveBeenCalledWith("/insights/ask-review-questions?runId=run-abc");
+    expect(routerPush).toHaveBeenCalledWith(
+      `${architectureNestedAskPath(architectureId)}?runId=run-abc`,
+    );
   });
 
   it("scopes evidence graph to the open review when Alt+Y is pressed on review-detail in Working mode", () => {
+    const architectureId = "architecture-identity-001";
+
     mockPathname.mockReturnValue("/architecture/reviews/run-abc");
+    mockReadCachedLastOpenArchitectureId.mockReturnValue(architectureId);
     mockWorkspaceMode.mockReturnValue({
       mode: "working",
       mounted: true,
@@ -136,7 +189,9 @@ describe("useShortcutNavigation", () => {
 
     fireEvent.keyDown(window, { key: "y", altKey: true });
 
-    expect(routerPush).toHaveBeenCalledWith("/insights/evidence-graph?runId=run-abc");
+    expect(routerPush).toHaveBeenCalledWith(
+      `${architectureNestedGraphPath(architectureId)}?runId=run-abc`,
+    );
   });
 
   it("invokes onHelpRequested for Shift+?", () => {

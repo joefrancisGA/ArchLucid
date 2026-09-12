@@ -59,6 +59,9 @@ test.describe(
       timeout: 60_000,
     });
     await expect(page.getByTestId("run-scoped-audit-export-button")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("run-scoped-audit-export-dual-channel-honesty")).toBeVisible({
+      timeout: 60_000,
+    });
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "policies");
     await expect(page.getByTestId("review-detail-policy-pack-impact-callout")).toBeVisible({
@@ -68,6 +71,9 @@ test.describe(
       timeout: 60_000,
     });
     await expect(page.getByTestId("policy-pack-influence-honesty-chip")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("run-detail-first-review-spine-semantic-support")).toBeVisible({
+      timeout: 60_000,
+    });
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "findings");
 
@@ -99,6 +105,9 @@ test.describe(
     await expect(primaryCard).toBeVisible({ timeout: 60_000 });
     await primaryCard.scrollIntoViewIfNeeded();
     await expect(primaryCard.locator('[data-testid^="finding-classification-chip-"]')).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(primaryCard.getByText(/Policy-mapped or insight-density-promoted/i)).toBeVisible({
       timeout: 30_000,
     });
     await expect(primaryCard.getByTestId("working-finding-semantic-support-band")).toBeVisible({

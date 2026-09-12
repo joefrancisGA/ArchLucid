@@ -279,8 +279,7 @@ public sealed class InfraEvidenceCompositionModuleTests
     private static void RegisterInfraEvidenceSnapshotMermaidServiceTestDoubles(IServiceCollection services)
     {
         services.AddScoped(_ => Mock.Of<IAzureInventorySnapshotGraphResolver>());
-        services.AddScoped(_ => Mock.Of<IDiagramAstFromGraphCompiler>());
-        services.AddScoped(_ => Mock.Of<IMermaidDiagramRenderPipeline>());
+        services.AddScoped(_ => Mock.Of<IMermaidDiagramInventoryRenderOrchestrator>());
         services.AddScoped(_ => Mock.Of<IBrandedDiagramExportService>());
         services.AddScoped(_ => Mock.Of<IDiagramImageRenderer>());
         services.AddScoped(_ => Mock.Of<IArchitectureDiagramReconciliationRepository>());
