@@ -34,6 +34,7 @@ export function removeMermaidRenderBindElement(renderId: string): void {
   }
 
   document.getElementById(`d${trimmed}`)?.remove();
+  document.getElementById(`i${trimmed}`)?.remove();
   document.getElementById(trimmed)?.remove();
 }
 
