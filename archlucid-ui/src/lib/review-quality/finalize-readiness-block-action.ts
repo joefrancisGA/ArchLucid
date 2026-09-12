@@ -72,6 +72,16 @@ export function resolveFinalizeReadinessBlockAction(
         href: buildReviewFindingsTabHref(trimmedRunId),
         label: "Review finding evidence linkage",
       };
+    case "architecture_version_pin":
+      return {
+        href: buildReviewActivityHref(trimmedRunId),
+        label: "Review architecture version pin",
+      };
+    case "create_time_pin_integrity":
+      return {
+        href: buildReviewActivityHref(trimmedRunId),
+        label: "Review create-time pin integrity",
+      };
     case "lifecycle_phase_incomplete":
       return {
         href: buildReviewActivityHref(trimmedRunId),
@@ -133,6 +143,13 @@ function resolveScorecardBlockAction(
     return {
       href: buildArchitectureActivityFinalizeReadinessHref(runId),
       label: "Acknowledge assumptions",
+    };
+  }
+
+  if (normalizedMessage.includes("low confidence")) {
+    return {
+      href: buildReviewFindingsTabHref(runId, "needs-my-decision"),
+      label: "Review low-confidence findings",
     };
   }
 

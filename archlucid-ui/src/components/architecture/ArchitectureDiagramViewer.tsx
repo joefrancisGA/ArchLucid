@@ -46,8 +46,10 @@ import {
   type MermaidViewportFitDimensions,
   prepareMermaidSvgForResponsiveLayout,
   readMermaidViewportFitBudget,
+  removeMermaidRenderBindElement,
   sanitizeMermaidRenderId,
 } from '@/lib/help/help-mermaid';
+import { stripInlineMermaidFlowchartComments } from '@/lib/mermaid/strip-inline-mermaid-flowchart-comments';
 import { OPERATOR_TYPOGRAPHY } from '@/lib/design-tokens';
 import { useDocumentDarkMode } from '@/lib/use-document-dark-mode';
 import { cn } from '@/lib/utils';
@@ -342,7 +344,10 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
         mermaid.initialize(createArchitectureDiagramMermaidConfig(dark));
 
-        const result = await mermaid.render(renderId, mermaidSource.trim());
+        const result = await mermaid.render(
+          renderId,
+          stripInlineMermaidFlowchartComments(mermaidSource.trim()),
+        );
 
         if (!canceled) {
           setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));
@@ -353,6 +358,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           setRenderError(message);
           onRenderFailure?.();
         }
+      } finally {
+        removeMermaidRenderBindElement(renderId);
       }
     }
 
@@ -360,6 +367,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
     return (): void => {
       canceled = true;
+      removeMermaidRenderBindElement(renderId);
     };
   }, [mermaidSource, dark, renderId, onRenderFailure]);
 

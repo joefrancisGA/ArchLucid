@@ -67,7 +67,7 @@ export async function patchDraftRequestWith401Resume(
 
 export async function recordBulkFindingDispositionWith401Resume(
   body: FindingBulkDispositionPendingPayload["body"],
-  options: Livelihood401ResumeOptions & { readonly idempotencyKey: string },
+  options: Livelihood401ResumeOptions & { readonly idempotencyKey: string; readonly refreshRunId?: string },
 ): Promise<Awaited<ReturnType<typeof recordBulkFindingDisposition>>> {
   const idempotencyKey = resolveIdempotencyKey(options.idempotencyKey);
 
@@ -76,7 +76,10 @@ export async function recordBulkFindingDispositionWith401Resume(
     returnPath: options.returnPath,
     idempotencyKey,
     payload: { body },
-    execute: () => recordBulkFindingDisposition(body, { idempotencyKey }),
+    execute: () => recordBulkFindingDisposition(body, {
+      idempotencyKey,
+      refreshRunId: options.refreshRunId,
+    }),
   });
 }
 

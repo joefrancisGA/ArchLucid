@@ -31,6 +31,8 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
         integrity.Should().Contain("UnsupportedSemanticSupportFinalizeHoldEvaluator.GetBlockingReasons");
         integrity.Should().Contain("DecisionGradeFindingProvenanceValidator.GetViolations");
         integrity.Should().Contain("FinalizeAssumptionGateEvaluator.GetBlockingReasons");
+        integrity.Should().Contain("CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync");
+        integrity.Should().Contain("CommitCreateTimePinIntegrityEvaluator.GetBlockingReasonsAsync");
         integrity.Should().Contain("_finalizeQualityGate");
         integrity.Should().Contain("EnsurePassOrThrowAsync");
         integrity.Should().Contain("FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons");
@@ -91,6 +93,10 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
         readiness.Should().Contain("FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons");
         readiness.Should().Contain("FinalizeQualityScorecardEvaluator.Compute");
         readiness.Should().Contain("FinalizeQualityScorecardEvaluator.GetBlockingReasons");
+        readiness.Should().Contain("CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync");
+        readiness.Should().Contain("CommitCreateTimePinIntegrityEvaluator.GetBlockingReasonsAsync");
+        readiness.Should().Contain("AppendPreScorecardIntegrityBlocksAsync");
+        readiness.Should().Contain("AppendEvidenceReferentialIntegrityBlock");
         readiness.Should().Contain("IPreCommitGovernanceGate");
         readiness.Should().Contain("pre_commit_gate");
     }

@@ -4608,6 +4608,7 @@ export interface components {
             runExecutionModeDisplayLabel?: null | string;
             /** Format: uuid */
             runId?: string;
+            semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             severity?: components["schemas"]["FindingSeverity"];
             semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             trackedExternally?: boolean;

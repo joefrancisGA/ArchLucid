@@ -8,6 +8,7 @@ import {
   readAcknowledgedAssumptionIds,
   writeAcknowledgedAssumptionIds,
 } from "./review-assumption-ack-store";
+import { notifyFinalizeReadinessRefresh } from "./finalize-readiness-refresh-notify";
 
 /**
  * The acknowledgement endpoint is constrained to `{runId:guid}`; preview / fixture run ids
@@ -73,6 +74,7 @@ export async function pushAcknowledgedAssumptionIdsToServer(
 
   try {
     await putReviewAssumptionAcknowledgement(runId, ids);
+    notifyFinalizeReadinessRefresh(runId);
 
     return true;
   } catch {

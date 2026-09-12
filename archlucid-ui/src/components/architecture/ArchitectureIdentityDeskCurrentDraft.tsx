@@ -75,7 +75,7 @@ export function ArchitectureIdentityDeskCurrentDraft(
               draftId={state.draftId}
               parentArchitectureId={props.architectureId}
               buttonLabel={ARCHITECTURE_IDENTITY_DESK_NEW_VERSION_LABEL}
-              testId="architecture-identity-new-version-from-snapshot"
+              spawnLockedDeskAction
             />
           </div>
         </div>
@@ -89,7 +89,7 @@ export function ArchitectureIdentityDeskCurrentDraft(
               draftId={state.cloneSourceDraftId}
               parentArchitectureId={props.architectureId}
               buttonLabel={ARCHITECTURE_IDENTITY_DESK_NEW_VERSION_LABEL}
-              testId="architecture-identity-new-version-from-snapshot"
+              spawnLockedDeskAction
             />
           ) : null}
         </div>

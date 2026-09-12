@@ -152,7 +152,7 @@ Pre-manifest finalize derives `blockingFindingCount` from live finding rows (Err
 
 | Layer | Responsibility |
 |-------|----------------|
-| `CommitOutputIntegrityService` | Structural mode, lifecycle phase, agent output quality, unsupported semantic support hold, decision-grade provenance, existential assumptions, TB-2321 scorecard (nine dimensions), evidence referential integrity. |
+| `CommitOutputIntegrityService` | Structural mode, lifecycle phase, agent output quality, unsupported semantic support hold, decision-grade provenance, existential assumptions, create-time architecture version pin (κ), create-time policy/evidence/draft pin integrity, TB-2321 scorecard (nine dimensions), evidence referential integrity. |
 | `AuthorityDrivenArchitectureRunCommitOrchestrator` | Skipped MUST, transparency trail, WS-14 degraded coverage on Working desk (`CareerArtifactCompletenessValidator`). |
 | UI finalize fallback | When server readiness is unavailable, `useAssumptionAwareCommitBlockedReason` surfaces `READINESS_UNAVAILABLE_MESSAGE` instead of client scorecard recompute. |
 
@@ -206,6 +206,11 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGate
 - Execute run with **unacknowledged existential assumption** on request → finalize **409** aligned with readiness `integrity` / `existential_assumption` block.
 - Execute run with **rejected agent output quality trace** (Real + PilotStrict) → finalize **409** aligned with readiness `integrity` / `agent_output_quality` block.
 - Execute run with **evidence referential integrity violation** (pinned evidence packages + Critical finding without resolvable linkage) → finalize **409** aligned with readiness `integrity` / `evidence_referential_integrity` block.
+- Execute run with **architecture version content hash (κ) drift** on run header → finalize **409** aligned with readiness `integrity` / `architecture_version_pin` block.
+- Execute run with **policy pack pin hash drift** on run header → finalize **409** aligned with readiness `integrity` / `create_time_pin_integrity` block.
+- Execute run with **evidence package pin hash drift** on run header → finalize **409** aligned with readiness `integrity` / `create_time_pin_integrity` block.
+- Execute run with **draft spawn document hash drift** on linked draft row → finalize **409** aligned with readiness `integrity` / `create_time_pin_integrity` block.
+- Execute run with **Fallback structural execution mode** → finalize **409** aligned with readiness `integrity` / `structural_execution_mode` block.
 - Execute run with **Mixed structural execution mode** → finalize **409** aligned with readiness `integrity` / `structural_execution_mode` block.
 - Execute run with **Unsupported semantic support** on a decision-grade finding (Real + PilotStrict + TB-1228 opt-in host flag) → finalize **409** aligned with readiness `integrity` / `unsupported_semantic_support` block.
 
@@ -284,12 +289,14 @@ dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~FinalizeRea
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeReadinessControllerTests"
 ```
 
-UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton` with per-block deep links via `resolveFinalizeReadinessBlockAction` (findings job views, activity tab, intake finalize-readiness anchor). SSR `finalizeReadinessBlocks` from `buildRunDetailGovernancePresentation` hydrate the hook during client fetch and flow through `RunDetailPageHeader`, `ReviewPackagePrimaryAction`, and `RunDetailWorkspaceStickyActionsResolved` (deferred sticky bar on standard review detail). `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority.
+UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton` with per-block deep links via `resolveFinalizeReadinessBlockAction` (findings job views, activity tab, intake finalize-readiness anchor). SSR `finalizeReadinessBlocks` from `buildRunDetailGovernancePresentation` hydrate the hook during client fetch and flow through `RunDetailPageHeader`, `ReviewPackagePrimaryAction`, and `RunDetailWorkspaceStickyActionsResolved` (deferred sticky bar on standard review detail). `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority. Disposition mutations, assumption acknowledgement pushes, and finding merge-conflict resolution call `notifyFinalizeReadinessRefresh(runId)` so the strip refetches without a full page reload.
 
 ```bash
-cd archlucid-ui && npx vitest run src/lib/review-quality/finalize-readiness-block-action.test.ts src/components/reviews/FinalizeReadinessBlockList.test.tsx src/hooks/use-assumption-aware-commit-blocked-reason.test.ts
+cd archlucid-ui && npx vitest run src/lib/review-quality/finalize-readiness-block-action.test.ts src/lib/review-quality/finalize-readiness-refresh-notify.test.ts src/lib/review-quality/review-assumption-ack-sync.test.ts src/components/reviews/FinalizeReadinessBlockList.test.tsx src/hooks/use-assumption-aware-commit-blocked-reason.test.ts
 cd archlucid-ui && npx playwright test -c playwright.mock.config.ts e2e/finalize-readiness-block-deeplink.spec.ts
 ```
+
+Mock Playwright CI job `ui-playwright-mock-smoke` runs all `e2e/**/*.spec.ts` including `finalize-readiness-block-deeplink.spec.ts` via `npm run test:e2e:mock:functional`.
 
 ## TB-184 governance-block explainer (Staging)
 

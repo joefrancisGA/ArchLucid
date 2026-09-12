@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  isCommandPaletteCloneFromSnapshotAvailable,
   isCommandPaletteFinalizeReviewAvailable,
   isCommandPaletteReviewSaveAvailable,
   queryVisibleFinalizeReviewControl,
   queryVisibleReviewDetailSaveControl,
+  queryVisibleSpawnLockCloneSnapshotControl,
 } from "@/lib/command-palette-work-action-dom";
 
 describe("command-palette-work-action-dom (LD-09)", () => {
@@ -19,5 +21,14 @@ describe("command-palette-work-action-dom (LD-09)", () => {
     expect(isCommandPaletteFinalizeReviewAvailable()).toBe(true);
     expect(queryVisibleReviewDetailSaveControl()?.getAttribute("data-testid")).toBe("finding-remediation-save");
     expect(isCommandPaletteReviewSaveAvailable()).toBe(true);
+  });
+
+  it("SN-008: detects visible spawn-locked clone controls", () => {
+    document.body.innerHTML = `
+      <button data-testid="architecture-spawn-lock-clone-snapshot" type="button">New version (clone)</button>
+    `;
+
+    expect(queryVisibleSpawnLockCloneSnapshotControl()).not.toBeNull();
+    expect(isCommandPaletteCloneFromSnapshotAvailable()).toBe(true);
   });
 });

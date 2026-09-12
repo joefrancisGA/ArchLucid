@@ -195,10 +195,28 @@ describe('ArchitectureDiagramViewer', () => {
       expect(screen.getByTestId('architecture-diagram-viewport')).toBeInTheDocument();
     });
 
-    expect(initializeMock).toHaveBeenCalled();
+    expect(initializeMock).toHaveBeenCalledWith(
+      expect.objectContaining({ suppressErrorRendering: true, startOnLoad: false }),
+    );
     expect(renderMock).toHaveBeenCalled();
     expect(screen.getByText('Node A')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL })).toBeInTheDocument();
+  });
+
+  it('strips inline mermaid comments before calling mermaid.render', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  n1["app-hi-test-wus-001"] %% al-type=microsoft'}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(renderMock).toHaveBeenCalled();
+    });
+
+    expect(renderMock.mock.calls[0]?.[1]).toBe('flowchart TD\n  n1["app-hi-test-wus-001"]');
   });
 
   it('preserves foreignObject labels when sanitizing diagram HTML', () => {
@@ -217,6 +235,7 @@ describe('ArchitectureDiagramViewer', () => {
   it('shows renderer failure and retry action', async () => {
     renderMock.mockRejectedValueOnce(new Error('Renderer failed'));
     const onRetry = vi.fn();
+    const removeBindSpy = vi.spyOn(helpMermaid, 'removeMermaidRenderBindElement');
 
     render(
       <ArchitectureDiagramViewer
@@ -232,7 +251,11 @@ describe('ArchitectureDiagramViewer', () => {
       expect(screen.getByTestId('architecture-diagram-render-failure')).toBeInTheDocument();
     });
 
+    expect(removeBindSpy).toHaveBeenCalled();
+
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(onRetry).toHaveBeenCalled();
+    removeBindSpy.mockRestore();
     expect(onRetry).toHaveBeenCalled();
   });
 

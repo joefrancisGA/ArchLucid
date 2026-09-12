@@ -4,8 +4,10 @@ import {
   architectureNestedComparePath,
   architectureNestedFindingsPath,
   architectureNestedGraphPath,
+  architectureNestedImpactPreviewPath,
 } from "@/lib/architecture/architecture-routes";
 import { compareTwoReviewsHref, buildCompareTwoReviewsHref, COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
+import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { evidenceGraphHref, EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { governanceFindingsArchitectureScopeHrefFromSearch } from "@/lib/governance/governance-findings-architecture-scope";
@@ -37,6 +39,22 @@ export function resolveWorkingInsightsNavHref(input: ResolveWorkingInsightsNavHr
 
     if (openPackageRunId !== null) {
       return askReviewQuestionsHref({ runId: openPackageRunId });
+    }
+
+    return input.href;
+  }
+
+  if (input.href === IMPACT_PREVIEW_PATH || input.href.startsWith(`${IMPACT_PREVIEW_PATH}/`)) {
+    if (architectureId.length > 0) {
+      if (openPackageRunId !== null) {
+        return `${architectureNestedImpactPreviewPath(architectureId)}?runId=${encodeURIComponent(openPackageRunId)}`;
+      }
+
+      return architectureNestedImpactPreviewPath(architectureId);
+    }
+
+    if (openPackageRunId !== null) {
+      return `${IMPACT_PREVIEW_PATH}?runId=${encodeURIComponent(openPackageRunId)}`;
     }
 
     return input.href;

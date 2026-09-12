@@ -17,6 +17,7 @@ import {
   prepareMermaidSvgForResponsiveLayout,
   sanitizeMermaidRenderId,
 } from "@/lib/help/help-mermaid";
+import { stripInlineMermaidFlowchartComments } from "@/lib/mermaid/strip-inline-mermaid-flowchart-comments";
 
 export type MermaidDiagramProps = {
   readonly source: string;
@@ -151,7 +152,7 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
           ...(themeVariables !== undefined ? { themeVariables: { ...themeVariables } } : {}),
         });
 
-        const result = await mermaid.render(renderId, source.trim());
+        const result = await mermaid.render(renderId, stripInlineMermaidFlowchartComments(source.trim()));
 
         if (!canceled) {
           setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));

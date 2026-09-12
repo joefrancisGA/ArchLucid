@@ -3,6 +3,7 @@ import DOMPurify from "dompurify";
 import { createArchitectureDiagramMermaidConfig } from "@/lib/architecture/architecture-diagram-mermaid-config";
 import { sanitizeMermaidRenderId } from "@/lib/help/help-mermaid";
 import { sanitizeMermaidSvgForCanvasExport } from "@/lib/infra-evidence/sanitize-mermaid-svg-for-canvas-export";
+import { stripInlineMermaidFlowchartComments } from "@/lib/mermaid/strip-inline-mermaid-flowchart-comments";
 
 export type ExportMermaidSourceToPngOptions = {
   readonly dark?: boolean;
@@ -131,7 +132,7 @@ export async function exportMermaidSourceToPngBlob(
 
   mermaid.initialize(createArchitectureDiagramMermaidConfig(dark));
 
-  const result = await mermaid.render(renderId, trimmed);
+  const result = await mermaid.render(renderId, stripInlineMermaidFlowchartComments(trimmed));
 
   return svgMarkupToPngBlob(result.svg, backgroundColor);
 }

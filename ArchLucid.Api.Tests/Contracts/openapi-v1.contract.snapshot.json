@@ -16044,6 +16044,16 @@
             "format": "uuid",
             "type": "string"
           },
+          "semanticSupportBand": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingSemanticSupportBand"
+              }
+            ]
+          },
           "severity": {
             "$ref": "#/components/schemas/FindingSeverity"
           },
