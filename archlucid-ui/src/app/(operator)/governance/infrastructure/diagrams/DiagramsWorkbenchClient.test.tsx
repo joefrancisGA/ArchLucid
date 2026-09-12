@@ -459,16 +459,22 @@ describe("DiagramsWorkbenchClient", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("infra-diagrams-fallback-cards")).toBeInTheDocument();
+      expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
     });
 
     await waitFor(() => {
-      const fallbackCalls = fetchInfraEvidenceMermaidRenderMock.mock.calls.filter(
-        (call) => call[1]?.fallbackKey === "executive",
+      expect(fetchInfraEvidenceMermaidRenderMock.mock.calls.some((call) => call[1]?.mode === "network")).toBe(
+        true,
       );
-      expect(fallbackCalls.length).toBe(1);
+      expect(
+        fetchInfraEvidenceMermaidRenderMock.mock.calls.some((call) => call[1]?.fallbackKey === "executive"),
+      ).toBe(true);
     });
 
     const settledCallCount = fetchInfraEvidenceMermaidRenderMock.mock.calls.length;
+    const networkModeCalls = fetchInfraEvidenceMermaidRenderMock.mock.calls.filter(
+      (call) => call[1]?.mode === "network",
+    ).length;
 
     await act(async () => {
       await new Promise((resolve) => {
@@ -479,7 +485,8 @@ describe("DiagramsWorkbenchClient", () => {
     expect(fetchInfraEvidenceMermaidRenderMock.mock.calls.length).toBe(settledCallCount);
     expect(
       fetchInfraEvidenceMermaidRenderMock.mock.calls.filter((call) => call[1]?.mode === "network").length,
-    ).toBe(1);
+    ).toBe(networkModeCalls);
+    expect(networkModeCalls).toBe(1);
     expect(screen.getByTestId("infra-diagrams-fallback-cards")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
   });
