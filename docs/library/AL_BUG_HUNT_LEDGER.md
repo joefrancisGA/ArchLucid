@@ -3295,6 +3295,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** yes
 
 ### Hypotheses
+2026-09-12 seed hunt #1898 (seed-only): reseeded api-key-auth; cheap-disproof closed disabled-auth with valid header fail-closed parity and comma-only ReadOnly snapshot configured flag; 44 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` authenticates with valid `X-Api-Key` when `Enabled=false` and `DevelopmentBypassAll=false` — **cheap-disproof 2026-09-12 seed hunt #1898:** fail-closed before header compare; regression `When_enabled_false_and_bypass_false_valid_api_key_header_still_fails`.
+- [x] (valid-no-repro) `GetSnapshot` marks comma-only ReadOnly slot as configured — **cheap-disproof 2026-09-12 seed hunt #1898:** `HasConfiguredKeyMaterial` uses mask segment count; regression `Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_has_only_comma_segments`.
+
 2026-09-12 seed hunt #1896 (seed-only): reseeded api-key-auth; cheap-disproof closed whitespace-only ReadOnly slot rotation parity and legacy rotate unknown keyId validation; 44 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
 
 - [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` append path when `ReadOnlyKey` is whitespace-only without commas — **cheap-disproof 2026-09-12 seed hunt #1896:** `HasConfiguredKeyMaterial` treats whitespace-only raw as unconfigured (symmetric to #1860 admin slot); would return Replace like admin whitespace path.
