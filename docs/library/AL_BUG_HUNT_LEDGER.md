@@ -14014,7 +14014,7 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -14025,6 +14025,7 @@ ABQ-09 churn hotspot.
 2026-09-12 seed hunt #1949 (hit): reseeded ui-claim-discipline-policy; proved help-teams-integration raw TOC/omit mismatch vs notifications/jira parity; 1 scoped regression test passed.
 
 ABQ-09 churn hotspot.
+2026-09-12 seed hunt #2183 (seed-only): reseeded ui-claim-discipline-policy with `-Hint claim discipline`; no new hunt-ready rows.
 
 ### Hypotheses
 
