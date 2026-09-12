@@ -99,7 +99,7 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
-        <FindingSemanticSupportBandChip finding={finding} />
+        <FindingSemanticSupportBandChip finding={finding} showReason />
         {findingHasNoSourceEvidence(finding) ? (
           <StatusTag
             kind="needs-attention"

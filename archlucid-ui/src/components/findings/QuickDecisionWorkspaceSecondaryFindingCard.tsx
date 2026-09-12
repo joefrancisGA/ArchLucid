@@ -139,6 +139,7 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
                 <FindingTrustChip finding={finding} />
                 <FindingSemanticSupportBandChip
                   finding={finding}
+                  showReason
                   structuralExecutionMode={props.context.structuralExecutionMode}
                 />
               </>

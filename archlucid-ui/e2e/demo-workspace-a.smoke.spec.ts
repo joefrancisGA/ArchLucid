@@ -100,6 +100,8 @@ test.describe(
     await expect(primaryCard.getByTestId("working-finding-semantic-support-band")).toBeVisible({
       timeout: 30_000,
     });
+    const semanticBand = primaryCard.getByTestId("working-finding-semantic-support-band");
+    await expect(semanticBand).toContainText(/async|Lane B|sealed review/i, { timeout: 30_000 });
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "policies");
 
