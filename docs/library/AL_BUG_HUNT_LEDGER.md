@@ -10192,7 +10192,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -10209,6 +10209,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `GcpCatalogHttpClient.TryFetchComputeHourlyUsdAsync` — preemptible SKU returned before on-demand when array order lists preemptible first — **hit 2026-09-07 hunt #1260:** on-demand sizing used the first hourly SKU including preemptible descriptions; fixed by rejecting preemptible descriptions in `GcpSkuPricingParser`; regression `TryGetComputeEngineMonthlyUsdAsync_skips_preemptible_sku_when_on_demand_is_later`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — standalone `Hour` / `hours` UOM may be rejected while quantity-prefixed forms pass — **hit 2026-09-09 hunt #1415:** bare `"Hour"` / `"hours"` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `"1 Hour"` and `"10 Hours"` already matched via bounded tokens; fixed with standalone `hour` / `hours` synonyms; regressions `TryMonthlyUsdFromRow_accepts_standalone_hour_unit_of_measure_synonyms` and `LooksLikeConsumptionUsd_accepts_standalone_hour_unit_of_measure_synonyms`.
 - [x] (valid-no-repro) `ManifestInfrastructureCostNodes.FromTerraformResourceRows` — null `SkuOrTier` blocks live AWS/GCP probe for terraform-sourced nodes — **2026-09-09 hunt #1415:** `TerraformInfrastructureCostResourceRow` carries only display name, terraform type, and region (no instance-type/sku source); mapper correctly leaves `SkuOrTier` null; live-probe guards are intentional until row schema carries SKU; regression documents contract in `FromTerraformResourceRows_maps_available_row_fields_only`.
+
+2026-09-12 seed hunt #2058 (seed-only): reseeded core-costing; no new hunt-ready rows.
 
 2026-09-09 thorough hunt #1415 (hit): proved standalone Azure retail `Hour`/`hours` UOM gap; cheap-disproved terraform null-SKU probe candidate as missing input schema rather than mapper defect; 119 scoped Costing unit tests passed.
 
