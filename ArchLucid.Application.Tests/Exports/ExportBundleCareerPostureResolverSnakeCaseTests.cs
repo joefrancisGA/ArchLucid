@@ -35,4 +35,18 @@ public sealed class ExportBundleCareerPostureResolverSnakeCaseTests
         result.IsBlocked.Should().BeTrue();
         result.BlockReason.Should().Be(CareerArtifactCompletenessValidator.SampleWorkspaceExportBlockMessage);
     }
+
+    [Fact]
+    public void ResolveFromDeltasJson_stamps_career_when_structural_execution_mode_snake_case_real()
+    {
+        string json =
+            """
+            {"isDemoTenant":false,"structural_execution_mode":"Real","workingCareerRehearsalDoor":"career","proofPackageCompleteness":{"runInCommittedStatus":true}}
+            """;
+
+        ExportBundleCareerPostureResult result = ExportBundleCareerPostureResolver.ResolveFromDeltasJson(json);
+
+        result.IsBlocked.Should().BeFalse();
+        result.Stamp!.CareerPosture.Should().Be(ExportBundleCareerPostureResolver.CareerPostureCareer);
+    }
 }

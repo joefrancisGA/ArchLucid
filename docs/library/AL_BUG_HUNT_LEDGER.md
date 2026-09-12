@@ -4220,6 +4220,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-09-12 seed hunt #2217 (seed→hit): reseeded tenant-data-export with `-Hint career export`; proved snake_case `structural_execution_mode` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_stamps_career_when_structural_execution_mode_snake_case_real`.
+
 2026-09-12 seed hunt #2189 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved snake_case `is_demo_tenant`/`is_sample_run` career gate gap; regression `ExportBundleCareerPostureResolverSnakeCaseTests`.
 
 2026-09-12 seed hunt #2145 (seed-only): reseeded tenant-data-export with `-Refresh`; no new hunt-ready rows.
@@ -10452,13 +10454,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 20
-- **bugs-found:** 17
+- **hunts:** 21
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — slash `/m` month UOM rejected while `/mo` and standalone `m` synonyms matched
+- **last-bug:** 2026-09-12 — slash `/mins` minute UOM rejected while `/min` and standalone `mins` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2216 (seed→hit): reseeded core-costing with `-Hint retail prices`; proved slash `/mins` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashMinsTests`.
 
 2026-09-12 seed hunt #2193 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/hrs` hour UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashHrsTests`.
 

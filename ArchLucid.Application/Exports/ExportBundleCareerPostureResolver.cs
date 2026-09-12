@@ -150,7 +150,7 @@ public static class ExportBundleCareerPostureResolver
 
     private static StructuralExecutionMode? TryParseStructuralExecutionMode(JsonElement root)
     {
-        if (!root.TryGetProperty("structuralExecutionMode", out JsonElement modeEl))
+        if (!TryGetJsonStringProperty(root, "structuralExecutionMode", "structural_execution_mode", out JsonElement modeEl))
         {
             return null;
         }
@@ -184,5 +184,25 @@ public static class ExportBundleCareerPostureResolver
         }
 
         return doorEl.GetString();
+    }
+
+    private static bool TryGetJsonStringProperty(
+        JsonElement root,
+        string camelCaseName,
+        string snakeCaseName,
+        out JsonElement value)
+    {
+        if (root.TryGetProperty(camelCaseName, out value))
+        {
+            return true;
+        }
+
+        if (root.TryGetProperty(snakeCaseName, out value))
+        {
+            return true;
+        }
+
+        value = default;
+        return false;
     }
 }
