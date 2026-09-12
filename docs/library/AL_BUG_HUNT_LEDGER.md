@@ -121,13 +121,15 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 51
-- **bugs-found:** 30
+- **hunts:** 52
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — hunt #2213: storage_container svc- synthetic alias on Data-category nodes
+- **last-bug:** 2026-09-12 — hunt #2214: storage_data_lake svc- synthetic alias on Data-category nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2214 (seed→hit): reseeded topology-proposal-merge with `-Hint topology merge`; proved `azurerm_storage_data_lake` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_storage_data_lake_node_has_data_category_but_synthetic_service_id_used`.
 
 2026-09-12 seed hunt #2213 (seed→hit): reseeded topology-proposal-merge with `-Hint graph merge`; proved `azurerm_storage_container` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_storage_container_node_has_data_category_but_synthetic_service_id_used`.
 
@@ -198,6 +200,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+- [x] (proven) `azurerm_storage_data_lake` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2214:** `storage_data_lake` was only in the datastore list; `azurerm_storage_data_lake.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_storage_data_lake_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_storage_container` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2213:** `storage_container` was only in the datastore list; `azurerm_storage_container.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_storage_container_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_storage_blob` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2212:** `storage_blob` was only in the datastore list; `azurerm_storage_blob.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_storage_blob_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_storage_table` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2211:** `storage_table` was only in the datastore list; `azurerm_storage_table.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_storage_table_node_has_data_category_but_synthetic_service_id_used`.
