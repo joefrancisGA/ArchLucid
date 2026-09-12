@@ -46,6 +46,7 @@ describe("CompareGovernanceDiffPanel", () => {
     render(<CompareGovernanceDiffPanel view={view} loading={false} softFailureMessage={null} />);
 
     expect(screen.getByTestId("compare-governance-at-commit-section")).toBeInTheDocument();
+    expect(screen.getByTestId("policy-pack-influence-honesty-chip")).toBeInTheDocument();
     expect(screen.getByTestId("compare-governance-baseline-at-commit")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "pack-a" })).toHaveAttribute(
       "href",

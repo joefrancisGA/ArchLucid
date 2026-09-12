@@ -4292,7 +4292,7 @@ jobs:
     name: "Operator UI: Playwright mock functional (mock API)"
     needs: gitleaks
     if: github.event_name != 'pull_request'
-    # Mock journey specs (`e2e/`, `chromium` project). Accessibility scans: job `ui-playwright-accessibility`. Optional visual goldens: `npm run test:e2e:mock:visual` â€” see playwright.mock.config.ts.
+    # Mock journey specs (`e2e/`, `chromium` project), including finalize readiness deeplink smoke (`e2e/finalize-readiness-block-deeplink.spec.ts`). Accessibility scans: job `ui-playwright-accessibility`. Optional visual goldens: `npm run test:e2e:mock:visual` â€” see playwright.mock.config.ts.
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:

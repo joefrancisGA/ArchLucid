@@ -18,6 +18,12 @@ vi.mock("@/lib/api/review-assumption-acknowledgement-api", () => ({
   putReviewAssumptionAcknowledgement: vi.fn(),
 }));
 
+vi.mock("./finalize-readiness-refresh-notify", () => ({
+  notifyFinalizeReadinessRefresh: vi.fn(),
+}));
+
+import { notifyFinalizeReadinessRefresh } from "./finalize-readiness-refresh-notify";
+
 const RUN_ID = "0b0f7d2e-5b3d-4c8a-9d2f-1a2b3c4d5e6f";
 
 function stubWindowStorage(): void {
@@ -106,6 +112,7 @@ describe("review-assumption-ack-sync", () => {
 
     expect(pushed).toBe(true);
     expect(putReviewAssumptionAcknowledgement).toHaveBeenCalledWith(RUN_ID, new Set(["a"]));
+    expect(notifyFinalizeReadinessRefresh).toHaveBeenCalledWith(RUN_ID);
   });
 
   it("does not push for non-server-backed runs and tolerates PUT failures", async () => {

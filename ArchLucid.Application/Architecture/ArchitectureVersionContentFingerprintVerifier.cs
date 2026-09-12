@@ -15,6 +15,17 @@ public static class ArchitectureVersionContentFingerprintVerifier
         ArchitectureRequest request,
         ArchitectureKnowledgeModel? knowledgeModel)
     {
+        IReadOnlyList<string> violations = GetViolations(version, request, knowledgeModel);
+
+        if (violations.Count > 0)
+            throw new ConflictException(violations[0]);
+    }
+
+    public static IReadOnlyList<string> GetViolations(
+        ArchitectureVersionRecord version,
+        ArchitectureRequest request,
+        ArchitectureKnowledgeModel? knowledgeModel)
+    {
         ArgumentNullException.ThrowIfNull(version);
         ArgumentNullException.ThrowIfNull(request);
 
@@ -23,8 +34,12 @@ public static class ArchitectureVersionContentFingerprintVerifier
 
         if (!recomputedArtifactHash.AsSpan().SequenceEqual(version.ContentHashSha256))
         {
-            throw new ConflictException(
-                "Commit blocked: admitted architecture content no longer matches the pinned ArchitectureVersionId (κ drift).");
+            return
+            [
+                "Commit blocked: admitted architecture content no longer matches the pinned ArchitectureVersionId (κ drift).",
+            ];
         }
+
+        return [];
     }
 }

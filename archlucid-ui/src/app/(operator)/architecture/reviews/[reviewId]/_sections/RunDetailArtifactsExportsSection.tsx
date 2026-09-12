@@ -557,6 +557,8 @@ export function RunDetailArtifactsExportsSection(
                 <RunScopedAuditExportButton
                   runId={runId}
                   manifestVersion={sealedManifestVersion}
+                  progressSummary={props.progressSummary ?? null}
+                  enginesSucceeded={props.enginesSucceeded ?? null}
                 />
                 <Link
                   className={cn(buttonVariants({ variant: "outline", size: "sm" }), OPERATOR_LINK.nav)}

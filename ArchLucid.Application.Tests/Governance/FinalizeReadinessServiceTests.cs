@@ -1,14 +1,21 @@
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.UserPreferences;
 using ArchLucid.Persistence.Data.Repositories;
@@ -20,6 +27,8 @@ using FluentAssertions;
 using Microsoft.Extensions.Options;
 
 using Moq;
+
+using System.Text.Json;
 
 namespace ArchLucid.Application.Tests.Governance;
 
@@ -199,6 +208,58 @@ public sealed class FinalizeReadinessServiceTests
         aligned.Should().BeSameAs(checklist);
     }
 
+    [Fact]
+    public async Task BuildAsync_blocks_when_evidence_referential_integrity_fails()
+    {
+        string runId = Guid.NewGuid().ToString("D");
+        Guid runGuid = Guid.Parse(runId);
+        Guid pinnedPackageId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        PinnedEvidencePackageRow[] pinRows = [new("unit-proof", pinnedPackageId, DateTime.UtcNow)];
+        string pinJson = JsonSerializer.Serialize(pinRows, ContractJson.CamelCaseIgnoreNullCompact);
+
+        Mock<IRunRepository> runs = CreateRunRepository(
+            runId,
+            runGuid,
+            includeRequest: true,
+            pinnedEvidencePackagePinsJson: pinJson);
+        Mock<IPreFinalizeChecklistService> checklist = CreateChecklistMock(runId);
+
+        FindingsSnapshot findingsSnapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "unit-evidence-integrity-proof",
+                    FindingType = "ArchitectureFinding",
+                    Category = "Security",
+                    EngineType = "unit-proof",
+                    Severity = FindingSeverity.Critical,
+                    Title = "Critical finding without resolvable evidence linkage.",
+                    Rationale = "Pinned for evidence referential integrity unit proof.",
+                    RunIdRef = runId,
+                    Trace = new ExplainabilityTrace(),
+                },
+            ],
+            GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
+        };
+
+        FinalizeReadinessService sut = CreateSut(
+            runs.Object,
+            checklist.Object,
+            transparencyTrail: new TransparencyTrail(),
+            findingsSnapshot: findingsSnapshot);
+
+        FinalizeReadinessResult result = await sut.BuildAsync(runId, cancellationToken: CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.BlockedReasonSummary.Should().Contain("finding evidence referential integrity failed");
+        result.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "evidence_referential_integrity");
+    }
+
     private static Mock<IPreFinalizeChecklistService> CreateChecklistMock(string runId)
     {
         Mock<IPreFinalizeChecklistService> checklist = new();
@@ -217,11 +278,75 @@ public sealed class FinalizeReadinessServiceTests
         return checklist;
     }
 
+    [Fact]
+    public async Task BuildAsync_blocks_when_architecture_version_pin_drift_detected()
+    {
+        string runId = Guid.NewGuid().ToString("D");
+        Guid runGuid = Guid.Parse(runId);
+        Guid versionId = Guid.NewGuid();
+        string requestId = Guid.NewGuid().ToString("D");
+        ArchitectureRequest request = new()
+        {
+            RequestId = requestId,
+            IntakeTransparencyTrail = new TransparencyTrail(),
+        };
+        byte[] versionHash = ArchitectureVersionContentFingerprint.ComputeArtifactHash(request, knowledgeModel: null);
+        byte[] driftedPinnedHash = new byte[versionHash.Length];
+        versionHash.CopyTo(driftedPinnedHash, 0);
+        driftedPinnedHash[0] = (byte)(driftedPinnedHash[0] == 0xFF ? (byte)0x00 : (byte)0xFF);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(repository => repository.GetByIdAsync(TestScope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runGuid,
+                ArchitectureRequestId = requestId,
+                FindingsSnapshotId = Guid.NewGuid(),
+                StructuralExecutionMode = StructuralExecutionMode.Real,
+                ArchitectureVersionId = versionId,
+                PinnedArchitectureVersionContentHashSha256 = driftedPinnedHash,
+            });
+        Mock<IPreFinalizeChecklistService> checklist = CreateChecklistMock(runId);
+
+        Mock<IArchitectureRequestRepository> requests = new();
+        requests
+            .Setup(repository => repository.GetByIdAsync(requestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(request);
+
+        Mock<IArchitectureVersionRepository> architectureVersions = new();
+        architectureVersions
+            .Setup(repository => repository.GetByIdAsync(TestScope, versionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureVersionRecord
+            {
+                ArchitectureVersionId = versionId,
+                ContentHashSha256 = versionHash,
+            });
+
+        FinalizeReadinessService sut = CreateSut(
+            runs.Object,
+            checklist.Object,
+            transparencyTrail: new TransparencyTrail(),
+            architectureVersionRepository: architectureVersions.Object,
+            architectureRequestRepository: requests.Object);
+
+        FinalizeReadinessResult result = await sut.BuildAsync(runId, cancellationToken: CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "architecture_version_pin"
+            && block.Message.Contains("drifted since run create", StringComparison.Ordinal));
+    }
+
     private static Mock<IRunRepository> CreateRunRepository(
         string runId,
         Guid runGuid,
         bool includeRequest,
-        Guid? goldenManifestId = null)
+        Guid? goldenManifestId = null,
+        string? pinnedEvidencePackagePinsJson = null,
+        Guid? architectureVersionId = null,
+        byte[]? pinnedArchitectureVersionContentHashSha256 = null)
     {
         Mock<IRunRepository> runs = new();
         runs
@@ -233,6 +358,9 @@ public sealed class FinalizeReadinessServiceTests
                 FindingsSnapshotId = Guid.NewGuid(),
                 GoldenManifestId = goldenManifestId,
                 StructuralExecutionMode = StructuralExecutionMode.Real,
+                PinnedEvidencePackagePinsJson = pinnedEvidencePackagePinsJson,
+                ArchitectureVersionId = architectureVersionId,
+                PinnedArchitectureVersionContentHashSha256 = pinnedArchitectureVersionContentHashSha256,
             });
 
         return runs;
@@ -242,7 +370,10 @@ public sealed class FinalizeReadinessServiceTests
         IRunRepository runRepository,
         IPreFinalizeChecklistService checklistService,
         TransparencyTrail? transparencyTrail,
-        IPreCommitGovernanceGate? preCommitGate = null)
+        IPreCommitGovernanceGate? preCommitGate = null,
+        FindingsSnapshot? findingsSnapshot = null,
+        IArchitectureVersionRepository? architectureVersionRepository = null,
+        IArchitectureRequestRepository? architectureRequestRepository = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
@@ -264,7 +395,7 @@ public sealed class FinalizeReadinessServiceTests
         Mock<IFindingsSnapshotRepository> snapshots = new();
         snapshots
             .Setup(repository => repository.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FindingsSnapshot
+            .ReturnsAsync(findingsSnapshot ?? new FindingsSnapshot
             {
                 Findings = [],
                 GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
@@ -312,11 +443,53 @@ public sealed class FinalizeReadinessServiceTests
             .Setup(g => g.EvaluateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PreCommitGateResult.Allowed());
 
+        Mock<IRunPolicyPackPinService> policyPackPins = new();
+        policyPackPins
+            .Setup(service => service.VerifyPinIntegrityOrThrowAsync(
+                It.IsAny<RunRecord>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunEvidencePackagePinService> evidencePackagePins = new();
+        evidencePackagePins
+            .Setup(service => service.VerifyPinIntegrityOrThrowAsync(
+                It.IsAny<RunRecord>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new();
+        knowledgeModelAccess
+            .Setup(access => access.GetForRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Contracts.ArchitectureIntelligence.ArchitectureKnowledgeModel?)null);
+
+        Mock<IDraftRequestRepository> drafts = new();
+        drafts
+            .Setup(repository => repository.GetBySpawnedRunIdAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((DraftRequestResponse?)null);
+
+        Mock<IArchitectureVersionRepository> architectureVersions = new();
+        architectureVersions
+            .Setup(repository => repository.GetByIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureVersionRecord?)null);
+
         return new FinalizeReadinessService(
             scopeProvider.Object,
             runRepository,
             tasks.Object,
-            requests.Object,
+            architectureRequestRepository ?? requests.Object,
             snapshots.Object,
             reviewTrail.Object,
             traces.Object,
@@ -327,6 +500,11 @@ public sealed class FinalizeReadinessServiceTests
             actor.Object,
             checklistService,
             preCommitGate ?? gate.Object,
+            policyPackPins.Object,
+            evidencePackagePins.Object,
+            knowledgeModelAccess.Object,
+            drafts.Object,
+            architectureVersionRepository ?? architectureVersions.Object,
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             Options.Create(new FinalizeQualityGateOptions { Enabled = true }));
     }

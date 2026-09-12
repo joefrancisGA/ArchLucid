@@ -18,6 +18,27 @@ export function sanitizeMermaidRenderId(rawId: string): string {
 }
 
 /**
+ * Mermaid.render inserts a bind node (`#d{id}`) and, on parse failure, an error SVG
+ * with the same id into document.body. Leaving those nodes in place stacks
+ * "Syntax error in text" banners on every retry.
+ */
+export function removeMermaidRenderBindElement(renderId: string): void {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const trimmed = renderId.trim();
+
+  if (trimmed.length === 0) {
+    return;
+  }
+
+  document.getElementById(`d${trimmed}`)?.remove();
+  document.getElementById(`i${trimmed}`)?.remove();
+  document.getElementById(trimmed)?.remove();
+}
+
+/**
  * Forces Mermaid SVG output to fill its container width.
  * Mermaid often emits a fixed pixel max-width (and sometimes height), which leaves a thumbnail
  * in a wide help-layout frame — especially after rendering inside a closed details disclosure.

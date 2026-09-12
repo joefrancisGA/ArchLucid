@@ -34,6 +34,7 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ExplanationController.FindingExplain.cs"));
 
         auditExportHook.Should().Contain("auditExportBlockedReason");
+        auditExportHook.Should().Contain("resolveAuditPageExportCareerContext");
         findingExplainDialog.Should().Contain("findingExplainBlockedReason");
         findingExplainBlockedReason.Should().Contain("findingExplainBlockedReason");
         findingExplainability.Should().Contain("GetFindingExplainability");

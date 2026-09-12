@@ -1,18 +1,25 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Contracts.User;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.UserPreferences;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,7 +33,12 @@ internal static class FinalizeConflictSqlIntegrationFixture
 {
     internal const string DeferredScorecardProofFindingId = "scorecard-proof-deferred";
 
+    internal const string EvidenceIntegrityProofFindingId = "scorecard-proof-evidence-integrity";
+
     internal const string IntegrationDevUserId = "dev-user";
+
+    private static readonly Guid EvidenceIntegrityProofPackageId =
+        Guid.Parse("22222222-2222-2222-2222-222222222222");
 
     private static readonly Guid PreCommitProofPolicyPackId = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
@@ -384,6 +396,389 @@ internal static class FinalizeConflictSqlIntegrationFixture
             cancellationToken);
     }
 
+    internal static Task PinExistentialAssumptionOnRequestAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        return ReplaceArchitectureRequestForRunAsync(
+            factory,
+            runId,
+            request =>
+            {
+                request.Assumptions = ["Recovery RTO is 4 hours for tier-1 workloads"];
+            },
+            cancellationToken);
+    }
+
+    internal static async Task PinRejectedAgentOutputQualityTraceAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IServiceProvider services = serviceScope.ServiceProvider;
+        IRunRepository runRepository = services.GetRequiredService<IRunRepository>();
+        ITenantSettingsRepository tenantSettingsRepository =
+            services.GetRequiredService<ITenantSettingsRepository>();
+        IAgentExecutionTraceRepository traceRepository =
+            services.GetRequiredService<IAgentExecutionTraceRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for agent output quality proof pin.");
+
+        run.StructuralExecutionMode = StructuralExecutionMode.Real;
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+
+        await tenantSettingsRepository
+            .UpsertAsync(
+                DefaultScope.TenantId,
+                TenantSettingKeys.AgentOutputQualityGateMode,
+                AgentOutputQualityGateMode.PilotStrict.ToString(),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "scorecard-proof-quality-rejected",
+            RunId = runId,
+            TaskId = "scorecard-proof-quality-task",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+        };
+
+        await traceRepository.CreateAsync(trace, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal static async Task PinEvidenceReferentialIntegrityViolationAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IServiceProvider services = serviceScope.ServiceProvider;
+        IRunRepository runRepository = services.GetRequiredService<IRunRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for evidence integrity proof pin.");
+
+        PinnedEvidencePackageRow[] pinRows =
+        [
+            new("integration-proof", EvidenceIntegrityProofPackageId, DateTime.UtcNow),
+        ];
+
+        run.PinnedEvidencePackagePinsJson =
+            JsonSerializer.Serialize(pinRows, ContractJson.CamelCaseIgnoreNullCompact);
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+
+        await InjectPinnedScorecardFindingAsync(
+            factory,
+            runId,
+            finding =>
+            {
+                finding.FindingId = EvidenceIntegrityProofFindingId;
+                finding.Title = "Critical finding lacks resolvable evidence linkage.";
+                finding.Rationale = "Pinned for evidence referential integrity SQL proof.";
+                finding.Severity = FindingSeverity.Critical;
+                finding.EvidenceRefs = [];
+                finding.EvidencePackageId = null;
+            },
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    internal static async Task PinStructuralExecutionModeMixedAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        await PinStructuralExecutionModeAsync(factory, runId, StructuralExecutionMode.Mixed, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    internal static async Task PinStructuralExecutionModeFallbackAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        await PinStructuralExecutionModeAsync(factory, runId, StructuralExecutionMode.Fallback, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    internal static async Task PinArchitectureVersionContentHashDriftAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IRunRepository runRepository =
+            serviceScope.ServiceProvider.GetRequiredService<IRunRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for architecture version pin proof pin.");
+
+        if (run.PinnedArchitectureVersionContentHashSha256 is not { Length: > 0 } pinnedHash)
+        {
+            throw new InvalidOperationException(
+                "Executed run is missing create-time architecture version content hash pin.");
+        }
+
+        byte[] driftedHash = new byte[pinnedHash.Length];
+        pinnedHash.CopyTo(driftedHash, 0);
+        driftedHash[0] = (byte)(driftedHash[0] == 0xFF ? (byte)0x00 : (byte)0xFF);
+
+        run.PinnedArchitectureVersionContentHashSha256 = driftedHash;
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal static async Task PinPolicyPackPinHashDriftAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IRunRepository runRepository =
+            serviceScope.ServiceProvider.GetRequiredService<IRunRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for policy pack pin proof pin.");
+
+        if (run.PinnedPolicyPackIdsHashSha256 is not { Length: > 0 } pinnedHash)
+        {
+            throw new InvalidOperationException(
+                "Executed run is missing create-time policy pack pin hash.");
+        }
+
+        byte[] driftedHash = new byte[pinnedHash.Length];
+        pinnedHash.CopyTo(driftedHash, 0);
+        driftedHash[0] = (byte)(driftedHash[0] == 0xFF ? (byte)0x00 : (byte)0xFF);
+
+        run.PinnedPolicyPackIdsHashSha256 = driftedHash;
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal static async Task PinEvidencePackagePinHashDriftAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IRunRepository runRepository =
+            serviceScope.ServiceProvider.GetRequiredService<IRunRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for evidence package pin proof pin.");
+
+        PinnedEvidencePackageRow[] pinRows =
+        [
+            new(RunEvidencePackagePinService.AzureProvider, EvidenceIntegrityProofPackageId, DateTime.UtcNow),
+        ];
+
+        (string json, byte[] hash) = RunEvidencePackagePinService.SerializePinnedRows(pinRows);
+        run.PinnedEvidencePackagePinsJson = json;
+        run.PinnedEvidencePackagePinsHashSha256 = hash;
+
+        byte[] driftedHash = new byte[hash.Length];
+        hash.CopyTo(driftedHash, 0);
+        driftedHash[0] = (byte)(driftedHash[0] == 0xFF ? (byte)0x00 : (byte)0xFF);
+
+        run.PinnedEvidencePackagePinsHashSha256 = driftedHash;
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal static async Task PinDraftSpawnDocumentHashDriftAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out _))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IServiceProvider services = serviceScope.ServiceProvider;
+        IDraftRequestRepository draftRequestRepository =
+            services.GetRequiredService<IDraftRequestRepository>();
+
+        DraftRequestDocument originalDocument = new()
+        {
+            FreeTextIntent = "SQL proof draft spawn hash baseline.",
+            SystemName = "finalize-pin-proof",
+        };
+
+        byte[] spawnHash = DraftDocumentContentFingerprint.Compute(originalDocument);
+
+        DraftRequestResponse created = await draftRequestRepository
+            .CreateAsync(
+                DefaultScope.TenantId,
+                DefaultScope.WorkspaceId,
+                DefaultScope.ProjectId,
+                IntegrationDevUserId,
+                originalDocument,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        DraftRequestDocument mutatedDocument = new()
+        {
+            FreeTextIntent = "SQL proof draft spawn hash drifted after spawn.",
+            SystemName = "finalize-pin-proof",
+        };
+
+        DraftRequestResponse? updated = await draftRequestRepository
+            .UpdateAsync(
+                DefaultScope.TenantId,
+                DefaultScope.WorkspaceId,
+                DefaultScope.ProjectId,
+                created.DraftId,
+                DraftRequestStatus.Admitted,
+                mutatedDocument,
+                redirectReason: null,
+                spawnedRunId: runId,
+                cancellationToken,
+                spawnedDocumentContentHashSha256: spawnHash)
+            .ConfigureAwait(false);
+
+        if (updated is null)
+        {
+            throw new InvalidOperationException(
+                "Draft spawn hash proof pin failed to link draft to executed run.");
+        }
+    }
+
+    private static async Task PinStructuralExecutionModeAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        StructuralExecutionMode mode,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IRunRepository runRepository =
+            serviceScope.ServiceProvider.GetRequiredService<IRunRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for structural execution mode proof pin.");
+
+        run.StructuralExecutionMode = mode;
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal static async Task PinUnsupportedSemanticSupportFindingAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IServiceProvider services = serviceScope.ServiceProvider;
+        IRunRepository runRepository = services.GetRequiredService<IRunRepository>();
+        ITenantSettingsRepository tenantSettingsRepository =
+            services.GetRequiredService<ITenantSettingsRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for unsupported semantic support proof pin.");
+
+        run.StructuralExecutionMode = StructuralExecutionMode.Real;
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+
+        await tenantSettingsRepository
+            .UpsertAsync(
+                DefaultScope.TenantId,
+                TenantSettingKeys.AgentOutputQualityGateMode,
+                AgentOutputQualityGateMode.PilotStrict.ToString(),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        await InjectPinnedScorecardFindingAsync(
+            factory,
+            runId,
+            finding =>
+            {
+                finding.FindingId = "scorecard-proof-unsupported-semantic";
+                finding.Title = "Decision-grade finding with unsupported semantic support band.";
+                finding.Rationale = "Pinned for unsupported semantic support SQL proof.";
+                finding.Classification = FindingClassification.DecisionGradeFinding;
+                finding.SemanticSupportBand = FindingSemanticSupportBand.Unsupported;
+            },
+            cancellationToken).ConfigureAwait(false);
+    }
+
     private static string BuildPreCommitProofPinJson()
     {
         PinnedPolicyPackRow[] pinRows =
@@ -568,6 +963,8 @@ internal static class FinalizeConflictSqlIntegrationFixture
             IsMuted = source.IsMuted,
             ConfidenceLevel = source.ConfidenceLevel,
             EnforcementTier = source.EnforcementTier,
+            Classification = source.Classification,
+            SemanticSupportBand = source.SemanticSupportBand,
         };
     }
 }

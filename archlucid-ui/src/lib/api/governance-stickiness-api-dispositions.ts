@@ -7,6 +7,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostJson } from "./http";
 
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import { notifyFinalizeReadinessRefresh } from "@/lib/review-quality/finalize-readiness-refresh-notify";
 import { withLivelihood401Resume } from "@/lib/auth/livelihood-mutation-401-resume";
 import {
   type FindingDispositionEvent,
@@ -36,11 +37,14 @@ export async function recordFindingDisposition(
   const idempotencyKey = options?.idempotencyKey?.trim() || createGovernanceMutationIdempotencyKey();
 
   try {
-    return await apiPostJson<FindingDispositionEvent>(
+    const result = await apiPostJson<FindingDispositionEvent>(
       `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
       body,
       { extraHeaders: { "Idempotency-Key": idempotencyKey } },
     );
+    notifyFinalizeReadinessRefresh(body.runId);
+
+    return result;
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = findingDispositionMutationBlockedReason(failure);
@@ -81,16 +85,24 @@ export async function recordBulkFindingDisposition(
     revisitDueUtc?: string;
     expectedCurrentDispositionRowVersionBase64ByFindingId?: Record<string, string>;
   },
-  options?: { readonly idempotencyKey?: string },
+  options?: { readonly idempotencyKey?: string; readonly refreshRunId?: string },
 ): Promise<RecordBulkFindingDispositionResponse> {
   const idempotencyKey = options?.idempotencyKey?.trim() || createGovernanceMutationIdempotencyKey();
 
   try {
-    return await apiPostJson<RecordBulkFindingDispositionResponse>(
+    const result = await apiPostJson<RecordBulkFindingDispositionResponse>(
       `${governanceStickinessBase()}/findings/bulk-disposition`,
       body,
       { extraHeaders: { "Idempotency-Key": idempotencyKey } },
     );
+
+    const refreshRunId = options?.refreshRunId?.trim();
+
+    if (refreshRunId !== undefined && refreshRunId.length > 0) {
+      notifyFinalizeReadinessRefresh(refreshRunId);
+    }
+
+    return result;
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = findingBulkDispositionBlockedReason(failure);

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { getFinalizeReadiness } from "@/lib/api/finalize-readiness";
+import { subscribeFinalizeReadinessRefresh } from "@/lib/review-quality/finalize-readiness-refresh-notify";
 import type { FinalizeReadinessResult } from "@/types/finalize-readiness";
 
 export function useFinalizeReadiness(input: {
@@ -15,7 +16,18 @@ export function useFinalizeReadiness(input: {
 } {
   const [readiness, setReadiness] = useState<FinalizeReadinessResult | null>(null);
   const [loading, setLoading] = useState(input.enabled);
+  const [refreshToken, setRefreshToken] = useState(0);
   const acknowledgedKey = [...input.acknowledgedAssumptionIds].sort().join("|");
+
+  useEffect(() => {
+    if (!input.enabled) {
+      return () => {};
+    }
+
+    return subscribeFinalizeReadinessRefresh(input.runId, () => {
+      setRefreshToken((current) => current + 1);
+    });
+  }, [input.enabled, input.runId]);
 
   useEffect(() => {
     if (!input.enabled) {
@@ -47,7 +59,7 @@ export function useFinalizeReadiness(input: {
     return () => {
       cancelled = true;
     };
-  }, [input.enabled, input.runId, acknowledgedKey]);
+  }, [input.enabled, input.runId, acknowledgedKey, refreshToken]);
 
   return { readiness, loading };
 }
