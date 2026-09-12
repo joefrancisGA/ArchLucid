@@ -29,6 +29,7 @@ public sealed partial class AzureRetailPricesCatalogClient
         string meter = row.UnitOfMeasure ?? string.Empty;
 
         return AzureRetailPricesCatalogClient.IsHourMeter(meter) ||
+               AzureRetailPricesCatalogClient.IsDayMeter(meter) ||
                AzureRetailPricesCatalogClient.IsMonthlyMeter(meter);
     }
 
@@ -48,6 +49,16 @@ public sealed partial class AzureRetailPricesCatalogClient
         {
             decimal perResource = decimal.Multiply(unit,
                 (decimal)HoursPerMonthAssumption);
+
+            monthly = decimal.Multiply(perResource, quantity);
+
+            return true;
+        }
+
+        if (IsDayMeter(raw))
+        {
+            decimal perResource = decimal.Multiply(unit,
+                (decimal)DaysPerMonthAssumption);
 
             monthly = decimal.Multiply(perResource, quantity);
 
@@ -137,6 +148,24 @@ public sealed partial class AzureRetailPricesCatalogClient
         }
 
         return false;
+    }
+
+    internal static bool IsDayMeter(string uom)
+    {
+        if (string.IsNullOrWhiteSpace(uom))
+            return false;
+
+        string trimmed = uom.Trim();
+
+        return ContainsDayWordToken(trimmed)
+            || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsDayWordToken(string trimmed)
+    {
+        return ContainsBoundedToken(trimmed, " day")
+            || ContainsBoundedToken(trimmed, " days");
     }
 
     internal static bool IsMonthlyMeter(string uom)
