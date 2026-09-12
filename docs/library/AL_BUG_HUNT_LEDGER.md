@@ -9672,11 +9672,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — slash `/day` Azure retail UOM rejected while `/hr` and `/mo` synonyms matched
+- **last-bug:** 2026-09-12 — slash `/wk` and standalone week/weeks Azure retail UOM rejected while day/hour/month synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
