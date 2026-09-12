@@ -1,8 +1,8 @@
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Application.InfraEvidence.Ask;
 using ArchLucid.Application.InfraEvidence.Branding;
-using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.ArtifactSynthesis.Branding;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
@@ -16,6 +16,7 @@ using ArchLucid.Application.InfraEvidence.RemediationPatterns;
 using ArchLucid.Application.InfraEvidence.RemediationPrioritization;
 using ArchLucid.Application.InfraEvidence.RemediationWaves;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
+using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -39,6 +40,8 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IInfraEvidenceDriftWorkbenchQueryService, InfraEvidenceDriftWorkbenchQueryService>();
         services.AddScoped<IAzureInventorySnapshotGraphResolver, AzureInventorySnapshotGraphResolver>();
         services.AddSingleton(new MermaidDiagramReadabilityThresholds());
+        services.AddSingleton<IDiagramPeelCatalogProvider, RepositoryDiagramPeelCatalogProvider>();
+        services.AddScoped<DiagramPeelCatalogBootstrapper>();
         services.AddScoped<IInfraEvidenceSnapshotMermaidService, InfraEvidenceSnapshotMermaidService>();
         services.AddScoped<IAuditFrameworkImportService, AuditFrameworkImportService>();
         services.AddScoped<IAuditEvidenceSelectionService, AuditEvidenceSelectionService>();

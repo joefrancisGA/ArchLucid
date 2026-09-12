@@ -269,6 +269,7 @@ describe('ArchitectureDiagramViewer', () => {
     const fitSpy = vi.spyOn(helpMermaid, 'fitMermaidSvgElementToViewport').mockReturnValue({
       baseWidthPx: 10,
       baseHeightPx: 10,
+      inkMeasured: true,
     });
 
     render(
@@ -290,6 +291,40 @@ describe('ArchitectureDiagramViewer', () => {
 
     expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-render-failure'));
     expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-viewport-controls'));
+
+    fitSpy.mockRestore();
+  });
+
+  it('shows in-flow paint failure when the viewport is large but ink was not measured', async () => {
+    const fitSpy = vi.spyOn(helpMermaid, 'fitMermaidSvgElementToViewport').mockReturnValue({
+      baseWidthPx: 800,
+      baseHeightPx: 240,
+      inkMeasured: false,
+    });
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('architecture-diagram-render-failure')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    expect(screen.getByText(ARCHITECTURE_DIAGRAM_PAINT_FAILURE)).toBeInTheDocument();
+
+    const viewport = screen.getByTestId('architecture-diagram-viewport');
+
+    expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-render-failure'));
+    expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-viewport-controls'));
+    expect(viewport.className).toContain('bg-white');
 
     fitSpy.mockRestore();
   });

@@ -50,4 +50,20 @@ describe("architecture-diagram-svg", () => {
     expect(converted).toContain("vnet-westus");
     expect(converted).toContain('fill="currentColor"');
   });
+
+  it("paints node boxes and edge paths that have no stroke so the graph is not invisible", () => {
+    const svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80">',
+      '  <g class="node"><rect width="80" height="32" x="10" y="10" fill="none"/></g>',
+      '  <g class="edgePaths"><path d="M10 26 L90 26"/></g>',
+      "</svg>",
+    ].join("");
+
+    const converted = replaceMermaidForeignObjectLabelsWithSvgText(svg);
+
+    expect(converted).toContain('stroke="currentColor"');
+    expect(converted).toContain('stroke-width="1.5"');
+    expect(converted).toContain('fill-opacity="0.12"');
+    expect(converted).toMatch(/<path[^>]*fill="none"/);
+  });
 });

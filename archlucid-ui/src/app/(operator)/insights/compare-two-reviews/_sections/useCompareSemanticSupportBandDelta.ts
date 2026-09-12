@@ -9,6 +9,14 @@ import {
   buildCompareSemanticSupportBandDeltaView,
   type CompareSemanticSupportBandDeltaView,
 } from "@/lib/review-quality/compare-semantic-support-band-delta";
+import {
+  buildCompareClassificationBandDeltaView,
+  type CompareClassificationBandDeltaView,
+} from "@/lib/review-quality/compare-classification-band-delta";
+import {
+  buildCompareTreatmentBandDeltaView,
+  type CompareTreatmentBandDeltaView,
+} from "@/lib/review-quality/compare-treatment-band-delta";
 import type { RunSummary } from "@/types/authority";
 
 async function loadCompareRunFindings(runId: string) {
@@ -28,6 +36,8 @@ export function useCompareSemanticSupportBandDelta(input: {
 }): {
   readonly loading: boolean;
   readonly view: CompareSemanticSupportBandDeltaView | null;
+  readonly classificationView: CompareClassificationBandDeltaView | null;
+  readonly treatmentView: CompareTreatmentBandDeltaView | null;
 } {
   const baselineRunId = input.baselineRunId?.trim() ?? "";
   const targetRunId = input.targetRunId?.trim() ?? "";
@@ -49,13 +59,13 @@ export function useCompareSemanticSupportBandDelta(input: {
   });
 
   if (!enabled) {
-    return { loading: false, view: null };
+    return { loading: false, view: null, classificationView: null, treatmentView: null };
   }
 
   const loading = queries.some((query) => query.isPending);
 
   if (loading || queries.some((query) => query.isError)) {
-    return { loading, view: null };
+    return { loading, view: null, classificationView: null, treatmentView: null };
   }
 
   const baselineFindings = queries[0]?.data ?? [];
@@ -68,6 +78,14 @@ export function useCompareSemanticSupportBandDelta(input: {
       targetFindings,
       baselineExecutionMode: input.baselineSummary?.structuralExecutionMode ?? null,
       targetExecutionMode: input.targetSummary?.structuralExecutionMode ?? null,
+    }),
+    classificationView: buildCompareClassificationBandDeltaView({
+      baselineFindings,
+      targetFindings,
+    }),
+    treatmentView: buildCompareTreatmentBandDeltaView({
+      baselineFindings,
+      targetFindings,
     }),
   };
 }

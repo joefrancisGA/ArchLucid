@@ -26,6 +26,8 @@ import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY }
 import { cn } from "@/lib/utils";
 import { ComparePinToDeskActions } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePinToDeskActions";
 import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
+import { CompareClassificationBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareClassificationBandDeltaPanel";
+import { CompareTreatmentBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareTreatmentBandDeltaPanel";
 import { CompareSemanticSupportBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSemanticSupportBandDeltaPanel";
 import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaBand";
 import { deriveCompareQualityDeltaFromGolden } from "@/lib/review-quality/compare-quality-delta";
@@ -154,6 +156,20 @@ export function CompareResultsPanelVerdictChrome({
         <CompareSemanticSupportBandDeltaPanel
           loading={semanticSupportBandDeltaState.loading}
           view={semanticSupportBandDeltaState.view}
+        />
+      ) : null}
+
+      {golden !== null ? (
+        <CompareClassificationBandDeltaPanel
+          loading={semanticSupportBandDeltaState.loading}
+          view={semanticSupportBandDeltaState.classificationView}
+        />
+      ) : null}
+
+      {golden !== null ? (
+        <CompareTreatmentBandDeltaPanel
+          loading={semanticSupportBandDeltaState.loading}
+          view={semanticSupportBandDeltaState.treatmentView}
         />
       ) : null}
 

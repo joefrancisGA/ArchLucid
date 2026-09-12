@@ -342,6 +342,59 @@ Proof tests:
 dotnet test ArchLucid.KnowledgeGraph.Tests --filter "FullyQualifiedName~CostConstraintProjectedSpend|RequestCostConstraintMaterializer"
 ```
 
+## TB-2344 actor/trust-boundary axes into security engines
+
+Draft `ActorSet` JSON materializes onto the context graph as typed `Actor` and `TrustBoundary` nodes (`RequestActorMaterializer`, `request-actors` stage). Security engines (`trust-boundary`, `external-exposure`, `privileged-access`) read graph nodes — not parallel assumption strings.
+
+| Layer | Behavior |
+|-------|----------|
+| **Materialization** | `RequestActorMaterializer` emits `TrustBoundary` nodes for external/public-anonymous actors with `actorNodeId` linkage. |
+| **Pipeline** | `GraphMaterializationStages` stage `request-actors` reads `ContextScopeMetadataKeys.Actors` from the context snapshot. |
+| **Engines** | `ExternalExposureFindingEngine` skips external actors with matching trust-boundary nodes; `TrustBoundaryFindingEngine` skips mixed-origin graphs that already have boundaries; `PrivilegedAccessFindingEngine` fires on internal human actors. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.KnowledgeGraph.Tests --filter "FullyQualifiedName~RequestActorMaterializer|RequestActorsStage"
+dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~ActorSecurityFindingEngine|GoldenCorpusActorEngineHarness"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2344_request_actors_materialize"
+```
+
+## TB-2345 quality attributes and availability theme (RTO/RPO)
+
+Structured-brief quality text materializes as typed `QualityAttribute` nodes with parsed `rtoHours`/`rpoHours` on the availability theme (`RequestQualityAttributeMaterializer`, `request-quality-attributes` stage). `DrRpoTopologyAnalyzer` consumes those typed properties via `DrRpoQualityAttributeParser` — engines no longer need to re-parse brief strings when materialized nodes are present.
+
+| Layer | Behavior |
+|-------|----------|
+| **Materialization** | `RequestQualityAttributeMaterializer` parses RTO/RPO durations into `rtoHours` / `rpoHours` node properties with `theme=availability`. |
+| **Pipeline** | `GraphMaterializationStages` stage `request-quality-attributes` reads `ContextScopeMetadataKeys.QualityAttribute`. |
+| **Engine** | `DrRpoTopologyFindingEngine` / `DrRpoTopologyAnalyzer` evaluate materialized quality-attribute nodes against datastore replica evidence (graph-wide datastore scan when no requirement-style links exist). |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.KnowledgeGraph.Tests --filter "FullyQualifiedName~RequestQualityAttribute"
+dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~DrRpoQualityAttributeParser|DrRpoTopologyFindingEngine|RequestQualityAttributeMaterializer_output"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2345_quality_attribute"
+```
+
+## TB-2347 confirmed assumptions on the context graph
+
+Structured-brief confirmed assumptions materialize as `Assumption` nodes and receive connector `RelatesTo` edges to related requirements and actors (`RequestAssumptionMaterializer`, `RequestAssumptionEdgeMaterializer`, `request-assumptions` + `request-assumption-edges` stages). Unknown sentinels remain excluded via TB-2343 filtering at projection time.
+
+| Layer | Behavior |
+|-------|----------|
+| **Materialization** | `RequestAssumptionMaterializer` emits one node per pipe-separated assumption with `source=structured-brief`. |
+| **Connector edges** | `RequestAssumptionEdgeMaterializer` links assumptions to requirement/actor labels using conservative token overlap heuristics. |
+| **Pipeline** | Stage `request-assumption-edges` runs immediately after `request-assumptions`. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.KnowledgeGraph.Tests --filter "FullyQualifiedName~RequestAssumption"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2347_assumption_nodes"
+```
+
 ## ConflictException → 409 controller sweep
 
 Twenty controller `try` blocks that returned **400** for `InvalidOperationException` now catch `ConflictException` first. Guard: `ControllerConflictExceptionNotSwallowedAs400ArchitectureTests`.

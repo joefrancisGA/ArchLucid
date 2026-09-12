@@ -174,11 +174,19 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
                   classification={resolveFindingInspectExportClassification(inspectPayload)}
                   treatment={resolveInspectTreatment(inspectPayload)}
                   findingId={decodedFindingId}
+                  showReason
                 />
               ) : null}
               {inspectPayload !== null ? (
                 <FindingSemanticSupportBandChip
                   finding={mapInspectPayloadToQuickDecisionFinding(inspectPayload)}
+                  showReason
+                />
+              ) : null}
+              {inspectPayload !== null ? (
+                <FindingSemanticSupportBandChip
+                  finding={mapInspectPayloadToQuickDecisionFinding(inspectPayload)}
+                  showReason
                 />
               ) : null}
               {labels.categoryLabel ? <StatusTag kind="neutral" label={labels.categoryLabel} /> : null}

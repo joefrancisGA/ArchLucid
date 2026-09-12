@@ -63,12 +63,13 @@ describe("ArchitectureDraftHandoffPanel (SD-10 / AO-07)", () => {
     );
 
     expect(screen.getByTestId("architecture-draft-handoff-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-spawn-lock-snapshot-summary")).toBeInTheDocument();
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-handoff-open-review")).toHaveAttribute(
       "href",
       "/architecture/reviews/run-42",
     );
     expect(screen.getByText(/Reduce settlement risk/)).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-draft-clone-snapshot")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-spawn-lock-clone-snapshot")).toBeInTheDocument();
   });
 });

@@ -1,38 +1,12 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
-import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { runSummaryDisplayLabel } from "@/lib/runs/run-summary-display-label";
+import { resolveComparePickerFootnote } from "@/lib/system-not-job-compare-labeled-envelope-runs";
 import type { RunSummary } from "@/types/authority";
 
 export type ComparedPair = { left: string; right: string };
 
-/** Secondary hint under Compare pickers — demo slugs or API-backed label when the row was picked from the list. */
+/** Secondary hint under Compare pickers — door stamp plus title when the row was picked from the list (SN-014 / CG-057). */
 export function comparePickerFootnote(runId: string, picked: RunSummary | null): string | null {
-  const trimmed = runId.trim();
-
-  if (trimmed.length === 0) {
-    return null;
-  }
-
-  const demoLabel = compareRunBuyerDisplayLabel(trimmed);
-
-  if (demoLabel !== null) {
-    return demoLabel;
-  }
-
-  if (picked !== null) {
-    const pickedId = picked.runId.trim();
-
-    if (canonicalizeDemoRunId(pickedId).toLowerCase() === canonicalizeDemoRunId(trimmed).toLowerCase()) {
-      const label = runSummaryDisplayLabel(picked);
-
-      if (label.toLowerCase() !== trimmed.toLowerCase()) {
-        return label;
-      }
-    }
-  }
-
-  return null;
+  return resolveComparePickerFootnote(runId, picked);
 }
 
 export function outcomeLabel(params: {

@@ -9,6 +9,7 @@ export const SEMANTIC_SUPPORT_BAND_DESK_GUARDED_PATHS = [
   "components/findings/QuickDecisionWorkspaceSecondaryFindingCard.tsx",
   "components/findings/FindingSemanticSupportBandInspectSection.tsx",
   "components/quick-decision-summary/QuickDecisionSummaryFindingRow.tsx",
+  "app/(operator)/governance/findings/GovernanceFindingsQueueOperationalRowCells.tsx",
 ] as const;
 
 /** Approved import or JSX usage markers for the band chip helper. */

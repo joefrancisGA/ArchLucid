@@ -105,6 +105,24 @@ public sealed class GraphMaterializationStageTests
     }
 
     [Fact]
+    public async Task RequestActorsStage_materializes_external_actor_with_trust_boundary()
+    {
+        ContextSnapshot snapshot = CreateSnapshot();
+        snapshot.SourceHashes[ContextScopeMetadataKeys.Actors] =
+            """
+            [{"label":"Partner portal user","kind":"Human","trustOrigin":"External","contract":"Sync","origin":"Asserted","confidence":100}]
+            """;
+
+        GraphMaterializationContext context = CreateContext(snapshot);
+        await RunThroughStage(context, "request-actors");
+
+        context.Nodes.Should().Contain(n => n.NodeType == GraphNodeTypes.Actor && n.Label == "Partner portal user");
+        context.Nodes.Should().Contain(n =>
+            n.NodeType == GraphNodeTypes.TrustBoundary
+            && n.Properties.ContainsKey("actorNodeId"));
+    }
+
+    [Fact]
     public async Task DeclarationIdentityActorsStage_materializes_from_k8s_service_account_when_intake_missing()
     {
         ContextSnapshot snapshot = CreateSnapshot();
@@ -201,6 +219,33 @@ public sealed class GraphMaterializationStageTests
 
         result.StageOutcomes.Should().ContainSingle(o => o.StageName == "request-assumptions")
             .Which.Skipped.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task RequestAssumptionEdgesStage_materializes_relates_to_edges_for_confirmed_assumptions()
+    {
+        ContextSnapshot snapshot = CreateSnapshot();
+        snapshot.SourceHashes[ContextScopeMetadataKeys.Assumptions] = "Entra ID for staff operators";
+        snapshot.CanonicalObjects =
+        [
+            new CanonicalObject
+            {
+                ObjectId = "req-staff",
+                ObjectType = GraphNodeTypes.Requirement,
+                Name = "Staff operator access",
+                SourceType = "test",
+                SourceId = "req-staff",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+            },
+        ];
+
+        GraphMaterializationContext context = CreateContext(snapshot);
+        await RunThroughStage(context, "request-assumption-edges");
+
+        context.Nodes.Should().Contain(n => n.NodeType == GraphNodeTypes.Assumption);
+        context.Edges.Should().Contain(e =>
+            e.EdgeType == GraphEdgeTypes.RelatesTo
+            && e.InferenceSource == GraphEdgeInferenceSources.StructuredBriefAssumptionLink);
     }
 
     [Fact]
