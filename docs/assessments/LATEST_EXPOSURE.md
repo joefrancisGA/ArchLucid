@@ -49,7 +49,7 @@ The product is past “hide it because the UI is a prototype.” It is **not** p
 
 | Score | Value | Feeds `(A)`? |
 |---|---|---|
-| **(A) V1 headline readiness** | **78.18%** | Yes (v3 model, this pass) |
+| **(A) V1 headline readiness** | **78.72%** | Yes (v3 model, this pass) |
 | **(B) Procurement / market realism** | Informational — rigid RFP **weak**; honest packet **usable** | No (weight 0) |
 | Trustworthiness | **73** | Exposure only |
 | UI Polish | **72** | Exposure only |
