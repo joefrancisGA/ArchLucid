@@ -120,7 +120,7 @@ internal static class DiagramSparseComponentPacker
             .ThenBy(node => node.NodeId, StringComparer.Ordinal)
             .ToList();
 
-        foreach (DiagramEdge link in DiagramPeerGridPlanner.BuildGridLinks(representatives))
+        foreach (DiagramEdge link in DiagramPeerGridPlanner.BuildDenseGridLinks(representatives))
         {
             ast.Edges.Add(link);
         }

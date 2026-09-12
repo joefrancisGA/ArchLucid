@@ -105,7 +105,11 @@ export function elevenVnetSparsePeeringMermaid(): string {
     n_921b0a636e54b675 -->|"peered"| n_a33f5b6ab8d05c6f
     n_6d475eea46fe20d1 -->|"peered"| n_708ea1a6331ccb16
     n_97bc743c90f3ec01 -->|"peered"| n_25c297f402f0707e
-    n_faa008cc79752e5b ~~~ n_6d475eea46fe20d1
+    n_faa008cc79752e5b ~~~ n_4c3bc94d23429abf
+    n_faa008cc79752e5b ~~~ n_921b0a636e54b675
+    n_921b0a636e54b675 ~~~ n_6d475eea46fe20d1
+    n_921b0a636e54b675 ~~~ n_25c297f402f0707e
+    n_4c3bc94d23429abf ~~~ n_6d475eea46fe20d1
 `;
 }
 
