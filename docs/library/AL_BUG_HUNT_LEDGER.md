@@ -12079,7 +12079,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -12170,6 +12170,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-11 seed hunt #1715 (hit): reseeded application-agents; proved invisible Unicode curated-evidence descriptions and partial multi-trace cost basis mislabeling; 70 scoped `Application.Tests.Agents` tests passed.
 2026-09-11 seed hunt #1723 (hit): reseeded application-agents; seeded catalog slug-collision candidate; proved invisible-only curated evidence text bypass; 70 scoped Application.Tests.Agents tests passed.
 2026-09-11 thorough hunt #1724 (hit): proved catalog slug collision on evidence promotion and null evidence type validation throw; 72 scoped Application.Tests.Agents tests passed.
+
+- [x] (valid-no-repro) Seed hunt #1866 cheap-disproof placeholder — **cheap-disproof 2026-09-12 seed hunt #1866:** zone reseeded; scoped tests green; no new hunt-ready defect in this pass.
+
+2026-09-12 seed hunt #1866 (seed-only): reseeded api-tenancy-workspaces; no proven defect this pass.
 
 ---
 
