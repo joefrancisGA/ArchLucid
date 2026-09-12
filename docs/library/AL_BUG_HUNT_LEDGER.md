@@ -4027,15 +4027,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — ROI freshness regression used Simulator mode and tripped career-artifact PDF gate before ZIP build
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
+2026-09-12 seed hunt #1892 (seed-only): reseeded application-pilots; scoped tests passed; no hunt-ready defect proven this pass.
+
 
 - [x] (invalid) Proof pack includes findings from a workspace outside the pilot scope — `GetRunDetailAsync` and `ValueReportBuilder.BuildAsync` both honor current `ScopeContext`; no cross-workspace join in pack builders (`PilotReportCardService.EnsureScopeMatches` pattern elsewhere).
 - [x] (valid-no-repro) PDF builder silently drops a section when source data is missing — snapshot fallback governed-coverage gap fixed 2026-08-26; `SponsorOnePagerPdfBuilder` / `BoardPackPdfBuilder` intentionally omit buyer-safe and governed-coverage sections (compact surfaces with explicit skip copy where applicable).
