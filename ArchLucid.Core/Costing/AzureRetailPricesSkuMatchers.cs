@@ -360,6 +360,7 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return ContainsWeekWordToken(trimmed)
             || ContainsSlashWeekToken(trimmed)
+            || ContainsSlashWeeksToken(trimmed)
             || ContainsSlashWkToken(trimmed)
             || ContainsSlashWToken(trimmed)
             || string.Equals(trimmed, "week", StringComparison.OrdinalIgnoreCase)
@@ -392,6 +393,28 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterWeek;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashWeeksToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/weeks", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterWeeks = index + 6;
+
+            if (afterWeeks >= trimmed.Length || !char.IsLetter(trimmed[afterWeeks]))
+                return true;
+
+            index = afterWeeks;
         }
 
         return false;
@@ -450,6 +473,7 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return ContainsMonthWordToken(trimmed)
             || ContainsSlashMonthWordToken(trimmed)
+            || ContainsSlashMonthsToken(trimmed)
             || ContainsSlashMonthToken(trimmed)
             || ContainsSlashMToken(trimmed)
             || ContainsBoundedToken(trimmed, " mo")
@@ -482,6 +506,28 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterMonth;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashMonthsToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/months", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterMonths = index + 7;
+
+            if (afterMonths >= trimmed.Length || !char.IsLetter(trimmed[afterMonths]))
+                return true;
+
+            index = afterMonths;
         }
 
         return false;
