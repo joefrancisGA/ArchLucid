@@ -33,6 +33,21 @@ vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
   useArchitectureDraftRegistryEntries: () => [],
 }));
 
+vi.mock("@/lib/desk-continuity-preference", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/desk-continuity-preference")>();
+
+  return {
+    ...actual,
+    readCachedLastOpenArchitectureId: () => "architecture-identity-001",
+    readCachedDeskContinuity: () => ({
+      lastOpenArchitectureId: "architecture-identity-001",
+      lastOpenReviewId: null,
+      lastOpenDraftId: null,
+      lastVisitWatermarkUtc: null,
+    }),
+  };
+});
+
 vi.mock("@/lib/operations/in-flight-operations-store", () => ({
   getInFlightOperations: () => [],
   subscribeInFlightOperations: () => () => {},
@@ -88,7 +103,7 @@ describe("useShortcutNavigation", () => {
     expect(routerPush).toHaveBeenCalledWith("/insights/compare-two-reviews?priorRunId=run-abc");
   });
 
-  it("prefills Compare base review when Alt+C is pressed on review-detail in Working mode", () => {
+  it("prefills nested Compare base review when Alt+C is pressed on review-detail in Working mode", () => {
     mockPathname.mockReturnValue("/architecture/reviews/run-abc");
     mockWorkspaceMode.mockReturnValue({
       mode: "working",
@@ -102,11 +117,13 @@ describe("useShortcutNavigation", () => {
 
     fireEvent.keyDown(window, { key: "c", altKey: true });
 
-    expect(routerPush).toHaveBeenCalledWith("/insights/compare-two-reviews?priorRunId=run-abc");
+    expect(routerPush).toHaveBeenCalledWith(
+      "/architecture/architectures/architecture-identity-001/compare?leftRunId=run-abc",
+    );
   });
 
   it("scopes Ask to the open review when Alt+A is pressed on review-detail in Working mode", () => {
-    mockPathname.mockReturnValue("/architecture/reviews/run-abc/findings/f-1");
+    mockPathname.mockReturnValue("/architecture/reviews/run-abc");
     mockWorkspaceMode.mockReturnValue({
       mode: "working",
       mounted: true,
@@ -119,7 +136,9 @@ describe("useShortcutNavigation", () => {
 
     fireEvent.keyDown(window, { key: "a", altKey: true });
 
-    expect(routerPush).toHaveBeenCalledWith("/insights/ask-review-questions?runId=run-abc");
+    expect(routerPush).toHaveBeenCalledWith(
+      "/architecture/architectures/architecture-identity-001/ask?runId=run-abc",
+    );
   });
 
   it("scopes evidence graph to the open review when Alt+Y is pressed on review-detail in Working mode", () => {
@@ -136,7 +155,9 @@ describe("useShortcutNavigation", () => {
 
     fireEvent.keyDown(window, { key: "y", altKey: true });
 
-    expect(routerPush).toHaveBeenCalledWith("/insights/evidence-graph?runId=run-abc");
+    expect(routerPush).toHaveBeenCalledWith(
+      "/architecture/architectures/architecture-identity-001/graph?runId=run-abc",
+    );
   });
 
   it("invokes onHelpRequested for Shift+?", () => {

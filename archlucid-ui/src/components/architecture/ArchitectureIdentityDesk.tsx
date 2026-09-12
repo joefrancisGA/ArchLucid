@@ -162,6 +162,7 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
           <ArchitectureIdentityDeskCompareAction
             reviews={identity.reviews}
             architectureId={identity.architectureId}
+            latestReviewId={identity.latestReviewId}
           />
         </div>
         <ArchitectureIdentityDeskReviewsTable
