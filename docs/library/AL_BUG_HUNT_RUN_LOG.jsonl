@@ -2410,3 +2410,4 @@
 {"at":"2026-09-12T17:43:12.2920834Z","zoneId":"core-tenancy-commercial","outcome":"seed-only"}
 {"at":"2026-09-12T17:43:25.0506097Z","zoneId":"ui-form-validation","outcome":"seed-only"}
 {"at":"2026-09-12T18:11:19.7683753Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-09-12T18:13:07.0884450Z","zoneId":"finding-disposition","outcome":"dry"}
