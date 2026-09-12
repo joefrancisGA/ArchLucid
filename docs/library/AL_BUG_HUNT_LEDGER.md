@@ -4154,6 +4154,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-09-12 seed hunt #2189 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved snake_case `is_demo_tenant`/`is_sample_run` career gate gap; regression `ExportBundleCareerPostureResolverSnakeCaseTests`.
+
 2026-09-12 seed hunt #2145 (seed-only): reseeded tenant-data-export with `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2119 (seed-only): reseeded tenant-data-export; no new hunt-ready rows.
@@ -4838,13 +4840,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — IdentityRegulatedDatastoreClassifier non-private baseline false positive on pci token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-12 seed hunt #2190 (seed-only): reseeded decisioning with `-Hint decisioning`; no new hunt-ready rows.
+
 2026-09-12 seed hunt #2156 (seed-only): reseeded decisioning with `-Hint decisioning`; no new hunt-ready rows.
 2026-09-12 seed hunt #2156 (seed-only): reseeded decisioning with `-Hint decisioning`; no new hunt-ready rows.
 
@@ -4988,13 +4992,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — Louvain community detection dropped edges when endpoint casing differed from node ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-12 seed hunt #2191 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
+
 2026-09-12 seed hunt #2167 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
 2026-09-12 seed hunt #2167 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
 
@@ -11381,13 +11387,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — Entra Graph membership pagination followed cross-group @odata.nextLink without validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-12 seed hunt #2188 (seed-only): reseeded cloud-extractors with `-Hint cloud-extractors`; no new hunt-ready rows.
+
 2026-09-12 seed hunt #2157 (seed-only): reseeded cloud-extractors with `-Hint cloud-extractors`; no new hunt-ready rows.
 2026-09-12 seed hunt #2157 (seed-only): reseeded cloud-extractors with `-Hint cloud-extractors`; no new hunt-ready rows.
 
