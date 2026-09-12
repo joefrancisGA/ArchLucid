@@ -2219,7 +2219,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingDispositionService.BuildImpactPreviewAttestationNote` — API callers persisted Working-desk LP-14 attestation notes on guided desk — **hit 2026-09-11 seed hunt #1720:** note builder ignored workspace mode; fixed by passing `isWorkingDesk`; regressions `RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`, `RecordAsync_guided_remediated_ignores_preview_override_reason_in_notes`
 - [x] (proven) `FindingDispositionValidation.Validate` — optional `PreviewOverrideReason` on guided-desk `Remediated` bypassed `HasSubstantiveText` — **hit 2026-09-11 seed hunt #1720:** fixed with optional-field guard in `Validate()`; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided`, `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
 - [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch appended multiple events — **hit 2026-09-11 seed hunt #1720:** `HashSet<string>` on trimmed finding ids; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
-- [ ] (candidate) `RecordBulkAsync` duplicate detection uses `StringComparer.Ordinal` — case-variant finding ids (`Finding-A` vs `finding-a`) in one batch may still double-append; reachability depends on whether finding ids are case-insensitive in persistence
+- [x] (proven) `RecordBulkAsync` duplicate detection used `StringComparer.Ordinal` — case-variant finding ids (`Finding-A` vs `finding-a`) in one batch double-appended via direct `IFindingDispositionService` callers — **hit 2026-09-12 thorough hunt #2054:** ecosystem treats finding ids case-insensitively; fixed duplicate guard to `OrdinalIgnoreCase`; regression `RecordBulkAsync_rejects_case_variant_duplicate_finding_ids_in_single_batch`
 
 2026-09-11 seed hunt #1720 (seed→hit): reseeded finding-disposition after zone saturation; proved LP-14 note injection, guided preview override bypass, and bulk duplicate finding ids; seeded case-variant bulk duplicate candidate; 60 scoped FindingDisposition tests passed.
 
@@ -2304,7 +2304,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingDispositionService.BuildImpactPreviewAttestationNote` — API callers persisted Working-desk LP-14 attestation notes on guided desk — **hit 2026-09-11 seed hunt #1720:** note builder ignored workspace mode; fixed by passing `isWorkingDesk`; regressions `RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`, `RecordAsync_guided_remediated_ignores_preview_override_reason_in_notes`
 - [x] (proven) `FindingDispositionValidation.Validate` — optional `PreviewOverrideReason` on guided-desk `Remediated` bypassed `HasSubstantiveText` — **hit 2026-09-11 seed hunt #1720:** fixed with optional-field guard in `Validate()`; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided`, `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
 - [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch appended multiple events — **hit 2026-09-11 seed hunt #1720:** `HashSet<string>` on trimmed finding ids; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
-- [ ] (candidate) `RecordBulkAsync` duplicate detection uses `StringComparer.Ordinal` — case-variant finding ids (`Finding-A` vs `finding-a`) in one batch may still double-append; reachability depends on whether finding ids are case-insensitive in persistence
+- [x] (proven) `RecordBulkAsync` duplicate detection used `StringComparer.Ordinal` — case-variant finding ids (`Finding-A` vs `finding-a`) in one batch double-appended via direct `IFindingDispositionService` callers — **hit 2026-09-12 thorough hunt #2054:** ecosystem treats finding ids case-insensitively; fixed duplicate guard to `OrdinalIgnoreCase`; regression `RecordBulkAsync_rejects_case_variant_duplicate_finding_ids_in_single_batch`
 
 2026-09-11 seed hunt #1720 (seed→hit): reseeded finding-disposition after zone saturation; proved LP-14 note injection, guided preview override bypass, and bulk duplicate finding ids; seeded case-variant bulk duplicate candidate; 60 scoped FindingDisposition tests passed.
 
@@ -11103,13 +11103,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — Entra Graph membership pagination followed cross-group @odata.nextLink without validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2055 (seed-only): reseeded cloud-extractors; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2049 (seed-only): reseeded cloud-extractors; no new hunt-ready rows.
 
