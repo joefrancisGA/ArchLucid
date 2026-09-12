@@ -2,6 +2,7 @@ import { apiPostJson } from "@/lib/api";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { findingMergeConflictBlockedReason } from "@/lib/findings/finding-merge-conflict-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { notifyFinalizeReadinessRefresh } from "@/lib/review-quality/finalize-readiness-refresh-notify";
 
 export type FindingMergeConflictResolutionAction = "AcceptPrimary" | "AcceptAlternate" | "KeepBoth";
 
@@ -16,6 +17,7 @@ export async function resolveFindingMergeConflict(
       `/v1/governance/runs/${encodeURIComponent(runId)}/finding-merge-conflicts/${encodeURIComponent(findingId)}/resolve`,
       { action },
     );
+    notifyFinalizeReadinessRefresh(runId);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = findingMergeConflictBlockedReason(failure);

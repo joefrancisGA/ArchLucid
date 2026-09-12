@@ -103,5 +103,96 @@ test.describe(
 
       await expect(page.getByTestId("review-detail-workspace-panel-findings")).toBeVisible({ timeout: 60_000 });
     });
+
+    test("architecture version pin block navigates to the activity tab", async ({ page }) => {
+      test.setTimeout(120_000);
+
+      await page.route("**/v1/governance/pre-finalize/readiness/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(
+            buildFinalizeReadinessBlockedMock(FIXTURE_PRE_FINALIZE_RUN_ID, {
+              layer: "integrity",
+              code: "architecture_version_pin",
+              message: "Commit blocked: create-time architecture version content hash (κ) drifted since run create.",
+            }),
+          ),
+        });
+      });
+
+      await page.goto(`/architecture/reviews/${encodeURIComponent(FIXTURE_PRE_FINALIZE_RUN_ID)}`);
+
+      await waitForAppReady(page);
+      await expectBuyerGoldenPageReady(page);
+
+      await expectBlockedPanelWithAction(
+        page,
+        "architecture_version_pin",
+        new RegExp(`reviewTab=activity`),
+      );
+
+      await expect(page.getByTestId("review-detail-workspace-panel-activity")).toBeVisible({ timeout: 60_000 });
+    });
+
+    test("create-time pin integrity block navigates to the activity tab", async ({ page }) => {
+      test.setTimeout(120_000);
+
+      await page.route("**/v1/governance/pre-finalize/readiness/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(
+            buildFinalizeReadinessBlockedMock(FIXTURE_PRE_FINALIZE_RUN_ID, {
+              layer: "integrity",
+              code: "create_time_pin_integrity",
+              message: "Commit blocked: policy pack pin JSON no longer matches the stored create-time pin hash.",
+            }),
+          ),
+        });
+      });
+
+      await page.goto(`/architecture/reviews/${encodeURIComponent(FIXTURE_PRE_FINALIZE_RUN_ID)}`);
+
+      await waitForAppReady(page);
+      await expectBuyerGoldenPageReady(page);
+
+      await expectBlockedPanelWithAction(
+        page,
+        "create_time_pin_integrity",
+        new RegExp(`reviewTab=activity`),
+      );
+
+      await expect(page.getByTestId("review-detail-workspace-panel-activity")).toBeVisible({ timeout: 60_000 });
+    });
+
+    test("pre-commit gate block navigates to finalize readiness anchor", async ({ page }) => {
+      test.setTimeout(120_000);
+
+      await page.route("**/v1/governance/pre-finalize/readiness/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(
+            buildFinalizeReadinessBlockedMock(FIXTURE_PRE_FINALIZE_RUN_ID, {
+              layer: "governance",
+              code: "pre_commit_gate",
+              message: "Commit blocked: pre-commit governance gate found blocking findings.",
+            }),
+          ),
+        });
+      });
+
+      await page.goto(`/architecture/reviews/${encodeURIComponent(FIXTURE_PRE_FINALIZE_RUN_ID)}`);
+
+      await waitForAppReady(page);
+      await expectBuyerGoldenPageReady(page);
+
+      await expectBlockedPanelWithAction(
+        page,
+        "pre_commit_gate",
+        new RegExp(`architecture-assessment-progress`),
+      );
+    });
   },
 );
