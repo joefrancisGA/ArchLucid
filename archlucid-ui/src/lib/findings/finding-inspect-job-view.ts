@@ -5,6 +5,15 @@ import {
 import { coercePolicyRuleIdFromFindingWire } from "@/lib/findings/finding-policy-evidence-citations";
 import { normalizeFindingEnforcementTier } from "@/lib/findings/finding-enforcement-tier";
 import {
+  resolveFindingInspectExportClassification,
+  type FindingInspectExportClassification,
+} from "@/lib/findings/finding-inspect-export-classification";
+import {
+  FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
+  FINDING_CLASSIFICATION_DECISION_GRADE,
+} from "@/lib/findings/review-detail-findings-classification-band";
+import { findingSemanticSupportBandFromTypedPayload } from "@/components/findings/FindingSemanticSupportBandInspectSection";
+import {
   classifyReviewFindingJobView,
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
@@ -61,6 +70,20 @@ function wireJsonFromInspectPayload(payload: FindingInspectPayload): string {
   }
 }
 
+function mapInspectExportClassification(
+  classification: FindingInspectExportClassification,
+): QuickDecisionFinding["classification"] {
+  if (classification === FINDING_CLASSIFICATION_DECISION_GRADE) {
+    return "DecisionGradeFinding";
+  }
+
+  if (classification === FINDING_CLASSIFICATION_CHECKLIST_COVERAGE) {
+    return "ChecklistCoverage";
+  }
+
+  return null;
+}
+
 /** Maps inspect payload to the run-detail finding shape for job-view classification. */
 export function mapInspectPayloadToQuickDecisionFinding(payload: FindingInspectPayload): QuickDecisionFinding {
   const narrative = findingInspectNarrativeFields(payload);
@@ -70,6 +93,7 @@ export function mapInspectPayloadToQuickDecisionFinding(payload: FindingInspectP
   const recommendation = labels.recommendedAction ?? narrative.description ?? "";
   const reasoningTrace = payload.reasoningTrace ?? payload.reasoningSummary ?? "";
   const enforcementTierRaw = typed?.enforcementTier ?? typed?.EnforcementTier;
+  const classification = mapInspectExportClassification(resolveFindingInspectExportClassification(payload));
 
   return {
     findingId: payload.findingId,
@@ -93,6 +117,8 @@ export function mapInspectPayloadToQuickDecisionFinding(payload: FindingInspectP
     trustLabelReason: payload.trustLabelReason ?? null,
     humanReviewStatus: normalizeFindingHumanReviewStatus(payload.humanReviewStatus),
     assignedToUserId: payload.assignedToUserId ?? null,
+    classification,
+    semanticSupportBand: findingSemanticSupportBandFromTypedPayload(typed, classification),
   };
 }
 

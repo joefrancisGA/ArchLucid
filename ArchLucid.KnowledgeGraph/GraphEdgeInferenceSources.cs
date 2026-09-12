@@ -36,6 +36,34 @@ public static class GraphEdgeInferenceSources
     public const string InventoryPolicyAssignment = "inventory-policy-assignment";
     public const string InventoryNsgAllowRule = "inventory-nsg-allow-rule";
 
+    public const string InventoryVmNic = "inventory-vm-nic";
+
+    public const string InventoryNicNsg = "inventory-nic-nsg";
+
+    public const string InventorySubnetNsg = "inventory-subnet-nsg";
+
+    public const string InventorySubnetRouteTable = "inventory-subnet-route-table";
+
+    public const string InventoryVnetPeering = "inventory-vnet-peering";
+
+    public const string InventoryPeNic = "inventory-pe-nic";
+
+    public const string InventoryPeSubnet = "inventory-pe-subnet";
+
+    public const string InventoryAgwBackend = "inventory-agw-backend";
+
+    public const string InventoryLbBackend = "inventory-lb-backend";
+
+    public const string InventoryPrivateDnsVnet = "inventory-private-dns-vnet";
+
+    public const string InventoryAppServiceSubnet = "inventory-appservice-subnet";
+
+    public const string InventoryLayoutVmVnet = "inventory-layout-vm-vnet";
+
+    public const string InventoryEffectiveNsg = "inventory-effective-nsg";
+
+    public const string InventoryEffectiveRoutes = "inventory-effective-routes";
+
     public const string InventoryFederatedCredential = "inventory-federated-credential";
 
     public const string InventoryEntraGroupMembership = "inventory-entra-group-membership";

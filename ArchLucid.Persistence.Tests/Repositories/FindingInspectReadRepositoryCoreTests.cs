@@ -2768,4 +2768,36 @@ public sealed class FindingInspectReadRepositoryCoreTests
         ruleId.Should().Be("cost-guardrail");
         ruleName.Should().Be("cost-guardrail");
     }
+
+    [Fact]
+    public void ResolveInspectClassification_prefers_relational_storage_over_typed_payload()
+    {
+        JsonElement? typed = JsonSerializer.SerializeToElement(new { classification = "ChecklistCoverage" });
+
+        FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(
+            (byte)FindingClassification.DecisionGradeFinding,
+            typed);
+
+        classification.Should().Be(FindingClassification.DecisionGradeFinding);
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_falls_back_to_typed_payload_when_storage_null()
+    {
+        JsonElement? typed = JsonSerializer.SerializeToElement(new { classification = "ChecklistCoverage" });
+
+        FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed);
+
+        classification.Should().Be(FindingClassification.ChecklistCoverage);
+    }
+
+    [Fact]
+    public void ResolveInspectTreatment_falls_back_to_typed_payload_when_storage_null()
+    {
+        JsonElement? typed = JsonSerializer.SerializeToElement(new { treatment = 1 });
+
+        FindingTreatment? treatment = FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, typed);
+
+        treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+    }
 }

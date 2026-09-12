@@ -88,6 +88,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
         readiness.Should().Contain("StructuralExecutionModeCommitGuard.GetBlockingReasons");
         readiness.Should().Contain("AuthorityRunLifecyclePhaseResolver.Resolve");
         readiness.Should().Contain("FinalizeAssumptionGateEvaluator.GetBlockingReasons");
+        readiness.Should().Contain("FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons");
         readiness.Should().Contain("FinalizeQualityScorecardEvaluator.Compute");
         readiness.Should().Contain("FinalizeQualityScorecardEvaluator.GetBlockingReasons");
         readiness.Should().Contain("IPreCommitGovernanceGate");

@@ -23,6 +23,7 @@ export {
   FIXTURE_LEFT_RUN_ID,
   FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,
   FIXTURE_MANIFEST_ID,
+  FIXTURE_PRE_FINALIZE_RUN_ID,
   FIXTURE_PROJECT_ID,
   FIXTURE_RIGHT_RUN_ID,
   FIXTURE_RUN_ID,
@@ -52,7 +53,7 @@ export {
   RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN,
   START_REVIEW_PAGE_HEADING_PATTERN,
 } from "./runs-list-heading";
-export { fixtureRunDetail, fixtureRunDetailAlignedToShowcase } from "./run-detail";
+export { fixtureRunDetail, fixturePreFinalizeRunDetail, fixtureRunDetailAlignedToShowcase } from "./run-detail";
 export {
   fixtureOperatorDemoReviewRunDetail,
   operatorDemoReviewApiResponse,

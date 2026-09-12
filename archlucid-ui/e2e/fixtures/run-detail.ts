@@ -4,6 +4,7 @@ import { buildStaticDemoRunDetailFromShowcase } from "@/lib/operator/operator-st
 
 import {
   FIXTURE_MANIFEST_ID,
+  FIXTURE_PRE_FINALIZE_RUN_ID,
   FIXTURE_PROJECT_ID,
   FIXTURE_RUN_ID,
 } from "./ids";
@@ -40,5 +41,23 @@ export function fixtureRunDetail(): RunDetail {
     decisionTrace: { fixture: true },
     goldenManifest: { fixture: true },
     artifactBundle: { fixture: true },
+  };
+}
+
+/** Run detail without a sealed manifest — used for pre-finalize readiness E2E. */
+export function fixturePreFinalizeRunDetail(): RunDetail {
+  const detail = fixtureRunDetail();
+
+  return {
+    ...detail,
+    run: {
+      ...detail.run,
+      runId: FIXTURE_PRE_FINALIZE_RUN_ID,
+      goldenManifestId: undefined,
+      hasGoldenManifest: false,
+    },
+    goldenManifest: undefined,
+    artifactBundle: undefined,
+    authorityLifecyclePhase: "Complete",
   };
 }

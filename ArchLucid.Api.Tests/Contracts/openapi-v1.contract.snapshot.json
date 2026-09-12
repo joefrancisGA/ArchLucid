@@ -15828,6 +15828,16 @@
               "string"
             ]
           },
+          "classification": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingClassification"
+              }
+            ]
+          },
           "confidenceLevel": {
             "anyOf": [
               {
@@ -16039,6 +16049,16 @@
           },
           "trackedExternally": {
             "type": "boolean"
+          },
+          "treatment": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingTreatment"
+              }
+            ]
           },
           "trustLabel": {
             "type": [

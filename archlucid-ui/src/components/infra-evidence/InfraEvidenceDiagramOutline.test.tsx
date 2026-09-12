@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
@@ -13,8 +13,14 @@ const outline: InfraEvidenceMermaidOutline = {
       resourceType: "Microsoft.Network/virtualNetworks",
       resourceGroup: "rg-network",
     },
+    {
+      id: "n_dst",
+      label: "app-storage",
+      resourceType: "Microsoft.Storage/storageAccounts",
+      resourceGroup: "rg-apps",
+    },
   ],
-  edges: [{ from: "n_src", to: "n_dst", label: null }],
+  edges: [{ from: "n_src", to: "n_missing", label: null }],
 };
 
 describe("InfraEvidenceDiagramOutline", () => {
@@ -36,14 +42,46 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(edgesTable as HTMLTableElement).getByRole("columnheader", { name: "To" })).toBeTruthy();
     expect(within(edgesTable as HTMLTableElement).queryByText("—")).toBeNull();
 
-    expect(within(nodesTable as HTMLTableElement).getByRole("columnheader", { name: "Label" })).toBeTruthy();
-    expect(within(nodesTable as HTMLTableElement).getByRole("columnheader", { name: "Resource type" })).toBeTruthy();
-    expect(within(nodesTable as HTMLTableElement).getByRole("columnheader", { name: "Resource group" })).toBeTruthy();
+    expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Label, ascending" })).toBeTruthy();
+    expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Resource type" })).toBeTruthy();
+    expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Resource group" })).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).queryByRole("columnheader", { name: "Id" })).toBeNull();
     expect(within(nodesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).getByText("Microsoft.Network/virtualNetworks")).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).getByText("rg-network")).toBeTruthy();
     expect(within(edgesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
-    expect(within(edgesTable as HTMLTableElement).getByText("n_dst")).toBeTruthy();
+    expect(within(edgesTable as HTMLTableElement).getByText("n_missing")).toBeTruthy();
+  });
+
+  it("sorts node rows when a column heading is clicked", () => {
+    render(<InfraEvidenceDiagramOutline outline={outline} />);
+
+    const nodesHeading = screen.getByRole("heading", { name: "Nodes" });
+    const nodesTable = nodesHeading.parentElement?.querySelector("table");
+
+    expect(nodesTable).not.toBeNull();
+
+    const labelHeader = within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Label, ascending" });
+    const resourceGroupHeader = within(nodesTable as HTMLTableElement).getByRole("button", {
+      name: "Sort by Resource group",
+    });
+
+    expect(within(nodesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("app-storage");
+    expect(labelHeader).toHaveAttribute("aria-label", "Sort by Label, ascending");
+
+    fireEvent.click(labelHeader);
+
+    expect(within(nodesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("core-vnet");
+    expect(labelHeader).toHaveAttribute("aria-label", "Sort by Label, descending");
+
+    fireEvent.click(labelHeader);
+
+    expect(within(nodesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("app-storage");
+    expect(labelHeader).toHaveAttribute("aria-label", "Sort by Label, ascending");
+
+    fireEvent.click(resourceGroupHeader);
+
+    expect(within(nodesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("app-storage");
+    expect(resourceGroupHeader).toHaveAttribute("aria-label", "Sort by Resource group, ascending");
   });
 });
