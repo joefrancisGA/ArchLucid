@@ -80,6 +80,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "engineering-troubleshooting": "internal-runbook",
   "enterprise-onboarding": "product-help",
   "evidence-intake": "product-help",
+  "inspect-stored-evidence": "product-help",
   "evidence-trail": "product-help",
   "sponsor-report": "product-help",
   findings: "product-help",

@@ -59,6 +59,15 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
     "pdfStatus": "customer",
   },
   {
+    "slug": "inspect-stored-evidence",
+    "title": "Inspect stored evidence on a review",
+    "summary": "Open and download submitted source files on the review Evidence tab — preview first, not the sealed package ZIP.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-09-12",
+    "releaseApplicability": "Evidence source inspect help (ESI-08)",
+  },
+  {
     "slug": "review-packages",
     "title": "Architecture packages",
     "summary": "Find architecture packages in Reviews, inspect findings and evidence, and share export-ready artifacts.",

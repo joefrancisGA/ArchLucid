@@ -5,7 +5,7 @@
 
 # Evidence source inspect — Composer prompts (ESI-01–ESI-08)
 
-**Created:** 2026-09-07 · **Status:** ready to run · **Audience:** Cursor Composer implementing review-screen open/download of attached documents, pictures, and text files.
+**Created:** 2026-09-07 · **Status:** shipped (close audit [`EVIDENCE_SOURCE_INSPECT_ACCEPTANCE_2026-09-12.md`](EVIDENCE_SOURCE_INSPECT_ACCEPTANCE_2026-09-12.md)) · **Audience:** Cursor Composer implementing review-screen open/download of attached documents, pictures, and text files.
 
 **Product framing (locked unless the owner reopens it in that session):**
 
