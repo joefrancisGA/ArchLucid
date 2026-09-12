@@ -312,7 +312,7 @@ Use `--replace` only when the user asks; the default append keeps prior owner no
 | Rating model | `claude-opus-5-thinking-high` |
 | Implementation model | `composer-2.5` |
 | Workspace mode | `Working` / `Guided/demo` |
-| Stance | Working instrument (default) / Azure Portal buyer-confidence (Guided/demo only) |
+| Stance | Working instrument (default; ADR **0094** — density flags are not execute gravity) / Azure Portal buyer-confidence (Guided/demo only) |
 
 ### Critique
 

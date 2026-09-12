@@ -29,6 +29,11 @@ const HelpFalseHardInfeasibilityGuideView = dynamic(() =>
     (module) => module.HelpFalseHardInfeasibilityGuideView,
   ),
 );
+const HelpWhichModeAmIInGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpWhichModeAmIInGuideView").then(
+    (module) => module.HelpWhichModeAmIInGuideView,
+  ),
+);
 const HelpArchitectureDraftsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView").then((module) => module.HelpArchitectureDraftsGuideView),
 );
@@ -296,6 +301,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "extraction-fidelity") {
     return <HelpExtractionFidelityGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "which-mode-am-i-in") {
+    return <HelpWhichModeAmIInGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "architecture-drafts") {
     return <HelpArchitectureDraftsGuideView entry={loaded.entry} />;

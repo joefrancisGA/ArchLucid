@@ -18,6 +18,7 @@ public sealed class LivelihoodGradeNoLn001Adr0093ArchitectureTests
         adr.Should().Contain("Does not replace 0082");
         adr.Should().Contain("40th engine");
         adr.Should().Contain("G-REAL-06");
+        adr.Should().Contain("**Status:** Accepted");
     }
 
     [Fact]
