@@ -9,6 +9,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CommitRunButton } from "@/components/CommitRunButton";
 import { FinalizeSkippedMustStrip } from "@/components/reviews/FinalizeSkippedMustStrip";
 import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
@@ -264,6 +265,7 @@ function RunPackageExportButtonsLive({ runId }: { runId: string }) {
           {busyFormat === "summary" ? "Downloading…" : "Download Sponsor Report"}
         </Button>
       </div>
+      <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="run-detail-header-export" />
     </div>
   );
 }
