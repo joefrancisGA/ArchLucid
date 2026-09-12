@@ -119,14 +119,18 @@ describe("DiagramsWorkbenchClient", () => {
     downloadInfraEvidenceMermaidPngMock.mockReset();
     downloadInfraEvidenceMermaidPngMock.mockResolvedValue({ usedBrowserFallback: false });
     fetchInfraEvidenceMermaidRenderMock.mockReset();
-    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
-      snapshotId: "11111111-1111-1111-1111-111111111111",
-      mode: query.mode ?? "executive",
-      fallbackKey: query.fallbackKey ?? null,
-      status: query.mode === "dependencyNeighborhood" ? "Succeeded" : "Partitioned",
-      mermaid: "flowchart LR\n  A-->B",
-      metrics:
-        query.mode === "dependencyNeighborhood"
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
+      const fallbackKey = query.fallbackKey ?? null;
+      const isFallback = fallbackKey != null && fallbackKey.length > 0;
+
+      return {
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        mode: isFallback ? fallbackKey : (query.mode ?? "executive"),
+        fallbackKey,
+        status:
+          query.mode === "dependencyNeighborhood" ? "Succeeded" : isFallback ? "Succeeded" : "Partitioned",
+        mermaid: "flowchart LR\n  A-->B",
+        metrics: query.mode === "dependencyNeighborhood"
           ? {
               nodeCount: 3,
               edgeCount: 2,
@@ -136,32 +140,43 @@ describe("DiagramsWorkbenchClient", () => {
               textSizeBytes: 1200,
               layoutEstimate: 800,
             }
-          : {
-              nodeCount: 500,
-              edgeCount: 900,
-              subgraphCount: 12,
-              maxDegree: 20,
-              crossSubgraphEdgeCount: 40,
-              textSizeBytes: 12000,
-              layoutEstimate: 8000,
-            },
-      fallbackArtifacts: [
-        {
-          key: "executive",
-          label: "Executive (executive)",
-          status: "Succeeded",
-          nodeCount: 120,
-          edgeCount: 180,
-        },
-        {
-          key: "network",
-          label: "Network (network)",
-          status: "Succeeded",
-          nodeCount: 90,
-          edgeCount: 140,
-        },
-      ],
-    }));
+          : isFallback
+            ? {
+                nodeCount: 120,
+                edgeCount: 180,
+                subgraphCount: 2,
+                maxDegree: 8,
+                crossSubgraphEdgeCount: 4,
+                textSizeBytes: 4000,
+                layoutEstimate: 2000,
+              }
+            : {
+                nodeCount: 500,
+                edgeCount: 900,
+                subgraphCount: 12,
+                maxDegree: 20,
+                crossSubgraphEdgeCount: 40,
+                textSizeBytes: 12000,
+                layoutEstimate: 8000,
+              },
+        fallbackArtifacts: [
+          {
+            key: "executive",
+            label: "Executive (executive)",
+            status: "Succeeded",
+            nodeCount: 120,
+            edgeCount: 180,
+          },
+          {
+            key: "network",
+            label: "Network (network)",
+            status: "Succeeded",
+            nodeCount: 90,
+            edgeCount: 140,
+          },
+        ],
+      };
+    });
   });
 
   it("renders human-readable snapshot label above the diagram", async () => {

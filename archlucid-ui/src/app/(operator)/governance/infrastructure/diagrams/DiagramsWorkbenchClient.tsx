@@ -436,7 +436,10 @@ export function DiagramsWorkbenchClient() {
     effectiveFallbackKey,
     renderFallbackKey: renderResult?.fallbackKey,
   });
-  const tooLargeForBrowser = exceedsInfraEvidenceMermaidClientGuard(metrics);
+  const tooLargeForBrowser =
+    exceedsInfraEvidenceMermaidClientGuard(metrics)
+    && !paintMermaidSource
+    && !showFallbackCards;
   const isResourceGroupMapDiagram = isInfraEvidenceResourceGroupMapMermaid(mermaidSource);
   const diagramContentEmpty = isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount);
   const renderInFlight = loadingPreview || loadingRender;
