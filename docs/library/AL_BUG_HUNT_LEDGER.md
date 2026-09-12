@@ -377,7 +377,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -433,6 +433,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-11 seed hunt #1740 (seed→hit): reseeded ui-form-validation; proved optional-field readiness copy mismatches for overlong industry Other and fractional team size; cheap-disproof closed non-numeric team size via number input; 25 scoped SignupForm tests passed.
 
+
+2026-09-12 seed hunt #1919 (seed-only): reseeded ui-form-validation; cheap-disproof closed fractional team size bypass as fixed in #1730; 25 scoped SignupForm tests passed.
+
+- [x] (valid-no-repro) `SignupForm` fractional `architectureTeamSize` keeps submit enabled — **cheap-disproof 2026-09-12 seed hunt #1919:** `Number.isInteger` guard (#1730).
 ---
 
 ## Zone: commit-output-integrity
