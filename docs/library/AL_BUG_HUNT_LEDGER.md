@@ -2122,13 +2122,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 19
-- **bugs-found:** 13
+- **hunts:** 20
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-11 — LP-14 note injection; preview override bypass; bulk duplicate ids; guided-desk LP-14 attestation note injection; guided-desk preview override text bypass; bulk disposition accepted duplicate finding ids and persisted multiple events while current pointer kept only the last
+- **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-12 thorough hunt #2054 (hit): proved case-variant bulk duplicate finding-id bypass; fixed `RecordBulkAsync` duplicate guard to `OrdinalIgnoreCase`; regression `RecordBulkAsync_rejects_case_variant_duplicate_finding_ids_in_single_batch`.
 
 2026-09-12 seed hunt #2048 (seed-only): reseeded finding-disposition; no new hunt-ready rows.
 
