@@ -86,6 +86,13 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         }
 
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
+
+        if (mode == DiagramMode.Executive)
+        {
+            DiagramExecutiveRegionPlanner.ApplyRegionSubgraphs(ast, topologyNodes);
+            ExecutiveVnetSummaryBuilder.ApplyExecutiveVnetLabels(ast, graph, topologyNodes);
+        }
+
         DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode);
         DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);

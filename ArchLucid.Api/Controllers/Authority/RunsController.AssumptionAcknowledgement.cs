@@ -83,6 +83,11 @@ public sealed partial class RunsController
                 $"Assumption ids must be at most {MaxAcknowledgedAssumptionIdLength} characters.",
                 ProblemTypes.ValidationFailed);
 
+        if (ids.Any(static id => !IsValidUnicodeText(id)))
+            return this.BadRequestProblem(
+                "Assumption ids must not contain invalid Unicode surrogate pairs.",
+                ProblemTypes.ValidationFailed);
+
         IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
 
         if (sealedGuardResult is not null)
@@ -104,5 +109,24 @@ public sealed partial class RunsController
         {
             return MapRunsSealedManifestConflict(ex);
         }
+    }
+
+    private static bool IsValidUnicodeText(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return true;
+
+        for (int i = 0; i < value.Length; i++)
+        {
+            if (!char.IsSurrogate(value[i]))
+                continue;
+
+            if (i + 1 >= value.Length || !char.IsSurrogatePair(value[i], value[i + 1]))
+                return false;
+
+            i++;
+        }
+
+        return true;
     }
 }

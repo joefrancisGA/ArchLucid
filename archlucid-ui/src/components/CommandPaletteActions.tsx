@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import {
   dispatchCommandPaletteHandlerAction,
   isCommandPaletteReversibleUndoAvailable,
@@ -15,12 +17,15 @@ import { useWorkingCreateStartHref } from "@/hooks/use-working-start-href";
 import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 
 export function CommandPaletteActions({
+  paletteOpen,
   pathname,
   workingMode,
   visibleNavHrefs,
   onNavigate,
   onClose,
 }: {
+  /** Re-query spawn-lock DOM targets when the palette opens (SN-033). */
+  readonly paletteOpen: boolean;
   readonly pathname: string;
   readonly workingMode: boolean;
   readonly visibleNavHrefs?: ReadonlySet<string>;
@@ -38,10 +43,13 @@ export function CommandPaletteActions({
     visibleNavHrefs,
     lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
   });
-  const handlerActions: readonly CommandPaletteHandlerAction[] =
-    resolveVisibleCommandPaletteHandlerActions(pathname, {
-      reversibleUndoAvailable: isCommandPaletteReversibleUndoAvailable(),
-    });
+  const handlerActions: readonly CommandPaletteHandlerAction[] = useMemo(
+    () =>
+      resolveVisibleCommandPaletteHandlerActions(pathname, {
+        reversibleUndoAvailable: isCommandPaletteReversibleUndoAvailable(),
+      }),
+    [pathname, paletteOpen],
+  );
 
   if (hrefActions.length === 0 && handlerActions.length === 0) {
     return null;

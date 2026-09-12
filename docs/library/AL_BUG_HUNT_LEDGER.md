@@ -447,13 +447,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 29
+- **hunts:** 34
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-09-11
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-10 — selector treated null RecordedQualityGateOutcome as Accepted rank on duplicate rows
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #1960 (seed-only): picker repeat after `-Refresh`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1957 (seed-only): picker repeat after `-Refresh`; re-read selector/evaluator/integrity sources; no new mechanism-backed hunt-ready rows beyond closed ledger entries.
+
+2026-09-12 seed hunt #1953 (seed-only): picker repeat; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1951 (seed-only): picker repeat; re-read selector/evaluator/integrity sources; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1950 (seed-only): reseeded commit-output-integrity after master merge churn; no new mechanism-backed hunt-ready rows beyond closed ledger entries.
 
 ### Hypotheses
 
@@ -609,13 +619,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-12
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
+
+2026-09-12 seed hunt #1946 (seed-only): reopened after master merge git churn; re-read post-processor and consistency-gate sources; no new mechanism-backed hunt-ready rows beyond closed ledger entries; 32 scoped Application tests passed.
 
 2026-08-16 dry hunt: listed hypotheses do not hold on `AgentProposalStructuralPostProcessor` / `CrossAgentProposalConsistencyGate`. Neither file rewrites datastore category (`storage` vs `data`); synthetic `ds-` aliases are unchanged. Existing keep-path tests (26) pass; the gate does not drop a relationship the post-processor retained under current claim/validation key unions.
 
@@ -3317,7 +3329,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 33
+- **hunts:** 37
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3326,6 +3338,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-12 seed hunt #1964 (seed-only): reseeded api-key-auth; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1959 (seed-only): picker repeat after `-Refresh`; reseeded api-key-auth; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1955 (seed-only): reseeded api-key-auth; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1952 (seed-only): reseeded api-key-auth after master merge churn; no new hunt-ready rows.
+
 2026-09-12 seed hunt #1944 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
 2026-09-12 seed hunt #1941 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
 2026-09-12 seed hunt #1939 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
@@ -3445,7 +3466,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 24
+- **hunts:** 26
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3521,6 +3542,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #1912 (seed-only): reseeded scope-binding-middleware; cheap-disproof closed JwtBearer duplicate tenant-header parity as already covered for Bearer/ApiKey/SCIM/SAML; 71 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
 
 - [x] (valid-no-repro) JwtBearer principal with duplicate `x-tenant-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1912:** `TryParseHeaderGuid` parity with bearer; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_bearer`.
+
+2026-09-12 seed hunt #1962 (seed-only): reseeded scope-binding-middleware; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1956 (seed-only): reseeded scope-binding-middleware; cheap-disproof closed Cookie authentication type header-steering as unreachable (`ArchLucidSaml2AuthenticationCoexistenceConfigurer` keeps JWT Bearer as `DefaultAuthenticateScheme`); 72 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (invalid) Cookie-authenticated principal steers scope via `x-tenant-id` without bound claim — **cheap-disproof 2026-09-12 seed hunt #1956:** SAML session cookies use `DefaultSignInScheme` only; API `[Authorize]` resolves `DefaultAuthenticateScheme` (Bearer/ApiKey), not Cookies; `RequiresBoundScopeClaimsForHeaders` omission is unreachable for JSON API traffic.
 
 ---
 
@@ -4371,11 +4398,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 10
-- **bugs-found:** 14
+- **hunts:** 11
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — zero-chunk reindex left stale vectors and catalog hash
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — Louvain community detection dropped edges when endpoint casing differed from node ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4399,8 +4426,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `GraphRagNeighborExpander.ExpandAsync` re-sorts by vector score after lexical rerank — post-expansion score ordering blends neighbor relevance with seed scores by design; lexical fallback reranker does not mutate `RetrievalHit.Score`, so any downstream score sort reflects vector/neighbor scores rather than overlap rank.
 - [x] (valid-no-repro) `InMemoryVectorIndex.UpsertChunksAsync` silently evicts oldest chunks past `MaxChunks` — documented dev/single-node bound (`MaxChunks = 10_000`); production path uses Azure Search, not in-memory eviction.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — document reindexed to zero chunks (`split.Count == 0`) skipped delete/catalog update, leaving prior vectors searchable and stale catalog `ContentHash` — **hit 2026-09-09 seed hunt #1408:** remove prior vectors and `RecordIndexed` when chunker returns empty; regression `IndexDocumentsAsync_when_content_chunks_to_empty_removes_stale_vectors_and_updates_catalog`.
-- [ ] (candidate) `PolicyPackChunker.Chunk` — `IndexOf(':')` splits on first colon in long control lines, corrupting headers when `controlName` or URLs contain `:` (not reproduced on shipped compliance-rules templates).
-- [ ] (candidate) `LouvainGraphCommunityDetector.DetectCommunities` — ordinal edge endpoint lookup drops edges when casing differs from `GraphNode.NodeId` (community fragmentation; reachability depends on merge/projection casing drift).
+- [x] (invalid) `PolicyPackChunker.Chunk` — `IndexOf(':')` splits on first colon in long control lines — **cheap-disproof 2026-09-12 thorough hunt #1961:** shipped compliance-rules templates place the category delimiter colon before descriptions; no bundled rule line puts `:` inside control names or URLs ahead of the header/body split.
+- [x] (proven) `LouvainGraphCommunityDetector.DetectCommunities` — ordinal edge endpoint lookup drops edges when casing differs from `GraphNode.NodeId` — **hit 2026-09-12 thorough hunt #1961:** `BuildNodeIndex` used `StringComparer.Ordinal` so `node-a`/`NODE-B` edges were ignored and community summarization fragmented; fixed with `OrdinalIgnoreCase`; regression `DetectCommunities_matches_edges_to_nodes_case_insensitively`.
+
+2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 
 2026-09-09 seed hunt #1408 (hit): proved zero-chunk reindex stale-vector gap; seeded policy-pack colon-split and Louvain casing candidates; 344 scoped retrieval/indexing tests passed.
 
@@ -9683,13 +9712,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 thorough hunt #1954 (dry): cheap-disproof closed integration outbound client candidate already fixed in #1928; no open hunt-ready rows.
 
 Split from retired `archlucid-core` (ABQ-08).
 
@@ -9708,7 +9739,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `OutboundSocketsHttpHandlerSettings` — pool profiles may omit connect-time SSRF guard — **2026-09-10 seed hunt #1627:** profiles tune transport only; `ConnectCallback` stays null (`Apply_does_not_configure_connect_callback`)
 - [x] (valid-no-repro) `ConfigureArchLucidOutboundSocketsHandler` — default `rejectPrivateNetworkConnectEndpoints: false` leaves integration clients without connect callback — **2026-09-10 seed hunt #1627:** opt-in wires `OutboundHttpsConnectGuard.RejectPrivateNetworkAndConnectAsync`; webhook dry-run is the only integration client that enables it today (`ConfigureArchLucidOutboundSocketsHandler_opt_in_wires_private_network_connect_callback`)
 
-- [ ] (candidate) `ServiceCollectionExtensions.IntegrationsOutboundHttpClients` — Jira/ServiceNow/AzureBoards `ExternalIntegration` clients register without `rejectPrivateNetworkConnectEndpoints: true`; DNS rebinding between connector URL save and outbound delivery may bypass pre-save literal guard if Integrations layer lacks post-DNS policy parity
+- [x] (valid-no-repro) `ServiceCollectionExtensions.IntegrationsOutboundHttpClients` — Jira/ServiceNow/AzureBoards `ExternalIntegration` clients register without `rejectPrivateNetworkConnectEndpoints: true` — **cheap-disproof 2026-09-12 thorough hunt #1954:** already fixed in #1928 (`External_integration_http_clients_wire_private_network_connect_guard`)
 - [x] (valid-no-repro) `PrivateNetworkAddressGuard` — IANA reserved/documentation IPv4 (`192.0.0.0/24`, `192.0.2.0/24`) outside TB-274 RFC1918/link-local scope may be reachable when URL policies accept public hostnames that resolve there — **cheap-disproof 2026-09-11 seed hunt #1793:** TB-274 scope excludes documentation/reserved blocks; regression `IsForbiddenHostLiteral_allows_documentation_and_reserved_ipv4_outside_tb274_scope`.
 
 2026-09-10 seed hunt #1627 (seed-only): reseeded core-safety-network after #1216; cheap-disproof on CGNAT/benchmark out-of-scope ranges, `0.0.0.0` blocking, pool-only handler settings, and opt-in connect guard wiring; 28 scoped PrivateNetwork + 7 OutboundSockets tests passed.
@@ -9946,11 +9977,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 83
-- **bugs-found:** 146
+- **hunts:** 84
+- **bugs-found:** 147
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — backslash-separated topology hint paths churned ObjectId vs forward-slash peers
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — snake_case `security_context` on kubernetes-json deployments skipped privileged/runAsNonRoot projection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10193,8 +10224,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `BicepResourceBodyParser` / `SimpleTerraformResourceBlockParser` — multiline nested-block headers (`key =` newline `{`) flattened inner scalars to parent `tf.*` — **hit 2026-09-05 (#803):** `#527` multiline-array parity gap for `{` delimiters; `networkAcls =` / `retention_policy =` on own line skipped `NestedBlockStartRegex` and leaked `defaultAction`/`days` as top-level keys; fixed with `TryConsumeMultilineNestedBlockAssignment` (`ParseAsync_MultilineNestedBlockHeader_PreservesNetworkAclsBlock`, `ParseAsync_MultilineNestedBlockHeader_PreservesRetentionPolicyBlock`).
 - [x] (proven) `TopologyHintStableObjectIds.CanonicalizeHintName` — backslash-separated Windows paths did not normalize to forward-slash peers — **hit 2026-09-11 thorough hunt #1696:** `prod\vnet\subnet-a` vs `prod/vnet/subnet-a` churned topology-hints connector `ObjectId` and policy overlap stable ids; fixed by normalizing `\` to `/` before segment split; regression `CanonicalizeHintName_BackslashSeparatedPaths_EquivalentToForwardSlashPeers`.
-- [ ] (candidate) `KubernetesManifestCanonicalObjectMapper.ProjectContainerSecurityContext` — snake_case `security_context` fields not projected; `TryGetPropertyIgnoreCase` does not bridge naming-convention variants.
-- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` — `values` loop skips `ShouldRedactKey` when `sensitive_values` absent; plaintext `connection_string` may leak into `tf.*` properties.
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.ProjectContainerSecurityContext` — snake_case `security_context` fields not projected — **hit 2026-09-12 thorough hunt #1958:** exporter kubernetes-json with `security_context` / `allow_privilege_escalation` / `run_as_non_root` missed `k8s.privileged` and related security baselines; fixed with `TryGetPropertyIgnoreCaseOrSnakeCase`; regression `ParseAsync_snake_case_security_context_projects_privileged_container`.
+- [x] (invalid) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` — `values` loop skips `ShouldRedactKey` when `sensitive_values` absent — **cheap-disproof 2026-09-12 thorough hunt #1958:** terraform-show-json only redacts fields terraform marks in `sensitive_values`; absent marking means plaintext is intentional state output, not a parser leak.
+
+2026-09-12 thorough hunt #1958 (hit): proved K8s snake_case security_context projection gap; cheap-disproof closed terraform redaction-without-sensitive_values candidate; scoped context-ingestion tests passed.
 
 2026-09-11 thorough hunt #1696 (hit): proved topology hint backslash path canonicalization gap; 5 scoped TopologyHintStableObjectIds tests passed.
 
@@ -10743,15 +10776,25 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 27
-- **bugs-found:** 28
+- **hunts:** 35
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-10 — technology ledger PATCH omitted free-text max-length guard on Rationale and TechnologyName
+- **last-bug:** 2026-09-12 — assumption acknowledgement PUT omitted invalid-Unicode surrogate guard on AcknowledgedAssumptionIds
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-12 seed hunts #1965–#1970 (seed-only): reseeded api-authority-admin-controllers; no new hunt-ready rows.
+
+- [x] (proven) `RunCoverageController.PutAcknowledgedCoverage` / `PatchRunCoveragePack` — `ExclusionReason` reached persistence without `DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength` guard present on sibling technology-ledger PATCH and clarification routes — **hit 2026-09-12 hunt #1971 (seed→hit):** reject over-limit exclusion reasons before service call; regressions `PutAcknowledgedCoverage_returns_bad_request_when_exclusion_reason_exceeds_max_free_text_length` and `PatchRunCoveragePack_returns_bad_request_when_exclusion_reason_exceeds_max_free_text_length`.
+
+2026-09-12 seed hunt #1971 (seed→hit): reseeded api-authority-admin-controllers; proved coverage acknowledgement ExclusionReason max-length gap; 2 scoped `RunCoverageControllerTests` passed.
+
+- [x] (proven) `RunsController.PutAssumptionAcknowledgement` — `AcknowledgedAssumptionIds` omitted invalid-Unicode surrogate guard present on sibling `CustomRolesAdminController` create/update — **hit 2026-09-12 hunt #1972 (seed→hit):** reject lone surrogates before service call; regression `PutAssumptionAcknowledgement_returns_bad_request_when_assumption_id_contains_invalid_surrogate`.
+
+2026-09-12 seed hunt #1972 (seed→hit): reseeded api-authority-admin-controllers; proved assumption acknowledgement surrogate guard gap; 1 scoped `RunsControllerTests` passed.
 
 - [x] Admin mutating endpoint lacks tenant binding on route parameters — (proven): `RunsController` request endpoints (2026-08-18); `AdminController.ArchiveRunsByIds` called global `ArchiveRunsByIdsAsync` without `GetByIdAsync(scope, …)` filter (2026-08-18); `AdminController.ArchiveRunsBatch` called global `ArchiveRunsCreatedBeforeAsync` without scoped cutoff filter (2026-08-22); `AdminDiagnosticsService` integration outbox dead-letter list/retry/suppress/curl called `IIntegrationEventOutboxRepository` without `scope.TenantId` (2026-08-23); bulk `RetryIntegrationOutboxDeadLettersAsync` still passed `request.TenantId` to `RetryMatchingDeadLettersAsync` (2026-08-24)
 - [x] (proven) Unrecognized `ReplayMode` on authority replay fell through to `DecideAsync` + manifest persist — `AuthorityReplayService.ReplayAsync` only special-cased `ReconstructOnly`; unknown modes matched rebuild path (2026-08-24)
@@ -12646,13 +12689,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-10 — /see-it live disclosure after thin API JSON upgraded to static showcase
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #1947 (seed-only): re-read marketing surfaces after master merge churn; sign-in returnUrl, see-it disclosure, and quick-scan parity paths remain covered by existing regressions; no new mechanism-backed hunt-ready rows.
 
 ### Hypotheses
 
@@ -13202,13 +13247,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-07 — InMemory identity directory dropped upserted cloud resources so hub/explorer always 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 thorough hunt #1948 (dry): cheap-disproof closed standalone persistence-validation candidate; no hunt-ready rows remain.
 
 ABQ-09 churn hotspot.
 
@@ -13220,7 +13267,7 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) orphan `ISecurityCrosswalkService` registration — no production controller caller yet; service resolves and unit tests cover behavior — **disproved 2026-09-07 (#1273):** intentional pre-API registration; InMemory composition resolves `SecurityCrosswalkService` with `NoOpSecurityCrosswalkRepository` (`InMemory_composition_resolves_security_crosswalk_service`, `SecurityCrosswalkServiceTests`)
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — `TenantBrandingResolvedProfileCache` singleton depends on `IMemoryCache` but the module does not register memory cache; standalone module import without ASP.NET host setup may fail service validation — **cheap-disproof 2026-09-10 thorough hunt #1624:** `AddArchLucidApplicationServices` registers `IMemoryCache` via Authority `ContextIngestionCompositionRegistrar` before `AddInfraEvidenceCapability`; InMemory composition resolves branding cache with working memory cache (`InMemory_composition_resolves_tenant_branding_cache_after_platform_pipeline_registers_memory_cache`)
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — repeated `Register` on the same `IServiceCollection` re-adds scoped audit selector implementations without `TryAdd`; duplicate selector registration may duplicate evidence collection passes — **cheap-disproof 2026-09-10 thorough hunt #1624:** `AuditEvidenceSelectorRegistry` injects one typed selector per ctor parameter; repeated Register duplicates descriptors but `ListDescriptors` stays at nine (`InfraEvidenceCompositionModule_repeated_register_keeps_single_selector_descriptor_per_evidence_type`)
-- [ ] (candidate) `InfraEvidenceCompositionModule` — standalone `Register` without persistence repositories may fail `ValidateOnBuild` when resolving audit evidence snapshot services
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule` — standalone `Register` without persistence repositories may fail `ValidateOnBuild` when resolving audit evidence snapshot services — **cheap-disproof 2026-09-12 thorough hunt #1948:** production hosts always call `AddArchLucidApplicationServices`, which registers persistence before `InfraEvidenceCompositionModule`; standalone import is test-only and intentionally unwired (`InfraEvidenceCompositionModule_registers_cloud_resource_and_audit_evidence_services` asserts descriptors only)
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — repeated `Register` duplicates `MermaidDiagramReadabilityThresholds` singleton descriptors; last-wins resolution may ignore a host-preconfigured thresholds instance — **cheap-disproof 2026-09-11 seed hunt #1796:** MS DI last-wins keeps final `Register()` default thresholds, not an earlier host override; regression `InfraEvidenceCompositionModule_repeated_register_last_mermaid_thresholds_singleton_wins`.
 
 2026-09-11 seed hunt #1796 (seed-only): reseeded host-infra-evidence-composition after #1624; cheap-disproof closed duplicate Mermaid thresholds singleton candidate; 1 scoped InfraEvidenceCompositionModule test passed.
@@ -13239,17 +13286,21 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 5
-- **bugs-found:** 7
+- **hunts:** 6
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — notifications, workspace-settings, and jira-integration help TOC kept claim headings while bands are omitted
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — help-teams-integration TOC kept claim heading while header strip owns the band
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #1949 (hit): reseeded ui-claim-discipline-policy; proved help-teams-integration raw TOC/omit mismatch vs notifications/jira parity; 1 scoped regression test passed.
 
 ABQ-09 churn hotspot.
 
 ### Hypotheses
+
+- [x] (proven) `HelpTeamsIntegrationGuideView` / `TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS` — claim TOC entry `#help-teams-integration-claim-discipline-heading` survived while `help-teams-integration` is omitted and claim renders only in header strip without matching anchor — **hit 2026-09-12 seed hunt #1949:** fixed with `resolveGuideHeadingsForStrip`; regression `omits claim-discipline TOC link when header strip owns the claim band`
 
 - [x] (proven) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `resolveGuideHeadingsForStrip` — `audit-trail-help` missing from omit set while buyer-polished header folds claim into `PageHeaderClaimDiscipline` — **hit 2026-09-07 hunt #1191 (seed→hit):** TOC kept `#help-audit-trail-claim-discipline-heading` with no matching anchor and operator shell duplicated claim via orientation strip; fixed by omitting `audit-trail-help` and making `AuditTrailHelpEvidenceOrientationStrip` sources-only
 - [x] (proven) `help-sponsor-dashboard` — guide TOC lists claim heading id but header claim strip rendered aside without matching anchor while orientation strip duplicated claim — **hit 2026-09-07 hunt #1282:** `SponsorDashboardHelpClaimDisciplineStrip` lacked `#help-sponsor-dashboard-claim-discipline-heading` while `SponsorDashboardHelpEvidenceOrientationStrip` repeated the negation band; fixed by anchoring the header strip, omitting `help-sponsor-dashboard`, and making the orientation strip sources-only; regressions in `SponsorDashboardHelpEvidenceOrientationStrip.test.tsx`, `HelpSponsorDashboardGuideView.test.tsx`, and `claim-discipline-policy.test.ts`

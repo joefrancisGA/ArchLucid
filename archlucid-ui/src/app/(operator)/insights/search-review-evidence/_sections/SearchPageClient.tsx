@@ -26,13 +26,17 @@ import type { SearchPageViewModel } from "./search-page-view-model";
 type SearchPageClientProps = {
   readonly buyerShell: boolean;
   readonly isDemo: boolean;
+  readonly basePathname?: string;
+  readonly pinnedArchitectureId?: string;
 };
 
 export function SearchPageClient(props: SearchPageClientProps) {
   const buyerShell = props.buyerShell;
   const isDemo = props.isDemo;
+  const basePathname = props.basePathname?.trim() ?? SEARCH_REVIEW_EVIDENCE_PATH;
+  const pinnedArchitectureId = props.pinnedArchitectureId?.trim() ?? "";
   const router = useRouter();
-  const pathname = usePathname() ?? SEARCH_REVIEW_EVIDENCE_PATH;
+  const pathname = usePathname() ?? basePathname;
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const urlQuery = parseSearchReviewEvidenceQueryFromSearch(searchParams.get("q"));
@@ -74,9 +78,9 @@ export function SearchPageClient(props: SearchPageClientProps) {
 
       const params = new URLSearchParams(searchParams.toString());
       params.set("runId", trimmed);
-      router.replace(`${SEARCH_REVIEW_EVIDENCE_PATH}?${params.toString()}`, { scroll: false });
+      router.replace(`${basePathname}?${params.toString()}`, { scroll: false });
     },
-    [router, searchParams],
+    [basePathname, router, searchParams],
   );
 
   const onSearch = useCallback(async (overrideQuery?: string) => {
@@ -158,6 +162,8 @@ export function SearchPageClient(props: SearchPageClientProps) {
     setQuery,
     setRunId,
     totalResultCount: results.length,
+    basePathname,
+    pinnedArchitectureId: pinnedArchitectureId.length > 0 ? pinnedArchitectureId : null,
   };
 
   return <SearchPageView model={model} />;

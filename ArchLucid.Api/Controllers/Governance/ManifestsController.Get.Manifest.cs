@@ -72,7 +72,7 @@ public sealed partial class ManifestsController
             if (manifest is null)
                 return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
-            string diagram = diagramGenerator.GenerateMermaid(manifest);
+            string diagram = GenerateExportMermaid(manifest);
             string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
             string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
 

@@ -112,6 +112,27 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     ]);
   });
 
+  it("ignores invisible layout links when building the edges outline", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    vnet1["vnet-eastus"]',
+        '    vnet2["vnet-westus"]',
+        '    vnet3["vnet-north"]',
+        "    vnet1 ~~~ vnet2",
+        "    vnet1 -->|peered| vnet3",
+      ].join("\n"),
+    );
+
+    expect(outline.edges).toEqual([
+      {
+        from: "vnet1",
+        to: "vnet3",
+        label: "peered",
+      },
+    ]);
+  });
+
   it("falls back to RG subgraph labels when metadata comments are absent", () => {
     const outline = parseInfraEvidenceMermaidOutline(
       [

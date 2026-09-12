@@ -61,6 +61,8 @@ public sealed partial class ManifestsController
         [FromQuery] bool includeRuntimePlatform = true,
         [FromQuery] string? relationshipLabels = RelationshipLabelsDefault,
         [FromQuery] string? groupBy = GroupByDefault,
+        [FromQuery] bool includeSemanticOverlay = false,
+        [FromQuery] int semanticOverlayMaxNodes = SemanticOverlayMaxNodesDefault,
         CancellationToken cancellationToken = default)
     {
         IActionResult? manifestVersionProblem = BadRequestWhenManifestVersionEmpty(manifestVersion);
@@ -104,7 +106,9 @@ public sealed partial class ManifestsController
                 Layout = layout ?? DiagramLayoutDefault,
                 IncludeRuntimePlatform = includeRuntimePlatform,
                 RelationshipLabels = relationshipLabels ?? RelationshipLabelsDefault,
-                GroupBy = groupBy ?? GroupByDefault
+                GroupBy = groupBy ?? GroupByDefault,
+                IncludeSemanticOverlay = includeSemanticOverlay,
+                SemanticOverlayMaxNodes = Math.Max(0, semanticOverlayMaxNodes),
             };
 
             string mermaid = manifestDiagramService.GenerateMermaid(manifest, opts);

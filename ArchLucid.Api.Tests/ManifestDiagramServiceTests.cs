@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Application.Diagrams;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
@@ -230,7 +231,50 @@ public sealed class ManifestDiagramServiceTests
     }
 
     [SkippableFact]
-    public void GenerateMermaid_WithSemanticOverlay_ContainsRequirementAndDecisionNodes()
+    public void GenerateMermaid_WithSemanticOverlay_ContainsActorTrustRequirementAndDecisionSubgraphs()
+    {
+        GoldenManifest manifest = CreateMinimalManifest();
+        manifest.Services.Add(new ManifestService
+        {
+            ServiceId = "api",
+            ServiceName = "Api",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService,
+        });
+        manifest.DiagramSemantics = new ManifestDiagramSemanticOverlay
+        {
+            Actors =
+            [
+                new ActorDescriptor
+                {
+                    Label = "Claims adjuster",
+                    Kind = ActorKind.Human,
+                    TrustOrigin = TrustOrigin.Internal,
+                    Contract = InteractionContract.Sync,
+                },
+            ],
+            TrustBoundaryLabels = ["Partner ingress (External)"],
+            RequirementLabels = ["Encrypt data at rest"],
+            DecisionLabels = ["Use private endpoints"],
+        };
+
+        string mermaid = _sut.GenerateMermaid(
+            manifest,
+            new ManifestDiagramOptions { IncludeSemanticOverlay = true });
+
+        mermaid.Should().Contain("subgraph actors");
+        mermaid.Should().Contain("subgraph trust_boundaries");
+        mermaid.Should().Contain("subgraph requirements");
+        mermaid.Should().Contain("subgraph decisions");
+        mermaid.Should().Contain("Actor:");
+        mermaid.Should().Contain("Trust:");
+        mermaid.Should().Contain("Requirement:");
+        mermaid.Should().Contain("Decision:");
+        mermaid.Should().Contain("-.->");
+    }
+
+    [SkippableFact]
+    public void GenerateMermaid_WithSemanticOverlay_FallsBackToGovernanceWhenDiagramSemanticsEmpty()
     {
         GoldenManifest manifest = CreateMinimalManifest();
         manifest.Governance.PolicyConstraints.Add("Encrypt data at rest");
@@ -241,9 +285,33 @@ public sealed class ManifestDiagramServiceTests
             manifest,
             new ManifestDiagramOptions { IncludeSemanticOverlay = true });
 
-        mermaid.Should().Contain("semantic_overlay");
-        mermaid.Should().Contain("Requirement:");
-        mermaid.Should().Contain("Decision:");
+        mermaid.Should().Contain("subgraph requirements");
+        mermaid.Should().Contain("subgraph decisions");
+        mermaid.Should().Contain("Encrypt data at rest");
+        mermaid.Should().Contain("Decision trace:");
+    }
+
+    [SkippableFact]
+    public void GenerateMermaid_WithSemanticOverlay_TruncatesAtMaxNodes()
+    {
+        GoldenManifest manifest = CreateMinimalManifest();
+        manifest.DiagramSemantics = new ManifestDiagramSemanticOverlay
+        {
+            RequirementLabels = ["req-1", "req-2", "req-3", "req-4"],
+            DecisionLabels = ["dec-1", "dec-2", "dec-3", "dec-4"],
+        };
+
+        string mermaid = _sut.GenerateMermaid(
+            manifest,
+            new ManifestDiagramOptions
+            {
+                IncludeSemanticOverlay = true,
+                SemanticOverlayMaxNodes = 2,
+            });
+
+        mermaid.Should().Contain("Requirement: req-1");
+        mermaid.Should().Contain("Requirement: req-2");
+        mermaid.Should().NotContain("Requirement: req-3");
     }
 
     private static GoldenManifest CreateMinimalManifest()

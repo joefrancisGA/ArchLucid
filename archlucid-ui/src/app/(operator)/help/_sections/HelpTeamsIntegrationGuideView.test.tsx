@@ -235,6 +235,18 @@ describe("HelpTeamsIntegrationGuideView", () => {
 
   });
 
+  it("omits claim-discipline TOC link when header strip owns the claim band", () => {
+    if (entry === undefined) {
+      throw new Error("Expected teams-integration documentation entry.");
+    }
+
+    render(<HelpTeamsIntegrationGuideView entry={entry} />);
+
+    expect(
+      screen.queryAllByRole("link", { name: TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING }),
+    ).toHaveLength(0);
+  });
+
   it("shortens Microsoft Teams to Teams in the SecureNow help title", () => {
     if (entry === undefined) {
       throw new Error("Expected teams-integration documentation entry.");
