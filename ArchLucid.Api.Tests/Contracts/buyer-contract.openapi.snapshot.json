@@ -9301,6 +9301,125 @@
         },
         "type": "object"
       },
+      "CompareVerdictChromeDelta": {
+        "properties": {
+          "executionMode": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CompareVerdictChromeExecutionModeDelta"
+              }
+            ]
+          },
+          "gateOutcome": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CompareVerdictChromeGateOutcomeDelta"
+              }
+            ]
+          },
+          "hasAnySection": {
+            "type": "boolean"
+          },
+          "nonSummingLine": {
+            "type": "string"
+          },
+          "packAssignment": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CompareVerdictChromePackAssignmentDelta"
+              }
+            ]
+          },
+          "roiHeadline": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CompareVerdictChromeRoiHeadlineDelta"
+              }
+            ]
+          },
+          "wk21Line": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CompareVerdictChromeExecutionModeDelta": {
+        "properties": {
+          "advisoryParagraph": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "baselineModeLabel": {
+            "type": "string"
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "targetModeLabel": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CompareVerdictChromeGateOutcomeDelta": {
+        "properties": {
+          "baselineGateLabel": {
+            "type": "string"
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "targetGateLabel": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CompareVerdictChromePackAssignmentDelta": {
+        "properties": {
+          "baselineSummaryLine": {
+            "type": "string"
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "targetSummaryLine": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CompareVerdictChromeRoiHeadlineDelta": {
+        "properties": {
+          "baselineSavingsLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetSavingsLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ComparisonDuplicateKeyConflict": {
         "properties": {
           "count": {
@@ -13519,6 +13638,16 @@
               },
               {
                 "$ref": "#/components/schemas/CompareQualityDeltaCounts"
+              }
+            ]
+          },
+          "compareVerdictChromeDelta": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CompareVerdictChromeDelta"
               }
             ]
           },
@@ -23840,6 +23969,9 @@
             ]
           },
           "isDemoTenant": {
+            "type": "boolean"
+          },
+          "isSampleRun": {
             "type": "boolean"
           },
           "llmCallCount": {

@@ -2714,6 +2714,35 @@ export interface components {
             /** Format: int32 */
             unsupportedAssumptionsBefore?: number;
         };
+        CompareVerdictChromeDelta: {
+            executionMode?: null | components["schemas"]["CompareVerdictChromeExecutionModeDelta"];
+            gateOutcome?: null | components["schemas"]["CompareVerdictChromeGateOutcomeDelta"];
+            hasAnySection?: boolean;
+            nonSummingLine?: string;
+            packAssignment?: null | components["schemas"]["CompareVerdictChromePackAssignmentDelta"];
+            roiHeadline?: null | components["schemas"]["CompareVerdictChromeRoiHeadlineDelta"];
+            wk21Line?: string;
+        };
+        CompareVerdictChromeExecutionModeDelta: {
+            advisoryParagraph?: null | string;
+            baselineModeLabel?: string;
+            changed?: boolean;
+            targetModeLabel?: string;
+        };
+        CompareVerdictChromeGateOutcomeDelta: {
+            baselineGateLabel?: string;
+            changed?: boolean;
+            targetGateLabel?: string;
+        };
+        CompareVerdictChromePackAssignmentDelta: {
+            baselineSummaryLine?: string;
+            changed?: boolean;
+            targetSummaryLine?: string;
+        };
+        CompareVerdictChromeRoiHeadlineDelta: {
+            baselineSavingsLabel?: null | string;
+            targetSavingsLabel?: null | string;
+        };
         ComparisonDuplicateKeyConflict: {
             /** Format: int32 */
             count?: number;
@@ -3955,6 +3984,7 @@ export interface components {
         EndToEndReplayComparisonReport: {
             agentResultDiff?: null | components["schemas"]["AgentResultDiffResult"];
             compareQualityDelta?: null | components["schemas"]["CompareQualityDeltaCounts"];
+            compareVerdictChromeDelta?: null | components["schemas"]["CompareVerdictChromeDelta"];
             exportDiffs?: components["schemas"]["ExportRecordDiffResult"][];
             findingCorrelation?: null | components["schemas"]["ComparisonFindingCorrelationMetadata"];
             findingLifecycle?: null | components["schemas"]["CrossReviewFindingLifecycleSummary"];
@@ -6943,6 +6973,7 @@ export interface components {
             findingsBySeverity?: components["schemas"]["PilotRunDeltaSeverityCountResponse"][];
             governedFindingCoverage?: null | components["schemas"]["GovernedFindingCoverageMetric"];
             isDemoTenant?: boolean;
+            isSampleRun?: boolean;
             /** Format: int32 */
             llmCallCount?: number;
             llmCallCountResolved?: boolean;
