@@ -277,6 +277,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("managed_lustre", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("video_indexer", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("hpc_cache", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("mobile_network", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("site_recovery", StringComparison.OrdinalIgnoreCase);
     }
 
