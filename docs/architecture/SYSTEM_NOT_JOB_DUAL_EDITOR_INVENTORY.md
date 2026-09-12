@@ -56,7 +56,7 @@ After start review, synthesis (`DraftRequests`) and evaluation (`Runs`) stay two
 | --- | --- | --- |
 | **Soft gate → hard Working handoff** | IA-007 originally allowed “edit anyway” with this-browser ack; RS-04 clears ack and locks spawned drafts | Shipped — `architecture-draft-handoff-gate.ts` |
 | **Review “Edit source” alternate writer** | Pre-seal reviews expose guided-intake rerun while `DraftRequests` row still exists | **SN-003** (URL honesty) · **SN-004** (one writer) |
-| **Legacy draft URL bookmark** | `/architecture/architectures/{draftId}` without identity desk redirect | **SN-003** · **SN-005** |
+| **Legacy draft URL bookmark** | `/architecture/architectures/{draftId}` — SN-003 shows snapshot handoff panel + clone CTA (all modes); SN-005 owns back/history | **SN-005** |
 | **Working nested draft redirect** | Spawn-locked nested draft URL redirects to identity desk (`drafts/[draftId]/page.tsx`) but legacy path may still load workspace | **SN-003** |
 | **Repeat-seat server-visible ack** | RS-04 / repeat-seat-04 — cross-browser divergence choice deferred | GTM / repeat-seat wave |
 
