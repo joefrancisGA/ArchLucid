@@ -2344,3 +2344,4 @@
 {"at":"2026-09-12T16:32:36.971207Z","zoneId":"core-tenancy-commercial","outcome":"seed-only"}
 {"at":"2026-09-12T16:37:14.5858875Z","zoneId":"commit-output-integrity","outcome":"seed-only"}
 {"at":"2026-09-12T16:41:02.9778228Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
+{"at":"2026-09-12T16:44:51.4571117Z","zoneId":"api-key-auth","outcome":"seed-only"}
