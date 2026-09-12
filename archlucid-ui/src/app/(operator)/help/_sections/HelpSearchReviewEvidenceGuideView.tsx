@@ -5,6 +5,7 @@ import Link from "next/link";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { SearchReviewEvidenceHelpClaimDisciplineStrip } from "@/components/help/SearchReviewEvidenceHelpClaimDisciplineStrip";
 import { SearchReviewEvidenceHelpEvidenceOrientationStrip } from "@/components/help/SearchReviewEvidenceHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -104,6 +105,8 @@ export function HelpSearchReviewEvidenceGuideView(
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
           <div data-testid="help-search-review-evidence-orientation-top">
+            <SponsorSendPathHonestyPanel testIdPrefix="help-search-review-evidence" showSsoOptional={false} />
+
             <SearchReviewEvidenceHelpEvidenceOrientationStrip />
           </div>
 
