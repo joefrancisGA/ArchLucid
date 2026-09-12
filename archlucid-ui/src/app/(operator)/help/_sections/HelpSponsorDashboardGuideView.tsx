@@ -6,6 +6,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpSponsorDashboardWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpSponsorDashboardWorkspaceReadinessStrip";
 import { SponsorDashboardHelpClaimDisciplineStrip } from "@/components/help/SponsorDashboardHelpClaimDisciplineStrip";
 import { SponsorDashboardHelpEvidenceOrientationStrip } from "@/components/help/SponsorDashboardHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -173,6 +174,8 @@ export function HelpSponsorDashboardGuideView(props: HelpSponsorDashboardGuideVi
           {!buyerPolishedShell ? (
             <SponsorDashboardHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
           ) : null}
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-sponsor-dashboard" showSsoOptional={false} />
         </div>
 
         <HelpTopicTableOfContents headings={SPONSOR_DASHBOARD_HELP_GUIDE_HEADINGS} />

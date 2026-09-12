@@ -83,6 +83,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
       "The checklist below walks one architecture review from capture to committed finalized review record.",
     primaryAction: { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     operateDeferralNote: GUIDED_ONBOARDING_OPERATE_DEFERRAL_NOTE,
+    dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
   },
   "new-review": {
     useWhen: "You have enough context to start an architecture review.",
@@ -90,6 +91,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
       "ArchLucid produces a defensible review — committed findings, evidence trail, and export-ready outputs. Default to evidence-only (no cloud target) unless you attach cloud inventory output.",
     operateDeferralNote:
       "Policy packs and deeper approval can wait until after your first committed package. Cloud inventory ZIP is optional — see the InfoSec pre-read if security must approve the read-only script.",
+    dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
   },
   "reviews-list": {
     useWhen: "You want to resume an in-progress review or open a committed review.",

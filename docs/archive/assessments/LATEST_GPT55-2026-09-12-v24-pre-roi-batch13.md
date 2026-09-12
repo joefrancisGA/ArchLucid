@@ -4,23 +4,29 @@
 
 # ArchLucid Strategic Release and Market Readiness Assessment (v3)
 
-**Pass date:** 2026-09-12, **08:15 UTC**. **Computed fresh** — no carry-forward ratchet; scores recomputed from evidence on this HEAD (prior pass archived for history only).
+**Pass date:** 2026-09-12, **06:45 UTC**. **Computed fresh** — no carry-forward ratchet; scores recomputed from evidence on this HEAD (prior pass archived for history only).
 
-**Prior rolling snapshot archived:** `docs/archive/assessments/LATEST_GPT55-2026-09-12-v24-pre-roi-batch13.md` (history only; not used for scores).
+**Prior rolling snapshot archived:** `docs/archive/assessments/LATEST_GPT55-2026-09-12-v23-pre-roi-batch12.md` (history only; not used for scores).
 
-**Reasoning engine:** Cursor Composer 2.5, code-and-doc desk review. **No live Azure OpenAI call this pass.** Scoped unit tests executed (Vitest first-week/optional-setup; Python batch-10/11/12/13 drift guards; C# pilot value report markdown + weekly sponsor email + DOCX value report + compare verdict-chrome export). Real-mode first-review was **not** re-run.
+**Reasoning engine:** Cursor Composer 2.5, code-and-doc desk review. **No live Azure OpenAI call this pass.** Scoped unit tests executed (Vitest first-week/optional-setup; Python batch-10/11/12 drift guards; C# weekly sponsor email + DOCX value report + compare verdict-chrome export). Real-mode first-review was **not** re-run.
 
-**Inspected HEAD:** `cursor/arch-quality-roi-improvements-0d83` (ROI batch **13**: pilot value report markdown sendable cover + mailto send honesty; help sponsor-dashboard + scorecard orientation; first-week onboarding/new-review disposition; package-spine + compare export CTA honesty; executive sponsor-details KPI honesty; pilot ROI help canonical sendable lines; batch-13 drift guards).
+**Inspected HEAD:** `cursor/arch-quality-roi-improvements-0d83` (ROI batch **12**: weekly sponsor email covers; help sponsor-report orientation; ROI-summary hero honesty; sponsor export CTA strips; OpenAPI UI `compareVerdictChromeDelta` + end-to-end compare export e2e; first-week home/reviews-list disposition + getting-started SSO; DOCX value report sendable cover; live KPI cards honesty).
 
-### Pass delta vs 2026-09-12 pre-batch-13 (`LATEST_GPT55` v24 @ 82.10% → this HEAD)
+### Pass delta vs 2026-09-12 pre-batch-12 (`LATEST_GPT55` v23 @ 81.76% → this HEAD)
 
 | Area | Prior | This pass | Evidence |
 |---|---|---|---|
-| **(A) headline** | **82.10%** | **82.41%** (+0.31 pp) | ROI batch **13**: pilot value report markdown + mailto honesty; help sponsor-dashboard/scorecard orientation; first-week onboarding/new-review disposition; golden-manifest + compare export CTA strips; executive sponsor-details KPI honesty; pilot ROI help sendable lines; batch-13 drift guards |
-| Proof-of-ROI | 86 | **87** | Pilot value report markdown sendable cover; mailto confirm dialog honesty |
-| Comprehension | 80 | **81** | Help sponsor-dashboard + scorecard orientation; executive sponsor-details KPI honesty; pilot ROI help panel |
-| Time-to-Value | 76 | **77** | First-week onboarding + new-review disposition literacy |
-| Adoption friction | 78 | **79** | Package-spine + compare export CTA honesty strips |
+| **(A) headline** | **81.76%** | **82.10%** (+0.34 pp) | ROI batch **12**: weekly sponsor email covers; help sponsor-report + ROI hero honesty; export CTA strips; compare end-to-end export + UI types; first-week home disposition + getting-started SSO; DOCX sendable cover; live KPI honesty; batch-12 drift guards |
+| Insight Density | 82 | **83** | UI types expose compareVerdictChromeDelta; end-to-end compare export wired in UI |
+| Differentiability | 82 | **82** | unchanged |
+| Governed Review Integrity | 86 | **86** | unchanged |
+| Correctness & Evidence | 84 | **84** | unchanged |
+| AI / Agent Readiness | 80 | **80** | unchanged |
+| Time-to-Value | 76 | **76** | unchanged |
+| Proof-of-ROI | 85 | **86** | Weekly sponsor email + tenant DOCX sendable cover + export CTA honesty |
+| Comprehension | 79 | **80** | Help sponsor-report panel; ROI-summary hero strip; live KPI cards |
+| Runtime reliability | 82 | **82** | unchanged |
+| Adoption friction | 77 | **78** | First-week home/reviews-list disposition; getting-started SSO optional |
 | **Unchanged blockers** | G4 0/3; Gate 1 UNKNOWN; G-REAL-06 owner | — | Not penalized in `(A)` per scope rules |
 
 ---
@@ -50,7 +56,7 @@ Sourced from open `docs/go-to-market/GTM_BACKLOG.md` rows plus owner-gated claim
 
 ## 1. Title & Headline
 
-**ArchLucid Assessment – (A) Headline Readiness: 82.41%**
+**ArchLucid Assessment – (A) Headline Readiness: 82.10%**
 
 Readiness **excludes** deferred items per `V1_SCOPE.md` §3, `V1_DEFERRED.md` §6*, and `.cursor/rules/Assessment-Scope-V1_1.mdc`. Reasoning engine: **desk review** (scoped unit tests this pass; **not** a fresh Real-mode Azure OpenAI run). Timestamp: **2026-09-12 06:45 UTC**.
 
@@ -58,7 +64,7 @@ Readiness **excludes** deferred items per `V1_SCOPE.md` §3, `V1_DEFERRED.md` §
 
 **Code regions inspected:** `AuthorityRunOrchestrator` (`ArchLucid.Application/Runs/Orchestration/`), `PreCommitGovernanceGate`, `PolicyPackResolver` / `DefaultPolicyPackSeeder` / `DefaultPolicyPackCloudBaselineApplicator`, `SponsorRoiSummaryService` / `DispositionAwareRoiBasisCalculator`, `CostRetailGroundingBuilder` + AWS/GCP lookups, `GraphRagNeighborExpander`, `SelfServiceTrialAiBudgetPolicyProvisioner`, ITSM `NativeEnabled` config, extractor ZIP scripts (`Get-ArchLucidAwsPackage.ps1` / `Get-ArchLucidGcpPackage.ps1`), `archlucid-ui` pricing (`pricing.json`, `/pricing`), billing buyer-polish tests, system-health buyer-polish tests, request-access auth callback.
 
-**This pass runtime:** Vitest first-week/optional-setup → **25 passed**; Python batch-10/11/12/13 drift guards → **29 OK**; C# pilot value report markdown + weekly sponsor email + DOCX value report + compare verdict-chrome export → **8 passed**; OpenAPI UI types refresh → **1 passed**.
+**This pass runtime:** Vitest first-week/optional-setup → **25 passed**; Python batch-10/11/12 drift guards → **22 OK**; C# weekly sponsor email + DOCX value report + compare verdict-chrome export → **6 passed**; OpenAPI UI types refresh → **1 passed**.
 
 ---
 
@@ -71,12 +77,12 @@ Readiness **excludes** deferred items per `V1_SCOPE.md` §3, `V1_DEFERRED.md` §
 | 3 | Governed Review Integrity | 86 | 13 | 11.18 | 182 |
 | 4 | Correctness & Evidence Integrity | 84 | 12 | 10.08 | 192 |
 | 5 | AI / Agent Readiness | 80 | 10 | 8.00 | 200 |
-| 6 | Time-to-Value | 77 | 10 | 7.70 | 230 |
-| 7 | Proof-of-ROI Readiness | 87 | 9 | 7.83 | 117 |
-| 8 | Sponsor / Operator Comprehension | 81 | 8 | 6.48 | 152 |
+| 6 | Time-to-Value | 76 | 10 | 7.60 | 240 |
+| 7 | Proof-of-ROI Readiness | 86 | 9 | 7.74 | 126 |
+| 8 | Sponsor / Operator Comprehension | 80 | 8 | 6.40 | 160 |
 | 9 | Runtime & First-Review Reliability | 82 | 7 | 5.74 | 126 |
-| 10 | Adoption Friction | 79 | 5 | 3.95 | 105 |
-| | **(A) Headline Readiness** | | **100** | **82.41** | |
+| 10 | Adoption Friction | 78 | 5 | 3.90 | 110 |
+| | **(A) Headline Readiness** | | **100** | **82.10** | |
 
 **(B) Procurement / market-motion realism** is informational and **weight 0** in `(A)`. Narrative in §5.
 
