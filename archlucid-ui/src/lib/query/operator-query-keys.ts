@@ -23,7 +23,7 @@ export const operatorQueryKeys = {
   adminIdentityProvidersPageBundle: ["operator", "admin", "identity-providers-page-bundle"] as const,
   adminPrerequisitesCloudSummary: ["operator", "admin", "prerequisites-cloud-summary"] as const,
   adminOutboxDiagnostics: ["operator", "admin", "outbox-diagnostics"] as const,
-  pilotScorecard: ["operator", "pilots", "scorecard"] as const,
+  pilotScorecard: (scope: OperatorScopeQueryKey) => ["operator", "pilots", "scorecard", scope] as const,
   operatorAiQualitySnapshot: ["operator", "assistant", "ai-quality-snapshot"] as const,
   firstPilotProofStatusSnapshot: ["operator", "first-pilot", "proof-status-snapshot"] as const,
   operatorTaskSuccessRates: ["operator", "diagnostics", "task-success-rates"] as const,
@@ -36,16 +36,19 @@ export const operatorQueryKeys = {
   llmMonthlyBudgetStatus: ["operator", "llm", "monthly-budget-status"] as const,
   adminAiUsageDashboard: ["operator", "admin", "ai-usage-dashboard"] as const,
   sponsorRoiSummary: ["operator", "roi", "sponsor-report"] as const,
-  sponsorDashboardBundle: ["operator", "roi", "sponsor-dashboard-bundle"] as const,
+  sponsorDashboardBundle: (scope: OperatorScopeQueryKey) =>
+    ["operator", "roi", "sponsor-dashboard-bundle", scope] as const,
+  sponsorDashboardBundlePrefix: ["operator", "roi", "sponsor-dashboard-bundle"] as const,
   // Prefix-matches sponsorRoiSummary so refreshDashboard invalidation also refreshes these.
   sponsorRoiSummaryHistory: ["operator", "roi", "sponsor-report", "history"] as const,
   sponsorRoiSummaryExport: ["operator", "roi", "sponsor-report", "export"] as const,
   sqlBackupRegionVerification: ["operator", "sponsor", "sql-backup-region-verification"] as const,
   executiveNextActionInputs: (scope: OperatorScopeQueryKey, range: SponsorTimeRange) =>
     ["operator", "roi", "next-action-inputs", scope, range] as const,
-  complianceDriftTrend30d: ["operator", "governance", "compliance-drift-trend", "30d"] as const,
-  complianceDriftTrendRange: (fromUtc: string, toUtc: string) =>
-    ["operator", "governance", "compliance-drift-trend", { fromUtc, toUtc }] as const,
+  complianceDriftTrend30d: (scope: OperatorScopeQueryKey) =>
+    ["operator", "governance", "compliance-drift-trend", "30d", scope] as const,
+  complianceDriftTrendRange: (scope: OperatorScopeQueryKey, fromUtc: string, toUtc: string) =>
+    ["operator", "governance", "compliance-drift-trend", scope, { fromUtc, toUtc }] as const,
   governancePrecommitBlockedCount: (fromUtcIso: string, toUtcIso: string) =>
     ["operator", "governance", "precommit-blocked-count", { fromUtcIso, toUtcIso }] as const,
   workspaceHealthPrecommitAuditCounts30d:

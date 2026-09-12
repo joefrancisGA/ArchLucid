@@ -12498,11 +12498,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 19
-- **bugs-found:** 29
+- **hunts:** 20
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — tenant counting snapshot omitted paginated totalCount
+- **last-bug:** 2026-09-12 — operator next-best-actions query cache omitted operator scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12550,6 +12550,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` used loaded page length instead of paginated runs dashboard `totalCount` — **hit 2026-09-12 thorough hunt #1852:** home metrics strip understated workspace review totals on paginated Overview; fixed by passing `runsDashboardTotalCount`; regression `uses runsDashboardTotalCount for reviewPackagesTotal when the dashboard page is paginated`.
 
 2026-09-12 thorough hunt #1852 (hit): proved tenant counting snapshot omitted paginated totalCount; 6 scoped operator-home-tenant-counting tests passed.
+
+- [x] (proven) `useOperatorNextBestActionsQuery` / `operatorQueryKeys.operatorNextBestActions` — scope-less react-query key reused tenant A next-best actions after operator scope switch — **hit 2026-09-12 thorough hunt #1853:** keyed query by `useOperatorScopeQueryKey`; regression `use-operator-next-best-actions-query.test.tsx`.
+
+2026-09-12 thorough hunt #1853 (hit): proved operator next-best-actions query cache omitted operator scope; 1 scoped hook test passed.
 
 - [x] (proven) `invalidateOperatorHomeRunsCaches` / `invalidateOperatorSponsorRoiCaches` — omitted scoped `pilotValueReport` TanStack invalidation after run commit or sponsor seed changes — **hit 2026-09-11 thorough hunt #1695:** sponsor value report `totalRunsCommitted` stayed stale until `staleTime` expired; fixed via `invalidatePilotValueReportCache`; regression `invalidateOperatorHomeRunsCaches_invalidates_scoped_pilot_value_report_queries`.
 
