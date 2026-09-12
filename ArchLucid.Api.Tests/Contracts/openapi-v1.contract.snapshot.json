@@ -16044,9 +16044,6 @@
             "format": "uuid",
             "type": "string"
           },
-          "severity": {
-            "$ref": "#/components/schemas/FindingSeverity"
-          },
           "semanticSupportBand": {
             "anyOf": [
               {
@@ -16056,6 +16053,9 @@
                 "$ref": "#/components/schemas/FindingSemanticSupportBand"
               }
             ]
+          },
+          "severity": {
+            "$ref": "#/components/schemas/FindingSeverity"
           },
           "trackedExternally": {
             "type": "boolean"
