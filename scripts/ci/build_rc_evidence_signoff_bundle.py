@@ -362,6 +362,28 @@ def build_signoff_bundle(root: Path, bundle_dir: Path) -> dict[str, Any]:
         }
     )
 
+    faithfulness_warn_path, faithfulness_warn_rel = _resolve_artifact(
+        root,
+        bundle_dir,
+        [
+            "faithfulness-nightly-warn-status.json",
+            "docs/quality/faithfulness-nightly-warn-status.json",
+        ],
+    )
+    faithfulness_warn_payload = load_json(faithfulness_warn_path) if faithfulness_warn_path else None
+    gates.append(
+        _gate_from_payload(
+            gate_id="faithfulness-nightly-warn",
+            label="Offline faithfulness nightly warn scaffold (G-FAITH-01)",
+            artifact_path=faithfulness_warn_rel,
+            payload=faithfulness_warn_payload,
+            status_keys=("disposition", "status"),
+            reason_keys=("detail", "program"),
+            high_risk=False,
+            skipped_reason="faithfulness-nightly-warn-status.json not attached — run eval_agent_faithfulness.py",
+        )
+    )
+
     ai_summary_path, ai_summary_rel = _resolve_artifact(
         root,
         bundle_dir,

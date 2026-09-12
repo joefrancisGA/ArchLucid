@@ -319,7 +319,14 @@ export function RunDetailReviewPackageDoThisNextResolved(
         readinessLoading={commitBlockedState.readinessLoading}
       />
       {props.hasGoldenManifest && (props.manifestId ?? "").trim().length > 0 ? (
-        <RunDetailPackageSpineExportCoLocationStrip runId={props.runId} manifestId={props.manifestId ?? ""} />
+        <RunDetailPackageSpineExportCoLocationStrip
+          runId={props.runId}
+          manifestId={props.manifestId ?? ""}
+          progressSummary={props.pipelineSummary ?? null}
+          structuralExecutionMode={props.structuralExecutionMode}
+          workingCareerRehearsalDoor={props.pipelineSummary?.workingCareerRehearsalDoor}
+          enginesSucceeded={props.enginesSucceeded ?? null}
+        />
       ) : null}
       <ReviewPackageDoThisNextStrip
         next={next}

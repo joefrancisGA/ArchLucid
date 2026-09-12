@@ -13,6 +13,7 @@ import {
   FINDING_CLASSIFICATION_DECISION_GRADE,
 } from "@/lib/findings/review-detail-findings-classification-band";
 import { findingSemanticSupportBandFromTypedPayload } from "@/components/findings/FindingSemanticSupportBandInspectSection";
+import { normalizeFindingSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
 import {
   classifyReviewFindingJobView,
   type FindingJobView,
@@ -118,7 +119,9 @@ export function mapInspectPayloadToQuickDecisionFinding(payload: FindingInspectP
     humanReviewStatus: normalizeFindingHumanReviewStatus(payload.humanReviewStatus),
     assignedToUserId: payload.assignedToUserId ?? null,
     classification,
-    semanticSupportBand: findingSemanticSupportBandFromTypedPayload(typed, classification),
+    semanticSupportBand:
+      normalizeFindingSemanticSupportBand(payload.semanticSupportBand)
+      ?? findingSemanticSupportBandFromTypedPayload(typed, classification),
   };
 }
 
