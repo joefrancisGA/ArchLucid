@@ -29,7 +29,7 @@ export type RunDetailWorkspaceStickyActionsResolvedProps = {
   readonly showProgressTracker: boolean;
   readonly commitBlockedReason: string | null | undefined;
   readonly serverFinalizeReadinessBlocks?: readonly FinalizeReadinessBlock[];
-  readonly finalizeAssumptionGateApplies: boolean;
+  readonly finalizeReadinessEnabled: boolean;
   readonly quickDecisionFindings: readonly QuickDecisionFinding[];
   readonly requestAssumptionTexts: readonly string[];
   readonly nextAction?: string | null;
@@ -52,7 +52,7 @@ export function RunDetailWorkspaceStickyActionsResolved(
     runId: props.runId,
     serverCommitBlockedReason: props.commitBlockedReason,
     serverFinalizeReadinessBlocks: props.serverFinalizeReadinessBlocks,
-    finalizeAssumptionGateApplies: props.finalizeAssumptionGateApplies,
+    finalizeReadinessEnabled: props.finalizeReadinessEnabled,
     findings: props.quickDecisionFindings,
     blockingFindingCount: props.blockingFindingCount,
     requestAssumptionTexts: props.requestAssumptionTexts,

@@ -95,7 +95,7 @@ export function resolveReviewPolicyPackCallout(model: RunDetailPageModel): Revie
 export type RunDetailGovernancePresentation = {
   readonly commitBlockedReason: string | null;
   readonly finalizeReadinessBlocks: readonly FinalizeReadinessBlock[];
-  readonly finalizeAssumptionGateApplies: boolean;
+  readonly finalizeReadinessEnabled: boolean;
   readonly requestAssumptionTexts: readonly string[];
   readonly governanceDecisionLabel: string;
   readonly governanceOutcomeLine: string;
@@ -117,18 +117,15 @@ export async function buildRunDetailGovernancePresentation(
   },
 ): Promise<RunDetailGovernancePresentation> {
   const baseCommitBlockedReason = resolveCommitBlockedReason(model, input.findingCoverageSummary);
-  const finalizeAssumptionGateApplies = baseCommitBlockedReason === null && !input.hasManifest;
+  const finalizeReadinessEnabled = !input.hasManifest;
   const requestAssumptionTexts = await tryLoadRequestAssumptionsForRun(model.routeRunId);
-  const serverReadiness =
-    finalizeAssumptionGateApplies
-      ? await tryLoadFinalizeReadinessForRun(model.routeRunId)
-      : null;
+  const serverReadiness = finalizeReadinessEnabled
+    ? await tryLoadFinalizeReadinessForRun(model.routeRunId)
+    : null;
   const commitBlockedReason =
-    baseCommitBlockedReason !== null
-      ? baseCommitBlockedReason
-      : serverReadiness !== null && !serverReadiness.readyToFinalize
-        ? serverReadiness.blockedReasonSummary
-        : null;
+    serverReadiness !== null && !serverReadiness.readyToFinalize
+      ? serverReadiness.blockedReasonSummary
+      : baseCommitBlockedReason;
 
   const showGovernanceCta = shouldShowRunDetailGovernanceCta({
     runId: model.resolvedDetail.run.runId,
@@ -148,7 +145,7 @@ export async function buildRunDetailGovernancePresentation(
   return {
     commitBlockedReason,
     finalizeReadinessBlocks: serverReadiness?.blocks ?? [],
-    finalizeAssumptionGateApplies,
+    finalizeReadinessEnabled,
     requestAssumptionTexts,
     governanceDecisionLabel,
     governanceOutcomeLine: workspaceDerive.formatDecisionSnapshotGovernanceOutcome({

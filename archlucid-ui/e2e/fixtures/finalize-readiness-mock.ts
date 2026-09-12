@@ -1,16 +1,17 @@
 /** Deterministic finalize readiness payload for mock E2E deep-link smoke. */
-export function buildFinalizeReadinessDeferredBlockMock(runId: string): Record<string, unknown> {
+export function buildFinalizeReadinessBlockedMock(
+  runId: string,
+  block: {
+    readonly layer: string;
+    readonly code: string;
+    readonly message: string;
+  },
+): Record<string, unknown> {
   return {
     runId,
     readyToFinalize: false,
-    blockedReasonSummary: "1 deferred finding still needs revisit.",
-    blocks: [
-      {
-        layer: "scorecard",
-        code: "scorecard",
-        message: "1 deferred finding still needs revisit.",
-      },
-    ],
+    blockedReasonSummary: block.message,
+    blocks: [block],
     checklist: {
       runId,
       readyToFinalize: false,
@@ -22,7 +23,7 @@ export function buildFinalizeReadinessDeferredBlockMock(runId: string): Record<s
     scorecard: {
       blockingFindingCount: 0,
       uncoveredMandatoryRequirementCount: 0,
-      openDeferredCount: 1,
+      openDeferredCount: 0,
       openContradictionCount: 0,
       openCannotDetermineCount: 0,
       openVerifyHypothesisCount: 0,
@@ -30,7 +31,15 @@ export function buildFinalizeReadinessDeferredBlockMock(runId: string): Record<s
       lowExtractionConfidenceCount: 0,
       unresolvedHighSeverityDispositionCount: 0,
     },
-    scorecardBlockingReasons: ["1 deferred finding still needs revisit."],
+    scorecardBlockingReasons: block.code === "scorecard" ? [block.message] : [],
     finalizeQualityGateEnabled: true,
   };
+}
+
+export function buildFinalizeReadinessDeferredBlockMock(runId: string): Record<string, unknown> {
+  return buildFinalizeReadinessBlockedMock(runId, {
+    layer: "scorecard",
+    code: "scorecard",
+    message: "1 deferred finding still needs revisit.",
+  });
 }
