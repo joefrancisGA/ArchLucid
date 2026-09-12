@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Diagrams;
 
@@ -34,7 +35,11 @@ public sealed class MermaidCliDiagramImageRenderer(ILogger<MermaidCliDiagramImag
             Directory.CreateDirectory(tempDir);
             string inputPath = Path.Combine(tempDir, "diagram.mmd");
             string outputPath = Path.Combine(tempDir, "diagram.png");
-            await File.WriteAllTextAsync(inputPath, mermaidDiagram, Encoding.UTF8, cancellationToken);
+            await File.WriteAllTextAsync(
+                inputPath,
+                MermaidInlineCommentStripper.Strip(mermaidDiagram),
+                Encoding.UTF8,
+                cancellationToken);
             ProcessStartInfo psi = new()
             {
                 FileName = "mmdc",

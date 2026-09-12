@@ -83,7 +83,12 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         <FindingCounterfactualLine finding={finding} className="mt-0.5" />
         {finding.classification !== null && finding.classification !== undefined ? (
           <div className="mt-1 space-y-1">
-            <FindingClassificationChip classification={finding.classification} findingId={finding.findingId} />
+            <FindingClassificationChip
+              classification={finding.classification}
+              treatment={finding.treatment}
+              findingId={finding.findingId}
+              showReason
+            />
             {showDecisionGradeHonesty ? (
               <div className="flex flex-wrap items-center gap-1">
                 <FindingTrustChip finding={finding} />

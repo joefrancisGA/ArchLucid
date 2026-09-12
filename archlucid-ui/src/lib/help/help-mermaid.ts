@@ -18,6 +18,27 @@ export function sanitizeMermaidRenderId(rawId: string): string {
 }
 
 /**
+ * Mermaid.render inserts a bind node (`#d{id}`) and, on parse failure, an error SVG
+ * with the same id into document.body. Leaving those nodes in place stacks
+ * "Syntax error in text" banners on every retry.
+ */
+export function removeMermaidRenderBindElement(renderId: string): void {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const trimmed = renderId.trim();
+
+  if (trimmed.length === 0) {
+    return;
+  }
+
+  document.getElementById(`d${trimmed}`)?.remove();
+  document.getElementById(`i${trimmed}`)?.remove();
+  document.getElementById(trimmed)?.remove();
+}
+
+/**
  * Forces Mermaid SVG output to fill its container width.
  * Mermaid often emits a fixed pixel max-width (and sometimes height), which leaves a thumbnail
  * in a wide help-layout frame — especially after rendering inside a closed details disclosure.
@@ -250,6 +271,8 @@ export const MERMAID_VIEWPORT_MAX_HEIGHT_PX = 576;
 export type MermaidViewportFitDimensions = {
   readonly baseWidthPx: number;
   readonly baseHeightPx: number;
+  /** False when the SVG was sized to the camera budget without a measurable ink bbox. */
+  readonly inkMeasured: boolean;
 };
 
 /** Minimum fitted ink height before the inventory mermaid viewport treats the SVG as unpainted. */
@@ -259,11 +282,16 @@ export function isMermaidViewportPaintTooSmall(
   baseFit: MermaidViewportFitDimensions | null,
   zoom: number,
 ): boolean {
-  if (baseFit === null) {
+  if (baseFit === null || !baseFit.inkMeasured) {
     return true;
   }
 
   return baseFit.baseHeightPx * zoom < MERMAID_VIEWPORT_MIN_INK_HEIGHT_PX;
+}
+
+/** True while contain-fit only reserved a frame and has not yet found drawable ink. */
+export function mermaidViewportFitNeedsRetry(baseFit: MermaidViewportFitDimensions | null): boolean {
+  return baseFit === null || !baseFit.inkMeasured;
 }
 
 type MermaidInkViewBoxCache = {
@@ -356,7 +384,7 @@ function applyMermaidViewportNullInkFallback(
 
   applyMermaidSvgPixelSize(svg, widthPx, heightPx);
 
-  return { baseWidthPx: widthPx, baseHeightPx: heightPx };
+  return { baseWidthPx: widthPx, baseHeightPx: heightPx, inkMeasured: false };
 }
 
 function applyMermaidSvgInkViewBox(
@@ -413,7 +441,7 @@ export function fitMermaidSvgElementToViewport(
 
   applyMermaidSvgPixelSize(svg, baseWidthPx, baseHeightPx);
 
-  return { baseWidthPx, baseHeightPx };
+  return { baseWidthPx, baseHeightPx, inkMeasured: true };
 }
 
 /** Drop cached ink viewBox when mermaid markup is replaced (new innerHTML). */

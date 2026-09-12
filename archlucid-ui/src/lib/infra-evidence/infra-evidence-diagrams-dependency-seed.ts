@@ -1,3 +1,8 @@
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_EMPTY_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_EMPTY_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_RENDER_FAILED_BODY,
+} from "@/lib/governance/governance-infrastructure-copy";
 import type { InfraEvidenceMermaidRenderResponse } from "@/lib/infra-evidence/infra-evidence-mermaid-types";
 
 export type DependencyNeighborhoodSeedBlockedReason = {
@@ -39,8 +44,7 @@ export function resolveDependencyNeighborhoodSeedBlockedReason(input: {
   if (renderResult.status === "Failed") {
     return {
       title: "Dependency neighborhood could not render",
-      message:
-        "Diagram rendering failed for the selected seed. Pick a different graph node id and try again.",
+      message: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_RENDER_FAILED_BODY,
     };
   }
 
@@ -49,9 +53,8 @@ export function resolveDependencyNeighborhoodSeedBlockedReason(input: {
 
   if (renderResult.status === "Succeeded" && (mermaidEmpty || nodeCount === 0)) {
     return {
-      title: "Seed did not match this snapshot",
-      message:
-        `No neighborhood was found for seed "${appliedSeed}". Use the graph node id from the node table (usually the cloud resource GUID), not an ARM resource path or Mermaid node hash.`,
+      title: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_EMPTY_TITLE,
+      message: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_EMPTY_BODY,
     };
   }
 

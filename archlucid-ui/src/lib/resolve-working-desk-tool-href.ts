@@ -7,7 +7,7 @@ import {
   architectureNestedGraphPath,
   parseArchitectureNestedToolArchitectureId,
 } from "@/lib/architecture/architecture-routes";
-import { buildCompareTwoReviewsHref, COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
+import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { evidenceGraphHref, EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
@@ -22,6 +22,8 @@ export type ResolveWorkingDeskToolHrefInput = {
   readonly lastOpenArchitectureId?: string | null;
   readonly pathname?: string | null;
   readonly lastOpenReviewId?: string | null;
+  /** SN-027 — when no open package run, pre-fill nested Compare base from desk continuity. */
+  readonly compareBaseRunId?: string | null;
 };
 
 function trimmedId(value: string | null | undefined): string | null {
@@ -64,18 +66,20 @@ export function resolveWorkingDeskToolHref(input: ResolveWorkingDeskToolHrefInpu
       }
 
       return architectureNestedAskPath(architectureId);
-    case "compare":
-      if (openPackageRunId !== null) {
-        const peerScoped = buildCompareTwoReviewsHref({
-          baseRunId: openPackageRunId,
-          architectureId,
-        });
-        const query = peerScoped.includes("?") ? peerScoped.slice(peerScoped.indexOf("?")) : "";
+    case "compare": {
+      const compareBaseRunId =
+        openPackageRunId ?? trimmedId(input.compareBaseRunId) ?? trimmedId(input.lastOpenReviewId);
 
-        return `${architectureNestedComparePath(architectureId)}${query}`;
+      if (compareBaseRunId !== null) {
+        return comparePageHrefOnBase(
+          architectureNestedComparePath(architectureId),
+          compareBaseRunId,
+          null,
+        );
       }
 
       return architectureNestedComparePath(architectureId);
+    }
     case "graph":
       if (openPackageRunId !== null) {
         return `${architectureNestedGraphPath(architectureId)}?runId=${encodeURIComponent(openPackageRunId)}`;
