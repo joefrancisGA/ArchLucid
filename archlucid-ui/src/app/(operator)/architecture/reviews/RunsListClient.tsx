@@ -7,6 +7,8 @@ import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { InspectorPanel } from "@/components/InspectorPanel";
 import { RunsListBuyerFeaturedCard } from "@/components/runs/RunsListBuyerFeaturedCard";
 import { RunInspectorPreview } from "@/components/runs/RunInspectorPreview";
@@ -68,6 +70,8 @@ export function RunsListClient(props: RunsListClientProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews";
   const searchParams = useSearchParams();
+  const { isWorkingMode } = useWorkspaceMode();
+  const draftRegistryEntries = useArchitectureDraftRegistryEntries();
   const runsListFilterOpenParam = searchParams.get("runsListFilterOpen");
   const activeSort = parseRunsListSortFromSearch(searchParams.get("sort"));
   const [runsListFilterOpen, setRunsListFilterOpenState] = useState(() =>
@@ -325,6 +329,8 @@ export function RunsListClient(props: RunsListClientProps) {
               <RunsListContinueLastViewedRow
                 run={continueLastViewedRun}
                 variant={continueLastResumePlan.continueLastViewedVariant}
+                workingMode={isWorkingMode}
+                draftRegistryEntries={draftRegistryEntries}
               />
             ) : null}
             {showCompareSelection ? (
