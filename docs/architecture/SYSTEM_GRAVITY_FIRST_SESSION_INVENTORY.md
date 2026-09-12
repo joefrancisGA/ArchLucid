@@ -5,6 +5,6 @@
 | Path | SG |
 |------|-----|
 | `first-review-guide-status.ts` | **SG-045** |
-| Help / CORE_PILOT Working examples | **SG-057–065** |
-| Onboarding hub-as-home copy | **SG-061** |
+| Help / CORE_PILOT Working examples | **SG-057–065** (landed) |
+| Onboarding hub-as-home copy | **SG-061** (landed) |
 

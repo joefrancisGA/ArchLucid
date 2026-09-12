@@ -75,10 +75,25 @@ export default function GovernanceFindingsQueueClient({
   const scopeRecord = useOperatorScopeRecord();
   const assignedToMeWorkspaceLabel = resolveGovernanceAssignedToMeWorkspaceLabel();
   const { isWorkingMode } = useWorkspaceMode();
+  const {
+    registerFilter,
+    setRegisterFilter,
+    scopedRunId,
+    scopedArchitectureId,
+    architectureScopeFilterActive,
+    lastOpenArchitectureId,
+    savedPresets,
+    saveCurrentFilterAsPreset,
+    removePreset,
+    groupByResource,
+    toggleGroupByResource,
+    applyGroupByResource,
+  } = useGovernanceFindingsFilter({ mode, isWorkingMode });
   const queueMode = useGovernanceFindingsQueueMode({
     mode,
     workingMode: isWorkingMode,
     pathname,
+    scopedArchitectureId,
   });
   const {
     isAssignedToMe,
@@ -102,20 +117,6 @@ export default function GovernanceFindingsQueueClient({
     assignedToMeCountMismatch,
   } = queueMode;
   const bulkActions = useGovernanceFindingsQueueBulkActions({ refresh, mode });
-  const {
-    registerFilter,
-    setRegisterFilter,
-    scopedRunId,
-    scopedArchitectureId,
-    architectureScopeFilterActive,
-    lastOpenArchitectureId,
-    savedPresets,
-    saveCurrentFilterAsPreset,
-    removePreset,
-    groupByResource,
-    toggleGroupByResource,
-    applyGroupByResource,
-  } = useGovernanceFindingsFilter({ mode, isWorkingMode });
   const draftRegistryEntries = useArchitectureDraftRegistryEntries();
   const architectureIdentityQuery = useArchitectureIdentityQuery(
     scopedArchitectureId ?? "",

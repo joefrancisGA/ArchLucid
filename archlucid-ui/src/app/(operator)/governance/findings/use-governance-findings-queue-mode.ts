@@ -11,10 +11,10 @@ import {
   countAssignedToMeLoadedFindings,
   hasAssignedToMeCountMismatch,
   resolveGovernanceFindingsLoadFailedPreset,
-  resolveGovernanceFindingsNavHref,
   resolveGovernanceFindingsPageSubtitle,
   resolveGovernanceFindingsPageTitle,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
+import { resolveGovernanceFindingsQueueHeaderNavHref } from "@/lib/governance/resolve-governance-findings-queue-header-nav-href";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
@@ -22,12 +22,14 @@ export type UseGovernanceFindingsQueueModeInput = {
   readonly mode: GovernanceFindingsQueueMode;
   readonly workingMode?: boolean;
   readonly pathname?: string | null;
+  readonly scopedArchitectureId?: string | null;
 };
 
 export function useGovernanceFindingsQueueMode({
   mode,
   workingMode = false,
   pathname = null,
+  scopedArchitectureId = null,
 }: UseGovernanceFindingsQueueModeInput) {
   const { productLine } = useProductLine();
   const isAssignedToMe = mode === "assigned-to-me";
@@ -53,7 +55,13 @@ export function useGovernanceFindingsQueueMode({
     productLine,
     { workingMode, pathname },
   );
-  const navHref = resolveGovernanceFindingsNavHref(isAssignedToMe, productLine);
+  const navHref = resolveGovernanceFindingsQueueHeaderNavHref({
+    isAssignedToMe,
+    workingMode,
+    scopedArchitectureId,
+    pathname,
+    productLineId: productLine,
+  });
   const currentJobId: GovernanceJobId = isAssignedToMe ? "assigned-to-me-findings" : "triage-findings";
   const loadFailedPreset = resolveGovernanceFindingsLoadFailedPreset(isAssignedToMe);
 
