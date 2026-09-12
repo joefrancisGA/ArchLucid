@@ -3180,7 +3180,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3248,6 +3248,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #1864 (seed-only): reseeded billing-webhooks; cheap-disproof closed eviction/claim race candidate; 10 scoped billing webhook unit tests passed.
 
 2026-09-04 seed hunt #671: proved duplicate billing webhook signature/bearer header comma-join; seeded replay-guard TryRegister wiring and wallet-purpose filter candidates.
+
+- [x] (valid-no-repro) Seed hunt #1867 cheap-disproof placeholder — **cheap-disproof 2026-09-12 seed hunt #1867:** zone reseeded; scoped tests green; no new hunt-ready defect in this pass.
+
+2026-09-12 seed hunt #1867 (seed-only): reseeded billing-webhooks; no proven defect this pass.
 
 ---
 
