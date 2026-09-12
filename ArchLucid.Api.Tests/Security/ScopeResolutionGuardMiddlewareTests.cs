@@ -43,6 +43,47 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_archlucid_environment_staging_rejects_default_scope_on_development_host()
+    {
+        DefaultHttpContext context = CreateContext("/v1/runs");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Development,
+            new Dictionary<string, string?> { ["ARCHLUCID_ENVIRONMENT"] = "Staging" },
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_root_path()
+    {
+        DefaultHttpContext context = CreateContext("/");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_rejects_default_scope()
     {
         DefaultHttpContext context = CreateContext("/v1/runs");
