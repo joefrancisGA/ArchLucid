@@ -9672,11 +9672,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 4
-- **bugs-found:** 1
+- **hunts:** 5
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-07 — alert-routing webhook destinations skipped post-DNS private-network guard
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9696,6 +9696,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `PrivateNetworkAddressGuard` — IANA reserved/documentation IPv4 (`192.0.0.0/24`, `192.0.2.0/24`) outside TB-274 RFC1918/link-local scope may be reachable when URL policies accept public hostnames that resolve there — **cheap-disproof 2026-09-11 seed hunt #1793:** TB-274 scope excludes documentation/reserved blocks; regression `IsForbiddenHostLiteral_allows_documentation_and_reserved_ipv4_outside_tb274_scope`.
 
 2026-09-10 seed hunt #1627 (seed-only): reseeded core-safety-network after #1216; cheap-disproof on CGNAT/benchmark out-of-scope ranges, `0.0.0.0` blocking, pool-only handler settings, and opt-in connect guard wiring; 28 scoped PrivateNetwork + 7 OutboundSockets tests passed.
+
+- [x] (proven) `ServiceCollectionExtensions.IntegrationsOutboundHttpClients` — Jira/ServiceNow/AzureBoards/ITSM health/OAuth clients registered without `rejectPrivateNetworkConnectEndpoints: true` while webhook dry-run had connect guard — **hit 2026-09-12 thorough hunt #1928:** enabled `OutboundHttpsConnectGuard` on all integration outbound clients; regression `External_integration_http_clients_wire_private_network_connect_guard`.
+
+2026-09-12 thorough hunt #1928 (hit): proved integration outbound HTTP clients lacked connect-time SSRF guard parity with webhook dry-run; 1 composition regression test passed.
 
 2026-09-11 seed hunt #1793 (seed-only): reseeded core-safety-network after #1627; cheap-disproof closed documentation/reserved IPv4 candidate; 2 scoped PrivateNetworkAddressGuardEncoding tests passed.
 
