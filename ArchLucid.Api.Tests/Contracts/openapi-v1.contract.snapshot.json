@@ -16057,16 +16057,6 @@
           "severity": {
             "$ref": "#/components/schemas/FindingSeverity"
           },
-          "semanticSupportBand": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/FindingSemanticSupportBand"
-              }
-            ]
-          },
           "trackedExternally": {
             "type": "boolean"
           },

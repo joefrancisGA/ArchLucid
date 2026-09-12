@@ -4610,7 +4610,6 @@ export interface components {
             runId?: string;
             semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             severity?: components["schemas"]["FindingSeverity"];
-            semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             trackedExternally?: boolean;
             treatment?: null | components["schemas"]["FindingTreatment"];
             trustLabel?: null | string;
