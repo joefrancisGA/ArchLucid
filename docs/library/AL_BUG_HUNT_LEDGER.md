@@ -10477,13 +10477,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 90
-- **bugs-found:** 151
+- **hunts:** 91
+- **bugs-found:** 152
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — snake_case pod-level `security_context` skipped privileged projection
+- **last-bug:** 2026-09-12 — snake_case `ephemeral_containers` skipped privileged projection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2102 (seed→hit): reseeded context-ingestion; proved snake_case `ephemeral_containers` projection gap; regression `ParseAsync_snake_case_ephemeral_containers_projects_privileged_security_context`.
 
 2026-09-12 seed hunt #2097 (seed-only): reseeded context-ingestion with `-Refresh`; no new hunt-ready rows.
 
@@ -10741,6 +10743,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ProjectContainerSecurityContext` — snake_case `init_containers` not walked — **hit 2026-09-12 seed hunt #2056:** exporter kubernetes-json with `init_containers` and `security_context.privileged` missed `k8s.privileged` while camelCase `initContainers` worked; fixed with `TryGetPropertyIgnoreCaseOrSnakeCase` on init container array; regression `ParseAsync_snake_case_init_containers_projects_privileged_security_context`.
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ResolvePodSpec` — snake_case `job_template` on CronJob not resolved — **hit 2026-09-12 seed hunt #2065:** exporter kubernetes-json CronJob with `job_template` and `host_network` missed `k8s.hostNetwork` while camelCase `jobTemplate` worked; fixed with `TryGetPropertyIgnoreCaseOrSnakeCase`; regression `ParseAsync_snake_case_cron_job_template_projects_host_network_exposure`.
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ProjectContainerSecurityContext` — pod-level `security_context` not inspected — **hit 2026-09-12 seed hunt #2090:** exporter kubernetes-json Deployment with pod-level `security_context.privileged` missed `k8s.privileged` while container-level `security_context` worked; fixed by projecting pod spec security context before container loop; regression `ParseAsync_snake_case_pod_security_context_projects_privileged`.
+
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.ProjectContainerSecurityContext` — snake_case `ephemeral_containers` not walked — **hit 2026-09-12 seed hunt #2102:** exporter kubernetes-json with `ephemeral_containers` and `security_context.privileged` missed `k8s.privileged` while `init_containers` and `containers` worked; fixed with `TryGetPropertyIgnoreCaseOrSnakeCase` on ephemeral container array; regression `ParseAsync_snake_case_ephemeral_containers_projects_privileged_security_context`.
 - [x] (invalid) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` — `values` loop skips `ShouldRedactKey` when `sensitive_values` absent — **cheap-disproof 2026-09-12 thorough hunt #1958:** terraform-show-json only redacts fields terraform marks in `sensitive_values`; absent marking means plaintext is intentional state output, not a parser leak.
 
 2026-09-12 thorough hunt #1958 (hit): proved K8s snake_case security_context projection gap; cheap-disproof closed terraform redaction-without-sensitive_values candidate; scoped context-ingestion tests passed.

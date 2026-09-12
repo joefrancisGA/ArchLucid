@@ -290,6 +290,46 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_snake_case_ephemeral_containers_projects_privileged_security_context()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "cluster-ephemeral.json",
+            Format = "kubernetes-json",
+            Content = """
+                      {
+                        "apiVersion": "apps/v1",
+                        "kind": "Deployment",
+                        "metadata": { "name": "api", "namespace": "prod" },
+                        "spec": {
+                          "template": {
+                            "spec": {
+                              "ephemeral_containers": [
+                                {
+                                  "name": "debugger",
+                                  "security_context": { "privileged": true }
+                                }
+                              ],
+                              "containers": [
+                                {
+                                  "name": "api",
+                                  "image": "nginx"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        CanonicalObject deployment = result.Should().ContainSingle().Subject;
+        deployment.Properties["k8s.privileged"].Should().Be("true");
+    }
+
+    [Fact]
     public async Task ParseAsync_snake_case_pod_security_context_projects_privileged()
     {
         InfrastructureDeclarationReference declaration = new()

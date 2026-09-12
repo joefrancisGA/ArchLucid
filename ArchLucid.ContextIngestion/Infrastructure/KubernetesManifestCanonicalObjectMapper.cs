@@ -302,6 +302,13 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 InspectContainer(container);
         }
 
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "ephemeralContainers", out JsonElement ephemeralContainers)
+            && ephemeralContainers.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement container in ephemeralContainers.EnumerateArray())
+                InspectContainer(container);
+        }
+
         if (privileged)
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "privileged", "true");
 
