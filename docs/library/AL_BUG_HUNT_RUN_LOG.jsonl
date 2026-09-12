@@ -2412,3 +2412,4 @@
 {"at":"2026-09-12T18:11:19.7683753Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-12T18:13:07.088445Z","zoneId":"finding-disposition","outcome":"dry"}
 {"at":"2026-09-12T18:17:07.3727116Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
+{"at":"2026-09-12T18:19:36.9756071Z","zoneId":"cloud-extractors","outcome":"seed-only"}
