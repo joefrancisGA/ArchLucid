@@ -2264,3 +2264,4 @@
 {"at":"2026-09-12T04:58:37.3731639Z","zoneId":"core-safety-network","outcome":"seed-only"}
 {"at":"2026-09-12T05:00:21.8458353Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
 {"at":"2026-09-12T05:02:07.0634603Z","zoneId":"api-key-auth","outcome":"seed-only"}
+{"at":"2026-09-12T05:03:55.2618011Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
