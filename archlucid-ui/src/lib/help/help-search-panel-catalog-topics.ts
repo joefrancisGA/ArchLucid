@@ -97,6 +97,37 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/architecture-desk", helpSlug: "architecture-desk" },
   },
   {
+    id: "false-hard-infeasibility",
+    title: "Hard vs soft infeasibility",
+    description:
+      "Working help — cite law before hard infeasible on Career export. Soft infeasible is an explicit envelope; uncited hard is a defect.",
+    keywords: [
+      "false hard",
+      "hard infeasible",
+      "soft infeasible",
+      "citation required",
+      "impossible without law",
+      "career export",
+      "adr 0093",
+    ],
+    action: { kind: "route", href: "/help/false-hard-infeasibility", helpSlug: "false-hard-infeasibility" },
+  },
+  {
+    id: "extraction-fidelity",
+    title: "Extraction fidelity",
+    description:
+      "Working help — evidence-backed findings need source pointers; NotVerifiable diagrams stay labeled until passage-backed.",
+    keywords: [
+      "extraction fidelity",
+      "evidence source",
+      "notverifiable",
+      "diagram",
+      "passage-backed",
+      "provenance",
+    ],
+    action: { kind: "route", href: "/help/extraction-fidelity", helpSlug: "extraction-fidelity" },
+  },
+  {
     id: "career-rehearsal-doors",
     title: "Record and Practice",
     description: "Working review type — dry-runs in Practice, sealed-record proof in Record. Simulator is not sponsor proof.",
@@ -489,6 +520,9 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   "data handling": ["data-handling-help", "security-trust-help"],
   privacy: ["data-handling-help", "security-trust-help"],
   "architecture desk": ["architecture-desk"],
+  "hard infeasible": ["false-hard-infeasibility"],
+  "false hard": ["false-hard-infeasibility"],
+  "extraction fidelity": ["extraction-fidelity"],
   inbox: ["architecture-desk"],
   "nested review": ["architecture-desk"],
   simulator: ["career-rehearsal-doors"],

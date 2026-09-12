@@ -38,7 +38,8 @@ public static class CareerArtifactCompletenessInputMapper
             BlockExternalSponsorDistribution: blockExternalSponsorDistribution,
             SimulatorRehearsalBannerOnArtifact: simulatorRehearsalBannerOnArtifact,
             WorkingCareerRehearsalDoor: input.WorkingCareerRehearsalDoor,
-            FindingsSnapshot: input.FindingsSnapshot);
+            FindingsSnapshot: input.FindingsSnapshot,
+            FeasibilityVerdict: input.CoverageContext.Verdict);
     }
 
     internal static bool ResolveSimulatorRehearsalBannerOnArtifactForExport(CareerExportCoverageHonestyInput input)
