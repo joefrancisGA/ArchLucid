@@ -11,7 +11,10 @@ export function GovernanceFindingsReturnStateTracker() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!pathname.startsWith("/governance/findings")) {
+    if (
+      !pathname.startsWith("/governance/findings")
+      && !/^\/architecture\/architectures\/[^/]+\/findings(\/|$)/.test(pathname)
+    ) {
       return;
     }
 

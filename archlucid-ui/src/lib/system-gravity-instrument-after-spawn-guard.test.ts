@@ -26,4 +26,20 @@ describe("system-gravity instrument-after-spawn guard (SG-093 / SG-106 / ADR 009
     expect(adr).toMatch(/instrument after spawn/i);
     expect(adr).toMatch(/job inspector/i);
   });
+
+  it("SG-052/053: command palette lists architectures before review actions and recognizes nested jobs", () => {
+    const paletteSource = readFileSync(
+      join(process.cwd(), "src/components/CommandPalette.tsx"),
+      "utf8",
+    );
+    const handlerSource = readFileSync(
+      join(process.cwd(), "src/lib/command-palette-handler-actions.ts"),
+      "utf8",
+    );
+
+    expect(paletteSource.indexOf("CommandPaletteArchitectureIdentitiesGroup")).toBeLessThan(
+      paletteSource.indexOf("CommandPaletteReviewActions"),
+    );
+    expect(handlerSource).toContain("nestedReviewDetailPathPattern");
+  });
 });

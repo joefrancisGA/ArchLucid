@@ -25,6 +25,10 @@ describe("command-palette-handler-actions (LI-07 / WD-05)", () => {
     expect(isFindingsWorkPath("/governance/findings")).toBe(true);
     expect(isFindingsWorkPath("/architecture/reviews/run-1")).toBe(true);
     expect(isFindingsWorkPath("/architecture/reviews/abc/findings/f-1")).toBe(true);
+    expect(
+      isFindingsWorkPath("/architecture/architectures/arch-1/reviews/run-1/findings/f-1"),
+    ).toBe(true);
+    expect(isFindingsWorkPath("/architecture/architectures/arch-1/findings")).toBe(true);
     expect(isFindingsWorkPath("/")).toBe(false);
     expect(isAlertsWorkPath("/governance/alerts")).toBe(true);
     expect(isAlertsWorkPath("/governance/findings")).toBe(false);
@@ -71,6 +75,7 @@ describe("command-palette-handler-actions (LI-07 / WD-05)", () => {
 
     expect(saveAction?.isAvailable("/architecture/reviews/run-1/findings/f-1")).toBe(true);
     expect(isReviewDetailWorkPath("/architecture/reviews/run-1/findings/f-1")).toBe(true);
+    expect(isReviewDetailWorkPath("/architecture/architectures/arch-1/reviews/run-1")).toBe(true);
   });
 
   it("shows finalize review only when the on-page CTA is available", () => {
@@ -83,6 +88,9 @@ describe("command-palette-handler-actions (LI-07 / WD-05)", () => {
 
     expect(isCommandPaletteFinalizeReviewAvailable()).toBe(true);
     expect(finalizeAction?.isAvailable("/architecture/reviews/run-1")).toBe(true);
+    expect(
+      finalizeAction?.isAvailable("/architecture/architectures/arch-1/reviews/run-1"),
+    ).toBe(true);
     expect(finalizeAction?.isAvailable("/governance/findings")).toBe(false);
   });
 
