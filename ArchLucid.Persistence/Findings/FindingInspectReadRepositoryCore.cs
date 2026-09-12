@@ -233,6 +233,20 @@ internal static class FindingInspectReadRepositoryCore
         return ResolveTreatmentFromTypedPayload(typedPayload);
     }
 
+    public static FindingSemanticSupportBand? ResolveInspectSemanticSupportBand(
+        string? overlayBandStorage,
+        JsonElement? typedPayload)
+    {
+        if (!string.IsNullOrWhiteSpace(overlayBandStorage)
+            && Enum.TryParse(overlayBandStorage.Trim(), ignoreCase: true, out FindingSemanticSupportBand overlayBand)
+            && Enum.IsDefined(overlayBand))
+        {
+            return overlayBand;
+        }
+
+        return ResolveSemanticSupportBandFromTypedPayload(typedPayload);
+    }
+
     private static FindingClassification? ResolveClassificationFromTypedPayload(JsonElement? typedPayload)
     {
         if (typedPayload is null || typedPayload.Value.ValueKind is not JsonValueKind.Object)
@@ -294,6 +308,39 @@ internal static class FindingInspectReadRepositoryCore
             && Enum.IsDefined(typeof(FindingTreatment), numeric))
         {
             return (FindingTreatment)numeric;
+        }
+
+        return null;
+    }
+
+    private static FindingSemanticSupportBand? ResolveSemanticSupportBandFromTypedPayload(JsonElement? typedPayload)
+    {
+        if (typedPayload is null || typedPayload.Value.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        if (!typedPayload.Value.TryGetProperty("semanticSupportBand", out JsonElement bandElement))
+        {
+            return null;
+        }
+
+        if (bandElement.ValueKind is JsonValueKind.String)
+        {
+            string? raw = bandElement.GetString();
+
+            if (Enum.TryParse(raw, ignoreCase: true, out FindingSemanticSupportBand parsed)
+                && Enum.IsDefined(parsed))
+            {
+                return parsed;
+            }
+        }
+
+        if (bandElement.ValueKind is JsonValueKind.Number
+            && bandElement.TryGetInt32(out int numeric)
+            && Enum.IsDefined(typeof(FindingSemanticSupportBand), numeric))
+        {
+            return (FindingSemanticSupportBand)numeric;
         }
 
         return null;

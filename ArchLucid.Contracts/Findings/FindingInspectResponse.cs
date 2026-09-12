@@ -39,6 +39,16 @@ public sealed class FindingInspectResponse
     }
 
     /// <summary>
+    ///     AS-060 semantic support band overlay when present; otherwise falls back to typed payload
+    ///     <c>semanticSupportBand</c>.
+    /// </summary>
+    public FindingSemanticSupportBand? SemanticSupportBand
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
     ///     Coarse severity persisted on the finding record (relational <c>Severity</c> or snapshot model). Used as a fallback
     ///     when <see cref="TypedPayload" /> omits or cannot be mapped to <c>ArchitectureFinding</c> severity.
     /// </summary>

@@ -1535,6 +1535,30 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void ResolveInspectSemanticSupportBand_prefers_overlay_over_typed_payload()
+    {
+        JsonElement typed = JsonSerializer.SerializeToElement(new { semanticSupportBand = "Unchecked" });
+
+        FindingSemanticSupportBand? band = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(
+            "Supported",
+            typed);
+
+        band.Should().Be(FindingSemanticSupportBand.Supported);
+    }
+
+    [Fact]
+    public void ResolveInspectSemanticSupportBand_falls_back_to_typed_payload()
+    {
+        JsonElement typed = JsonSerializer.SerializeToElement(new { semanticSupportBand = "Unsupported" });
+
+        FindingSemanticSupportBand? band = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(
+            null,
+            typed);
+
+        band.Should().Be(FindingSemanticSupportBand.Unsupported);
+    }
+
+    [Fact]
     public void MapDispositionPointerProjection_converts_local_revisit_due_to_utc_offset()
     {
         DateTime local = new(2026, 11, 1, 0, 0, 0, DateTimeKind.Local);
