@@ -3259,7 +3259,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3334,6 +3334,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` append path when `AdminKey` is whitespace-only without commas — **cheap-disproof 2026-09-12 seed hunt #1860:** `HasConfiguredKeyMaterial` treats whitespace-only raw as unconfigured (symmetric to #1769 comma-only); regression `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_whitespace_only`.
 
 2026-09-12 seed hunt #1860 (seed-only): reseeded api-key-auth after #1859; cheap-disproof closed whitespace-only admin slot rotation parity; 44 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) Seed hunt #1865 cheap-disproof placeholder — **cheap-disproof 2026-09-12 seed hunt #1865:** zone reseeded; scoped tests green; no new hunt-ready defect in this pass.
+
+2026-09-12 seed hunt #1865 (seed-only): reseeded api-key-auth; no proven defect this pass.
 
 ---
 
