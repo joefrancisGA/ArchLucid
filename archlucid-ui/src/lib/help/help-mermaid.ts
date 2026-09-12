@@ -271,6 +271,8 @@ export const MERMAID_VIEWPORT_MAX_HEIGHT_PX = 576;
 export type MermaidViewportFitDimensions = {
   readonly baseWidthPx: number;
   readonly baseHeightPx: number;
+  /** False when the SVG was sized to the camera budget without a measurable ink bbox. */
+  readonly inkMeasured: boolean;
 };
 
 /** Minimum fitted ink height before the inventory mermaid viewport treats the SVG as unpainted. */
@@ -280,11 +282,16 @@ export function isMermaidViewportPaintTooSmall(
   baseFit: MermaidViewportFitDimensions | null,
   zoom: number,
 ): boolean {
-  if (baseFit === null) {
+  if (baseFit === null || !baseFit.inkMeasured) {
     return true;
   }
 
   return baseFit.baseHeightPx * zoom < MERMAID_VIEWPORT_MIN_INK_HEIGHT_PX;
+}
+
+/** True while contain-fit only reserved a frame and has not yet found drawable ink. */
+export function mermaidViewportFitNeedsRetry(baseFit: MermaidViewportFitDimensions | null): boolean {
+  return baseFit === null || !baseFit.inkMeasured;
 }
 
 type MermaidInkViewBoxCache = {
@@ -377,7 +384,7 @@ function applyMermaidViewportNullInkFallback(
 
   applyMermaidSvgPixelSize(svg, widthPx, heightPx);
 
-  return { baseWidthPx: widthPx, baseHeightPx: heightPx };
+  return { baseWidthPx: widthPx, baseHeightPx: heightPx, inkMeasured: false };
 }
 
 function applyMermaidSvgInkViewBox(
@@ -434,7 +441,7 @@ export function fitMermaidSvgElementToViewport(
 
   applyMermaidSvgPixelSize(svg, baseWidthPx, baseHeightPx);
 
-  return { baseWidthPx, baseHeightPx };
+  return { baseWidthPx, baseHeightPx, inkMeasured: true };
 }
 
 /** Drop cached ink viewBox when mermaid markup is replaced (new innerHTML). */

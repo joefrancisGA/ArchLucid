@@ -10,6 +10,7 @@ describe("createArchitectureDiagramMermaidConfig", () => {
     expect(config.suppressErrorRendering).toBe(true);
     expect(config.startOnLoad).toBe(false);
     expect(config.themeVariables.primaryColor).toBe("#ffffff");
+    expect(config.themeVariables.background).toBe("transparent");
     expect(config.themeVariables.primaryTextColor).toBe("#0f172a");
   });
 });

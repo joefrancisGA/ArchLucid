@@ -43,6 +43,7 @@ import {
   fitMermaidSvgElementToHost,
   fitMermaidSvgElementToViewport,
   isMermaidViewportPaintTooSmall,
+  mermaidViewportFitNeedsRetry,
   type MermaidViewportFitDimensions,
   prepareMermaidSvgForResponsiveLayout,
   readMermaidViewportFitBudget,
@@ -115,7 +116,7 @@ function applyMermaidViewportCamera(
   const { widthPx, heightPx } = readMermaidViewportFitBudget(viewport);
   const baseFit = fitMermaidSvgElementToViewport(svg, widthPx, heightPx);
 
-  if (baseFit !== null) {
+  if (baseFit !== null && baseFit.inkMeasured) {
     applyMermaidSvgViewportZoom(svg, baseFit, zoom);
   }
 
@@ -280,6 +281,17 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg_text]:fill-current [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200',
   '[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:leading-snug [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100',
   '[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]',
+  // Fallback ink when Mermaid CSS is stripped or node fill matches a white plate.
+  '[&_svg_.node_rect]:fill-white dark:[&_svg_.node_rect]:fill-slate-700',
+  '[&_svg_.node_rect]:stroke-slate-800 dark:[&_svg_.node_rect]:stroke-slate-200',
+  '[&_svg_.node_rect]:stroke-[1.5px]',
+  '[&_svg_.node_polygon]:fill-white dark:[&_svg_.node_polygon]:fill-slate-700',
+  '[&_svg_.node_polygon]:stroke-slate-800 dark:[&_svg_.node_polygon]:stroke-slate-200',
+  '[&_svg_.node_polygon]:stroke-[1.5px]',
+  '[&_svg_.edgePath_path]:stroke-slate-800 dark:[&_svg_.edgePath_path]:stroke-slate-200',
+  '[&_svg_.edgePath_path]:fill-none',
+  '[&_svg_.edgePaths_path]:stroke-slate-800 dark:[&_svg_.edgePaths_path]:stroke-slate-200',
+  '[&_svg_.edgePaths_path]:fill-none',
 );
 
 /** Interactive architecture diagram canvas with zoom, pan, fullscreen, and accessible fallback text. */
@@ -392,7 +404,11 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
     const baseFit = syncMermaidViewportCamera(host, viewport, zoom.zoom);
 
-    if (baseFit === null) {
+    if (mermaidViewportFitNeedsRetry(baseFit)) {
+      if (baseFit !== null) {
+        baseFitRef.current = baseFit;
+      }
+
       return false;
     }
 
@@ -412,7 +428,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
     const baseFit = syncMermaidViewportCamera(host, viewport, zoom.zoom);
 
-    if (baseFit === null) {
+    if (mermaidViewportFitNeedsRetry(baseFit)) {
       return false;
     }
 
@@ -444,6 +460,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     }
 
     mermaidFitRetryCountRef.current = 0;
+    baseFitRef.current = null;
 
     if (mermaidFitRetryTimeoutRef.current !== null) {
       window.clearTimeout(mermaidFitRetryTimeoutRef.current);
@@ -454,6 +471,12 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       mermaidFitRetryCountRef.current += 1;
 
       if (mermaidFitRetryCountRef.current > MAX_INITIAL_FIT_RETRIES) {
+        reportMermaidViewportPaintFailure(
+          baseFitRef.current,
+          zoom.zoom,
+          setRenderError,
+          onRenderFailure,
+        );
         return;
       }
 
@@ -507,7 +530,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
       resizeObserver?.disconnect();
     };
-  }, [sanitizedSvg, syncInlineViewportCamera]);
+  }, [onRenderFailure, sanitizedSvg, syncInlineViewportCamera, zoom.zoom]);
 
   useLayoutEffect(() => {
     if (!fullscreenOpen || sanitizedSvg === null) {
@@ -613,7 +636,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   ): React.JSX.Element => {
     if (renderError !== null) {
       return (
-        <div className="space-y-3" role="alert" data-testid="architecture-diagram-render-failure">
+        <div className="min-h-[15rem] space-y-3" role="alert" data-testid="architecture-diagram-render-failure">
           <SeverityTag severity="high" label="Diagram render error" />
           <p className={cn('m-0 text-amber-800 dark:text-amber-200', OPERATOR_TYPOGRAPHY.body)}>{renderError}</p>
           <Button type="button" variant="outline" size="sm" onClick={retryRender}>
@@ -625,7 +648,10 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
     if (sanitizedSvg === null) {
       return (
-        <p className={cn('m-0 text-neutral-500 dark:text-neutral-400', OPERATOR_TYPOGRAPHY.body)} aria-live="polite">
+        <p
+          className={cn('m-0 min-h-[15rem] text-neutral-500 dark:text-neutral-400', OPERATOR_TYPOGRAPHY.body)}
+          aria-live="polite"
+        >
           Rendering architecture diagram…
         </p>
       );
@@ -664,7 +690,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         role="img"
         aria-label={viewportAriaLabel}
         aria-describedby={`${renderId}-alt`}
-        className="relative w-full max-h-[36rem] overflow-auto rounded-md border border-neutral-200 bg-neutral-50 p-4 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950/80"
+        className="relative w-full max-h-[36rem] overflow-auto rounded-md border border-neutral-200 bg-slate-100 p-4 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-900"
         data-testid="architecture-diagram-viewport"
         onWheel={onWheel}
       >
@@ -684,7 +710,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           <div
             ref={fullscreenViewportRef}
             tabIndex={0}
-            className="relative max-h-[80vh] overflow-auto rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-950/80"
+            className="relative max-h-[80vh] overflow-auto rounded-md border border-neutral-200 bg-slate-100 p-4 dark:border-neutral-700 dark:bg-neutral-900"
             data-testid="architecture-diagram-fullscreen-viewport"
             onWheel={onWheel}
           >
