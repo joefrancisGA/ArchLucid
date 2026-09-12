@@ -5015,7 +5015,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 436
+- **hunts:** 446
 - **bugs-found:** 3499
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
@@ -11225,13 +11225,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — Entra Graph membership pagination followed cross-group @odata.nextLink without validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2115 (seed-only): reseeded cloud-extractors; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2106 (seed-only): reseeded cloud-extractors; no new hunt-ready rows.
 
