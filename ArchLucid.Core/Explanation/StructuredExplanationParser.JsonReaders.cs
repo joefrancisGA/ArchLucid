@@ -64,11 +64,11 @@ public static partial class StructuredExplanationParser
     {
         foreach (string propertyName in propertyNames)
         {
-
             if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(item, propertyName, out JsonElement element)
-                && element.ValueKind == JsonValueKind.String)
+                && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(element, out string? value)
+                && !string.IsNullOrWhiteSpace(value))
             {
-                return element.GetString();
+                return value;
             }
         }
 
