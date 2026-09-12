@@ -414,6 +414,24 @@ dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2346_req
 cd archlucid-ui && npm run test -- finalize-quality-scorecard finalize-readiness-block-action
 ```
 
+## TB-2349 agent post-processor brief grounding
+
+Deterministic structural grounding drops agent proposal nodes that contradict confirmed brief constraints or required capabilities before merge/persistence. Drops are recorded on `AgentEvidencePackage.StructuralGroundingDropLog` for replay.
+
+| Layer | Behavior |
+|-------|----------|
+| **Post-processor** | `AgentProposalStructuralPostProcessor.ApplyBriefGrounding` removes contradicting services/datastores and prunes relationships to dropped endpoints. |
+| **Enricher** | `AgentProposalStructuralPostProcessorEnricher` runs structural cleanup + brief grounding on every agent result batch. |
+| **Eval corpus** | `scenario-brief-conflict-grounding.json` + `agent-structural-eval-pairs.json` `briefGroundingScenarios` guard HTTPS-only grounding. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~AgentProposalBriefGrounding|AgentProposalStructuralPostProcessorEnricher"
+python3 scripts/ci/assert_agent_structural_eval_pairs.py
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2349_brief_grounding"
+```
+
 ## ConflictException → 409 controller sweep
 
 Twenty controller `try` blocks that returned **400** for `InvalidOperationException` now catch `ConflictException` first. Guard: `ControllerConflictExceptionNotSwallowedAs400ArchitectureTests`.
