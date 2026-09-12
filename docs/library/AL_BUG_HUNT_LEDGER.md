@@ -3239,6 +3239,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-12 seed hunt #1862 (hit): reseeded billing-webhooks after #1861; proved padded wallet correlation_id gap; 1 scoped regression test passed.
 
+- [x] (valid-no-repro) `BillingMarketplaceWebhookDedupeKey` / `AzureMarketplaceBillingProvider.HandleWebhookAsync` — padded `action` or `subscriptionId` JSON fields produce distinct dedupe keys for semantically identical marketplace events — **cheap-disproof 2026-09-12 seed hunt #1863:** dispatch already trims `action` before routing; dedupe fingerprint intentionally includes full raw body (#3199) so distinct serializations remain distinct ledger rows; trimming fields alone would not collapse SHA-256 payload fingerprints.
+
+2026-09-12 seed hunt #1863 (seed-only): reseeded billing-webhooks after #1862 wallet metadata trim parity; cheap-disproof closed marketplace padded-field dedupe candidate; 14 scoped billing webhook unit tests passed.
+
 2026-09-04 seed hunt #671: proved duplicate billing webhook signature/bearer header comma-join; seeded replay-guard TryRegister wiring and wallet-purpose filter candidates.
 
 ---
