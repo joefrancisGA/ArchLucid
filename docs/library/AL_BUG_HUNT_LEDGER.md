@@ -2514,13 +2514,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — whitespace-only `weekLabel` sent weekly sponsor report with blank subject week segment
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-12 seed hunt #2138 (seed-only): reseeded weekly-digest-email; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2079 (seed-only): reseeded weekly-digest-email; no new hunt-ready rows
 
