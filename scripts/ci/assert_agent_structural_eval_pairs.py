@@ -182,6 +182,77 @@ def _verify_pair(
     return failures
 
 
+def _verify_scenario_list(
+    paths: CorpusPaths,
+    pairs_path: Path,
+    field_name: str,
+    manifest_scenarios: set[str],
+    required_agent_type: str,
+) -> list[str]:
+    failures: list[str] = []
+
+    pairs_document = _load_json(pairs_path)
+    scenarios = pairs_document.get(field_name)
+
+    if scenarios is None:
+        return failures
+
+    if not isinstance(scenarios, list) or not scenarios:
+        failures.append(f"{pairs_path}: {field_name}[] required when present")
+        return failures
+
+    for relative in scenarios:
+        if not isinstance(relative, str) or not relative.strip():
+            failures.append(f"{pairs_path}: {field_name} entries must be strings")
+            continue
+
+        relative = relative.strip()
+        scenario_path = paths.corpus_root / relative
+
+        if not scenario_path.is_file():
+            failures.append(f"{field_name}: missing scenario file {relative}")
+            continue
+
+        if relative not in manifest_scenarios:
+            failures.append(f"{field_name}: {relative} not listed in manifest.json")
+
+        try:
+            quality = _quality_evidence(paths, relative)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            failures.append(f"{field_name}: {relative}: {exc}")
+            continue
+
+        if quality.get("agentType") != required_agent_type:
+            failures.append(
+                f"{field_name}: {relative} qualityEvidence.agentType must be {required_agent_type!r}",
+            )
+
+        try:
+            sim_result = _agent_result_path(paths, relative, "simulator")
+        except (OSError, ValueError, FileNotFoundError) as exc:
+            failures.append(f"{field_name}: {relative}: {exc}")
+            continue
+
+        if not sim_result.is_file():
+            failures.append(
+                f"{field_name}: missing simulator AgentResult at {sim_result.relative_to(REPO_ROOT)}",
+            )
+
+        try:
+            scenario_id = _scenario_id_from_path(paths, relative)
+            baseline = _baseline_path(paths, scenario_id)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            failures.append(f"{field_name}: {relative}: {exc}")
+            continue
+
+        if not baseline.is_file():
+            failures.append(
+                f"{field_name}: missing baseline {baseline.relative_to(REPO_ROOT)}",
+            )
+
+    return failures
+
+
 def verify_pairs(paths: CorpusPaths, pairs_path: Path) -> list[str]:
     if not pairs_path.is_file():
         return [f"Missing pairs manifest {pairs_path}"]
@@ -279,6 +350,29 @@ def verify_pairs(paths: CorpusPaths, pairs_path: Path) -> list[str]:
                     failures.append(
                         f"briefGroundingScenarios: missing baseline {baseline.relative_to(REPO_ROOT)}",
                     )
+
+    failures.extend(
+        _verify_scenario_list(
+            paths,
+            pairs_path,
+            "closedLoopStrengtheningScenarios",
+            manifest_scenarios,
+            "Topology",
+        ),
+    )
+
+    mutation_manifest = pairs_document.get("mutationMicrocasesManifest")
+
+    if mutation_manifest is not None:
+        if not isinstance(mutation_manifest, str) or not mutation_manifest.strip():
+            failures.append(f"{pairs_path}: mutationMicrocasesManifest string required when present")
+        else:
+            mutation_path = paths.corpus_root / mutation_manifest.strip()
+
+            if not mutation_path.is_file():
+                failures.append(
+                    f"{pairs_path}: mutationMicrocasesManifest missing file {mutation_manifest.strip()}",
+                )
 
     return failures
 
