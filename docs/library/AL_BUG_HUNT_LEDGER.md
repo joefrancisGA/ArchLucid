@@ -12087,7 +12087,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -12182,6 +12182,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) Seed hunt #1866 cheap-disproof placeholder — **cheap-disproof 2026-09-12 seed hunt #1866:** zone reseeded; scoped tests green; no new hunt-ready defect in this pass.
 
 2026-09-12 seed hunt #1866 (seed-only): reseeded api-tenancy-workspaces; no proven defect this pass.
+
+2026-09-12 seed hunt #1869 (seed-only): reseeded api-tenancy-workspaces; scoped tests passed; no hunt-ready defect proven this pass.
 
 ---
 
