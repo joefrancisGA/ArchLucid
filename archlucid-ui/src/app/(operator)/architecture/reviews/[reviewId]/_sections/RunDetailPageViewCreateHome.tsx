@@ -71,7 +71,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
     evidenceReviewDateLabel,
     findingCoverageSummary,
     findingsTriageVisibleCount,
-    finalizeAssumptionGateApplies,
+    finalizeReadinessEnabled,
     finalizeReadinessBlocks,
     quickDecisionFindings,
     requestAssumptionTexts,
@@ -102,7 +102,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         hasGoldenManifest={Boolean(m.manifestId)}
         commitBlockedReason={commitBlockedReason}
         serverFinalizeReadinessBlocks={finalizeReadinessBlocks}
-        finalizeAssumptionGateApplies={finalizeAssumptionGateApplies}
+        finalizeReadinessEnabled={finalizeReadinessEnabled}
         quickDecisionFindings={quickDecisionFindings}
         requestAssumptionTexts={requestAssumptionTexts}
         transparencyTrail={

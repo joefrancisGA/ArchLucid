@@ -39,7 +39,7 @@ export type RunDetailPresentation = {
   readonly findingCoverageSummary: FindingCoverageSummary | null;
   readonly commitBlockedReason: string | null;
   readonly finalizeReadinessBlocks: readonly FinalizeReadinessBlock[];
-  readonly finalizeAssumptionGateApplies: boolean;
+  readonly finalizeReadinessEnabled: boolean;
   readonly requestAssumptionTexts: readonly string[];
 
   readonly quickDecisionFindings: readonly QuickDecisionFinding[];
@@ -234,7 +234,7 @@ export async function buildRunDetailPresentation(
     findingCoverageSummary,
     commitBlockedReason: governancePresentation.commitBlockedReason,
     finalizeReadinessBlocks: governancePresentation.finalizeReadinessBlocks,
-    finalizeAssumptionGateApplies: governancePresentation.finalizeAssumptionGateApplies,
+    finalizeReadinessEnabled: governancePresentation.finalizeReadinessEnabled,
     requestAssumptionTexts: governancePresentation.requestAssumptionTexts,
 
     ...findingsPresentation,

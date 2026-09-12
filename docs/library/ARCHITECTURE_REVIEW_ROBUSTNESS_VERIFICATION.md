@@ -223,6 +223,7 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeConflictSql
 - `GET …/reviews/{runId}/decision-receipt` (`DownloadRunDecisionReceipt`) — sealed-hash mismatch outcome
 - `GET …/architecture/reviews/{runId}/artifacts` (`ListArtifactsForRun`) — manifest compare guard
 - `GET …/architecture/reviews/{runId}/artifacts/bundle` (`DownloadBundleForRun`) — manifest compare guard
+- `GET …/architecture/reviews/{runId}/artifacts/{artifactId}` (`DownloadArtifactForRun`) — manifest compare guard
 
 ```bash
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~ArtifactExportSealedManifestRuntimeConflictTests"
@@ -274,6 +275,8 @@ cd archlucid-ui && npx vitest run src/lib/findings/finding-disposition-mutation-
 
 `GET /v1/governance/pre-finalize/readiness/{runId}` composes career-artifact, integrity, scorecard, and pre-commit governance gates into one server contract (`FinalizeReadinessService`). Optional `acknowledgedAssumptionIds` query params union persisted TB-2345 acknowledgements for assumption-gate parity. Pre-commit governance reuses `IPreCommitGovernanceGate.EvaluateAsync(runId)` (same snapshot + supplemental findings path as checklist/commit; no manifest dry-run required for blocking parity). Embedded `checklist.readyToFinalize` on the readiness payload is aligned with commit authority (`readyToFinalize`) so finalize UI does not disagree on the same response; standalone `GET …/pre-finalize/checklist/{runId}` keeps operator-hygiene items.
 
+Review detail loads readiness for **every uncommitted review** (`finalizeReadinessEnabled = !hasManifest`), preferring the unified contract over legacy lifecycle/coverage copy when the server responds. Client hook `useAssumptionAwareCommitBlockedReason` mirrors the same rule and falls back to SSR legacy copy only when readiness is unavailable.
+
 Proof tests:
 
 ```bash
@@ -284,7 +287,8 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeReadinessCo
 UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton` with per-block deep links via `resolveFinalizeReadinessBlockAction` (findings job views, activity tab, intake finalize-readiness anchor). SSR `finalizeReadinessBlocks` from `buildRunDetailGovernancePresentation` hydrate the hook during client fetch and flow through `RunDetailPageHeader`, `ReviewPackagePrimaryAction`, and `RunDetailWorkspaceStickyActionsResolved` (deferred sticky bar on standard review detail). `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority.
 
 ```bash
-cd archlucid-ui && npx vitest run src/lib/review-quality/finalize-readiness-block-action.test.ts src/components/reviews/FinalizeReadinessBlockList.test.tsx
+cd archlucid-ui && npx vitest run src/lib/review-quality/finalize-readiness-block-action.test.ts src/components/reviews/FinalizeReadinessBlockList.test.tsx src/hooks/use-assumption-aware-commit-blocked-reason.test.ts
+cd archlucid-ui && npx playwright test -c playwright.mock.config.ts e2e/finalize-readiness-block-deeplink.spec.ts
 ```
 
 ## TB-184 governance-block explainer (Staging)
