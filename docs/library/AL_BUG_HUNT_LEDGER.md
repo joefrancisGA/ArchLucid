@@ -121,13 +121,15 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 31
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 6
+- **hunts:** 32
+- **bugs-found:** 11
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-08-23 — hunt #50: greenfield compliance declared endpoints but graph merge dropped dangling edges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2187 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_confidential_ledger` Data-category node omitted `svc-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_confidential_ledger_node_has_data_category_but_synthetic_service_id_used` and graph-merge parity.
 
 2026-09-12 seed hunt #2151 (seed-only): reseeded topology-proposal-merge with `-Refresh`; no new hunt-ready rows.
 
@@ -2183,6 +2185,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
+2026-09-12 seed hunt #2186 (seed-only): reseeded finding-disposition with `-Hint finding-disposition`; no new hunt-ready rows.
+
 2026-09-12 seed hunt #2150 (seed-only): reseeded finding-disposition with `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2142 (seed-only): reseeded finding-disposition with `-Refresh`; no new hunt-ready rows.
@@ -2733,7 +2737,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -2741,6 +2745,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-12 seed hunt #2169 (seed-only): reseeded extraction-router with `-Hint extraction-router`; no new hunt-ready rows.
+2026-09-12 seed hunt #2169 (seed-only): reseeded extraction-router with `-Hint extraction-router`; no new hunt-ready rows.
+
 
 
 2026-09-12 seed hunt #2135 (seed-only): reseeded extraction-router; no new hunt-ready rows.
