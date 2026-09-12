@@ -2447,3 +2447,4 @@
 {"at":"2026-09-12T18:50:29.1095665Z","zoneId":"ui-webhooks-settings","outcome":"seed-only"}
 {"at":"2026-09-12T18:50:41.1322922Z","zoneId":"finding-disposition","outcome":"seed-only"}
 {"at":"2026-09-12T18:50:52.6868361Z","zoneId":"context-ingestion","outcome":"seed-only"}
+{"at":"2026-09-12T18:51:04.2612025Z","zoneId":"core-costing","outcome":"seed-only"}

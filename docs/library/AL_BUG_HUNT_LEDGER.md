@@ -10296,13 +10296,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — standalone `d` day UOM rejected while `day`/`days` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2128 (seed-only): reseeded core-costing with `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2112 (seed→hit): reseeded core-costing; proved standalone `d` day UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneDayTests`.
 
