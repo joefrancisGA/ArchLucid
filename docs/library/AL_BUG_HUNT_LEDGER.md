@@ -3205,7 +3205,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 31
+- **hunts:** 41
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3320,6 +3320,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #1867 (seed-only): reseeded billing-webhooks; no proven defect this pass.
 
 2026-09-12 seed hunt #1995 (seed-only): reseeded billing-webhooks; 18 scoped unit tests passed; no new hunt-ready rows promoted.
+
+2026-09-12 seed hunts #1996–#2004 (seed-only): nine sequential reseeds; scoped billing webhook unit tests green; no new hunt-ready rows promoted.
 
 ---
 
@@ -10866,6 +10868,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `AuthorityQueryController.RecordRunOperatorGovernanceDisposition` — `Rationale` reached `dbo.Runs.OperatorGovernanceDecisionRationale` (NVARCHAR(2000)) without max-length guard present on sibling `PostFindingFeedback` comment and `FindingMuteController` reason — **hit 2026-09-12 hunt #1993 (seed→hit):** reject over-2000-char rationale before service call; regression `RecordRunOperatorGovernanceDisposition_returns_bad_request_when_rationale_exceeds_max_length`.
 
 2026-09-12 seed hunt #1993 (seed→hit): reseeded api-authority-admin-controllers; proved run disposition rationale max-length gap; 1 scoped `AuthorityQueryControllerDispositionTests` passed.
+
+- [x] (proven) `RunsController.PostFindingFeedback` — `Comment` omitted invalid-Unicode surrogate guard present on sibling `PutAssumptionAcknowledgement` and `CustomRolesAdminController` create/update — **hit 2026-09-12 hunt #1994 (seed→hit):** reject lone surrogates before persistence; regression `PostFindingFeedback_returns_bad_request_when_comment_contains_invalid_surrogate`.
+
+2026-09-12 seed hunt #1994 (seed→hit): reseeded api-authority-admin-controllers; proved finding-feedback comment surrogate guard gap; 1 scoped `RunsControllerTests` passed.
 
 ---
 
