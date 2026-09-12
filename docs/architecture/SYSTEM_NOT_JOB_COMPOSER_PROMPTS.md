@@ -6,7 +6,7 @@
 
 # System-not-job Composer prompts (SN-001–SN-040)
 
-**Created:** 2026-09-11 · **Status:** in progress (SN-001 ADR **0092**; SN-002 inventory; SN-003 spawn-lock URL honesty) · **Do not re-run** prior waves except as a numbered leftover.
+**Created:** 2026-09-11 · **Status:** **shipped** (SN-001–SN-040) · Close audit: [`SYSTEM_NOT_JOB_ACCEPTANCE_2026-09-11.md`](SYSTEM_NOT_JOB_ACCEPTANCE_2026-09-11.md) · **Do not re-run** prior waves except as a numbered leftover.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record.
 
@@ -39,6 +39,13 @@ After this wave:
 ## Sequencing
 
 See [`.cursor/prompts/system-not-job-00-index.md`](../../.cursor/prompts/system-not-job-00-index.md).
+
+## Close audit (SN-040)
+
+- [`SYSTEM_NOT_JOB_ACCEPTANCE_2026-09-11.md`](SYSTEM_NOT_JOB_ACCEPTANCE_2026-09-11.md) — done tests, cluster evidence, residuals.
+- [`SYSTEM_NOT_JOB_OUT_OF_WAVE_RESIDUALS.md`](SYSTEM_NOT_JOB_OUT_OF_WAVE_RESIDUALS.md) — SN-038/039 explicit skips.
+- Vitest ratchet: `archlucid-ui/src/lib/system-not-job-prompt-inventory.test.ts` (**SN-037** confirms 40 files + index).
+- Out-of-wave skips: **SN-038** (draft-diff Compare), **SN-039** (live presence).
 
 Load-bearing ADRs: **0092** ([`0092-working-cheap-what-if-envelope.md`](adrs/0092-working-cheap-what-if-envelope.md), SN-001); 0068/0072/0079 not rewritten.
 
