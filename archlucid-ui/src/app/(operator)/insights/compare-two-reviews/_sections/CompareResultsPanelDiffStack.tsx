@@ -29,6 +29,7 @@ import { CompareFindingCorrelationSection } from "@/app/(operator)/insights/comp
 import { CompareGovernanceDiffSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGovernanceDiffSection";
 import { ComparePairEvidenceCiteStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePairEvidenceCiteStrip";
 import { CompareExecutionModeHonestyStrip } from "@/components/compare/CompareExecutionModeHonestyStrip";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { downloadManifestCompareExport } from "@/lib/api/downloads-blob-trigger-manifest-compare-export";
 import { downloadEndToEndCompareExport } from "@/lib/api/downloads-blob-trigger-end-to-end-compare-export";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -179,21 +180,19 @@ export function CompareResultsPanelDiffStack({
   return (
     <>
       {hasResultsToNavigate ? (
-        <div
-          className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
-          data-testid="compare-results-action-bar"
-        >
-          <CompareResultsSectionNav
-            showStructured={golden !== null}
-            showFindingCorrelation={golden !== null}
-            showGovernanceDiff={golden !== null}
-            showRawManifestDiff={golden !== null}
-            showTechnicalAppendix={result !== null}
-            showAiExplanation={aiExplanation !== null}
-            buyerPolished={buyerPolished}
-            className="flex-1"
-          />
-          <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row lg:items-end">
+        <div className="flex flex-col gap-3" data-testid="compare-results-action-bar">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <CompareResultsSectionNav
+              showStructured={golden !== null}
+              showFindingCorrelation={golden !== null}
+              showGovernanceDiff={golden !== null}
+              showRawManifestDiff={golden !== null}
+              showTechnicalAppendix={result !== null}
+              showAiExplanation={aiExplanation !== null}
+              buyerPolished={buyerPolished}
+              className="flex-1"
+            />
+            <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row lg:items-end">
             {showDocxDownload ? (
               <Button
                 type="button"
@@ -256,7 +255,9 @@ export function CompareResultsPanelDiffStack({
                 {docxError}
               </p>
             ) : null}
+            </div>
           </div>
+          <SponsorExportSendHonestyStrip className="lg:max-w-xl" testIdPrefix="compare-export" />
         </div>
       ) : null}
 
