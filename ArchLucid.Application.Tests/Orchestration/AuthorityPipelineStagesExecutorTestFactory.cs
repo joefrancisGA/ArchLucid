@@ -337,6 +337,7 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
                 stagePersistence,
                 audit.Object,
                 Mock.Of<ArchLucid.Application.ArchitectureIntelligence.IAuthorityClosedLoopStrengtheningPass>(),
+                Mock.Of<IManifestHashService>(),
                 apPipeline.Object,
                 NullLogger<AuthorityPipelineDecisioningStage>.Instance),
             new AuthorityPipelineArtifactsStage(
