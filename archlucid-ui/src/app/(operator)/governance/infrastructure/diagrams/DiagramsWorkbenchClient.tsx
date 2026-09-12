@@ -1113,92 +1113,91 @@ export function DiagramsWorkbenchClient() {
       </section>
 
       {selectedMode === "dependencyNeighborhood" ? (
-        <section className={cn("flex flex-wrap items-end gap-3", cnCard)} aria-label="Dependency neighborhood drill-down">
-          {seedCandidateNodes.length > 0 ? (
-            <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
-              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
-                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
-              </span>
-              <select
-                className={cn("w-full", cnField)}
-                data-testid="infra-diagrams-seed-node-picker"
-                value={
-                  seedCandidateNodes.some(
-                    (node) => resolveInfraEvidenceOutlineSeedNodeId(node) === seedNodeDraft,
-                  )
-                    ? seedNodeDraft
-                    : ""
-                }
-                onChange={(event) => {
-                  const nextSeed = event.target.value;
-
-                  setSeedNodeDraft(nextSeed);
-
-                  if (nextSeed.trim().length > 0) {
-                    applySeedNode(nextSeed);
-                  }
-                }}
-              >
-                <option value="">Select a starting resource</option>
-                {seedCandidateNodes.map((node) => {
-                  const seedValue = resolveInfraEvidenceOutlineSeedNodeId(node);
-
-                  return (
-                    <option key={`${node.id}:${seedValue}`} value={seedValue}>
-                      {node.label}
-                    </option>
-                  );
-                })}
-              </select>
-            </label>
-          ) : null}
-          {buyerPolishedShell ? (
-            <>
-              <div className="grid min-w-[16rem] flex-1 gap-2">
-                <Label htmlFor="infra-diagrams-seed-node-input">
-                  {seedCandidateNodes.length > 0
-                    ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
-                    : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
-                </Label>
-                <Input
-                  id="infra-diagrams-seed-node-input"
-                  data-testid="infra-diagrams-seed-node-input"
-                  value={seedNodeDraft}
-                  onChange={(event) => setSeedNodeDraft(event.target.value)}
-                  placeholder="Cloud resource id or ARM id"
-                />
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER}
-                </p>
-              </div>
-              <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
-                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
-              </Button>
-            </>
-          ) : (
-            <>
+        <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Dependency neighborhood drill-down">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER}
+          </p>
+          <div className="flex flex-wrap items-end gap-3">
+            {seedCandidateNodes.length > 0 ? (
               <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
                 <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
-                  {seedCandidateNodes.length > 0
-                    ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
-                    : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
                 </span>
-                <input
-                  className={cnField}
-                  data-testid="infra-diagrams-seed-node-input"
-                  value={seedNodeDraft}
-                  onChange={(event) => setSeedNodeDraft(event.target.value)}
-                  placeholder="Cloud resource id or ARM id"
-                />
-                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER}
-                </span>
+                <select
+                  className={cn("w-full", cnField)}
+                  data-testid="infra-diagrams-seed-node-picker"
+                  value={
+                    seedCandidateNodes.some(
+                      (node) => resolveInfraEvidenceOutlineSeedNodeId(node) === seedNodeDraft,
+                    )
+                      ? seedNodeDraft
+                      : ""
+                  }
+                  onChange={(event) => {
+                    const nextSeed = event.target.value;
+
+                    setSeedNodeDraft(nextSeed);
+
+                    if (nextSeed.trim().length > 0) {
+                      applySeedNode(nextSeed);
+                    }
+                  }}
+                >
+                  <option value="">Select a starting resource</option>
+                  {seedCandidateNodes.map((node) => {
+                    const seedValue = resolveInfraEvidenceOutlineSeedNodeId(node);
+
+                    return (
+                      <option key={`${node.id}:${seedValue}`} value={seedValue}>
+                        {node.label}
+                      </option>
+                    );
+                  })}
+                </select>
               </label>
-              <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
-                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
-              </Button>
-            </>
-          )}
+            ) : null}
+            {buyerPolishedShell ? (
+              <>
+                <div className="grid min-w-[16rem] flex-1 gap-2">
+                  <Label htmlFor="infra-diagrams-seed-node-input">
+                    {seedCandidateNodes.length > 0
+                      ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
+                      : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                  </Label>
+                  <Input
+                    id="infra-diagrams-seed-node-input"
+                    data-testid="infra-diagrams-seed-node-input"
+                    value={seedNodeDraft}
+                    onChange={(event) => setSeedNodeDraft(event.target.value)}
+                    placeholder="Cloud resource id or ARM id"
+                  />
+                </div>
+                <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
+                </Button>
+              </>
+            ) : (
+              <>
+                <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
+                  <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
+                    {seedCandidateNodes.length > 0
+                      ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
+                      : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                  </span>
+                  <input
+                    className={cnField}
+                    data-testid="infra-diagrams-seed-node-input"
+                    value={seedNodeDraft}
+                    onChange={(event) => setSeedNodeDraft(event.target.value)}
+                    placeholder="Cloud resource id or ARM id"
+                  />
+                </label>
+                <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
+                </Button>
+              </>
+            )}
+          </div>
         </section>
       ) : null}
 
