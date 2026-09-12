@@ -20,7 +20,7 @@ import {
   ARCHITECTURE_IDENTITY_DESK_REVIEWS_EMPTY,
   ARCHITECTURE_IDENTITY_DESK_START_REVIEW_LABEL,
 } from "@/lib/architecture/architecture-identity-desk-copy";
-import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
+import { resolveSystemNotJobDeskSealedChildReviewHref } from "@/lib/system-not-job-sealed-child-not-second-desk";
 import { parseFinalizeSuccessHighlightReviewId } from "@/lib/architecture/finalize-success-desk-href";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInventoryUpdatedAtCell } from "@/lib/relative-time";
@@ -88,7 +88,10 @@ export function ArchitectureIdentityDeskReviewsTable(
               className={cn(isHighlighted ? "bg-[var(--al-layer-hover)] dark:bg-neutral-800/60" : undefined)}
             >
               <EnterpriseTableCell>
-                <Link href={resolveArchitectureReviewHref(review.runId, props.architectureId)} className={OPERATOR_LINK.nav}>
+                <Link
+                  href={resolveSystemNotJobDeskSealedChildReviewHref(review.runId, props.architectureId)}
+                  className={OPERATOR_LINK.nav}
+                >
                   {label}
                 </Link>
               </EnterpriseTableCell>

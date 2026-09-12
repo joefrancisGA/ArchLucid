@@ -181,7 +181,7 @@ describe("ArchitectureIdentityDesk (DA-04 / AO-20 Working fixture)", () => {
       "href",
       "/architecture/architectures/architecture-identity-001/reviews/review-2",
     );
-    expect(screen.getByTestId("architecture-identity-new-version-from-snapshot")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-spawn-lock-clone-snapshot")).toBeInTheDocument();
   });
 
   it("shows disabled compare reason when only one review exists", () => {
