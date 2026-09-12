@@ -306,6 +306,7 @@ Mock Playwright CI job `ui-playwright-mock-smoke` runs all `e2e/**/*.spec.ts` in
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~ExplainGovernanceBlocksHostedAppsettingsTests"
 dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~PreCommitGovernanceBlockExplanationAttacher|FinalizeReadinessServiceTests"
 cd archlucid-ui && npx vitest run src/components/reviews/FinalizeReadinessBlockList.test.tsx
+<<<<<<< HEAD
 ```
 
 ## TB-2343 unknown sentinel intake gate (structured brief)
@@ -340,6 +341,8 @@ Proof tests:
 
 ```bash
 dotnet test ArchLucid.KnowledgeGraph.Tests --filter "FullyQualifiedName~CostConstraintProjectedSpend|RequestCostConstraintMaterializer"
+=======
+>>>>>>> origin/master
 ```
 
 ## ConflictException → 409 controller sweep
