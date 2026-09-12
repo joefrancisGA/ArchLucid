@@ -3327,7 +3327,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3336,6 +3336,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-12 seed hunt #1959 (seed-only): picker repeat after `-Refresh`; reseeded api-key-auth; no new hunt-ready rows.
 
 2026-09-12 seed hunt #1955 (seed-only): reseeded api-key-auth; no new hunt-ready rows.
 
