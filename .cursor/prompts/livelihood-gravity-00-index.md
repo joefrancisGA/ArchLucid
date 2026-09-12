@@ -20,4 +20,6 @@ Paste from a **wave** index, not from this file.
 
 **Copy overlay (wave 31):** [`record-practice-00-index.md`](record-practice-00-index.md) (**RP-001–024**, ADR **0097**) — user-facing **Record / Practice** labels. Do not re-run CG.
 
-Owner spine: [`docs/architecture/LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md`](../../docs/architecture/LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md). Overlay: [`docs/architecture/RECORD_PRACTICE_COMPOSER_PROMPTS.md`](../../docs/architecture/RECORD_PRACTICE_COMPOSER_PROMPTS.md).
+**Issue 2 residual (wave 32):** [`system-gravity-00-index.md`](system-gravity-00-index.md) (**SG-001–120**, ADR **0098**) — instrument after spawn is still the nested review job. Do not re-run SN / AO / SY / CE.
+
+Owner spine: [`docs/architecture/LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md`](../../docs/architecture/LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md). Overlay: [`docs/architecture/RECORD_PRACTICE_COMPOSER_PROMPTS.md`](../../docs/architecture/RECORD_PRACTICE_COMPOSER_PROMPTS.md). Residual: [`docs/architecture/SYSTEM_GRAVITY_COMPOSER_PROMPTS.md`](../../docs/architecture/SYSTEM_GRAVITY_COMPOSER_PROMPTS.md).
