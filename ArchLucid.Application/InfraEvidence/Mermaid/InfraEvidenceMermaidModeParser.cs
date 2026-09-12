@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 
 namespace ArchLucid.Application.InfraEvidence.Mermaid;
@@ -87,6 +88,12 @@ public static class InfraEvidenceMermaidModeParser
             return true;
         }
 
+        if (string.Equals(normalized, InventoryDiagramFallbackArtifactKeys.ResourceGroupModeKey, StringComparison.OrdinalIgnoreCase))
+        {
+            result = Success(DiagramMode.ResourceGroup, InventoryDiagramFallbackArtifactKeys.ResourceGroupModeKey, null);
+            return true;
+        }
+
         if (normalized.StartsWith(ResourceGroupPrefix, StringComparison.OrdinalIgnoreCase))
         {
             string resourceGroupName = normalized[ResourceGroupPrefix.Length..].Trim();
@@ -135,7 +142,7 @@ public static class InfraEvidenceMermaidModeParser
         {
             Succeeded = false,
             ErrorMessage =
-                "Unsupported mode. Use executive, network, identity, data, full, resourceGroup:{name}, or dependencyNeighborhood.",
+                "Unsupported mode. Use executive, network, identity, data, full, resourceGroup, resourceGroup:{name}, or dependencyNeighborhood.",
         };
 
         return false;

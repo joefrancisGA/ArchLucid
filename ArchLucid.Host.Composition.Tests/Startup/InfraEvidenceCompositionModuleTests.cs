@@ -324,6 +324,7 @@ public sealed class InfraEvidenceCompositionModuleTests
     {
         services.AddScoped(_ => Mock.Of<IAzureInventorySnapshotGraphResolver>());
         services.AddScoped(_ => Mock.Of<IMermaidDiagramInventoryRenderOrchestrator>());
+        services.AddScoped(_ => Mock.Of<IMermaidDiagramFallbackSetBuilder>());
         services.AddScoped(_ => Mock.Of<IBrandedDiagramExportService>());
         services.AddScoped(_ => Mock.Of<IDiagramImageRenderer>());
         services.AddScoped(_ => Mock.Of<IArchitectureDiagramReconciliationRepository>());

@@ -25,4 +25,13 @@ public sealed class DiagramAstCompileOptions
         get;
         init;
     } = 2;
+
+    /// <summary>
+    /// When true, Full subscription compiles as one node per resource group (IE-17 readability collapse).
+    /// </summary>
+    public bool CollapseToResourceGroupMap
+    {
+        get;
+        init;
+    }
 }

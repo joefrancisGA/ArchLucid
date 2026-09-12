@@ -12,11 +12,25 @@ internal static class DiagramAstExecutiveLayoutSimplifier
 {
     private const int SparseSubgraphFlattenThreshold = 8;
 
-    public static void FlattenSparseSubgraphs(DiagramAst ast, DiagramMode mode)
+    public static void FlattenSparseSubgraphs(
+        DiagramAst ast,
+        DiagramMode mode,
+        DiagramAstCompileOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(ast);
 
-        if (!ModeFlattensSparseSubgraphs(mode) || ast.Subgraphs.Count == 0)
+        if (ast.Subgraphs.Count == 0)
+        {
+            return;
+        }
+
+        if (options?.CollapseToResourceGroupMap == true)
+        {
+            FlattenAllSubgraphs(ast);
+            return;
+        }
+
+        if (!ModeFlattensSparseSubgraphs(mode))
         {
             return;
         }
@@ -34,6 +48,11 @@ internal static class DiagramAstExecutiveLayoutSimplifier
             return;
         }
 
+        FlattenAllSubgraphs(ast);
+    }
+
+    private static void FlattenAllSubgraphs(DiagramAst ast)
+    {
         foreach (DiagramNode node in ast.Nodes)
         {
             node.SubgraphId = null;

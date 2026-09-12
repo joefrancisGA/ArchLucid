@@ -539,7 +539,69 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         fullPreview.Status.Should().Be(MermaidDiagramRenderStatus.Partitioned.ToString());
         fullPreview.Mermaid.Should().BeNull();
         fullPreview.FallbackArtifacts.Should().NotBeEmpty();
+        fullPreview.FallbackArtifacts.Should().NotContain(artifact => artifact.Key == "full-machine");
         fullPreview.NodeCount.Should().BeGreaterThan(400);
+    }
+
+    [Fact]
+    public async Task Full_mode_collapses_many_resource_groups_to_a_readable_map()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildMultiResourceGroupSnapshot(
+            resourceGroupCount: 12,
+            resourcesPerGroup: 40);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds { MaxNodes = 400 });
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "full", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded.ToString());
+        result.Value.Metrics!.NodeCount.Should().Be(12);
+        result.Value.Mermaid.Should().Contain("al-view=resource-group-map");
+        result.Value.FallbackArtifacts.Should().NotContain(artifact => artifact.Key == "full-machine");
+    }
+
+    [Fact]
+    public async Task Resource_group_picker_returns_rg_cards_without_mermaid()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildMultiResourceGroupSnapshot(
+            resourceGroupCount: 3,
+            resourcesPerGroup: 2);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> picker =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "resourceGroup", null, null, CancellationToken.None);
+
+        picker.Succeeded.Should().BeTrue();
+        picker.Value!.Mode.Should().Be("resourceGroup");
+        picker.Value.Mermaid.Should().BeNull();
+        picker.Value.FallbackArtifacts.Should().HaveCount(3);
+        picker.Value.FallbackArtifacts.Should().OnlyContain(artifact => artifact.Key.StartsWith("resourceGroup:", StringComparison.Ordinal));
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> selected =
+            await service.TryGetMermaidAsync(
+                scope,
+                SnapshotId,
+                "resourceGroup:rg-1",
+                null,
+                null,
+                CancellationToken.None);
+
+        selected.Succeeded.Should().BeTrue();
+        selected.Value!.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded.ToString());
+        selected.Value.Mermaid.Should().NotBeNullOrWhiteSpace();
+        selected.Value.Metrics!.NodeCount.Should().Be(2);
+        selected.Value.FallbackArtifacts.Should().HaveCount(3);
+        selected.Value.FallbackArtifacts.Should().OnlyContain(artifact =>
+            artifact.Key.StartsWith("resourceGroup:", StringComparison.Ordinal));
     }
 
     private static InfraEvidenceSnapshotMermaidService CreateServiceWithThrowingNetworkCompiler(
@@ -621,12 +683,27 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         return new InfraEvidenceSnapshotMermaidService(
             new AzureInventorySnapshotGraphResolver(repository),
             CreateInventoryRenderOrchestrator(graphCompiler),
+            CreateFallbackSetBuilder(graphCompiler),
             brandedDiagramExportService.Object,
             new NullDiagramImageRenderer(),
             new NoOpArchitectureDiagramReconciliationRepository(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             thresholds);
+    }
+
+    private static MermaidDiagramFallbackSetBuilder CreateFallbackSetBuilder(
+        IDiagramAstFromGraphCompiler? graphCompiler = null)
+    {
+        IDiagramAstFromGraphCompiler compiler = graphCompiler ?? new DiagramAstFromGraphCompiler();
+
+        return new MermaidDiagramFallbackSetBuilder(
+            compiler,
+            new MermaidDiagramRenderer(),
+            new MermaidDiagramComplexityAnalyzer(),
+            new MermaidDiagramDeterministicRepairer(),
+            new MermaidDiagramStructuralValidator(),
+            new DiagramPeelCatalogDefaultProvider());
     }
 
     private static AzureInventorySnapshotDetailReadModel BuildRelationshipFirstNetworkGoldenSnapshot()
@@ -886,6 +963,66 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
                     RelationshipType = "connects",
                     ProvenanceKind = ProvenanceKind.ObservedFact,
                 });
+            }
+        }
+
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = resources,
+            Relationships = relationships,
+        };
+    }
+
+    private static AzureInventorySnapshotDetailReadModel BuildMultiResourceGroupSnapshot(
+        int resourceGroupCount,
+        int resourcesPerGroup)
+    {
+        List<AzureInventoryResourceRecord> resources = [];
+        List<AzureInventoryResourceRelationshipReadModel> relationships = [];
+        int resourceIndex = 0;
+
+        for (int groupIndex = 0; groupIndex < resourceGroupCount; groupIndex++)
+        {
+            string resourceGroup = $"rg-{groupIndex}";
+
+            for (int nodeIndex = 0; nodeIndex < resourcesPerGroup; nodeIndex++)
+            {
+                Guid cloudResourceId = Guid.Parse($"11111111-2222-3333-4444-{resourceIndex:D12}");
+                string armId =
+                    $"/subscriptions/sub/resourceGroups/{resourceGroup}/providers/Microsoft.Network/virtualNetworks/vnet-{groupIndex}-{nodeIndex}";
+
+                resources.Add(new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    CloudResourceId = cloudResourceId,
+                    AzureResourceId = armId,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = resourceGroup,
+                    SubscriptionId = "sub",
+                });
+
+                if (resourceIndex > 0)
+                {
+                    AzureInventoryResourceRecord prior = resources[resourceIndex - 1];
+                    relationships.Add(new AzureInventoryResourceRelationshipReadModel
+                    {
+                        FromAzureResourceId = prior.AzureResourceId,
+                        ToAzureResourceId = armId,
+                        RelationshipType = "connects",
+                        ProvenanceKind = ProvenanceKind.ObservedFact,
+                    });
+                }
+
+                resourceIndex++;
             }
         }
 

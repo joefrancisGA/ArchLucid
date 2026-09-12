@@ -66,7 +66,7 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
             graph,
             cancellationToken);
 
-        if (compiled.PeeledArmTypes.Count == 0)
+        if (compiled.PeeledArmTypes.Count == 0 && !compiled.UsedResourceGroupMap)
         {
             return result;
         }
@@ -78,7 +78,11 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
             Metrics = result.Metrics,
             FallbackArtifacts = result.FallbackArtifacts,
             IndexMarkdown = result.IndexMarkdown,
-            CollapseReport = MergePeelCollapseReport(result.CollapseReport, compiled.PeeledArmTypes, catalog.CatalogVersion),
+            CollapseReport = MergePeelCollapseReport(
+                result.CollapseReport,
+                compiled.PeeledArmTypes,
+                catalog.CatalogVersion,
+                compiled.UsedResourceGroupMap),
             ValidationErrors = result.ValidationErrors,
         };
     }
@@ -137,7 +141,8 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
     private static MermaidDiagramCollapseReport MergePeelCollapseReport(
         MermaidDiagramCollapseReport? repairCollapse,
         IReadOnlyList<string> peeledArmTypes,
-        int catalogVersion)
+        int catalogVersion,
+        bool usedResourceGroupMap)
     {
         List<MermaidDiagramCollapseEntry> entries = repairCollapse?.Entries.ToList() ?? [];
 
@@ -147,6 +152,15 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
             {
                 Kind = "PeelBudgetArmType",
                 Reason = $"Hidden to fit readability thresholds (catalog v{catalogVersion}): {armType}",
+            });
+        }
+
+        if (usedResourceGroupMap)
+        {
+            entries.Add(new MermaidDiagramCollapseEntry
+            {
+                Kind = InventoryDiagramResourceGroupMapBuilder.CollapseKind,
+                Reason = InventoryDiagramResourceGroupMapBuilder.Caption,
             });
         }
 

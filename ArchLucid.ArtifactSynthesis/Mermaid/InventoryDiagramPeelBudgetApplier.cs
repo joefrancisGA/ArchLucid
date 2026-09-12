@@ -13,7 +13,8 @@ internal static class InventoryDiagramPeelBudgetApplier
         string Mermaid,
         MermaidDiagramComplexityMetrics Metrics,
         bool StructurallyValid,
-        IReadOnlyList<string> PeeledArmTypes);
+        IReadOnlyList<string> PeeledArmTypes,
+        bool UsedResourceGroupMap);
 
     public static PeelCompileResult CompileWithPeelBudget(
         GraphSnapshot graph,
@@ -45,7 +46,8 @@ internal static class InventoryDiagramPeelBudgetApplier
             complexityAnalyzer,
             deterministicRepairer,
             structuralValidator,
-            peeledArmTypes: []);
+            peeledArmTypes: [],
+            usedResourceGroupMap: false);
 
         if (!MermaidDiagramInventoryRenderOrchestrator.ShouldAttemptPeelBudget(mode)
             || !initial.Metrics.ExceedsReadableThresholds(thresholds))
@@ -76,7 +78,8 @@ internal static class InventoryDiagramPeelBudgetApplier
                 complexityAnalyzer,
                 deterministicRepairer,
                 structuralValidator,
-                peeledArmTypes);
+                peeledArmTypes,
+                usedResourceGroupMap: false);
 
             if (!peeled.Metrics.ExceedsReadableThresholds(thresholds) && peeled.StructurallyValid)
             {
@@ -87,6 +90,27 @@ internal static class InventoryDiagramPeelBudgetApplier
             {
                 excludedArmTypes.Remove(armType);
                 peeledArmTypes.RemoveAt(peeledArmTypes.Count - 1);
+            }
+        }
+
+        if (mode == DiagramMode.FullSubscription
+            && InventoryDiagramResourceGroupMapBuilder.TryBuild(graph, thresholds.MaxNodes, out GraphSnapshot mapGraph))
+        {
+            PeelCompileResult mapped = CompileOnce(
+                mapGraph,
+                mode,
+                CreateResourceGroupMapCompileOptions(compileOptions),
+                graphCompiler,
+                diagramRenderer,
+                complexityAnalyzer,
+                deterministicRepairer,
+                structuralValidator,
+                peeledArmTypes,
+                usedResourceGroupMap: true);
+
+            if (mapped.StructurallyValid)
+            {
+                return mapped;
             }
         }
 
@@ -102,7 +126,8 @@ internal static class InventoryDiagramPeelBudgetApplier
         IMermaidDiagramComplexityAnalyzer complexityAnalyzer,
         IMermaidDiagramDeterministicRepairer deterministicRepairer,
         IMermaidDiagramStructuralValidator structuralValidator,
-        IReadOnlyList<string> peeledArmTypes)
+        IReadOnlyList<string> peeledArmTypes,
+        bool usedResourceGroupMap)
     {
         DiagramAst ast = graphCompiler.Compile(graph, mode, compileOptions);
         DiagramAst repaired = deterministicRepairer.Repair(ast, out _);
@@ -115,6 +140,19 @@ internal static class InventoryDiagramPeelBudgetApplier
             mermaid,
             metrics,
             structurallyValid,
-            peeledArmTypes);
+            peeledArmTypes,
+            usedResourceGroupMap);
+    }
+
+    private static DiagramAstCompileOptions CreateResourceGroupMapCompileOptions(DiagramAstCompileOptions? compileOptions)
+    {
+        return new DiagramAstCompileOptions
+        {
+            ResourceGroupName = compileOptions?.ResourceGroupName,
+            SelectedNodeIds = compileOptions?.SelectedNodeIds,
+            NeighborhoodSeedNodeId = compileOptions?.NeighborhoodSeedNodeId,
+            NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
+            CollapseToResourceGroupMap = true,
+        };
     }
 }

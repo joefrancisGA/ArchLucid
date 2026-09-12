@@ -333,7 +333,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Advanced operations",
     headline: "Render inventory diagrams from snapshot evidence.",
     useWhen: "Choose a snapshot and diagram mode before exporting PNG or Mermaid.",
-    firstPilotNote: "Partitioned views default to Executive when the full graph exceeds readability thresholds.",
+    firstPilotNote: "Full subscription collapses to a resource group map when the leaf graph exceeds readability thresholds. Pick a Resource Group to see resources inside a group.",
     omitReviewPackageScopeHelp: true,
   },
   "infrastructure-diagram-reconcile": {
