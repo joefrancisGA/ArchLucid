@@ -22,5 +22,7 @@ One Azure collection feeds architecture, drift, security remediation, ARC-AMPE a
 | [`docs/architecture/INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md`](../../docs/architecture/INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ND-01–IE-ND-05** Network mode empty despite inventory |
 | [`inventory-diagram-identity-00-index.md`](inventory-diagram-identity-00-index.md) | **IE-ID-01–IE-ID-03** Identity mode compiles but the canvas does not paint |
 | [`docs/architecture/INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md`](../../docs/architecture/INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ID** wave doc + copy-below (same set) |
+| [`docs/architecture/INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](../../docs/architecture/INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md) | **IE-RF-01–IE-RF-12** Relationship-first ARG/type-list topology (not ARM export) |
+| [`.cursor/prompts/infra-evidence-relationship-first-00-index.md`](infra-evidence-relationship-first-00-index.md) | **IE-RF** paste-one-file index |
 
 Do **not** re-run FIT/WK coverage-engine holds. Do **not** add ARM write or `terraform apply`. Do **not** invent ARC-AMPE controls. Do **not** treat pack #24 as this assessment plane.

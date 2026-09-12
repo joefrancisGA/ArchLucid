@@ -1,7 +1,7 @@
 > **Scope:** Copy-paste Composer/Cloud Agent prompts for SecureNow automated security-architect engines over live Azure inventory. Internal engineering only.
 > **Paste-ready files:** [`.cursor/prompts/securenow-architect-00-index.md`](../../.cursor/prompts/securenow-architect-00-index.md) (**SA-01–SA-22**)
 > **Contract:** [`../library/SECURENOW_ARCHITECT_PLANE.md`](../library/SECURENOW_ARCHITECT_PLANE.md)
-> **Depends on:** [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md) and IE snapshot / operational-finding / remediation seams
+> **Depends on:** [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md) and IE snapshot / operational-finding / remediation seams. Collection fidelity for VM→NIC / NSG / peering is **IE-RF-01–IE-RF-11** ([`INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md)) — **SA-02** consumes those associations; do not re-run SA-02 as greenfield.
 > **Do not fork:** second Azure collector; `IFindingEngine` coverage engines; customer ARM writes; mega-graph of every node type; GTM **M-90 / M-44 / M-91 / M-92**; closed assurance **TB-135 / TB-136**; desktop review tab collapse
 
 # SecureNow architect — Composer prompts (SA-01–SA-22)

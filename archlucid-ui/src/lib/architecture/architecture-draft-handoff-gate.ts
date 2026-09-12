@@ -1,9 +1,13 @@
+import {
+  ARCHITECTURE_DRAFT_SPAWN_LOCK_CLONE_LEGAL_SENTENCE,
+  ARCHITECTURE_DRAFT_SPAWN_LOCK_SNAPSHOT_SENTENCE,
+} from "@/lib/architecture/architecture-draft-spawn-lock-url-honesty";
 import { ensureAppInsights } from "@/lib/telemetry";
 
 const ACK_STORAGE_PREFIX = "archlucid.architecture_draft_handoff_ack.v1.";
 
 export const ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD =
-  "This draft is a snapshot source for the linked review. Continue in the review for findings, evidence, and exports. Editing here does not update an in-flight or sealed package.";
+  `${ARCHITECTURE_DRAFT_SPAWN_LOCK_SNAPSHOT_SENTENCE} Continue in the review for findings, evidence, and exports. ${ARCHITECTURE_DRAFT_SPAWN_LOCK_CLONE_LEGAL_SENTENCE}`;
 
 export const ARCHITECTURE_DRAFT_HANDOFF_CANONICAL_REVIEW_LABEL =
   "The review is the canonical work surface after handoff.";

@@ -171,11 +171,23 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             return true;
         }
 
-        if (element.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(element.GetString(), ignoreCase: true, out AgentType parsed))
+        if (element.ValueKind == JsonValueKind.String)
         {
-            agentType = parsed;
-            return true;
+            string? label = element.GetString();
+
+            if (string.IsNullOrWhiteSpace(label))
+            {
+                agentType = default;
+                return false;
+            }
+
+            if (Enum.TryParse(label, ignoreCase: true, out AgentType parsed))
+            {
+                agentType = parsed;
+                return true;
+            }
+
+            throw new JsonException($"Unknown source agent value '{label}'.");
         }
 
         agentType = default;

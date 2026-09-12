@@ -70,7 +70,8 @@ const REVIEW_DETAIL_SEGMENT_ERROR_RECOVERY: ErrorRecoveryContractPresentation = 
   whatFailed: "This review desk could not render.",
   whatIsIntact:
     "The review package on the server is unchanged. Typed livelihood fields registered on this page may still restore after Retry when idle snapshots were preserved.",
-  nextStep: "Choose Retry to reload this review desk. Open reviews only if Retry keeps failing.",
+  nextStep:
+    "Choose Retry to reload this review desk. Retry does not change execute posture or mark a rehearsal run Career-complete. Open reviews only if Retry keeps failing.",
 };
 
 const ARCHITECTURE_DRAFT_OFFLINE_REPLAY_CONFLICT_RECOVERY: ErrorRecoveryContractPresentation = {

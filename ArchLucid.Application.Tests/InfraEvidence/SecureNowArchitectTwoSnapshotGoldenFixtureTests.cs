@@ -105,7 +105,9 @@ public sealed class SecureNowArchitectTwoSnapshotGoldenFixtureTests
             [],
             federatedCredentialsFilePresent: false,
             [],
-            entraGroupMembershipsFilePresent: false);
+            entraGroupMembershipsFilePresent: false,
+            [],
+            effectiveNetworkControlsFilePresent: false);
     }
 
     private static AzureInventorySnapshotDetailReadModel BuildSnapshot(
