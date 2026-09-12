@@ -10,10 +10,12 @@ import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assu
 import {
   FIRST_REVIEW_AZURE_INVENTORY_ZIP_PROMPT_BODY,
   FIRST_REVIEW_AZURE_INVENTORY_ZIP_PROMPT_TITLE,
+  FIRST_REVIEW_EVIDENCE_ONLY_FAST_PATH_LINE,
   FIRST_REVIEW_INVENTORY_ZIP_MULTICLOUD_SCRIPTS_LINE,
   resolveFirstReviewAzureInventoryZipPrompt,
   writeFirstReviewAzureInventoryZipPromptSkipped,
 } from "@/lib/first-review/azure-inventory-zip-first-review-prompt";
+import { EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF } from "@/lib/core-pilot-help-ia-dual";
 import { cn } from "@/lib/utils";
 
 const SKIP_CHANGED_EVENT = "archlucid-first-review-azure-inventory-zip-prompt-changed";
@@ -119,11 +121,25 @@ export function FirstReviewAzureInventoryZipPromptStrip(
           >
             {FIRST_REVIEW_INVENTORY_ZIP_MULTICLOUD_SCRIPTS_LINE}
           </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="first-review-inventory-evidence-only-fast-path"
+          >
+            {FIRST_REVIEW_EVIDENCE_ONLY_FAST_PATH_LINE}
+          </p>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
           <Button type="button" variant="primary" size="sm" asChild>
             <Link href={resolution.uploadHref} data-testid="first-review-azure-inventory-zip-upload-link">
               Upload ZIP
+            </Link>
+          </Button>
+          <Button type="button" variant="outline" size="sm" asChild>
+            <Link
+              href={EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF}
+              data-testid="first-review-azure-inventory-zip-evidence-only-link"
+            >
+              Evidence-only path
             </Link>
           </Button>
           <button

@@ -10,6 +10,9 @@ export const FIRST_REVIEW_AZURE_INVENTORY_ZIP_PROMPT_BODY =
 export const FIRST_REVIEW_INVENTORY_ZIP_MULTICLOUD_SCRIPTS_LINE =
   "Azure: Get-ArchLucidAzurePackage.ps1 · AWS: Get-ArchLucidAwsPackage.ps1 · GCP: Get-ArchLucidGcpPackage.ps1" as const;
 
+export const FIRST_REVIEW_EVIDENCE_ONLY_FAST_PATH_LINE =
+  "ZIP inventory is optional. Continue with briefs, diagrams, documents, or IaC on the evidence-only fast path." as const;
+
 const WORKSPACE_SCOPE_KEY = "__workspace__" as const;
 
 const SKIP_STORAGE_PREFIX = "archlucid.firstReview.azureInventoryZip.skipped." as const;

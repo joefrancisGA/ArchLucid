@@ -80,6 +80,12 @@ export const FIRST_REVIEW_GUIDE_GET_MORE_TITLE = "Get more from ArchLucid";
 export const FIRST_REVIEW_GUIDE_GET_MORE_ROI_COPY =
   "Add an ROI baseline to estimate savings and support sponsor reporting.";
 
+export const FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY =
+  "Record dispositions on decision-grade findings before sending a sponsor package.";
+
+export const FIRST_REVIEW_GUIDE_POLICY_PACK_ASSIGNMENT_COPY =
+  "Assign a policy pack so findings and the pre-commit gate use your standards.";
+
 export const FIRST_REVIEW_GUIDE_TEMPLATE_LABEL = "Templates";
 
 export const FIRST_REVIEW_GUIDE_TEMPLATE_BODY =

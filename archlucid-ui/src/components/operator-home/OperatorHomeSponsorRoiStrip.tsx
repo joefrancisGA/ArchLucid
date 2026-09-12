@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { useSponsorRoiSummaryQuery } from "@/hooks/use-sponsor-roi-summary-query";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { RoiDispositionTrainingTooltip } from "@/components/roi/RoiDispositionTrainingTooltip";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { sponsorRoiSummaryBlockedReason } from "@/lib/roi/sponsor-roi-summary-blocked-reason";
@@ -16,6 +17,7 @@ import {
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveSponsorHeadlineScopeLabel } from "@/lib/roi-sponsor-scope-labels";
 import {
   buildSponsorServerSavingsSummary,
@@ -77,17 +79,12 @@ export function OperatorHomeSponsorRoiStrip(): React.JSX.Element | null {
     ),
   });
 
-  // TB-1037: hide empty/zero savings chrome — do not imply estimated savings without data.
-  if (
-    resolvedSavings === null ||
-    !Number.isFinite(resolvedSavings.annualizedUsd) ||
-    resolvedSavings.annualizedUsd <= 0 ||
-    summary.latestRunCount < 1
-  ) {
-    return null;
-  }
-
-  const savingsLabel = formatUsd(resolvedSavings.annualizedUsd);
+  const showSavings =
+    resolvedSavings !== null &&
+    Number.isFinite(resolvedSavings.annualizedUsd) &&
+    resolvedSavings.annualizedUsd > 0 &&
+    summary.latestRunCount >= 1;
+  const savingsLabel = showSavings && resolvedSavings !== null ? formatUsd(resolvedSavings.annualizedUsd) : null;
   const scopeLabel = resolveSponsorHeadlineScopeLabel(summary);
 
   return (
@@ -99,26 +96,52 @@ export function OperatorHomeSponsorRoiStrip(): React.JSX.Element | null {
       <h2 id="operator-home-roi-strip-heading" className="sr-only">
         Sponsor ROI
       </h2>
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}>
-        <span className="inline-flex items-baseline gap-1.5 font-medium text-al-text-primary">
-          {savingsLabel}
-          <RoiDispositionTrainingTooltip />
-        </span>
-        {" estimated savings from "}
-        {summary.latestRunCount} committed review
-        {summary.latestRunCount === 1 ? "" : "s"}
-        {" ("}
-        {scopeLabel}
-        {"). "}
-        {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}{" "}
-        <Link
-          href="/insights/architecture-scorecard"
-          className={OPERATOR_LINK.optional}
-          data-testid="operator-home-roi-strip-open-scorecard"
+      {showSavings && savingsLabel !== null ? (
+        <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}>
+          <span className="inline-flex items-baseline gap-1.5 font-medium text-al-text-primary">
+            {savingsLabel}
+            <RoiDispositionTrainingTooltip />
+          </span>
+          {" estimated savings from "}
+          {summary.latestRunCount} committed review
+          {summary.latestRunCount === 1 ? "" : "s"}
+          {" ("}
+          {scopeLabel}
+          {"). "}
+          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}{" "}
+          <Link
+            href="/insights/architecture-scorecard"
+            className={OPERATOR_LINK.optional}
+            data-testid="operator-home-roi-strip-open-scorecard"
+          >
+            See architecture scorecard
+          </Link>
+        </p>
+      ) : (
+        <p
+          className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}
+          data-testid="operator-home-roi-strip-non-summing"
         >
-          See architecture scorecard
+          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}{" "}
+          <Link
+            href="/insights/architecture-scorecard"
+            className={OPERATOR_LINK.optional}
+            data-testid="operator-home-roi-strip-open-scorecard"
+          >
+            See architecture scorecard
+          </Link>
+        </p>
+      )}
+      <p
+        className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+        data-testid="operator-home-disposition-next-action"
+      >
+        Record dispositions on decision-grade findings before sponsor send.{" "}
+        <Link href={GOVERNANCE_FINDINGS_PATH} className={OPERATOR_LINK.optional}>
+          Open findings queue
         </Link>
       </p>
+      <PolicyPackInfluenceHonestyChip className="mt-2" />
     </section>
   );
 }
