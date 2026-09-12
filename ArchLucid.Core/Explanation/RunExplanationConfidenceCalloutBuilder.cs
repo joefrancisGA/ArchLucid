@@ -154,6 +154,10 @@ public static class RunExplanationConfidenceCalloutBuilder
                 {
                     citationCount = stringEncodedCount;
                 }
+                else
+                {
+                    citationCount = 0;
+                }
             }
         }
         else

@@ -9651,11 +9651,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 10
-- **bugs-found:** 9
+- **hunts:** 11
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — object-shaped reasoning array entries with `id` property dropped on normalize
+- **last-bug:** 2026-09-12 — empty string `citations` skipped zero-citation WARN gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
