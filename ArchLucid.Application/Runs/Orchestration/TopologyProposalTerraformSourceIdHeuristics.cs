@@ -284,6 +284,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("pinecone", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("mongo_cluster", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("elastic_cloud", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("neptune_cluster", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("site_recovery", StringComparison.OrdinalIgnoreCase);
     }
 
