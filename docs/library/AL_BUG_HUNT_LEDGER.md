@@ -2894,9 +2894,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentExecutionTraceRunLlmCostAggregator` reports `estimated-from-configured-rates` when only some traces price — **hit 2026-09-11 seed hunt #1715 (seed→hit):** mixed priced/unpriced deployment slices summed partial USD while labeling the full run as rate-estimated; fixed by downgrading basis to `provider-tokens-without-rate` and omitting partial USD when any measurable slice lacks a rate; regression `Compute_WhenOnlySomeTracesPrice_UsesProviderTokensWithoutRateBasis`
 2026-09-11 seed hunt #1715 (hit): reseeded application-agents; proved invisible Unicode curated-evidence descriptions and partial multi-trace cost basis mislabeling; 70 scoped `Application.Tests.Agents` tests passed.
 - [x] (valid-no-repro) `WebhooksSettingsClient` configuration status flashes not-configured copy before initial subscription list load — **valid-no-repro 2026-09-11 thorough hunt #1719:** RTL `act` flushes `useEffect` → `load()` → `setLoading(true)` before assertions, so first-paint `StatusTag` flash is not observable in tests; `loading=true` initial state still aligns with subscriptions-section loading guard and prevents theoretical first-paint not-configured copy; regression `shows loading configuration status while subscription list is pending`
-- [ ] (candidate) `WebhooksSettingsClient` create checklist marks `subscriptionEnabled` from `activeSubscriptionCount` without a `loading` guard — while the subscription list is pending, the enable step may show incomplete even when the workspace already has enabled webhooks (`WebhooksSettingsClient.tsx` `resolveWebhooksCreateSteps`)
+- [x] (proven) `WebhooksSettingsClient` create checklist marks `subscriptionEnabled` from `activeSubscriptionCount` without a `loading` guard — **hit 2026-09-12 seed hunt #1915 (seed→hit):** while `listAlertRoutingSubscriptions` was pending, `activeSubscriptionCount` was 0 so the enable step showed incomplete even when the workspace already had enabled webhooks; fixed by gating enable-step completion on `subscriptionsLoaded`; regression `does not mark enable step incomplete while subscriptions are still loading` in `webhooks-create-checklist.test.ts`
 - [x] (proven) `useWebhooksSettingsMutations` URL-sync effect clears `webhookEnableId`/`webhookDisableId` before initial `listAlertRoutingSubscriptions` hydration — **hit 2026-09-11 seed hunt #1720 (seed→hit):** `useWebhooksSettingsLoad` started with `loading=false`, so the toggle-confirm effect treated an empty row set as a missing subscription and stripped valid deep links on first paint; fixed by initializing `loading` to `true`; regressions `opens enable confirmation from webhookEnableId after subscriptions finish loading`, `opens disable confirmation from webhookDisableId after subscriptions finish loading`, and `shows loading configuration status while subscription list is pending`
 2026-09-11 seed hunt #1720 (hit): reseeded ui-webhooks-settings; seeded create-checklist loading candidate; proved pre-hydration toggle-confirm deep-link clearing for enable and disable params; 47 scoped webhooks page/continue-last tests passed (1 pre-existing sources-strip failure unrelated).
+
+2026-09-12 seed hunt #1915 (hit): reseeded ui-webhooks-settings; proved create-checklist enable step incomplete before subscription hydration; 3 scoped webhooks-create-checklist tests passed.
 
 ## Zone: ui-host-gate
 
@@ -3548,7 +3550,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3619,6 +3621,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-02 seed hunt #497: reseeded from tenant export surfaces; proved sponsor packet top-level demo notice gap after master merge.
 
+
+2026-09-12 seed hunt #1916 (seed-only): reseeded tenant-data-export; cheap-disproof closed export blob destination SSRF guard as covered by AllowedRunExportBlobDestinationUrlPolicy tests; scoped export policy tests passed.
+
+- [x] (valid-no-repro) `AllowedRunExportBlobDestinationUrlPolicy` accepts loopback blob URLs — **cheap-disproof 2026-09-12 seed hunt #1916:** shared SSRF policy rejects loopback/private destinations in existing regression suite.
 ---
 
 ## Zone: host-core-jobs
