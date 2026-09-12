@@ -69,6 +69,7 @@ import { isInfraEvidenceMermaidDiagramEmpty } from "@/lib/infra-evidence/infra-e
 import {
   parseInfraEvidenceMermaidOutline,
   resolveInfraEvidenceOutlineSeedNodeId,
+  type InfraEvidenceMermaidOutline,
   type InfraEvidenceMermaidOutlineNode,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import {
@@ -251,6 +252,8 @@ export function DiagramsWorkbenchClient() {
     urlMermaidMode === "dependencyNeighborhood" ? urlSeedNodeId : "",
   );
   const [seedCandidateNodes, setSeedCandidateNodes] = useState<InfraEvidenceMermaidOutlineNode[]>([]);
+  const [seedCatalogOutline, setSeedCatalogOutline] = useState<InfraEvidenceMermaidOutline | null>(null);
+  const [loadingSeedCatalog, setLoadingSeedCatalog] = useState(false);
   const [dependencySeedBlockedDialog, setDependencySeedBlockedDialog] =
     useState<DependencyNeighborhoodSeedBlockedReason | null>(null);
   const [modePreviews, setModePreviews] = useState<InfraEvidenceMermaidModePreview[]>([]);
@@ -475,6 +478,7 @@ export function DiagramsWorkbenchClient() {
 
   useEffect(() => {
     setSeedCandidateNodes([]);
+    setSeedCatalogOutline(null);
   }, [selectedSnapshotId]);
 
   useEffect(() => {
@@ -484,6 +488,57 @@ export function DiagramsWorkbenchClient() {
 
     setSeedCandidateNodes([...mermaidOutline.nodes]);
   }, [mermaidOutline]);
+
+  useEffect(() => {
+    if (
+      selectedMode !== "dependencyNeighborhood"
+      || !dependencyNeighborhoodAwaitingSeed
+      || selectedSnapshotId.length === 0
+      || deepLinkedSnapshotMissing
+    ) {
+      return;
+    }
+
+    if (seedCatalogOutline != null && seedCatalogOutline.nodes.length > 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadSeedCatalog() {
+      setLoadingSeedCatalog(true);
+
+      try {
+        const catalogRender = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, { mode: "executive" });
+        const catalogOutline = parseInfraEvidenceMermaidOutline(catalogRender.mermaid ?? "");
+
+        if (cancelled || catalogOutline == null || catalogOutline.nodes.length === 0) {
+          return;
+        }
+
+        setSeedCatalogOutline(catalogOutline);
+        setSeedCandidateNodes([...catalogOutline.nodes]);
+      } catch {
+        // Seed picker still supports paste; catalog is a convenience for VNet selection.
+      } finally {
+        if (!cancelled) {
+          setLoadingSeedCatalog(false);
+        }
+      }
+    }
+
+    void loadSeedCatalog();
+
+    return (): void => {
+      cancelled = true;
+    };
+  }, [
+    deepLinkedSnapshotMissing,
+    dependencyNeighborhoodAwaitingSeed,
+    seedCatalogOutline,
+    selectedMode,
+    selectedSnapshotId,
+  ]);
 
   const diagramScopeContextLine = useMemo(() => {
     const parts: string[] = [];
@@ -1116,92 +1171,91 @@ export function DiagramsWorkbenchClient() {
       </section>
 
       {selectedMode === "dependencyNeighborhood" ? (
-        <section className={cn("flex flex-wrap items-end gap-3", cnCard)} aria-label="Dependency neighborhood drill-down">
-          {seedCandidateNodes.length > 0 ? (
-            <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
-              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
-                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
-              </span>
-              <select
-                className={cn("w-full", cnField)}
-                data-testid="infra-diagrams-seed-node-picker"
-                value={
-                  seedCandidateNodes.some(
-                    (node) => resolveInfraEvidenceOutlineSeedNodeId(node) === seedNodeDraft,
-                  )
-                    ? seedNodeDraft
-                    : ""
-                }
-                onChange={(event) => {
-                  const nextSeed = event.target.value;
-
-                  setSeedNodeDraft(nextSeed);
-
-                  if (nextSeed.trim().length > 0) {
-                    applySeedNode(nextSeed);
-                  }
-                }}
-              >
-                <option value="">Select a starting resource</option>
-                {seedCandidateNodes.map((node) => {
-                  const seedValue = resolveInfraEvidenceOutlineSeedNodeId(node);
-
-                  return (
-                    <option key={`${node.id}:${seedValue}`} value={seedValue}>
-                      {node.label}
-                    </option>
-                  );
-                })}
-              </select>
-            </label>
-          ) : null}
-          {buyerPolishedShell ? (
-            <>
-              <div className="grid min-w-[16rem] flex-1 gap-2">
-                <Label htmlFor="infra-diagrams-seed-node-input">
-                  {seedCandidateNodes.length > 0
-                    ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
-                    : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
-                </Label>
-                <Input
-                  id="infra-diagrams-seed-node-input"
-                  data-testid="infra-diagrams-seed-node-input"
-                  value={seedNodeDraft}
-                  onChange={(event) => setSeedNodeDraft(event.target.value)}
-                  placeholder="Cloud resource id or ARM id"
-                />
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER}
-                </p>
-              </div>
-              <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
-                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
-              </Button>
-            </>
-          ) : (
-            <>
+        <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Dependency neighborhood drill-down">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER}
+          </p>
+          <div className="flex flex-wrap items-end gap-3">
+            {seedCandidateNodes.length > 0 ? (
               <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
                 <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
-                  {seedCandidateNodes.length > 0
-                    ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
-                    : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
                 </span>
-                <input
-                  className={cnField}
-                  data-testid="infra-diagrams-seed-node-input"
-                  value={seedNodeDraft}
-                  onChange={(event) => setSeedNodeDraft(event.target.value)}
-                  placeholder="Cloud resource id or ARM id"
-                />
-                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER}
-                </span>
+                <select
+                  className={cn("w-full", cnField)}
+                  data-testid="infra-diagrams-seed-node-picker"
+                  value={
+                    seedCandidateNodes.some(
+                      (node) => resolveInfraEvidenceOutlineSeedNodeId(node) === seedNodeDraft,
+                    )
+                      ? seedNodeDraft
+                      : ""
+                  }
+                  onChange={(event) => {
+                    const nextSeed = event.target.value;
+
+                    setSeedNodeDraft(nextSeed);
+
+                    if (nextSeed.trim().length > 0) {
+                      applySeedNode(nextSeed);
+                    }
+                  }}
+                >
+                  <option value="">Select a starting resource</option>
+                  {seedCandidateNodes.map((node) => {
+                    const seedValue = resolveInfraEvidenceOutlineSeedNodeId(node);
+
+                    return (
+                      <option key={`${node.id}:${seedValue}`} value={seedValue}>
+                        {node.label}
+                      </option>
+                    );
+                  })}
+                </select>
               </label>
-              <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
-                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
-              </Button>
-            </>
-          )}
+            ) : null}
+            {buyerPolishedShell ? (
+              <>
+                <div className="grid min-w-[16rem] flex-1 gap-2">
+                  <Label htmlFor="infra-diagrams-seed-node-input">
+                    {seedCandidateNodes.length > 0
+                      ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
+                      : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                  </Label>
+                  <Input
+                    id="infra-diagrams-seed-node-input"
+                    data-testid="infra-diagrams-seed-node-input"
+                    value={seedNodeDraft}
+                    onChange={(event) => setSeedNodeDraft(event.target.value)}
+                    placeholder="Cloud resource id or ARM id"
+                  />
+                </div>
+                <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
+                </Button>
+              </>
+            ) : (
+              <>
+                <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
+                  <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
+                    {seedCandidateNodes.length > 0
+                      ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
+                      : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                  </span>
+                  <input
+                    className={cnField}
+                    data-testid="infra-diagrams-seed-node-input"
+                    value={seedNodeDraft}
+                    onChange={(event) => setSeedNodeDraft(event.target.value)}
+                    placeholder="Cloud resource id or ARM id"
+                  />
+                </label>
+                <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
+                </Button>
+              </>
+            )}
+          </div>
         </section>
       ) : null}
 
@@ -1343,11 +1397,26 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       {dependencyNeighborhoodAwaitingSeed ? (
-        <EnterpriseCompactEmptyState
-          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_TITLE}
-          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_BODY}
-          testId="infra-diagrams-dependency-seed-prompt"
-        />
+        <>
+          {loadingSeedCatalog ? (
+            <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400" aria-live="polite">
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              <span className={OPERATOR_TYPOGRAPHY.body}>Loading starting resources…</span>
+            </div>
+          ) : null}
+          {seedCatalogOutline != null && seedCatalogOutline.nodes.length > 0 ? (
+            <InfraEvidenceDiagramOutline
+              outline={seedCatalogOutline}
+              onFocusNeighborhood={handleOutlineFocusNeighborhood}
+            />
+          ) : (
+            <EnterpriseCompactEmptyState
+              title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_TITLE}
+              description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_BODY}
+              testId="infra-diagrams-dependency-seed-prompt"
+            />
+          )}
+        </>
       ) : resourceGroupPickerAwaitingSelection ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_PROMPT_TITLE}
@@ -1396,6 +1465,7 @@ export function DiagramsWorkbenchClient() {
             fullscreenTitle={`Inventory diagram · ${selectedModeLabel}`}
             scopeContextLine={diagramScopeContextLine}
             canvasStale={renderInFlight}
+            viewportControlsLayout="stacked"
             onRenderFailure={handleRenderFailure}
             onRetry={handleRenderRetry}
             onExportableSvgMarkupChange={setExportableSvgMarkup}
