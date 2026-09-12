@@ -12,7 +12,7 @@ Suggested branches: `cursor/qr-<short-name>-97a4`. Name the branch in any commit
 
 ## Run order
 
-1. **QR-16** — restore OpenAPI v1 snapshot + generated TS types. **Stop until fail-fast is green.**
+1. **QR-16** — restore OpenAPI v1 snapshot + generated TS types. **Shipped** — close audit [`V10_QUALITY_ROI_QR16_ACCEPTANCE_2026-09-12.md`](../../docs/architecture/V10_QUALITY_ROI_QR16_ACCEPTANCE_2026-09-12.md). **Do not re-run.**
 2. **QR-17** — execute merges bound snapshot as ObservedFact (AS-050).
 3. **QR-18** — 65-band goldens: product-shaped ARM/ARN/`diagram:`.
 4. **QR-19** — `identity-blast-radius` ARM/ARN (parallel with QR-18 after QR-16).

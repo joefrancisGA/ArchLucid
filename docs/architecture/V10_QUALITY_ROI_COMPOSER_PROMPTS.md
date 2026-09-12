@@ -5,7 +5,7 @@
 
 # v10 quality-ROI Composer prompts (QR-16–QR-25)
 
-**Created:** 2026-09-09 · **Status:** ready to run (one prompt per chat). **DX-77 is not authorized.**
+**Created:** 2026-09-09 · **Status:** QR-16 **shipped** (close audit [`V10_QUALITY_ROI_QR16_ACCEPTANCE_2026-09-12.md`](V10_QUALITY_ROI_QR16_ACCEPTANCE_2026-09-12.md)); QR-17–QR-25 ready to run (one prompt per chat). **DX-77 is not authorized.**
 
 v10 scored **(A) 78.97%**. QR-06–QR-15 closed orchestrator emission, 65-band collectors, diagram citations, Azure-soft TTV, pack-toggle, HIPAA P1, prior-graph, and TF/ARM diagram evidence. AS-049 made inventory **attachable**. The cheapest remaining score movement is **Correctness (78, deficiency 264)** on a new OpenAPI fail-fast red, then **Insight Density (72, deficiency 364)** by merging the bound snapshot and putting ARM/ARN on goldens the gate already knows how to accept — **not** another engine pack.
 
@@ -122,6 +122,8 @@ Done when: OpenApiContractSnapshotTests pass locally; generated TS matches the s
 ```
 
 **Done when:** OpenAPI fail-fast would be green on this SHA. Attach/detach behavior unchanged.
+
+**Shipped:** 2026-09-12 (mechanical regen on `master` via #2689; regression ratchets on `cursor/qr-16-openapi-snapshot-5b6b`). **Do not re-run QR-16.**
 
 ---
 
