@@ -2062,6 +2062,9 @@ jobs:
       - name: Agent structural eval pairs (simulator↔real per agent family, TB-2225)
         run: python3 scripts/ci/assert_agent_structural_eval_pairs.py
 
+      - name: Mutation microcases corpus floor (TB-2352 lift)
+        run: python3 scripts/ci/assert_mutation_microcases.py
+
       - name: Multi-agent failure-mode chaos suite inventory (TB-945)
         run: python3 scripts/ci/assert_multi_agent_failure_chaos_suite.py
 

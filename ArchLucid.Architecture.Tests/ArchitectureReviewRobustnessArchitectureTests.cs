@@ -364,6 +364,52 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
                 "ClosedLoopManifestMerger.cs"));
 
         manifestMerger.Should().Contain("ClosedLoopRecommendationBriefGroundingFilter");
+        manifestMerger.Should().Contain("ClosedLoopManifestTopologyMerger");
+
+        string scoreSync = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "ArchitectureIntelligence",
+                "ClosedLoopStrengtheningScoreSyncService.cs"));
+
+        scoreSync.Should().Contain("ClosedLoopManifestFindingsProjector");
+        scoreSync.Should().Contain("ClosedLoopRequiredCapabilityFindingsRefresher");
+    }
+
+    [Fact]
+    public void TB2370_graph_materialization_pipeline_is_canonical_and_default_builder_uses_it()
+    {
+        string stages = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "GraphMaterializationStages.cs"));
+
+        stages.Should().Contain("CreateDefaultPipeline");
+        stages.Should().Contain("DefaultStageOrder");
+        stages.Should().Contain("request-actors");
+        stages.Should().Contain("request-quality-attributes");
+        stages.Should().Contain("request-assumption-edges");
+
+        string builder = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Builders", "DefaultGraphBuilder.cs"));
+
+        builder.Should().Contain("GraphMaterializationStages.CreateDefaultPipeline");
+    }
+
+    [Fact]
+    public void TB2352_lift_mutation_microcases_manifest_matches_benchmark_ids()
+    {
+        string mutationManifest = File.ReadAllText(
+            Path.Combine(RepoRoot, "tests", "eval-corpus", "mutation-microcases.json"));
+
+        mutationManifest.Should().Contain("mutate-rto-30m");
+        mutationManifest.Should().Contain("mutate-add-private-endpoint");
+        mutationManifest.Should().Contain("\"minimumCaseCount\": 8");
+
+        string pairs = File.ReadAllText(
+            Path.Combine(RepoRoot, "tests", "eval-corpus", "agent-structural-eval-pairs.json"));
+
+        pairs.Should().Contain("closedLoopStrengtheningScenarios");
+        pairs.Should().Contain("mutationMicrocasesManifest");
     }
 
     [Fact]

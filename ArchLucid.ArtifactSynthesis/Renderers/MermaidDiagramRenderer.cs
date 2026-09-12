@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Sanitization;
@@ -97,6 +98,11 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         }
 
         sb.AppendLine($"{indentText}end");
+
+        if (DiagramSparseComponentPacker.IsPackingSubgraph(subgraph))
+        {
+            sb.AppendLine($"    style {safeSubgraphId} fill:transparent,stroke:none");
+        }
     }
 
     private static void AppendNodeLine(StringBuilder sb, DiagramNode node, int indent)
