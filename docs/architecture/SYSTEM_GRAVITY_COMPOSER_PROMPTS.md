@@ -6,7 +6,7 @@
 
 # System-gravity Composer prompts (SG-001–SG-120)
 
-**Created:** 2026-09-12 · **Status:** ready to run · **Do not re-run** AO / SY / SN / CE / DW / DI / RP except as a numbered leftover.
+**Created:** 2026-09-12 · **Status:** in progress (SG-001–022 landed; SG-023–120 remain) · **Do not re-run** AO / SY / SN / CE / DW / DI / RP except as a numbered leftover.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record.
 
