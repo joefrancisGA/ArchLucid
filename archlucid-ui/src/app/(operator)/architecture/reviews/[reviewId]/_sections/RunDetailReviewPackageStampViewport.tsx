@@ -174,6 +174,7 @@ export function RunDetailReviewPackageStampViewport(
         <RunDetailFirstReviewSpineBand
           summary={firstReviewSpineSummary}
           unmappedFindingCount={props.unmappedFindingCount}
+          runId={props.runId}
         />
       ) : null}
       {!pipelineTerminalFailure ? (

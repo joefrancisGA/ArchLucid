@@ -432,6 +432,26 @@ python3 scripts/ci/assert_agent_structural_eval_pairs.py
 dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2349_brief_grounding"
 ```
 
+## TB-2350 prior-package semantic inheritance
+
+Second reviews from a committed prior package copy actors, assumptions, requirements, constraints, and decision trail entries onto the new draft or quick-start request. Unknown sentinels (**TB-2343**) are excluded. The intake strip previews inherited semantic counts.
+
+| Layer | Behavior |
+|-------|----------|
+| **Merge service** | `PriorPackageSemanticMergeService` merges prior request + manifest semantics onto drafts and `ArchitectureRequest` when `priorRunId` is set. |
+| **Draft create** | `DraftRequestCreateStage` merges before persistence; `DraftRequestProjector` projects `confirmedInlineRequirements`. |
+| **Quick start** | `ArchitectureRunCreateOrchestrator` merges onto the create payload so second-review quick start inherits semantics without a draft hop. |
+| **UI** | `GET /v1/architecture/draft/prior-package-semantics` + `first-pilot-prior-package-inherited-semantics` strip. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~PriorPackageSemanticMergeService|DraftRequestProjector"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2350_prior_package"
+cd archlucid-ui && npm run test -- second-review-prior-package
+```
+
+
 ## ConflictException → 409 controller sweep
 
 Twenty controller `try` blocks that returned **400** for `InvalidOperationException` now catch `ConflictException` first. Guard: `ControllerConflictExceptionNotSwallowedAs400ArchitectureTests`.

@@ -126,6 +126,21 @@ public sealed class DraftRequestProjectorTests
         request.InlineRequirements.Should().Contain("Operational owner: Platform operations");
     }
 
+    [Fact]
+    public void Project_CopiesConfirmedInlineRequirementsOntoArchitectureRequest()
+    {
+        DraftRequestDocument document = CreateDocument();
+        document.StructuredBrief = new ArchitectureDraftStructuredBrief
+        {
+            ConfirmedInlineRequirements = ["Encrypt data at rest", "Reliability: RTO 4 hours"],
+        };
+
+        Contracts.Requests.ArchitectureRequest request = _projector.Project(document, Guid.NewGuid());
+
+        request.InlineRequirements.Should().Contain("Encrypt data at rest");
+        request.InlineRequirements.Should().Contain("Reliability: RTO 4 hours");
+    }
+
     private static DraftRequestDocument CreateDocument() => new()
     {
         FreeTextIntent = "Modernize the claims intake workflow with nightly batch API integration.",

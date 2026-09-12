@@ -116,7 +116,8 @@ public sealed class DraftIntakeSealedManifestRuntimeConflictTests
             Mock.Of<IArchitectureWorkLeaseService>(),
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
-            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
+            Mock.Of<IPriorPackageSemanticMergeService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

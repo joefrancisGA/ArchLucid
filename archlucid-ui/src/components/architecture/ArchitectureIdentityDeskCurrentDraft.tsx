@@ -13,7 +13,8 @@ import {
   ARCHITECTURE_IDENTITY_DESK_NO_OPEN_DRAFT,
 } from "@/lib/architecture/architecture-identity-desk-copy";
 import { resolveArchitectureIdentityCurrentDraftState } from "@/lib/architecture/architecture-identity-current-draft";
-import { architectureIdentityDraftHref, resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
+import { architectureIdentityDraftHref } from "@/lib/architecture/architecture-routes";
+import { resolveSystemNotJobDeskSealedChildReviewHref } from "@/lib/system-not-job-sealed-child-not-second-desk";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ArchitectureIdentityChildDraftSummary } from "@/types/architecture-identity";
 
@@ -68,7 +69,14 @@ export function ArchitectureIdentityDeskCurrentDraft(
           <div className="flex flex-wrap items-center gap-2">
             {state.linkedReviewId !== null ? (
               <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-identity-open-review">
-                <Link href={resolveArchitectureReviewHref(state.linkedReviewId, props.architectureId)}>Open review</Link>
+                <Link
+                  href={resolveSystemNotJobDeskSealedChildReviewHref(
+                    state.linkedReviewId,
+                    props.architectureId,
+                  )}
+                >
+                  Open review
+                </Link>
               </Button>
             ) : null}
             <ArchitectureDraftCloneSnapshotControl

@@ -112,6 +112,14 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
         if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(structuredBrief.OperationalOwner))
             requirements.Add($"Operational owner: {structuredBrief.OperationalOwner!.Trim()}");
 
+        foreach (string inheritedRequirement in structuredBrief.ConfirmedInlineRequirements)
+        {
+            if (!ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(inheritedRequirement))
+                continue;
+
+            requirements.Add(inheritedRequirement.Trim());
+        }
+
         return requirements;
     }
 
