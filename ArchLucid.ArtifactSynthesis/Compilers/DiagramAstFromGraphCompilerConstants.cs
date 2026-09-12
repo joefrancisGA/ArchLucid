@@ -9,4 +9,14 @@ public static class DiagramAstFromGraphCompilerConstants
     public const int ExecutiveMaxResourceNodes = 12;
 
     public const int DependencyNeighborhoodDefaultDepth = 2;
+
+    /// <summary>Target ~2:1 aspect when wrapping unrelated peers into a grid (<c>sqrt(n × factor)</c>).</summary>
+    public const int PeerGridAspectFactor = 2;
+
+    public const int PeerGridMinColumns = 2;
+
+    public const int PeerGridMaxColumns = 6;
+
+    /// <summary>Minimum nodes in a subgraph before intra-subgraph grid links are applied.</summary>
+    public const int PeerGridSubgraphMinNodes = 4;
 }

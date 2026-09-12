@@ -45,6 +45,13 @@ export default defineConfig({
       timeout: 120_000,
       use: { ...devices["Desktop Chrome"] },
     },
+    {
+      name: "chromium-infra-diagrams-layout",
+      testDir: "e2e",
+      testMatch: ["infra-diagrams-layout.mock.spec.ts"],
+      timeout: 120_000,
+      use: { ...devices["Desktop Chrome"] },
+    },
   ],
   webServer: {
     command: mockWebServerCommand,
