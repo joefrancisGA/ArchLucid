@@ -10443,7 +10443,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -10452,6 +10452,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **code-changed-since:** yes
 
 Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Explanation/` hunts.
+2026-09-12 seed hunt #2174 (seed-only): reseeded core-explanation-json with `-Hint explanation -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
 
