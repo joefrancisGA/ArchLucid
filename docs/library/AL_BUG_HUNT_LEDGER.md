@@ -3189,6 +3189,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** 0
 
 ### Hypotheses
+2026-09-12 seed hunt #1897 (seed-only): reseeded billing-webhooks; cheap-disproof closed wallet negative-amount guard and replay-guard RememberAsync idempotency; 18 scoped billing webhook unit tests passed (integration HTTP tests skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `LlmTenantWalletStripeWebhookProcessor` credits wallet on negative `amountCents` — **cheap-disproof 2026-09-12 seed hunt #1897:** processor forwards signed cents to wallet service; negative amounts are a wallet-layer policy concern, not a silent double-credit path in the webhook processor itself.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.RememberAsync` allows duplicate registration after `TryRegisterEventAsync` claim — **cheap-disproof 2026-09-12 seed hunt #1897:** `RememberAsync` is idempotent overwrite on cache; replay rejection remains via `_claimedKeys` + cache lookup in `HasSeenAsync`.
+
 2026-09-12 seed hunt #1894 (seed-only): reseeded billing-webhooks; scoped tests passed; no hunt-ready defect proven this pass.
 
 2026-09-12 seed hunt #1890 (seed-only): reseeded billing-webhooks; scoped tests passed; no hunt-ready defect proven this pass.
