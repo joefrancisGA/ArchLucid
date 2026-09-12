@@ -8,9 +8,9 @@
 
 ## Verdict
 
-**Shipped** on this branch for Working production seats, subject to the residuals below. Working **eval chrome remains false**. Two customer controls: workspace mode vs Career/Rehearsal door. Operator-experience is not treated as execute Mode. Guided/demo/trial still use eval chrome. Host `AgentExecution:Mode` default is unchanged.
+**Shipped** on this branch for Working production seats, subject to the residuals below. Working **eval chrome remains false**. Two customer controls: workspace mode vs Career/Rehearsal door. Operator-experience is not treated as execute Mode. Guided/demo/trial still use eval chrome. Host `AgentExecution:Mode` default is unchanged. ADR **0094** (**Accepted** 2026-09-12) authors policy; MG wave wiring implements the decision.
 
-This audit does **not** claim G-REAL-06 Real-mode default, flag deletion, CPA SOC 2 (**G-REAL-05**), third-party pen-test publication (**G-ASSURANCE-02**), or live GTM cohorts (**M-90 / M-44 / M-91 / M-92**). ADR **0094** remains **Proposed** (contract + wiring shipped; formal ADR acceptance is a separate owner step).
+This audit does **not** claim G-REAL-06 Real-mode default, flag deletion, CPA SOC 2 (**G-REAL-05**), third-party pen-test publication (**G-ASSURANCE-02**), or live GTM cohorts (**M-90 / M-44 / M-91 / M-92**).
 
 ## Done tests (owner checklist)
 
@@ -26,7 +26,7 @@ This audit does **not** claim G-REAL-06 Real-mode default, flag deletion, CPA SO
 
 | Cluster | Prompts | Shipped? | Primary evidence | Residual |
 |---------|---------|----------|------------------|----------|
-| Kernel ADR + inventory + story | MG-001–012 | **Yes** | ADR 0094; `mode-gravity-adr-guard.test.ts`; `MODE_GRAVITY_EXPERIENCE_FLAGS_INVENTORY.md` | ADR 0094 **Proposed** |
+| Kernel ADR + inventory + story | MG-001–012 | **Yes** | ADR 0094 (**Accepted**); `mode-gravity-adr-guard.test.ts`; `MODE_GRAVITY_EXPERIENCE_FLAGS_INVENTORY.md` | — |
 | Skips / ratchets / close | MG-013–024 | **Yes** | `mode-gravity-prompt-inventory.test.ts`; this file | Flags still exist for engineers |
 
 ## Prompt inventory
@@ -37,7 +37,6 @@ All **24** paste-ready files under `.cursor/prompts/mode-gravity-*.md` plus `mod
 
 | Item | Tracking | Notes |
 |------|----------|-------|
-| ADR **0094** formal **Accepted** status | MG-001 | ADR remains **Proposed**; UI + C# wiring implements the decision |
 | Delete Guided | **MG-013** | Explicit skip — Guided stays |
 | G-REAL-06 Real-mode default host config | GTM | **MG-014** explicit skip |
 | Collapse env flags to one knob | Product backlog | Inventory shrink-only |

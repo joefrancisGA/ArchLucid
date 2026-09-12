@@ -20,6 +20,7 @@ public sealed class ModeGravityMg001Adr0094ArchitectureTests
         adr.Should().Contain("## Trade-offs");
         adr.Should().Contain("## Constraints");
         adr.Should().Contain("## Expected impact");
+        adr.Should().Contain("**Status:** Accepted");
         adr.Should().Contain("Is operator-experience a Career door?");
         adr.Should().Contain("**No.**");
         adr.Should().Contain("delete Guided");
