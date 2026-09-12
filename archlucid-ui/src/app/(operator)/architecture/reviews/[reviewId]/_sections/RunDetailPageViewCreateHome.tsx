@@ -32,6 +32,7 @@ import {
 import { readProseAssumptionHeldCheckAsksFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
 import { readProseAssumptionRegisterFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import { readPixelDiagramNotVerifiableSourcesFromContextSnapshot } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
+import { resolveArchitectureTabCanEditSource } from "@/lib/architecture/architecture-draft-spawn-one-writer";
 import { hasAzureInventoryZipEvidence } from "@/lib/first-review/azure-inventory-zip-first-review-prompt";
 
 export type RunDetailPageViewCreateHomeProps = {
@@ -267,7 +268,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
             submittedArchitecture: (
               <RunDetailSubmittedArchitectureSectionDeferred
                 architectureText={submittedArchitectureText}
-                canEditSource={!m.manifestId}
+                canEditSource={resolveArchitectureTabCanEditSource(architectureEditHref)}
                 editHref={architectureEditHref}
                 useStructuredPresentation={false}
                 runId={m.resolvedDetail.run.runId}

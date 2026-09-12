@@ -78,6 +78,7 @@ export type RunDetailPresentation = {
   readonly submittedArchitectureText: string | null;
   readonly hasSubmittedArchitecture: boolean;
   readonly architectureEditHref: string | null;
+  readonly architectureTabSubmittedHelperText: string;
 
   readonly evidenceCoverageSummary: EvidenceCoverageSummary;
   readonly evidenceInventoryItems: ReturnType<typeof buildRunDetailEvidencePresentation>["evidenceInventoryItems"];
