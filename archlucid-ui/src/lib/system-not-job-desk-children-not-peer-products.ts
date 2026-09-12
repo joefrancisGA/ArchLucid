@@ -25,8 +25,8 @@ export const SYSTEM_NOT_JOB_DESK_CHILD_LIST_SURFACES: readonly SystemNotJobDeskC
   {
     relativePath:
       "archlucid-ui/src/components/architecture/ArchitectureIdentityDeskReviewsTable.tsx",
-    surface: "child reviews table",
-    ownerPrompt: "SN-017",
+    surface: "child reviews table with in-flight rows",
+    ownerPrompt: "SN-017 / SN-030",
   },
   {
     relativePath:

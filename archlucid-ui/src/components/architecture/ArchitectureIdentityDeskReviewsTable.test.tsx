@@ -31,6 +31,12 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParamsMock.value,
 }));
 
+const useShellInFlightOperationsMock = vi.fn(() => []);
+
+vi.mock("@/hooks/use-shell-in-flight-operations", () => ({
+  useShellInFlightOperations: () => useShellInFlightOperationsMock(),
+}));
+
 import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
 
 const architectureId = "architecture-identity-001";
@@ -51,6 +57,7 @@ describe("ArchitectureIdentityDeskReviewsTable (AO-23)", () => {
   beforeEach(() => {
     workspaceModeMock.isWorkingMode = true;
     searchParamsMock.value = new URLSearchParams();
+    useShellInFlightOperationsMock.mockReturnValue([]);
   });
 
   it("links review rows to nested job paths", () => {
@@ -84,6 +91,48 @@ describe("ArchitectureIdentityDeskReviewsTable (AO-23)", () => {
       "/architecture/architectures/architecture-identity-001/reviews/new",
     );
     expect(screen.queryByRole("link", { name: /reviews hub/i })).toBeNull();
+  });
+
+  it("SN-030: in-flight child rows link to Activity and show step status", () => {
+    useShellInFlightOperationsMock.mockReturnValue([
+      {
+        operationId: "run:review-2",
+        title: "Architecture review analysis",
+        href: "/architecture/architectures/architecture-identity-001/reviews/review-2?reviewTab=activity",
+        startedAtMs: 1_700_000_000_000,
+        stepLabel: "Agents running",
+        state: "Running",
+        runId: "review-2",
+        architectureId,
+        retainUntilConsumed: false,
+        terminalToastShown: false,
+      },
+    ]);
+
+    render(
+      <ArchitectureIdentityDeskReviewsTable
+        architectureId={architectureId}
+        reviews={reviews}
+        reviewCount={reviews.length}
+        startReviewHref={null}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-identity-review-link-review-2")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/review-2?reviewTab=activity",
+    );
+    expect(screen.getByTestId("architecture-identity-review-in-flight-review-2")).toHaveTextContent(
+      "Agents running",
+    );
+    expect(screen.getByTestId("architecture-identity-review-row-review-2")).toHaveAttribute(
+      "data-in-flight",
+      "true",
+    );
+    expect(screen.getByTestId("architecture-identity-review-link-review-1")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/review-1",
+    );
   });
 
   it("AO-35: highlights the sealed child row from finalize success query param", () => {

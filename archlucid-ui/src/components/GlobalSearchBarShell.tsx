@@ -5,6 +5,8 @@ import {
   commandPaletteOpenAriaLabel,
   globalSearchInputTitle,
 } from "@/lib/keyboard-shortcut-display";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { SYSTEM_NOT_JOB_WORKING_GLOBAL_FIND_PAGE_SEARCH_HELPER } from "@/lib/system-not-job-search-bound-to-open-package";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
 import { Input } from "@/components/ui/input";
@@ -27,6 +29,11 @@ type GlobalSearchBarShellProps = {
 
 export function GlobalSearchBarShell(props: GlobalSearchBarShellProps) {
   const { controller } = props;
+  const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
+  const globalSearchHelper =
+    workspaceMounted && isWorkingMode
+      ? SYSTEM_NOT_JOB_WORKING_GLOBAL_FIND_PAGE_SEARCH_HELPER
+      : GLOBAL_FIND_PAGE_SEARCH.helper;
   const {
     inputId,
     inputRef,
@@ -57,7 +64,7 @@ export function GlobalSearchBarShell(props: GlobalSearchBarShellProps) {
         {searchAriaLabel}
       </label>
       <p id={`${inputId}-helper`} className="sr-only">
-        {GLOBAL_FIND_PAGE_SEARCH.helper}
+        {globalSearchHelper}
       </p>
 
       <div
