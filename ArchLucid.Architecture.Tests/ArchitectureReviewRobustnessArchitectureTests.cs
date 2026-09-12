@@ -246,6 +246,37 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     }
 
     [Fact]
+    public void TB2350_prior_package_semantics_merge_service_and_create_stage()
+    {
+        string mergeService = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "PriorPackageSemanticMergeService.cs"));
+
+        mergeService.Should().Contain("MergePriorPackageSemanticsOntoRequestAsync");
+        mergeService.Should().Contain("ConfirmedInlineRequirements");
+        mergeService.Should().Contain("IsConfirmedBriefEntry");
+
+        string createStage = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Drafts",
+                "Stages",
+                "DraftRequestCreateStage.cs"));
+
+        createStage.Should().Contain("MergePriorPackageSemanticsAsync");
+
+        string orchestrator = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Orchestration",
+                "ArchitectureRunCreateOrchestrator.cs"));
+
+        orchestrator.Should().Contain("MergePriorPackageSemanticsOntoRequestAsync");
+    }
+
+    [Fact]
     public void TB2349_brief_grounding_runs_in_structural_post_processor_enricher()
     {
         string enricher = File.ReadAllText(
