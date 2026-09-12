@@ -3180,7 +3180,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3189,6 +3189,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** 0
 
 ### Hypotheses
+2026-09-12 seed hunt #1883 (seed-only): reseeded billing-webhooks; scoped tests passed; no hunt-ready defect proven this pass.
+
 
 - [x] (proven) Replay guard treated event-id case variants as distinct keys — fixed by normalizing event ids to lowercase in cache keys.
 - [x] (proven) `TryRegisterEventAsync` allowed duplicate concurrent registrations — fixed with atomic `ConcurrentDictionary` claims like ITSM replay guard.
@@ -3250,6 +3252,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 seed hunt #671: proved duplicate billing webhook signature/bearer header comma-join; seeded replay-guard TryRegister wiring and wallet-purpose filter candidates.
 
 - [x] (valid-no-repro) Seed hunt #1867 cheap-disproof placeholder — **cheap-disproof 2026-09-12 seed hunt #1867:** zone reseeded; scoped tests green; no new hunt-ready defect in this pass.
+
+2026-09-12 seed hunt #1882 (hit): reseeded billing-webhooks; proved padded event type silently skipped wallet credit; 8 scoped LlmTenantWalletStripeWebhook tests passed.
+
+- [x] (proven) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — whitespace-padded `eventType` failed `string.Equals` and silently skipped wallet credit — **hit 2026-09-12 seed hunt #1882 (seed→hit):** payment intent id and tenant metadata already trimmed; event type was not; fixed with trim before dispatch; regression `ProcessPaymentIntentEventAsync_trims_whitespace_from_event_type`
 
 2026-09-12 seed hunt #1881 (hit): reseeded billing-webhooks; proved padded payment_intent id forwarded without trim; 7 scoped LlmTenantWalletStripeWebhook tests passed.
 
