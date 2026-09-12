@@ -8,6 +8,7 @@ import { HelpFindingsHeaderActions } from "@/app/(operator)/help/_sections/HelpF
 import { HelpFindingsSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpFindingsSourcesOrientationStrip";
 import { HelpFindingsWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpFindingsWorkspaceReadinessStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
@@ -431,6 +432,8 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
 
           <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-findings" showSsoOptional={false} />
 
         {buyerPolishedShell ? <HelpFindingsSourcesOrientationStrip /> : null}
       </div>

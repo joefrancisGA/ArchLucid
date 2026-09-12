@@ -8,6 +8,7 @@ import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { ReviewGuideHelpClaimDisciplineStrip } from "@/components/help/ReviewGuideHelpClaimDisciplineStrip";
 import { ReviewGuideHelpHeaderAsOfLine } from "@/components/help/ReviewGuideHelpHeaderAsOfLine";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -235,6 +236,8 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
           {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
         </div>
       </section>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-review" showSsoOptional={false} />
 
       {buyerPolishedShell ? <HelpReviewGuideSourcesOrientationStrip /> : null}
     </>
