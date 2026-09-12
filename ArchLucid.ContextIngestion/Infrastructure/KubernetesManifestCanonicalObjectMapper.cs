@@ -111,7 +111,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
         if (string.IsNullOrWhiteSpace(kind))
             return;
 
-        string apiVersion = CanonicalInfrastructureJsonElementReader.ReadTopLevelString(resource, "apiVersion") ?? string.Empty;
+        string apiVersion = CanonicalInfrastructureJsonElementReader.ReadTopLevelStringIgnoreCaseOrSnakeCase(resource, "apiVersion") ?? string.Empty;
         string namespaceValue = CanonicalInfrastructureJsonElementReader.ReadMetadataString(resource, "metadata", "namespace") ?? string.Empty;
         string name = CanonicalInfrastructureJsonElementReader.ReadMetadataString(resource, "metadata", "name") ?? string.Empty;
 
@@ -238,12 +238,26 @@ internal static class KubernetesManifestCanonicalObjectMapper
             return default;
         }
 
-        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "template", out JsonElement workloadTemplate)
-            && workloadTemplate.ValueKind is JsonValueKind.Object
+        if (TryGetWorkloadPodTemplate(specElement, out JsonElement workloadTemplate)
             && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(workloadTemplate, "spec", out JsonElement workloadPodSpec))
             return workloadPodSpec;
 
         return default;
+    }
+
+    private static bool TryGetWorkloadPodTemplate(JsonElement specElement, out JsonElement podTemplate)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "template", out podTemplate)
+            && podTemplate.ValueKind is JsonValueKind.Object)
+            return true;
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "pod_template", out podTemplate)
+            && podTemplate.ValueKind is JsonValueKind.Object)
+            return true;
+
+        podTemplate = default;
+
+        return false;
     }
 
     private static void ProjectContainerSecurityContext(JsonElement podSpec, Dictionary<string, string> properties)
@@ -254,12 +268,8 @@ internal static class KubernetesManifestCanonicalObjectMapper
         bool allRunAsNonRootTrue = true;
         bool anyRunAsNonRootFalse = false;
 
-        void InspectContainer(JsonElement container)
+        void InspectSecurityContext(JsonElement securityContext)
         {
-            if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
-                || securityContext.ValueKind is not JsonValueKind.Object)
-                return;
-
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(securityContext, "privileged", out JsonElement privilegedElement)
                 && privilegedElement.ValueKind is JsonValueKind.True)
                 privileged = true;
@@ -279,6 +289,19 @@ internal static class KubernetesManifestCanonicalObjectMapper
             }
         }
 
+        void InspectContainer(JsonElement container)
+        {
+            if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
+                || securityContext.ValueKind is not JsonValueKind.Object)
+                return;
+
+            InspectSecurityContext(securityContext);
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "securityContext", out JsonElement podSecurityContext)
+            && podSecurityContext.ValueKind is JsonValueKind.Object)
+            InspectSecurityContext(podSecurityContext);
+
         if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "containers", out JsonElement containers)
             && containers.ValueKind is JsonValueKind.Array)
         {
@@ -290,6 +313,13 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && initContainers.ValueKind is JsonValueKind.Array)
         {
             foreach (JsonElement container in initContainers.EnumerateArray())
+                InspectContainer(container);
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "ephemeralContainers", out JsonElement ephemeralContainers)
+            && ephemeralContainers.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement container in ephemeralContainers.EnumerateArray())
                 InspectContainer(container);
         }
 
