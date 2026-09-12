@@ -59,6 +59,39 @@ public sealed class ClosedLoopManifestMergerTests
     }
 
     [Fact]
+    public void MergeStrengtheningResult_merges_publishable_topology_from_model()
+    {
+        ClosedLoopManifestMerger sut = new();
+        ManifestDocument manifest = new();
+
+        ClosedLoopReasoningResult result = new()
+        {
+            Model = new ArchitectureKnowledgeModel
+            {
+                ModelId = "model-1",
+                TenantId = "tenant-1",
+                Elements =
+                [
+                    new ArchitectureModelElement
+                    {
+                        ElementId = "svc-1",
+                        Kind = ArchitectureElementKind.Component,
+                        Name = "Inventory API",
+                        Description = "Internal inventory API",
+                        LifecycleScope = ArchitectureLifecycleScope.TargetState,
+                    },
+                ],
+            },
+        };
+
+        ClosedLoopManifestMergeResult mergeResult =
+            sut.MergeStrengtheningResult(manifest, result, architectureRequest: null);
+
+        mergeResult.MergedTopologyServiceCount.Should().Be(1);
+        manifest.Topology.Services.Should().ContainSingle(service => service.ServiceName == "Inventory API");
+    }
+
+    [Fact]
     public void MergeStrengtheningResult_applies_brief_grounding_before_merge()
     {
         ClosedLoopManifestMerger sut = new();

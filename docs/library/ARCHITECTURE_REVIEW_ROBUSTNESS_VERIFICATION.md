@@ -471,20 +471,41 @@ dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2351_man
 
 ## TB-2352 closed-loop default package strengthening
 
-Golden-cohort authority commits optionally run closed-loop architecture intelligence before manifest persistence. Publishable findings and brief-grounded recommendations merge into the committed manifest; topology-only behavior remains when `ArchitectureIntelligence:StrengthenDefaultPackage` is false (default).
+Golden-cohort authority commits optionally run closed-loop architecture intelligence before manifest persistence. Publishable findings, brief-grounded recommendations, and κ-backed topology merge into the committed manifest; behavior remains off when `ArchitectureIntelligence:StrengthenDefaultPackage` is false (production default).
 
 | Layer | Behavior |
 |-------|----------|
-| **Pipeline flag** | `ArchitectureIntelligencePipelineOptions.StrengthenDefaultPackage` gates golden cohort; `StrengthenAllReviewPackages` opt-in for all tenants. |
+| **Pipeline flag** | `ArchitectureIntelligencePipelineOptions.StrengthenDefaultPackage` gates golden cohort in Development/Pilot/Staging; `StrengthenAllReviewPackages` opt-in for all tenants. |
 | **Strengthen pass** | `AuthorityClosedLoopStrengtheningPass` loads run source context, runs `IClosedLoopArchitectureReasoningOrchestrator` with `PublishToProduct=true`, merges via `ClosedLoopManifestMerger`. |
 | **Guardrails** | `ClosedLoopRecommendationBriefGroundingFilter` drops recommendations contradicting confirmed brief constraints (**TB-2349**). |
+| **Topology merge** | `ClosedLoopManifestTopologyMerger` projects publish-approved κ `Component`/`DeploymentTopology`/`DataFlow` elements into manifest topology services, datastores, and relationships. |
 | **Persistence** | `AuthorityPipelineDecisioningStage` runs strengthen before `SaveManifestAsync` and recomputes `ManifestHash`. |
+| **Eval corpus** | `scenario-closed-loop-strengthening.json` + `mutation-microcases.json` (≥8 cases) registered in `agent-structural-eval-pairs.json`. |
 
 Proof tests:
 
 ```bash
-dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~AuthorityClosedLoopStrengtheningPass|ClosedLoopManifestMerger|ClosedLoopRecommendationBriefGroundingFilter"
-dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2352_closed_loop"
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~AuthorityClosedLoopStrengtheningPass|ClosedLoopManifestMerger|ClosedLoopManifestTopologyMerger|ClosedLoopRecommendationBriefGroundingFilter"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2352"
+python3 scripts/ci/assert_agent_structural_eval_pairs.py
+python3 scripts/ci/assert_mutation_microcases.py
+```
+
+## TB-2370 explicit graph materialization pipeline
+
+Context snapshots materialize into review graphs through an ordered stage pipeline registered in `GraphMaterializationStages`. `DefaultGraphBuilder` delegates to `CreateDefaultPipeline` so request actors, quality attributes, assumptions, declaration identity paths, and cost enrichment share one canonical order.
+
+| Layer | Behavior |
+|-------|----------|
+| **Registrar** | `GraphMaterializationStages.CreateDefaultPipeline` + `DefaultStageOrder`. |
+| **Builder** | `DefaultGraphBuilder` invokes the default pipeline (not ad-hoc stage wiring). |
+| **Stages** | Includes `request-actors`, `request-quality-attributes`, `request-assumptions`, `request-assumption-edges`, declaration identity path/segmentation edges, and cost enrichment. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.KnowledgeGraph.Tests --filter "FullyQualifiedName~GraphMaterialization"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2370"
 ```
 
 
