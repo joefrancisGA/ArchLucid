@@ -9672,7 +9672,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -9683,6 +9683,7 @@ Split from retired `archlucid-core` (ABQ-08).
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
+2026-09-12 seed hunt #1929 (seed-only): reseeded core-safety-network; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] (proven) `AlertRoutingWebhookDestinationPolicy` — sync-only literal guard omits `OutboundHttpsUrlDnsResolutionGuard` on subscription create — **hit 2026-09-07 (#1215):** `DigestSubscriptionFacade.Create` and `AlertRoutingSubscriptionsController.Create` accepted public hostnames without DNS re-validation; hostname rebinding could reach private networks at delivery; fixed with `TryGetRejectionReasonAfterDnsResolveAsync` parity to webhook probe policy (`TryGetRejectionReasonAfterDnsResolveAsync_WhenHostnameDoesNotResolve_RewritesUrlPrefixToWebhookUrl`)
 - [x] (valid-no-repro) `PrivateNetworkAddressGuard.IsForbiddenHostLiteral` — non-dotted IPv4 encodings (octal/hex) may bypass literal guard when `IPAddress.TryParse` rejects host token — **2026-09-07 (#1216):** .NET `IPAddress.TryParse` accepts octal/hex/shorthand private forms (`0177.0.0.1`, `0x7f000001`, `127.1`, `192.168.001.001`); octal `010.*` correctly maps to public `8.0.0.1` and stays allowed (`PrivateNetworkAddressGuardEncodingTests`)
