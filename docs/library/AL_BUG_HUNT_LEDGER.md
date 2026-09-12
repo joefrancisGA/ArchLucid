@@ -12567,6 +12567,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-09-12 thorough hunt #1856 (hit): proved pilot scorecard query cache omitted operator scope; 1 scoped hook test passed.
 
+- [x] (proven) `useSponsorDashboardBundleQuery` / `operatorQueryKeys.sponsorDashboardBundle` — scope-less react-query key reused tenant A sponsor dashboard bundle after operator scope switch — **hit 2026-09-12 thorough hunt #1857:** keyed query by `useOperatorScopeQueryKey`; prefix invalidation via `sponsorDashboardBundlePrefix`; regression `use-sponsor-dashboard-bundle-query.test.tsx`.
+
+2026-09-12 thorough hunt #1857 (hit): proved sponsor dashboard bundle query cache omitted operator scope; 1 scoped hook test passed.
+
 - [x] (proven) `invalidateOperatorHomeRunsCaches` / `invalidateOperatorSponsorRoiCaches` — omitted scoped `pilotValueReport` TanStack invalidation after run commit or sponsor seed changes — **hit 2026-09-11 thorough hunt #1695:** sponsor value report `totalRunsCommitted` stayed stale until `staleTime` expired; fixed via `invalidatePilotValueReportCache`; regression `invalidateOperatorHomeRunsCaches_invalidates_scoped_pilot_value_report_queries`.
 
 2026-09-11 thorough hunt #1695 (hit): proved pilot value report cache not invalidated on run lifecycle writes; 2 scoped operator-query-invalidation tests passed.
