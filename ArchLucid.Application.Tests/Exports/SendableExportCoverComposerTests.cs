@@ -27,6 +27,7 @@ public sealed class SendableExportCoverComposerTests
         markdown.Should().Contain("## Sendable export cover");
         markdown.Should().Contain("Policy pack: azure-waf @ 2024.1");
         markdown.Should().Contain("Execution mode: Simulator");
+        markdown.Should().Contain(SendableExportCoverComposer.PolicyPackInfluenceHonestyLine);
     }
 
     [Fact]
@@ -39,6 +40,7 @@ public sealed class SendableExportCoverComposerTests
         lines.Should().Contain("Policy pack: azure-waf @ 2024.1");
         lines.Should().ContainSingle(line => line.StartsWith("Gate outcome:", StringComparison.Ordinal));
         lines.Should().Contain("Execution mode: Simulator");
+        lines.Should().Contain($"Policy influence: {SendableExportCoverComposer.PolicyPackInfluenceHonestyLine}");
     }
 
     private static CareerExportCoverageHonestyInput CreateInput() =>

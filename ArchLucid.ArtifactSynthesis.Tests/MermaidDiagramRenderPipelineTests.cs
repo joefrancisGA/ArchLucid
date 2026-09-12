@@ -72,6 +72,7 @@ public sealed class MermaidDiagramRenderPipelineTests
         result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
         result.PrimaryMermaid.Should().Contain("al-type=Microsoft.Network/virtualNetworks");
         result.PrimaryMermaid.Should().Contain("al-rg=rg-network");
+        result.PrimaryMermaid.Should().NotContain("] %% ");
     }
 
     [Fact]

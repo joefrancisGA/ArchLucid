@@ -177,6 +177,18 @@ class BuildRcEvidenceSignoffBundleTests(unittest.TestCase):
             + "\n",
             encoding="utf-8",
         )
+        (bundle / "faithfulness-nightly-warn-status.json").write_text(
+            json.dumps(
+                {
+                    "schema": "archlucid.faithfulness-nightly-warn-status.v1",
+                    "program": "G-FAITH-01",
+                    "disposition": "PASS",
+                    "detail": "Synthetic PASS for signoff bundle unit test",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
 
         json_out = self.temp_dir / "signoff-pass.json"
         md_out = self.temp_dir / "signoff-pass.md"
@@ -199,6 +211,7 @@ class BuildRcEvidenceSignoffBundleTests(unittest.TestCase):
         self.assertEqual(gate_ids["release-smoke"], "PASS")
         self.assertEqual(gate_ids["ship-gate-evidence"], "PASS")
         self.assertEqual(gate_ids["real-llm-evidence-gate"], "PASS")
+        self.assertEqual(gate_ids["faithfulness-nightly-warn"], "PASS")
         self.assertEqual(gate_ids["live-ui-api-parity"], "PASS")
         self.assertEqual(gate_ids["procurement-claim-boundary"], "PASS")
 

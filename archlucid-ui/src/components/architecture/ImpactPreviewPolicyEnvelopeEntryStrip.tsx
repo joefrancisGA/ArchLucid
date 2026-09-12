@@ -63,6 +63,7 @@ export function ImpactPreviewPolicyEnvelopeEntryStrip(
             buttonLabel="Clone from snapshot for architecture sketch"
             testId="impact-preview-architecture-clone-snapshot"
             variant="secondary"
+            confirmBeforeClone
           />
         ) : (
           <Button variant="secondary" size="sm" asChild>

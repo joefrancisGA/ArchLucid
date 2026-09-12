@@ -115,6 +115,7 @@ export function ArchitectureDraftHandoffPanel(
               draftId={props.draftId}
               parentArchitectureId={props.parentArchitectureId ?? undefined}
               variant="outline"
+              spawnLockedDeskAction
             />
           </div>
 

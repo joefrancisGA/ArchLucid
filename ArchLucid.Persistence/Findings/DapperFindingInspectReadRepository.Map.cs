@@ -33,6 +33,8 @@ public sealed partial class DapperFindingInspectReadRepository
             row.Classification,
             typed);
         FindingTreatment? treatment = FindingInspectReadRepositoryCore.ResolveInspectTreatment(row.Treatment, typed);
+        FindingSemanticSupportBand? semanticSupportBand =
+            FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(row.SemanticSupportBandOverlay, typed);
 
         DispositionPointerProjection dispositionPointer = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
             joinResult.DispositionRow?.Disposition,
@@ -50,6 +52,7 @@ public sealed partial class DapperFindingInspectReadRepository
             TypedPayload = typed,
             Classification = classification,
             Treatment = treatment,
+            SemanticSupportBand = semanticSupportBand,
             DecisionRuleId = ruleId,
             DecisionRuleName = FindingInspectReadRepositoryCore.ResolveDecisionRuleName(ruleName, ruleId),
             Evidence = evidence,
@@ -235,6 +238,12 @@ public sealed partial class DapperFindingInspectReadRepository
         }
 
         public byte? Classification
+        {
+            get;
+            init;
+        }
+
+        public string? SemanticSupportBandOverlay
         {
             get;
             init;

@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { CommandPaletteWorkActionBridge } from "@/components/shell/CommandPaletteWorkActionBridge";
 import {
+  COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT,
   COMMAND_PALETTE_FINALIZE_REVIEW_EVENT,
   COMMAND_PALETTE_SAVE_DRAFT_EVENT,
 } from "@/lib/command-palette-handler-actions";
@@ -28,5 +29,22 @@ describe("CommandPaletteWorkActionBridge (LD-09)", () => {
 
     expect(finalizeClick).toHaveBeenCalledTimes(1);
     expect(dispositionSaveClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("SN-008: clicks visible spawn-locked clone controls", () => {
+    const cloneClick = vi.fn();
+
+    document.body.innerHTML = `
+      <button data-testid="architecture-spawn-lock-clone-snapshot" type="button">New version (clone)</button>
+    `;
+
+    document.querySelector<HTMLButtonElement>('[data-testid="architecture-spawn-lock-clone-snapshot"]')!.onclick =
+      cloneClick;
+
+    render(<CommandPaletteWorkActionBridge />);
+
+    window.dispatchEvent(new CustomEvent(COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT));
+
+    expect(cloneClick).toHaveBeenCalledTimes(1);
   });
 });

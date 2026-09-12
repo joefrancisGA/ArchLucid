@@ -225,7 +225,7 @@ export function AuditPageView(props: AuditPageViewProps) {
       ) : null}
 
       {!buyerPolishedShell ? <AuditTrailIntegrityNote /> : null}
-      {!buyerPolishedShell ? <AuditDualChannelHonestyNote className="mt-2" /> : null}
+      <AuditDualChannelHonestyNote className="mt-2" />
 
       {props.ctoDemoAuditFilterActive ? (
         <div
