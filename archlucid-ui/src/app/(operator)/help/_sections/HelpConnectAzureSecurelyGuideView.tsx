@@ -8,6 +8,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { AzureCloudConnectionRolesTable } from "@/components/help/AzureCloudConnectionRolesTable";
 import { ConnectAzureSecurelyHelpClaimDisciplineStrip } from "@/components/help/ConnectAzureSecurelyHelpClaimDisciplineStrip";
 import { ConnectAzureSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectAzureSecurelyHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -389,6 +390,8 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
             <ConnectAzureSecurelyActionPanel verifyHref={verifyHref} />
           </div>
 
+          <SponsorSendPathHonestyPanel testIdPrefix="help-connect-azure-securely" showSsoOptional={false} />
+
           <div className={contentGridClass}>
             <div className="min-w-0 space-y-8" data-testid="help-connect-azure-securely-primary">
               <ConnectAzureSecurelyGuideSections verifyHref={verifyHref} />
@@ -426,6 +429,7 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
           <div className={contentGridClass}>
             <div className="min-w-0 space-y-8" data-testid="help-connect-azure-securely-primary">
               <ConnectAzureSecurelyHelpEvidenceOrientationStrip />
+              <SponsorSendPathHonestyPanel testIdPrefix="help-connect-azure-securely" showSsoOptional={false} />
               <ConnectAzureSecurelyGuideSections verifyHref={verifyHref} />
             </div>
             <HelpTopicTableOfContents headings={CONNECT_AZURE_SECURELY_TOC_HEADINGS} enableScrollSpy />
