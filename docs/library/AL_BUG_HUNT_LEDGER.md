@@ -3205,7 +3205,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 32
+- **hunts:** 31
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3318,6 +3318,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — whitespace-padded `paymentIntentId` forwarded without trim so wallet idempotency key diverged from Stripe canonical id — **hit 2026-09-12 seed hunt #1881 (seed→hit):** tenant metadata already trimmed in #1861 but payment intent id was not; fixed with trim after blank guard; regression `ProcessPaymentIntentEventAsync_trims_whitespace_from_payment_intent_id`
 
 2026-09-12 seed hunt #1867 (seed-only): reseeded billing-webhooks; no proven defect this pass.
+
+2026-09-12 seed hunt #1995 (seed-only): reseeded billing-webhooks; 18 scoped unit tests passed; no new hunt-ready rows promoted.
 
 ---
 
