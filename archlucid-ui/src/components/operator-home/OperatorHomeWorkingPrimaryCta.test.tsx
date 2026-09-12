@@ -47,7 +47,7 @@ describe("OperatorHomeWorkingPrimaryCta (PC-05)", () => {
     const link = screen.getByTestId("operator-home-working-new-review-primary");
 
     expect(link).toHaveAttribute("href", ARCHITECTURES_NEW_PATH);
-    expect(link).toHaveTextContent("Start review");
+    expect(link).toHaveTextContent("New review");
   });
 
   it("prefers the last-open architecture identity desk over draft resume", () => {
