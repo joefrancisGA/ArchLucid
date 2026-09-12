@@ -28,7 +28,8 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         string meter = row.UnitOfMeasure ?? string.Empty;
 
-        return AzureRetailPricesCatalogClient.IsHourMeter(meter) ||
+        return AzureRetailPricesCatalogClient.IsMinuteMeter(meter) ||
+               AzureRetailPricesCatalogClient.IsHourMeter(meter) ||
                AzureRetailPricesCatalogClient.IsDayMeter(meter) ||
                AzureRetailPricesCatalogClient.IsWeekMeter(meter) ||
                AzureRetailPricesCatalogClient.IsMonthlyMeter(meter);
@@ -45,6 +46,16 @@ public sealed partial class AzureRetailPricesCatalogClient
             return false;
 
         string raw = dto.UnitOfMeasure ?? string.Empty;
+
+        if (IsMinuteMeter(raw))
+        {
+            decimal perResource = decimal.Multiply(unit,
+                (decimal)MinutesPerMonthAssumption);
+
+            monthly = decimal.Multiply(perResource, quantity);
+
+            return true;
+        }
 
         if (IsHourMeter(raw))
         {
@@ -90,6 +101,51 @@ public sealed partial class AzureRetailPricesCatalogClient
                 up
                 :
                 dto.RetailPrice ?? 0m;
+
+    internal static bool IsMinuteMeter(string uom)
+    {
+        if (string.IsNullOrWhiteSpace(uom))
+            return false;
+
+        string trimmed = uom.Trim();
+
+        return ContainsMinuteWordToken(trimmed)
+            || ContainsSlashMinToken(trimmed)
+            || string.Equals(trimmed, "min", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "mins", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "minute", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "minutes", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsMinuteWordToken(string trimmed)
+    {
+        return ContainsBoundedToken(trimmed, " min")
+            || ContainsBoundedToken(trimmed, " mins")
+            || ContainsBoundedToken(trimmed, " minute")
+            || ContainsBoundedToken(trimmed, " minutes");
+    }
+
+    private static bool ContainsSlashMinToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/min", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterMin = index + 4;
+
+            if (afterMin >= trimmed.Length || !char.IsLetter(trimmed[afterMin]))
+                return true;
+
+            index = afterMin;
+        }
+
+        return false;
+    }
 
     internal static bool IsHourMeter(string uom)
     {
@@ -170,8 +226,10 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return ContainsDayWordToken(trimmed)
             || ContainsSlashDayToken(trimmed)
+            || ContainsSlashDToken(trimmed)
             || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase);
+            || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "d", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ContainsDayWordToken(string trimmed)
@@ -202,6 +260,28 @@ public sealed partial class AzureRetailPricesCatalogClient
         return false;
     }
 
+    private static bool ContainsSlashDToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/d", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterD = index + 2;
+
+            if (afterD >= trimmed.Length || !char.IsLetter(trimmed[afterD]))
+                return true;
+
+            index = afterD;
+        }
+
+        return false;
+    }
+
     internal static bool IsWeekMeter(string uom)
     {
         if (string.IsNullOrWhiteSpace(uom))
@@ -212,9 +292,12 @@ public sealed partial class AzureRetailPricesCatalogClient
         return ContainsWeekWordToken(trimmed)
             || ContainsSlashWeekToken(trimmed)
             || ContainsSlashWkToken(trimmed)
+            || ContainsSlashWToken(trimmed)
             || string.Equals(trimmed, "week", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "weeks", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trimmed, "wk", StringComparison.OrdinalIgnoreCase);
+            || string.Equals(trimmed, "w", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "wk", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "wks", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ContainsWeekWordToken(string trimmed)
@@ -267,6 +350,28 @@ public sealed partial class AzureRetailPricesCatalogClient
         return false;
     }
 
+    private static bool ContainsSlashWToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/w", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterW = index + 2;
+
+            if (afterW >= trimmed.Length || !char.IsLetter(trimmed[afterW]))
+                return true;
+
+            index = afterW;
+        }
+
+        return false;
+    }
+
     internal static bool IsMonthlyMeter(string uom)
     {
         if (string.IsNullOrWhiteSpace(uom))
@@ -278,6 +383,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashMonthWordToken(trimmed)
             || ContainsSlashMonthToken(trimmed)
             || ContainsBoundedToken(trimmed, " mo")
+            || string.Equals(trimmed, "m", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "month", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "months", StringComparison.OrdinalIgnoreCase);

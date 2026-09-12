@@ -80,6 +80,7 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly requestAssumptionTexts?: readonly string[];
   readonly withheldFindings?: readonly WithheldFindingRow[];
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
+  readonly parentArchitectureId?: string | null;
 };
 
 function buildFindingTitlesById(findings: readonly QuickDecisionFinding[]): Record<string, string> {
@@ -113,6 +114,7 @@ export function RunDetailRunExplanationCollapsible(
     triageVisibleCount,
     graphSnapshot,
     structuralExecutionMode,
+    parentArchitectureId,
   } = props;
   const router = useRouter();
   const pathname = usePathname() ?? "/";
@@ -248,6 +250,7 @@ export function RunDetailRunExplanationCollapsible(
           requestAssumptionTexts={props.requestAssumptionTexts}
           withheldFindings={props.withheldFindings}
           structuralExecutionMode={structuralExecutionMode}
+          parentArchitectureId={parentArchitectureId}
         />
 
         {showCoverageAndCuration ? (

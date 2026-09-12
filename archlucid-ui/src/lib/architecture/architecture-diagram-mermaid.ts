@@ -1,4 +1,5 @@
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture/architecture-diagram-types";
+import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture/wrap-architecture-diagram-label";
 
 export type ArchitectureDiagramMermaidOptions = {
   readonly dark?: boolean;
@@ -6,8 +7,9 @@ export type ArchitectureDiagramMermaidOptions = {
 
 function escapeMermaidLabel(raw: string): string {
   const singleLine = raw.replace(/\s+/g, " ").trim();
+  const escaped = singleLine.replace(/"/g, "'").slice(0, 160);
 
-  return singleLine.replace(/"/g, "'").slice(0, 160);
+  return wrapArchitectureDiagramLabelForMermaidSource(escaped);
 }
 
 function nodeClassNames(node: ArchitectureDiagramNode): string {
