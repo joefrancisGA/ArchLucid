@@ -46,10 +46,9 @@ import {
   type MermaidViewportFitDimensions,
   prepareMermaidSvgForResponsiveLayout,
   readMermaidViewportFitBudget,
-  removeMermaidRenderBindElement,
   sanitizeMermaidRenderId,
 } from '@/lib/help/help-mermaid';
-import { stripInlineMermaidFlowchartComments } from '@/lib/mermaid/strip-inline-mermaid-flowchart-comments';
+import { renderMermaidSvgMarkup } from '@/lib/mermaid/mermaid-safe-render';
 import { OPERATOR_TYPOGRAPHY } from '@/lib/design-tokens';
 import { useDocumentDarkMode } from '@/lib/use-document-dark-mode';
 import { cn } from '@/lib/utils';
@@ -301,6 +300,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   const dark = useDocumentDarkMode();
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
+  const [renderGeneration, setRenderGeneration] = useState(0);
   const [fullscreenOpen, setFullscreenOpenState] = useState(() =>
     parseArchitectureDiagramFullscreenOpenFromSearch(searchParams.get('diagFullscreen')),
   );
@@ -331,6 +331,11 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     [pathname, router, searchParams],
   );
 
+  const retryRender = useCallback(() => {
+    setRenderGeneration((current) => current + 1);
+    props.onRetry?.();
+  }, [props.onRetry]);
+
   useEffect(() => {
     let canceled = false;
 
@@ -339,18 +344,15 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       setSvgMarkup(null);
 
       try {
-        const mermaidModule = await import('mermaid');
-        const mermaid = mermaidModule.default;
-
-        mermaid.initialize(createArchitectureDiagramMermaidConfig(dark));
-
-        const result = await mermaid.render(
-          renderId,
-          stripInlineMermaidFlowchartComments(mermaidSource.trim()),
-        );
+        const svg = await renderMermaidSvgMarkup(mermaidSource, {
+          renderIdBase: renderId,
+          initialize: (mermaid) => {
+            mermaid.initialize(createArchitectureDiagramMermaidConfig(dark));
+          },
+        });
 
         if (!canceled) {
-          setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));
+          setSvgMarkup(prepareMermaidSvgForResponsiveLayout(svg));
         }
       } catch (error) {
         if (!canceled) {
@@ -358,8 +360,6 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           setRenderError(message);
           onRenderFailure?.();
         }
-      } finally {
-        removeMermaidRenderBindElement(renderId);
       }
     }
 
@@ -367,9 +367,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
     return (): void => {
       canceled = true;
-      removeMermaidRenderBindElement(renderId);
     };
-  }, [mermaidSource, dark, renderId, onRenderFailure]);
+  }, [dark, mermaidSource, onRenderFailure, renderGeneration, renderId]);
 
   const sanitizedSvg = useMemo(() => {
     if (svgMarkup === null) {
@@ -617,11 +616,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         <div className="space-y-3" role="alert" data-testid="architecture-diagram-render-failure">
           <SeverityTag severity="high" label="Diagram render error" />
           <p className={cn('m-0 text-amber-800 dark:text-amber-200', OPERATOR_TYPOGRAPHY.body)}>{renderError}</p>
-          {props.onRetry !== undefined ? (
-            <Button type="button" variant="outline" size="sm" onClick={props.onRetry}>
-              {ARCHITECTURE_DIAGRAM_RETRY_ACTION}
-            </Button>
-          ) : null}
+          <Button type="button" variant="outline" size="sm" onClick={retryRender}>
+            {ARCHITECTURE_DIAGRAM_RETRY_ACTION}
+          </Button>
         </div>
       );
     }

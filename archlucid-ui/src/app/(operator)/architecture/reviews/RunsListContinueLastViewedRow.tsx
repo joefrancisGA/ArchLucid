@@ -3,19 +3,28 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_RESUME } from "@/lib/design-tokens";
+import { resolveSystemNotJobWorkingResumeReviewHref } from "@/lib/system-not-job-portfolio-resume-href";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 export type RunsListContinueLastViewedRowProps = {
   readonly run: RunSummary;
   readonly variant?: "primary" | "outline";
+  readonly workingMode?: boolean;
+  readonly draftRegistryEntries?: readonly ArchitectureDraftRegistryEntry[];
 };
 
 /** Pinned continue row for the most recently viewed architecture review. */
 export function RunsListContinueLastViewedRow(props: RunsListContinueLastViewedRowProps): React.JSX.Element {
-  const href = `/architecture/reviews/${encodeURIComponent(props.run.runId)}`;
+  const href = resolveSystemNotJobWorkingResumeReviewHref({
+    runId: props.run.runId,
+    requestId: props.run.requestId,
+    workingMode: props.workingMode === true,
+    draftRegistryEntries: props.draftRegistryEntries,
+  });
   const title = buyerFacingReviewTitleFromSummary(props.run);
   const buttonVariant = props.variant ?? "primary";
 

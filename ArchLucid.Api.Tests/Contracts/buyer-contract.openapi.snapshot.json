@@ -15011,6 +15011,12 @@
       },
       "FinalizeReadinessBlock": {
         "properties": {
+          "blockExplanation": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "code": {
             "type": "string"
           },
@@ -16337,6 +16343,16 @@
           },
           "ruleId": {
             "type": "string"
+          },
+          "semanticSupportBand": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingSemanticSupportBand"
+              }
+            ]
           },
           "traceCompletenessRatio": {
             "format": "double",

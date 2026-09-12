@@ -21,4 +21,11 @@ public sealed class FinalizeReadinessBlock
         get;
         init;
     } = null!;
+
+    /// <summary>Optional TB-184 LLM explanation when <see cref="AgentRuntime:ExplainGovernanceBlocks:Enabled"/> is true.</summary>
+    public string? BlockExplanation
+    {
+        get;
+        init;
+    }
 }

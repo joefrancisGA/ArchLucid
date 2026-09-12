@@ -232,10 +232,9 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByText('Edge label')).toBeInTheDocument();
   });
 
-  it('shows renderer failure and retry action', async () => {
-    renderMock.mockRejectedValueOnce(new Error('Renderer failed'));
+  it('retries mermaid.render on a new id after a firstChild crash', async () => {
+    renderMock.mockRejectedValueOnce(new Error("Cannot read properties of null (reading 'firstChild')"));
     const onRetry = vi.fn();
-    const removeBindSpy = vi.spyOn(helpMermaid, 'removeMermaidRenderBindElement');
 
     render(
       <ArchitectureDiagramViewer
@@ -251,12 +250,19 @@ describe('ArchitectureDiagramViewer', () => {
       expect(screen.getByTestId('architecture-diagram-render-failure')).toBeInTheDocument();
     });
 
-    expect(removeBindSpy).toHaveBeenCalled();
+    expect(screen.getByText(/firstChild/)).toBeInTheDocument();
+    expect(renderMock).toHaveBeenCalledTimes(1);
+    const firstRenderId = renderMock.mock.calls[0]?.[0];
 
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(onRetry).toHaveBeenCalled();
-    removeBindSpy.mockRestore();
-    expect(onRetry).toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    expect(renderMock).toHaveBeenCalledTimes(2);
+    expect(renderMock.mock.calls[1]?.[0]).not.toBe(firstRenderId);
   });
 
   it('shows in-flow paint failure when fitted ink height is too small', async () => {

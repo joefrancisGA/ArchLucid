@@ -60,6 +60,16 @@ export function FinalizeReadinessBlockList(props: FinalizeReadinessBlockListProp
                   className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 >
                   {renderDoThisNextReferenceCopy(block.message)}
+                  {block.blockExplanation !== undefined &&
+                  block.blockExplanation !== null &&
+                  block.blockExplanation.trim().length > 0 ? (
+                    <p
+                      className={cn("m-0 mt-1 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid={`finalize-readiness-block-explanation-${block.code}`}
+                    >
+                      {block.blockExplanation}
+                    </p>
+                  ) : null}
                   {action !== null ? (
                     <span className="mt-1 block">
                       <Link
