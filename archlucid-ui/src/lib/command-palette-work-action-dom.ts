@@ -109,3 +109,18 @@ export function isCommandPaletteExtractUploadFocusAvailable(): boolean {
 export function isCommandPaletteExtractUploadCopyQuickStartAvailable(): boolean {
   return queryVisibleExtractUploadCopyQuickStartControl() !== null;
 }
+
+/** SN-008 spawn-locked clone CTA on architecture desk or handoff surfaces. */
+export function queryVisibleSpawnLockCloneSnapshotControl(): HTMLButtonElement | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return document.querySelector<HTMLButtonElement>(
+    '[data-testid="architecture-spawn-lock-clone-snapshot"]:not([disabled])',
+  );
+}
+
+export function isCommandPaletteCloneFromSnapshotAvailable(): boolean {
+  return queryVisibleSpawnLockCloneSnapshotControl() !== null;
+}

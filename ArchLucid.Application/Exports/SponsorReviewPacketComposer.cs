@@ -43,6 +43,7 @@ public static partial class SponsorReviewPacketComposer
 
         if (careerExportHonesty is not null)
         {
+            SendableExportCoverComposer.AppendMarkdownSection(sb, careerExportHonesty);
             CareerExportCoverageHonestyComposer.AppendMarkdownSection(sb, careerExportHonesty);
         }
 

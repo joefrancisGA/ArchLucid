@@ -1,8 +1,10 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
@@ -559,6 +561,144 @@ internal static class FinalizeConflictSqlIntegrationFixture
         run.PinnedArchitectureVersionContentHashSha256 = driftedHash;
 
         await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal static async Task PinPolicyPackPinHashDriftAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IRunRepository runRepository =
+            serviceScope.ServiceProvider.GetRequiredService<IRunRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for policy pack pin proof pin.");
+
+        if (run.PinnedPolicyPackIdsHashSha256 is not { Length: > 0 } pinnedHash)
+        {
+            throw new InvalidOperationException(
+                "Executed run is missing create-time policy pack pin hash.");
+        }
+
+        byte[] driftedHash = new byte[pinnedHash.Length];
+        pinnedHash.CopyTo(driftedHash, 0);
+        driftedHash[0] = (byte)(driftedHash[0] == 0xFF ? (byte)0x00 : (byte)0xFF);
+
+        run.PinnedPolicyPackIdsHashSha256 = driftedHash;
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal static async Task PinEvidencePackagePinHashDriftAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IRunRepository runRepository =
+            serviceScope.ServiceProvider.GetRequiredService<IRunRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for evidence package pin proof pin.");
+
+        PinnedEvidencePackageRow[] pinRows =
+        [
+            new(RunEvidencePackagePinService.AzureProvider, EvidenceIntegrityProofPackageId, DateTime.UtcNow),
+        ];
+
+        (string json, byte[] hash) = RunEvidencePackagePinService.SerializePinnedRows(pinRows);
+        run.PinnedEvidencePackagePinsJson = json;
+        run.PinnedEvidencePackagePinsHashSha256 = hash;
+
+        byte[] driftedHash = new byte[hash.Length];
+        hash.CopyTo(driftedHash, 0);
+        driftedHash[0] = (byte)(driftedHash[0] == 0xFF ? (byte)0x00 : (byte)0xFF);
+
+        run.PinnedEvidencePackagePinsHashSha256 = driftedHash;
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal static async Task PinDraftSpawnDocumentHashDriftAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out _))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IServiceProvider services = serviceScope.ServiceProvider;
+        IDraftRequestRepository draftRequestRepository =
+            services.GetRequiredService<IDraftRequestRepository>();
+
+        DraftRequestDocument originalDocument = new()
+        {
+            FreeTextIntent = "SQL proof draft spawn hash baseline.",
+            SystemName = "finalize-pin-proof",
+        };
+
+        byte[] spawnHash = DraftDocumentContentFingerprint.Compute(originalDocument);
+
+        DraftRequestResponse created = await draftRequestRepository
+            .CreateAsync(
+                DefaultScope.TenantId,
+                DefaultScope.WorkspaceId,
+                DefaultScope.ProjectId,
+                IntegrationDevUserId,
+                originalDocument,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        DraftRequestDocument mutatedDocument = new()
+        {
+            FreeTextIntent = "SQL proof draft spawn hash drifted after spawn.",
+            SystemName = "finalize-pin-proof",
+        };
+
+        DraftRequestResponse? updated = await draftRequestRepository
+            .UpdateAsync(
+                DefaultScope.TenantId,
+                DefaultScope.WorkspaceId,
+                DefaultScope.ProjectId,
+                created.DraftId,
+                DraftRequestStatus.Admitted,
+                mutatedDocument,
+                redirectReason: null,
+                spawnedRunId: runId,
+                cancellationToken,
+                spawnedDocumentContentHashSha256: spawnHash)
+            .ConfigureAwait(false);
+
+        if (updated is null)
+        {
+            throw new InvalidOperationException(
+                "Draft spawn hash proof pin failed to link draft to executed run.");
+        }
     }
 
     private static async Task PinStructuralExecutionModeAsync(

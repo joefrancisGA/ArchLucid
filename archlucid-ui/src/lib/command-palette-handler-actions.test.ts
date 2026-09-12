@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT,
   COMMAND_PALETTE_FINALIZE_REVIEW_EVENT,
   COMMAND_PALETTE_FINDING_NEXT_EVENT,
   COMMAND_PALETTE_HANDLER_ACTIONS,
@@ -12,6 +13,7 @@ import {
   isReviewDetailWorkPath,
 } from "@/lib/command-palette-handler-actions";
 import {
+  isCommandPaletteCloneFromSnapshotAvailable,
   isCommandPaletteFinalizeReviewAvailable,
 } from "@/lib/command-palette-work-action-dom";
 import { resolveVisibleCommandPaletteHandlerActions } from "@/lib/resolve-visible-command-palette-actions";
@@ -95,6 +97,33 @@ describe("command-palette-handler-actions (LI-07 / WD-05)", () => {
     window.removeEventListener(COMMAND_PALETTE_FINALIZE_REVIEW_EVENT, onFinalize);
 
     expect(seen).toEqual(["finalize"]);
+  });
+
+  it("SN-008: shows clone from snapshot only on architecture routes with a visible spawn-locked CTA", () => {
+    const cloneAction = COMMAND_PALETTE_HANDLER_ACTIONS.find((action) => action.id === "action-clone-from-snapshot");
+
+    expect(cloneAction?.label).toBe("New version (clone)");
+    expect(cloneAction?.isAvailable("/architecture/architectures/arch-1")).toBe(false);
+
+    document.body.innerHTML =
+      '<button data-testid="architecture-spawn-lock-clone-snapshot" type="button">New version (clone)</button>';
+
+    expect(isCommandPaletteCloneFromSnapshotAvailable()).toBe(true);
+    expect(cloneAction?.isAvailable("/architecture/architectures/arch-1")).toBe(true);
+    expect(cloneAction?.isAvailable("/architecture/reviews/run-1")).toBe(false);
+  });
+
+  it("dispatches clone from snapshot as a window event", () => {
+    const seen: string[] = [];
+    const onClone = () => {
+      seen.push("clone");
+    };
+
+    window.addEventListener(COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT, onClone);
+    dispatchCommandPaletteHandlerAction("action-clone-from-snapshot");
+    window.removeEventListener(COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT, onClone);
+
+    expect(seen).toEqual(["clone"]);
   });
 
   it("dispatches finding next as a window event", () => {

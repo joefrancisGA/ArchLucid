@@ -69,7 +69,6 @@ export function RunsListClient(props: RunsListClientProps) {
   const pathname = usePathname() ?? "/architecture/reviews";
   const searchParams = useSearchParams();
   const runsListFilterOpenParam = searchParams.get("runsListFilterOpen");
-  const currentSearch = searchParams.toString();
   const activeSort = parseRunsListSortFromSearch(searchParams.get("sort"));
   const [runsListFilterOpen, setRunsListFilterOpenState] = useState(() =>
     parseRunsListFilterOpenFromSearch(runsListFilterOpenParam),
@@ -100,6 +99,7 @@ export function RunsListClient(props: RunsListClientProps) {
     pages,
     previousHref,
     nextHref,
+    navigationSearch,
     onRowActivate,
     showBuyerPackageCards,
     showCompareSelection,
@@ -165,7 +165,7 @@ export function RunsListClient(props: RunsListClientProps) {
         ).map((option) => (
           <FilterChip
             key={option.id}
-            href={runsListSortHrefFromSearch(currentSearch, option.id, pathname)}
+            href={runsListSortHrefFromSearch(navigationSearch, option.id, pathname)}
             scroll={false}
             className={buyerFilterChipClass(activeSort === option.id, false)}
             aria-current={activeSort === option.id ? "page" : undefined}
@@ -279,6 +279,7 @@ export function RunsListClient(props: RunsListClientProps) {
                   <BuyerPackageScopeFilterChips
                     scope={buyerPackageScope}
                     buyerPipelineLabels={buyerPipelineLabels}
+                    navigationSearch={navigationSearch}
                   />
                 </div>
               </fieldset>
@@ -299,6 +300,7 @@ export function RunsListClient(props: RunsListClientProps) {
                 <BuyerPackageScopeFilterChips
                   scope={buyerPackageScope}
                   buyerPipelineLabels={buyerPipelineLabels}
+                  navigationSearch={navigationSearch}
                 />
               </div>
             </fieldset>

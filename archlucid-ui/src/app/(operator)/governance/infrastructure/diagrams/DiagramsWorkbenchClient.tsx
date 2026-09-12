@@ -72,6 +72,13 @@ import {
   resolveDependencyNeighborhoodSeedBlockedReason,
   type DependencyNeighborhoodSeedBlockedReason,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-dependency-seed";
+import {
+  resolveInfraDiagramsDefaultFallbackKey,
+  resolveInfraDiagramsEffectiveFallbackKey,
+  resolveInfraDiagramsFallbackArtifacts,
+  shouldPaintInfraDiagramsMermaidSource,
+  shouldShowInfraDiagramsPartitionedViews,
+} from "@/lib/infra-evidence/infra-evidence-diagrams-partitioned-view";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_DIAGRAMS_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
@@ -131,24 +138,6 @@ const cnCard =
 
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
-
-function resolveDefaultFallbackKey(
-  artifacts: readonly InfraEvidenceMermaidFallbackArtifactSummary[],
-): string {
-  const executive = artifacts.find((artifact) => artifact.key === "executive");
-
-  if (executive != null) {
-    return executive.key;
-  }
-
-  const succeeded = artifacts.find((artifact) => artifact.status === "Succeeded");
-
-  if (succeeded != null) {
-    return succeeded.key;
-  }
-
-  return artifacts[0]?.key ?? "";
-}
 
 function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string): string {
   if (fallbackKey.length > 0) {
@@ -283,27 +272,30 @@ export function DiagramsWorkbenchClient() {
   );
 
   const fallbackArtifacts = useMemo(
-    () => renderResult?.fallbackArtifacts ?? activeModePreview?.fallbackArtifacts ?? [],
+    () => resolveInfraDiagramsFallbackArtifacts(renderResult?.fallbackArtifacts, activeModePreview?.fallbackArtifacts),
     [activeModePreview?.fallbackArtifacts, renderResult?.fallbackArtifacts],
   );
 
-  const showFallbackCards = useMemo(() => {
-    const status = renderResult?.status ?? activeModePreview?.status ?? "";
+  const showFallbackCards = useMemo(
+    () =>
+      shouldShowInfraDiagramsPartitionedViews({
+        selectedViewKey,
+        previewStatus: activeModePreview?.status ?? "",
+        renderStatus: renderResult?.status ?? "",
+        fallbackArtifactCount: fallbackArtifacts.length,
+      }),
+    [activeModePreview?.status, fallbackArtifacts.length, renderResult?.status, selectedViewKey],
+  );
 
-    return status === "Partitioned" && fallbackArtifacts.length > 0;
-  }, [activeModePreview?.status, fallbackArtifacts, renderResult?.status]);
-
-  const effectiveFallbackKey = useMemo(() => {
-    if (!showFallbackCards) {
-      return "";
-    }
-
-    if (selectedViewKey.length > 0) {
-      return selectedViewKey;
-    }
-
-    return resolveDefaultFallbackKey(fallbackArtifacts);
-  }, [fallbackArtifacts, selectedViewKey, showFallbackCards]);
+  const effectiveFallbackKey = useMemo(
+    () =>
+      resolveInfraDiagramsEffectiveFallbackKey({
+        showPartitionedViews: showFallbackCards,
+        selectedViewKey,
+        fallbackArtifacts,
+      }),
+    [fallbackArtifacts, selectedViewKey, showFallbackCards],
+  );
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
   const hasStaleAuditUrlParams = useMemo(
@@ -373,12 +365,18 @@ export function DiagramsWorkbenchClient() {
     selectedMode,
     appliedSeedNodeId,
   );
-  const tooLargeForBrowser = exceedsInfraEvidenceMermaidClientGuard(metrics);
+  const paintMermaidSource = shouldPaintInfraDiagramsMermaidSource({
+    mermaidSource,
+    effectiveFallbackKey,
+    renderFallbackKey: renderResult?.fallbackKey,
+  });
+  const tooLargeForBrowser =
+    effectiveFallbackKey.length === 0 && exceedsInfraEvidenceMermaidClientGuard(metrics);
   const diagramContentEmpty = isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount);
   const renderInFlight = loadingPreview || loadingRender;
   const exportsDisabled =
     exportBusy || renderInFlight || selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing || dependencyNeighborhoodAwaitingSeed;
-  const mermaidExportDisabled = exportsDisabled || mermaidSource.trim().length === 0;
+  const mermaidExportDisabled = exportsDisabled || !paintMermaidSource;
 
   const renderStatusPresentation = useMemo(() => {
     const status = renderResult?.status ?? activeModePreview?.status ?? "";
@@ -571,7 +569,7 @@ export function DiagramsWorkbenchClient() {
             && selectedViewKey.length === 0
             && (response.fallbackArtifacts?.length ?? 0) > 0
           ) {
-            const defaultKey = resolveDefaultFallbackKey(response.fallbackArtifacts);
+            const defaultKey = resolveInfraDiagramsDefaultFallbackKey(response.fallbackArtifacts);
             setSelectedViewKey(defaultKey);
             syncUrlRef.current({ mermaidView: defaultKey });
           }
@@ -626,6 +624,7 @@ export function DiagramsWorkbenchClient() {
     (nextSnapshotId: string) => {
       setSelectedSnapshotId(nextSnapshotId);
       setSelectedViewKey("");
+      setRenderResult(null);
       syncUrl({ snapshotId: nextSnapshotId, mermaidView: "" });
     },
     [syncUrl],
@@ -635,6 +634,7 @@ export function DiagramsWorkbenchClient() {
     (nextMode: string) => {
       setSelectedMode(nextMode);
       setSelectedViewKey("");
+      setRenderResult(null);
       setDependencySeedBlockedDialog(null);
 
       if (nextMode !== "dependencyNeighborhood") {
@@ -1185,7 +1185,7 @@ export function DiagramsWorkbenchClient() {
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY}
           testId="infra-diagrams-empty-content"
         />
-      ) : mermaidSource.trim().length > 0 ? (
+      ) : paintMermaidSource ? (
         <>
           <ArchitectureDiagramViewer
             mermaidSource={mermaidSource}

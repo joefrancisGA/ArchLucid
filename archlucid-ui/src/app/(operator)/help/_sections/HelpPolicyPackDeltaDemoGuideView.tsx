@@ -14,6 +14,9 @@ import {
   POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SCREENSHOT_CHECKLIST,
   POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SUMMARY,
   POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE,
+  POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_DEEP_LINK,
+  POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_SUMMARY,
+  POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_TITLE,
   POLICY_PACK_DELTA_DEMO_HELP_NARRATIVE_ARC,
   POLICY_PACK_DELTA_DEMO_HELP_OVERVIEW,
   POLICY_PACK_DELTA_DEMO_HELP_PAGE_SUBTITLE,
@@ -91,6 +94,24 @@ export function HelpPolicyPackDeltaDemoGuideView(
                 <li key={beat}>{beat}</li>
               ))}
             </ol>
+          </section>
+
+          <section
+            aria-labelledby="help-policy-pack-delta-demo-impact-preview-heading"
+            data-testid="help-policy-pack-delta-demo-impact-preview"
+          >
+            <h2
+              id="help-policy-pack-delta-demo-impact-preview-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_TITLE}
+            </h2>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+              {POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_SUMMARY}
+            </p>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+              {POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_DEEP_LINK}
+            </p>
           </section>
 
           <section

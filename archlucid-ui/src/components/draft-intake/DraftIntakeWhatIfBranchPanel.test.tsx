@@ -96,7 +96,7 @@ describe("DraftIntakeWhatIfBranchPanel", () => {
       />,
     );
 
-    await screen.findByText(/branch cap reached/i);
+    await screen.findByTestId("draft-intake-branch-cap-reached");
 
     expect(screen.getByTestId("draft-intake-what-if-submit")).toBeDisabled();
     expect(screen.getByTestId("draft-intake-what-if-quota")).toHaveTextContent(/billable architecture package/i);

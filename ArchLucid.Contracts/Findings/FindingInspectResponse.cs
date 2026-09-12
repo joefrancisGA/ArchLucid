@@ -24,6 +24,30 @@ public sealed class FindingInspectResponse
         init;
     }
 
+    /// <summary>Insight-density gate classification (TB-384); falls back to typed payload when relational column is null.</summary>
+    public FindingClassification? Classification
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Post-gate routing after insight-density scoring (TB-382); falls back to typed payload when relational column is null.</summary>
+    public FindingTreatment? Treatment
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    ///     AS-060 semantic support band overlay when present; otherwise falls back to typed payload
+    ///     <c>semanticSupportBand</c>.
+    /// </summary>
+    public FindingSemanticSupportBand? SemanticSupportBand
+    {
+        get;
+        init;
+    }
+
     /// <summary>
     ///     Coarse severity persisted on the finding record (relational <c>Severity</c> or snapshot model). Used as a fallback
     ///     when <see cref="TypedPayload" /> omits or cannot be mapped to <c>ArchitectureFinding</c> severity.

@@ -130,6 +130,8 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
             : null,
         policyRuleId: coerceComplianceRuleKey(ruleHint),
         classification: t.classification ?? null,
+        treatment:
+          typeof t.treatment === "number" && Number.isFinite(t.treatment) ? Math.trunc(t.treatment) : null,
       };
     });
 }
