@@ -13206,13 +13206,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-07 — InMemory identity directory dropped upserted cloud resources so hub/explorer always 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 thorough hunt #1948 (dry): cheap-disproof closed standalone persistence-validation candidate; no hunt-ready rows remain.
 
 ABQ-09 churn hotspot.
 
@@ -13224,7 +13226,7 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) orphan `ISecurityCrosswalkService` registration — no production controller caller yet; service resolves and unit tests cover behavior — **disproved 2026-09-07 (#1273):** intentional pre-API registration; InMemory composition resolves `SecurityCrosswalkService` with `NoOpSecurityCrosswalkRepository` (`InMemory_composition_resolves_security_crosswalk_service`, `SecurityCrosswalkServiceTests`)
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — `TenantBrandingResolvedProfileCache` singleton depends on `IMemoryCache` but the module does not register memory cache; standalone module import without ASP.NET host setup may fail service validation — **cheap-disproof 2026-09-10 thorough hunt #1624:** `AddArchLucidApplicationServices` registers `IMemoryCache` via Authority `ContextIngestionCompositionRegistrar` before `AddInfraEvidenceCapability`; InMemory composition resolves branding cache with working memory cache (`InMemory_composition_resolves_tenant_branding_cache_after_platform_pipeline_registers_memory_cache`)
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — repeated `Register` on the same `IServiceCollection` re-adds scoped audit selector implementations without `TryAdd`; duplicate selector registration may duplicate evidence collection passes — **cheap-disproof 2026-09-10 thorough hunt #1624:** `AuditEvidenceSelectorRegistry` injects one typed selector per ctor parameter; repeated Register duplicates descriptors but `ListDescriptors` stays at nine (`InfraEvidenceCompositionModule_repeated_register_keeps_single_selector_descriptor_per_evidence_type`)
-- [ ] (candidate) `InfraEvidenceCompositionModule` — standalone `Register` without persistence repositories may fail `ValidateOnBuild` when resolving audit evidence snapshot services
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule` — standalone `Register` without persistence repositories may fail `ValidateOnBuild` when resolving audit evidence snapshot services — **cheap-disproof 2026-09-12 thorough hunt #1948:** production hosts always call `AddArchLucidApplicationServices`, which registers persistence before `InfraEvidenceCompositionModule`; standalone import is test-only and intentionally unwired (`InfraEvidenceCompositionModule_registers_cloud_resource_and_audit_evidence_services` asserts descriptors only)
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — repeated `Register` duplicates `MermaidDiagramReadabilityThresholds` singleton descriptors; last-wins resolution may ignore a host-preconfigured thresholds instance — **cheap-disproof 2026-09-11 seed hunt #1796:** MS DI last-wins keeps final `Register()` default thresholds, not an earlier host override; regression `InfraEvidenceCompositionModule_repeated_register_last_mermaid_thresholds_singleton_wins`.
 
 2026-09-11 seed hunt #1796 (seed-only): reseeded host-infra-evidence-composition after #1624; cheap-disproof closed duplicate Mermaid thresholds singleton candidate; 1 scoped InfraEvidenceCompositionModule test passed.
