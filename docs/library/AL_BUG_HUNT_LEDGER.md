@@ -3440,7 +3440,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3449,6 +3449,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** yes
 
 ### Hypotheses
+2026-09-12 seed hunt #1936 (seed-only): reseeded scope-binding-middleware; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] (invalid) Route filter binds scope from the body while the URL names a different tenant — `RouteTenantScopeBindingFilter` compares route `tenantId` to ambient scope only; body tenant steering is not in this filter's contract
 - [x] (invalid) Middleware lets a mutating request through when scope resolution fails open — `ScopeResolutionGuardMiddleware` returns 403 when `RequiresTrustedScopeRejection` is true; no fail-open path on untrusted resolution
