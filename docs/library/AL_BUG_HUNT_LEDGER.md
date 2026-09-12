@@ -4021,7 +4021,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -4054,6 +4054,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureReviewExportService.GenerateReportAsync` — committed run with manifest but `AuthorityLifecyclePhase != Complete` returned PDF/DOCX/HTML bytes instead of HTTP 409 — **hit 2026-09-03 (#543):** omitted `AuthorityLifecycleCompareExportGuard` present on one-pager/CSV/DOCX sibling paths; regression in `ArchitectureReviewExportServiceTests.GenerateReportAsync_throws_conflict_when_authority_lifecycle_not_complete`.
 - [x] (proven) `ArchitectureReviewExportService` / `ArchitectureReviewBoardExportDocumentFactory` — simulator-mode runs omit `SimulatorModeExportRehearsalMarkdown` notice on board PDF/DOCX/HTML while one-pager markdown embeds it — **hit 2026-09-04 (#665):** factory omitted simulator rehearsal fields; DOCX/PDF cover and HTML export lacked notice; fixed with model hydration + cover-page rendering aligned to one-pager; regressions in `ArchitectureReviewBoardSimulatorModeExportTests`.
 - [x] (proven) `ArchitectureReviewExportService.GenerateReportAsync` — uncommitted runs (`Manifest == null`) reached analysis/build instead of 409 finalized-review conflict — **hit 2026-09-04 (#665):** omitted `IsCommitted` guard present on `RunSummaryOnePagerExportService`; regression in `ArchitectureReviewExportServiceTests.GenerateReportAsync_throws_conflict_when_not_finalized`.
+
+2026-09-12 seed hunt #2059 (seed-only): reseeded tenant-data-export; no new hunt-ready rows.
 
 2026-09-04 thorough hunt #665: proved board export simulator rehearsal notice parity and uncommitted-manifest export guard gap.
 
