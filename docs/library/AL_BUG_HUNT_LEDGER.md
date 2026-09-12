@@ -10776,17 +10776,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 33
-- **bugs-found:** 28
+- **hunts:** 34
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-10 — technology ledger PATCH omitted free-text max-length guard on Rationale and TechnologyName
+- **last-bug:** 2026-09-12 — coverage acknowledgement PATCH/PUT omitted free-text max-length guard on ExclusionReason
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
 2026-09-12 seed hunts #1965–#1970 (seed-only): reseeded api-authority-admin-controllers; no new hunt-ready rows.
+
+- [x] (proven) `RunCoverageController.PutAcknowledgedCoverage` / `PatchRunCoveragePack` — `ExclusionReason` reached persistence without `DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength` guard present on sibling technology-ledger PATCH and clarification routes — **hit 2026-09-12 hunt #1971 (seed→hit):** reject over-limit exclusion reasons before service call; regressions `PutAcknowledgedCoverage_returns_bad_request_when_exclusion_reason_exceeds_max_free_text_length` and `PatchRunCoveragePack_returns_bad_request_when_exclusion_reason_exceeds_max_free_text_length`.
+
+2026-09-12 seed hunt #1971 (seed→hit): reseeded api-authority-admin-controllers; proved coverage acknowledgement ExclusionReason max-length gap; 2 scoped `RunCoverageControllerTests` passed.
 
 - [x] Admin mutating endpoint lacks tenant binding on route parameters — (proven): `RunsController` request endpoints (2026-08-18); `AdminController.ArchiveRunsByIds` called global `ArchiveRunsByIdsAsync` without `GetByIdAsync(scope, …)` filter (2026-08-18); `AdminController.ArchiveRunsBatch` called global `ArchiveRunsCreatedBeforeAsync` without scoped cutoff filter (2026-08-22); `AdminDiagnosticsService` integration outbox dead-letter list/retry/suppress/curl called `IIntegrationEventOutboxRepository` without `scope.TenantId` (2026-08-23); bulk `RetryIntegrationOutboxDeadLettersAsync` still passed `request.TenantId` to `RetryMatchingDeadLettersAsync` (2026-08-24)
 - [x] (proven) Unrecognized `ReplayMode` on authority replay fell through to `DecideAsync` + manifest persist — `AuthorityReplayService.ReplayAsync` only special-cased `ReconstructOnly`; unknown modes matched rebuild path (2026-08-24)
