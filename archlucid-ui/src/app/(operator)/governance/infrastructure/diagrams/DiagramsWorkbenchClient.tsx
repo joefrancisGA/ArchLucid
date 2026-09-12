@@ -66,7 +66,11 @@ import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-ev
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
 import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra-evidence/infra-evidence-mermaid-render-status-presentation";
 import { isInfraEvidenceMermaidDiagramEmpty } from "@/lib/infra-evidence/infra-evidence-mermaid-empty-content";
-import { parseInfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+import {
+  parseInfraEvidenceMermaidOutline,
+  resolveInfraEvidenceOutlineSeedNodeId,
+  type InfraEvidenceMermaidOutlineNode,
+} from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import {
   dependencyNeighborhoodRequiresAppliedSeed,
   resolveDependencyNeighborhoodSeedBlockedReason,
@@ -120,7 +124,9 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
   formatGovernanceInfrastructureInlineActionError,
@@ -222,6 +228,7 @@ export function DiagramsWorkbenchClient() {
   const [appliedSeedNodeId, setAppliedSeedNodeId] = useState<string>(() =>
     urlMermaidMode === "dependencyNeighborhood" ? urlSeedNodeId : "",
   );
+  const [seedCandidateNodes, setSeedCandidateNodes] = useState<InfraEvidenceMermaidOutlineNode[]>([]);
   const [dependencySeedBlockedDialog, setDependencySeedBlockedDialog] =
     useState<DependencyNeighborhoodSeedBlockedReason | null>(null);
   const [modePreviews, setModePreviews] = useState<InfraEvidenceMermaidModePreview[]>([]);
@@ -278,13 +285,14 @@ export function DiagramsWorkbenchClient() {
 
   const showFallbackCards = useMemo(
     () =>
-      shouldShowInfraDiagramsPartitionedViews({
+      selectedMode !== "dependencyNeighborhood"
+      && shouldShowInfraDiagramsPartitionedViews({
         selectedViewKey,
         previewStatus: activeModePreview?.status ?? "",
         renderStatus: renderResult?.status ?? "",
         fallbackArtifactCount: fallbackArtifacts.length,
       }),
-    [activeModePreview?.status, fallbackArtifacts.length, renderResult?.status, selectedViewKey],
+    [activeModePreview?.status, fallbackArtifacts.length, renderResult?.status, selectedMode, selectedViewKey],
   );
 
   const effectiveFallbackKey = useMemo(
@@ -398,6 +406,18 @@ export function DiagramsWorkbenchClient() {
 
     return parseInfraEvidenceMermaidOutline(mermaidSource);
   }, [mermaidSource]);
+
+  useEffect(() => {
+    setSeedCandidateNodes([]);
+  }, [selectedSnapshotId]);
+
+  useEffect(() => {
+    if (mermaidOutline == null || mermaidOutline.nodes.length === 0) {
+      return;
+    }
+
+    setSeedCandidateNodes([...mermaidOutline.nodes]);
+  }, [mermaidOutline]);
 
   const diagramScopeContextLine = useMemo(() => {
     const parts: string[] = [];
@@ -656,22 +676,38 @@ export function DiagramsWorkbenchClient() {
     [syncUrl],
   );
 
+  const applySeedNode = useCallback(
+    (rawSeed: string) => {
+      const trimmedSeed = rawSeed.trim();
+
+      if (trimmedSeed.length === 0) {
+        setDependencySeedBlockedDialog({
+          title: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE,
+          message: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_BODY,
+        });
+        return;
+      }
+
+      setSeedNodeDraft(trimmedSeed);
+      setAppliedSeedNodeId(trimmedSeed);
+      setDependencySeedBlockedDialog(null);
+      setSelectedMode("dependencyNeighborhood");
+      setSelectedViewKey("");
+      syncUrl({ mermaidMode: "dependencyNeighborhood", mermaidView: "", seedNodeId: trimmedSeed });
+    },
+    [syncUrl],
+  );
+
   const handleSeedNodeApply = useCallback(() => {
-    const trimmedSeed = seedNodeDraft.trim();
+    applySeedNode(seedNodeDraft);
+  }, [applySeedNode, seedNodeDraft]);
 
-    if (trimmedSeed.length === 0) {
-      setDependencySeedBlockedDialog({
-        title: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE,
-        message: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_BODY,
-      });
-      return;
-    }
-
-    setAppliedSeedNodeId(trimmedSeed);
-    setDependencySeedBlockedDialog(null);
-    setSelectedMode("dependencyNeighborhood");
-    syncUrl({ mermaidMode: "dependencyNeighborhood", seedNodeId: trimmedSeed });
-  }, [seedNodeDraft, syncUrl]);
+  const handleOutlineFocusNeighborhood = useCallback(
+    (node: InfraEvidenceMermaidOutlineNode) => {
+      applySeedNode(resolveInfraEvidenceOutlineSeedNodeId(node));
+    },
+    [applySeedNode],
+  );
 
   const runPngExport = useCallback(async () => {
     if (selectedSnapshotId.length === 0 || exportsDisabled) {
@@ -1005,19 +1041,62 @@ export function DiagramsWorkbenchClient() {
 
       {selectedMode === "dependencyNeighborhood" ? (
         <section className={cn("flex flex-wrap items-end gap-3", cnCard)} aria-label="Dependency neighborhood drill-down">
+          {seedCandidateNodes.length > 0 ? (
+            <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
+              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
+                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+              </span>
+              <select
+                className={cn("w-full", cnField)}
+                data-testid="infra-diagrams-seed-node-picker"
+                value={
+                  seedCandidateNodes.some(
+                    (node) => resolveInfraEvidenceOutlineSeedNodeId(node) === seedNodeDraft,
+                  )
+                    ? seedNodeDraft
+                    : ""
+                }
+                onChange={(event) => {
+                  const nextSeed = event.target.value;
+
+                  setSeedNodeDraft(nextSeed);
+
+                  if (nextSeed.trim().length > 0) {
+                    applySeedNode(nextSeed);
+                  }
+                }}
+              >
+                <option value="">Select a starting resource</option>
+                {seedCandidateNodes.map((node) => {
+                  const seedValue = resolveInfraEvidenceOutlineSeedNodeId(node);
+
+                  return (
+                    <option key={`${node.id}:${seedValue}`} value={seedValue}>
+                      {node.label}
+                    </option>
+                  );
+                })}
+              </select>
+            </label>
+          ) : null}
           {buyerPolishedShell ? (
             <>
               <div className="grid min-w-[16rem] flex-1 gap-2">
                 <Label htmlFor="infra-diagrams-seed-node-input">
-                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                  {seedCandidateNodes.length > 0
+                    ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
+                    : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
                 </Label>
                 <Input
                   id="infra-diagrams-seed-node-input"
                   data-testid="infra-diagrams-seed-node-input"
                   value={seedNodeDraft}
                   onChange={(event) => setSeedNodeDraft(event.target.value)}
-                  placeholder="22222222-2222-2222-2222-222222222222"
+                  placeholder="Cloud resource id or ARM id"
                 />
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER}
+                </p>
               </div>
               <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
                 {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
@@ -1026,14 +1105,21 @@ export function DiagramsWorkbenchClient() {
           ) : (
             <>
               <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
-                <span className={OPERATOR_TYPOGRAPHY.helper}>Seed cloud resource id</span>
+                <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
+                  {seedCandidateNodes.length > 0
+                    ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
+                    : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                </span>
                 <input
                   className={cnField}
                   data-testid="infra-diagrams-seed-node-input"
                   value={seedNodeDraft}
                   onChange={(event) => setSeedNodeDraft(event.target.value)}
-                  placeholder="22222222-2222-2222-2222-222222222222"
+                  placeholder="Cloud resource id or ARM id"
                 />
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER}
+                </span>
               </label>
               <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
                 {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
@@ -1177,7 +1263,12 @@ export function DiagramsWorkbenchClient() {
               </Button>
             </div>
           </div>
-          {mermaidOutline != null ? <InfraEvidenceDiagramOutline outline={mermaidOutline} /> : null}
+          {mermaidOutline != null ? (
+            <InfraEvidenceDiagramOutline
+              outline={mermaidOutline}
+              onFocusNeighborhood={handleOutlineFocusNeighborhood}
+            />
+          ) : null}
         </>
       ) : diagramContentEmpty && renderResult?.status === "Succeeded" ? (
         <EnterpriseCompactEmptyState
@@ -1198,7 +1289,12 @@ export function DiagramsWorkbenchClient() {
             onRetry={handleRenderRetry}
             onExportableSvgMarkupChange={setExportableSvgMarkup}
           />
-          {mermaidOutline != null ? <InfraEvidenceDiagramOutline outline={mermaidOutline} /> : null}
+          {mermaidOutline != null ? (
+            <InfraEvidenceDiagramOutline
+              outline={mermaidOutline}
+              onFocusNeighborhood={handleOutlineFocusNeighborhood}
+            />
+          ) : null}
         </>
       ) : renderResult?.status === "Failed" ? (
         <StatusTag kind="needs-attention" label="Diagram render failed for the selected mode." />

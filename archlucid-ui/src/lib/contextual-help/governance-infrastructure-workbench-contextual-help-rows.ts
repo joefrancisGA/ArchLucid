@@ -101,7 +101,7 @@ const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CONTEXTUAL_HELP = {
 const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CONTEXTUAL_HELP = {
   whatIsThisPage: `Inventory diagrams — ${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}`,
   whatToDoNext:
-    "Select a snapshot, render the inventory diagram, then export server PNG when procurement needs a shareable image.",
+    "Select a snapshot and a diagram mode. To inspect one resource and its neighbors, choose Focus neighborhood on a Nodes row, then export PNG when procurement needs a shareable image.",
   whyEmpty: "Diagram renders appear after inventory snapshots exist for your scope.",
   whereToConfigurePrerequisite:
     "Connect Azure or upload inventory with extract and upload before diagram renders are available.",
@@ -115,7 +115,7 @@ const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CONTEXTUAL_HELP = {
   },
   taskSteps: [
     "Wait for or select an inventory snapshot before rendering.",
-    "Use partitioned fallbacks when graphs exceed readability thresholds.",
+    "Choose Focus neighborhood on a Nodes row to start Dependency neighborhood from that resource.",
     "Export server PNG only after confirming the snapshot scope matches buyer questions.",
   ],
 } as const;

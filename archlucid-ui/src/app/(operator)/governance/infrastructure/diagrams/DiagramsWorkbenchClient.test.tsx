@@ -289,7 +289,7 @@ describe("DiagramsWorkbenchClient", () => {
     fireEvent.click(screen.getByRole("button", { name: "Focus neighborhood" }));
 
     expect(await screen.findByTestId("infra-diagrams-dependency-seed-blocked-dialog")).toHaveTextContent(
-      "Pick a seed resource before rendering",
+      "Pick a starting resource before rendering",
     );
   });
 
@@ -318,7 +318,7 @@ describe("DiagramsWorkbenchClient", () => {
     render(<DiagramsWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-diagrams-dependency-seed-blocked-dialog")).toHaveTextContent(
-      "Seed did not match this snapshot",
+      "Starting resource did not match this snapshot",
     );
   });
 
@@ -489,5 +489,51 @@ describe("DiagramsWorkbenchClient", () => {
     expect(networkModeCalls).toBe(1);
     expect(screen.getByTestId("infra-diagrams-fallback-cards")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+  });
+
+  it("applies a starting resource from a Nodes row", async () => {
+    const seedId = "22222222-2222-2222-2222-222222222222";
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: [
+        "flowchart TD",
+        `    %% al-type=Microsoft.Network/virtualNetworks al-rg=anly-aep-test-hi al-seed=${seedId}`,
+        '    n_vnet["vnet-aep-hi-test-wus-001"]',
+      ].join("\n"),
+      metrics: {
+        nodeCount: 11,
+        edgeCount: 10,
+        subgraphCount: 0,
+        maxDegree: 2,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 400,
+        layoutEstimate: 200,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DiagramsWorkbenchClient />);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Focus neighborhood from vnet-aep-hi-test-wus-001" }),
+    );
+
+    await waitFor(() => {
+      expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+        "11111111-1111-1111-1111-111111111111",
+        expect.objectContaining({
+          mode: "dependencyNeighborhood",
+          seedNodeId: seedId,
+        }),
+      );
+    });
+
+    expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("dependencyNeighborhood");
+    expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue(seedId);
   });
 });
