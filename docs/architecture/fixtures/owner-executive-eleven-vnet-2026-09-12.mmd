@@ -1,0 +1,29 @@
+flowchart TD
+    %% al-type=microsoft.network/virtualnetworks al-rg=anly-aep-test-hi al-seed=1427f1dc-311d-4c55-9087-302021307e93
+    n_676a3a32ced429b2["vnet-aep-hi-test-wus-001"]
+    %% al-type=microsoft.network/virtualnetworks al-rg=anly-avd-nprd-hi al-seed=2feada5c-5278-4228-8f73-1eef683c2ac6
+    n_3473caadcdfee425["vnet-avd-hi-nprd"]
+    %% al-type=microsoft.network/virtualnetworks al-rg=anly-avd-persistent-nonprod-hi al-seed=40ad04a0-2a9e-483a-a8fc-e0eecc8e746b
+    n_6b7a82aa5aba78cb["vnet-avd-hi-nonprod01"]
+    %% al-type=microsoft.network/virtualnetworks al-rg=anly-dr-test al-seed=a0909274-0756-430d-943e-6ff8764533da
+    n_5abc969203d413eb["vnet-eastus"]
+    %% al-type=microsoft.network/virtualnetworks al-rg=anly-edw-dev-hi al-seed=882cb058-9723-48c6-b4fd-b5af91f23fda
+    n_79f11a236d3a7a27["vnet-edw-hi-dev"]
+    %% al-type=microsoft.network/virtualnetworks al-rg=anly-edw-nprd-hi al-seed=149dc82b-c8be-4939-9b79-7405db61c96a
+    n_4cf1c68c3fd08226["vnet-edw-hi-nprd-wus-001"]
+    %% al-type=microsoft.network/virtualnetworks al-rg=anly-edw-ppd-hi al-seed=a8f21416-7877-4cd7-a19d-aa4a7a71c17d
+    n_725728d8ba3734ad["vnet-edw-hi-ppd"]
+    %% al-type=microsoft.network/virtualnetworks al-rg=anly-edw-tst-hi al-seed=bb91f7ef-c2d9-448b-929f-3129ea451686
+    n_61d3f2b65c6d6f70["vnet-edw-hi-tst"]
+    %% al-type=microsoft.network/virtualnetworks al-rg=anly-pcoe-hi-nprd al-seed=cb323fd3-2c25-4fdf-a2cc-26383e439cef
+    n_a17fa05effe078ad["vnet-pcoe-hi-nprd"]
+    %% al-type=microsoft.network/virtualnetworks al-rg=automation-anly-aep-nonprod-hi al-seed=c2f554f1-b79a-4688-87b7-191e85cf9a2c
+    n_a46cbfcd8d6132a0["vnet-userprovision-hi-nonprod01"]
+    %% al-type=microsoft.network/virtualnetworks al-rg=vm-securenow-dev-01_group al-seed=f220b036-1531-4e08-940a-11bcadcff4d1
+    n_d2ba58cce1311fbe["vnet-eastus-1"]
+    n_676a3a32ced429b2 --> n_4cf1c68c3fd08226
+    n_3473caadcdfee425 --> n_725728d8ba3734ad
+    n_6b7a82aa5aba78cb --> n_61d3f2b65c6d6f70
+    n_5abc969203d413eb --> n_a17fa05effe078ad
+    n_79f11a236d3a7a27 --> n_a46cbfcd8d6132a0
+    n_4cf1c68c3fd08226 --> n_d2ba58cce1311fbe

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpModelGovernanceHeaderActions } from "@/app/(operator)/help/_sections/HelpModelGovernanceHeaderActions";
 import { HelpModelGovernanceSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpModelGovernanceSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { ModelGovernanceHelpClaimDisciplineStrip } from "@/components/help/ModelGovernanceHelpClaimDisciplineStrip";
 import { ModelGovernanceHelpEvidenceOrientationStrip } from "@/components/help/ModelGovernanceHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -131,6 +132,8 @@ export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideView
         />
 
         {buyerPolishedShell ? null : <ModelGovernanceHelpClaimDisciplineStrip />}
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-model-governance" showSsoOptional={false} />
 
         {buyerPolishedShell ? (
           <div

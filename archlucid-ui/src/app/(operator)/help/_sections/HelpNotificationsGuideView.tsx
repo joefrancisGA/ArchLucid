@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpNotificationsHeaderActions } from "@/app/(operator)/help/_sections/HelpNotificationsHeaderActions";
 import { HelpNotificationsSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpNotificationsSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { NotificationsHelpClaimDisciplineStrip } from "@/components/help/NotificationsHelpClaimDisciplineStrip";
 import { NotificationsHelpEvidenceOrientationStrip } from "@/components/help/NotificationsHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -139,6 +140,8 @@ export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProp
         />
 
         {buyerPolishedShell ? null : <NotificationsHelpClaimDisciplineStrip />}
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-notifications" showSsoOptional={false} />
 
         {buyerPolishedShell ? (
           <div
