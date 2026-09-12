@@ -37,6 +37,7 @@ import { SimulatorRunRehearsalCaption } from "@/components/usability/SimulatorRu
 import { WorkingCareerRehearsalChooser } from "@/components/governance/WorkingCareerRehearsalChooser";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import {
@@ -110,6 +111,7 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly onNavigateActivity?: () => void;
   readonly onNavigateClarifications?: () => void;
+  readonly parentArchitectureId?: string | null;
 };
 
 /** Findings list with workspace toolbar filters for the review detail page. */
@@ -117,6 +119,12 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const { isWorkingMode } = useWorkspaceMode();
+  const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
+  const workingInstrument =
+    isWorkingMode && parentArchitectureId.length > 0
+      ? { architectureId: parentArchitectureId, isWorkingMode: true as const }
+      : undefined;
   const initialJobView = resolveFindingJobViewFromSearchParam(
     searchParams?.get(REVIEW_FINDINGS_JOB_VIEW_PARAM),
   );
@@ -293,7 +301,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       : null;
   const metricPresentation = createHomeSurface
     ? architectureAssessmentFindingsPresentation(props.runId, triageVisibleCount)
-    : reviewFindingsGovernanceQueuePresentation(props.runId, triageVisibleCount);
+    : reviewFindingsGovernanceQueuePresentation(props.runId, triageVisibleCount, workingInstrument);
 
   const metricCountEl = (
     <div className="mb-3" data-testid="run-detail-findings-metric-count">
@@ -436,6 +444,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       {!createHomeSurface ? (
         <ReviewPackageGovernanceFindingsVocabularyRail
           runId={props.runId}
+          parentArchitectureId={props.parentArchitectureId}
           currentSurfaceId="review-package-findings"
         />
       ) : null}

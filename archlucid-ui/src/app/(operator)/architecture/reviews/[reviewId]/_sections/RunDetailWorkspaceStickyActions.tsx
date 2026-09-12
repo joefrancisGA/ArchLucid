@@ -31,6 +31,8 @@ export type RunDetailWorkspaceStickyActionsProps = {
   readonly commitBlockedTechnicalDetail?: string | null;
   readonly showProgressTracker: boolean;
   readonly manifestId: string | null | undefined;
+  /** Working nested job parent for finalize success desk return (ADR 0098). */
+  readonly parentArchitectureId?: string | null;
   /** When Do this next owns the page primary, demote the sticky duplicate to outline. */
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
@@ -159,6 +161,7 @@ export function RunDetailWorkspaceStickyActions(
         commitBlockedReason={stickyCommitBlockedReason}
         commitBlockedBlocks={props.commitBlockedBlocks}
         demoted={props.pagePrimaryOwnedElsewhere === true}
+        parentArchitectureId={props.parentArchitectureId}
       />
     </div>
   );

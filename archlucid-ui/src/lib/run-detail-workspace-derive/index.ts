@@ -39,7 +39,7 @@ export { deriveReviewNextActionLabel } from "./review-presentation";
 export { deriveReviewStatusSummary } from "./review-presentation";
 export { deriveSponsorBottomLineContent } from "./review-presentation";
 export { isProductBrandReviewTitle } from "./review-presentation";
-export { deriveReviewHeaderPresentation } from "./review-presentation";
+export { deriveReviewHeaderPresentation, deriveWorkingInstrumentReviewHeaderPresentation } from "./review-presentation";
 export { derivePackageVersionLabel } from "./review-presentation";
 export { deriveEvidenceCoverageSummary } from "./review-presentation";
 export { deriveReviewDisplayTitle } from "./review-presentation";
