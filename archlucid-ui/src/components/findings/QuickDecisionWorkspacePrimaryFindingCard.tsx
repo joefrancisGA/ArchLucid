@@ -7,6 +7,7 @@ import type { ReactElement } from "react";
 import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
 import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
+import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
@@ -116,6 +117,13 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
                 structuralExecutionMode={props.context.structuralExecutionMode}
               />
             </>
+          ) : null}
+          {finding.classification !== null && finding.classification !== undefined ? (
+            <FindingClassificationChip
+              classification={finding.classification}
+              treatment={finding.treatment}
+              findingId={finding.findingId}
+            />
           ) : null}
         </div>
         <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>

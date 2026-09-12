@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useLayoutEffect } from "react";
 
+import { ImpactPreviewPolicyEnvelopeEntryStrip } from "@/components/architecture/ImpactPreviewPolicyEnvelopeEntryStrip";
 import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -24,6 +25,9 @@ import {
   IMPACT_PREVIEW_SIMULATE_RETRY_LABEL,
   impactPreviewPageSubtitle,
 } from "@/lib/impact-preview-page-copy";
+import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
+import { SYSTEM_NOT_JOB_NESTED_IMPACT_PREVIEW_PAGE_SUBTITLE } from "@/lib/system-not-job-impact-preview-envelope-entry";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { setImpactPreviewShellPageState } from "@/lib/impact-preview-route-shell-state";
 import type { ImpactPreviewPageState } from "@/lib/impact-preview-page-types";
 import { resolveImpactPreviewPageState } from "@/lib/resolve-impact-preview-page-state";
@@ -56,6 +60,9 @@ type Props = {
   readonly scopedRunId: string;
   readonly scopedRunFilterActive: boolean;
   readonly onPickReviewForSimulating: (reviewId: string) => void;
+  readonly basePathname?: string;
+  readonly pinnedArchitectureId?: string | null;
+  readonly nestedPolicyEnvelopeEntry?: boolean;
 };
 
 function impactPreviewHeaderStatus(pageState: ImpactPreviewPageState): EnterpriseStatusKind | null {
@@ -143,18 +150,41 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
     m.continueLastPair !== null &&
     (m.selectedBaselineId !== m.continueLastPair.baselineRunId ||
       m.selectedId !== m.continueLastPair.candidateRunId);
+  const nestedPolicyEnvelopeEntry = props.nestedPolicyEnvelopeEntry === true;
+  const pinnedArchitectureId = props.pinnedArchitectureId?.trim() ?? "";
+  const pageSubtitle = nestedPolicyEnvelopeEntry
+    ? SYSTEM_NOT_JOB_NESTED_IMPACT_PREVIEW_PAGE_SUBTITLE
+    : impactPreviewPageSubtitle(buyerPolishedShell);
+  const nestedBreadcrumb =
+    nestedPolicyEnvelopeEntry && pinnedArchitectureId.length > 0
+      ? (
+        <OperatorPageBreadcrumb
+          data-testid="impact-preview-nested-breadcrumb"
+          items={[
+            { label: "Architecture desk", href: architectureIdentityPath(pinnedArchitectureId) },
+            { label: IMPACT_PREVIEW_PAGE_TITLE },
+          ]}
+        />
+      )
+      : undefined;
 
   return (
     <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="impact-preview-page">
       <ImpactPreviewPageHeader
-        subtitle={impactPreviewPageSubtitle(buyerPolishedShell)}
+        subtitle={pageSubtitle}
         listLoading={m.listLoading}
         lastRefreshedAt={m.lastRefreshedAt}
         statusKind={impactPreviewHeaderStatus(pageState)}
+        navHref={props.basePathname}
+        breadcrumb={nestedBreadcrumb}
         onRefresh={() => {
           void m.loadList();
         }}
       />
+
+      {nestedPolicyEnvelopeEntry && pinnedArchitectureId.length > 0 ? (
+        <ImpactPreviewPolicyEnvelopeEntryStrip architectureId={pinnedArchitectureId} />
+      ) : null}
 
       <ImpactPreviewBuyerChrome />
 

@@ -59,6 +59,9 @@ public static class GraphEdgeTypes
 
     /// <summary>Entra group membership adapter edge (SA-20); emitted when optional ZIP sibling or Graph GET is present.</summary>
     public const string MemberOf = "MEMBER_OF";
+
+    /// <summary>VNet peering adapter edge (IE-RF-07); peering is not a generic CONNECTS_TO hop.</summary>
+    public const string PeersWith = "PEERS_WITH";
 }
 
 /// <summary>

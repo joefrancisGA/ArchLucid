@@ -123,8 +123,9 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
 
         string mermaid = renderer.Render(ast);
 
-        mermaid.Should().Contain(
-            "n_a1[\"nic-prod\"] %% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network");
+        mermaid.ReplaceLineEndings("\n").Should().Contain(
+            "%% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network\n    n_a1[\"nic-prod\"]");
+        mermaid.Should().NotContain("] %% ");
     }
 
     [Fact]

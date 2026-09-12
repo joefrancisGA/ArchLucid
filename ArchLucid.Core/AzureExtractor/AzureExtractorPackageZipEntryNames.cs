@@ -21,6 +21,8 @@ public static class AzureExtractorPackageZipEntryNames
 
     public const string DefenderSummary = "defender-summary.json";
 
+    public const string EffectiveNetworkControls = "effective-network-controls.json";
+
     public static IReadOnlyCollection<string> OptionalInventoryEntryNames { get; } =
     [
         RoleAssignments,
@@ -30,5 +32,6 @@ public static class AzureExtractorPackageZipEntryNames
         FederatedCredentials,
         EntraGroupMemberships,
         DefenderSummary,
+        EffectiveNetworkControls,
     ];
 }

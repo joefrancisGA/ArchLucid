@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  architectureIdentityDraftHref,
+} from "@/lib/architecture/architecture-routes";
+import {
+  assertSpawnLockedDraftBackHrefHonest,
+  isArchitectureDraftWritableEditorRoutePath,
+  resolveSpawnLockedDraftBackLocator,
+  resolveSpawnLockedDraftPrimaryBackHref,
+  resolveStartReviewSpawnLockedDraftBackHref,
+  resolveStartReviewSpawnLockedDraftBackLocator,
   resolveWorkingBackHref,
   resolveWorkingBackLocator,
   resolveWorkingReviewFindingsBackHref,
@@ -100,5 +109,86 @@ describe("resolveWorkingBackLocator (AO-44)", () => {
     ).toBe(
       "/architecture/architectures/architecture-identity-001/reviews/run-001?reviewTab=findings",
     );
+  });
+});
+
+describe("resolveSpawnLockedDraftBackLocator (SN-005)", () => {
+  const draftEditorHref = architectureIdentityDraftHref("architecture-identity-001", "draft-001");
+
+  it("targets nested review job and architecture desk after spawn-lock — not the writable draft editor", () => {
+    const locator = resolveSpawnLockedDraftBackLocator({
+      linkedReviewId: "run-001",
+      parentArchitectureId: "architecture-identity-001",
+    });
+
+    expect(locator.reviewJobHref).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/run-001",
+    );
+    expect(locator.architectureDeskHref).toBe("/architecture/architectures/architecture-identity-001");
+    expect(locator.reviewJobHref).not.toBe(draftEditorHref);
+    assertSpawnLockedDraftBackHrefHonest(locator.reviewJobHref, draftEditorHref);
+    expect(locator.architectureDeskHref).toBe("/architecture/architectures/architecture-identity-001");
+  });
+
+  it("falls back to peer review href for legacy drafts without a parent architecture id", () => {
+    const locator = resolveSpawnLockedDraftBackLocator({
+      linkedReviewId: "run-legacy",
+      parentArchitectureId: null,
+    });
+
+    expect(locator.reviewJobHref).toBe("/architecture/reviews/run-legacy");
+    expect(locator.architectureDeskHref).toBeNull();
+    assertSpawnLockedDraftBackHrefHonest(locator.reviewJobHref, "/architecture/architectures/draft-legacy");
+  });
+
+  it("resolveSpawnLockedDraftPrimaryBackHref mirrors reviewJobHref", () => {
+    expect(
+      resolveSpawnLockedDraftPrimaryBackHref({
+        linkedReviewId: "run-001",
+        parentArchitectureId: "architecture-identity-001",
+      }),
+    ).toBe("/architecture/architectures/architecture-identity-001/reviews/run-001");
+  });
+
+  it("resolveStartReviewSpawnLockedDraftBackLocator returns null while the draft is still editable", () => {
+    expect(
+      resolveStartReviewSpawnLockedDraftBackLocator({
+        linkedReviewId: null,
+        parentArchitectureId: "architecture-identity-001",
+      }),
+    ).toBeNull();
+  });
+
+  it("resolveStartReviewSpawnLockedDraftBackHref prefers review job over draft editor when spawn-locked", () => {
+    expect(
+      resolveStartReviewSpawnLockedDraftBackHref({
+        linkedReviewId: "run-001",
+        parentArchitectureId: "architecture-identity-001",
+        draftEditorHref,
+      }),
+    ).toBe("/architecture/architectures/architecture-identity-001/reviews/run-001");
+    expect(
+      resolveStartReviewSpawnLockedDraftBackHref({
+        linkedReviewId: null,
+        parentArchitectureId: "architecture-identity-001",
+        draftEditorHref,
+      }),
+    ).toBe(draftEditorHref);
+  });
+
+  it("detects nested draft editor route paths", () => {
+    expect(
+      isArchitectureDraftWritableEditorRoutePath(
+        "/architecture/architectures/architecture-identity-001/drafts/draft-001",
+      ),
+    ).toBe(true);
+    expect(
+      isArchitectureDraftWritableEditorRoutePath("/architecture/architectures/architecture-identity-001"),
+    ).toBe(false);
+    expect(
+      isArchitectureDraftWritableEditorRoutePath(
+        "/architecture/architectures/architecture-identity-001/reviews/run-001",
+      ),
+    ).toBe(false);
   });
 });

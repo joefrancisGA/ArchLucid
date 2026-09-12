@@ -3,11 +3,11 @@
 
 # ArchLucid Broader Exposure Assessment — Controlled Beta: YELLOW / Public Self-Service: RED / Public Mention: YELLOW
 
-**Pass date:** 2026-09-11, **21:08 UTC**. **Computed fresh** — no carry-forward from the 2026-07-10 rolling file (archived at `docs/archive/assessments/LATEST_EXPOSURE-2026-07-10-pre-2026-09-11.md`).
+**Pass date:** 2026-09-12, **00:39 UTC**. **Computed fresh** — companion rescore aligned with [`LATEST_GPT55.md`](LATEST_GPT55.md) ROI-batch-4 pass (prior file archived at `docs/archive/assessments/LATEST_EXPOSURE-2026-09-11-pre-roi-batch4.md`).
 
-**Reasoning engine:** Cursor Grok 4.6, code-and-doc desk review. **No live Azure OpenAI call. No live click-through of a deployed host this pass.** Simulator unit tests (lifecycle, pre-commit gate, disposition-aware ROI) **28 passed**.
+**Reasoning engine:** Cursor Composer 2.5, code-and-doc desk review. **No live Azure OpenAI call. No live click-through of a deployed host this pass.** Simulator unit tests (lifecycle, pre-commit gate, disposition-aware ROI) **28 passed**.
 
-**Inspected HEAD:** `1abaf898f0`.
+**Inspected HEAD:** `66edde7b91` (`cursor/arch-quality-roi-improvements-0d83`).
 
 ---
 
@@ -15,7 +15,7 @@
 
 | Exposure path | RYG | Verdict | Why | Conditions to proceed |
 |---|---|---|---|---|
-| Controlled beta | **YELLOW** | Proceed only with founder-selected tenants, handholding, and explicit claim/cost guardrails. | (1) V1 ship Gate 1 is **UNKNOWN on this HEAD** (tests pass; live smoke not run this pass). (2) G4 proof packets are **0 of 3** — beta can tolerate that; selling “proven” cannot. (3) Trust-breaking “sample shell” / raw health copy was **not found** in current UI; pricing is quote-led and internally coherent — so this is **not** RED. | Founder-selected users only; Quick Scan **AI off** until **M-110**; run `release-smoke` before the first guest; Stage 0 claim allowlist; no self-serve checkout flag. |
+| Controlled beta | **YELLOW** | Proceed only with founder-selected tenants, handholding, and explicit claim/cost guardrails. | (1) V1 ship Gate 1 is **UNKNOWN on this HEAD** (ship-gate hook wired; live smoke not run this pass). (2) G4 proof packets are **0 of 3**. (3) Export/audit honesty improved (sendable covers, audit CSV posture, dual-channel note on buyer audit) — reduces overclaim risk but does not replace live witness. | Founder-selected users only; Quick Scan **AI off** until **M-110**; run `release-smoke` before the first guest; Stage 0 claim allowlist; no self-serve checkout flag. |
 | Public self-service | **RED** | Do not open unknown-user signup/pay. | (1) Stripe checkout URLs are **placeholders**; live keys not flipped (correctly deferred, but that **is** a self-service blocker). (2) Launch-load / LinkedIn-burst drills **not executed** (**G-SCALE-02** Not started). (3) Nobody outside the founder has a logged Real packet — self-service would expose an unproven first-review to strangers **and** to LLM cost. | At least: observed Gate 1 PASS on staging, **G-SCALE-01/02** recorded, **M-110** decided, live billing **or** an explicitly non-paywalled trial with hard AI caps proven under abuse, G4 ≥1 clean Real row. |
 | LinkedIn / public mention | **YELLOW** | Mention is allowed with a **request-access** CTA and Stage 0 claims; not a blast with product screenshots. | (1) Several LinkedIn posts are already **Done** in GTM; that does not make **screenshot-ready** UI. (2) **M-07** polished workflow shots are **Not started**. (3) Public showcase is static Claims-first (**M-107** Done) — good for cost isolation — but overclaim risk (seed vs live) remains if the founder improvises. | CTA = request access / join beta; no “sign up and pay”; no live-agent claims on Workspace B; capture **M-07** before screenshot posts; keep Quick Scan sample-only. |
 
@@ -37,7 +37,7 @@ The product is past “hide it because the UI is a prototype.” It is **not** p
 
 **Title:** ArchLucid Broader Exposure Assessment — Controlled Beta: YELLOW / Public Self-Service: RED / Public Mention: YELLOW
 
-- **Timestamp:** 2026-09-11 21:08 UTC
+- **Timestamp:** 2026-09-12 00:39 UTC
 - **Engine used:** Cursor Grok 4.6 (desk review; simulator tests only)
 - **Source materials inspected:** v3 read list in [`LATEST_GPT55.md`](LATEST_GPT55.md) §1, plus `PRICING_PHILOSOPHY.md`, `pricing.json`, billing/system-health/auth-callback UI tests, `CLAIM_READINESS_STATUS.md`, `CONNECTOR_READINESS_MATRIX.md`, `LOAD_TEST_BASELINE.md` (via trust-center scalability section), GTM P0 rows
 - **Code / UI regions inspected:** `/pricing`, `archlucid-ui/public/pricing.json`, `OperatorBillingSettingsClient` buyer-polish tests, `SystemHealthPage` buyer-polish tests, `AuthCallbackAccessPanel`, `SelfServiceTrialAiBudgetPolicyProvisioner`, cloud-connections evidence-only copy, ITSM `NativeEnabled`, AWS/GCP extractor scripts
@@ -49,14 +49,14 @@ The product is past “hide it because the UI is a prototype.” It is **not** p
 
 | Score | Value | Feeds `(A)`? |
 |---|---|---|
-| **(A) V1 headline readiness** | **76.80%** | Yes (v3 model, this pass) |
+| **(A) V1 headline readiness** | **78.18%** | Yes (v3 model, this pass) |
 | **(B) Procurement / market realism** | Informational — rigid RFP **weak**; honest packet **usable** | No (weight 0) |
-| Trustworthiness | **72** | Exposure only |
-| UI Polish | **71** | Exposure only |
-| Demo Safety | **67** | Exposure only |
+| Trustworthiness | **73** | Exposure only |
+| UI Polish | **72** | Exposure only |
+| Demo Safety | **68** | Exposure only |
 | Public Self-Service Readiness | **44** | Exposure only |
-| LinkedIn / Public Mention Readiness | **66** | Exposure only |
-| Controlled Beta Readiness | **72** | Exposure only |
+| LinkedIn / Public Mention Readiness | **67** | Exposure only |
+| Controlled Beta Readiness | **74** | Exposure only |
 
 ---
 
@@ -66,8 +66,8 @@ The product is past “hide it because the UI is a prototype.” It is **not** p
 
 | # | Item | Status | Evidence |
 |---|---|---|---|
-| 1 | First review completes end to end | **UNKNOWN** | Unit lifecycle tests PASS; live smoke not run this pass. Fastest: `scripts/release-smoke.ps1` |
-| 2 | Demo workspace explorable safely | **PASS** | G-REAL-02/03 owner-signed Playwright; Workspace B seed honesty footnote **M-111** Done |
+| 1 | First review completes end to end | **UNKNOWN** | Unit lifecycle tests PASS; `release-smoke.ps1` ship-gate hook exists but live smoke not run this pass. Fastest: `scripts/release-smoke.ps1` |
+| 2 | Demo workspace explorable safely | **PASS** | G-REAL-02/03 owner-signed Playwright; `@release-gate` smoke now asserts spine export strip, audit export button, classification + semantic-band chips (ROI batch 3–4) |
 | 3 | No trust-breaking internal language on core beta paths | **PASS** (residuals) | No “sample shell” / “not part of the sample shell” hits in UI; help markdown strips `V1 GA`; admin ITSM may still leak config keys on **internal** routes |
 | 4 | Pricing does not contradict buyer conversations | **PASS** | Single catalog: Architect $169 / Team $1169 / Professional $2299; quote-led; test Stripe labeled |
 | 5 | AI spend bounded by operator control | **PASS** | Tenant AI budget + trial `DefaultTrialAiBudgetUsd` provisioner; LLM reserve/settle |

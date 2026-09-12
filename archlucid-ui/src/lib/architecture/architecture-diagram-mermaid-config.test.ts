@@ -7,6 +7,8 @@ describe("createArchitectureDiagramMermaidConfig", () => {
     const config = createArchitectureDiagramMermaidConfig(false);
 
     expect(config.flowchart.htmlLabels).toBe(false);
+    expect(config.suppressErrorRendering).toBe(true);
+    expect(config.startOnLoad).toBe(false);
     expect(config.themeVariables.primaryColor).toBe("#ffffff");
     expect(config.themeVariables.primaryTextColor).toBe("#0f172a");
   });

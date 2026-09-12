@@ -29,6 +29,12 @@ public sealed partial class DapperFindingInspectReadRepository
             row.Title,
             row.Rationale);
         FindingSeverity recordSeverity = FindingInspectReadModelMapper.ParseFindingSeverity(row.Severity);
+        FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(
+            row.Classification,
+            typed);
+        FindingTreatment? treatment = FindingInspectReadRepositoryCore.ResolveInspectTreatment(row.Treatment, typed);
+        FindingSemanticSupportBand? semanticSupportBand =
+            FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(row.SemanticSupportBandOverlay, typed);
 
         DispositionPointerProjection dispositionPointer = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
             joinResult.DispositionRow?.Disposition,
@@ -44,6 +50,9 @@ public sealed partial class DapperFindingInspectReadRepository
             FindingId = row.FindingId,
             Severity = recordSeverity,
             TypedPayload = typed,
+            Classification = classification,
+            Treatment = treatment,
+            SemanticSupportBand = semanticSupportBand,
             DecisionRuleId = ruleId,
             DecisionRuleName = FindingInspectReadRepositoryCore.ResolveDecisionRuleName(ruleName, ruleId),
             Evidence = evidence,
@@ -217,6 +226,24 @@ public sealed partial class DapperFindingInspectReadRepository
         }
 
         public string? ReasoningTraceDigestSha256
+        {
+            get;
+            init;
+        }
+
+        public byte? Treatment
+        {
+            get;
+            init;
+        }
+
+        public byte? Classification
+        {
+            get;
+            init;
+        }
+
+        public string? SemanticSupportBandOverlay
         {
             get;
             init;

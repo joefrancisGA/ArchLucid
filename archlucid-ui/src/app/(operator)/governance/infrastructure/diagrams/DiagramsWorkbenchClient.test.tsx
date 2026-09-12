@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -407,5 +407,87 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(await screen.findByTestId("infra-diagrams-png-browser-fallback-note")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-png-export-error")).not.toBeInTheDocument();
+  });
+
+  it("does not refetch network mode after a partition fallback succeeds", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
+      const fallbackKey = query.fallbackKey ?? null;
+      const isFallback = fallbackKey != null && fallbackKey.length > 0;
+
+      return {
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        mode: isFallback ? fallbackKey : (query.mode ?? "executive"),
+        fallbackKey,
+        status: isFallback ? "Succeeded" : query.mode === "network" ? "Partitioned" : "Succeeded",
+        mermaid: "flowchart LR\n  A-->B",
+        metrics: {
+          nodeCount: isFallback ? 40 : query.mode === "network" ? 500 : 11,
+          edgeCount: isFallback ? 55 : query.mode === "network" ? 900 : 10,
+          subgraphCount: isFallback ? 2 : query.mode === "network" ? 12 : 0,
+          maxDegree: 3,
+          crossSubgraphEdgeCount: isFallback ? 1 : query.mode === "network" ? 40 : 0,
+          textSizeBytes: 1200,
+          layoutEstimate: 800,
+        },
+        fallbackArtifacts: isFallback || query.mode === "network"
+          ? [
+              {
+                key: "executive",
+                label: "Executive (executive)",
+                status: "Succeeded",
+                nodeCount: 40,
+                edgeCount: 55,
+              },
+              {
+                key: "network",
+                label: "Network (network)",
+                status: "Succeeded",
+                nodeCount: 90,
+                edgeCount: 140,
+              },
+            ]
+          : [],
+      };
+    });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DiagramsWorkbenchClient />);
+
+    fireEvent.change(await screen.findByTestId("infra-diagrams-mode-picker"), {
+      target: { value: "network" },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-diagrams-fallback-cards")).toBeInTheDocument();
+      expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(fetchInfraEvidenceMermaidRenderMock.mock.calls.some((call) => call[1]?.mode === "network")).toBe(
+        true,
+      );
+      expect(
+        fetchInfraEvidenceMermaidRenderMock.mock.calls.some((call) => call[1]?.fallbackKey === "executive"),
+      ).toBe(true);
+    });
+
+    const settledCallCount = fetchInfraEvidenceMermaidRenderMock.mock.calls.length;
+    const networkModeCalls = fetchInfraEvidenceMermaidRenderMock.mock.calls.filter(
+      (call) => call[1]?.mode === "network",
+    ).length;
+
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 75);
+      });
+    });
+
+    expect(fetchInfraEvidenceMermaidRenderMock.mock.calls.length).toBe(settledCallCount);
+    expect(
+      fetchInfraEvidenceMermaidRenderMock.mock.calls.filter((call) => call[1]?.mode === "network").length,
+    ).toBe(networkModeCalls);
+    expect(networkModeCalls).toBe(1);
+    expect(screen.getByTestId("infra-diagrams-fallback-cards")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
   });
 });
