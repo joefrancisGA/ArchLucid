@@ -324,7 +324,7 @@ describe('ArchitectureDiagramViewer', () => {
 
     expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-render-failure'));
     expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-viewport-controls'));
-    expect(viewport.className).toContain('bg-slate-100');
+    expect(viewport.className).toContain('bg-white');
 
     fitSpy.mockRestore();
   });

@@ -1,3 +1,9 @@
+/** Light-mode inventory/architecture node fill — option E (pale honey) on a white canvas. */
+export const ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE = {
+  fill: "#E6CF8A",
+  border: "#7A6535",
+} as const;
+
 /** Shared Mermaid init for operator architecture and inventory diagrams. */
 export function createArchitectureDiagramMermaidConfig(dark: boolean): {
   startOnLoad: false;
@@ -31,15 +37,14 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
     },
     themeVariables: {
       fontSize: "15px",
-      // Transparent diagram plate so white nodes read against the slate canvas, not a matching white SVG backdrop.
+      // Transparent SVG plate — node fill comes from pale honey on the white viewport canvas.
       background: "transparent",
-      // White node fill so resource names stay readable against the canvas.
-      primaryColor: dark ? "#334155" : "#ffffff",
-      mainBkg: dark ? "#334155" : "#ffffff",
+      primaryColor: dark ? "#334155" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill,
+      mainBkg: dark ? "#334155" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill,
       clusterBkg: dark ? "#1e293b" : "#e2e8f0",
       clusterBorder: dark ? "#94a3b8" : "#475569",
-      primaryBorderColor: dark ? "#cbd5e1" : "#1e293b",
-      lineColor: dark ? "#cbd5e1" : "#1e293b",
+      primaryBorderColor: dark ? "#cbd5e1" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.border,
+      lineColor: dark ? "#cbd5e1" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.border,
       primaryTextColor: dark ? "#f8fafc" : "#0f172a",
       secondaryTextColor: dark ? "#e2e8f0" : "#1e293b",
     },
