@@ -290,8 +290,6 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
-<<<<<<< HEAD
-=======
     public async Task ParseAsync_snake_case_ephemeral_containers_projects_privileged_security_context()
     {
         InfrastructureDeclarationReference declaration = new()
@@ -401,7 +399,6 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
->>>>>>> origin/bugsmash
     public async Task ParseAsync_reparse_produces_stable_object_ids_for_deployments()
     {
         InfrastructureDeclarationReference declaration = new()
