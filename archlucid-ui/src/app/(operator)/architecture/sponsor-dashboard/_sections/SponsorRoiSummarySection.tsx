@@ -14,6 +14,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { DemoTenantSeedCallout } from "@/components/DemoTenantSeedCallout";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Button } from "@/components/ui/button";
 import {
   buildSponsorSummaryMarkdown,
@@ -303,6 +304,7 @@ export function SponsorRoiSummarySection({
             {boardPackBusy ? "Board pack…" : "Download board pack (Markdown)"}
           </Button>
         </div>
+        <SponsorExportSendHonestyStrip className="mt-2" testIdPrefix="sponsor-roi-summary-export" />
         <label className={cn("flex items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           <input
             type="checkbox"
