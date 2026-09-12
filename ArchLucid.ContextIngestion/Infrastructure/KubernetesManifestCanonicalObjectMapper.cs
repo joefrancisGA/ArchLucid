@@ -212,7 +212,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
         if (podSpec.ValueKind is not JsonValueKind.Object)
             return;
 
-        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "hostNetwork", out JsonElement hostNetwork)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "hostNetwork", out JsonElement hostNetwork)
             && hostNetwork.ValueKind is JsonValueKind.True)
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostNetwork", "true");
 

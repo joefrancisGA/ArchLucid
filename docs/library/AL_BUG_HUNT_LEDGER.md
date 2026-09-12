@@ -10392,13 +10392,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 84
-- **bugs-found:** 147
+- **hunts:** 85
+- **bugs-found:** 148
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — snake_case `security_context` on kubernetes-json deployments skipped privileged/runAsNonRoot projection
+- **last-bug:** 2026-09-12 — snake_case `host_network` on kubernetes-json deployments skipped host network exposure projection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2044 (seed→hit): reseeded context-ingestion; proved snake_case `host_network` projection gap; regression `ParseAsync_snake_case_host_network_projects_host_network_exposure`.
 
 ### Hypotheses
 
@@ -10640,6 +10642,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `BicepResourceBodyParser` / `SimpleTerraformResourceBlockParser` — multiline nested-block headers (`key =` newline `{`) flattened inner scalars to parent `tf.*` — **hit 2026-09-05 (#803):** `#527` multiline-array parity gap for `{` delimiters; `networkAcls =` / `retention_policy =` on own line skipped `NestedBlockStartRegex` and leaked `defaultAction`/`days` as top-level keys; fixed with `TryConsumeMultilineNestedBlockAssignment` (`ParseAsync_MultilineNestedBlockHeader_PreservesNetworkAclsBlock`, `ParseAsync_MultilineNestedBlockHeader_PreservesRetentionPolicyBlock`).
 - [x] (proven) `TopologyHintStableObjectIds.CanonicalizeHintName` — backslash-separated Windows paths did not normalize to forward-slash peers — **hit 2026-09-11 thorough hunt #1696:** `prod\vnet\subnet-a` vs `prod/vnet/subnet-a` churned topology-hints connector `ObjectId` and policy overlap stable ids; fixed by normalizing `\` to `/` before segment split; regression `CanonicalizeHintName_BackslashSeparatedPaths_EquivalentToForwardSlashPeers`.
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ProjectContainerSecurityContext` — snake_case `security_context` fields not projected — **hit 2026-09-12 thorough hunt #1958:** exporter kubernetes-json with `security_context` / `allow_privilege_escalation` / `run_as_non_root` missed `k8s.privileged` and related security baselines; fixed with `TryGetPropertyIgnoreCaseOrSnakeCase`; regression `ParseAsync_snake_case_security_context_projects_privileged_container`.
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.ProjectPodSecurityProperties` — snake_case `host_network` not projected — **hit 2026-09-12 seed hunt #2044:** exporter kubernetes-json with `host_network: true` missed `k8s.hostNetwork` while camelCase `hostNetwork` worked; fixed with `TryGetPropertyIgnoreCaseOrSnakeCase`; regression `ParseAsync_snake_case_host_network_projects_host_network_exposure`.
 - [x] (invalid) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` — `values` loop skips `ShouldRedactKey` when `sensitive_values` absent — **cheap-disproof 2026-09-12 thorough hunt #1958:** terraform-show-json only redacts fields terraform marks in `sensitive_values`; absent marking means plaintext is intentional state output, not a parser leak.
 
 2026-09-12 thorough hunt #1958 (hit): proved K8s snake_case security_context projection gap; cheap-disproof closed terraform redaction-without-sensitive_values candidate; scoped context-ingestion tests passed.
