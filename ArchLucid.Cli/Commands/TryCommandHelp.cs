@@ -1,14 +1,14 @@
 namespace ArchLucid.Cli.Commands;
 
-/// <summary>Help text for <see cref="TryCommand" /> — Career vs Rehearsal door vocabulary (AS-083).</summary>
+/// <summary>Help text for <see cref="TryCommand" /> — Record vs Practice review type vocabulary (AS-083 / ADR 0097).</summary>
 internal static class TryCommandHelp
 {
     internal const string CareerDoorRequiresRealAoaiGateMessage =
-        "Career door (--real) requires ARCHLUCID_REAL_AOAI=1 for local operator loops (ADR 0033), or pass hosted smoke flags such as --staging / --api-base-url.";
+        "Record review type (--real) requires ARCHLUCID_REAL_AOAI=1 for local operator loops (ADR 0033), or pass hosted smoke flags such as --staging / --api-base-url.";
 
     internal static void WriteHelp(TryCommandExecutionDoor? selectedDoor = null)
     {
-        Console.WriteLine("archlucid try — first-value smoke with explicit Career / Rehearsal doors (AS-083).");
+        Console.WriteLine("archlucid try — first-value smoke with explicit Record / Practice review types (AS-083).");
         Console.WriteLine();
         Console.WriteLine(
             "Usage: archlucid try [--rehearse | --real] [--strict-real] [--help] " +
@@ -16,12 +16,12 @@ internal static class TryCommandHelp
         Console.WriteLine();
         Console.WriteLine($"  --rehearse   {TryCommandExecutionDoorCopy.RehearsalFlagHelp}");
         Console.WriteLine($"  --real       {TryCommandExecutionDoorCopy.CareerFlagHelp}");
-        Console.WriteLine("  --strict-real  Fail when hosted smoke cannot prove Real token usage (Career door only).");
+        Console.WriteLine("  --strict-real  Fail when hosted smoke cannot prove Real token usage (Record review type only).");
         Console.WriteLine($"  (default)    {TryCommandExecutionDoorCopy.DefaultDoorHelp}");
         Console.WriteLine();
         Console.WriteLine(
             "Smoke flags forward to `archlucid real-mode smoke` (hosted API only — local docker try was retired). "
-            + "Rehearsal uses Simulator labeling; Career targets Real execute.");
+            + "Practice uses Simulator labeling; Record targets Real execute.");
         Console.WriteLine("Examples:");
         Console.WriteLine("  archlucid try --rehearse --staging");
         Console.WriteLine("  ARCHLUCID_REAL_AOAI=1 archlucid try --real --staging");
@@ -32,7 +32,7 @@ internal static class TryCommandHelp
         {
             Console.WriteLine();
             Console.WriteLine(
-                $"Selected door: {TryCommandExecutionDoorCopy.LabelFor(selectedDoor.Value)} ({selectedDoor.Value}).");
+                $"Selected review type: {TryCommandExecutionDoorCopy.LabelFor(selectedDoor.Value)} ({selectedDoor.Value}).");
         }
     }
 }

@@ -8,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 
 import { CopyExecutiveSponsorLinkButton } from "@/components/reviews/CopyExecutiveSponsorLinkButton";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
@@ -222,6 +223,7 @@ export function ReviewPackageSponsorHandoffStrip(
           </div>
         )}
       </div>
+      <SponsorExportSendHonestyStrip className="mt-3" testIdPrefix="review-package-sponsor-handoff" />
       <details
         className="mt-3 rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
         data-testid="review-package-sponsor-handoff-more-exports"

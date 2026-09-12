@@ -6,6 +6,7 @@ import { HelpComparisonReplayHeaderActions } from "@/app/(operator)/help/_sectio
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ComparisonReplayHelpClaimDisciplineStrip } from "@/components/help/ComparisonReplayHelpClaimDisciplineStrip";
 import { ComparisonReplayHelpEvidenceOrientationStrip } from "@/components/help/ComparisonReplayHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -282,6 +283,8 @@ export function HelpComparisonReplayGuideView(
 
           {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-comparison-replay" showSsoOptional={false} />
       </div>
     </article>
   );

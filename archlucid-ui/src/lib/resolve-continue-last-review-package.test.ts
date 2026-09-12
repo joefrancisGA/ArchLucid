@@ -74,6 +74,20 @@ describe("resolve-continue-last-review-package (CD-11)", () => {
     expect(target?.href).toBe("/architecture/reviews/run-abc");
   });
 
+  it("SN-012: nests server last-open review href on Working when architecture id is known", () => {
+    const nestedRun: RunSummary = {
+      ...run,
+      runId: "run-abc",
+      requestId: "architecture-identity-001",
+    };
+
+    const target = resolveContinueLastReviewPackageTarget([nestedRun], "run-abc", {
+      workingMode: true,
+    });
+
+    expect(target?.href).toBe("/architecture/architectures/architecture-identity-001/reviews/run-abc");
+  });
+
   it("prefers server last-open review id over local recent views", () => {
     localStorage.setItem(
       OPERATOR_RECENT_VIEWS_STORAGE_KEY,

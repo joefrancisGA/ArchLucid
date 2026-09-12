@@ -121,7 +121,7 @@ describe("run-detail-workspace-derive", () => {
       effectiveWorkingCareerRehearsalDoor: "career",
     });
 
-    expect(status.label).toBe("Career blocked — not complete");
+    expect(status.label).toBe("Sealed record blocked — not complete");
     expect(status.statusTagKind).toBe("blocked");
   });
 

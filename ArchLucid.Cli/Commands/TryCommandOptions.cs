@@ -84,14 +84,14 @@ internal sealed class TryCommandOptions
 
         if (realMode && rehearseMode)
         {
-            error = "Cannot combine --real (Career door) and --rehearse (Rehearsal door). Pick one execution door.";
+            error = "Cannot combine --real (Record review type) and --rehearse (Practice review type). Pick one review type.";
 
             return null;
         }
 
         if (strictReal && !realMode)
         {
-            error = "--strict-real requires --real (Career door).";
+            error = "--strict-real requires --real (Record review type).";
 
             return null;
         }

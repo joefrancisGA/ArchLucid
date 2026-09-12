@@ -1,3 +1,5 @@
+using ArchLucid.Application.Exports;
+
 namespace ArchLucid.Application.Notifications.Email.Models;
 
 /// <summary>Razor model for <c>Templates/WeeklySponsorReport.cshtml</c>.</summary>
@@ -38,4 +40,10 @@ public sealed class WeeklySponsorReportEmailModel
         get;
         init;
     }
+
+    public string SponsorRoiNonSummingLine { get; init; } =
+        SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine;
+
+    public string PolicyPackInfluenceHonestyLine { get; init; } =
+        SendableExportCoverComposer.PolicyPackInfluenceHonestyLine;
 }

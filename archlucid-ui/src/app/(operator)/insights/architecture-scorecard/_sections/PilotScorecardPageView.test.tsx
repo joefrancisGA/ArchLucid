@@ -171,7 +171,7 @@ describe("PilotScorecardPageView", () => {
     expect(screen.getByTestId("scorecard-scoring-setup-progress")).toBeInTheDocument();
     expect(screen.getByTestId("scorecard-summary-estimated-review-time-savings")).toBeInTheDocument();
     expect(screen.getByTestId("scorecard-summary-reviews-finalized")).toBeInTheDocument();
-    expect(screen.getByTestId("scorecard-summary-resolve-outcomes")).toBeInTheDocument();
+    expect(screen.getByTestId("scorecard-summary-approval")).toBeInTheDocument();
     expect(screen.queryByTestId("scorecard-summary-findings-affirmed")).not.toBeInTheDocument();
     expect(screen.getByText("Operational metrics")).toBeInTheDocument();
     expect(screen.getByTestId("review-scorecard-roi-assumptions")).toHaveClass("grid");
@@ -208,10 +208,10 @@ describe("PilotScorecardPageView", () => {
     expect(screen.queryByTestId("review-scorecard-summary-row")).not.toBeInTheDocument();
   });
 
-  it("shows CG-034 rehearsal honesty strip above KPI grid when stamp is not career-complete", () => {
+  it("shows CG-034 rehearsal honesty strip above KPI grid when stamp is not record-complete", () => {
     scorecardKpiHonestyMock.presentation = {
       cellId: "career-simulator-blocked",
-      title: "Career blocked — scorecard KPIs are not career proof",
+      title: "Sealed record blocked — scorecard KPIs are not sealed-record proof",
       body: "Numbers stay visible for rehearsal.",
       kpiSectionQualifier: "Rehearsal metrics",
     };

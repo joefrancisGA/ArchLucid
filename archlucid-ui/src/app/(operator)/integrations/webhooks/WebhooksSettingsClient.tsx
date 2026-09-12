@@ -108,12 +108,14 @@ export function WebhooksSettingsClient() {
   } = useWebhooksSettings();
 
   const watchedFormValues = useWatch({ control });
+  const subscriptionsLoaded = !loading;
   const webhooksCreateSteps = resolveWebhooksCreateSteps({
     destinationConfigured:
       (watchedFormValues?.webhookUrl?.trim().length ?? 0) > 0 &&
       (watchedFormValues?.secret?.trim().length ?? 0) >= 16,
     eventsConfigured: (watchedFormValues?.eventTypes?.length ?? 0) > 0,
     subscriptionEnabled: activeSubscriptionCount > 0,
+    subscriptionsLoaded,
   });
   const webhooksCreateEmphasizedStepId = resolveWebhooksCreateEmphasizedStepId({
     destinationConfigured:
@@ -121,6 +123,7 @@ export function WebhooksSettingsClient() {
       (watchedFormValues?.secret?.trim().length ?? 0) >= 16,
     eventsConfigured: (watchedFormValues?.eventTypes?.length ?? 0) > 0,
     subscriptionEnabled: activeSubscriptionCount > 0,
+    subscriptionsLoaded,
   });
   const continueLastSubscription = useMemo(
     () => resolveContinueLastWebhookSubscription(webhookRows),

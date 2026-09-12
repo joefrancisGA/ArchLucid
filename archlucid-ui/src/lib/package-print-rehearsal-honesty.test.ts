@@ -26,7 +26,7 @@ describe("package-print-rehearsal-honesty (CG-023)", () => {
 
     expect(strip).not.toBeNull();
     expect(strip?.title).toBe(PACKAGE_PRINT_REHEARSAL_STRIP_TITLE);
-    expect(strip?.title).toMatch(/Rehearsal/i);
+    expect(strip?.title).toMatch(/Practice/i);
     expect(strip?.body).toBe(PACKAGE_PRINT_REHEARSAL_CAREER_DOOR_BODY);
   });
 
@@ -39,7 +39,7 @@ describe("package-print-rehearsal-honesty (CG-023)", () => {
 
     expect(strip).not.toBeNull();
     expect(strip?.body).toBe(PACKAGE_PRINT_REHEARSAL_DOOR_BODY);
-    expect(strip?.body).toMatch(/Rehearsal/i);
+    expect(strip?.body).toMatch(/Practice/i);
   });
 
   it("omits rehearsal strip for Real structural mode (career-complete execute path)", () => {

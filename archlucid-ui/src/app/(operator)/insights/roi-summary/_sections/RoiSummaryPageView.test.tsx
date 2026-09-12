@@ -163,10 +163,10 @@ describe("RoiSummaryPageView", () => {
     expect(screen.queryByRole("link", { name: "Start review" })).not.toBeInTheDocument();
   });
 
-  it("shows CG-035 rehearsal honesty strip above ROI hero when stamp is not career-complete", () => {
+  it("shows CG-035 rehearsal honesty strip above ROI hero when stamp is not record-complete", () => {
     roiTileHonestyMock.presentation = {
       cellId: "career-simulator-blocked",
-      title: "Career blocked — ROI tiles are not career proof",
+      title: "Sealed record blocked — ROI tiles are not sealed-record proof",
       body: "Directional savings stay visible for rehearsal.",
       roiSectionQualifier: "Rehearsal ROI",
     };

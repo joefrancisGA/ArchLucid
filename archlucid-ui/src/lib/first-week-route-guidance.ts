@@ -1,5 +1,6 @@
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY } from "@/lib/buyer/buyer-polish-copy";
 
 /** Guided first-session deferral — Operate groups stay hidden until first commit. */
 export const GUIDED_OPERATE_SIDEBAR_DEFERRAL_NOTE =
@@ -41,6 +42,7 @@ export type FirstWeekRouteGuidanceConfig = {
   /** Omitted when the page already surfaces the next step (e.g. wizard visible on `/architecture/reviews/new`). */
   readonly primaryAction?: FirstWeekRouteGuidanceAction;
   readonly operateDeferralNote: string;
+  readonly dispositionBeforeSponsorNote?: string;
 };
 
 /** Buyer-polished shell renders finalize in the page header — anchor must match {@link RunDetailPageHeader} (BDA-001). */
@@ -53,6 +55,7 @@ const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
   // Finalize lives in ReviewPackageDoThisNextStrip and the page header (BDA-001 anchor). Omit here so
   // blocked or not-ready reviews do not expose a second finalize affordance below "Review not ready yet".
   operateDeferralNote: "Skip graph and approval dashboards until after commit unless your pilot explicitly needs them.",
+  dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
 };
 
 /** Working seats — babysitting one tab is not the job (FD-12). */
@@ -61,10 +64,11 @@ const WORKING_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig =
   bridgeCopy:
     "Analysis may still be running. Check Activity for named stages, open other in-flight packages from the strip when needed, and return here to finalize when the review is ready.",
   operateDeferralNote: WORKING_OPERATE_AVAILABLE_IN_SIDEBAR_NOTE,
+  dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
 };
 
 export const FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY =
-  "When to use a finalized review and where exports live.";
+  "When to use a finalized review, disposition before sponsor send, and where exports live.";
 
 export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, FirstWeekRouteGuidanceConfig> = {
   home: {
@@ -73,6 +77,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
       "Each architecture review is tracked as one review — the same object from capture through finalized review record and export. Start with briefs, diagrams, or IaC only (evidence-only); cloud inventory ZIP (AWS, Azure, or GCP) is optional when you need live architecture structure or cost grounding.",
     primaryAction: { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     operateDeferralNote: GUIDED_OPERATE_SIDEBAR_DEFERRAL_NOTE,
+    dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
   },
   onboarding: {
     useWhen: "Follow this guided path to create and commit your first review.",
@@ -80,6 +85,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
       "The checklist below walks one architecture review from capture to committed finalized review record.",
     primaryAction: { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     operateDeferralNote: GUIDED_ONBOARDING_OPERATE_DEFERRAL_NOTE,
+    dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
   },
   "new-review": {
     useWhen: "You have enough context to start an architecture review.",
@@ -87,18 +93,21 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
       "ArchLucid produces a defensible review — committed findings, evidence trail, and export-ready outputs. Default to evidence-only (no cloud target) unless you attach cloud inventory output.",
     operateDeferralNote:
       "Policy packs and deeper approval can wait until after your first committed package. Cloud inventory ZIP is optional — see the InfoSec pre-read if security must approve the read-only script.",
+    dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
   },
   "reviews-list": {
     useWhen: "You want to resume an in-progress review or open a committed review.",
     bridgeCopy:
       "Each package gives you the review record, findings, evidence trail, finalized review record, and exports.",
     operateDeferralNote: "",
+    dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
   },
   "review-detail-in-progress": BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE,
   "review-detail-committed": {
     useWhen: "The review is finalized and you need export-ready outputs or a board summary.",
     bridgeCopy:
       "This review is complete — use the exports section in Review when you need deliverables for sponsors or auditors.",
+    dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
     // Primary CTA lives in ReviewPackageDoThisNextStrip above this callout.
     operateDeferralNote: GUIDED_COMMITTED_OPERATE_UNLOCK_NOTE,
   },

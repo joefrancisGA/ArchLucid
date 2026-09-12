@@ -29,6 +29,8 @@ describe("auditExportCareerPosture (CG-026)", () => {
     expect(lines[0]).toContain("CG-026");
     expect(lines.join("\n")).toContain("structuralExecutionMode=Simulator");
     expect(lines.join("\n")).toContain("rehearsalIncomplete=True");
+    expect(lines.join("\n")).toContain("dualChannelHonesty=durableSqlLedgerOnly");
+    expect(lines.join("\n")).toContain("dualChannelNote=");
   });
 
   it("blocks working career simulator audit export client-side", () => {

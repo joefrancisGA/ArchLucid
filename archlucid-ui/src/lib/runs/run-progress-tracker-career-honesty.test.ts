@@ -30,7 +30,7 @@ describe("run-progress-tracker-career-honesty (CG-032)", () => {
     expect(presentation?.cellId).toBe("career-simulator-blocked");
     expect(presentation?.terminalLiveStatus).toBe(RUN_PROGRESS_TRACKER_CAREER_BLOCKED_TERMINAL_STATUS);
     expect(presentation?.signedRecordStepLabel).toBe(RUN_PROGRESS_TRACKER_CAREER_BLOCKED_SIGNED_RECORD_LABEL);
-    expect(presentation?.signedRecordPendingLabel).toBe("Career blocked");
+    expect(presentation?.signedRecordPendingLabel).toBe("Sealed record blocked");
     expect(presentation?.completeStageStatusKind).toBe("needs-attention");
     expect(presentation?.completeStageStatusKind).not.toBe("ready");
   });
@@ -45,7 +45,7 @@ describe("run-progress-tracker-career-honesty (CG-032)", () => {
     expect(presentation?.cellId).toBe("rehearsal-simulator");
     expect(presentation?.terminalLiveStatus).toBe(RUN_PROGRESS_TRACKER_REHEARSAL_INCOMPLETE_TERMINAL_STATUS);
     expect(presentation?.signedRecordStepLabel).toBe(RUN_PROGRESS_TRACKER_REHEARSAL_SIGNED_RECORD_LABEL);
-    expect(presentation?.signedRecordPendingLabel).toBe("Rehearsal incomplete");
+    expect(presentation?.signedRecordPendingLabel).toBe("Practice incomplete");
   });
 
   it("Rehearsal + Real uses practice copy", () => {

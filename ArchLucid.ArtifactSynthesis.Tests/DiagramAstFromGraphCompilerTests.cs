@@ -71,7 +71,57 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
-    public void Compile_executive_mode_without_graph_edges_emits_layout_edges_and_prunes_vnet_shell_subgraphs()
+    public void Compile_dependency_neighborhood_resolves_seed_from_resource_label()
+    {
+        GraphSnapshot graph = BuildSampleGraph();
+
+        DiagramAst ast = compiler.Compile(
+            graph,
+            DiagramMode.DependencyNeighborhood,
+            new DiagramAstCompileOptions { NeighborhoodSeedNodeId = "core-vnet" });
+
+        ast.Nodes.Select(node => node.Label).Should().BeEquivalentTo(["core-vnet", "app-subnet"]);
+        ast.Nodes.Should().Contain(node => node.SeedNodeId == "vnet-1");
+        renderer.Render(ast).Should().Contain("al-seed=vnet-1");
+    }
+
+    [Fact]
+    public void Compile_dependency_neighborhood_resolves_seed_from_arm_id_when_node_id_is_guid()
+    {
+        Guid cloudResourceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        const string armId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/network-rg/providers/Microsoft.Network/virtualNetworks/core-vnet";
+        GraphSnapshot graph = BuildSampleGraph();
+        GraphNode vnet = graph.Nodes.Should().ContainSingle(node => node.NodeId == "vnet-1").Subject;
+        vnet.NodeId = cloudResourceId.ToString("D");
+        vnet.Properties["cloudResourceId"] = cloudResourceId.ToString("D");
+        graph.Edges[0].FromNodeId = vnet.NodeId;
+
+        DiagramAst ast = compiler.Compile(
+            graph,
+            DiagramMode.DependencyNeighborhood,
+            new DiagramAstCompileOptions { NeighborhoodSeedNodeId = armId });
+
+        ast.Nodes.Select(node => node.Label).Should().BeEquivalentTo(["core-vnet", "app-subnet"]);
+        ast.Nodes.Should().Contain(node => node.SeedNodeId == cloudResourceId.ToString("D"));
+        ast.Nodes.Should().Contain(node => node.CloudResourceId == cloudResourceId);
+    }
+
+    [Fact]
+    public void Compile_dependency_neighborhood_unknown_seed_returns_no_nodes()
+    {
+        GraphSnapshot graph = BuildSampleGraph();
+
+        DiagramAst ast = compiler.Compile(
+            graph,
+            DiagramMode.DependencyNeighborhood,
+            new DiagramAstCompileOptions { NeighborhoodSeedNodeId = "missing-resource" });
+
+        ast.Nodes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Compile_executive_mode_without_graph_edges_emits_invisible_grid_links_and_prunes_vnet_shell_subgraphs()
     {
         GraphSnapshot graph = BuildExecutiveVnetOnlyGraph();
 
@@ -79,10 +129,29 @@ public sealed class DiagramAstFromGraphCompilerTests
         string mermaid = renderer.Render(ast);
 
         ast.Nodes.Should().HaveCount(3);
-        ast.Edges.Should().HaveCount(2);
+        ast.Edges.Should().OnlyContain(edge => edge.IsLayoutOnly);
         ast.Subgraphs.Should().NotContain(subgraph => subgraph.Label.StartsWith("VNet ", StringComparison.Ordinal));
-        mermaid.Should().Contain("-->");
+        mermaid.Should().NotContain("-->");
         mermaid.Should().Contain("RG network-rg-0");
+    }
+
+    [Fact]
+    public void Compile_executive_mode_groups_vnets_by_region_and_surfaces_peering_with_counts()
+    {
+        GraphSnapshot graph = BuildExecutiveMultiRegionVnetGraph();
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+        string mermaid = renderer.Render(ast);
+
+        ast.Nodes.Should().HaveCount(3);
+        ast.Subgraphs.Should().HaveCount(3);
+        ast.Subgraphs.Should().OnlyContain(subgraph => subgraph.Label.StartsWith("Region ", StringComparison.Ordinal));
+        ast.Edges.Should().ContainSingle(edge => !edge.IsLayoutOnly && edge.Label == "peered");
+        ast.Nodes.Should().Contain(node => node.Label.Contains("2 subnets", StringComparison.Ordinal));
+        mermaid.Should().Contain("-->|\"peered\"|");
+        mermaid.Should().Contain("Region eastus");
+        mermaid.Should().Contain("Region westus");
+        mermaid.Should().Contain("Region northeurope");
     }
 
     [Fact]
@@ -391,6 +460,79 @@ public sealed class DiagramAstFromGraphCompilerTests
     private static GraphSnapshot BuildExecutiveVnetOnlyGraph()
     {
         return BuildExecutiveSparseVnetGraph(resourceGroupCount: 3);
+    }
+
+    private static GraphSnapshot BuildExecutiveMultiRegionVnetGraph()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        const string subscriptionId = "44444444-4444-4444-4444-444444444444";
+
+        GraphNode vnetEast = CreateTopologyNode(
+            "vnet-east",
+            "vnet-eastus-hub",
+            "Microsoft.Network/virtualNetworks",
+            "network-rg-east",
+            subscriptionId,
+            GraphTopologyCategories.Network);
+        vnetEast.Properties["arm.location"] = "eastus";
+
+        GraphNode vnetWest = CreateTopologyNode(
+            "vnet-west",
+            "vnet-westus-spoke",
+            "Microsoft.Network/virtualNetworks",
+            "network-rg-west",
+            subscriptionId,
+            GraphTopologyCategories.Network);
+        vnetWest.Properties["arm.location"] = "westus";
+
+        GraphNode vnetNorth = CreateTopologyNode(
+            "vnet-north",
+            "vnet-northeurope-spoke",
+            "Microsoft.Network/virtualNetworks",
+            "network-rg-north",
+            subscriptionId,
+            GraphTopologyCategories.Network);
+        vnetNorth.Properties["arm.location"] = "northeurope";
+
+        string vnetEastArmId = DiagramAstGraphNodeClassifier.ReadArmId(vnetEast);
+
+        graph.Nodes.Add(vnetEast);
+        graph.Nodes.Add(vnetWest);
+        graph.Nodes.Add(vnetNorth);
+        graph.Nodes.Add(CreateTopologyNode(
+            "subnet-1",
+            "app-subnet",
+            "Microsoft.Network/virtualNetworks/subnets",
+            "network-rg-east",
+            subscriptionId,
+            GraphTopologyCategories.Network,
+            vnetEastArmId));
+        graph.Nodes.Add(CreateTopologyNode(
+            "subnet-2",
+            "data-subnet",
+            "Microsoft.Network/virtualNetworks/subnets",
+            "network-rg-east",
+            subscriptionId,
+            GraphTopologyCategories.Network,
+            vnetEastArmId));
+
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "peering-east-west",
+            FromNodeId = vnetEast.NodeId,
+            ToNodeId = vnetWest.NodeId,
+            EdgeType = GraphEdgeTypes.PeersWith,
+            Weight = 1,
+        });
+
+        return graph;
     }
 
     private static GraphSnapshot BuildExecutiveSparseVnetGraph(int resourceGroupCount)

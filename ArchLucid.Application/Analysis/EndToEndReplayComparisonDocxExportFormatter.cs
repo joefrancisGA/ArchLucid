@@ -26,6 +26,9 @@ public static class EndToEndReplayComparisonDocxExportFormatter
         if (report.CompareQualityDelta is not null)
             summaryMarkdown = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(summaryMarkdown);
 
+        if (report.CompareVerdictChromeDelta is not null)
+            summaryMarkdown = CompareVerdictChromeExportFormatter.RemoveMarkdownSection(summaryMarkdown);
+
         using MemoryStream stream = new();
         using (WordprocessingDocument document = WordprocessingDocument.Create(stream, WordprocessingDocumentType.Document, true))
         {
@@ -218,9 +221,14 @@ public static class EndToEndReplayComparisonDocxExportFormatter
 
     private static void AppendCompareQualityDelta(Body body, EndToEndReplayComparisonReport report)
     {
-        if (report.CompareQualityDelta is null)
-            return;
+        if (report.CompareQualityDelta is not null)
+        {
+            AddDiffSection(body, "Compare Quality Delta", CompareQualityDeltaExportFormatter.BuildPlainTextLines(report.CompareQualityDelta));
+        }
 
-        AddDiffSection(body, "Compare Quality Delta", CompareQualityDeltaExportFormatter.BuildPlainTextLines(report.CompareQualityDelta));
+        if (report.CompareVerdictChromeDelta is not null)
+        {
+            AddDiffSection(body, "Compare Verdict Chrome Delta", CompareVerdictChromeExportFormatter.BuildPlainTextLines(report.CompareVerdictChromeDelta));
+        }
     }
 }

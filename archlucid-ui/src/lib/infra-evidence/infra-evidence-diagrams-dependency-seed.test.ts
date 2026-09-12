@@ -58,6 +58,6 @@ describe("infra-evidence-diagrams-dependency-seed", () => {
           fallbackArtifacts: [],
         },
       })?.title,
-    ).toBe("Seed did not match this snapshot");
+    ).toBe("Starting resource did not match this snapshot");
   });
 });

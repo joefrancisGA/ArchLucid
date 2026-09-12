@@ -138,8 +138,15 @@ internal sealed partial class CommandRegistry
             new CommandDescriptor(
                 "draft",
                 "Create a draft architecture request.",
-                "draft new [--text <intent>] [--system-name <name>] [--business-outcome <text>] [--api-base-url <url>] [--skip-must-questions] [--no-auto-execute]"),
+                "draft new [--text <intent>] [--system-name <name>] [--business-outcome <text>] [--api-base-url <url>] [--skip-must-questions] [--no-auto-execute] · draft clone-snapshot <draftId> [--json]"),
             CliCommandHandlers.HandleDraft);
+
+        Register(
+            new CommandDescriptor(
+                "infeasible",
+                "Infeasibility honesty reference for CLI export paths.",
+                "infeasible honesty [--json]"),
+            CliCommandHandlers.HandleInfeasible);
 
         Register(
             new CommandDescriptor(

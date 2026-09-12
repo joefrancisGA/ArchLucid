@@ -21,7 +21,12 @@ public sealed class PolicyPackChunker : ITextChunker
         if (trimmed.Length <= maxChars)
             return [trimmed];
 
-        int headerEnd = trimmed.IndexOf(':');
+        int headerEnd = trimmed.IndexOf("): ", StringComparison.Ordinal);
+
+        if (headerEnd >= 0)
+            headerEnd += 1;
+        else
+            headerEnd = trimmed.IndexOf(':');
 
         if (headerEnd < 0 || headerEnd >= trimmed.Length - 1)
             return _fallback.Chunk(trimmed, maxChars, overlap);

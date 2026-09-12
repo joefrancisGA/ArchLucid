@@ -109,6 +109,28 @@ describe("toReviewsHubReviewRowDisplay", () => {
     expect(row.reviewHref).not.toMatch(/^\/architecture\/reviews\/[^/]+$/);
   });
 
+  it("SN-021: omits run id suffix from Working duplicate titles without start time", () => {
+    const siblings: RunSummary[] = [
+      {
+        runId: "851472cf-aaaa-bbbb-cccc-ddd083248324",
+        projectId: "default",
+        createdUtc: "",
+      },
+      {
+        runId: "851472cf-1111-2222-3333-444083248325",
+        projectId: "default",
+        createdUtc: "",
+      },
+    ];
+
+    const workingRow = toReviewsHubReviewRowDisplay(siblings[0], {}, siblings, { isWorkingMode: true });
+    const guidedRow = toReviewsHubReviewRowDisplay(siblings[0], {}, siblings, { isWorkingMode: false });
+
+    expect(workingRow.reviewTitlePrimary).toBe("Untitled review");
+    expect(guidedRow.reviewTitlePrimary).toContain("Untitled review ·");
+    expect(guidedRow.reviewTitlePrimary).not.toBe("Untitled review");
+  });
+
   it("labels unlinked jobs honestly in Working inbox rows (AO-49)", () => {
     const row = toReviewsHubReviewRowDisplay(
       {

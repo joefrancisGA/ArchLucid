@@ -22,6 +22,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
     public const string DecisionGradeProvenanceCode = "decision_grade_provenance";
     public const string DegradedFindingCoverageCode = "degraded_finding_coverage";
     public const string SimulatorRehearsalCode = SimulatorCareerHonestyPresenter.SimulatorRehearsalCode;
+    public const string UncitedHardInfeasibleCode = WorkingCareerHardInfeasibleCitationValidator.UncitedHardCode;
 
     public const string FinalizeTrailMissingMessage =
         "Finalize requires a transparency trail with asserted, inferred, and skipped sections. Complete intake provenance or reload the package before sealing.";
@@ -59,6 +60,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
         EvaluateDemoSampleExternalBlock(input, blockReasons);
         EvaluateSimulatorRehearsal(input, blockReasons, warnings);
         EvaluateDecisionGradeProvenance(input, blockReasons);
+        EvaluateUncitedHardInfeasible(input, blockReasons);
         EvaluateSampleWorkspaceExport(input, blockReasons, warnings);
 
         AppendMeasurementFloorHeader(input, headerLines);
@@ -274,6 +276,21 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
         foreach (string violation in DecisionGradeFindingProvenanceValidator.GetViolations(input.FindingsSnapshot))
         {
             blockReasons.Add(new CareerArtifactBlockReason(DecisionGradeProvenanceCode, violation));
+        }
+    }
+
+    private static void EvaluateUncitedHardInfeasible(
+        CareerArtifactCompletenessInput input,
+        List<CareerArtifactBlockReason> blockReasons)
+    {
+        string? blockedReason = WorkingCareerHardInfeasibleCitationValidator.FormatBlockedReason(
+            input.FeasibilityVerdict,
+            input.WorkingDesk,
+            input.ArtifactKind);
+
+        if (blockedReason is not null)
+        {
+            blockReasons.Add(new CareerArtifactBlockReason(UncitedHardInfeasibleCode, blockedReason));
         }
     }
 

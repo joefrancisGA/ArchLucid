@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Value;
 
 namespace ArchLucid.Application.ExecDigest;
@@ -27,6 +28,9 @@ public static class ExecDigestCompositionMarkdownFormatter
             sb.AppendLine();
         }
 
+        sb.AppendLine($"**Sponsor ROI honesty:** {SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine}");
+        sb.AppendLine($"**Policy influence:** {SendableExportCoverComposer.PolicyPackInfluenceHonestyLine}");
+        sb.AppendLine();
         sb.AppendLine($"**Week label:** {composition.WeekLabel}");
         sb.AppendLine($"**Dashboard:** {composition.DashboardUrl}");
         sb.AppendLine($"**Sponsor value link:** {composition.SponsorValueReportUrl}");

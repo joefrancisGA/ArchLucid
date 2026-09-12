@@ -63,7 +63,7 @@ describe("RunDetailQualityGateModeStrip (DR-05)", () => {
       "Quality gate: WarnOnly",
     );
     expect(screen.getByTestId("run-detail-quality-gate-mode-strip")).toHaveTextContent(
-      "not career-complete",
+      "not record-complete",
     );
   });
 });

@@ -195,10 +195,28 @@ describe('ArchitectureDiagramViewer', () => {
       expect(screen.getByTestId('architecture-diagram-viewport')).toBeInTheDocument();
     });
 
-    expect(initializeMock).toHaveBeenCalled();
+    expect(initializeMock).toHaveBeenCalledWith(
+      expect.objectContaining({ suppressErrorRendering: true, startOnLoad: false }),
+    );
     expect(renderMock).toHaveBeenCalled();
     expect(screen.getByText('Node A')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL })).toBeInTheDocument();
+  });
+
+  it('strips inline mermaid comments before calling mermaid.render', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  n1["app-hi-test-wus-001"] %% al-type=microsoft'}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(renderMock).toHaveBeenCalled();
+    });
+
+    expect(renderMock.mock.calls[0]?.[1]).toBe('flowchart TD\n  n1["app-hi-test-wus-001"]');
   });
 
   it('preserves foreignObject labels when sanitizing diagram HTML', () => {
@@ -214,8 +232,8 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByText('Edge label')).toBeInTheDocument();
   });
 
-  it('shows renderer failure and retry action', async () => {
-    renderMock.mockRejectedValueOnce(new Error('Renderer failed'));
+  it('retries mermaid.render on a new id after a firstChild crash', async () => {
+    renderMock.mockRejectedValueOnce(new Error("Cannot read properties of null (reading 'firstChild')"));
     const onRetry = vi.fn();
 
     render(
@@ -232,14 +250,26 @@ describe('ArchitectureDiagramViewer', () => {
       expect(screen.getByTestId('architecture-diagram-render-failure')).toBeInTheDocument();
     });
 
+    expect(screen.getByText(/firstChild/)).toBeInTheDocument();
+    expect(renderMock).toHaveBeenCalledTimes(1);
+    const firstRenderId = renderMock.mock.calls[0]?.[0];
+
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(onRetry).toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    expect(renderMock).toHaveBeenCalledTimes(2);
+    expect(renderMock.mock.calls[1]?.[0]).not.toBe(firstRenderId);
   });
 
   it('shows in-flow paint failure when fitted ink height is too small', async () => {
     const fitSpy = vi.spyOn(helpMermaid, 'fitMermaidSvgElementToViewport').mockReturnValue({
       baseWidthPx: 10,
       baseHeightPx: 10,
+      inkMeasured: true,
     });
 
     render(
@@ -261,6 +291,40 @@ describe('ArchitectureDiagramViewer', () => {
 
     expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-render-failure'));
     expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-viewport-controls'));
+
+    fitSpy.mockRestore();
+  });
+
+  it('shows in-flow paint failure when the viewport is large but ink was not measured', async () => {
+    const fitSpy = vi.spyOn(helpMermaid, 'fitMermaidSvgElementToViewport').mockReturnValue({
+      baseWidthPx: 800,
+      baseHeightPx: 240,
+      inkMeasured: false,
+    });
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('architecture-diagram-render-failure')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    expect(screen.getByText(ARCHITECTURE_DIAGRAM_PAINT_FAILURE)).toBeInTheDocument();
+
+    const viewport = screen.getByTestId('architecture-diagram-viewport');
+
+    expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-render-failure'));
+    expect(viewport).toContainElement(screen.getByTestId('architecture-diagram-viewport-controls'));
+    expect(viewport.className).toContain('bg-white');
 
     fitSpy.mockRestore();
   });
@@ -337,7 +401,7 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
-  it('sizes mermaid svg above the overlay-only floor after render', async () => {
+  it('sizes mermaid svg from measured ink after render without paint failure', async () => {
     render(
       <ArchitectureDiagramViewer
         mermaidSource={'flowchart TB\n  a["A"]'}
@@ -354,7 +418,11 @@ describe('ArchitectureDiagramViewer', () => {
     const host = screen.getByTestId('architecture-diagram-svg-host');
     const svg = host.querySelector('svg');
 
+    expect(host.className).toContain('mx-auto');
     expect(svg).not.toBeNull();
-    expect(Number(svg?.getAttribute('height') ?? 0)).toBeGreaterThanOrEqual(240);
+    expect(screen.queryByTestId('architecture-diagram-render-failure')).not.toBeInTheDocument();
+    expect(Number(svg?.getAttribute('height') ?? 0)).toBeGreaterThanOrEqual(
+      helpMermaid.MERMAID_VIEWPORT_MIN_INK_HEIGHT_PX,
+    );
   });
 });

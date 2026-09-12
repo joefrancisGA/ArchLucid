@@ -1,5 +1,9 @@
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { auditExportBlockedReason } from "@/lib/audit/audit-export-blocked-reason";
+import {
+  buildAuditExportCsvHonestyPreambleLines,
+  type AuditExportCareerPosture,
+} from "@/lib/audit/audit-export-career-posture";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
@@ -88,6 +92,7 @@ export async function downloadAuditExportCsv(params: {
   correlationId?: string;
   actorUserId?: string;
   runId?: string;
+  auditExportPosture?: AuditExportCareerPosture | null;
 }): Promise<void> {
   if (typeof window === "undefined") {
     throw new Error("downloadAuditExportCsv is only available in the browser.");
@@ -131,7 +136,11 @@ export async function downloadAuditExportCsv(params: {
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
-  const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
+  const posture = params.auditExportPosture ?? null;
+  const blob = new Blob(
+    [`${buildAuditExportCsvHonestyPreambleLines(posture).join("\n")}\n\n${text}`],
+    { type: "text/csv;charset=utf-8" },
+  );
   const filename =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ?? "audit-export.csv";
 

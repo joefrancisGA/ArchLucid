@@ -22,7 +22,7 @@ Use this page when a pilot stalls, proof collection fails, or sponsor handoff is
 3. **Pipeline timeline** — `GET /v1/authority/runs/{runId}/pipeline-timeline` or review detail timeline. Note failed audit event types.
 4. **Retrieval grounding** — `GET /v1/authority/runs/{runId}/retrieval-grounding` when faithfulness warnings appear.
 5. **Audit search** — operator Audit UI or `GET /v1/audit/search` filtered by run id / correlation id. Export CSV only for internal review.
-6. **Support bundle** — `archlucid support-bundle --zip` (redaction manifest + triage index). **Buyer-safe:** README + manifest only unless redaction reviewed.
+6. **Support bundle** — `archlucid support-bundle --run-id <runId> --zip` (redaction manifest + triage index). Open **`triage-index.md`** for **`structuralExecutionMode`** and **`careerPosture`** (CG-019 door stamp) so on-call can tell Rehearsal vs Career blocked without a UI screenshot. **Buyer-safe:** README + manifest only unless redaction reviewed.
 7. **Proof artifacts** — `first-pilot-command-center.md`, `go-no-go-summary.json`, `data-consistency-readiness/`, `config-lint-production-like-hosted-pilot.md`.
 8. **Escalation packet** — attach correlation id, run id, manifest id, proof **PASS/WARN/HOLD**, and `limitations.md` caveats. Do not attach raw secrets or unredacted support bundles externally.
 

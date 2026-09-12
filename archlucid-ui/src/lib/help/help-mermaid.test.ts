@@ -6,10 +6,14 @@ import {
   fitMermaidSvgElementToViewport,
   isMermaidDiagramSource,
   isMermaidViewportPaintTooSmall,
+  mermaidViewportFitNeedsRetry,
   MERMAID_VIEWPORT_MAX_HEIGHT_PX,
+  MERMAID_VIEWPORT_MIN_FIT_SCALE,
   MERMAID_VIEWPORT_STABLE_MIN_HEIGHT_PX,
   prepareMermaidSvgForResponsiveLayout,
   readMermaidViewportFitBudget,
+  removeMermaidRenderBindElement,
+  resolveMermaidInkViewBox,
   sanitizeMermaidRenderId,
 } from "@/lib/help/help-mermaid";
 
@@ -32,6 +36,27 @@ describe("help-mermaid", () => {
 
   it("sanitizes render ids", () => {
     expect(sanitizeMermaidRenderId(":r1:help-mermaid-1")).toBe("r1help-mermaid-1");
+  });
+
+  it("removes mermaid bind and error nodes left on document.body", () => {
+    const bind = document.createElement("div");
+    bind.id = "darch-diagram-r1";
+    const iframe = document.createElement("iframe");
+    iframe.id = "iarch-diagram-r1";
+    const errorSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    errorSvg.id = "arch-diagram-r1";
+    document.body.appendChild(bind);
+    document.body.appendChild(iframe);
+    document.body.appendChild(errorSvg);
+
+    removeMermaidRenderBindElement("  ");
+    expect(document.getElementById("darch-diagram-r1")).not.toBeNull();
+    expect(document.getElementById("iarch-diagram-r1")).not.toBeNull();
+
+    removeMermaidRenderBindElement("arch-diagram-r1");
+    expect(document.getElementById("darch-diagram-r1")).toBeNull();
+    expect(document.getElementById("iarch-diagram-r1")).toBeNull();
+    expect(document.getElementById("arch-diagram-r1")).toBeNull();
   });
 
   it("makes Mermaid SVG fill the container width", () => {
@@ -263,13 +288,34 @@ describe("help-mermaid", () => {
     const baseFit = fitMermaidSvgElementToViewport(svg, 800, 360, 10);
 
     expect(baseFit).not.toBeNull();
+    expect(baseFit?.inkMeasured).toBe(false);
     expect(Number(svg.getAttribute("height"))).toBeGreaterThanOrEqual(MERMAID_VIEWPORT_STABLE_MIN_HEIGHT_PX);
     expect(svg.style.height).not.toBe("auto");
 
     svg.remove();
   });
 
-  it("contains tall narrow ink inside a bounded viewport without width-stretching height", () => {
+  it("preserves Mermaid source viewBox for later authoritative crop", () => {
+    const prepared = prepareMermaidSvgForResponsiveLayout(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1144 322" width="1144" height="322"></svg>',
+    );
+
+    expect(prepared).toContain('data-al-source-viewbox="0 0 1144 322"');
+  });
+
+  it("resolveMermaidInkViewBox rejects measured boxes that clip rows or columns", () => {
+    const source = new DOMRect(0, 0, 1144, 322);
+    const measured = new DOMRect(119.31, 54.5, 865.58, 205.75);
+
+    const resolved = resolveMermaidInkViewBox(source, measured, 12);
+
+    expect(resolved?.x).toBe(0);
+    expect(resolved?.y).toBe(0);
+    expect(resolved?.width).toBe(1144);
+    expect(resolved?.height).toBe(322);
+  });
+
+  it("contains tall narrow ink using the legibility floor and allows overflow scroll", () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -298,8 +344,11 @@ describe("help-mermaid", () => {
     const baseFit = fitMermaidSvgElementToViewport(svg, 1000, 360, 10);
 
     expect(baseFit).not.toBeNull();
-    expect(Number(svg.getAttribute("height"))).toBeLessThanOrEqual(360);
-    expect(Number(svg.getAttribute("width"))).toBeLessThanOrEqual(1000);
+    expect(baseFit?.inkMeasured).toBe(true);
+    expect(baseFit?.fitScale).toBe(MERMAID_VIEWPORT_MIN_FIT_SCALE);
+    expect(baseFit?.overflows).toBe(true);
+    expect(Number(svg.getAttribute("height"))).toBeGreaterThan(360);
+    expect(svg.style.maxWidth).toBe("none");
 
     svg.remove();
   });
@@ -336,18 +385,35 @@ describe("help-mermaid", () => {
 
     expect(svg.getAttribute("width")).toBe(String(baseFit!.baseWidthPx * 2));
     expect(svg.getAttribute("height")).toBe(String(baseFit!.baseHeightPx * 2));
+    expect(svg.style.maxWidth).toBe("none");
 
     svg.remove();
   });
 
   it("treats null viewport fit as unpainted ink", () => {
     expect(isMermaidViewportPaintTooSmall(null, 1)).toBe(true);
+    expect(mermaidViewportFitNeedsRetry(null)).toBe(true);
+  });
+
+  it("treats a large unmeasured viewport as unpainted ink", () => {
+    expect(
+      isMermaidViewportPaintTooSmall(
+        { baseWidthPx: 800, baseHeightPx: 240, inkMeasured: false },
+        1,
+      ),
+    ).toBe(true);
+    expect(
+      mermaidViewportFitNeedsRetry({ baseWidthPx: 800, baseHeightPx: 240, inkMeasured: false }),
+    ).toBe(true);
   });
 
   it("treats tiny fitted ink height as unpainted", () => {
-    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 20 }, 1)).toBe(true);
-    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 15 }, 1.5)).toBe(true);
-    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 20 }, 1.5)).toBe(false);
-    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 24 }, 1)).toBe(false);
+    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 20, inkMeasured: true }, 1)).toBe(true);
+    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 15, inkMeasured: true }, 1.5)).toBe(true);
+    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 20, inkMeasured: true }, 1.5)).toBe(false);
+    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 24, inkMeasured: true }, 1)).toBe(false);
+    expect(
+      mermaidViewportFitNeedsRetry({ baseWidthPx: 100, baseHeightPx: 24, inkMeasured: true }),
+    ).toBe(false);
   });
 });

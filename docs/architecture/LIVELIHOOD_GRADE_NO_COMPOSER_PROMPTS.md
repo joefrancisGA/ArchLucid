@@ -6,7 +6,7 @@
 
 # Livelihood-grade-no Composer prompts (LN-001–LN-040)
 
-**Created:** 2026-09-11 · **Status:** ready to run · **Do not re-run** prior waves except as a numbered leftover.
+**Created:** 2026-09-11 · **Status:** **shipped** (LN-001–LN-040) · Close audit: [`LIVELIHOOD_GRADE_NO_ACCEPTANCE_2026-09-11.md`](LIVELIHOOD_GRADE_NO_ACCEPTANCE_2026-09-11.md) · **Do not re-run** prior waves except as a numbered leftover.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record.
 
@@ -37,6 +37,12 @@ After this wave:
 ## Sequencing
 
 See [`.cursor/prompts/livelihood-grade-no-00-index.md`](../../.cursor/prompts/livelihood-grade-no-00-index.md).
+
+## Close audit (LN-040)
+
+- [`LIVELIHOOD_GRADE_NO_ACCEPTANCE_2026-09-11.md`](LIVELIHOOD_GRADE_NO_ACCEPTANCE_2026-09-11.md) — done tests, cluster evidence, residuals.
+- [`LIVELIHOOD_GRADE_NO_OUT_OF_WAVE_RESIDUALS.md`](LIVELIHOOD_GRADE_NO_OUT_OF_WAVE_RESIDUALS.md) — LN-025/026/035 explicit skips.
+- Vitest ratchet: `archlucid-ui/src/lib/livelihood-grade-no-prompt-inventory.test.ts` (**LN-032**).
 
 Load-bearing ADRs: **0093**; 0050/0078/0082/0085 not rewritten.
 

@@ -14,6 +14,21 @@ const HelpAdvisoryScansGuideView = dynamic(() =>
 const HelpAlertsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpAlertsGuideView").then((module) => module.HelpAlertsGuideView),
 );
+const HelpArchitectureDeskGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpArchitectureDeskGuideView").then(
+    (module) => module.HelpArchitectureDeskGuideView,
+  ),
+);
+const HelpExtractionFidelityGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpExtractionFidelityGuideView").then(
+    (module) => module.HelpExtractionFidelityGuideView,
+  ),
+);
+const HelpFalseHardInfeasibilityGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpFalseHardInfeasibilityGuideView").then(
+    (module) => module.HelpFalseHardInfeasibilityGuideView,
+  ),
+);
 const HelpArchitectureDraftsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView").then((module) => module.HelpArchitectureDraftsGuideView),
 );
@@ -272,6 +287,15 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "sponsor-dashboard") {
     return <HelpSponsorDashboardGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "architecture-desk") {
+    return <HelpArchitectureDeskGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "false-hard-infeasibility") {
+    return <HelpFalseHardInfeasibilityGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "extraction-fidelity") {
+    return <HelpExtractionFidelityGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "architecture-drafts") {
     return <HelpArchitectureDraftsGuideView entry={loaded.entry} />;

@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.Contracts.Persistence.Graph;
 
 using FluentAssertions;
 
@@ -21,7 +22,8 @@ public sealed class MermaidDiagramRenderPipelineTests
             new MermaidDiagramRenderer(),
             new MermaidDiagramComplexityAnalyzer(),
             new MermaidDiagramDeterministicRepairer(),
-            new MermaidDiagramStructuralValidator()));
+            new MermaidDiagramStructuralValidator(),
+            new DiagramPeelCatalogDefaultProvider()));
 
     [Fact]
     public async Task RenderAsync_collapses_duplicate_edges_during_deterministic_repair()
@@ -72,6 +74,7 @@ public sealed class MermaidDiagramRenderPipelineTests
         result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
         result.PrimaryMermaid.Should().Contain("al-type=Microsoft.Network/virtualNetworks");
         result.PrimaryMermaid.Should().Contain("al-rg=rg-network");
+        result.PrimaryMermaid.Should().NotContain("] %% ");
     }
 
     [Fact]

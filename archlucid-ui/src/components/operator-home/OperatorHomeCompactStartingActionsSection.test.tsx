@@ -26,10 +26,10 @@ describe("OperatorHomeCompactStartingActionsSection (LD-06)", () => {
   it("shows a single new-review CTA in Working mode without dual-path cards", () => {
     render(<OperatorHomeCompactStartingActionsSection workingMode />);
 
-    expect(screen.getByTestId("operator-home-working-new-review-primary")).toHaveAttribute(
-      "href",
-      ARCHITECTURES_NEW_PATH,
-    );
+    const primary = screen.getByTestId("operator-home-working-new-review-primary");
+
+    expect(primary).toHaveAttribute("href", ARCHITECTURES_NEW_PATH);
+    expect(primary).toHaveTextContent("New review");
     expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
   });
 

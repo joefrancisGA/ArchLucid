@@ -42,6 +42,7 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                     : MermaidIdSanitizer.Sanitize(node.SubgraphId),
                 OrderKey = node.OrderKey,
                 CloudResourceId = node.CloudResourceId,
+                SeedNodeId = node.SeedNodeId,
                 ArmResourceType = node.ArmResourceType,
                 ArmResourceGroup = node.ArmResourceGroup,
             });

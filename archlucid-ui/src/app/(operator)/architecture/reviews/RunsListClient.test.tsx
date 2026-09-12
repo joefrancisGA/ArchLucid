@@ -805,4 +805,144 @@ describe("RunsListClient inspector", () => {
     expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
     expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
   });
+
+  it("preserves q= and sort= in the Previous pagination link on page 2", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={2}
+        pageSize={20}
+        totalCount={40}
+      />,
+      "q=Demo&sort=created-asc",
+    );
+
+    const previousLink = screen.getByRole("link", { name: /previous/i });
+
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("q=Demo"));
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("sort=created-asc"));
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("page=1"));
+    expect(previousLink.getAttribute("href")).not.toContain("cursor=");
+  });
+
+  it("preserves pending text filter in the Next pagination link before q= debounce completes", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={1}
+        pageSize={20}
+        totalCount={40}
+        nextCursor="cursor-page-2"
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/Filter reviews by name or description/i), {
+      target: { value: "Demo" },
+    });
+
+    const nextLink = screen.getByRole("link", { name: "Next" });
+
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("q=Demo"));
+  });
+
+  it("preserves pending text filter in sort href before q= debounce completes", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/Filter reviews by name or description/i), {
+      target: { value: "Demo" },
+    });
+
+    const oldestFirst = screen.getByTestId("runs-list-sort-created-asc");
+
+    expect(oldestFirst).toHaveAttribute("href", expect.stringContaining("q=Demo"));
+  });
+
+  it("preserves pending text filter in inspectorRunId URL sync before q= debounce completes", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/Filter reviews by name or description/i), {
+      target: { value: "Demo" },
+    });
+    fireEvent.click(screen.getByTestId(`runs-row-${sampleRun.runId}`));
+
+    expect(runsListSearchParamsHarness.state.query).toContain(`inspectorRunId=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.query).toContain("q=Demo");
+  });
+
+  it("preserves pending text filter in compareRuns URL sync before q= debounce completes", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/Filter reviews by name or description/i), {
+      target: { value: "Demo" },
+    });
+    fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
+
+    expect(runsListSearchParamsHarness.state.query).toContain(`compareRuns=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.query).toContain("q=Demo");
+  });
+
+  it("preserves q= and sort= in the Next pagination link", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={1}
+        pageSize={20}
+        totalCount={40}
+        nextCursor="cursor-page-2"
+      />,
+      "q=Demo&sort=created-asc",
+    );
+
+    const nextLink = screen.getByRole("link", { name: "Next" });
+
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("q=Demo"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("sort=created-asc"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=2"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("cursor=cursor-page-2"));
+  });
 });

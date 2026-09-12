@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL, WORKING_NEW_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE } from "@/lib/architecture/architecture-identity-desk-copy";
-import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { WORKING_SINGLE_START_NAV_TOOLTIP } from "@/lib/system-not-job-no-create-architecture-vs-review-fork-working";
 import {
   BUYER_NEW_REVIEW_NAV_LABEL,
   OPERATOR_START_REVIEW_QUICK_ACTION_LABEL,
@@ -45,6 +46,7 @@ describe("operator-nav-labels", () => {
 
     expect(working.label).toBe(ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE);
     expect(working.title).toContain("Durable architecture identities");
+    expect(working.title).toContain("Drafts are listed on this page");
   });
 
   it("CA-36: Guided sidebar keeps draft-inventory teaching tooltip", () => {
@@ -148,6 +150,20 @@ describe("operator-nav-labels", () => {
 
     expect(resolveNavLinkPresentation(source, false, false, false, "security").label).toBe("Azure connections");
     expect(resolveNavLinkPresentation(source, false, false, false, "architecture").label).toBe("Cloud connections");
+  });
+
+  it("SN-028 / ADR 0069: Working mode collapses create and start review nav captions", () => {
+    for (const href of [ARCHITECTURES_NEW_PATH, REVIEWS_NEW_PATH]) {
+      const working = resolveNavLinkPresentation(
+        { href, label: "Legacy", title: "Legacy tooltip" },
+        false,
+        false,
+        true,
+      );
+
+      expect(working.label).toBe(WORKING_NEW_REVIEW_LABEL);
+      expect(working.title).toBe(WORKING_SINGLE_START_NAV_TOOLTIP);
+    }
   });
 
   it("TB-882: curated operator surfaces keep sidebar labels aligned with route titles", () => {

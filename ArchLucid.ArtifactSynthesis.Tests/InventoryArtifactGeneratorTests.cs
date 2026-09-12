@@ -90,4 +90,52 @@ public sealed class InventoryArtifactGeneratorTests
         JsonElement root = doc.RootElement;
         root.GetProperty("Items").GetArrayLength().Should().Be(5);
     }
+
+    [Fact]
+    public async Task GenerateAsync_serializes_mandatory_flag_for_requirement_items()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Requirements = new RequirementsCoverageSection
+            {
+                Covered =
+                [
+                    new RequirementCoverageItem
+                    {
+                        RequirementName = "Encrypt data at rest",
+                        CoverageStatus = "Met",
+                        RequirementText = "AES-256",
+                        IsMandatory = true,
+                    },
+                ],
+                Uncovered =
+                [
+                    new RequirementCoverageItem
+                    {
+                        RequirementName = "Disaster recovery region",
+                        CoverageStatus = "Gap",
+                        RequirementText = "secondary region",
+                        IsMandatory = false,
+                    },
+                ],
+            },
+        };
+
+        InventoryArtifactGenerator sut = new();
+
+        SynthesizedArtifact artifact = await sut.GenerateAsync(manifest, CancellationToken.None);
+
+        using JsonDocument doc = JsonDocument.Parse(artifact.Content);
+        JsonElement items = doc.RootElement.GetProperty("Items");
+        items.GetArrayLength().Should().Be(2);
+
+        JsonElement covered = items[0];
+        covered.GetProperty("Category").GetString().Should().Be("Requirement");
+        covered.GetProperty("IsMandatory").GetBoolean().Should().BeTrue();
+
+        JsonElement uncovered = items[1];
+        uncovered.GetProperty("IsMandatory").GetBoolean().Should().BeFalse();
+    }
 }

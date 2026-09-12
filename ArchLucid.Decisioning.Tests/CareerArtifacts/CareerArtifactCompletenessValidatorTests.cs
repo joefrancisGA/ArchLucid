@@ -50,6 +50,31 @@ public sealed class CareerArtifactCompletenessValidatorTests
     }
 
     [Fact]
+    public void Evaluate_export_blocks_uncited_hard_infeasible_on_working_desk()
+    {
+        FeasibilityVerdict verdict = new()
+        {
+            Kind = FeasibilityVerdictKind.HardInfeasible,
+            Summary = "Impossible under stated constraints.",
+            Confidence = 100,
+            TransparencyTrail = new TransparencyTrail(),
+        };
+
+        CareerArtifactCompletenessInput input = new(
+            ArtifactKind: CareerArtifactKind.Export,
+            TransparencyTrail: new TransparencyTrail(),
+            EnginesSucceeded: _meetsFloorEngineCount,
+            WorkingDesk: true,
+            FeasibilityVerdict: verdict);
+
+        CareerArtifactCompletenessResult result = _sut.Evaluate(input);
+
+        result.CanRender.Should().BeFalse();
+        result.BlockReasons.Should().Contain(reason =>
+            reason.Code == CareerArtifactCompletenessValidator.UncitedHardInfeasibleCode);
+    }
+
+    [Fact]
     public void Evaluate_export_blocks_when_trail_is_null()
     {
         CareerArtifactCompletenessInput input = new(

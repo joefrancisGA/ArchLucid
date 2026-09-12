@@ -2714,6 +2714,35 @@ export interface components {
             /** Format: int32 */
             unsupportedAssumptionsBefore?: number;
         };
+        CompareVerdictChromeDelta: {
+            executionMode?: null | components["schemas"]["CompareVerdictChromeExecutionModeDelta"];
+            gateOutcome?: null | components["schemas"]["CompareVerdictChromeGateOutcomeDelta"];
+            hasAnySection?: boolean;
+            nonSummingLine?: string;
+            packAssignment?: null | components["schemas"]["CompareVerdictChromePackAssignmentDelta"];
+            roiHeadline?: null | components["schemas"]["CompareVerdictChromeRoiHeadlineDelta"];
+            wk21Line?: string;
+        };
+        CompareVerdictChromeExecutionModeDelta: {
+            advisoryParagraph?: null | string;
+            baselineModeLabel?: string;
+            changed?: boolean;
+            targetModeLabel?: string;
+        };
+        CompareVerdictChromeGateOutcomeDelta: {
+            baselineGateLabel?: string;
+            changed?: boolean;
+            targetGateLabel?: string;
+        };
+        CompareVerdictChromePackAssignmentDelta: {
+            baselineSummaryLine?: string;
+            changed?: boolean;
+            targetSummaryLine?: string;
+        };
+        CompareVerdictChromeRoiHeadlineDelta: {
+            baselineSavingsLabel?: null | string;
+            targetSavingsLabel?: null | string;
+        };
         ComparisonDuplicateKeyConflict: {
             /** Format: int32 */
             count?: number;
@@ -3955,6 +3984,7 @@ export interface components {
         EndToEndReplayComparisonReport: {
             agentResultDiff?: null | components["schemas"]["AgentResultDiffResult"];
             compareQualityDelta?: null | components["schemas"]["CompareQualityDeltaCounts"];
+            compareVerdictChromeDelta?: null | components["schemas"]["CompareVerdictChromeDelta"];
             exportDiffs?: components["schemas"]["ExportRecordDiffResult"][];
             findingCorrelation?: null | components["schemas"]["ComparisonFindingCorrelationMetadata"];
             findingLifecycle?: null | components["schemas"]["CrossReviewFindingLifecycleSummary"];
@@ -4570,6 +4600,7 @@ export interface components {
             assignedToUserId?: null | string;
             /** Format: uuid */
             auditRowId?: null | string;
+            classification?: null | components["schemas"]["FindingClassification"];
             confidenceLevel?: null | components["schemas"]["FindingConfidenceLevel"];
             /** Format: double */
             confidenceScore?: null | number | string;
@@ -4611,8 +4642,10 @@ export interface components {
             runExecutionModeDisplayLabel?: null | string;
             /** Format: uuid */
             runId?: string;
+            semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             severity?: components["schemas"]["FindingSeverity"];
             trackedExternally?: boolean;
+            treatment?: null | components["schemas"]["FindingTreatment"];
             trustLabel?: null | string;
             trustLabelReason?: null | string;
             typedPayload?: null | components["schemas"]["JsonElement"];
@@ -4685,9 +4718,11 @@ export interface components {
             findingTitle?: string;
             missingTraceFields?: string[];
             ruleId?: string;
+            semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             /** Format: double */
             traceCompletenessRatio?: number | string;
             traceConfidenceLabel: string;
+            treatment?: null | components["schemas"]["FindingTreatment"];
         };
         FindingTreatment: number;
         FindingUnmuteRequest: {
@@ -6945,6 +6980,7 @@ export interface components {
             findingsBySeverity?: components["schemas"]["PilotRunDeltaSeverityCountResponse"][];
             governedFindingCoverage?: null | components["schemas"]["GovernedFindingCoverageMetric"];
             isDemoTenant?: boolean;
+            isSampleRun?: boolean;
             /** Format: int32 */
             llmCallCount?: number;
             llmCallCountResolved?: boolean;

@@ -74,7 +74,12 @@ export default function GovernanceFindingsQueueClient({
   const { currentPrincipal } = useOperatorNavAuthority();
   const scopeRecord = useOperatorScopeRecord();
   const assignedToMeWorkspaceLabel = resolveGovernanceAssignedToMeWorkspaceLabel();
-  const queueMode = useGovernanceFindingsQueueMode({ mode });
+  const { isWorkingMode } = useWorkspaceMode();
+  const queueMode = useGovernanceFindingsQueueMode({
+    mode,
+    workingMode: isWorkingMode,
+    pathname,
+  });
   const {
     isAssignedToMe,
     buyerPolishedShell,
@@ -97,7 +102,6 @@ export default function GovernanceFindingsQueueClient({
     assignedToMeCountMismatch,
   } = queueMode;
   const bulkActions = useGovernanceFindingsQueueBulkActions({ refresh, mode });
-  const { isWorkingMode } = useWorkspaceMode();
   const {
     registerFilter,
     setRegisterFilter,
@@ -264,6 +268,8 @@ export default function GovernanceFindingsQueueClient({
         scopedRunId={scopedRunId}
         loading={loading}
         currentJobId={currentJobId}
+        workingMode={isWorkingMode}
+        pathname={pathname}
       />
       <GovernanceFindingsQueueTableShell
         isAssignedToMe={isAssignedToMe}

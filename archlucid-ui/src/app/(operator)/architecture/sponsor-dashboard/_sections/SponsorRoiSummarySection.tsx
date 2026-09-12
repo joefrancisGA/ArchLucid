@@ -14,6 +14,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { DemoTenantSeedCallout } from "@/components/DemoTenantSeedCallout";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Button } from "@/components/ui/button";
 import {
   buildSponsorSummaryMarkdown,
@@ -25,7 +26,9 @@ import { SponsorRoiBoardPackEvidenceBanner } from "./SponsorRoiBoardPackEvidence
 import { SponsorRoiProofStatusStrip } from "./SponsorRoiProofStatusStrip";
 import { SponsorRoiSystemsIncludedSection } from "./SponsorRoiSystemsIncludedSection";
 import { RoiHeadlineMathTooltip } from "@/components/roi/RoiHeadlineMathTooltip";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { resolveSponsorRoiIdentifiedVsRealized } from "@/lib/sponsor-roi-identified-vs-realized";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import {
   manifestSummarySealedVersionForCopyGuard,
   runCollateralSealedManifestCopyBlockedReason,
@@ -301,6 +304,7 @@ export function SponsorRoiSummarySection({
             {boardPackBusy ? "Board pack…" : "Download board pack (Markdown)"}
           </Button>
         </div>
+        <SponsorExportSendHonestyStrip className="mt-2" testIdPrefix="sponsor-roi-summary-export" />
         <label className={cn("flex items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           <input
             type="checkbox"
@@ -335,6 +339,10 @@ export function SponsorRoiSummarySection({
         <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
           Latest finalized review per system in this workspace. {BUYER_SPONSOR_DATA_SOURCE_NOTE}
         </CardDescription>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="exec-roi-summary-non-summing">
+          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+        </p>
+        <PolicyPackInfluenceHonestyChip />
       </CardHeader>
       <CardContent className="space-y-4">
         {resolvedPortfolioSavings !== null ? (

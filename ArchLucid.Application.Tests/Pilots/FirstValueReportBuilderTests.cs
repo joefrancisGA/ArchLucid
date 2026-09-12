@@ -1,3 +1,4 @@
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Value;
@@ -100,6 +101,9 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("Rotate storage account keys from snapshot");
         md.Should().Contain("## Decision delta (recommended changes)");
         md.Should().Contain("Rotate storage account keys from snapshot");
+        md.Should().Contain("## Sendable export cover");
+        md.Should().Contain(SendableExportCoverComposer.PolicyPackInfluenceHonestyLine);
+        md.Should().Contain(SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine);
         md.Should().NotContain("No active findings recorded in this package.");
     }
 

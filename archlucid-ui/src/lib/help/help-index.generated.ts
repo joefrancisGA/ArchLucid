@@ -38,7 +38,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Configuration reference",
     "sectionSlug": "pilot-profile-overlay-appsettingspilotjson",
     "sectionHeading": "Pilot profile overlay (`appsettings.Pilot.json`)",
-    "excerpt": "Use the optional `appsettings.Pilot.json` overlay (loaded in `ArchLucid.Api/Program.cs` after base JSON, before Advanced/SaaS) when standing up a single-replica pilot. It keeps the operator view minimal:"
+    "excerpt": "Use the optional `appsettings.Pilot.json` overlay (loaded in `ArchLucid.Api/Program.cs` after base JSON when `ASPNETCORE_ENVIRONMENT` is not Development, before Advanced/SaaS) when standing up a single-replica pilot. It keeps the operator view minimal:"
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
@@ -66,7 +66,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Configuration reference",
     "sectionSlug": "portfolio-recurrence-finding-engine-id-06",
     "sectionHeading": "Portfolio recurrence finding engine (ID-06)",
-    "excerpt": "Cross-run portfolio scan on every review when enabled. Default off so tenants do not incur `IRunDetailQueryService` / `IFindingsSnapshotRepository` fan-out until operators opt in and measure cost."
+    "excerpt": "Cross-run portfolio scan on every review when enabled. Default on — disable per tenant when cross-review reads are undesirable. Claim boundary: scans other systems in the same tenant catalog only (ADR 0037)."
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",

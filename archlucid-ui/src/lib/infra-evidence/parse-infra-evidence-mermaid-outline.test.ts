@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseInfraEvidenceMermaidOutline,
   resolveInfraEvidenceOutlineNodeLabel,
+  resolveInfraEvidenceOutlineSeedNodeId,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
 describe("parseInfraEvidenceMermaidOutline", () => {
@@ -32,11 +33,32 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     expect(resolveInfraEvidenceOutlineNodeLabel(outline.nodes, "missing")).toBe("missing");
   });
 
+  it("prefers metadata seed ids over mermaid node hashes", () => {
+    expect(
+      resolveInfraEvidenceOutlineSeedNodeId({
+        id: "n_hash",
+        label: "core-vnet",
+        resourceType: null,
+        resourceGroup: null,
+        seedNodeId: "22222222-2222-2222-2222-222222222222",
+      }),
+    ).toBe("22222222-2222-2222-2222-222222222222");
+    expect(
+      resolveInfraEvidenceOutlineSeedNodeId({
+        id: "n_hash",
+        label: "core-vnet",
+        resourceType: null,
+        resourceGroup: null,
+      }),
+    ).toBe("n_hash");
+  });
+
   it("parses inventory node metadata comments for resource type and group", () => {
     const outline = parseInfraEvidenceMermaidOutline(
       [
         "flowchart TD",
-        '    n_a1["nic-prod"] %% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network',
+        "    %% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network",
+        '    n_a1["nic-prod"]',
       ].join("\n"),
     );
 
@@ -46,6 +68,67 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         label: "nic-prod",
         resourceType: "Microsoft.Network/networkInterfaces",
         resourceGroup: "rg-network",
+        seedNodeId: null,
+      },
+    ]);
+  });
+
+  it("still parses legacy inline inventory node metadata comments", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    n_a1["nic-prod"] %% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network al-seed=22222222-2222-2222-2222-222222222222',
+      ].join("\n"),
+    );
+
+    expect(outline.nodes).toEqual([
+      {
+        id: "n_a1",
+        label: "nic-prod",
+        resourceType: "Microsoft.Network/networkInterfaces",
+        resourceGroup: "rg-network",
+        seedNodeId: "22222222-2222-2222-2222-222222222222",
+      },
+    ]);
+  });
+
+  it("parses own-line inventory seed metadata comments", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        "    %% al-type=Microsoft.Network/virtualNetworks al-rg=anly-aep-test-hi al-seed=22222222-2222-2222-2222-222222222222",
+        '    n_vnet["vnet-aep-hi-test-wus-001"]',
+      ].join("\n"),
+    );
+
+    expect(outline.nodes).toEqual([
+      {
+        id: "n_vnet",
+        label: "vnet-aep-hi-test-wus-001",
+        resourceType: "Microsoft.Network/virtualNetworks",
+        resourceGroup: "anly-aep-test-hi",
+        seedNodeId: "22222222-2222-2222-2222-222222222222",
+      },
+    ]);
+  });
+
+  it("ignores invisible layout links when building the edges outline", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    vnet1["vnet-eastus"]',
+        '    vnet2["vnet-westus"]',
+        '    vnet3["vnet-north"]',
+        "    vnet1 ~~~ vnet2",
+        "    vnet1 -->|peered| vnet3",
+      ].join("\n"),
+    );
+
+    expect(outline.edges).toEqual([
+      {
+        from: "vnet1",
+        to: "vnet3",
+        label: "peered",
       },
     ]);
   });
@@ -66,6 +149,7 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         label: "vnet-eastus",
         resourceType: null,
         resourceGroup: "rg-network",
+        seedNodeId: null,
       },
     ]);
   });

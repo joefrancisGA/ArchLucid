@@ -1,4 +1,5 @@
 using ArchLucid.Application.ExecDigest;
+using ArchLucid.Application.Exports;
 
 namespace ArchLucid.Application.Notifications.Email.Models;
 
@@ -79,4 +80,10 @@ public sealed class ExecDigestEmailModel
         get;
         init;
     }
+
+    public string SponsorRoiNonSummingLine { get; init; } =
+        SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine;
+
+    public string PolicyPackInfluenceHonestyLine { get; init; } =
+        SendableExportCoverComposer.PolicyPackInfluenceHonestyLine;
 }

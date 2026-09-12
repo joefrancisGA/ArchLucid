@@ -30,12 +30,32 @@ internal static partial class CliCommandHandlers
     }
 
 
+    internal static Task<int> HandleInfeasible(string[] normalized)
+    {
+        if (normalized.Length > 1 && string.Equals(normalized[1], "honesty", StringComparison.OrdinalIgnoreCase))
+        {
+            return InfeasibleHonestyCommand.RunAsync(normalized.Skip(2).ToArray());
+        }
+
+        CliInfeasibleHonesty.WriteHelp();
+
+        return Task.FromResult(CliExitCode.UsageError);
+    }
+
+
     internal static async Task<int> HandleDraft(string[] normalized)
     {
         if (normalized.Length > 1 && string.Equals(normalized[1], "new", StringComparison.OrdinalIgnoreCase))
             return await DraftNewCommand.RunAsync(normalized.Skip(2).ToArray());
 
+        if (normalized.Length > 1
+            && string.Equals(normalized[1], "clone-snapshot", StringComparison.OrdinalIgnoreCase))
+        {
+            return await DraftCloneSnapshotCommand.RunAsync(normalized.Skip(2).ToArray());
+        }
+
         DraftNewCommandOptions.WriteUsage();
+        DraftCloneSnapshotHonesty.WriteHelp();
 
         return CliExitCode.UsageError;
     }

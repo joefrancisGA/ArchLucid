@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -21,8 +22,10 @@ import {
   architectureSealDeltaSectionLabel,
 } from "@/lib/architecture/architecture-seal-delta-copy";
 import { architectureSealDeltaBlockedReason } from "@/lib/architecture/architecture-seal-delta-blocked-reason";
-import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
-import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import {
+  resolveSystemNotJobDeskSealedChildCompareHref,
+  resolveSystemNotJobDeskSealedChildReviewHref,
+} from "@/lib/system-not-job-sealed-child-not-second-desk";
 import {
   architectureSealDeltaDisclosureHrefFromSearch,
   parseArchitectureSealDeltaOpenFromSearch,
@@ -51,6 +54,7 @@ function groupDiffsBySection(diffs: readonly DiffItem[]): Map<string, DiffItem[]
 }
 
 export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProps): ReactElement {
+  const { isWorkingMode } = useWorkspaceMode();
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -139,11 +143,16 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
       : null;
   const compareHref =
     sealedReviewRunId.length > 0 && compareTargetRunId !== null
-      ? comparePageHrefAdaptive(sealedReviewRunId, compareTargetRunId)
+      ? resolveSystemNotJobDeskSealedChildCompareHref({
+          architectureId: props.architectureId,
+          priorRunId: sealedReviewRunId,
+          laterRunId: compareTargetRunId,
+          workingMode: isWorkingMode,
+        })
       : null;
   const whatIfHref =
     sealedReviewRunId.length > 0
-      ? `${resolveArchitectureReviewHref(sealedReviewRunId, props.architectureId)}#run-actions`
+      ? `${resolveSystemNotJobDeskSealedChildReviewHref(sealedReviewRunId, props.architectureId)}#run-actions`
       : null;
   const groupedDiffs = groupDiffsBySection(delta.diffs);
 

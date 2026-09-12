@@ -12,6 +12,10 @@ import {
   listUnsupportedDecisionGradeSemanticSupportFindingsForPresentation,
   stampSemanticSupportShowsAllClearForPresentation,
 } from "@/lib/findings/semantic-support-band-stamp";
+import {
+  shouldPresentSemanticSupportBandAsRehearsal,
+} from "@/lib/governance/simulator-career-honesty";
+import { SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY } from "@/lib/semantic-support-band-async-honesty";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { cn } from "@/lib/utils";
 
@@ -85,6 +89,14 @@ export function RunDetailReviewPackageSemanticSupportBandSummary(
             <li key={label}>{label}</li>
           ))}
         </ul>
+      ) : null}
+      {!shouldPresentSemanticSupportBandAsRehearsal(props.structuralExecutionMode) && counts.unchecked > 0 ? (
+        <p
+          className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-stamp-semantic-support-lane-b-honesty"
+        >
+          {SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY}
+        </p>
       ) : null}
     </div>
   );

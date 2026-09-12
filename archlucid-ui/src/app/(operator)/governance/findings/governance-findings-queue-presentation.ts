@@ -13,7 +13,10 @@ import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
-import { resolveGovernanceAssignedToMePageSubtitle } from "@/lib/product-line/securenow-governance-assigned-to-me-copy";
+import {
+  resolveGovernanceAssignedToMeClaimDiscipline,
+  resolveGovernanceAssignedToMePageSubtitle,
+} from "@/lib/product-line/securenow-governance-assigned-to-me-copy";
 import {
   comparePageHrefWithLifecycleAnchor,
   COMPARE_FINDING_LIFECYCLE_ANCHOR,
@@ -28,6 +31,11 @@ import {
 import {
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE } from "@/lib/governance/governance-findings-evidence-copy";
+import {
+  resolveSystemNotJobGovernanceFindingsClaimDiscipline,
+  resolveSystemNotJobGovernanceFindingsPageSubtitle,
+} from "@/lib/system-not-job-findings-are-verbs-on-the-system";
 import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
@@ -240,18 +248,47 @@ export function resolveGovernanceFindingsPageTitle(
   return buyerPolishedShell ? BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE : ARCHITECTURE_RISK_REGISTER_PAGE_TITLE;
 }
 
+export type ResolveGovernanceFindingsPresentationOptions = {
+  readonly workingMode?: boolean;
+  readonly pathname?: string | null;
+};
+
 export function resolveGovernanceFindingsPageSubtitle(
   isAssignedToMe: boolean,
   buyerPolishedShell: boolean,
   productLineId: ProductLineId = "architecture",
+  options: ResolveGovernanceFindingsPresentationOptions = {},
 ): string {
   if (isAssignedToMe) {
     return resolveGovernanceAssignedToMePageSubtitle(productLineId, buyerPolishedShell);
   }
 
-  return buyerPolishedShell
+  const guidedSubtitle = buyerPolishedShell
     ? GOVERNANCE_FINDINGS_PAGE_SUBTITLE_BUYER
     : ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE;
+
+  return resolveSystemNotJobGovernanceFindingsPageSubtitle({
+    workingMode: options.workingMode === true,
+    pathname: options.pathname ?? null,
+    guidedCopy: guidedSubtitle,
+  });
+}
+
+export function resolveGovernanceFindingsClaimDiscipline(
+  isAssignedToMe: boolean,
+  productLineId: ProductLineId,
+  buyerPolishedShell: boolean,
+  options: ResolveGovernanceFindingsPresentationOptions = {},
+): string {
+  if (isAssignedToMe) {
+    return resolveGovernanceAssignedToMeClaimDiscipline(productLineId, buyerPolishedShell);
+  }
+
+  return resolveSystemNotJobGovernanceFindingsClaimDiscipline({
+    workingMode: options.workingMode === true,
+    pathname: options.pathname ?? null,
+    guidedCopy: GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE,
+  });
 }
 
 export function resolveGovernanceFindingsNavHref(
