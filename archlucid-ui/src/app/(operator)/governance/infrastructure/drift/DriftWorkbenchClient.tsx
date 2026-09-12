@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
 import { LayerHeader } from "@/components/LayerHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -930,6 +931,7 @@ export function DriftWorkbenchClient() {
                   {exportDisabledReason}
                 </p>
               ) : null}
+              <SponsorExportSendHonestyStrip testIdPrefix="infra-drift-export-terraform" />
               {selectedDiffId.length > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-drift-open-ask">
                   <Link
