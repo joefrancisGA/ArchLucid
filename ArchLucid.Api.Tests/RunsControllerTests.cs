@@ -758,8 +758,6 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
-<<<<<<< HEAD
-=======
     public async Task PostFindingFeedback_returns_bad_request_when_comment_contains_invalid_surrogate()
     {
         RunsController controller = CreateController();
@@ -779,7 +777,6 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
->>>>>>> origin/bugsmash
     public async Task PutAssumptionAcknowledgement_returns_bad_request_when_assumption_id_contains_invalid_surrogate()
     {
         Mock<IRunAssumptionAcknowledgementService> acknowledgementService = new();
