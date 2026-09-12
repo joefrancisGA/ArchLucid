@@ -2573,3 +2573,4 @@
 {"at":"2026-09-12T23:50:35.5443159Z","zoneId":"decisioning","outcome":"seed-only"}
 {"at":"2026-09-12T23:50:38.6591082Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
 {"at":"2026-09-12T23:50:50.1857607Z","zoneId":"context-ingestion","outcome":"seed-only"}
+{"at":"2026-09-12T23:50:52.9479584Z","zoneId":"tenant-data-export","outcome":"seed-only"}
