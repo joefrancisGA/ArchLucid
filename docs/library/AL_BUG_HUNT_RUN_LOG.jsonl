@@ -2394,3 +2394,4 @@
 {"at":"2026-09-12T17:38:23.0615371Z","zoneId":"tenant-settings-sql","outcome":"seed-only"}
 {"at":"2026-09-12T17:38:37.0857202Z","zoneId":"agent-runtime-safety","outcome":"seed-only"}
 {"at":"2026-09-12T17:38:58.9056794Z","zoneId":"email-otp-auth","outcome":"seed-only"}
+{"at":"2026-09-12T17:39:12.9328419Z","zoneId":"auth-return-path","outcome":"seed-only"}

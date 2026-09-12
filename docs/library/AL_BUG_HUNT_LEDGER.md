@@ -1097,13 +1097,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-10 — box-diagonal and ideographic/Arabic dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-12 seed hunt #2075 (seed-only): reseeded auth-return-path; 58 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
 
