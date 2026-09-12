@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { PolicyPackDeltaDemoHelpClaimDisciplineStrip } from "@/components/help/PolicyPackDeltaDemoHelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -189,6 +190,8 @@ export function HelpPolicyPackDeltaDemoGuideView(
               </Link>
             </div>
           </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-policy-pack-delta-demo" showSsoOptional={false} />
 
           <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-policy-pack-delta-demo-content">
             <MarketingAccessibilityMarkdownFragment
