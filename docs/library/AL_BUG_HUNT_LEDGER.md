@@ -3180,7 +3180,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -3219,6 +3219,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `BillingWebhookLedgerReplayPolicy` blocks Stripe retry after prior `Failed` ledger status — **cheap-disproof 2026-09-11 seed hunt #1800:** failed deliveries are intentionally retryable; regression `ShouldRejectDuplicateLedgerEntry_returns_false_for_failed_or_missing_status`.
 
 2026-09-11 seed hunt #1800 (seed-only): reseeded billing-webhooks after #1799; cheap-disproof closed Remember/TryRegister interaction, non-GUID wallet metadata, and failed-ledger retry policy; 13 scoped unit tests passed.
+
+- [x] (valid-no-repro) Whitespace-padded billing provider names bypass replay guard dedupe — **cheap-disproof 2026-09-11 seed hunt #1803:** `BuildCacheKey` trims provider names; regression `HasSeenAsync_treats_whitespace_padded_provider_name_as_same_event`.
+- [x] (valid-no-repro) Wallet `payment_intent.succeeded` credits tenant when `amountCents` is zero — **cheap-disproof 2026-09-11 seed hunt #1803:** processor forwards `0m` to `ApplyWebhookPaymentIntentSucceededAsync`; webhook stage guard prevents credit; regression `ProcessPaymentIntentEventAsync_forwards_zero_amount_to_wallet_service_without_crediting`.
+- [x] (invalid) `LlmTenantWalletStripeWebhookProcessor` credits wallet on negative `amountCents` — **cheap-disproof 2026-09-11 seed hunt #1803:** `LlmTenantWalletWebhookStage` returns false when `amountUsd <= 0`; same regression as zero-amount case.
+
+2026-09-11 seed hunt #1803 (seed-only): reseeded billing-webhooks after #1800; cheap-disproof closed provider-name trim parity and non-positive wallet amount guards; 16 scoped unit tests passed.
 
 2026-09-04 seed hunt #671: proved duplicate billing webhook signature/bearer header comma-join; seeded replay-guard TryRegister wiring and wallet-purpose filter candidates.
 
@@ -3309,7 +3315,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -3353,6 +3359,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Mixed-case `/INTERNAL/` path segments bypass `ScopeResolutionGuardMiddleware` skip — **cheap-disproof 2026-09-11 seed hunt #1801:** `path.Contains("/internal/", OrdinalIgnoreCase)`; regression `InvokeAsync_staging_host_skips_internal_paths_with_mixed_case`.
 
 2026-09-11 seed hunt #1801 (seed-only): reseeded scope-binding-middleware after #1798; cheap-disproof closed ApiKey duplicate-workspace headers, AllowUnscoped route skip, and internal-path casing; 57 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) ApiKey principal with duplicate `x-project-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-11 seed hunt #1802:** `TryParseHeaderGuid` parity with tenant/workspace; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_project_headers_without_claim_for_api_key`.
+- [x] (valid-no-repro) `RouteTenantScopeBindingFilter` enforces route tenant on `[AllowCrossTenantRoute]` endpoints — **cheap-disproof 2026-09-11 seed hunt #1802:** `ShouldSkip` honors `AllowCrossTenantRouteAttribute`; regression `OnActionExecutionAsync_allow_cross_tenant_route_metadata_skips_binding`.
+- [x] (valid-no-repro) `ScopeResolutionGuardMiddleware` blocks `/robots.txt` and `/sitemap.xml` on staging — **cheap-disproof 2026-09-11 seed hunt #1802:** `ShouldSkip` treats crawler hint paths like `/`; regressions `InvokeAsync_staging_host_skips_public_crawler_hint_paths`.
+
+2026-09-11 seed hunt #1802 (seed-only): reseeded scope-binding-middleware after #1801; cheap-disproof closed ApiKey duplicate-project headers, AllowCrossTenant route skip, and public crawler hint paths; 61 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
 
 ---
 
@@ -9522,8 +9534,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-11 — standalone month/months Azure retail UOM rejected while quantity-prefixed forms matched
@@ -9549,6 +9561,10 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (valid-no-repro) `AzureRetailPricesCatalogClient` accepts annual `Year`/`year` UOM as monthly consumption — **cheap-disproof 2026-09-11 seed hunt #1795:** annual meters intentionally rejected by monthly probe; regression `TryMonthlyUsdFromRow_rejects_annual_unit_of_measure`.
 
 2026-09-11 seed hunt #1795 (seed-only): reseeded core-costing after #1703; cheap-disproof closed annual UOM monthly-probe candidate; 2 scoped AzureRetailPricesSkuMatchersNonMonthly tests passed.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — standalone and quantity-prefixed `day`/`days` UOM rejected while hourly/monthly synonyms already matched — **hit 2026-09-11 seed hunt #1804:** Azure Retail daily consumption meters with bare `"day"`/`"days"` or `"1 Day"` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow`; fixed with `IsDayMeter` + `DaysPerMonthAssumption` parity with hour/month fixes (#1415/#1703); regressions `TryMonthlyUsdFromRow_accepts_standalone_day_unit_of_measure_synonyms`, `LooksLikeConsumptionUsd_accepts_daily_unit_of_measure_synonyms`, and `TryMonthlyUsdFromRow_accepts_quantity_prefixed_day_unit_of_measure`.
+
+2026-09-11 seed hunt #1804 (hit): reseeded core-costing sibling UOM parity; proved standalone/prefixed daily Azure retail gap; 127 scoped Costing tests passed.
 
 2026-09-07 seed hunt #1186 (hit): seeded zone from split catalog; proved GCP billing catalog pagination gap on live pricing probe.
 
@@ -10353,7 +10369,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 13
+- **hunts:** 20
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -10382,11 +10398,36 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `AwsResourceExplorerQueryString.ResolveForRegion` China partition (`cn-*`) — **2026-09-08:** `ResolveForRegion_returns_china_partition_for_cn_region` confirms existing `arn:aws-cn:*` branch; GovCloud parity already proven.
 - [x] (valid-no-repro) `GetOnlyHostedAzureArmReadClient` ARM HTTP failures throw via `EnsureSuccessStatusCode` without warning log — **2026-09-08:** 401/403/429 surface as HTTP exceptions to orchestration; no cross-tenant or inventory-corruption wrong outcome in extractor layer.
 - [x] (proven) GCP `HostedGcpExtractorClient.SearchResourcesAsync` used Google SDK async enumerator without explicit page cap — **hit 2026-09-08:** large projects could paginate unbounded vs AWS/Azure `MaxPaginationRequests = 64`; extracted `GcpAssetInventoryCollector` with raw-page guard; regression in `CollectFromRawPagesAsync_throws_after_max_pages`.
-- [ ] (candidate) `HostedAwsExtractorClient.CollectZipAsync` accepts unknown AWS region system names via `RegionEndpoint.GetBySystemName` without upfront validation — Azure has `HostedAzureExtractorGuidValidator`; deferred to next hunt
+- [x] (invalid) `HostedAwsExtractorClient.CollectZipAsync` accepts unknown AWS region system names via `RegionEndpoint.GetBySystemName` without upfront validation — **cheap-disproof 2026-09-11 thorough hunt #1805:** deferred validation fails at STS/Resource Explorer; no silent wrong inventory.
 - [x] (proven) `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync` ignored Microsoft Graph `@odata.nextLink` — **hit 2026-09-11 hunt #1706 (seed→hit):** groups with >1 page of direct members dropped members beyond the first page; fixed with visited-link pagination loop (`MaxPaginationRequests = 64`); regression in `TryReadDirectMembershipsAsync_follows_odata_next_link_for_group_members`
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync` followed ARM `nextLink` without validating resource scope — **hit 2026-09-11 hunt #1706 (seed→hit):** malicious or mis-issued `nextLink` to another resource's diagnostic settings could leak settings; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsDiagnosticSettingsResource`; regression in `ListDiagnosticSettingsAsync_rejects_next_link_for_different_resource_id`
 
 2026-09-11 seed hunt #1706 (seed→hit): reseeded cloud-extractors after master merge; proved Entra Graph membership pagination and diagnostic-settings cross-resource nextLink gaps; 54 scoped Azure extractor tests passed.
+
+- [x] (invalid) `HostedAwsExtractorClient.CollectZipAsync` accepts unknown AWS region system names without upfront validation — **cheap-disproof 2026-09-11 thorough hunt #1805:** `RegionEndpoint.GetBySystemName` defers failure to STS/Resource Explorer calls; no silent cross-region inventory wrong outcome (unlike Azure subscription nextLink guard); Azure GUID validation is subscription-scope identity, not region-string parity.
+- [x] (valid-no-repro) Whitespace-only AWS `Region` reaches `RegionEndpoint.GetBySystemName` — **cheap-disproof 2026-09-11 thorough hunt #1805:** `ArgumentException.ThrowIfNullOrWhiteSpace(request.Region)` rejects before token fetch; regression `CollectZipAsync_rejects_blank_region_before_token_fetch`.
+
+2026-09-11 thorough hunt #1805 (dry): reseeded cloud-extractors after #1706; cheap-disproof closed unknown-region and whitespace-region candidates; 2 scoped HostedAwsExtractorClient tests passed.
+
+- [x] (valid-no-repro) Whitespace-only GCP `ProjectId` reaches workload-identity credential factory — **cheap-disproof 2026-09-11 thorough hunt #1806:** `ArgumentException.ThrowIfNullOrWhiteSpace(request.ProjectId)` rejects before token fetch; regression `CollectZipAsync_rejects_blank_project_id_before_token_fetch`.
+
+2026-09-11 thorough hunt #1806 (dry): reseeded cloud-extractors input guards; cheap-disproof closed GCP blank project id candidate; 3 scoped HostedGcpExtractorClient tests passed.
+
+- [x] (valid-no-repro) Whitespace-padded Azure subscription GUID bypasses `RequireAzureGuid` — **cheap-disproof 2026-09-11 seed hunt #1807:** `value.Trim()` before `Guid.TryParse`; regression `RequireAzureGuid_accepts_whitespace_padded_guid`.
+- [x] (valid-no-repro) Whitespace-only AWS `AccountId` reaches STS AssumeRole — **cheap-disproof 2026-09-11 seed hunt #1808:** `ArgumentException.ThrowIfNullOrWhiteSpace(request.AccountId)`; regression `CollectZipAsync_rejects_blank_account_id_before_token_fetch`.
+- [x] (valid-no-repro) Whitespace-only GCP `ServiceAccountEmail` reaches WIF credential factory — **cheap-disproof 2026-09-11 seed hunt #1809:** `ArgumentException.ThrowIfNullOrWhiteSpace(request.ServiceAccountEmail)`; regression `CollectZipAsync_rejects_blank_service_account_email_before_token_fetch`.
+- [x] (valid-no-repro) Whitespace-only Azure `ManagementGroupId` passes `RequireManagementGroupId` — **cheap-disproof 2026-09-11 seed hunt #1810:** `ArgumentException.ThrowIfNullOrWhiteSpace` rejects before regex; regression `RequireManagementGroupId_rejects_unsafe_values` (`[InlineData("   ")]`).
+- [x] (invalid) `EntraGroupMembershipGraphReader` drops nested groups when `@odata.nextLink` repeats on member pages — **cheap-disproof 2026-09-11 seed hunt #1811:** pagination loop tracks visited next links with `MaxPaginationRequests = 64`; regression family `TryReadDirectMembershipsAsync_follows_odata_next_link_for_group_members` (#1706).
+
+2026-09-11 seed hunt #1807 (seed-only): reseeded cloud-extractors Azure GUID trim parity; 1 scoped HostedAzureExtractorGuidValidator test passed.
+
+2026-09-11 seed hunt #1808 (seed-only): reseeded cloud-extractors AWS account guard; 3 scoped HostedAwsExtractorClient tests passed.
+
+2026-09-11 seed hunt #1809 (seed-only): reseeded cloud-extractors GCP service-account guard; 4 scoped HostedGcpExtractorClient tests passed.
+
+2026-09-11 seed hunt #1810 (seed-only): reseeded cloud-extractors Azure management-group blank input; reused existing HostedAzureExtractorGuidValidator theory coverage.
+
+2026-09-11 seed hunt #1811 (seed-only): reseeded cloud-extractors Entra Graph pagination; cheap-disproof closed repeating nextLink candidate as already fixed in #1706.
 
 ---
 
