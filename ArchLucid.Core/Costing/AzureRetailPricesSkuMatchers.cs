@@ -158,6 +158,7 @@ public sealed partial class AzureRetailPricesCatalogClient
         string trimmed = uom.Trim();
 
         return ContainsDayWordToken(trimmed)
+            || ContainsSlashDayToken(trimmed)
             || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase);
     }
@@ -166,6 +167,28 @@ public sealed partial class AzureRetailPricesCatalogClient
     {
         return ContainsBoundedToken(trimmed, " day")
             || ContainsBoundedToken(trimmed, " days");
+    }
+
+    private static bool ContainsSlashDayToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/day", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterDay = index + 4;
+
+            if (afterDay >= trimmed.Length || !char.IsLetter(trimmed[afterDay]))
+                return true;
+
+            index = afterDay;
+        }
+
+        return false;
     }
 
     internal static bool IsMonthlyMeter(string uom)
