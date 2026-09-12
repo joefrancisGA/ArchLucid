@@ -7,6 +7,7 @@ import { HelpSponsorReportClaimOrientationStrip } from "@/app/(operator)/help/_s
 import { HelpSponsorSummaryHeaderActions } from "@/app/(operator)/help/_sections/HelpSponsorSummaryHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
@@ -183,6 +184,7 @@ export function HelpSponsorSummaryGuideView(
         </div>
 
         <div data-testid="help-sponsor-report-orientation-bottom">
+          <SponsorSendPathHonestyPanel testIdPrefix="help-sponsor-report" />
           <HelpSponsorReportClaimOrientationStrip />
         </div>
       </div>
