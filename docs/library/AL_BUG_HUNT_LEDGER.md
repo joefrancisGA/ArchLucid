@@ -9819,15 +9819,16 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — unknown sourceAgent string silently left invalid default AgentType
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+2026-09-12 seed hunt #1932 (seed-only): reseeded archlucid-contracts; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] (valid-no-repro) JSON round-trip drops a required field on a versioned request DTO — `KeyContractsJsonRoundTripTests` and `JsonRoundTripPropertyTests` cover core request/run DTO shapes.
 - [x] (proven) Enum serialization accepts an out-of-range value as the default variant — **hit 2026-08-19:** `ServiceType`, `DatastoreType`, `RuntimePlatform`, and `RelationshipType` JSON converters cast numeric ordinals without `Enum.IsDefined`; fixed on master in `47e7613370` (same pattern as `AgentType` in `4d4340387c`).
