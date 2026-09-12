@@ -2553,3 +2553,4 @@
 {"at":"2026-09-12T22:15:53.0636622Z","zoneId":"tenant-data-export","outcome":"hit"}
 {"at":"2026-09-12T22:17:52.0116882Z","zoneId":"tenant-data-export","outcome":"hit"}
 {"at":"2026-09-12T22:20:08.7833029Z","zoneId":"sql-run-repository","outcome":"seed-only"}
+{"at":"2026-09-12T22:21:50.3582387Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}
