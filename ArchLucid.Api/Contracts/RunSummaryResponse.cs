@@ -197,4 +197,11 @@ public class RunSummaryResponse
         get;
         set;
     }
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.ArchitectureId" />
+    public Guid? ArchitectureId
+    {
+        get;
+        set;
+    }
 }

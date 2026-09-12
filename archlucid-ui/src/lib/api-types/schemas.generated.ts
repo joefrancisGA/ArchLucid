@@ -9695,6 +9695,8 @@ export interface components {
             originalFileName?: string;
         };
         RunSummaryResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             createdByUserId?: null | string;
             /** Format: date-time */

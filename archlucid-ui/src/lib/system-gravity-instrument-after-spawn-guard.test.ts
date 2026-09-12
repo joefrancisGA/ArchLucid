@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { deriveWorkingInstrumentReviewHeaderPresentation } from "@/lib/run-detail-workspace-derive/review-presentation";
 import { SYSTEM_GRAVITY_ADR_0098_RELATIVE_PATH } from "@/lib/system-gravity-adr-inventory";
+import { evaluateSystemGravityInstrumentAfterSpawnDoneTest } from "@/lib/system-gravity-instrument-after-spawn-done-test";
 
 const REPO_ROOT = join(process.cwd(), "..");
 
@@ -41,5 +42,18 @@ describe("system-gravity instrument-after-spawn guard (SG-093 / SG-106 / ADR 009
       paletteSource.indexOf("CommandPaletteReviewActions"),
     );
     expect(handlerSource).toContain("nestedReviewDetailPathPattern");
+  });
+
+  it("SG-106: done-test module reports instrument-after-spawn acceptance", () => {
+    const result = evaluateSystemGravityInstrumentAfterSpawnDoneTest({
+      architectureDisplayName: "Payments platform",
+      reviewTitle: "Q3 card capture migration",
+      runId: "run-abc-123",
+      architectureId: "architecture-identity-001",
+    });
+
+    expect(result.shellIdentityIsArchitecture).toBe(true);
+    expect(result.reviewDetailIsNestedJob).toBe(true);
+    expect(result.guidedKeepsPeerReviewUrls).toBe(true);
   });
 });

@@ -27,7 +27,8 @@ public sealed class AuthorityRunMapperTests
             DecisionTraceId = Guid.NewGuid(),
             ArtifactBundleId = Guid.NewGuid(),
             WorkingCareerRehearsalDoor = "rehearsal",
-            ExecutePostureCapturedUtc = new DateTime(2026, 9, 11, 4, 0, 0, DateTimeKind.Utc)
+            ExecutePostureCapturedUtc = new DateTime(2026, 9, 11, 4, 0, 0, DateTimeKind.Utc),
+            ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
         };
 
         RunSummaryDto dto = AuthorityRunMapper.MapSummary(run);
@@ -44,6 +45,7 @@ public sealed class AuthorityRunMapperTests
         dto.ArtifactBundleId.Should().Be(run.ArtifactBundleId);
         dto.WorkingCareerRehearsalDoor.Should().Be("rehearsal");
         dto.ExecutePostureCapturedUtc.Should().Be(run.ExecutePostureCapturedUtc);
+        dto.ArchitectureId.Should().Be(run.ArchitectureId);
     }
 
     [SkippableFact]
