@@ -271,6 +271,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashWkToken(trimmed)
             || string.Equals(trimmed, "week", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "weeks", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "w", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "wk", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "wks", StringComparison.OrdinalIgnoreCase);
     }

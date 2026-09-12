@@ -2460,3 +2460,4 @@
 {"at":"2026-09-12T18:52:59.0003645Z","zoneId":"weekly-digest-email","outcome":"seed-only"}
 {"at":"2026-09-12T18:53:10.1788892Z","zoneId":"outbound-webhook-dry-run","outcome":"seed-only"}
 {"at":"2026-09-12T19:18:15.2554851Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-09-12T19:20:01.0197585Z","zoneId":"core-costing","outcome":"hit"}
