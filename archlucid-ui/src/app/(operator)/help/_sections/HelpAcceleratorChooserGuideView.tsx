@@ -11,6 +11,7 @@ import { HelpAcceleratorChooserPrerequisitePanel } from "@/app/(operator)/help/_
 import { HelpAcceleratorChooserRelatedNextStepsLinks } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserSourceLinks";
 import { AcceleratorChooserHelpClaimDisciplineStrip } from "@/components/help/AcceleratorChooserHelpClaimDisciplineStrip";
 import { AcceleratorChooserHelpSourcesOrientationStrip } from "@/components/help/AcceleratorChooserHelpSourcesOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -405,6 +406,8 @@ export function HelpAcceleratorChooserGuideView(
             </ol>
           </section>
           </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-accelerator-chooser" showSsoOptional={false} />
 
           {buyerPolishedShell ? null : (
           <section
