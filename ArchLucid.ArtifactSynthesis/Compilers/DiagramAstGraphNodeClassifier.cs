@@ -62,6 +62,18 @@ internal static class DiagramAstGraphNodeClassifier
         return TryParseResourceGroupFromArmId(ReadArmId(node));
     }
 
+    public static string? ReadRegion(GraphNode node)
+    {
+        if (node.Properties != null
+            && node.Properties.TryGetValue("arm.location", out string? location)
+            && !string.IsNullOrWhiteSpace(location))
+        {
+            return location.Trim();
+        }
+
+        return null;
+    }
+
     public static string? ReadSubscriptionId(GraphNode node)
     {
         if (node.Properties.TryGetValue("arm.subscriptionId", out string? subscriptionId) && !string.IsNullOrWhiteSpace(subscriptionId))
@@ -106,7 +118,7 @@ internal static class DiagramAstGraphNodeClassifier
             return true;
         }
 
-        if (armType.Contains("/virtualnetworks", StringComparison.OrdinalIgnoreCase))
+        if (AzureInventoryTopologyCategory.IsVirtualNetworkArmType(armType))
         {
             return true;
         }

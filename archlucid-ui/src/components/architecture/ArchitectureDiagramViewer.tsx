@@ -50,6 +50,7 @@ import {
   type MermaidViewportFitDimensions,
   prepareMermaidSvgForResponsiveLayout,
   readMermaidViewportFitBudget,
+  resetMermaidSvgViewportInkCache,
   sanitizeMermaidRenderId,
 } from '@/lib/help/help-mermaid';
 import { renderMermaidSvgMarkup } from '@/lib/mermaid/mermaid-safe-render';
@@ -279,7 +280,7 @@ function renderDiagramViewportControls(
 }
 
 const MERMAID_SVG_HOST_CLASSNAME = cn(
-  'inline-block min-w-0 text-neutral-900 dark:text-neutral-100',
+  'mx-auto block w-fit max-w-full min-w-0 text-neutral-900 dark:text-neutral-100',
   '[&_svg]:block [&_svg]:overflow-visible',
   '[&_svg_text]:fill-current [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200',
   '[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:leading-snug [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100',
@@ -500,7 +501,18 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       }, INITIAL_FIT_RETRY_DELAY_MS);
     };
 
+    const clearInkCacheOnHost = (): void => {
+      const host = svgHostRef.current;
+      const svg = host?.querySelector('svg');
+
+      if (svg instanceof SVGSVGElement) {
+        resetMermaidSvgViewportInkCache(svg);
+      }
+    };
+
     const runInitialFit = (): void => {
+      clearInkCacheOnHost();
+
       if (syncInlineViewportCamera()) {
         scrollViewportToOrigin(viewportRef.current);
         return;
