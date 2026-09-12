@@ -52,10 +52,12 @@ public static partial class StructuredExplanationParser
         if (item.ValueKind == JsonValueKind.String)
             return item.GetString();
 
-        if (item.ValueKind != JsonValueKind.Object)
-            return null;
+        if (item.ValueKind == JsonValueKind.Object)
+            return TryReadObjectStringProperty(item, "id", "text");
 
-        return TryReadObjectStringProperty(item, "id", "text");
+        return RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out string? scalar)
+            ? scalar
+            : null;
     }
 
     private static string? TryReadObjectStringProperty(JsonElement item, params ReadOnlySpan<string> propertyNames)
