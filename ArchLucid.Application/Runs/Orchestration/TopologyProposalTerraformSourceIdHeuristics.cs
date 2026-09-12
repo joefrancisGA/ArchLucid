@@ -274,6 +274,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("workloads_orchestrator", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("extended_location", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("confidential_ledger", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("managed_lustre", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("site_recovery", StringComparison.OrdinalIgnoreCase);
     }
 

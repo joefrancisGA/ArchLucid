@@ -121,13 +121,15 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 33
-- **bugs-found:** 12
+- **hunts:** 34
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-08-23 — hunt #50: greenfield compliance declared endpoints but graph merge dropped dangling edges
+- **last-bug:** 2026-09-12 — hunt #2196: managed_lustre svc- synthetic alias on Data-category nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2196 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_managed_lustre_file_system` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_managed_lustre_file_system_node_has_data_category_but_synthetic_service_id_used`.
 
 2026-09-12 seed hunt #2195 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_site_recovery_vault` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_site_recovery_vault_node_has_data_category_but_synthetic_service_id_used`.
 
@@ -162,6 +164,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+- [x] (proven) `azurerm_managed_lustre_file_system` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2196:** `managed_lustre` was only in the datastore list; `azurerm_managed_lustre_file_system.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_managed_lustre_file_system_node_has_data_category_but_synthetic_service_id_used`.
 - [x] Renamed manifest labels not aliased to inventoried graph node ids
 - [x] Synthetic `svc-` / `ds-` keys vs graph SourceId
 - [x] Terraform SourceId vs graph SourceId

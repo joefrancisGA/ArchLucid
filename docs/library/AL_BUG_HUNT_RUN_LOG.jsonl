@@ -2529,3 +2529,4 @@
 {"at":"2026-09-12T21:14:16.2184747Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-12T21:14:54.9492495Z","zoneId":"finding-disposition","outcome":"seed-only"}
 {"at":"2026-09-12T21:15:15.3880762Z","zoneId":"topology-proposal-merge","outcome":"hit"}
+{"at":"2026-09-12T21:29:26.5236887Z","zoneId":"topology-proposal-merge","outcome":"hit"}
