@@ -10558,13 +10558,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 94
+- **hunts:** 95
 - **bugs-found:** 153
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — snake_case `api_version` omitted `k8s.apiVersion` projection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2148 (seed-only): reseeded context-ingestion with `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2140 (seed→hit): reseeded context-ingestion with `-Refresh`; proved snake_case `api_version` projection gap; regression `ParseAsync_snake_case_api_version_projects_k8s_api_version`.
 
