@@ -21,6 +21,7 @@ import { ArchitecturesHubListSection } from "./ArchitecturesHubListSection";
 import { ArchitecturesHubObjectMapStrip } from "./ArchitecturesHubObjectMapStrip";
 import { ArchitecturesHubPageHeader } from "./ArchitecturesHubPageHeader";
 import { ArchitecturesHubWorkingAskBindEmptyStrip } from "./ArchitecturesHubWorkingAskBindEmptyStrip";
+import { ArchitecturesHubWorkingGraphBindEmptyStrip } from "./ArchitecturesHubWorkingGraphBindEmptyStrip";
 
 /** Shared `/architecture/architectures` layout — skip link, header, and draft inventory workspace (ARA). */
 export function ArchitecturesHubPageShell(): React.JSX.Element {
@@ -33,6 +34,7 @@ export function ArchitecturesHubPageShell(): React.JSX.Element {
     <>
       <Suspense fallback={null}>
         <ArchitecturesHubWorkingAskBindEmptyStrip />
+        <ArchitecturesHubWorkingGraphBindEmptyStrip />
       </Suspense>
       <ArchitecturesHubObjectMapStrip />
       <ArchitecturesHubListSection />
