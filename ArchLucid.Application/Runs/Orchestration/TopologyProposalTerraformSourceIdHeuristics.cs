@@ -286,6 +286,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("elastic_cloud", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("neptune_cluster", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("oracle_cloud", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("oracle_autonomous", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("site_recovery", StringComparison.OrdinalIgnoreCase);
     }
 
