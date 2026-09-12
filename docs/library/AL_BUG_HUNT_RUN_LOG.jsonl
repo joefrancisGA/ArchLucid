@@ -2556,4 +2556,5 @@
 {"at":"2026-09-12T22:21:50.3582387Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}
 {"at":"2026-09-12T22:23:32.0997457Z","zoneId":"ui-webhooks-settings","outcome":"seed-only"}
 {"at":"2026-09-12T22:25:22.8369287Z","zoneId":"email-otp-auth","outcome":"seed-only"}
-{"at":"2026-09-12T22:27:05.9366740Z","zoneId":"extraction-router","outcome":"seed-only"}
+{"at":"2026-09-12T22:27:05.936674Z","zoneId":"extraction-router","outcome":"seed-only"}
+{"at":"2026-09-12T22:28:48.9301886Z","zoneId":"retrieval","outcome":"seed-only"}
