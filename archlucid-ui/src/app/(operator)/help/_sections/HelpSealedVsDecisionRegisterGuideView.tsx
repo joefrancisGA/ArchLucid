@@ -1,4 +1,5 @@
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -44,6 +45,8 @@ export function HelpSealedVsDecisionRegisterGuideView(
       >
         {DESK_IA_HELP_SEALED_VS_REGISTER_OVERVIEW}
       </p>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-sealed-vs-decision-register" showSsoOptional={false} />
 
       <section className={OPERATOR_LAYOUT.sectionStack} aria-labelledby="help-sealed-package-heading">
         <h2
