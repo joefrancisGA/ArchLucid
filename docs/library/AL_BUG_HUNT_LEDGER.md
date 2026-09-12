@@ -4090,11 +4090,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 16
-- **bugs-found:** 22
+- **hunts:** 17
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — TradeoffRequirementConflictDetector non-pci requirement false positive on pci token
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — IdentityRegulatedDatastoreClassifier non-private baseline false positive on pci token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4129,6 +4129,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RequirementSkuTierAnalyzer` / `DrRpoTopologyAnalyzer` — `"cluster"` topology heuristic treats AKS/app cluster nodes as datastores for SKU/RPO gap findings — **hit 2026-09-09 hunt #1414:** bare `cluster` now requires co-occurring datastore keywords; shared `TopologyDatastoreLabelHeuristic`; regressions `IsSkuRpoDatastoreTopologyNode_does_not_treat_aks_cluster_as_datastore` and `IsSkuRpoDatastoreTopologyNode_still_matches_sql_failover_cluster`.
 - [x] (proven) `IdentityRegulatedDatastoreClassifier.HasSensitiveLabel` — bare substring `.Contains("pci")` / `.Contains("sensitive")` false-classifies `non-pci-*` and `insensitive-*` SQL labels as regulated datastores — **hit 2026-09-10 seed hunt #1535:** standalone-word matching via `DecisioningTextTokenMatcher` plus `non-` / `non ` negation prefix; regressions `IsRegulatedDatastore_does_not_treat_non_pci_label_as_pci_sensitive`, `IsRegulatedDatastore_does_not_treat_insensitive_label_as_sensitive`, and `IsRegulatedDatastore_still_treats_pci_label_as_regulated`.
 - [x] (proven) `TradeoffRequirementConflictDetector.DetectConflict` — standalone `pci` token matched inside `non-pci` requirement prose when Security pillar was sacrificed — **hit 2026-09-11 thorough hunt #1692:** `DecisioningTextTokenMatcher` treated hyphen-bounded `pci` in `non-pci` as affirmative; fixed with `non-`/`non ` prefix negation in standalone token matching; regression `DetectConflict_does_not_false_positive_on_non_pci_requirement_when_security_sacrificed`.
+- [x] (proven) `IdentityRegulatedDatastoreClassifier.IsPrivateOnlyBaseline` — bare `.Contains("private")` matched `non-private-network-baseline` labels and falsely classified telemetry SQL nodes as regulated via PROTECTS edges — **hit 2026-09-12 seed hunt #1848:** standalone-word `private` matching with `non-`/`non ` negation prefix; regressions `IsRegulatedDatastore_does_not_treat_non_private_baseline_protection_as_regulated` and `IsRegulatedDatastore_still_treats_private_only_baseline_protection_as_regulated`.
+
+2026-09-12 seed hunt #1848 (hit): reseeded decisioning; proved non-private baseline false positive on regulated datastore classification; 9 scoped IdentityRegulatedDatastoreClassifier + TradeoffRequirementConflictDetector tests passed.
 
 2026-09-11 thorough hunt #1692 (hit): proved tradeoff non-pci requirement false positive; 7 scoped TradeoffRequirementConflictDetector + IdentityRegulatedDatastoreClassifier tests passed.
 

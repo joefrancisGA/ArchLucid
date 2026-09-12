@@ -130,7 +130,23 @@ public static class IdentityRegulatedDatastoreClassifier
 
         string combined = $"{baseline.Label} {controlId}".ToLowerInvariant();
 
-        return combined.Contains("private", StringComparison.Ordinal);
+        return ContainsAffirmativePrivateKeyword(combined);
+    }
+
+    private static bool ContainsAffirmativePrivateKeyword(string text)
+    {
+        if (!DecisioningTextTokenMatcher.ContainsStandaloneToken(text, "private"))
+        {
+            return false;
+        }
+
+        if (text.Contains("non-private", StringComparison.Ordinal)
+            || text.Contains("non private", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private static bool ContainsNodeId(string protectedIds, string nodeId)
