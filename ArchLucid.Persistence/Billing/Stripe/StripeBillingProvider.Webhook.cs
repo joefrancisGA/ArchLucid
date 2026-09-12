@@ -188,7 +188,8 @@ public sealed partial class StripeBillingProvider
             return;
 
         if (!intent.Metadata.TryGetValue("purpose", out string? purpose)
-            || !string.Equals(purpose, "llm_wallet_refill", StringComparison.OrdinalIgnoreCase))
+            || string.IsNullOrWhiteSpace(purpose)
+            || !string.Equals(purpose.Trim(), "llm_wallet_refill", StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
