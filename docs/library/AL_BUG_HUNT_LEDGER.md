@@ -3180,11 +3180,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 12
+- **hunts:** 14
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — padded wallet-purpose metadata skipped LLM wallet credit
+- **last-bug:** 2026-09-12 — padded wallet correlation_id replaced with random GUID
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -3242,6 +3242,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BillingMarketplaceWebhookDedupeKey` / `AzureMarketplaceBillingProvider.HandleWebhookAsync` — padded `action` or `subscriptionId` JSON fields produce distinct dedupe keys for semantically identical marketplace events — **cheap-disproof 2026-09-12 seed hunt #1863:** dispatch already trims `action` before routing; dedupe fingerprint intentionally includes full raw body (#3199) so distinct serializations remain distinct ledger rows; trimming fields alone would not collapse SHA-256 payload fingerprints.
 
 2026-09-12 seed hunt #1863 (seed-only): reseeded billing-webhooks after #1862 wallet metadata trim parity; cheap-disproof closed marketplace padded-field dedupe candidate; 14 scoped billing webhook unit tests passed.
+
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` returns true when cache entry evicted but concurrent claim remains — **cheap-disproof 2026-09-12 seed hunt #1864:** post-eviction callback removes claimed key; regression `TryRegisterEventAsync_only_first_concurrent_caller_wins` and eviction callback in guard.
+
+2026-09-12 seed hunt #1864 (seed-only): reseeded billing-webhooks; cheap-disproof closed eviction/claim race candidate; 10 scoped billing webhook unit tests passed.
 
 2026-09-04 seed hunt #671: proved duplicate billing webhook signature/bearer header comma-join; seeded replay-guard TryRegister wiring and wallet-purpose filter candidates.
 
