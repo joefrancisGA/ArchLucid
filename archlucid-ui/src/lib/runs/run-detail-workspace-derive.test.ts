@@ -11,6 +11,7 @@ import {
   derivePrimaryConcernLabel,
   deriveRecommendedWorkspaceActions,
   deriveReviewHeaderPresentation,
+  deriveWorkingInstrumentReviewHeaderPresentation,
   deriveReviewStatusSummary,
   deriveRunDetailWorkspaceStatus,
   isReviewPipelineIncomplete,
@@ -386,6 +387,17 @@ describe("run-detail-workspace-derive", () => {
 
     expect(presentation.h1Title).toBe("Payments platform review");
     expect(presentation.eyebrowLabel).toBe("Architecture review");
+  });
+
+  it("SG-016 / ADR 0098: Working instrument header keeps architecture name as H1", () => {
+    const presentation = deriveWorkingInstrumentReviewHeaderPresentation({
+      architectureDisplayName: "Payments platform",
+      reviewTitle: "Q3 card capture migration",
+      runId: "run-abc-123",
+    });
+
+    expect(presentation.h1Title).toBe("Payments platform");
+    expect(presentation.eyebrowLabel).toBe("Q3 card capture migration");
   });
 
   it("suppresses duplicate eyebrow text and rejects document metadata titles", () => {

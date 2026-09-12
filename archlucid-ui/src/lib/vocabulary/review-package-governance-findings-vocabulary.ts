@@ -18,6 +18,7 @@ import {
   buildGovernanceFindingsQueueHref,
   buildReviewDetailFindingsTabHref,
 } from "@/lib/metric-count-presentation";
+import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 import type { ExternalPeerPairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ReviewPackageGovernanceFindingsSurfaceId =
@@ -63,8 +64,12 @@ export const REVIEW_PACKAGE_GOVERNANCE_FINDINGS_REVIEWS_PEER_LINK: ReviewPackage
 /** Pairwise model for review-package Findings tab ↔ workspace findings queue. */
 export function buildReviewPackageGovernanceFindingsPairwiseRail(
   runId?: string | null,
+  workingInstrument?: {
+    readonly architectureId: string;
+    readonly isWorkingMode: boolean;
+  },
 ): ExternalPeerPairwiseVocabularyRailModel<ReviewPackageGovernanceFindingsSurfaceId> {
-  const model = buildReviewPackageGovernanceFindingsVocabulary(runId);
+  const model = buildReviewPackageGovernanceFindingsVocabulary(runId, workingInstrument);
 
   return {
     heading: model.heading,
@@ -78,6 +83,10 @@ export function buildReviewPackageGovernanceFindingsPairwiseRail(
 /** Build vocabulary; pass runId when mounting on a review Findings tab or scoped queue. */
 export function buildReviewPackageGovernanceFindingsVocabulary(
   runId?: string | null,
+  workingInstrument?: {
+    readonly architectureId: string;
+    readonly isWorkingMode: boolean;
+  },
 ): ReviewPackageGovernanceFindingsVocabularyModel {
   const trimmed = runId?.trim() ?? "";
 
@@ -93,10 +102,18 @@ export function buildReviewPackageGovernanceFindingsVocabulary(
 
   const governanceFindingsLink: ReviewPackageGovernanceFindingsLink = {
     id: "governance-findings-queue",
-    label: "Workspace findings queue",
+    label:
+      workingInstrument?.isWorkingMode === true && workingInstrument.architectureId.trim().length > 0
+        ? "Findings on this architecture"
+        : "Workspace findings queue",
     href:
       trimmed.length > 0
-        ? buildGovernanceFindingsQueueHref({ runId: trimmed, filter: "all" })
+        ? resolveWorkingFindingsInstrumentHref({
+            architectureId: workingInstrument?.architectureId ?? null,
+            runId: trimmed,
+            filter: "all",
+            isWorkingMode: workingInstrument?.isWorkingMode === true,
+          })
         : buildGovernanceFindingsQueueHref({ filter: "open" }),
     whenToUse:
       trimmed.length > 0

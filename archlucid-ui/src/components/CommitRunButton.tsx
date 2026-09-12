@@ -34,6 +34,8 @@ import { runSummaryBlockedReason } from "@/lib/runs/run-summary-blocked-reason";
 import { preFinalizeSyntheticSimulationBlockedReason } from "@/lib/runs/pre-finalize-synthetic-simulation-blocked-reason";
 import { reviewFinalizeMutationBlockedReason } from "@/lib/runs/review-finalize-mutation-blocked-reason";
 import { syncArchitectureDraftRegistryForFinalizedReview } from "@/lib/architecture/architecture-draft-registry-finalize-sync";
+import { resolveFinalizeSuccessDeskHref } from "@/lib/architecture/finalize-success-desk-href";
+import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 import { readAcknowledgedAssumptionIds } from "@/lib/review-quality/review-assumption-ack-store";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -73,6 +75,8 @@ export type CommitRunButtonProps = {
   commitBlockedBlocks?: readonly FinalizeReadinessBlock[];
   /** Demote to outline when another surface owns the page's single primary CTA (TB-618). */
   buttonVariant?: "primary" | "outline";
+  /** Working nested job parent — finalize success returns to the architecture desk (ADR 0098 / SG-022). */
+  parentArchitectureId?: string | null;
 };
 
 /**
@@ -84,6 +88,7 @@ export function CommitRunButton({
   commitBlockedReason = null,
   commitBlockedBlocks = [],
   buttonVariant = "primary",
+  parentArchitectureId = null,
 }: CommitRunButtonProps) {
   const { isWorkingMode } = useWorkspaceMode();
   const router = useRouter();
@@ -262,6 +267,17 @@ export function CommitRunButton({
 
   const preCommitGovernanceBlock =
     error === null ? null : resolvePreCommitGovernanceBlockView(error.problem);
+
+  const parentArchitectureIdTrimmed = parentArchitectureId?.trim() ?? "";
+  const workingFinalizeSuccessDeskHref =
+    isWorkingMode && parentArchitectureIdTrimmed.length > 0
+      ? resolveFinalizeSuccessDeskHref(parentArchitectureIdTrimmed, runId)
+      : null;
+  const workingFindingsInstrumentHref = resolveWorkingFindingsInstrumentHref({
+    architectureId: parentArchitectureIdTrimmed,
+    runId,
+    isWorkingMode,
+  });
 
   if (disabled) {
     return (
@@ -458,7 +474,7 @@ export function CommitRunButton({
               variant="secondary"
               onClick={() => {
                 setSuccessModalOpen(false);
-                router.push("/governance/findings");
+                router.push(workingFindingsInstrumentHref);
               }}
             >
               Go to Findings
@@ -468,10 +484,17 @@ export function CommitRunButton({
               variant="default"
               onClick={() => {
                 setSuccessModalOpen(false);
+
+                if (workingFinalizeSuccessDeskHref !== null) {
+                  router.push(workingFinalizeSuccessDeskHref);
+
+                  return;
+                }
+
                 router.refresh();
               }}
             >
-              Close
+              {workingFinalizeSuccessDeskHref !== null ? "Back to architecture desk" : "Close"}
             </Button>
           </DialogFooter>
         </DialogContent>

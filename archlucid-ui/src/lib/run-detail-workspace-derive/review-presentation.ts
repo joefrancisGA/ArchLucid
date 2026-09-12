@@ -175,6 +175,47 @@ function resolveReviewHeaderEyebrow(reviewTitle: string, h1Title: string): strin
   return reviewTitle;
 }
 
+function formatWorkingInstrumentArchitectureH1Title(architectureDisplayName: string): string {
+  const normalized = stripInlineMarkdownFromReviewText(architectureDisplayName).trim();
+
+  if (normalized.length === 0) {
+    return "Architecture";
+  }
+
+  const lower = normalized.toLowerCase();
+
+  if (lower.endsWith(" review")) {
+    return normalized.slice(0, normalized.length - " review".length).trim() || normalized;
+  }
+
+  return normalized;
+}
+
+function resolveWorkingInstrumentReviewEyebrow(reviewTitle: string): string {
+  if (isUsableReviewTitle(reviewTitle)) {
+    return reviewTitle;
+  }
+
+  return "Review job";
+}
+
+/** ADR 0098 / SG-016 — architecture display name is H1; review title is job subtitle on Working. */
+export function deriveWorkingInstrumentReviewHeaderPresentation(input: {
+  readonly architectureDisplayName: string;
+  readonly reviewTitle: string;
+  readonly runId: string;
+}): ReviewHeaderPresentation {
+  const reviewTitle = input.reviewTitle.trim();
+  const h1Title = formatWorkingInstrumentArchitectureH1Title(input.architectureDisplayName);
+  const runId = input.runId.trim();
+
+  return {
+    h1Title,
+    eyebrowLabel: resolveWorkingInstrumentReviewEyebrow(reviewTitle),
+    reviewIdentifierLabel: runId,
+  };
+}
+
 export function deriveReviewHeaderPresentation(input: {
   readonly reviewTitle: string;
   readonly systemName: string | null;

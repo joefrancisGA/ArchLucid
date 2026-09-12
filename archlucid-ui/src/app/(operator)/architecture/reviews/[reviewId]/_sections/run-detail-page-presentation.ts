@@ -129,6 +129,7 @@ export async function buildRunDetailPresentation(
     deriveRecommendedWorkspaceActions,
     deriveReviewDisplayTitle,
     deriveReviewHeaderPresentation,
+    deriveWorkingInstrumentReviewHeaderPresentation,
     deriveReviewOwnerLabel,
     deriveReviewStatusSummary,
     deriveReviewTemplateLabel,
@@ -157,6 +158,9 @@ export async function buildRunDetailPresentation(
 
   const reviewDisplayTitle = deriveReviewDisplayTitle(runSummaryForBadge, model.headline);
   const systemName = deriveArchitectureSystemName(runSummaryForBadge, reviewDisplayTitle);
+  const architectureId = model.resolvedDetail.run.architectureId?.trim() ?? "";
+  const useWorkingInstrumentHeader =
+    model.buyerPolishedArtifactTable !== true && architectureId.length > 0 && systemName !== null;
   const highestSeverity =
     deriveHighestUnresolvedSeverityLabel(quickDecisionFindings) ??
     model.explanationSummary?.riskPosture ??
@@ -243,13 +247,19 @@ export async function buildRunDetailPresentation(
     reviewDisplayTitle,
     systemName,
     architectureSummaryTitle: systemName !== null && systemName !== reviewDisplayTitle ? systemName : null,
-    reviewHeaderPresentation: deriveReviewHeaderPresentation({
-      reviewTitle: reviewDisplayTitle,
-      systemName,
-      runId: model.resolvedDetail.run.runId,
-      templateLabel: deriveReviewTemplateLabel(model.manifestSummaryForUi),
-      manifestId: model.manifestId,
-    }),
+    reviewHeaderPresentation: useWorkingInstrumentHeader
+      ? deriveWorkingInstrumentReviewHeaderPresentation({
+          architectureDisplayName: systemName,
+          reviewTitle: reviewDisplayTitle,
+          runId: model.resolvedDetail.run.runId,
+        })
+      : deriveReviewHeaderPresentation({
+          reviewTitle: reviewDisplayTitle,
+          systemName,
+          runId: model.resolvedDetail.run.runId,
+          templateLabel: deriveReviewTemplateLabel(model.manifestSummaryForUi),
+          manifestId: model.manifestId,
+        }),
     reviewOwnerLabel: deriveReviewOwnerLabel(model.resolvedDetail.run),
     templateLabel: deriveReviewTemplateLabel(model.manifestSummaryForUi),
     packageVersionLabel: derivePackageVersionLabel(

@@ -23,6 +23,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH, architectureIdentityPath } from "@/lib/architecture/architecture-routes";
+import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { formatActionActorName } from "@/lib/action-actor-display";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -196,6 +197,12 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
     isWorkingMode && parentArchitectureId.length > 0
       ? architectureIdentityPath(parentArchitectureId)
       : reviewsListNavHref;
+  const findingsQueueHref = resolveWorkingFindingsInstrumentHref({
+    architectureId: parentArchitectureId,
+    runId: props.runId,
+    filter: "all",
+    isWorkingMode,
+  });
   const [recordMetadataOpen, setRecordMetadataOpenState] = useState(() =>
     parseRunDetailRecordMetadataOpenFromSearch(runRecordMetaOpenParam),
   );
@@ -259,7 +266,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
                 isCommitted={props.signedReviewRecordId !== null}
                 manifestVersion={props.signedReviewRecordId}
                 parentArchitectureId={props.parentArchitectureId}
-                findingsQueueHref={`/governance/findings?runId=${encodeURIComponent(props.runId)}`}
+                findingsQueueHref={findingsQueueHref}
                 disabled={reviewPipelineIncomplete}
                 disabledReason={headerActionDisabledReason}
                 disabledDescribedById={

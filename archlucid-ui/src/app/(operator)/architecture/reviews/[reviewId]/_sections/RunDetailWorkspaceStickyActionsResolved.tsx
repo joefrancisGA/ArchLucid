@@ -40,6 +40,7 @@ export type RunDetailWorkspaceStickyActionsResolvedProps = {
   readonly workingCareerRehearsalDoor?: string | null;
   readonly transparencyTrail?: TransparencyTrail | null;
   readonly pagePrimaryOwnedElsewhere?: boolean;
+  readonly parentArchitectureId?: string | null;
 };
 
 /** Resolves sticky review actions with server finalize readiness blocks (wave unified-finalize-readiness). */
@@ -138,6 +139,7 @@ export function RunDetailWorkspaceStickyActionsResolved(
       showProgressTracker={props.showProgressTracker}
       manifestId={props.manifestId}
       pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
+      parentArchitectureId={props.parentArchitectureId}
     />
   );
 }

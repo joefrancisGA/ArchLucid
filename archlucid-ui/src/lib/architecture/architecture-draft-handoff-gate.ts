@@ -7,10 +7,10 @@ import { ensureAppInsights } from "@/lib/telemetry";
 const ACK_STORAGE_PREFIX = "archlucid.architecture_draft_handoff_ack.v1.";
 
 export const ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD =
-  `${ARCHITECTURE_DRAFT_SPAWN_LOCK_SNAPSHOT_SENTENCE} Continue in the review for findings, evidence, and exports. ${ARCHITECTURE_DRAFT_SPAWN_LOCK_CLONE_LEGAL_SENTENCE}`;
+  `${ARCHITECTURE_DRAFT_SPAWN_LOCK_SNAPSHOT_SENTENCE} Open the review job for findings and exports from the architecture desk. ${ARCHITECTURE_DRAFT_SPAWN_LOCK_CLONE_LEGAL_SENTENCE}`;
 
 export const ARCHITECTURE_DRAFT_HANDOFF_CANONICAL_REVIEW_LABEL =
-  "The review is the canonical work surface after handoff.";
+  "The review is a job of this architecture — the desk stays your instrument.";
 
 /** @deprecated RS-04 removed the post-spawn edit-anyway path; retained for telemetry label compatibility only. */
 export const ARCHITECTURE_DRAFT_HANDOFF_ACKNOWLEDGE_LABEL =
@@ -93,7 +93,7 @@ export function buildArchitectureDraftHandoffBannerTitle(linkedReviewTitle: stri
     return "This draft became a review — continue editing there.";
   }
 
-  return `This draft became review “${title}” — continue editing there.`;
+    return `This draft became review “${title}” — open the review job from the architecture desk.`;
 }
 
 /** @deprecated RS-04 removed the post-spawn edit-anyway path. */
