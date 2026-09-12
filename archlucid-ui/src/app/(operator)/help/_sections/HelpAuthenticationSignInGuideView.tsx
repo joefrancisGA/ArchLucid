@@ -4,6 +4,7 @@ import { HelpAuthenticationSignInHeaderActions } from "@/app/(operator)/help/_se
 import { HelpAuthenticationSignInRelatedTopics } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInRelatedTopics";
 import { HelpAuthenticationSignInSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInSourcesOrientationStrip";
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSignInFailureTriageLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { HelpAuthenticationSignInCollapsibleSections } from "./HelpAuthenticationSignInCollapsibleSections";
@@ -149,6 +150,8 @@ export function HelpAuthenticationSignInGuideView(
       ) : (
         <HelpAuthenticationSignInActionPanel />
       )}
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-authentication-sign-in" showSsoOptional={true} />
 
       {buyerPolishedShell ? (
         <p className={readingBodyClass} data-testid="help-authentication-sign-in-overview">

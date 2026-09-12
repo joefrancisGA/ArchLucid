@@ -7,6 +7,7 @@ import { HelpCloudConnectionsProviderScopeSection } from "@/app/(operator)/help/
 import { HelpCloudConnectionsSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpCloudConnectionsSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { CloudConnectionsHelpClaimDisciplineStrip } from "@/components/help/CloudConnectionsHelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -183,6 +184,8 @@ export function HelpCloudConnectionsGuideView(
         >
           {cloudConnectionsHelpPageIntro(productLineId)}
         </p>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-cloud-connections" showSsoOptional={false} />
 
         <div className={contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>

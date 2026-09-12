@@ -7,6 +7,7 @@ import { HelpDataHandlingTenantIsolationOverview } from "@/app/(operator)/help/_
 import { HelpDataHandlingTenantIsolationRelatedTopics } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationRelatedTopics";
 import { HelpDataHandlingTenantIsolationSourcesDisclosure } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationSourcesDisclosure";
 import { DataHandlingTenantIsolationHelpEvidenceOrientationStrip } from "@/components/help/DataHandlingTenantIsolationHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -116,6 +117,11 @@ export function HelpDataHandlingTenantIsolationGuideView(
 
           <HelpDataHandlingTenantIsolationOverview />
           <HelpDataHandlingTenantIsolationJobMatrix />
+
+          <SponsorSendPathHonestyPanel
+            testIdPrefix="help-data-handling-tenant-isolation"
+            showSsoOptional={false}
+          />
 
           {!buyerPolishedShell ? <HelpDataHandlingTenantIsolationClaimDiscipline /> : null}
 

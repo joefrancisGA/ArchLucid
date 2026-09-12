@@ -6,6 +6,7 @@ import {
   auditExportSectionSupportingLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { OPERATOR_DATE_RANGE_EXPORT_WINDOW_INCOMPLETE_MESSAGE } from "@/lib/operator-date-range-copy";
 
 type AuditOperatorExportSectionProps = {
@@ -66,6 +67,7 @@ export function AuditOperatorExportSection(props: AuditOperatorExportSectionProp
                 ? auditExportCsvButtonLabelRoleRestricted
                 : "Export to CSV"}
       </button>
+      <SponsorExportSendHonestyStrip className="mt-3" testIdPrefix="audit-operator-export" />
     </section>
   );
 }
