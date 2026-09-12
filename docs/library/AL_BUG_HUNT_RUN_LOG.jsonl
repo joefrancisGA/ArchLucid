@@ -2437,3 +2437,4 @@
 {"at":"2026-09-12T18:41:27.0191164Z","zoneId":"cloud-extractors","outcome":"seed-only"}
 {"at":"2026-09-12T18:41:29.6058136Z","zoneId":"retrieval","outcome":"seed-only"}
 {"at":"2026-09-12T18:41:32.2553012Z","zoneId":"decisioning","outcome":"seed-only"}
+{"at":"2026-09-12T18:41:34.7397559Z","zoneId":"host-core-jobs","outcome":"seed-only"}
