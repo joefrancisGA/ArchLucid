@@ -41,6 +41,7 @@ function resolveArchitectureIdInScope(input: ResolveWorkingDeskToolHrefInput): s
     parseArchitectureNestedToolArchitectureId(pathname, "compare") ??
     parseArchitectureNestedToolArchitectureId(pathname, "graph") ??
     parseArchitectureNestedToolArchitectureId(pathname, "findings") ??
+    parseArchitectureNestedToolArchitectureId(pathname, "search") ??
     extractArchitectureIdentityIdFromPathname(pathname, "");
 
   return (
