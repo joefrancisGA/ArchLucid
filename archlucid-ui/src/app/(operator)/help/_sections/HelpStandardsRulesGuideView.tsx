@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { StandardsRulesHelpClaimDisciplineStrip } from "@/components/help/StandardsRulesHelpClaimDisciplineStrip";
 import { StandardsRulesHelpEvidenceOrientationStrip } from "@/components/help/StandardsRulesHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
@@ -100,6 +101,8 @@ export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewPr
       />
 
       <StandardsRulesHelpClaimDisciplineStrip />
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-standards-rules" showSsoOptional={false} />
 
       <div className={contentGridClass}>
         <div

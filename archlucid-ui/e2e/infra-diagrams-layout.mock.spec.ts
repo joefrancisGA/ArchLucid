@@ -90,13 +90,16 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
 
     const metrics = await page.evaluate((minHeight) => {
       const viewport = document.querySelector('[data-testid="architecture-diagram-viewport"]');
+      const camera = document.querySelector('[data-testid="architecture-diagram-camera"]');
+      const controls = document.querySelector('[data-testid="architecture-diagram-viewport-controls"]');
       const svg = document.querySelector('[data-testid="architecture-diagram-svg-host"] svg');
 
-      if (viewport === null || !(svg instanceof SVGSVGElement)) {
+      if (viewport === null || camera === null || controls === null || !(svg instanceof SVGSVGElement)) {
         return null;
       }
 
       const viewportRect = viewport.getBoundingClientRect();
+      const controlsRect = controls.getBoundingClientRect();
       const svgRect = svg.getBoundingClientRect();
       const nodes = [...svg.querySelectorAll("g.node")].map((node) => {
         const rect = node.getBoundingClientRect();
@@ -154,6 +157,15 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
           document
             .querySelector('[data-testid="infra-diagrams-render-status-strip"]')
             ?.textContent?.match(/(\d+)\s+edges/u)?.[1] ?? null,
+        chrome: {
+          cameraIsDescendant: viewport.contains(camera),
+          controlsOutsideCamera: !camera.contains(controls),
+          controlsVisibleInFrame:
+            controlsRect.right <= viewportRect.right + 1
+            && controlsRect.left >= viewportRect.left - 1
+            && controlsRect.top >= viewportRect.top - 1
+            && controlsRect.bottom <= viewportRect.bottom + 1,
+        },
       };
     }, minNodeHeightPx);
 
@@ -170,6 +182,9 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
     expect(metrics?.edgePathCount).toBe(0);
     expect(metrics?.outlineEdgeRows).toBe(0);
     expect(metrics?.statusEdgeCount).toBe("0");
+    expect(metrics?.chrome?.cameraIsDescendant).toBe(true);
+    expect(metrics?.chrome?.controlsOutsideCamera).toBe(true);
+    expect(metrics?.chrome?.controlsVisibleInFrame).toBe(true);
   });
 
   test("legacy chain uses scroll instead of unreadable shrink at default zoom", async ({ page }) => {
@@ -184,9 +199,9 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
     await page.waitForTimeout(1500);
 
     const metrics = await page.evaluate((minHeight) => {
-      const viewport = document.querySelector('[data-testid="architecture-diagram-viewport"]');
+      const camera = document.querySelector('[data-testid="architecture-diagram-camera"]');
 
-      if (viewport === null) {
+      if (camera === null) {
         return null;
       }
 
@@ -195,8 +210,8 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
 
       return {
         minNodeHeight,
-        scrollHeight: viewport.scrollHeight,
-        clientHeight: viewport.clientHeight,
+        scrollHeight: camera.scrollHeight,
+        clientHeight: camera.clientHeight,
       };
     }, minNodeHeightPx);
 

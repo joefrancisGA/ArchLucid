@@ -1,4 +1,5 @@
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -38,6 +39,8 @@ export function HelpSketchAChangeGuideView(props: HelpSketchAChangeGuideViewProp
       <p className={cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody)} data-testid="help-sketch-a-change-overview">
         {CHEAP_EXPLORATION_HELP_SKETCH_A_CHANGE_OVERVIEW}
       </p>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-sketch-a-change" showSsoOptional={false} />
     </article>
   );
 }

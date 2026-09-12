@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -140,11 +141,12 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
         <p className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           assessmentId={props.assessmentId} · snapshotId={props.snapshotId} · controlId={props.controlId}
         </p>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex max-w-xl flex-col gap-2">
           <Button
             type="button"
             variant="outline"
             size="sm"
+            className="self-start"
             disabled={packageDownloadBusy}
             data-testid="audit-evidence-package-download"
             aria-describedby={packageDownloadError != null ? "audit-evidence-package-download-error" : undefined}
@@ -154,13 +156,14 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
           >
             {packageDownloadBusy ? "Preparing package…" : "Download evidence package (ZIP)"}
           </Button>
+          {packageDownloadError != null ? (
+            <OperatorMutationInlineError
+              message={packageDownloadError}
+              testId="audit-evidence-package-download-error"
+            />
+          ) : null}
+          <SponsorExportSendHonestyStrip testIdPrefix="audit-evidence-package" />
         </div>
-        {packageDownloadError != null ? (
-          <OperatorMutationInlineError
-            message={packageDownloadError}
-            testId="audit-evidence-package-download-error"
-          />
-        ) : null}
       </header>
 
       <main

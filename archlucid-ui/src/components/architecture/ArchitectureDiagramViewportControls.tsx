@@ -45,6 +45,8 @@ export function ArchitectureDiagramViewportControls(
     <div
       className={cn(
         'flex flex-col gap-2',
+        // Overlay `right` must be against a non-scrolling frame. The mermaid
+        // camera owns overflow:auto so a wide SVG cannot pin this cluster off-screen.
         isOverlay
           ? 'pointer-events-none absolute right-2 top-2 z-10 max-w-[calc(100%-1rem)]'
           : 'mb-2',
