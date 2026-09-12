@@ -21,6 +21,7 @@ import { InAppNavigationGuardDialog } from "@/components/navigation/InAppNavigat
 import { architectureDraftDisplayName } from "@/lib/architecture/architecture-draft-status";
 import { type ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import { architectureDraftDetailPageSubtitle } from "@/lib/architecture/architecture-draft-detail-page-copy";
+import { resolveArchitectureDraftSpawnLockWorkspaceLead } from "@/lib/architecture/architecture-draft-spawn-lock-url-honesty";
 import { actorSetFromDraftDocument } from "@/lib/architecture/architecture-creation-init";
 import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
 import {
@@ -345,11 +346,14 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   );
 
   const workspaceHeading = displayName;
-  const workspaceLead = architectureDraftDetailPageSubtitle(
-    buyerPolishedShell,
-    reviewReadiness.isValid,
-    hasPersistedDraft,
-    recoveredLocally,
+  const workspaceLead = resolveArchitectureDraftSpawnLockWorkspaceLead(
+    handoffEditorLocked,
+    architectureDraftDetailPageSubtitle(
+      buyerPolishedShell,
+      reviewReadiness.isValid,
+      hasPersistedDraft,
+      recoveredLocally,
+    ),
   );
 
   const scopeUnderstandingInput = useMemo(

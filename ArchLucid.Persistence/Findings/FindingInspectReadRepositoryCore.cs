@@ -207,6 +207,145 @@ internal static class FindingInspectReadRepositoryCore
             ? ResolveTypedPayloadForInspect(payloadJson, title, rationale)
             : BuildMetadataTypedPayload(title, rationale);
 
+    public static FindingClassification? ResolveInspectClassification(
+        byte? classificationStorage,
+        JsonElement? typedPayload)
+    {
+        FindingClassification? fromStorage = FindingInsightDensityColumnCodec.FromClassificationStorage(classificationStorage);
+
+        if (fromStorage is not null)
+        {
+            return fromStorage;
+        }
+
+        return ResolveClassificationFromTypedPayload(typedPayload);
+    }
+
+    public static FindingTreatment? ResolveInspectTreatment(byte? treatmentStorage, JsonElement? typedPayload)
+    {
+        FindingTreatment? fromStorage = FindingInsightDensityColumnCodec.FromTreatmentStorage(treatmentStorage);
+
+        if (fromStorage is not null)
+        {
+            return fromStorage;
+        }
+
+        return ResolveTreatmentFromTypedPayload(typedPayload);
+    }
+
+    public static FindingSemanticSupportBand? ResolveInspectSemanticSupportBand(
+        string? overlayBandStorage,
+        JsonElement? typedPayload)
+    {
+        if (!string.IsNullOrWhiteSpace(overlayBandStorage)
+            && Enum.TryParse(overlayBandStorage.Trim(), ignoreCase: true, out FindingSemanticSupportBand overlayBand)
+            && Enum.IsDefined(overlayBand))
+        {
+            return overlayBand;
+        }
+
+        return ResolveSemanticSupportBandFromTypedPayload(typedPayload);
+    }
+
+    private static FindingClassification? ResolveClassificationFromTypedPayload(JsonElement? typedPayload)
+    {
+        if (typedPayload is null || typedPayload.Value.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        if (!typedPayload.Value.TryGetProperty("classification", out JsonElement classificationElement))
+        {
+            return null;
+        }
+
+        if (classificationElement.ValueKind is JsonValueKind.String)
+        {
+            string? raw = classificationElement.GetString();
+
+            if (Enum.TryParse(raw, ignoreCase: true, out FindingClassification parsed)
+                && Enum.IsDefined(parsed))
+            {
+                return parsed;
+            }
+        }
+
+        if (classificationElement.ValueKind is JsonValueKind.Number
+            && classificationElement.TryGetInt32(out int numeric)
+            && Enum.IsDefined(typeof(FindingClassification), numeric))
+        {
+            return (FindingClassification)numeric;
+        }
+
+        return null;
+    }
+
+    private static FindingTreatment? ResolveTreatmentFromTypedPayload(JsonElement? typedPayload)
+    {
+        if (typedPayload is null || typedPayload.Value.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        if (!typedPayload.Value.TryGetProperty("treatment", out JsonElement treatmentElement))
+        {
+            return null;
+        }
+
+        if (treatmentElement.ValueKind is JsonValueKind.String)
+        {
+            string? raw = treatmentElement.GetString();
+
+            if (Enum.TryParse(raw, ignoreCase: true, out FindingTreatment parsed)
+                && Enum.IsDefined(parsed))
+            {
+                return parsed;
+            }
+        }
+
+        if (treatmentElement.ValueKind is JsonValueKind.Number
+            && treatmentElement.TryGetInt32(out int numeric)
+            && Enum.IsDefined(typeof(FindingTreatment), numeric))
+        {
+            return (FindingTreatment)numeric;
+        }
+
+        return null;
+    }
+
+    private static FindingSemanticSupportBand? ResolveSemanticSupportBandFromTypedPayload(JsonElement? typedPayload)
+    {
+        if (typedPayload is null || typedPayload.Value.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        if (!typedPayload.Value.TryGetProperty("semanticSupportBand", out JsonElement bandElement))
+        {
+            return null;
+        }
+
+        if (bandElement.ValueKind is JsonValueKind.String)
+        {
+            string? raw = bandElement.GetString();
+
+            if (Enum.TryParse(raw, ignoreCase: true, out FindingSemanticSupportBand parsed)
+                && Enum.IsDefined(parsed))
+            {
+                return parsed;
+            }
+        }
+
+        if (bandElement.ValueKind is JsonValueKind.Number
+            && bandElement.TryGetInt32(out int numeric)
+            && Enum.IsDefined(typeof(FindingSemanticSupportBand), numeric))
+        {
+            return (FindingSemanticSupportBand)numeric;
+        }
+
+        return null;
+    }
+
     public static FindingInspectResponse BuildInspectResponse(
         string findingId,
         FindingSeverity severity,

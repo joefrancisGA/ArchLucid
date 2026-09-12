@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
 import type { FirstReviewSpineBandSummary } from "@/lib/reviews/first-review-spine-band";
 import { cn } from "@/lib/utils";
 
@@ -76,6 +78,16 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           {summary.topFindingTitle}
         </p>
       ) : null}
+
+      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <Link
+          href={POLICY_PACK_DELTA_DEMO_HELP_PATH}
+          className={OPERATOR_LINK.inline}
+          data-testid="run-detail-first-review-spine-pack-delta-demo-link"
+        >
+          See how a policy-pack change shifts findings
+        </Link>
+      </p>
     </section>
   );
 }

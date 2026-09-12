@@ -555,26 +555,31 @@ describe("ArchitectureDraftWorkspace", () => {
     render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("architecture-draft-handoff-banner")).toBeInTheDocument();
+      expect(screen.getByTestId("architecture-draft-handoff-panel")).toBeInTheDocument();
     });
 
     expect(screen.queryByTestId("draft-intake-advanced-section")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-ai-refine-stub")).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
   });
 
   it("locks the editor and promotes the linked review when a draft already spawned a review", async () => {
     render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("architecture-draft-handoff-banner")).toBeInTheDocument();
+      expect(screen.getByTestId("architecture-draft-handoff-panel")).toBeInTheDocument();
     });
 
     expect(screen.queryByTestId("architecture-draft-workspace-status-tag")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Show details" })).not.toBeInTheDocument();
-    expect(screen.getByTestId("architecture-draft-continue-review")).toHaveAttribute("href", "/architecture/reviews/run-001");
+    expect(screen.getByTestId("architecture-draft-handoff-open-review")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-001",
+    );
     expect(screen.queryByTestId("architecture-draft-acknowledge-edit")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-start-review")).not.toBeInTheDocument();
-    expect(screen.getByLabelText(/Architecture overview/i)).toBeDisabled();
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-spawn-lock-clone-honesty")).toBeInTheDocument();
   });
 
   it("Working mode renders handoff panel without editable fields when spawn-locked (LK-04 / AO-07)", async () => {
@@ -625,6 +630,11 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(screen.getByTestId("working-nested-architecture-identity-chrome")).toBeInTheDocument();
     });
 
+    expect(screen.getByTestId("architecture-draft-spawn-lock-back-honesty")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Back to review" })[0]).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/run-001",
+    );
     expect(screen.getByRole("link", { name: "Back to architecture desk" })).toHaveAttribute(
       "href",
       "/architecture/architectures/architecture-identity-001",

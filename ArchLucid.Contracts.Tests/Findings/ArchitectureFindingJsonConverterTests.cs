@@ -372,6 +372,27 @@ public sealed class ArchitectureFindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_unknown_source_agent_string_throws()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Cost",
+                              "enforcementTier": "Advisory",
+                              "message": "Invalid source agent label must not deserialize.",
+                              "sourceAgent": "bogus"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown source agent value*");
+    }
+
+    [Fact]
     public void Deserialize_integer_source_agent_out_of_range_throws()
     {
         const string json = """

@@ -15834,6 +15834,16 @@
               "string"
             ]
           },
+          "classification": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingClassification"
+              }
+            ]
+          },
           "confidenceLevel": {
             "anyOf": [
               {
@@ -16040,11 +16050,31 @@
             "format": "uuid",
             "type": "string"
           },
+          "semanticSupportBand": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingSemanticSupportBand"
+              }
+            ]
+          },
           "severity": {
             "$ref": "#/components/schemas/FindingSeverity"
           },
           "trackedExternally": {
             "type": "boolean"
+          },
+          "treatment": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingTreatment"
+              }
+            ]
           },
           "trustLabel": {
             "type": [
@@ -16324,6 +16354,16 @@
           },
           "traceConfidenceLabel": {
             "type": "string"
+          },
+          "treatment": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingTreatment"
+              }
+            ]
           }
         },
         "required": [

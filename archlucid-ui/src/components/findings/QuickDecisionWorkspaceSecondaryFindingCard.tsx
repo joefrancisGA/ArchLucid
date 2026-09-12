@@ -8,6 +8,7 @@ import { FindingListDispositionRowActions } from "@/components/governance/findin
 import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { QuickDecisionFindingRationale } from "@/components/findings/QuickDecisionFindingRationale";
+import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
 import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
@@ -138,9 +139,17 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
                 <FindingTrustChip finding={finding} />
                 <FindingSemanticSupportBandChip
                   finding={finding}
+                  showReason
                   structuralExecutionMode={props.context.structuralExecutionMode}
                 />
               </>
+            ) : null}
+            {finding.classification !== null && finding.classification !== undefined ? (
+              <FindingClassificationChip
+                classification={finding.classification}
+                treatment={finding.treatment}
+                findingId={finding.findingId}
+              />
             ) : null}
             <span className="min-w-0 flex-1 font-semibold text-al-text-primary">{finding.title}</span>
           </div>

@@ -128,6 +128,8 @@ public sealed partial class ArchitectureReviewExportService(
         string? tenantDisplayName = await ResolveTenantDisplayNameAsync(cancellationToken).ConfigureAwait(false);
         string? explanationCallout = await TryBuildExplanationConfidenceCalloutAsync(detail, cancellationToken).ConfigureAwait(false);
 
+        string? sendableExportCoverPlainText = BuildSendableExportCoverPlainText(careerExportHonesty);
+
         ArchitectureReviewBoardExportDocumentModel documentModel =
             ArchitectureReviewBoardExportDocumentFactory.Create(
                 detail,
@@ -136,7 +138,8 @@ public sealed partial class ArchitectureReviewExportService(
                 extractorTimestampUtcLabel: null,
                 tenantDisplayName: tenantDisplayName,
                 explanationConfidenceCallout: explanationCallout,
-                careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty));
+                careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty),
+                sendableExportCoverPlainText: sendableExportCoverPlainText);
 
         string? activeTrialExportNotice = await ResolveActiveTrialExportNoticeAsync(cancellationToken).ConfigureAwait(false);
 

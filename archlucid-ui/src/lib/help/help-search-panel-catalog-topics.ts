@@ -81,7 +81,16 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     id: "career-rehearsal-doors",
     title: "Career and Rehearsal doors",
     description: "Working execution intent — practice in Rehearsal, sealed-record proof in Career. Simulator is not sponsor proof.",
-    keywords: ["career", "rehearsal", "working door", "simulator", "sealed record", "finalize"],
+    keywords: [
+      "career",
+      "career door",
+      "career-complete",
+      "rehearsal",
+      "working door",
+      "simulator",
+      "sealed record",
+      "finalize",
+    ],
     action: { kind: "route", href: "/help/career-rehearsal-doors", helpSlug: "career-rehearsal-doors" },
   },
   {
@@ -456,6 +465,10 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   isolation: ["data-handling-help"],
   "data handling": ["data-handling-help", "security-trust-help"],
   privacy: ["data-handling-help", "security-trust-help"],
+  simulator: ["career-rehearsal-doors"],
+  "career door": ["career-rehearsal-doors"],
+  rehearsal: ["career-rehearsal-doors"],
+  "career-complete": ["career-rehearsal-doors"],
 };
 
 export function collectHelpSearchPanelTopics(

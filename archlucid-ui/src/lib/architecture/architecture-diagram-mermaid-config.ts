@@ -1,6 +1,7 @@
 /** Shared Mermaid init for operator architecture and inventory diagrams. */
 export function createArchitectureDiagramMermaidConfig(dark: boolean): {
   startOnLoad: false;
+  suppressErrorRendering: true;
   theme: "dark" | "neutral";
   securityLevel: "strict";
   fontFamily: string;
@@ -16,6 +17,7 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
 } {
   return {
     startOnLoad: false,
+    suppressErrorRendering: true,
     theme: dark ? "dark" : "neutral",
     securityLevel: "strict",
     fontFamily: "ui-sans-serif, system-ui, sans-serif",

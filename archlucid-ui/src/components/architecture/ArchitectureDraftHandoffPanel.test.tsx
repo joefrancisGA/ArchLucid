@@ -40,6 +40,7 @@ describe("ArchitectureDraftHandoffPanel (SD-10 / AO-07)", () => {
       />,
     );
 
+    expect(screen.getByTestId("architecture-draft-spawn-lock-back-honesty")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-handoff-open-review")).toHaveAttribute(
       "href",
       "/architecture/architectures/architecture-identity-001/reviews/run-42",
