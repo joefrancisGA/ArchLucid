@@ -201,6 +201,22 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL })).toBeInTheDocument();
   });
 
+  it('strips inline mermaid comments before calling mermaid.render', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  n1["app-hi-test-wus-001"] %% al-type=microsoft'}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(renderMock).toHaveBeenCalled();
+    });
+
+    expect(renderMock.mock.calls[0]?.[1]).toBe('flowchart TD\n  n1["app-hi-test-wus-001"]');
+  });
+
   it('preserves foreignObject labels when sanitizing diagram HTML', () => {
     const labeledSvg =
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">' +
