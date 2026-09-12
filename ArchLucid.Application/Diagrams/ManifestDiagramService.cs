@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Diagrams;
@@ -66,7 +67,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             sb.AppendLine();
 
         if (options.IncludeSemanticOverlay)
-            AppendSemanticOverlay(sb, manifest, options, usedNodeIds);
+            AppendSemanticOverlay(sb, manifest, options, usedNodeIds, nodeIds);
 
         foreach (ManifestRelationship relationship in manifestRelationships)
         {
@@ -189,45 +190,155 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         StringBuilder sb,
         GoldenManifest manifest,
         ManifestDiagramOptions options,
-        HashSet<string> usedNodeIds)
+        HashSet<string> usedNodeIds,
+        Dictionary<string, string> nodeIds)
     {
-        List<string> semanticLabels = [];
+        ManifestDiagramSemanticOverlay semantics = manifest.DiagramSemantics;
+        List<string> actorLabels = BuildActorLabels(semantics);
+        List<string> trustLabels = [.. semantics.TrustBoundaryLabels];
+        List<string> requirementLabels = BuildRequirementLabels(manifest, semantics);
+        List<string> decisionLabels = BuildDecisionLabels(manifest, semantics);
+
+        int maxNodes = Math.Max(0, options.SemanticOverlayMaxNodes);
+        int emitted = 0;
+        List<string> requirementNodeIds = [];
+
+        if (actorLabels.Count == 0 && trustLabels.Count == 0 && requirementLabels.Count == 0 && decisionLabels.Count == 0)
+            return;
+
+        emitted = AppendSemanticSubgraph(sb, "actors", "Actors", actorLabels, "actor", usedNodeIds, emitted, maxNodes, RenderActorNode, null);
+        emitted = AppendSemanticSubgraph(sb, "trust_boundaries", "Trust boundaries", trustLabels, "trust", usedNodeIds, emitted, maxNodes, RenderTrustNode, null);
+        emitted = AppendSemanticSubgraph(sb, "requirements", "Requirements", requirementLabels, "req", usedNodeIds, emitted, maxNodes, RenderRequirementNode, requirementNodeIds);
+        emitted = AppendSemanticSubgraph(sb, "decisions", "Decisions", decisionLabels, "dec", usedNodeIds, emitted, maxNodes, RenderDecisionNode, null);
+
+        string? topologyAnchor = ResolveTopologyAnchorNodeId(manifest, nodeIds);
+
+        if (topologyAnchor is null)
+        {
+            sb.AppendLine();
+            return;
+        }
+
+        foreach (string requirementNodeId in requirementNodeIds)
+        {
+            sb.AppendLine($"    {requirementNodeId} -.-> {topologyAnchor}");
+        }
+
+        sb.AppendLine();
+    }
+
+    private static List<string> BuildActorLabels(ManifestDiagramSemanticOverlay semantics)
+    {
+        List<string> labels = [];
+
+        foreach (ActorDescriptor actor in semantics.Actors)
+        {
+            string label = string.IsNullOrWhiteSpace(actor.Label) ? actor.Kind.ToString() : actor.Label!.Trim();
+            labels.Add($"{label} · {actor.Kind} · {actor.TrustOrigin}");
+        }
+
+        return labels;
+    }
+
+    private static List<string> BuildRequirementLabels(GoldenManifest manifest, ManifestDiagramSemanticOverlay semantics)
+    {
+        if (semantics.RequirementLabels.Count > 0)
+            return [.. semantics.RequirementLabels];
+
+        List<string> fallback = [];
 
         foreach (string requirement in manifest.Governance.PolicyConstraints)
         {
             if (!string.IsNullOrWhiteSpace(requirement))
-                semanticLabels.Add($"Requirement: {requirement.Trim()}");
+                fallback.Add(requirement.Trim());
         }
 
         foreach (string control in manifest.Governance.RequiredControls)
         {
             if (!string.IsNullOrWhiteSpace(control))
-                semanticLabels.Add($"Control: {control.Trim()}");
+                fallback.Add($"Control: {control.Trim()}");
         }
 
-        foreach (string decisionTraceId in manifest.Metadata.DecisionTraceIds)
-        {
-            if (!string.IsNullOrWhiteSpace(decisionTraceId))
-                semanticLabels.Add($"Decision: {decisionTraceId.Trim()}");
-        }
+        return fallback;
+    }
 
-        int maxNodes = Math.Max(0, options.SemanticOverlayMaxNodes);
-        int emitted = 0;
+    private static List<string> BuildDecisionLabels(GoldenManifest manifest, ManifestDiagramSemanticOverlay semantics)
+    {
+        if (semantics.DecisionLabels.Count > 0)
+            return [.. semantics.DecisionLabels];
 
-        sb.AppendLine("    subgraph semantic_overlay[\"Semantic overlay\"]");
+        return manifest.Metadata.DecisionTraceIds
+            .Where(traceId => !string.IsNullOrWhiteSpace(traceId))
+            .Select(traceId => $"Decision trace: {traceId.Trim()}")
+            .ToList();
+    }
 
-        foreach (string label in semanticLabels)
+    private static int AppendSemanticSubgraph(
+        StringBuilder sb,
+        string subgraphId,
+        string subgraphTitle,
+        IReadOnlyList<string> labels,
+        string nodePrefix,
+        HashSet<string> usedNodeIds,
+        int emitted,
+        int maxNodes,
+        Func<string, string> renderNode,
+        List<string>? emittedNodeIds)
+    {
+        if (labels.Count == 0 || emitted >= maxNodes)
+            return emitted;
+
+        sb.AppendLine($"    subgraph {subgraphId}[\"{EscapeLabel(subgraphTitle)}\"]");
+
+        for (int index = 0; index < labels.Count; index++)
         {
             if (emitted >= maxNodes)
                 break;
 
             emitted++;
-            string nodeId = EnsureUnique(SanitizeId($"sem_{emitted}"), usedNodeIds);
-            sb.AppendLine($"        {nodeId}[[\"{EscapeLabel(label)}\"]]");
+            string nodeId = EnsureUnique(SanitizeId($"{nodePrefix}_{emitted}"), usedNodeIds);
+            sb.AppendLine($"        {nodeId}{renderNode(EscapeLabel(labels[index]))}");
+            emittedNodeIds?.Add(nodeId);
         }
 
         sb.AppendLine("    end");
-        sb.AppendLine();
+        return emitted;
+    }
+
+    private static string RenderActorNode(string label) => $"(\"Actor: {label}\")";
+
+    private static string RenderTrustNode(string label) => $"[/\"Trust: {label}\"/]";
+
+    private static string RenderRequirementNode(string label) => $"[[\"Requirement: {label}\"]]";
+
+    private static string RenderDecisionNode(string label) => $"{{{{\"Decision: {label}\"}}}}";
+
+    private static string? ResolveTopologyAnchorNodeId(GoldenManifest manifest, Dictionary<string, string> nodeIds)
+    {
+        ManifestService? firstService = manifest.Services
+            .OrderBy(service => service.ServiceName, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+
+        if (firstService is not null)
+        {
+            string key = $"svc:{firstService.ServiceId}";
+
+            if (!string.IsNullOrWhiteSpace(firstService.ServiceId) && nodeIds.TryGetValue(key, out string? serviceNodeId))
+                return serviceNodeId;
+        }
+
+        ManifestDatastore? firstDatastore = manifest.Datastores
+            .OrderBy(datastore => datastore.DatastoreName, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+
+        if (firstDatastore is null)
+            return null;
+
+        string datastoreKey = $"ds:{firstDatastore.DatastoreId}";
+
+        return !string.IsNullOrWhiteSpace(firstDatastore.DatastoreId) && nodeIds.TryGetValue(datastoreKey, out string? datastoreNodeId)
+            ? datastoreNodeId
+            : null;
     }
 
     private static string NormalizeGroupBy(string? value)

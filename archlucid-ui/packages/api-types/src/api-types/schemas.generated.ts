@@ -4857,6 +4857,7 @@ export interface components {
         };
         GoldenManifest: {
             datastores: components["schemas"]["ManifestDatastore"][];
+            diagramSemantics?: components["schemas"]["ManifestDiagramSemanticOverlay"];
             governance: components["schemas"]["ManifestGovernance"];
             metadata: components["schemas"]["ManifestMetadata"];
             relationships: components["schemas"]["ManifestRelationship"][];
@@ -6011,6 +6012,12 @@ export interface components {
             content?: string;
             diagramType?: string;
             manifestVersion?: string;
+        };
+        ManifestDiagramSemanticOverlay: {
+            actors?: components["schemas"]["ActorDescriptor"][];
+            decisionLabels?: string[];
+            requirementLabels?: string[];
+            trustBoundaryLabels?: string[];
         };
         ManifestDiffResult: {
             addedDatastores?: string[];
