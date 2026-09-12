@@ -121,13 +121,15 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 40
-- **bugs-found:** 19
+- **hunts:** 41
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — hunt #2202: fabric_capacity svc- synthetic alias on Data-category nodes
+- **last-bug:** 2026-09-12 — hunt #2203: pinecone svc- synthetic alias on Data-category nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2203 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_pinecone` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_pinecone_node_has_data_category_but_synthetic_service_id_used`.
 
 2026-09-12 seed hunt #2202 (seed→hit): reseeded topology-proposal-merge with `-Hint terraform`; proved `azurerm_fabric_capacity` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_fabric_capacity_node_has_data_category_but_synthetic_service_id_used`.
 
@@ -176,6 +178,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+- [x] (proven) `azurerm_pinecone` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2203:** `pinecone` was only in the datastore list; `azurerm_pinecone.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_pinecone_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_fabric_capacity` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2202:** `fabric_capacity` was only in the datastore list; `azurerm_fabric_capacity.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_fabric_capacity_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_graph_account` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2201:** `graph_account` was only in the datastore list; `azurerm_graph_account.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_graph_account_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_dev_center` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2200:** `dev_center` was only in the datastore list; `azurerm_dev_center.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_dev_center_node_has_data_category_but_synthetic_service_id_used`.
