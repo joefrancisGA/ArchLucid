@@ -11194,7 +11194,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -11202,6 +11202,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-12 seed hunt #2158 (seed-only): reseeded host-composition with `-Hint host-composition`; no new hunt-ready rows.
+2026-09-12 seed hunt #2158 (seed-only): reseeded host-composition with `-Hint host-composition`; no new hunt-ready rows.
+
 
 
 2026-09-12 seed hunt #2018 (seed-only): reseeded host-composition; no new hunt-ready rows.
