@@ -1,6 +1,10 @@
-import { CloudCog, Hash, ListOrdered, Ticket, Users, Workflow } from "lucide-react";
+import { CloudCog, Hash, ListOrdered, Network, Ticket, Users, Workflow } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   CLOUD_CONNECTIONS_PATH,
   INTEGRATIONS_JIRA_PATH,
@@ -44,6 +48,16 @@ describe("resolveNavLinkForPathname", () => {
     expect(resolveNavIconForHref(INTEGRATIONS_TEAMS_PATH)).toBe(TEAMS_SURFACE_ICON);
     expect(resolveNavIconForHref("/administration/users")).toBe(Users);
     expect(resolveNavIconForHref(INTEGRATIONS_TEAMS_PATH)).not.toBe(resolveNavIconForHref("/administration/users"));
+  });
+
+  it("maps SecureNow inventory diagrams to the governance nav icon", () => {
+    expect(resolveNavIconForHref(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH)).toBe(Network);
+    expect(resolveNavIconForHref(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH)).toBe(
+      resolveNavIconForHref(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH),
+    );
+    expect(resolveNavLinkForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH)?.href).toBe(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+    );
   });
 
   it("does not duplicate route identity for the same href", () => {

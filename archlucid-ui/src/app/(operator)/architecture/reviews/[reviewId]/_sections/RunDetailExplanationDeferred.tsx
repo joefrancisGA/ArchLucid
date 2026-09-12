@@ -139,6 +139,7 @@ export async function RunDetailExplanationDeferred(
       requestAssumptionTexts={resolvedRequestAssumptionTexts}
       withheldFindings={withheldFindings}
       structuralExecutionMode={resolvedDetail.run.structuralExecutionMode}
+      parentArchitectureId={resolvedDetail.run.architectureId ?? null}
     />
   );
 }

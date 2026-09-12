@@ -312,6 +312,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
           null
         }
         pagePrimaryOwnedElsewhere
+        parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
       />
     ) : null;
 
