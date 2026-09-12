@@ -4,8 +4,9 @@
 
 # ADR 0086: Working Career vs Rehearsal doors (no host Mode flip)
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-10
+- **Accepted:** 2026-09-12 (owner)
 - **Owner decision:** Default day remains rehearsal for local/dev clones — livelihood gravity is fixed with **product chrome doors**, not a global Simulator→Real host-config flip (**G-REAL-06** stays GTM owner program)
 
 ## Context

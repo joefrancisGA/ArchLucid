@@ -146,6 +146,11 @@ const HelpEvidenceGraphGuideView = dynamic(() =>
 const HelpEvidenceIntakeGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpEvidenceIntakeGuideView").then((module) => module.HelpEvidenceIntakeGuideView),
 );
+const HelpInspectStoredEvidenceGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpInspectStoredEvidenceGuideView").then(
+    (module) => module.HelpInspectStoredEvidenceGuideView,
+  ),
+);
 const HelpEvidenceTrailGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpEvidenceTrailGuideView").then((module) => module.HelpEvidenceTrailGuideView),
 );
@@ -410,6 +415,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "evidence-intake") {
     return <HelpEvidenceIntakeGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+  if (loaded.entry.slug === "inspect-stored-evidence") {
+    return <HelpInspectStoredEvidenceGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "engineering-troubleshooting") {
     return <HelpEngineeringTroubleshootingGuideView entry={loaded.entry} markdown={loaded.markdown} />;

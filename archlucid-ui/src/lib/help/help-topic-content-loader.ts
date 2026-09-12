@@ -85,6 +85,7 @@ export const HELP_APP_GUIDED_TOPIC_SLUGS = [
   "configuration-reference",
   "enterprise-onboarding",
   "evidence-intake",
+  "inspect-stored-evidence",
   "engineering-troubleshooting",
   "api-contracts",
   "accelerator-chooser",
