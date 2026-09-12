@@ -2429,3 +2429,4 @@
 {"at":"2026-09-12T18:34:55.5286245Z","zoneId":"retrieval","outcome":"seed-only"}
 {"at":"2026-09-12T18:34:57.7066444Z","zoneId":"decisioning","outcome":"seed-only"}
 {"at":"2026-09-12T18:34:59.9316141Z","zoneId":"host-core-jobs","outcome":"seed-only"}
+{"at":"2026-09-12T18:37:16.2008446Z","zoneId":"tenant-data-export","outcome":"hit"}

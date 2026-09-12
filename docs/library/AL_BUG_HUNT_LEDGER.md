@@ -4075,13 +4075,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 22
-- **bugs-found:** 29
+- **hunts:** 23
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — CLI proof-packet career gate ignored isSampleRun on pilot-run-deltas JSON
+- **last-bug:** 2026-09-12 — CLI proof-packet career gate ignored string isDemoTenant/isSampleRun on pilot-run-deltas JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2110 (seed→hit): reseeded tenant-data-export; proved string boolean isDemoTenant/isSampleRun parsing gap; regression `ResolveFromDeltasJson_blocks_demo_tenant_when_is_demo_tenant_string_true`.
 
 ### Hypotheses
 
@@ -4139,6 +4141,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-11 seed hunt #1686 (hit): reseeded tenant-data-export; proved decision receipt sample-workspace career gate gap; 11 DecisionReceiptService unit tests passed.
 
 - [x] (proven) `ExportBundleCareerPostureResolver.ResolveFromDeltasJson` — treated `isDemoTenant` as `isSampleRun` for simulator gate and never blocked sample-workspace runs with `isSampleRun: true` in pilot-run-deltas JSON — **hit 2026-09-12 seed hunt #1814:** CLI proof-packet bundles for non-demo sample workspace runs bypassed `CareerArtifactExportCompletenessGate` while API export paths blocked; fixed with explicit `isSampleRun` parse + block and `PilotRunDeltasResponse.IsSampleRun` wiring; regression `ResolveFromDeltasJson_blocks_sample_workspace_run_when_is_sample_run_true`
+
+- [x] (proven) `ExportBundleCareerPostureResolver.ResolveFromDeltasJson` — string `"true"` for `isDemoTenant` / `isSampleRun` not parsed as boolean — **hit 2026-09-12 seed hunt #2110:** CLI pilot-run-deltas JSON with string booleans bypassed sample-workspace career gate while `JsonValueKind.True` worked; fixed with `TryParseJsonBoolean`; regressions `ResolveFromDeltasJson_blocks_demo_tenant_when_is_demo_tenant_string_true` and `ResolveFromDeltasJson_blocks_sample_workspace_run_when_is_sample_run_string_true`.
 
 2026-09-12 seed hunt #1814 (hit): reseeded tenant-data-export CLI bundle career gate; proved sample-workspace isSampleRun gap; 7 scoped ExportBundleCareerPostureResolver tests passed.
 
