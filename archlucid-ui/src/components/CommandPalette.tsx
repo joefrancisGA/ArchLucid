@@ -389,6 +389,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
           <CommandPaletteActions
+            paletteOpen={open}
             pathname={pathname ?? "/"}
             workingMode={workingMode}
             visibleNavHrefs={visibleHrefs}
