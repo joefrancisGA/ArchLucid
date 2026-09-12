@@ -2507,3 +2507,4 @@
 {"at":"2026-09-12T20:22:39.5753643Z","zoneId":"api-policy-packs","outcome":"seed-only"}
 {"at":"2026-09-12T20:23:02.3292402Z","zoneId":"application-agents","outcome":"seed-only"}
 {"at":"2026-09-12T20:23:19.1540959Z","zoneId":"identity-provider-config","outcome":"seed-only"}
+{"at":"2026-09-12T20:23:19.6784033Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
