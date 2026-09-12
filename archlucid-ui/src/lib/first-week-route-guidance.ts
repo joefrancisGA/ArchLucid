@@ -75,6 +75,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
       "Each architecture review is tracked as one review — the same object from capture through finalized review record and export. Start with briefs, diagrams, or IaC only (evidence-only); cloud inventory ZIP (AWS, Azure, or GCP) is optional when you need live architecture structure or cost grounding.",
     primaryAction: { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     operateDeferralNote: GUIDED_OPERATE_SIDEBAR_DEFERRAL_NOTE,
+    dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
   },
   onboarding: {
     useWhen: "Follow this guided path to create and commit your first review.",
@@ -95,6 +96,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
     bridgeCopy:
       "Each package gives you the review record, findings, evidence trail, finalized review record, and exports.",
     operateDeferralNote: "",
+    dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
   },
   "review-detail-in-progress": BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE,
   "review-detail-committed": {

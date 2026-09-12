@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
 import { downloadSponsorOnePagerPdf } from "@/lib/api/downloads-blob-trigger-reports";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
@@ -175,6 +176,7 @@ export function SponsorExportsSection({
       </div>
       <RoiSponsorExportVocabularyRail currentSurfaceId="sponsor-dashboard" />
       <ArtifactPreviewSponsorExportVocabularyRail currentSurfaceId="sponsor-export" />
+      <SponsorExportSendHonestyStrip testIdPrefix="sponsor-dashboard-exports" />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {sponsorDocx !== null ? (
           <SponsorExportOutputCard

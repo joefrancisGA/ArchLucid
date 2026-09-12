@@ -432,7 +432,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             </ol>
           </section>
 
-          <SponsorSendPathHonestyPanel testIdPrefix="getting-started-sponsor" showSsoOptional={false} />
+          <SponsorSendPathHonestyPanel testIdPrefix="getting-started-sponsor" showSsoOptional={true} />
 
           <HelpLazyDetails
             id="technical-details"

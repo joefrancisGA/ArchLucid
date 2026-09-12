@@ -13,6 +13,7 @@ import {
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { FIRST_REVIEW_GUIDE_SSO_OPTIONAL_COPY } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { Button } from "@/components/ui/button";
@@ -77,7 +78,7 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
   rows.push({
     id: "roi-baseline",
     title: "ROI baseline (optional)",
-    benefit: "Add assumptions used in sponsor and portfolio value reporting.",
+    benefit: `Add assumptions used in sponsor and portfolio value reporting. ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`,
     statusLabel: "Draft",
     statusKind: "draft",
     href: "/administration/baseline",

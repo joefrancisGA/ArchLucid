@@ -24003,6 +24003,9 @@
           "isDemoTenant": {
             "type": "boolean"
           },
+          "isSampleRun": {
+            "type": "boolean"
+          },
           "llmCallCount": {
             "format": "int32",
             "type": "integer"

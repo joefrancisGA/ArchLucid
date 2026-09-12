@@ -2,8 +2,10 @@
 
 import { cn } from "@/lib/utils";
 
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { SponsorReportMetricCard } from "@/components/sponsor-report/SponsorReportMetricCard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import {
   computeRoiSummaryPeriodMetrics,
   formatRoiSummaryHoursDisplay,
@@ -51,6 +53,11 @@ export function RoiSummaryHeroStrip(props: Props) {
           {metrics.confidence.label}
         </p>
       </div>
+
+      <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="roi-summary-hero-non-summing">
+        {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+      </p>
+      <PolicyPackInfluenceHonestyChip className="mt-2" />
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <SponsorReportMetricCard

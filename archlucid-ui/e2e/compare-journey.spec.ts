@@ -1,4 +1,7 @@
 import { expect, test } from "@playwright/test";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 
 import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID } from "./fixtures";
 import {
@@ -78,5 +81,35 @@ test.describe("operator journey — compare query prefill and review order", () 
     await expect(outcome.getByText("Review comparison")).toBeVisible();
     await expect(outcome.getByText("Supplementary review / review diff")).toBeVisible();
     await expect(outcome.getByText("OK")).toHaveCount(2);
+  });
+
+  test("end-to-end compare export download includes Compare Verdict Chrome Delta markdown", async ({ page }) => {
+    await registerDefaultPairLegacyStructuredCompare(page);
+    await page.route("**/api/proxy/v1/architecture/review/compare/end-to-end/export**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/markdown; charset=utf-8",
+        headers: {
+          "Content-Disposition": 'attachment; filename="end_to_end_compare.md"',
+        },
+        body: "## Compare Verdict Chrome Delta\n\n- Gate outcome changed: No → Soft infeasible\n",
+      });
+    });
+
+    await gotoComparePageWithFixturePair(page);
+    await waitForCompareResultsReady(page);
+
+    const exportButton = page.getByTestId("compare-download-end-to-end-compare-export-button");
+    await expect(exportButton).toBeVisible();
+
+    const downloadPromise = page.waitForEvent("download");
+    await exportButton.click();
+    const download = await downloadPromise;
+    const savePath = path.join(os.tmpdir(), `compare-end-to-end-export-${Date.now()}.md`);
+
+    await download.saveAs(savePath);
+    const markdown = await fs.readFile(savePath, "utf8");
+
+    expect(markdown).toContain("## Compare Verdict Chrome Delta");
   });
 });
