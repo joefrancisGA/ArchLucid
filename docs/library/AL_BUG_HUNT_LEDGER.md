@@ -121,13 +121,15 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-08-23 — hunt #50: greenfield compliance declared endpoints but graph merge dropped dangling edges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2114 (seed-only): reseeded topology-proposal-merge; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2105 (seed-only): reseeded topology-proposal-merge; no new hunt-ready rows.
 
@@ -10919,7 +10921,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -11451,7 +11453,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 267
+- **hunts:** 277
 - **bugs-found:** 506
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
