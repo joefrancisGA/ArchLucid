@@ -845,6 +845,110 @@ public sealed class FinalizeConflictSqlIntegrationTests(ArchLucidApiFactory fact
         problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
     }
 
+    [SkippableFact]
+    public async Task Finalize_with_existential_assumption_maps_integrity_conflict_to_409()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-EXISTENTIAL-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.PinExistentialAssumptionOnRequestAsync(Factory, runId);
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem!.Type.Should().Be(ProblemTypes.Conflict);
+        problem.Detail.Should().Contain("existential assumption");
+    }
+
+    [SkippableFact]
+    public async Task Get_readiness_with_existential_assumption_matches_finalize_integrity_block()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-EXISTENTIAL-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.PinExistentialAssumptionOnRequestAsync(Factory, runId);
+
+        HttpResponseMessage readinessResponse = await Client.GetAsync(
+            $"/v1/governance/pre-finalize/readiness/{runId}");
+
+        await readinessResponse.EnsureSuccessForTestAsync();
+
+        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
+        JsonElement root = document.RootElement;
+
+        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
+        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("existential assumption");
+
+        JsonElement blocks = root.GetProperty("blocks");
+        blocks.EnumerateArray().Should().Contain(block =>
+            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
+            && block.GetProperty("code").GetString() == "existential_assumption");
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+    }
+
+    [SkippableFact]
+    public async Task Finalize_with_rejected_agent_output_quality_maps_integrity_conflict_to_409()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-AGENT-QUALITY-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.PinRejectedAgentOutputQualityTraceAsync(Factory, runId);
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem!.Type.Should().Be(ProblemTypes.Conflict);
+        problem.Detail.Should().Contain("agent output quality gate rejected");
+    }
+
+    [SkippableFact]
+    public async Task Get_readiness_with_rejected_agent_output_quality_matches_finalize_integrity_block()
+    {
+        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-AGENT-QUALITY-409-");
+
+        await FinalizeConflictSqlIntegrationFixture.PinRejectedAgentOutputQualityTraceAsync(Factory, runId);
+
+        HttpResponseMessage readinessResponse = await Client.GetAsync(
+            $"/v1/governance/pre-finalize/readiness/{runId}");
+
+        await readinessResponse.EnsureSuccessForTestAsync();
+
+        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
+        JsonElement root = document.RootElement;
+
+        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
+        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("agent output quality gate rejected");
+
+        JsonElement blocks = root.GetProperty("blocks");
+        blocks.EnumerateArray().Should().Contain(block =>
+            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
+            && block.GetProperty("code").GetString() == "agent_output_quality");
+
+        HttpResponseMessage finalizeResponse = await Client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            null);
+
+        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+    }
+
     private async Task<string?> TryReadPreCommitReadinessBlockReasonAsync(string runId)
     {
         HttpResponseMessage readinessResponse = await Client.GetAsync(
