@@ -14,7 +14,7 @@ import {
 } from "@/lib/insights/value-report-career-honesty";
 
 describe("value-report-career-honesty (CG-090)", () => {
-  it("skips honesty for Career door + Real contributing runs", () => {
+  it("skips honesty for Record review type + Real contributing runs", () => {
     expect(
       shouldApplyValueReportRehearsalHonesty({
         structuralExecutionMode: StructuralExecutionModeWire.Real,
@@ -40,7 +40,7 @@ describe("value-report-career-honesty (CG-090)", () => {
     });
 
     expect(presentation?.title).toBe(VALUE_REPORT_SCOPED_REHEARSAL_INCOMPLETE_TITLE);
-    expect(presentation?.body).toContain("not career-complete");
+    expect(presentation?.body).toContain("not record-complete");
   });
 
   it("shows period-mix honesty when any contributing run requires rehearsal labeling", () => {

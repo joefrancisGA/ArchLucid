@@ -89,7 +89,7 @@ public sealed class CareerGravityCg015SimulatorCloneRehearsalBannerArchitectureT
                 "AppShellStatusBanners.tsx"));
 
         copy.Should().Contain("WORKING_SIMULATOR_CLONE_REHEARSAL_BANNER_TITLE");
-        copy.Should().Contain("Rehearsal on this Simulator clone");
+        copy.Should().Contain("Practice on this Simulator clone");
         copy.Should().Contain("not a sample workspace and not Guided teaching");
         banner.Should().Contain("WorkingSimulatorCloneRehearsalBanner");
         banner.Should().Contain("working-simulator-clone-rehearsal-banner");

@@ -23,7 +23,7 @@ describe("pipeline-complete-career-honesty-copy (CG-033)", () => {
     ).toBe(PIPELINE_STATUS_TOOLTIPS.readyToFinalize);
   });
 
-  it("maps Career + Simulator review-complete label to Career blocked", () => {
+  it("maps Career + Simulator review-complete label to Sealed record blocked", () => {
     expect(
       resolveWorkingPipelineCompleteReviewLabel({
         workingDesk: true,
@@ -33,7 +33,7 @@ describe("pipeline-complete-career-honesty-copy (CG-033)", () => {
     ).toBe(WORKING_PIPELINE_CAREER_BLOCKED_COMPLETE_LABEL);
   });
 
-  it("maps Rehearsal + Simulator to rehearsal complete — not career-complete", () => {
+  it("maps Rehearsal + Simulator to rehearsal complete — not record-complete", () => {
     expect(
       resolveWorkingPipelineCompleteReviewLabel({
         workingDesk: true,
@@ -70,7 +70,7 @@ describe("pipeline-complete-career-honesty-copy (CG-033)", () => {
       effectiveWorkingCareerRehearsalDoor: "career",
     });
 
-    expect(status).toMatch(/Career blocked on Simulator/i);
+    expect(status).toMatch(/sealed record blocked on Simulator/i);
     expect(status).not.toBe("Pipeline complete — refresh for full detail.");
   });
 });

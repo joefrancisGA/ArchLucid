@@ -4,24 +4,24 @@ import {
   type RunStatusBadgeWorkingCareerHonestyInput,
 } from "@/lib/runs/run-status-badge-career-honesty";
 
-/** CG-034 — scorecard KPI honesty when Working stamp is not Career-complete. */
-export const SCORECARD_KPI_CAREER_BLOCKED_TITLE = "Career blocked — scorecard KPIs are not career proof";
+/** CG-034 — scorecard KPI honesty when Working stamp is not record-complete. */
+export const SCORECARD_KPI_CAREER_BLOCKED_TITLE = "Sealed record blocked — scorecard KPIs are not sealed-record proof";
 
 export const SCORECARD_KPI_CAREER_BLOCKED_BODY =
-  "These metrics reflect Simulator or Fallback execution on the Career door. Numbers stay visible for rehearsal — do not paste them into sponsor or procurement slides as career evidence.";
+  "These metrics reflect Simulator or Fallback execution on the Record review type. Numbers stay visible for practice — do not paste them into sponsor or procurement slides as sealed-record evidence.";
 
 export const SCORECARD_KPI_REHEARSAL_INCOMPLETE_TITLE =
-  "Rehearsal incomplete — scorecard KPIs are rehearsal only";
+  "Practice incomplete — scorecard KPIs are practice only";
 
 export const SCORECARD_KPI_REHEARSAL_INCOMPLETE_BODY =
-  "These metrics reflect a Rehearsal door run on Simulator or Fallback. Numbers stay visible for practice — they are not career-complete sealed-record proof.";
+  "These metrics reflect a Practice review type run on Simulator or Fallback. Numbers stay visible for dry-runs — they are not record-complete sealed-record proof.";
 
-export const SCORECARD_KPI_PRACTICE_TITLE = "Practice — scorecard KPIs are not career proof";
+export const SCORECARD_KPI_PRACTICE_TITLE = "Practice — scorecard KPIs are not sealed-record proof";
 
 export const SCORECARD_KPI_PRACTICE_BODY =
-  "These metrics reflect a Rehearsal door practice run on Real structural execute. Numbers stay visible for rehearsal — they are not sponsor-ready career evidence.";
+  "These metrics reflect a Practice review type run on Real structural execute. Numbers stay visible for rehearsal — they are not sponsor-ready sealed-record evidence.";
 
-export const SCORECARD_KPI_REHEARSAL_SECTION_QUALIFIER = "Rehearsal metrics";
+export const SCORECARD_KPI_REHEARSAL_SECTION_QUALIFIER = "Practice metrics";
 
 export const SCORECARD_KPI_PRACTICE_SECTION_QUALIFIER = "Practice metrics";
 

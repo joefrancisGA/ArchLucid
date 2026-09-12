@@ -229,7 +229,7 @@ describe("RunStatusBadge", () => {
     expect(screen.getByLabelText(/Review status: Needs attention/i)).toBeInTheDocument();
   });
 
-  it("shows Career blocked on Working finalized Career + Simulator (CG-031)", () => {
+  it("shows Sealed record blocked on Working finalized Career + Simulator (CG-031)", () => {
     runStatusVocabularyPassForced.on = true;
     workingDeskMock.value = true;
     effectiveDoorMock.value = "career";
@@ -240,13 +240,13 @@ describe("RunStatusBadge", () => {
       structuralExecutionMode: "Simulator",
     });
 
-    expect(screen.getByLabelText(/Review status: Career blocked/i)).toBeInTheDocument();
-    const pill = container.querySelector('[aria-label="Review status: Career blocked"]');
+    expect(screen.getByLabelText(/Review status: Sealed record blocked/i)).toBeInTheDocument();
+    const pill = container.querySelector('[aria-label="Review status: Sealed record blocked"]');
     expect(pill?.className).not.toContain("bg-[var(--al-status-ready-bg)]");
     expect(pill?.className).toContain("bg-[var(--al-status-blocked-bg)]");
   });
 
-  it("shows Rehearsal incomplete on Working finalized Rehearsal + Simulator (CG-031)", () => {
+  it("shows Practice incomplete on Working finalized Rehearsal + Simulator (CG-031)", () => {
     runStatusVocabularyPassForced.on = true;
     workingDeskMock.value = true;
     effectiveDoorMock.value = "rehearsal";
@@ -257,8 +257,8 @@ describe("RunStatusBadge", () => {
       structuralExecutionMode: "Simulator",
     });
 
-    expect(screen.getByLabelText(/Review status: Rehearsal incomplete/i)).toBeInTheDocument();
-    const pill = container.querySelector('[aria-label="Review status: Rehearsal incomplete"]');
+    expect(screen.getByLabelText(/Review status: Practice incomplete/i)).toBeInTheDocument();
+    const pill = container.querySelector('[aria-label="Review status: Practice incomplete"]');
     expect(pill?.className).not.toContain("bg-[var(--al-status-ready-bg)]");
   });
 

@@ -208,10 +208,10 @@ describe("PilotScorecardPageView", () => {
     expect(screen.queryByTestId("review-scorecard-summary-row")).not.toBeInTheDocument();
   });
 
-  it("shows CG-034 rehearsal honesty strip above KPI grid when stamp is not career-complete", () => {
+  it("shows CG-034 rehearsal honesty strip above KPI grid when stamp is not record-complete", () => {
     scorecardKpiHonestyMock.presentation = {
       cellId: "career-simulator-blocked",
-      title: "Career blocked — scorecard KPIs are not career proof",
+      title: "Sealed record blocked — scorecard KPIs are not sealed-record proof",
       body: "Numbers stay visible for rehearsal.",
       kpiSectionQualifier: "Rehearsal metrics",
     };

@@ -331,8 +331,8 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
   },
   {
     "slug": "career-rehearsal-doors",
-    "title": "Career and Rehearsal doors",
-    "summary": "Working career door and Rehearsal intent — practice in Rehearsal, sealed-record proof in Career. Simulator output is not sponsor proof; career-complete follows the run stamp.",
+    "title": "Record and Practice",
+    "summary": "Working Record review type and Practice intent — dry-runs in Practice, sealed-record proof in Record. Simulator output is not sponsor proof; record-complete follows the run stamp. Search aliases: career door, career-complete, rehearsal.",
     "audience": "operator",
     "sourcePaths": [
     ],

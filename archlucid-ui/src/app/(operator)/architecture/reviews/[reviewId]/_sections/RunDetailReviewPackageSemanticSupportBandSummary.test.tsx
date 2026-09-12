@@ -81,7 +81,7 @@ describe("RunDetailReviewPackageSemanticSupportBandSummary (AS-062)", () => {
     );
 
     expect(screen.getByTestId("run-detail-stamp-semantic-support-band-line")).toHaveTextContent(
-      "Semantic support (decision-grade): Rehearsal — not career support",
+      "Semantic support (decision-grade): Practice — not record support",
     );
     expect(screen.queryByTestId("run-detail-stamp-semantic-support-all-clear")).toBeNull();
     expect(screen.queryByTestId("run-detail-stamp-semantic-support-unsupported-list")).toBeNull();

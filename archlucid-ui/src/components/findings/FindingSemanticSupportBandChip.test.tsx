@@ -72,7 +72,7 @@ describe("FindingSemanticSupportBandChip (AS-061)", () => {
     );
 
     expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent(
-      "Rehearsal — not career support",
+      "Practice — not record support",
     );
     expect(screen.getByTestId("working-finding-semantic-support-band")).toHaveAttribute(
       "data-finding-semantic-support-band-rehearsal",

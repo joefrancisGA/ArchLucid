@@ -9,7 +9,7 @@ export const SYSTEM_NOT_JOB_WHAT_IF_COST_CAP_HEADING = "What-if branch cap (R12)
 
 /** CG-095 / SN-009 — branch quota is not the shell AI budget pill and not the Career/Rehearsal door. */
 export const SYSTEM_NOT_JOB_WHAT_IF_COST_CAP_NOT_BUDGET_PILL =
-  "This cap counts billable what-if branches per parent draft — not the shell AI budget pill and not the Career or Rehearsal door." as const;
+  "This cap counts billable what-if branches per parent draft — not the shell AI budget pill and not the Record or Practice review type." as const;
 
 export const SYSTEM_NOT_JOB_WHAT_IF_COST_CAP_OVER_CAP_BLOCKED =
   "Branch cap reached for this parent draft — you cannot start another full-pipeline what-if from this snapshot. Submit an existing branch or start a new intake." as const;
