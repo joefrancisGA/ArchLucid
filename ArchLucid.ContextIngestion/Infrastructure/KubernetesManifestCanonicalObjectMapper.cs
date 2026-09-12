@@ -230,8 +230,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 && jobTemplate.ValueKind is JsonValueKind.Object
                 && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(jobTemplate, "spec", out JsonElement cronJobSpec)
                 && cronJobSpec.ValueKind is JsonValueKind.Object
-                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(cronJobSpec, "template", out JsonElement cronJobPodTemplate)
-                && cronJobPodTemplate.ValueKind is JsonValueKind.Object
+                && TryGetWorkloadPodTemplate(cronJobSpec, out JsonElement cronJobPodTemplate)
                 && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(cronJobPodTemplate, "spec", out JsonElement cronJobPodSpec))
                 return cronJobPodSpec;
 
