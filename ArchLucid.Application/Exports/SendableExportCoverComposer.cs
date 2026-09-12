@@ -1,8 +1,12 @@
 using System.Text;
 
+using ArchLucid.Application.Findings;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Decisioning.Findings;
 
 namespace ArchLucid.Application.Exports;
 
@@ -14,6 +18,10 @@ public static class SendableExportCoverComposer
     /// <summary>WK-21 / M-172: policy-pack influence boundary mirrored from UI export honesty chip.</summary>
     public const string PolicyPackInfluenceHonestyLine =
         "Pack-mapped findings cite assigned policy rules. Typed engines may surface checklist coverage without pack-parameterized thresholds.";
+
+    /// <summary>AS-058 / TB-1228: Lane B async semantic support honesty mirrored from UI export surfaces.</summary>
+    public const string SemanticSupportBandLaneBAsyncHonestyLine =
+        "Semantic support is async and may lag the sealed review. Lane B scores are not a commit gate.";
 
     public static IReadOnlyList<string> RenderPlainTextLines(CareerExportCoverageHonestyInput input)
     {
@@ -38,6 +46,11 @@ public static class SendableExportCoverComposer
             $"Execution mode: {StructuralExecutionModeLabels.ToDisplayLabel(input.StructuralExecutionMode)}");
 
         lines.Add($"Policy influence: {PolicyPackInfluenceHonestyLine}");
+
+        if (HasUncheckedDecisionGradeSemanticSupportBand(input))
+        {
+            lines.Add($"Semantic support: {SemanticSupportBandLaneBAsyncHonestyLine}");
+        }
 
         return lines;
     }
@@ -80,4 +93,31 @@ public static class SendableExportCoverComposer
             FeasibilityVerdictKind.HardInfeasible => "Hard infeasible",
             _ => kind.ToString(),
         };
+
+    private static bool HasUncheckedDecisionGradeSemanticSupportBand(CareerExportCoverageHonestyInput input)
+    {
+        if (input.FindingsSnapshot?.Findings is not { Count: > 0 } findings)
+        {
+            return false;
+        }
+
+        foreach (Finding finding in findings)
+        {
+            if (!DecisionGradeFindingExportFilter.IsDecisionGradeForExport(finding))
+            {
+                continue;
+            }
+
+            FindingSemanticSupportBand band =
+                FirstValueReportSemanticSupportBandSummary.ResolveDecisionGradeSemanticSupportBand(
+                    finding.SemanticSupportBand);
+
+            if (band == FindingSemanticSupportBand.Unchecked)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

@@ -128,4 +128,52 @@ test.describe(
       page.locator("#artifacts-exports").getByTestId("golden-manifest-markdown-download-button"),
     ).toBeVisible();
   });
+
+  test("Working career gravity honesty on stamp band (CG-046 / CG-076)", async ({ page, request }) => {
+    test.setTimeout(240_000);
+
+    await page.addInitScript(() => {
+      window.localStorage.setItem("archlucid.workspace-mode.v1.personal", "working");
+    });
+
+    await waitForAuthorityBuyerSummaryGoldenManifest(
+      request,
+      DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+      90_000,
+      DEMO_WORKSPACE_A_LIVE_IDS,
+    );
+
+    await openDemoWorkspaceReviewDetailShellReady(
+      page,
+      DEMO_WORKSPACE_A_LIVE_IDS,
+      DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+    );
+
+    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "policies");
+
+    const stampViewport = page.getByTestId("run-detail-review-package-stamp-viewport");
+
+    await expect(stampViewport).toBeVisible({ timeout: 60_000 });
+    await stampViewport.scrollIntoViewIfNeeded();
+
+    await expect(page.getByTestId("run-detail-quality-gate-mode-strip")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("run-detail-stamp-semantic-support-band-summary")).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.getByTestId("run-detail-pre-finalize-honesty-strip-group")).toBeVisible({
+      timeout: 60_000,
+    });
+
+    const simulatorCareerStrip = page.getByTestId("run-detail-pre-finalize-simulator-career-honesty-strip");
+    const rehearsalDoorStrip = page.getByTestId("run-detail-pre-finalize-rehearsal-door-honesty-strip");
+
+    if (await simulatorCareerStrip.isVisible()) {
+      await expect(simulatorCareerStrip).toContainText("Simulator cannot read as career-complete");
+    } else if (await rehearsalDoorStrip.isVisible()) {
+      await expect(rehearsalDoorStrip).toContainText(/rehearsal/i);
+    }
+
+    await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
+    await expect(page.getByTestId("golden-manifest-markdown-download-button")).toBeVisible({ timeout: 60_000 });
+  });
 });

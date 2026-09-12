@@ -9,6 +9,7 @@ import { FindingSeverityConstraintNote } from "@/components/findings/FindingSeve
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
+import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { resolveFindingsQueueNavHref } from "@/lib/findings/finding-evidence-navigation";
 import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
@@ -25,6 +26,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { parseCounterfactualFromPrefixedText } from "@/lib/findings/finding-counterfactual-line";
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
 import type { FindingJobView } from "@/lib/findings/finding-inspect-job-view";
+import { mapInspectPayloadToQuickDecisionFinding } from "@/lib/findings/finding-inspect-job-view";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingDetailWayfinding } from "./FindingDetailWayfinding";
@@ -172,6 +174,11 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
                   classification={resolveFindingInspectExportClassification(inspectPayload)}
                   treatment={resolveInspectTreatment(inspectPayload)}
                   findingId={decodedFindingId}
+                />
+              ) : null}
+              {inspectPayload !== null ? (
+                <FindingSemanticSupportBandChip
+                  finding={mapInspectPayloadToQuickDecisionFinding(inspectPayload)}
                 />
               ) : null}
               {labels.categoryLabel ? <StatusTag kind="neutral" label={labels.categoryLabel} /> : null}

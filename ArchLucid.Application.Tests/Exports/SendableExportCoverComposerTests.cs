@@ -5,6 +5,7 @@ using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 
 using FluentAssertions;
@@ -43,7 +44,31 @@ public sealed class SendableExportCoverComposerTests
         lines.Should().Contain($"Policy influence: {SendableExportCoverComposer.PolicyPackInfluenceHonestyLine}");
     }
 
-    private static CareerExportCoverageHonestyInput CreateInput() =>
+    [Fact]
+    public void RenderPlainTextLines_includes_lane_b_disclaimer_when_unchecked_bands_present()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            findingsSnapshot: new FindingsSnapshot
+            {
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "finding-1",
+                        Classification = FindingClassification.DecisionGradeFinding,
+                        SemanticSupportBand = FindingSemanticSupportBand.Unchecked,
+                    },
+                ],
+            });
+
+        IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(input);
+
+        lines.Should().Contain(
+            $"Semantic support: {SendableExportCoverComposer.SemanticSupportBandLaneBAsyncHonestyLine}");
+    }
+
+    private static CareerExportCoverageHonestyInput CreateInput(
+        FindingsSnapshot? findingsSnapshot = null) =>
         new(
             new SponsorReviewCoverageHonestyContext(
                 RunId: "run-1",
@@ -62,5 +87,6 @@ public sealed class SendableExportCoverComposerTests
             StructuralExecutionMode: StructuralExecutionMode.Simulator,
             IsSampleRun: false,
             RuleSetId: "azure-waf",
-            RuleSetVersion: "2024.1");
+            RuleSetVersion: "2024.1",
+            FindingsSnapshot: findingsSnapshot);
 }
