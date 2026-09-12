@@ -300,10 +300,12 @@ Mock Playwright CI job `ui-playwright-mock-smoke` runs all `e2e/**/*.spec.ts` in
 
 ## TB-184 governance-block explainer (Staging)
 
-`AgentRuntime:ExplainGovernanceBlocks:Enabled` is **true** in `appsettings.Staging.json` so pre-commit governance **409** responses can include optional `blockExplanation` copy. Production remains default-off for cost control.
+`AgentRuntime:ExplainGovernanceBlocks:Enabled` is **true** in `appsettings.Staging.json` so pre-commit governance **409** responses can include optional `blockExplanation` copy. Production remains default-off for cost control. The same flag and `PreCommitGovernanceBlockExplainer` now attach optional `blockExplanation` on readiness `pre_commit_gate` blocks in `FinalizeReadinessService` (readiness path uses a gate-context JSON excerpt instead of a manifest dry-run).
 
 ```bash
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~ExplainGovernanceBlocksHostedAppsettingsTests"
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~PreCommitGovernanceBlockExplanationAttacher|FinalizeReadinessServiceTests"
+cd archlucid-ui && npx vitest run src/components/reviews/FinalizeReadinessBlockList.test.tsx
 ```
 
 ## ConflictException → 409 controller sweep

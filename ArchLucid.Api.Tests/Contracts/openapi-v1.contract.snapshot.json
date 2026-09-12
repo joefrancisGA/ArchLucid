@@ -15011,6 +15011,12 @@
       },
       "FinalizeReadinessBlock": {
         "properties": {
+          "blockExplanation": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "code": {
             "type": "string"
           },
