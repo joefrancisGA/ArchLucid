@@ -13,6 +13,10 @@ import {
   buildCompareClassificationBandDeltaView,
   type CompareClassificationBandDeltaView,
 } from "@/lib/review-quality/compare-classification-band-delta";
+import {
+  buildCompareTreatmentBandDeltaView,
+  type CompareTreatmentBandDeltaView,
+} from "@/lib/review-quality/compare-treatment-band-delta";
 import type { RunSummary } from "@/types/authority";
 
 async function loadCompareRunFindings(runId: string) {
@@ -33,6 +37,7 @@ export function useCompareSemanticSupportBandDelta(input: {
   readonly loading: boolean;
   readonly view: CompareSemanticSupportBandDeltaView | null;
   readonly classificationView: CompareClassificationBandDeltaView | null;
+  readonly treatmentView: CompareTreatmentBandDeltaView | null;
 } {
   const baselineRunId = input.baselineRunId?.trim() ?? "";
   const targetRunId = input.targetRunId?.trim() ?? "";
@@ -54,13 +59,13 @@ export function useCompareSemanticSupportBandDelta(input: {
   });
 
   if (!enabled) {
-    return { loading: false, view: null, classificationView: null };
+    return { loading: false, view: null, classificationView: null, treatmentView: null };
   }
 
   const loading = queries.some((query) => query.isPending);
 
   if (loading || queries.some((query) => query.isError)) {
-    return { loading, view: null, classificationView: null };
+    return { loading, view: null, classificationView: null, treatmentView: null };
   }
 
   const baselineFindings = queries[0]?.data ?? [];
@@ -75,6 +80,10 @@ export function useCompareSemanticSupportBandDelta(input: {
       targetExecutionMode: input.targetSummary?.structuralExecutionMode ?? null,
     }),
     classificationView: buildCompareClassificationBandDeltaView({
+      baselineFindings,
+      targetFindings,
+    }),
+    treatmentView: buildCompareTreatmentBandDeltaView({
       baselineFindings,
       targetFindings,
     }),

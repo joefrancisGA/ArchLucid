@@ -14,6 +14,8 @@ describe("formatSendableExportCoverMarkdown", () => {
 
     expect(markdown).toContain("Policy influence");
     expect(markdown).toContain(POLICY_PACK_INFLUENCE_HONESTY_LINE);
+    expect(markdown).toContain("Sponsor ROI");
+    expect(markdown).toContain("do not sum to the headline");
   });
 
   it("includes Lane B disclaimer when decision-grade findings include Unchecked bands", () => {

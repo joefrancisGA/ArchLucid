@@ -4,6 +4,7 @@ import { OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/
 
 import { useCallback, useState } from "react";
 
+import { AuditDualChannelHonestyNote } from "@/components/audit/AuditDualChannelHonestyNote";
 import { principalRolesAllowAuditCsvExport } from "@/app/(operator)/governance/audit/audit-ui-helpers";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
@@ -179,6 +180,9 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
           {auditExportExecuteRankAuditorRoleNote} Requires Auditor or Admin role for CSV export.
         </p>
       ) : null}
+      <div data-testid="run-scoped-audit-export-dual-channel-honesty">
+        <AuditDualChannelHonestyNote className="mt-1" />
+      </div>
     </div>
   );
 }

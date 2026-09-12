@@ -42,6 +42,7 @@ public sealed class SendableExportCoverComposerTests
         lines.Should().ContainSingle(line => line.StartsWith("Gate outcome:", StringComparison.Ordinal));
         lines.Should().Contain("Execution mode: Simulator");
         lines.Should().Contain($"Policy influence: {SendableExportCoverComposer.PolicyPackInfluenceHonestyLine}");
+        lines.Should().Contain($"Sponsor ROI: {SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine}");
     }
 
     [Fact]
