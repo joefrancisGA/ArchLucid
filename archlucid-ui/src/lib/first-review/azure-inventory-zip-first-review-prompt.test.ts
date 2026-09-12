@@ -2,6 +2,7 @@ import { describe, expect, it, beforeEach } from "vitest";
 
 import {
   buildAzureExtractUploadHref,
+  FIRST_REVIEW_EVIDENCE_ONLY_FAST_PATH_LINE,
   firstReviewAzureInventoryZipPromptSkipStorageKey,
   hasAzureInventoryZipHeldCheckAsk,
   resolveFirstReviewAzureInventoryZipPrompt,
@@ -75,5 +76,9 @@ describe("azure-inventory-zip-first-review-prompt", () => {
     });
 
     expect(resolution.visible).toBe(false);
+  });
+
+  it("keeps evidence-only as an equal-weight first-review path", () => {
+    expect(FIRST_REVIEW_EVIDENCE_ONLY_FAST_PATH_LINE).toMatch(/evidence-only/i);
   });
 });
