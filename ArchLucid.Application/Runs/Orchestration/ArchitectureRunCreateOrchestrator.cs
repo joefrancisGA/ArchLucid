@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Drafts;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Agents;
@@ -56,6 +57,7 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
     IRunStateTransitionService runStateTransitionService,
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
     IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
+    IPriorPackageSemanticMergeService priorPackageSemanticMergeService,
     ArchitectureRunCreateIdempotencyHelper idempotencyHelper,
     ArchitectureRunCreatePersistenceHelper persistenceHelper,
     ArchitectureRunCreatePostCreateHooks postCreateHooks,
@@ -106,6 +108,9 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
     private readonly IWorkspaceSystemNameCollisionGuard _workspaceSystemNameCollisionGuard =
         workspaceSystemNameCollisionGuard ?? throw new ArgumentNullException(nameof(workspaceSystemNameCollisionGuard));
 
+    private readonly IPriorPackageSemanticMergeService _priorPackageSemanticMergeService =
+        priorPackageSemanticMergeService ?? throw new ArgumentNullException(nameof(priorPackageSemanticMergeService));
+
     private readonly ArchitectureRunCreateIdempotencyHelper _idempotencyHelper =
         idempotencyHelper ?? throw new ArgumentNullException(nameof(idempotencyHelper));
 
@@ -121,6 +126,15 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
         ArgumentNullException.ThrowIfNull(request);
 
         QuickStartIntakeRequestEnricher.EnrichIfQuickStart(request);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        if (!string.IsNullOrWhiteSpace(request.PriorRunId))
+        {
+            await _priorPackageSemanticMergeService
+                .MergePriorPackageSemanticsOntoRequestAsync(scope, request, request.PriorRunId, cancellationToken)
+                .ConfigureAwait(false);
+        }
 
         string? documentUrlRejection = await AllowedDocumentUrlPolicy
             .TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync(request.Documents, cancellationToken)
@@ -139,7 +153,6 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
             throw new RequestContentSafetyRejectedException(safety.Reasons);
         }
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Guid? excludeRunId = ArchitectureReviewSourceRunResolver.TryResolveSourceRunId(request);
 
         // ReSharper disable once InvertIf

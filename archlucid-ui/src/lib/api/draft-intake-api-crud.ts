@@ -18,6 +18,37 @@ import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 const DRAFT_BASE = "/v1/architecture/draft";
 
+export type PriorPackageSemanticCountsResponse = {
+  readonly actorCount: number;
+  readonly assumptionCount: number;
+  readonly decisionCount: number;
+  readonly requirementCount: number;
+};
+
+export async function getPriorPackageSemanticCounts(
+  priorRunId: string,
+): Promise<PriorPackageSemanticCountsResponse | null> {
+  const trimmed = priorRunId.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  try {
+    return await apiGetSealedManifestAware<PriorPackageSemanticCountsResponse>(
+      `${DRAFT_BASE}/prior-package-semantics?priorRunId=${encodeURIComponent(trimmed)}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+
+    if (failure.httpStatus === 404) {
+      return null;
+    }
+
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
+  }
+}
+
 /** Default asserted actor so structural admission can pass without a separate actor UI step. */
 export function buildDefaultActorSet(): ActorSet {
   return {
