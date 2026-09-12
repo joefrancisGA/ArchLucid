@@ -27,6 +27,55 @@ public static class CanonicalInfrastructureJsonElementReader
         return false;
     }
 
+    /// <summary>
+    ///     Tries camelCase then snake_case property names (case-insensitive) for exporter JSON variants.
+    /// </summary>
+    public static bool TryGetPropertyIgnoreCaseOrSnakeCase(JsonElement element, string propertyName, out JsonElement value)
+    {
+        if (TryGetPropertyIgnoreCase(element, propertyName, out value))
+            return true;
+
+        string snakeCase = ToSnakeCasePropertyName(propertyName);
+
+        if (!string.Equals(snakeCase, propertyName, StringComparison.Ordinal)
+            && TryGetPropertyIgnoreCase(element, snakeCase, out value))
+            return true;
+
+        value = default;
+
+        return false;
+    }
+
+    private static string ToSnakeCasePropertyName(string propertyName)
+    {
+        if (string.IsNullOrEmpty(propertyName))
+            return propertyName;
+
+        Span<char> buffer = propertyName.Length + 8 <= 128
+            ? stackalloc char[propertyName.Length + 8]
+            : new char[propertyName.Length + 8];
+        int writeIndex = 0;
+
+        for (int i = 0; i < propertyName.Length; i++)
+        {
+            char c = propertyName[i];
+
+            if (char.IsUpper(c))
+            {
+                if (writeIndex > 0)
+                    buffer[writeIndex++] = '_';
+
+                buffer[writeIndex++] = char.ToLowerInvariant(c);
+            }
+            else
+            {
+                buffer[writeIndex++] = c;
+            }
+        }
+
+        return new string(buffer[..writeIndex]);
+    }
+
     public static string? ReadTopLevelString(JsonElement resource, string propertyName)
     {
         if (!TryGetPropertyIgnoreCase(resource, propertyName, out JsonElement value) || value.ValueKind is not JsonValueKind.String)

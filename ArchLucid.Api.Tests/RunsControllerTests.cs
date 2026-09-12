@@ -12,6 +12,7 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Async;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Query;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.TestSupport.SealedManifest;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Operations;
@@ -19,6 +20,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.Manifest;
@@ -753,6 +755,30 @@ public sealed class RunsControllerTests
         MvcProblemDetails details = problem.Value.Should().BeOfType<MvcProblemDetails>().Subject;
         details.Type.Should().Be(ProblemTypes.BusinessRuleViolation);
         details.Detail.Should().Be("LLM timeout");
+    }
+
+    [Fact]
+    public async Task PutAssumptionAcknowledgement_returns_bad_request_when_assumption_id_contains_invalid_surrogate()
+    {
+        Mock<IRunAssumptionAcknowledgementService> acknowledgementService = new();
+        RunsController controller = CreateController();
+
+        IActionResult action = await controller.PutAssumptionAcknowledgement(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            new PutRunAssumptionAcknowledgementRequest { AcknowledgedAssumptionIds = ["\uD800"] },
+            acknowledgementService.Object,
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        acknowledgementService.Verify(
+            static s => s.PutAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     private static RunsController CreateController(

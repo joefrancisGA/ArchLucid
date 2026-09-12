@@ -2,6 +2,7 @@ using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance.Coverage;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -64,6 +65,20 @@ public sealed partial class RunCoverageController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (request.Entries is not null)
+        {
+            foreach (RunCoverageAcknowledgementEntryRequest row in request.Entries)
+            {
+                if (row.ExclusionReason is not null
+                    && DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(row.ExclusionReason))
+                {
+                    return this.BadRequestProblem(
+                        $"ExclusionReason must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                        ProblemTypes.ValidationFailed);
+                }
+            }
+        }
+
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
@@ -120,6 +135,14 @@ public sealed partial class RunCoverageController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (request.ExclusionReason is not null
+            && DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(request.ExclusionReason))
+        {
+            return this.BadRequestProblem(
+                $"ExclusionReason must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         try
         {
