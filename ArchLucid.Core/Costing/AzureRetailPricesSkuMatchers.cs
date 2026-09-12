@@ -111,6 +111,7 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return ContainsMinuteWordToken(trimmed)
             || ContainsSlashMinToken(trimmed)
+            || ContainsSlashMinsToken(trimmed)
             || string.Equals(trimmed, "min", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mins", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "minute", StringComparison.OrdinalIgnoreCase)
@@ -142,6 +143,28 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterMin;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashMinsToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/mins", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterMins = index + 5;
+
+            if (afterMins >= trimmed.Length || !char.IsLetter(trimmed[afterMins]))
+                return true;
+
+            index = afterMins;
         }
 
         return false;
