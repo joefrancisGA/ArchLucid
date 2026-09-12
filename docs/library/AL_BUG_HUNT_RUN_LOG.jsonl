@@ -2488,3 +2488,4 @@
 {"at":"2026-09-12T20:10:19.1477797Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-12T20:10:45.613084Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only"}
 {"at":"2026-09-12T20:11:05.7062313Z","zoneId":"identity-provider-config","outcome":"seed-only"}
+{"at":"2026-09-12T20:11:30.6916216Z","zoneId":"api-key-auth","outcome":"seed-only"}
