@@ -3643,7 +3643,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -3691,6 +3691,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-08 seed hunt #1354 (hit): seeded post-backoff cancel gap before durable `SendMessageAsync`; fixed third cancel re-read; 92 unit job-queue tests passed.
 
+
+2026-09-12 seed hunt #1924 (seed-only): reseeded host-core-jobs; scoped hosted/job tests passed; no new hunt-ready defect proven this pass.
 ---
 
 ## Zone: itsm-inbound-webhooks
