@@ -2332,13 +2332,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-12 seed hunt #2077 (seed-only): reseeded review-recurrence; 47 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
 
