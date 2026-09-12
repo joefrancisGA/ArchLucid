@@ -9651,7 +9651,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -9757,6 +9757,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-11 seed hunt #1748 (seed→hit): reseeded archlucid-contracts; proved unknown sourceAgent string silent default; 20 scoped `ArchitectureFindingJsonConverter` tests passed.
 
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
+
+2026-09-12 seed hunt #1870 (seed-only): reseeded core-explanation-json; scoped tests passed; no hunt-ready defect proven this pass.
 
 ---
 
