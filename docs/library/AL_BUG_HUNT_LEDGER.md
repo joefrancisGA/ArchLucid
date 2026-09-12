@@ -4350,7 +4350,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -4387,6 +4387,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 thorough hunt #587: proved TopK service/API contract mismatch; cheap-disproved graph-RAG rerank undo and in-memory eviction as intentional design.
 
+
+2026-09-12 seed hunt #1923 (seed-only): reseeded retrieval; scoped retrieval/indexing tests passed; no new hunt-ready defect proven this pass.
 ---
 
 ## Zone: ui-oidc
