@@ -16932,6 +16932,9 @@
             },
             "type": "array"
           },
+          "diagramSemantics": {
+            "$ref": "#/components/schemas/ManifestDiagramSemanticOverlay"
+          },
           "governance": {
             "$ref": "#/components/schemas/ManifestGovernance"
           },
@@ -20578,6 +20581,35 @@
           },
           "manifestVersion": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ManifestDiagramSemanticOverlay": {
+        "properties": {
+          "actors": {
+            "items": {
+              "$ref": "#/components/schemas/ActorDescriptor"
+            },
+            "type": "array"
+          },
+          "decisionLabels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "requirementLabels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "trustBoundaryLabels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -85649,6 +85681,23 @@
             "schema": {
               "default": "none",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "includeSemanticOverlay",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "semanticOverlayMaxNodes",
+            "schema": {
+              "default": 12,
+              "format": "int32",
+              "type": "integer"
             }
           },
           {

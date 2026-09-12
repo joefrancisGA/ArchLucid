@@ -35000,6 +35000,8 @@ export interface paths {
                     includeRuntimePlatform?: boolean;
                     relationshipLabels?: string;
                     groupBy?: string;
+                    includeSemanticOverlay?: boolean;
+                    semanticOverlayMaxNodes?: number;
                 };
                 header?: {
                     /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */

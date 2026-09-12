@@ -451,6 +451,24 @@ dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2350_pri
 cd archlucid-ui && npm run test -- second-review-prior-package
 ```
 
+## TB-2351 manifest Mermaid semantic overlay
+
+Manifest diagram v2 and markdown export enrich topology Mermaid with actor, trust-boundary, requirement, and decision subgraphs sourced from `GoldenManifest.DiagramSemantics`. Topology-only diagrams remain available via `includeSemanticOverlay=false`.
+
+| Layer | Behavior |
+|-------|----------|
+| **Projection** | `AuthorityCommitProjectionBuilder.MapDiagramSemantics` copies manifest decisions/requirements/constraints plus request draft actors into `DiagramSemantics`. |
+| **Diagram** | `ManifestDiagramService` emits semantic subgraphs and dotted links from requirements to the first topology node. |
+| **API** | `GET .../diagram/v2?includeSemanticOverlay=true`; export/bundle use enriched diagrams by default. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~ManifestDiagramService"
+dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~AuthorityCommitProjectionBuilder"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2351_manifest_diagram"
+```
+
 
 ## ConflictException → 409 controller sweep
 
