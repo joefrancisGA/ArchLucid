@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   resolveSystemNotJobCloneFromSnapshotConfirmCopy,
-  resolveSystemNotJobCloneFromSnapshotFullRunCostSentence,
   SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DESK_CTA_LABEL,
   SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DOC_ANCHOR,
   SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_SPAWN_LOCK_DOM_TEST_ID,
@@ -17,30 +16,25 @@ describe("SN-008 clone-from-snapshot working path", () => {
     expect(SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DESK_CTA_LABEL).toBe("New version (clone)");
   });
 
-  it("names Rehearsal stamp, CG door rules, and full-run cost in confirm copy", () => {
+  it("names Rehearsal stamp, CG door rules, and SN-009 cap pointer in confirm copy", () => {
     const copy = resolveSystemNotJobCloneFromSnapshotConfirmCopy({
       effectiveDoor: "rehearsal",
-      quotaSummary: null,
     });
 
     expect(copy.title).toBe("Start new version from snapshot?");
     expect(copy.description).toContain("Rehearsal");
     expect(copy.description).toContain("CG door rules");
     expect(copy.description).toContain("ADR 0092");
-    expect(copy.description).toContain(resolveSystemNotJobCloneFromSnapshotFullRunCostSentence());
+    expect(copy.description).toContain("what-if branch cap");
     expect(copy.description).toContain("parent snapshot");
   });
 
-  it("prefers branch quota summary when provided", () => {
-    const quotaSummary = "Branches used: 1/3 · 2 remaining · each submit runs one billable architecture package (full pipeline; ~$4.50 estimated AI spend).";
+  it("names Career door in confirm copy when selected", () => {
     const copy = resolveSystemNotJobCloneFromSnapshotConfirmCopy({
       effectiveDoor: "career",
-      quotaSummary,
     });
 
     expect(copy.description).toContain("Career");
-    expect(copy.description).toContain(quotaSummary);
-    expect(copy.description).not.toContain(resolveSystemNotJobCloneFromSnapshotFullRunCostSentence());
   });
 
   it("anchors spawn-lock palette discovery test id", () => {

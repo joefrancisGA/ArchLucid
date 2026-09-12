@@ -35,11 +35,10 @@ vi.mock("@/hooks/use-effective-working-career-rehearsal-door", () => ({
   }),
 }));
 
+const useDraftBranchQuotaQuery = vi.fn();
+
 vi.mock("@/hooks/use-draft-branch-quota-query", () => ({
-  useDraftBranchQuotaQuery: () => ({
-    data: undefined,
-    isLoading: false,
-  }),
+  useDraftBranchQuotaQuery: (...args: unknown[]) => useDraftBranchQuotaQuery(...args),
 }));
 
 describe("architecture-draft-clone-snapshot", () => {
@@ -47,6 +46,18 @@ describe("architecture-draft-clone-snapshot", () => {
     cloneDraftSnapshot.mockReset();
     push.mockReset();
     upsertArchitectureDraftRegistryEntry.mockReset();
+    useDraftBranchQuotaQuery.mockReturnValue({
+      data: {
+        draftId: "draft-source-001",
+        existingBranchCount: 0,
+        maxBranchesPerParent: 3,
+        remainingBranches: 3,
+        canBranch: true,
+        estimatedBranchRunCostUsd: 4.5,
+      },
+      isLoading: false,
+      isError: false,
+    });
   });
 
   it("keeps the post-spawn ack helper disabled", () => {
@@ -82,11 +93,43 @@ describe("architecture-draft-clone-snapshot", () => {
     expect(screen.getByTestId("architecture-draft-clone-snapshot-confirm")).toBeInTheDocument();
     expect(cloneDraftSnapshot).not.toHaveBeenCalled();
 
+    expect(screen.getByTestId("architecture-what-if-cost-cap-chrome")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-what-if-cost-cap-not-budget-pill")).toBeInTheDocument();
+
     fireEvent.click(screen.getByRole("button", { name: "Start new version" }));
 
     await waitFor(() => {
       expect(cloneDraftSnapshot).toHaveBeenCalledWith("draft-source-001");
     });
+  });
+
+  it("SN-009: disables confirm when branch cap is exhausted (TB-2005)", async () => {
+    useDraftBranchQuotaQuery.mockReturnValue({
+      data: {
+        draftId: "draft-source-001",
+        existingBranchCount: 3,
+        maxBranchesPerParent: 3,
+        remainingBranches: 0,
+        canBranch: false,
+        estimatedBranchRunCostUsd: 4.5,
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(
+      <ArchitectureDraftCloneSnapshotControl
+        draftId="draft-source-001"
+        parentArchitectureId="architecture-identity-001"
+        spawnLockedDeskAction
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId(SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_SPAWN_LOCK_DOM_TEST_ID));
+
+    expect(screen.getByTestId("architecture-what-if-cost-cap-over-cap")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Start new version" })).toBeDisabled();
+    expect(cloneDraftSnapshot).not.toHaveBeenCalled();
   });
 
   it("AO-36: navigates to nested draft under parent architecture after clone without confirm", async () => {

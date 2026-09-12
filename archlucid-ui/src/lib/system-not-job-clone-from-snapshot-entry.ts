@@ -29,30 +29,24 @@ export type SystemNotJobCloneFromSnapshotConfirmCopy = {
   readonly cancelLabel: string;
 };
 
-/** Full-run cost sentence when branch quota is unavailable (SN-009 adds cap chrome). */
+/** Full-run cost sentence when branch quota is unavailable (fallback only — SN-009 cap chrome preferred). */
 export function resolveSystemNotJobCloneFromSnapshotFullRunCostSentence(): string {
   return `Submitting a full Career review later counts as one billable ${BILLING_ARCHITECTURE_PACKAGE_OVERAGE_UNIT_LABEL} (full pipeline run).`;
 }
 
 /**
- * SN-008 confirm copy: Rehearsal-stamped architecture sketch (ADR 0092), inherits CG door rules,
- * honest about billable full pipeline if the operator later executes Career.
+ * SN-008 confirm copy: Rehearsal-stamped architecture sketch (ADR 0092), inherits CG door rules.
+ * R12 branch cap honesty is rendered by SN-009 cost-cap chrome in the confirm dialog.
  */
 export function resolveSystemNotJobCloneFromSnapshotConfirmCopy(args: {
   readonly effectiveDoor: WorkingCareerRehearsalDoorId;
-  readonly quotaSummary?: string | null;
 }): SystemNotJobCloneFromSnapshotConfirmCopy {
   const doorLabel = labelForWorkingCareerRehearsalDoor(args.effectiveDoor);
-  const quotaSummary = args.quotaSummary?.trim() ?? "";
-  const costLine =
-    quotaSummary.length > 0
-      ? quotaSummary
-      : resolveSystemNotJobCloneFromSnapshotFullRunCostSentence();
 
   const description = [
     "Creates a new editable draft under this architecture — the legal new version after spawn lock. The parent snapshot and linked review stay sealed.",
     `The clone stays ${doorLabel}-stamped as an architecture sketch (ADR 0092) until you explicitly execute a Career review. CG door rules apply to the new draft.`,
-    costLine,
+    "Review the what-if branch cap below before you continue — a later full-pipeline submit is billable under R12.",
   ].join(" ");
 
   return {
