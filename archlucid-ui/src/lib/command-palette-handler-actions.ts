@@ -1,5 +1,9 @@
 import {
-  isCommandPaletteCloneFromSnapshotAvailable,
+  resolveSystemNotJobPaletteCloneNewVersionVisible,
+  SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_EVENT,
+  SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_HANDLER,
+} from "@/lib/system-not-job-palette-clone-new-version";
+import {
   isCommandPaletteExtractUploadCopyQuickStartAvailable,
   isCommandPaletteExtractUploadFocusAvailable,
   isCommandPaletteFinalizeReviewAvailable,
@@ -30,8 +34,7 @@ export const COMMAND_PALETTE_ROOM_ELICITATION_EVENT = "archlucid-command-palette
 export const COMMAND_PALETTE_EXTRACT_UPLOAD_FOCUS_EVENT = "archlucid-command-palette-extract-upload-focus";
 export const COMMAND_PALETTE_EXTRACT_UPLOAD_COPY_QUICK_START_EVENT =
   "archlucid-command-palette-extract-upload-copy-quick-start";
-export const COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT =
-  "archlucid-command-palette-clone-from-snapshot";
+export const COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT = SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_EVENT;
 
 export type CommandPaletteHandlerActionId =
   | "action-save-draft"
@@ -145,11 +148,10 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
       isExtractUploadSettingsRoutePath(pathname) && isCommandPaletteExtractUploadCopyQuickStartAvailable(),
   },
   {
-    id: "action-clone-from-snapshot",
-    label: "New version (clone)",
-    searchValue: "action clone snapshot spawn locked new version architecture sketch",
-    isAvailable: (pathname) =>
-      isArchitectureDraftWorkPath(pathname) && isCommandPaletteCloneFromSnapshotAvailable(),
+    id: SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_HANDLER.id,
+    label: SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_HANDLER.label,
+    searchValue: SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_HANDLER.searchValue,
+    isAvailable: (pathname) => resolveSystemNotJobPaletteCloneNewVersionVisible(pathname),
   },
   {
     id: "action-undo-mutation",

@@ -99,7 +99,7 @@ describe("command-palette-handler-actions (LI-07 / WD-05)", () => {
     expect(seen).toEqual(["finalize"]);
   });
 
-  it("SN-008: shows clone from snapshot only on architecture routes with a visible spawn-locked CTA", () => {
+  it("SN-033: shows clone from snapshot only on architecture routes with a visible spawn-locked CTA", () => {
     const cloneAction = COMMAND_PALETTE_HANDLER_ACTIONS.find((action) => action.id === "action-clone-from-snapshot");
 
     expect(cloneAction?.label).toBe("New version (clone)");
