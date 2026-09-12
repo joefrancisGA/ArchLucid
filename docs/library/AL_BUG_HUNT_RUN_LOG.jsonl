@@ -2511,3 +2511,4 @@
 {"at":"2026-09-12T20:23:43.9418265Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
 {"at":"2026-09-12T20:24:06.2358352Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only"}
 {"at":"2026-09-12T20:24:28.2417294Z","zoneId":"ui-claim-discipline-policy","outcome":"seed-only"}
+{"at":"2026-09-12T20:28:19.8536991Z","zoneId":"api-key-auth","outcome":"seed-only"}
