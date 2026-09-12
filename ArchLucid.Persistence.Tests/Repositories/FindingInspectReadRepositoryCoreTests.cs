@@ -1535,6 +1535,30 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void ResolveInspectSemanticSupportBand_prefers_overlay_over_typed_payload()
+    {
+        JsonElement typed = JsonSerializer.SerializeToElement(new { semanticSupportBand = "Unchecked" });
+
+        FindingSemanticSupportBand? band = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(
+            "Supported",
+            typed);
+
+        band.Should().Be(FindingSemanticSupportBand.Supported);
+    }
+
+    [Fact]
+    public void ResolveInspectSemanticSupportBand_falls_back_to_typed_payload()
+    {
+        JsonElement typed = JsonSerializer.SerializeToElement(new { semanticSupportBand = "Unsupported" });
+
+        FindingSemanticSupportBand? band = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(
+            null,
+            typed);
+
+        band.Should().Be(FindingSemanticSupportBand.Unsupported);
+    }
+
+    [Fact]
     public void MapDispositionPointerProjection_converts_local_revisit_due_to_utc_offset()
     {
         DateTime local = new(2026, 11, 1, 0, 0, 0, DateTimeKind.Local);
@@ -2767,5 +2791,37 @@ public sealed class FindingInspectReadRepositoryCoreTests
 
         ruleId.Should().Be("cost-guardrail");
         ruleName.Should().Be("cost-guardrail");
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_prefers_relational_storage_over_typed_payload()
+    {
+        JsonElement? typed = JsonSerializer.SerializeToElement(new { classification = "ChecklistCoverage" });
+
+        FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(
+            (byte)FindingClassification.DecisionGradeFinding,
+            typed);
+
+        classification.Should().Be(FindingClassification.DecisionGradeFinding);
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_falls_back_to_typed_payload_when_storage_null()
+    {
+        JsonElement? typed = JsonSerializer.SerializeToElement(new { classification = "ChecklistCoverage" });
+
+        FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed);
+
+        classification.Should().Be(FindingClassification.ChecklistCoverage);
+    }
+
+    [Fact]
+    public void ResolveInspectTreatment_falls_back_to_typed_payload_when_storage_null()
+    {
+        JsonElement? typed = JsonSerializer.SerializeToElement(new { treatment = 1 });
+
+        FindingTreatment? treatment = FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, typed);
+
+        treatment.Should().Be(FindingTreatment.DemoteToChecklist);
     }
 }

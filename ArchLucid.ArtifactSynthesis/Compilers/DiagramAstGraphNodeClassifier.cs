@@ -78,6 +78,25 @@ internal static class DiagramAstGraphNodeClassifier
             || string.Equals(node.SourceType, "azure-inventory-snapshot", StringComparison.OrdinalIgnoreCase);
     }
 
+    public static Guid? ReadCloudResourceId(GraphNode node)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+
+        if (node.Properties != null
+            && node.Properties.TryGetValue("cloudResourceId", out string? propertyValue)
+            && Guid.TryParse(propertyValue, out Guid propertyId))
+        {
+            return propertyId;
+        }
+
+        if (Guid.TryParse(node.NodeId, out Guid nodeId))
+        {
+            return nodeId;
+        }
+
+        return null;
+    }
+
     public static bool IsExecutiveSummaryNode(GraphNode node)
     {
         string armType = ReadArmType(node);

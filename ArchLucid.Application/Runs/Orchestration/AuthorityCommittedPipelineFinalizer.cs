@@ -121,6 +121,7 @@ public sealed class AuthorityCommittedPipelineFinalizer(
             _authorityQueryService,
             _manifestHashService,
             ct);
+        IntegrationEventCareerPostureFields careerPosture = IntegrationEventCareerHonestyPresenter.Resolve(run);
         object integrationPayload = new
         {
             schemaVersion = 1,
@@ -132,7 +133,10 @@ public sealed class AuthorityCommittedPipelineFinalizer(
             projectId = scope.ProjectId,
             previousRunId,
             description = run.Description,
-            findings = findingLinks
+            findings = findingLinks,
+            structuralExecutionMode = careerPosture.StructuralExecutionMode,
+            workingCareerRehearsalDoor = careerPosture.WorkingCareerRehearsalDoor,
+            careerComplete = careerPosture.CareerComplete
         };
 
         await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(

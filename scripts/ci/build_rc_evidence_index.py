@@ -22,6 +22,8 @@ _CANONICAL_ROWS: tuple[tuple[str, str, str, bool], ...] = (
     ("OpenAPI snapshot", "openapi-v1.json", "Contract snapshot for RC", False),
     ("Release readiness checks", "release-readiness-index.json", "Unified readiness rollup", True),
     ("Release confidence rollup", "release-confidence-rollup.json", "Validation lane synthesis", True),
+    ("Ship gate evidence", "ship-gate-evidence.json", "Release-smoke first-review witness (Gate 1)", True),
+    ("Offline faithfulness nightly warn", "faithfulness-nightly-warn-status.json", "G-FAITH-01 async quality scaffold", False),
     ("Real-mode AI evidence", "real-llm-evidence-gate.json", "Owner-approved real AOAI gate", True),
     ("Real-mode claim gate", "real-mode-claim-gate.json", "Claim wording boundary for RC", True),
     ("RC go/no-go verdict", "rc-go-no-go-verdict.json", "Machine-readable RC signoff", True),
@@ -61,9 +63,9 @@ def _normalize_verdict(raw: str | None, *, sponsor_critical: bool) -> str:
 
 
 def _artifact_verdict(bundle_dir: Path, artifact: str, sponsor_critical: bool) -> tuple[str, str]:
-    path = bundle_dir / artifact
+    path = _resolve_bundle_artifact_path(bundle_dir, artifact)
 
-    if not path.is_file():
+    if path is None or not path.is_file():
         return ("NOT_RUN", "artifact not attached")
 
     payload = load_json(path)
@@ -101,6 +103,29 @@ def _real_mode_verdict(bundle_dir: Path) -> tuple[str, str]:
         return ("NOT_RUN", "real-llm-evidence-gate.json missing")
 
     return (_normalize_verdict(str(status), sponsor_critical=True), f"realMode={status}")
+
+
+def _resolve_bundle_artifact_path(bundle_dir: Path, artifact: str) -> Path | None:
+    candidates = [bundle_dir / artifact]
+
+    if artifact == "ship-gate-evidence.json":
+        candidates.extend(
+            [
+                bundle_dir / "artifacts" / "ship-gate-evidence" / "ship-gate-evidence.json",
+            ]
+        )
+        ship_gate_dir = bundle_dir / "artifacts" / "ship-gate-evidence"
+        if ship_gate_dir.is_dir():
+            candidates.extend(sorted(ship_gate_dir.glob("*/ship-gate-evidence.json")))
+
+    if artifact == "faithfulness-nightly-warn-status.json":
+        candidates.append(Path(repo_root()) / "docs" / "quality" / "faithfulness-nightly-warn-status.json")
+
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+
+    return None
 
 
 def build_index(root: Path, bundle_dir: Path) -> dict[str, Any]:

@@ -124,6 +124,8 @@ public sealed partial class ArchitectureReviewPdfBuilder
                 }
             }
 
+            ArchitectureReviewBoardSendableExportCoverRenderer.AppendPdfCover(column, model);
+
             column.Item().Height(22);
 
             column.Item().Text($"Review ID: {model.ReviewId:D}").FontSize(8).FontColor(Colors.Grey.Darken2);

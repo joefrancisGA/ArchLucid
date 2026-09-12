@@ -37,6 +37,10 @@ public sealed class SupportBundleTriageIndexDocument
     [JsonPropertyName("structuralExecutionModeLabel")]
     public string? StructuralExecutionModeLabel { get; init; }
 
+    /// <summary>CG-092 — CG-019 execute door stamp summary when <c>--run-id</c> is supplied (no secrets).</summary>
+    [JsonPropertyName("careerPosture")]
+    public SupportBundleTriageCareerPostureSection? CareerPosture { get; init; }
+
     [JsonPropertyName("latestFailedGateHint")]
     public string? LatestFailedGateHint { get; init; }
 
@@ -81,6 +85,26 @@ public sealed class SupportBundleTriageRunSection
 
     [JsonPropertyName("otelTraceId")]
     public string? OtelTraceId { get; init; }
+
+    /// <summary>CG-019 stamp capture time (UTC ISO-8601). Null on legacy rows that never executed.</summary>
+    [JsonPropertyName("executePostureCapturedUtc")]
+    public string? ExecutePostureCapturedUtc { get; init; }
+}
+
+/// <summary>CG-092 — redacted execute posture for on-call triage (mode + door only).</summary>
+public sealed class SupportBundleTriageCareerPostureSection
+{
+    [JsonPropertyName("workingCareerRehearsalDoor")]
+    public string WorkingCareerRehearsalDoor { get; init; } = string.Empty;
+
+    [JsonPropertyName("careerPostureLabel")]
+    public string CareerPostureLabel { get; init; } = string.Empty;
+
+    [JsonPropertyName("rehearsalIncomplete")]
+    public bool RehearsalIncomplete { get; init; }
+
+    [JsonPropertyName("careerBlocked")]
+    public bool CareerBlocked { get; init; }
 }
 
 public sealed class SupportBundleTriageHealthSection

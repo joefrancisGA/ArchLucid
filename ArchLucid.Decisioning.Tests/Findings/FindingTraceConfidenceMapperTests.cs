@@ -73,4 +73,31 @@ public sealed class FindingTraceConfidenceMapperTests
         rows.Should().ContainSingle();
         rows[0].Classification.Should().Be(FindingClassification.ChecklistCoverage);
     }
+
+    [Fact]
+    public void FromSnapshot_maps_semantic_support_band()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "dg-1",
+                    FindingType = "t",
+                    Category = "c",
+                    EngineType = "e",
+                    Title = "Public endpoint",
+                    Rationale = "r",
+                    Classification = FindingClassification.DecisionGradeFinding,
+                    SemanticSupportBand = FindingSemanticSupportBand.Unchecked,
+                },
+            ],
+        };
+
+        List<FindingTraceConfidenceDto> rows = FindingTraceConfidenceMapper.FromSnapshot(snapshot);
+
+        rows.Should().ContainSingle();
+        rows[0].SemanticSupportBand.Should().Be(FindingSemanticSupportBand.Unchecked);
+    }
 }

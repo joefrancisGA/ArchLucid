@@ -33,6 +33,8 @@ class TestReleaseReadinessEvidenceScript(unittest.TestCase):
         self.assertIn("Strict RC pilot readiness live gate failed", text)
         self.assertIn("pilot-readiness-live-release-gate.json", text)
         self.assertIn("rc-evidence-signoff-bundle.json", text)
+        self.assertIn("faithfulness-nightly-warn-status.json", text)
+        self.assertIn("ship-gate-evidence.json", text)
 
 
 if __name__ == "__main__":

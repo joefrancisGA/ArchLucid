@@ -71,6 +71,56 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_dependency_neighborhood_resolves_seed_from_resource_label()
+    {
+        GraphSnapshot graph = BuildSampleGraph();
+
+        DiagramAst ast = compiler.Compile(
+            graph,
+            DiagramMode.DependencyNeighborhood,
+            new DiagramAstCompileOptions { NeighborhoodSeedNodeId = "core-vnet" });
+
+        ast.Nodes.Select(node => node.Label).Should().BeEquivalentTo(["core-vnet", "app-subnet"]);
+        ast.Nodes.Should().Contain(node => node.SeedNodeId == "vnet-1");
+        renderer.Render(ast).Should().Contain("al-seed=vnet-1");
+    }
+
+    [Fact]
+    public void Compile_dependency_neighborhood_resolves_seed_from_arm_id_when_node_id_is_guid()
+    {
+        Guid cloudResourceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        const string armId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/network-rg/providers/Microsoft.Network/virtualNetworks/core-vnet";
+        GraphSnapshot graph = BuildSampleGraph();
+        GraphNode vnet = graph.Nodes.Should().ContainSingle(node => node.NodeId == "vnet-1").Subject;
+        vnet.NodeId = cloudResourceId.ToString("D");
+        vnet.Properties["cloudResourceId"] = cloudResourceId.ToString("D");
+        graph.Edges[0].FromNodeId = vnet.NodeId;
+
+        DiagramAst ast = compiler.Compile(
+            graph,
+            DiagramMode.DependencyNeighborhood,
+            new DiagramAstCompileOptions { NeighborhoodSeedNodeId = armId });
+
+        ast.Nodes.Select(node => node.Label).Should().BeEquivalentTo(["core-vnet", "app-subnet"]);
+        ast.Nodes.Should().Contain(node => node.SeedNodeId == cloudResourceId.ToString("D"));
+        ast.Nodes.Should().Contain(node => node.CloudResourceId == cloudResourceId);
+    }
+
+    [Fact]
+    public void Compile_dependency_neighborhood_unknown_seed_returns_no_nodes()
+    {
+        GraphSnapshot graph = BuildSampleGraph();
+
+        DiagramAst ast = compiler.Compile(
+            graph,
+            DiagramMode.DependencyNeighborhood,
+            new DiagramAstCompileOptions { NeighborhoodSeedNodeId = "missing-resource" });
+
+        ast.Nodes.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Compile_executive_mode_without_graph_edges_emits_layout_edges_and_prunes_vnet_shell_subgraphs()
     {
         GraphSnapshot graph = BuildExecutiveVnetOnlyGraph();

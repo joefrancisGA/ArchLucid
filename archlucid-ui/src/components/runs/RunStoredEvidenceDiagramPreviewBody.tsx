@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState, type ReactElement } from "
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isMermaidDiagramSource, prepareMermaidSvgForResponsiveLayout, sanitizeMermaidRenderId } from "@/lib/help/help-mermaid";
+import { renderMermaidSvgMarkup } from "@/lib/mermaid/mermaid-safe-render";
 import {
   resolveStoredEvidenceDiagramPreviewFormat,
   storedEvidenceDiagramShapeHighlightHonestyMessage,
@@ -55,20 +56,20 @@ export function RunStoredEvidenceDiagramPreviewBody(
       setHighlightApplied(false);
 
       try {
-        const mermaidModule = await import("mermaid");
-        const mermaid = mermaidModule.default;
-
-        mermaid.initialize({
-          startOnLoad: false,
-          theme: dark ? "dark" : "neutral",
-          securityLevel: "strict",
-          fontFamily: "ui-sans-serif, system-ui, sans-serif",
+        const svg = await renderMermaidSvgMarkup(textContent, {
+          renderIdBase: renderId,
+          initialize: (mermaid) => {
+            mermaid.initialize({
+              startOnLoad: false,
+              theme: dark ? "dark" : "neutral",
+              securityLevel: "strict",
+              fontFamily: "ui-sans-serif, system-ui, sans-serif",
+            });
+          },
         });
 
-        const result = await mermaid.render(renderId, textContent.trim());
-
         if (!canceled) {
-          setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));
+          setSvgMarkup(prepareMermaidSvgForResponsiveLayout(svg));
         }
       } catch {
         if (!canceled) {
