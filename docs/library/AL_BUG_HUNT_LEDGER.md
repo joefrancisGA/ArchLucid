@@ -665,13 +665,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-03 — empty `{}` infrastructure declaration objects survived payload materialization
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-12 seed hunt #2006 (seed-only): reseeded authority-pipeline-payload; 14 scoped payload JSON tests passed; no new mechanism-backed hunt-ready rows beyond closed ledger entries.
 
 ### Hypotheses
 
