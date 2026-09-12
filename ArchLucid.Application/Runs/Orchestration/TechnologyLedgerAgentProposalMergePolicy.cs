@@ -45,17 +45,28 @@ public static class TechnologyLedgerAgentProposalMergePolicy
                 continue;
 
             if (TechnologyNamesMatch(existing.TechnologyName, candidate.TechnologyName)
-                && !HasDistinctEvidenceRefs(existing.EvidenceRef, candidate.EvidenceRef))
+                && ShouldTreatAsDuplicateByName(existing.EvidenceRef, candidate.EvidenceRef))
                 return true;
         }
 
         return false;
     }
 
-    private static bool HasDistinctEvidenceRefs(string? left, string? right) =>
-        !string.IsNullOrWhiteSpace(left)
-        && !string.IsNullOrWhiteSpace(right)
-        && !EvidenceRefsMatch(left, right);
+    private static bool HasSubstantiveEvidenceRef(string? value) => !string.IsNullOrWhiteSpace(value);
+
+    private static bool ShouldTreatAsDuplicateByName(string? existingRef, string? candidateRef)
+    {
+        bool existingSubstantive = HasSubstantiveEvidenceRef(existingRef);
+        bool candidateSubstantive = HasSubstantiveEvidenceRef(candidateRef);
+
+        if (!existingSubstantive && candidateSubstantive)
+            return false;
+
+        if (existingSubstantive && candidateSubstantive)
+            return EvidenceRefsMatch(existingRef, candidateRef);
+
+        return true;
+    }
 
     private static bool TechnologyNamesMatch(string left, string right) =>
         string.Equals(NormalizeTechnologyName(left), NormalizeTechnologyName(right), StringComparison.OrdinalIgnoreCase);

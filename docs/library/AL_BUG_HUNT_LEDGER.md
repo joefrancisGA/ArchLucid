@@ -705,16 +705,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 5
-- **bugs-found:** 8
+- **hunts:** 6
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — technology name internal whitespace allowed duplicate assumed rows when evidence ref absent
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — whitespace-only EvidenceRef on existing row blocked distinct grounded agent proposals with the same technology name
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-### Hypotheses
+2026-09-12 thorough hunt #2009 (hit): proved whitespace-only existing EvidenceRef incorrectly triggered name dedupe against distinct grounded candidate refs; fixed with `ShouldTreatAsDuplicateByName`; cheap-disproof closed padded-ref-only delta candidate; 14 scoped TechnologyLedger merge policy tests passed.
 
+- [x] (valid-no-repro) Padded `EvidenceRef` values may still duplicate rows when trimming alone is insufficient — **cheap-disproof 2026-09-12 hunt #2009:** `EvidenceRefsMatch` trims both sides before ordinal-ignore-case compare; regression `Resolve_skips_when_evidence_ref_differs_only_by_outer_whitespace`.
+- [x] (proven) Whitespace-only `EvidenceRef` on an existing row blocked name dedupe for a grounded candidate — **hit 2026-09-12 hunt #2009:** `HasDistinctEvidenceRefs` treated whitespace-only as empty on both sides, so distinct topology proposal refs were skipped when an assumed row stored `"   "`; fixed by `ShouldTreatAsDuplicateByName` so ungrounded existing rows do not suppress grounded candidates; regression `Resolve_keeps_distinct_evidence_ref_when_existing_row_has_whitespace_only_ref`.
 - [x] (proven) Duplicate technology names from two agents both survive merge — **hit 2026-08-24:** merge only consulted `Chosen` rows; repeated Assumed proposals with same role/provider/name all inserted; regressions in `Resolve_skips_duplicate_assumed_when_no_chosen_exists` / `Resolve_skips_duplicate_assumed_when_chosen_provider_differs`
 - [x] (proven) Merge policy ignores a seeded ledger row when the proposal uses a different casing — **hit 2026-08-24:** `TechnologyName` compared with ordinal case; `postgresql` vs `PostgreSQL` duplicated; regression in `Resolve_treats_technology_name_case_insensitively`
 - [x] (proven) Topology re-seed with same `EvidenceRef` duplicated agent rows — **hit 2026-08-24:** merge ignored stable `agentTopologyProposal:*` refs; regression in `Resolve_skips_when_evidence_ref_already_present`
@@ -724,8 +726,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Inventory `Chosen` row with `CloudProvider.None` suppresses every proposal family — **2026-08-24:** `chosen.ProviderFamily == candidate.ProviderFamily` uses enum equality; `None` only blocks other `None` proposals, not Aws/Azure/Gcp candidates (`Resolve_inserts_assumed_on_provider_conflict`).
 - [x] (proven) Duplicate agent rows when `EvidenceRef` differed only by casing — **hit 2026-08-25:** `EvidenceRefsMatch` used ordinal case-sensitive compare; topology re-seed with case-variant proposal ids duplicated rows; fixed with `OrdinalIgnoreCase`; regression in `Resolve_skips_when_evidence_ref_matches_case_insensitively`
 - [x] (proven) `TechnologyNamesMatch` ignored internal whitespace — **hit 2026-08-26:** `"Amazon ECS"` vs `"Amazon  ECS"` with empty candidate `EvidenceRef` inserted a duplicate assumed row; fixed by collapsing internal whitespace before case-insensitive compare (`Resolve_skips_when_technology_name_differs_only_by_internal_whitespace`)
-- [ ] (candidate) Padded `EvidenceRef` values may still duplicate rows when trimming alone is insufficient — cheap-disproof: `EvidenceRefsMatch` already trims both sides; verify with padded-ref delta test before promoting.
-- [ ] (candidate) Whitespace-only `EvidenceRef` on an existing row may block name dedupe for a grounded candidate — existing row with `"   "` ref and matching technology name may incorrectly skip or admit depending on `HasDistinctEvidenceRefs` empty-ref branch.
 
 ---
 
