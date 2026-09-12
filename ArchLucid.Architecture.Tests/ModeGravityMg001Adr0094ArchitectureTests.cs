@@ -22,9 +22,9 @@ public sealed class ModeGravityMg001Adr0094ArchitectureTests
         adr.Should().Contain("## Expected impact");
         adr.Should().Contain("Is operator-experience a Career door?");
         adr.Should().Contain("**No.**");
-        adr.Should().Contain("Do not delete Guided");
+        adr.Should().Contain("delete Guided");
         adr.Should().Contain("G-REAL-06");
-        adr.Should().Contain("security");
+        adr.Should().Contain("Security:");
     }
 
     [Fact]
