@@ -3457,7 +3457,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3465,6 +3465,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 2026-09-12 seed hunt #2163 (seed-only): reseeded identity-provider-config with `-Hint identity-provider-config`; no new hunt-ready rows.
+2026-09-12 seed hunt #2163 (seed-only): reseeded identity-provider-config with `-Hint identity-provider-config`; no new hunt-ready rows.
+
 
 
 2026-09-12 seed hunt #2120 (seed-only): reseeded identity-provider-config with `-Refresh`; no new hunt-ready rows.
@@ -11040,7 +11042,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -11061,6 +11063,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-12 seed hunt #2052 (seed-only): reseeded notifications-pipeline; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2046 (seed-only): reseeded notifications-pipeline; no new hunt-ready rows.
+2026-09-12 seed hunt #2180 (seed-only): reseeded notifications-pipeline with `-Hint notifications`; no new hunt-ready rows.
 
 ### Hypotheses
 
