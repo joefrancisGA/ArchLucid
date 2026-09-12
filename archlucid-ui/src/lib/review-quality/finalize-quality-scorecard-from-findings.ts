@@ -2,6 +2,7 @@ import {
   classifyReviewFindingJobView,
   isApprovedDecisionFinding,
 } from "@/lib/findings/finding-job-view";
+import { isRequiredCapabilityCoverageReviewFinding } from "@/lib/review-quality/finding-quality-signals";
 import { humanReviewStatusDisplay, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
@@ -117,6 +118,12 @@ export function deriveFinalizeQualityScorecardInput(
   const uncoveredMandatoryRequirementCount = findings.filter(
     (finding) => !finding.isMuted && classifyReviewFindingJobView(finding) === "coverage-gaps",
   ).length;
+  const missingRequiredCapabilityCount = findings.filter(
+    (finding) =>
+      !finding.isMuted
+      && isRequiredCapabilityCoverageReviewFinding(finding)
+      && !isFinalizeResolvedReviewFinding(finding),
+  ).length;
   const derivedBlockingFindingCount = findings.filter(isUnresolvedBlockingReviewFinding).length;
   let unresolvedHighSeverityDispositionCount = 0;
 
@@ -133,6 +140,7 @@ export function deriveFinalizeQualityScorecardInput(
     unverifiedAssumptionCount: assumptions.length,
     unacknowledgedExistentialAssumptionCount,
     uncoveredMandatoryRequirementCount,
+    missingRequiredCapabilityCount,
     openDeferredCount,
     openContradictionCount,
     openCannotDetermineCount,

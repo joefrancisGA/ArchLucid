@@ -4352,6 +4352,8 @@ export interface components {
             /** Format: int32 */
             lowExtractionConfidenceCount?: number;
             /** Format: int32 */
+            missingRequiredCapabilityCount?: number;
+            /** Format: int32 */
             openCannotDetermineCount?: number;
             /** Format: int32 */
             openContradictionCount?: number;

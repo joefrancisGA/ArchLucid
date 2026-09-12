@@ -4,6 +4,21 @@ import { resolveFinalizeReadinessBlockAction } from "@/lib/review-quality/finali
 import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 
 describe("resolveFinalizeReadinessBlockAction", () => {
+  it("deep-links required capability scorecard blocks to coverage gaps", () => {
+    const block: FinalizeReadinessBlock = {
+      layer: "scorecard",
+      code: "scorecard",
+      message: "1 required capability lacks topology evidence on the context graph.",
+    };
+
+    const action = resolveFinalizeReadinessBlockAction("run-123", block);
+
+    expect(action).toEqual({
+      href: "/architecture/reviews/run-123?reviewTab=findings&findingJobView=coverage-gaps",
+      label: "Close capability coverage gaps",
+    });
+  });
+
   it("deep-links deferred scorecard blocks to the deferred findings job view", () => {
     const block: FinalizeReadinessBlock = {
       layer: "scorecard",

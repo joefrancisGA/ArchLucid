@@ -168,6 +168,43 @@ export function isContradictionReviewFinding(finding: QuickDecisionFinding): boo
   return textIncludesAny(text, ["contradict", "conflicts with", "opposite conclusion", "diagram vs"]);
 }
 
+function readFindingWireStringProperty(
+  finding: QuickDecisionFinding,
+  propertyKey: string,
+): string | null {
+  try {
+    const parsed: unknown = JSON.parse(finding.aiReasoning.wireJson);
+
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return null;
+    }
+
+    const record = parsed as Record<string, unknown>;
+    const value = record[propertyKey] ?? record[propertyKey.charAt(0).toUpperCase() + propertyKey.slice(1)];
+
+    return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+/** TB-2346: required-capability-coverage engine rows block finalize when quality gate is enabled. */
+export function isRequiredCapabilityCoverageReviewFinding(finding: QuickDecisionFinding): boolean {
+  if (finding.isMuted) {
+    return false;
+  }
+
+  const engineType = readFindingWireStringProperty(finding, "engineType");
+
+  if (engineType?.toLowerCase() === "required-capability-coverage") {
+    return true;
+  }
+
+  const findingType = readFindingWireStringProperty(finding, "findingType");
+
+  return findingType === "RequiredCapabilityCoverageFinding";
+}
+
 /** TB-2308 / TB-2313 / TB-2314: requirement, failure-mode, and data-class coverage gaps. */
 export function isCoverageGapReviewFinding(finding: QuickDecisionFinding): boolean {
   if (finding.isMuted) {

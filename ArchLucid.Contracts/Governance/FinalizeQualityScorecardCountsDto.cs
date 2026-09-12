@@ -56,4 +56,10 @@ public sealed class FinalizeQualityScorecardCountsDto
         get;
         init;
     }
+
+    public int MissingRequiredCapabilityCount
+    {
+        get;
+        init;
+    }
 }

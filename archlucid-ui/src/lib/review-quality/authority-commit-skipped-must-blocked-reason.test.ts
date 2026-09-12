@@ -8,6 +8,7 @@ const BASE_INPUT = {
   unverifiedAssumptionCount: 0,
   unacknowledgedExistentialAssumptionCount: 0,
   uncoveredMandatoryRequirementCount: 0,
+  missingRequiredCapabilityCount: 0,
   openDeferredCount: 0,
   openContradictionCount: 0,
   openCannotDetermineCount: 0,

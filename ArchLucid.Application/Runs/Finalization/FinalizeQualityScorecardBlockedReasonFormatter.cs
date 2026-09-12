@@ -18,6 +18,13 @@ public static class FinalizeQualityScorecardBlockedReasonFormatter
         return $"{count} mandatory requirement{Plural(count)} lack a design decision.";
     }
 
+    public static string MissingRequiredCapabilities(int count)
+    {
+        string verb = count == 1 ? "y lacks" : "ies lack";
+
+        return $"{count} required capabilit{verb} topology evidence on the context graph.";
+    }
+
     public static string OpenCannotDetermine(int count)
     {
         return $"{count} open question{Plural(count)} still need answers before the package is defensible.";
