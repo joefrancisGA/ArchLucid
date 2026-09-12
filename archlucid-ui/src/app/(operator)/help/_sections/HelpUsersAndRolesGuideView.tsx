@@ -4,6 +4,7 @@ import { HelpUsersAndRolesHeaderActions } from "@/app/(operator)/help/_sections/
 import { HelpUsersAndRolesManageAction } from "@/app/(operator)/help/_sections/HelpUsersAndRolesManageAction";
 import { HelpUsersAndRolesSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpUsersAndRolesSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { UsersAndRolesHelpEvidenceOrientationStrip } from "@/components/help/UsersAndRolesHelpEvidenceOrientationStrip";
@@ -234,6 +235,8 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
             <UsersAndRolesActionPanel />
           </div>
         ) : null}
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-users-and-roles" showSsoOptional={false} />
 
         <div className={contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>

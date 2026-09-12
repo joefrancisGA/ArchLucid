@@ -17,6 +17,7 @@ import { HelpBillingAndPlansPageHeader } from "@/app/(operator)/help/_sections/H
 import { HelpBillingAndPlansHeaderActions } from "@/app/(operator)/help/_sections/HelpBillingAndPlansHeaderActions";
 import { HelpBillingAndPlansSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpBillingAndPlansSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { BillingAndPlansHelpClaimDisciplineStrip } from "@/components/help/BillingAndPlansHelpClaimDisciplineStrip";
 import { BillingAndPlansHelpEvidenceOrientationStrip } from "@/components/help/BillingAndPlansHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -260,6 +261,8 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
         )}
 
         {!buyerPolishedShell ? <BillingAndPlansHelpClaimDisciplineStrip /> : null}
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-billing-and-plans" showSsoOptional={false} />
 
         <div
           id={BILLING_HELP_SKIP_TARGET_ID}

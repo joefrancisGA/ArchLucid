@@ -4,6 +4,7 @@ import { HelpConnectionStatusClaimOrientationStrip } from "@/app/(operator)/help
 import { HelpConnectionStatusHeaderActions } from "@/app/(operator)/help/_sections/HelpConnectionStatusHeaderActions";
 import { HelpConnectionStatusWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpConnectionStatusWorkspaceReadinessStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -98,6 +99,8 @@ export function HelpConnectionStatusGuideView(props: HelpConnectionStatusGuideVi
           metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
           actions={<HelpConnectionStatusHeaderActions entry={entry} />}
         />
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-connection-status" showSsoOptional={false} />
 
         <div
           id={CONNECTION_STATUS_HELP_SKIP_TARGET_ID}
