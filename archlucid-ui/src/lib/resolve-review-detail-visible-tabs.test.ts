@@ -123,6 +123,20 @@ describe("resolveReviewDetailVisibleTabs", () => {
     expect(resolved.defaultTabId).toBe("review-package");
   });
 
+  it("SN-022: lands Working analysis-in-progress visits on Overview, not Activity", () => {
+    const resolved = resolveReviewDetailVisibleTabs({
+      manifestId: null,
+      showProgressTracker: true,
+      runCompleted: false,
+      workingDesk: true,
+    });
+
+    expect(resolved.stage).toBe("analysis-in-progress");
+    expect(resolved.defaultTabId).toBe("overview");
+    expect(resolveReviewDetailTabForVisit(null, resolved)).toBe("overview");
+    expect(resolved.visibleTabIds).toContain("activity");
+  });
+
   it("lands Working desk visits on Findings after commit when triage is ready (PC-11)", () => {
     const resolved = resolveReviewDetailVisibleTabs({
       manifestId: "manifest-1",
