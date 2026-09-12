@@ -3180,7 +3180,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 22
+- **hunts:** 31
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3189,6 +3189,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** 0
 
 ### Hypotheses
+2026-09-12 seed hunt #1907 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1906 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1905 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1904 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1903 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1902 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1901 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1900 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1899 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
 2026-09-12 seed hunt #1897 (seed-only): reseeded billing-webhooks; cheap-disproof closed wallet negative-amount guard and replay-guard RememberAsync idempotency; 18 scoped billing webhook unit tests passed (integration HTTP tests skipped — no SQL Server in cloud VM).
 
 - [x] (valid-no-repro) `LlmTenantWalletStripeWebhookProcessor` credits wallet on negative `amountCents` — **cheap-disproof 2026-09-12 seed hunt #1897:** processor forwards signed cents to wallet service; negative amounts are a wallet-layer policy concern, not a silent double-credit path in the webhook processor itself.
