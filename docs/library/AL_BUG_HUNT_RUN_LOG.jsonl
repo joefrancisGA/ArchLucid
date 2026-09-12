@@ -2503,3 +2503,4 @@
 {"at":"2026-09-12T20:21:29.8576775Z","zoneId":"core-explanation-json","outcome":"seed-only"}
 {"at":"2026-09-12T20:21:47.9003428Z","zoneId":"sql-run-repository","outcome":"seed-only"}
 {"at":"2026-09-12T20:22:08.9972193Z","zoneId":"host-composition","outcome":"seed-only"}
+{"at":"2026-09-12T20:22:24.5896014Z","zoneId":"cloud-extractors","outcome":"seed-only"}
