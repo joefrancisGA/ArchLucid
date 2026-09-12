@@ -6,7 +6,7 @@
 
 # System-not-job Composer prompts (SN-001–SN-040)
 
-**Created:** 2026-09-11 · **Status:** in progress (SN-001 shipped ADR **0092**) · **Do not re-run** prior waves except as a numbered leftover.
+**Created:** 2026-09-11 · **Status:** in progress (SN-001 ADR **0092**; SN-002 inventory; SN-003 spawn-lock URL honesty) · **Do not re-run** prior waves except as a numbered leftover.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record.
 
