@@ -2280,3 +2280,4 @@
 {"at":"2026-09-12T05:46:46.8174621Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-12T05:48:28.1339412Z","zoneId":"api-key-auth","outcome":"seed-only"}
 {"at":"2026-09-12T05:50:08.7759174Z","zoneId":"commit-output-integrity","outcome":"seed-only"}
+{"at":"2026-09-12T05:51:23.5512302Z","zoneId":"retrieval","outcome":"hit"}

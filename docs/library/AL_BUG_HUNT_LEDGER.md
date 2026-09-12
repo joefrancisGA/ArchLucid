@@ -455,6 +455,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** yes
 
+2026-09-12 seed hunt #1960 (seed-only): picker repeat after `-Refresh`; no new hunt-ready rows.
+
 2026-09-12 seed hunt #1957 (seed-only): picker repeat after `-Refresh`; re-read selector/evaluator/integrity sources; no new mechanism-backed hunt-ready rows beyond closed ledger entries.
 
 2026-09-12 seed hunt #1953 (seed-only): picker repeat; no new hunt-ready rows.
@@ -4392,11 +4394,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 10
-- **bugs-found:** 14
+- **hunts:** 11
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — zero-chunk reindex left stale vectors and catalog hash
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — Louvain community detection dropped edges when endpoint casing differed from node ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4420,8 +4422,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `GraphRagNeighborExpander.ExpandAsync` re-sorts by vector score after lexical rerank — post-expansion score ordering blends neighbor relevance with seed scores by design; lexical fallback reranker does not mutate `RetrievalHit.Score`, so any downstream score sort reflects vector/neighbor scores rather than overlap rank.
 - [x] (valid-no-repro) `InMemoryVectorIndex.UpsertChunksAsync` silently evicts oldest chunks past `MaxChunks` — documented dev/single-node bound (`MaxChunks = 10_000`); production path uses Azure Search, not in-memory eviction.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — document reindexed to zero chunks (`split.Count == 0`) skipped delete/catalog update, leaving prior vectors searchable and stale catalog `ContentHash` — **hit 2026-09-09 seed hunt #1408:** remove prior vectors and `RecordIndexed` when chunker returns empty; regression `IndexDocumentsAsync_when_content_chunks_to_empty_removes_stale_vectors_and_updates_catalog`.
-- [ ] (candidate) `PolicyPackChunker.Chunk` — `IndexOf(':')` splits on first colon in long control lines, corrupting headers when `controlName` or URLs contain `:` (not reproduced on shipped compliance-rules templates).
-- [ ] (candidate) `LouvainGraphCommunityDetector.DetectCommunities` — ordinal edge endpoint lookup drops edges when casing differs from `GraphNode.NodeId` (community fragmentation; reachability depends on merge/projection casing drift).
+- [x] (invalid) `PolicyPackChunker.Chunk` — `IndexOf(':')` splits on first colon in long control lines — **cheap-disproof 2026-09-12 thorough hunt #1961:** shipped compliance-rules templates place the category delimiter colon before descriptions; no bundled rule line puts `:` inside control names or URLs ahead of the header/body split.
+- [x] (proven) `LouvainGraphCommunityDetector.DetectCommunities` — ordinal edge endpoint lookup drops edges when casing differs from `GraphNode.NodeId` — **hit 2026-09-12 thorough hunt #1961:** `BuildNodeIndex` used `StringComparer.Ordinal` so `node-a`/`NODE-B` edges were ignored and community summarization fragmented; fixed with `OrdinalIgnoreCase`; regression `DetectCommunities_matches_edges_to_nodes_case_insensitively`.
+
+2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 
 2026-09-09 seed hunt #1408 (hit): proved zero-chunk reindex stale-vector gap; seeded policy-pack colon-split and Louvain casing candidates; 344 scoped retrieval/indexing tests passed.
 
