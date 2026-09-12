@@ -1,4 +1,5 @@
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -44,6 +45,8 @@ export function HelpExtractionFidelityGuideView(
       >
         {LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_OVERVIEW}
       </p>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-extraction-fidelity" showSsoOptional={false} />
     </article>
   );
 }
