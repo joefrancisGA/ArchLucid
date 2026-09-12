@@ -67,6 +67,11 @@ export function resolveFinalizeReadinessBlockAction(
         href: buildArchitectureActivityFinalizeReadinessHref(trimmedRunId),
         label: "Acknowledge assumptions",
       };
+    case "evidence_referential_integrity":
+      return {
+        href: buildReviewFindingsTabHref(trimmedRunId),
+        label: "Review finding evidence linkage",
+      };
     case "lifecycle_phase_incomplete":
       return {
         href: buildReviewActivityHref(trimmedRunId),
