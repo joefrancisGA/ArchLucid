@@ -19,6 +19,7 @@ import {
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { findingDerivationFromGovernanceQueueRow } from "@/lib/findings/finding-derivation-sentence";
 import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPolicyTraceabilityBadges";
+import { POLICY_PACK_INFLUENCE_HONESTY_LINE } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
@@ -160,6 +161,9 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
               treatment={row.treatment}
               findingId={row.findingId}
             />
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+              {POLICY_PACK_INFLUENCE_HONESTY_LINE}
+            </p>
           </div>
         ) : null}
         {showInsightDensityScore &&

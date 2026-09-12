@@ -232,7 +232,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
     blockingApprovalCount,
     buyerGoldenPageReady,
     commitBlockedReason,
-    finalizeAssumptionGateApplies,
+    finalizeReadinessEnabled,
     finalizeReadinessBlocks,
     quickDecisionFindings,
     requestAssumptionTexts,
@@ -293,7 +293,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
         showProgressTracker={m.showProgressTracker}
         commitBlockedReason={commitBlockedReason}
         serverFinalizeReadinessBlocks={finalizeReadinessBlocks}
-        finalizeAssumptionGateApplies={finalizeAssumptionGateApplies}
+        finalizeReadinessEnabled={finalizeReadinessEnabled}
         quickDecisionFindings={quickDecisionFindings}
         requestAssumptionTexts={requestAssumptionTexts}
         nextAction={reviewStatusSummary.nextAction}

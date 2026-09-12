@@ -6,6 +6,8 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
@@ -20,6 +22,8 @@ using FluentAssertions;
 using Microsoft.Extensions.Options;
 
 using Moq;
+
+using System.Text.Json;
 
 namespace ArchLucid.Application.Tests.Governance;
 
@@ -199,6 +203,58 @@ public sealed class FinalizeReadinessServiceTests
         aligned.Should().BeSameAs(checklist);
     }
 
+    [Fact]
+    public async Task BuildAsync_blocks_when_evidence_referential_integrity_fails()
+    {
+        string runId = Guid.NewGuid().ToString("D");
+        Guid runGuid = Guid.Parse(runId);
+        Guid pinnedPackageId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        PinnedEvidencePackageRow[] pinRows = [new("unit-proof", pinnedPackageId, DateTime.UtcNow)];
+        string pinJson = JsonSerializer.Serialize(pinRows, ContractJson.CamelCaseIgnoreNullCompact);
+
+        Mock<IRunRepository> runs = CreateRunRepository(
+            runId,
+            runGuid,
+            includeRequest: true,
+            pinnedEvidencePackagePinsJson: pinJson);
+        Mock<IPreFinalizeChecklistService> checklist = CreateChecklistMock(runId);
+
+        FindingsSnapshot findingsSnapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "unit-evidence-integrity-proof",
+                    FindingType = "ArchitectureFinding",
+                    Category = "Security",
+                    EngineType = "unit-proof",
+                    Severity = FindingSeverity.Critical,
+                    Title = "Critical finding without resolvable evidence linkage.",
+                    Rationale = "Pinned for evidence referential integrity unit proof.",
+                    RunIdRef = runId,
+                    Trace = new ExplainabilityTrace(),
+                },
+            ],
+            GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
+        };
+
+        FinalizeReadinessService sut = CreateSut(
+            runs.Object,
+            checklist.Object,
+            transparencyTrail: new TransparencyTrail(),
+            findingsSnapshot: findingsSnapshot);
+
+        FinalizeReadinessResult result = await sut.BuildAsync(runId, cancellationToken: CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.BlockedReasonSummary.Should().Contain("finding evidence referential integrity failed");
+        result.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "evidence_referential_integrity");
+    }
+
     private static Mock<IPreFinalizeChecklistService> CreateChecklistMock(string runId)
     {
         Mock<IPreFinalizeChecklistService> checklist = new();
@@ -221,7 +277,8 @@ public sealed class FinalizeReadinessServiceTests
         string runId,
         Guid runGuid,
         bool includeRequest,
-        Guid? goldenManifestId = null)
+        Guid? goldenManifestId = null,
+        string? pinnedEvidencePackagePinsJson = null)
     {
         Mock<IRunRepository> runs = new();
         runs
@@ -233,6 +290,7 @@ public sealed class FinalizeReadinessServiceTests
                 FindingsSnapshotId = Guid.NewGuid(),
                 GoldenManifestId = goldenManifestId,
                 StructuralExecutionMode = StructuralExecutionMode.Real,
+                PinnedEvidencePackagePinsJson = pinnedEvidencePackagePinsJson,
             });
 
         return runs;
@@ -242,7 +300,8 @@ public sealed class FinalizeReadinessServiceTests
         IRunRepository runRepository,
         IPreFinalizeChecklistService checklistService,
         TransparencyTrail? transparencyTrail,
-        IPreCommitGovernanceGate? preCommitGate = null)
+        IPreCommitGovernanceGate? preCommitGate = null,
+        FindingsSnapshot? findingsSnapshot = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
@@ -264,7 +323,7 @@ public sealed class FinalizeReadinessServiceTests
         Mock<IFindingsSnapshotRepository> snapshots = new();
         snapshots
             .Setup(repository => repository.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FindingsSnapshot
+            .ReturnsAsync(findingsSnapshot ?? new FindingsSnapshot
             {
                 Findings = [],
                 GenerationStatus = FindingsSnapshotGenerationStatus.Complete,

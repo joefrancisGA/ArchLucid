@@ -1,5 +1,6 @@
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { auditExportBlockedReason } from "@/lib/audit/audit-export-blocked-reason";
+import { buildAuditExportCsvHonestyPreambleLines } from "@/lib/audit/audit-export-career-posture";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
@@ -131,7 +132,10 @@ export async function downloadAuditExportCsv(params: {
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
-  const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
+  const blob = new Blob(
+    [`${buildAuditExportCsvHonestyPreambleLines(null).join("\n")}\n\n${text}`],
+    { type: "text/csv;charset=utf-8" },
+  );
   const filename =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ?? "audit-export.csv";
 
