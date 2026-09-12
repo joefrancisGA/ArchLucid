@@ -279,6 +279,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("hpc_cache", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("mobile_network", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("dev_center", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("graph_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("site_recovery", StringComparison.OrdinalIgnoreCase);
     }
 
