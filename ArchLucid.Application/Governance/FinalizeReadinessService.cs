@@ -514,42 +514,6 @@ public sealed class FinalizeReadinessService(
                     + reason,
             });
         }
-
-        IReadOnlyList<string> evidenceIntegrityReasons =
-            FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons(runRecord, findings.Findings);
-
-        if (evidenceIntegrityReasons.Count > 0)
-        {
-            blocks.Add(new FinalizeReadinessBlock
-            {
-                Code = "evidence_referential_integrity",
-                Layer = FinalizeReadinessLayers.Integrity,
-                Message =
-                    "Commit blocked: finding evidence referential integrity failed. "
-                    + string.Join(" ", evidenceIntegrityReasons),
-            });
-        }
-    }
-
-    private static void AppendEvidenceReferentialIntegrityBlock(
-        List<FinalizeReadinessBlock> blocks,
-        RunRecord runRecord,
-        FindingsSnapshot findings)
-    {
-        IReadOnlyList<string> evidenceIntegrityReasons =
-            FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons(runRecord, findings.Findings);
-
-        if (evidenceIntegrityReasons.Count == 0)
-            return;
-
-        blocks.Add(new FinalizeReadinessBlock
-        {
-            Code = "evidence_referential_integrity",
-            Layer = FinalizeReadinessLayers.Integrity,
-            Message =
-                "Commit blocked: finding evidence referential integrity failed. "
-                + string.Join(" ", evidenceIntegrityReasons),
-        });
     }
 
     private static void AppendEvidenceReferentialIntegrityBlock(
