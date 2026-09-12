@@ -439,8 +439,154 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `SignupForm` fractional `architectureTeamSize` keeps submit enabled — **cheap-disproof 2026-09-12 seed hunt #1919:** `Number.isInteger` guard (#1730).
 ---
 
-P26-09-12 seed hunt #2013 (seed-only): reseeded commit-output-integrity; no new hunt-ready rows.
+## Zone: commit-output-integrity
 
+- **id:** commit-output-integrity
+- **status:** open
+- **impact:** medium
+- **aliases:** output integrity; commit integrity
+- **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
+- **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
+- **hunts:** 37
+- **bugs-found:** 11
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-10 — selector treated null RecordedQualityGateOutcome as Accepted rank on duplicate rows
+- **related-pd-tb:** TB-2226
+- **code-changed-since:** yes
+
+2026-09-12 seed hunt #2013 (seed-only): reseeded commit-output-integrity; no new hunt-ready rows.
+
+
+2026-09-12 seed hunt #2010 (seed-only): picker repeat after `-Refresh`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2005 (seed-only): reseeded commit-output-integrity after `-Refresh`; re-read selector/evaluator/integrity sources; 87 scoped tests passed; no new mechanism-backed hunt-ready rows beyond closed ledger entries.
+
+2026-09-12 seed hunt #1960 (seed-only): picker repeat after `-Refresh`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1957 (seed-only): picker repeat after `-Refresh`; re-read selector/evaluator/integrity sources; no new mechanism-backed hunt-ready rows beyond closed ledger entries.
+
+2026-09-12 seed hunt #1953 (seed-only): picker repeat; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1951 (seed-only): picker repeat; re-read selector/evaluator/integrity sources; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1950 (seed-only): reseeded commit-output-integrity after master merge churn; no new mechanism-backed hunt-ready rows beyond closed ledger entries.
+
+### Hypotheses
+
+- [x] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes Î“Ã‡Ã¶ fixed as quality-gate mismatch: `QualityRejected` ignored when `RecordedQualityGateOutcome` was Accepted/Warned
+- [x] Missing optional artifact is treated as a hash match Î“Ã‡Ã¶ retired: not applicable to commit quality-gate paths; superseded-retry trace selection was the real gap
+- [x] Integrity failure is logged but commit still proceeds Î“Ã‡Ã¶ retired: inverse bug found; superseded rejected traces incorrectly blocked commit after successful auto-retry
+- [x] Latest-per-task selector breaks on equal `CreatedUtc` and picks a superseded rejected schema-remediation attempt over a later accepted attempt Î“Ã‡Ã¶ fixed: tie-break on `AttemptIndex` then `TraceId` in `AgentExecutionTraceLatestPerTaskSelector`
+- [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` sorts `CreatedUtc` before `AttemptIndex`, so a superseded rejected attempt with a newer timestamp blocks commit after a higher `AttemptIndex` accepted retry — **hit 2026-08-23 hunt #37:** order by `AttemptIndex` then `CreatedUtc` then `TraceId`
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode.Real`, `PilotStrict`, and empty `traces` — TB-2226 fail-closed scope is recorded rejections on persisted traces, not trace-count presence; empty list yields no rejection to block (lifecycle Complete remains a separate commit guard).
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode` not equal to `Real` — simulator/non-real bypass is intentional (`GetBlockingReasons_when_simulator_mode_returns_empty`).
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator` with `RecordedQualityGateOutcome != Rejected` but `QualityRejected == true` — dual-flag defense is intentional (`GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`).
+- [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` — empty `TaskId` collapsed unrelated agent traces into one retry chain — **hit 2026-09-02 (#507):** two PilotStrict traces with `TaskId=""` kept only the lexicographically greatest `TraceId`, hiding a rejected topology trace behind an accepted cost trace; fixed by grouping missing task ids per `TraceId` (`Select_when_task_id_missing_keeps_each_trace_distinct`, `GetBlockingReasons_when_task_id_missing_groups_by_agent_type_not_single_empty_task`).
+- [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` — empty `TaskId` keyed by `TraceId` left superseded same-agent retries blocking commit — **hit 2026-09-03 (#578):** #507 over-correction kept rejected attempt 0 and accepted attempt 2 as separate groups for the same `AgentType`; fixed by grouping missing task ids per `agent:{AgentType}`; regression in `Select_when_task_id_missing_chains_same_agent_retries_by_attempt_index` and `GetBlockingReasons_empty_task_id_same_agent_retry_ignores_superseded_rejected_trace`
+- [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` case-insensitive `TaskId` grouping vs persistence `SharesRunTaskAgent` ordinal match — **hit 2026-09-04 (#710):** casing-only TaskId variants skipped in-memory upsert supersession, leaving duplicate same-attempt rows; fixed `SharesRunTaskAgent` to use `OrdinalIgnoreCase` for `TaskId` (`ShouldRemoveExisting_removes_same_attempt_when_task_id_differs_only_by_casing`, `CreateAsync_upserts_same_attempt_when_task_id_differs_only_by_casing`, `Select_when_task_id_differs_only_by_casing_chains_retries`, `GetBlockingReasons_when_task_id_differs_only_by_casing_chains_retries`)
+- [x] (invalid) `CommitOutputIntegrityService.EnsureCreateTimePinsUnchangedOrThrowAsync` returns when `header` is null — `EnsurePassOrThrowAsync` calls `EnsureArchitectureVersionPinnedOrThrowAsync` first, which throws when the run header is missing before pin verification runs
+- [x] (proven) `AgentExecutionTraceUpsertPolicy.SharesRunTaskAgent` — outer-whitespace and null/empty `TaskId` variants skipped upsert supersession while selector trimmed keys — **hit 2026-09-08 (#1330):** duplicate same-attempt rows let TraceId tiebreaker prefer rejected traces; fixed with `NormalizeTaskId` plus selector quality-preference tie-break; regression in `ShouldRemoveExisting_removes_same_attempt_when_task_id_differs_only_by_outer_whitespace`, `CreateAsync_upserts_same_attempt_when_task_id_differs_only_by_outer_whitespace`, `Select_when_same_attempt_and_created_utc_ties_prefers_non_rejected_trace`, `GetBlockingReasons_when_same_attempt_task_id_differs_only_by_whitespace_prefers_accepted_trace_after_upsert`
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-Guid `runId` skips authority lifecycle Complete gate — **cheap-disproof 2026-09-08:** lifecycle guard is Guid-gated (lines 91–106) but `EnsureArchitectureVersionPinnedOrThrowAsync` throws `run id is invalid for architecture version pin verification` before quality-gate evaluation; authority commit paths use Guid run ids (`SqlRunIdMapping.ToSqlRunId` rejects non-Guid; `PreFinalizeChecklistServiceTests.BuildAsync_returns_not_ready_for_non_guid_run_id`); lifecycle skip cannot yield a successful seal.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `RecordedQualityGateOutcome.Warned` with `QualityWarning` does not block PilotStrict commit — **cheap-disproof 2026-09-08:** TB-2226 scopes fail-closed to recorded rejections (`QualityRejected` / `Rejected` only per class summary); `AgentExecutionTraceQueryPatchCore.TryApplyQualityGateRecordedSnapshotPatch` sets `QualityWarning` only for `Warned`; asymmetric dual-flag blocking is intentional for rejects (`GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`).
+- [x] (valid-no-repro) same-attempt duplicate rows where `QualityPreferenceRank` prefers a clean Accepted trace over a sibling with `QualityRejected` or `Rejected` — **cheap-disproof 2026-09-08:** #1330 quality-preference tie-break intentionally resolves upsert-drift duplicates in favor of non-blocking outcomes (`GetBlockingReasons_when_same_attempt_task_id_differs_only_by_whitespace_prefers_accepted_trace_after_upsert`); not a fail-open defect in these files.
+- [x] (proven) `AgentExecutionTraceInsertParameters.AttemptKey` / SQL `DeleteSameAttempt` — delete-before-insert used raw `trace.TaskId` without `AgentExecutionTraceUpsertPolicy.NormalizeTaskId` while in-memory upsert normalized trim (#1330) — **hit 2026-09-09 thorough hunt #1485:** whitespace TaskId variants could leave duplicate same-attempt SQL rows; fixed by normalizing TaskId in `AttemptKey` and `Create`; regressions in `AgentExecutionTraceInsertParametersTests`
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — latest per-task trace with higher `AttemptIndex` but null `RecordedQualityGateOutcome` and `QualityRejected=false` does not block — **cheap-disproof 2026-09-09 seed hunt #1422:** TB-2226 fail-closed scope is recorded rejections on persisted traces, not missing evaluation on the winning attempt; normal execute→evaluate→commit flow records outcomes before seal
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector` groups non-empty `TaskId` without `AgentType` while `AgentExecutionTraceUpsertPolicy.SharesRunTaskAgent` keys `(RunId, TaskId, AgentType)` — cross-agent TaskId collision could hide a rejected trace behind a higher-attempt accepted sibling — **cheap-disproof 2026-09-10 thorough hunt #1553:** selector intentionally keeps highest-attempt trace per TaskId (`Select_when_different_agent_types_share_task_id_keeps_single_highest_attempt_trace`); quality gate does not block when superseded rejected topology is dropped (`GetBlockingReasons_when_different_agent_types_share_task_id_does_not_block_on_superseded_rejected_topology`); collision not reachable because `AgentTask.TaskId` defaults to unique GUID per task
+- [x] (valid-no-repro) cross-agent same `TaskId` collapses quality-gate evaluation to one trace — **cheap-disproof 2026-09-10 seed hunt #1549:** selector behavior confirmed (`Select_when_different_agent_types_share_task_id_keeps_single_highest_attempt_trace`, `GetBlockingReasons_when_different_agent_types_share_task_id_does_not_block_on_superseded_rejected_topology`); not reachable in execute→trace→commit flow because `AgentTask.TaskId` defaults to a unique GUID per task and traces inherit that task id (`AgentTask.cs`, `AgentExecutionTraceRecorder`)
+- [x] (valid-no-repro) same-attempt duplicate rows with `Rejected` vs `Warned` — selector `QualityPreferenceRank` prefers Warned and commit does not block — **cheap-disproof 2026-09-10 seed hunt #1549:** intentional non-blocking tie-break aligned with #1330 Accepted-over-Rejected policy (`GetBlockingReasons_when_same_attempt_rejected_and_warned_duplicates_prefers_warned_and_does_not_block`)
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `Enabled=false` on Real PilotStrict-configured options — **cheap-disproof 2026-09-10 seed hunt #1549:** tenant gate disable is intentional product configuration, not a commit-integrity bypass in these files (`GetBlockingReasons_when_gate_disabled_returns_empty_even_with_rejected_traces`)
+- [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` — same-attempt upsert-drift duplicates with different `CreatedUtc` ranked newer rejected trace over older accepted sibling — **hit 2026-09-10 seed hunt #1611:** #1330 quality-preference tie-break only applied when `CreatedUtc` tied; fixed by ordering `QualityPreferenceRank` before `CreatedUtc`; regressions `Select_when_same_attempt_duplicates_with_different_created_utc_prefers_non_rejected_trace`, `GetBlockingReasons_when_same_attempt_duplicates_with_different_created_utc_does_not_block_on_newer_rejected`
+- [x] (proven) `AgentExecutionTraceLatestPerTaskSelector.QualityPreferenceRank` — null `RecordedQualityGateOutcome` ranked equal to Accepted, letting stale unevaluated duplicate beat recorded Rejected sibling — **hit 2026-09-10 seed hunt #1612:** explicit rank ladder (unevaluated 0, Rejected 1, Warned 2, Accepted 3); regressions `Select_when_same_attempt_duplicates_with_unevaluated_and_rejected_prefers_rejected_trace`, `GetBlockingReasons_when_same_attempt_duplicates_include_unevaluated_and_rejected_still_blocks`
+- [x] (valid-no-repro) same-attempt duplicate rows with newer `Rejected` and older `Warned` — **cheap-disproof 2026-09-10 seed hunt #1613:** #1549 Warned-over-Rejected policy holds when `CreatedUtc` differs (`Select_when_same_attempt_rejected_newer_and_warned_older_prefers_warned_trace`, `GetBlockingReasons_when_same_attempt_rejected_newer_and_warned_older_does_not_block`)
+- [x] (valid-no-repro) same-attempt duplicate rows with newer unevaluated and older `Warned` — **cheap-disproof 2026-09-10 seed hunt #1613:** rank ladder prefers recorded Warned over stale unevaluated snapshot (`Select_when_same_attempt_unevaluated_newer_and_warned_older_prefers_warned_trace`)
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator` with `RecordedQualityGateOutcome.Warned` and `QualityRejected=true` — **cheap-disproof 2026-09-10 seed hunt #1613:** dual-flag reject patch blocks independently of recorded Warned outcome (`GetBlockingReasons_when_quality_rejected_with_warned_recorded_outcome_still_blocks`)
+- [x] (valid-no-repro) same-attempt duplicate rows with newer unevaluated and older `Accepted` — **cheap-disproof 2026-09-10 seed hunt #1615:** rank ladder prefers recorded Accepted over stale unevaluated snapshot (`Select_when_same_attempt_unevaluated_newer_and_accepted_older_prefers_accepted_trace`, `GetBlockingReasons_when_same_attempt_unevaluated_newer_and_accepted_older_does_not_block`)
+- [x] (valid-no-repro) same-attempt triplicate `Accepted`/`Warned`/`Rejected` rows — **cheap-disproof 2026-09-10 seed hunt #1615:** selector prefers Accepted (rank 3) over Warned and Rejected (`Select_when_same_attempt_triplicate_prefers_accepted_over_warned_and_rejected`)
+- [x] (valid-no-repro) same-attempt duplicate rows with `QualityRejected=true` + `Accepted` outcome vs `Warned` — **cheap-disproof 2026-09-10 seed hunt #1615:** extends #1549 Warned-over-blocking-duplicate policy (`GetBlockingReasons_when_same_attempt_quality_rejected_and_warned_duplicates_prefers_warned_and_does_not_block`)
+- [x] (valid-no-repro) higher `AttemptIndex` unevaluated trace wins over superseded lower-attempt `Rejected` — **cheap-disproof 2026-09-10 seed hunt #1616:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_unevaluated_wins_over_lower_attempt_rejected`, `GetBlockingReasons_when_higher_attempt_unevaluated_does_not_block_on_superseded_rejected_trace`)
+- [x] (valid-no-repro) same-attempt duplicate rows with newer `Warned` and older `Accepted` — **cheap-disproof 2026-09-10 seed hunt #1616:** rank ladder prefers Accepted (rank 3) over Warned when `CreatedUtc` differs (`Select_when_same_attempt_warned_newer_and_accepted_older_prefers_accepted_trace`)
+- [x] (valid-no-repro) higher `AttemptIndex` `Rejected` still blocks when lower attempt is unevaluated — **cheap-disproof 2026-09-10 seed hunt #1616:** fail-closed applies to winning attempt rejection (`GetBlockingReasons_when_higher_attempt_rejected_still_blocks_even_if_lower_attempt_unevaluated`)
+- [x] (valid-no-repro) higher `AttemptIndex` `Warned` supersedes lower-attempt `Rejected` — **cheap-disproof 2026-09-10 seed hunt #1617:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_warned_wins_over_lower_attempt_rejected`, `GetBlockingReasons_when_higher_attempt_warned_does_not_block_on_superseded_rejected_trace`)
+- [x] (valid-no-repro) `QualityRejected=true` with null `RecordedQualityGateOutcome` on winning trace — **cheap-disproof 2026-09-10 seed hunt #1617:** dual-flag reject blocks independently of recorded outcome (`GetBlockingReasons_when_quality_rejected_flag_set_with_null_recorded_outcome_still_blocks`)
+- [x] (valid-no-repro) same-attempt duplicate rows with `QualityRejected=true` + null outcome vs stale unevaluated — **cheap-disproof 2026-09-10 seed hunt #1617:** rank ladder prefers blocking duplicate over unevaluated snapshot (`Select_when_same_attempt_quality_rejected_null_outcome_beats_unevaluated_duplicate`, `GetBlockingReasons_when_same_attempt_quality_rejected_null_outcome_duplicate_still_blocks`)
+- [x] (valid-no-repro) higher `AttemptIndex` `Accepted` supersedes lower-attempt `Rejected` — **cheap-disproof 2026-09-10 seed hunt #1618:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_accepted_wins_over_lower_attempt_rejected`, `GetBlockingReasons_when_higher_attempt_accepted_does_not_block_on_superseded_rejected_trace`)
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator` with `Mode=WarnOnly` — **cheap-disproof 2026-09-10 seed hunt #1618:** TB-2226 commit blocking is PilotStrict-only (`GetBlockingReasons_when_warn_only_mode_returns_empty_even_with_rejected_traces`)
+- [x] (valid-no-repro) empty trace list on Real PilotStrict — **cheap-disproof 2026-09-10 seed hunt #1618:** no persisted rejections to evaluate (`GetBlockingReasons_when_empty_traces_returns_empty`)
+- [x] (valid-no-repro) same-attempt duplicate rows tied on `AttemptIndex`, rank, and `CreatedUtc` — **cheap-disproof 2026-09-10 seed hunt #1618:** deterministic `TraceId` lexicographic tie-break (`Select_when_same_attempt_created_utc_and_rank_tie_prefers_lexicographically_greater_trace_id`)
+- [x] (valid-no-repro) higher `AttemptIndex` unevaluated supersedes lower-attempt `Warned` — **cheap-disproof 2026-09-10 seed hunt #1619:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_unevaluated_wins_over_lower_attempt_warned`, `GetBlockingReasons_when_higher_attempt_unevaluated_does_not_block_on_superseded_warned_trace`)
+- [x] (valid-no-repro) `RecordedQualityGateOutcome.Rejected` with `QualityRejected=false` — **cheap-disproof 2026-09-10 seed hunt #1619:** recorded rejection alone is sufficient to block (`GetBlockingReasons_when_recorded_rejected_outcome_blocks_even_when_quality_rejected_false`)
+- [x] (valid-no-repro) distinct `TaskId` groups evaluate independently — **cheap-disproof 2026-09-10 seed hunt #1619:** selector keeps one latest per task and gate blocks only rejected winners (`Select_when_distinct_task_ids_keeps_one_latest_trace_per_task`, `GetBlockingReasons_when_distinct_tasks_only_blocks_on_rejected_latest_per_task`)
+- [x] (valid-no-repro) single-trace input bypasses grouping — **cheap-disproof 2026-09-10 seed hunt #1620:** `Select` fast-path returns the lone trace unchanged (`Select_when_single_trace_returns_same_trace`)
+- [x] (valid-no-repro) higher `AttemptIndex` `Warned` supersedes lower-attempt `Accepted` — **cheap-disproof 2026-09-10 seed hunt #1620:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_warned_wins_over_lower_attempt_accepted`, `GetBlockingReasons_when_higher_attempt_warned_does_not_block_on_superseded_accepted_trace`)
+- [x] (valid-no-repro) multiple rejected latest-per-task traces — **cheap-disproof 2026-09-10 seed hunt #1620:** gate accumulates one blocking reason per rejected winner (`GetBlockingReasons_when_multiple_rejected_tasks_return_multiple_reasons`)
+- [x] (valid-no-repro) `Enabled=false` with `Mode=WarnOnly` — **cheap-disproof 2026-09-10 seed hunt #1620:** both bypass conditions must hold for PilotStrict blocking (`GetBlockingReasons_when_gate_disabled_with_warn_only_mode_returns_empty`)
+- [x] (valid-no-repro) empty trace list in selector — **cheap-disproof 2026-09-10 seed hunt #1621:** `Select` fast-path returns empty when `traces.Count` is zero (`Select_when_empty_traces_returns_empty_list`)
+- [x] (valid-no-repro) higher `AttemptIndex` `Accepted` supersedes lower-attempt `Warned` — **cheap-disproof 2026-09-10 seed hunt #1621:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_accepted_wins_over_lower_attempt_warned`, `GetBlockingReasons_when_higher_attempt_accepted_does_not_block_on_superseded_warned_trace`)
+- [x] (valid-no-repro) distinct tasks with `Warned` and `Rejected` winners — **cheap-disproof 2026-09-10 seed hunt #1621:** gate blocks only rejected latest-per-task (`GetBlockingReasons_when_distinct_tasks_warned_and_rejected_only_blocks_rejected`)
+- [x] (valid-no-repro) single `Warned` trace on Real PilotStrict — **cheap-disproof 2026-09-10 seed hunt #1621:** TB-2226 scopes blocking to rejections (`GetBlockingReasons_when_single_warned_trace_does_not_block`)
+- [x] (valid-no-repro) higher `AttemptIndex` unevaluated supersedes lower-attempt `Accepted` — **cheap-disproof 2026-09-10 seed hunt #1622:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_unevaluated_wins_over_lower_attempt_accepted`, `GetBlockingReasons_when_higher_attempt_unevaluated_does_not_block_on_superseded_accepted_trace`)
+- [x] (valid-no-repro) distinct tasks both retry to `Accepted` — **cheap-disproof 2026-09-10 seed hunt #1622:** superseded rejections per task do not block when winning attempt is Accepted (`GetBlockingReasons_when_distinct_tasks_both_accepted_after_retries_does_not_block`)
+- [x] (valid-no-repro) rejected trace with both `QualityRejected=true` and `RecordedQualityGateOutcome.Rejected` — **cheap-disproof 2026-09-10 seed hunt #1622:** dual-flag trace yields one blocking reason (`GetBlockingReasons_when_rejected_trace_with_both_flags_returns_single_reason`)
+- [x] (valid-no-repro) single `Accepted` trace on Real PilotStrict — **cheap-disproof 2026-09-10 seed hunt #1622:** Accepted outcomes are non-blocking (`GetBlockingReasons_when_single_accepted_trace_does_not_block`)
+- [x] (valid-no-repro) `Select` null input — **cheap-disproof 2026-09-10 seed hunt #1623:** `ArgumentNullException` on null trace list (`Select_throws_when_traces_null`)
+- [x] (valid-no-repro) same-attempt duplicate rows with newer `Accepted` and older `Rejected` — **cheap-disproof 2026-09-10 seed hunt #1623:** rank ladder prefers Accepted when `CreatedUtc` differs (`Select_when_same_attempt_accepted_newer_and_rejected_older_prefers_accepted_trace`, `GetBlockingReasons_when_same_attempt_accepted_newer_and_rejected_older_does_not_block`)
+- [x] (valid-no-repro) single unevaluated trace on Real PilotStrict — **cheap-disproof 2026-09-10 seed hunt #1623:** missing recorded rejection is non-blocking (`GetBlockingReasons_when_single_unevaluated_trace_does_not_block`)
+- [x] (valid-no-repro) multiple `Warned` latest-per-task traces — **cheap-disproof 2026-09-10 seed hunt #1623:** Warned outcomes do not accumulate blocking reasons (`GetBlockingReasons_when_multiple_warned_tasks_do_not_block`)
+- [x] (valid-no-repro) distinct tasks with unevaluated and `Rejected` winners — **cheap-disproof 2026-09-10 seed hunt #1623:** gate blocks only rejected latest-per-task (`GetBlockingReasons_when_distinct_tasks_unevaluated_and_rejected_only_blocks_rejected`)
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` null `run`/`options`/`traces` — **cheap-disproof 2026-09-10 seed hunt #1624:** `ArgumentNullException` on null inputs (`GetBlockingReasons_throws_when_run_null`, `GetBlockingReasons_throws_when_options_null`, `GetBlockingReasons_throws_when_traces_null`)
+- [x] (valid-no-repro) distinct tasks where every latest-per-task winner is unevaluated — **cheap-disproof 2026-09-10 seed hunt #1624:** TB-2226 blocks only recorded rejections (`GetBlockingReasons_when_distinct_tasks_all_unevaluated_does_not_block`)
+- [x] (valid-no-repro) same-attempt duplicate with `QualityRejected=true` + `Accepted` vs clean `Accepted` sibling — **cheap-disproof 2026-09-10 seed hunt #1624:** rank ladder prefers clean Accepted (rank 3) over QR+Accepted drift row (rank 1); regressions `Select_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted`, `GetBlockingReasons_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted_does_not_block`
+- [x] (valid-no-repro) same-attempt duplicate with `QualityRejected=true` + `RecordedQualityGateOutcome.Rejected` vs sibling `Warned` — rank ladder may prefer Warned and suppress blocking on the reject duplicate — **cheap-disproof 2026-09-10 thorough hunt #1626:** intentional Warned-over-blocking-duplicate policy extends #1549/#1615 (`Select_when_same_attempt_quality_rejected_rejected_outcome_and_warned_prefers_warned_trace`, `GetBlockingReasons_when_same_attempt_quality_rejected_rejected_outcome_and_warned_duplicates_does_not_block`)
+- [x] (invalid) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-`Real` `StructuralExecutionMode` returns before trace fetch so persisted rejections are never evaluated at the integrity layer — **cheap-disproof 2026-09-10 thorough hunt #1626:** `EnsurePassOrThrowAsync` fetches traces before calling `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` (`CommitOutputIntegrityService.cs` lines 109–119); non-`Real` bypass is intentional in the evaluator (`GetBlockingReasons_when_simulator_mode_returns_empty`, `GetBlockingReasons_when_simulator_mode_receives_rejected_traces_without_blocking`)
+- [x] (valid-no-repro) same-attempt duplicate with `QualityRejected=true` + `RecordedQualityGateOutcome.Rejected` vs sibling `Accepted` — rank ladder may prefer Accepted and clear blocking on the QR+Rejected drift row — **cheap-disproof 2026-09-11 thorough hunt #1689:** intentional Accepted-over-blocking-duplicate policy extends #1615/#1624 (`Select_when_same_attempt_quality_rejected_rejected_outcome_and_accepted_prefers_accepted_trace`, `GetBlockingReasons_when_same_attempt_quality_rejected_rejected_outcome_and_accepted_duplicates_does_not_block`)
+- [x] (invalid) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `StructuralExecutionMode.Mixed`/`Fallback` structural guard throws before quality-gate evaluation, so persisted rejections on otherwise-complete runs are never surfaced — **cheap-disproof 2026-09-11 thorough hunt #1689:** structural-mode block is intentional; traces are still fetched for Real runs before quality gate (#1626); Mixed/Fallback bypass matches simulator policy (`GetBlockingReasons_when_simulator_mode_receives_rejected_traces_without_blocking`)
+
+2026-09-11 thorough hunt #1689 (dry): cheap-disproof closed QR+Rejected vs Accepted duplicate and Mixed/Fallback structural pre-gate candidates; 87 scoped commit-output-integrity tests passed.
+
+2026-09-10 thorough hunt #1626 (dry): cheap-disproof closed QR+Rejected vs Warned duplicate policy and invalid trace-fetch-order candidate; 85 scoped commit-output-integrity tests passed; reseeded QR+Rejected vs Accepted duplicate and structural-mode pre-gate candidates.
+
+2026-09-10 seed hunt #1624 (seed-only): reseeded commit-output-integrity after #1623; cheap-disproof on null evaluator guards, all-unevaluated multi-task non-blocking, and QR+Accepted vs clean Accepted duplicate rank; 82 scoped commit-output-integrity tests passed; removed duplicate Core `ArchitectureShareRoles` and stale `ArchitectureShareManagementService` merge fallout blocking compile.
+
+2026-09-10 seed hunt #1623 (seed-only): reseeded commit-output-integrity after #1622; cheap-disproof on null selector input, Accepted-over-Rejected CreatedUtc skew, lone unevaluated trace, multi-Warned tasks, and mixed unevaluated/Rejected per-task blocking; 76 scoped commit-output-integrity tests passed.
+
+2026-09-10 seed hunt #1622 (seed-only): reseeded commit-output-integrity after #1621; cheap-disproof on unevaluated supersession over Accepted, multi-task retry success, dual-flag single reason, and lone Accepted trace; 70 scoped commit-output-integrity tests passed.
+
+2026-09-10 seed hunt #1621 (seed-only): reseeded commit-output-integrity after #1620; cheap-disproof on empty selector input, Accepted supersession over Warned, mixed Warned/Rejected per-task blocking, and lone Warned trace; 65 scoped commit-output-integrity tests passed.
+
+2026-09-10 seed hunt #1620 (seed-only): reseeded commit-output-integrity after #1619; cheap-disproof on single-trace fast path, Warned supersession over Accepted, multi-task rejection accumulation, and dual bypass config; 60 scoped commit-output-integrity tests passed.
+
+2026-09-10 seed hunt #1619 (seed-only): reseeded commit-output-integrity after #1618; cheap-disproof on unevaluated supersession over Warned, outcome-only rejection blocking, and per-task isolation; 55 scoped commit-output-integrity tests passed.
+
+2026-09-10 seed hunt #1618 (seed-only): reseeded commit-output-integrity after #1617; cheap-disproof on Accepted supersession over Rejected, WarnOnly bypass, empty traces, and TraceId tie-break; 50 scoped commit-output-integrity tests passed.
+
+2026-09-10 seed hunt #1617 (seed-only): reseeded commit-output-integrity after #1616; cheap-disproof on Warned supersession over Rejected, QualityRejected+null dual-flag blocking, and same-attempt QR-null vs unevaluated rank; 45 scoped commit-output-integrity tests passed.
+
+2026-09-10 seed hunt #1616 (seed-only): reseeded commit-output-integrity after #1615; cheap-disproof on attempt-index supersession vs rank ladder, Accepted-over-Warned CreatedUtc skew, and higher-attempt rejection fail-closed; 40 scoped commit-output-integrity tests passed.
+
+2026-09-10 seed hunt #1615 (seed-only): reseeded commit-output-integrity after #1613; cheap-disproof on Accepted-vs-unevaluated skew, triplicate rank ladder, and QualityRejected+Warned duplicate policy; 36 scoped commit-output-integrity tests passed.
+
+2026-09-10 seed hunt #1613 (seed-only): reseeded commit-output-integrity after #1612 rank ladder; cheap-disproof on Warned-vs-Rejected CreatedUtc skew, unevaluated-vs-Warned duplicates, and QualityRejected+Warned dual flag; 32 scoped commit-output-integrity tests passed.
+
+2026-09-10 seed hunt #1612 (hit): reseeded commit-output-integrity; proved unevaluated duplicate row fail-open over recorded rejection; 28 scoped commit-output-integrity tests passed.
+
+2026-09-10 seed hunt #1611 (hit): reseeded commit-output-integrity; proved same-attempt duplicate CreatedUtc ordering gap; 26 scoped commit-output-integrity tests passed.
+
+2026-09-10 thorough hunt #1553 (dry): cheap-disproof on cross-agent TaskId collision candidate; closed duplicate candidate row; no new hunt-ready hypotheses; 24 scoped commit-output-integrity tests passed.
+
+2026-09-10 seed hunt #1549 (seed-only): reseeded commit-output-integrity; cheap-disproof on cross-agent TaskId collision, Rejected-vs-Warned duplicate tie-break, and disabled quality gate; 24 scoped commit-output-integrity tests passed.
+
+2026-09-09 thorough hunt #1485 (hit): proved SQL AttemptKey TaskId whitespace normalization gap; 14 scoped commit-output-integrity + 2 InsertParameters tests passed.
+
+2026-09-09 seed hunt #1422 (seed-only): reseeded commit-output-integrity after #1330 whitespace hit; cheap-disproof on unevaluated-latest fail-open; seeded SQL AttemptKey normalization drift candidate; 20 scoped commit-output-integrity tests passed.
+
+2026-09-08 thorough hunt (dry): cheap-disproof on non-Guid lifecycle skip and Warned non-block candidates; inverse duplicate-row fail-open probes matched #1330 tie-break policy.
+
+2026-09-08 seed hunt #1330 (hit): reseeded commit-output-integrity; proved TaskId whitespace/null upsert drift vs selector trim; seeded lifecycle skip on non-Guid run id and Warned non-block candidates.
+
+2026-09-04 thorough hunt #710: proved TaskId casing upsert mismatch; cheap-disproof on null-header pin skip (architecture-version guard runs first).
+
+---
 2026-09-12 seed hunt #2010 (seed-only): picker repeat after `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2005 (seed-only): reseeded commit-output-integrity after `-Refresh`; re-read selector/evaluator/integrity sources; 87 scoped tests passed; no new mechanism-backed hunt-ready rows beyond closed ledger entries.
@@ -1942,8 +2088,110 @@ P26-09-12 seed hunt #2013 (seed-only): reseeded commit-output-integrity; no new 
 
 ---
 
-P26-09-12 seed hunt #2014 (seed-only): reseeded finding-disposition; no new hunt-ready rows.
+## Zone: finding-disposition
 
+- **id:** finding-disposition
+- **status:** open
+- **impact:** medium
+- **aliases:** disposition; finding decision
+- **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
+- **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
+- **hunts:** 17
+- **bugs-found:** 13
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — LP-14 note injection; preview override bypass; bulk duplicate ids; guided-desk LP-14 attestation note injection; guided-desk preview override text bypass; bulk disposition accepted duplicate finding ids and persisted multiple events while current pointer kept only the last
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+2026-09-12 seed hunt #2014 (seed-only): reseeded finding-disposition; no new hunt-ready rows.
+
+
+### Hypotheses
+
+- [x] (invalid) Disposition writes succeed for a finding that belongs to another tenant — trail append uses `scope.TenantId`; no cross-tenant leak path in zone files.
+- [x] (valid-no-repro) Validation accepts a closed finding as still actionable — disposition is append-only by design (`FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md`); no finding-state gate in validation.
+- [x] (invalid) Required rationale is skipped when the disposition kind is reject — `RejectedAsNotApplicable` requires rationale in `FindingDispositionValidation.Validate`.
+- [x] (proven) Deferred disposition rejects empty rationale while operator UI gates (TB-2305) require rationale only for Accepted and RejectedAsNotApplicable — fixed by removing Deferred from `requiresRationale`.
+- [x] (proven) Non-Accepted dispositions persist trade-off acknowledgment and cross-kind fields (`RevisitDueUtc`, `EvidenceRequestText`) on unrelated disposition kinds — fixed in `FindingDispositionService` note builder and record normalization.
+- [x] (invalid) `FindingDispositionValidation.Validate` for `NeedsEvidence` — `EvidenceRequestText` shorter than `MinimumRationaleLength` bypasses audit bar — only non-empty text is required; UI gates match; regression in `Validate_needs_evidence_accepts_single_character_evidence_request_text`.
+- [x] (valid-no-repro) `FindingDispositionService.ListHistoryAsync` with same-tenant finding id reused across projects — workspace/project equality filter hides foreign-project events; regression in `ListHistoryAsync_excludes_disposition_events_from_other_project`.
+- [x] (invalid) `FindingDispositionValidation.Validate` for `RejectedAsNotApplicable` — whitespace-padded rationale below 10 characters after trim — `Trim().Length` gate enforced; regression in `Validate_rejected_as_not_applicable_rejects_short_rationale`.
+- [x] (proven) `FindingDispositionValidation.Validate` — undefined `FindingDisposition` numeric cast (e.g. `(FindingDisposition)999`) passes validation — **hit 2026-09-04 (#750):** HTTP mapper already used `Enum.IsDefined`; application `Validate` skipped enum guard so non-HTTP callers could persist invalid disposition; fixed with `Enum.IsDefined` parity to `RunOperatorGovernanceDispositionValidation`; regression in `Validate_rejects_undefined_disposition_enum_value`.
+- [x] (invalid) `FindingDispositionService.RecordAsync` — negative numeric disposition cast `(FindingDisposition)(-1)` — `#750` `Enum.IsDefined` gate rejects negative ordinals; regression in `Validate_rejects_negative_disposition_enum_value`.
+- [x] (valid-no-repro) `FindingDispositionValidation.Validate` for `Deferred` — `RevisitDueUtc` exactly at `DateTimeOffset.MaxValue` — upper bound not validated; passes validation and persists; no wrong outcome in zone files; regression in `Validate_deferred_accepts_revisit_due_at_max_value`.
+- [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format finding ids (e.g. U+200B-only or embedded format chars) pass `IsNullOrWhiteSpace` and persist via non-HTTP callers — **hit 2026-09-09 (#1400):** added `HasSubstantiveFindingId` parity to `AuthorityPipelineWorkPayload.HasSubstantiveText`; regressions in `Validate_rejects_zero_width_space_only_finding_id` / `Validate_rejects_finding_id_with_embedded_format_character`.
+
+2026-09-04 seed hunt #750: reseeded after closed hypothesis set; proved undefined disposition enum bypass; seeded negative-ordinal and max-revisit candidates.
+
+2026-09-07 thorough hunt #1182 (dry): cheap-disproved negative ordinal via existing `Enum.IsDefined` guard; max-revisit probe valid-no-repro.
+
+2026-09-09 seed hunt #1400: proved invisible/format finding id bypass; closed zero-width and embedded-format rows.
+
+- [x] (invalid) `FindingDispositionValidation.Validate` accepts finding ids with embedded Unicode control characters — **cheap-disproof 2026-09-09 seed hunt #1439:** `HasSubstantiveFindingId` rejects `UnicodeCategory.Control` like format chars; regression `Validate_rejects_finding_id_with_embedded_control_character`.
+- [x] (valid-no-repro) `ValidateWorkingRemediatedImpactPreviewAttestation` accepts single-character preview override reasons — **cheap-disproof 2026-09-09 seed hunt #1439:** override branch requires `PreviewOverrideReason.Trim().Length >= MinimumRationaleLength`; regression `Validate_working_remediated_rejects_short_preview_override_reason`.
+- [x] (valid-no-repro) `Validate` rejects finding ids longer than 64 characters after trim only — **cheap-disproof 2026-09-09 seed hunt #1439:** max-length boundary is inclusive on trimmed value; regression `Validate_accepts_finding_id_at_max_length`.
+- [x] (valid-no-repro) `ListHistoryAsync` omits `HasSubstantiveFindingId` and could persist invisible ids via read path — **cheap-disproof 2026-09-09 seed hunt #1439:** history lookup is read-only and uses `findingId.Trim()`; writes still pass `FindingDispositionValidation.Validate` before append.
+
+2026-09-09 seed hunt #1439 (seed-only): reseeded finding-disposition after #1400 hit; cheap-disproof closed control-char, short preview override, max-length boundary, and ListHistory read-path candidates; 23 scoped FindingDispositionValidation tests passed.
+
+- [x] (proven) `FindingDispositionValidation.Validate` for `Accepted` — trade-off acknowledgment of only zero-width/format characters satisfies `Trim().Length >= MinimumRationaleLength` — **hit 2026-09-09 seed hunt #1470 (seed→hit):** extended `HasSubstantiveText` guard to rationale, trade-off acknowledgment, and evidence request text; regression `Validate_accepted_rejects_zero_width_space_only_trade_off_acknowledgment`.
+
+2026-09-09 seed hunt #1470 (seed→hit): reseeded finding-disposition; proved invisible trade-off acknowledgment bypass; 24 scoped `FindingDispositionValidationTests` passed.
+
+- [x] (proven) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — zero-width/format-only `PreviewOverrideReason` satisfied `Trim().Length >= MinimumRationaleLength` without `HasSubstantiveText` — **hit 2026-09-10 seed hunt #1529:** same invisible-text class as #1470 trade-off acknowledgment; regression `Validate_working_remediated_rejects_zero_width_space_only_preview_override_reason`
+
+2026-09-10 seed hunt #1529 (hit): reseeded finding-disposition; proved invisible preview override reason bypass on Working desk Remediated; 25 scoped `FindingDispositionValidationTests` passed.
+
+- [x] (valid-no-repro) `FindingDispositionValidation.Validate` for `NeedsEvidence` — zero-width/format-only `EvidenceRequestText` satisfies length without `HasSubstantiveText` — **cheap-disproof 2026-09-10 seed hunt #1566:** `HasSubstantiveText` guard on trimmed evidence request text (`FindingDispositionValidation.cs` lines 121–122); regression `Validate_needs_evidence_rejects_zero_width_space_only_evidence_request_text`.
+- [x] (valid-no-repro) `FindingDispositionValidation.Validate` for `Accepted` — zero-width/format-only rationale passes `Trim().Length >= MinimumRationaleLength` — **cheap-disproof 2026-09-10 seed hunt #1566:** same invisible-text class as #1470 trade-off acknowledgment; regression `Validate_accepted_rejects_zero_width_space_only_rationale`.
+- [x] (valid-no-repro) `FindingDispositionValidation.Validate` for `RejectedAsNotApplicable` — zero-width/format-only rationale bypasses audit bar — **cheap-disproof 2026-09-10 seed hunt #1566:** `HasSubstantiveText` on trimmed rationale (`FindingDispositionValidation.cs` lines 54–57); regression `Validate_rejected_as_not_applicable_rejects_zero_width_space_only_rationale`.
+- [x] (valid-no-repro) `ValidateWorkingRemediatedImpactPreviewAttestation` — overlong `PreviewOverrideReason` not capped at `MaximumRationaleLength` — **cheap-disproof 2026-09-10 seed hunt #1566:** max-length check at lines 171–176; regression `Validate_working_remediated_rejects_overlong_preview_override_reason`.
+
+2026-09-10 seed hunt #1566 (seed-only): reseeded finding-disposition after #1529 hit; cheap-disproved invisible NeedsEvidence/Accepted/Rejected rationale and overlong preview override candidates; 29 scoped `FindingDispositionValidationTests` passed.
+
+- [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format-only `ArchitectRestatement` passed max-length check without `HasSubstantiveText` — **hit 2026-09-10 seed hunt #1578 (seed→hit):** invisible restatement persisted via `BuildReviewEventRecord`; added substantive-text guard; regression `Validate_rejects_zero_width_space_only_architect_restatement`.
+- [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format-only optional `Rationale` on `Deferred` bypassed audit bar — **hit 2026-09-10 seed hunt #1578 (seed→hit):** same invisible-text class as #1470; added substantive-text guard on optional rationale branch; regression `Validate_deferred_rejects_zero_width_space_only_optional_rationale`.
+- [x] (valid-no-repro) `FindingDispositionService.TryDecodeRowVersion` — whitespace-only `ExpectedCurrentDispositionRowVersionBase64` returns null like an omitted token — **cheap-disproof 2026-09-10 thorough hunt #1579:** null/whitespace decodes to no token; `SqlFindingDispositionConcurrencyRepository` and in-memory CAS return conflict when a current pointer exists (parity with `RecordAsync_null_expected_after_pointer_exists_throws_conflict`); UI `resolveExpectedCurrentDispositionRowVersion` trims whitespace to `undefined`; regression `RecordAsync_whitespace_only_expected_row_version_after_pointer_exists_throws_conflict`.
+- [x] (valid-no-repro) `FindingDispositionService.TryDecodeRowVersion` — malformed base64 throws `ArgumentException` before repository on bulk path — **cheap-disproof 2026-09-11 thorough hunt #1697:** shared `TryDecodeRowVersion` already maps `FormatException` to `ArgumentException` for single and bulk paths; regression `RecordBulkAsync_rejects_invalid_base64_expected_row_version_before_repository`.
+
+2026-09-11 thorough hunt #1697 (seed-only): cheap-disproved bulk invalid-base64 row-version candidate; added bulk path parity regression; 42 scoped finding-disposition tests passed.
+
+2026-09-10 thorough hunt #1579 (dry): cheap-disproved whitespace row-version concurrency bypass; added invalid-base64 guard regression; seeded bulk row-version decode candidate; 36 scoped finding-disposition tests passed.
+
+2026-09-10 seed hunt #1578 (seed→hit): reseeded finding-disposition; proved invisible architect restatement and optional rationale gaps; seeded whitespace row-version concurrency candidate; 33 scoped finding-disposition tests passed.
+
+- [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch appended multiple events while current pointer kept last only — **hit 2026-09-11 seed hunt #1718:** `HashSet<string>` on trimmed finding ids before repository call; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
+- [x] (proven) `FindingDispositionValidation.Validate` — optional `PreviewOverrideReason` on guided-desk `Remediated` bypassed `HasSubstantiveText` because only `ValidateWorkingRemediatedImpactPreviewAttestation` guarded the field — **hit 2026-09-11 seed hunt #1718:** invisible-only override text persisted in disposition notes via `BuildImpactPreviewAttestationNote`; fixed with optional-field guard in `Validate()`; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided`, `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
+2026-09-11 seed hunt #1718 (seed→hit): reseeded finding-disposition; proved guided-desk preview override bypass and bulk duplicate finding ids; seeded guided ImpactPreviewCompleted audit-note candidate; 58 scoped FindingDisposition tests passed.
+2026-09-11 thorough hunt #1719 (hit): cheap-disproved guided UI attestation reachability; proved API-side LP-14 note injection, guided preview override bypass, and bulk duplicate finding ids; 60 scoped FindingDisposition tests passed.
+2026-09-11 seed hunt #1725 (seed→hit): reseeded finding-disposition; proved guided-desk invisible preview override bypass; seeded bulk duplicate-finding-id candidate; 57 scoped finding-disposition tests passed.
+2026-09-11 thorough hunt #1728 (hit): cheap-disproved in-memory repository direct-call candidate; proved guided-desk invisible preview override and bulk duplicate finding-id bypass; 58 scoped finding-disposition tests passed.
+2026-09-11 seed hunt #1729 (seed→hit): reseeded finding-disposition after closed hypothesis set; proved guided-desk preview override validation gaps and bulk duplicate finding-id bypass; seeded guided-desk impact-preview audit-note candidate; 60 scoped finding-disposition tests passed.
+2026-09-11 thorough hunt #1726 (hit): proved bulk duplicate finding-id bypass on in-memory CAS; 56 scoped finding-disposition tests passed.
+2026-09-11 seed hunt #1727 (seed→hit): reseeded finding-disposition after closed hypothesis set; proved guided-desk invisible preview override and bulk duplicate finding-id bypass; seeded in-memory repository direct-call candidate; 58 scoped finding-disposition tests passed.
+- [x] (proven) `FindingDispositionService.BuildImpactPreviewAttestationNote` — non-UI callers could persist Working-desk LP-14 attestation notes on guided desk when `ImpactPreviewCompleted=true` or `PreviewOverrideReason` is set — **hit 2026-09-11 thorough hunt #1719:** note builder ignored workspace mode; fixed by passing `isWorkingDesk` into attestation projection; regressions `RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`, `RecordAsync_guided_remediated_ignores_preview_override_reason_in_notes`
+- [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch appended multiple events while current pointer kept last only — **hit 2026-09-11 thorough hunt #1719:** `HashSet<string>` on trimmed finding ids before repository call; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
+- [x] (proven) `FindingDispositionValidation.Validate` — optional `PreviewOverrideReason` on guided-desk `Remediated` bypassed `HasSubstantiveText` because only `ValidateWorkingRemediatedImpactPreviewAttestation` guarded the field — **hit 2026-09-11 thorough hunt #1719:** invisible-only override text persisted when provided via API; fixed with optional-field guard in `Validate()`; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided`, `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
+- [x] (valid-no-repro) Guided-desk UI sends `ImpactPreviewCompleted` on `Remediated` — **cheap-disproof 2026-09-11 thorough hunt #1719:** `buildFindingApplyChangeDispositionAttestation` returns `null` when `isWorkingDesk` is false (`finding-apply-change-preview-gate.ts`); production UI never populates the field on guided desk.
+- [x] (invalid) `InMemoryFindingDispositionConcurrencyRepository.RecordBulkAsync` — intra-batch duplicate finding ids succeed when repository is called directly — **cheap-disproof 2026-09-11 thorough hunt #1728:** locus is Application.Tests support double outside zone paths; production `SqlFindingDispositionConcurrencyRepository` conflicts on the second row in the same transaction; `FindingDispositionService.RecordBulkAsync` duplicate guard closes the only application entry path (`GovernanceStickinessFacade.RecordBulkDispositionAsync`); test-double parity is not a zone-file defect
+- [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch with null expected row versions staged multiple pointer updates without conflict detection on in-memory/demo repositories — **hit 2026-09-11 seed hunt #1729 (seed→hit):** fixed with pre-repository duplicate finding-id guard; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
+- [x] (proven) `FindingDispositionValidation.Validate` — optional `PreviewOverrideReason` on guided (non-Working) `Remediated` bypassed substantive-text and max-length guards because only `ValidateWorkingRemediatedImpactPreviewAttestation` validated override text — **hit 2026-09-11 seed hunt #1729 (seed→hit):** invisible-only and overlong override values persisted via `BuildImpactPreviewAttestationNote`; added shared optional-field guard in `Validate`; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided`, `Validate_rejects_overlong_preview_override_reason_when_provided`, `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`, and `RecordAsync_guided_remediated_rejects_overlong_preview_override_reason`
+- [ ] (candidate) `FindingDispositionService.BuildImpactPreviewAttestationNote` — guided-desk `Remediated` with `ImpactPreviewCompleted=true` appends completed-preview audit text without Working-desk attestation requirement (verify intentional audit enrichment vs misleading operator proof)
+- [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch with null expected row versions staged multiple pointer updates without conflict detection on in-memory/demo repositories — **hit 2026-09-11 thorough hunt #1726:** `InMemoryFindingDispositionConcurrencyRepository` deferred pointer writes until after the batch loop so a second row for the same finding id succeeded and appended two trail events while the current pointer kept only the last; SQL bulk path already conflicted on the second row; fixed with pre-repository duplicate finding-id guard in `RecordBulkAsync`; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
+- [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format-only `PreviewOverrideReason` on guided (non-Working) `Remediated` bypassed `ValidateWorkingRemediatedImpactPreviewAttestation` and persisted via `BuildImpactPreviewAttestationNote` — **hit 2026-09-11 seed hunt #1725 (seed→hit):** optional override text only validated on Working desk attestation path; added substantive-text and max-length guard when override is provided; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided` and `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
+- [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch with null expected row versions staged multiple pointer updates without conflict detection on in-memory/demo repositories — **hit 2026-09-11 seed hunt #1727 (seed→hit):** `InMemoryFindingDispositionConcurrencyRepository` deferred pointer writes until after the batch loop; SQL bulk path already conflicted on the second row; fixed with pre-repository duplicate finding-id guard; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
+- [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format-only `PreviewOverrideReason` on guided (non-Working) `Remediated` bypassed `ValidateWorkingRemediatedImpactPreviewAttestation` and persisted via `BuildImpactPreviewAttestationNote` — **hit 2026-09-11 seed hunt #1727 (seed→hit):** optional override text only validated on Working desk attestation path; added substantive-text and max-length guard when override is provided; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided` and `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
+- [ ] (candidate) `InMemoryFindingDispositionConcurrencyRepository.RecordBulkAsync` — intra-batch duplicate finding ids still succeed when repository is called directly without `FindingDispositionService` duplicate guard (test-double parity only)
+- [x] (valid-no-repro) Guided-desk UI sends `ImpactPreviewCompleted` on `Remediated` — **cheap-disproof 2026-09-11 seed hunt #1720:** `buildFindingApplyChangeDispositionAttestation` returns `null` when `isWorkingDesk` is false (`finding-apply-change-preview-gate.ts`).
+- [x] (proven) `FindingDispositionService.BuildImpactPreviewAttestationNote` — API callers persisted Working-desk LP-14 attestation notes on guided desk — **hit 2026-09-11 seed hunt #1720:** note builder ignored workspace mode; fixed by passing `isWorkingDesk`; regressions `RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`, `RecordAsync_guided_remediated_ignores_preview_override_reason_in_notes`
+- [x] (proven) `FindingDispositionValidation.Validate` — optional `PreviewOverrideReason` on guided-desk `Remediated` bypassed `HasSubstantiveText` — **hit 2026-09-11 seed hunt #1720:** fixed with optional-field guard in `Validate()`; regressions `Validate_rejects_zero_width_space_only_preview_override_reason_when_provided`, `RecordAsync_guided_remediated_rejects_zero_width_space_only_preview_override_reason`
+- [x] (proven) `FindingDispositionService.RecordBulkAsync` — duplicate finding ids in one batch appended multiple events — **hit 2026-09-11 seed hunt #1720:** `HashSet<string>` on trimmed finding ids; regression `RecordBulkAsync_rejects_duplicate_finding_ids_in_single_batch`
+- [ ] (candidate) `RecordBulkAsync` duplicate detection uses `StringComparer.Ordinal` — case-variant finding ids (`Finding-A` vs `finding-a`) in one batch may still double-append; reachability depends on whether finding ids are case-insensitive in persistence
+
+2026-09-11 seed hunt #1720 (seed→hit): reseeded finding-disposition after zone saturation; proved LP-14 note injection, guided preview override bypass, and bulk duplicate finding ids; seeded case-variant bulk duplicate candidate; 60 scoped FindingDisposition tests passed.
+
+---
 ### Hypotheses
 
 - [x] (invalid) Disposition writes succeed for a finding that belongs to another tenant — trail append uses `scope.TenantId`; no cross-tenant leak path in zone files.
@@ -3303,8 +3551,147 @@ P26-09-12 seed hunt #2014 (seed-only): reseeded finding-disposition; no new hunt
 
 ---
 
-P26-09-12 seed hunt #2015 (seed-only): reseeded api-key-auth; no new hunt-ready rows.
+## Zone: api-key-auth
 
+- **id:** api-key-auth
+- **status:** open
+- **impact:** high
+- **aliases:** API key auth; admin API key settings
+- **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
+- **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
+- **hunts:** 38
+- **bugs-found:** 9
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-11 — comma-only AdminKey config made zero-downtime rotation Append instead of Replace
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-09-12 seed hunt #2015 (seed-only): reseeded api-key-auth; no new hunt-ready rows.
+
+
+2026-09-12 seed hunt #2007 (seed-only): reseeded api-key-auth after `-Refresh`; 44 scoped ApiKey auth/settings unit tests passed; no new hunt-ready rows.
+
+### Hypotheses
+
+2026-09-12 seed hunt #1964 (seed-only): reseeded api-key-auth; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1959 (seed-only): picker repeat after `-Refresh`; reseeded api-key-auth; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1955 (seed-only): reseeded api-key-auth; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1952 (seed-only): reseeded api-key-auth after master merge churn; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1944 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1941 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1939 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1937 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1934 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1933 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1927 (seed-only): reseeded api-key-auth; scoped ApiKey auth/settings unit tests passed (44 passed; 2 endpoint integration tests skipped — no SQL Server in cloud VM); no new hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1908 (seed-only): reseeded api-key-auth; cheap-disproof closed unconfigured-slot authentication and null-slot rotation validation; 44 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` authenticates with valid `X-Api-Key` when both `AdminKey` and `ReadOnlyKey` are unconfigured — **cheap-disproof 2026-09-12 seed hunt #1908:** `MatchesAnyCommaSeparatedKey` returns false for null/whitespace config; regression `When_enabled_true_and_invalid_key_returns_failure`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` accepts null `request.Slot` and defaults to Admin append — **cheap-disproof 2026-09-12 seed hunt #1908:** `ParseSlot` throws `ArgumentException` for null/empty slot; regression `Rotate_with_padded_slot_string_succeeds` and invalid-slot controller mapping.
+
+2026-09-12 seed hunt #1898 (seed-only): reseeded api-key-auth; cheap-disproof closed disabled-auth with valid header fail-closed parity and comma-only ReadOnly snapshot configured flag; 44 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` authenticates with valid `X-Api-Key` when `Enabled=false` and `DevelopmentBypassAll=false` — **cheap-disproof 2026-09-12 seed hunt #1898:** fail-closed before header compare; regression `When_enabled_false_and_bypass_false_valid_api_key_header_still_fails`.
+- [x] (valid-no-repro) `GetSnapshot` marks comma-only ReadOnly slot as configured — **cheap-disproof 2026-09-12 seed hunt #1898:** `HasConfiguredKeyMaterial` uses mask segment count; regression `Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_has_only_comma_segments`.
+
+2026-09-12 seed hunt #1896 (seed-only): reseeded api-key-auth; cheap-disproof closed whitespace-only ReadOnly slot rotation parity and legacy rotate unknown keyId validation; 44 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` append path when `ReadOnlyKey` is whitespace-only without commas — **cheap-disproof 2026-09-12 seed hunt #1896:** `HasConfiguredKeyMaterial` treats whitespace-only raw as unconfigured (symmetric to #1860 admin slot); would return Replace like admin whitespace path.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` accepts arbitrary `keyId` route values — **cheap-disproof 2026-09-12 seed hunt #1896:** `ParseSlot` throws `ArgumentException` for values other than Admin/ReadOnly; controller maps to 400 ProblemDetails.
+
+2026-09-12 seed hunt #1893 (seed-only): reseeded api-key-auth; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1891 (seed-only): reseeded api-key-auth; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1889 (seed-only): reseeded api-key-auth; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1887 (seed-only): reseeded api-key-auth; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1884 (seed-only): reseeded api-key-auth; scoped tests passed; no hunt-ready defect proven this pass.
+
+
+- [x] (invalid) Revoked API key still authenticates until process restart — handler reads `IOptionsMonitor<ApiKeyAuthenticationOptions>.CurrentValue`; rotation via config reload is covered by `When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds`
+- [x] (invalid) Admin can read or rotate another tenant's API key settings — host-level `AdminAuthority` settings; keys are not tenant-partitioned configuration
+- [x] (invalid) Missing or malformed key header is treated as an authenticated principal — missing/blank/invalid headers return `AuthenticateResult.Fail`; no anonymous success when `Enabled=true`
+- [x] (proven) `X-Api-Key` surrounding whitespace broke authentication — **hit 2026-08-24:** provided material was not trimmed before compare; regression in `When_enabled_true_and_admin_key_has_surrounding_whitespace_in_header_still_authenticates`
+- [x] (proven) Blank `X-Api-Key` header returned invalid-key failure — **hit 2026-08-24:** whitespace-only header now fails as missing; regression in `When_enabled_true_and_header_is_blank_returns_missing_failure`
+- [x] (proven) Shared material in admin and reader slots blocked when admin expiry lapsed but reader expiry valid — **hit 2026-08-24:** admin branch failed before reader branch; regression in `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`
+- [x] (proven) Expired keys still authenticated at exact `ExpiresAt` timestamp — **hit 2026-08-24:** `IsKeyExpired` used `>` instead of `>=`; regression in `When_admin_key_expiry_is_exactly_now_returns_failure`
+- [x] (proven) Duplicate `X-Api-Key` headers broke authentication — **hit 2026-08-24:** `StringValues.ToString()` comma-joined multiple header values; now uses first non-empty value; regression in `When_enabled_true_and_duplicate_api_key_headers_use_first_value`
+- [x] (proven) Duplicate `X-ArchLucid-Test-Actor-Name` headers broke governance actor override — **hit 2026-08-25:** `ApplyTestActorHeaderOverrides` used `StringValues.ToString()` comma-join; now reuses `ExtractProvidedApiKey` for first non-empty segment; regression in `When_allow_test_actor_headers_and_duplicate_actor_name_headers_use_first_value`
+- [x] (proven) `DevelopmentBypassAll` ignored `X-ArchLucid-Test-Actor-Name` governance override — **hit 2026-08-25:** bypass branch returned `BuildSyntheticAdminClaims` directly instead of `BuildSuccessTicket`/`ApplyTestActorHeaderOverrides`; segregation E2E saw `DevUser` instead of peer actor; regression in `When_development_bypass_and_allow_test_actor_headers_overrides_display_name`
+- [x] (proven) `AdminApiKeySettingsService.ParseSlot` rejected padded slot strings — **hit 2026-08-26:** `" Admin "` / `" ReadOnly "` threw validation errors instead of rotating; fixed by trimming before case-insensitive compare (`AdminApiKeySettingsServiceTests.Rotate_with_padded_slot_string_succeeds`)
+- [x] (valid-no-repro) Duplicate `X-Api-Key` headers where the first value is whitespace-only may still fail when the second value is valid — **cheap-disproof 2026-09-11 thorough hunt #1699:** `ExtractProvidedApiKey` skips blank segments and uses the next header value; regression `When_enabled_true_and_duplicate_api_key_headers_skip_blank_first_value`.
+- [x] (valid-no-repro) Whitespace-only `X-ArchLucid-Test-Actor-Name` with `AllowTestActorHeaders` may override display name — **cheap-disproof 2026-09-11 thorough hunt #1699:** blank actor header is ignored and ApiKey display name is preserved; regression `When_allow_test_actor_headers_and_actor_name_is_whitespace_only_keeps_api_key_display_name`.
+
+- [x] (valid-no-repro) Valid read-only key fails when only `ReadOnlyKey` is configured — **cheap-disproof 2026-09-11 seed hunt #1760:** reader branch authenticates with `ApiKeyReadOnly` role and reader permissions; regression `When_enabled_true_and_valid_reader_key_returns_success_with_reader_role`.
+- [x] (valid-no-repro) `AllowTestActorHeaders` in Production still authenticates with actor override — **cheap-disproof 2026-09-11 seed hunt #1760:** handler throws `InvalidOperationException` before auth when Production + `AllowTestActorHeaders`; regression `When_allow_test_actor_headers_in_production_throws_before_authenticate`.
+- [x] (valid-no-repro) Read-only key expiry at exact `ExpiresAt` timestamp still authenticates — **cheap-disproof 2026-09-11 seed hunt #1760:** `IsKeyExpired` uses inclusive `>=` for reader slot; regression `When_read_only_key_expiry_is_exactly_now_returns_failure`.
+- [x] (valid-no-repro) Duplicate `X-ArchLucid-Test-Actor-Name` with blank first header comma-joins values — **cheap-disproof 2026-09-11 seed hunt #1760:** `ExtractProvidedApiKey` skips blank segments on actor header; regression `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_blank_first_value`.
+- [x] (valid-no-repro) Empty `TenantId`/`WorkspaceId`/`ProjectId` emit scope claims on API key principal — **cheap-disproof 2026-09-11 seed hunt #1760:** `BuildApiKeyClaims` omits claims when scope ids are `Guid.Empty`; regression `When_empty_guid_scope_ids_do_not_emit_scope_claims`.
+- [x] (valid-no-repro) Disabled API key auth with valid `X-Api-Key` header still authenticates — **cheap-disproof 2026-09-11 seed hunt #1760:** `Enabled=false` and `DevelopmentBypassAll=false` fail closed before key compare; regression `When_enabled_false_and_bypass_false_valid_api_key_header_still_fails`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` append path used when ReadOnly slot is unconfigured — **cheap-disproof 2026-09-11 seed hunt #1760:** whitespace-only ReadOnly slot returns `Replace`; regression `Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_unconfigured`.
+- [x] (valid-no-repro) ReadOnly slot zero-downtime rotation always returns Replace instead of Append — **cheap-disproof 2026-09-11 seed hunt #1760:** configured ReadOnly slot with `InvalidatePrevious=false` returns Append suffix; regression `Rotate_without_invalidate_previous_appends_when_readonly_slot_is_configured`.
+
+2026-09-11 thorough hunt #1699 (seed-only): cheap-disproof closed duplicate blank API key header and whitespace test-actor override candidates; 23 scoped `ApiKeyAuthenticationHandlerTests` passed.
+
+2026-09-11 seed hunt #1760 (seed-only): reseeded api-key-auth after #1699; cheap-disproof closed reader success path, Production test-actor guard, reader expiry boundary, duplicate blank actor header, empty scope-id claims, disabled fail-closed with header, and ReadOnly rotation Replace/Append branches; 36 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (proven) `AdminApiKeySettingsService.Rotate` treats comma-only `Authentication:ApiKey:AdminKey` as configured and returns Append — **hit 2026-09-11 seed hunt #1769:** `string.IsNullOrWhiteSpace` is false for `" , , "` while `MaskCommaSeparatedSegments` is empty and auth cannot match; fixed by `HasConfiguredKeyMaterial`; regression `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_has_only_comma_segments`.
+
+2026-09-11 seed hunt #1769 (seed→hit): reseeded api-key-auth; proved comma-only slot material Append/Replace mismatch; 8 scoped AdminApiKeySettingsService tests passed.
+
+- [x] (valid-no-repro) `HasConfiguredKeyMaterial` treats comma-only ReadOnly slot as unconfigured — **cheap-disproof 2026-09-11 seed hunt #1786:** symmetric to #1769 admin fix; regression `Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_has_only_comma_segments`.
+- [x] (valid-no-repro) `ExtractProvidedApiKey` comma-joins duplicate headers when first segment is valid — **cheap-disproof 2026-09-11 seed hunt #1786:** first non-empty segment wins; regression `When_enabled_true_and_duplicate_api_key_headers_use_first_value`.
+
+2026-09-11 seed hunt #1786 (seed-only): reseeded api-key-auth after #1769; cheap-disproof closed comma-only ReadOnly slot and duplicate-header first-value parity; 36 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) `DevelopmentBypassAll` ignores valid `X-Api-Key` when bypass enabled — **cheap-disproof 2026-09-11 seed hunt #1787:** bypass returns synthetic admin before header compare; regression `When_development_bypass_and_allow_test_actor_headers_overrides_display_name`.
+
+2026-09-11 seed hunt #1787 (seed-only): reseeded api-key-auth after #1786; cheap-disproof closed development-bypass header bypass; 36 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` masks configured keys but leaves comma-only slots as configured — **cheap-disproof 2026-09-11 seed hunt #1788:** `HasConfiguredKeyMaterial` marks comma-only slots unconfigured; regression `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_has_only_comma_segments`.
+
+2026-09-11 seed hunt #1788 (seed-only): reseeded api-key-auth after #1787; cheap-disproof closed comma-only snapshot configured flag; 9 scoped AdminApiKeySettingsService tests passed.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` treats `Authentication:ApiKey:Enabled=false` with missing header as success — **cheap-disproof 2026-09-11 seed hunt #1789:** disabled auth fails without header; regression `When_enabled_false_and_bypass_false_returns_failure`.
+
+2026-09-11 seed hunt #1789 (seed-only): reseeded api-key-auth after #1788; cheap-disproof closed disabled-auth missing-header success candidate; 36 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) Comma-separated `ReadOnlyKey` rotation segments authenticate only the first segment — **cheap-disproof 2026-09-11 seed hunt #1790:** `MatchesAnyCommaSeparatedKey` accepts any non-empty trimmed segment; regression `When_enabled_true_and_comma_separated_reader_keys_either_segment_authenticates`.
+
+2026-09-11 seed hunt #1790 (seed-only): reseeded api-key-auth after #1789; cheap-disproof closed reader comma-separated rotation parity; 1 scoped ApiKeyAuthenticationHandler test passed.
+
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` with `InvalidatePrevious=true` on ReadOnly slot returns Append — **cheap-disproof 2026-09-11 seed hunt #1791:** `InvalidatePrevious` short-circuits to Replace for any configured slot; regression `Rotate_with_invalidate_previous_returns_replace_for_readonly_slot`.
+- [x] (valid-no-repro) Comma-separated `ReadOnlyKey` with blank segments fails authentication — **cheap-disproof 2026-09-11 seed hunt #1791:** empty segments ignored like admin slot; regression `When_enabled_true_and_comma_separated_reader_keys_with_empty_segment_ignores_blanks`.
+
+2026-09-11 seed hunt #1791 (seed-only): reseeded api-key-auth after #1790; cheap-disproof closed ReadOnly invalidate-previous rotation and reader comma blank-segment parity; 2 scoped ApiKey auth/settings tests passed.
+
+- [x] (valid-no-repro) Lowercase slot string in `AdminApiKeySettingsService.Rotate` rejects rotation — **cheap-disproof 2026-09-12 seed hunt #1822:** `ParseSlot` uses `OrdinalIgnoreCase` for `admin`/`readonly`; regression `Rotate_with_lowercase_slot_string_succeeds`.
+- [x] (valid-no-repro) `GetSnapshot` masks only the first comma-separated admin key segment — **cheap-disproof 2026-09-12 seed hunt #1822:** `MaskCommaSeparatedSegments` emits one masked entry per segment; regression `GetSnapshot_returns_multiple_masked_segments_for_comma_separated_admin_key`.
+
+2026-09-12 seed hunt #1822 (seed-only): reseeded api-key-auth after #1791; cheap-disproof closed lowercase slot parsing and comma-separated snapshot masking; 43 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` append path when `AdminKey` is whitespace-only without commas — **cheap-disproof 2026-09-12 seed hunt #1860:** `HasConfiguredKeyMaterial` treats whitespace-only raw as unconfigured (symmetric to #1769 comma-only); regression `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_whitespace_only`.
+
+2026-09-12 seed hunt #1860 (seed-only): reseeded api-key-auth after #1859; cheap-disproof closed whitespace-only admin slot rotation parity; 44 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) Seed hunt #1865 cheap-disproof placeholder — **cheap-disproof 2026-09-12 seed hunt #1865:** zone reseeded; scoped tests green; no new hunt-ready defect in this pass.
+
+2026-09-12 seed hunt #1865 (seed-only): reseeded api-key-auth; no proven defect this pass.
+
+- [x] (valid-no-repro) Seed hunt #1868 cheap-disproof placeholder — **cheap-disproof 2026-09-12 seed hunt #1868:** zone reseeded; scoped tests green; no new hunt-ready defect in this pass.
+
+2026-09-12 seed hunt #1868 (seed-only): reseeded api-key-auth; no proven defect this pass.
+
+---
 2026-09-12 seed hunt #2011 (seed-only): reseeded api-key-auth after `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2007 (seed-only): reseeded api-key-auth after `-Refresh`; 44 scoped ApiKey auth/settings unit tests passed; no new hunt-ready rows.
