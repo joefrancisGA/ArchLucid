@@ -16,6 +16,7 @@ import { simulatePolicyPackAgainstRun } from "@/lib/api/policy-governance-api";
 import { toApiLoadFailure, uiFailureFromMessage, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { policyPackSimulateBlockedReason } from "@/lib/policy/policy-pack-simulate-blocked-reason";
 import { buildPolicyPacksHrefWithReviewId, buildPolicyPacksImpactPreviewHref } from "@/lib/policy-packs-review-handoff";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
 import type { components } from "@/lib/openapi-schemas";
@@ -292,6 +293,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
           Same finalized review, different enforcement posture — preview compliance rule key changes and whether the
           approval check before finalize would allow or block finalize. Read-only; nothing is persisted.
         </p>
+        <PolicyPackInfluenceHonestyChip className="mt-3" />
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">

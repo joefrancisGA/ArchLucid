@@ -64,6 +64,10 @@ test.describe(
     await expect(page.getByTestId("review-detail-policy-pack-impact-callout")).toBeVisible({
       timeout: 60_000,
     });
+    await expect(page.getByTestId("run-detail-first-review-spine-pack-delta-demo-link")).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.getByTestId("policy-pack-influence-honesty-chip")).toBeVisible({ timeout: 60_000 });
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "findings");
 
@@ -162,6 +166,12 @@ test.describe(
     await expect(page.getByTestId("run-detail-stamp-semantic-support-band-summary")).toBeVisible({
       timeout: 60_000,
     });
+    const stampLaneBHonesty = page.getByTestId("run-detail-stamp-semantic-support-lane-b-honesty");
+
+    if (await stampLaneBHonesty.isVisible()) {
+      await expect(stampLaneBHonesty).toContainText(/async|may lag/i);
+    }
+
     await expect(page.getByTestId("run-detail-pre-finalize-honesty-strip-group")).toBeVisible({
       timeout: 60_000,
     });

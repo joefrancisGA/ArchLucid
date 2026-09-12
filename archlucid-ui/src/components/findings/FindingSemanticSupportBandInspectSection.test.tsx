@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { FindingSemanticSupportBandInspectSection } from "@/components/findings/FindingSemanticSupportBandInspectSection";
@@ -36,5 +36,14 @@ describe("FindingSemanticSupportBandInspectSection (AS-070)", () => {
     render(<FindingSemanticSupportBandInspectSection finding={decisionGradeFinding} />);
 
     expect(screen.queryByTestId("finding-architect-restatement-semantic-support-band-honesty")).toBeNull();
+  });
+
+  it("shows showReason honesty under the semantic support chip", () => {
+    render(<FindingSemanticSupportBandInspectSection finding={decisionGradeFinding} />);
+
+    const chip = screen.getByTestId("working-finding-semantic-support-band");
+
+    expect(chip).toBeInTheDocument();
+    expect(within(chip).getByText(/Citations do not support this claim/i)).toBeInTheDocument();
   });
 });
