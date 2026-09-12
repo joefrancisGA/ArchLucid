@@ -121,7 +121,11 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "citations", out JsonElement citationsEl))
         {
-            if (citationsEl.ValueKind == JsonValueKind.Array)
+            if (citationsEl.ValueKind == JsonValueKind.Null)
+            {
+                citationCount = 0;
+            }
+            else if (citationsEl.ValueKind == JsonValueKind.Array)
             {
                 citationCount = citationsEl.GetArrayLength();
             }
