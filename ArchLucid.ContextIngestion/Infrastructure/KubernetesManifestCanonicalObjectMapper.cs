@@ -254,12 +254,8 @@ internal static class KubernetesManifestCanonicalObjectMapper
         bool allRunAsNonRootTrue = true;
         bool anyRunAsNonRootFalse = false;
 
-        void InspectContainer(JsonElement container)
+        void InspectSecurityContext(JsonElement securityContext)
         {
-            if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
-                || securityContext.ValueKind is not JsonValueKind.Object)
-                return;
-
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(securityContext, "privileged", out JsonElement privilegedElement)
                 && privilegedElement.ValueKind is JsonValueKind.True)
                 privileged = true;
@@ -278,6 +274,19 @@ internal static class KubernetesManifestCanonicalObjectMapper
                     anyRunAsNonRootFalse = true;
             }
         }
+
+        void InspectContainer(JsonElement container)
+        {
+            if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
+                || securityContext.ValueKind is not JsonValueKind.Object)
+                return;
+
+            InspectSecurityContext(securityContext);
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "securityContext", out JsonElement podSecurityContext)
+            && podSecurityContext.ValueKind is JsonValueKind.Object)
+            InspectSecurityContext(podSecurityContext);
 
         if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "containers", out JsonElement containers)
             && containers.ValueKind is JsonValueKind.Array)

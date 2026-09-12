@@ -290,6 +290,41 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_snake_case_pod_security_context_projects_privileged()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "cluster-pod-sec.json",
+            Format = "kubernetes-json",
+            Content = """
+                      {
+                        "apiVersion": "apps/v1",
+                        "kind": "Deployment",
+                        "metadata": { "name": "api", "namespace": "prod" },
+                        "spec": {
+                          "template": {
+                            "spec": {
+                              "security_context": { "privileged": true },
+                              "containers": [
+                                {
+                                  "name": "api",
+                                  "image": "nginx"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        CanonicalObject deployment = result.Should().ContainSingle().Subject;
+        deployment.Properties["k8s.privileged"].Should().Be("true");
+    }
+
+    [Fact]
     public async Task ParseAsync_reparse_produces_stable_object_ids_for_deployments()
     {
         InfrastructureDeclarationReference declaration = new()
