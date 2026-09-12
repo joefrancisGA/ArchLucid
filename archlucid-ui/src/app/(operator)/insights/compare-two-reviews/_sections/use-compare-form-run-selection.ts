@@ -172,5 +172,6 @@ export function useCompareFormRunSelection(options: {
     buyerCompareHasUrlPair,
     hasPrefilledSelection,
     showRelatedReviewLinks,
+    architectureId: architectureId.length > 0 ? architectureId : null,
   };
 }

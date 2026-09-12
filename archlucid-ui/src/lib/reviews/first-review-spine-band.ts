@@ -3,6 +3,13 @@ import {
   countFindingsByClassificationBand,
   isDecisionGradeFinding,
 } from "@/lib/findings/review-detail-findings-classification-band";
+import {
+  countDecisionGradeSemanticSupportBandsForPresentation,
+  formatStampSemanticSupportBandLineForPresentation,
+} from "@/lib/findings/semantic-support-band-stamp";
+import {
+  shouldPresentSemanticSupportBandAsRehearsal,
+} from "@/lib/governance/simulator-career-honesty";
 import { formatStructuralExecutionModeLabel } from "@/lib/structural-execution-mode";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
@@ -18,6 +25,8 @@ export type FirstReviewSpineBandSummary = {
   readonly uncitedCount: number;
   readonly topFindingTitle: string | null;
   readonly topFindingSeverityLabel: string | null;
+  readonly semanticSupportLine: string | null;
+  readonly showLaneBHonesty: boolean;
 };
 
 export function countUncitedFindings(findings: readonly QuickDecisionFinding[]): number {
@@ -90,6 +99,17 @@ export function deriveFirstReviewSpineBandSummary(input: {
     input.structuralExecutionMode === null || input.structuralExecutionMode === undefined
       ? null
       : formatStructuralExecutionModeLabel(input.structuralExecutionMode);
+  const semanticSupportCounts = countDecisionGradeSemanticSupportBandsForPresentation(
+    findings,
+    input.structuralExecutionMode,
+  );
+  const semanticSupportLine = formatStampSemanticSupportBandLineForPresentation(
+    semanticSupportCounts,
+    input.structuralExecutionMode,
+  );
+  const showLaneBHonesty =
+    !shouldPresentSemanticSupportBandAsRehearsal(input.structuralExecutionMode)
+    && semanticSupportCounts.unchecked > 0;
 
   return {
     gateOutcomeLabel,
@@ -102,5 +122,7 @@ export function deriveFirstReviewSpineBandSummary(input: {
     topFindingTitle: topFinding?.title?.trim() ?? null,
     topFindingSeverityLabel:
       topFinding !== null ? severityLabelFromValue(topFinding.severityValue) : null,
+    semanticSupportLine,
+    showLaneBHonesty,
   };
 }

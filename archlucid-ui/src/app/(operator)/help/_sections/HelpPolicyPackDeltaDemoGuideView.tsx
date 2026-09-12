@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { PolicyPackDeltaDemoHelpClaimDisciplineStrip } from "@/components/help/PolicyPackDeltaDemoHelpClaimDisciplineStrip";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -14,6 +15,9 @@ import {
   POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SCREENSHOT_CHECKLIST,
   POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SUMMARY,
   POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE,
+  POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_DEEP_LINK,
+  POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_SUMMARY,
+  POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_TITLE,
   POLICY_PACK_DELTA_DEMO_HELP_NARRATIVE_ARC,
   POLICY_PACK_DELTA_DEMO_HELP_OVERVIEW,
   POLICY_PACK_DELTA_DEMO_HELP_PAGE_SUBTITLE,
@@ -74,6 +78,10 @@ export function HelpPolicyPackDeltaDemoGuideView(
 
       <PolicyPackDeltaDemoHelpClaimDisciplineStrip />
 
+      <div data-testid="help-policy-pack-delta-demo-wk21-honesty">
+        <PolicyPackInfluenceHonestyChip className="mt-4" />
+      </div>
+
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
           <section
@@ -91,6 +99,24 @@ export function HelpPolicyPackDeltaDemoGuideView(
                 <li key={beat}>{beat}</li>
               ))}
             </ol>
+          </section>
+
+          <section
+            aria-labelledby="help-policy-pack-delta-demo-impact-preview-heading"
+            data-testid="help-policy-pack-delta-demo-impact-preview"
+          >
+            <h2
+              id="help-policy-pack-delta-demo-impact-preview-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_TITLE}
+            </h2>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+              {POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_SUMMARY}
+            </p>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+              {POLICY_PACK_DELTA_DEMO_HELP_IMPACT_PREVIEW_DEEP_LINK}
+            </p>
           </section>
 
           <section

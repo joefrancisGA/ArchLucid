@@ -11,7 +11,7 @@ import {
 import { CommandGroup, CommandItem } from "@/components/ui/command";
 import { useEffectiveNavCommittedArchitectureReview } from "@/hooks/use-effective-nav-committed-architecture-review";
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
-import { useWorkingStartHref } from "@/hooks/use-working-start-href";
+import { useWorkingCreateStartHref } from "@/hooks/use-working-start-href";
 import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 
 export function CommandPaletteActions({
@@ -29,12 +29,12 @@ export function CommandPaletteActions({
 }) {
   const hasCommittedArchitectureReview = useEffectiveNavCommittedArchitectureReview();
   const { showFullNav } = useRoleNavDensityExpanded();
-  const workingStartHref = useWorkingStartHref();
+  const workingCreateStartHref = useWorkingCreateStartHref();
   const hrefActions: readonly CommandPaletteHrefAction[] = resolveVisibleCommandPaletteHrefActions({
     workingMode,
     hasCommittedArchitectureReview,
     showFullNav,
-    workingStartHref,
+    workingStartHref: workingCreateStartHref,
     visibleNavHrefs,
     lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
   });

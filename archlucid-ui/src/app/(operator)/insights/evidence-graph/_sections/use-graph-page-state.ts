@@ -34,6 +34,7 @@ export type UseGraphPageStateOptions = {
 export function useGraphPageState(options: UseGraphPageStateOptions = {}) {
   const router = useRouter();
   const pathname = usePathname() ?? options.basePathname ?? EVIDENCE_GRAPH_PATH;
+  const pinnedArchitectureIdOption = options.pinnedArchitectureId?.trim() ?? "";
   const searchParams = useSearchParams();
   const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
   const workingMode = workspaceMounted && isWorkingMode;
@@ -378,6 +379,7 @@ export function useGraphPageState(options: UseGraphPageStateOptions = {}) {
     architectureBindPending: architectureBind.bindPending,
     showArchitectureDeskEmpty: architectureBind.showArchitectureDeskEmpty,
     architectureBindResult: architectureBind.bindResult,
+    pinnedArchitectureId: pinnedArchitectureIdOption.length > 0 ? pinnedArchitectureIdOption : null,
   };
 }
 

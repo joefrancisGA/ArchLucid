@@ -127,6 +127,8 @@ public sealed class SponsorOnePagerPdfBuilder(
             _architectureInventoryBindingRepository);
         IReadOnlyList<string> coverageHonestyLines =
             CareerExportCoverageHonestyComposer.RenderPlainTextLines(careerExportHonesty);
+        IReadOnlyList<string> sendableCoverLines =
+            SendableExportCoverComposer.RenderPlainTextLines(careerExportHonesty);
         DateTimeOffset end = TimeProvider.System.GetUtcNow();
         DateTimeOffset start = end.AddDays(-30);
         PilotScorecardSummary scorecard = await _scorecardBuilder.BuildAsync(start, end, cancellationToken);
@@ -171,6 +173,25 @@ public sealed class SponsorOnePagerPdfBuilder(
                         {
                             column.Item().PaddingTop(2).Text(line).FontSize(9);
                         }
+
+                        column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                    }
+
+                    if (sendableCoverLines.Count > 0)
+                    {
+                        column.Item().PaddingTop(8).Text("Sendable export cover").Bold().FontSize(12);
+
+                        foreach (string line in sendableCoverLines)
+                        {
+                            column.Item().PaddingTop(2).Text(line).FontSize(9).FontColor(Colors.Grey.Darken2);
+                        }
+
+                        column.Item()
+                            .PaddingTop(4)
+                            .Text("Cover fields mirror the review-package stamp: policy pack, gate outcome, and execution mode before findings.")
+                            .FontSize(8)
+                            .FontColor(Colors.Grey.Darken2)
+                            .Italic();
 
                         column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     }

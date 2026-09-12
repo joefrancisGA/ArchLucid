@@ -30,8 +30,8 @@ public static class SupportBundleTriageDrillCatalog
             DrillId = "aoai-missing",
             Title = "Real-mode agent execution blocked by Azure OpenAI config",
             LikelyCause = "AzureOpenAI endpoint, deployment name, or credential transport not configured for production-like profile.",
-            EvidencePath = "triage-index.md → structuralExecutionModeLabel + configModeSummary",
-            CorrelationFields = ["run.runId", "structuralExecutionModeLabel", "latestFailedGateHint"],
+            EvidencePath = "triage-index.md → structuralExecutionModeLabel + careerPosture + configModeSummary",
+            CorrelationFields = ["run.runId", "structuralExecutionModeLabel", "careerPosture.careerPostureLabel", "latestFailedGateHint"],
             NextCommand = "archlucid config lint --profile production-like-hosted-pilot && review AzureOpenAI appsettings",
         },
         new SupportBundleTriageDrillScenario

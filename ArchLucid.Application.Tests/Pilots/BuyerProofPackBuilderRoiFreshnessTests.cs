@@ -315,7 +315,7 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             CreatedUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
             CompletedUtc = new DateTime(2026, 4, 1, 1, 0, 0, DateTimeKind.Utc),
             CurrentManifestVersion = "v1",
-            StructuralExecutionMode = StructuralExecutionMode.Simulator,
+            StructuralExecutionMode = StructuralExecutionMode.Real,
         };
 
         GoldenManifest manifest = new()

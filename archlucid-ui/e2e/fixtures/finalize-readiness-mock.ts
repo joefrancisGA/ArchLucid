@@ -23,7 +23,7 @@ export function buildFinalizeReadinessBlockedMock(
     scorecard: {
       blockingFindingCount: 0,
       uncoveredMandatoryRequirementCount: 0,
-      openDeferredCount: 0,
+      openDeferredCount: block.code === "scorecard" ? 1 : 0,
       openContradictionCount: 0,
       openCannotDetermineCount: 0,
       openVerifyHypothesisCount: 0,
