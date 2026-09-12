@@ -2501,3 +2501,4 @@
 {"at":"2026-09-12T20:21:01.7633175Z","zoneId":"retrieval","outcome":"seed-only"}
 {"at":"2026-09-12T20:21:14.4775594Z","zoneId":"ui-webhooks-settings","outcome":"seed-only"}
 {"at":"2026-09-12T20:21:29.8576775Z","zoneId":"core-explanation-json","outcome":"seed-only"}
+{"at":"2026-09-12T20:21:47.9003428Z","zoneId":"sql-run-repository","outcome":"seed-only"}
