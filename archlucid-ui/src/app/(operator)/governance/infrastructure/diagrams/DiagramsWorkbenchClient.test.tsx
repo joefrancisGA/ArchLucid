@@ -8,6 +8,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { DiagramsWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient";
 
@@ -296,6 +297,19 @@ describe("DiagramsWorkbenchClient", () => {
       expect.anything(),
       expect.objectContaining({ mode: "dependencyNeighborhood" }),
     );
+  });
+
+  it("shows the starting resource helper above the seed controls", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    const helper = await screen.findByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER);
+    const input = screen.getByTestId("infra-diagrams-seed-node-input");
+
+    expect(helper.compareDocumentPosition(input) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByText("Pick a Nodes row, or paste a cloud resource id or ARM id.")).not.toBeInTheDocument();
   });
 
   it("shows a modal when Focus neighborhood is clicked without a seed", async () => {
