@@ -27,7 +27,7 @@ import {
 } from "@/lib/copy-finding-as-work-item";
 import { findingSemanticSupportBandFromTypedPayload } from "@/components/findings/FindingSemanticSupportBandInspectSection";
 import { resolveFindingWorkItemCoverageHonesty, resolveTraceRowWorkItemCoverageHonesty } from "@/lib/copy-finding-as-work-item-coverage-honesty";
-import { resolveFindingInspectExportClassification } from "@/lib/findings/finding-inspect-export-classification";
+import { resolveFindingInspectExportClassification, resolveFindingInspectExportTreatment } from "@/lib/findings/finding-inspect-export-classification";
 import { resolveFindingInspectCitationExportBlockedReason } from "@/lib/findings/finding-inspect-citation-export-gate";
 import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
 import { showError, showSuccess } from "@/lib/toast";
@@ -83,6 +83,7 @@ function buildFindingWorkItemInput(
   const narrative = findingInspectNarrativeFields(payload);
   const evidenceExcerpts = evidenceLinesFromInspectPayload(payload);
   const classification = resolveFindingInspectExportClassification(payload);
+  const treatment = resolveFindingInspectExportTreatment(payload);
   const typedPayload =
     payload.typedPayload !== null
     && payload.typedPayload !== undefined
@@ -105,6 +106,7 @@ function buildFindingWorkItemInput(
     trustLabel: payload.trustLabel ?? null,
     trustLabelReason: payload.trustLabelReason ?? null,
     classification,
+    treatment,
     semanticSupportBand: findingSemanticSupportBandFromTypedPayload(typedPayload, classification),
     manifestVersion: payload.manifestVersion ?? null,
     includeCoverageHonesty,

@@ -442,7 +442,7 @@ if (Test-Path -LiteralPath $faithfulnessSource) {
 
 if (Test-Path -LiteralPath $faithfulnessWarnSource) {
     Copy-Item -LiteralPath $faithfulnessWarnSource -Destination (Join-Path $OutDir "faithfulness-nightly-warn-status.json") -Force
-    Add-CheckRow $checks "Offline faithfulness nightly warn (G-FAITH-01)" "PASS" "warn-status scaffold attached for RC signoff bundle" "faithfulness-nightly-warn-status.json"
+    Add-CheckRow $checks "Offline faithfulness nightly warn (G-FAITH-01)" "PASS" "warn-only scaffold attached; enforce flip still owner — not a commit gate" "faithfulness-nightly-warn-status.json"
 }
 else {
     Add-CheckRow $checks "Offline faithfulness nightly warn (G-FAITH-01)" "WARN" "run: python scripts/ci/eval_agent_faithfulness.py" "(none)"

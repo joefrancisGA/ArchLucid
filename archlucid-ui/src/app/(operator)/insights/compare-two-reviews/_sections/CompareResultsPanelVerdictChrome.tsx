@@ -28,6 +28,10 @@ import { ComparePinToDeskActions } from "@/app/(operator)/insights/compare-two-r
 import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
 import { CompareClassificationBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareClassificationBandDeltaPanel";
 import { CompareTreatmentBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareTreatmentBandDeltaPanel";
+import { CompareRoiHeadlineDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRoiHeadlineDeltaPanel";
+import { CompareGateOutcomeDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGateOutcomeDeltaPanel";
+import { ComparePackAssignmentDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePackAssignmentDeltaPanel";
+import { CompareExecutionModeDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareExecutionModeDeltaPanel";
 import { CompareSemanticSupportBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSemanticSupportBandDeltaPanel";
 import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaBand";
 import { deriveCompareQualityDeltaFromGolden } from "@/lib/review-quality/compare-quality-delta";
@@ -97,6 +101,10 @@ export function CompareResultsPanelVerdictChrome({
     verdictSummary,
     findingCorrelationState,
     semanticSupportBandDeltaState,
+    roiHeadlineDeltaState,
+    gateOutcomeDeltaState,
+    packAssignmentDeltaView,
+    executionModeDeltaView,
     newFindingTrustLanes,
     result,
   } = viewModel;
@@ -171,6 +179,31 @@ export function CompareResultsPanelVerdictChrome({
           loading={semanticSupportBandDeltaState.loading}
           view={semanticSupportBandDeltaState.treatmentView}
         />
+      ) : null}
+
+      {golden !== null ? (
+        <CompareRoiHeadlineDeltaPanel
+          loading={roiHeadlineDeltaState.loading}
+          view={roiHeadlineDeltaState.view}
+        />
+      ) : null}
+
+      {golden !== null ? (
+        <CompareGateOutcomeDeltaPanel
+          loading={gateOutcomeDeltaState.loading}
+          view={gateOutcomeDeltaState.view}
+        />
+      ) : null}
+
+      {golden !== null ? (
+        <ComparePackAssignmentDeltaPanel
+          loading={viewModel.governanceDiffState.loading}
+          view={packAssignmentDeltaView}
+        />
+      ) : null}
+
+      {golden !== null ? (
+        <CompareExecutionModeDeltaPanel view={executionModeDeltaView} />
       ) : null}
 
       {golden !== null ? (

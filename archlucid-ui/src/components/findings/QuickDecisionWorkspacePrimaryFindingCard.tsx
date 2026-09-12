@@ -265,8 +265,11 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         <div className="mt-3">
           <FindingAskInlinePanel
             findingId={finding.findingId}
+            runId={runId}
             defaultOpen
             semanticSupportBand={finding.semanticSupportBand ?? null}
+            classification={finding.classification ?? null}
+            treatment={finding.treatment}
           />
         </div>
       ) : null}

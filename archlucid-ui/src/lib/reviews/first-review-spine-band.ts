@@ -1,8 +1,10 @@
 import { feasibilityVerdictKindLabel, feasibilityVerdictTone } from "@/lib/feasibility-verdict-display";
+import { quickDecisionFindingHasRecordedDisposition } from "@/lib/findings/finding-recorded-disposition";
 import {
   countFindingsByClassificationBand,
   isDecisionGradeFinding,
 } from "@/lib/findings/review-detail-findings-classification-band";
+import { countFindingsByTreatmentBand } from "@/lib/review-quality/compare-treatment-band-delta";
 import {
   countDecisionGradeSemanticSupportBandsForPresentation,
   formatStampSemanticSupportBandLineForPresentation,
@@ -27,6 +29,10 @@ export type FirstReviewSpineBandSummary = {
   readonly topFindingSeverityLabel: string | null;
   readonly semanticSupportLine: string | null;
   readonly showLaneBHonesty: boolean;
+  readonly treatmentSummaryLine: string | null;
+  readonly recordedDispositionCount: number;
+  readonly openDecisionGradeDispositionCount: number;
+  readonly showDispositionNextAction: boolean;
 };
 
 export function countUncitedFindings(findings: readonly QuickDecisionFinding[]): number {
@@ -51,6 +57,49 @@ function resolveTopDecisionGradeFinding(
   }
 
   return [...decisionGradeFindings].sort((left, right) => right.severityValue - left.severityValue)[0] ?? null;
+}
+
+export function countDispositionStats(findings: readonly QuickDecisionFinding[]): {
+  readonly recordedCount: number;
+  readonly openDecisionGradeCount: number;
+} {
+  let recordedCount = 0;
+  let openDecisionGradeCount = 0;
+
+  for (const finding of findings) {
+    if (quickDecisionFindingHasRecordedDisposition(finding)) {
+      recordedCount += 1;
+
+      continue;
+    }
+
+    if (isDecisionGradeFinding(finding)) {
+      openDecisionGradeCount += 1;
+    }
+  }
+
+  return { recordedCount, openDecisionGradeCount };
+}
+
+function formatTreatmentSummaryLine(
+  counts: ReturnType<typeof countFindingsByTreatmentBand>,
+): string | null {
+  const total = counts.decisionGrade + counts.checklist + counts.demotedToChecklist;
+
+  if (total === 0) {
+    return null;
+  }
+
+  const segments = [
+    `Decision-grade: ${counts.decisionGrade}`,
+    `Checklist: ${counts.checklist}`,
+  ];
+
+  if (counts.demotedToChecklist > 0) {
+    segments.push(`Demoted: ${counts.demotedToChecklist}`);
+  }
+
+  return segments.join(" · ");
 }
 
 function severityLabelFromValue(severityValue: number): string {
@@ -110,6 +159,9 @@ export function deriveFirstReviewSpineBandSummary(input: {
   const showLaneBHonesty =
     !shouldPresentSemanticSupportBandAsRehearsal(input.structuralExecutionMode)
     && semanticSupportCounts.unchecked > 0;
+  const treatmentCounts = countFindingsByTreatmentBand(findings);
+  const treatmentSummaryLine = formatTreatmentSummaryLine(treatmentCounts);
+  const dispositionStats = countDispositionStats(findings);
 
   return {
     gateOutcomeLabel,
@@ -124,5 +176,9 @@ export function deriveFirstReviewSpineBandSummary(input: {
       topFinding !== null ? severityLabelFromValue(topFinding.severityValue) : null,
     semanticSupportLine,
     showLaneBHonesty,
+    treatmentSummaryLine,
+    recordedDispositionCount: dispositionStats.recordedCount,
+    openDecisionGradeDispositionCount: dispositionStats.openDecisionGradeCount,
+    showDispositionNextAction: dispositionStats.openDecisionGradeCount > 0,
   };
 }

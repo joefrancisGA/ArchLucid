@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Roi;
 
 namespace ArchLucid.Application.Roi;
@@ -39,6 +40,9 @@ public static class SponsorRoiBoardPackMarkdownBuilder
 
         sb.AppendLine();
         sb.AppendLine($"## Estimated savings: {FormatUsd(summary.TotalEstimatedUsdSavings)}");
+        sb.AppendLine();
+        sb.AppendLine($"**Sponsor ROI honesty:** {SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine}");
+        sb.AppendLine($"**Policy influence:** {SendableExportCoverComposer.PolicyPackInfluenceHonestyLine}");
         sb.AppendLine();
         sb.AppendLine("## Top systemic issues");
         sb.AppendLine();

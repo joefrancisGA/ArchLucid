@@ -158,7 +158,7 @@ export const GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT: EnterpriseCompact
   testId: "governance-findings-empty-state",
   title: "No findings assigned to you",
   description:
-    "When findings are assigned to you for remediation, they appear here across reviews in this workspace.",
+    "When findings are assigned to you for remediation, they appear here across reviews in this workspace. Record a disposition on decision-grade items before sponsor send.",
 };
 
 /** Assigned-to-me findings queue when filters hide every row. */

@@ -15,6 +15,7 @@ export type RunDetailFirstReviewSpineBandProps = {
   readonly summary: FirstReviewSpineBandSummary;
   readonly className?: string;
   readonly unmappedFindingCount?: number;
+  readonly runId?: string | null;
 };
 
 function gateOutcomeStatusKind(
@@ -73,6 +74,53 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         Decision-grade: {summary.decisionGradeCount} · Checklist: {summary.checklistCount}
         {summary.uncitedCount > 0 ? ` · Uncited: ${summary.uncitedCount}` : ""}
       </p>
+
+      {summary.treatmentSummaryLine !== null ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-first-review-spine-treatment"
+        >
+          {summary.treatmentSummaryLine}
+        </p>
+      ) : null}
+
+      <p
+        className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="run-detail-first-review-spine-disposition"
+      >
+        Dispositions recorded: {summary.recordedDispositionCount}
+        {summary.openDecisionGradeDispositionCount > 0
+          ? ` · Open decision-grade: ${summary.openDecisionGradeDispositionCount}`
+          : ""}
+      </p>
+
+      {summary.showDispositionNextAction ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-first-review-spine-disposition-next-action"
+        >
+          Record dispositions on open decision-grade findings before sponsor send.{" "}
+          <Link
+            href="/governance/findings"
+            className={OPERATOR_LINK.inline}
+            data-testid="run-detail-first-review-spine-disposition-queue-link"
+          >
+            Open governance queue
+          </Link>
+          {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
+            <>
+              {" · "}
+              <Link
+                href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?tab=findings`}
+                className={OPERATOR_LINK.inline}
+                data-testid="run-detail-first-review-spine-disposition-findings-link"
+              >
+                Review findings
+              </Link>
+            </>
+          ) : null}
+        </p>
+      ) : null}
 
       {summary.topFindingTitle !== null ? (
         <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-first-review-spine-top-finding">

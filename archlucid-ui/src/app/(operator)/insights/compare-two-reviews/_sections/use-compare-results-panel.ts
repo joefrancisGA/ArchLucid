@@ -15,6 +15,10 @@ import {
 import { useCompareGovernanceDiff } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff";
 import { useCompareFindingCorrelation } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFindingCorrelation";
 import { useCompareSemanticSupportBandDelta } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareSemanticSupportBandDelta";
+import { useCompareRoiHeadlineDelta } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareRoiHeadlineDelta";
+import { useCompareGateOutcomeDelta } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGateOutcomeDelta";
+import { buildComparePackAssignmentDeltaView } from "@/lib/review-quality/compare-pack-assignment-delta";
+import { buildCompareExecutionModeDeltaView } from "@/lib/review-quality/compare-execution-mode-delta";
 import { useComparisonSearchQuery } from "@/hooks/use-comparison-search-query";
 import { useComparisonDriftDownload } from "@/hooks/use-comparison-drift-download";
 import type { CompareResultsPanelProps } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanel";
@@ -115,6 +119,16 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     baselineSummary: leftPickedSummary,
     targetSummary: rightPickedSummary,
   });
+  const roiHeadlineDeltaState = useCompareRoiHeadlineDelta({
+    baselineRunId: golden?.baseRunId ?? null,
+    targetRunId: golden?.targetRunId ?? null,
+  });
+  const gateOutcomeDeltaState = useCompareGateOutcomeDelta({
+    baselineRunId: golden?.baseRunId ?? null,
+    targetRunId: golden?.targetRunId ?? null,
+  });
+  const packAssignmentDeltaView = buildComparePackAssignmentDeltaView(governanceDiffState.view);
+  const executionModeDeltaView = buildCompareExecutionModeDeltaView(executionModeHonesty);
   const newFindingTrustLanes =
     golden !== null ? buildCompareNewFindingTrustLaneRows(findingCorrelationState.lifecycleRecords) : [];
   const usesCurrentEffectiveOnly = governanceDiffState.view?.usesCurrentEffectiveOnly === true;
@@ -163,6 +177,10 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     governanceDiffState,
     findingCorrelationState,
     semanticSupportBandDeltaState,
+    roiHeadlineDeltaState,
+    gateOutcomeDeltaState,
+    packAssignmentDeltaView,
+    executionModeDeltaView,
     newFindingTrustLanes,
     usesCurrentEffectiveOnly,
     hasAiNarrative,
