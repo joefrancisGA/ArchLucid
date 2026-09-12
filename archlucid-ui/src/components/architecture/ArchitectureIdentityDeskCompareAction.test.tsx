@@ -61,7 +61,7 @@ describe("ArchitectureIdentityDeskCompareAction (CA-30 / AO-29 / SN-027)", () =>
     expect(screen.queryByTestId("architecture-identity-compare-entry")).not.toBeInTheDocument();
   });
 
-  it("SN-027: Working mode opens nested compare with both sibling reviews prefilled", () => {
+  it("SN-017 / SN-027: Working mode opens nested compare with both sibling reviews prefilled", () => {
     mockWorkspaceMode.mockReturnValue({
       mode: "working",
       mounted: true,
