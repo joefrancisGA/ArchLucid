@@ -2442,3 +2442,4 @@
 {"at":"2026-09-12T18:48:43.8478451Z","zoneId":"identity-provider-config","outcome":"seed-only"}
 {"at":"2026-09-12T18:49:40.9702399Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
 {"at":"2026-09-12T18:49:53.2286821Z","zoneId":"sql-run-repository","outcome":"seed-only"}
+{"at":"2026-09-12T18:50:04.8256163Z","zoneId":"core-tenancy-commercial","outcome":"seed-only"}
