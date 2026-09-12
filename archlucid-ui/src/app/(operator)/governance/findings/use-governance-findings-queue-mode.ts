@@ -20,9 +20,15 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 export type UseGovernanceFindingsQueueModeInput = {
   readonly mode: GovernanceFindingsQueueMode;
+  readonly workingMode?: boolean;
+  readonly pathname?: string | null;
 };
 
-export function useGovernanceFindingsQueueMode({ mode }: UseGovernanceFindingsQueueModeInput) {
+export function useGovernanceFindingsQueueMode({
+  mode,
+  workingMode = false,
+  pathname = null,
+}: UseGovernanceFindingsQueueModeInput) {
   const { productLine } = useProductLine();
   const isAssignedToMe = mode === "assigned-to-me";
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -45,6 +51,7 @@ export function useGovernanceFindingsQueueMode({ mode }: UseGovernanceFindingsQu
     isAssignedToMe,
     buyerPolishedShell,
     productLine,
+    { workingMode, pathname },
   );
   const navHref = resolveGovernanceFindingsNavHref(isAssignedToMe, productLine);
   const currentJobId: GovernanceJobId = isAssignedToMe ? "assigned-to-me-findings" : "triage-findings";

@@ -26,8 +26,7 @@ import type { GovernanceApprovalProvenance } from "@/lib/governance/governance-a
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
-import { GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE } from "@/lib/governance/governance-findings-evidence-copy";
-import { resolveGovernanceAssignedToMeClaimDiscipline } from "@/lib/product-line/securenow-governance-assigned-to-me-copy";
+import { resolveGovernanceFindingsClaimDiscipline } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 
 export type GovernanceFindingsQueueHeaderProps = {
   readonly isAssignedToMe: boolean;
@@ -49,6 +48,8 @@ export type GovernanceFindingsQueueHeaderProps = {
   readonly scopedRunId: string | null;
   readonly loading: boolean;
   readonly currentJobId: GovernanceJobId;
+  readonly workingMode?: boolean;
+  readonly pathname?: string | null;
 };
 
 export function GovernanceFindingsQueueHeader({
@@ -66,6 +67,8 @@ export function GovernanceFindingsQueueHeader({
   scopedRunId,
   loading,
   currentJobId,
+  workingMode = false,
+  pathname = null,
 }: GovernanceFindingsQueueHeaderProps) {
   const { productLine } = useProductLine();
   const skipLinkTargetId = isAssignedToMe
@@ -74,9 +77,12 @@ export function GovernanceFindingsQueueHeader({
   const skipLinkLabel = isAssignedToMe
     ? GOVERNANCE_ASSIGNED_TO_ME_SKIP_LINK_LABEL
     : GOVERNANCE_FINDINGS_SKIP_LINK_LABEL;
-  const claimDiscipline = isAssignedToMe
-    ? resolveGovernanceAssignedToMeClaimDiscipline(productLine, buyerPolishedShell)
-    : GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE;
+  const claimDiscipline = resolveGovernanceFindingsClaimDiscipline(
+    isAssignedToMe,
+    productLine,
+    buyerPolishedShell,
+    { workingMode, pathname },
+  );
   const claimDisciplineTestId = isAssignedToMe
     ? "governance-assigned-to-me-claim-discipline"
     : "governance-findings-claim-discipline";

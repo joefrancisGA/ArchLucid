@@ -10,7 +10,7 @@ export type ArchitectureNestedFindingsPageClientProps = {
   readonly architectureId: string;
 };
 
-/** Working nested Findings — mounts findings queue under the architecture desk (ADR 0079 / SY-43). */
+/** Working nested Findings — mounts findings queue under the architecture desk (ADR 0079 / SN-023). */
 export function ArchitectureNestedFindingsPageClient(
   props: ArchitectureNestedFindingsPageClientProps,
 ): React.JSX.Element {
