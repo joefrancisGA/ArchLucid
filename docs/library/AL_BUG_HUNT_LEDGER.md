@@ -3304,7 +3304,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3313,6 +3313,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-12 seed hunt #1908 (seed-only): reseeded api-key-auth; cheap-disproof closed unconfigured-slot authentication and null-slot rotation validation; 44 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` authenticates with valid `X-Api-Key` when both `AdminKey` and `ReadOnlyKey` are unconfigured — **cheap-disproof 2026-09-12 seed hunt #1908:** `MatchesAnyCommaSeparatedKey` returns false for null/whitespace config; regression `When_enabled_true_and_invalid_key_returns_failure`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` accepts null `request.Slot` and defaults to Admin append — **cheap-disproof 2026-09-12 seed hunt #1908:** `ParseSlot` throws `ArgumentException` for null/empty slot; regression `Rotate_with_padded_slot_string_succeeds` and invalid-slot controller mapping.
+
 2026-09-12 seed hunt #1898 (seed-only): reseeded api-key-auth; cheap-disproof closed disabled-auth with valid header fail-closed parity and comma-only ReadOnly snapshot configured flag; 44 scoped ApiKey auth/settings unit tests passed.
 
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler` authenticates with valid `X-Api-Key` when `Enabled=false` and `DevelopmentBypassAll=false` — **cheap-disproof 2026-09-12 seed hunt #1898:** fail-closed before header compare; regression `When_enabled_false_and_bypass_false_valid_api_key_header_still_fails`.
