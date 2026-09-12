@@ -2366,3 +2366,4 @@
 {"at":"2026-09-12T17:02:47.1226368Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-12T17:03:59.0085675Z","zoneId":"retrieval","outcome":"seed-only"}
 {"at":"2026-09-12T17:05:28.0835732Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
+{"at":"2026-09-12T17:06:55.9343253Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
