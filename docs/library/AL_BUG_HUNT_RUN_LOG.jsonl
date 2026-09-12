@@ -2364,3 +2364,4 @@
 {"at":"2026-09-12T17:00:14.375316Z","zoneId":"finding-disposition","outcome":"seed-only"}
 {"at":"2026-09-12T17:01:35.6223933Z","zoneId":"cloud-extractors","outcome":"seed-only"}
 {"at":"2026-09-12T17:02:47.1226368Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-09-12T17:03:59.0085675Z","zoneId":"retrieval","outcome":"seed-only"}
