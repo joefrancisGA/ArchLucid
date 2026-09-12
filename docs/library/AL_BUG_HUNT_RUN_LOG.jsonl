@@ -2426,3 +2426,4 @@
 {"at":"2026-09-12T18:32:21.3112367Z","zoneId":"finding-disposition","outcome":"seed-only"}
 {"at":"2026-09-12T18:34:21.642886Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
 {"at":"2026-09-12T18:34:52.8215693Z","zoneId":"cloud-extractors","outcome":"seed-only"}
+{"at":"2026-09-12T18:34:55.5286245Z","zoneId":"retrieval","outcome":"seed-only"}
