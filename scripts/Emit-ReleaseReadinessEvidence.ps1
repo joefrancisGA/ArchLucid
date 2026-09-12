@@ -523,6 +523,11 @@ if (Test-StrictRcEffective) {
 [string] $simDivVerdict = if ($simDivExit -eq 0) { "PASS" } else { "FAIL" }
 Add-CheckRow $checks "Simulator/live divergence (RC boundary)" $simDivVerdict "bundle-derived classification; exit $simDivExit" "simulator-live-divergence.json"
 
+[string] $simDivSummaryDest = Join-Path $OutDir "simulator-live-divergence-summary.json"
+if (Test-Path -LiteralPath $simDivJson) {
+    Copy-Item -LiteralPath $simDivJson -Destination $simDivSummaryDest -Force
+}
+
 [string] $archInvJson = Join-Path $OutDir "architecture-invariant-rc-summary.json"
 [string] $archInvMd = Join-Path $OutDir "architecture-invariant-rc-summary.md"
 [string[]] $archInvArgs = @(

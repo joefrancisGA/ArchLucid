@@ -87,6 +87,7 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
               classification={finding.classification}
               treatment={finding.treatment}
               findingId={finding.findingId}
+              showReason
             />
             {showDecisionGradeHonesty ? (
               <div className="flex flex-wrap items-center gap-1">

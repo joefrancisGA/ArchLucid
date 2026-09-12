@@ -174,6 +174,7 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
                   classification={resolveFindingInspectExportClassification(inspectPayload)}
                   treatment={resolveInspectTreatment(inspectPayload)}
                   findingId={decodedFindingId}
+                  showReason
                 />
               ) : null}
               {inspectPayload !== null ? (

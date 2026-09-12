@@ -38,4 +38,11 @@ describe("FindingClassificationChip (SD-12)", () => {
 
     expect(container).toBeEmptyDOMElement();
   });
+
+  it("shows showReason honesty under the classification chip", () => {
+    render(<FindingClassificationChip classification="DecisionGradeFinding" findingId="f-4" showReason />);
+
+    expect(screen.getByTestId("finding-classification-chip-wrap-f-4")).toBeInTheDocument();
+    expect(screen.getByText(/Policy-mapped or insight-density-promoted/i)).toBeInTheDocument();
+  });
 });

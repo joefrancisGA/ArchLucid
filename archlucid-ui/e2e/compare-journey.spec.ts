@@ -36,6 +36,7 @@ test.describe("operator journey — compare query prefill and review order", () 
     await waitForCompareResultsReady(page);
     await expect(page.getByTestId("compare-semantic-support-band-delta-panel")).toBeVisible();
     await expect(page.getByTestId("compare-classification-band-delta-panel")).toBeVisible();
+    await expect(page.getByTestId("compare-treatment-band-delta-panel")).toBeVisible();
     await expandCompareRunPickersIfCollapsed(page);
     await expect(comparePageSummarizeNarrativeButton(page)).toBeVisible();
 

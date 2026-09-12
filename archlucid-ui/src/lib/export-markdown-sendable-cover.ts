@@ -13,6 +13,10 @@ import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mo
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { isRecord } from "@/lib/export-markdown-text";
 
+/** V1 §2.8 sponsor ROI non-summing honesty on sendable export covers. */
+export const SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE =
+  "Portfolio headline savings are disposition-aware and deduplicated by FindingId; per-system rows do not sum to the headline." as const;
+
 export type SendableExportCoverInput = {
   readonly runId?: string | null;
   readonly manifestSummary?: ManifestSummary | null;
@@ -107,6 +111,8 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
   if (hasUncheckedDecisionGradeSemanticSupportBand(findings)) {
     lines.push(`- **Semantic support:** ${SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY}`);
   }
+
+  lines.push(`- **Sponsor ROI:** ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`);
 
   lines.push("");
   lines.push(
