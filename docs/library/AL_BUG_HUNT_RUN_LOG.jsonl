@@ -2404,3 +2404,4 @@
 {"at":"2026-09-12T17:41:26.95933Z","zoneId":"extraction-router","outcome":"seed-only"}
 {"at":"2026-09-12T17:41:40.9883709Z","zoneId":"cli-tenant-isolation","outcome":"seed-only"}
 {"at":"2026-09-12T17:41:54.5084214Z","zoneId":"cli-draft-new","outcome":"seed-only"}
+{"at":"2026-09-12T17:42:29.7811480Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}
