@@ -24,6 +24,8 @@ export type ImpactPreviewPageHeaderProps = {
   readonly lastRefreshedAt: Date | null;
   readonly onRefresh: () => void;
   readonly statusKind?: EnterpriseStatusKind | null;
+  readonly navHref?: string;
+  readonly breadcrumb?: React.ReactNode;
 };
 
 /** Shared `/insights/impact-preview` hero — title, lead, contextual help, refresh, and last-refreshed metadata. */
@@ -38,10 +40,10 @@ export function ImpactPreviewPageHeader(props: ImpactPreviewPageHeaderProps): Re
 
   return (
     <OperatorPageHeader
-      navHref={IMPACT_PREVIEW_PATH}
+      navHref={props.navHref ?? IMPACT_PREVIEW_PATH}
       title={IMPACT_PREVIEW_PAGE_TITLE}
       titleTestId="impact-preview-page-title"
-      breadcrumb={<ImpactPreviewBreadcrumb />}
+      breadcrumb={props.breadcrumb ?? <ImpactPreviewBreadcrumb />}
       subtitle={props.subtitle}
       claimDiscipline={IMPACT_PREVIEW_CLAIM_DISCIPLINE}
       claimDisciplineTestId="impact-preview-claim-discipline"
