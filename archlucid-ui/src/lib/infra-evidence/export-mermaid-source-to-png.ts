@@ -1,6 +1,7 @@
 import DOMPurify from "dompurify";
 
 import { createArchitectureDiagramMermaidConfig } from "@/lib/architecture/architecture-diagram-mermaid-config";
+import { replaceMermaidForeignObjectLabelsWithSvgText } from "@/lib/architecture/architecture-diagram-svg";
 import { renderMermaidSvgMarkup } from "@/lib/mermaid/mermaid-safe-render";
 import { sanitizeMermaidSvgForCanvasExport } from "@/lib/infra-evidence/sanitize-mermaid-svg-for-canvas-export";
 
@@ -47,7 +48,8 @@ function readSvgExportDimensions(svgMarkup: string): { width: number; height: nu
 }
 
 function sanitizeSvgMarkupForCanvasExport(svgMarkup: string): string {
-  const purified = DOMPurify.sanitize(svgMarkup, {
+  const withWrappedLabels = replaceMermaidForeignObjectLabelsWithSvgText(svgMarkup);
+  const purified = DOMPurify.sanitize(withWrappedLabels, {
     USE_PROFILES: { svg: true, svgFilters: true },
     FORBID_TAGS: ["script", "foreignObject"],
   });
