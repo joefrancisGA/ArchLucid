@@ -7,6 +7,7 @@ import {
   matchesRiskRegisterFilter,
   type RiskRegisterFilter,
 } from "@/lib/architecture/architecture-risk-register-page";
+import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 
 /** Canonical home-surface noun for committed review records (P2-14). */
 export const OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN = {
@@ -172,12 +173,23 @@ export function architectureAssessmentFindingsPresentation(
 export function reviewFindingsGovernanceQueuePresentation(
   runId: string,
   count: number,
+  workingInstrument?: {
+    readonly architectureId: string;
+    readonly isWorkingMode: boolean;
+  },
 ): MetricCountPresentation {
+  const trimmedRunId = runId.trim();
+
   return {
     count,
     noun: count === 1 ? "finding" : "findings",
     dimensions: [{ kind: "this-review" }, { kind: "governance-filter", filter: "all" }],
-    href: buildGovernanceFindingsQueueHref({ runId, filter: "all" }),
+    href: resolveWorkingFindingsInstrumentHref({
+      architectureId: workingInstrument?.architectureId ?? null,
+      runId: trimmedRunId,
+      filter: "all",
+      isWorkingMode: workingInstrument?.isWorkingMode === true,
+    }),
   };
 }
 

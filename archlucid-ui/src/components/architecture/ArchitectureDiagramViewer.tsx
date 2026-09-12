@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type SetStateAction } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
+import { ArchitectureDiagramMermaidViewportFrame } from '@/components/architecture/ArchitectureDiagramMermaidViewportFrame';
 import { ArchitectureDiagramViewportControls } from '@/components/architecture/ArchitectureDiagramViewportControls';
 import {
   Dialog,
@@ -75,6 +76,8 @@ export type ArchitectureDiagramMermaidViewerProps = {
   readonly onRetry?: () => void;
   /** Fires when sanitized SVG markup is ready for browser PNG export. */
   readonly onExportableSvgMarkupChange?: (svgMarkup: string | null) => void;
+  /** Overlay keeps zoom chrome on the canvas; stacked places it above the viewport. */
+  readonly viewportControlsLayout?: 'stacked' | 'overlay';
 };
 
 export type ArchitectureDiagramStaticViewerProps = {
@@ -284,6 +287,7 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg]:block [&_svg]:overflow-visible',
   '[&_svg_text]:fill-current [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200',
   '[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:leading-snug [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100',
+  '[&_svg_.cluster_rect]:fill-white dark:[&_svg_.cluster_rect]:fill-neutral-950/80',
   '[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]',
   // IDS-02 packing subgraphs (alpack_*) — hide cluster chrome; structure is layout-only.
   '[&_svg_g[id*="alpack"]_.cluster_rect]:fill-transparent [&_svg_g[id*="alpack"]_.cluster_rect]:stroke-none',
@@ -315,6 +319,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     fullscreenTitle = 'Architecture diagram',
     scopeContextLine = null,
     canvasStale = false,
+    viewportControlsLayout = 'overlay',
   } = props;
   const router = useRouter();
   const pathname = usePathname() ?? '';
@@ -328,6 +333,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   const [fullscreenOpen, setFullscreenOpenState] = useState(() =>
     parseArchitectureDiagramFullscreenOpenFromSearch(searchParams.get('diagFullscreen')),
   );
+  const viewportFrameRef = useRef<HTMLDivElement | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const svgHostRef = useRef<HTMLDivElement | null>(null);
   const fullscreenViewportRef = useRef<HTMLDivElement | null>(null);
@@ -592,9 +598,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   }, [fullscreenOpen, sanitizedSvg, syncFullscreenViewportCamera]);
 
   useEffect(() => {
-    const viewport = viewportRef.current;
+    const frame = viewportFrameRef.current;
 
-    if (viewport === null) {
+    if (frame === null) {
       return;
     }
 
@@ -616,14 +622,14 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       if (event.key === '0') {
         event.preventDefault();
         zoom.resetZoom();
-        scrollViewportToOrigin(viewport);
+        scrollViewportToOrigin(viewportRef.current);
       }
     };
 
-    viewport.addEventListener('keydown', onKeyDown);
+    frame.addEventListener('keydown', onKeyDown);
 
     return (): void => {
-      viewport.removeEventListener('keydown', onKeyDown);
+      frame.removeEventListener('keydown', onKeyDown);
     };
   }, [zoom]);
 
@@ -644,14 +650,17 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
   const viewportControlOptions = useMemo(
     () => ({
-      layout: 'overlay' as const,
+      layout: viewportControlsLayout,
       fullscreenAction: {
         label: ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
         onClick: () => setFullscreenOpen(true),
       },
     }),
-    [setFullscreenOpen],
+    [setFullscreenOpen, viewportControlsLayout],
   );
+
+  const viewportControls = renderDiagramViewportControls(zoom, fitToView, viewportControlOptions);
+  const controlsInsideViewport = viewportControlsLayout === 'overlay';
 
   const renderMermaidInk = (
     hostRef: React.RefObject<HTMLDivElement | null>,
@@ -708,19 +717,22 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         </p>
       ) : null}
 
-      <div
-        ref={viewportRef}
+      {controlsInsideViewport ? null : viewportControls}
+
+      <ArchitectureDiagramMermaidViewportFrame
+        frameRef={viewportFrameRef}
+        cameraRef={viewportRef}
+        viewportTestId="architecture-diagram-viewport"
+        cameraTestId="architecture-diagram-camera"
+        ariaLabel={viewportAriaLabel}
+        describedBy={`${renderId}-alt`}
         tabIndex={0}
-        role="img"
-        aria-label={viewportAriaLabel}
-        aria-describedby={`${renderId}-alt`}
-        className="relative w-full max-h-[36rem] overflow-auto rounded-md border border-neutral-200 bg-white p-4 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950/80"
-        data-testid="architecture-diagram-viewport"
         onWheel={onWheel}
+        controls={controlsInsideViewport ? viewportControls : null}
+        cameraMaxHeightClassName="max-h-[36rem]"
       >
-        {renderDiagramViewportControls(zoom, fitToView, viewportControlOptions)}
         {renderMermaidInk(svgHostRef, 'architecture-diagram-svg-host')}
-      </div>
+      </ArchitectureDiagramMermaidViewportFrame>
 
       <p id={`${renderId}-alt`} className="sr-only">
         {props.textAlternative}
@@ -731,16 +743,18 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           <DialogHeader>
             <DialogTitle>{fullscreenTitle}</DialogTitle>
           </DialogHeader>
-          <div
-            ref={fullscreenViewportRef}
+          {controlsInsideViewport ? null : viewportControls}
+          <ArchitectureDiagramMermaidViewportFrame
+            cameraRef={fullscreenViewportRef}
+            viewportTestId="architecture-diagram-fullscreen-viewport"
+            cameraTestId="architecture-diagram-fullscreen-camera"
             tabIndex={0}
-            className="relative max-h-[80vh] overflow-auto rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950/80"
-            data-testid="architecture-diagram-fullscreen-viewport"
             onWheel={onWheel}
+            controls={controlsInsideViewport ? viewportControls : null}
+            cameraMaxHeightClassName="max-h-[80vh]"
           >
-            {renderDiagramViewportControls(zoom, fitToView, viewportControlOptions)}
             {renderMermaidInk(fullscreenHostRef, 'architecture-diagram-fullscreen-svg-host')}
-          </div>
+          </ArchitectureDiagramMermaidViewportFrame>
         </DialogContent>
       </Dialog>
     </figure>

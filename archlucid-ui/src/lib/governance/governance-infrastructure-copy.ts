@@ -165,8 +165,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL = "Starting Reso
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL = "Resource Id" as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER =
-  "Pick a Nodes row, or paste a cloud resource id or ARM id." as const;
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER = "Pick a Starting Resource" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT =
   "To diagram one resource and its neighbors, choose Focus neighborhood on that row." as const;

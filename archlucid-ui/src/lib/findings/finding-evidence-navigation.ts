@@ -1,5 +1,6 @@
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 
 /** Canonical App Router segment for finding evidence trace pages. */
 export const FINDING_EVIDENCE_TRACE_SEGMENT = "evidence-trace";
@@ -30,9 +31,32 @@ export function getFindingDetailHref(
   return `${base}?runId=${encodeURIComponent(queueRunId)}`;
 }
 
-/** Back navigation from finding detail or evidence trace to the policy findings queue. */
-export function resolveFindingsQueueNavHref(findingsQueueRunId?: string | null): string {
-  const queueRunId = (findingsQueueRunId ?? "").trim();
+export type ResolveFindingsQueueNavHrefInput = {
+  readonly findingsQueueRunId?: string | null;
+  readonly architectureId?: string | null;
+  readonly isWorkingMode?: boolean;
+};
+
+/** Back navigation from finding detail or evidence trace to the scoped findings instrument. */
+export function resolveFindingsQueueNavHref(
+  input?: string | null | ResolveFindingsQueueNavHrefInput,
+): string {
+  const normalizedInput: ResolveFindingsQueueNavHrefInput =
+    typeof input === "string" || input === null || input === undefined
+      ? { findingsQueueRunId: input }
+      : input;
+  const queueRunId = (normalizedInput.findingsQueueRunId ?? "").trim();
+  const architectureId = normalizedInput.architectureId?.trim() ?? "";
+  const isWorkingMode = normalizedInput.isWorkingMode === true;
+
+  if (isWorkingMode && architectureId.length > 0) {
+    return resolveWorkingFindingsInstrumentHref({
+      architectureId,
+      runId: queueRunId,
+      filter: "all",
+      isWorkingMode: true,
+    });
+  }
 
   if (queueRunId.length === 0) {
     return GOVERNANCE_FINDINGS_PATH;
