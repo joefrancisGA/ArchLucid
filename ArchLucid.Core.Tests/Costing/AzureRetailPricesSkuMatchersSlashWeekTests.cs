@@ -12,6 +12,8 @@ public sealed class AzureRetailPricesSkuMatchersSlashWeekTests
     [InlineData("/wk")]
     [InlineData("week")]
     [InlineData("weeks")]
+    [InlineData("wk")]
+    [InlineData("wks")]
     public void TryMonthlyUsdFromRow_accepts_week_unit_of_measure_synonyms(string unitOfMeasure)
     {
         AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
@@ -31,6 +33,8 @@ public sealed class AzureRetailPricesSkuMatchersSlashWeekTests
     [Theory]
     [InlineData("1/week")]
     [InlineData("/wk")]
+    [InlineData("wk")]
+    [InlineData("wks")]
     public void LooksLikeConsumptionUsd_accepts_week_unit_of_measure_synonyms(string unitOfMeasure)
     {
         AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
