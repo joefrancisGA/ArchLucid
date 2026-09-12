@@ -238,12 +238,26 @@ internal static class KubernetesManifestCanonicalObjectMapper
             return default;
         }
 
-        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "template", out JsonElement workloadTemplate)
-            && workloadTemplate.ValueKind is JsonValueKind.Object
+        if (TryGetWorkloadPodTemplate(specElement, out JsonElement workloadTemplate)
             && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(workloadTemplate, "spec", out JsonElement workloadPodSpec))
             return workloadPodSpec;
 
         return default;
+    }
+
+    private static bool TryGetWorkloadPodTemplate(JsonElement specElement, out JsonElement podTemplate)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "template", out podTemplate)
+            && podTemplate.ValueKind is JsonValueKind.Object)
+            return true;
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "pod_template", out podTemplate)
+            && podTemplate.ValueKind is JsonValueKind.Object)
+            return true;
+
+        podTemplate = default;
+
+        return false;
     }
 
     private static void ProjectContainerSecurityContext(JsonElement podSpec, Dictionary<string, string> properties)
