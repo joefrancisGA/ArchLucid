@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { MAX_REVIEW_WORKSPACE_H1_CHARS } from "@/lib/review-display-title";
 import {
   countFindingsBySeverity,
   deriveArchitectureSystemName,
@@ -493,7 +494,7 @@ describe("run-detail-workspace-derive", () => {
     );
 
     expect(systemName).not.toBeNull();
-    expect(systemName!.length).toBeLessThanOrEqual(80);
+    expect(systemName!.length).toBeLessThanOrEqual(MAX_REVIEW_WORKSPACE_H1_CHARS);
     expect(systemName).not.toContain("**");
   });
 
