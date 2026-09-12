@@ -25,6 +25,8 @@ public static class GraphEdgeInferenceSources
     public const string DeclarationSegmentationPath = "declaration-segmentation-path";
     public const string StructuredParse = "structured-parse";
 
+    public const string StructuredBriefAssumptionLink = "structured-brief-assumption-link";
+
     public const string InventoryExplicitParentChild = "inventory-explicit-parent-child";
     public const string InventoryRbacAssignment = "inventory-rbac-assignment";
     public const string InventoryRbacDataPlaneMap = "inventory-rbac-data-plane-map";
