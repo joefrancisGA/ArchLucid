@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { PinReviewToDeskButton } from "@/components/reviews/PinReviewToDeskButton";
 import { InventoryShowingCountBand } from "@/components/usability/InventoryShowingCountBand";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useShellInFlightOperations } from "@/hooks/use-shell-in-flight-operations";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -20,8 +23,14 @@ import {
   ARCHITECTURE_IDENTITY_DESK_REVIEWS_EMPTY,
   ARCHITECTURE_IDENTITY_DESK_START_REVIEW_LABEL,
 } from "@/lib/architecture/architecture-identity-desk-copy";
-import { resolveSystemNotJobDeskSealedChildReviewHref } from "@/lib/system-not-job-sealed-child-not-second-desk";
 import { parseFinalizeSuccessHighlightReviewId } from "@/lib/architecture/finalize-success-desk-href";
+import {
+  buildSystemNotJobDeskInFlightReviewRunIds,
+  findSystemNotJobDeskInFlightOperationForReview,
+  resolveSystemNotJobDeskChildReviewHref,
+  resolveSystemNotJobDeskChildReviewStatusLabel,
+  sortSystemNotJobDeskChildReviews,
+} from "@/lib/system-not-job-in-flight-review-on-desk";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInventoryUpdatedAtCell } from "@/lib/relative-time";
 import type { ArchitectureIdentityChildReviewSummary } from "@/types/architecture-identity";
@@ -42,6 +51,22 @@ export function ArchitectureIdentityDeskReviewsTable(
   const { isWorkingMode } = useWorkspaceMode();
   const searchParams = useSearchParams();
   const highlightedReviewId = parseFinalizeSuccessHighlightReviewId(searchParams);
+  const inFlightOperations = useShellInFlightOperations();
+  const inFlightRunIds = useMemo(
+    () => buildSystemNotJobDeskInFlightReviewRunIds(inFlightOperations, props.architectureId),
+    [inFlightOperations, props.architectureId],
+  );
+  const sortedReviews = useMemo(
+    () =>
+      isWorkingMode
+        ? sortSystemNotJobDeskChildReviews({
+            reviews: props.reviews,
+            inFlightRunIds,
+          })
+        : [...props.reviews],
+    [inFlightRunIds, isWorkingMode, props.reviews],
+  );
+  const showInFlightStatusColumn = isWorkingMode && inFlightRunIds.size > 0;
 
   if (props.reviews.length === 0) {
     return (
@@ -70,32 +95,61 @@ export function ArchitectureIdentityDeskReviewsTable(
         <EnterpriseTableHeadRow>
           <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Started</EnterpriseTableHeaderCell>
+          {showInFlightStatusColumn ? (
+            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+          ) : null}
           {isWorkingMode ? (
             <EnterpriseTableHeaderCell className="text-right">Pin</EnterpriseTableHeaderCell>
           ) : null}
         </EnterpriseTableHeadRow>
       </EnterpriseTableHead>
       <EnterpriseTableBody>
-        {props.reviews.map((review) => {
+        {sortedReviews.map((review) => {
           const label = review.description?.trim() || "Architecture review";
           const isHighlighted = highlightedReviewId === review.runId;
+          const inFlightOperation = findSystemNotJobDeskInFlightOperationForReview(
+            inFlightOperations,
+            props.architectureId,
+            review.runId,
+          );
+          const inFlightStatusLabel = resolveSystemNotJobDeskChildReviewStatusLabel(inFlightOperation);
+          const reviewHref = resolveSystemNotJobDeskChildReviewHref({
+            runId: review.runId,
+            architectureId: props.architectureId,
+            inFlightOperation,
+          });
 
           return (
             <EnterpriseTableRow
               key={review.runId}
               data-testid={`architecture-identity-review-row-${review.runId}`}
+              data-in-flight={inFlightOperation !== null ? "true" : undefined}
               data-highlighted={isHighlighted ? "true" : undefined}
               className={cn(isHighlighted ? "bg-[var(--al-layer-hover)] dark:bg-neutral-800/60" : undefined)}
             >
               <EnterpriseTableCell>
                 <Link
-                  href={resolveSystemNotJobDeskSealedChildReviewHref(review.runId, props.architectureId)}
+                  href={reviewHref}
                   className={OPERATOR_LINK.nav}
+                  data-testid={`architecture-identity-review-link-${review.runId}`}
                 >
                   {label}
                 </Link>
               </EnterpriseTableCell>
               <EnterpriseTableCell>{formatInventoryUpdatedAtCell(review.createdUtc).display}</EnterpriseTableCell>
+              {showInFlightStatusColumn ? (
+                <EnterpriseTableCell>
+                  {inFlightStatusLabel !== null ? (
+                    <StatusTag
+                      kind="in-progress"
+                      label={inFlightStatusLabel}
+                      data-testid={`architecture-identity-review-in-flight-${review.runId}`}
+                    />
+                  ) : (
+                    <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>—</span>
+                  )}
+                </EnterpriseTableCell>
+              ) : null}
               {isWorkingMode ? (
                 <EnterpriseTableCell className="text-right">
                   <PinReviewToDeskButton

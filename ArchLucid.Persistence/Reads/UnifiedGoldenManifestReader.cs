@@ -55,13 +55,21 @@ public sealed class UnifiedGoldenManifestReader(
         RunRecord? run = await _runRepository.GetByIdAsync(scope, authorityModel.RunId, cancellationToken)
             .ConfigureAwait(false);
 
-        string systemName = run is null
-            ? "Unknown"
-            : await ResolveSystemNameAsync(run, cancellationToken).ConfigureAwait(false);
+        if (run is null)
+        {
+            return await _projectionBuilder
+                .BuildAsync(
+                    authorityModel,
+                    new AuthorityCommitProjectionInput { SystemName = "Unknown" },
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        AuthorityCommitProjectionInput input =
+            await BuildProjectionInputAsync(run, cancellationToken).ConfigureAwait(false);
 
         return await _projectionBuilder
-            .BuildAsync(authorityModel, new AuthorityCommitProjectionInput { SystemName = systemName },
-                cancellationToken)
+            .BuildAsync(authorityModel, input, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -83,11 +91,11 @@ public sealed class UnifiedGoldenManifestReader(
 
             if (authorityModel is not null)
             {
-                string systemName = await ResolveSystemNameAsync(run, cancellationToken);
+                AuthorityCommitProjectionInput input =
+                    await BuildProjectionInputAsync(run, cancellationToken).ConfigureAwait(false);
 
                 return await _projectionBuilder
-                    .BuildAsync(authorityModel, new AuthorityCommitProjectionInput { SystemName = systemName },
-                        cancellationToken)
+                    .BuildAsync(authorityModel, input, cancellationToken)
                     .ConfigureAwait(false);
             }
         }
@@ -105,11 +113,11 @@ public sealed class UnifiedGoldenManifestReader(
         if (authorityByVersion is null)
             return null;
 
-        string fallbackSystemName = await ResolveSystemNameAsync(run, cancellationToken);
+        AuthorityCommitProjectionInput fallbackInput =
+            await BuildProjectionInputAsync(run, cancellationToken).ConfigureAwait(false);
 
         return await _projectionBuilder
-            .BuildAsync(authorityByVersion, new AuthorityCommitProjectionInput { SystemName = fallbackSystemName },
-                cancellationToken)
+            .BuildAsync(authorityByVersion, fallbackInput, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -125,5 +133,21 @@ public sealed class UnifiedGoldenManifestReader(
             return request.SystemName;
 
         return !string.IsNullOrWhiteSpace(run.ProjectId) ? run.ProjectId : "Unknown";
+    }
+
+    private async Task<AuthorityCommitProjectionInput> BuildProjectionInputAsync(
+        RunRecord run,
+        CancellationToken cancellationToken)
+    {
+        string systemName = await ResolveSystemNameAsync(run, cancellationToken).ConfigureAwait(false);
+        ArchitectureRequest? request = string.IsNullOrWhiteSpace(run.ArchitectureRequestId)
+            ? null
+            : await _requestRepository.GetByIdAsync(run.ArchitectureRequestId, cancellationToken).ConfigureAwait(false);
+
+        return new AuthorityCommitProjectionInput
+        {
+            SystemName = systemName,
+            DraftActors = request?.DraftActors ?? [],
+        };
     }
 }

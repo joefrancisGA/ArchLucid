@@ -330,6 +330,16 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
     "releaseApplicability": "Scope: personal account settings · Audience: all signed-in users",
   },
   {
+    "slug": "architecture-desk",
+    "title": "Architecture desk",
+    "summary": "Working orientation — named architecture is the durable object; reviews are nested jobs on the desk. Inbox is cross-architecture triage; clone after spawn lock opens the next editable version.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-09-12",
+    "releaseApplicability": "Working system-not-job help (SN-032 / WS-20 / ADR 0079)",
+  },
+  {
     "slug": "career-rehearsal-doors",
     "title": "Record and Practice",
     "summary": "Working Record review type and Practice intent — dry-runs in Practice, sealed-record proof in Record. Simulator output is not sponsor proof; record-complete follows the run stamp. Search aliases: career door, career-complete, rehearsal.",
