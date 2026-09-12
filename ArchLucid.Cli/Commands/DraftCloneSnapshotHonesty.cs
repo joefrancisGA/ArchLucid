@@ -11,7 +11,7 @@ internal static class DraftCloneSnapshotHonesty
         + "Start-review stamps your Working Career or Rehearsal door on the new run (CG-062).";
 
     internal const string SimulatorCareerBlockLine =
-        "Career door on Simulator host Mode cannot produce unlabeled career proof (CG-021). "
+        "Record on Simulator host Mode cannot produce unlabeled sealed-record proof (CG-021). "
         + "Use Practice (Rehearsal) door or Real execute before you treat output as career-complete.";
 
     internal const string CasPatchReminderLine =

@@ -50,6 +50,7 @@ export const HELP_APP_GUIDED_TOPIC_SLUGS = [
   "false-hard-infeasibility",
   "extraction-fidelity",
   "which-mode-am-i-in",
+  "sealed-record-vs-decision-register",
   "architecture-drafts",
   "architecture-draft-editing",
   "structured-brief",
