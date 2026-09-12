@@ -173,7 +173,7 @@ public static class ExportBundleCareerPostureResolver
 
     private static string? TryParseWorkingCareerRehearsalDoor(JsonElement root)
     {
-        if (!root.TryGetProperty("workingCareerRehearsalDoor", out JsonElement doorEl))
+        if (!TryGetJsonStringProperty(root, "workingCareerRehearsalDoor", "working_career_rehearsal_door", out JsonElement doorEl))
         {
             return null;
         }

@@ -4212,13 +4212,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 26
-- **bugs-found:** 31
+- **hunts:** 27
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — CLI proof-packet career gate ignored snake_case is_demo_tenant/is_sample_run on pilot-run-deltas JSON
+- **last-bug:** 2026-09-12 — hunt #2217: snake_case structural_execution_mode ignored on CLI career export gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2218 (seed→hit): reseeded tenant-data-export with `-Hint tenant export`; proved snake_case `working_career_rehearsal_door` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_stamps_career_when_working_career_rehearsal_door_snake_case`.
 
 2026-09-12 seed hunt #2217 (seed→hit): reseeded tenant-data-export with `-Hint career export`; proved snake_case `structural_execution_mode` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_stamps_career_when_structural_execution_mode_snake_case_real`.
 
