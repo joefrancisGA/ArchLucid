@@ -3424,7 +3424,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3492,6 +3492,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ScopeIdentityBindingValidator.Validate` rejects when claim present but matching header absent — **cheap-disproof 2026-09-12 seed hunt #1846:** claim-only binding is valid per TB-072; regression `Validate_succeeds_when_claim_and_header_match` and claim-only paths in middleware tests.
 
 2026-09-12 seed hunts #1838–#1846 (seed-only): continued scope-binding-middleware reseed after #1837; cheap-disproof closed SAML/SCIM duplicate-header parity, root-path guard skip, ARCHLUCID_ENVIRONMENT staging override, and route/filter edge cases; 71 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+2026-09-12 seed hunt #1912 (seed-only): reseeded scope-binding-middleware; cheap-disproof closed JwtBearer duplicate tenant-header parity as already covered for Bearer/ApiKey/SCIM/SAML; 71 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) JwtBearer principal with duplicate `x-tenant-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1912:** `TryParseHeaderGuid` parity with bearer; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_bearer`.
 
 ---
 
@@ -4198,7 +4202,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -4240,6 +4244,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `IdentityRegulatedDatastoreClassifier.IsPrivateOnlyBaseline` — bare `.Contains("private")` matched `non-private-network-baseline` labels and falsely classified telemetry SQL nodes as regulated via PROTECTS edges — **hit 2026-09-12 seed hunt #1848:** standalone-word `private` matching with `non-`/`non ` negation prefix; regressions `IsRegulatedDatastore_does_not_treat_non_private_baseline_protection_as_regulated` and `IsRegulatedDatastore_still_treats_private_only_baseline_protection_as_regulated`.
 
 2026-09-12 seed hunt #1848 (hit): reseeded decisioning; proved non-private baseline false positive on regulated datastore classification; 9 scoped IdentityRegulatedDatastoreClassifier + TradeoffRequirementConflictDetector tests passed.
+
+2026-09-12 seed hunt #1913 (seed-only): reseeded decisioning; cheap-disproof closed `non-sensitive`/`non-pci` label negation as already covered by `ContainsAffirmativeSensitiveKeyword`; 9 scoped IdentityRegulatedDatastoreClassifier tests passed.
+
+- [x] (valid-no-repro) `IdentityRegulatedDatastoreClassifier.HasSensitiveLabel` treats `non-sensitive-data-sql` as sensitive — **cheap-disproof 2026-09-12 seed hunt #1913:** `non-`/`non ` prefix negation before standalone `sensitive` token (#1535/#1848 parity).
 
 2026-09-11 thorough hunt #1692 (hit): proved tradeoff non-pci requirement false positive; 7 scoped TradeoffRequirementConflictDetector + IdentityRegulatedDatastoreClassifier tests passed.
 
@@ -10367,7 +10375,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -10416,6 +10424,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — unresolved-issue bullets omitted `IssueType` and `SupportingFindingIds` present in `unresolved-issues.json` — **hit 2026-09-11 hunt #1707 (seed→hit):** fixed with issue type prefix and supporting-finding suffix; regression `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_issue_type_and_supporting_finding_ids_matching_unresolved_issues_json`
 
 2026-09-12 thorough hunt #1847 (hit): proved inventory.json omitted `RequirementCoverageItem.IsMandatory` while markdown/DOCX exposed mandatory flag post-#1534; fixed `InventoryArtifactGenerator` + `InventoryItem.IsMandatory`; 213 scoped ArtifactSynthesis tests passed.
+
+2026-09-12 seed hunt #1914 (seed-only): reseeded artifact-synthesis; cheap-disproof closed inventory mandatory-flag parity as fixed in #1847; 213 scoped ArtifactSynthesis tests passed.
+
+- [x] (valid-no-repro) `InventoryArtifactGenerator` omits `RequirementCoverageItem.IsMandatory` — **cheap-disproof 2026-09-12 seed hunt #1914:** regression `GenerateAsync_serializes_mandatory_flag_for_requirement_items` (#1847).
 
 2026-09-11 seed hunt #1707 (seed→hit): reseeded artifact-synthesis after master merge; proved compliance-matrix gap substring mis-attribution and three markdown cross-surface parity gaps; 200 scoped ArtifactSynthesis tests passed.
 
