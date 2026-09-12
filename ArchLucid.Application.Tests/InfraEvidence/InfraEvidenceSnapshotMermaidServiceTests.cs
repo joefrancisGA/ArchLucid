@@ -567,11 +567,11 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         return CreateService(repository, thresholds, compiler.Object);
     }
 
-    private static InfraEvidenceSnapshotMermaidService CreateService(
-        IAzureInventorySnapshotRepository repository,
-        MermaidDiagramReadabilityThresholds thresholds,
+    private static MermaidDiagramInventoryRenderOrchestrator CreateInventoryRenderOrchestrator(
         IDiagramAstFromGraphCompiler? graphCompiler = null)
     {
+        IDiagramAstFromGraphCompiler compiler = graphCompiler ?? new DiagramAstFromGraphCompiler();
+
         MermaidDiagramRenderPipeline pipeline = new(
             new MermaidDiagramRenderer(),
             new MermaidDiagramComplexityAnalyzer(),
@@ -579,12 +579,28 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             new MermaidDiagramStructuralValidator(),
             new MermaidDiagramSemanticIntegrityGuard(),
             new MermaidDiagramFallbackSetBuilder(
-                new DiagramAstFromGraphCompiler(),
+                compiler,
                 new MermaidDiagramRenderer(),
                 new MermaidDiagramComplexityAnalyzer(),
                 new MermaidDiagramDeterministicRepairer(),
-                new MermaidDiagramStructuralValidator()));
+                new MermaidDiagramStructuralValidator(),
+                new DiagramPeelCatalogDefaultProvider()));
 
+        return new MermaidDiagramInventoryRenderOrchestrator(
+            compiler,
+            pipeline,
+            new DiagramPeelCatalogDefaultProvider(),
+            new MermaidDiagramRenderer(),
+            new MermaidDiagramComplexityAnalyzer(),
+            new MermaidDiagramDeterministicRepairer(),
+            new MermaidDiagramStructuralValidator());
+    }
+
+    private static InfraEvidenceSnapshotMermaidService CreateService(
+        IAzureInventorySnapshotRepository repository,
+        MermaidDiagramReadabilityThresholds thresholds,
+        IDiagramAstFromGraphCompiler? graphCompiler = null)
+    {
         Mock<IBrandedDiagramExportService> brandedDiagramExportService = new();
         brandedDiagramExportService
             .Setup(service => service.DecorateMermaidSourceForExportAsync(
@@ -604,8 +620,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
 
         return new InfraEvidenceSnapshotMermaidService(
             new AzureInventorySnapshotGraphResolver(repository),
-            graphCompiler ?? new DiagramAstFromGraphCompiler(),
-            pipeline,
+            CreateInventoryRenderOrchestrator(graphCompiler),
             brandedDiagramExportService.Object,
             new NullDiagramImageRenderer(),
             new NoOpArchitectureDiagramReconciliationRepository(),
