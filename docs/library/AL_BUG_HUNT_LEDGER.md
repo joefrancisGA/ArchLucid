@@ -2621,13 +2621,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-09 — padded Critical severity skipped human approval and High effort band
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2081 (seed-only): reseeded architecture-recommendation; 13 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
 
