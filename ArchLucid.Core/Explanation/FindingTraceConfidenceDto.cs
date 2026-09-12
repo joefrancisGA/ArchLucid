@@ -86,4 +86,11 @@ public sealed class FindingTraceConfidenceDto
         get;
         init;
     }
+
+    /// <summary>Decision-grade semantic support band when persisted on the finding (AS-061).</summary>
+    public FindingSemanticSupportBand? SemanticSupportBand
+    {
+        get;
+        init;
+    }
 }

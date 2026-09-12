@@ -103,3 +103,7 @@ export function buildAuditExportCsvHonestyPreambleLines(
     ...dualChannelLines,
   ];
 }
+
+/** Shown when governance audit CSV export has no runId filter — CG-026 posture is per-run only. */
+export const AUDIT_CSV_TENANT_WIDE_SCOPE_DISCLAIMER =
+  "Tenant-wide audit CSV exports list events across reviews. CG-026 execution-mode and career-door posture stamps apply only when you filter to a single review id before export.";

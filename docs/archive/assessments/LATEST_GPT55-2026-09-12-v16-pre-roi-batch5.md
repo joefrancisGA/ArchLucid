@@ -4,29 +4,29 @@
 
 # ArchLucid Strategic Release and Market Readiness Assessment (v3)
 
-**Pass date:** 2026-09-12, **01:25 UTC**. **Computed fresh** — no carry-forward ratchet; scores recomputed from evidence on this HEAD (prior pass archived for history only).
+**Pass date:** 2026-09-12, **00:39 UTC**. **Computed fresh** — no carry-forward ratchet; scores recomputed from evidence on this HEAD (prior pass archived for history only).
 
-**Prior rolling snapshot archived:** `docs/archive/assessments/LATEST_GPT55-2026-09-12-v16-pre-roi-batch5.md` (history only; not used for scores).
+**Prior rolling snapshot archived:** `docs/archive/assessments/LATEST_GPT55-2026-09-11-v15-pre-roi-batch4.md` (history only; not used for scores).
 
-**Reasoning engine:** Cursor Composer 2.5, code-and-doc desk review. **No live Azure OpenAI call this pass.** Scoped unit tests executed (Vitest export-cover + compare-delta; Python RC evidence script; `FindingTraceConfidenceMapperTests`). Real-mode first-review was **not** re-run.
+**Reasoning engine:** Cursor Composer 2.5, code-and-doc desk review. **No live Azure OpenAI call this pass.** Simulator-path unit tests were executed (28 passed: lifecycle, pre-commit gate, disposition-aware ROI). Real-mode first-review was **not** re-run.
 
-**Inspected HEAD:** `cursor/arch-quality-roi-improvements-0d83` **`67527fc8d8`** (ROI batches **5A** + **5B** `ca5debd82c`: markdown sendable-cover WK-21/Lane B parity, showReason chips, pack-delta spine CTA, RC bundle auto-attach, governance queue semantic band, compare-two-reviews band delta, tenant-wide audit CSV disclaimer, `@release-gate` showReason witness).
+**Inspected HEAD:** `cursor/arch-quality-roi-improvements-0d83` **`66edde7b91`** (architecture-quality ROI batches 1–4 merged on branch; batch 4: audit CSV posture, inspect `semanticSupportBand`, G-FAITH-01 RC gate, buyer dual-audit honesty, `@release-gate` semantic-band smoke, WK-21 sendable-cover line).
 
-### Pass delta vs 2026-09-12 pre-batch-5 (`LATEST_GPT55` v16 @ 78.18% → this HEAD)
+### Pass delta vs 2026-09-11 (`master` `1abaf898f0` → this HEAD)
 
 | Area | Prior | This pass | Evidence |
 |---|---|---|---|
-| **(A) headline** | **78.18%** | **78.72%** (+0.54 pp) | ROI batches **5A+5B**: audit career-posture E2E + RC evidence index; markdown sendable-cover Lane B parity; showReason + typed-engine honesty on primary/secondary/summary cards; pack-delta demo CTA on first-review spine; RC bundle auto-attaches ship-gate + faithfulness-nightly; governance queue `semanticSupportBand`; compare-two-reviews band delta panel; tenant-wide audit CSV scope disclaimer |
-| Insight Density | 75 | **76** | `showReason` on decision-grade chips + typed-engine honesty line on primary card |
-| Differentiability | 81 | **82** | WK-21 + Lane B disclaimer on **markdown** sendable covers (parity with DOCX/PDF); pack-delta demo deep-link on spine band |
-| Governed Review Integrity | 84 | **85** | Tenant-wide audit CSV scope disclaimer; governance queue semantic-band chip on decision-grade rows |
-| Correctness & Evidence | 82 | **82** | Compare-two-reviews semantic band delta; RC bundle auto-attach — no pillar bump (incremental) |
-| AI / Agent Readiness | 78 | **78** | `@release-gate` Playwright asserts async/Lane B reason text — witness only |
-| Time-to-Value | 73 | **73** | unchanged |
-| Proof-of-ROI | 80 | **80** | unchanged |
-| Comprehension | 71 | **72** | Compare band delta panel; showReason everywhere decision-grade chips render |
-| Runtime reliability | 78 | **79** | `Emit-ReleaseReadinessEvidence.ps1` auto-copies ship-gate + faithfulness-nightly into bundle root |
-| Adoption friction | 74 | **74** | unchanged |
+| **(A) headline** | **76.80%** | **78.18%** (+1.38 pp) | ROI batches 1–4: spine export co-location, sendable covers, inspect classification/semantic band, audit CSV CG-026 posture, dual-audit honesty, RC signoff gates (ship-gate, G-REAL-08, G-FAITH-01 scaffold) |
+| Insight Density | 74 | **75** | Classification + semantic-band chips on buyer/inspect surfaces; `@release-gate` asserts primary-card chip |
+| Differentiability | 79 | **81** | WK-21 policy-influence line on all sendable export covers; pack impact preview deep-links |
+| Governed Review Integrity | 83 | **84** | CG-026 audit CSV posture stamps + career-door export blocks; dual-channel honesty on buyer audit |
+| Correctness & Evidence | 81 | **82** | First-class inspect API fields; audit CSV execution-mode/door preamble |
+| AI / Agent Readiness | 77 | **78** | G-FAITH-01 nightly warn scaffold + RC bundle slot (enforce still owner) |
+| Time-to-Value | 71 | **73** | Package-spine export strip co-locates sponsor exports + run-scoped audit CSV |
+| Proof-of-ROI | 79 | **80** | Sendable covers stamp gate outcome + execution mode on sponsor artifacts |
+| Comprehension | 69 | **71** | First-review spine band + classification/semantic-band chips compress narrative |
+| Runtime reliability | 76 | **78** | `release-smoke.ps1` ship-gate hook + RC signoff Gate 5 rollup wiring (witness still owner-run) |
+| Adoption friction | 73 | **74** | One-click run-scoped audit CSV with career-posture blocked reasons |
 | **Unchanged blockers** | G4 0/3; Gate 1 UNKNOWN; G-REAL-06 owner | — | Not penalized in `(A)` per scope rules |
 
 ---
@@ -56,15 +56,15 @@ Sourced from open `docs/go-to-market/GTM_BACKLOG.md` rows plus owner-gated claim
 
 ## 1. Title & Headline
 
-**ArchLucid Assessment – (A) Headline Readiness: 78.72%**
+**ArchLucid Assessment – (A) Headline Readiness: 78.18%**
 
-Readiness **excludes** deferred items per `V1_SCOPE.md` §3, `V1_DEFERRED.md` §6*, and `.cursor/rules/Assessment-Scope-V1_1.mdc`. Reasoning engine: **desk review** (scoped unit tests this pass; **not** a fresh Real-mode Azure OpenAI run). Timestamp: **2026-09-12 01:25 UTC**.
+Readiness **excludes** deferred items per `V1_SCOPE.md` §3, `V1_DEFERRED.md` §6*, and `.cursor/rules/Assessment-Scope-V1_1.mdc`. Reasoning engine: **desk review** (simulator unit tests this pass; **not** a fresh Real-mode Azure OpenAI run). Timestamp: **2026-09-12 00:39 UTC**.
 
 **Source materials inspected (read-list order):** `docs/library/ASSESSMENT_INPUTS.md`, `docs/library/REPO_DIGEST.md`, `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, `docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md` (SOC 2 roadmap), `docs/library/ARCHITECTURE_COMPONENTS.md`, `docs/library/SYSTEM_MAP.md`, `docs/library/API_CONTRACTS.md`, `docs/library/CONFIGURATION_REFERENCE.md`, `docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`, `docs/library/AUDIT_COVERAGE_MATRIX.md`, `docs/go-to-market/GTM_BACKLOG.md`, `.cursor/rules/Assessment-Scope-V1_1.mdc`. Also: `docs/library/CONNECTOR_READINESS_MATRIX.md`, `docs/library/MULTI_CLOUD_ANALYSIS_V1_1.md`, `docs/library/POLICY_PACK_EXPECTATION_FACET.md`, `docs/go-to-market/PRICING_PHILOSOPHY.md`, `docs/go-to-market/CLAIM_READINESS_STATUS.md`, `docs/quality/insight-density-engine-distribution.md`.
 
 **Code regions inspected:** `AuthorityRunOrchestrator` (`ArchLucid.Application/Runs/Orchestration/`), `PreCommitGovernanceGate`, `PolicyPackResolver` / `DefaultPolicyPackSeeder` / `DefaultPolicyPackCloudBaselineApplicator`, `SponsorRoiSummaryService` / `DispositionAwareRoiBasisCalculator`, `CostRetailGroundingBuilder` + AWS/GCP lookups, `GraphRagNeighborExpander`, `SelfServiceTrialAiBudgetPolicyProvisioner`, ITSM `NativeEnabled` config, extractor ZIP scripts (`Get-ArchLucidAwsPackage.ps1` / `Get-ArchLucidGcpPackage.ps1`), `archlucid-ui` pricing (`pricing.json`, `/pricing`), billing buyer-polish tests, system-health buyer-polish tests, request-access auth callback.
 
-**This pass runtime:** Vitest `export-markdown-sendable-cover.test.ts` + `compare-semantic-support-band-delta.test.ts` → **7 passed**; Python `test_release_readiness_evidence_script.py` → **OK**; `FindingTraceConfidenceMapperTests` → **3 passed**.
+**This pass runtime:** `dotnet test` filter on `DispositionAwareRoiBasisCalculatorTests` + `ArchitectureRunLifecycleModelTests` + `PreCommitGovernanceGateTests` → **28 passed / 0 failed**.
 
 ---
 
@@ -72,17 +72,17 @@ Readiness **excludes** deferred items per `V1_SCOPE.md` §3, `V1_DEFERRED.md` §
 
 | # | Quality | Score | Weight | Weighted contribution | Weighted deficiency signal |
 |---|---------|------:|-------:|----------------------:|---------------------------:|
-| 1 | Decision-Changing Insight Density | 76 | 13 | 9.88 | 312 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 82 | 13 | 10.66 | 234 |
-| 3 | Governed Review Integrity | 85 | 13 | 11.05 | 195 |
+| 1 | Decision-Changing Insight Density | 75 | 13 | 9.75 | 325 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 81 | 13 | 10.53 | 247 |
+| 3 | Governed Review Integrity | 84 | 13 | 10.92 | 208 |
 | 4 | Correctness & Evidence Integrity | 82 | 12 | 9.84 | 216 |
 | 5 | AI / Agent Readiness | 78 | 10 | 7.80 | 220 |
 | 6 | Time-to-Value | 73 | 10 | 7.30 | 270 |
 | 7 | Proof-of-ROI Readiness | 80 | 9 | 7.20 | 180 |
-| 8 | Sponsor / Operator Comprehension | 72 | 8 | 5.76 | 224 |
-| 9 | Runtime & First-Review Reliability | 79 | 7 | 5.53 | 147 |
+| 8 | Sponsor / Operator Comprehension | 71 | 8 | 5.68 | 232 |
+| 9 | Runtime & First-Review Reliability | 78 | 7 | 5.46 | 154 |
 | 10 | Adoption Friction | 74 | 5 | 3.70 | 130 |
-| | **(A) Headline Readiness** | | **100** | **78.72** | |
+| | **(A) Headline Readiness** | | **100** | **78.18** | |
 
 **(B) Procurement / market-motion realism** is informational and **weight 0** in `(A)`. Narrative in §5.
 
@@ -92,7 +92,7 @@ Readiness **excludes** deferred items per `V1_SCOPE.md` §3, `V1_DEFERRED.md` §
 
 These numbers measure **market and competitive outcomes**. They are **not** folded into 76.80%.
 
-**Decision Advantage Score: 63 / 100.** ArchLucid can change a decision a skilled architect using frontier AI would not operationalize — when a policy pack assignment, pre-commit gate, disposition, or citation-backed cost line is in play. ROI batches **5A+5B** extend **showReason** semantic-band honesty and compare/governance-queue visibility but did **not** add live customer proof. Tension with headline: 78.72% says the **product contract is largely built**; 63 says **decision change in the wild is still unproven** (G4 = 0 of 3). That is consistent: `(A)` scores in-contract engineering, not paid pilots.
+**Decision Advantage Score: 63 / 100.** ArchLucid can change a decision a skilled architect using frontier AI would not operationalize — when a policy pack assignment, pre-commit gate, disposition, or citation-backed cost line is in play. ROI batches improved **visibility** of decision-grade vs checklist findings (classification/semantic-band chips, sendable-cover honesty) but did **not** add live customer proof. Tension with headline: 78.18% says the **product contract is largely built**; 63 says **decision change in the wild is still unproven** (G4 = 0 of 3). That is consistent: `(A)` scores in-contract engineering, not paid pilots.
 
 **Frontier-AI Survival Probability (12-month): 48–64%.**  
 - **Reference class:** specialized workflow SaaS wrapping frontier models (copilots, GRC-adjacent review tools) — historically ~30–50% still differentiated at 12 months unless they own customer-specific state + workflow.  
@@ -131,9 +131,9 @@ These numbers measure **market and competitive outcomes**. They are **not** fold
 
 ## 5. Sponsor Summary
 
-**(A) Overall headline readiness — 78.72%.** ArchLucid is a **governed architecture review system**, not a chatbot. A tenant can ingest evidence (Azure/AWS/GCP ZIP or evidence-only), run an authority pipeline under simulator or platform Azure OpenAI, ground findings in bundled policy packs (45 `PlatformDefault` categories), block finalize on a severity gate, record dispositions, emit an append-only audit trail, export a package, and roll a **disposition-aware** sponsor ROI number that is explicitly **not** a naive sum of per-system rows. First-party Jira, ServiceNow, Confluence, Slack, and Teams connectors ship as V1 GA. Multi-cloud analysis (enum, Tier 1 ZIP, Tier 2 polling, AWS/GCP retail-price structured lookups) is in the product, not a future promise. RAG-V1 quality work is closed; Graph-RAG is **bounded multi-hop** (not community summarization); query expansion is **single-pass** (iterative retrieve-critique-retry exists, default off).
+**(A) Overall headline readiness — 78.18%.** ArchLucid is a **governed architecture review system**, not a chatbot. A tenant can ingest evidence (Azure/AWS/GCP ZIP or evidence-only), run an authority pipeline under simulator or platform Azure OpenAI, ground findings in bundled policy packs (45 `PlatformDefault` categories), block finalize on a severity gate, record dispositions, emit an append-only audit trail, export a package, and roll a **disposition-aware** sponsor ROI number that is explicitly **not** a naive sum of per-system rows. First-party Jira, ServiceNow, Confluence, Slack, and Teams connectors ship as V1 GA. Multi-cloud analysis (enum, Tier 1 ZIP, Tier 2 polling, AWS/GCP retail-price structured lookups) is in the product, not a future promise. RAG-V1 quality work is closed; Graph-RAG is **bounded multi-hop** (not community summarization); query expansion is **single-pass** (iterative retrieve-critique-retry exists, default off).
 
-What 78.72% does **not** mean: a customer has not yet produced three clean Real-mode proof packets; Gate 1 was not observed live this pass; principal-architect reuse is unmeasured. The +0.54 pp delta vs the prior pass is **honesty-surface parity and RC bundle completeness** from ROI batches **5A+5B**, not live pilot proof.
+What 78.18% does **not** mean: a customer has not yet produced three clean Real-mode proof packets; Gate 1 was not observed live this pass; principal-architect reuse is unmeasured. The +1.38 pp delta vs the prior pass is **engineering honesty and export/traceability uplift** from ROI batches 1–4, not live pilot proof.
 
 **(B) Procurement / market realism (weight 0).** Trust center is honest: SOC 2 Type II **not issued**; third-party pen test **planned, not scheduled**; V1 uses owner-conducted testing + self-assessment. SPA bearer tokens in `sessionStorage` are disclosed. That honesty helps sophisticated buyers and still **loses rigid RFPs**. CPA SOC 2 and vendor pen-test publication remain **G-REAL-05 / G-ASSURANCE-02** — owner work, not engineering gaps, and **not** `(A)` deductions.
 
@@ -168,11 +168,11 @@ Safe to leave out of `(A)`; discuss as buyer/roadmap friction only:
 
 Ordered by **weighted deficiency signal**.
 
-### 7.1 Decision-Changing Insight Density — Score 76 · Weight 13 · Contribution 9.88 · Deficiency 312
+### 7.1 Decision-Changing Insight Density — Score 75 · Weight 13 · Contribution 9.75 · Deficiency 325
 
 **Outcomes:** 1 (insight), 3 (usage), 5 (survivability).
 
-**Justification:** Typed engines + insight-density gate (ADR 0070) demote generic/unanchored advice instead of deleting it. Golden distribution shows 28 emitting engines on the recorded corpus with **zero** “no evidence / no anchor” cells. **ROI batches 1–4** add first-class **classification/treatment/semanticSupportBand** on inspect API and buyer/Working chips. **Batch 5B** adds **`showReason`** on primary/secondary/summary chips and typed-engine honesty on the primary card — surfacing Lane B/async semantics without opening forensics. Live customer “I did not think of that” is still **G4-empty**.
+**Justification:** Typed engines + insight-density gate (ADR 0070) demote generic/unanchored advice instead of deleting it. Golden distribution shows 28 emitting engines on the recorded corpus with **zero** “no evidence / no anchor” cells. **ROI batches 1–4** add first-class **classification/treatment/semanticSupportBand** on inspect API and buyer/Working chips — making decision-grade vs checklist coverage visible without opening forensics. Live customer “I did not think of that” is still **G4-empty**.
 
 **Tradeoffs:** Raising demotion aggressiveness reduces false confidence and can starve a first demo of visible findings. Simulator goldens can overstate live insight.
 
@@ -188,19 +188,19 @@ Ordered by **weighted deficiency signal**.
 
 **Recommendations:** Founder-led 30-minute path using Workspace A + one Real run — validation, not a new intake product. Classification: **V1** (path exists) / **market validation required**.
 
-### 7.3 Differentiability / Defensibility vs Frontier AI — Score 82 · Weight 13 · Contribution 10.66 · Deficiency 234
+### 7.3 Differentiability / Defensibility vs Frontier AI — Score 81 · Weight 13 · Contribution 10.53 · Deficiency 247
 
-**Rubric band: High** (approaching Excellent on exports). Changing an assigned pack **does** change compliance keys, declaration gating, some coverage/cost extras, and pre-commit outcomes. **WK-21 policy-influence honesty** ships on **all sendable export covers** including **markdown** (ROI batch **5B** closes DOCX/PDF-only gap). **Pack-delta demo CTA** on first-review spine band links hostile-principal rehearsal path.
+**Rubric band: High** (approaching Excellent on exports). Changing an assigned pack **does** change compliance keys, declaration gating, some coverage/cost extras, and pre-commit outcomes. **WK-21 policy-influence honesty** now ships on **all sendable export covers** (ROI batch 4), making the partial-pack moat legible in sponsor artifacts — not only UI copy.
 
 **Tradeoffs:** Selling “smarter than Claude” invites bake-off loss. Selling “governed repeatability” is slower and more durable.
 
 **Recommendations:** Demo must **change a pack live** and show gate/finding/ROI shift. Classification: **V1** (moat surfaces exist) / **market validation required** (moat obviousness).
 
-### 7.4 Sponsor / Operator Comprehension — Score 72 · Weight 8 · Contribution 5.76 · Deficiency 224
+### 7.4 Sponsor / Operator Comprehension — Score 71 · Weight 8 · Contribution 5.68 · Deficiency 232
 
 **Outcomes:** 3, 4.
 
-**Justification:** Product-language cleanup is extensive. **ROI batches** add first-review spine band, sendable export cover fields (policy pack, gate outcome, execution mode), and classification/semantic-band chips on buyer primary cards. **Batch 5B** adds **compare-two-reviews semantic band delta panel** and **`showReason`** on all decision-grade chip surfaces — compressing “what changed between runs?” without founder narration. Remaining load: seats + workspace + AI credits; governance vs approvals vs alerts.
+**Justification:** Product-language cleanup is extensive. **ROI batches** add first-review spine band, sendable export cover fields (policy pack, gate outcome, execution mode), and classification/semantic-band chips on buyer primary cards — compressing “what happened?” without founder narration. Remaining load: seats + workspace + AI credits; governance vs approvals vs alerts.
 
 **Tradeoffs:** Hiding Operate-layer links helps Pilot and hides the moat.
 
@@ -226,11 +226,11 @@ Ordered by **weighted deficiency signal**.
 
 **Recommendations:** Keep fail-closed. Do not unify channels before a buyer asks. Classification: **V1**.
 
-### 7.7 Governed Review Integrity — Score 85 · Weight 13 · Contribution 11.05 · Deficiency 195
+### 7.7 Governed Review Integrity — Score 84 · Weight 13 · Contribution 10.92 · Deficiency 208
 
 **Outcomes:** 2, 5.
 
-**Justification:** Packs are first-class JSON with scope merge, cloud-baseline auto-enable, pre-commit gate on assignment thresholds, SoD approvals, SLA/escalation, governance dashboard, typed audit (CI const count). **CG-026** run-scoped audit CSV posture stamps + career-door export blocks reduce false “complete audit trail” claims. **Batch 5B** adds **tenant-wide audit CSV scope disclaimer** and **governance queue `semanticSupportBand` chip** on decision-grade rows. Integrity is **High**, not Excellent, because expectation facets are additive-only and dual audit channels remain disclosed-not-unified.
+**Justification:** Packs are first-class JSON with scope merge, cloud-baseline auto-enable, pre-commit gate on assignment thresholds, SoD approvals, SLA/escalation, governance dashboard, typed audit (CI const count). **CG-026** run-scoped audit CSV posture stamps + career-door export blocks reduce false “complete audit trail” claims. Integrity is **High**, not Excellent, because expectation facets are additive-only and dual audit channels remain disclosed-not-unified.
 
 **Tradeoffs:** Making every engine pack-aware would create certification-shaped overclaim.
 
@@ -246,11 +246,11 @@ Ordered by **weighted deficiency signal**.
 
 **Recommendations:** One Real extractor ZIP in G-REAL-06 Run 1. Classification: **V1** mechanism / **validation first** for credibility.
 
-### 7.9 Runtime & First-Review Reliability — Score 79 · Weight 7 · Contribution 5.53 · Deficiency 147
+### 7.9 Runtime & First-Review Reliability — Score 78 · Weight 7 · Contribution 5.46 · Deficiency 154
 
 **Outcomes:** 3, 7 (exposure).
 
-**Justification:** Happy-path lifecycle tests pass; k6 CI smoke exists; worker/outbox patterns exist. **`release-smoke.ps1` ship-gate hook** and RC signoff **ship-gate-evidence / G-REAL-08 / faithfulness-nightly-warn** gate rows operationalize evidence collection (ROI batches 1–4). **Batch 5B** auto-attaches ship-gate + faithfulness-nightly JSON into RC bundle root via `Emit-ReleaseReadinessEvidence.ps1`; **`@release-gate`** Playwright asserts primary-card **`showReason`** text. This pass did not run release-smoke or launch-load. Gate 1 UNKNOWN is the honesty tax.
+**Justification:** Happy-path lifecycle tests pass; k6 CI smoke exists; worker/outbox patterns exist. **`release-smoke.ps1` ship-gate hook** and RC signoff **ship-gate-evidence / G-REAL-08 / faithfulness-nightly-warn** gate rows operationalize evidence collection (ROI batches 1–4). This pass did not run release-smoke or launch-load. Gate 1 UNKNOWN is the honesty tax.
 
 **Tradeoffs:** Full smoke is slow; skipping it in assessments recreates UNKNOWN.
 
@@ -428,7 +428,7 @@ All six V1 ship gates are PASS or UNKNOWN (none FAIL). In-contract engineering i
 
 ### Shipped this cycle (acknowledgment only)
 
-**ROI batch 5A** (audit career-posture E2E, RC evidence index, Lane B sendable covers, semantic band on inspect header, TB-502) and **ROI batch 5B** (markdown sendable-cover WK-21/Lane B parity, showReason chips, pack-delta spine CTA, RC bundle auto-attach, governance queue semantic band, compare band delta, tenant-wide audit disclaimer, `@release-gate` showReason witness). Standing substrate (not opportunities): policy packs, pre-commit gate, ROI, connectors, multi-cloud costing (**TB-603**), ITSM default-on (**TB-599**).
+No new engineering shipped **this assessment pass**. Standing shipped substrate (not opportunities): policy packs, pre-commit gate, ROI, connectors, multi-cloud costing (**TB-603**), ITSM default-on (**TB-599**).
 
 ### Tier 1 — Must do (validation / owner)
 

@@ -12,6 +12,7 @@ import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceB
 import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
 import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
+import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { isDecisionGradeFinding } from "@/lib/findings/review-detail-findings-classification-band";
 import { QuickDecisionFindingRationale } from "@/components/findings/QuickDecisionFindingRationale";
 import { QuickDecisionWorkspaceFindingSupportingDetails } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
@@ -70,6 +71,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
   const findingWatermarkKey = reviewFindingWatermarkKey(runId, finding.findingId);
   const showNewSinceLastVisit = isActivityNewSinceLastVisit(findingWatermarkKey, findingActivityAt);
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
+  const showDecisionGradeHonesty = isDecisionGradeFinding(finding);
 
   return (
     <article
@@ -114,6 +116,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
               <FindingTrustChip finding={finding} />
               <FindingSemanticSupportBandChip
                 finding={finding}
+                showReason
                 structuralExecutionMode={props.context.structuralExecutionMode}
               />
             </>
@@ -126,6 +129,14 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             />
           ) : null}
         </div>
+        {showDecisionGradeHonesty ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid={`finding-workspace-density-honesty-${finding.findingId}`}
+          >
+            {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
+          </p>
+        ) : null}
         <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {finding.title}
         </h3>

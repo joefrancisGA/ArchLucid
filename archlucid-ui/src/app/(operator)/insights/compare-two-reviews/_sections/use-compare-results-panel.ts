@@ -14,6 +14,7 @@ import {
 } from "@/lib/review-quality/compare-quality-delta";
 import { useCompareGovernanceDiff } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff";
 import { useCompareFindingCorrelation } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFindingCorrelation";
+import { useCompareSemanticSupportBandDelta } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareSemanticSupportBandDelta";
 import { useComparisonSearchQuery } from "@/hooks/use-comparison-search-query";
 import { useComparisonDriftDownload } from "@/hooks/use-comparison-drift-download";
 import type { CompareResultsPanelProps } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanel";
@@ -108,6 +109,12 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     golden !== null ? golden.baseRunId : null,
     golden !== null ? golden.targetRunId : null,
   );
+  const semanticSupportBandDeltaState = useCompareSemanticSupportBandDelta({
+    baselineRunId: golden?.baseRunId ?? null,
+    targetRunId: golden?.targetRunId ?? null,
+    baselineSummary: leftPickedSummary,
+    targetSummary: rightPickedSummary,
+  });
   const newFindingTrustLanes =
     golden !== null ? buildCompareNewFindingTrustLaneRows(findingCorrelationState.lifecycleRecords) : [];
   const usesCurrentEffectiveOnly = governanceDiffState.view?.usesCurrentEffectiveOnly === true;
@@ -155,6 +162,7 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     showExecutionModeHonesty,
     governanceDiffState,
     findingCorrelationState,
+    semanticSupportBandDeltaState,
     newFindingTrustLanes,
     usesCurrentEffectiveOnly,
     hasAiNarrative,

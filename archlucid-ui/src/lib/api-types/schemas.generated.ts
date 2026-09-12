@@ -4684,6 +4684,7 @@ export interface components {
             findingTitle?: string;
             missingTraceFields?: string[];
             ruleId?: string;
+            semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             /** Format: double */
             traceCompletenessRatio?: number | string;
             traceConfidenceLabel: string;

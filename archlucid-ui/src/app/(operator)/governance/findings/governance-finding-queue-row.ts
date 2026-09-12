@@ -1,6 +1,7 @@
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import type { FindingConfidenceLevel } from "@/types/explanation";
 import type { components } from "@/lib/api-types/schemas.generated";
+import type { FindingSemanticSupportBandValue } from "@/lib/findings/semantic-support-band-presentation";
 
 type FindingClassification = components["schemas"]["FindingClassification"];
 
@@ -45,6 +46,8 @@ export type GovernanceFindingQueueRow = {
   classification?: FindingClassification | null;
   /** Insight-density treatment when returned by explainability (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
   treatment?: number | null;
+  /** AS-061 semantic support band when returned by explainability trace rows. */
+  semanticSupportBand?: FindingSemanticSupportBandValue | null;
 };
 
 export function formatGovernanceQueueRecordKind(
