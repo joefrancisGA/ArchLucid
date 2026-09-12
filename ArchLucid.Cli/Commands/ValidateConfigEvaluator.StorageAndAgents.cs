@@ -89,7 +89,7 @@ internal static partial class ValidateConfigEvaluator
                 ValidateConfigFindingSeverity.Warning,
                 "AgentExecution",
                 "AgentExecution:Mode",
-                "Unset — confirm the host default matches your intent (template uses Simulator / Rehearsal door; Career requires explicit Real)."));
+                "Unset — confirm the host default matches your intent (template uses Simulator / Practice review type; Record requires explicit Real)."));
 
         else if (!string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase)
                  && !string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
@@ -98,7 +98,7 @@ internal static partial class ValidateConfigEvaluator
                 ValidateConfigFindingSeverity.Error,
                 "AgentExecution",
                 "AgentExecution:Mode",
-                $"Invalid value '{agentMode}' — must be Simulator (Rehearsal door) or Real (Career path)."));
+                $"Invalid value '{agentMode}' — must be Simulator (Practice review type) or Real (Record path)."));
 
         else
 
@@ -171,10 +171,10 @@ internal static partial class ValidateConfigEvaluator
     private static string FormatAgentExecutionModeDetail(string agentMode)
     {
         if (string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
-            return $"{agentMode} — Career door / live execute (CLI: archlucid try --real).";
+            return $"{agentMode} — Record review type / live execute (CLI: archlucid try --real).";
 
         if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
-            return $"{agentMode} — Rehearsal door / practice (CLI: archlucid try --rehearse).";
+            return $"{agentMode} — Practice review type / dry-runs (CLI: archlucid try --rehearse).";
 
         return agentMode;
     }

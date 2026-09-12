@@ -7,19 +7,19 @@ import {
 
 /** CG-032 — progress tracker copy when Working career honesty blocks a Career seal. */
 export const RUN_PROGRESS_TRACKER_CAREER_BLOCKED_TERMINAL_STATUS =
-  "Analysis complete — Career blocked on Simulator. Switch to Rehearsal for practice or re-execute in Real mode before a career seal.";
+  "Analysis complete — sealed record blocked on Simulator. Switch to Practice for dry-runs or re-execute in Real mode before a sealed record.";
 
 export const RUN_PROGRESS_TRACKER_REHEARSAL_INCOMPLETE_TERMINAL_STATUS =
-  "Analysis complete — Rehearsal run on Simulator. Finalize stays rehearsal-incomplete, not career proof.";
+  "Analysis complete — Practice run on Simulator. Finalize stays practice-incomplete, not sealed-record proof.";
 
 export const RUN_PROGRESS_TRACKER_REHEARSAL_PRACTICE_TERMINAL_STATUS =
-  "Analysis complete — Practice on Rehearsal door. Not career proof.";
+  "Analysis complete — Practice review type. Not sealed-record proof.";
 
 export const RUN_PROGRESS_TRACKER_CAREER_SIGNED_RECORD_LABEL = "Finalized review record";
 
-export const RUN_PROGRESS_TRACKER_CAREER_BLOCKED_SIGNED_RECORD_LABEL = "Career seal blocked";
+export const RUN_PROGRESS_TRACKER_CAREER_BLOCKED_SIGNED_RECORD_LABEL = "Sealed record blocked";
 
-export const RUN_PROGRESS_TRACKER_REHEARSAL_SIGNED_RECORD_LABEL = "Rehearsal record";
+export const RUN_PROGRESS_TRACKER_REHEARSAL_SIGNED_RECORD_LABEL = "Practice record";
 
 export const RUN_PROGRESS_TRACKER_CAREER_FINDINGS_LABEL = "Findings complete";
 
@@ -27,7 +27,7 @@ export const RUN_PROGRESS_TRACKER_REHEARSAL_FINDINGS_LABEL = "Findings ready (re
 
 export const RUN_PROGRESS_TRACKER_CAREER_COMPLETE_STAGE_LABEL = "Complete";
 
-export const RUN_PROGRESS_TRACKER_REHEARSAL_COMPLETE_STAGE_LABEL = "Rehearsal complete";
+export const RUN_PROGRESS_TRACKER_REHEARSAL_COMPLETE_STAGE_LABEL = "Practice complete";
 
 export type RunProgressTrackerCareerHonestyPresentation = {
   readonly cellId: RunStatusBadgeWorkingCareerHonestyCellId;
@@ -65,14 +65,14 @@ function signedRecordStepLabelForCell(cellId: RunStatusBadgeWorkingCareerHonesty
 
 function signedRecordPendingLabelForCell(cellId: RunStatusBadgeWorkingCareerHonestyCellId): string {
   if (cellId === "career-simulator-blocked") {
-    return "Career blocked";
+    return "Sealed record blocked";
   }
 
   if (cellId === "rehearsal-real-practice") {
     return "Practice";
   }
 
-  return "Rehearsal incomplete";
+  return "Practice incomplete";
 }
 
 export function resolveRunProgressTrackerCareerHonesty(

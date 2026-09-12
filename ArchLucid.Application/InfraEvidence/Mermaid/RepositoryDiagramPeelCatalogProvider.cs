@@ -3,18 +3,19 @@ using ArchLucid.Contracts.InfraEvidence.DiagramPeel;
 using ArchLucid.Core.Diagrams;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Application.InfraEvidence.Mermaid;
 
 /// <summary>Loads peel catalog from <see cref="IDiagramPeelCatalogRepository" /> with process cache.</summary>
 public sealed class RepositoryDiagramPeelCatalogProvider(
-    IDiagramPeelCatalogRepository catalogRepository,
+    IServiceScopeFactory scopeFactory,
     IMemoryCache memoryCache) : IDiagramPeelCatalogProvider
 {
     private const string CacheKey = "diagram-peel-catalog-snapshot-v1";
 
-    private readonly IDiagramPeelCatalogRepository _catalogRepository =
-        catalogRepository ?? throw new ArgumentNullException(nameof(catalogRepository));
+    private readonly IServiceScopeFactory _scopeFactory =
+        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
     private readonly IMemoryCache _memoryCache =
         memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
@@ -26,7 +27,11 @@ public sealed class RepositoryDiagramPeelCatalogProvider(
             return cached;
         }
 
-        int count = await _catalogRepository.CountAsync(cancellationToken).ConfigureAwait(false);
+        using IServiceScope scope = _scopeFactory.CreateScope();
+        IDiagramPeelCatalogRepository catalogRepository =
+            scope.ServiceProvider.GetRequiredService<IDiagramPeelCatalogRepository>();
+
+        int count = await catalogRepository.CountAsync(cancellationToken).ConfigureAwait(false);
 
         DiagramPeelCatalogSnapshot snapshot;
 
@@ -38,8 +43,8 @@ public sealed class RepositoryDiagramPeelCatalogProvider(
         {
             snapshot = new DiagramPeelCatalogSnapshot
             {
-                CatalogVersion = await _catalogRepository.GetCatalogVersionAsync(cancellationToken).ConfigureAwait(false),
-                Entries = await _catalogRepository.ListEntriesAsync(cancellationToken).ConfigureAwait(false),
+                CatalogVersion = await catalogRepository.GetCatalogVersionAsync(cancellationToken).ConfigureAwait(false),
+                Entries = await catalogRepository.ListEntriesAsync(cancellationToken).ConfigureAwait(false),
             };
         }
 

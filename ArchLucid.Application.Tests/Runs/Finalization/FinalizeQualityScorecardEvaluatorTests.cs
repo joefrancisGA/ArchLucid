@@ -56,6 +56,27 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     }
 
     [Fact]
+    public void Compute_counts_open_required_capability_coverage_findings()
+    {
+        Finding open = NewFinding("Required capabilities are not fully evidenced", FindingSeverity.Warning);
+        open.EngineType = "required-capability-coverage";
+        open.FindingType = "RequiredCapabilityCoverageFinding";
+        Finding muted = NewFinding("Required capabilities are not fully evidenced", FindingSeverity.Warning);
+        muted.EngineType = "required-capability-coverage";
+        muted.IsMuted = true;
+        Finding remediated = NewFinding("Required capabilities are not fully evidenced", FindingSeverity.Warning);
+        remediated.EngineType = "required-capability-coverage";
+        Dictionary<string, FindingDisposition> dispositions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [remediated.FindingId] = FindingDisposition.Remediated,
+        };
+
+        FinalizeQualityScorecardCounts counts = Compute([open, muted, remediated], dispositions);
+
+        counts.MissingRequiredCapabilityCount.Should().Be(1);
+    }
+
+    [Fact]
     public void Compute_counts_open_deferred_findings()
     {
         Finding deferred = NewFinding("Cannot determine ingress exposure", FindingSeverity.Warning);
@@ -225,7 +246,8 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
             OpenVerifyHypothesisCount: 0,
             UnverifiedAssumptionCount: 3,
             LowExtractionConfidenceCount: 1,
-            UnresolvedHighSeverityDispositionCount: 4);
+            UnresolvedHighSeverityDispositionCount: 4,
+            MissingRequiredCapabilityCount: 0);
 
         IReadOnlyList<string> reasons = FinalizeQualityScorecardEvaluator.GetBlockingReasons(
             counts,
@@ -241,9 +263,33 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     }
 
     [Fact]
+    public void GetBlockingReasons_emits_required_capability_copy_after_mandatory_requirements()
+    {
+        FinalizeQualityScorecardCounts counts = new(
+            BlockingFindingCount: 0,
+            UncoveredMandatoryRequirementCount: 0,
+            OpenDeferredCount: 0,
+            OpenContradictionCount: 0,
+            OpenCannotDetermineCount: 0,
+            OpenVerifyHypothesisCount: 0,
+            UnverifiedAssumptionCount: 0,
+            LowExtractionConfidenceCount: 0,
+            UnresolvedHighSeverityDispositionCount: 0,
+            MissingRequiredCapabilityCount: 2);
+
+        IReadOnlyList<string> reasons = FinalizeQualityScorecardEvaluator.GetBlockingReasons(
+            counts,
+            new FinalizeQualityGateOptions());
+
+        reasons.Should().ContainSingle()
+            .Which.Should().Be(
+                "2 required capabilities lack topology evidence on the context graph.");
+    }
+
+    [Fact]
     public void GetBlockingReasons_pluralises_like_the_ui()
     {
-        FinalizeQualityScorecardCounts counts = new(0, 2, 0, 0, 1, 0, 0, 2, 1);
+        FinalizeQualityScorecardCounts counts = new(0, 2, 0, 0, 1, 0, 0, 2, 1, 0);
 
         IReadOnlyList<string> reasons = FinalizeQualityScorecardEvaluator.GetBlockingReasons(
             counts,
@@ -259,8 +305,8 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     [Fact]
     public void GetBlockingReasons_applies_unverified_assumption_threshold()
     {
-        FinalizeQualityScorecardCounts twoOpen = new(0, 0, 0, 0, 0, 0, 2, 0, 0);
-        FinalizeQualityScorecardCounts threeOpen = new(0, 0, 0, 0, 0, 0, 3, 0, 0);
+        FinalizeQualityScorecardCounts twoOpen = new(0, 0, 0, 0, 0, 0, 2, 0, 0, 0);
+        FinalizeQualityScorecardCounts threeOpen = new(0, 0, 0, 0, 0, 0, 3, 0, 0, 0);
 
         FinalizeQualityScorecardEvaluator.GetBlockingReasons(twoOpen, new FinalizeQualityGateOptions())
             .Should().BeEmpty();
@@ -274,7 +320,7 @@ public sealed class FinalizeQualityScorecardEvaluatorTests
     [Fact]
     public void GetBlockingReasons_disables_assumption_check_when_threshold_is_below_one()
     {
-        FinalizeQualityScorecardCounts manyOpen = new(0, 0, 0, 0, 0, 0, 50, 0, 0);
+        FinalizeQualityScorecardCounts manyOpen = new(0, 0, 0, 0, 0, 0, 50, 0, 0, 0);
         FinalizeQualityGateOptions options = new() { UnverifiedAssumptionBlockThreshold = 0 };
 
         FinalizeQualityScorecardEvaluator.GetBlockingReasons(manyOpen, options).Should().BeEmpty();

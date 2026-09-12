@@ -3,6 +3,7 @@
 > **Paste-ready files:** [`.cursor/prompts/career-gravity-00-index.md`](../../.cursor/prompts/career-gravity-00-index.md) (**CG-001–CG-100**)
 > **Predecessor:** [`LOST_WRITE_COMPOSER_PROMPTS.md`](LOST_WRITE_COMPOSER_PROMPTS.md) (**LW-001–LW-100**, issue 4). **Do not re-run LW.** Architecture-spine AS-076–085 shipped Career/Rehearsal **doors**; this wave owns leftover **gravity** (unlabeled Simulator as Career).
 > **Successor:** [`SYSTEM_NOT_JOB_COMPOSER_PROMPTS.md`](SYSTEM_NOT_JOB_COMPOSER_PROMPTS.md) (**SN-001–040**).
+> **Copy overlay (wave 31):** [`RECORD_PRACTICE_COMPOSER_PROMPTS.md`](RECORD_PRACTICE_COMPOSER_PROMPTS.md) (**RP-001–024**) — user-facing Record / Practice. Do **not** re-run CG.
 
 # Career-gravity Composer prompts (CG-001–CG-100)
 

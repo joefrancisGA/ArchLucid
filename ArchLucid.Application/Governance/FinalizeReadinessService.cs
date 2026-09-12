@@ -611,6 +611,7 @@ public sealed class FinalizeReadinessService(
             UnverifiedAssumptionCount = counts.UnverifiedAssumptionCount,
             LowExtractionConfidenceCount = counts.LowExtractionConfidenceCount,
             UnresolvedHighSeverityDispositionCount = counts.UnresolvedHighSeverityDispositionCount,
+            MissingRequiredCapabilityCount = counts.MissingRequiredCapabilityCount,
         };
     }
 }

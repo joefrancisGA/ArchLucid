@@ -3921,6 +3921,12 @@
             },
             "type": "array"
           },
+          "confirmedInlineRequirements": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "confirmedRequiredCapabilities": {
             "items": {
               "type": "string"
@@ -14978,6 +14984,10 @@
             "format": "int32",
             "type": "integer"
           },
+          "missingRequiredCapabilityCount": {
+            "format": "int32",
+            "type": "integer"
+          },
           "openCannotDetermineCount": {
             "format": "int32",
             "type": "integer"
@@ -25827,6 +25837,27 @@
           },
           "summary": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PriorPackageSemanticCountsDto": {
+        "properties": {
+          "actorCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "assumptionCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "decisionCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "requirementCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"

@@ -7,6 +7,7 @@ export type FinalizeQualityScorecardInput = {
   readonly unverifiedAssumptionCount: number;
   readonly unacknowledgedExistentialAssumptionCount: number;
   readonly uncoveredMandatoryRequirementCount: number;
+  readonly missingRequiredCapabilityCount: number;
   readonly openDeferredCount: number;
   readonly openContradictionCount: number;
   readonly openCannotDetermineCount: number;
@@ -42,6 +43,12 @@ export function evaluateFinalizeQualityScorecard(input: FinalizeQualityScorecard
   if (input.uncoveredMandatoryRequirementCount > 0) {
     blockingReasons.push(
       `${input.uncoveredMandatoryRequirementCount} mandatory requirement${input.uncoveredMandatoryRequirementCount === 1 ? "" : "s"} lack a design decision.`,
+    );
+  }
+
+  if (input.missingRequiredCapabilityCount > 0) {
+    blockingReasons.push(
+      `${input.missingRequiredCapabilityCount} required capabilit${input.missingRequiredCapabilityCount === 1 ? "y lacks" : "ies lack"} topology evidence on the context graph.`,
     );
   }
 

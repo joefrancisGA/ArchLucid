@@ -132,6 +132,13 @@ function resolveScorecardBlockAction(
     };
   }
 
+  if (normalizedMessage.includes("required capabilit") || normalizedMessage.includes("topology evidence")) {
+    return {
+      href: buildReviewFindingsTabHref(runId, "coverage-gaps"),
+      label: "Close capability coverage gaps",
+    };
+  }
+
   if (normalizedMessage.includes("mandatory requirement") || normalizedMessage.includes("design decision")) {
     return {
       href: buildReviewFindingsTabHref(runId, "coverage-gaps"),

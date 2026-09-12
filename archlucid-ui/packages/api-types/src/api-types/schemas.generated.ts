@@ -1134,6 +1134,7 @@ export interface components {
         ArchitectureDraftStructuredBrief: {
             confirmedAssumptions?: string[];
             confirmedConstraints?: string[];
+            confirmedInlineRequirements?: string[];
             confirmedRequiredCapabilities?: string[];
             deniedAssumptions?: string[];
             deniedConstraints?: string[];
@@ -4351,6 +4352,8 @@ export interface components {
             blockingFindingCount?: number;
             /** Format: int32 */
             lowExtractionConfidenceCount?: number;
+            /** Format: int32 */
+            missingRequiredCapabilityCount?: number;
             /** Format: int32 */
             openCannotDetermineCount?: number;
             /** Format: int32 */
@@ -7570,6 +7573,16 @@ export interface components {
             existingServices?: string[];
             manifestVersion?: string;
             summary?: string;
+        };
+        PriorPackageSemanticCountsDto: {
+            /** Format: int32 */
+            actorCount?: number;
+            /** Format: int32 */
+            assumptionCount?: number;
+            /** Format: int32 */
+            decisionCount?: number;
+            /** Format: int32 */
+            requirementCount?: number;
         };
         ProblemDetails: {
             detail?: null | string;

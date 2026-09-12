@@ -190,6 +190,120 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     }
 
     [Fact]
+    public void TB2347_assumption_nodes_materialize_with_connector_edges()
+    {
+        string materializer = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "RequestAssumptionMaterializer.cs"));
+
+        materializer.Should().Contain("structured-brief");
+
+        string edgeMaterializer = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.KnowledgeGraph",
+                "Materialization",
+                "RequestAssumptionEdgeMaterializer.cs"));
+
+        edgeMaterializer.Should().Contain("GraphEdgeTypes.RelatesTo");
+        edgeMaterializer.Should().Contain("StructuredBriefAssumptionLink");
+
+        string stages = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "GraphMaterializationStages.cs"));
+
+        stages.Should().Contain("request-assumption-edges");
+        stages.Should().Contain("RequestAssumptionEdgeMaterializer.Materialize");
+    }
+
+    [Fact]
+    public void TB2346_required_capability_coverage_blocks_finalize_scorecard()
+    {
+        string signals = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Finalization",
+                "FinalizeQualityFindingSignals.cs"));
+
+        signals.Should().Contain("IsOpenRequiredCapabilityCoverageJobView");
+        signals.Should().Contain("required-capability-coverage");
+
+        string evaluator = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Finalization",
+                "FinalizeQualityScorecardEvaluator.cs"));
+
+        evaluator.Should().Contain("MissingRequiredCapabilityCount");
+        evaluator.Should().Contain("MissingRequiredCapabilities");
+
+        string dto = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Governance", "FinalizeQualityScorecardCountsDto.cs"));
+
+        dto.Should().Contain("MissingRequiredCapabilityCount");
+    }
+
+    [Fact]
+    public void TB2350_prior_package_semantics_merge_service_and_create_stage()
+    {
+        string mergeService = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "PriorPackageSemanticMergeService.cs"));
+
+        mergeService.Should().Contain("MergePriorPackageSemanticsOntoRequestAsync");
+        mergeService.Should().Contain("ConfirmedInlineRequirements");
+        mergeService.Should().Contain("IsConfirmedBriefEntry");
+
+        string createStage = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Drafts",
+                "Stages",
+                "DraftRequestCreateStage.cs"));
+
+        createStage.Should().Contain("MergePriorPackageSemanticsAsync");
+
+        string orchestrator = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Orchestration",
+                "ArchitectureRunCreateOrchestrator.cs"));
+
+        orchestrator.Should().Contain("MergePriorPackageSemanticsOntoRequestAsync");
+    }
+
+    [Fact]
+    public void TB2349_brief_grounding_runs_in_structural_post_processor_enricher()
+    {
+        string enricher = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Agents",
+                "Evidence",
+                "AgentProposalStructuralPostProcessorEnricher.cs"));
+
+        enricher.Should().Contain("ApplyBriefGrounding");
+        enricher.Should().Contain("StructuralGroundingDropLog");
+
+        string postProcessor = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Orchestration",
+                "AgentProposalStructuralPostProcessor.cs"));
+
+        postProcessor.Should().Contain("ApplyBriefGroundingToProposal");
+        postProcessor.Should().Contain("PruneRelationshipsAfterGroundingDrops");
+        postProcessor.Should().Contain("IsConfirmedBriefEntry");
+    }
+
+    [Fact]
     public void Suggestion8_topology_proposals_validate_before_overlay()
     {
         string path = Path.Combine(

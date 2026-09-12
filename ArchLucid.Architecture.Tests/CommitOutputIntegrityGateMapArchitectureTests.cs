@@ -39,7 +39,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     }
 
     [Fact]
-    public void FinalizeQualityScorecard_evaluator_counts_nine_ui_parity_dimensions()
+    public void FinalizeQualityScorecard_evaluator_counts_ten_ui_parity_dimensions()
     {
         string evaluator = File.ReadAllText(
             Path.Combine(
@@ -50,6 +50,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
                 "FinalizeQualityScorecardEvaluator.cs"));
 
         evaluator.Should().Contain("IsCoverageGapJobView");
+        evaluator.Should().Contain("IsOpenRequiredCapabilityCoverageJobView");
         evaluator.Should().Contain("IsOpenDeferredJobView");
         evaluator.Should().Contain("IsOpenContradictionJobView");
         evaluator.Should().Contain("IsOpenCannotDetermineJobView");
@@ -58,6 +59,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
         evaluator.Should().Contain("FinalizeAssumptionGateEvaluator.CollectOpenAssumptions");
         evaluator.Should().Contain("LowExtractionConfidenceCount");
         evaluator.Should().Contain("UnresolvedHighSeverityDispositionCount");
+        evaluator.Should().Contain("MissingRequiredCapabilityCount");
     }
 
     [Fact]

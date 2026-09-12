@@ -378,6 +378,80 @@ dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~DrRpoQualit
 dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2345_quality_attribute"
 ```
 
+## TB-2347 confirmed assumptions on the context graph
+
+Structured-brief confirmed assumptions materialize as `Assumption` nodes and receive connector `RelatesTo` edges to related requirements and actors (`RequestAssumptionMaterializer`, `RequestAssumptionEdgeMaterializer`, `request-assumptions` + `request-assumption-edges` stages). Unknown sentinels remain excluded via TB-2343 filtering at projection time.
+
+| Layer | Behavior |
+|-------|----------|
+| **Materialization** | `RequestAssumptionMaterializer` emits one node per pipe-separated assumption with `source=structured-brief`. |
+| **Connector edges** | `RequestAssumptionEdgeMaterializer` links assumptions to requirement/actor labels using conservative token overlap heuristics. |
+| **Pipeline** | Stage `request-assumption-edges` runs immediately after `request-assumptions`. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.KnowledgeGraph.Tests --filter "FullyQualifiedName~RequestAssumption"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2347_assumption_nodes"
+```
+
+## TB-2346 required-capability coverage finalize gate
+
+Open `required-capability-coverage` findings block finalize when the quality gate is enabled. The scorecard exposes a tenth dimension (`MissingRequiredCapabilityCount`) with UI-parity copy and readiness deeplinks to the coverage-gaps job view.
+
+| Layer | Behavior |
+|-------|----------|
+| **Analyzer** | `RequiredCapabilityCoverageAnalyzer` scores context-snapshot `RequiredCapabilities` against topology/security/requirement evidence tokens. |
+| **Engine** | `RequiredCapabilityCoverageFindingEngine` emits `RequiredCapabilityCoverageFinding` rows when capabilities remain unsatisfied. |
+| **Gate** | `FinalizeQualityFindingSignals.IsOpenRequiredCapabilityCoverageJobView` feeds `FinalizeQualityScorecardEvaluator` blocking reasons. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~RequiredCapabilityCoverage"
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~FinalizeQualityScorecard"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2346_required_capability"
+cd archlucid-ui && npm run test -- finalize-quality-scorecard finalize-readiness-block-action
+```
+
+## TB-2349 agent post-processor brief grounding
+
+Deterministic structural grounding drops agent proposal nodes that contradict confirmed brief constraints or required capabilities before merge/persistence. Drops are recorded on `AgentEvidencePackage.StructuralGroundingDropLog` for replay.
+
+| Layer | Behavior |
+|-------|----------|
+| **Post-processor** | `AgentProposalStructuralPostProcessor.ApplyBriefGrounding` removes contradicting services/datastores and prunes relationships to dropped endpoints. |
+| **Enricher** | `AgentProposalStructuralPostProcessorEnricher` runs structural cleanup + brief grounding on every agent result batch. |
+| **Eval corpus** | `scenario-brief-conflict-grounding.json` + `agent-structural-eval-pairs.json` `briefGroundingScenarios` guard HTTPS-only grounding. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~AgentProposalBriefGrounding|AgentProposalStructuralPostProcessorEnricher"
+python3 scripts/ci/assert_agent_structural_eval_pairs.py
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2349_brief_grounding"
+```
+
+## TB-2350 prior-package semantic inheritance
+
+Second reviews from a committed prior package copy actors, assumptions, requirements, constraints, and decision trail entries onto the new draft or quick-start request. Unknown sentinels (**TB-2343**) are excluded. The intake strip previews inherited semantic counts.
+
+| Layer | Behavior |
+|-------|----------|
+| **Merge service** | `PriorPackageSemanticMergeService` merges prior request + manifest semantics onto drafts and `ArchitectureRequest` when `priorRunId` is set. |
+| **Draft create** | `DraftRequestCreateStage` merges before persistence; `DraftRequestProjector` projects `confirmedInlineRequirements`. |
+| **Quick start** | `ArchitectureRunCreateOrchestrator` merges onto the create payload so second-review quick start inherits semantics without a draft hop. |
+| **UI** | `GET /v1/architecture/draft/prior-package-semantics` + `first-pilot-prior-package-inherited-semantics` strip. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~PriorPackageSemanticMergeService|DraftRequestProjector"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2350_prior_package"
+cd archlucid-ui && npm run test -- second-review-prior-package
+```
+
+
 ## ConflictException → 409 controller sweep
 
 Twenty controller `try` blocks that returned **400** for `InvalidOperationException` now catch `ConflictException` first. Guard: `ControllerConflictExceptionNotSwallowedAs400ArchitectureTests`.

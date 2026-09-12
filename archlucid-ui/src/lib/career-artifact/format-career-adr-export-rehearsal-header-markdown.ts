@@ -5,7 +5,7 @@ import {
 import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 
-/** CG-024 — ADR export markdown header when execute stamp is not career-complete. */
+/** CG-024 — ADR export markdown header when execute stamp is not record-complete. */
 export function resolveCareerAdrExportRehearsalHeader(
   input: {
     readonly workingDesk?: boolean;

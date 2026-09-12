@@ -39,4 +39,37 @@ public sealed class RequiredCapabilityCoverageAnalyzerTests
 
         result.MissingCapabilities.Should().ContainSingle().Which.Should().Be("encryption-at-rest");
     }
+
+    [Fact]
+    public void Analyze_reports_satisfied_encryption_capability_when_graph_evidences_it()
+    {
+        GraphSnapshot snapshot = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-1",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "ctx",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        [ContextGraphPropertyKeys.RequiredCapabilities] = "encryption-at-rest",
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "req-1",
+                    NodeType = GraphNodeTypes.Requirement,
+                    Label = "encryption at rest",
+                    Category = "security",
+                },
+            ],
+        };
+
+        RequiredCapabilityCoverageResult result = new RequiredCapabilityCoverageAnalyzer().Analyze(snapshot);
+
+        result.MissingCapabilities.Should().BeEmpty();
+        result.SatisfiedCapabilities.Should().ContainSingle().Which.Should().Be("encryption-at-rest");
+    }
 }

@@ -42,7 +42,8 @@ public sealed partial class DraftRequestsController(
     IArchitectureWorkLeaseService architectureWorkLeaseService,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    IRunDetailQueryService runDetailQueryService) : ControllerBase
+    IRunDetailQueryService runDetailQueryService,
+    IPriorPackageSemanticMergeService priorPackageSemanticMergeService) : ControllerBase
 {
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
@@ -52,6 +53,9 @@ public sealed partial class DraftRequestsController(
 
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IPriorPackageSemanticMergeService _priorPackageSemanticMergeService =
+        priorPackageSemanticMergeService ?? throw new ArgumentNullException(nameof(priorPackageSemanticMergeService));
 
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));

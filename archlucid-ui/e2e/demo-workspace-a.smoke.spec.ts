@@ -189,9 +189,9 @@ test.describe(
     const rehearsalDoorStrip = page.getByTestId("run-detail-pre-finalize-rehearsal-door-honesty-strip");
 
     if (await simulatorCareerStrip.isVisible()) {
-      await expect(simulatorCareerStrip).toContainText("Simulator cannot read as career-complete");
+      await expect(simulatorCareerStrip).toContainText("Simulator cannot read as record-complete");
     } else if (await rehearsalDoorStrip.isVisible()) {
-      await expect(rehearsalDoorStrip).toContainText(/rehearsal/i);
+      await expect(rehearsalDoorStrip).toContainText(/practice/i);
     }
 
     await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);

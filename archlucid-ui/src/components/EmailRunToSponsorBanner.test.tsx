@@ -532,7 +532,7 @@ describe("EmailRunToSponsorBanner", () => {
     });
 
     expect(screen.getByTestId("email-run-to-sponsor-career-artifact-gap")).toHaveTextContent(
-      /Simulator rehearsal cannot be career-complete/i,
+      /Simulator practice cannot be record-complete/i,
     );
     expect(screen.getByTestId("email-run-to-sponsor-primary-action")).toBeDisabled();
     expect(screen.queryByTestId("email-run-to-sponsor-execution-mode-gap")).not.toBeInTheDocument();

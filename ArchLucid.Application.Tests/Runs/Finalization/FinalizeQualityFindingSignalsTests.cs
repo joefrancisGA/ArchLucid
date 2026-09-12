@@ -240,6 +240,21 @@ public sealed class FinalizeQualityFindingSignalsTests
     }
 
     [Fact]
+    public void IsOpenRequiredCapabilityCoverageJobView_counts_engine_rows_until_resolved()
+    {
+        Finding open = NewFinding(title: "Required capabilities are not fully evidenced");
+        open.EngineType = "required-capability-coverage";
+        open.FindingType = "RequiredCapabilityCoverageFinding";
+        Finding remediated = NewFinding(title: "Required capabilities are not fully evidenced");
+        remediated.EngineType = "required-capability-coverage";
+
+        FinalizeQualityFindingSignals.IsOpenRequiredCapabilityCoverageJobView(open, null).Should().BeTrue();
+        FinalizeQualityFindingSignals.IsOpenRequiredCapabilityCoverageJobView(
+            remediated,
+            FindingDisposition.Remediated).Should().BeFalse();
+    }
+
+    [Fact]
     public void Classifiers_reject_null_finding()
     {
         Action cannotDetermine = () => FinalizeQualityFindingSignals.IsCannotDetermine(null!);
