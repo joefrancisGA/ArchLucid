@@ -365,6 +365,16 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
 
         manifestMerger.Should().Contain("ClosedLoopRecommendationBriefGroundingFilter");
         manifestMerger.Should().Contain("ClosedLoopManifestTopologyMerger");
+
+        string scoreSync = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "ArchitectureIntelligence",
+                "ClosedLoopStrengtheningScoreSyncService.cs"));
+
+        scoreSync.Should().Contain("ClosedLoopManifestFindingsProjector");
+        scoreSync.Should().Contain("ClosedLoopRequiredCapabilityFindingsRefresher");
     }
 
     [Fact]

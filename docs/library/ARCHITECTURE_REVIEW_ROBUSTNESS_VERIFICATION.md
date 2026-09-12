@@ -479,13 +479,14 @@ Golden-cohort authority commits optionally run closed-loop architecture intellig
 | **Strengthen pass** | `AuthorityClosedLoopStrengtheningPass` loads run source context, runs `IClosedLoopArchitectureReasoningOrchestrator` with `PublishToProduct=true`, merges via `ClosedLoopManifestMerger`. |
 | **Guardrails** | `ClosedLoopRecommendationBriefGroundingFilter` drops recommendations contradicting confirmed brief constraints (**TB-2349**). |
 | **Topology merge** | `ClosedLoopManifestTopologyMerger` projects publish-approved κ `Component`/`DeploymentTopology`/`DataFlow` elements into manifest topology services, datastores, and relationships. |
-| **Persistence** | `AuthorityPipelineDecisioningStage` runs strengthen before `SaveManifestAsync` and recomputes `ManifestHash`. |
+| **Score sync** | `ClosedLoopStrengtheningScoreSyncService` projects manifest coverage gaps into `FindingsSnapshot`, enriches graph topology for capability re-analysis, and mutes/refreshes open `required-capability-coverage` findings when κ-backed topology satisfies capabilities. |
+| **Persistence** | `AuthorityPipelineDecisioningStage` runs strengthen before `SaveManifestAsync`, syncs score signals into findings/graph snapshots, and recomputes `ManifestHash`. |
 | **Eval corpus** | `scenario-closed-loop-strengthening.json` + `mutation-microcases.json` (≥8 cases) registered in `agent-structural-eval-pairs.json`. |
 
 Proof tests:
 
 ```bash
-dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~AuthorityClosedLoopStrengtheningPass|ClosedLoopManifestMerger|ClosedLoopManifestTopologyMerger|ClosedLoopRecommendationBriefGroundingFilter"
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~AuthorityClosedLoopStrengtheningPass|ClosedLoopManifestMerger|ClosedLoopManifestTopologyMerger|ClosedLoopStrengtheningScoreSync|ClosedLoopRecommendationBriefGroundingFilter"
 dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2352"
 python scripts/ci/assert_agent_structural_eval_pairs.py
 python scripts/ci/assert_mutation_microcases.py
