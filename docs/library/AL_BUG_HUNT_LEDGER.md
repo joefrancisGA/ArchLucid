@@ -10792,6 +10792,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-09-12 seed hunt #1971 (seed→hit): reseeded api-authority-admin-controllers; proved coverage acknowledgement ExclusionReason max-length gap; 2 scoped `RunCoverageControllerTests` passed.
 
+- [x] (proven) `RunsController.PutAssumptionAcknowledgement` — `AcknowledgedAssumptionIds` omitted invalid-Unicode surrogate guard present on sibling `CustomRolesAdminController` create/update — **hit 2026-09-12 hunt #1972 (seed→hit):** reject lone surrogates before service call; regression `PutAssumptionAcknowledgement_returns_bad_request_when_assumption_id_contains_invalid_surrogate`.
+
+2026-09-12 seed hunt #1972 (seed→hit): reseeded api-authority-admin-controllers; proved assumption acknowledgement surrogate guard gap; 1 scoped `RunsControllerTests` passed.
+
 - [x] Admin mutating endpoint lacks tenant binding on route parameters — (proven): `RunsController` request endpoints (2026-08-18); `AdminController.ArchiveRunsByIds` called global `ArchiveRunsByIdsAsync` without `GetByIdAsync(scope, …)` filter (2026-08-18); `AdminController.ArchiveRunsBatch` called global `ArchiveRunsCreatedBeforeAsync` without scoped cutoff filter (2026-08-22); `AdminDiagnosticsService` integration outbox dead-letter list/retry/suppress/curl called `IIntegrationEventOutboxRepository` without `scope.TenantId` (2026-08-23); bulk `RetryIntegrationOutboxDeadLettersAsync` still passed `request.TenantId` to `RetryMatchingDeadLettersAsync` (2026-08-24)
 - [x] (proven) Unrecognized `ReplayMode` on authority replay fell through to `DecideAsync` + manifest persist — `AuthorityReplayService.ReplayAsync` only special-cased `ReconstructOnly`; unknown modes matched rebuild path (2026-08-24)
 - [x] (proven) Invalid run id on authority graph/pin reads returned 400 while sibling `GetRun` returned 404 — `RunQueryController.GetInteractiveGraphSnapshot`, `RunsController.PinRun` (2026-08-24)
