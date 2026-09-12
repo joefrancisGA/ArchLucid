@@ -2163,3 +2163,5 @@
 {"at":"2026-09-12T01:15:53.6810769Z","zoneId":"artifact-synthesis","outcome":"hit"}
 {"at":"2026-09-12T01:18:44Z","zoneId":"decisioning","outcome":"hit"}
 {"at":"2026-09-12T01:18:45.1337288Z","zoneId":"decisioning","outcome":"hit"}
+{"at":"2026-09-12T01:19:53Z","zoneId":"ui-operator-routes","outcome":"hit"}
+{"at":"2026-09-12T01:19:53.5697893Z","zoneId":"ui-operator-routes","outcome":"hit"}

@@ -41,8 +41,8 @@ export const operatorQueryKeys = {
   sponsorRoiSummaryHistory: ["operator", "roi", "sponsor-report", "history"] as const,
   sponsorRoiSummaryExport: ["operator", "roi", "sponsor-report", "export"] as const,
   sqlBackupRegionVerification: ["operator", "sponsor", "sql-backup-region-verification"] as const,
-  executiveNextActionInputs: (range: SponsorTimeRange) =>
-    ["operator", "roi", "next-action-inputs", range] as const,
+  executiveNextActionInputs: (scope: OperatorScopeQueryKey, range: SponsorTimeRange) =>
+    ["operator", "roi", "next-action-inputs", scope, range] as const,
   complianceDriftTrend30d: ["operator", "governance", "compliance-drift-trend", "30d"] as const,
   complianceDriftTrendRange: (fromUtc: string, toUtc: string) =>
     ["operator", "governance", "compliance-drift-trend", { fromUtc, toUtc }] as const,

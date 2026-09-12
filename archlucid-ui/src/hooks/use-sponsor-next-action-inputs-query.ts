@@ -36,7 +36,7 @@ export function useSponsorNextActionInputsQuery(
   const scope = useOperatorScopeQueryKey();
 
   return useQuery<SponsorNextActionInputs>({
-    queryKey: operatorQueryKeys.executiveNextActionInputs(range),
+    queryKey: operatorQueryKeys.executiveNextActionInputs(scope, range),
     queryFn: async () => {
       const { fromUtc, toUtc } = windowForSponsorRange(range);
       const fromKey = fromUtc ?? "open";
