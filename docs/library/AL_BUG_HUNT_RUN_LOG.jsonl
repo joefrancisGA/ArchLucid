@@ -2339,3 +2339,4 @@
 {"at":"2026-09-12T16:31:35.9134489Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
 {"at":"2026-09-12T16:31:47.8266978Z","zoneId":"host-composition","outcome":"seed-only"}
 {"at":"2026-09-12T16:32:00.1277198Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
+{"at":"2026-09-12T16:32:12.3070562Z","zoneId":"sql-run-repository","outcome":"seed-only"}
