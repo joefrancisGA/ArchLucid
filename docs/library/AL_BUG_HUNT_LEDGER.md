@@ -3180,8 +3180,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 11
-- **bugs-found:** 7
+- **hunts:** 12
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — padded wallet-purpose metadata skipped LLM wallet credit
@@ -3234,6 +3234,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — padded `purpose` metadata skipped wallet credit — **hit 2026-09-12 seed hunt #1861:** whitespace-padded `llm_wallet_refill` failed OrdinalEquals and returned without crediting while webhook still acked Processed; fixed with `purpose.Trim()` parity to `tenant_id`; regression `HandleWebhookAsync_wallet_payment_intent_with_padded_purpose_metadata_credits_wallet`.
 
 2026-09-12 seed hunt #1861 (hit): reseeded billing-webhooks; proved padded wallet-purpose metadata gap; 1 scoped regression test passed.
+
+- [x] (proven) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — padded `correlation_id` metadata ignored and replaced with random GUID — **hit 2026-09-12 seed hunt #1862:** `Guid.TryParse` without trim dropped operator-supplied correlation on padded metadata; fixed with trim parity to `tenant_id`; regression `HandleWebhookAsync_wallet_payment_intent_with_padded_correlation_id_preserves_correlation`.
+
+2026-09-12 seed hunt #1862 (hit): reseeded billing-webhooks after #1861; proved padded wallet correlation_id gap; 1 scoped regression test passed.
 
 2026-09-04 seed hunt #671: proved duplicate billing webhook signature/bearer header comma-join; seeded replay-guard TryRegister wiring and wallet-purpose filter candidates.
 

@@ -205,7 +205,10 @@ public sealed partial class StripeBillingProvider
                 $"Stripe wallet webhook '{stripeEvent.Id}' is missing or has an invalid tenant_id metadata value.");
         }
 
-        Guid correlationId = Guid.TryParse(correlationRaw, out Guid parsedCorrelation) ? parsedCorrelation : Guid.NewGuid();
+        Guid correlationId = !string.IsNullOrWhiteSpace(correlationRaw)
+            && Guid.TryParse(correlationRaw.Trim(), out Guid parsedCorrelation)
+            ? parsedCorrelation
+            : Guid.NewGuid();
 
         if (!await _walletRepository.TryInsertStripeWebhookIdempotencyAsync(stripeEvent.Id, stripeEvent.Type, cancellationToken)
                 .ConfigureAwait(false))
