@@ -3180,10 +3180,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-04 — duplicate Stripe-Signature / Authorization headers comma-joined and rejected
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -3225,6 +3225,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `LlmTenantWalletStripeWebhookProcessor` credits wallet on negative `amountCents` — **cheap-disproof 2026-09-11 seed hunt #1803:** `LlmTenantWalletWebhookStage` returns false when `amountUsd <= 0`; same regression as zero-amount case.
 
 2026-09-11 seed hunt #1803 (seed-only): reseeded billing-webhooks after #1800; cheap-disproof closed provider-name trim parity and non-positive wallet amount guards; 16 scoped unit tests passed.
+
+- [x] (valid-no-repro) `HasSeenAsync` returns false after `TryRegisterEventAsync` claims an event — **cheap-disproof 2026-09-12 seed hunt #1850:** `TryRegisterEventAsync` writes the same cache key as `RememberAsync`; regression `HasSeenAsync_returns_true_after_TryRegisterEventAsync`.
+- [x] (invalid) Stripe wallet route acks `payment_intent.succeeded` without crediting when `purpose` metadata is absent — **cheap-disproof 2026-09-12 seed hunt #1850:** intentional wallet-route filter (#1677); regressions `HandleWebhookAsync_wallet_payment_intent_without_wallet_purpose_succeeds_without_credit`.
+
+2026-09-12 seed hunt #1850 (seed-only): reseeded billing-webhooks; cheap-disproof closed TryRegister/HasSeen parity and wallet-purpose filter; 12 scoped billing webhook unit tests passed.
 
 2026-09-04 seed hunt #671: proved duplicate billing webhook signature/bearer header comma-join; seeded replay-guard TryRegister wiring and wallet-purpose filter candidates.
 
@@ -12336,11 +12341,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 15
-- **bugs-found:** 19
+- **hunts:** 16
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — pilot value report react-query key omitted operator scope
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — executive next-action inputs query cache omitted operator scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
