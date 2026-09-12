@@ -35,6 +35,7 @@ class TestReleaseReadinessEvidenceScript(unittest.TestCase):
         self.assertIn("rc-evidence-signoff-bundle.json", text)
         self.assertIn("faithfulness-nightly-warn-status.json", text)
         self.assertIn("ship-gate-evidence.json", text)
+        self.assertIn("artifacts/release/real-llm-evidence-gate.json", text)
 
 
 if __name__ == "__main__":

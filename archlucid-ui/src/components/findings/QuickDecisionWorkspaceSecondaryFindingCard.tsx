@@ -12,6 +12,8 @@ import { FindingClassificationChip } from "@/components/findings/FindingClassifi
 import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
 import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
+import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
+import { isDecisionGradeFinding } from "@/lib/findings/review-detail-findings-classification-band";
 import { isDecisionGradeFinding } from "@/lib/findings/review-detail-findings-classification-band";
 import { QuickDecisionWorkspaceFindingSupportingDetails } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import type { QuickDecisionWorkspaceCardContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
@@ -150,6 +152,14 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
                 treatment={finding.treatment}
                 findingId={finding.findingId}
               />
+            ) : null}
+            {isDecisionGradeFinding(finding) ? (
+              <p
+                className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+                data-testid={`finding-workspace-secondary-density-honesty-${finding.findingId}`}
+              >
+                {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
+              </p>
             ) : null}
             <span className="min-w-0 flex-1 font-semibold text-al-text-primary">{finding.title}</span>
           </div>

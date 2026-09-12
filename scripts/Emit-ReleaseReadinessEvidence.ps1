@@ -391,6 +391,27 @@ else {
 Add-CheckRow $checks "Real-mode release requirement (opt-in env)" $realLlmReqVerdict "exit $realLlmReqExit when ARCHLUCID_REQUIRE_REAL_LLM_RELEASE_EVIDENCE=1" "real-llm-release-requirement.md"
 
 [string] $realLlmEvidencePath = Join-Path $OutDir "real-llm-evidence-gate.json"
+
+if (-not (Test-Path -LiteralPath $realLlmEvidencePath)) {
+    [string[]] $realLlmCandidates = @(
+        (Join-Path $OutDir "artifacts/release/real-llm-evidence-gate.json"),
+        (Join-Path $root "artifacts/release/real-llm-evidence-gate.json")
+    )
+
+    foreach ($candidate in $realLlmCandidates) {
+        if ([string]::IsNullOrWhiteSpace($candidate)) {
+            continue
+        }
+
+        if (-not (Test-Path -LiteralPath $candidate)) {
+            continue
+        }
+
+        Copy-Item -LiteralPath $candidate -Destination $realLlmEvidencePath -Force
+        break
+    }
+}
+
 [object] $realLlmEvidence = Get-RealModeAiEvidenceVerdict -EvidencePath $realLlmEvidencePath
 Add-CheckRow $checks "Real-mode AI evidence artifact (claim boundary)" $realLlmEvidence.verdict $realLlmEvidence.detail "real-llm-evidence-gate.json"
 

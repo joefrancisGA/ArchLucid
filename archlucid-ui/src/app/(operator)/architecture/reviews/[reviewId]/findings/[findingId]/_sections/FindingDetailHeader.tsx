@@ -179,6 +179,7 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
               {inspectPayload !== null ? (
                 <FindingSemanticSupportBandChip
                   finding={mapInspectPayloadToQuickDecisionFinding(inspectPayload)}
+                  showReason
                 />
               ) : null}
               {labels.categoryLabel ? <StatusTag kind="neutral" label={labels.categoryLabel} /> : null}
