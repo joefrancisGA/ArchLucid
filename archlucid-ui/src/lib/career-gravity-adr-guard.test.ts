@@ -24,8 +24,9 @@ describe("career-gravity ADR guard (CG-001 / ADR 0091)", () => {
 
     const statusMatch = adr.match(/\*\*Status:\*\*\s*(Proposed|Accepted)/);
 
-    expect(statusMatch, "ADR 0091 must declare Proposed or Accepted status").not.toBeNull();
+    expect(statusMatch, "ADR 0091 must declare Accepted status").not.toBeNull();
     expect(CAREER_GRAVITY_ADR_0091_ACCEPTED_STATUSES).toContain(statusMatch![1]);
+    expect(statusMatch![1]).toBe("Accepted");
 
     expect(adr).toMatch(/Career is the Working default execute gravity/i);
     expect(adr).toMatch(/Is Simulator the unlabeled Working day\?/);

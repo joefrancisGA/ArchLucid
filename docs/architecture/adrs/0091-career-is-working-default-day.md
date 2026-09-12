@@ -4,8 +4,9 @@
 
 # ADR 0091: Career is the Working default day
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-11
+- **Accepted:** 2026-09-12 (owner)
 - **Owner decision:** Working production gravity is **Career**. Unlabeled Simulator is not the day’s work. Host Mode default is unchanged.
 
 ## Context
