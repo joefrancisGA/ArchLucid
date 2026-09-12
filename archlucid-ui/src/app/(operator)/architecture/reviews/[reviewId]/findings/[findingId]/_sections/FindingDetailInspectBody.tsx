@@ -11,10 +11,12 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
 import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
+import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { phiMinimizationBuyerConsequenceNarrative } from "@/lib/findings/finding-display-from-inspect";
 import { resolveFindingInspectExportClassification, resolveFindingInspectExportTreatment } from "@/lib/findings/finding-inspect-export-classification";
+import { mapInspectPayloadToQuickDecisionFinding } from "@/lib/findings/finding-inspect-job-view";
 import { findingStatusTagKind } from "./finding-detail-route-display";
 import { OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -147,6 +149,11 @@ export function FindingDetailInspectBody({ presentation }: Props) {
                       classification={resolveFindingInspectExportClassification(inspectPayload)}
                       treatment={resolveFindingInspectExportTreatment(inspectPayload)}
                       findingId={decodedFindingId}
+                    />
+                  ) : null}
+                  {inspectPayload !== null ? (
+                    <FindingSemanticSupportBandChip
+                      finding={mapInspectPayloadToQuickDecisionFinding(inspectPayload)}
                     />
                   ) : null}
                 </div>
