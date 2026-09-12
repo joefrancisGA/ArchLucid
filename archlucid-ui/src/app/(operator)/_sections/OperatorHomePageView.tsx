@@ -252,6 +252,7 @@ function OperatorHomePageBody(props: {
   const workspaceMetrics = deriveOperatorHomeTenantCountingSnapshot({
     displayItems: props.model.runsDashboard.items,
     previewItems: props.model.runsDashboard.items,
+    runsDashboardTotalCount: props.model.runsDashboard.totalCount,
   }).metrics;
   const overviewPhaseSignals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
     props.model.runsDashboard.items,
@@ -356,6 +357,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
             workspaceMetrics={deriveOperatorHomeTenantCountingSnapshot({
               displayItems: model.runsDashboard.items,
               previewItems: model.runsDashboard.items,
+              runsDashboardTotalCount: model.runsDashboard.totalCount,
             }).metrics}
             workspaceLabel={scope?.workspaceLabel ?? null}
           />

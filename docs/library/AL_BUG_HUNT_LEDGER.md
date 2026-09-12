@@ -12547,6 +12547,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — preview tab counts derived from `displayItems` instead of deduped `previewItems` — **hit 2026-09-09 seed hunt #1420:** buyer-polished Home passed rail-deduped `previewItems` but tab badges counted the full dashboard pool; fixed by counting `filterTenantOverviewRuns(input.previewItems)`; regression in `uses previewItems for tab counts when unfinished-work rail dedup shrinks the preview pool`
 
 - [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` and KPI aggregates use loaded page length only; no workspace `totalCount` from paginated runs dashboard — seeded 2026-09-09; `OperatorHomeWorkspaceMetricsSummary` already uses `runsDashboard.totalCount` while tenant counting snapshot omits it
+- [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` used loaded page length instead of paginated runs dashboard `totalCount` — **hit 2026-09-12 thorough hunt #1852:** home metrics strip understated workspace review totals on paginated Overview; fixed by passing `runsDashboardTotalCount`; regression `uses runsDashboardTotalCount for reviewPackagesTotal when the dashboard page is paginated`.
+
+2026-09-12 thorough hunt #1852 (hit): proved tenant counting snapshot omitted paginated totalCount; 6 scoped operator-home-tenant-counting tests passed.
+
 - [x] (proven) `invalidateOperatorHomeRunsCaches` / `invalidateOperatorSponsorRoiCaches` — omitted scoped `pilotValueReport` TanStack invalidation after run commit or sponsor seed changes — **hit 2026-09-11 thorough hunt #1695:** sponsor value report `totalRunsCommitted` stayed stale until `staleTime` expired; fixed via `invalidatePilotValueReportCache`; regression `invalidateOperatorHomeRunsCaches_invalidates_scoped_pilot_value_report_queries`.
 
 2026-09-11 thorough hunt #1695 (hit): proved pilot value report cache not invalidated on run lifecycle writes; 2 scoped operator-query-invalidation tests passed.
