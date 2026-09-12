@@ -5,6 +5,8 @@ import { ArchitectureNarrativeMarkdownView } from "@/components/architecture/Arc
 import { DigestSponsorPageChrome } from "@/components/marketing/DigestSponsorPageChrome";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MARKETING_LAYOUT, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
+import { POLICY_PACK_INFLUENCE_HONESTY_LINE } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import type { ExecDigestSponsorDeepLinkView } from "@/lib/digest/exec-digest-sponsor-deep-link-server";
 import {
   DIGEST_SPONSOR_COLLATERAL_TITLE,
@@ -60,6 +62,18 @@ export function ExecDigestSponsorDeepLinkPanel(props: ExecDigestSponsorDeepLinkV
               </p>
             ) : null}
             <p className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{DIGEST_SPONSOR_LEAD}</p>
+            <p
+              className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}
+              data-testid="digest-sponsor-roi-non-summing"
+            >
+              <strong>Sponsor ROI honesty:</strong> {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+            </p>
+            <p
+              className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}
+              data-testid="digest-sponsor-policy-influence"
+            >
+              <strong>Policy influence:</strong> {POLICY_PACK_INFLUENCE_HONESTY_LINE}
+            </p>
           </header>
         }
       >

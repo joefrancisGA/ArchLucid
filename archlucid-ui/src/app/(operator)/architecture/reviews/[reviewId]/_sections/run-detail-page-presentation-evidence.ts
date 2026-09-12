@@ -1,5 +1,10 @@
 import type { ArchitectureCreatedHomeModel, BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-model";
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
+import {
+  resolveArchitectureTabEditSourceHrefFromRunSummary,
+  resolveArchitectureTabSubmittedHelperText,
+} from "@/lib/architecture/architecture-draft-spawn-one-writer";
+import { resolveRunSummaryPackageOrigin } from "@/lib/architecture/architecture-package-origin";
 import { deriveArchitectureGapBaselineFromSubmittedText } from "@/lib/derive-architecture-gap-baseline";
 import { extractAttachedIntakeFileNames } from "@/lib/intake-attached-file-names";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
@@ -15,14 +20,14 @@ import { buildBuyerReviewPackageDispositionLine } from "@/lib/review-buyer-dispo
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 
-function guidedIntakeRerunHref(runId: string): string {
-  return `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(runId)}`;
-}
+const DEFAULT_ARCHITECTURE_TAB_SUBMITTED_HELPER =
+  "Source material submitted for this review — distinct from ArchLucid analysis in other tabs.";
 
 export type RunDetailEvidencePresentation = {
   readonly submittedArchitectureText: string | null;
   readonly hasSubmittedArchitecture: boolean;
   readonly architectureEditHref: string | null;
+  readonly architectureTabSubmittedHelperText: string;
   readonly evidenceCoverageSummary: EvidenceCoverageSummary;
   readonly evidenceInventoryItems: readonly RunDetailEvidenceInventoryItem[];
   readonly evidenceInventoryCount: number;
@@ -65,7 +70,16 @@ export function buildRunDetailEvidencePresentation(
     attachedFileNames,
   });
   const derivedGapBaseline = deriveArchitectureGapBaselineFromSubmittedText(submittedArchitectureText);
-  const architectureEditHref = input.hasManifest ? null : guidedIntakeRerunHref(model.resolvedDetail.run.runId);
+  const packageOrigin = resolveRunSummaryPackageOrigin(input.runSummaryForBadge);
+  const architectureEditHref = resolveArchitectureTabEditSourceHrefFromRunSummary(
+    input.runSummaryForBadge,
+    input.hasManifest,
+  );
+  const architectureTabSubmittedHelperText = resolveArchitectureTabSubmittedHelperText({
+    packageOrigin,
+    hasManifest: input.hasManifest,
+    defaultHelper: DEFAULT_ARCHITECTURE_TAB_SUBMITTED_HELPER,
+  });
   const lastEvaluatedUtc = workspaceDerive.deriveLastEvaluatedLabel(
     model.resolvedDetail.run,
     model.manifestSummary,
@@ -93,6 +107,7 @@ export function buildRunDetailEvidencePresentation(
     submittedArchitectureText,
     hasSubmittedArchitecture,
     architectureEditHref,
+    architectureTabSubmittedHelperText,
     evidenceCoverageSummary: workspaceDerive.deriveEvidenceCoverageSummary(input.quickDecisionFindings),
     evidenceInventoryItems,
     evidenceInventoryCount: countRunDetailEvidenceInventoryItems(evidenceInventoryItems),

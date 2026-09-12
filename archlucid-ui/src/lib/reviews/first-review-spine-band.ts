@@ -1,8 +1,17 @@
 import { feasibilityVerdictKindLabel, feasibilityVerdictTone } from "@/lib/feasibility-verdict-display";
+import { quickDecisionFindingHasRecordedDisposition } from "@/lib/findings/finding-recorded-disposition";
 import {
   countFindingsByClassificationBand,
   isDecisionGradeFinding,
 } from "@/lib/findings/review-detail-findings-classification-band";
+import { countFindingsByTreatmentBand } from "@/lib/review-quality/compare-treatment-band-delta";
+import {
+  countDecisionGradeSemanticSupportBandsForPresentation,
+  formatStampSemanticSupportBandLineForPresentation,
+} from "@/lib/findings/semantic-support-band-stamp";
+import {
+  shouldPresentSemanticSupportBandAsRehearsal,
+} from "@/lib/governance/simulator-career-honesty";
 import { formatStructuralExecutionModeLabel } from "@/lib/structural-execution-mode";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
@@ -18,6 +27,12 @@ export type FirstReviewSpineBandSummary = {
   readonly uncitedCount: number;
   readonly topFindingTitle: string | null;
   readonly topFindingSeverityLabel: string | null;
+  readonly semanticSupportLine: string | null;
+  readonly showLaneBHonesty: boolean;
+  readonly treatmentSummaryLine: string | null;
+  readonly recordedDispositionCount: number;
+  readonly openDecisionGradeDispositionCount: number;
+  readonly showDispositionNextAction: boolean;
 };
 
 export function countUncitedFindings(findings: readonly QuickDecisionFinding[]): number {
@@ -42,6 +57,49 @@ function resolveTopDecisionGradeFinding(
   }
 
   return [...decisionGradeFindings].sort((left, right) => right.severityValue - left.severityValue)[0] ?? null;
+}
+
+export function countDispositionStats(findings: readonly QuickDecisionFinding[]): {
+  readonly recordedCount: number;
+  readonly openDecisionGradeCount: number;
+} {
+  let recordedCount = 0;
+  let openDecisionGradeCount = 0;
+
+  for (const finding of findings) {
+    if (quickDecisionFindingHasRecordedDisposition(finding)) {
+      recordedCount += 1;
+
+      continue;
+    }
+
+    if (isDecisionGradeFinding(finding)) {
+      openDecisionGradeCount += 1;
+    }
+  }
+
+  return { recordedCount, openDecisionGradeCount };
+}
+
+function formatTreatmentSummaryLine(
+  counts: ReturnType<typeof countFindingsByTreatmentBand>,
+): string | null {
+  const total = counts.decisionGrade + counts.checklist + counts.demotedToChecklist;
+
+  if (total === 0) {
+    return null;
+  }
+
+  const segments = [
+    `Decision-grade: ${counts.decisionGrade}`,
+    `Checklist: ${counts.checklist}`,
+  ];
+
+  if (counts.demotedToChecklist > 0) {
+    segments.push(`Demoted: ${counts.demotedToChecklist}`);
+  }
+
+  return segments.join(" · ");
 }
 
 function severityLabelFromValue(severityValue: number): string {
@@ -90,6 +148,20 @@ export function deriveFirstReviewSpineBandSummary(input: {
     input.structuralExecutionMode === null || input.structuralExecutionMode === undefined
       ? null
       : formatStructuralExecutionModeLabel(input.structuralExecutionMode);
+  const semanticSupportCounts = countDecisionGradeSemanticSupportBandsForPresentation(
+    findings,
+    input.structuralExecutionMode,
+  );
+  const semanticSupportLine = formatStampSemanticSupportBandLineForPresentation(
+    semanticSupportCounts,
+    input.structuralExecutionMode,
+  );
+  const showLaneBHonesty =
+    !shouldPresentSemanticSupportBandAsRehearsal(input.structuralExecutionMode)
+    && semanticSupportCounts.unchecked > 0;
+  const treatmentCounts = countFindingsByTreatmentBand(findings);
+  const treatmentSummaryLine = formatTreatmentSummaryLine(treatmentCounts);
+  const dispositionStats = countDispositionStats(findings);
 
   return {
     gateOutcomeLabel,
@@ -102,5 +174,11 @@ export function deriveFirstReviewSpineBandSummary(input: {
     topFindingTitle: topFinding?.title?.trim() ?? null,
     topFindingSeverityLabel:
       topFinding !== null ? severityLabelFromValue(topFinding.severityValue) : null,
+    semanticSupportLine,
+    showLaneBHonesty,
+    treatmentSummaryLine,
+    recordedDispositionCount: dispositionStats.recordedCount,
+    openDecisionGradeDispositionCount: dispositionStats.openDecisionGradeCount,
+    showDispositionNextAction: dispositionStats.openDecisionGradeCount > 0,
   };
 }

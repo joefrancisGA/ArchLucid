@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import {
+  COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT,
   COMMAND_PALETTE_FINALIZE_REVIEW_EVENT,
   COMMAND_PALETTE_FINDING_ACCEPT_EVENT,
   COMMAND_PALETTE_FINDING_NEXT_EVENT,
@@ -19,6 +20,7 @@ import {
   queryVisibleFinalizeReviewControl,
   queryVisibleReviewDetailSaveControl,
   queryVisibleReviewRoomEnterControl,
+  queryVisibleSpawnLockCloneSnapshotControl,
   queryVisibleTenantCostSettingsSaveControl,
 } from "@/lib/command-palette-work-action-dom";
 import {
@@ -67,6 +69,10 @@ function clickVisibleRoomElicitationControl(): void {
   queryVisibleReviewRoomEnterControl()?.click();
 }
 
+function clickVisibleSpawnLockCloneSnapshotControl(): void {
+  queryVisibleSpawnLockCloneSnapshotControl()?.click();
+}
+
 function isFindingKeyboardTriageHostMounted(): boolean {
   return document.querySelector("[data-finding-keyboard-triage-host]") !== null;
 }
@@ -88,6 +94,10 @@ export function CommandPaletteWorkActionBridge(): null {
 
     const onRoomElicitation = () => {
       clickVisibleRoomElicitationControl();
+    };
+
+    const onCloneFromSnapshot = () => {
+      clickVisibleSpawnLockCloneSnapshotControl();
     };
 
     const onUndoMutation = () => {
@@ -138,6 +148,7 @@ export function CommandPaletteWorkActionBridge(): null {
     window.addEventListener(COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT, onSaveTenantCostSettings);
     window.addEventListener(COMMAND_PALETTE_FINALIZE_REVIEW_EVENT, onFinalizeReview);
     window.addEventListener(COMMAND_PALETTE_ROOM_ELICITATION_EVENT, onRoomElicitation);
+    window.addEventListener(COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT, onCloneFromSnapshot);
     window.addEventListener(COMMAND_PALETTE_UNDO_MUTATION_EVENT, onUndoMutation);
     window.addEventListener(COMMAND_PALETTE_FINDING_NEXT_EVENT, onFindingNext);
     window.addEventListener(COMMAND_PALETTE_FINDING_PREVIOUS_EVENT, onFindingPrevious);
@@ -150,6 +161,7 @@ export function CommandPaletteWorkActionBridge(): null {
       window.removeEventListener(COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT, onSaveTenantCostSettings);
       window.removeEventListener(COMMAND_PALETTE_FINALIZE_REVIEW_EVENT, onFinalizeReview);
       window.removeEventListener(COMMAND_PALETTE_ROOM_ELICITATION_EVENT, onRoomElicitation);
+      window.removeEventListener(COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT, onCloneFromSnapshot);
       window.removeEventListener(COMMAND_PALETTE_UNDO_MUTATION_EVENT, onUndoMutation);
       window.removeEventListener(COMMAND_PALETTE_FINDING_NEXT_EVENT, onFindingNext);
       window.removeEventListener(COMMAND_PALETTE_FINDING_PREVIOUS_EVENT, onFindingPrevious);

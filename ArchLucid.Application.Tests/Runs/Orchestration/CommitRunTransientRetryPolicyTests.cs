@@ -101,4 +101,53 @@ public sealed class CommitRunTransientRetryPolicyTests
             .Should()
             .BeTrue();
     }
+
+    [Fact]
+    public void IsExhausted_returns_true_when_elapsed_exactly_equals_retry_budget()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(1, CommitRunTransientRetryPolicy.RetryBudget)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void RetryDelay_sum_for_inter_attempt_waits_fits_inside_retry_budget()
+    {
+        TimeSpan interAttemptDelayTotal = Enumerable
+            .Range(1, CommitRunTransientRetryPolicy.MaxAttempts - 1)
+            .Select(CommitRunTransientRetryPolicy.RetryDelay)
+            .Aggregate(TimeSpan.Zero, static (sum, delay) => sum + delay);
+
+        interAttemptDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+    }
+
+    [Fact]
+    public void IsExhausted_returns_false_at_attempt_one_below_max_with_zero_elapsed()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+                CommitRunTransientRetryPolicy.MaxAttempts - 1,
+                TimeSpan.Zero)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsExhausted_returns_true_at_max_attempts_with_elapsed_below_budget()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+                CommitRunTransientRetryPolicy.MaxAttempts,
+                CommitRunTransientRetryPolicy.RetryBudget - TimeSpan.FromSeconds(1))
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void IsExhausted_returns_true_at_attempt_zero_when_elapsed_exceeds_budget()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+                0,
+                CommitRunTransientRetryPolicy.RetryBudget)
+            .Should()
+            .BeTrue();
+    }
 }

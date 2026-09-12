@@ -5,6 +5,7 @@ using ArchLucid.Application.Scim.RoleMapping;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scim;
+using ArchLucid.Core.Scim.Filtering;
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Scim;
@@ -438,6 +439,94 @@ public sealed class ScimUsersServiceUnitTests
         Func<Task> act = () => sut.PatchAsync(tenantId, active.Id, patch.RootElement, CancellationToken.None);
 
         await act.Should().ThrowAsync<ScimConflictException>();
+    }
+
+    [Fact]
+    public async Task PatchAsync_active_false_on_already_inactive_user_does_not_decrement_seats_again()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "SCIM Seat Guard Tenant",
+            $"slug-{tenantId:N}",
+            TenantTier.Enterprise,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None,
+            enterpriseScimSeatsLimit: 10);
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument firstPatch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "replace", "path": "active", "value": false }]
+            }
+            """);
+
+        await sut.PatchAsync(tenantId, created.Id, firstPatch.RootElement, CancellationToken.None);
+
+        TenantRecord? afterFirstPatch = await tenants.GetByIdAsync(tenantId, CancellationToken.None);
+        afterFirstPatch!.EnterpriseSeatsUsed.Should().Be(0);
+
+        using JsonDocument secondPatch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "replace", "path": "active", "value": false }]
+            }
+            """);
+
+        await sut.PatchAsync(tenantId, created.Id, secondPatch.RootElement, CancellationToken.None);
+
+        TenantRecord? afterSecondPatch = await tenants.GetByIdAsync(tenantId, CancellationToken.None);
+        afterSecondPatch!.EnterpriseSeatsUsed.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task ListAsync_external_id_filter_excludes_directory_removed_users()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-removed",
+            "removed@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        await sut.DeactivateAsync(tenantId, created.Id, CancellationToken.None);
+
+        ScimFilterNode filter = new ScimComparisonNode("externalId", "eq", "ext-removed");
+        (IReadOnlyList<ScimUserRecord> items, int total) =
+            await sut.ListAsync(tenantId, @"externalId eq ""ext-removed""", 1, 100, CancellationToken.None);
+
+        total.Should().Be(0);
+        items.Should().BeEmpty();
+
+        ScimUserRecord? tombstoned = await users.GetByExternalIdAsync(tenantId, "ext-removed", CancellationToken.None);
+        tombstoned.Should().NotBeNull();
+        tombstoned!.DirectoryRemovedUtc.Should().NotBeNull();
+        ScimFilterInMemoryEvaluator.Matches(tombstoned, filter).Should().BeTrue(
+            "filter predicate matches the tombstoned row; ListAsync must exclude directory-removed rows first");
     }
 
     [Fact]

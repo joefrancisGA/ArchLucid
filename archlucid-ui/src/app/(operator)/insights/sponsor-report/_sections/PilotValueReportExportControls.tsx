@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   OPERATOR_DATE_RANGE_END_LABEL,
@@ -195,6 +196,8 @@ export function PilotValueReportExportControls(props: Props) {
         reason={exportsDisabledReason}
         testId={exportDisabledHintId}
       />
+
+      <SponsorExportSendHonestyStrip className="mt-3" testIdPrefix="pilot-value-report-export" />
     </>
   );
 }

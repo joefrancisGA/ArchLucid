@@ -50,7 +50,7 @@ public sealed class AdminApiKeySettingsService(IOptionsMonitor<ApiKeyAuthenticat
 
         string? current = slot == AdminApiKeySlot.Admin ? options.AdminKey : options.ReadOnlyKey;
 
-        if (string.IsNullOrWhiteSpace(current))
+        if (!HasConfiguredKeyMaterial(current))
         {
             return new AdminApiKeyRotateResponse
             {
@@ -78,11 +78,14 @@ public sealed class AdminApiKeySettingsService(IOptionsMonitor<ApiKeyAuthenticat
 
         return new ApiKeySlotStatusDto
         {
-            IsConfigured = masked.Count > 0,
+            IsConfigured = HasConfiguredKeyMaterial(raw),
             MaskedSegments = masked,
             ExpiresAtUtc = expiresAtUtc
         };
     }
+
+    private static bool HasConfiguredKeyMaterial(string? raw)
+        => ApiKeyMaterialMasker.MaskCommaSeparatedSegments(raw).Count > 0;
 
     private static AdminApiKeySlot ParseSlot(string? raw)
     {

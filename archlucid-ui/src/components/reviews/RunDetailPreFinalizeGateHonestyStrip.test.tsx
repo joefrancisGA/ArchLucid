@@ -55,7 +55,7 @@ describe("RunDetailPreFinalizeGateHonestyStrip (DR-04 / AS-064 / AS-065)", () =>
     );
 
     expect(screen.getByTestId("run-detail-pre-finalize-simulator-career-honesty-strip")).toBeInTheDocument();
-    expect(screen.getByText("Simulator cannot read as career-complete")).toBeInTheDocument();
+    expect(screen.getByText("Simulator cannot read as record-complete")).toBeInTheDocument();
   });
 
   it("shows rehearsal door honesty when Ready labels are suppressed (AS-079)", () => {
@@ -67,7 +67,7 @@ describe("RunDetailPreFinalizeGateHonestyStrip (DR-04 / AS-064 / AS-065)", () =>
     render(<RunDetailPreFinalizeGateHonestyStrip manifestFinalized={false} />);
 
     expect(screen.getByTestId("run-detail-pre-finalize-rehearsal-door-honesty-strip")).toBeInTheDocument();
-    expect(screen.getByText("Rehearsal door — not ready to finalize")).toBeInTheDocument();
+    expect(screen.getByText("Practice — not ready to finalize")).toBeInTheDocument();
   });
 
   it("shows the persistent banner when the host gate is disabled", () => {

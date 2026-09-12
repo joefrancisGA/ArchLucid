@@ -92,6 +92,15 @@ public sealed class PilotRunDeltasResponse
     }
 
     /// <summary>
+    ///     When <see langword="true" />, this run is seeded sample workspace data and must not export via CLI proof packets.
+    /// </summary>
+    public bool IsSampleRun
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
     ///     Sum of accepted Cost-category findings' projected USD impact from the run's findings snapshot, when loaded.
     /// </summary>
     public decimal? EstimatedUsdSavings

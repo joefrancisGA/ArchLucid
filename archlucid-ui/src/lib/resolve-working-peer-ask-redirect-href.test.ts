@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { resolveWorkingPeerAskRedirectHref } from "@/lib/resolve-working-peer-ask-redirect-href";
+import { resolveSystemNotJobWorkingAskPortfolioHref } from "@/lib/system-not-job-ask-bound-to-open-package";
 
-describe("resolveWorkingPeerAskRedirectHref (SY-37 / ADR 0079)", () => {
+describe("resolveWorkingPeerAskRedirectHref (SY-37 / ADR 0079 / SN-024)", () => {
   it("redirects bare peer Ask to nested Ask when last-open architecture exists", () => {
     expect(
       resolveWorkingPeerAskRedirectHref({
@@ -13,12 +14,12 @@ describe("resolveWorkingPeerAskRedirectHref (SY-37 / ADR 0079)", () => {
     ).toBe("/architecture/architectures/architecture-identity-001/ask?runId=run-1");
   });
 
-  it("sends unscoped Working to portfolio when no architecture is known", () => {
+  it("sends unscoped Working to portfolio with Ask bind honesty when no architecture is known", () => {
     expect(
       resolveWorkingPeerAskRedirectHref({
         pathname: "/insights/ask-review-questions",
       }),
-    ).toBe("/architecture/architectures");
+    ).toBe(resolveSystemNotJobWorkingAskPortfolioHref());
   });
 
   it("does not redirect non-Ask paths", () => {

@@ -48,6 +48,9 @@ describe("first-review-spine-band", () => {
     expect(summary?.executionModeLabel).toBe("Simulator");
     expect(summary?.topFindingTitle).toBe("Public endpoint exposed");
     expect(summary?.uncitedCount).toBe(1);
+    expect(summary?.semanticSupportLine).toMatch(/Semantic support/i);
+    expect(summary?.treatmentSummaryLine).toMatch(/Decision-grade:/i);
+    expect(summary?.showDispositionNextAction).toBe(true);
   });
 });
 

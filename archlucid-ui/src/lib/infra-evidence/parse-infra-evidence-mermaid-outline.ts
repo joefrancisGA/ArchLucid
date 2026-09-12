@@ -1,3 +1,5 @@
+import { findUnquotedMermaidCommentIndex } from "@/lib/mermaid/find-unquoted-mermaid-comment-index";
+
 /** Lightweight Mermaid flowchart outline for accessible diagram peers (nodes + edges only). */
 
 export type InfraEvidenceMermaidOutlineNode = {
@@ -5,6 +7,7 @@ export type InfraEvidenceMermaidOutlineNode = {
   readonly label: string;
   readonly resourceType: string | null;
   readonly resourceGroup: string | null;
+  readonly seedNodeId?: string | null;
 };
 
 export type InfraEvidenceMermaidOutlineEdge = {
@@ -21,7 +24,9 @@ export type InfraEvidenceMermaidOutline = {
 const NODE_WITH_LABEL =
   /^([A-Za-z0-9_-]+)(?:\[\[([^\]]+)\]\]|\[([^\]]+)\]|\(\(([^)]+)\)\)|\(([^)]+)\)|\{\{([^}]+)\}\}|\{([^}]+)\}|>([^<]+)<)?/u;
 
-const EDGE_ARROW = /--+(?:\|([^|]+)\|)?>|==+(?:\|([^|]+)\|)?>|\.-+>/u;
+const EDGE_ARROW = /-->(?:\|([^|]+)\|)?|==+(?:\|([^|]+)\|)?|\.-+>/u;
+
+const INVISIBLE_LAYOUT_LINK = /~{2,}/u;
 
 const DIAGRAM_HEADER = /^(?:flowchart|graph|sequenceDiagram|classDiagram|stateDiagram-v2|erDiagram|gantt|pie|mindmap|timeline|gitGraph|C4Context)\b/u;
 
@@ -32,11 +37,12 @@ const SUBGRAPH_LABEL = /^subgraph\s+([A-Za-z0-9_-]+)(?:\["([^"]+)"\]|\[([^\]]+)\
 
 const RG_SUBGRAPH_LABEL = /^RG\s+(.+)$/iu;
 
-const OUTLINE_METADATA_TOKEN = /(?:^|\s)(al-type|al-rg)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
+const OUTLINE_METADATA_TOKEN = /(?:^|\s)(al-type|al-rg|al-seed)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
 
 type OutlineNodeMetadata = {
   readonly resourceType: string | null;
   readonly resourceGroup: string | null;
+  readonly seedNodeId: string | null;
 };
 
 function normalizeOutlineLabel(raw: string | undefined, fallback: string): string {
@@ -62,6 +68,7 @@ function unquoteMetadataValue(raw: string): string {
 function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
   let resourceType: string | null = null;
   let resourceGroup: string | null = null;
+  let seedNodeId: string | null = null;
 
   for (const match of comment.matchAll(OUTLINE_METADATA_TOKEN)) {
     const key = match[1];
@@ -78,18 +85,53 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
     if (key === "al-rg") {
       resourceGroup = value;
     }
+
+    if (key === "al-seed") {
+      seedNodeId = value;
+    }
   }
 
-  return { resourceType, resourceGroup };
+  return { resourceType, resourceGroup, seedNodeId };
+}
+
+function emptyOutlineNodeMetadata(): OutlineNodeMetadata {
+  return { resourceType: null, resourceGroup: null, seedNodeId: null };
+}
+
+function mergeOutlineNodeMetadata(
+  preferred: OutlineNodeMetadata,
+  fallback: OutlineNodeMetadata,
+): OutlineNodeMetadata {
+  return {
+    resourceType: preferred.resourceType ?? fallback.resourceType,
+    resourceGroup: preferred.resourceGroup ?? fallback.resourceGroup,
+    seedNodeId: preferred.seedNodeId ?? fallback.seedNodeId,
+  };
+}
+
+function withPrecedingMetadata(
+  node: InfraEvidenceMermaidOutlineNode | null,
+  preceding: OutlineNodeMetadata,
+): InfraEvidenceMermaidOutlineNode | null {
+  if (node == null) {
+    return null;
+  }
+
+  return {
+    ...node,
+    resourceType: node.resourceType ?? preceding.resourceType,
+    resourceGroup: node.resourceGroup ?? preceding.resourceGroup,
+    seedNodeId: node.seedNodeId ?? preceding.seedNodeId,
+  };
 }
 
 function splitNodeLine(line: string): { readonly nodeToken: string; readonly metadata: OutlineNodeMetadata } {
-  const commentIndex = line.indexOf("%%");
+  const commentIndex = findUnquotedMermaidCommentIndex(line);
 
   if (commentIndex < 0) {
     return {
       nodeToken: line.trim(),
-      metadata: { resourceType: null, resourceGroup: null },
+      metadata: emptyOutlineNodeMetadata(),
     };
   }
 
@@ -121,6 +163,7 @@ function readNodeToken(
     label,
     resourceType: metadata.resourceType,
     resourceGroup: metadata.resourceGroup ?? subgraphResourceGroup,
+    seedNodeId: metadata.seedNodeId,
   };
 }
 
@@ -139,6 +182,12 @@ function upsertNode(
       const next = nodeMap.get(node.id)!;
 
       nodeMap.set(node.id, { ...next, resourceGroup: node.resourceGroup });
+    }
+
+    if (existing.seedNodeId == null && node.seedNodeId != null) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, seedNodeId: node.seedNodeId });
     }
 
     return;
@@ -188,21 +237,53 @@ export function resolveInfraEvidenceOutlineNodeLabel(
   return match.label;
 }
 
+export function resolveInfraEvidenceOutlineSeedNodeId(node: InfraEvidenceMermaidOutlineNode): string {
+  const seed = node.seedNodeId?.trim() ?? "";
+
+  if (seed.length > 0) {
+    return seed;
+  }
+
+  return node.id;
+}
+
 export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceMermaidOutline {
   const nodeMap = new Map<string, InfraEvidenceMermaidOutlineNode>();
   const edges: InfraEvidenceMermaidOutlineEdge[] = [];
   const subgraphResourceGroups: string[] = [];
+  let pendingMetadata: OutlineNodeMetadata = emptyOutlineNodeMetadata();
+
+  const attachPendingMetadata = (
+    node: InfraEvidenceMermaidOutlineNode | null,
+  ): InfraEvidenceMermaidOutlineNode | null => {
+    const merged = withPrecedingMetadata(node, pendingMetadata);
+
+    if (merged != null) {
+      pendingMetadata = emptyOutlineNodeMetadata();
+    }
+
+    return merged;
+  };
 
   for (const rawLine of source.split(/\r?\n/u)) {
     const line = rawLine.trim();
 
-    if (
-      line.length === 0
-      || line.startsWith("%%")
-      || line.startsWith("classDef ")
-      || line.startsWith("class ")
-      || DIAGRAM_HEADER.test(line)
-    ) {
+    if (line.length === 0) {
+      continue;
+    }
+
+    if (line.startsWith("%%{")) {
+      continue;
+    }
+
+    // Own-line comments: mermaid.js only strips %% at line start. Inventory metadata
+    // is emitted that way so the diagram parses; attach tokens to the next node.
+    if (line.startsWith("%%")) {
+      pendingMetadata = mergeOutlineNodeMetadata(parseOutlineNodeMetadata(line), pendingMetadata);
+      continue;
+    }
+
+    if (line.startsWith("classDef ") || line.startsWith("class ") || DIAGRAM_HEADER.test(line)) {
       continue;
     }
 
@@ -233,13 +314,21 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
     const activeSubgraphResourceGroup =
       subgraphResourceGroups.length > 0 ? subgraphResourceGroups[subgraphResourceGroups.length - 1] : null;
 
+    const invisibleLinkMatch = INVISIBLE_LAYOUT_LINK.exec(line);
+
+    if (invisibleLinkMatch != null) {
+      continue;
+    }
+
     const arrowMatch = EDGE_ARROW.exec(line);
 
     if (arrowMatch != null) {
       const arrowIndex = arrowMatch.index;
       const fromParts = splitNodeLine(line.slice(0, arrowIndex));
       const toParts = splitNodeLine(line.slice(arrowIndex + arrowMatch[0].length));
-      const fromNode = readNodeToken(fromParts.nodeToken, fromParts.metadata, activeSubgraphResourceGroup);
+      const fromNode = attachPendingMetadata(
+        readNodeToken(fromParts.nodeToken, fromParts.metadata, activeSubgraphResourceGroup),
+      );
       const toNode = readNodeToken(toParts.nodeToken, toParts.metadata, activeSubgraphResourceGroup);
       const edgeLabel = normalizeOutlineLabel(arrowMatch[1] ?? arrowMatch[2], "");
 
@@ -263,10 +352,12 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
     }
 
     const standaloneParts = splitNodeLine(line);
-    const standaloneNode = readNodeToken(
-      standaloneParts.nodeToken,
-      standaloneParts.metadata,
-      activeSubgraphResourceGroup,
+    const standaloneNode = attachPendingMetadata(
+      readNodeToken(
+        standaloneParts.nodeToken,
+        standaloneParts.metadata,
+        activeSubgraphResourceGroup,
+      ),
     );
 
     if (standaloneNode != null) {

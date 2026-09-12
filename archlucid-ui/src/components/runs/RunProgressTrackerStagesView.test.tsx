@@ -100,7 +100,7 @@ describe("RunProgressTrackerStagesView (WA-22)", () => {
           cellId: "career-simulator-blocked",
           terminalLiveStatus: "blocked",
           signedRecordStepLabel: "Career seal blocked",
-          signedRecordPendingLabel: "Career blocked",
+          signedRecordPendingLabel: "Sealed record blocked",
           findingsStepLabel: "Findings ready (rehearsal)",
           completeStageStatusLabel: "Rehearsal complete",
           completeStageStatusKind: "needs-attention",
@@ -110,7 +110,7 @@ describe("RunProgressTrackerStagesView (WA-22)", () => {
 
     expect(screen.getByText("Findings ready (rehearsal)")).toBeInTheDocument();
     expect(screen.getByText("Career seal blocked")).toBeInTheDocument();
-    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Career blocked");
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Sealed record blocked");
     expect(screen.getAllByText("Rehearsal complete")).toHaveLength(3);
     expect(screen.queryByText("Complete")).not.toBeInTheDocument();
   });

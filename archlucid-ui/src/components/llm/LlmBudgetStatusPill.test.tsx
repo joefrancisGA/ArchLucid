@@ -67,7 +67,7 @@ describe("LlmBudgetStatusPill", () => {
     expect(pill.className).toMatch(/text-\[11px\]/);
   });
 
-  it("opens popover with utilization meter", async () => {
+  it("opens popover with utilization meter and CG-095 career-honesty disclosure", async () => {
     renderWithOperatorQuery(<LlmBudgetStatusPill />);
 
     const pill = await screen.findByTestId("llm-budget-status-pill");
@@ -75,6 +75,12 @@ describe("LlmBudgetStatusPill", () => {
 
     expect(await screen.findByTestId("llm-budget-status-pill-popover")).toBeInTheDocument();
     expect(await screen.findByTestId("llm-budget-utilization-meter")).toBeInTheDocument();
+    expect(screen.getByTestId("llm-budget-status-pill-career-honesty")).toHaveTextContent(
+      /not execute posture/i,
+    );
+    expect(screen.getByTestId("llm-budget-status-pill-career-honesty")).toHaveTextContent(
+      /not the Record or Practice review type/i,
+    );
     expect(screen.getByRole("link", { name: "Open AI usage and budget" })).toHaveAttribute(
       "href",
       "/administration/ai-usage",
@@ -143,7 +149,7 @@ describe("LlmBudgetStatusPill", () => {
     expect(fetchStatus).not.toHaveBeenCalled();
   });
 
-  it("shows paused suffix at hard cap", async () => {
+  it("shows at-cap suffix at hard cap (not rehearsal paused language)", async () => {
     fetchStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: true,
@@ -159,6 +165,9 @@ describe("LlmBudgetStatusPill", () => {
 
     renderWithOperatorQuery(<LlmBudgetStatusPill />);
 
-    expect(await screen.findByTestId("llm-budget-status-pill")).toHaveTextContent("AI budget: 0% — paused");
+    const pill = await screen.findByTestId("llm-budget-status-pill");
+
+    expect(pill).toHaveTextContent("AI budget: 0% — at cap");
+    expect(pill.textContent?.toLowerCase()).not.toContain("paused");
   });
 });

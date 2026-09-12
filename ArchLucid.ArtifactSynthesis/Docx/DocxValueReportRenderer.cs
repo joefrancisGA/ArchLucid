@@ -15,6 +15,12 @@ namespace ArchLucid.ArtifactSynthesis.Docx;
 /// </summary>
 public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> logger) : IValueReportRenderer
 {
+    private const string SponsorRoiNonSummingHeadlineLine =
+        "Portfolio headline savings are disposition-aware and deduplicated by FindingId; per-system rows do not sum to the headline.";
+
+    private const string PolicyPackInfluenceHonestyLine =
+        "Pack-mapped findings cite assigned policy rules. Typed engines may surface checklist coverage without pack-parameterized thresholds.";
+
     private readonly ILogger<DocxValueReportRenderer> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -45,6 +51,10 @@ public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> log
             body.AppendChild(
                 Paragraph(
                     $"Reporting window (UTC): {snapshot.PeriodFromUtc:O} → {snapshot.PeriodToUtc:O}"));
+
+            body.AppendChild(Paragraph("Sendable export cover", true, fontSizeHalfPoints: 28));
+            body.AppendChild(Paragraph($"Sponsor ROI: {SponsorRoiNonSummingHeadlineLine}"));
+            body.AppendChild(Paragraph($"Policy influence: {PolicyPackInfluenceHonestyLine}"));
 
             body.AppendChild(Paragraph("Observed activity", true, fontSizeHalfPoints: 28));
             body.AppendChild(Paragraph($"Runs completed (terminal): {snapshot.RunsCompletedCount}"));

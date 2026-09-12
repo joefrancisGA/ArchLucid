@@ -186,7 +186,17 @@ public sealed class EntraGroupMembershipGraphReader(
                         .Select(static member => member.Id!.Trim()));
             }
 
-            nextLink = parsed?.ODataNextLink;
+            string? candidateNextLink = parsed?.ODataNextLink;
+
+            if (!string.IsNullOrWhiteSpace(candidateNextLink))
+            {
+                EnsureNextLinkTargetsGroup(candidateNextLink, groupId);
+                nextLink = candidateNextLink;
+            }
+            else
+            {
+                nextLink = null;
+            }
         }
 
         return new EntraGroupMembershipGraphReadResult
@@ -194,6 +204,40 @@ public sealed class EntraGroupMembershipGraphReader(
             Memberships = memberships,
             NestedGroupIds = nestedGroupIds,
         };
+    }
+
+    private static void EnsureNextLinkTargetsGroup(string nextLink, string groupId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
+        ArgumentException.ThrowIfNullOrWhiteSpace(groupId);
+
+        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
+        {
+            throw new InvalidOperationException(
+                "Entra group membership Graph read stopped due to an invalid @odata.nextLink.");
+        }
+
+        const string groupsPathPrefix = "/v1.0/groups/";
+
+        if (!uri.AbsolutePath.StartsWith(groupsPathPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Entra group membership Graph read stopped because @odata.nextLink is not a group members URL.");
+        }
+
+        ReadOnlySpan<char> remainder = uri.AbsolutePath.AsSpan(groupsPathPrefix.Length);
+        int slashIndex = remainder.IndexOf('/');
+
+        ReadOnlySpan<char> nextGroupId = slashIndex < 0
+            ? remainder
+            : remainder[..slashIndex];
+
+        if (nextGroupId.IsEmpty
+            || !string.Equals(nextGroupId.ToString(), groupId.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Entra group membership Graph read stopped because @odata.nextLink targets a different group.");
+        }
     }
 
     private sealed class GraphMembersResponse

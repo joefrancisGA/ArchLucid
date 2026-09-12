@@ -27,6 +27,8 @@ public static class AzureExtractorPackageInventoryReader
             (bool entraGroupMembershipsFilePresent, List<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships) =
                 ReadEntraGroupMemberships(archive);
             List<JsonElement> defenderSummary = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderSummary);
+            (bool effectiveNetworkControlsFilePresent, List<AzureInventoryEffectiveNetworkControlRow> effectiveNetworkControls) =
+                ReadEffectiveNetworkControls(archive);
 
             return new AzureExtractorPackageInventoryReadResult
             {
@@ -40,6 +42,8 @@ public static class AzureExtractorPackageInventoryReader
                 EntraGroupMemberships = entraGroupMemberships,
                 EntraGroupMembershipsFilePresent = entraGroupMembershipsFilePresent,
                 DefenderSummary = defenderSummary,
+                EffectiveNetworkControls = effectiveNetworkControls,
+                EffectiveNetworkControlsFilePresent = effectiveNetworkControlsFilePresent,
             };
         }
         catch (JsonException ex)
@@ -238,6 +242,55 @@ public static class AzureExtractorPackageInventoryReader
         catch (JsonException)
         {
             throw new JsonException($"{AzureExtractorPackageZipEntryNames.EntraGroupMemberships} is not valid JSON.");
+        }
+    }
+
+    private static (bool FilePresent, List<AzureInventoryEffectiveNetworkControlRow> Rows) ReadEffectiveNetworkControls(
+        ZipArchive archive)
+    {
+        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.EffectiveNetworkControls);
+
+        if (entry is null)
+        {
+            return (false, []);
+        }
+
+        using Stream stream = entry.Open();
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(stream);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                throw new JsonException(
+                    $"{AzureExtractorPackageZipEntryNames.EffectiveNetworkControls} root must be a JSON array.");
+            }
+
+            List<AzureInventoryEffectiveNetworkControlRow> rows = [];
+
+            foreach (JsonElement element in document.RootElement.EnumerateArray())
+            {
+                if (!AzureInventoryEffectiveNetworkControlParser.TryParse(element, out AzureInventoryEffectiveNetworkControlRow? row, out _))
+                {
+                    continue;
+                }
+
+                if (row is not null)
+                {
+                    rows.Add(row);
+                }
+            }
+
+            return (true, rows);
+        }
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException($"{AzureExtractorPackageZipEntryNames.EffectiveNetworkControls} is not valid JSON.");
         }
     }
 
@@ -470,6 +523,18 @@ public sealed class AzureExtractorPackageInventoryReadResult
         get;
         init;
     } = [];
+
+    public IReadOnlyList<AzureInventoryEffectiveNetworkControlRow> EffectiveNetworkControls
+    {
+        get;
+        init;
+    } = [];
+
+    public bool EffectiveNetworkControlsFilePresent
+    {
+        get;
+        init;
+    }
 
     public static AzureExtractorPackageInventoryReadResult Failed(string error) =>
         new() { Succeeded = false, Error = error };

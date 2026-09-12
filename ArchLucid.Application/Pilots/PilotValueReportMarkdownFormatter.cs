@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Reporting;
 
 namespace ArchLucid.Application.Pilots;
@@ -19,6 +20,9 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         StringBuilder sb = new();
 
         sb.AppendLine("# ArchLucid pilot value report");
+        sb.AppendLine();
+        sb.AppendLine($"**Sponsor ROI honesty:** {SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine}");
+        sb.AppendLine($"**Policy influence:** {SendableExportCoverComposer.PolicyPackInfluenceHonestyLine}");
         sb.AppendLine();
         _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Field", "Value");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Tenant | `{r.TenantId}` |");

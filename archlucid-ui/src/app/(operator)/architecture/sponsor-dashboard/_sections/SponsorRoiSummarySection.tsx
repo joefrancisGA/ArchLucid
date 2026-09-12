@@ -25,7 +25,9 @@ import { SponsorRoiBoardPackEvidenceBanner } from "./SponsorRoiBoardPackEvidence
 import { SponsorRoiProofStatusStrip } from "./SponsorRoiProofStatusStrip";
 import { SponsorRoiSystemsIncludedSection } from "./SponsorRoiSystemsIncludedSection";
 import { RoiHeadlineMathTooltip } from "@/components/roi/RoiHeadlineMathTooltip";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { resolveSponsorRoiIdentifiedVsRealized } from "@/lib/sponsor-roi-identified-vs-realized";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import {
   manifestSummarySealedVersionForCopyGuard,
   runCollateralSealedManifestCopyBlockedReason,
@@ -335,6 +337,10 @@ export function SponsorRoiSummarySection({
         <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
           Latest finalized review per system in this workspace. {BUYER_SPONSOR_DATA_SOURCE_NOTE}
         </CardDescription>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="exec-roi-summary-non-summing">
+          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+        </p>
+        <PolicyPackInfluenceHonestyChip />
       </CardHeader>
       <CardContent className="space-y-4">
         {resolvedPortfolioSavings !== null ? (

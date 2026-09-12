@@ -37,6 +37,30 @@ class BuildRcEvidenceIndexTests(unittest.TestCase):
             claim_row = next(r for r in index["rows"] if r["artifact"] == "real-mode-claim-gate.json")
             self.assertEqual(claim_row["verdict"], "HOLD")
 
+    def test_ship_gate_and_faithfulness_rows_resolve_nested_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            bundle = Path(tmp)
+            ship_gate_dir = bundle / "artifacts" / "ship-gate-evidence" / "run-1"
+            ship_gate_dir.mkdir(parents=True)
+            (ship_gate_dir / "ship-gate-evidence.json").write_text(
+                json.dumps({"overallVerdict": "PASS"}),
+                encoding="utf-8",
+            )
+            (bundle / "faithfulness-nightly-warn-status.json").write_text(
+                json.dumps({"status": "PASS", "program": "G-FAITH-01"}),
+                encoding="utf-8",
+            )
+
+            index = build_index(REPO_ROOT, bundle)
+            ship_row = next(r for r in index["rows"] if r["artifact"] == "ship-gate-evidence.json")
+            faith_row = next(
+                r for r in index["rows"] if r["artifact"] == "faithfulness-nightly-warn-status.json"
+            )
+
+            self.assertEqual(ship_row["verdict"], "PASS")
+            self.assertEqual(faith_row["verdict"], "WARN")
+            self.assertIn("enforce flip still owner", faith_row["detail"])
+
 
 if __name__ == "__main__":
     unittest.main()

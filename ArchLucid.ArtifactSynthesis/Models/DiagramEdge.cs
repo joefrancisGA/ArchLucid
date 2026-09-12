@@ -19,4 +19,11 @@ public class DiagramEdge
         get;
         set;
     } = null!;
+
+    /// <summary>True when the edge exists only to steer dagre layout (rendered as Mermaid <c>~~~</c>).</summary>
+    public bool IsLayoutOnly
+    {
+        get;
+        set;
+    }
 }

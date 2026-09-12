@@ -29,7 +29,7 @@ describe("ValueReportCareerHonestyStrip (CG-090)", () => {
   it("renders route honesty strip for scoped rehearsal reviews", () => {
     honestyMock.presentation = {
       kind: "scoped",
-      title: "Rehearsal incomplete — sponsor report is rehearsal only",
+      title: "Practice incomplete — sponsor report is practice only",
       body: "Not measured procurement savings.",
     };
 
@@ -37,7 +37,7 @@ describe("ValueReportCareerHonestyStrip (CG-090)", () => {
 
     expect(screen.getByTestId("value-report-career-honesty-strip")).toBeInTheDocument();
     expect(screen.getByTestId("value-report-career-honesty-title").textContent).toContain(
-      "Rehearsal incomplete",
+      "Practice incomplete",
     );
   });
 });

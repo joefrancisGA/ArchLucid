@@ -30,3 +30,17 @@ export function runsListSearchHrefFromSearch(
 export function runsListClearSearchHrefFromSearch(currentSearch: string, pathname: string): string {
   return runsListSearchHrefFromSearch(currentSearch, "", pathname);
 }
+
+/** Merge in-progress filter text into URL search params for navigation hrefs before debounced q= sync. */
+export function runsListEffectiveSearchFromSearch(currentSearch: string, pendingQuery: string): string {
+  const params = new URLSearchParams(currentSearch);
+  const trimmed = pendingQuery.trim();
+
+  if (trimmed.length === 0) {
+    params.delete(RUNS_LIST_SEARCH_PARAM);
+  } else {
+    params.set(RUNS_LIST_SEARCH_PARAM, trimmed);
+  }
+
+  return params.toString();
+}

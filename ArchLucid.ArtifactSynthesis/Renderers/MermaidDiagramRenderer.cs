@@ -106,13 +106,14 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         string safeLabel = EscapeLabel(node.Label);
         string metadataComment = BuildInventoryNodeMetadataComment(node);
 
-        if (string.IsNullOrEmpty(metadataComment))
+        if (!string.IsNullOrEmpty(metadataComment))
         {
-            sb.AppendLine($"{indentText}{safeNodeId}[\"{safeLabel}\"]");
-            return;
+            // Mermaid flowcharts only strip %% comments that start a line. An inline
+            // comment after id["label"] is lexed as NODE_STRING and fails parse.
+            sb.AppendLine($"{indentText}{metadataComment}");
         }
 
-        sb.AppendLine($"{indentText}{safeNodeId}[\"{safeLabel}\"] {metadataComment}");
+        sb.AppendLine($"{indentText}{safeNodeId}[\"{safeLabel}\"]");
     }
 
     private static string BuildInventoryNodeMetadataComment(DiagramNode node)
@@ -127,6 +128,11 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         if (!string.IsNullOrWhiteSpace(node.ArmResourceGroup))
         {
             tokens.Add($"al-rg={QuoteMetadataValue(node.ArmResourceGroup)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(node.SeedNodeId))
+        {
+            tokens.Add($"al-seed={QuoteMetadataValue(node.SeedNodeId)}");
         }
 
         if (tokens.Count == 0)
@@ -158,9 +164,17 @@ public class MermaidDiagramRenderer : IDiagramRenderer
     {
         foreach (DiagramEdge edge in ast.Edges)
         {
-            string safeLabel = EscapeLabel(edge.Label);
             string fromId = MermaidIdSanitizer.Sanitize(edge.FromNodeId);
             string toId = MermaidIdSanitizer.Sanitize(edge.ToNodeId);
+
+            if (edge.IsLayoutOnly)
+            {
+                // Mermaid invisible link — steers dagre ranks without drawing an arrow.
+                sb.AppendLine($"    {fromId} ~~~ {toId}");
+                continue;
+            }
+
+            string safeLabel = EscapeLabel(edge.Label);
 
             if (string.IsNullOrWhiteSpace(safeLabel))
             {

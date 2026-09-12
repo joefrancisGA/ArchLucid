@@ -50,7 +50,11 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
         if (string.IsNullOrWhiteSpace(isoWeekIdempotencyKey))
             throw new ArgumentException("Idempotency key is required.", nameof(isoWeekIdempotencyKey));
 
+        if (string.IsNullOrWhiteSpace(weekLabel))
+            throw new ArgumentException("Week label is required.", nameof(weekLabel));
+
         string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
+        string normalizedWeekLabel = weekLabel.Trim();
 
         List<string> normalizedMailboxes = [];
 
@@ -72,7 +76,7 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
         WeeklySponsorSummaryEmailModel model = new()
         {
             ProductName = productName,
-            WeekLabel = weekLabel,
+            WeekLabel = normalizedWeekLabel,
             RunIdHex = runIdHex.Trim(),
             RunDetailUrl = runDetailUrl.Trim(),
             SummaryMarkdown = summaryMarkdown,
@@ -82,7 +86,7 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
         string idempotencyKey = $"weekly-sponsor-summary:{tenantId:N}:{normalizedIsoWeekKey}";
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
-        string subject = $"{productName} weekly sponsor summary — {weekLabel}";
+        string subject = $"{productName} weekly sponsor summary — {normalizedWeekLabel}";
 
         return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
             tenantId,

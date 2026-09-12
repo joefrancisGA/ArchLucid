@@ -1,6 +1,6 @@
 import { formatFindingHumanReviewStatusLabel } from "@/lib/findings/finding-human-review-display";
 import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
-import { severityFromTrace } from "@/lib/sponsor/sponsor-finding-severity";
+import { normalizeFindingSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -13,6 +13,7 @@ import type {
 } from "@/lib/api/governance-stickiness-api";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
+import { severityFromTrace } from "@/lib/sponsor/sponsor-finding-severity";
 import type { RunSummary } from "@/types/authority";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
@@ -130,6 +131,9 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
             : null,
         policyRuleId: coerceComplianceRuleKey(ruleHint),
         classification: t.classification ?? null,
+        treatment:
+          typeof t.treatment === "number" && Number.isFinite(t.treatment) ? Math.trunc(t.treatment) : null,
+        semanticSupportBand: normalizeFindingSemanticSupportBand(t.semanticSupportBand),
       };
     });
 }

@@ -34,7 +34,8 @@ public static class HostedAzureExtractorZipBuilder
         string? managementGroupId = null,
         IReadOnlyList<HostedAzureArmPolicyAssignmentRecord>? policyAssignments = null,
         IReadOnlyList<HostedAzureArmDiagnosticSettingRecord>? diagnosticSettings = null,
-        IReadOnlyList<HostedAzureArmDefenderSummaryRecord>? defenderSummaries = null)
+        IReadOnlyList<HostedAzureArmDefenderSummaryRecord>? defenderSummaries = null,
+        IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord>? effectiveNetworkControls = null)
     {
         bool hasSubscriptionId = !string.IsNullOrWhiteSpace(subscriptionId);
         bool hasManagementGroupId = !string.IsNullOrWhiteSpace(managementGroupId);
@@ -180,6 +181,17 @@ public static class HostedAzureExtractorZipBuilder
             })
             .ToArray<object>();
 
+        object[] effectiveNetworkControlRows = (effectiveNetworkControls ?? [])
+            .Select(static row => new
+            {
+                nicResourceId = row.NicResourceId,
+                kind = row.Kind,
+                collectionStatus = row.CollectionStatus,
+                effectiveResourceId = row.EffectiveResourceId,
+                payloadHashSha256 = row.PayloadHashSha256,
+            })
+            .ToArray<object>();
+
         using MemoryStream zipStream = new();
 
         using (ZipArchive archive = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
@@ -214,6 +226,10 @@ public static class HostedAzureExtractorZipBuilder
                 archive,
                 AzureExtractorPackageZipEntryNames.EntraGroupMemberships,
                 JsonSerializer.Serialize(entraMembershipRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.EffectiveNetworkControls,
+                JsonSerializer.Serialize(effectiveNetworkControlRows, SerializerOptions));
             AddUtf8Entry(archive, "policy-compliance.json", JsonSerializer.Serialize(policyCompliance, SerializerOptions));
             AddUtf8Entry(archive, "README.txt", readme);
         }

@@ -47,6 +47,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "search-review-evidence": "product-help",
   "sponsor-dashboard": "product-help",
   "architecture-intelligence": "product-help",
+  "architecture-desk": "product-help",
   "architecture-drafts": "product-help",
   "structured-brief": "product-help",
   "model-governance": "product-help",

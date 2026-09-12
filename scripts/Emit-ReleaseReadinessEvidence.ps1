@@ -391,6 +391,27 @@ else {
 Add-CheckRow $checks "Real-mode release requirement (opt-in env)" $realLlmReqVerdict "exit $realLlmReqExit when ARCHLUCID_REQUIRE_REAL_LLM_RELEASE_EVIDENCE=1" "real-llm-release-requirement.md"
 
 [string] $realLlmEvidencePath = Join-Path $OutDir "real-llm-evidence-gate.json"
+
+if (-not (Test-Path -LiteralPath $realLlmEvidencePath)) {
+    [string[]] $realLlmCandidates = @(
+        (Join-Path $OutDir "artifacts/release/real-llm-evidence-gate.json"),
+        (Join-Path $root "artifacts/release/real-llm-evidence-gate.json")
+    )
+
+    foreach ($candidate in $realLlmCandidates) {
+        if ([string]::IsNullOrWhiteSpace($candidate)) {
+            continue
+        }
+
+        if (-not (Test-Path -LiteralPath $candidate)) {
+            continue
+        }
+
+        Copy-Item -LiteralPath $candidate -Destination $realLlmEvidencePath -Force
+        break
+    }
+}
+
 [object] $realLlmEvidence = Get-RealModeAiEvidenceVerdict -EvidencePath $realLlmEvidencePath
 Add-CheckRow $checks "Real-mode AI evidence artifact (claim boundary)" $realLlmEvidence.verdict $realLlmEvidence.detail "real-llm-evidence-gate.json"
 
@@ -415,6 +436,53 @@ else {
 
 if (Test-Path -LiteralPath $faithfulnessSource) {
     Copy-Item -LiteralPath $faithfulnessSource -Destination (Join-Path $OutDir "faithfulness-report.md") -Force
+}
+
+[string] $faithfulnessWarnSource = Join-Path $root "docs/quality/faithfulness-nightly-warn-status.json"
+
+if (Test-Path -LiteralPath $faithfulnessWarnSource) {
+    Copy-Item -LiteralPath $faithfulnessWarnSource -Destination (Join-Path $OutDir "faithfulness-nightly-warn-status.json") -Force
+    Add-CheckRow $checks "Offline faithfulness nightly warn (G-FAITH-01)" "PASS" "warn-only scaffold attached; enforce flip still owner — not a commit gate" "faithfulness-nightly-warn-status.json"
+}
+else {
+    Add-CheckRow $checks "Offline faithfulness nightly warn (G-FAITH-01)" "WARN" "run: python scripts/ci/eval_agent_faithfulness.py" "(none)"
+}
+
+[string] $shipGateDest = Join-Path $OutDir "ship-gate-evidence.json"
+[string] $shipGateAttached = $null
+[string[]] $shipGateCandidates = @(
+    (Join-Path $OutDir "artifacts/ship-gate-evidence/ship-gate-evidence.json")
+)
+
+[string] $repoShipGateRoot = Join-Path $root "artifacts/ship-gate-evidence"
+
+if (Test-Path -LiteralPath $repoShipGateRoot) {
+    $shipGateCandidates += @(Get-ChildItem -LiteralPath $repoShipGateRoot -Recurse -Filter "ship-gate-evidence.json" -File -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })
+}
+
+[string] $bundleShipGateRoot = Join-Path $OutDir "artifacts/ship-gate-evidence"
+
+if (Test-Path -LiteralPath $bundleShipGateRoot) {
+    $shipGateCandidates += @(Get-ChildItem -LiteralPath $bundleShipGateRoot -Recurse -Filter "ship-gate-evidence.json" -File -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })
+}
+
+foreach ($candidate in $shipGateCandidates) {
+    if ([string]::IsNullOrWhiteSpace($candidate)) {
+        continue
+    }
+
+    if (Test-Path -LiteralPath $candidate) {
+        Copy-Item -LiteralPath $candidate -Destination $shipGateDest -Force
+        $shipGateAttached = $candidate
+        break
+    }
+}
+
+if ($null -ne $shipGateAttached) {
+    Add-CheckRow $checks "Ship gate evidence (release-smoke witness)" "PASS" "attached from $shipGateAttached" "ship-gate-evidence.json"
+}
+else {
+    Add-CheckRow $checks "Ship gate evidence (release-smoke witness)" "WARN" "run release-smoke.ps1 or archlucid pilot ship-gate-evidence" "(none)"
 }
 
 [string] $materialFindingJson = Join-Path $OutDir "material-finding-faithfulness-summary.json"
@@ -454,6 +522,11 @@ if (Test-StrictRcEffective) {
 [int] $simDivExit = $LASTEXITCODE
 [string] $simDivVerdict = if ($simDivExit -eq 0) { "PASS" } else { "FAIL" }
 Add-CheckRow $checks "Simulator/live divergence (RC boundary)" $simDivVerdict "bundle-derived classification; exit $simDivExit" "simulator-live-divergence.json"
+
+[string] $simDivSummaryDest = Join-Path $OutDir "simulator-live-divergence-summary.json"
+if (Test-Path -LiteralPath $simDivJson) {
+    Copy-Item -LiteralPath $simDivJson -Destination $simDivSummaryDest -Force
+}
 
 [string] $archInvJson = Join-Path $OutDir "architecture-invariant-rc-summary.json"
 [string] $archInvMd = Join-Path $OutDir "architecture-invariant-rc-summary.md"

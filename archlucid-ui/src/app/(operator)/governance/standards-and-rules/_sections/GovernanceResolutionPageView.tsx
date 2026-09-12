@@ -37,6 +37,7 @@ import {
 } from "@/lib/governance-standards-rules-page-copy";
 import { STANDARDS_RULES_LOAD_RETRY_LABEL } from "@/lib/standards-rules-page";
 import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { buildPolicyPacksImpactPreviewHref } from "@/lib/policy-packs-review-handoff";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { STANDARDS_RULES_CLAIM_DISCIPLINE } from "@/lib/standards-rules-evidence-copy";
@@ -90,6 +91,14 @@ export function GovernanceResolutionPageView(props: Props) {
         href={`/architecture/reviews/${encodeURIComponent(rows.scopedRunId)}`}
       >
         Open review
+      </Link>
+      {" · "}
+      <Link
+        className={OPERATOR_BODY_INLINE_LINK_CLASS}
+        href={buildPolicyPacksImpactPreviewHref({ reviewId: rows.scopedRunId })}
+        data-testid="standards-and-rules-policy-impact-preview-handoff"
+      >
+        Preview policy pack impact
       </Link>
     </p>
   ) : null;

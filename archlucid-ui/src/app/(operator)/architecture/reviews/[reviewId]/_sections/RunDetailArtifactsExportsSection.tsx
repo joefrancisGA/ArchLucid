@@ -60,6 +60,7 @@ import { RunDetailExportHistoryCallout } from "./RunDetailExportHistoryCallout";
 import { RunDetailExportRecordComparisonHistoryCallout } from "./RunDetailExportRecordComparisonHistoryCallout";
 import { RunDetailAssuranceGuardCallouts } from "./RunDetailAssuranceGuardCallouts";
 import { RunDetailExportBlobPushPanel } from "@/components/runs/RunDetailExportBlobPushPanel";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -433,6 +434,7 @@ export function RunDetailArtifactsExportsSection(
           ) : null}
 
           <div className="mt-4 flex flex-col gap-3">
+            <SponsorExportSendHonestyStrip testIdPrefix="run-detail-exports" />
             {buyerPolishedArtifactTable ? (
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex max-w-[14rem] flex-col gap-1">
@@ -557,6 +559,8 @@ export function RunDetailArtifactsExportsSection(
                 <RunScopedAuditExportButton
                   runId={runId}
                   manifestVersion={sealedManifestVersion}
+                  progressSummary={props.progressSummary ?? null}
+                  enginesSucceeded={props.enginesSucceeded ?? null}
                 />
                 <Link
                   className={cn(buttonVariants({ variant: "outline", size: "sm" }), OPERATOR_LINK.nav)}

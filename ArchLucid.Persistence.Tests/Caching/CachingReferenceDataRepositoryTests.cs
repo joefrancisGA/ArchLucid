@@ -236,6 +236,45 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantSettings_TryGetAsync_returns_null_after_delete_when_setting_key_casing_differs()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "on", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "Feature.X", CancellationToken.None)).Should().Be("on");
+
+        await repo.DeleteAsync(tenantId, "Feature.X", CancellationToken.None);
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task TenantSettings_TryGetAsync_returns_null_after_concurrent_delete_on_same_key()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "on", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("on");
+
+        Task firstDeleteTask = repo.DeleteAsync(tenantId, "feature.x", CancellationToken.None);
+        Task secondDeleteTask = repo.DeleteAsync(tenantId, "feature.x", CancellationToken.None);
+
+        await Task.WhenAll(firstDeleteTask, secondDeleteTask);
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().BeNull();
+    }
+
+    [Fact]
     public async Task TenantSettings_TryGetAsync_returns_null_after_delete_on_absent_key_without_poisoning_other_cached_keys()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };

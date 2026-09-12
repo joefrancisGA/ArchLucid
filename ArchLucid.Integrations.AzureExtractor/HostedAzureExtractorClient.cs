@@ -62,9 +62,21 @@ public sealed class HostedAzureExtractorClient(
 
         string subscriptionId = request.SubscriptionId!.Trim();
 
-        IReadOnlyList<HostedAzureArmResourceRecord> resources = await _armReadClient
+        IReadOnlyList<HostedAzureArmResourceRecord> indexResources = await _armReadClient
             .ListSubscriptionResourcesAsync(accessToken.Token, subscriptionId, cancellationToken)
             .ConfigureAwait(false);
+
+        HostedAzureArmNetworkResourceEnrichResult enrichResult = await HostedAzureArmNetworkResourceEnricher
+            .EnrichAsync(
+                _armReadClient,
+                accessToken.Token,
+                subscriptionId,
+                indexResources,
+                _logger,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> resources = enrichResult.Resources;
 
         IReadOnlyList<HostedAzureArmRoleAssignmentRecord> standingRoleAssignments = await _armReadClient
             .ListSubscriptionRoleAssignmentsAsync(accessToken.Token, subscriptionId, cancellationToken)
@@ -102,6 +114,10 @@ public sealed class HostedAzureExtractorClient(
 
         networkAssociations.AddRange(HostedAzureInventoryNsgAllowRuleBuilder.Build(resources));
 
+        HostedAzureEffectiveNetworkControlCollectResult effectiveNetworkControls = await HostedAzureEffectiveNetworkControlCollector
+            .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
+            .ConfigureAwait(false);
+
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
@@ -130,7 +146,8 @@ public sealed class HostedAzureExtractorClient(
             managementGroupId: null,
             policyAssignments,
             diagnosticSettings,
-            defenderSummaries);
+            defenderSummaries,
+            effectiveNetworkControls.Rows);
 
         string fileName =
             $"archlucid-hosted-azure-{subscriptionId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -185,11 +202,21 @@ public sealed class HostedAzureExtractorClient(
 
         foreach (string subscriptionId in subscriptionIds)
         {
-            IReadOnlyList<HostedAzureArmResourceRecord> subscriptionResources = await _armReadClient
+            IReadOnlyList<HostedAzureArmResourceRecord> subscriptionIndexResources = await _armReadClient
                 .ListSubscriptionResourcesAsync(accessTokenValue, subscriptionId, cancellationToken)
                 .ConfigureAwait(false);
 
-            resources.AddRange(subscriptionResources);
+            HostedAzureArmNetworkResourceEnrichResult enrichResult = await HostedAzureArmNetworkResourceEnricher
+                .EnrichAsync(
+                    _armReadClient,
+                    accessTokenValue,
+                    subscriptionId,
+                    subscriptionIndexResources,
+                    _logger,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            resources.AddRange(enrichResult.Resources);
 
             standingRoleAssignments.AddRange(
                 await _armReadClient
@@ -233,6 +260,10 @@ public sealed class HostedAzureExtractorClient(
 
         networkAssociations.AddRange(HostedAzureInventoryNsgAllowRuleBuilder.Build(resources));
 
+        HostedAzureEffectiveNetworkControlCollectResult effectiveNetworkControls = await HostedAzureEffectiveNetworkControlCollector
+            .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
+            .ConfigureAwait(false);
+
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
@@ -261,7 +292,8 @@ public sealed class HostedAzureExtractorClient(
             managementGroupId: managementGroupId,
             policyAssignments,
             diagnosticSettings,
-            defenderSummaries);
+            defenderSummaries,
+            effectiveNetworkControls.Rows);
 
         string fileName =
             $"archlucid-hosted-azure-mg-{managementGroupId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";

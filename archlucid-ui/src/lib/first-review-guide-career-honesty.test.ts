@@ -26,7 +26,7 @@ describe("first-review-guide-career-honesty (CG-091)", () => {
     ).toBe(true);
   });
 
-  it("does not suppress Career door + Real runs on Working", () => {
+  it("does not suppress Record review type + Real runs on Working", () => {
     expect(
       resolveFirstReviewGuideSuppressReadyToFinalize({
         workingMode: true,
@@ -60,7 +60,7 @@ describe("first-review-guide-career-honesty (CG-091)", () => {
     const helper = resolveFirstReviewGuideEvaluationScopeHelper({ workingMode: true });
 
     expect(helper).toContain(FIRST_REVIEW_GUIDE_WORKING_EVALUATION_SCOPE_HELPER);
-    expect(helper).toContain("Career door + Real");
+    expect(helper).toContain("Record review type + Real");
   });
 
   it("hides sample recovery on live operator shell", () => {

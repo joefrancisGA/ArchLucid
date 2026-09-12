@@ -134,6 +134,7 @@ export function RunIdPicker({
           activeIndex={picker.activeIndex}
           value={picker.value}
           useBuyerFacingRunLabels={picker.useBuyerFacingRunLabels}
+          showCompareDoorStamp={forCompare}
           retrying={picker.runsQuery.isFetching}
           onRetry={() => void picker.runsQuery.refetch()}
           onSelectRun={picker.selectRun}

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import {
+  parseWorkingCareerRehearsalDoorId,
   DEFAULT_WORKING_CAREER_REHEARSAL_DOOR,
   LEGACY_WORKING_SIMULATOR_REHEARSAL_DOOR_DEFAULT,
   LEGACY_WORKING_DOOR_USAGE_SIGNAL_STORAGE_KEYS,
@@ -133,5 +134,14 @@ describe("working-career-rehearsal-door", () => {
     writeWorkingCareerRehearsalDoorToStorage({ kind: "tenant" }, "rehearsal");
 
     expect(tryReadExplicitWorkingCareerRehearsalDoorFromStorage({ kind: "tenant" })).toBe("rehearsal");
+  });
+
+  it("parseWorkingCareerRehearsalDoorId accepts Record and Practice aliases (ADR 0097)", () => {
+    expect(parseWorkingCareerRehearsalDoorId("record")).toBe("career");
+    expect(parseWorkingCareerRehearsalDoorId("Record")).toBe("career");
+    expect(parseWorkingCareerRehearsalDoorId("practice")).toBe("rehearsal");
+    expect(parseWorkingCareerRehearsalDoorId("Practice")).toBe("rehearsal");
+    expect(parseWorkingCareerRehearsalDoorId("career")).toBe("career");
+    expect(parseWorkingCareerRehearsalDoorId("rehearsal")).toBe("rehearsal");
   });
 });
