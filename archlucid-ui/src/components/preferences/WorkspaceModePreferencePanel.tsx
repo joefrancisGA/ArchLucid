@@ -5,6 +5,12 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { WorkspaceModeId } from "@/lib/workspace-mode/workspace-mode";
 import {
+  MODE_GRAVITY_PREFERENCES_GUIDED_DOOR_NOTE,
+  MODE_GRAVITY_PREFERENCES_TWO_CONTROLS_HEADING,
+  MODE_GRAVITY_PREFERENCES_WORKING_DOOR_LEAD,
+  MODE_GRAVITY_PREFERENCES_WORKSPACE_MODE_LEAD,
+} from "@/lib/mode-gravity-preferences-two-controls-copy";
+import {
   WORKSPACE_MODE_GUIDED_DESCRIPTION,
   WORKSPACE_MODE_GUIDED_LABEL,
   WORKSPACE_MODE_PREFERENCE_HELPER,
@@ -38,6 +44,27 @@ export function WorkspaceModePreferencePanel({
       aria-labelledby={labelledById}
     >
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{WORKSPACE_MODE_PREFERENCE_LEAD}</p>
+      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+        {MODE_GRAVITY_PREFERENCES_TWO_CONTROLS_HEADING}
+      </p>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {MODE_GRAVITY_PREFERENCES_WORKSPACE_MODE_LEAD}
+      </p>
+      {mode === "working" ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="workspace-mode-preference-working-door-note"
+        >
+          {MODE_GRAVITY_PREFERENCES_WORKING_DOOR_LEAD}
+        </p>
+      ) : (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="workspace-mode-preference-guided-door-note"
+        >
+          {MODE_GRAVITY_PREFERENCES_GUIDED_DOOR_NOTE}
+        </p>
+      )}
       <fieldset className="space-y-3 border-0 p-0">
         <legend className="sr-only">Workspace mode</legend>
         <label

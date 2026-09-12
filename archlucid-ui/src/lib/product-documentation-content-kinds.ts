@@ -50,6 +50,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "architecture-desk": "product-help",
   "false-hard-infeasibility": "product-help",
   "extraction-fidelity": "product-help",
+  "which-mode-am-i-in": "product-help",
   "architecture-drafts": "product-help",
   "structured-brief": "product-help",
   "model-governance": "product-help",

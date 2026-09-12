@@ -360,6 +360,16 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
     "releaseApplicability": "Livelihood-grade-no help (LN-034 / ADR 0082)",
   },
   {
+    "slug": "which-mode-am-i-in",
+    "title": "Which mode am I in?",
+    "summary": "Working vs Guided, then Career vs Rehearsal — demo and trial builds are eval, not Working Career gravity.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-09-11",
+    "releaseApplicability": "Mode-gravity help (MG-012 / ADR 0094)",
+  },
+  {
     "slug": "career-rehearsal-doors",
     "title": "Record and Practice",
     "summary": "Working Record review type and Practice intent — dry-runs in Practice, sealed-record proof in Record. Simulator output is not sponsor proof; record-complete follows the run stamp. Search aliases: career door, career-complete, rehearsal.",

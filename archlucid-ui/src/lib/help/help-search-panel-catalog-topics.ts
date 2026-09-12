@@ -128,6 +128,23 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/extraction-fidelity", helpSlug: "extraction-fidelity" },
   },
   {
+    id: "which-mode-am-i-in",
+    title: "Which mode am I in?",
+    description:
+      "Working vs Guided, then Career vs Rehearsal — demo and trial builds use eval chrome, not Working Career gravity.",
+    keywords: [
+      "which mode",
+      "am i in working",
+      "guided or working",
+      "career or rehearsal",
+      "eval chrome",
+      "demo mode",
+      "workspace mode",
+      "adr 0094",
+    ],
+    action: { kind: "route", href: "/help/which-mode-am-i-in", helpSlug: "which-mode-am-i-in" },
+  },
+  {
     id: "career-rehearsal-doors",
     title: "Record and Practice",
     description: "Working review type — dry-runs in Practice, sealed-record proof in Record. Simulator is not sponsor proof.",
@@ -523,6 +540,8 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   "hard infeasible": ["false-hard-infeasibility"],
   "false hard": ["false-hard-infeasibility"],
   "extraction fidelity": ["extraction-fidelity"],
+  "which mode": ["which-mode-am-i-in"],
+  "am i in working": ["which-mode-am-i-in"],
   inbox: ["architecture-desk"],
   "nested review": ["architecture-desk"],
   simulator: ["career-rehearsal-doors"],

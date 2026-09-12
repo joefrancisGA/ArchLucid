@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 const PROMPTS_DIR = join(process.cwd(), "..", ".cursor", "prompts");
 
-describe("mode-gravity prompt inventory (MG-024)", () => {
+describe("mode-gravity prompt inventory (MG-018)", () => {
   it("includes the MG-00 index and MG-001 through MG-024 paste-ready files", () => {
     const files = readdirSync(PROMPTS_DIR)
       .filter((name) => name.startsWith("mode-gravity-") && name.endsWith(".md"))
