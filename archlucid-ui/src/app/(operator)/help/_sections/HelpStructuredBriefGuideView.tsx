@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { StructuredBriefHelpClaimDisciplineStrip } from "@/components/help/StructuredBriefHelpClaimDisciplineStrip";
 import { StructuredBriefHelpEvidenceOrientationStrip } from "@/components/help/StructuredBriefHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -145,6 +146,8 @@ export function HelpStructuredBriefGuideView(props: HelpStructuredBriefGuideView
               ))}
             </ol>
           </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-structured-brief" showSsoOptional={false} />
         </div>
 
         <HelpTopicTableOfContents headings={guideHeadings} />
