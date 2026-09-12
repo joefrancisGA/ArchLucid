@@ -2469,3 +2469,4 @@
 {"at":"2026-09-12T19:22:59.3918556Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
 {"at":"2026-09-12T19:24:30.6051194Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-12T19:26:51.3388718Z","zoneId":"core-costing","outcome":"hit"}
+{"at":"2026-09-12T19:27:05.7168141Z","zoneId":"finding-disposition","outcome":"seed-only"}
