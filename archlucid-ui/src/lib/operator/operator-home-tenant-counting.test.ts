@@ -125,6 +125,25 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
     expect(snapshot.metrics.reviewPackagesActive).toBe(3);
   });
 
+  it("uses runsDashboardTotalCount for reviewPackagesTotal when the dashboard page is paginated", () => {
+    const displayItems: RunSummary[] = [
+      {
+        runId: "run-1",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems,
+      previewItems: displayItems,
+      runsDashboardTotalCount: 42,
+    });
+
+    expect(snapshot.metrics.reviewPackagesTotal).toBe(42);
+    expect(snapshot.metrics.reviewPackagesActive).toBe(1);
+  });
+
   it("does not fall back to workspace awaiting-approval count while queue ids are still loading", () => {
     const items: RunSummary[] = [
       {

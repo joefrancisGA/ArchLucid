@@ -4,23 +4,23 @@ import {
   type RunStatusBadgeWorkingCareerHonestyInput,
 } from "@/lib/runs/run-status-badge-career-honesty";
 
-/** CG-035 — ROI / value-report tile honesty when Working stamp is not Career-complete. */
-export const ROI_TILE_CAREER_BLOCKED_TITLE = "Career blocked — ROI tiles are not career proof";
+/** CG-035 — ROI / value-report tile honesty when Working stamp is not record-complete. */
+export const ROI_TILE_CAREER_BLOCKED_TITLE = "Sealed record blocked — ROI tiles are not sealed-record proof";
 
 export const ROI_TILE_CAREER_BLOCKED_BODY =
-  "Directional savings shown here include Simulator or Fallback execution on the Career door. Figures stay visible for rehearsal — do not cite them as measured procurement savings.";
+  "Directional savings shown here include Simulator or Fallback execution on the Record review type. Figures stay visible for practice — do not cite them as measured procurement savings.";
 
-export const ROI_TILE_REHEARSAL_INCOMPLETE_TITLE = "Rehearsal incomplete — ROI is rehearsal only";
+export const ROI_TILE_REHEARSAL_INCOMPLETE_TITLE = "Practice incomplete — ROI is practice only";
 
 export const ROI_TILE_REHEARSAL_INCOMPLETE_BODY =
-  "Directional savings reflect a Rehearsal door run on Simulator or Fallback. Numbers stay visible for practice — they are not career-complete sealed-record proof.";
+  "Directional savings reflect a Practice review type run on Simulator or Fallback. Numbers stay visible for dry-runs — they are not record-complete sealed-record proof.";
 
-export const ROI_TILE_PRACTICE_TITLE = "Practice — ROI is not career proof";
+export const ROI_TILE_PRACTICE_TITLE = "Practice — ROI is not sealed-record proof";
 
 export const ROI_TILE_PRACTICE_BODY =
-  "Directional savings reflect a Rehearsal door practice run on Real structural execute. Figures stay visible for rehearsal — they are not sponsor-ready career evidence.";
+  "Directional savings reflect a Practice review type run on Real structural execute. Figures stay visible for rehearsal — they are not sponsor-ready sealed-record evidence.";
 
-export const ROI_TILE_REHEARSAL_SECTION_QUALIFIER = "Rehearsal ROI";
+export const ROI_TILE_REHEARSAL_SECTION_QUALIFIER = "Practice ROI";
 
 export const ROI_TILE_PRACTICE_SECTION_QUALIFIER = "Practice ROI";
 

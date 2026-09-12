@@ -26,4 +26,12 @@ public sealed class PreCommitGateThresholdParserTests
         PreCommitGateThresholdParser.TryParseMinimumSeverity(null).Should().BeNull();
         PreCommitGateThresholdParser.TryParseMinimumSeverity("   ").Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("999")]
+    [InlineData("99")]
+    public void TryParseMinimumSeverity_returns_null_for_undefined_numeric_values(string input)
+    {
+        PreCommitGateThresholdParser.TryParseMinimumSeverity(input).Should().BeNull();
+    }
 }

@@ -46,6 +46,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form";
+import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
 
 export type CompareFormProps = {
   readonly basePathname?: string;
@@ -114,6 +115,7 @@ export function CompareForm(props: CompareFormProps = {}) {
     loadBuyerSampleComparison,
     showRelatedReviewLinks,
     showContinueLastComparisonRow,
+    architectureId,
   } = useCompareForm({ basePathname: props.basePathname });
 
   const pageBody = (
@@ -234,7 +236,7 @@ export function CompareForm(props: CompareFormProps = {}) {
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={`/architecture/reviews/${encodeURIComponent(rightTrim)}`}
+              href={resolveSystemNotJobWorkingReviewOpenHref(rightTrim, architectureId)}
             >
               Open updated review
             </Link>

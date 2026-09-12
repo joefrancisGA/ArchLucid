@@ -1,7 +1,9 @@
 using ArchLucid.Application.Jobs;
 using ArchLucid.Application.Operations;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Jobs;
+using ArchLucid.TestSupport;
 
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
@@ -255,6 +257,178 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
             r => r.MarkFailedTerminalAsync("job-bad", "Invalid job payload.", 1, It.IsAny<CancellationToken>()),
             Times.Once);
         queueClient.Verify(q => q.DeleteMessageAsync("bad-json", "rcpt-bad", It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+
+        await sut.StopAsync(CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_requested_before_invalid_payload()
+    {
+        Mock<QueueClient> queueClient = new();
+        Mock<IBackgroundJobRepository> repo = new();
+        Mock<IServiceScopeFactory> scopeFactory = new();
+        OperationCancellationRegistry cancellationRegistry = new();
+        string jobId = "job-bad-cancel";
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+        cancellationRegistry.TryRequestCancel(scope, OperationIdCodec.ForJob(jobId));
+
+        BackgroundJobsOptions backgroundJobsOptions = new()
+        {
+            ProcessorReceiveBatchSize = 1,
+            ProcessorIdlePollMilliseconds = 10,
+        };
+
+        BackgroundJobQueueProcessorHostedService sut = new(
+            NullLogger<BackgroundJobQueueProcessorHostedService>.Instance,
+            queueClient.Object,
+            repo.Object,
+            scopeFactory.Object,
+            cancellationRegistry,
+            Options.Create(backgroundJobsOptions));
+
+        using CancellationTokenSource cts = new();
+        int pulls = 0;
+        QueueMessage queueMessage = QueuesModelFactory.QueueMessage("bad-cancel", "rcpt-bad-cancel", jobId, 1);
+
+        queueClient.Setup(q => q.CreateIfNotExistsAsync(It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        queueClient.Setup(q => q.ReceiveMessagesAsync(It.IsAny<int>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                pulls++;
+
+                if (pulls == 1)
+                {
+                    return Azure.Response.FromValue(new[] { queueMessage }, Mock.Of<Azure.Response>());
+                }
+
+                cts.Cancel();
+
+                throw new OperationCanceledException(cts.Token);
+            });
+
+        BackgroundJobRow row = new()
+        {
+            JobId = jobId,
+            WorkUnitJson = "   ",
+            RetryCount = 0,
+            MaxRetries = 3,
+            State = "Running",
+        };
+
+        repo.Setup(r => r.TryPrepareQueuedJobAsync(jobId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QueuedBackgroundJobPrepareResult(true, false, false, row));
+
+        repo.Setup(r => r.MarkCanceledAsync(jobId, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        queueClient.Setup(q => q.DeleteMessageAsync("bad-cancel", "rcpt-bad-cancel", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        await sut.StartAsync(CancellationToken.None);
+        await Task.Delay(150);
+
+        repo.Verify(
+            r => r.MarkFailedTerminalAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        repo.Verify(
+            r => r.MarkCanceledAsync(jobId, It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        await sut.StopAsync(CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task ProcessOneMessageAsync_does_not_mark_failed_terminal_when_invalid_payload_job_already_canceled()
+    {
+        Mock<QueueClient> queueClient = new();
+        Mock<IBackgroundJobRepository> repo = new();
+        Mock<IServiceScopeFactory> scopeFactory = new();
+
+        BackgroundJobsOptions backgroundJobsOptions = new()
+        {
+            ProcessorReceiveBatchSize = 1,
+            ProcessorIdlePollMilliseconds = 10,
+        };
+
+        BackgroundJobQueueProcessorHostedService sut = new(
+            NullLogger<BackgroundJobQueueProcessorHostedService>.Instance,
+            queueClient.Object,
+            repo.Object,
+            scopeFactory.Object,
+            new OperationCancellationRegistry(),
+            Options.Create(backgroundJobsOptions));
+
+        using CancellationTokenSource cts = new();
+        int pulls = 0;
+        QueueMessage queueMessage = QueuesModelFactory.QueueMessage("bad-canceled", "rcpt-bad-canceled", "job-bad-canceled", 1);
+
+        queueClient.Setup(q => q.CreateIfNotExistsAsync(It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        queueClient.Setup(q => q.ReceiveMessagesAsync(It.IsAny<int>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                pulls++;
+
+                if (pulls == 1)
+                {
+                    return Azure.Response.FromValue(new[] { queueMessage }, Mock.Of<Azure.Response>());
+                }
+
+                cts.Cancel();
+
+                throw new OperationCanceledException(cts.Token);
+            });
+
+        BackgroundJobRow runningRow = new()
+        {
+            JobId = "job-bad-canceled",
+            WorkUnitJson = "   ",
+            RetryCount = 0,
+            MaxRetries = 3,
+            State = "Running",
+        };
+
+        BackgroundJobRow canceledRow = new()
+        {
+            JobId = "job-bad-canceled",
+            WorkUnitJson = "   ",
+            RetryCount = 0,
+            MaxRetries = 3,
+            State = "Canceled",
+        };
+
+        repo.Setup(r => r.TryPrepareQueuedJobAsync("job-bad-canceled", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QueuedBackgroundJobPrepareResult(true, false, false, runningRow));
+
+        repo.Setup(r => r.GetAsync("job-bad-canceled", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(canceledRow);
+
+        queueClient.Setup(q => q.DeleteMessageAsync("bad-canceled", "rcpt-bad-canceled", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        await sut.StartAsync(CancellationToken.None);
+        await Task.Delay(150);
+
+        repo.Verify(
+            r => r.MarkFailedTerminalAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
 
         await sut.StopAsync(CancellationToken.None);
     }

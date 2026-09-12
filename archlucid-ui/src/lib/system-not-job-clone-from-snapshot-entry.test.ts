@@ -16,25 +16,25 @@ describe("SN-008 clone-from-snapshot working path", () => {
     expect(SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DESK_CTA_LABEL).toBe("New version (clone)");
   });
 
-  it("names Rehearsal stamp, CG door rules, and SN-009 cap pointer in confirm copy", () => {
+  it("names Practice stamp, CG door rules, and SN-009 cap pointer in confirm copy", () => {
     const copy = resolveSystemNotJobCloneFromSnapshotConfirmCopy({
       effectiveDoor: "rehearsal",
     });
 
     expect(copy.title).toBe("Start new version from snapshot?");
-    expect(copy.description).toContain("Rehearsal");
+    expect(copy.description).toContain("Practice");
     expect(copy.description).toContain("CG door rules");
     expect(copy.description).toContain("ADR 0092");
     expect(copy.description).toContain("what-if branch cap");
     expect(copy.description).toContain("parent snapshot");
   });
 
-  it("names Career door in confirm copy when selected", () => {
+  it("names Record review type in confirm copy when selected", () => {
     const copy = resolveSystemNotJobCloneFromSnapshotConfirmCopy({
       effectiveDoor: "career",
     });
 
-    expect(copy.description).toContain("Career");
+    expect(copy.description).toContain("Record");
   });
 
   it("anchors spawn-lock palette discovery test id", () => {

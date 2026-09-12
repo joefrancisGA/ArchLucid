@@ -30,7 +30,8 @@ public static class PilotRunDeltasResponseMapper
         ValueReportSnapshot valueWindowSnapshot,
         DateTime? extractorCollectionTimestampUtc = null,
         PilotBaselineRecord? scorecardBaselines = null,
-        DateTime? freshnessEvaluationUtc = null)
+        DateTime? freshnessEvaluationUtc = null,
+        bool isSampleRun = false)
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -58,7 +59,8 @@ public static class PilotRunDeltasResponseMapper
             roiSources,
             roiFreshnessDisposition,
             run.StructuralExecutionMode,
-            run.WorkingCareerRehearsalDoor);
+            run.WorkingCareerRehearsalDoor,
+            isSampleRun);
     }
 
     private static PilotRunDeltasResponse MapCore(
@@ -68,7 +70,8 @@ public static class PilotRunDeltasResponseMapper
         IReadOnlyList<RoiMetricSourceRow>? roiMetricSources = null,
         string? roiSourceFreshnessDisposition = null,
         StructuralExecutionMode? structuralExecutionMode = null,
-        string? workingCareerRehearsalDoor = null)
+        string? workingCareerRehearsalDoor = null,
+        bool isSampleRun = false)
     {
         return new PilotRunDeltasResponse
         {
@@ -85,6 +88,7 @@ public static class PilotRunDeltasResponseMapper
             TopFindingId = deltas.TopFindingId,
             TopFindingEvidenceChain = deltas.TopFindingEvidenceChain,
             IsDemoTenant = deltas.IsDemoTenant,
+            IsSampleRun = isSampleRun,
             EstimatedUsdSavings = deltas.EstimatedUsdSavings,
             ProofPackageCompleteness = proofPackage,
             RoiMetricSources = roiMetricSources ?? [],

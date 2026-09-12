@@ -10,29 +10,29 @@ import {
 /** CG-033 — Working pipeline “complete” vocabulary (TB-645). Guided keeps canonical i18n strings. */
 export const WORKING_PIPELINE_CAREER_COMPLETE_REVIEW_LABEL = "Review complete";
 
-export const WORKING_PIPELINE_REHEARSAL_COMPLETE_LABEL = "Rehearsal complete — not career-complete";
+export const WORKING_PIPELINE_REHEARSAL_COMPLETE_LABEL = "Practice complete — not record-complete";
 
-export const WORKING_PIPELINE_CAREER_BLOCKED_COMPLETE_LABEL = "Career blocked — not complete";
+export const WORKING_PIPELINE_CAREER_BLOCKED_COMPLETE_LABEL = "Sealed record blocked — not complete";
 
-export const WORKING_PIPELINE_REHEARSAL_PRACTICE_COMPLETE_LABEL = "Practice complete — not career-complete";
+export const WORKING_PIPELINE_REHEARSAL_PRACTICE_COMPLETE_LABEL = "Practice complete — not record-complete";
 
 export const WORKING_PIPELINE_ENGINEERING_COMPLETE_STATUS =
   "Pipeline complete — refresh for full detail.";
 
 export const WORKING_PIPELINE_ENGINEERING_REHEARSAL_COMPLETE_STATUS =
-  "Pipeline complete — rehearsal only. Refresh for full detail.";
+  "Pipeline complete — practice only. Refresh for full detail.";
 
 export const WORKING_PIPELINE_ENGINEERING_CAREER_BLOCKED_STATUS =
-  "Pipeline stopped — Career blocked on Simulator. Refresh for full detail.";
+  "Pipeline stopped — sealed record blocked on Simulator. Refresh for full detail.";
 
 export const WORKING_PIPELINE_READY_TO_FINALIZE_TOOLTIP =
-  "Analysis finished on a rehearsal path. Finalize stays rehearsal-incomplete unless structural execute is Real on the Career door.";
+  "Analysis finished on a practice path. Finalize stays practice-incomplete unless structural execute is Real on the Record review type.";
 
 export const WORKING_PIPELINE_REHEARSAL_FINALIZED_TOOLTIP =
-  "A finalized review record exists, but this run is rehearsal-incomplete — not career proof.";
+  "A finalized review record exists, but this run is practice-incomplete — not sealed-record proof.";
 
 export const WORKING_PIPELINE_CAREER_BLOCKED_FINALIZED_TOOLTIP =
-  "A finalized review record exists on Simulator/Fallback — not a career-complete seal.";
+  "A finalized review record exists on Simulator/Fallback — not a record-complete seal.";
 
 function reviewCompleteLabelForCell(
   cellId: NonNullable<ReturnType<typeof resolveRunStatusBadgeWorkingCareerHonestyCell>>,

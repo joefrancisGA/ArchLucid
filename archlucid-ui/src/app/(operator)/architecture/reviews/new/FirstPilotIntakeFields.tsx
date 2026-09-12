@@ -140,13 +140,20 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
             testId="first-pilot-title-availability"
           />
           {wizard.inheritedPriorTitle !== null ? (
-            <p
-              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="first-pilot-prior-package-inherited"
-            >
-              Inherited from the prior package: “{wizard.inheritedPriorTitle}”. Keep it if this is the same decision, or
-              rename it if this pass is a new decision.
-            </p>
+            <div className="space-y-1" data-testid="first-pilot-prior-package-inherited">
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                Inherited from the prior package: “{wizard.inheritedPriorTitle}”. Keep it if this is the same decision, or
+                rename it if this pass is a new decision.
+              </p>
+              {wizard.inheritedSemanticSummary !== null ? (
+                <p
+                  className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="first-pilot-prior-package-inherited-semantics"
+                >
+                  {wizard.inheritedSemanticSummary}
+                </p>
+              ) : null}
+            </div>
           ) : null}
         </div>
 

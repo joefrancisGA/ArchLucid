@@ -17,7 +17,7 @@ describe("formatTransparencyTrailMarkdownSection", () => {
   });
 
   it("returns career export banner when trail is absent", () => {
-    expect(formatTransparencyTrailMarkdownSection(null)).toContain("Career export blocked");
+    expect(formatTransparencyTrailMarkdownSection(null)).toContain("Record export blocked");
   });
 
   it("routes open-questions trail rows to a working-document bucket (LP-16)", () => {

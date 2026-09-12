@@ -4,8 +4,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-
-
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { getPilotScorecard } from "@/lib/api/pilots-marketing";
 
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
@@ -38,6 +37,7 @@ type UsePilotScorecardQueryOptions = {
 
 export function usePilotScorecardQuery(options?: UsePilotScorecardQueryOptions) {
 
+  const scope = useOperatorScopeQueryKey();
   const throwOnError = options?.throwOnError === true;
 
   const hasInitialData = options?.initialData !== undefined;
@@ -46,7 +46,7 @@ export function usePilotScorecardQuery(options?: UsePilotScorecardQueryOptions) 
 
   return useQuery<PilotScorecardJson | null>({
 
-    queryKey: operatorQueryKeys.pilotScorecard,
+    queryKey: operatorQueryKeys.pilotScorecard(scope),
 
     queryFn: async () => {
 

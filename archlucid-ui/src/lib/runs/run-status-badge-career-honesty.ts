@@ -12,11 +12,11 @@ import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mo
 import type { RunPipelineInternalLabel } from "@/lib/pipeline-status-labels";
 
 /** CG-031 — Working badge states (text labels are grayscale-safe; not color-only). */
-export const RUN_STATUS_BADGE_CAREER_COMPLETE_LABEL = "Career complete";
+export const RUN_STATUS_BADGE_CAREER_COMPLETE_LABEL = "Record complete";
 
-export const RUN_STATUS_BADGE_CAREER_BLOCKED_LABEL = "Career blocked";
+export const RUN_STATUS_BADGE_CAREER_BLOCKED_LABEL = "Sealed record blocked";
 
-export const RUN_STATUS_BADGE_REHEARSAL_INCOMPLETE_LABEL = "Rehearsal incomplete";
+export const RUN_STATUS_BADGE_REHEARSAL_INCOMPLETE_LABEL = "Practice incomplete";
 
 export const RUN_STATUS_BADGE_REHEARSAL_PRACTICE_LABEL = "Practice";
 

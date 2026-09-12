@@ -93,7 +93,10 @@ public sealed class AuthorityCommitGovernanceStage(
         preCommitBlocked.RunId = runGuid;
 
         await _auditService.LogAsync(preCommitBlocked, cancellationToken);
-        PreCommitGateResult resultWithExplanation = await TryAttachGovernanceBlockExplanationAsync(
+        PreCommitGateResult resultWithExplanation = await PreCommitGovernanceBlockExplanationAttacher.TryAttachToGateResultAsync(
+            _preCommitGovernanceBlockExplainer,
+            _explainGovernanceBlocksOptions,
+            _logger,
             runId,
             gateResult,
             goldenManifestWireJson,
@@ -117,61 +120,6 @@ public sealed class AuthorityCommitGovernanceStage(
             return trimmed;
 
         return trimmed[..maxLen];
-    }
-
-    private async Task<PreCommitGateResult> TryAttachGovernanceBlockExplanationAsync(
-        string runId,
-        PreCommitGateResult gateResult,
-        string goldenManifestWireJson,
-        CancellationToken cancellationToken)
-    {
-        if (!_explainGovernanceBlocksOptions.Value.Enabled)
-            return gateResult;
-
-        string manifestExcerpt = TruncateForGovernanceExplanation(goldenManifestWireJson);
-
-        if (manifestExcerpt.Length == 0)
-            return gateResult;
-
-        try
-        {
-            string? explanation = await _preCommitGovernanceBlockExplainer.ExplainAsync(gateResult, manifestExcerpt, cancellationToken);
-
-            if (string.IsNullOrWhiteSpace(explanation))
-                return gateResult;
-
-            return new PreCommitGateResult
-            {
-                Blocked = gateResult.Blocked,
-                Reason = gateResult.Reason,
-                BlockingFindingIds = gateResult.BlockingFindingIds,
-                PolicyPackId = gateResult.PolicyPackId,
-                MinimumBlockingSeverity = gateResult.MinimumBlockingSeverity,
-                WarnOnly = gateResult.WarnOnly,
-                Warnings = gateResult.Warnings,
-                BlockExplanation = explanation
-            };
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarningWithSanitizedUserArg(ex, "Failed to generate governance block explanation for RunId={RunId}", runId);
-            return gateResult;
-        }
-    }
-
-    private static string TruncateForGovernanceExplanation(string manifestJson)
-    {
-        if (string.IsNullOrWhiteSpace(manifestJson))
-            return string.Empty;
-
-        const int maxLength = 4000;
-        return manifestJson.Length <= maxLength
-            ? manifestJson
-            : manifestJson[..maxLength];
     }
 
     private async Task EmitGovernanceBypassInvokedAuditAsync(

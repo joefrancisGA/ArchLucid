@@ -257,6 +257,29 @@ public static class FinalizeQualityFindingSignals
         return IsCoverageGap(finding);
     }
 
+    /// <summary>TB-2346: open required-capability-coverage engine rows block finalize when quality gate is enabled.</summary>
+    public static bool IsRequiredCapabilityCoverage(Finding finding)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+
+        if (finding.IsMuted)
+            return false;
+
+        return string.Equals(finding.EngineType, "required-capability-coverage", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(finding.FindingType, "RequiredCapabilityCoverageFinding", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Mirrors required-capability coverage findings that remain open on the review.</summary>
+    public static bool IsOpenRequiredCapabilityCoverageJobView(Finding finding, FindingDisposition? latestDisposition)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+
+        if (finding.IsMuted || IsDeferred(latestDisposition) || IsFinalizeResolved(finding, latestDisposition))
+            return false;
+
+        return IsRequiredCapabilityCoverage(finding);
+    }
+
     /// <summary>
     ///     No deterministic rule and no citations. <see cref="Findings.FindingTrustLabelMapper" /> emits
     ///     Heuristic/MissingCitation (both "Ungrounded" in the UI) for exactly this shape on non-simulator,

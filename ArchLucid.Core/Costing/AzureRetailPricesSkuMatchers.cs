@@ -29,6 +29,8 @@ public sealed partial class AzureRetailPricesCatalogClient
         string meter = row.UnitOfMeasure ?? string.Empty;
 
         return AzureRetailPricesCatalogClient.IsHourMeter(meter) ||
+               AzureRetailPricesCatalogClient.IsDayMeter(meter) ||
+               AzureRetailPricesCatalogClient.IsWeekMeter(meter) ||
                AzureRetailPricesCatalogClient.IsMonthlyMeter(meter);
     }
 
@@ -48,6 +50,26 @@ public sealed partial class AzureRetailPricesCatalogClient
         {
             decimal perResource = decimal.Multiply(unit,
                 (decimal)HoursPerMonthAssumption);
+
+            monthly = decimal.Multiply(perResource, quantity);
+
+            return true;
+        }
+
+        if (IsDayMeter(raw))
+        {
+            decimal perResource = decimal.Multiply(unit,
+                (decimal)DaysPerMonthAssumption);
+
+            monthly = decimal.Multiply(perResource, quantity);
+
+            return true;
+        }
+
+        if (IsWeekMeter(raw))
+        {
+            decimal perResource = decimal.Multiply(unit,
+                (decimal)WeeksPerMonthAssumption);
 
             monthly = decimal.Multiply(perResource, quantity);
 
@@ -134,6 +156,112 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterH;
+        }
+
+        return false;
+    }
+
+    internal static bool IsDayMeter(string uom)
+    {
+        if (string.IsNullOrWhiteSpace(uom))
+            return false;
+
+        string trimmed = uom.Trim();
+
+        return ContainsDayWordToken(trimmed)
+            || ContainsSlashDayToken(trimmed)
+            || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsDayWordToken(string trimmed)
+    {
+        return ContainsBoundedToken(trimmed, " day")
+            || ContainsBoundedToken(trimmed, " days");
+    }
+
+    private static bool ContainsSlashDayToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/day", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterDay = index + 4;
+
+            if (afterDay >= trimmed.Length || !char.IsLetter(trimmed[afterDay]))
+                return true;
+
+            index = afterDay;
+        }
+
+        return false;
+    }
+
+    internal static bool IsWeekMeter(string uom)
+    {
+        if (string.IsNullOrWhiteSpace(uom))
+            return false;
+
+        string trimmed = uom.Trim();
+
+        return ContainsWeekWordToken(trimmed)
+            || ContainsSlashWeekToken(trimmed)
+            || ContainsSlashWkToken(trimmed)
+            || string.Equals(trimmed, "week", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "weeks", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "wk", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsWeekWordToken(string trimmed)
+    {
+        return ContainsBoundedToken(trimmed, " week")
+            || ContainsBoundedToken(trimmed, " weeks");
+    }
+
+    private static bool ContainsSlashWeekToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/week", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterWeek = index + 5;
+
+            if (afterWeek >= trimmed.Length || !char.IsLetter(trimmed[afterWeek]))
+                return true;
+
+            index = afterWeek;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashWkToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/wk", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterWk = index + 3;
+
+            if (afterWk >= trimmed.Length || !char.IsLetter(trimmed[afterWk]))
+                return true;
+
+            index = afterWk;
         }
 
         return false;

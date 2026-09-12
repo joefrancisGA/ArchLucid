@@ -5,9 +5,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
-import { resolveWorkingPeerGraphRedirectHref } from "@/lib/resolve-working-peer-graph-redirect-href";
+import { resolveSystemNotJobWorkingPeerGraphRedirectHref } from "@/lib/system-not-job-graph-bound-to-open-package";
 
-/** Working peer Evidence graph → nested graph redirect (ADR 0079 / SY-41). */
+/** Working peer Evidence graph → nested graph redirect (ADR 0079 / SY-41 / SN-025). */
 export function WorkingPeerGraphRedirect(): null {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
@@ -20,7 +20,7 @@ export function WorkingPeerGraphRedirect(): null {
     }
 
     const search = searchParams.toString();
-    const redirectHref = resolveWorkingPeerGraphRedirectHref({
+    const redirectHref = resolveSystemNotJobWorkingPeerGraphRedirectHref({
       pathname,
       search: search.length > 0 ? `?${search}` : "",
       lastOpenArchitectureId: readCachedLastOpenArchitectureId(),

@@ -275,10 +275,10 @@ describe("PilotValueReportPageView", () => {
     expect(screen.queryByTestId("pilot-outcomes-empty-state")).not.toBeInTheDocument();
   });
 
-  it("shows CG-035 rehearsal honesty strip above sponsor metrics when stamp is not career-complete", () => {
+  it("shows CG-035 rehearsal honesty strip above sponsor metrics when stamp is not record-complete", () => {
     roiTileHonestyMock.presentation = {
       cellId: "rehearsal-simulator",
-      title: "Rehearsal incomplete — ROI is rehearsal only",
+      title: "Practice incomplete — ROI is practice only",
       body: "Directional savings stay visible for practice.",
       roiSectionQualifier: "Rehearsal ROI",
     };
@@ -324,7 +324,7 @@ describe("PilotValueReportPageView", () => {
   it("shows CG-090 route honesty strip for deep-linked rehearsal reviews", () => {
     valueReportHonestyMock.presentation = {
       kind: "scoped",
-      title: "Rehearsal incomplete — sponsor report is rehearsal only",
+      title: "Practice incomplete — sponsor report is practice only",
       body: "Not measured procurement savings.",
     };
 

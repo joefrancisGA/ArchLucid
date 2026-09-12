@@ -34,6 +34,7 @@ import {
   resolveRunWarningCountDisplay,
 } from "@/lib/operator/operator-home-run-list-insight";
 import { formatRunListTitleWithDisambiguator } from "@/lib/operator/run-home-list-disambiguator";
+import { resolveSystemNotJobWorkingPrimaryListTitle } from "@/lib/system-not-job-run-id-not-in-working-primary-chrome";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
@@ -49,6 +50,7 @@ type OperatorHomeReviewSummaryCardProps = {
   readonly buyerPolishedShell: boolean;
   readonly variant?: "list" | "featured" | "compact";
   readonly siblingRuns?: readonly RunSummary[];
+  readonly workingMode?: boolean;
   readonly primaryAction?: { readonly href: string; readonly label: string } | null;
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
@@ -243,7 +245,9 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
   const siblingRuns = props.siblingRuns ?? [props.run];
   const title =
     variant === "compact"
-      ? formatRunListTitleWithDisambiguator(props.run, siblingRuns)
+      ? props.workingMode === true
+        ? resolveSystemNotJobWorkingPrimaryListTitle(props.run, siblingRuns)
+        : formatRunListTitleWithDisambiguator(props.run, siblingRuns)
       : runListPrimaryTitle(props.run);
   const insightLine = formatRunHomeListInsightLine(props.run);
   const updatedPresentation = formatRunHomeListUpdatedLabel(props.run);

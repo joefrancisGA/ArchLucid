@@ -16,14 +16,49 @@ function readFiniteAttribute(element: Element, name: string, fallback: number): 
   return parsed;
 }
 
+function paintAttributeMissingOrNone(value: string | null): boolean {
+  return value === null || value.length === 0 || value === "none";
+}
+
 function paintUnfilledSvgText(svg: Element): void {
   const texts = svg.querySelectorAll("text, tspan");
 
   for (const text of texts) {
     const fill = text.getAttribute("fill");
 
-    if (fill === null || fill.length === 0 || fill === "none") {
+    if (paintAttributeMissingOrNone(fill)) {
       text.setAttribute("fill", "currentColor");
+    }
+  }
+}
+
+function paintUnfilledMermaidShapes(svg: Element): void {
+  const nodeShapes = svg.querySelectorAll("g.node rect, g.node polygon, g.node circle, g.cluster rect");
+
+  for (const shape of nodeShapes) {
+    if (paintAttributeMissingOrNone(shape.getAttribute("stroke"))) {
+      shape.setAttribute("stroke", "currentColor");
+
+      if (paintAttributeMissingOrNone(shape.getAttribute("stroke-width"))) {
+        shape.setAttribute("stroke-width", "1.5");
+      }
+    }
+
+    if (shape.getAttribute("fill") === "none") {
+      shape.setAttribute("fill", "currentColor");
+      shape.setAttribute("fill-opacity", "0.12");
+    }
+  }
+
+  const edgePaths = svg.querySelectorAll("g.edgePaths path, g.edgePath path, path.flowchart-link");
+
+  for (const path of edgePaths) {
+    if (paintAttributeMissingOrNone(path.getAttribute("stroke"))) {
+      path.setAttribute("stroke", "currentColor");
+    }
+
+    if (paintAttributeMissingOrNone(path.getAttribute("fill"))) {
+      path.setAttribute("fill", "none");
     }
   }
 }
@@ -87,6 +122,7 @@ export function replaceMermaidForeignObjectLabelsWithSvgText(svgMarkup: string):
   }
 
   paintUnfilledSvgText(svg);
+  paintUnfilledMermaidShapes(svg);
   svg.setAttribute("overflow", "visible");
 
   return new XMLSerializer().serializeToString(svg);

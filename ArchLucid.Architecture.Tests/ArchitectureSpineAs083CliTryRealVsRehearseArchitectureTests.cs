@@ -33,8 +33,8 @@ public sealed class ArchitectureSpineAs083CliTryRealVsRehearseArchitectureTests
     {
         string help = File.ReadAllText(Path.Combine(RepoRoot, TryHelpRelativePath));
 
-        help.Should().Contain("Career");
-        help.Should().Contain("Rehearsal");
+        help.Should().Contain("Record");
+        help.Should().Contain("Practice");
         help.Should().Contain("Simulator");
         help.Should().Contain("archlucid try --rehearse");
         help.Should().Contain("archlucid try --real");
@@ -57,13 +57,13 @@ public sealed class ArchitectureSpineAs083CliTryRealVsRehearseArchitectureTests
             Path.Combine(RepoRoot, "ArchLucid.Cli", "Commands", "RealModeSmokeCommand.cs"));
 
         usage.Should().Contain("--rehearse");
-        usage.Should().Contain("Rehearsal door");
-        usage.Should().Contain("Career path");
+        usage.Should().Contain("Practice review type");
+        usage.Should().Contain("Record path");
 
         string validateConfig = File.ReadAllText(Path.Combine(RepoRoot, ValidateConfigAgentsRelativePath));
 
-        validateConfig.Should().Contain("Rehearsal door");
-        validateConfig.Should().Contain("Career path");
+        validateConfig.Should().Contain("Practice review type");
+        validateConfig.Should().Contain("Record path");
     }
 
     [Fact]
@@ -71,8 +71,8 @@ public sealed class ArchitectureSpineAs083CliTryRealVsRehearseArchitectureTests
     {
         string evaluator = File.ReadAllText(Path.Combine(RepoRoot, ValidateConfigAgentsRelativePath));
 
-        evaluator.Should().Contain("Career door");
-        evaluator.Should().Contain("Rehearsal door");
+        evaluator.Should().Contain("Record review type");
+        evaluator.Should().Contain("Practice review type");
         evaluator.Should().Contain("archlucid try --real");
         evaluator.Should().Contain("archlucid try --rehearse");
     }

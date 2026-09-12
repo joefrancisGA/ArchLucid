@@ -178,6 +178,46 @@ public sealed class AdminApiKeySettingsServiceTests
     }
 
     [Fact]
+    public void Rotate_with_lowercase_slot_string_succeeds()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = AdminKey,
+                ReadOnlyKey = ReaderKey
+            });
+
+        AdminApiKeyRotateResponse admin = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "admin", InvalidatePrevious = true });
+        AdminApiKeyRotateResponse reader = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "readonly", InvalidatePrevious = false });
+
+        admin.Slot.Should().Be("Admin");
+        admin.DeploymentAction.Should().Be("Replace");
+        reader.Slot.Should().Be("ReadOnly");
+        reader.DeploymentAction.Should().Be("Append");
+    }
+
+    [Fact]
+    public void GetSnapshot_returns_multiple_masked_segments_for_comma_separated_admin_key()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = $"{AdminKey},{ReaderKey}"
+            });
+
+        AdminApiKeySettingsResponse snapshot = sut.GetSnapshot();
+
+        snapshot.Admin.IsConfigured.Should().BeTrue();
+        snapshot.Admin.MaskedSegments.Should().HaveCount(2);
+        snapshot.Admin.MaskedSegments![0].Should().StartWith("****");
+        snapshot.Admin.MaskedSegments![1].Should().StartWith("****");
+    }
+
+    [Fact]
     public void Rotate_without_invalidate_previous_returns_replace_when_admin_slot_has_only_comma_segments()
     {
         AdminApiKeySettingsService sut = CreateService(
@@ -214,6 +254,27 @@ public sealed class AdminApiKeySettingsServiceTests
 
         AdminApiKeyRotateResponse response = sut.Rotate(
             new AdminApiKeyRotateRequest { Slot = "ReadOnly", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_whitespace_only()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "   "
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "whitespace-only config is not authenticatable key material");
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "Admin", InvalidatePrevious = false });
 
         response.DeploymentAction.Should().Be("Replace");
         response.ReplaceConfigValue.Should().Be(response.PlaintextKey);

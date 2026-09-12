@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
@@ -62,11 +63,85 @@ public sealed class IdentityRegulatedDatastoreClassifierTests
             .BeTrue();
     }
 
-    private static GraphNode CreateTopologyNode(string label, string sourceId)
+    [Fact]
+    public void IsRegulatedDatastore_does_not_treat_non_private_baseline_protection_as_regulated()
+    {
+        GraphNode datastore = CreateTopologyNode(
+            "telemetry-sql",
+            sourceId: "/providers/Microsoft.Sql/servers/telemetry-sql",
+            nodeId: "ds-telemetry");
+
+        GraphNode baseline = new()
+        {
+            NodeId = "baseline-non-private",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "non-private-network-baseline",
+            SourceId = "baseline/non-private",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+        };
+
+        GraphSnapshot graphSnapshot = new()
+        {
+            Nodes = [baseline, datastore],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    FromNodeId = baseline.NodeId,
+                    ToNodeId = datastore.NodeId,
+                    EdgeType = GraphEdgeTypes.Protects,
+                    Weight = GraphEdgeDecisioningThresholds.MinWeightForSemanticLink,
+                },
+            ],
+        };
+
+        IdentityRegulatedDatastoreClassifier.IsRegulatedDatastore(graphSnapshot, datastore)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsRegulatedDatastore_still_treats_private_only_baseline_protection_as_regulated()
+    {
+        GraphNode datastore = CreateTopologyNode(
+            "telemetry-sql",
+            sourceId: "/providers/Microsoft.Sql/servers/telemetry-sql",
+            nodeId: "ds-telemetry");
+
+        GraphNode baseline = new()
+        {
+            NodeId = "baseline-private",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "private-network-only-baseline",
+            SourceId = "baseline/private",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+        };
+
+        GraphSnapshot graphSnapshot = new()
+        {
+            Nodes = [baseline, datastore],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    FromNodeId = baseline.NodeId,
+                    ToNodeId = datastore.NodeId,
+                    EdgeType = GraphEdgeTypes.Protects,
+                    Weight = GraphEdgeDecisioningThresholds.MinWeightForSemanticLink,
+                },
+            ],
+        };
+
+        IdentityRegulatedDatastoreClassifier.IsRegulatedDatastore(graphSnapshot, datastore)
+            .Should()
+            .BeTrue();
+    }
+
+    private static GraphNode CreateTopologyNode(string label, string sourceId, string nodeId = "node-1")
     {
         return new GraphNode
         {
-            NodeId = "node-1",
+            NodeId = nodeId,
             NodeType = GraphNodeTypes.TopologyResource,
             Label = label,
             SourceId = sourceId,

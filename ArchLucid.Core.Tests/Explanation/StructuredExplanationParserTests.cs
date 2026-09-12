@@ -245,4 +245,71 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.Reasoning.Should().Be("First paragraph.\n\nSecond paragraph.");
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_with_numeric_id()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[{"id":42}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("42");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_numeric_evidence_ref_array_entries()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[42,"dec-1"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("42", "dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_numeric_reasoning_array_entries()
+    {
+        const string json = """{"reasoning":[42,"Second paragraph."]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("42\n\nSecond paragraph.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_numeric_scalar_reasoning()
+    {
+        const string json = """{"reasoning":42,"alternativesConsidered":["Keep monolith"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("42");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_numeric_alternatives_considered_as_single_entry()
+    {
+        const string json = """{"reasoning":"Main","alternativesConsidered":1}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_reasoning_array_entries_with_id_property()
+    {
+        const string json =
+            """{"reasoning":[{"id":"First paragraph."},{"id":"Second paragraph."}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("First paragraph.\n\nSecond paragraph.");
+    }
 }

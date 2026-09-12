@@ -31,7 +31,7 @@ export type SystemNotJobCloneFromSnapshotConfirmCopy = {
 
 /** Full-run cost sentence when branch quota is unavailable (fallback only — SN-009 cap chrome preferred). */
 export function resolveSystemNotJobCloneFromSnapshotFullRunCostSentence(): string {
-  return `Submitting a full Career review later counts as one billable ${BILLING_ARCHITECTURE_PACKAGE_OVERAGE_UNIT_LABEL} (full pipeline run).`;
+  return `Submitting a full Record review later counts as one billable ${BILLING_ARCHITECTURE_PACKAGE_OVERAGE_UNIT_LABEL} (full pipeline run).`;
 }
 
 /**
@@ -45,7 +45,7 @@ export function resolveSystemNotJobCloneFromSnapshotConfirmCopy(args: {
 
   const description = [
     "Creates a new editable draft under this architecture — the legal new version after spawn lock. The parent snapshot and linked review stay sealed.",
-    `The clone stays ${doorLabel}-stamped as an architecture sketch (ADR 0092) until you explicitly execute a Career review. CG door rules apply to the new draft.`,
+    `The clone stays ${doorLabel}-stamped as an architecture sketch (ADR 0092) until you explicitly execute a Record review. CG door rules apply to the new draft.`,
     "Review the what-if branch cap below before you continue — a later full-pipeline submit is billable under R12.",
   ].join(" ");
 

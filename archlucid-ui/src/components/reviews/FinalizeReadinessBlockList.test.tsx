@@ -47,4 +47,21 @@ describe("FinalizeReadinessBlockList", () => {
     );
     expect(action).toHaveTextContent("Acknowledge assumptions");
   });
+
+  it("renders optional blockExplanation copy on governance blocks", () => {
+    const blocks: FinalizeReadinessBlock[] = [
+      {
+        layer: "governance",
+        code: "pre_commit_gate",
+        message: "Critical findings exceed policy pack threshold.",
+        blockExplanation: "Add a private endpoint before finalizing.",
+      },
+    ];
+
+    render(<FinalizeReadinessBlockList blocks={blocks} />);
+
+    expect(screen.getByTestId("finalize-readiness-block-explanation-pre_commit_gate")).toHaveTextContent(
+      "Add a private endpoint before finalizing.",
+    );
+  });
 });

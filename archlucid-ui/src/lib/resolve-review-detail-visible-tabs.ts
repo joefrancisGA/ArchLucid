@@ -4,6 +4,7 @@ import {
   isReviewDetailTabId,
   type ReviewDetailTabId,
 } from "@/lib/review-detail-workspace-tabs";
+import { resolveSystemNotJobWorkingReviewDetailDefaultTab } from "@/lib/system-not-job-activity-tab-is-meta-not-home";
 
 /**
  * Coarse package-detail lifecycle for tab density (TB-2189).
@@ -60,6 +61,11 @@ function defaultTabForStage(
   stage: ReviewDetailTabLifecycleStage,
   workingDesk: boolean,
 ): ReviewDetailTabId {
+
+  if (workingDesk) {
+    return resolveSystemNotJobWorkingReviewDetailDefaultTab(stage);
+  }
+
   switch (stage) {
     case "draft":
       return "overview";

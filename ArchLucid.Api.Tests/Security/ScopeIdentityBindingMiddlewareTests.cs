@@ -305,6 +305,50 @@ public sealed class ScopeIdentityBindingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_api_key_without_workspace_claim_allows_blank_x_workspace_id_header()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim(ClaimTypes.Name, "ApiKeyAdmin"),
+                new Claim("tenant_id", Guid.NewGuid().ToString("D")),
+            ],
+            AuthServiceCollectionExtensions.ApiKeySchemeName));
+        context.Request.Headers["x-workspace-id"] = "   ";
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_scim_bearer_without_tenant_claim_rejects_x_tenant_id_header()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim("workspace_id", Guid.NewGuid().ToString("D"))],
+            ScimBearerDefaults.AuthenticationScheme));
+        context.Request.Headers["x-tenant-id"] = Guid.NewGuid().ToString("D");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task InvokeAsync_bearer_without_tenant_claim_rejects_duplicate_x_tenant_id_headers()
     {
         DefaultHttpContext context = CreateContext();

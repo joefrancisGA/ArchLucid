@@ -5,7 +5,7 @@ import { llmBudgetRemainingPercent } from "@/lib/llm-monthly-budget-status";
 export const LLM_BUDGET_STATUS_PILL_CAREER_HONESTY_TITLE = "Cost control — not execute posture";
 
 export const LLM_BUDGET_STATUS_PILL_CAREER_HONESTY_BODY =
-  "Monthly LLM budget caps new AI calls when headroom is low. It is not the Career or Rehearsal door — open a review workspace for execute posture on sealed records.";
+  "Monthly LLM budget caps new AI calls when headroom is low. It is not the Record or Practice review type — open a review workspace for execute posture on sealed records.";
 
 export const LLM_BUDGET_STATUS_PILL_AT_CAP_SUFFIX = "at cap";
 
