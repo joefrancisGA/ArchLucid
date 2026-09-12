@@ -2838,11 +2838,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 12
-- **bugs-found:** 12
+- **hunts:** 13
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — toggle-confirm deep links cleared before subscription list hydration
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — create checklist marked enable step incomplete before subscription list hydration
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 

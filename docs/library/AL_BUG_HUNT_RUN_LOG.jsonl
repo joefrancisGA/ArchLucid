@@ -2234,3 +2234,4 @@
 {"at":"2026-09-12T04:25:30.4703762Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
 {"at":"2026-09-12T04:25:33.1407971Z","zoneId":"decisioning","outcome":"seed-only"}
 {"at":"2026-09-12T04:25:35.3938173Z","zoneId":"artifact-synthesis","outcome":"seed-only"}
+{"at":"2026-09-12T04:25:54.6925100Z","zoneId":"ui-webhooks-settings","outcome":"hit"}
