@@ -465,7 +465,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         findings={props.findings}
         requestAssumptionTexts={props.requestAssumptionTexts}
       />
-      {!createHomeSurface ? <RootCauseClusterDispositionStrip findings={props.findings} /> : null}
+      {!createHomeSurface ? <RootCauseClusterDispositionStrip findings={props.findings} runId={props.runId} /> : null}
       {architectWorkspaceChrome ? (
         <div className="space-y-2" data-testid="run-detail-findings-density-desk-controls">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

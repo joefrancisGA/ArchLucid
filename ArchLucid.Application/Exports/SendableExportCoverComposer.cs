@@ -11,6 +11,10 @@ namespace ArchLucid.Application.Exports;
 /// </summary>
 public static class SendableExportCoverComposer
 {
+    /// <summary>WK-21 / M-172: policy-pack influence boundary mirrored from UI export honesty chip.</summary>
+    public const string PolicyPackInfluenceHonestyLine =
+        "Pack-mapped findings cite assigned policy rules. Typed engines may surface checklist coverage without pack-parameterized thresholds.";
+
     public static IReadOnlyList<string> RenderPlainTextLines(CareerExportCoverageHonestyInput input)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -32,6 +36,8 @@ public static class SendableExportCoverComposer
 
         lines.Add(
             $"Execution mode: {StructuralExecutionModeLabels.ToDisplayLabel(input.StructuralExecutionMode)}");
+
+        lines.Add($"Policy influence: {PolicyPackInfluenceHonestyLine}");
 
         return lines;
     }

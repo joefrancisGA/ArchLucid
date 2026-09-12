@@ -1,7 +1,17 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_DIR,
+  DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_KEY,
+  sortDirectionForInfraEvidenceDiagramOutlineNodeColumn,
+  sortInfraEvidenceDiagramOutlineNodes,
+  toggleInfraEvidenceDiagramOutlineNodeSort,
+  type InfraEvidenceDiagramOutlineNodeSortKey,
+} from "@/lib/infra-evidence/infra-evidence-diagram-outline-sort";
 import {
   resolveInfraEvidenceOutlineNodeLabel,
   type InfraEvidenceMermaidOutline,
@@ -19,11 +29,59 @@ function formatOutlineCell(value: string | null): string {
   return value;
 }
 
+function InfraEvidenceDiagramOutlineSortableHeader(props: {
+  readonly column: InfraEvidenceDiagramOutlineNodeSortKey;
+  readonly label: string;
+  readonly sortKey: InfraEvidenceDiagramOutlineNodeSortKey;
+  readonly sortDir: "asc" | "desc";
+  readonly onSort: (column: InfraEvidenceDiagramOutlineNodeSortKey) => void;
+}): React.JSX.Element {
+  const isActive = props.sortKey === props.column;
+  const directionLabel = props.sortDir === "asc" ? "ascending" : "descending";
+
+  return (
+    <th
+      className="px-3 py-2 font-medium"
+      scope="col"
+      aria-sort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn(props.sortKey, props.column, props.sortDir)}
+    >
+      <button
+        type="button"
+        className={cn(
+          "inline-flex items-center gap-1 text-left font-inherit font-medium hover:text-al-text-primary",
+          isActive ? "text-al-text-primary" : "text-al-text-secondary",
+        )}
+        aria-label={isActive ? `Sort by ${props.label}, ${directionLabel}` : `Sort by ${props.label}`}
+        onClick={() => {
+          props.onSort(props.column);
+        }}
+      >
+        {props.label}
+        {isActive ? (props.sortDir === "asc" ? " ↑" : " ↓") : null}
+      </button>
+    </th>
+  );
+}
+
 /** Structured list alternative to the Mermaid canvas (WCAG 1.1.1 peer affordance). */
 export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlineProps): React.JSX.Element {
   const { outline } = props;
-  const nodeRows = outline.nodes.slice(0, 200);
+  const [nodeSortKey, setNodeSortKey] = useState(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_KEY);
+  const [nodeSortDir, setNodeSortDir] = useState<"asc" | "desc">(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_DIR);
+
+  const nodeRows = useMemo(() => {
+    const sortedNodes = sortInfraEvidenceDiagramOutlineNodes(outline.nodes, nodeSortKey, nodeSortDir);
+
+    return sortedNodes.slice(0, 200);
+  }, [nodeSortDir, nodeSortKey, outline.nodes]);
   const edgeRows = outline.edges.slice(0, 200);
+
+  const handleNodeSort = (column: InfraEvidenceDiagramOutlineNodeSortKey) => {
+    const next = toggleInfraEvidenceDiagramOutlineNodeSort(nodeSortKey, nodeSortDir, column);
+
+    setNodeSortKey(next.sortKey);
+    setNodeSortDir(next.sortDir);
+  };
 
   return (
     <div
@@ -36,9 +94,27 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
           <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
             <thead className="bg-neutral-50 dark:bg-neutral-900/60">
               <tr>
-                <th className="px-3 py-2 font-medium">Label</th>
-                <th className="px-3 py-2 font-medium">Resource type</th>
-                <th className="px-3 py-2 font-medium">Resource group</th>
+                <InfraEvidenceDiagramOutlineSortableHeader
+                  column="label"
+                  label="Label"
+                  sortKey={nodeSortKey}
+                  sortDir={nodeSortDir}
+                  onSort={handleNodeSort}
+                />
+                <InfraEvidenceDiagramOutlineSortableHeader
+                  column="resourceType"
+                  label="Resource type"
+                  sortKey={nodeSortKey}
+                  sortDir={nodeSortDir}
+                  onSort={handleNodeSort}
+                />
+                <InfraEvidenceDiagramOutlineSortableHeader
+                  column="resourceGroup"
+                  label="Resource group"
+                  sortKey={nodeSortKey}
+                  sortDir={nodeSortDir}
+                  onSort={handleNodeSort}
+                />
               </tr>
             </thead>
             <tbody>

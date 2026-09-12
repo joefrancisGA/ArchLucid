@@ -144,6 +144,46 @@ def build_signoff_bundle(root: Path, bundle_dir: Path) -> dict[str, Any]:
         )
     )
 
+    ship_gate_path, ship_gate_rel = _resolve_artifact(
+        root,
+        bundle_dir,
+        [
+            "ship-gate-evidence.json",
+            "artifacts/ship-gate-evidence/ship-gate-evidence.json",
+        ],
+    )
+    if ship_gate_path is None:
+        ship_gate_dir = bundle_dir / "artifacts" / "ship-gate-evidence"
+        if ship_gate_dir.is_dir():
+            candidates = sorted(ship_gate_dir.glob("*/ship-gate-evidence.json"))
+            if candidates:
+                ship_gate_path = candidates[-1]
+                ship_gate_rel = ship_gate_path.relative_to(bundle_dir).as_posix()
+
+    ship_gate_payload = load_json(ship_gate_path) if ship_gate_path else None
+    ship_gate_gate = _gate_from_payload(
+        gate_id="ship-gate-evidence",
+        label="Ship-gate evidence (Gate 1–6 rollup)",
+        artifact_path=ship_gate_rel,
+        payload=ship_gate_payload,
+        status_keys=("overallVerdict", "verdict", "disposition", "status"),
+        reason_keys=("summary", "detail", "reason"),
+        evidence_mode="live",
+        high_risk=True,
+        skipped_reason=(
+            "ship-gate-evidence.json not attached — release-smoke.ps1 -ResultOut runs "
+            "archlucid pilot ship-gate-evidence after successful E2E"
+        ),
+    )
+    if ship_gate_payload is not None:
+        gate5 = ship_gate_payload.get("gate5")
+        if isinstance(gate5, dict):
+            gate5_status = _normalize_status(gate5.get("status") or gate5.get("verdict"))
+            if gate5_status in _BLOCKING_STATUSES and ship_gate_gate["status"] == "PASS":
+                ship_gate_gate["status"] = gate5_status
+                ship_gate_gate["reason"] = str(gate5.get("detail") or gate5.get("summary") or "Gate 5 UI route smoke failed")
+    gates.append(ship_gate_gate)
+
     live_ui_path, live_ui_rel = _resolve_artifact(
         root,
         bundle_dir,
@@ -294,13 +334,62 @@ def build_signoff_bundle(root: Path, bundle_dir: Path) -> dict[str, Any]:
         )
     )
 
+    real_mode_row = evaluate_real_mode_ai_evidence(bundle_dir)
+    real_llm_status = _normalize_status(real_mode_row.get("status"))
+
+    if real_llm_status == "SKIPPED" and bool(real_mode_row.get("simulatorOnlyOverridePresent")):
+        real_llm_status = "PASS"
+
+    real_llm_reason = str(
+        real_mode_row.get("detail") or real_mode_row.get("claimBoundary") or "real-llm-evidence-gate.json not attached"
+    )
+
+    if real_llm_status == "PASS" and bool(real_mode_row.get("simulatorOnlyOverridePresent")):
+        real_llm_reason = "Simulator-only override attached; real-mode claims explicitly bounded."
+
+    gates.append(
+        {
+            "id": "real-llm-evidence-gate",
+            "label": "Real-mode LLM evidence gate (G-REAL-08 / G5)",
+            "status": real_llm_status,
+            "reason": real_llm_reason,
+            "artifactPath": real_mode_row.get("artifact"),
+            "evidenceMode": "real" if str(real_mode_row.get("executionMode") or "").lower() == "real" else (
+                "simulator" if real_mode_row.get("simulatorOnlyOverridePresent") else "unknown"
+            ),
+            "highRisk": True,
+            "simulatorOnlyOverridePresent": bool(real_mode_row.get("simulatorOnlyOverridePresent")),
+        }
+    )
+
+    faithfulness_warn_path, faithfulness_warn_rel = _resolve_artifact(
+        root,
+        bundle_dir,
+        [
+            "faithfulness-nightly-warn-status.json",
+            "docs/quality/faithfulness-nightly-warn-status.json",
+        ],
+    )
+    faithfulness_warn_payload = load_json(faithfulness_warn_path) if faithfulness_warn_path else None
+    gates.append(
+        _gate_from_payload(
+            gate_id="faithfulness-nightly-warn",
+            label="Offline faithfulness nightly warn scaffold (G-FAITH-01)",
+            artifact_path=faithfulness_warn_rel,
+            payload=faithfulness_warn_payload,
+            status_keys=("disposition", "status"),
+            reason_keys=("detail", "program"),
+            high_risk=False,
+            skipped_reason="faithfulness-nightly-warn-status.json not attached — run eval_agent_faithfulness.py",
+        )
+    )
+
     ai_summary_path, ai_summary_rel = _resolve_artifact(
         root,
         bundle_dir,
         ["ai-quality-release-summary.json"],
     )
     ai_summary_payload = load_json(ai_summary_path) if ai_summary_path else None
-    real_mode_row = evaluate_real_mode_ai_evidence(bundle_dir)
     ai_status = _normalize_status(real_mode_row.get("status"))
     ai_mode = "real" if str(real_mode_row.get("executionMode") or "").lower() == "real" else (
         "simulator" if real_mode_row.get("simulatorOnlyOverridePresent") else "unknown"

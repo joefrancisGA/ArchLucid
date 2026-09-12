@@ -36,6 +36,25 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     const outline = parseInfraEvidenceMermaidOutline(
       [
         "flowchart TD",
+        "    %% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network",
+        '    n_a1["nic-prod"]',
+      ].join("\n"),
+    );
+
+    expect(outline.nodes).toEqual([
+      {
+        id: "n_a1",
+        label: "nic-prod",
+        resourceType: "Microsoft.Network/networkInterfaces",
+        resourceGroup: "rg-network",
+      },
+    ]);
+  });
+
+  it("still parses legacy inline inventory node metadata comments", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
         '    n_a1["nic-prod"] %% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network',
       ].join("\n"),
     );

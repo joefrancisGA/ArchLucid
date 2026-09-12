@@ -7,7 +7,6 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Queries;
 using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
@@ -86,6 +85,91 @@ public sealed class FinalizeReadinessControllerTests
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         ok.Value.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public async Task GetReadiness_returns_bad_request_for_malformed_run_id()
+    {
+        GovernancePreCommitSimulationController sut = CreateController(
+            runRepository: Mock.Of<IRunRepository>(),
+            finalizeReadinessService: Mock.Of<IFinalizeReadinessService>());
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult action = await sut.GetReadinessAsync("not-a-guid", null, CancellationToken.None);
+
+        action.Should().BeOfType<ObjectResult>().Subject.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task GetReadiness_unions_acknowledged_assumption_ids_into_service_call()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string runIdText = runId.ToString("D");
+        string[] acknowledgedIds = ["assumption-a", "assumption-b"];
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(repository => repository.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IFinalizeReadinessService> readiness = new();
+        readiness
+            .Setup(service => service.BuildAsync(
+                runIdText,
+                It.Is<IReadOnlyList<string>?>(ids =>
+                    ids != null
+                    && ids.Count == 2
+                    && ids.Contains("assumption-a")
+                    && ids.Contains("assumption-b")),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FinalizeReadinessResult
+            {
+                RunId = runIdText,
+                ReadyToFinalize = true,
+                Blocks = [],
+                Checklist = new PreFinalizeChecklistResult
+                {
+                    RunId = runIdText,
+                    ReadyToFinalize = true,
+                    Items = [],
+                },
+                Scorecard = new FinalizeQualityScorecardCountsDto(),
+                ScorecardBlockingReasons = [],
+                FinalizeQualityGateEnabled = true,
+            });
+
+        GovernancePreCommitSimulationController sut = CreateController(
+            runRepository: runs.Object,
+            finalizeReadinessService: readiness.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult action = await sut.GetReadinessAsync(runIdText, acknowledgedIds, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        readiness.Verify(
+            service => service.BuildAsync(runIdText, acknowledgedIds, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task GetReadiness_returns_not_found_when_run_missing()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string runIdText = runId.ToString("D");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(repository => repository.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        GovernancePreCommitSimulationController sut = CreateController(
+            runRepository: runs.Object,
+            finalizeReadinessService: Mock.Of<IFinalizeReadinessService>());
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult action = await sut.GetReadinessAsync(runIdText, null, CancellationToken.None);
+
+        action.Should().BeOfType<ObjectResult>().Subject.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
     private static GovernancePreCommitSimulationController CreateController(

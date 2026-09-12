@@ -1,3 +1,5 @@
+import { findUnquotedMermaidCommentIndex } from "@/lib/mermaid/find-unquoted-mermaid-comment-index";
+
 /** Lightweight Mermaid flowchart outline for accessible diagram peers (nodes + edges only). */
 
 export type InfraEvidenceMermaidOutlineNode = {
@@ -83,13 +85,42 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
   return { resourceType, resourceGroup };
 }
 
+function emptyOutlineNodeMetadata(): OutlineNodeMetadata {
+  return { resourceType: null, resourceGroup: null };
+}
+
+function mergeOutlineNodeMetadata(
+  preferred: OutlineNodeMetadata,
+  fallback: OutlineNodeMetadata,
+): OutlineNodeMetadata {
+  return {
+    resourceType: preferred.resourceType ?? fallback.resourceType,
+    resourceGroup: preferred.resourceGroup ?? fallback.resourceGroup,
+  };
+}
+
+function withPrecedingMetadata(
+  node: InfraEvidenceMermaidOutlineNode | null,
+  preceding: OutlineNodeMetadata,
+): InfraEvidenceMermaidOutlineNode | null {
+  if (node == null) {
+    return null;
+  }
+
+  return {
+    ...node,
+    resourceType: node.resourceType ?? preceding.resourceType,
+    resourceGroup: node.resourceGroup ?? preceding.resourceGroup,
+  };
+}
+
 function splitNodeLine(line: string): { readonly nodeToken: string; readonly metadata: OutlineNodeMetadata } {
-  const commentIndex = line.indexOf("%%");
+  const commentIndex = findUnquotedMermaidCommentIndex(line);
 
   if (commentIndex < 0) {
     return {
       nodeToken: line.trim(),
-      metadata: { resourceType: null, resourceGroup: null },
+      metadata: emptyOutlineNodeMetadata(),
     };
   }
 
@@ -192,17 +223,39 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
   const nodeMap = new Map<string, InfraEvidenceMermaidOutlineNode>();
   const edges: InfraEvidenceMermaidOutlineEdge[] = [];
   const subgraphResourceGroups: string[] = [];
+  let pendingMetadata: OutlineNodeMetadata = emptyOutlineNodeMetadata();
+
+  const attachPendingMetadata = (
+    node: InfraEvidenceMermaidOutlineNode | null,
+  ): InfraEvidenceMermaidOutlineNode | null => {
+    const merged = withPrecedingMetadata(node, pendingMetadata);
+
+    if (merged != null) {
+      pendingMetadata = emptyOutlineNodeMetadata();
+    }
+
+    return merged;
+  };
 
   for (const rawLine of source.split(/\r?\n/u)) {
     const line = rawLine.trim();
 
-    if (
-      line.length === 0
-      || line.startsWith("%%")
-      || line.startsWith("classDef ")
-      || line.startsWith("class ")
-      || DIAGRAM_HEADER.test(line)
-    ) {
+    if (line.length === 0) {
+      continue;
+    }
+
+    if (line.startsWith("%%{")) {
+      continue;
+    }
+
+    // Own-line comments: mermaid.js only strips %% at line start. Inventory metadata
+    // is emitted that way so the diagram parses; attach tokens to the next node.
+    if (line.startsWith("%%")) {
+      pendingMetadata = mergeOutlineNodeMetadata(parseOutlineNodeMetadata(line), pendingMetadata);
+      continue;
+    }
+
+    if (line.startsWith("classDef ") || line.startsWith("class ") || DIAGRAM_HEADER.test(line)) {
       continue;
     }
 
@@ -239,7 +292,9 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
       const arrowIndex = arrowMatch.index;
       const fromParts = splitNodeLine(line.slice(0, arrowIndex));
       const toParts = splitNodeLine(line.slice(arrowIndex + arrowMatch[0].length));
-      const fromNode = readNodeToken(fromParts.nodeToken, fromParts.metadata, activeSubgraphResourceGroup);
+      const fromNode = attachPendingMetadata(
+        readNodeToken(fromParts.nodeToken, fromParts.metadata, activeSubgraphResourceGroup),
+      );
       const toNode = readNodeToken(toParts.nodeToken, toParts.metadata, activeSubgraphResourceGroup);
       const edgeLabel = normalizeOutlineLabel(arrowMatch[1] ?? arrowMatch[2], "");
 
@@ -263,10 +318,12 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
     }
 
     const standaloneParts = splitNodeLine(line);
-    const standaloneNode = readNodeToken(
-      standaloneParts.nodeToken,
-      standaloneParts.metadata,
-      activeSubgraphResourceGroup,
+    const standaloneNode = attachPendingMetadata(
+      readNodeToken(
+        standaloneParts.nodeToken,
+        standaloneParts.metadata,
+        activeSubgraphResourceGroup,
+      ),
     );
 
     if (standaloneNode != null) {

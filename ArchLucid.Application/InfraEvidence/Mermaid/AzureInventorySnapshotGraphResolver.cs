@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Scoping;
@@ -10,6 +11,8 @@ namespace ArchLucid.Application.InfraEvidence.Mermaid;
 public sealed class AzureInventorySnapshotGraphResolver(
     IAzureInventorySnapshotRepository snapshotRepository) : IAzureInventorySnapshotGraphResolver
 {
+    private const double EffectiveControlEdgeWeight = 0.5d;
+
     private readonly IAzureInventorySnapshotRepository _snapshotRepository =
         snapshotRepository ?? throw new ArgumentNullException(nameof(snapshotRepository));
 
@@ -149,7 +152,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 ToNodeId = toNodeId,
                 EdgeType = relationship.RelationshipType,
                 Label = relationship.RelationshipType,
-                Weight = 1.0,
+                Weight = ResolveEdgeWeight(relationship.InferenceSource),
+                InferenceSource = relationship.InferenceSource,
             });
         }
 
@@ -219,6 +223,22 @@ public sealed class AzureInventorySnapshotGraphResolver(
     private static string ReadRelationshipArmId(string? armId)
     {
         return armId ?? string.Empty;
+    }
+
+    private static double ResolveEdgeWeight(string? inferenceSource)
+    {
+        if (string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            return 1.0d;
+        }
+
+        if (inferenceSource.Equals(GraphEdgeInferenceSources.InventoryEffectiveNsg, StringComparison.OrdinalIgnoreCase)
+            || inferenceSource.Equals(GraphEdgeInferenceSources.InventoryEffectiveRoutes, StringComparison.OrdinalIgnoreCase))
+        {
+            return EffectiveControlEdgeWeight;
+        }
+
+        return 1.0d;
     }
 
 }

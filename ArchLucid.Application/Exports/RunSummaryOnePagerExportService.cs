@@ -167,6 +167,13 @@ public sealed class RunSummaryOnePagerExportService(
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
             .ConfigureAwait(false);
 
+        string? sendableExportCoverPlainText = string.Join(
+            Environment.NewLine,
+            SendableExportCoverComposer.RenderPlainTextLines(careerExportHonesty));
+
+        if (string.IsNullOrWhiteSpace(sendableExportCoverPlainText))
+            sendableExportCoverPlainText = null;
+
         RunSummaryOnePagerDocumentModel model =
             ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(
                 detail,
@@ -174,6 +181,7 @@ public sealed class RunSummaryOnePagerExportService(
                 topTitles,
                 activeTrialExportNotice,
                 careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty),
+                sendableExportCoverPlainText: sendableExportCoverPlainText,
                 architectRestatementMarkdown: architectRestatementMarkdownText);
 
 

@@ -15,7 +15,7 @@ import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-e
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { findingDetailLeadSentence } from "@/lib/findings/finding-display-from-inspect";
-import { resolveFindingInspectExportClassification } from "@/lib/findings/finding-inspect-export-classification";
+import { resolveFindingInspectExportClassification, resolveFindingInspectExportTreatment } from "@/lib/findings/finding-inspect-export-classification";
 import { buildFindingDerivationSentence } from "@/lib/findings/finding-derivation-sentence";
 import { findingCausalMiniChainFromInspectPayload } from "@/lib/findings/finding-causal-mini-chain";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
@@ -65,19 +65,11 @@ export type FindingDetailHeaderProps = {
 };
 
 function resolveInspectTreatment(payload: FindingInspectPayload | null): number | null {
-  const typedPayload = payload?.typedPayload;
-
-  if (typedPayload === null || typedPayload === undefined || typeof typedPayload !== "object") {
+  if (payload === null) {
     return null;
   }
 
-  const treatment = (typedPayload as Record<string, unknown>).treatment;
-
-  if (typeof treatment !== "number" || !Number.isFinite(treatment)) {
-    return null;
-  }
-
-  return treatment;
+  return resolveFindingInspectExportTreatment(payload);
 }
 
 /** Finding detail header: wayfinding, buyer hero, or operator page header. */

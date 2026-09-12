@@ -99,6 +99,12 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             FindingId = match.FindingId,
             Severity = match.Severity,
             TypedPayload = typed,
+            Classification = match.Classification
+                ?? FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed),
+            Treatment = match.Treatment
+                ?? FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, typed),
+            SemanticSupportBand = match.SemanticSupportBand
+                ?? FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, typed),
             DecisionRuleId = ruleId,
             DecisionRuleName = ruleName,
             Evidence = evidence,

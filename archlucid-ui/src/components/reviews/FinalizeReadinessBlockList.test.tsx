@@ -27,4 +27,24 @@ describe("FinalizeReadinessBlockList", () => {
       "Critical findings exceed policy pack threshold.",
     );
   });
+
+  it("renders deep-link actions when runId is provided", () => {
+    const blocks: FinalizeReadinessBlock[] = [
+      {
+        layer: "integrity",
+        code: "existential_assumption",
+        message: "1 existential assumption still needs confirmation before finalize.",
+      },
+    ];
+
+    render(<FinalizeReadinessBlockList runId="run-456" blocks={blocks} />);
+
+    const action = screen.getByTestId("finalize-readiness-block-action-existential_assumption");
+
+    expect(action).toHaveAttribute(
+      "href",
+      expect.stringContaining("/architecture/reviews/run-456"),
+    );
+    expect(action).toHaveTextContent("Acknowledge assumptions");
+  });
 });
