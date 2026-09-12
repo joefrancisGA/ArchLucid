@@ -15,6 +15,7 @@ export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "choose-your-next-step",
   "accelerator-chooser",
   "billing-and-plans",
+  "architecture-desk",
   "career-rehearsal-doors",
 ];
 
@@ -39,6 +40,7 @@ export const SECURENOW_EXCLUDED_HELP_SEARCH_TOPIC_IDS: readonly string[] = [
   "close-evidence-gaps",
   "improvement-planning-help",
   "billing-and-plans",
+  "architecture-desk",
   "career-rehearsal-doors",
 ];
 

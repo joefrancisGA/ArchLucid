@@ -35,7 +35,14 @@ internal static partial class CliCommandHandlers
         if (normalized.Length > 1 && string.Equals(normalized[1], "new", StringComparison.OrdinalIgnoreCase))
             return await DraftNewCommand.RunAsync(normalized.Skip(2).ToArray());
 
+        if (normalized.Length > 1
+            && string.Equals(normalized[1], "clone-snapshot", StringComparison.OrdinalIgnoreCase))
+        {
+            return await DraftCloneSnapshotCommand.RunAsync(normalized.Skip(2).ToArray());
+        }
+
         DraftNewCommandOptions.WriteUsage();
+        DraftCloneSnapshotHonesty.WriteHelp();
 
         return CliExitCode.UsageError;
     }

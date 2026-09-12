@@ -1,3 +1,6 @@
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Drafts;
+
 using Cm = ArchLucid.Contracts.Manifest;
 using DmSec = ArchLucid.Core.Manifest.Sections;
 
@@ -30,7 +33,8 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
             Datastores = [.. source.Topology.Datastores],
             Relationships = [.. source.Topology.Relationships],
             Governance = MapGovernance(source),
-            Metadata = MapMetadata(source)
+            Metadata = MapMetadata(source),
+            DiagramSemantics = MapDiagramSemantics(source, input),
         };
         return Task.FromResult(result);
     }
@@ -87,6 +91,85 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
             DecisionTraceIds = [source.DecisionTraceId.ToString("N")],
             CreatedUtc = source.CreatedUtc
         };
+    }
+
+    private static Cm.ManifestDiagramSemanticOverlay MapDiagramSemantics(
+        ManifestDocument source,
+        AuthorityCommitProjectionInput input)
+    {
+        Cm.ManifestDiagramSemanticOverlay overlay = new()
+        {
+            Actors = [.. input.DraftActors],
+        };
+
+        HashSet<string> trustBoundaryLabels = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> requirementLabels = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> decisionLabels = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (ActorDescriptor actor in input.DraftActors)
+        {
+            if (actor.TrustOrigin is TrustOrigin.External or TrustOrigin.PublicAnonymous)
+            {
+                string label = string.IsNullOrWhiteSpace(actor.Label) ? actor.Kind.ToString() : actor.Label!.Trim();
+                trustBoundaryLabels.Add($"{label} ({actor.TrustOrigin})");
+            }
+        }
+
+        foreach (DmSec.SecurityPostureItem control in source.Security.Controls)
+        {
+            if (string.IsNullOrWhiteSpace(control.ControlName))
+                continue;
+
+            if (control.ControlName.Contains("trust", StringComparison.OrdinalIgnoreCase)
+                || control.ControlName.Contains("boundary", StringComparison.OrdinalIgnoreCase))
+            {
+                trustBoundaryLabels.Add(control.ControlName.Trim());
+            }
+        }
+
+        foreach (string constraint in source.Constraints.MandatoryConstraints)
+        {
+            AppendConfirmedLabel(requirementLabels, constraint);
+        }
+
+        foreach (DmSec.RequirementCoverageItem requirement in source.Requirements.Covered)
+        {
+            AppendConfirmedLabel(requirementLabels, FormatRequirementCoverageItem(requirement));
+        }
+
+        foreach (DmSec.RequirementCoverageItem requirement in source.Requirements.Uncovered)
+        {
+            AppendConfirmedLabel(requirementLabels, FormatRequirementCoverageItem(requirement));
+        }
+
+        foreach (ResolvedArchitectureDecision decision in source.Decisions)
+        {
+            string synopsis = ManifestDecisionSynopsisFormatter.FormatSynopsis(decision);
+
+            if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(synopsis))
+                decisionLabels.Add(synopsis.Trim());
+        }
+
+        overlay.TrustBoundaryLabels = trustBoundaryLabels.ToList();
+        overlay.RequirementLabels = requirementLabels.ToList();
+        overlay.DecisionLabels = decisionLabels.ToList();
+        return overlay;
+    }
+
+    private static string FormatRequirementCoverageItem(DmSec.RequirementCoverageItem item)
+    {
+        if (!string.IsNullOrWhiteSpace(item.RequirementText))
+            return item.RequirementText.Trim();
+
+        return item.RequirementName.Trim();
+    }
+
+    private static void AppendConfirmedLabel(HashSet<string> target, string? value)
+    {
+        if (!ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(value))
+            return;
+
+        target.Add(value!.Trim());
     }
 }
 

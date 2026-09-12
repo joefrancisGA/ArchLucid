@@ -451,6 +451,42 @@ dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2350_pri
 cd archlucid-ui && npm run test -- second-review-prior-package
 ```
 
+## TB-2351 manifest Mermaid semantic overlay
+
+Manifest diagram v2 and markdown export enrich topology Mermaid with actor, trust-boundary, requirement, and decision subgraphs sourced from `GoldenManifest.DiagramSemantics`. Topology-only diagrams remain available via `includeSemanticOverlay=false`.
+
+| Layer | Behavior |
+|-------|----------|
+| **Projection** | `AuthorityCommitProjectionBuilder.MapDiagramSemantics` copies manifest decisions/requirements/constraints plus request draft actors into `DiagramSemantics`. |
+| **Diagram** | `ManifestDiagramService` emits semantic subgraphs and dotted links from requirements to the first topology node. |
+| **API** | `GET .../diagram/v2?includeSemanticOverlay=true`; export/bundle use enriched diagrams by default. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~ManifestDiagramService"
+dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~AuthorityCommitProjectionBuilder"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2351_manifest_diagram"
+```
+
+## TB-2352 closed-loop default package strengthening
+
+Golden-cohort authority commits optionally run closed-loop architecture intelligence before manifest persistence. Publishable findings and brief-grounded recommendations merge into the committed manifest; topology-only behavior remains when `ArchitectureIntelligence:StrengthenDefaultPackage` is false (default).
+
+| Layer | Behavior |
+|-------|----------|
+| **Pipeline flag** | `ArchitectureIntelligencePipelineOptions.StrengthenDefaultPackage` gates golden cohort; `StrengthenAllReviewPackages` opt-in for all tenants. |
+| **Strengthen pass** | `AuthorityClosedLoopStrengtheningPass` loads run source context, runs `IClosedLoopArchitectureReasoningOrchestrator` with `PublishToProduct=true`, merges via `ClosedLoopManifestMerger`. |
+| **Guardrails** | `ClosedLoopRecommendationBriefGroundingFilter` drops recommendations contradicting confirmed brief constraints (**TB-2349**). |
+| **Persistence** | `AuthorityPipelineDecisioningStage` runs strengthen before `SaveManifestAsync` and recomputes `ManifestHash`. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~AuthorityClosedLoopStrengtheningPass|ClosedLoopManifestMerger|ClosedLoopRecommendationBriefGroundingFilter"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2352_closed_loop"
+```
+
 
 ## ConflictException → 409 controller sweep
 

@@ -401,7 +401,7 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
-  it('sizes mermaid svg above the overlay-only floor after render', async () => {
+  it('sizes mermaid svg from measured ink after render without paint failure', async () => {
     render(
       <ArchitectureDiagramViewer
         mermaidSource={'flowchart TB\n  a["A"]'}
@@ -418,7 +418,11 @@ describe('ArchitectureDiagramViewer', () => {
     const host = screen.getByTestId('architecture-diagram-svg-host');
     const svg = host.querySelector('svg');
 
+    expect(host.className).toContain('mx-auto');
     expect(svg).not.toBeNull();
-    expect(Number(svg?.getAttribute('height') ?? 0)).toBeGreaterThanOrEqual(240);
+    expect(screen.queryByTestId('architecture-diagram-render-failure')).not.toBeInTheDocument();
+    expect(Number(svg?.getAttribute('height') ?? 0)).toBeGreaterThanOrEqual(
+      helpMermaid.MERMAID_VIEWPORT_MIN_INK_HEIGHT_PX,
+    );
   });
 });

@@ -8,10 +8,12 @@ import {
   isMermaidViewportPaintTooSmall,
   mermaidViewportFitNeedsRetry,
   MERMAID_VIEWPORT_MAX_HEIGHT_PX,
+  MERMAID_VIEWPORT_MIN_FIT_SCALE,
   MERMAID_VIEWPORT_STABLE_MIN_HEIGHT_PX,
   prepareMermaidSvgForResponsiveLayout,
   readMermaidViewportFitBudget,
   removeMermaidRenderBindElement,
+  resolveMermaidInkViewBox,
   sanitizeMermaidRenderId,
 } from "@/lib/help/help-mermaid";
 
@@ -293,7 +295,27 @@ describe("help-mermaid", () => {
     svg.remove();
   });
 
-  it("contains tall narrow ink inside a bounded viewport without width-stretching height", () => {
+  it("preserves Mermaid source viewBox for later authoritative crop", () => {
+    const prepared = prepareMermaidSvgForResponsiveLayout(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1144 322" width="1144" height="322"></svg>',
+    );
+
+    expect(prepared).toContain('data-al-source-viewbox="0 0 1144 322"');
+  });
+
+  it("resolveMermaidInkViewBox rejects measured boxes that clip rows or columns", () => {
+    const source = new DOMRect(0, 0, 1144, 322);
+    const measured = new DOMRect(119.31, 54.5, 865.58, 205.75);
+
+    const resolved = resolveMermaidInkViewBox(source, measured, 12);
+
+    expect(resolved?.x).toBe(0);
+    expect(resolved?.y).toBe(0);
+    expect(resolved?.width).toBe(1144);
+    expect(resolved?.height).toBe(322);
+  });
+
+  it("contains tall narrow ink using the legibility floor and allows overflow scroll", () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -323,8 +345,10 @@ describe("help-mermaid", () => {
 
     expect(baseFit).not.toBeNull();
     expect(baseFit?.inkMeasured).toBe(true);
-    expect(Number(svg.getAttribute("height"))).toBeLessThanOrEqual(360);
-    expect(Number(svg.getAttribute("width"))).toBeLessThanOrEqual(1000);
+    expect(baseFit?.fitScale).toBe(MERMAID_VIEWPORT_MIN_FIT_SCALE);
+    expect(baseFit?.overflows).toBe(true);
+    expect(Number(svg.getAttribute("height"))).toBeGreaterThan(360);
+    expect(svg.style.maxWidth).toBe("none");
 
     svg.remove();
   });
@@ -361,6 +385,7 @@ describe("help-mermaid", () => {
 
     expect(svg.getAttribute("width")).toBe(String(baseFit!.baseWidthPx * 2));
     expect(svg.getAttribute("height")).toBe(String(baseFit!.baseHeightPx * 2));
+    expect(svg.style.maxWidth).toBe("none");
 
     svg.remove();
   });

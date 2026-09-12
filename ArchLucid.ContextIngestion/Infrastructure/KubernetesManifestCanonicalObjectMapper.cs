@@ -256,7 +256,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         void InspectContainer(JsonElement container)
         {
-            if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(container, "securityContext", out JsonElement securityContext)
+            if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
                 || securityContext.ValueKind is not JsonValueKind.Object)
                 return;
 
@@ -264,11 +264,11 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 && privilegedElement.ValueKind is JsonValueKind.True)
                 privileged = true;
 
-            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(securityContext, "allowPrivilegeEscalation", out JsonElement escalationElement)
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "allowPrivilegeEscalation", out JsonElement escalationElement)
                 && escalationElement.ValueKind is JsonValueKind.True)
                 allowPrivilegeEscalation = true;
 
-            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(securityContext, "runAsNonRoot", out JsonElement runAsNonRootElement))
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "runAsNonRoot", out JsonElement runAsNonRootElement))
             {
                 sawRunAsNonRoot = true;
 

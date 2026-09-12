@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 const PROMPTS_DIR = join(process.cwd(), "..", ".cursor", "prompts");
 
-describe("system-not-job prompt inventory (SN-040)", () => {
+describe("system-not-job prompt inventory (SN-037)", () => {
   it("includes the SN-00 index and SN-001 through SN-040 paste-ready files", () => {
     const files = readdirSync(PROMPTS_DIR)
       .filter((name) => name.startsWith("system-not-job-") && name.endsWith(".md"))
