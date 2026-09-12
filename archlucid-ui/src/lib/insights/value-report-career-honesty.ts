@@ -18,27 +18,27 @@ export const VALUE_REPORT_MEASURED_SAVINGS_DISCLAIMER =
 
 export const VALUE_REPORT_SAMPLE_BANNER_SUFFIX = ` ${VALUE_REPORT_MEASURED_SAVINGS_DISCLAIMER}`;
 
-export const VALUE_REPORT_PERIOD_MIX_TITLE = "Reporting period includes rehearsal reviews";
+export const VALUE_REPORT_PERIOD_MIX_TITLE = "Reporting period includes practice reviews";
 
 export const VALUE_REPORT_PERIOD_MIX_BODY =
-  "This sponsor report window aggregates finalized reviews that may include Simulator or Rehearsal door runs. Outcomes stay visible for practice — do not cite period totals as measured Career ROI.";
+  "This sponsor report window aggregates finalized reviews that may include Simulator or Practice review type runs. Outcomes stay visible for dry-runs — do not cite period totals as measured Record ROI.";
 
 export const VALUE_REPORT_SCOPED_CAREER_BLOCKED_TITLE =
-  "Career blocked — sponsor report is not career proof";
+  "Sealed record blocked — sponsor report is not sealed-record proof";
 
 export const VALUE_REPORT_SCOPED_CAREER_BLOCKED_BODY =
-  "This review ran on Simulator or Fallback while the Career door was selected. Metrics stay visible for rehearsal — do not paste them into procurement packets as measured savings.";
+  "This review ran on Simulator or Fallback while the Record review type was selected. Metrics stay visible for practice — do not paste them into procurement packets as measured savings.";
 
 export const VALUE_REPORT_SCOPED_REHEARSAL_INCOMPLETE_TITLE =
-  "Rehearsal incomplete — sponsor report is rehearsal only";
+  "Practice incomplete — sponsor report is practice only";
 
 export const VALUE_REPORT_SCOPED_REHEARSAL_INCOMPLETE_BODY =
-  "This review ran on the Rehearsal door with Simulator or Fallback structural execute. Figures stay visible for practice — they are not career-complete sealed-record proof.";
+  "This review ran on the Practice review type with Simulator or Fallback structural execute. Figures stay visible for dry-runs — they are not record-complete sealed-record proof.";
 
-export const VALUE_REPORT_SCOPED_PRACTICE_TITLE = "Practice — sponsor report is not career proof";
+export const VALUE_REPORT_SCOPED_PRACTICE_TITLE = "Practice — sponsor report is not sealed-record proof";
 
 export const VALUE_REPORT_SCOPED_PRACTICE_BODY =
-  "This review ran as Rehearsal door practice on Real structural execute. Metrics stay visible for rehearsal — they are not sponsor-ready career evidence.";
+  "This review ran as Practice on Real structural execute. Metrics stay visible for rehearsal — they are not sponsor-ready sealed-record evidence.";
 
 export type ValueReportCareerHonestyKind = "scoped" | "period-mix";
 

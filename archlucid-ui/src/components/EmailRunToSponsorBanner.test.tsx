@@ -119,6 +119,8 @@ describe("EmailRunToSponsorBanner", () => {
       "data-readiness-classification",
       "Sendable",
     );
+    expect(screen.getByTestId("email-run-to-sponsor-roi-non-summing")).toBeInTheDocument();
+    expect(screen.getByTestId("policy-pack-influence-honesty-chip")).toBeInTheDocument();
   });
 
   it("renders blocked readiness for demo-flagged completeness", async () => {
@@ -532,7 +534,7 @@ describe("EmailRunToSponsorBanner", () => {
     });
 
     expect(screen.getByTestId("email-run-to-sponsor-career-artifact-gap")).toHaveTextContent(
-      /Simulator rehearsal cannot be career-complete/i,
+      /Simulator practice cannot be record-complete/i,
     );
     expect(screen.getByTestId("email-run-to-sponsor-primary-action")).toBeDisabled();
     expect(screen.queryByTestId("email-run-to-sponsor-execution-mode-gap")).not.toBeInTheDocument();

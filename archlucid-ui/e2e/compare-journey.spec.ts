@@ -34,6 +34,11 @@ test.describe("operator journey — compare query prefill and review order", () 
     await expect(comparePageIntroGuidance(page)).toBeVisible();
     // URL pair triggers auto-compare; wait for results before expanding collapsed pickers or clicking submit.
     await waitForCompareResultsReady(page);
+    await expect(page.getByTestId("compare-semantic-support-band-delta-panel")).toBeVisible();
+    await expect(page.getByTestId("compare-classification-band-delta-panel")).toBeVisible();
+    await expect(page.getByTestId("compare-treatment-band-delta-panel")).toBeVisible();
+    await expect(page.getByTestId("compare-roi-headline-delta-panel")).toBeVisible();
+    await expect(page.getByTestId("compare-execution-mode-delta-panel")).toBeVisible();
     await expandCompareRunPickersIfCollapsed(page);
     await expect(comparePageSummarizeNarrativeButton(page)).toBeVisible();
 

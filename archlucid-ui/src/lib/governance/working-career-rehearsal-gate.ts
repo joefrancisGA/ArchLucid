@@ -9,7 +9,7 @@ import {
 } from "@/lib/governance/working-career-rehearsal-intent";
 
 export const WORKING_CAREER_BLOCKED_SIMULATOR_HOST_REASON =
-  "Career door requires Real execution or an explicit Rehearsal door — Simulator host mode cannot run as Career.";
+  "Record requires Real execution or an explicit Practice review type — Simulator host mode cannot run as Record.";
 
 export function isSimulatorStructuralExecutionMode(
   mode: StructuralExecutionModeInput,

@@ -89,8 +89,8 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
   },
   {
     "slug": "career-vs-rehearsal",
-    "title": "Career vs Rehearsal on the Working desk",
-    "summary": "Choose Career for sealed-record evidence or Rehearsal for labeled practice — Simulator output is not sponsor proof.",
+    "title": "Record vs Practice on the Working desk",
+    "summary": "Choose Record for sealed-record evidence or Practice for labeled dry-runs — Simulator output is not sponsor proof.",
     "audience": "operator",
     "sourcePaths": [
       "docs/go-to-market/CAREER_VS_REHEARSAL_WORKING_DOORS.md",

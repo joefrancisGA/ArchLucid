@@ -5,9 +5,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
-import { resolveWorkingPeerAskRedirectHref } from "@/lib/resolve-working-peer-ask-redirect-href";
+import { resolveSystemNotJobWorkingPeerAskRedirectHref } from "@/lib/system-not-job-ask-bound-to-open-package";
 
-/** Working peer Ask → nested Ask redirect (ADR 0079 / SY-37). */
+/** Working peer Ask → nested Ask redirect (ADR 0079 / SY-37 / SN-024). */
 export function WorkingPeerAskRedirect(): null {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
@@ -20,7 +20,7 @@ export function WorkingPeerAskRedirect(): null {
     }
 
     const search = searchParams.toString();
-    const redirectHref = resolveWorkingPeerAskRedirectHref({
+    const redirectHref = resolveSystemNotJobWorkingPeerAskRedirectHref({
       pathname,
       search: search.length > 0 ? `?${search}` : "",
       lastOpenArchitectureId: readCachedLastOpenArchitectureId(),

@@ -62,7 +62,7 @@ describe("ExecDigestSponsorDeepLinkPanel", () => {
               runIdHex: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
               significanceScore: 91,
               caption: "Payments edge",
-              rehearsalRowLabel: "Rehearsal incomplete",
+              rehearsalRowLabel: "Practice incomplete",
             },
           ],
         }}
@@ -73,7 +73,7 @@ describe("ExecDigestSponsorDeepLinkPanel", () => {
       "This digest includes rehearsal runs.",
     );
     expect(screen.getByTestId("digest-sponsor-rehearsal-row-label-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")).toHaveTextContent(
-      "Rehearsal incomplete",
+      "Practice incomplete",
     );
   });
 

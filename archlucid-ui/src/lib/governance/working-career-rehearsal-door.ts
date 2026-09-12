@@ -66,11 +66,19 @@ export function parseWorkingCareerRehearsalDoorId(
 
   const normalized = value.trim().toLowerCase();
 
-  if (normalized === WORKING_CAREER_DOOR_LABEL.toLowerCase() || normalized === "career") {
+  if (
+    normalized === WORKING_CAREER_DOOR_LABEL.toLowerCase()
+    || normalized === "career"
+    || normalized === "record"
+  ) {
     return "career";
   }
 
-  if (normalized === WORKING_REHEARSAL_DOOR_LABEL.toLowerCase() || normalized === "rehearsal") {
+  if (
+    normalized === WORKING_REHEARSAL_DOOR_LABEL.toLowerCase()
+    || normalized === "rehearsal"
+    || normalized === "practice"
+  ) {
     return "rehearsal";
   }
 

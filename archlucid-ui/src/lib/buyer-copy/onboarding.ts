@@ -6,7 +6,11 @@
 
 /** Collapsed summary on `/architecture/first-review-guide` optional setup disclosure (TB-679). */
 export const ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY =
-  "Identity, administrator access, platform health, and ROI baseline — optional before your first review.";
+  "Identity (SSO), administrator access, platform health, policy packs, and ROI baseline — optional before your first review.";
+
+/** SSO is optional for the first architecture review — configure when your org enforces it. */
+export const FIRST_REVIEW_GUIDE_SSO_OPTIONAL_COPY =
+  "SSO is not required to complete your first architecture review. Configure organizational SSO when your tenant enforces it.";
 
 /** Explains which steps the home Setup readiness link counts (excludes ROI baseline). */
 export const FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_PROGRESS_LEAD =
@@ -79,6 +83,12 @@ export const FIRST_REVIEW_GUIDE_GET_MORE_TITLE = "Get more from ArchLucid";
 
 export const FIRST_REVIEW_GUIDE_GET_MORE_ROI_COPY =
   "Add an ROI baseline to estimate savings and support sponsor reporting.";
+
+export const FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY =
+  "Record dispositions on decision-grade findings before sending a sponsor package.";
+
+export const FIRST_REVIEW_GUIDE_POLICY_PACK_ASSIGNMENT_COPY =
+  "Assign a policy pack so findings and the pre-commit gate use your standards.";
 
 export const FIRST_REVIEW_GUIDE_TEMPLATE_LABEL = "Templates";
 

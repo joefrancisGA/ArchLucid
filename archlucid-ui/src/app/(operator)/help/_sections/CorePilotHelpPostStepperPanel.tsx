@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { Button } from "@/components/ui/button";
 import {
   CORE_PILOT_HELP_CLOUD_ACTIONS,
@@ -12,7 +13,13 @@ import {
   CORE_PILOT_HELP_OPTIONAL_PATHS_SUMMARY,
   CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE,
   CORE_PILOT_HELP_PRIMARY_ACTIONS,
+  CORE_PILOT_HELP_SPONSOR_HONESTY_TITLE,
 } from "@/lib/core-pilot-help-guide-content";
+import {
+  FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
+  FIRST_REVIEW_GUIDE_POLICY_PACK_ASSIGNMENT_COPY,
+  FIRST_REVIEW_GUIDE_SSO_OPTIONAL_COPY,
+} from "@/lib/buyer/buyer-polish-copy";
 import {
   CORE_PILOT_HELP_FULL_REVIEW_PATH_HREF,
   CORE_PILOT_HELP_IA_DUAL_INBOUND_LABEL,
@@ -26,6 +33,8 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
+import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import {
   corePilotOptionalPathsDisclosureHrefFromSearch,
   parseCorePilotOptionalPathsOpenFromSearch,
@@ -144,6 +153,35 @@ export function CorePilotHelpPostStepperPanel(): React.JSX.Element {
                   </Link>
                 </p>
               </div>
+            </div>
+
+            <div
+              className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+              data-testid="core-pilot-sponsor-honesty-panel"
+            >
+              <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CORE_PILOT_HELP_SPONSOR_HONESTY_TITLE}</h3>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="core-pilot-roi-non-summing">
+                {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+              </p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="core-pilot-disposition-next-action">
+                {FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY}{" "}
+                <Link href={GOVERNANCE_FINDINGS_PATH} className={OPERATOR_LINK.inline}>
+                  Open findings queue
+                </Link>
+              </p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="core-pilot-policy-pack-cta">
+                {FIRST_REVIEW_GUIDE_POLICY_PACK_ASSIGNMENT_COPY}{" "}
+                <Link href={GOVERNANCE_POLICY_PACKS_PATH} className={OPERATOR_LINK.inline}>
+                  Review policy pack assignments
+                </Link>
+              </p>
+              <PolicyPackInfluenceHonestyChip />
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="core-pilot-sso-optional">
+                {FIRST_REVIEW_GUIDE_SSO_OPTIONAL_COPY}{" "}
+                <Link href="/administration/identity/sso-wizard" className={OPERATOR_LINK.inline}>
+                  Open SSO wizard
+                </Link>
+              </p>
             </div>
 
             <div className="space-y-3" data-testid="core-pilot-deferred-topics-panel">

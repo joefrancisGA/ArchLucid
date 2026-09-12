@@ -292,7 +292,7 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeReadinessCo
 UI: `useFinalizeReadiness` + `getFinalizeReadiness` replace client scorecard recompute in `useAssumptionAwareCommitBlockedReason` when the server contract is available. Structured `blocks[]` (layer + code + message) render in `FinalizeReadinessStrip` and `CommitRunButton` with per-block deep links via `resolveFinalizeReadinessBlockAction` (findings job views, activity tab, intake finalize-readiness anchor). SSR `finalizeReadinessBlocks` from `buildRunDetailGovernancePresentation` hydrate the hook during client fetch and flow through `RunDetailPageHeader`, `ReviewPackagePrimaryAction`, and `RunDetailWorkspaceStickyActionsResolved` (deferred sticky bar on standard review detail). `FinalizeReadinessChecklistParityBanner` explains when embedded checklist `readyToFinalize` differs from commit authority. Disposition mutations, assumption acknowledgement pushes, and finding merge-conflict resolution call `notifyFinalizeReadinessRefresh(runId)` so the strip refetches without a full page reload.
 
 ```bash
-cd archlucid-ui && npx vitest run src/lib/review-quality/finalize-readiness-block-action.test.ts src/lib/review-quality/finalize-readiness-refresh-notify.test.ts src/components/reviews/FinalizeReadinessBlockList.test.tsx src/hooks/use-assumption-aware-commit-blocked-reason.test.ts
+cd archlucid-ui && npx vitest run src/lib/review-quality/finalize-readiness-block-action.test.ts src/lib/review-quality/finalize-readiness-refresh-notify.test.ts src/lib/review-quality/review-assumption-ack-sync.test.ts src/components/reviews/FinalizeReadinessBlockList.test.tsx src/hooks/use-assumption-aware-commit-blocked-reason.test.ts
 cd archlucid-ui && npx playwright test -c playwright.mock.config.ts e2e/finalize-readiness-block-deeplink.spec.ts
 ```
 
@@ -468,6 +468,7 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~ManifestDiagramServ
 dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~AuthorityCommitProjectionBuilder"
 dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2351_manifest_diagram"
 ```
+
 
 ## ConflictException → 409 controller sweep
 

@@ -19,7 +19,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 describe("HelpWorkingCareerRehearsalGuideView (AS-082)", () => {
   const entry = getProductDocumentationEntry("career-rehearsal-doors");
 
-  it("renders Career and Rehearsal door tiles and simulator honesty copy", () => {
+  it("renders Record and Practice review type tiles and simulator honesty copy", () => {
     if (entry === undefined) {
       throw new Error("Expected career-rehearsal-doors documentation entry.");
     }
@@ -37,7 +37,7 @@ describe("HelpWorkingCareerRehearsalGuideView (AS-082)", () => {
       WORKING_REHEARSAL_DOOR_LABEL,
     );
     expect(screen.getByTestId("help-career-rehearsal-doors-simulator-honesty")).toHaveTextContent(/sponsor exports/i);
-    expect(screen.getByTestId("help-career-rehearsal-doors-security-note")).toHaveTextContent(/honesty strip/i);
+    expect(screen.getByTestId("help-career-rehearsal-doors-security-note")).toHaveTextContent(/SecureNow/i);
     expect(screen.getByRole("link", { name: WORKING_CAREER_REHEARSAL_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
       "href",
       WORKING_CAREER_REHEARSAL_HELP_PRIMARY_ACTION.href,

@@ -6,6 +6,7 @@ import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { SponsorArtifactEvidenceBadge } from "@/components/SponsorArtifactEvidenceBadge";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -16,6 +17,7 @@ import {
 } from "@/lib/design-tokens";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
 import { EMAIL_RUN_TO_SPONSOR_REHEARSAL_ACK_LABEL } from "@/lib/email-run-to-sponsor-rehearsal-gate";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { isProjectedUsdSponsorBadgeVisible } from "@/lib/pilot-proof-readiness";
 import { cn } from "@/lib/utils";
 
@@ -139,6 +141,13 @@ export function EmailRunToSponsorBanner({
         </a>
         .{banner.buyerPolishedShell ? " Downloads and readiness checks are split below." : " Use the exports below for export-ready collateral."}
       </p>
+      <p
+        className={cn("m-0 mt-2 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="email-run-to-sponsor-roi-non-summing"
+      >
+        {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+      </p>
+      <PolicyPackInfluenceHonestyChip className="mt-2" />
 
       {banner.proofGate.status === "ok" ? (
         <div className="mt-3">

@@ -7,7 +7,7 @@ export const WORKING_CAREER_REHEARSAL_DOOR_SHORTCUT_KEY = "alt+shift+e";
 export const WORKING_CAREER_REHEARSAL_DOOR_SHORTCUTS: PageShortcutEntry[] = [
   {
     key: WORKING_CAREER_REHEARSAL_DOOR_SHORTCUT_KEY,
-    label: "Working execution door",
+    label: "Review type",
     description: WORKING_CAREER_REHEARSAL_DOOR_SHORTCUT_DESCRIPTION,
   },
 ];

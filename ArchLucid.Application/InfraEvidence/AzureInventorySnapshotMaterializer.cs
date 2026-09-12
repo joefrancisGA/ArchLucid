@@ -192,7 +192,9 @@ public sealed class AzureInventorySnapshotMaterializer(
                     inventory.FederatedCredentials,
                     inventory.FederatedCredentialsFilePresent,
                     inventory.EntraGroupMemberships,
-                    inventory.EntraGroupMembershipsFilePresent);
+                    inventory.EntraGroupMembershipsFilePresent,
+                    inventory.EffectiveNetworkControls,
+                    inventory.EffectiveNetworkControlsFilePresent);
 
             byte[] contentHash = ComputeContentHash(resources, securityEdges.Relationships);
             AzureInventoryCaptureStatus status = resources.Count == 0

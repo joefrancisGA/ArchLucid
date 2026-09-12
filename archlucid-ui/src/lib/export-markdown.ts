@@ -15,7 +15,10 @@ import { formatInsightDensityMeasurementFloorPresentation } from "@/lib/quality/
 import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
 import { formatSandboxStyleGoldenManifest } from "./export-markdown-sandbox-manifest";
 import { isRecord } from "./export-markdown-text";
-import { formatSendableExportCoverMarkdown } from "./export-markdown-sendable-cover";
+import {
+  formatSendableExportCoverMarkdown,
+  resolveSendableExportCoverFindings,
+} from "./export-markdown-sendable-cover";
 import { appendTrustEvidenceMarkdownSection } from "./export-markdown-trust-evidence";
 
 export {
@@ -296,6 +299,10 @@ export function formatGoldenManifestMarkdown(
     feasibilityVerdict: options?.manifestSummaryFallback?.feasibilityVerdict ?? null,
     structuralExecutionMode: options?.careerExportHonesty?.structuralExecutionMode ?? null,
     hostAgentExecutionMode: options?.careerExportHonesty?.hostAgentExecutionMode ?? null,
+    findings: resolveSendableExportCoverFindings({
+      exportFindings: options?.careerExportHonesty?.exportFindings ?? null,
+      findingsSnapshot: options?.careerExportHonesty?.findingsSnapshot ?? null,
+    }),
   });
   const withCover = `${coverMarkdown}\n${withHonesty}`;
 

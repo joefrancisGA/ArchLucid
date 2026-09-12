@@ -13,6 +13,8 @@ import {
   comparePageHrefOnBase,
   resolveWorkingDeskToolHref,
 } from "@/lib/resolve-working-desk-tool-href";
+import { resolveSystemNotJobWorkingAskPortfolioHref } from "@/lib/system-not-job-ask-bound-to-open-package";
+import { resolveSystemNotJobWorkingGraphPortfolioHref } from "@/lib/system-not-job-graph-bound-to-open-package";
 
 describe("resolveWorkingDeskToolHref (SY-08–11 / ADR 0079)", () => {
   const architectureId = "architecture-identity-001";
@@ -58,8 +60,20 @@ describe("resolveWorkingDeskToolHref (SY-08–11 / ADR 0079)", () => {
     ).not.toBe(EVIDENCE_GRAPH_PATH);
   });
 
-  it("falls back to portfolio when no architecture is in scope", () => {
-    expect(resolveWorkingDeskToolHref({ tool: "ask" })).toBe("/architecture/architectures");
+  it("falls back to portfolio with Ask and graph bind honesty when no architecture is in scope", () => {
+    expect(resolveWorkingDeskToolHref({ tool: "ask" })).toBe(resolveSystemNotJobWorkingAskPortfolioHref());
+    expect(resolveWorkingDeskToolHref({ tool: "graph" })).toBe(resolveSystemNotJobWorkingGraphPortfolioHref());
+    expect(resolveWorkingDeskToolHref({ tool: "compare" })).toBe("/architecture/architectures");
+  });
+
+  it("SN-027: pre-fills nested Compare base from desk continuity when no open package run", () => {
+    expect(
+      resolveWorkingDeskToolHref({
+        tool: "compare",
+        lastOpenArchitectureId: architectureId,
+        compareBaseRunId: "run-career-latest",
+      }),
+    ).toBe(`${architectureNestedComparePath(architectureId)}?leftRunId=run-career-latest`);
   });
 
   it("comparePageHrefOnBase keeps query on nested compare path", () => {

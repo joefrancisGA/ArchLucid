@@ -1,4 +1,5 @@
 using ArchLucid.Cli.Support;
+using ArchLucid.Contracts.User;
 
 using FluentAssertions;
 
@@ -78,6 +79,37 @@ public sealed class SupportBundleTriageIndexBuilderTests
         index.Health.ReadyHttpStatus.Should().Be(200);
         index.ConfigModeSummary.Should().Be("DevelopmentBypass");
         index.Schema.Should().Be("archlucid.support-bundle-triage-index.v1");
+    }
+
+    [Fact]
+    public void ToMarkdown_includes_career_posture_stamp_without_secrets()
+    {
+        SupportBundleTriageIndexDocument index = new()
+        {
+            GeneratedUtc = "2026-09-11T12:00:00Z",
+            StructuralExecutionModeLabel = "Simulator",
+            CareerPosture = new SupportBundleTriageCareerPostureSection
+            {
+                WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
+                CareerPostureLabel = "REHEARSAL",
+                RehearsalIncomplete = true,
+                CareerBlocked = false
+            },
+            Run = new SupportBundleTriageRunSection
+            {
+                RunId = "run-1",
+                RequestId = "req-1",
+                Status = "Committed",
+                ExecutePostureCapturedUtc = "2026-09-11T11:00:00.0000000Z"
+            }
+        };
+
+        string md = SupportBundleTriageIndexBuilder.ToMarkdown(index);
+
+        md.Should().Contain("Working Career/Rehearsal door: rehearsal");
+        md.Should().Contain("Career posture label: REHEARSAL");
+        md.Should().Contain("executePostureCapturedUtc: 2026-09-11T11:00:00.0000000Z");
+        md.Should().NotContain("Bearer ");
     }
 
     private sealed class StubApiHandler : HttpMessageHandler

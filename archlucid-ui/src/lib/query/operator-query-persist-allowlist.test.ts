@@ -9,7 +9,11 @@ describe("operator-query-persist-allowlist (TB-2165)", () => {
     expect(shouldPersistOperatorQueryKey(operatorQueryKeys.billingSubscriptionStatus)).toBe(true);
     expect(shouldPersistOperatorQueryKey(operatorQueryKeys.alertsInboxSummary({ tenantId: "t", workspaceId: "w", projectId: "p" }))).toBe(true);
     expect(shouldPersistOperatorQueryKey(operatorQueryKeys.runsByProjectPaged({ projectId: "p", page: 1, pageSize: 25 }))).toBe(true);
-    expect(shouldPersistOperatorQueryKey(operatorQueryKeys.complianceDriftTrend30d)).toBe(true);
+    expect(shouldPersistOperatorQueryKey(operatorQueryKeys.complianceDriftTrend30d({
+      tenantId: "t",
+      workspaceId: "w",
+      projectId: "p",
+    }))).toBe(true);
   });
 
   it("denies authority-adjacent and audit payloads", () => {

@@ -5,8 +5,8 @@ export type WorkingCareerRehearsalIntentId = (typeof WORKING_CAREER_REHEARSAL_IN
 export const DEFAULT_WORKING_CAREER_REHEARSAL_INTENT: WorkingCareerRehearsalIntentId = "career";
 
 export const WORKING_CAREER_REHEARSAL_INTENT_LABELS: Record<WorkingCareerRehearsalIntentId, string> = {
-  career: "Career",
-  rehearsal: "Rehearsal",
+  career: "Record",
+  rehearsal: "Practice",
 };
 
 export function parseWorkingCareerRehearsalIntent(
@@ -18,11 +18,11 @@ export function parseWorkingCareerRehearsalIntent(
 
   const trimmed = value.trim().toLowerCase();
 
-  if (trimmed === "rehearsal") {
+  if (trimmed === "rehearsal" || trimmed === "practice") {
     return "rehearsal";
   }
 
-  if (trimmed === "career") {
+  if (trimmed === "career" || trimmed === "record") {
     return "career";
   }
 

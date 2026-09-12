@@ -8,6 +8,8 @@ internal static class HostedAzureArmNextLinkValidator
 
     private const string DiagnosticSettingsPathSuffix = "/providers/Microsoft.Insights/diagnosticSettings";
 
+    private const string FederatedIdentityCredentialsPathSuffix = "/federatedIdentityCredentials";
+
     public static void EnsureTargetsSubscription(string nextLink, string subscriptionId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
@@ -66,6 +68,27 @@ internal static class HostedAzureArmNextLinkValidator
         {
             throw new InvalidOperationException(
                 "Hosted Azure extractor stopped diagnostic setting listing because nextLink targets a different resource.");
+        }
+    }
+
+    public static void EnsureTargetsFederatedCredentialsIdentity(string nextLink, string identityResourceId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
+        ArgumentException.ThrowIfNullOrWhiteSpace(identityResourceId);
+
+        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
+        {
+            throw new InvalidOperationException(
+                "Hosted Azure extractor stopped federated credential listing due to an invalid nextLink.");
+        }
+
+        string normalizedIdentityResourceId = identityResourceId.Trim();
+        string expectedPathPrefix = normalizedIdentityResourceId + FederatedIdentityCredentialsPathSuffix;
+
+        if (!uri.AbsolutePath.StartsWith(expectedPathPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Hosted Azure extractor stopped federated credential listing because nextLink targets a different identity.");
         }
     }
 

@@ -123,8 +123,36 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
 
         string mermaid = renderer.Render(ast);
 
-        mermaid.Should().Contain(
-            "n_a1[\"nic-prod\"] %% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network");
+        mermaid.ReplaceLineEndings("\n").Should().Contain(
+            "%% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network\n    n_a1[\"nic-prod\"]");
+        mermaid.Should().NotContain("] %% ");
+    }
+
+    [Fact]
+    public void MermaidDiagramRenderer_Render_emits_inventory_seed_metadata_comment()
+    {
+        MermaidDiagramRenderer renderer = new();
+        DiagramAst ast = new()
+        {
+            Title = "Sample",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "n_a1",
+                    Label = "nic-prod",
+                    NodeType = "TopologyResource",
+                    SeedNodeId = "22222222-2222-2222-2222-222222222222",
+                    ArmResourceType = "Microsoft.Network/networkInterfaces",
+                    ArmResourceGroup = "rg-network",
+                },
+            ],
+        };
+
+        string mermaid = renderer.Render(ast);
+
+        mermaid.ReplaceLineEndings("\n").Should().Contain(
+            "%% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network al-seed=22222222-2222-2222-2222-222222222222\n    n_a1[\"nic-prod\"]");
     }
 
     [Fact]

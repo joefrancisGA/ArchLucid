@@ -16,6 +16,43 @@ public static class ExportBundleCareerPostureResolver
 
     public const string CareerPostureCareer = "CAREER";
 
+    public const string CareerPostureCareerBlocked = "CAREER_BLOCKED";
+
+    /// <summary>CG-092 — resolves CG-019 run stamp fields for support-bundle triage (no secrets).</summary>
+    public static ExportBundleCareerPostureTriageResult? ResolveTriageFromRunFields(
+        StructuralExecutionMode? structuralExecutionMode,
+        string? workingCareerRehearsalDoor)
+    {
+        if (structuralExecutionMode is null && string.IsNullOrWhiteSpace(workingCareerRehearsalDoor))
+        {
+            return null;
+        }
+
+        StructuralExecutionMode mode = structuralExecutionMode ?? StructuralExecutionMode.Simulator;
+        string door = WorkingCareerRehearsalDoorValues.ParseOrDefault(workingCareerRehearsalDoor);
+
+        bool careerBlocked = SimulatorCareerHonestyPresenter.ShouldBlockWorkingCareer(
+            workingDesk: true,
+            isSampleRun: false,
+            structuralExecutionMode: mode,
+            simulatorRehearsalBannerOnArtifact: false,
+            workingCareerRehearsalDoor: door);
+
+        bool rehearsalIncomplete = DecisionReceiptCareerPostureStamper.ResolveRehearsalIncomplete(mode, door);
+
+        string careerPostureLabel = careerBlocked
+            ? CareerPostureCareerBlocked
+            : rehearsalIncomplete
+                ? CareerPostureRehearsal
+                : CareerPostureCareer;
+
+        return new ExportBundleCareerPostureTriageResult(
+            door,
+            careerPostureLabel,
+            rehearsalIncomplete,
+            careerBlocked);
+    }
+
     public static ExportBundleCareerPostureResult ResolveFromDeltasJson(string deltasJson)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(deltasJson);
@@ -32,9 +69,19 @@ public static class ExportBundleCareerPostureResolver
         bool isDemoTenant = root.TryGetProperty("isDemoTenant", out JsonElement demoEl)
             && demoEl.ValueKind == JsonValueKind.True;
 
+        bool isSampleRun = TryParseSampleRun(root) || isDemoTenant;
+
+        if (isSampleRun)
+        {
+            return new ExportBundleCareerPostureResult(
+                IsBlocked: true,
+                BlockReason: CareerArtifactCompletenessValidator.SampleWorkspaceExportBlockMessage,
+                Stamp: null);
+        }
+
         bool shouldBlock = SimulatorCareerHonestyPresenter.ShouldBlockWorkingCareer(
             workingDesk: true,
-            isSampleRun: isDemoTenant,
+            isSampleRun: false,
             structuralExecutionMode: structuralExecutionMode,
             simulatorRehearsalBannerOnArtifact: false,
             workingCareerRehearsalDoor: workingCareerRehearsalDoor);
@@ -63,6 +110,16 @@ public static class ExportBundleCareerPostureResolver
             IsBlocked: false,
             BlockReason: null,
             Stamp: stamp);
+    }
+
+    private static bool TryParseSampleRun(JsonElement root)
+    {
+        if (root.TryGetProperty("isSampleRun", out JsonElement sampleEl))
+        {
+            return sampleEl.ValueKind == JsonValueKind.True;
+        }
+
+        return false;
     }
 
     private static StructuralExecutionMode? TryParseStructuralExecutionMode(JsonElement root)

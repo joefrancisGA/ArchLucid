@@ -200,11 +200,11 @@ describe("RunProgressTracker", () => {
 
     expect(screen.queryByText(/Ready to finalize/i)).not.toBeInTheDocument();
     expect(screen.getByText(RUN_PROGRESS_TRACKER_REHEARSAL_PRACTICE_TERMINAL_STATUS)).toBeInTheDocument();
-    expect(screen.getByText("Rehearsal record")).toBeInTheDocument();
+    expect(screen.getByText("Practice record")).toBeInTheDocument();
     expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Practice");
   });
 
-  it("shows Career blocked terminal copy on Working Career + Simulator (CG-032)", async () => {
+  it("shows Sealed record blocked terminal copy on Working Career + Simulator (CG-032)", async () => {
     workingDeskMock.value = true;
     effectiveDoorMock.value = "career";
 
@@ -231,12 +231,13 @@ describe("RunProgressTracker", () => {
 
     expect(screen.getByText(RUN_PROGRESS_TRACKER_CAREER_BLOCKED_TERMINAL_STATUS)).toBeInTheDocument();
     expect(screen.queryByText(/Ready to finalize/i)).not.toBeInTheDocument();
-    expect(screen.getByText(RUN_PROGRESS_TRACKER_CAREER_BLOCKED_SIGNED_RECORD_LABEL)).toBeInTheDocument();
-    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Career blocked");
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent(
+      RUN_PROGRESS_TRACKER_CAREER_BLOCKED_SIGNED_RECORD_LABEL,
+    );
     expect(screen.getByText("Findings ready (rehearsal)")).toBeInTheDocument();
   });
 
-  it("shows Rehearsal incomplete terminal copy on Working Rehearsal + Simulator (CG-032)", async () => {
+  it("shows Practice incomplete terminal copy on Working Rehearsal + Simulator (CG-032)", async () => {
     workingDeskMock.value = true;
     effectiveDoorMock.value = "rehearsal";
 
@@ -263,7 +264,7 @@ describe("RunProgressTracker", () => {
 
     expect(screen.getByText(RUN_PROGRESS_TRACKER_REHEARSAL_INCOMPLETE_TERMINAL_STATUS)).toBeInTheDocument();
     expect(screen.getByText(RUN_PROGRESS_TRACKER_REHEARSAL_SIGNED_RECORD_LABEL)).toBeInTheDocument();
-    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Rehearsal incomplete");
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Practice incomplete");
   });
 
   it("uses engineering rehearsal-complete status on Working Career + Simulator (CG-033)", async () => {
@@ -296,7 +297,7 @@ describe("RunProgressTracker", () => {
       await vi.runOnlyPendingTimersAsync();
     });
 
-    expect(screen.getByText(/Career blocked on Simulator/i)).toBeInTheDocument();
+    expect(screen.getByText(/sealed record blocked on Simulator/i)).toBeInTheDocument();
     expect(screen.queryByText("Pipeline complete — refresh for full detail.")).not.toBeInTheDocument();
   });
 
