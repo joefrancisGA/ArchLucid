@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpPolicyPacksClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpPolicyPacksClaimOrientationStrip";
 import { HelpPolicyPacksHeaderActions } from "@/app/(operator)/help/_sections/HelpPolicyPacksHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
@@ -160,6 +161,8 @@ export function HelpPolicyPacksGuideView(props: HelpPolicyPacksGuideViewProps): 
             {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
           </div>
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-policy-packs" showSsoOptional={false} />
 
         <div data-testid="help-policy-packs-orientation-bottom">
           <HelpPolicyPacksClaimOrientationStrip />
