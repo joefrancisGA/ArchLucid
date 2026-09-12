@@ -758,6 +758,25 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task PostFindingFeedback_returns_bad_request_when_comment_contains_invalid_surrogate()
+    {
+        RunsController controller = CreateController();
+
+        IActionResult action = await controller.PostFindingFeedbackAsync(
+            "finding-1",
+            new ArchitectureFindingFeedbackPostRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                IsHelpful = true,
+                Comment = "\uD800",
+            },
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task PutAssumptionAcknowledgement_returns_bad_request_when_assumption_id_contains_invalid_surrogate()
     {
         Mock<IRunAssumptionAcknowledgementService> acknowledgementService = new();
