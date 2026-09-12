@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { ARCHITECTURE_IDENTITY_DESK_COMPARE_LABEL } from "@/lib/architecture/architecture-identity-desk-copy";
 import { resolveArchitectureCompareSiblingDefaults } from "@/lib/architecture/resolve-architecture-compare-defaults";
-import { compareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
+import { resolveSystemNotJobWorkingDeskCompareHref } from "@/lib/system-not-job-desk-children-not-peer-products";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ArchitectureIdentityChildReviewSummary } from "@/types/architecture-identity";
 
@@ -18,6 +21,7 @@ type ArchitectureIdentityDeskCompareActionProps = {
 export function ArchitectureIdentityDeskCompareAction(
   props: ArchitectureIdentityDeskCompareActionProps,
 ): React.JSX.Element {
+  const { isWorkingMode } = useWorkspaceMode();
   const siblingDefaults = resolveArchitectureCompareSiblingDefaults({
     architectureId: props.architectureId,
     reviews: props.reviews,
@@ -34,10 +38,11 @@ export function ArchitectureIdentityDeskCompareAction(
     );
   }
 
-  const compareHref = compareTwoReviewsHref({
+  const compareHref = resolveSystemNotJobWorkingDeskCompareHref({
+    architectureId: siblingDefaults.architectureId,
     priorRunId: siblingDefaults.priorRunId,
     laterRunId: siblingDefaults.laterRunId,
-    architectureId: siblingDefaults.architectureId,
+    workingMode: isWorkingMode,
   });
 
   return (
