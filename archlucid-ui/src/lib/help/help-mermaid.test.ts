@@ -315,6 +315,30 @@ describe("help-mermaid", () => {
     expect(resolved?.height).toBe(322);
   });
 
+  it("resolveMermaidInkViewBox tightens a padded canvas to measured node ink", () => {
+    const source = new DOMRect(0, 0, 4000, 3000);
+    const measured = new DOMRect(1200, 900, 1500, 1100);
+
+    const resolved = resolveMermaidInkViewBox(source, measured, 12);
+
+    expect(resolved?.x).toBe(1188);
+    expect(resolved?.y).toBe(888);
+    expect(resolved?.width).toBe(1524);
+    expect(resolved?.height).toBe(1124);
+  });
+
+  it("resolveMermaidInkViewBox tightens a grid whose source viewBox matches node ink", () => {
+    const source = new DOMRect(0, 0, 1144, 322);
+    const measured = new DOMRect(12, 24, 1100, 280);
+
+    const resolved = resolveMermaidInkViewBox(source, measured, 12);
+
+    expect(resolved?.x).toBe(0);
+    expect(resolved?.y).toBe(12);
+    expect(resolved?.width).toBe(1124);
+    expect(resolved?.height).toBe(304);
+  });
+
   it("contains tall narrow ink using the legibility floor and allows overflow scroll", () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");

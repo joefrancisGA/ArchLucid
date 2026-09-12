@@ -30,9 +30,9 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
     flowchart: {
       htmlLabels: false,
       curve: "basis",
-      padding: 18,
-      nodeSpacing: 48,
-      rankSpacing: 56,
+      padding: 10,
+      nodeSpacing: 28,
+      rankSpacing: 32,
       useMaxWidth: false,
     },
     themeVariables: {
