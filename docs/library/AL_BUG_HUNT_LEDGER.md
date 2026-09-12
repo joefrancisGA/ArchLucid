@@ -3303,21 +3303,7 @@ P26-09-12 seed hunt #2014 (seed-only): reseeded finding-disposition; no new hunt
 
 ---
 
-## Zone: api-key-auth
-
-- **id:** api-key-auth
-- **status:** open
-- **impact:** high
-- **aliases:** API key auth; admin API key settings
-- **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
-- **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 39
-- **bugs-found:** 9
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-11 — comma-only AdminKey config made zero-downtime rotation Append instead of Replace
-- **related-pd-tb:** none
-- **code-changed-since:** yes
+P26-09-12 seed hunt #2015 (seed-only): reseeded api-key-auth; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2011 (seed-only): reseeded api-key-auth after `-Refresh`; no new hunt-ready rows.
 
