@@ -13,7 +13,9 @@ import {
   formatOperatorHomeRecommendedNextTitle,
   OPERATOR_HOME_RECOMMENDED_NEXT_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_CARD, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY } from "@/lib/buyer-copy/onboarding";
+import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-workspace-phase";
 import {
   listIncompleteWizardSignals,
@@ -115,7 +117,12 @@ export function OperatorHomeRecommendedNextCard(
   const title = recommendedItem?.title ?? "your architecture review";
   const actionLabel =
     recommendedItem?.actionLabel ??
-    (workspacePhase === "active-reviews" ? "Continue review" : "Start review");
+    (recommendedItem?.kind === "awaiting-disposition"
+      ? "Record dispositions"
+      : workspacePhase === "active-reviews"
+        ? "Continue review"
+        : "Start review");
+  const showDispositionHelper = recommendedItem?.kind === "awaiting-disposition";
 
   return (
     <section
@@ -141,6 +148,17 @@ export function OperatorHomeRecommendedNextCard(
           </Link>
         </Button>
       </div>
+      {showDispositionHelper ? (
+        <p
+          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+          data-testid="operator-home-recommended-next-disposition"
+        >
+          {FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY}{" "}
+          <Link href={GOVERNANCE_FINDINGS_PATH} className={OPERATOR_LINK.optional}>
+            Open findings queue
+          </Link>
+        </p>
+      ) : null}
     </section>
   );
 }

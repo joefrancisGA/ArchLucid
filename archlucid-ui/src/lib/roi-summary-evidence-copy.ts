@@ -14,6 +14,9 @@ export const ROI_SUMMARY_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.roiS
 export const ROI_SUMMARY_CLAIM_DISCIPLINE =
   "ROI summary hours and dollar estimates are directional portfolio metrics for the selected window — they are not invoices, financial reporting, or an audit export. Open Architecture reviews, Evidence trail, or Trust Center when you need export-ready records.";
 
+export const ROI_SUMMARY_SPONSOR_HONESTY_LINE =
+  "Portfolio headline savings are disposition-aware and deduplicated by FindingId; per-system rows do not sum to the headline." as const;
+
 export const ROI_SUMMARY_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
   "ROI summary needs architecture reviews, methodology context, or official assurance materials",
 );

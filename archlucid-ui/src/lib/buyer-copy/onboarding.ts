@@ -6,7 +6,11 @@
 
 /** Collapsed summary on `/architecture/first-review-guide` optional setup disclosure (TB-679). */
 export const ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY =
-  "Identity, administrator access, platform health, and ROI baseline — optional before your first review.";
+  "Identity (SSO), administrator access, platform health, policy packs, and ROI baseline — optional before your first review.";
+
+/** SSO is optional for the first architecture review — configure when your org enforces it. */
+export const FIRST_REVIEW_GUIDE_SSO_OPTIONAL_COPY =
+  "SSO is not required to complete your first architecture review. Configure organizational SSO when your tenant enforces it.";
 
 /** Explains which steps the home Setup readiness link counts (excludes ROI baseline). */
 export const FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_PROGRESS_LEAD =

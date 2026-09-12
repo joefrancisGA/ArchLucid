@@ -57,7 +57,8 @@ export const SPONSOR_DASHBOARD_HELP_FEATURE_ITEMS: readonly SponsorDashboardHelp
   },
   {
     label: "ROI trends",
-    detail: "Directional ROI estimates use baseline settings and finalized review activity in the selected window.",
+    detail:
+      "Directional ROI estimates use baseline settings and finalized review activity in the selected window. Portfolio headline savings are disposition-aware and deduplicated by FindingId; per-system rows do not sum to the headline.",
     href: BASELINE_SETTINGS_HELP_CANONICAL_PATH,
   },
   {

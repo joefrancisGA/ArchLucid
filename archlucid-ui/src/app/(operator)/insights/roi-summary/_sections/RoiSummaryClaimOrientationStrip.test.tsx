@@ -8,6 +8,7 @@ describe("RoiSummaryClaimOrientationStrip", () => {
   it("renders sources without claim-discipline hero band", () => {
     render(<RoiSummaryClaimOrientationStrip />);
 
+    expect(screen.getByTestId("roi-summary-non-summing-line")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 2, name: /What this/i })).not.toBeInTheDocument();
     expect(screen.getByTestId("roi-summary-sources")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: ROI_SUMMARY_FOLLOW_UPS_TITLE })).toBeInTheDocument();
