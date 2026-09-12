@@ -3458,7 +3458,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3534,6 +3534,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #1912 (seed-only): reseeded scope-binding-middleware; cheap-disproof closed JwtBearer duplicate tenant-header parity as already covered for Bearer/ApiKey/SCIM/SAML; 71 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
 
 - [x] (valid-no-repro) JwtBearer principal with duplicate `x-tenant-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1912:** `TryParseHeaderGuid` parity with bearer; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_bearer`.
+
+2026-09-12 seed hunt #1956 (seed-only): reseeded scope-binding-middleware; cheap-disproof closed Cookie authentication type header-steering as unreachable (`ArchLucidSaml2AuthenticationCoexistenceConfigurer` keeps JWT Bearer as `DefaultAuthenticateScheme`); 72 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (invalid) Cookie-authenticated principal steers scope via `x-tenant-id` without bound claim — **cheap-disproof 2026-09-12 seed hunt #1956:** SAML session cookies use `DefaultSignInScheme` only; API `[Authorize]` resolves `DefaultAuthenticateScheme` (Bearer/ApiKey), not Cookies; `RequiresBoundScopeClaimsForHeaders` omission is unreachable for JSON API traffic.
 
 ---
 
