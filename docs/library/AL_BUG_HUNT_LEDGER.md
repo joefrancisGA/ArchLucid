@@ -3417,11 +3417,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 18
-- **bugs-found:** 28
+- **hunts:** 19
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — decision receipt export omitted sample-workspace career gate
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — CLI proof-packet career gate ignored isSampleRun on pilot-run-deltas JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3475,6 +3475,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DecisionReceiptService.BuildForRunAsync` — synthetic career honesty input hardcoded `IsSampleRun: false` and measurement-floor engines, bypassing `CareerExportCoverageHonestyMaterialLoader` sample-workspace block — **hit 2026-09-11 seed hunt #1686:** load honesty material before validator; regression `BuildForRunAsync_sample_workspace_run_returns_career_artifact_blocked`.
 
 2026-09-11 seed hunt #1686 (hit): reseeded tenant-data-export; proved decision receipt sample-workspace career gate gap; 11 DecisionReceiptService unit tests passed.
+
+- [x] (proven) `ExportBundleCareerPostureResolver.ResolveFromDeltasJson` — treated `isDemoTenant` as `isSampleRun` for simulator gate and never blocked sample-workspace runs with `isSampleRun: true` in pilot-run-deltas JSON — **hit 2026-09-12 seed hunt #1814:** CLI proof-packet bundles for non-demo sample workspace runs bypassed `CareerArtifactExportCompletenessGate` while API export paths blocked; fixed with explicit `isSampleRun` parse + block and `PilotRunDeltasResponse.IsSampleRun` wiring; regression `ResolveFromDeltasJson_blocks_sample_workspace_run_when_is_sample_run_true`
+
+2026-09-12 seed hunt #1814 (hit): reseeded tenant-data-export CLI bundle career gate; proved sample-workspace isSampleRun gap; 7 scoped ExportBundleCareerPostureResolver tests passed.
 
 2026-09-10 seed hunt #1527 (hit): reseeded tenant-data-export; proved sponsor packet career gate parity gap; 7 scoped SponsorReviewPacketBuilder tests passed.
 
@@ -9534,11 +9538,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — standalone month/months Azure retail UOM rejected while quantity-prefixed forms matched
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — slash `/day` Azure retail UOM rejected while `/hr` and `/mo` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9565,6 +9569,10 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — standalone and quantity-prefixed `day`/`days` UOM rejected while hourly/monthly synonyms already matched — **hit 2026-09-11 seed hunt #1804:** Azure Retail daily consumption meters with bare `"day"`/`"days"` or `"1 Day"` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow`; fixed with `IsDayMeter` + `DaysPerMonthAssumption` parity with hour/month fixes (#1415/#1703); regressions `TryMonthlyUsdFromRow_accepts_standalone_day_unit_of_measure_synonyms`, `LooksLikeConsumptionUsd_accepts_daily_unit_of_measure_synonyms`, and `TryMonthlyUsdFromRow_accepts_quantity_prefixed_day_unit_of_measure`.
 
 2026-09-11 seed hunt #1804 (hit): reseeded core-costing sibling UOM parity; proved standalone/prefixed daily Azure retail gap; 127 scoped Costing tests passed.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — slash `/day` UOM rejected while `/hr` and `/mo` hourly/monthly synonyms already matched — **hit 2026-09-12 seed hunt #1813:** Azure Retail daily consumption meters with `1/day` or `/day` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow`; fixed with `ContainsSlashDayToken` parity with hour/month slash fixes; regressions in `AzureRetailPricesSkuMatchersSlashDayTests`
+
+2026-09-12 seed hunt #1813 (hit): reseeded core-costing slash-day UOM parity; 136 scoped Costing tests passed.
 
 2026-09-07 seed hunt #1186 (hit): seeded zone from split catalog; proved GCP billing catalog pagination gap on live pricing probe.
 
@@ -10369,11 +10377,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 20
-- **bugs-found:** 17
+- **hunts:** 21
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — Entra group membership Graph read ignored `@odata.nextLink` pagination
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — Federated credential ARM pagination followed cross-identity nextLink without validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10429,6 +10437,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-09-11 seed hunt #1811 (seed-only): reseeded cloud-extractors Entra Graph pagination; cheap-disproof closed repeating nextLink candidate as already fixed in #1706.
 
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListFederatedCredentialsForIdentityAsync` followed ARM `nextLink` without validating identity resource scope — **hit 2026-09-12 hunt #1812 (seed→hit):** malicious or mis-issued `nextLink` to another user-assigned identity's federated credentials could leak credential metadata; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsFederatedCredentialsIdentity`; regression in `ListFederatedCredentialsAsync_rejects_next_link_for_different_identity_resource_id`
+
+2026-09-12 seed hunt #1812 (seed→hit): reseeded cloud-extractors federated-credential pagination; proved cross-identity nextLink gap; 18 scoped GetOnlyHostedAzureArmReadClient tests passed.
+
 ---
 
 ## Zone: api-authority-admin-controllers
@@ -10439,10 +10451,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 20
+- **hunts:** 27
 - **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-10 — technology ledger PATCH omitted free-text max-length guard on Rationale and TechnologyName
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10493,6 +10505,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `RunQueryController.GetRunDecisions` / `GetRunEvidence` / `GetRunToolInvocationForensics` — whitespace `runId` may return 400 while siblings return 404 — **cheap-disproof 2026-09-11 seed hunt #1691:** `RunProvenanceQueryService.AuthorityRunExistsInScopeAsync` uses `AuthorityRunIdentifier.TryParse`; whitespace maps to NotFound (`GetRunDecisions_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory`, `GetRunEvidence_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory`, `GetRunToolInvocationForensics_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory`)
 
 2026-09-11 seed hunt #1691 (seed-only): reseeded api-authority-admin-controllers after #1530; cheap-disproof on provenance read whitespace 404 parity; 3 new `RunQueryControllerTests` passed.
+
+- [x] (valid-no-repro) `TechnologyLedgerController.PatchTechnologyLedgerEntry` — `ProviderFamily` enum patch without free-text guard — **cheap-disproof 2026-09-12 seed hunts #1815–#1821:** only string patch fields are `Rationale` and `TechnologyName`; both already guarded in #1530
+- [x] (invalid) Authority/Admin `{runId}` route whitespace → 400 — **cheap-disproof 2026-09-12 seed hunts #1815–#1821:** no `IsNullOrWhiteSpace(runId)` BadRequest pre-checks remain under `ArchLucid.Api/Controllers/Authority/` or `Admin/`; parity fixes through #1691
+
+2026-09-12 seed hunts #1815–#1821 (seed-only): seven sequential reseeds; no new hunt-ready rows promoted; cheap-disproof closed technology-ledger enum and whitespace runId candidates; scoped Authority/Admin controller tests passed.
 
 2026-09-10 thorough hunt #1530 (hit): cheap-disproved both #1413 seed candidates; proved technology ledger PATCH free-text max-length gap; 6 scoped `TechnologyLedgerControllerTests` passed.
 2026-09-09 seed hunt #1413 (hit): reseeded clarification question-id and prompt-variant Unicode guard candidates; proved trace-forensics whitespace runId 404 parity; `ArchLucid.Api` compile verified (Api.Tests project has pre-existing signature drift on bugsmash).
