@@ -10709,7 +10709,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 99
+- **hunts:** 100
 - **bugs-found:** 156
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
