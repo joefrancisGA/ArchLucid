@@ -10130,11 +10130,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 19
-- **bugs-found:** 30
+- **hunts:** 20
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — ExecDigest padded WeekLabel leaked into subject and template model
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — Weekly sponsor summary accepted whitespace-only weekLabel
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -10205,6 +10205,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ExecDigestEmailDispatcher.TryDispatchAsync` — padded `composition.WeekLabel` copied into template model and subject without trim — **hit 2026-09-11 seed hunt #1772:** sibling weekly Sponsor report/summary dispatchers trim `weekLabel` but ExecDigest still used raw `composition.WeekLabel`; fixed with `normalizedWeekLabel = composition.WeekLabel.Trim()`; regression `ExecDigestEmailDispatcher_trims_week_label_in_template_model_and_subject`
 
 2026-09-11 seed hunt #1772 (hit): reseeded notifications-pipeline after #1770-1771 weekLabel trim parity for sponsor dispatchers; proved ExecDigest padded WeekLabel gap; 1 scoped regression test passed.
+
+- [x] (proven) `WeeklySponsorSummaryEmailDispatcher.TryDispatchAsync` — whitespace-only `weekLabel` trimmed to empty and still sent weekly summary — **hit 2026-09-12 seed hunt #1858:** `WeeklySponsorReportEmailDispatcher` gained `ArgumentException` parity in #1773 but summary still accepted padded-only `weekLabel`, producing subject `weekly sponsor summary — `; fixed with required `weekLabel` validation; regression `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_week_label`
+
+2026-09-12 seed hunt #1858 (hit): reseeded notifications-pipeline after #1772 ExecDigest weekLabel trim; proved summary whitespace-only weekLabel gap vs report parity; 1 scoped regression test passed.
 
 ## Zone: artifact-synthesis
 
