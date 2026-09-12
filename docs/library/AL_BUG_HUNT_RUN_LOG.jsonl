@@ -2392,3 +2392,4 @@
 {"at":"2026-09-12T17:42:00Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
 {"at":"2026-09-12T17:33:21.3149549Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only"}
 {"at":"2026-09-12T17:38:23.0615371Z","zoneId":"tenant-settings-sql","outcome":"seed-only"}
+{"at":"2026-09-12T17:38:37.0857202Z","zoneId":"agent-runtime-safety","outcome":"seed-only"}
