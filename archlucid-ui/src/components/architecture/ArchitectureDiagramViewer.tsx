@@ -46,6 +46,7 @@ import {
   type MermaidViewportFitDimensions,
   prepareMermaidSvgForResponsiveLayout,
   readMermaidViewportFitBudget,
+  removeMermaidRenderBindElement,
   sanitizeMermaidRenderId,
 } from '@/lib/help/help-mermaid';
 import { OPERATOR_TYPOGRAPHY } from '@/lib/design-tokens';
@@ -353,6 +354,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           setRenderError(message);
           onRenderFailure?.();
         }
+      } finally {
+        removeMermaidRenderBindElement(renderId);
       }
     }
 
@@ -360,6 +363,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
     return (): void => {
       canceled = true;
+      removeMermaidRenderBindElement(renderId);
     };
   }, [mermaidSource, dark, renderId, onRenderFailure]);
 
