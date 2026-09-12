@@ -630,6 +630,11 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(screen.getByTestId("working-nested-architecture-identity-chrome")).toBeInTheDocument();
     });
 
+    expect(screen.getByTestId("architecture-draft-spawn-lock-back-honesty")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Back to review" })[0]).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/run-001",
+    );
     expect(screen.getByRole("link", { name: "Back to architecture desk" })).toHaveAttribute(
       "href",
       "/architecture/architectures/architecture-identity-001",
