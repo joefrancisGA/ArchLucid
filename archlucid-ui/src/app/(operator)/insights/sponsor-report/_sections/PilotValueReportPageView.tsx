@@ -59,6 +59,7 @@ import {
   VALUE_REPORT_SAMPLE_BANNER_SUFFIX,
 } from "@/lib/insights/value-report-career-honesty";
 
+import { PilotOutcomesClaimOrientationStrip } from "./PilotOutcomesClaimOrientationStrip";
 import { PilotOutcomesEmailConfirmDialog } from "./PilotOutcomesEmailConfirmDialog";
 import { PilotOutcomesEmptyState } from "./PilotOutcomesEmptyState";
 import { PilotOutcomesLoadFailure } from "./PilotOutcomesLoadFailure";
@@ -202,6 +203,8 @@ export function PilotValueReportPageView(props: Props) {
           />
 
           <PilotValueReportBuyerChrome />
+
+        {!buyerPolishedShell ? <PilotOutcomesClaimOrientationStrip /> : null}
 
         {hasFinalizedReviews && !scopedRunFilterActive ? (
           <SponsorReportFinalizedReviewPickerStrip
