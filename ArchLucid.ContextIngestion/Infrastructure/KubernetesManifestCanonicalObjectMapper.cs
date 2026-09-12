@@ -286,7 +286,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 InspectContainer(container);
         }
 
-        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "initContainers", out JsonElement initContainers)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "initContainers", out JsonElement initContainers)
             && initContainers.ValueKind is JsonValueKind.Array)
         {
             foreach (JsonElement container in initContainers.EnumerateArray())
