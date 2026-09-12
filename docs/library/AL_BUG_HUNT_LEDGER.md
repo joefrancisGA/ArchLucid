@@ -2768,15 +2768,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — fetched doc-index rows sharing `/help` hub url dropped when titles differ
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+2026-09-12 seed hunt #1938 (seed-only): reseeded ui-help-docs; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] Topic markdown fetch follows an external URL instead of the in-app help route (retired: fetchHelpTopicMarkdown uses `/api/help/{slug}`)
 - [x] Missing topic is rendered as a GitHub blob link (retired: not-found → `/help`; doc-index has no github blob URLs)
