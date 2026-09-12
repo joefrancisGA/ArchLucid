@@ -12,26 +12,26 @@ export const ERROR_RECOVERY_RETRY_NO_POSTURE_CHANGE =
   "Retry reloads this surface only — it does not change execute posture or upgrade Simulator to Real.";
 
 export const ERROR_RECOVERY_REVIEW_RETRY_NO_CAREER_WASH =
-  "Retry reloads this review desk. It does not mark a rehearsal run Career-complete or change the persisted execute stamp.";
+  "Retry reloads this review desk. It does not mark a practice run record-complete or change the persisted execute stamp.";
 
 export const ERROR_RECOVERY_WORKING_RETRY_TITLE = "Recovery does not upgrade execute posture";
 
 export const ERROR_RECOVERY_STAMPED_CAREER_BLOCKED_TITLE =
-  "Career blocked — recovery cannot wash Simulator posture";
+  "Sealed record blocked — recovery cannot wash Simulator posture";
 
 export const ERROR_RECOVERY_STAMPED_CAREER_BLOCKED_BODY =
-  "This review ran on Simulator or Fallback while the Career door was selected. Retry keeps that stamp — it does not convert the run to Career-complete proof.";
+  "This review ran on Simulator or Fallback while the Record review type was selected. Retry keeps that stamp — it does not convert the run to record-complete proof.";
 
 export const ERROR_RECOVERY_STAMPED_REHEARSAL_INCOMPLETE_TITLE =
-  "Rehearsal incomplete — recovery is rehearsal only";
+  "Practice incomplete — recovery is practice only";
 
 export const ERROR_RECOVERY_STAMPED_REHEARSAL_INCOMPLETE_BODY =
-  "This review ran on the Rehearsal door with Simulator or Fallback structural execute. Retry reloads the desk for practice — it is not career-complete sealed-record proof.";
+  "This review ran on the Practice review type with Simulator or Fallback structural execute. Retry reloads the desk for dry-runs — it is not record-complete sealed-record proof.";
 
-export const ERROR_RECOVERY_STAMPED_PRACTICE_TITLE = "Practice — recovery is not career proof";
+export const ERROR_RECOVERY_STAMPED_PRACTICE_TITLE = "Practice — recovery is not sealed-record proof";
 
 export const ERROR_RECOVERY_STAMPED_PRACTICE_BODY =
-  "This review ran as Rehearsal door practice on Real structural execute. Retry keeps rehearsal posture — it is not sponsor-ready career evidence.";
+  "This review ran as Practice on Real structural execute. Retry keeps practice posture — it is not sponsor-ready sealed-record evidence.";
 
 export type ErrorRecoveryCareerHonestyPresentation = {
   readonly kind: "generic-retry" | "stamped";

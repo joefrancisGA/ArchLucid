@@ -22,14 +22,14 @@ import {
 } from "@/lib/governance/working-career-rehearsal-door";
 
 export const SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON =
-  "Simulator rehearsal cannot be career-complete without explicit rehearsal labeling on the artifact.";
+  "Simulator practice cannot be record-complete without explicit practice labeling on the artifact.";
 
-/** CG-030 — review-detail Ready label suppression when Career door meets Simulator execute. */
+/** CG-030 — review-detail Ready label suppression when Record review type meets Simulator execute. */
 export const WORKING_SIMULATOR_CAREER_READY_SUPPRESSED_TITLE =
-  "Simulator cannot read as career-complete";
+  "Simulator cannot read as record-complete";
 
 export const WORKING_SIMULATOR_CAREER_READY_SUPPRESSED_COPY =
-  "Ready-to-finalize labels stay off while structural execute is Simulator or Fallback on the Career door. Switch to Rehearsal for practice runs or re-execute in Real mode.";
+  "Ready-to-finalize labels stay off while structural execute is Simulator or Fallback on the Record review type. Switch to Practice for dry-runs or re-execute in Real mode.";
 
 export const SIMULATOR_REHEARSAL_GUIDED_WARNING =
   "Simulator rehearsal — not production customer evidence.";
@@ -112,10 +112,10 @@ export function shouldSuppressReadyToFinalizeForSimulatorRehearsal(input: {
 }
 
 export const SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_LABEL =
-  "Rehearsal — not career support";
+  "Practice — not record support";
 
 export const SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_REASON =
-  "Simulator rehearsal does not judge Real citation overlap for career surfaces.";
+  "Simulator practice does not judge Real citation overlap for sealed-record surfaces.";
 
 export type PresentedSemanticSupportBand = {
   readonly displayBand: FindingSemanticSupportBandValue;

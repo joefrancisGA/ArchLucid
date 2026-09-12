@@ -64,7 +64,7 @@ describe("run-status-badge-career-honesty (CG-031)", () => {
     expect(overlay?.statusTagKind).not.toBe("ready");
   });
 
-  it("Rehearsal + Real shows practice — not career-complete green", () => {
+  it("Rehearsal + Real shows practice — not record-complete green", () => {
     const overlay = applyRunStatusBadgeWorkingCareerHonesty(PIPELINE_STATUS_LABELS.finalized, {
       workingDesk: true,
       structuralExecutionMode: "Real",

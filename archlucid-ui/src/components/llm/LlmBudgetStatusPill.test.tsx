@@ -79,7 +79,7 @@ describe("LlmBudgetStatusPill", () => {
       /not execute posture/i,
     );
     expect(screen.getByTestId("llm-budget-status-pill-career-honesty")).toHaveTextContent(
-      /not the Career or Rehearsal door/i,
+      /not the Record or Practice review type/i,
     );
     expect(screen.getByRole("link", { name: "Open AI usage and budget" })).toHaveAttribute(
       "href",

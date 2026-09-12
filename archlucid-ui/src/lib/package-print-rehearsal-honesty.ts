@@ -9,14 +9,14 @@ import {
 } from "@/lib/governance/working-career-rehearsal-door";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 
-/** CG-023 — print-visible rehearsal label when execute stamp is not career-complete. */
-export const PACKAGE_PRINT_REHEARSAL_STRIP_TITLE = "Rehearsal — not career-complete";
+/** CG-023 — print-visible rehearsal label when execute stamp is not record-complete. */
+export const PACKAGE_PRINT_REHEARSAL_STRIP_TITLE = "Practice — not record-complete";
 
 export const PACKAGE_PRINT_REHEARSAL_CAREER_DOOR_BODY =
-  "This print summary was produced under Simulator or Fallback execution on the Working Career door. It is not a career-complete sealed record for board, procurement, or sponsor distribution.";
+  "This print summary was produced under Simulator or Fallback execution on the Working Record review type. It is not a record-complete sealed record for board, procurement, or sponsor distribution.";
 
 export const PACKAGE_PRINT_REHEARSAL_DOOR_BODY =
-  "This print summary was produced under the Working Rehearsal door with Simulator or Fallback execution. Rehearsal output is labeled practice — not production customer evidence.";
+  "This print summary was produced under the Working Practice review type with Simulator or Fallback execution. Practice output is labeled dry-run — not production customer evidence.";
 
 export type PackagePrintRehearsalHonestyStrip = {
   readonly title: string;

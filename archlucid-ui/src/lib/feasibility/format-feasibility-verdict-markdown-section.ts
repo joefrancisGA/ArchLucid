@@ -86,7 +86,7 @@ export function formatFeasibilityVerdictMarkdownSection(
   const display = resolveFeasibilityVerdictForDisplay(verdict);
 
   if (blockedReason !== null) {
-    lines.push(`> **Career export blocked:** ${blockedReason}`);
+    lines.push(`> **Record export blocked:** ${blockedReason}`);
     lines.push("");
   }
 

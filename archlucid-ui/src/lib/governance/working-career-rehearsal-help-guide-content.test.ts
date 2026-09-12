@@ -17,9 +17,9 @@ import {
 } from "@/lib/governance/working-career-rehearsal-help-guide-content";
 
 describe("working-career-rehearsal-help-guide-content (AS-082)", () => {
-  it("names both Career and Rehearsal doors in the help topic", () => {
-    expect(WORKING_CAREER_REHEARSAL_HELP_PAGE_TITLE).toContain("Career");
-    expect(WORKING_CAREER_REHEARSAL_HELP_PAGE_TITLE).toContain("Rehearsal");
+  it("names both Record and Practice review types in the help topic", () => {
+    expect(WORKING_CAREER_REHEARSAL_HELP_PAGE_TITLE).toContain("Record");
+    expect(WORKING_CAREER_REHEARSAL_HELP_PAGE_TITLE).toContain("Practice");
     expect(WORKING_CAREER_REHEARSAL_HELP_OVERVIEW).toContain(WORKING_CAREER_DOOR_LABEL);
     expect(WORKING_CAREER_REHEARSAL_HELP_OVERVIEW).toContain(WORKING_REHEARSAL_DOOR_LABEL);
 
@@ -28,21 +28,21 @@ describe("working-career-rehearsal-help-guide-content (AS-082)", () => {
     expect(doorLabels).toEqual([WORKING_CAREER_DOOR_LABEL, WORKING_REHEARSAL_DOOR_LABEL]);
   });
 
-  it("states Rehearsal is practice and Simulator is not sponsor proof", () => {
+  it("states Practice is for dry-runs and Simulator is not sponsor proof", () => {
     expect(WORKING_CAREER_REHEARSAL_HELP_SIMULATOR_HONESTY_COPY.toLowerCase()).toContain("sponsor");
-    expect(WORKING_CAREER_REHEARSAL_HELP_SIMULATOR_HONESTY_COPY.toLowerCase()).toContain("rehearsal");
+    expect(WORKING_CAREER_REHEARSAL_HELP_SIMULATOR_HONESTY_COPY.toLowerCase()).toContain("practice");
     expect(WORKING_CAREER_REHEARSAL_HELP_DOOR_TILES[1]?.whenToUse.toLowerCase()).toContain("practice");
   });
 
-  it("documents Guided split without the Career chooser", () => {
+  it("documents Guided split without the Record chooser", () => {
     expect(WORKING_CAREER_REHEARSAL_HELP_GUIDED_NOTE).toContain("Guided");
     expect(WORKING_CAREER_REHEARSAL_HELP_GUIDED_NOTE).not.toContain("github.com");
   });
 
-  it("documents the SecureNow product-line omission of Career / Rehearsal chrome", () => {
+  it("documents the SecureNow product-line omission of Record / Practice chrome", () => {
     expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).toContain("SecureNow");
-    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).toContain("Career");
-    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).toContain("Rehearsal");
+    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).toContain("Record");
+    expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).toContain("Practice");
     expect(WORKING_CAREER_REHEARSAL_HELP_SECURITY_COPY).not.toContain("github.com");
   });
 
