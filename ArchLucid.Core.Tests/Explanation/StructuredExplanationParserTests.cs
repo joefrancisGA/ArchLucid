@@ -247,6 +247,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_maps_numeric_alternatives_considered_as_single_entry()
+    {
+        const string json = """{"reasoning":"Main","alternativesConsidered":1}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("1");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_maps_object_shaped_reasoning_array_entries_with_id_property()
     {
         const string json =
