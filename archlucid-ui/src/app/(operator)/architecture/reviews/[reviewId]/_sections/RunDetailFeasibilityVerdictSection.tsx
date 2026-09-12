@@ -9,6 +9,7 @@ import {
   parseFeasibilityVerdictDrivers,
 } from "@/lib/feasibility-verdict-transparency-trail";
 import { resolveFeasibilityVerdictForDisplay } from "@/lib/feasibility/resolve-feasibility-verdict-for-display";
+import { LIVELIHOOD_GRADE_NO_DESK_FALSE_HARD_DEMOTED_LINE } from "@/lib/livelihood-grade-no-desk-false-hard-copy";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -54,8 +55,7 @@ export function RunDetailFeasibilityVerdictSection(
               Hard infeasibility requires a citation
             </p>
             <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-              This verdict cannot be presented as hard infeasible without a law, theorem, or invariant contradiction
-              reference. Treat the outcome as provisional until the citation is recorded.
+              {LIVELIHOOD_GRADE_NO_DESK_FALSE_HARD_DEMOTED_LINE}
             </p>
           </div>
         ) : null}

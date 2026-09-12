@@ -31,4 +31,5 @@ public sealed record CareerArtifactCompletenessInput(
     string? WorkingCareerRehearsalDoor = null,
     FindingsSnapshot? FindingsSnapshot = null,
     bool DegradedFindingCoverage = false,
-    IReadOnlyList<string>? DegradedFindingCoverageFailedEngineLabels = null);
+    IReadOnlyList<string>? DegradedFindingCoverageFailedEngineLabels = null,
+    FeasibilityVerdict? FeasibilityVerdict = null);

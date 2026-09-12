@@ -5,6 +5,7 @@ import { HelpEvidenceTrailHeaderActions } from "@/app/(operator)/help/_sections/
 import { HelpEvidenceTrailRelatedGuidesLinks } from "@/app/(operator)/help/_sections/HelpEvidenceTrailRelatedGuidesLinks";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -162,6 +163,8 @@ export function HelpEvidenceTrailGuideView(props: HelpEvidenceTrailGuideViewProp
         </div>
 
         <div data-testid="help-evidence-trail-orientation-bottom">
+          <SponsorSendPathHonestyPanel testIdPrefix="help-evidence-trail" showSsoOptional={false} />
+
           <HelpEvidenceTrailClaimOrientationStrip />
         </div>
       </div>

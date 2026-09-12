@@ -4,6 +4,7 @@ import { HelpSlackIntegrationSourcesOrientationStrip } from "@/app/(operator)/he
 import { HelpSlackIntegrationWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpSlackIntegrationWorkspaceReadinessStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { SlackIntegrationHelpClaimDisciplineStrip } from "@/components/help/SlackIntegrationHelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { SlackIntegrationHelpEvidenceOrientationStrip } from "@/components/help/SlackIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -259,6 +260,8 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
                 ))}
               </ol>
             </section>
+
+            <SponsorSendPathHonestyPanel testIdPrefix="help-slack-integration" showSsoOptional={false} />
           </div>
 
           {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />}

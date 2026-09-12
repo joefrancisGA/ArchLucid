@@ -28,12 +28,22 @@ public sealed class ClosedLoopManifestMerger : IClosedLoopManifestMerger
 
         int mergedFindingCount = MergeFindings(manifest, result.ProductFindings);
         int mergedRecommendationCount = MergeRecommendations(manifest, groundedRecommendations);
+        ClosedLoopManifestTopologyMergeResult topologyMergeResult =
+            ClosedLoopManifestTopologyMerger.MergePublishableTopology(manifest, result.Model);
 
-        if (mergedFindingCount > 0 || mergedRecommendationCount > 0 || groundingDropLog.Count > 0)
+        if (mergedFindingCount > 0
+            || mergedRecommendationCount > 0
+            || groundingDropLog.Count > 0
+            || topologyMergeResult.MergedServiceCount > 0
+            || topologyMergeResult.MergedDatastoreCount > 0
+            || topologyMergeResult.MergedRelationshipCount > 0)
         {
             manifest.Warnings.Add(
                 $"Closed-loop strengthening merged {mergedRecommendationCount} recommendation(s), "
-                + $"{mergedFindingCount} finding(s)"
+                + $"{mergedFindingCount} finding(s), "
+                + $"{topologyMergeResult.MergedServiceCount} service(s), "
+                + $"{topologyMergeResult.MergedDatastoreCount} datastore(s), "
+                + $"{topologyMergeResult.MergedRelationshipCount} relationship(s)"
                 + (groundingDropLog.Count > 0
                     ? $", and dropped {groundingDropLog.Count} brief-contradicting recommendation(s)."
                     : "."));
@@ -44,6 +54,9 @@ public sealed class ClosedLoopManifestMerger : IClosedLoopManifestMerger
             MergedRecommendationCount = mergedRecommendationCount,
             MergedFindingCount = mergedFindingCount,
             GroundingDropCount = groundingDropLog.Count,
+            MergedTopologyServiceCount = topologyMergeResult.MergedServiceCount,
+            MergedTopologyDatastoreCount = topologyMergeResult.MergedDatastoreCount,
+            MergedTopologyRelationshipCount = topologyMergeResult.MergedRelationshipCount,
         };
     }
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpImprovementPlanningHeaderActions } from "@/app/(operator)/help/_sections/HelpImprovementPlanningHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ImprovementPlanningHelpEvidenceOrientationStrip } from "@/components/help/ImprovementPlanningHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -201,6 +202,8 @@ export function HelpImprovementPlanningGuideView(props: HelpImprovementPlanningG
 
           <HelpTopicTableOfContents headings={guideHeadings} />
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-improvement-planning" showSsoOptional={false} />
 
         <ImprovementPlanningHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
       </div>

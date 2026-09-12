@@ -3,6 +3,7 @@ import {
   Bell,
   CalendarCheck,
   ChartGantt,
+  FileText,
   Gavel,
   GitBranch,
   History,
@@ -27,6 +28,7 @@ import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 /** Operate · approval — decide, track, and audit the approval loop. */
 export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
@@ -35,7 +37,8 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
       id: "operate-governance",
       label: OPERATOR_NAV_GROUP_LABELS.governance,
       surface: "review-workflow",
-      caption: "Approve findings, track exceptions and decisions, and monitor audit trail and alerts.",
+      caption:
+        "Approve findings, track exceptions and decisions, browse sealed review records, and monitor audit trail and alerts.",
       links: [
         {
           href: "/governance/needs-attention" as typeof GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
@@ -129,6 +132,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.decisionRegister,
           title: "Review recorded decisions and approval",
           icon: Gavel,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: SIGNED_RECORDS_LIST_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.sealedReviewRecords,
+          title: "Browse finalized review records across reviews",
+          icon: FileText,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

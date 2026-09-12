@@ -3,7 +3,7 @@ export const INTEGRATION_EVENTS_DLQ_CAREER_HONESTY_TITLE =
   "Ops queue — not sealed record proof";
 
 export const INTEGRATION_EVENTS_DLQ_CAREER_HONESTY_BODY =
-  "Dead-lettered outbound integration events await retry after a delivery failure. A row here does not mean the linked review is record-complete or sealed — open the review workspace for posture before citing outcomes.";
+  "Dead-lettered outbound integration events await retry after a delivery failure. A row here is not sealed-record proof — open the review workspace for posture before citing outcomes.";
 
 export const INTEGRATION_EVENTS_DLQ_CROSS_TENANT_OPS_SUFFIX =
   "This Internal Operations surface is not sponsor-ready evidence.";

@@ -351,7 +351,7 @@ export function GenerateAdrFromRunModal({
                 OPERATOR_TYPOGRAPHY.body,
               )}
             >
-              <p className="m-0 font-semibold">Career artifact honesty blocks ADR export</p>
+              <p className="m-0 font-semibold">Sealed-record honesty blocks ADR export</p>
               {careerArtifactVerdict.blockedReasons.map((reason) => (
                 <p key={reason} className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
                   {reason}

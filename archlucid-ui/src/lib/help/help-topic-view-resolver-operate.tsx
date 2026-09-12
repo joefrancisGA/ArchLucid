@@ -19,6 +19,26 @@ const HelpArchitectureDeskGuideView = dynamic(() =>
     (module) => module.HelpArchitectureDeskGuideView,
   ),
 );
+const HelpExtractionFidelityGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpExtractionFidelityGuideView").then(
+    (module) => module.HelpExtractionFidelityGuideView,
+  ),
+);
+const HelpFalseHardInfeasibilityGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpFalseHardInfeasibilityGuideView").then(
+    (module) => module.HelpFalseHardInfeasibilityGuideView,
+  ),
+);
+const HelpWhichModeAmIInGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpWhichModeAmIInGuideView").then(
+    (module) => module.HelpWhichModeAmIInGuideView,
+  ),
+);
+const HelpSealedVsDecisionRegisterGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpSealedVsDecisionRegisterGuideView").then(
+    (module) => module.HelpSealedVsDecisionRegisterGuideView,
+  ),
+);
 const HelpArchitectureDraftsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView").then((module) => module.HelpArchitectureDraftsGuideView),
 );
@@ -280,6 +300,18 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "architecture-desk") {
     return <HelpArchitectureDeskGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "false-hard-infeasibility") {
+    return <HelpFalseHardInfeasibilityGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "extraction-fidelity") {
+    return <HelpExtractionFidelityGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "which-mode-am-i-in") {
+    return <HelpWhichModeAmIInGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "sealed-record-vs-decision-register") {
+    return <HelpSealedVsDecisionRegisterGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "architecture-drafts") {
     return <HelpArchitectureDraftsGuideView entry={loaded.entry} />;

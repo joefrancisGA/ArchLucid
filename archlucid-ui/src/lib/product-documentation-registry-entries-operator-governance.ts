@@ -48,6 +48,15 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
     "releaseApplicability": "decision register orientation",
   },
   {
+    "slug": "sealed-record-vs-decision-register",
+    "title": "Sealed review record vs decision register",
+    "summary": "A sealed review record is the finalized package for one review; the decision register is the ledger of dispositions.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-09-12",
+    "releaseApplicability": "Desk-IA help (DI-023 / ADR 0095)",
+  },
+  {
     "slug": "standards-and-rules",
     "title": "Standards & rules",
     "summary": "Effective policy resolution rows, enforcement mode, and linked evidence for a review.",

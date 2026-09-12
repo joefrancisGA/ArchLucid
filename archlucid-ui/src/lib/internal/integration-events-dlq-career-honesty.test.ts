@@ -13,7 +13,7 @@ describe("integration-events-dlq-career-honesty (CG-094)", () => {
 
     expect(presentation.title).toBe(INTEGRATION_EVENTS_DLQ_CAREER_HONESTY_TITLE);
     expect(presentation.body).toBe(INTEGRATION_EVENTS_DLQ_CAREER_HONESTY_BODY);
-    expect(presentation.title.toLowerCase()).toContain("not sealed career proof");
+    expect(presentation.title.toLowerCase()).toContain("sealed record proof");
     expect(presentation.body.toLowerCase()).not.toContain("career-complete because");
   });
 

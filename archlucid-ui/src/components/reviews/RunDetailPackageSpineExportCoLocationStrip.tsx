@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { RunScopedAuditExportButton } from "@/components/runs/RunScopedAuditExportButton";
 import { ExportDeliverableDialog } from "@/components/usability/ExportDeliverableDialog";
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,8 @@ export function RunDetailPackageSpineExportCoLocationStrip(
           </Link>
         </Button>
       </div>
+
+      <SponsorExportSendHonestyStrip className="mt-3" testIdPrefix="run-detail-package-spine-export" />
     </div>
   );
 }

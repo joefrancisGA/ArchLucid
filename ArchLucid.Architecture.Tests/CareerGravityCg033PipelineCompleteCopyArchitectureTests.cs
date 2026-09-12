@@ -22,7 +22,7 @@ public sealed class CareerGravityCg033PipelineCompleteCopyArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "use-run-progress-tracker.ts"));
 
         copy.Should().Contain("WORKING_PIPELINE_REHEARSAL_COMPLETE_LABEL");
-        copy.Should().Contain("Rehearsal complete — not career-complete");
+        copy.Should().Contain("Practice complete — not record-complete");
         workspace.Should().Contain("resolveWorkingPipelineCompleteReviewLabel");
         tracker.Should().Contain("resolveWorkingPipelineEngineeringCompleteStatus");
     }
