@@ -5,6 +5,7 @@ import { RunDetailReviewPackageSemanticSupportBandSummary } from "./RunDetailRev
 import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY } from "@/lib/semantic-support-band-async-honesty";
 
 const workspaceModeMock = vi.hoisted(() => ({ isWorkingMode: true }));
 
@@ -97,6 +98,23 @@ describe("RunDetailReviewPackageSemanticSupportBandSummary (AS-062)", () => {
 
     expect(screen.getByTestId("run-detail-stamp-semantic-support-band-line")).toHaveTextContent(
       "Semantic support: 1 Supported",
+    );
+  });
+
+  it("shows Lane B async honesty when unchecked decision-grade findings remain", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(
+      <RunDetailReviewPackageSemanticSupportBandSummary
+        findings={[
+          sampleFinding({ semanticSupportBand: "Supported" }),
+          sampleFinding({ findingId: "f-unchecked", semanticSupportBand: "Unchecked" }),
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-stamp-semantic-support-lane-b-honesty")).toHaveTextContent(
+      SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY,
     );
   });
 });

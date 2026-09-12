@@ -4567,6 +4567,7 @@ export interface components {
             assignedToUserId?: null | string;
             /** Format: uuid */
             auditRowId?: null | string;
+            classification?: null | components["schemas"]["FindingClassification"];
             confidenceLevel?: null | components["schemas"]["FindingConfidenceLevel"];
             /** Format: double */
             confidenceScore?: null | number | string;
@@ -4608,8 +4609,10 @@ export interface components {
             runExecutionModeDisplayLabel?: null | string;
             /** Format: uuid */
             runId?: string;
+            semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             severity?: components["schemas"]["FindingSeverity"];
             trackedExternally?: boolean;
+            treatment?: null | components["schemas"]["FindingTreatment"];
             trustLabel?: null | string;
             trustLabelReason?: null | string;
             typedPayload?: null | components["schemas"]["JsonElement"];
@@ -4682,9 +4685,11 @@ export interface components {
             findingTitle?: string;
             missingTraceFields?: string[];
             ruleId?: string;
+            semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             /** Format: double */
             traceCompletenessRatio?: number | string;
             traceConfidenceLabel: string;
+            treatment?: null | components["schemas"]["FindingTreatment"];
         };
         FindingTreatment: number;
         FindingUnmuteRequest: {

@@ -1,7 +1,7 @@
 import DOMPurify from "dompurify";
 
 import { createArchitectureDiagramMermaidConfig } from "@/lib/architecture/architecture-diagram-mermaid-config";
-import { sanitizeMermaidRenderId } from "@/lib/help/help-mermaid";
+import { renderMermaidSvgMarkup } from "@/lib/mermaid/mermaid-safe-render";
 import { sanitizeMermaidSvgForCanvasExport } from "@/lib/infra-evidence/sanitize-mermaid-svg-for-canvas-export";
 
 export type ExportMermaidSourceToPngOptions = {
@@ -123,15 +123,14 @@ export async function exportMermaidSourceToPngBlob(
     throw new Error("Mermaid source is empty.");
   }
 
-  const mermaidModule = await import("mermaid");
-  const mermaid = mermaidModule.default;
   const dark = options.dark ?? false;
-  const renderId = sanitizeMermaidRenderId(options.renderId ?? "infra-evidence-mermaid-export");
   const backgroundColor = options.backgroundColor ?? (dark ? "#0a0a0a" : "#ffffff");
+  const svg = await renderMermaidSvgMarkup(trimmed, {
+    renderIdBase: options.renderId ?? "infra-evidence-mermaid-export",
+    initialize: (mermaid) => {
+      mermaid.initialize(createArchitectureDiagramMermaidConfig(dark));
+    },
+  });
 
-  mermaid.initialize(createArchitectureDiagramMermaidConfig(dark));
-
-  const result = await mermaid.render(renderId, trimmed);
-
-  return svgMarkupToPngBlob(result.svg, backgroundColor);
+  return svgMarkupToPngBlob(svg, backgroundColor);
 }
