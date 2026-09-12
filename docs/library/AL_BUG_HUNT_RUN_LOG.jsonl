@@ -2481,3 +2481,4 @@
 {"at":"2026-09-12T20:02:56.5906557Z","zoneId":"email-otp-auth","outcome":"seed-only"}
 {"at":"2026-09-12T20:06:46.9865973Z","zoneId":"ui-webhooks-settings","outcome":"seed-only"}
 {"at":"2026-09-12T20:08:49.2126578Z","zoneId":"decisioning","outcome":"seed-only"}
+{"at":"2026-09-12T20:09:03.6174937Z","zoneId":"cloud-extractors","outcome":"seed-only"}

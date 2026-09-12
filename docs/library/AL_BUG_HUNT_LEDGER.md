@@ -11318,7 +11318,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -11326,6 +11326,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-12 seed hunt #2157 (seed-only): reseeded cloud-extractors with `-Hint cloud-extractors`; no new hunt-ready rows.
+2026-09-12 seed hunt #2157 (seed-only): reseeded cloud-extractors with `-Hint cloud-extractors`; no new hunt-ready rows.
+
 
 
 2026-09-12 seed hunt #2144 (seed-only): reseeded cloud-extractors with `-Refresh`; no new hunt-ready rows.
