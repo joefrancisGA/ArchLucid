@@ -325,6 +325,48 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     }
 
     [Fact]
+    public void TB2352_closed_loop_strengthening_runs_before_manifest_persist()
+    {
+        string decisioningStage = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Orchestration",
+                "Pipeline",
+                "Stages",
+                "AuthorityPipelineDecisioningStage.cs"));
+
+        int strengthenIndex = decisioningStage.IndexOf("TryStrengthenManifestAsync", StringComparison.Ordinal);
+        int saveManifestIndex = decisioningStage.IndexOf("SaveManifestAsync", StringComparison.Ordinal);
+        int computeHashIndex = decisioningStage.IndexOf("ComputeHash", StringComparison.Ordinal);
+
+        strengthenIndex.Should().BeGreaterThan(0);
+        saveManifestIndex.Should().BeGreaterThan(strengthenIndex);
+        computeHashIndex.Should().BeGreaterThan(strengthenIndex);
+        computeHashIndex.Should().BeLessThan(saveManifestIndex);
+
+        string strengtheningPass = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "ArchitectureIntelligence",
+                "AuthorityClosedLoopStrengtheningPass.cs"));
+
+        strengtheningPass.Should().Contain("IClosedLoopManifestMerger");
+        strengtheningPass.Should().Contain("PublishToProduct = true");
+
+        string manifestMerger = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "ArchitectureIntelligence",
+                "ClosedLoopManifestMerger.cs"));
+
+        manifestMerger.Should().Contain("ClosedLoopRecommendationBriefGroundingFilter");
+    }
+
+    [Fact]
     public void Suggestion8_topology_proposals_validate_before_overlay()
     {
         string path = Path.Combine(
