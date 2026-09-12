@@ -3480,7 +3480,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3488,6 +3488,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+
+2026-09-12 seed hunt #2012 (seed-only): reseeded scope-binding-middleware; no new hunt-ready rows.
 2026-09-12 seed hunt #2008 (seed-only): reseeded scope-binding-middleware; 72 scoped unit tests passed (6 integration tests skipped — no SQL Server in cloud VM); no new hunt-ready rows.
 
 ### Hypotheses

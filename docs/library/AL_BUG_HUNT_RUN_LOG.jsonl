@@ -2331,3 +2331,4 @@
 {"at":"2026-09-12T16:27:28.5683272Z","zoneId":"technology-ledger-merge","outcome":"hit"}
 {"at":"2026-09-12T16:28:06.2168593Z","zoneId":"commit-output-integrity","outcome":"seed-only"}
 {"at":"2026-09-12T16:29:11.6366516Z","zoneId":"api-key-auth","outcome":"seed-only"}
+{"at":"2026-09-12T16:29:32.5353983Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
