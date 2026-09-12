@@ -130,6 +130,11 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             tokens.Add($"al-rg={QuoteMetadataValue(node.ArmResourceGroup)}");
         }
 
+        if (!string.IsNullOrWhiteSpace(node.SeedNodeId))
+        {
+            tokens.Add($"al-seed={QuoteMetadataValue(node.SeedNodeId)}");
+        }
+
         if (tokens.Count == 0)
         {
             return string.Empty;

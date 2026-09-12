@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useSyncExternalStore } from "react";
 
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { InlineGuidance } from "@/components/InlineGuidance";
@@ -20,6 +21,7 @@ import {
   resolveRecommendedUnfinishedWorkRailItem,
   type UnfinishedWorkRailItemKind,
 } from "@/lib/unfinished-work-rail";
+import { resolveSystemNotJobWorkingResumeReviewHref } from "@/lib/system-not-job-portfolio-resume-href";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -54,6 +56,7 @@ export function OperatorHomeRecommendedNextCard(
   props: OperatorHomeRecommendedNextCardProps,
 ): React.JSX.Element | null {
   const drafts = useArchitectureDraftRegistryEntries();
+  const { isWorkingMode } = useWorkspaceMode();
   const { hasWorkspaceReviews, hasOverviewReviewRows, liveRunsSnapshot } = useOperatorHomeWorkspaceActivity();
   const incompleteWizards = useSyncExternalStore(
     subscribeWizardSessions,
@@ -101,11 +104,16 @@ export function OperatorHomeRecommendedNextCard(
     });
 
     if (inProgressRun?.runId !== undefined && inProgressRun.runId.trim().length > 0) {
-      return `/architecture/reviews/${encodeURIComponent(inProgressRun.runId)}`;
+      return resolveSystemNotJobWorkingResumeReviewHref({
+        runId: inProgressRun.runId,
+        requestId: inProgressRun.requestId,
+        workingMode: isWorkingMode,
+        draftRegistryEntries: drafts,
+      });
     }
 
-    return "/architecture/reviews/new";
-  }, [recommendedItem, runs]);
+    return isWorkingMode ? null : "/architecture/reviews/new";
+  }, [drafts, isWorkingMode, recommendedItem, runs]);
 
   if (recommendedItem === null && fallbackHref === null) {
     return null;

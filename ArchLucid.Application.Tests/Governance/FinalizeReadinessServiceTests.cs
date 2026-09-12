@@ -193,6 +193,52 @@ public sealed class FinalizeReadinessServiceTests
     }
 
     [Fact]
+    public async Task BuildAsync_includes_block_explanation_on_pre_commit_gate_when_explainer_enabled()
+    {
+        string runId = Guid.NewGuid().ToString("D");
+        Guid runGuid = Guid.Parse(runId);
+
+        Mock<IRunRepository> runs = CreateRunRepository(runId, runGuid, includeRequest: true);
+        Mock<IPreFinalizeChecklistService> checklist = CreateChecklistMock(runId);
+
+        Mock<IPreCommitGovernanceGate> preCommitGate = new();
+        PreCommitGateResult blockedResult = new()
+        {
+            Blocked = true,
+            Reason = "Critical findings exceed policy pack threshold.",
+            BlockingFindingIds = ["finding-1"],
+            PolicyPackId = "pack-1",
+        };
+
+        preCommitGate
+            .Setup(gate => gate.EvaluateAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(blockedResult);
+
+        Mock<IPreCommitGovernanceBlockExplainer> blockExplainer = new();
+        blockExplainer
+            .Setup(explainer => explainer.ExplainAsync(
+                blockedResult,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("Add a private endpoint before finalizing.");
+
+        FinalizeReadinessService sut = CreateSut(
+            runs.Object,
+            checklist.Object,
+            transparencyTrail: new TransparencyTrail(),
+            preCommitGate: preCommitGate.Object,
+            preCommitGovernanceBlockExplainer: blockExplainer.Object,
+            explainGovernanceBlocksEnabled: true);
+
+        FinalizeReadinessResult result = await sut.BuildAsync(runId, cancellationToken: CancellationToken.None);
+
+        result.Blocks.Should().ContainSingle(block =>
+            block.Code == "pre_commit_gate"
+            && block.Layer == FinalizeReadinessLayers.Governance
+            && block.BlockExplanation == "Add a private endpoint before finalizing.");
+    }
+
+    [Fact]
     public void AlignChecklistWithCommitAuthority_returns_same_instance_when_flags_already_match()
     {
         PreFinalizeChecklistResult checklist = new()
@@ -373,7 +419,9 @@ public sealed class FinalizeReadinessServiceTests
         IPreCommitGovernanceGate? preCommitGate = null,
         FindingsSnapshot? findingsSnapshot = null,
         IArchitectureVersionRepository? architectureVersionRepository = null,
-        IArchitectureRequestRepository? architectureRequestRepository = null)
+        IArchitectureRequestRepository? architectureRequestRepository = null,
+        IPreCommitGovernanceBlockExplainer? preCommitGovernanceBlockExplainer = null,
+        bool explainGovernanceBlocksEnabled = false)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
@@ -485,6 +533,17 @@ public sealed class FinalizeReadinessServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureVersionRecord?)null);
 
+        Mock<IPreCommitGovernanceBlockExplainer> blockExplainerMock = new();
+        blockExplainerMock
+            .Setup(explainer => explainer.ExplainAsync(
+                It.IsAny<PreCommitGateResult>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+
+        IPreCommitGovernanceBlockExplainer blockExplainer =
+            preCommitGovernanceBlockExplainer ?? blockExplainerMock.Object;
+
         return new FinalizeReadinessService(
             scopeProvider.Object,
             runRepository,
@@ -505,7 +564,10 @@ public sealed class FinalizeReadinessServiceTests
             knowledgeModelAccess.Object,
             drafts.Object,
             architectureVersionRepository ?? architectureVersions.Object,
+            blockExplainer,
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
-            Options.Create(new FinalizeQualityGateOptions { Enabled = true }));
+            Options.Create(new FinalizeQualityGateOptions { Enabled = true }),
+            Options.Create(new ExplainGovernanceBlocksOptions { Enabled = explainGovernanceBlocksEnabled }),
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<FinalizeReadinessService>>());
     }
 }

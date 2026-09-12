@@ -4367,6 +4367,7 @@ export interface components {
             unverifiedAssumptionCount?: number;
         };
         FinalizeReadinessBlock: {
+            blockExplanation?: null | string;
             code?: string;
             layer?: string;
             message?: string;

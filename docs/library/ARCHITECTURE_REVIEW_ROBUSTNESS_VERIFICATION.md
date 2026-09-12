@@ -300,10 +300,82 @@ Mock Playwright CI job `ui-playwright-mock-smoke` runs all `e2e/**/*.spec.ts` in
 
 ## TB-184 governance-block explainer (Staging)
 
-`AgentRuntime:ExplainGovernanceBlocks:Enabled` is **true** in `appsettings.Staging.json` so pre-commit governance **409** responses can include optional `blockExplanation` copy. Production remains default-off for cost control.
+`AgentRuntime:ExplainGovernanceBlocks:Enabled` is **true** in `appsettings.Staging.json` so pre-commit governance **409** responses can include optional `blockExplanation` copy. Production remains default-off for cost control. The same flag and `PreCommitGovernanceBlockExplainer` now attach optional `blockExplanation` on readiness `pre_commit_gate` blocks in `FinalizeReadinessService` (readiness path uses a gate-context JSON excerpt instead of a manifest dry-run).
 
 ```bash
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~ExplainGovernanceBlocksHostedAppsettingsTests"
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~PreCommitGovernanceBlockExplanationAttacher|FinalizeReadinessServiceTests"
+cd archlucid-ui && npx vitest run src/components/reviews/FinalizeReadinessBlockList.test.tsx
+```
+
+## TB-2343 unknown sentinel intake gate (structured brief)
+
+Unknown `"Unknown — confirm before review"` placeholders must not unlock **Start architecture review** or project into requirement-like graph inputs (TB-2343).
+
+| Layer | Gate |
+|-------|------|
+| **Server readiness** | `ArchitectureDraftReviewReadinessValidator` treats sentinel-only structured-brief slots as blockers (`structured brief placeholders`); `EnsureReviewReady` throws before `DraftAdmissionService.SubmitAsync` creates a run. |
+| **Graph projection** | `DraftRequestProjector` filters sentinel strings via `ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry` — constraints, assumptions, capabilities, and inline requirements omit unknowns. |
+| **UI readiness** | `architecture-draft-readiness.ts` blocker id `structured-brief-placeholders`; field copy in `architecture-review-readiness-copy.ts`. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~ArchitectureDraftReviewReadinessValidator|DraftAdmissionServiceSubmitTests.SubmitAsync_WhenStructuredBriefHasUnknownSentinels|DraftRequestProjectorTests.Project_ExcludesUnknownSentinel"
+dotnet test ArchLucid.Contracts.Tests --filter "FullyQualifiedName~ArchitectureDraftStructuredBrief"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~Suggestion7_intake_gates_block_sentinels"
+cd archlucid-ui && npx vitest run src/lib/architecture/architecture-draft-readiness.test.ts src/lib/architecture/architecture-review-readiness-copy.test.ts
+```
+
+## TB-2348 projected spend on cost-constraint nodes
+
+Cost engines need projected monthly spend on cost-constraint graph nodes before `CostBreachFindingEngine` can fire (TB-2348).
+
+| Layer | Behavior |
+|-------|----------|
+| **Request materialization** | `RequestCostConstraintMaterializer` writes projected spend properties when constraints carry spend hints. |
+| **Graph enrichment** | `CostConstraintProjectedSpendEnricher` (via `CostConstraintProjectedSpendEnrichmentStage`) derives spend from topology when absent. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.KnowledgeGraph.Tests --filter "FullyQualifiedName~CostConstraintProjectedSpend|RequestCostConstraintMaterializer"
+```
+
+## TB-2344 actor/trust-boundary axes into security engines
+
+Draft `ActorSet` JSON materializes onto the context graph as typed `Actor` and `TrustBoundary` nodes (`RequestActorMaterializer`, `request-actors` stage). Security engines (`trust-boundary`, `external-exposure`, `privileged-access`) read graph nodes — not parallel assumption strings.
+
+| Layer | Behavior |
+|-------|----------|
+| **Materialization** | `RequestActorMaterializer` emits `TrustBoundary` nodes for external/public-anonymous actors with `actorNodeId` linkage. |
+| **Pipeline** | `GraphMaterializationStages` stage `request-actors` reads `ContextScopeMetadataKeys.Actors` from the context snapshot. |
+| **Engines** | `ExternalExposureFindingEngine` skips external actors with matching trust-boundary nodes; `TrustBoundaryFindingEngine` skips mixed-origin graphs that already have boundaries; `PrivilegedAccessFindingEngine` fires on internal human actors. |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.KnowledgeGraph.Tests --filter "FullyQualifiedName~RequestActorMaterializer|RequestActorsStage"
+dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~ActorSecurityFindingEngine|GoldenCorpusActorEngineHarness"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2344_request_actors_materialize"
+```
+
+## TB-2345 quality attributes and availability theme (RTO/RPO)
+
+Structured-brief quality text materializes as typed `QualityAttribute` nodes with parsed `rtoHours`/`rpoHours` on the availability theme (`RequestQualityAttributeMaterializer`, `request-quality-attributes` stage). `DrRpoTopologyAnalyzer` consumes those typed properties via `DrRpoQualityAttributeParser` — engines no longer need to re-parse brief strings when materialized nodes are present.
+
+| Layer | Behavior |
+|-------|----------|
+| **Materialization** | `RequestQualityAttributeMaterializer` parses RTO/RPO durations into `rtoHours` / `rpoHours` node properties with `theme=availability`. |
+| **Pipeline** | `GraphMaterializationStages` stage `request-quality-attributes` reads `ContextScopeMetadataKeys.QualityAttribute`. |
+| **Engine** | `DrRpoTopologyFindingEngine` / `DrRpoTopologyAnalyzer` evaluate materialized quality-attribute nodes against datastore replica evidence (graph-wide datastore scan when no requirement-style links exist). |
+
+Proof tests:
+
+```bash
+dotnet test ArchLucid.KnowledgeGraph.Tests --filter "FullyQualifiedName~RequestQualityAttribute"
+dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~DrRpoQualityAttributeParser|DrRpoTopologyFindingEngine|RequestQualityAttributeMaterializer_output"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~TB2345_quality_attribute"
 ```
 
 ## ConflictException → 409 controller sweep

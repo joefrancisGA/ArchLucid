@@ -27,6 +27,7 @@ import {
 } from "@/lib/impact-preview-page-copy";
 import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
 import { SYSTEM_NOT_JOB_NESTED_IMPACT_PREVIEW_PAGE_SUBTITLE } from "@/lib/system-not-job-impact-preview-envelope-entry";
+import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { setImpactPreviewShellPageState } from "@/lib/impact-preview-route-shell-state";
 import type { ImpactPreviewPageState } from "@/lib/impact-preview-page-types";
@@ -263,7 +264,7 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={`/architecture/reviews/${encodeURIComponent(props.scopedRunId)}`}
+            href={resolveSystemNotJobWorkingReviewOpenHref(props.scopedRunId, pinnedArchitectureId)}
           >
             Open review
           </Link>
@@ -360,6 +361,7 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
                 baselineRunId={m.selectedBaselineId}
                 linkedRunIds={m.planSnapshot?.linkedArchitectureRunIds ?? []}
                 policyRulesLabel="Open approval"
+                architectureId={pinnedArchitectureId.length > 0 ? pinnedArchitectureId : null}
               />
               {m.selectedId !== null ? <ImpactPreviewResultActions selectedCandidateId={m.selectedId} /> : null}
               {m.selectedBaselineId !== null ? (

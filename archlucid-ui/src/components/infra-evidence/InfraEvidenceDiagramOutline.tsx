@@ -2,8 +2,13 @@
 
 import { useMemo, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT,
+} from "@/lib/governance/governance-infrastructure-copy";
 import {
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_DIR,
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_KEY,
@@ -15,10 +20,12 @@ import {
 import {
   resolveInfraEvidenceOutlineNodeLabel,
   type InfraEvidenceMermaidOutline,
+  type InfraEvidenceMermaidOutlineNode,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
 type InfraEvidenceDiagramOutlineProps = {
   readonly outline: InfraEvidenceMermaidOutline;
+  readonly onFocusNeighborhood?: (node: InfraEvidenceMermaidOutlineNode) => void;
 };
 
 function formatOutlineCell(value: string | null): string {
@@ -65,7 +72,7 @@ function InfraEvidenceDiagramOutlineSortableHeader(props: {
 
 /** Structured list alternative to the Mermaid canvas (WCAG 1.1.1 peer affordance). */
 export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlineProps): React.JSX.Element {
-  const { outline } = props;
+  const { outline, onFocusNeighborhood } = props;
   const [nodeSortKey, setNodeSortKey] = useState(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_KEY);
   const [nodeSortDir, setNodeSortDir] = useState<"asc" | "desc">(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_DIR);
 
@@ -75,6 +82,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     return sortedNodes.slice(0, 200);
   }, [nodeSortDir, nodeSortKey, outline.nodes]);
   const edgeRows = outline.edges.slice(0, 200);
+  const showNeighborhoodActions = onFocusNeighborhood != null;
 
   const handleNodeSort = (column: InfraEvidenceDiagramOutlineNodeSortKey) => {
     const next = toggleInfraEvidenceDiagramOutlineNodeSort(nodeSortKey, nodeSortDir, column);
@@ -91,6 +99,14 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       <div className="flex flex-col gap-4 p-3">
         <div>
           <h3 className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>Nodes</h3>
+          {showNeighborhoodActions ? (
+            <p
+              className={cn("m-0 mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="infra-diagrams-nodes-seed-hint"
+            >
+              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT}
+            </p>
+          ) : null}
           <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
             <thead className="bg-neutral-50 dark:bg-neutral-900/60">
               <tr>
@@ -115,6 +131,11 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   sortDir={nodeSortDir}
                   onSort={handleNodeSort}
                 />
+                {showNeighborhoodActions ? (
+                  <th className="px-3 py-2 font-medium" scope="col">
+                    Neighborhood
+                  </th>
+                ) : null}
               </tr>
             </thead>
             <tbody>
@@ -123,6 +144,22 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   <td className="px-3 py-2">{node.label}</td>
                   <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceType)}</td>
                   <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceGroup)}</td>
+                  {showNeighborhoodActions ? (
+                    <td className="px-3 py-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        data-testid={`infra-diagrams-focus-neighborhood-${node.id}`}
+                        aria-label={`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION} from ${node.label}`}
+                        onClick={() => {
+                          onFocusNeighborhood(node);
+                        }}
+                      >
+                        {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
+                      </Button>
+                    </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>

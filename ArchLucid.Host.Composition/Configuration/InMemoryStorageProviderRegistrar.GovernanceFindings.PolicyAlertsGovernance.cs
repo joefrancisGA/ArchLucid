@@ -1,4 +1,6 @@
+using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Persistence.Diagrams;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Governance.ComplianceDrift;
@@ -26,6 +28,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IComplianceDriftFindingsTrendReader, InMemoryComplianceDriftFindingsTrendReader>();
         services.AddSingleton<IPolicyPackCatalogRepository, InMemoryPolicyPackCatalogRepository>();
         services.AddSingleton<IAgentModelCatalogRepository, InMemoryAgentModelCatalogRepository>();
+        services.AddSingleton<IDiagramPeelCatalogRepository, InMemoryDiagramPeelCatalogRepository>();
         services.AddSingleton<IPlatformBundledPolicyPackRegistryRepository, InMemoryPlatformBundledPolicyPackRegistryRepository>();
     }
 }

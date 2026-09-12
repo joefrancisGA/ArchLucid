@@ -222,6 +222,85 @@ public sealed class DraftAdmissionServiceSubmitTests
     }
 
     [Fact]
+    public async Task SubmitAsync_WhenStructuredBriefHasUnknownSentinels_Throws_AndDoesNotCreateRun()
+    {
+        DraftRequestResponse created = await _service.CreateAsync(
+            _scope,
+            "user-1",
+            new CreateDraftRequest { FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow },
+            CancellationToken.None);
+
+        DraftRequestResponse? beforePatch = await _service.GetAsync(_scope, created.DraftId, CancellationToken.None);
+        beforePatch.Should().NotBeNull();
+
+        await _service.PatchAsync(
+            _scope,
+            created.DraftId,
+            new PatchDraftRequest
+            {
+                BusinessOutcome = "Faster audit prep",
+                WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
+                SystemName = "Synth Draft System",
+                ActorSet = new ActorSet
+                {
+                    Actors =
+                    [
+                        new ActorDescriptor
+                        {
+                            Kind = ActorKind.Human,
+                            TrustOrigin = TrustOrigin.Internal,
+                            Contract = InteractionContract.Sync,
+                            Origin = ActorOrigin.Asserted,
+                        },
+                    ],
+                },
+                StructuredBrief = new ArchitectureDraftStructuredBrief
+                {
+                    ConfirmedConstraints = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview],
+                    ConfirmedAssumptions = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview],
+                },
+                ExpectedUpdatedUtc = beforePatch!.UpdatedUtc,
+            },
+            CancellationToken.None);
+
+        DraftAdmissionResponse? admission = await _service.RequestAdmissionAsync(
+            _scope,
+            created.DraftId,
+            CancellationToken.None);
+
+        admission.Should().NotBeNull();
+        admission!.Admitted.Should().BeTrue();
+
+        foreach (string mustKey in admission.RequiredMustQuestionKeys)
+        {
+            await _service.AnswerQuestionAsync(
+                _scope,
+                created.DraftId,
+                new AnswerDraftQuestionRequest { QuestionKey = mustKey, Answer = "Addressed." },
+                CancellationToken.None);
+        }
+
+        Guid draftId = created.DraftId;
+
+        Func<Task> act = async () => await _service.SubmitAsync(_scope, draftId, null, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*structured brief placeholders*");
+
+        DraftRequestResponse? afterFailure = await _service.GetAsync(_scope, draftId, CancellationToken.None);
+        afterFailure.Should().NotBeNull();
+        afterFailure!.Status.Should().Be(DraftRequestStatus.Admitted);
+
+        _architectureRunCommandService.Verify(
+            static o => o.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task SubmitAsync_create_architecture_routes_through_synthesis_command_result()
     {
         _architectureRunCommandService
@@ -322,7 +401,9 @@ public sealed class DraftAdmissionServiceSubmitTests
                 patch.SystemName = "Synth Draft System";
         }
 
-        patch.ExpectedUpdatedUtc = created.UpdatedUtc;
+        DraftRequestResponse? beforePatch = await _service.GetAsync(_scope, created.DraftId, CancellationToken.None);
+        beforePatch.Should().NotBeNull();
+        patch.ExpectedUpdatedUtc = beforePatch!.UpdatedUtc;
 
         await _service.PatchAsync(_scope, created.DraftId, patch, CancellationToken.None);
 

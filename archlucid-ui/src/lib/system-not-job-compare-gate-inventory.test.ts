@@ -91,7 +91,6 @@ describe("system-not-job Compare gate inventory (SN-006)", () => {
       "spawnLockedDraftVsSealedRun",
       "inFlightRunVsSealedRun",
       "inFlightRunVsInFlightRun",
-      "labeledEnvelopeVsSeal",
       "comparePageInsufficientFinalized",
       "compareToBaselineUnfinalizedCurrent",
     ];
@@ -109,6 +108,15 @@ describe("system-not-job Compare gate inventory (SN-006)", () => {
 
     expect(whatIfBranch).toBeDefined();
     expect(whatIfBranch!.gateOutcome).toBe("polls-until-sealed");
+
+    const labeledEnvelopeVsSeal = SYSTEM_NOT_JOB_COMPARE_GATE_JOURNEYS.find(
+      (journey) => journey.journeyId === "labeledEnvelopeVsSeal",
+    );
+
+    expect(labeledEnvelopeVsSeal).toBeDefined();
+    expect(labeledEnvelopeVsSeal!.gateOutcome).toBe("allowed");
+    expect(labeledEnvelopeVsSeal!.cheapPathOwner).toBe("SN-014");
+    expect(labeledEnvelopeVsSeal!.draftDiffRejected).toBe(false);
   });
 
   it("wires R12 branch compare polling and 409 blocked-reason copy", () => {
