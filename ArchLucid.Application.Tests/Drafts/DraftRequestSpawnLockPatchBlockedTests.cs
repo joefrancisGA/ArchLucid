@@ -94,9 +94,10 @@ public sealed class DraftRequestSpawnLockPatchBlockedTests
             },
             CancellationToken.None);
 
-        InvalidOperationException exception = await act.Should().ThrowAsync<InvalidOperationException>();
+        FluentAssertions.Specialized.ExceptionAssertions<InvalidOperationException> thrown =
+            await act.Should().ThrowAsync<InvalidOperationException>();
 
-        exception.Which.Message.Should().Contain("not mutable in status");
-        exception.Which.Message.Should().Contain(nameof(DraftRequestStatus.RunSpawned));
+        thrown.Which.Message.Should().Contain("not mutable in status");
+        thrown.Which.Message.Should().Contain(nameof(DraftRequestStatus.RunSpawned));
     }
 }
