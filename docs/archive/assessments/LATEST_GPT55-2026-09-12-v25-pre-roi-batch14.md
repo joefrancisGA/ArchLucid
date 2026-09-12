@@ -4,23 +4,23 @@
 
 # ArchLucid Strategic Release and Market Readiness Assessment (v3)
 
-**Pass date:** 2026-09-12, **16:00 UTC**. **Computed fresh** — no carry-forward ratchet; scores recomputed from evidence on this HEAD (prior pass archived for history only).
+**Pass date:** 2026-09-12, **08:15 UTC**. **Computed fresh** — no carry-forward ratchet; scores recomputed from evidence on this HEAD (prior pass archived for history only).
 
-**Prior rolling snapshot archived:** `docs/archive/assessments/LATEST_GPT55-2026-09-12-v25-pre-roi-batch14.md` (history only; not used for scores).
+**Prior rolling snapshot archived:** `docs/archive/assessments/LATEST_GPT55-2026-09-12-v24-pre-roi-batch13.md` (history only; not used for scores).
 
-**Reasoning engine:** Cursor Composer 2.5, code-and-doc desk review. **No live Azure OpenAI call this pass.** Scoped unit tests executed (Vitest sponsor-report-markdown + first-week/optional-setup; Python batch-10/11/12/13/14 drift guards; C# pilot value report markdown + weekly sponsor email + DOCX value report + compare verdict-chrome export). Real-mode first-review was **not** re-run.
+**Reasoning engine:** Cursor Composer 2.5, code-and-doc desk review. **No live Azure OpenAI call this pass.** Scoped unit tests executed (Vitest first-week/optional-setup; Python batch-10/11/12/13 drift guards; C# pilot value report markdown + weekly sponsor email + DOCX value report + compare verdict-chrome export). Real-mode first-review was **not** re-run.
 
-**Inspected HEAD:** `cursor/arch-quality-roi-improvements-0d83` (ROI batch **14**: help roi-summary/review-packages/pilot-guide/baseline-settings/comparison-replay orientation; sponsor ROI summary export CTA + client markdown cover; run-detail header export honesty; first-week in-progress disposition; batch-14 drift guards).
+**Inspected HEAD:** `cursor/arch-quality-roi-improvements-0d83` (ROI batch **13**: pilot value report markdown sendable cover + mailto send honesty; help sponsor-dashboard + scorecard orientation; first-week onboarding/new-review disposition; package-spine + compare export CTA honesty; executive sponsor-details KPI honesty; pilot ROI help canonical sendable lines; batch-13 drift guards).
 
-### Pass delta vs 2026-09-12 pre-batch-14 (`LATEST_GPT55` v25 @ 82.41% → this HEAD)
+### Pass delta vs 2026-09-12 pre-batch-13 (`LATEST_GPT55` v24 @ 82.10% → this HEAD)
 
 | Area | Prior | This pass | Evidence |
 |---|---|---|---|
-| **(A) headline** | **82.41%** | **82.73%** (+0.32 pp) | ROI batch **14**: help roi-summary + review-packages + pilot-guide + baseline-settings + comparison-replay orientation; sponsor ROI summary export strip + markdown sendable cover; run-detail header export honesty; first-week in-progress disposition; batch-14 drift guards |
-| Proof-of-ROI | 87 | **88** | Client sponsor-summary markdown sendable cover; sponsor dashboard export CTA strip |
-| Comprehension | 81 | **82** | Help roi-summary, review-packages, pilot-guide, baseline-settings, comparison-replay panels |
-| Time-to-Value | 77 | **78** | First-week in-progress disposition literacy |
-| Adoption friction | 79 | **80** | Run-detail header export honesty strip |
+| **(A) headline** | **82.10%** | **82.41%** (+0.31 pp) | ROI batch **13**: pilot value report markdown + mailto honesty; help sponsor-dashboard/scorecard orientation; first-week onboarding/new-review disposition; golden-manifest + compare export CTA strips; executive sponsor-details KPI honesty; pilot ROI help sendable lines; batch-13 drift guards |
+| Proof-of-ROI | 86 | **87** | Pilot value report markdown sendable cover; mailto confirm dialog honesty |
+| Comprehension | 80 | **81** | Help sponsor-dashboard + scorecard orientation; executive sponsor-details KPI honesty; pilot ROI help panel |
+| Time-to-Value | 76 | **77** | First-week onboarding + new-review disposition literacy |
+| Adoption friction | 78 | **79** | Package-spine + compare export CTA honesty strips |
 | **Unchanged blockers** | G4 0/3; Gate 1 UNKNOWN; G-REAL-06 owner | — | Not penalized in `(A)` per scope rules |
 
 ---
@@ -50,15 +50,15 @@ Sourced from open `docs/go-to-market/GTM_BACKLOG.md` rows plus owner-gated claim
 
 ## 1. Title & Headline
 
-**ArchLucid Assessment – (A) Headline Readiness: 82.73%**
+**ArchLucid Assessment – (A) Headline Readiness: 82.41%**
 
-Readiness **excludes** deferred items per `V1_SCOPE.md` §3, `V1_DEFERRED.md` §6*, and `.cursor/rules/Assessment-Scope-V1_1.mdc`. Reasoning engine: **desk review** (scoped unit tests this pass; **not** a fresh Real-mode Azure OpenAI run). Timestamp: **2026-09-12 16:00 UTC**.
+Readiness **excludes** deferred items per `V1_SCOPE.md` §3, `V1_DEFERRED.md` §6*, and `.cursor/rules/Assessment-Scope-V1_1.mdc`. Reasoning engine: **desk review** (scoped unit tests this pass; **not** a fresh Real-mode Azure OpenAI run). Timestamp: **2026-09-12 06:45 UTC**.
 
 **Source materials inspected (read-list order):** `docs/library/ASSESSMENT_INPUTS.md`, `docs/library/REPO_DIGEST.md`, `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, `docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md` (SOC 2 roadmap), `docs/library/ARCHITECTURE_COMPONENTS.md`, `docs/library/SYSTEM_MAP.md`, `docs/library/API_CONTRACTS.md`, `docs/library/CONFIGURATION_REFERENCE.md`, `docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`, `docs/library/AUDIT_COVERAGE_MATRIX.md`, `docs/go-to-market/GTM_BACKLOG.md`, `.cursor/rules/Assessment-Scope-V1_1.mdc`. Also: `docs/library/CONNECTOR_READINESS_MATRIX.md`, `docs/library/MULTI_CLOUD_ANALYSIS_V1_1.md`, `docs/library/POLICY_PACK_EXPECTATION_FACET.md`, `docs/go-to-market/PRICING_PHILOSOPHY.md`, `docs/go-to-market/CLAIM_READINESS_STATUS.md`, `docs/quality/insight-density-engine-distribution.md`.
 
 **Code regions inspected:** `AuthorityRunOrchestrator` (`ArchLucid.Application/Runs/Orchestration/`), `PreCommitGovernanceGate`, `PolicyPackResolver` / `DefaultPolicyPackSeeder` / `DefaultPolicyPackCloudBaselineApplicator`, `SponsorRoiSummaryService` / `DispositionAwareRoiBasisCalculator`, `CostRetailGroundingBuilder` + AWS/GCP lookups, `GraphRagNeighborExpander`, `SelfServiceTrialAiBudgetPolicyProvisioner`, ITSM `NativeEnabled` config, extractor ZIP scripts (`Get-ArchLucidAwsPackage.ps1` / `Get-ArchLucidGcpPackage.ps1`), `archlucid-ui` pricing (`pricing.json`, `/pricing`), billing buyer-polish tests, system-health buyer-polish tests, request-access auth callback.
 
-**This pass runtime:** Vitest sponsor-report-markdown + first-week/optional-setup → **28 passed**; Python batch-10/11/12/13/14 drift guards → **35 OK**; C# pilot value report markdown + weekly sponsor email + DOCX value report + compare verdict-chrome export → **8 passed**; OpenAPI UI types refresh → **1 passed**.
+**This pass runtime:** Vitest first-week/optional-setup → **25 passed**; Python batch-10/11/12/13 drift guards → **29 OK**; C# pilot value report markdown + weekly sponsor email + DOCX value report + compare verdict-chrome export → **8 passed**; OpenAPI UI types refresh → **1 passed**.
 
 ---
 
@@ -71,12 +71,12 @@ Readiness **excludes** deferred items per `V1_SCOPE.md` §3, `V1_DEFERRED.md` §
 | 3 | Governed Review Integrity | 86 | 13 | 11.18 | 182 |
 | 4 | Correctness & Evidence Integrity | 84 | 12 | 10.08 | 192 |
 | 5 | AI / Agent Readiness | 80 | 10 | 8.00 | 200 |
-| 6 | Time-to-Value | 78 | 10 | 7.80 | 220 |
-| 7 | Proof-of-ROI Readiness | 88 | 9 | 7.92 | 108 |
-| 8 | Sponsor / Operator Comprehension | 82 | 8 | 6.56 | 144 |
+| 6 | Time-to-Value | 77 | 10 | 7.70 | 230 |
+| 7 | Proof-of-ROI Readiness | 87 | 9 | 7.83 | 117 |
+| 8 | Sponsor / Operator Comprehension | 81 | 8 | 6.48 | 152 |
 | 9 | Runtime & First-Review Reliability | 82 | 7 | 5.74 | 126 |
-| 10 | Adoption Friction | 80 | 5 | 4.00 | 100 |
-| | **(A) Headline Readiness** | | **100** | **82.73** | |
+| 10 | Adoption Friction | 79 | 5 | 3.95 | 105 |
+| | **(A) Headline Readiness** | | **100** | **82.41** | |
 
 **(B) Procurement / market-motion realism** is informational and **weight 0** in `(A)`. Narrative in §5.
 

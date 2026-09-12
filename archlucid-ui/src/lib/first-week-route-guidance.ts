@@ -55,6 +55,7 @@ const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
   // Finalize lives in ReviewPackageDoThisNextStrip and the page header (BDA-001 anchor). Omit here so
   // blocked or not-ready reviews do not expose a second finalize affordance below "Review not ready yet".
   operateDeferralNote: "Skip graph and approval dashboards until after commit unless your pilot explicitly needs them.",
+  dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
 };
 
 /** Working seats — babysitting one tab is not the job (FD-12). */
@@ -63,6 +64,7 @@ const WORKING_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig =
   bridgeCopy:
     "Analysis may still be running. Check Activity for named stages, open other in-flight packages from the strip when needed, and return here to finalize when the review is ready.",
   operateDeferralNote: WORKING_OPERATE_AVAILABLE_IN_SIDEBAR_NOTE,
+  dispositionBeforeSponsorNote: FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
 };
 
 export const FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY =

@@ -5,6 +5,7 @@ import { HelpBaselineSettingsSourcesOrientationStrip } from "@/app/(operator)/he
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { BaselineSettingsHelpClaimDisciplineStrip } from "@/components/help/BaselineSettingsHelpClaimDisciplineStrip";
 import { BaselineSettingsHelpEvidenceOrientationStrip } from "@/components/help/BaselineSettingsHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -269,6 +270,7 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
               <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)} data-testid="help-baseline-settings-baseline-vs-roi">
                 {BASELINE_SETTINGS_HELP_BASELINE_VS_ROI_BODY}
               </p>
+              <SponsorSendPathHonestyPanel testIdPrefix="help-baseline-settings" showSsoOptional={false} />
               <ul className={cn("m-0 list-disc space-y-1 pl-5", HELP_PAGE_LAYOUT.readingBody)}>
                 {BASELINE_SETTINGS_HELP_USED_IN_SURFACES.map((surface) => (
                   <li key={surface.href}>
