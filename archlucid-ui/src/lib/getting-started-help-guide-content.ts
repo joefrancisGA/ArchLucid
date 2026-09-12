@@ -77,6 +77,13 @@ export const GETTING_STARTED_HELP_SOURCES: readonly GettingStartedHelpSourceLink
   { label: "Security & Trust", href: "/assurance-status" },
 ] as const;
 
+export const GETTING_STARTED_HELP_WORKING_SOURCES: readonly GettingStartedHelpSourceLink[] = [
+  { label: "Architecture desk", href: inAppHelpHref("architecture-desk") },
+  { label: WORKING_REVIEWS_INBOX_NAV_LABEL, href: REVIEWS_LIST_PATH },
+  { label: "Record and Practice", href: inAppHelpHref("career-rehearsal-doors") },
+  { label: "Security & Trust", href: "/assurance-status" },
+] as const;
+
 export const GETTING_STARTED_HELP_PATH = "/help/getting-started" as const;
 
 /** Retired operator bookmark — no App Router page; help lives at GETTING_STARTED_HELP_PATH. */
@@ -748,9 +755,14 @@ export function resolveGettingStartedHelpDiagramSourceForProductLine(
 
 export function resolveGettingStartedHelpSources(
   productLineId: ProductLineId = "architecture",
+  workingMode: boolean = false,
 ): readonly GettingStartedHelpSourceLink[] {
   if (isSecureNowProductLine(productLineId)) {
     return SECURENOW_GETTING_STARTED_HELP_SOURCES;
+  }
+
+  if (workingMode) {
+    return GETTING_STARTED_HELP_WORKING_SOURCES;
   }
 
   return GETTING_STARTED_HELP_SOURCES;

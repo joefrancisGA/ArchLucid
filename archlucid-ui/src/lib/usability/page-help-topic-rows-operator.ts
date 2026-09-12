@@ -23,6 +23,7 @@ import { TROUBLESHOOTING_HELP_TOPIC_LABEL } from "@/lib/troubleshooting-help-evi
 import { USERS_AND_ROLES_HELP_TOPIC_LABEL } from "@/lib/users-and-roles-help-evidence-copy";
 import { WHY_ARCHLUCID_HELP_TOPIC_LABEL } from "@/lib/why-archlucid-evidence-copy";
 import { WORKING_CAREER_REHEARSAL_HELP_TOPIC_LABEL } from "@/lib/governance/working-career-rehearsal-help-evidence-copy";
+import { SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_TOPIC_LABEL } from "@/lib/system-not-job-help-system-not-job-evidence-copy";
 import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
 
 import { PAGE_HELP_TOPIC_ROWS_OPERATOR_ARCHITECTURE } from "./page-help-topic-rows-operator-architecture";
@@ -97,6 +98,10 @@ const PAGE_HELP_TOPIC_ROWS_OPERATOR_CORE: readonly { prefix: string; topic: Page
   {
     prefix: "/help/preferences",
     topic: { slug: "preferences", label: PREFERENCES_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/architecture-desk",
+    topic: { slug: "architecture-desk", label: SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_TOPIC_LABEL },
   },
   {
     prefix: "/help/career-rehearsal-doors",
