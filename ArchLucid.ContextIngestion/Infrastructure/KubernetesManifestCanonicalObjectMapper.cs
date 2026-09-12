@@ -111,7 +111,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
         if (string.IsNullOrWhiteSpace(kind))
             return;
 
-        string apiVersion = CanonicalInfrastructureJsonElementReader.ReadTopLevelString(resource, "apiVersion") ?? string.Empty;
+        string apiVersion = CanonicalInfrastructureJsonElementReader.ReadTopLevelStringIgnoreCaseOrSnakeCase(resource, "apiVersion") ?? string.Empty;
         string namespaceValue = CanonicalInfrastructureJsonElementReader.ReadMetadataString(resource, "metadata", "namespace") ?? string.Empty;
         string name = CanonicalInfrastructureJsonElementReader.ReadMetadataString(resource, "metadata", "name") ?? string.Empty;
 

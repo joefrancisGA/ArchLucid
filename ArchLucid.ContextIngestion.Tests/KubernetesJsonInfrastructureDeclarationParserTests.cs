@@ -330,6 +330,40 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_snake_case_api_version_projects_k8s_api_version()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "cluster-api-version.json",
+            Format = "kubernetes-json",
+            Content = """
+                      {
+                        "api_version": "apps/v1",
+                        "kind": "Deployment",
+                        "metadata": { "name": "api", "namespace": "prod" },
+                        "spec": {
+                          "template": {
+                            "spec": {
+                              "containers": [
+                                {
+                                  "name": "api",
+                                  "image": "nginx"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        CanonicalObject deployment = result.Should().ContainSingle().Subject;
+        deployment.Properties["k8s.apiVersion"].Should().Be("apps/v1");
+    }
+
+    [Fact]
     public async Task ParseAsync_snake_case_pod_security_context_projects_privileged()
     {
         InfrastructureDeclarationReference declaration = new()

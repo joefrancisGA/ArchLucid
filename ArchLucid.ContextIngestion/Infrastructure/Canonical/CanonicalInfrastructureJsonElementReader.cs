@@ -86,6 +86,16 @@ public static class CanonicalInfrastructureJsonElementReader
         return string.IsNullOrWhiteSpace(text) ? null : text.Trim();
     }
 
+    public static string? ReadTopLevelStringIgnoreCaseOrSnakeCase(JsonElement resource, string propertyName)
+    {
+        if (!TryGetPropertyIgnoreCaseOrSnakeCase(resource, propertyName, out JsonElement value) || value.ValueKind is not JsonValueKind.String)
+            return null;
+
+        string? text = value.GetString();
+
+        return string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+    }
+
     public static string? ReadMetadataString(JsonElement resource, string objectName, string propertyName)
     {
         if (!TryGetPropertyIgnoreCase(resource, objectName, out JsonElement objectElement) || objectElement.ValueKind is not JsonValueKind.Object)
