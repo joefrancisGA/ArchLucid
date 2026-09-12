@@ -7,6 +7,7 @@ export type InfraEvidenceMermaidOutlineNode = {
   readonly label: string;
   readonly resourceType: string | null;
   readonly resourceGroup: string | null;
+  readonly seedNodeId?: string | null;
 };
 
 export type InfraEvidenceMermaidOutlineEdge = {
@@ -34,11 +35,12 @@ const SUBGRAPH_LABEL = /^subgraph\s+([A-Za-z0-9_-]+)(?:\["([^"]+)"\]|\[([^\]]+)\
 
 const RG_SUBGRAPH_LABEL = /^RG\s+(.+)$/iu;
 
-const OUTLINE_METADATA_TOKEN = /(?:^|\s)(al-type|al-rg)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
+const OUTLINE_METADATA_TOKEN = /(?:^|\s)(al-type|al-rg|al-seed)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
 
 type OutlineNodeMetadata = {
   readonly resourceType: string | null;
   readonly resourceGroup: string | null;
+  readonly seedNodeId: string | null;
 };
 
 function normalizeOutlineLabel(raw: string | undefined, fallback: string): string {
@@ -64,6 +66,7 @@ function unquoteMetadataValue(raw: string): string {
 function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
   let resourceType: string | null = null;
   let resourceGroup: string | null = null;
+  let seedNodeId: string | null = null;
 
   for (const match of comment.matchAll(OUTLINE_METADATA_TOKEN)) {
     const key = match[1];
@@ -80,13 +83,17 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
     if (key === "al-rg") {
       resourceGroup = value;
     }
+
+    if (key === "al-seed") {
+      seedNodeId = value;
+    }
   }
 
-  return { resourceType, resourceGroup };
+  return { resourceType, resourceGroup, seedNodeId };
 }
 
 function emptyOutlineNodeMetadata(): OutlineNodeMetadata {
-  return { resourceType: null, resourceGroup: null };
+  return { resourceType: null, resourceGroup: null, seedNodeId: null };
 }
 
 function mergeOutlineNodeMetadata(
@@ -96,6 +103,7 @@ function mergeOutlineNodeMetadata(
   return {
     resourceType: preferred.resourceType ?? fallback.resourceType,
     resourceGroup: preferred.resourceGroup ?? fallback.resourceGroup,
+    seedNodeId: preferred.seedNodeId ?? fallback.seedNodeId,
   };
 }
 
@@ -111,6 +119,7 @@ function withPrecedingMetadata(
     ...node,
     resourceType: node.resourceType ?? preceding.resourceType,
     resourceGroup: node.resourceGroup ?? preceding.resourceGroup,
+    seedNodeId: node.seedNodeId ?? preceding.seedNodeId,
   };
 }
 
@@ -152,6 +161,7 @@ function readNodeToken(
     label,
     resourceType: metadata.resourceType,
     resourceGroup: metadata.resourceGroup ?? subgraphResourceGroup,
+    seedNodeId: metadata.seedNodeId,
   };
 }
 
@@ -170,6 +180,12 @@ function upsertNode(
       const next = nodeMap.get(node.id)!;
 
       nodeMap.set(node.id, { ...next, resourceGroup: node.resourceGroup });
+    }
+
+    if (existing.seedNodeId == null && node.seedNodeId != null) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, seedNodeId: node.seedNodeId });
     }
 
     return;
@@ -217,6 +233,16 @@ export function resolveInfraEvidenceOutlineNodeLabel(
   }
 
   return match.label;
+}
+
+export function resolveInfraEvidenceOutlineSeedNodeId(node: InfraEvidenceMermaidOutlineNode): string {
+  const seed = node.seedNodeId?.trim() ?? "";
+
+  if (seed.length > 0) {
+    return seed;
+  }
+
+  return node.id;
 }
 
 export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceMermaidOutline {

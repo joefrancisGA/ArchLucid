@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { fireEvent, render, screen, within } from "@testing-library/react";
 
@@ -51,6 +51,23 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(nodesTable as HTMLTableElement).getByText("rg-network")).toBeTruthy();
     expect(within(edgesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
     expect(within(edgesTable as HTMLTableElement).getByText("n_missing")).toBeTruthy();
+  });
+
+  it("focuses a neighborhood from a Nodes row", () => {
+    const onFocusNeighborhood = vi.fn();
+
+    render(<InfraEvidenceDiagramOutline outline={outline} onFocusNeighborhood={onFocusNeighborhood} />);
+
+    expect(screen.getByTestId("infra-diagrams-nodes-seed-hint")).toHaveTextContent(
+      "To diagram one resource and its neighbors, choose Focus neighborhood on that row.",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Focus neighborhood from core-vnet" }));
+
+    expect(onFocusNeighborhood).toHaveBeenCalledTimes(1);
+    expect(onFocusNeighborhood.mock.calls[0]?.[0]).toMatchObject({
+      id: "n_src",
+      label: "core-vnet",
+    });
   });
 
   it("sorts node rows when a column heading is clicked", () => {
