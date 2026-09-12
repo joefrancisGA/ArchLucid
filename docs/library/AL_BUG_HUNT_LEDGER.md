@@ -121,13 +121,15 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-08-23 — hunt #50: greenfield compliance declared endpoints but graph merge dropped dangling edges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2099 (seed-only): reseeded topology-proposal-merge with `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2092 (seed-only): reseeded topology-proposal-merge; no new hunt-ready rows.
 
@@ -871,13 +873,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — whitespace-only EvidenceRef on existing row blocked distinct grounded agent proposals with the same technology name
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2101 (seed-only): reseeded technology-ledger-merge with `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2094 (seed-only): reseeded technology-ledger-merge; no new hunt-ready rows.
 
@@ -2144,13 +2148,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-12 thorough hunt #2098 (dry): reseeded finding-disposition with `-Refresh`; no open hunt-ready rows; scoped FindingDispositionValidation tests passed.
 
 2026-09-12 thorough hunt #2091 (dry): cheap-disproved guided-desk impact-preview audit-note candidate (fixed #1719 — `BuildImpactPreviewAttestationNote` returns null when `!isWorkingDesk`) and in-memory repository duplicate candidate (invalid — test-double outside zone paths); no hunt-ready rows remained.
 
@@ -10250,13 +10256,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 10
-- **bugs-found:** 8
+- **hunts:** 11
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — slash `/wk` and standalone week/weeks Azure retail UOM rejected while day/hour/month synonyms matched
+- **last-bug:** 2026-09-12 — standalone and slash `/min` minute UOM rejected while hour/day/week/month synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2095 (seed→hit): reseeded core-costing; proved minute UOM parity gap; regression `AzureRetailPricesSkuMatchersMinuteTests`.
 
 Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Costing/` hunts.
 
@@ -10291,6 +10299,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 2026-09-12 seed hunt #1813 (hit): reseeded core-costing slash-day UOM parity; 136 scoped Costing tests passed.
 
 - [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — standalone and slash `/wk`/`/week` UOM rejected while hourly/daily/monthly synonyms already matched — **hit 2026-09-12 seed hunt #1910:** Azure Retail weekly consumption meters with bare `week`/`weeks`, `1/week`, or `/wk` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow`; fixed with `IsWeekMeter` + `WeeksPerMonthAssumption` parity with day/hour/month fixes; regressions in `AzureRetailPricesSkuMatchersSlashWeekTests`
+- [x] (proven) `AzureRetailPricesCatalogClient.IsMinuteMeter` — standalone and slash `/min` UOM rejected while hour/day/week/month synonyms already matched — **hit 2026-09-12 seed hunt #2095:** Azure Retail minute consumption meters with bare `minute`/`minutes`, `1/min`, or `/min` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow`; fixed with `IsMinuteMeter` + `MinutesPerMonthAssumption` parity with sibling UOM fixes; regressions in `AzureRetailPricesSkuMatchersMinuteTests`
 
 2026-09-12 seed hunt #1910 (hit): reseeded core-costing sibling UOM parity; proved standalone/slash weekly Azure retail gap; 142 scoped Costing tests passed.
 
@@ -10468,13 +10477,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 89
+- **hunts:** 90
 - **bugs-found:** 151
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — snake_case pod-level `security_context` skipped privileged projection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2097 (seed-only): reseeded context-ingestion with `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2090 (seed→hit): reseeded context-ingestion; proved pod-level `security_context` projection gap; regression `ParseAsync_snake_case_pod_security_context_projects_privileged`.
 
@@ -10878,13 +10889,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — ExecDigest accepted whitespace-only weekLabel while sponsor dispatchers reject
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-12 seed hunt #2096 (seed-only): reseeded notifications-pipeline; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2070 (seed-only): reseeded notifications-pipeline; no new hunt-ready rows.
 
@@ -11180,13 +11193,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — Entra Graph membership pagination followed cross-group @odata.nextLink without validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2100 (seed-only): reseeded cloud-extractors with `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2093 (seed-only): reseeded cloud-extractors; no new hunt-ready rows.
 
