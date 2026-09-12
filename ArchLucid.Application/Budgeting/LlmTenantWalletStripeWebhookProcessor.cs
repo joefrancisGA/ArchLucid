@@ -22,6 +22,7 @@ public sealed class LlmTenantWalletStripeWebhookProcessor(ILlmTenantWalletServic
             return;
 
         paymentIntentId = paymentIntentId.Trim();
+        eventType = eventType?.Trim() ?? string.Empty;
 
         if (string.Equals(eventType, "payment_intent.succeeded", StringComparison.OrdinalIgnoreCase))
         {

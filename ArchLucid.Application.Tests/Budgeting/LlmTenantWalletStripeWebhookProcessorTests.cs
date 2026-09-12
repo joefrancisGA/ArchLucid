@@ -12,6 +12,41 @@ namespace ArchLucid.Application.Tests.Budgeting;
 public sealed class LlmTenantWalletStripeWebhookProcessorTests
 {
     [Fact]
+    public async Task ProcessPaymentIntentEventAsync_trims_whitespace_from_event_type()
+    {
+        Mock<ILlmTenantWalletService> walletService = new();
+        Guid tenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        walletService
+            .Setup(s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                tenantId,
+                "pi_event_type_trim",
+                10.00m,
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        LlmTenantWalletStripeWebhookProcessor sut = new(walletService.Object);
+
+        await sut.ProcessPaymentIntentEventAsync(
+            " payment_intent.succeeded ",
+            "pi_event_type_trim",
+            tenantId.ToString("D"),
+            1000,
+            null,
+            Guid.NewGuid());
+
+        walletService.Verify(
+            s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                tenantId,
+                "pi_event_type_trim",
+                10.00m,
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ProcessPaymentIntentEventAsync_trims_whitespace_from_payment_intent_id()
     {
         Mock<ILlmTenantWalletService> walletService = new();

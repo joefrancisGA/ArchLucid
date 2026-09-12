@@ -3251,6 +3251,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) Seed hunt #1867 cheap-disproof placeholder — **cheap-disproof 2026-09-12 seed hunt #1867:** zone reseeded; scoped tests green; no new hunt-ready defect in this pass.
 
+2026-09-12 seed hunt #1881 (hit): reseeded billing-webhooks; proved padded payment_intent id forwarded without trim; 7 scoped LlmTenantWalletStripeWebhook tests passed.
+
+- [x] (proven) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — whitespace-padded `paymentIntentId` forwarded without trim so wallet idempotency key diverged from Stripe canonical id — **hit 2026-09-12 seed hunt #1881 (seed→hit):** tenant metadata already trimmed in #1861 but payment intent id was not; fixed with trim after blank guard; regression `ProcessPaymentIntentEventAsync_trims_whitespace_from_payment_intent_id`
+
 2026-09-12 seed hunt #1867 (seed-only): reseeded billing-webhooks; no proven defect this pass.
 
 ---
@@ -9651,11 +9655,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 14
-- **bugs-found:** 13
+- **hunts:** 15
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — numeric object `id`/`text` properties dropped on list normalize
+- **last-bug:** 2026-09-12 — null `citations` skipped zero-citation WARN gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
