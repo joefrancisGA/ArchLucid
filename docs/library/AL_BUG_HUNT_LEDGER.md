@@ -12218,11 +12218,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 13
-- **bugs-found:** 13
+- **hunts:** 14
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — `TenantTrialFacade.LinkEntraAsync` bound Entra directory before trial conversion
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — `TenantTrialAbuseGuard` rejected link-entra on OID casing-only mismatch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12248,10 +12248,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantUsageStatusService` treated trial only when `TrialStatus` equals `Active` ordinally — **hit 2026-09-07 (#1249):** lowercase `active` omitted trial packaging snapshot; fixed with `TrialLifecycleStatus.EqualsStatus`; regression `BuildAsync_marks_lowercase_active_trial_and_null_commercial_tier`.
 - [x] (proven) `TenantTrialFacade.ComputeIdentityHandoffPending` — Ordinal `Converted` compare hid pending Entra handoff for legacy/import lowercase `converted` rows — **hit 2026-09-09 seed hunt #1423:** trial status API returned `IdentityHandoffPending=false` after #1248/#1249 lifecycle casing fixes elsewhere; fixed with `TrialLifecycleStatus.EqualsStatus`; regression in `GetTrialStatusAsync_sets_identity_handoff_pending_when_converted_status_differs_only_by_casing`
 - [x] (valid-no-repro) `TrialLimitGate.GuardWriteAsync` — unrecognized non-empty `TrialStatus` values that are not Active/Converted/Deleted/Expired/ReadOnly/ExportOnly fall through without blocking mutating work — **cheap-disproof 2026-09-11 thorough hunt #1705:** lifecycle commit hooks write only canonical labels (`DapperTenantRepository.TrialLifecycle.*`); commercial tenants use null/empty status; intentional fail-open for non-frozen unrecognized labels; regression `GuardWriteAsync_unrecognized_trial_status_does_not_enforce_trial_limits`
-- [ ] (candidate) `TenantMigrationVerificationProbe.RunAsync` — `includeDemo: false` excludes trial welcome runs so tenants with only `req-trial-welcome-*` committed content fail verification — may be intentional auth-boundary policy vs `DemoRunSqlPredicates`; deferred
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — advances stage without asserting tenant retrieval outbox drained — deferred pending fan-out contract review
-- [ ] (candidate) `TenantTrialConversionStage.ConvertTrialAsync` — calendar-expired `Active` tenants convert while `TrialLimitGate` blocks ordinary writes — may be intentional admin escape via `SkipTrialWriteLimit`; deferred
+- [x] (invalid) `TenantMigrationVerificationProbe.RunAsync` — `includeDemo: false` excludes trial welcome runs so tenants with only `req-trial-welcome-*` committed content fail verification — **cheap-disproof 2026-09-12 thorough hunt #1859:** intentional auth-boundary policy; verification probes real committed reviews, not demo/trial welcome scaffolding (`DemoRunSqlPredicates` parity).
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — advances stage without asserting tenant retrieval outbox drained — **cheap-disproof 2026-09-12 thorough hunt #1859:** outbox drain is optional via `ITenantMigrationRetrievalOutboxDrainer` with `NoOpTenantMigrationRetrievalOutboxDrainer` default; fan-out contract is operator-driven between projection refresh and verification.
+- [x] (valid-no-repro) `TenantTrialConversionStage.ConvertTrialAsync` — calendar-expired `Active` tenants convert while `TrialLimitGate` blocks ordinary writes — **cheap-disproof 2026-09-12 thorough hunt #1859:** `TenantTrialController.ConvertTrialAsync` carries `[SkipTrialWriteLimit]` by design so paid conversion escapes expired-trial write freeze.
 - [x] (proven) `TenantTrialFacade.LinkEntraAsync` — bound Entra directory while `TrialStatus` is still `Active`, skipping `POST /v1/tenant/convert` — **hit 2026-09-11 hunt #1708 (seed→hit):** runbook requires convert before link-entra; fixed with `TrialLifecycleStatus.EqualsStatus` Active guard before abuse precheck; regressions `LinkEntraAsync_when_trial_status_is_active_returns_conflict_without_binding_directory` and `LinkEntraAsync_when_trial_status_is_lowercase_active_returns_conflict`
+- [x] (proven) `TenantTrialAbuseGuard.ValidateIdentityLinkAsync` — Ordinal `LinkedEntraOid` compare rejected idempotent link-entra retries when request OID differed only by casing — **hit 2026-09-12 thorough hunt #1859:** handoff stage already treats OID as case-insensitive but abuse precheck returned Conflict; fixed with `OrdinalIgnoreCase` parity; regression `ValidateIdentityLinkAsync_allows_same_entra_oid_when_casing_differs_from_linked_row`
+
+2026-09-12 thorough hunt #1859 (hit): cheap-disproof closed three deferred candidates; proved abuse-guard Entra OID casing mismatch blocked idempotent link-entra; 1 scoped regression test passed.
 
 2026-09-11 seed hunt #1708 (seed→hit): reseeded application-tenancy-lifecycle; proved link-entra allowed on Active trial before conversion; seeded migration-verification demo exclusion, projection outbox drain, and calendar-expired convert candidates; 117 scoped tenancy tests passed.
 
