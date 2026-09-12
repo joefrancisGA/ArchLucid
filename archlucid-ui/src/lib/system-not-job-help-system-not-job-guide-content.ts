@@ -26,7 +26,14 @@ export const SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_OVERVIEW =
   "On Working seats, the named architecture is your durable object. Drafts and reviews are jobs on that desk — not peer products you pick from a flat evaluator list. Open Architectures to resume Monday-morning work; use Inbox only when you need cross-architecture triage.";
 
 export type SystemNotJobHelpArchitectureDeskConceptTile = {
-  readonly id: "identity" | "nested-jobs" | "inbox-secondary" | "clone-after-spawn";
+  readonly id:
+    | "identity"
+    | "nested-jobs"
+    | "inbox-secondary"
+    | "clone-after-spawn"
+    | "practice-sketch"
+    | "record-what-if"
+    | "impact-preview-vs-sketch";
   readonly title: string;
   readonly body: string;
 };
@@ -56,6 +63,24 @@ export const SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_CONCEPT_TILES: readonly Syste
       body:
         "When a draft spawns a linked review, the parent snapshot stays sealed. Use Sketch a change on the desk to open the next editable draft under the same architecture — the legal successor, not a second desk product.",
     },
+    {
+      id: "practice-sketch",
+      title: "Sketch a change is Practice",
+      body:
+        "Sketch a change clones from the sealed snapshot into a Rehearsal-stamped architecture sketch (ADR 0092). It is Practice until you explicitly execute a Record review — not Career proof and not a sealed-record Compare side.",
+    },
+    {
+      id: "record-what-if",
+      title: "Record what-if is a capped full run",
+      body:
+        "A full-pipeline Record what-if counts against the branch cap on the parent draft (R12 / SN-009). It is not the shell AI budget pill and not the policy Impact preview envelope on the desk.",
+    },
+    {
+      id: "impact-preview-vs-sketch",
+      title: "Impact preview is not Sketch a change",
+      body:
+        "Policy cheap envelope re-simulates packs on a finalized baseline — review-time policy analysis. Sketch a change is the architecture desk rehearsal sketch; use the desk clone CTA, not Impact preview, when you need the next editable draft.",
+    },
   ] as const;
 
 export const SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_GUIDED_NOTE =
@@ -78,6 +103,10 @@ export const SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_SECONDARY_ACTIONS = [
     href: REVIEWS_LIST_PATH,
   },
   {
+    label: "Sketch a change",
+    href: inAppHelpHref("sketch-a-change"),
+  },
+  {
     label: "Getting started",
     href: inAppHelpHref("getting-started"),
   },
@@ -92,6 +121,9 @@ export const SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_GUIDE_HEADINGS: readonly Help
   { level: 2, id: "nested-jobs", title: "Reviews as nested jobs" },
   { level: 2, id: "inbox-triage", title: `${WORKING_REVIEWS_INBOX_NAV_LABEL} triage` },
   { level: 2, id: "clone-spawn", title: "Clone after spawn lock" },
+  { level: 2, id: "practice-sketch", title: "Sketch a change is Practice" },
+  { level: 2, id: "record-what-if", title: "Record what-if branch cap" },
+  { level: 2, id: "impact-preview-vs-sketch", title: "Impact preview vs sketch" },
   {
     level: 2,
     id: SYSTEM_NOT_JOB_HELP_GUIDED_NOTE_HEADING_ID,
