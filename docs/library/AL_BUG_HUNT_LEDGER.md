@@ -9680,7 +9680,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -9691,6 +9691,7 @@ Split from retired `archlucid-core` (ABQ-08).
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
+2026-09-12 seed hunt #1942 (seed-only): reseeded core-safety-network; scoped tests passed; no new hunt-ready defect proven this pass.
 2026-09-12 seed hunt #1935 (seed-only): reseeded core-safety-network; scoped tests passed; no new hunt-ready defect proven this pass.
 2026-09-12 seed hunt #1931 (seed-only): reseeded core-safety-network; scoped tests passed; no new hunt-ready defect proven this pass.
 2026-09-12 seed hunt #1930 (seed-only): reseeded core-safety-network; scoped tests passed; no new hunt-ready defect proven this pass.
