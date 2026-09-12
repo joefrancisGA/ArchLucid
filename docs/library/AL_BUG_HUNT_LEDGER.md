@@ -9651,11 +9651,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 11
-- **bugs-found:** 10
+- **hunts:** 12
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — empty string `citations` skipped zero-citation WARN gate
+- **last-bug:** 2026-09-12 — numeric scalar `alternativesConsidered` dropped on normalize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9759,6 +9759,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
 
 - [x] (proven) `StructuredExplanationParser.TryReadReasoningText` — object-shaped reasoning array paragraphs with `id` property (mirroring evidence ref shape) silently skipped while list entries accept `id` then `text` — **hit 2026-09-12 seed hunt #1873 (seed→hit):** array/object reasoning loops checked only `text` for object tokens; LLM payloads mirroring `{ "id": "paragraph" }` evidence-ref shape rejected normalize; fixed via shared `TryReadObjectStringProperty(item, "id", "text")` on reasoning paths; regression `TryNormalizeStructuredJson_maps_object_shaped_reasoning_array_entries_with_id_property`
+
+2026-09-12 seed hunt #1877 (hit): reseeded core-explanation-json; proved numeric/boolean reasoning scalar and array entries dropped on normalize; 58 scoped explanation unit tests passed.
+
+- [x] (proven) `StructuredExplanationParser.TryReadReasoningText` — numeric or boolean scalar/array `reasoning` tokens rejected normalize while list readers coerce numeric text — **hit 2026-09-12 seed hunt #1877 (seed→hit):** non-string non-object reasoning tokens returned null; fixed via `TryReadNonEmptyTextToken` on scalar and array-item paths; regressions `TryNormalizeStructuredJson_coerces_numeric_scalar_reasoning`, `TryNormalizeStructuredJson_coerces_numeric_reasoning_array_entries`
 
 2026-09-12 seed hunt #1876 (hit): reseeded core-explanation-json; proved numeric scalar alternativesConsidered dropped on normalize; 56 scoped explanation unit tests passed.
 

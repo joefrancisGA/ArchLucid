@@ -247,6 +247,28 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_coerces_numeric_reasoning_array_entries()
+    {
+        const string json = """{"reasoning":[42,"Second paragraph."]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("42\n\nSecond paragraph.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_numeric_scalar_reasoning()
+    {
+        const string json = """{"reasoning":42,"alternativesConsidered":["Keep monolith"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("42");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_maps_numeric_alternatives_considered_as_single_entry()
     {
         const string json = """{"reasoning":"Main","alternativesConsidered":1}""";
