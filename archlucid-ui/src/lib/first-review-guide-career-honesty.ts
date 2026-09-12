@@ -13,7 +13,7 @@ import { FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-g
 
 /** CG-091 — Working first-review guide must not teach unlabeled Simulator Career proof. */
 export const FIRST_REVIEW_GUIDE_WORKING_EVALUATION_SCOPE_HELPER =
-  `On Working, ${WORKING_CAREER_DOOR_LABEL} door + Real structural execute is career-complete proof. ${WORKING_REHEARSAL_DOOR_LABEL} door or Simulator runs stay visible for practice — do not screenshot them as procurement evidence.`;
+  `On Working, ${WORKING_CAREER_DOOR_LABEL} review type + Real structural execute is record-complete proof. ${WORKING_REHEARSAL_DOOR_LABEL} review type or Simulator runs stay visible for dry-runs — do not screenshot them as procurement evidence.`;
 
 export type FirstReviewGuideCareerHonestyContext = {
   readonly suppressReadyToFinalize: boolean;

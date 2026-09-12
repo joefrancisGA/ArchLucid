@@ -1,3 +1,4 @@
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Reporting;
 
@@ -36,5 +37,26 @@ public sealed class PilotValueReportMarkdownFormatterTests
 
         md.Should().Contain(fmt.FormatIso8601Utc(from));
         md.Should().Contain(fmt.FormatIso8601Utc(committed));
+    }
+
+    [Fact]
+    public void Format_includes_sendable_export_cover_honesty_lines()
+    {
+        ExportFormatterService fmt = new();
+        PilotValueReportMarkdownFormatter sut = new(fmt);
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+        };
+
+        string md = sut.Format(report);
+
+        md.Should().Contain("**Sponsor ROI honesty:**");
+        md.Should().Contain(SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine);
+        md.Should().Contain("**Policy influence:**");
+        md.Should().Contain(SendableExportCoverComposer.PolicyPackInfluenceHonestyLine);
     }
 }

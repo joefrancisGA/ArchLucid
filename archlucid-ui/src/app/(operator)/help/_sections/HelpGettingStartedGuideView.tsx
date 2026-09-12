@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { GettingStartedHelpClaimDisciplineStrip } from "@/components/help/GettingStartedHelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
 import { PilotGuideGettingStartedFirstReviewVocabularyRail } from "@/components/PilotGuideGettingStartedFirstReviewVocabularyRail";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
@@ -430,6 +431,8 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
               })}
             </ol>
           </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="getting-started-sponsor" showSsoOptional={true} />
 
           <HelpLazyDetails
             id="technical-details"

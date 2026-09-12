@@ -19,4 +19,6 @@ export type SearchPageViewModel = {
   readonly setQuery: (next: string) => void;
   readonly setRunId: (next: string) => void;
   readonly totalResultCount: number;
+  readonly basePathname?: string;
+  readonly pinnedArchitectureId?: string | null;
 };

@@ -1,5 +1,9 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/live-operator-shell-recovery", () => ({
+  isLiveOperatorShellRecoveryContext: () => false,
+}));
 
 import { FirstReviewGuideSupportPanel } from "@/app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuideSupportPanel";
 import { FIRST_REVIEW_GUIDE_OUTCOMES_COMPLETED_TITLE } from "@/lib/buyer/buyer-polish-copy";
@@ -21,6 +25,14 @@ describe("FirstReviewGuideSupportPanel", () => {
       "href",
       "/help/first-architecture-review",
     );
+    expect(screen.getByTestId("first-review-guide-roi-non-summing")).toBeInTheDocument();
+    expect(screen.getByTestId("first-review-guide-disposition-next-action")).toBeInTheDocument();
+    expect(screen.getByTestId("first-review-guide-policy-pack-cta")).toBeInTheDocument();
+    expect(screen.getByTestId("first-review-guide-evidence-only-fast-path")).toHaveAttribute(
+      "href",
+      "/help/first-architecture-review#fast-path-evidence-only-review",
+    );
+    expect(screen.getByTestId("policy-pack-influence-honesty-chip")).toBeInTheDocument();
   });
 
   it("links completed outcomes to the sealed review record tabs", () => {

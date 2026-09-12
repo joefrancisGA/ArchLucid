@@ -54,6 +54,8 @@ Summarize: files changed, tests run, residual risk, Working vs Guided, whether u
 
 **Family spine:** [`../docs/architecture/LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md`](../../docs/architecture/LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md). Issue 4 is LW — do not re-run.
 
+**Successor overlay:** [`record-practice-00-index.md`](record-practice-00-index.md) (**RP-001–024**) — user-facing Record / Practice labels. Do not re-run DW.
+
 ## Global constraints (every prompt)
 
 See any numbered file’s Constraints block. No desktop **More** menu; no `typed-engine-protected` change; no table merge; no live presence; no finding-comment chat; no GTM cohorts; no reopen TB-135/TB-136; TB-645; focused Vitest; scoped compile only for C#.

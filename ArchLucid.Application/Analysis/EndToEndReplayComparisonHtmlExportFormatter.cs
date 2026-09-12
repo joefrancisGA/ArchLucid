@@ -52,6 +52,9 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
         if (report.CompareQualityDelta is not null)
             summaryMarkdown = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(summaryMarkdown);
 
+        if (report.CompareVerdictChromeDelta is not null)
+            summaryMarkdown = CompareVerdictChromeExportFormatter.RemoveMarkdownSection(summaryMarkdown);
+
         string summaryHtml = MarkdownToSimpleHtml(summaryMarkdown);
         sb.AppendLine(summaryHtml);
         sb.AppendLine();
@@ -59,6 +62,12 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
         if (report.CompareQualityDelta is not null)
         {
             CompareQualityDeltaExportFormatter.AppendHtml(sb, report.CompareQualityDelta);
+            sb.AppendLine();
+        }
+
+        if (report.CompareVerdictChromeDelta is not null)
+        {
+            CompareVerdictChromeExportFormatter.AppendHtml(sb, report.CompareVerdictChromeDelta);
             sb.AppendLine();
         }
 

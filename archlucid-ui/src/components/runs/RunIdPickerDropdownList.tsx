@@ -5,6 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { RunSummary } from "@/types/authority";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { resolveCompareRunPickerDropdownSecondaryLine } from "@/lib/system-not-job-compare-labeled-envelope-runs";
 import { runSummaryDisplayLabel } from "@/lib/runs/run-summary-display-label";
 
 import { RunIdPickerLoadFailure } from "./RunIdPickerLoadFailure";
@@ -32,6 +33,8 @@ export type RunIdPickerDropdownListProps = {
   readonly activeIndex: number;
   readonly value: string;
   readonly useBuyerFacingRunLabels: boolean;
+  /** SN-014 — show execute door stamp on compare picker rows. */
+  readonly showCompareDoorStamp?: boolean;
   readonly retrying: boolean;
   readonly onRetry: () => void;
   readonly onSelectRun: (run: RunSummary) => void;
@@ -49,6 +52,7 @@ export function RunIdPickerDropdownList({
   activeIndex,
   value,
   useBuyerFacingRunLabels,
+  showCompareDoorStamp = false,
   retrying,
   onRetry,
   onSelectRun,
@@ -78,6 +82,8 @@ export function RunIdPickerDropdownList({
             : truncate(runSummaryDisplayLabel(r), 52);
           const secondaryText = useBuyerFacingRunLabels ? (
             <span className="sr-only">Technical review id: {truncate(r.runId, 120)}</span>
+          ) : showCompareDoorStamp ? (
+            truncate(resolveCompareRunPickerDropdownSecondaryLine(r), 72)
           ) : (
             truncate(r.runId, 48)
           );

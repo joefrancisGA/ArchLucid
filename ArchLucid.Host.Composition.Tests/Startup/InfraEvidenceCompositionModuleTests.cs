@@ -17,6 +17,7 @@ using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Composition.Startup.Modules;
 using ArchLucid.Host.Composition.Tests;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Persistence.Diagrams;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Queries;
 
@@ -52,6 +53,49 @@ public sealed class InfraEvidenceCompositionModuleTests
         services.Should().Contain(static d => d.ServiceType == typeof(ITenantBrandingCacheInvalidator));
         services.Should().Contain(static d => d.ServiceType == typeof(ISecurityCrosswalkService));
         services.Should().Contain(static d => d.ServiceType == typeof(MermaidDiagramReadabilityThresholds));
+    }
+
+    [Fact]
+    public void RepositoryDiagramPeelCatalogProvider_validates_with_scoped_repository()
+    {
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddScoped<IDiagramPeelCatalogRepository, InMemoryDiagramPeelCatalogRepository>();
+        services.AddSingleton<IDiagramPeelCatalogProvider, RepositoryDiagramPeelCatalogProvider>();
+
+        using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        IDiagramPeelCatalogProvider peelCatalogProvider =
+            provider.GetRequiredService<IDiagramPeelCatalogProvider>();
+
+        peelCatalogProvider.Should().BeOfType<RepositoryDiagramPeelCatalogProvider>();
+    }
+
+    [Fact]
+    public async Task RepositoryDiagramPeelCatalogProvider_loads_catalog_via_scoped_repository()
+    {
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddScoped<IDiagramPeelCatalogRepository, InMemoryDiagramPeelCatalogRepository>();
+        services.AddSingleton<IDiagramPeelCatalogProvider, RepositoryDiagramPeelCatalogProvider>();
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        IDiagramPeelCatalogProvider peelCatalogProvider =
+            provider.GetRequiredService<IDiagramPeelCatalogProvider>();
+
+        Contracts.InfraEvidence.DiagramPeel.DiagramPeelCatalogSnapshot snapshot =
+            await peelCatalogProvider.GetCatalogAsync(CancellationToken.None);
+
+        snapshot.Entries.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -180,6 +224,24 @@ public sealed class InfraEvidenceCompositionModuleTests
     }
 
     [Fact]
+    public void InfraEvidenceCompositionModule_repeated_register_last_mermaid_thresholds_singleton_wins()
+    {
+        ServiceCollection services = [];
+        MermaidDiagramReadabilityThresholds hostConfigured = new() { MaxNodes = 4242 };
+        services.AddSingleton(hostConfigured);
+        InfraEvidenceCompositionModule.Register(services);
+        InfraEvidenceCompositionModule.Register(services);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        MermaidDiagramReadabilityThresholds resolved =
+            provider.GetRequiredService<MermaidDiagramReadabilityThresholds>();
+
+        resolved.MaxNodes.Should().Be(400,
+            "MS DI last-wins singleton registration; repeated Register() supplies default thresholds, not an earlier host override");
+        resolved.Should().NotBeSameAs(hostConfigured);
+    }
+
+    [Fact]
     public void InfraEvidenceCompositionModule_repeated_register_keeps_single_selector_descriptor_per_evidence_type()
     {
         ServiceCollection services = [];
@@ -261,8 +323,7 @@ public sealed class InfraEvidenceCompositionModuleTests
     private static void RegisterInfraEvidenceSnapshotMermaidServiceTestDoubles(IServiceCollection services)
     {
         services.AddScoped(_ => Mock.Of<IAzureInventorySnapshotGraphResolver>());
-        services.AddScoped(_ => Mock.Of<IDiagramAstFromGraphCompiler>());
-        services.AddScoped(_ => Mock.Of<IMermaidDiagramRenderPipeline>());
+        services.AddScoped(_ => Mock.Of<IMermaidDiagramInventoryRenderOrchestrator>());
         services.AddScoped(_ => Mock.Of<IBrandedDiagramExportService>());
         services.AddScoped(_ => Mock.Of<IDiagramImageRenderer>());
         services.AddScoped(_ => Mock.Of<IArchitectureDiagramReconciliationRepository>());

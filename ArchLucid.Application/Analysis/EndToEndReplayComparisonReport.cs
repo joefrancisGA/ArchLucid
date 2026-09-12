@@ -86,6 +86,13 @@ public sealed class EndToEndReplayComparisonReport
         set;
     }
 
+    /// <summary>Gate, pack, execution-mode, and ROI headline deltas aligned with compare verdict chrome (ROI batch 10).</summary>
+    public CompareVerdictChromeDelta? CompareVerdictChromeDelta
+    {
+        get;
+        set;
+    }
+
     /// <summary>Per-finding lifecycle position across the two reviews (TB-2194). Empty when neither run had findings.</summary>
     public List<CrossReviewFindingLifecycleRecord> FindingLifecycleRecords
     {

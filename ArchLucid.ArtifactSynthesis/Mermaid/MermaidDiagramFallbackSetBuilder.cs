@@ -1,5 +1,3 @@
-using System.Text;
-
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -15,19 +13,22 @@ public sealed class MermaidDiagramFallbackSetBuilder : IMermaidDiagramFallbackSe
     private readonly IMermaidDiagramComplexityAnalyzer complexityAnalyzer;
     private readonly IMermaidDiagramDeterministicRepairer deterministicRepairer;
     private readonly IMermaidDiagramStructuralValidator structuralValidator;
+    private readonly IDiagramPeelCatalogProvider peelCatalogProvider;
 
     public MermaidDiagramFallbackSetBuilder(
         IDiagramAstFromGraphCompiler graphCompiler,
         IDiagramRenderer diagramRenderer,
         IMermaidDiagramComplexityAnalyzer complexityAnalyzer,
         IMermaidDiagramDeterministicRepairer deterministicRepairer,
-        IMermaidDiagramStructuralValidator structuralValidator)
+        IMermaidDiagramStructuralValidator structuralValidator,
+        IDiagramPeelCatalogProvider peelCatalogProvider)
     {
         this.graphCompiler = graphCompiler;
         this.diagramRenderer = diagramRenderer;
         this.complexityAnalyzer = complexityAnalyzer;
         this.deterministicRepairer = deterministicRepairer;
         this.structuralValidator = structuralValidator;
+        this.peelCatalogProvider = peelCatalogProvider;
     }
 
     public IReadOnlyList<MermaidDiagramRenderArtifact> BuildFallbackSet(
@@ -47,7 +48,7 @@ public sealed class MermaidDiagramFallbackSetBuilder : IMermaidDiagramFallbackSe
         AddModeArtifact(artifacts, graph, DiagramMode.Architecture, "cross-boundary", thresholds, null);
 
         List<string> resourceGroups = graph.Nodes
-            .Select(node => DiagramAstGraphNodeClassifier.ReadResourceGroup(node))
+            .Select(DiagramAstGraphNodeClassifier.ReadResourceGroup)
             .Where(resourceGroup => !string.IsNullOrWhiteSpace(resourceGroup))
             .Select(resourceGroup => resourceGroup!)
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -70,7 +71,7 @@ public sealed class MermaidDiagramFallbackSetBuilder : IMermaidDiagramFallbackSe
 
     public static string BuildIndexMarkdown(IReadOnlyList<MermaidDiagramRenderArtifact> artifacts)
     {
-        StringBuilder builder = new();
+        System.Text.StringBuilder builder = new();
         builder.AppendLine("# Inventory diagram index");
         builder.AppendLine();
         builder.AppendLine("Partitioned render — use a focused variant below.");
@@ -92,15 +93,26 @@ public sealed class MermaidDiagramFallbackSetBuilder : IMermaidDiagramFallbackSe
         MermaidDiagramReadabilityThresholds thresholds,
         DiagramAstCompileOptions? options)
     {
-        DiagramAst ast = this.graphCompiler.Compile(graph, mode, options);
-        DiagramAst repaired = this.deterministicRepairer.Repair(ast, out _);
-        string mermaid = this.diagramRenderer.Render(repaired);
-        MermaidDiagramComplexityMetrics metrics = this.complexityAnalyzer.Analyze(repaired, mermaid);
-        bool valid = this.structuralValidator.TryValidate(mermaid, out _);
+        Contracts.InfraEvidence.DiagramPeel.DiagramPeelCatalogSnapshot catalog = this.peelCatalogProvider
+            .GetCatalogAsync(CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
 
-        MermaidDiagramRenderStatus status = !valid
+        InventoryDiagramPeelBudgetApplier.PeelCompileResult compiled = InventoryDiagramPeelBudgetApplier.CompileWithPeelBudget(
+            graph,
+            mode,
+            options,
+            thresholds,
+            catalog,
+            this.graphCompiler,
+            this.diagramRenderer,
+            this.complexityAnalyzer,
+            this.deterministicRepairer,
+            this.structuralValidator);
+
+        MermaidDiagramRenderStatus status = !compiled.StructurallyValid
             ? MermaidDiagramRenderStatus.Failed
-            : metrics.ExceedsReadableThresholds(thresholds)
+            : compiled.Metrics.ExceedsReadableThresholds(thresholds)
                 ? MermaidDiagramRenderStatus.Partitioned
                 : MermaidDiagramRenderStatus.Succeeded;
 
@@ -108,9 +120,9 @@ public sealed class MermaidDiagramFallbackSetBuilder : IMermaidDiagramFallbackSe
         {
             Key = key,
             Label = $"{mode} ({key})",
-            Mermaid = mermaid,
+            Mermaid = compiled.Mermaid,
             Status = status,
-            Metrics = metrics,
+            Metrics = compiled.Metrics,
         });
     }
 }

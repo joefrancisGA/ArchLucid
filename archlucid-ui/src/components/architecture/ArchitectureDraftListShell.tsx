@@ -73,7 +73,9 @@ import {
 } from "@/lib/design-tokens";
 import { formatInventoryUpdatedAtCell } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
+import type { ArchitectureDraftListPresentation } from "@/components/architecture/ArchitectureDraftListClient";
 import type { ArchitectureDraftListController } from "@/components/architecture/use-architecture-draft-list";
+import { SYSTEM_NOT_JOB_WORKING_PORTFOLIO_OPEN_DRAFTS_EMPTY_BODY } from "@/lib/system-not-job-draft-list-reachable-from-portfolio";
 
 function ArchitectureHubFilterChip(props: {
   readonly option: { id: ArchitectureHubFilterId; label: string };
@@ -109,6 +111,7 @@ function ArchitectureHubFilterChip(props: {
 
 type ArchitectureDraftListShellProps = {
   readonly controller: ArchitectureDraftListController;
+  readonly presentation?: ArchitectureDraftListPresentation;
 };
 
 export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProps): React.JSX.Element {
@@ -136,6 +139,8 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
   } = props.controller;
   const { mode } = useWorkspaceMode();
   const workingMode = isWorkingWorkspaceMode(mode);
+  const presentation = props.presentation ?? "default";
+  const workingPortfolioPresentation = presentation === "working-portfolio";
 
   if (!isHydrated) {
     return <ArchitecturesHubListSkeleton />;
@@ -143,7 +148,10 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
 
   if (entries.length === 0) {
     return (
-      <div className="mt-4 space-y-4" data-testid="architecture-draft-list-empty">
+      <div
+        className={cn(workingPortfolioPresentation ? "space-y-4" : "mt-4 space-y-4")}
+        data-testid="architecture-draft-list-empty"
+      >
         {listFailure ? <OperatorApiProblem failure={listFailure} /> : null}
         {listBlockedReason ? (
           <p
@@ -153,7 +161,7 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
             {listBlockedReason}
           </p>
         ) : null}
-        {!buyerPolishedShell ? (
+        {!buyerPolishedShell && !workingPortfolioPresentation ? (
           <>
             <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="architecture-drafts" />
             <PathChooserCreateObjectVocabularyRail currentSurfaceId="architecture-drafts" />
@@ -165,6 +173,13 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
             body={workspaceScopeTeaching.body}
             ctaLabel={workspaceScopeTeaching.ctaLabel}
           />
+        ) : workingPortfolioPresentation ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="architecture-working-portfolio-drafts-empty"
+          >
+            {SYSTEM_NOT_JOB_WORKING_PORTFOLIO_OPEN_DRAFTS_EMPTY_BODY}
+          </p>
         ) : (
           <EnterpriseCompactEmptyState
             title={ARCHITECTURES_HUB_EMPTY_TITLE}
@@ -183,7 +198,10 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
   }
 
   return (
-    <div className="mt-4 space-y-4" data-testid="architecture-draft-list">
+    <div
+      className={cn(workingPortfolioPresentation ? "space-y-4" : "mt-4 space-y-4")}
+      data-testid="architecture-draft-list"
+    >
       {listFailure ? <OperatorApiProblem failure={listFailure} /> : null}
       {listBlockedReason ? (
         <p
@@ -193,13 +211,15 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
           {listBlockedReason}
         </p>
       ) : null}
-      {!buyerPolishedShell ? (
+      {!buyerPolishedShell && !workingPortfolioPresentation ? (
         <>
           <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="architecture-drafts" />
           <PathChooserCreateObjectVocabularyRail currentSurfaceId="architecture-drafts" />
         </>
       ) : null}
-      {continueLastDraft !== null ? <ArchitectureDraftContinueLastRow entry={continueLastDraft} /> : null}
+      {continueLastDraft !== null && !workingPortfolioPresentation ? (
+        <ArchitectureDraftContinueLastRow entry={continueLastDraft} />
+      ) : null}
       <ArchitectureDraftGuidanceDisclosure />
       <div
         className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center"

@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { getComplianceDriftTrend } from "@/lib/api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
@@ -19,8 +20,10 @@ export function useComplianceDriftTrendRangeQuery(
   toUtc: string,
   options?: UseComplianceDriftTrendRangeQueryOptions,
 ) {
+  const scope = useOperatorScopeQueryKey();
+
   return useQuery<ComplianceDriftTrendPoint[]>({
-    queryKey: operatorQueryKeys.complianceDriftTrendRange(fromUtc, toUtc),
+    queryKey: operatorQueryKeys.complianceDriftTrendRange(scope, fromUtc, toUtc),
     queryFn: () => getComplianceDriftTrend(fromUtc, toUtc, 1440),
     enabled: options?.enabled ?? true,
     staleTime: OPERATOR_QUERY_STALE_MS,

@@ -43,6 +43,47 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_archlucid_environment_staging_rejects_default_scope_on_development_host()
+    {
+        DefaultHttpContext context = CreateContext("/v1/runs");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Development,
+            new Dictionary<string, string?> { ["ARCHLUCID_ENVIRONMENT"] = "Staging" },
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_root_path()
+    {
+        DefaultHttpContext context = CreateContext("/");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_rejects_default_scope()
     {
         DefaultHttpContext context = CreateContext("/v1/runs");
@@ -116,6 +157,26 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_skips_internal_paths_with_mixed_case()
+    {
+        DefaultHttpContext context = CreateContext("/v1/INTERNAL/diagnostics/ping");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_skips_health_paths()
     {
         DefaultHttpContext context = CreateContext("/health/live");
@@ -139,6 +200,28 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     public async Task InvokeAsync_staging_host_skips_openapi_paths()
     {
         DefaultHttpContext context = CreateContext("/openapi/v1.json");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("/robots.txt")]
+    [InlineData("/sitemap.xml")]
+    public async Task InvokeAsync_staging_host_skips_public_crawler_hint_paths(string path)
+    {
+        DefaultHttpContext context = CreateContext(path);
         bool nextCalled = false;
 
         await RunMiddlewareAsync(

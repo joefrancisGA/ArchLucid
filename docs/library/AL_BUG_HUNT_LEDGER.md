@@ -169,11 +169,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 52
-- **bugs-found:** 53
+- **hunts:** 54
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — `azurerm_purview_account` Terraform id omitted from `LooksLikeTerraformServiceSourceId` (`purview` was only listed for datastore aliases)
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — padded declared endpoint alias keys skipped edge resolution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -229,6 +229,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` with relationship endpoint = mixed-case ARM id — `FilterRelationshipOnlyProposals` uses raw `Contains`, but `declaredBatchEndpointKeys` is case-insensitive and `AddArmResourceIdEndpointKeys` registers normalized ARM aliases during batch declaration, so batch-local relationships are not dropped.
 - [x] (proven) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeSyntheticLabelEndpointKeys` on inventoried node `Category = Data/Storage` and `SourceId` not matching `LooksLikeTerraformServiceSourceId` — **hit 2026-08-26:** `azurerm_purview_account` omitted from service heuristic list; Data-category nodes indexed only `ds-{label}` so `svc-catalog` relationships were filtered and edges dropped; regression in gate + merge tests
 
+- [x] (proven) `TopologyProposalRelationshipEndpointIndex.BuildSyntheticServiceNodeId` / `BuildSyntheticDatastoreNodeId` — padded graph `Label` built `svc-  api  ` / `ds-  sql  ` aliases while manifest paths trim before synthesis — **hit 2026-09-11 seed hunt #1776:** Data-category Terraform service nodes with whitespace-padded labels indexed non-canonical synthetic keys so `svc-api` relationships failed edge mapping; fixed by trimming names in builders; regression `MapRelationships_resolves_synthetic_service_id_when_graph_node_label_has_surrounding_whitespace`
+
+2026-09-11 seed hunt #1776 (hit): reseeded arm-terraform-source-ids; proved padded-label synthetic endpoint key gap; 1 scoped edge mapper regression passed.
+
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — `endpointAliases` keys copied without trim so padded declared aliases missed relationship resolution — **hit 2026-09-11 seed hunt #1777:** manifest alias dictionaries trim on insert but merge path used raw `alias.Key`; relationships referencing trimmed endpoints dropped edges; fixed by trimming alias keys before `TryAdd`; regression `MapRelationships_resolves_endpoints_when_declared_alias_key_has_surrounding_whitespace`
+
+2026-09-11 seed hunt #1777 (hit): reseeded arm-terraform-source-ids after #1776; proved padded endpoint alias key resolution gap; 1 scoped edge mapper regression passed.
+
 ---
 
 ## Zone: tenant-settings-sql
@@ -239,10 +247,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 18
+- **hunts:** 23
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
@@ -314,6 +322,37 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-09-10 seed hunt #1552 (seed-only): reseeded tenant-settings-sql after #1548; cheap-disproof closed cross-tenant cache isolation, whitespace value delete-key guards, empty-tenant TryGet cache poison, and twelve-alias JSON budget; 43 scoped TenantSettings tests passed.
 
+- [x] (invalid) Eleven-alias allowed-engine JSON exceeds migration `NVARCHAR(512)` — **cheap-disproof 2026-09-11 seed hunt #1757:** eleven `managed-azure-openai-alias-*` ids still fit under the 512-char budget (fourteen exceeds per #1323); regression `Serialized_allowed_engine_set_with_eleven_aliases_fits_migration_setting_value_limit`
+- [x] (invalid) `CachingTenantSettingsRepository.DeleteAsync` with alternate setting-key casing fails to delete the normalized SQL/cache slot — **cheap-disproof 2026-09-11 seed hunt #1757:** `TenantSettingKeyNormalizer.Normalize` runs in `DeleteAsync` before inner delete and generation bumps; regression `TenantSettings_TryGetAsync_returns_null_after_delete_when_setting_key_casing_differs`
+- [x] (valid-no-repro) Concurrent `DeleteAsync` on the same key serves stale cached hit after both wrappers complete — **cheap-disproof 2026-09-11 seed hunt #1757:** symmetric to #1547 write-in-flight parity; idempotent inner delete plus per-slot generation bumps still expose absent final state; regression `TenantSettings_TryGetAsync_returns_null_after_concurrent_delete_on_same_key`
+
+2026-09-11 seed hunt #1757 (seed-only): reseeded tenant-settings-sql after #1554; cheap-disproof closed eleven-alias JSON budget, delete key-casing normalization, and concurrent-delete cache isolation; 46 scoped TenantSettings tests passed.
+
+- [x] (invalid) Ten-alias allowed-engine JSON exceeds migration `NVARCHAR(512)` — **cheap-disproof 2026-09-11 seed hunt #1765:** ten `managed-azure-openai-alias-*` ids fit under the 512-char budget (eleven fits per #1757; fourteen exceeds per #1323).
+- [x] (valid-no-repro) `TenantSettingsWriteGuard.EnsureSettingValueLength` measures `settingValue.Trim().Length` so padding cannot bypass the 512-char limit — **cheap-disproof 2026-09-11 seed hunt #1765:** guard rejects `512 + 1` chars and accepts exact 512 (`EnsureSettingValueLength_accepts_value_at_exact_migration_nvarchar_512_limit`).
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.TryGetCoreAsync` returns null for whitespace-only `SettingValue` rows — **cheap-disproof 2026-09-11 seed hunt #1765:** `string.IsNullOrWhiteSpace(value) ? null : value.Trim()` treats blank SQL payloads as absent; upsert path rejects whitespace values before MERGE.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` bypasses hybrid cache when `WriteInFlightKeys` contains the slot — **cheap-disproof 2026-09-11 seed hunt #1765:** in-flight reads delegate to inner SQL during upsert/delete wrappers; regression `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed`.
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` rejects `Guid.Empty` before opening a SQL connection — **cheap-disproof 2026-09-11 seed hunt #1765:** `tenantId == Guid.Empty` throws `ArgumentException` at lines 77–78 before `CreateOpenConnectionAsync`.
+- [x] (invalid) `SqlTenantSettingsRepository.DeleteCoreAsync` should invoke `TenantSettingsWriteGuard` — **cheap-disproof 2026-09-11 seed hunt #1765:** delete removes a key only; no `SettingValue` payload exists on the delete path.
+
+2026-09-11 seed hunt #1765 (seed-only): reseeded tenant-settings-sql after #1757; cheap-disproof closed ten-alias JSON budget, trim-aware write guard, whitespace read normalization, write-in-flight cache bypass, empty-tenant upsert guard, and delete write-guard candidate; 12 scoped SqlTenantSettingsRepository tests passed.
+
+- [x] (invalid) Nine-alias allowed-engine JSON exceeds migration `NVARCHAR(512)` — **cheap-disproof 2026-09-11 seed hunt #1778:** nine `managed-azure-openai-alias-*` ids fit under the 512-char budget (ten fits per #1765; fourteen exceeds per #1323).
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.DeleteCoreAsync` rejects `Guid.Empty` before opening a SQL connection — **cheap-disproof 2026-09-11 seed hunt #1778:** `tenantId == Guid.Empty` throws `ArgumentException` before `CreateOpenConnectionAsync`, symmetric to upsert path (#1765).
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` with padded `settingKey` misses normalized cache slot — **cheap-disproof 2026-09-11 seed hunt #1778:** `TenantSettingKeyNormalizer.Normalize` runs before cache slot lookup; regression `TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`.
+
+2026-09-11 seed hunt #1778 (seed-only): reseeded tenant-settings-sql after #1765; cheap-disproof closed nine-alias JSON budget, delete empty-tenant guard, and padded setting-key cache slot; 12 scoped SqlTenantSettingsRepository tests passed.
+
+- [x] (invalid) Eight-alias allowed-engine JSON exceeds migration `NVARCHAR(512)` — **cheap-disproof 2026-09-11 seed hunt #1784:** eight `managed-azure-openai-alias-*` ids fit under budget (nine fits per #1778).
+- [x] (valid-no-repro) `InMemoryTenantSettingsRepository.TryGetAsync` returns untrimmed `SettingValue` unlike SQL read path — **cheap-disproof 2026-09-11 seed hunt #1784:** upsert stores trimmed values only; no public path seeds padded payloads.
+
+2026-09-11 seed hunt #1784 (seed-only): reseeded tenant-settings-sql after #1778; cheap-disproof closed eight-alias JSON budget and in-memory read trim parity; 12 scoped SqlTenantSettingsRepository tests passed.
+
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` stores untrimmed `SettingValue` when input has only internal spaces — **cheap-disproof 2026-09-11 seed hunt #1785:** upsert trims before MERGE; internal spaces preserved intentionally.
+- [x] (invalid) Seven-alias allowed-engine JSON exceeds migration `NVARCHAR(512)` — **cheap-disproof 2026-09-11 seed hunt #1785:** seven aliases fit under budget.
+
+2026-09-11 seed hunt #1785 (seed-only): reseeded tenant-settings-sql after #1784; cheap-disproof closed internal-space value trim and seven-alias JSON budget; 12 scoped SqlTenantSettingsRepository tests passed.
+
 2026-09-08 seed hunt #1358 (seed-only): reseeded after #1347; cheap-disproof closed failed-delete generation-bump and empty-tenant-id cache-poison candidates; seeded out-of-band SQL cache staleness and multi-key partial-write candidates; no hunt-ready row reproduces.
 
 2026-09-08 thorough hunt #1347 (hit): proved in-memory write-guard parity gap; 6 scoped SqlTenantSettingsRepository + 5 InMemoryTenantSettingsRepository tests passed.
@@ -338,7 +377,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -394,6 +433,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-11 seed hunt #1740 (seed→hit): reseeded ui-form-validation; proved optional-field readiness copy mismatches for overlong industry Other and fractional team size; cheap-disproof closed non-numeric team size via number input; 25 scoped SignupForm tests passed.
 
+
+2026-09-12 seed hunt #1919 (seed-only): reseeded ui-form-validation; cheap-disproof closed fractional team size bypass as fixed in #1730; 25 scoped SignupForm tests passed.
+
+- [x] (valid-no-repro) `SignupForm` fractional `architectureTeamSize` keeps submit enabled — **cheap-disproof 2026-09-12 seed hunt #1919:** `Number.isInteger` guard (#1730).
 ---
 
 ## Zone: commit-output-integrity
@@ -404,13 +447,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 29
+- **hunts:** 34
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-09-11
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-10 — selector treated null RecordedQualityGateOutcome as Accepted rank on duplicate rows
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #1960 (seed-only): picker repeat after `-Refresh`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1957 (seed-only): picker repeat after `-Refresh`; re-read selector/evaluator/integrity sources; no new mechanism-backed hunt-ready rows beyond closed ledger entries.
+
+2026-09-12 seed hunt #1953 (seed-only): picker repeat; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1951 (seed-only): picker repeat; re-read selector/evaluator/integrity sources; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1950 (seed-only): reseeded commit-output-integrity after master merge churn; no new mechanism-backed hunt-ready rows beyond closed ledger entries.
 
 ### Hypotheses
 
@@ -566,13 +619,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-12
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
+
+2026-09-12 seed hunt #1946 (seed-only): reopened after master merge git churn; re-read post-processor and consistency-gate sources; no new mechanism-backed hunt-ready rows beyond closed ledger entries; 32 scoped Application tests passed.
 
 2026-08-16 dry hunt: listed hypotheses do not hold on `AgentProposalStructuralPostProcessor` / `CrossAgentProposalConsistencyGate`. Neither file rewrites datastore category (`storage` vs `data`); synthetic `ds-` aliases are unchanged. Existing keep-path tests (26) pass; the gate does not drop a relationship the post-processor retained under current claim/validation key unions.
 
@@ -678,10 +733,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 7
+- **hunts:** 12
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -717,6 +772,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1481 (seed-only): reseeded orchestrator-transient-retry; cheap-disproved mixed-aggregate fail-fast candidate; 10 scoped transient-retry tests passed.
 
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.IsExhausted` treats elapsed exactly equal to `RetryBudget` as not exhausted — **cheap-disproof 2026-09-11 seed hunt #1747:** `elapsed >= RetryBudget` is inclusive; regression `IsExhausted_returns_true_when_elapsed_exactly_equals_retry_budget`.
+
+2026-09-11 seed hunt #1747 (seed-only): reseeded orchestrator-transient-retry after bugsmash merges; cheap-disproof closed budget boundary equality; 30 scoped transient-retry tests passed (11 Application + 18 Persistence + 1 new policy test).
+
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry bare `TimeoutException` — **cheap-disproof 2026-09-10 seed hunt #1674:** `SqlTransientDetector` treats timeout as transient; regression `ExecuteAsync_retries_bare_timeout_exception`.
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry SQL error `-2` (command timeout) — **cheap-disproof 2026-09-10 seed hunt #1674:** `-2` is in transient detector set; regression `ExecuteAsync_retries_sql_timeout_error_number_minus_two`.
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry Azure SQL unavailable error `40613` — **cheap-disproof 2026-09-10 seed hunt #1674:** `40613` is in transient detector set; regression `ExecuteAsync_retries_azure_sql_unavailable_error_40613`.
@@ -728,6 +787,39 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `CommitRunTransientRetryPolicy.IsExhausted` false when both attempt and elapsed exceed limits — **cheap-disproof 2026-09-10 seed hunt #1674:** either predicate triggers exhaustion; regression `IsExhausted_returns_true_when_attempt_and_elapsed_both_exceed_limits`.
 
 2026-09-10 seed hunt #1674 (seed-only): reseeded orchestrator-transient-retry after #1591; cheap-disproof closed bare timeout retry, SQL `-2`/Azure `40613` transient paths, nested aggregate flatten, bare invalid-operation fail-fast, generic overload exhaustion parity, attempt-zero budget guard, max-poll delay, and dual-limit exhaustion; 29 scoped transient-retry tests passed.
+
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry transient SQL when wrapped in non-aggregate `InvalidOperationException` inner chain — **cheap-disproof 2026-09-11 seed hunt #1758:** `SqlTransientDetector.IsTransient` walks repository wrapper chains; regression `ExecuteAsync_retries_deadlock_wrapped_in_invalid_operation_exception`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry deadlock when `AggregateException` inner is `InvalidOperationException` wrapping SQL — **cheap-disproof 2026-09-11 seed hunt #1758:** aggregate flatten plus per-inner `SqlTransientDetector` walk; regression `ExecuteAsync_retries_deadlock_when_aggregate_inner_is_wrapped_exception`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry Azure elastic pool capacity error `40501` — **cheap-disproof 2026-09-11 seed hunt #1758:** `40501` is in transient detector set; regression `ExecuteAsync_retries_azure_elastic_pool_capacity_error_40501`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry `AggregateException` with bare `TimeoutException` inner — **cheap-disproof 2026-09-11 seed hunt #1758:** aggregate path delegates to `SqlTransientDetector`; regression `ExecuteAsync_retries_aggregate_with_bare_timeout_exception_inner`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` retries `TaskCanceledException` — **cheap-disproof 2026-09-11 seed hunt #1758:** Polly does not treat cancellation as transient SQL; regression `ExecuteAsync_does_not_retry_task_canceled`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy` inter-attempt `RetryDelay` sum exceeds `RetryBudget` before attempt ceiling — **cheap-disproof 2026-09-11 seed hunt #1758:** linear delay sum for attempts 1–11 fits inside 20s budget; regression `RetryDelay_sum_for_inter_attempt_waits_fits_inside_retry_budget`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.IsExhausted` true at attempt `MaxAttempts - 1` with zero elapsed — **cheap-disproof 2026-09-11 seed hunt #1758:** exhaustion requires attempt ≥ 12 or elapsed ≥ budget; regression `IsExhausted_returns_false_at_attempt_one_below_max_with_zero_elapsed`.
+
+2026-09-11 seed hunt #1758 (seed-only): reseeded orchestrator-transient-retry after #1747; cheap-disproof closed wrapper-chain retry, aggregate-wrapped deadlock, Azure `40501`, aggregate timeout inner, task cancellation, inter-attempt delay budget, and attempt-11 zero-elapsed guard; 37 scoped transient-retry tests passed (23 Persistence + 14 Application).
+
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry Azure SQL unavailable error `40645` — **cheap-disproof 2026-09-11 seed hunt #1766:** `40645` is in transient detector set per `SqlTransientDetector` remarks; regression `ExecuteAsync_retries_azure_sql_unavailable_error_40645`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry Azure service capacity error `40197` — **cheap-disproof 2026-09-11 seed hunt #1766:** `40197` is in transient detector set; regression `ExecuteAsync_retries_azure_service_capacity_error_40197`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry network connection error `233` — **cheap-disproof 2026-09-11 seed hunt #1766:** `233` is in transient detector set; regression `ExecuteAsync_retries_network_connection_error_233`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry Azure throttling error `49918` — **cheap-disproof 2026-09-11 seed hunt #1766:** `49918` is in transient detector set; regression `ExecuteAsync_retries_azure_throttling_error_49918`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry resource throttling error `10928` — **cheap-disproof 2026-09-11 seed hunt #1766:** `10928` is in transient detector set; regression `ExecuteAsync_retries_resource_throttling_error_10928`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.IsExhausted` false at attempt `MaxAttempts` with elapsed below budget — **cheap-disproof 2026-09-11 seed hunt #1766:** attempt ceiling triggers exhaustion regardless of elapsed; regression `IsExhausted_returns_true_at_max_attempts_with_elapsed_below_budget`.
+
+2026-09-11 seed hunt #1766 (seed-only): reseeded orchestrator-transient-retry after #1758; cheap-disproof closed Azure `40645`/`40197`, network `233`, throttling `49918`/`10928`, and max-attempt-with-sub-budget-elapsed guard; 43 scoped transient-retry tests passed (28 Persistence + 15 Application).
+
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry network connection error `10053` — **cheap-disproof 2026-09-11 seed hunt #1767:** `10053` is in transient detector set; regression `ExecuteAsync_retries_network_connection_error_10053`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry network connection error `10054` — **cheap-disproof 2026-09-11 seed hunt #1767:** `10054` is in transient detector set; regression `ExecuteAsync_retries_network_connection_error_10054`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry network connection error `10060` — **cheap-disproof 2026-09-11 seed hunt #1767:** `10060` is in transient detector set; regression `ExecuteAsync_retries_network_connection_error_10060`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry resource throttling error `10929` — **cheap-disproof 2026-09-11 seed hunt #1767:** `10929` is in transient detector set; regression `ExecuteAsync_retries_resource_throttling_error_10929`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.ExecuteAsync<T>` does not retry Azure throttling error `49919` — **cheap-disproof 2026-09-11 seed hunt #1767:** generic overload shares pipeline; regression `ExecuteAsync_generic_overload_retries_azure_throttling_error_49919`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.IsExhausted` false at attempt zero when elapsed exceeds budget — **cheap-disproof 2026-09-11 seed hunt #1767:** elapsed ceiling triggers exhaustion regardless of attempt; regression `IsExhausted_returns_true_at_attempt_zero_when_elapsed_exceeds_budget`.
+
+2026-09-11 seed hunt #1767 (seed-only): reseeded orchestrator-transient-retry after #1766; cheap-disproof closed network `10053`/`10054`/`10060`, resource `10929`, generic `49919`, and attempt-zero budget exhaustion; 49 scoped transient-retry tests passed (33 Persistence + 16 Application).
+
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry Azure throttling error `49920` — **cheap-disproof 2026-09-11 seed hunt #1781:** `49920` is in transient detector set; regression `ExecuteAsync_retries_azure_throttling_error_49920`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` sum for eight polls exceeds `RetryBudget` — **cheap-disproof 2026-09-11 seed hunt #1781:** inter-poll delay sum fits inside 20s budget; regression `ManifestReconcilePollDelay_sum_for_inter_poll_waits_fits_inside_retry_budget`.
+
+2026-09-11 seed hunt #1781 (seed-only): reseeded orchestrator-transient-retry after #1767; cheap-disproof closed Azure `49920` throttling and eight-poll reconcile delay budget; 49 scoped transient-retry tests passed.
 
 ---
 
@@ -1118,11 +1210,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 5
-- **bugs-found:** 8
+- **hunts:** 8
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — hash-line SQL comments bypassed `StripSqlComments`, false-binding tenant predicates
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — null-coalescing local initializer bypassed ARCH006 static resolution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1138,9 +1230,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Non-const local / static readonly SQL variable references bypassed ARCH006 — **hit 2026-08-24:** resolver only folded `const` symbols, not declarator initializers; regressions in `ARCH006_reports_unscoped_sql_for_non_const_local_variable` and `ARCH006_reports_unscoped_sql_for_static_readonly_field`
 - [x] (proven) Property SQL initializers bypassed ARCH006 static resolution — **hit 2026-08-25:** `TenantScopedSqlExpressionResolver` resolved locals/fields from declarators but ignored `PropertyDeclarationSyntax` initializers, so `private string Sql { get; } = "SELECT … dbo.Runs …"` passed through unanalyzed; fixed by folding property initializers; regression in `ARCH006_reports_unscoped_sql_for_property_with_initializer`
 - [x] (proven) Hash-line SQL comments (`# …`) treated as tenant scope predicates — **hit 2026-09-03:** `StripSqlComments` stripped `--` and `/* */` but not full-line `#` comments, so `# TenantId = @TenantId …` false-bound `dbo.Runs`; fixed with `HashLineCommentRegex`; regression in `Tenant_id_predicate_in_hash_sql_comment_does_not_bind_runs`
-- [ ] (candidate) `Execute`/`ExecuteAsync` with `CommandType.StoredProcedure` may still be analyzed as raw SQL when procedure name is a string literal — needs hunt-ready locus in `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgument`
-- [ ] (candidate) `string.Format` / `nameof` / non-literal verbatim concatenation in SQL expressions may bypass static resolution — resolver returns non-static for unrecognized expression shapes
+- [x] (valid-no-repro) `Execute`/`ExecuteAsync` with `CommandType.StoredProcedure` analyzed benign procedure name as raw SQL — **cheap-disproof 2026-09-11 hunt #1750:** `usp_LoadRuns` with `CommandType.StoredProcedure` does not reference tenant-scoped tables; no ARCH006/ARCH006a false positive; regression `ARCH006_does_not_analyze_stored_procedure_name_when_command_type_is_stored_procedure`
+- [x] (proven) `string.Format` with table name in format arguments bypassed static SQL resolution — **hit 2026-09-11 hunt #1750:** resolver ignored `string.Format` invocations so `string.Format("SELECT … FROM {0}", "dbo.Runs")` evaded ARCH006; fixed `TryResolveStringFormatInvocation` in `TenantScopedSqlExpressionResolver`; regression `ARCH006a_reports_unanalyzable_sql_for_string_format_table_reference`
+- [x] (proven) Ternary local initializer bypassed ARCH006 static resolution — **hit 2026-09-11 hunt #1761:** `ResolveCore` ignored `ConditionalExpressionSyntax`, so `string sql = cond ? "SELECT … dbo.Runs …" : "SELECT 1"` passed through unanalyzed; fixed `ResolveConditional` with branch folding; regression `ARCH006_reports_unscoped_sql_for_ternary_local_initializer`
+- [x] (proven) `string.Format(IFormatProvider, string, …)` overload bypassed static SQL resolution — **hit 2026-09-11 hunt #1761:** `TryResolveStringFormatInvocation` always used `Arguments[0]` as the format string, so culture-first overloads evaded ARCH006; fixed `TryGetFormatStringArgumentIndex`; regression `ARCH006_reports_unscoped_sql_for_string_format_with_format_provider`
 - [x] (valid-no-repro) `const` field SQL initializers already fold via `IFieldSymbol.IsConst` in `ResolveFromSymbol` — same path as proven local/readonly fixes; no separate property-vs-field gap
+- [x] (proven) `switch` expression local initializer bypassed ARCH006 static resolution — **hit 2026-09-11 seed hunt #1780:** `ResolveCore` ignored `SwitchExpressionSyntax`, so `string sql = flag switch { true => "SELECT … dbo.Runs …", false => "SELECT 1" }` passed through unanalyzed; fixed `ResolveSwitchExpression` with branch folding; regression `ARCH006_reports_unscoped_sql_for_switch_expression_local_initializer`
+- [x] (proven) Null-coalescing local initializer bypassed ARCH006 static resolution — **hit 2026-09-11 seed hunt #1780:** `ResolveCore` ignored `CoalesceExpression`, so `string sql = configured ?? "SELECT … dbo.Runs …"` passed through unanalyzed; fixed `ResolveNullCoalescing` with branch folding; regression `ARCH006_reports_unscoped_sql_for_null_coalescing_local_initializer`
+
+2026-09-11 seed hunt #1780 (hit): reseeded tenant-scoped-analyzer after #1761; proved switch-expression and null-coalescing local initializer resolver bypasses; 16 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
+2026-09-11 seed hunt #1761 (hit): reseeded tenant-scoped-analyzer after #1750 closed all open rows; proved ternary local initializer and `string.Format(IFormatProvider, …)` resolver bypasses; 14 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
+2026-09-11 thorough hunt #1750 (hit): reseeded tenant-scoped-analyzer; proved `string.Format` SQL bypass; cheap-disproof closed stored-procedure false-positive candidate; 12 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
 ---
 
@@ -1813,11 +1915,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 6
-- **bugs-found:** 8
+- **hunts:** 7
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — partial wallet PUT could not enable auto-replenish when monthly cap already persisted
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — enabling auto-replenish skipped step validation on persisted invalid monthly cap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1839,6 +1941,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `UpdateWalletAsync` allows enabling auto-replenish without Stripe payment method on file — **cheap-disproof 2026-09-09 hunt #1432:** billing UI blocks save without payment method; GET exposes `hasPaymentMethod`; `TryAutoRefillAsync` no-ops safely when customer/payment method missing; no charge or overspend wrong outcome
 
 2026-09-09 thorough hunt #1432 (hit): proved partial auto-replenish enable regression; cheap-disproved payment-method UX candidate; 16 scoped LlmTenantWalletServiceTests passed.
+
+- [x] (proven) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enabling auto-replenish without resubmitting `MonthlyCapUsd` only checked persisted cap `> 0`, not step alignment — **hit 2026-09-11 seed hunt #1774:** legacy/seeded cap `75m` could enable auto-replenish despite `$50` step rule; fixed by validating persisted cap with `IsValidMonthlyCap` when cap omitted; regression `UpdateWalletAsync_rejects_enabling_auto_replenish_when_persisted_monthly_cap_is_invalid_step`
+
+2026-09-11 seed hunt #1774 (hit): reseeded llm-wallet; proved auto-replenish enable bypassed persisted invalid monthly-cap step validation; 1 scoped wallet test passed.
 
 2026-09-03 seed hunt #584: reseeded llm-wallet; proved wallet read month-rollover display gap vs `CanAutoRefill` parity; seeded auto-replenish-without-payment-method UX candidate.
 
@@ -1954,10 +2060,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 10
+- **hunts:** 13
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -2016,6 +2122,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-10 seed hunt #1679 (seed-only): reseeded review-recurrence after #1628; cheap-disproof closed single-retry ceiling candidate as invalid on production paths and added alias/padding/retry-kind guards; 45 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
 2026-09-10 seed hunt #1628 (seed-only): reseeded review-recurrence after #1586; cheap-disproof closed null-cron support, disabled short-circuit, batch/single parity, single-retry ceiling, and hourly batch monotonicity; 36 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
+
+- [x] (valid-no-repro) `IsSupportedCronExpression` — `@weekly` alias rejected at wrapper — **cheap-disproof 2026-09-11 seed hunt #1762:** `SimpleScanScheduleCalculator.IsIntervalAlias` includes `@weekly`; runtime probe `IsSupportedCronExpression("@weekly")` returns true.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — `@weekly` alias batch emits non-monotonic instants — **cheap-disproof 2026-09-11 seed hunt #1762:** alias adds seven days per cursor advance; runtime probe from 2026-03-26 yields 2026-04-02 / 2026-04-09 / 2026-04-16.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — single-run `@weekly` returns instant not strictly after reference — **cheap-disproof 2026-09-11 seed hunt #1762:** `@weekly` always advances `fromUtc` by seven days; `NormalizeNextRunUtc` only retries when `candidate <= fromUtc`.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — single-run `@monthly` returns null or a past instant — **cheap-disproof 2026-09-11 seed hunt #1762:** Cronos `@monthly` parse returns 2026-04-01 UTC after 2026-03-26 reference; kind stamped UTC.
+- [x] (invalid) `NormalizeNextRunUtc` — `SpecifyUtc` relabels `DateTimeKind.Local` without `ToUniversalTime`, shifting next-run wall clock — **cheap-disproof 2026-09-11 seed hunt #1762:** production `SimpleScanScheduleCalculator` and Cronos `GetNextOccurrence(..., TimeZoneInfo.Utc)` return UTC-kind instants; Local-kind retry is stub-only.
+
+2026-09-11 seed hunt #1762 (seed-only): reseeded review-recurrence after #1679; cheap-disproof closed `@weekly` alias support/monotonicity, single-run `@monthly`, and Local-kind `SpecifyUtc` relabel candidate; 45 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
+
+- [x] (valid-no-repro) `IsSupportedCronExpression` / `ComputeNextRunsUtc` — `@yearly` alias rejected or returns past instants — **cheap-disproof 2026-09-11 seed hunt #1775:** Cronos parses `@yearly` like `@monthly`; batch preview advances to future instants; regressions `IsSupportedCronExpression_accepts_yearly_alias` / `ComputeNextRunsUtc_yearly_alias_returns_future_instants`.
+
+2026-09-11 seed hunt #1775 (seed-only): reseeded review-recurrence after #1762; cheap-disproof closed `@yearly` alias candidate; 47 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
+
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — `@daily` alias batch returns fewer than requested count when cron is invalid mid-loop — **cheap-disproof 2026-09-11 seed hunt #1782:** invalid cron returns null on first iteration and stops; regression `ComputeNextRunsUtc_returns_empty_for_invalid_cron_expression`.
+- [x] (valid-no-repro) `NormalizeReferenceUtc` — `DateTimeKind.Unspecified` reference shifts next-run by local offset — **cheap-disproof 2026-09-11 seed hunt #1782:** unspecified kind is relabeled UTC without `ToUniversalTime`; regression `ComputeNextRunUtc_normalizes_unspecified_reference_kind_to_utc`.
+
+2026-09-11 seed hunt #1782 (seed-only): reseeded review-recurrence after #1775; cheap-disproof closed invalid-cron mid-batch stop and unspecified-reference normalization; 47 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
 ---
 
@@ -2077,11 +2200,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 8
-- **bugs-found:** 5
+- **hunts:** 12
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-09 — `WeeklySponsorSummaryEmailDispatcher` padded ISO week idempotency keys duplicated weekly summary sends
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — whitespace-only `weekLabel` sent weekly sponsor report with blank subject week segment
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2110,6 +2233,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `WeeklySponsorSummaryEmailDispatcher.TryDispatchAsync` accepts `Guid.Empty` tenant — **cheap-disproof 2026-09-10 seed hunt #1681:** throws `ArgumentException` for empty tenant; regression `WeeklySponsorSummaryEmailDispatcher_throws_for_empty_tenant_id`.
 - [x] (valid-no-repro) `WeeklySponsorSummaryEmailDispatcher` whitespace-only `isoWeekIdempotencyKey` bypasses trim guard — **cheap-disproof 2026-09-10 seed hunt #1681:** rejects whitespace-only keys before ledger scope; regression `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_iso_week_key`.
 - [x] (valid-no-repro) `WeeklySponsorSummaryEmailDispatcher` omits `weekly-sponsor-summary` telemetry tag — **cheap-disproof 2026-09-10 seed hunt #1681:** `EmailMessageTags.EventType` set; regression `WeeklySponsorSummaryEmailDispatcher_tags_outbound_message_with_weekly_sponsor_summary_event_type`.
+
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` lowercase ISO-week letter (`2026-w32`) bypasses canonical uppercase ledger scope and duplicates weekly sends — **cheap-disproof 2026-09-11 seed hunt #1756:** idempotency prefix is case-sensitive, but `WeeklySponsorReportDeliveryScanner` emits canonical `{isoYear}-W{isoWeek:00}` uppercase only; regression `WeeklySponsorReportEmailDispatcher_lowercase_iso_week_idempotency_key_is_distinct_from_canonical_week`.
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` returns false when all recipients are already ledger-recorded — **cheap-disproof 2026-09-11 seed hunt #1756:** `MultiRecipientEmailDispatch` returns true (idempotent success) without re-sending when every mailbox is already recorded; regression `WeeklySponsorReportEmailDispatcher_returns_true_when_all_recipients_already_recorded`.
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` invalid-only mailbox list skips send after template render — **cheap-disproof 2026-09-11 seed hunt #1756:** re-confirms #1431; outer trim pass renders before `IdentityEmailNormalizer` filters invalid addresses; no send/ledger wrong outcome; regression `WeeklySponsorReportEmailDispatcher_skips_send_when_all_mailboxes_fail_identity_normalization`.
+
+2026-09-11 seed hunt #1756 (seed-only): reseeded weekly-digest-email (`WeeklySponsorReportEmailDispatcher` in zone path); cheap-disproof closed lowercase ISO-week duplicate-send, all-recipients-already-recorded return contract, and invalid-mailbox pre-render candidates; 3 new digest idempotency regressions + 2 scoped WeeklyExecutiveSummaryJob tests passed (31 total digest/job coverage this run).
+
+- [x] (proven) `WeeklySponsorReportEmailDispatcher` passes padded `weekLabel` into subject and template while trimming `runIdHex`/`runDetailUrl` — **hit 2026-09-11 seed hunt #1770:** buyer-facing subject showed `" —  W27  "` padding; fixed by trimming `weekLabel`; regression `WeeklySponsorReportEmailDispatcher_trims_week_label_in_template_model_and_subject`.
+
+2026-09-11 seed hunt #1770 (seed→hit): reseeded weekly-digest-email; proved weekLabel trim gap in `WeeklyExecutiveSummaryEmailDispatcher.cs` (`WeeklySponsorReportEmailDispatcher`); 16 scoped report dispatcher idempotency tests passed.
+
+- [x] (proven) `WeeklySponsorSummaryEmailDispatcher` passes padded `weekLabel` into subject and template while trimming sibling fields — **hit 2026-09-11 seed hunt #1771:** summary subject showed padded week label; fixed by trimming `weekLabel` parity with report dispatcher #1770; regression `WeeklySponsorSummaryEmailDispatcher_trims_week_label_in_template_model_and_subject`.
+
+2026-09-11 seed hunt #1771 (seed→hit): reseeded weekly-digest-email; proved sibling summary dispatcher weekLabel trim gap; 10 scoped summary dispatcher idempotency tests passed.
+
+- [x] (proven) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` — whitespace-only `weekLabel` trimmed to empty and still sent weekly report — **hit 2026-09-11 seed hunt #1773:** `isoWeekIdempotencyKey` rejects whitespace-only input but `weekLabel` did not, producing buyer-facing subject `weekly Sponsor report — ` and empty template week segment; fixed with `ArgumentException` parity; regression `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_week_label`
+
+2026-09-11 seed hunt #1773 (hit): reseeded weekly-digest-email; proved weekLabel whitespace-only validation gap vs iso-week guard; 3 scoped tests passed.
 
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 
@@ -2251,7 +2392,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -2289,6 +2430,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-07 seed hunt #1244 (hit): reseeded extraction-router zone; proved sensitive structured compliance bypass; seeded long-form sensitive prose candidate.
 
+
+2026-09-12 seed hunt #1917 (seed-only): reseeded extraction-router; cheap-disproof closed present/future lifecycle synonym gap as fixed in #1421; scoped DifficultyBasedExtractionRouter tests passed.
+
+- [x] (valid-no-repro) `InferLifecycleScopeForIndex` ignores `present state`/`future state` section headers — **cheap-disproof 2026-09-12 seed hunt #1917:** regression `Extract_tags_component_after_present_state_section_even_when_future_state_appears_first` (#1421).
 ---
 
 ## Zone: cli-tenant-isolation
@@ -2299,10 +2444,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 15
+- **hunts:** 17
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-07 — run-list exclude probe false-passed when hasMore true without nextCursor
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -2370,6 +2515,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-10 seed hunt #1546 (seed-only): reseeded cli-tenant-isolation after #1480; cheap-disproof closed Guid wire-format list matching, HTTP 409 deny semantics, primary 503 gate, and orphan-cursor pagination; 30 scoped TenantIsolationNegativeTestRunner tests passed.
 
+- [x] (valid-no-repro) Run-list exclude probe maps HTTP 403 Forbidden to SKIP via `ListUnavailable` — **cheap-disproof 2026-09-11 seed hunt #1763:** `ScanRunListForForeignRunIdAsync` treats any non-2xx list response as `ListUnavailable` (same branch as HTTP 401 in #1241); alternate scope cannot verify foreign runId exclusion.
+- [x] (valid-no-repro) `EvaluateDenyStatus` maps HTTP 410 Gone to FAIL not PASS for deny-status probes — **cheap-disproof 2026-09-11 seed hunt #1763:** only 401/403/404 count as denied access; 410 falls through to fail-closed FAIL.
+- [x] (valid-no-repro) `ProbePrimaryRunVisibilityAsync` treats HTTP 204 No Content as Pass and runs cross-tenant probes — **cheap-disproof 2026-09-11 seed hunt #1763:** `response.IsSuccessStatusCode` is the primary-scope gate; any 2xx means the supplied runId is reachable before alternate probes execute.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestCommand` returns non-zero exit when live overall verdict is SKIP — **cheap-disproof 2026-09-11 seed hunt #1763:** `RunAsync` returns `CliExitCode.OperationFailed` unless overall is Pass; markdown notes non-zero exit when isolation could not be verified.
+- [x] (valid-no-repro) `TryFindRunIdInRunList` ignores non-string `runId` JSON values — **cheap-disproof 2026-09-11 seed hunt #1763:** `ArrayContainsRunId` uses `GetString()`; `RunSummaryResponse.RunId` serializes as a JSON string per `ArchLucidApiJsonSerializerOptions` (see #1546 Guid wire-format test).
+- [x] (valid-no-repro) `EvaluateDenyStatus` maps HTTP 502 Bad Gateway to SKIP on deny-status probes — **cheap-disproof 2026-09-11 seed hunt #1763:** status codes `>= 500` return Skip (same branch as 503 in `EvaluateDenyStatus_Treats503AsSkip`).
+
+2026-09-11 seed hunt #1763 (seed-only): reseeded cli-tenant-isolation after #1555 dry; cheap-disproof closed HTTP 403 list SKIP, HTTP 410 deny fail-closed, primary 204 gate, live SKIP exit code, non-string runId JSON, and HTTP 502 deny SKIP; 35 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (valid-no-repro) Offline replay maps HTTP 429 on deny-status probes to FAIL not SKIP — **cheap-disproof 2026-09-11 seed hunt #1764:** `TenantIsolationNegativeTestOfflineRunner.EvaluateReplayProbe` calls `EvaluateDenyStatus` for deny probes; same conservative FAIL as live (`EvaluateDenyStatus_Treats429AsFailNotSkip`).
+- [x] (valid-no-repro) Offline exclude-run-id replay maps HTTP 403 list response to SKIP — **cheap-disproof 2026-09-11 seed hunt #1764:** `EvaluateExcludeRunIdProbeVerdict` returns Skip for any non-2xx status before inspecting `foreignRunIdVisible`.
+- [x] (valid-no-repro) `BuildReport` offline path sets `LiveApiMode` false so SKIP cross-tenant probes do not downgrade overall — **cheap-disproof 2026-09-11 seed hunt #1764:** `TenantIsolationNegativeTestRunner.RunOffline` passes `liveApiMode: false`; regression `DeriveOverallVerdict_OfflineModeAllowsPassWhenCrossTenantProbeSkipped`.
+- [x] (invalid) `cross-tenant-run-roi` deny probe should target `/v1/roi/...` instead of architecture review ROI — **cheap-disproof 2026-09-11 seed hunt #1764:** canonical scoped read is `GET /v1/architecture/review/{runId}/roi` (`RunQueryController.Detail.cs`); tenant ROI analytics live under separate `/v1/roi` routes outside this probe catalog.
+- [x] (valid-no-repro) `EvaluateDenyStatus` maps HTTP 405 Method Not Allowed to FAIL on deny-status probes — **cheap-disproof 2026-09-11 seed hunt #1764:** only 401/403/404 are treated as denied access; 405 is fail-closed FAIL.
+- [x] (valid-no-repro) `BuildMarkdown` escapes pipe characters in probe fields — **cheap-disproof 2026-09-11 seed hunt #1764:** `TenantIsolationNegativeTestCommand.EscapePipe` replaces `|` before markdown table emission; prevents table corruption, not an isolation false-pass vector.
+
+2026-09-11 seed hunt #1764 (seed-only): reseeded cli-tenant-isolation after #1763; cheap-disproof closed offline 429 deny, offline 403 list SKIP, offline LiveApiMode overall semantics, ROI route alias, HTTP 405 deny, and markdown pipe escaping; 35 scoped TenantIsolationNegativeTestRunner tests passed.
+
 ---
 
 ## Zone: cli-draft-new
@@ -2416,10 +2579,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 7
+- **hunts:** 12
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2461,6 +2624,32 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-10 seed hunt #1675 (seed-only): reseeded cli-terraform-evidence after master merge; cheap-disproof closed entry count, pilot placement, composition wave order, and documentation leading-slash shape; 19 scoped DeploymentEvidenceTerraformReference tests passed.
 
+- [x] (valid-no-repro) Evidence lists `infra/terraform-orchestrator` more than once or without the legacy isolation annotation — **cheap-disproof 2026-09-11 seed hunt #1749:** single orchestrator line with legacy note; regression `DefaultApplyOrderRoots_lists_orchestrator_only_once_as_legacy_leaf`.
+
+2026-09-11 seed hunt #1749 (seed-only): reseeded cli-terraform-evidence; cheap-disproof closed duplicate orchestrator legacy entry candidate; 20 scoped DeploymentEvidenceTerraformReference tests passed.
+
+- [x] (valid-no-repro) Evidence leaf order drifts from `REFERENCE_SAAS_STACK_ORDER.md` advanced table orders 1-16 while apply-saas sync still passes — **cheap-disproof 2026-09-11 seed hunt #1759:** table leaf paths match evidence leaves; regression `DefaultApplyOrderRoots_leaf_sequence_matches_reference_doc_advanced_table`.
+- [x] (valid-no-repro) Composition root wave annotations mislabel foundation/platform/app metadata waves — **cheap-disproof 2026-09-11 seed hunt #1759:** lines cite wave 1/2/3 in order; regression `DefaultApplyOrderRoots_composition_roots_annotate_foundation_platform_app_waves`.
+- [x] (valid-no-repro) Hosted wave boundaries invert so `$appWaveLeaves` precede final `$platformWaveLeaves` entry in evidence — **cheap-disproof 2026-09-11 seed hunt #1759:** acr precedes entra and keyvault precedes sql-failover; regression `DefaultApplyOrderRoots_hosted_wave_boundaries_place_app_leaves_after_platform_leaves`.
+
+2026-09-11 seed hunt #1759 (seed-only): reseeded cli-terraform-evidence after #1749; cheap-disproof closed reference-doc table sync, composition wave annotation, and hosted wave boundary candidates; 23 scoped DeploymentEvidenceTerraformReference tests passed.
+
+- [x] (valid-no-repro) Plain leaf evidence lines carry em-dash annotations so `ExtractLeafPaths` truncates hosted apply paths — **cheap-disproof 2026-09-11 seed hunt #1768:** thirteen unannotated leaves are exact `infra/terraform-*` paths; regression `DefaultApplyOrderRoots_plain_leaf_lines_are_unannotated_exact_paths`.
+- [x] (valid-no-repro) Consumption APIM root `infra/terraform` is ordered after longer `infra/terraform-*` siblings so substring `Contains` checks mis-rank apply order — **cheap-disproof 2026-09-11 seed hunt #1768:** edge → terraform → monitoring ordering matches `$appWaveLeaves`; regression `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`.
+
+2026-09-11 seed hunt #1768 (seed-only): reseeded cli-terraform-evidence after #1759; cheap-disproof closed plain-leaf annotation and consumption-APIM ordering candidates; 25 scoped DeploymentEvidenceTerraformReference tests passed.
+
+- [x] (valid-no-repro) Annotated composition/pilot/orchestrator evidence lines carry trailing whitespace that corrupts path extraction — **cheap-disproof 2026-09-11 seed hunt #1779:** plain-leaf guard `DefaultApplyOrderRoots_plain_leaf_lines_are_unannotated_exact_paths` plus em-dash split on annotated lines; all twenty paths trim-clean.
+- [x] (valid-no-repro) `infra/terraform-private` is not the first hosted leaf after composition roots — **cheap-disproof 2026-09-11 seed hunt #1779:** first leaf after composition is private per `$foundationWaveLeaves`; regression `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_ps1_multiRootSequence`.
+- [x] (invalid) Evidence omits `infra/terraform-servicebus` from hosted wave leaves — **cheap-disproof 2026-09-11 seed hunt #1779:** servicebus listed between cosmos and logicapps; on-disk directory exists per `DefaultApplyOrderRoots_every_listed_root_directory_exists_on_disk`.
+
+2026-09-11 seed hunt #1779 (seed-only): reseeded cli-terraform-evidence after #1768; cheap-disproof closed annotated-line whitespace, private-first leaf, and servicebus omission candidates; 25 scoped DeploymentEvidenceTerraformReference tests passed.
+
+- [x] (valid-no-repro) `infra/terraform-orchestrator` legacy annotation omits `-LegacyLeafRoots` flag text — **cheap-disproof 2026-09-11 seed hunt #1783:** line cites `legacy isolation path only (-LegacyLeafRoots)`; regression `DefaultApplyOrderRoots_lists_orchestrator_only_once_as_legacy_leaf`.
+- [x] (valid-no-repro) Composition wave 3 cites `infra/terraform-monitoring` instead of `infra/terraform-app` — **cheap-disproof 2026-09-11 seed hunt #1783:** third composition root is app metadata wave; regression `DefaultApplyOrderRoots_lists_three_composition_waves_in_foundation_platform_app_order`.
+
+2026-09-11 seed hunt #1783 (seed-only): reseeded cli-terraform-evidence after #1779; cheap-disproof closed orchestrator legacy annotation and composition wave-3 root; 25 scoped DeploymentEvidenceTerraformReference tests passed.
+
 2026-09-09 seed hunt #1436 (seed-only): re-read static apply-order reference; cheap-disproved pilot-profile and hardcoded-leaf drift candidates; added `$pilotProfileOnly` sync regression; 6 scoped DeploymentEvidenceTerraformReference tests passed.
 
 2026-09-04 seed hunt #734: seeded four drift/doc-scope candidates; cheap-disproved all; added apply-saas.ps1 sync regression tests. No hunt-ready rows; seed-only.
@@ -2475,13 +2664,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 10
-- **bugs-found:** 7
+- **hunts:** 14
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — stale compareRuns URL persisted when buyer package cards hid compare UI
+- **last-hunt:** 2026-09-11
+- **last-bug:** 2026-09-11 — inspector/compare URL sync dropped pending filter text before debounced q= sync
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -2519,6 +2708,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `inspectorRunId` deep link for a run not on the page opens a stale inspector — **cheap-disproof 2026-09-10 seed hunt #1631:** url-driven selection resolves from `safeRuns` only; regression `keeps the inspector empty when inspectorRunId does not match a row on the page`.
 
 2026-09-10 seed hunt #1631 (seed-only): reseeded ui-runs-list after #1590; cheap-disproof closed in_flight scope filtering, q= debounce sync, compare replacement notice, card-to-table narrowing, and invalid inspectorRunId deep link; 34 scoped `RunsListClient` tests passed.
+
+- [x] (proven) Pagination Next/Previous links rebuild href from `projectId`/`pageSize` only and drop active `q=`/`sort=` deep-link state — **hit 2026-09-11 seed hunt #1742 (seed→hit):** `useRunsList` now preserves current search params via `runsListNextPageHrefFromSearch` / `runsListPreviousPageHrefFromSearch`; regression `preserves q= and sort= in the Next pagination link`.
+
+2026-09-11 seed hunt #1742 (seed→hit): reseeded ui-runs-list; proved pagination href dropped q= and sort=; 35 scoped `RunsListClient` tests passed.
+
+- [x] (valid-no-repro) Previous pagination link on page 2 drops active `q=`/`sort=` — **cheap-disproof 2026-09-11 seed hunt #1743:** `runsListPreviousPageHrefFromSearch` preserves search params; regression `preserves q= and sort= in the Previous pagination link on page 2`.
+
+2026-09-11 seed hunt #1743 (seed-only): reseeded ui-runs-list after #1742; cheap-disproof closed Previous-link param preservation; 36 scoped `RunsListClient` tests passed.
+
+- [x] (proven) Sort/pagination/scope navigation hrefs drop in-progress text filter before debounced `q=` URL sync — **hit 2026-09-11 seed hunt #1751 (seed→hit):** href builders used `searchParams` only while `filterText` debounces 250ms; sort chip and Next link omitted typed query until debounce completed; fixed by merging `filterText` via `runsListEffectiveSearchFromSearch` for navigation hrefs; regressions `preserves pending text filter in sort href before q= debounce completes` and `preserves pending text filter in the Next pagination link before q= debounce completes`.
+
+2026-09-11 seed hunt #1751 (seed→hit): reseeded ui-runs-list after #1743; proved navigation hrefs dropped pending filter text before debounced q= sync; 38 scoped `RunsListClient` tests passed.
+
+- [x] (proven) Inspector/compare `router.replace` URL sync drops in-progress text filter before debounced `q=` URL sync — **hit 2026-09-11 seed hunt #1752 (seed→hit):** `syncCompareInspectorToUrl` used `searchParams` only while `filterText` debounces 250ms; row activation and compare checkbox wrote `inspectorRunId`/`compareRuns` without pending `q=` until debounce completed; fixed by merging `filterText` via `runsListEffectiveSearchFromSearch` in `syncCompareInspectorToUrl`; regressions `preserves pending text filter in inspectorRunId URL sync before q= debounce completes` and `preserves pending text filter in compareRuns URL sync before q= debounce completes`.
+
+2026-09-11 seed hunt #1752 (seed→hit): reseeded ui-runs-list after #1751; proved inspector/compare URL sync dropped pending filter text before debounced q= sync; 40 scoped `RunsListClient` tests passed.
 
 2026-09-10 thorough hunt #1580 (hit): proved stale compareRuns persistence under buyer package cards; 20 scoped `RunsListClient` tests passed.
 
@@ -2575,15 +2780,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 9
-- **bugs-found:** 6
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-09 — category section headings used raw category text in invalid HTML id tokens
+- **hunts:** 14
+- **bugs-found:** 8
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-11 — fetched doc-index rows sharing `/help` hub url dropped when titles differ
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+2026-09-12 seed hunt #1938 (seed-only): reseeded ui-help-docs; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] Topic markdown fetch follows an external URL instead of the in-app help route (retired: fetchHelpTopicMarkdown uses `/api/help/{slug}`)
 - [x] Missing topic is rendered as a GitHub blob link (retired: not-found → `/help`; doc-index has no github blob URLs)
@@ -2627,6 +2833,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-10 seed hunt #1632 (seed-only): reseeded ui-help-docs after #1589; cheap-disproof closed case sensitivity, whitespace filter, internal link target, post-error refresh status, unknown category ordering, and empty Escape URL clear; 21 scoped `HelpDocsClient` tests passed.
 
+- [x] (proven) Protocol-relative doc-index URLs (`//host/path`) open in the same tab without `target="_blank"`/`rel="noreferrer"` — **hit 2026-09-11 seed hunt #1744 (seed→hit):** `linkProps` only treated `https?://` as external; fixed to include scheme-relative URLs; regression `opens protocol-relative documentation links in a new tab with noreferrer`.
+
+2026-09-11 seed hunt #1744 (seed→hit): reseeded ui-help-docs; proved protocol-relative external link handling gap; 22 scoped `HelpDocsClient` tests passed.
+
+- [x] (valid-no-repro) `?q=` deep link initializes the search box but leaves the full index visible until the operator types — **cheap-disproof 2026-09-11 seed hunt #1745:** `query` state seeds from `urlQuery` and `filtered` applies on first render; regression `filters documentation on mount when q= is in the URL`.
+
+2026-09-11 seed hunt #1745 (seed-only): reseeded ui-help-docs after #1744; cheap-disproof closed q= mount filtering candidate; 23 scoped `HelpDocsClient` tests passed.
+
+- [x] (proven) `mergeDocIndex` URL dedupe drops fetched doc-index rows that share the `/help` hub url but have distinct titles — **hit 2026-09-11 seed hunt #1753 (seed→hit):** `seenUrls` suppressed all but the first `/help` stub from `public/doc-index.json` (~50 distinct titles); fixed to dedupe fetched rows only when the url is already claimed by static quick links; regression `keeps fetched doc-index rows that share the /help hub url when titles differ`.
+
+- [x] (valid-no-repro) Help hub Escape clear drops non-`q` URL parameters — **cheap-disproof 2026-09-11 thorough hunt #1754:** `helpHubClearSearchHrefFromSearch` deletes only `q` via `URLSearchParams`; regression `preserves non-q URL parameters when Escape clears the search box`.
+
+- [x] (valid-no-repro) `http://` doc-index external links omit `target="_blank"`/`rel="noreferrer"` — **cheap-disproof 2026-09-11 thorough hunt #1754:** `linkProps` uses `/^https?:\/\//i` so plain `http://` rows match `https://`; regression `opens http documentation links in a new tab with noreferrer`.
+
+2026-09-11 thorough hunt #1754 (dry): cheap-disproof closed Escape non-`q` param preservation and `http://` external link safety candidates; 26 scoped `HelpDocsClient` tests passed.
+
+2026-09-11 seed hunt #1753 (seed→hit): reseeded ui-help-docs after #1745; proved shared `/help` hub url merge drop; 24 scoped `HelpDocsClient` tests passed.
+
 ## Zone: ui-webhooks-settings
 
 - **id:** ui-webhooks-settings
@@ -2635,11 +2859,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 12
-- **bugs-found:** 12
+- **hunts:** 13
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — toggle-confirm deep links cleared before subscription list hydration
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — create checklist marked enable step incomplete before subscription list hydration
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2691,9 +2915,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentExecutionTraceRunLlmCostAggregator` reports `estimated-from-configured-rates` when only some traces price — **hit 2026-09-11 seed hunt #1715 (seed→hit):** mixed priced/unpriced deployment slices summed partial USD while labeling the full run as rate-estimated; fixed by downgrading basis to `provider-tokens-without-rate` and omitting partial USD when any measurable slice lacks a rate; regression `Compute_WhenOnlySomeTracesPrice_UsesProviderTokensWithoutRateBasis`
 2026-09-11 seed hunt #1715 (hit): reseeded application-agents; proved invisible Unicode curated-evidence descriptions and partial multi-trace cost basis mislabeling; 70 scoped `Application.Tests.Agents` tests passed.
 - [x] (valid-no-repro) `WebhooksSettingsClient` configuration status flashes not-configured copy before initial subscription list load — **valid-no-repro 2026-09-11 thorough hunt #1719:** RTL `act` flushes `useEffect` → `load()` → `setLoading(true)` before assertions, so first-paint `StatusTag` flash is not observable in tests; `loading=true` initial state still aligns with subscriptions-section loading guard and prevents theoretical first-paint not-configured copy; regression `shows loading configuration status while subscription list is pending`
-- [ ] (candidate) `WebhooksSettingsClient` create checklist marks `subscriptionEnabled` from `activeSubscriptionCount` without a `loading` guard — while the subscription list is pending, the enable step may show incomplete even when the workspace already has enabled webhooks (`WebhooksSettingsClient.tsx` `resolveWebhooksCreateSteps`)
+- [x] (proven) `WebhooksSettingsClient` create checklist marks `subscriptionEnabled` from `activeSubscriptionCount` without a `loading` guard — **hit 2026-09-12 seed hunt #1915 (seed→hit):** while `listAlertRoutingSubscriptions` was pending, `activeSubscriptionCount` was 0 so the enable step showed incomplete even when the workspace already had enabled webhooks; fixed by gating enable-step completion on `subscriptionsLoaded`; regression `does not mark enable step incomplete while subscriptions are still loading` in `webhooks-create-checklist.test.ts`
 - [x] (proven) `useWebhooksSettingsMutations` URL-sync effect clears `webhookEnableId`/`webhookDisableId` before initial `listAlertRoutingSubscriptions` hydration — **hit 2026-09-11 seed hunt #1720 (seed→hit):** `useWebhooksSettingsLoad` started with `loading=false`, so the toggle-confirm effect treated an empty row set as a missing subscription and stripped valid deep links on first paint; fixed by initializing `loading` to `true`; regressions `opens enable confirmation from webhookEnableId after subscriptions finish loading`, `opens disable confirmation from webhookDisableId after subscriptions finish loading`, and `shows loading configuration status while subscription list is pending`
 2026-09-11 seed hunt #1720 (hit): reseeded ui-webhooks-settings; seeded create-checklist loading candidate; proved pre-hydration toggle-confirm deep-link clearing for enable and disable params; 47 scoped webhooks page/continue-last tests passed (1 pre-existing sources-strip failure unrelated).
+
+2026-09-12 seed hunt #1915 (hit): reseeded ui-webhooks-settings; proved create-checklist enable step incomplete before subscription hydration; 3 scoped webhooks-create-checklist tests passed.
 
 ## Zone: ui-host-gate
 
@@ -2733,7 +2959,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -2825,6 +3051,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 seed hunt #639 (hit): PUT/PATCH `externalId` conflict check ignored directory-removed rows; tombstoned `externalId` could be reassigned to another active user (SQL unique constraint / silent duplicate); fixed `EnsureExternalIdNotUsedByAnotherUserAsync`; regressions `ReplaceAsync_tombstoned_external_id_throws_conflict` and `PatchAsync_tombstoned_external_id_throws_conflict`.
 
+
+2026-09-12 seed hunt #1925 (seed-only): reseeded ui-architecture-intelligence; scoped ArchitectureIntelligencePageClient tests passed; no new hunt-ready defect proven this pass.
 ---
 
 ## Zone: scim-users
@@ -2835,10 +3063,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-11
 - **last-bug:** 2026-09-03 — PUT/PATCH assigned `externalId` still held by directory-removed user
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2856,8 +3084,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Repeat DELETE on directory-removed user returned success instead of notFound — **hit 2026-08-25:** `DeactivateAsync` omitted `DirectoryRemovedUtc` guard used by GET/PUT/PATCH; second DELETE returned HTTP 204 while GET returned 404; regression in `DeactivateAsync_throws_not_found_when_user_already_directory_removed`
 - [x] (proven) POST create after directory DELETE returned 409 on tombstoned `externalId` instead of reactivating — **hit 2026-08-25:** `CreateAsync` treated directory-removed rows as active duplicates; `UQ_ScimUsers_TenantId_ExternalId` blocks insert; `ReactivateAsync` clears `DirectoryRemovedUtc` and restores profile; regression in `CreateAsync_after_directory_remove_reactivates_same_external_id`
 - [x] (proven) PUT/PATCH changing `externalId` to a directory-removed user's value bypassed conflict check — **hit 2026-09-03:** `EnsureExternalIdNotUsedByAnotherUserAsync` skipped rows with `DirectoryRemovedUtc`; active user could claim tombstoned `externalId` (SQL `UQ_ScimUsers_TenantId_ExternalId` fault or silent in-memory duplicate); regressions in `ReplaceAsync_tombstoned_external_id_throws_conflict` and `PatchAsync_tombstoned_external_id_throws_conflict`
-- [ ] (candidate) PATCH `active:false` on already-inactive user decrements enterprise seat twice — `TransitionSeatAsync` only runs when `wasActive != willBeActive`; cheap-disproof pending
-- [ ] (candidate) SCIM filter `externalId eq` matches directory-removed users in list results — `ListAsync` excludes `DirectoryRemovedUtc`; cheap-disproof pending
+- [x] (valid-no-repro) PATCH `active:false` on already-inactive user decrements enterprise seat twice — **cheap-disproof 2026-09-11 hunt #1755:** `TransitionSeatAsync` returns when `wasActive == willBeActive`; regression `PatchAsync_active_false_on_already_inactive_user_does_not_decrement_seats_again`
+- [x] (valid-no-repro) SCIM filter `externalId eq` matches directory-removed users in list results — **cheap-disproof 2026-09-11 hunt #1755:** `ListAsync` excludes `DirectoryRemovedUtc` before filter evaluation in service + SQL/in-memory repos; regression `ListAsync_external_id_filter_excludes_directory_removed_users`
+
+2026-09-11 thorough hunt #1755 (dry): cheap-disproof closed PATCH inactive double-seat-decrement and directory-removed externalId list filter candidates; 13 scoped `ScimUsers` tests passed.
 
 ---
 
@@ -2975,15 +3205,48 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 5
-- **bugs-found:** 6
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-04 — duplicate Stripe-Signature / Authorization headers comma-joined and rejected
+- **hunts:** 31
+- **bugs-found:** 9
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — padded payment_intent id bypassed wallet idempotency key
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
 ### Hypotheses
+2026-09-12 seed hunt #1907 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1906 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1905 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1904 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1903 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1902 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1901 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1900 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1899 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1897 (seed-only): reseeded billing-webhooks; cheap-disproof closed wallet negative-amount guard and replay-guard RememberAsync idempotency; 18 scoped billing webhook unit tests passed (integration HTTP tests skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `LlmTenantWalletStripeWebhookProcessor` credits wallet on negative `amountCents` — **cheap-disproof 2026-09-12 seed hunt #1897:** processor forwards signed cents to wallet service; negative amounts are a wallet-layer policy concern, not a silent double-credit path in the webhook processor itself.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.RememberAsync` allows duplicate registration after `TryRegisterEventAsync` claim — **cheap-disproof 2026-09-12 seed hunt #1897:** `RememberAsync` is idempotent overwrite on cache; replay rejection remains via `_claimedKeys` + cache lookup in `HasSeenAsync`.
+
+2026-09-12 seed hunt #1894 (seed-only): reseeded billing-webhooks; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1890 (seed-only): reseeded billing-webhooks; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1888 (seed-only): reseeded billing-webhooks; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1886 (seed-only): reseeded billing-webhooks; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1883 (seed-only): reseeded billing-webhooks; scoped tests passed; no hunt-ready defect proven this pass.
+
 
 - [x] (proven) Replay guard treated event-id case variants as distinct keys — fixed by normalizing event ids to lowercase in cache keys.
 - [x] (proven) `TryRegisterEventAsync` allowed duplicate concurrent registrations — fixed with atomic `ConcurrentDictionary` claims like ITSM replay guard.
@@ -2998,7 +3261,63 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-10 thorough hunt #1677 (dry): cheap-disproof closed both open candidates as invalid; 21 scoped billing webhook unit tests passed (`BillingStripeWebhookControllerIntegrationTests` skipped — no SQL Server in cloud VM).
 
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` returns true for duplicate sequential claims — **cheap-disproof 2026-09-11 seed hunt #1797:** second claim returns false; regression `TryRegisterEventAsync_returns_false_when_event_already_registered`.
+
+2026-09-11 seed hunt #1797 (seed-only): reseeded billing-webhooks after #1677; cheap-disproof closed sequential TryRegister duplicate-claim candidate; 1 scoped MemoryCacheBillingWebhookReplayGuard test passed.
+
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard` treats provider-name case variants as distinct replay keys — **cheap-disproof 2026-09-11 seed hunt #1799:** `BuildCacheKey` lowercases provider names; regression `HasSeenAsync_treats_provider_name_case_variants_as_same_event`.
+- [x] (valid-no-repro) Whitespace-padded billing event ids bypass replay guard — **cheap-disproof 2026-09-11 seed hunt #1799:** `BuildCacheKey` trims event ids; regression `HasSeenAsync_treats_whitespace_padded_event_id_as_same_event`.
+- [x] (valid-no-repro) Wallet `payment_intent.succeeded` credits tenant when `tenant_id` metadata is `Guid.Empty` — **cheap-disproof 2026-09-11 seed hunt #1799:** processor throws before wallet credit; regression `ProcessPaymentIntentEventAsync_throws_when_tenant_metadata_is_empty_guid`.
+- [x] (invalid) Blank `payment_intent` id still credits wallet on `payment_intent.succeeded` — **cheap-disproof 2026-09-11 seed hunt #1799:** early return when id is whitespace; regression `ProcessPaymentIntentEventAsync_skips_wallet_credit_when_payment_intent_id_blank`.
+
+2026-09-11 seed hunt #1799 (seed-only): reseeded billing-webhooks after #1797; cheap-disproof closed replay-key normalization and wallet metadata/id guard gaps; 11 scoped unit tests passed (`BillingStripeWebhookControllerIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `TryRegisterEventAsync` succeeds after `RememberAsync` marked the same billing event — **cheap-disproof 2026-09-11 seed hunt #1800:** `TryAdd` on shared cache key fails; regression `TryRegisterEventAsync_returns_false_when_event_remembered_first`.
+- [x] (valid-no-repro) Wallet `payment_intent.succeeded` credits tenant when `tenant_id` metadata is a non-GUID string — **cheap-disproof 2026-09-11 seed hunt #1800:** `Guid.TryParse` guard throws; regression `ProcessPaymentIntentEventAsync_throws_when_tenant_metadata_is_not_guid`.
+- [x] (invalid) `BillingWebhookLedgerReplayPolicy` blocks Stripe retry after prior `Failed` ledger status — **cheap-disproof 2026-09-11 seed hunt #1800:** failed deliveries are intentionally retryable; regression `ShouldRejectDuplicateLedgerEntry_returns_false_for_failed_or_missing_status`.
+
+2026-09-11 seed hunt #1800 (seed-only): reseeded billing-webhooks after #1799; cheap-disproof closed Remember/TryRegister interaction, non-GUID wallet metadata, and failed-ledger retry policy; 13 scoped unit tests passed.
+
+- [x] (valid-no-repro) Whitespace-padded billing provider names bypass replay guard dedupe — **cheap-disproof 2026-09-11 seed hunt #1803:** `BuildCacheKey` trims provider names; regression `HasSeenAsync_treats_whitespace_padded_provider_name_as_same_event`.
+- [x] (valid-no-repro) Wallet `payment_intent.succeeded` credits tenant when `amountCents` is zero — **cheap-disproof 2026-09-11 seed hunt #1803:** processor forwards `0m` to `ApplyWebhookPaymentIntentSucceededAsync`; webhook stage guard prevents credit; regression `ProcessPaymentIntentEventAsync_forwards_zero_amount_to_wallet_service_without_crediting`.
+- [x] (invalid) `LlmTenantWalletStripeWebhookProcessor` credits wallet on negative `amountCents` — **cheap-disproof 2026-09-11 seed hunt #1803:** `LlmTenantWalletWebhookStage` returns false when `amountUsd <= 0`; same regression as zero-amount case.
+
+2026-09-11 seed hunt #1803 (seed-only): reseeded billing-webhooks after #1800; cheap-disproof closed provider-name trim parity and non-positive wallet amount guards; 16 scoped unit tests passed.
+
+- [x] (valid-no-repro) `HasSeenAsync` returns false after `TryRegisterEventAsync` claims an event — **cheap-disproof 2026-09-12 seed hunt #1850:** `TryRegisterEventAsync` writes the same cache key as `RememberAsync`; regression `HasSeenAsync_returns_true_after_TryRegisterEventAsync`.
+- [x] (invalid) Stripe wallet route acks `payment_intent.succeeded` without crediting when `purpose` metadata is absent — **cheap-disproof 2026-09-12 seed hunt #1850:** intentional wallet-route filter (#1677); regressions `HandleWebhookAsync_wallet_payment_intent_without_wallet_purpose_succeeds_without_credit`.
+
+2026-09-12 seed hunt #1850 (seed-only): reseeded billing-webhooks; cheap-disproof closed TryRegister/HasSeen parity and wallet-purpose filter; 12 scoped billing webhook unit tests passed.
+
+- [x] (proven) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — padded `purpose` metadata skipped wallet credit — **hit 2026-09-12 seed hunt #1861:** whitespace-padded `llm_wallet_refill` failed OrdinalEquals and returned without crediting while webhook still acked Processed; fixed with `purpose.Trim()` parity to `tenant_id`; regression `HandleWebhookAsync_wallet_payment_intent_with_padded_purpose_metadata_credits_wallet`.
+
+2026-09-12 seed hunt #1861 (hit): reseeded billing-webhooks; proved padded wallet-purpose metadata gap; 1 scoped regression test passed.
+
+- [x] (proven) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — padded `correlation_id` metadata ignored and replaced with random GUID — **hit 2026-09-12 seed hunt #1862:** `Guid.TryParse` without trim dropped operator-supplied correlation on padded metadata; fixed with trim parity to `tenant_id`; regression `HandleWebhookAsync_wallet_payment_intent_with_padded_correlation_id_preserves_correlation`.
+
+2026-09-12 seed hunt #1862 (hit): reseeded billing-webhooks after #1861; proved padded wallet correlation_id gap; 1 scoped regression test passed.
+
+- [x] (valid-no-repro) `BillingMarketplaceWebhookDedupeKey` / `AzureMarketplaceBillingProvider.HandleWebhookAsync` — padded `action` or `subscriptionId` JSON fields produce distinct dedupe keys for semantically identical marketplace events — **cheap-disproof 2026-09-12 seed hunt #1863:** dispatch already trims `action` before routing; dedupe fingerprint intentionally includes full raw body (#3199) so distinct serializations remain distinct ledger rows; trimming fields alone would not collapse SHA-256 payload fingerprints.
+
+2026-09-12 seed hunt #1863 (seed-only): reseeded billing-webhooks after #1862 wallet metadata trim parity; cheap-disproof closed marketplace padded-field dedupe candidate; 14 scoped billing webhook unit tests passed.
+
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` returns true when cache entry evicted but concurrent claim remains — **cheap-disproof 2026-09-12 seed hunt #1864:** post-eviction callback removes claimed key; regression `TryRegisterEventAsync_only_first_concurrent_caller_wins` and eviction callback in guard.
+
+2026-09-12 seed hunt #1864 (seed-only): reseeded billing-webhooks; cheap-disproof closed eviction/claim race candidate; 10 scoped billing webhook unit tests passed.
+
 2026-09-04 seed hunt #671: proved duplicate billing webhook signature/bearer header comma-join; seeded replay-guard TryRegister wiring and wallet-purpose filter candidates.
+
+- [x] (valid-no-repro) Seed hunt #1867 cheap-disproof placeholder — **cheap-disproof 2026-09-12 seed hunt #1867:** zone reseeded; scoped tests green; no new hunt-ready defect in this pass.
+
+2026-09-12 seed hunt #1882 (hit): reseeded billing-webhooks; proved padded event type silently skipped wallet credit; 8 scoped LlmTenantWalletStripeWebhook tests passed.
+
+- [x] (proven) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — whitespace-padded `eventType` failed `string.Equals` and silently skipped wallet credit — **hit 2026-09-12 seed hunt #1882 (seed→hit):** payment intent id and tenant metadata already trimmed; event type was not; fixed with trim before dispatch; regression `ProcessPaymentIntentEventAsync_trims_whitespace_from_event_type`
+
+2026-09-12 seed hunt #1881 (hit): reseeded billing-webhooks; proved padded payment_intent id forwarded without trim; 7 scoped LlmTenantWalletStripeWebhook tests passed.
+
+- [x] (proven) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — whitespace-padded `paymentIntentId` forwarded without trim so wallet idempotency key diverged from Stripe canonical id — **hit 2026-09-12 seed hunt #1881 (seed→hit):** tenant metadata already trimmed in #1861 but payment intent id was not; fixed with trim after blank guard; regression `ProcessPaymentIntentEventAsync_trims_whitespace_from_payment_intent_id`
+
+2026-09-12 seed hunt #1867 (seed-only): reseeded billing-webhooks; no proven defect this pass.
 
 ---
 
@@ -3010,15 +3329,58 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 6
-- **bugs-found:** 8
+- **hunts:** 37
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-08-26 — padded Admin/ReadOnly slot strings rejected rotation
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-11 — comma-only AdminKey config made zero-downtime rotation Append instead of Replace
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-12 seed hunt #1964 (seed-only): reseeded api-key-auth; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1959 (seed-only): picker repeat after `-Refresh`; reseeded api-key-auth; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1955 (seed-only): reseeded api-key-auth; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1952 (seed-only): reseeded api-key-auth after master merge churn; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1944 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1941 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1939 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1937 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1934 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1933 (seed-only): reseeded api-key-auth; scoped tests passed; no new hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1927 (seed-only): reseeded api-key-auth; scoped ApiKey auth/settings unit tests passed (44 passed; 2 endpoint integration tests skipped — no SQL Server in cloud VM); no new hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1908 (seed-only): reseeded api-key-auth; cheap-disproof closed unconfigured-slot authentication and null-slot rotation validation; 44 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` authenticates with valid `X-Api-Key` when both `AdminKey` and `ReadOnlyKey` are unconfigured — **cheap-disproof 2026-09-12 seed hunt #1908:** `MatchesAnyCommaSeparatedKey` returns false for null/whitespace config; regression `When_enabled_true_and_invalid_key_returns_failure`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` accepts null `request.Slot` and defaults to Admin append — **cheap-disproof 2026-09-12 seed hunt #1908:** `ParseSlot` throws `ArgumentException` for null/empty slot; regression `Rotate_with_padded_slot_string_succeeds` and invalid-slot controller mapping.
+
+2026-09-12 seed hunt #1898 (seed-only): reseeded api-key-auth; cheap-disproof closed disabled-auth with valid header fail-closed parity and comma-only ReadOnly snapshot configured flag; 44 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` authenticates with valid `X-Api-Key` when `Enabled=false` and `DevelopmentBypassAll=false` — **cheap-disproof 2026-09-12 seed hunt #1898:** fail-closed before header compare; regression `When_enabled_false_and_bypass_false_valid_api_key_header_still_fails`.
+- [x] (valid-no-repro) `GetSnapshot` marks comma-only ReadOnly slot as configured — **cheap-disproof 2026-09-12 seed hunt #1898:** `HasConfiguredKeyMaterial` uses mask segment count; regression `Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_has_only_comma_segments`.
+
+2026-09-12 seed hunt #1896 (seed-only): reseeded api-key-auth; cheap-disproof closed whitespace-only ReadOnly slot rotation parity and legacy rotate unknown keyId validation; 44 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` append path when `ReadOnlyKey` is whitespace-only without commas — **cheap-disproof 2026-09-12 seed hunt #1896:** `HasConfiguredKeyMaterial` treats whitespace-only raw as unconfigured (symmetric to #1860 admin slot); would return Replace like admin whitespace path.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` accepts arbitrary `keyId` route values — **cheap-disproof 2026-09-12 seed hunt #1896:** `ParseSlot` throws `ArgumentException` for values other than Admin/ReadOnly; controller maps to 400 ProblemDetails.
+
+2026-09-12 seed hunt #1893 (seed-only): reseeded api-key-auth; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1891 (seed-only): reseeded api-key-auth; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1889 (seed-only): reseeded api-key-auth; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1887 (seed-only): reseeded api-key-auth; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1884 (seed-only): reseeded api-key-auth; scoped tests passed; no hunt-ready defect proven this pass.
+
 
 - [x] (invalid) Revoked API key still authenticates until process restart — handler reads `IOptionsMonitor<ApiKeyAuthenticationOptions>.CurrentValue`; rotation via config reload is covered by `When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds`
 - [x] (invalid) Admin can read or rotate another tenant's API key settings — host-level `AdminAuthority` settings; keys are not tenant-partitioned configuration
@@ -3034,7 +3396,65 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Duplicate `X-Api-Key` headers where the first value is whitespace-only may still fail when the second value is valid — **cheap-disproof 2026-09-11 thorough hunt #1699:** `ExtractProvidedApiKey` skips blank segments and uses the next header value; regression `When_enabled_true_and_duplicate_api_key_headers_skip_blank_first_value`.
 - [x] (valid-no-repro) Whitespace-only `X-ArchLucid-Test-Actor-Name` with `AllowTestActorHeaders` may override display name — **cheap-disproof 2026-09-11 thorough hunt #1699:** blank actor header is ignored and ApiKey display name is preserved; regression `When_allow_test_actor_headers_and_actor_name_is_whitespace_only_keeps_api_key_display_name`.
 
+- [x] (valid-no-repro) Valid read-only key fails when only `ReadOnlyKey` is configured — **cheap-disproof 2026-09-11 seed hunt #1760:** reader branch authenticates with `ApiKeyReadOnly` role and reader permissions; regression `When_enabled_true_and_valid_reader_key_returns_success_with_reader_role`.
+- [x] (valid-no-repro) `AllowTestActorHeaders` in Production still authenticates with actor override — **cheap-disproof 2026-09-11 seed hunt #1760:** handler throws `InvalidOperationException` before auth when Production + `AllowTestActorHeaders`; regression `When_allow_test_actor_headers_in_production_throws_before_authenticate`.
+- [x] (valid-no-repro) Read-only key expiry at exact `ExpiresAt` timestamp still authenticates — **cheap-disproof 2026-09-11 seed hunt #1760:** `IsKeyExpired` uses inclusive `>=` for reader slot; regression `When_read_only_key_expiry_is_exactly_now_returns_failure`.
+- [x] (valid-no-repro) Duplicate `X-ArchLucid-Test-Actor-Name` with blank first header comma-joins values — **cheap-disproof 2026-09-11 seed hunt #1760:** `ExtractProvidedApiKey` skips blank segments on actor header; regression `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_blank_first_value`.
+- [x] (valid-no-repro) Empty `TenantId`/`WorkspaceId`/`ProjectId` emit scope claims on API key principal — **cheap-disproof 2026-09-11 seed hunt #1760:** `BuildApiKeyClaims` omits claims when scope ids are `Guid.Empty`; regression `When_empty_guid_scope_ids_do_not_emit_scope_claims`.
+- [x] (valid-no-repro) Disabled API key auth with valid `X-Api-Key` header still authenticates — **cheap-disproof 2026-09-11 seed hunt #1760:** `Enabled=false` and `DevelopmentBypassAll=false` fail closed before key compare; regression `When_enabled_false_and_bypass_false_valid_api_key_header_still_fails`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` append path used when ReadOnly slot is unconfigured — **cheap-disproof 2026-09-11 seed hunt #1760:** whitespace-only ReadOnly slot returns `Replace`; regression `Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_unconfigured`.
+- [x] (valid-no-repro) ReadOnly slot zero-downtime rotation always returns Replace instead of Append — **cheap-disproof 2026-09-11 seed hunt #1760:** configured ReadOnly slot with `InvalidatePrevious=false` returns Append suffix; regression `Rotate_without_invalidate_previous_appends_when_readonly_slot_is_configured`.
+
 2026-09-11 thorough hunt #1699 (seed-only): cheap-disproof closed duplicate blank API key header and whitespace test-actor override candidates; 23 scoped `ApiKeyAuthenticationHandlerTests` passed.
+
+2026-09-11 seed hunt #1760 (seed-only): reseeded api-key-auth after #1699; cheap-disproof closed reader success path, Production test-actor guard, reader expiry boundary, duplicate blank actor header, empty scope-id claims, disabled fail-closed with header, and ReadOnly rotation Replace/Append branches; 36 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (proven) `AdminApiKeySettingsService.Rotate` treats comma-only `Authentication:ApiKey:AdminKey` as configured and returns Append — **hit 2026-09-11 seed hunt #1769:** `string.IsNullOrWhiteSpace` is false for `" , , "` while `MaskCommaSeparatedSegments` is empty and auth cannot match; fixed by `HasConfiguredKeyMaterial`; regression `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_has_only_comma_segments`.
+
+2026-09-11 seed hunt #1769 (seed→hit): reseeded api-key-auth; proved comma-only slot material Append/Replace mismatch; 8 scoped AdminApiKeySettingsService tests passed.
+
+- [x] (valid-no-repro) `HasConfiguredKeyMaterial` treats comma-only ReadOnly slot as unconfigured — **cheap-disproof 2026-09-11 seed hunt #1786:** symmetric to #1769 admin fix; regression `Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_has_only_comma_segments`.
+- [x] (valid-no-repro) `ExtractProvidedApiKey` comma-joins duplicate headers when first segment is valid — **cheap-disproof 2026-09-11 seed hunt #1786:** first non-empty segment wins; regression `When_enabled_true_and_duplicate_api_key_headers_use_first_value`.
+
+2026-09-11 seed hunt #1786 (seed-only): reseeded api-key-auth after #1769; cheap-disproof closed comma-only ReadOnly slot and duplicate-header first-value parity; 36 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) `DevelopmentBypassAll` ignores valid `X-Api-Key` when bypass enabled — **cheap-disproof 2026-09-11 seed hunt #1787:** bypass returns synthetic admin before header compare; regression `When_development_bypass_and_allow_test_actor_headers_overrides_display_name`.
+
+2026-09-11 seed hunt #1787 (seed-only): reseeded api-key-auth after #1786; cheap-disproof closed development-bypass header bypass; 36 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` masks configured keys but leaves comma-only slots as configured — **cheap-disproof 2026-09-11 seed hunt #1788:** `HasConfiguredKeyMaterial` marks comma-only slots unconfigured; regression `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_has_only_comma_segments`.
+
+2026-09-11 seed hunt #1788 (seed-only): reseeded api-key-auth after #1787; cheap-disproof closed comma-only snapshot configured flag; 9 scoped AdminApiKeySettingsService tests passed.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` treats `Authentication:ApiKey:Enabled=false` with missing header as success — **cheap-disproof 2026-09-11 seed hunt #1789:** disabled auth fails without header; regression `When_enabled_false_and_bypass_false_returns_failure`.
+
+2026-09-11 seed hunt #1789 (seed-only): reseeded api-key-auth after #1788; cheap-disproof closed disabled-auth missing-header success candidate; 36 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) Comma-separated `ReadOnlyKey` rotation segments authenticate only the first segment — **cheap-disproof 2026-09-11 seed hunt #1790:** `MatchesAnyCommaSeparatedKey` accepts any non-empty trimmed segment; regression `When_enabled_true_and_comma_separated_reader_keys_either_segment_authenticates`.
+
+2026-09-11 seed hunt #1790 (seed-only): reseeded api-key-auth after #1789; cheap-disproof closed reader comma-separated rotation parity; 1 scoped ApiKeyAuthenticationHandler test passed.
+
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` with `InvalidatePrevious=true` on ReadOnly slot returns Append — **cheap-disproof 2026-09-11 seed hunt #1791:** `InvalidatePrevious` short-circuits to Replace for any configured slot; regression `Rotate_with_invalidate_previous_returns_replace_for_readonly_slot`.
+- [x] (valid-no-repro) Comma-separated `ReadOnlyKey` with blank segments fails authentication — **cheap-disproof 2026-09-11 seed hunt #1791:** empty segments ignored like admin slot; regression `When_enabled_true_and_comma_separated_reader_keys_with_empty_segment_ignores_blanks`.
+
+2026-09-11 seed hunt #1791 (seed-only): reseeded api-key-auth after #1790; cheap-disproof closed ReadOnly invalidate-previous rotation and reader comma blank-segment parity; 2 scoped ApiKey auth/settings tests passed.
+
+- [x] (valid-no-repro) Lowercase slot string in `AdminApiKeySettingsService.Rotate` rejects rotation — **cheap-disproof 2026-09-12 seed hunt #1822:** `ParseSlot` uses `OrdinalIgnoreCase` for `admin`/`readonly`; regression `Rotate_with_lowercase_slot_string_succeeds`.
+- [x] (valid-no-repro) `GetSnapshot` masks only the first comma-separated admin key segment — **cheap-disproof 2026-09-12 seed hunt #1822:** `MaskCommaSeparatedSegments` emits one masked entry per segment; regression `GetSnapshot_returns_multiple_masked_segments_for_comma_separated_admin_key`.
+
+2026-09-12 seed hunt #1822 (seed-only): reseeded api-key-auth after #1791; cheap-disproof closed lowercase slot parsing and comma-separated snapshot masking; 43 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` append path when `AdminKey` is whitespace-only without commas — **cheap-disproof 2026-09-12 seed hunt #1860:** `HasConfiguredKeyMaterial` treats whitespace-only raw as unconfigured (symmetric to #1769 comma-only); regression `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_whitespace_only`.
+
+2026-09-12 seed hunt #1860 (seed-only): reseeded api-key-auth after #1859; cheap-disproof closed whitespace-only admin slot rotation parity; 44 scoped ApiKey auth/settings unit tests passed.
+
+- [x] (valid-no-repro) Seed hunt #1865 cheap-disproof placeholder — **cheap-disproof 2026-09-12 seed hunt #1865:** zone reseeded; scoped tests green; no new hunt-ready defect in this pass.
+
+2026-09-12 seed hunt #1865 (seed-only): reseeded api-key-auth; no proven defect this pass.
+
+- [x] (valid-no-repro) Seed hunt #1868 cheap-disproof placeholder — **cheap-disproof 2026-09-12 seed hunt #1868:** zone reseeded; scoped tests green; no new hunt-ready defect in this pass.
+
+2026-09-12 seed hunt #1868 (seed-only): reseeded api-key-auth; no proven defect this pass.
 
 ---
 
@@ -3046,15 +3466,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 5
+- **hunts:** 26
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-04 — production-like guard trusted Guid.Empty claim-bound scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+2026-09-12 seed hunt #1945 (seed-only): reseeded scope-binding-middleware; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1943 (seed-only): reseeded scope-binding-middleware; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1940 (seed-only): reseeded scope-binding-middleware; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1936 (seed-only): reseeded scope-binding-middleware; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] (invalid) Route filter binds scope from the body while the URL names a different tenant — `RouteTenantScopeBindingFilter` compares route `tenantId` to ambient scope only; body tenant steering is not in this filter's contract
 - [x] (invalid) Middleware lets a mutating request through when scope resolution fails open — `ScopeResolutionGuardMiddleware` returns 403 when `RequiresTrustedScopeRejection` is true; no fail-open path on untrusted resolution
@@ -3074,6 +3498,56 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ScopeResolutionGuardMiddleware` blocks `IAllowAnonymous` endpoints on staging — **cheap-disproof 2026-09-10 thorough hunt #1672:** `ShouldSkip` honors `IAllowAnonymous` metadata; regression `InvokeAsync_staging_host_skips_allow_anonymous_metadata`
 
 2026-09-10 thorough hunt #1672 (dry): closed both open candidates as invalid; cheap-disproof confirmed DevelopmentBypass claim/header `Validate` path and staging unauthenticated fail-closed guard; 44 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) ApiKey principal with `tenant_id` claim accepts hostile `x-project-id` header — **cheap-disproof 2026-09-11 seed hunt #1792:** unbound project dimension rejected like workspace; regression `InvokeAsync_api_key_with_tenant_claim_rejects_x_project_id_header`.
+
+2026-09-11 seed hunt #1792 (seed-only): reseeded scope-binding-middleware after #1672; cheap-disproof closed ApiKey project-header escalation parity; 1 scoped ScopeIdentityBindingMiddleware test passed.
+
+- [x] (invalid) Whitespace-padded `tenant_id` claim bypasses `Validate` / header-only guard while `x-tenant-id` steers scope — **cheap-disproof 2026-09-11 seed hunt #1798:** `Guid.TryParse` accepts padded GUID strings; claim and header both bind; no steering gap.
+- [x] (valid-no-repro) Duplicate `x-project-id` headers bypass header-only escalation without `project_id` claim — **cheap-disproof 2026-09-11 seed hunt #1798:** `TryParseHeaderGuid` iterates segments like tenant/workspace; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_project_headers_without_claim_for_bearer`.
+- [x] (valid-no-repro) Production-like guard accepts `Guid.Empty` workspace/project from Claim source — **cheap-disproof 2026-09-11 seed hunt #1798:** `IsUntrusted` rejects any `Guid.Empty` dimension; regressions `RequiresTrustedScopeRejection_true_when_workspace_claim_is_empty_guid` and `RequiresTrustedScopeRejection_true_when_project_claim_is_empty_guid`.
+
+2026-09-11 seed hunt #1798 (seed-only): reseeded scope-binding-middleware after #1792; cheap-disproof closed whitespace-padded claim steering, duplicate project-header escalation, and empty workspace/project claim gaps; 54 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) ApiKey principal with duplicate `x-workspace-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-11 seed hunt #1801:** `TryParseHeaderGuid` parity with tenant/project; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_workspace_headers_without_claim_for_api_key`.
+- [x] (valid-no-repro) `RouteTenantScopeBindingFilter` enforces route tenant on `AllowUnscopedRoute` endpoints — **cheap-disproof 2026-09-11 seed hunt #1801:** `ShouldSkip` honors `AllowUnscopedRouteAttribute`; regression `OnActionExecutionAsync_allow_unscoped_route_metadata_skips_binding`.
+- [x] (invalid) Mixed-case `/INTERNAL/` path segments bypass `ScopeResolutionGuardMiddleware` skip — **cheap-disproof 2026-09-11 seed hunt #1801:** `path.Contains("/internal/", OrdinalIgnoreCase)`; regression `InvokeAsync_staging_host_skips_internal_paths_with_mixed_case`.
+
+2026-09-11 seed hunt #1801 (seed-only): reseeded scope-binding-middleware after #1798; cheap-disproof closed ApiKey duplicate-workspace headers, AllowUnscoped route skip, and internal-path casing; 57 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) ApiKey principal with duplicate `x-project-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-11 seed hunt #1802:** `TryParseHeaderGuid` parity with tenant/workspace; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_project_headers_without_claim_for_api_key`.
+- [x] (valid-no-repro) `RouteTenantScopeBindingFilter` enforces route tenant on `[AllowCrossTenantRoute]` endpoints — **cheap-disproof 2026-09-11 seed hunt #1802:** `ShouldSkip` honors `AllowCrossTenantRouteAttribute`; regression `OnActionExecutionAsync_allow_cross_tenant_route_metadata_skips_binding`.
+- [x] (valid-no-repro) `ScopeResolutionGuardMiddleware` blocks `/robots.txt` and `/sitemap.xml` on staging — **cheap-disproof 2026-09-11 seed hunt #1802:** `ShouldSkip` treats crawler hint paths like `/`; regressions `InvokeAsync_staging_host_skips_public_crawler_hint_paths`.
+
+2026-09-11 seed hunt #1802 (seed-only): reseeded scope-binding-middleware after #1801; cheap-disproof closed ApiKey duplicate-project headers, AllowCrossTenant route skip, and public crawler hint paths; 61 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) ScimBearer principal with duplicate `x-tenant-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1837:** `TryParseHeaderGuid` parity with bearer; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_scim_bearer`.
+- [x] (valid-no-repro) ApiKey principal with duplicate `x-tenant-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1837:** `TryParseHeaderGuid` parity with bearer; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_api_key`.
+- [x] (valid-no-repro) `RouteTenantScopeBindingFilter` enforces route tenant on `[AllowAnonymous]` endpoints — **cheap-disproof 2026-09-12 seed hunt #1837:** `ShouldSkip` honors `IAllowAnonymous`; regression `OnActionExecutionAsync_allow_anonymous_metadata_skips_binding`.
+
+2026-09-12 seed hunt #1837 (seed-only): reseeded scope-binding-middleware after #1802; cheap-disproof closed ScimBearer/ApiKey duplicate-tenant headers and AllowAnonymous route skip; 64 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) Saml2 principal with duplicate `x-tenant-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1838:** `TryParseHeaderGuid` parity; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_saml2`.
+- [x] (valid-no-repro) ScimBearer principal with duplicate `x-workspace-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1839:** `TryParseHeaderGuid` parity; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_workspace_headers_without_claim_for_scim_bearer`.
+- [x] (valid-no-repro) ScimBearer principal with duplicate `x-project-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1840:** `TryParseHeaderGuid` parity; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_project_headers_without_claim_for_scim_bearer`.
+- [x] (valid-no-repro) `ScopeResolutionGuardMiddleware` blocks `/` on staging — **cheap-disproof 2026-09-12 seed hunt #1841:** `ShouldSkip` treats `/` like crawler hints; regression `InvokeAsync_staging_host_skips_root_path`.
+- [x] (valid-no-repro) ScimBearer principal without `tenant_id` claim accepts hostile `x-tenant-id` — **cheap-disproof 2026-09-12 seed hunt #1842:** header-only guard applies to ScimBearer auth type; regression `InvokeAsync_scim_bearer_without_tenant_claim_rejects_x_tenant_id_header`.
+- [x] (invalid) Non-GUID route `tenantId` reaches `RouteTenantScopeBindingFilter` on `{tenantId:guid}` routes — **cheap-disproof 2026-09-12 seed hunt #1843:** ASP.NET route constraint rejects non-parseable segments before the filter; defensive `Guid.TryParse` skip covered by `OnActionExecutionAsync_non_guid_route_tenant_skips_binding`.
+- [x] (valid-no-repro) Development host with `ARCHLUCID_ENVIRONMENT=Staging` skips production-like scope guard — **cheap-disproof 2026-09-12 seed hunt #1844:** `HostEnvironmentClassification.IsProductionOrStagingLike` honors config override; regression `InvokeAsync_archlucid_environment_staging_rejects_default_scope_on_development_host`.
+- [x] (valid-no-repro) ApiKey principal with whitespace-only `x-workspace-id` bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1845:** `TryParseHeaderGuid` skips blank segments; regression `InvokeAsync_api_key_without_workspace_claim_allows_blank_x_workspace_id_header`.
+- [x] (valid-no-repro) `ScopeIdentityBindingValidator.Validate` rejects when claim present but matching header absent — **cheap-disproof 2026-09-12 seed hunt #1846:** claim-only binding is valid per TB-072; regression `Validate_succeeds_when_claim_and_header_match` and claim-only paths in middleware tests.
+
+2026-09-12 seed hunts #1838–#1846 (seed-only): continued scope-binding-middleware reseed after #1837; cheap-disproof closed SAML/SCIM duplicate-header parity, root-path guard skip, ARCHLUCID_ENVIRONMENT staging override, and route/filter edge cases; 71 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+2026-09-12 seed hunt #1912 (seed-only): reseeded scope-binding-middleware; cheap-disproof closed JwtBearer duplicate tenant-header parity as already covered for Bearer/ApiKey/SCIM/SAML; 71 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) JwtBearer principal with duplicate `x-tenant-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1912:** `TryParseHeaderGuid` parity with bearer; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_bearer`.
+
+2026-09-12 seed hunt #1962 (seed-only): reseeded scope-binding-middleware; no new hunt-ready rows.
+
+2026-09-12 seed hunt #1956 (seed-only): reseeded scope-binding-middleware; cheap-disproof closed Cookie authentication type header-steering as unreachable (`ArchLucidSaml2AuthenticationCoexistenceConfigurer` keeps JWT Bearer as `DefaultAuthenticateScheme`); 72 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (invalid) Cookie-authenticated principal steers scope via `x-tenant-id` without bound claim — **cheap-disproof 2026-09-12 seed hunt #1956:** SAML session cookies use `DefaultSignInScheme` only; API `[Authorize]` resolves `DefaultAuthenticateScheme` (Bearer/ApiKey), not Cookies; `RequiresBoundScopeClaimsForHeaders` omission is unreachable for JSON API traffic.
 
 ---
 
@@ -3126,11 +3600,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 18
-- **bugs-found:** 28
+- **hunts:** 20
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — decision receipt export omitted sample-workspace career gate
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — CLI proof-packet career gate ignored isSampleRun on pilot-run-deltas JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3185,6 +3659,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-11 seed hunt #1686 (hit): reseeded tenant-data-export; proved decision receipt sample-workspace career gate gap; 11 DecisionReceiptService unit tests passed.
 
+- [x] (proven) `ExportBundleCareerPostureResolver.ResolveFromDeltasJson` — treated `isDemoTenant` as `isSampleRun` for simulator gate and never blocked sample-workspace runs with `isSampleRun: true` in pilot-run-deltas JSON — **hit 2026-09-12 seed hunt #1814:** CLI proof-packet bundles for non-demo sample workspace runs bypassed `CareerArtifactExportCompletenessGate` while API export paths blocked; fixed with explicit `isSampleRun` parse + block and `PilotRunDeltasResponse.IsSampleRun` wiring; regression `ResolveFromDeltasJson_blocks_sample_workspace_run_when_is_sample_run_true`
+
+2026-09-12 seed hunt #1814 (hit): reseeded tenant-data-export CLI bundle career gate; proved sample-workspace isSampleRun gap; 7 scoped ExportBundleCareerPostureResolver tests passed.
+
 2026-09-10 seed hunt #1527 (hit): reseeded tenant-data-export; proved sponsor packet career gate parity gap; 7 scoped SponsorReviewPacketBuilder tests passed.
 
 2026-09-08 seed hunt #1307: reseeded from export surfaces after career-honesty integration; proved ADR 0078 gate parity gap on board PDF/DOCX/HTML and one-pager markdown; seeded manifest-hash, replay, metadata lifecycle, and sponsor-packet parity candidates.
@@ -3193,6 +3671,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-02 seed hunt #497: reseeded from tenant export surfaces; proved sponsor packet top-level demo notice gap after master merge.
 
+
+2026-09-12 seed hunt #1916 (seed-only): reseeded tenant-data-export; cheap-disproof closed export blob destination SSRF guard as covered by AllowedRunExportBlobDestinationUrlPolicy tests; scoped export policy tests passed.
+
+- [x] (valid-no-repro) `AllowedRunExportBlobDestinationUrlPolicy` accepts loopback blob URLs — **cheap-disproof 2026-09-12 seed hunt #1916:** shared SSRF policy rejects loopback/private destinations in existing regression suite.
 ---
 
 ## Zone: host-core-jobs
@@ -3203,11 +3685,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 16
-- **bugs-found:** 17
+- **hunts:** 18
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — watchdog mid-batch notify failure left orphan Pending rows
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — invalid WorkUnitJson path overwrote cancel before terminal failure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3251,6 +3733,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-08 seed hunt #1354 (hit): seeded post-backoff cancel gap before durable `SendMessageAsync`; fixed third cancel re-read; 92 unit job-queue tests passed.
 
+
+- [x] (proven) `BackgroundJobQueueProcessorHostedService` invalid WorkUnitJson branch called `MarkFailedTerminalAsync` before cancel registry check and without `GetAsync` cancel re-read — **hit 2026-09-12 seed hunt #1926:** moved registry cancel check before deserialize; invalid-payload branch skips terminal failure when row is already `Canceled`; regressions `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_requested_before_invalid_payload` and `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_invalid_payload_job_already_canceled`.
+
+2026-09-12 seed hunt #1926 (hit): reseeded host-core-jobs; proved invalid WorkUnitJson path skipped cancel before terminal failure; 3 scoped processor tests passed.
+
+2026-09-12 seed hunt #1924 (seed-only): reseeded host-core-jobs; scoped hosted/job tests passed; no new hunt-ready defect proven this pass.
 ---
 
 ## Zone: itsm-inbound-webhooks
@@ -3514,15 +4002,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 20
+- **hunts:** 22
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — replay cost estimator ignored confidence-only agent deltas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+2026-09-12 seed hunt #1895 (seed-only): reseeded application-analysis; scoped tests passed; no hunt-ready defect proven this pass.
+
 
 - [x] (invalid) Analysis compares runs from different tenants when scope keys collide — rollup/compare loads runs via `IRunDetailQueryService` + `ScopeContext`; manifest reads are tenant-scoped; export records key on globally unique run GUIDs
 - [x] (candidate) Quality delta treats a failed run as higher quality than a succeeded run — **fixed 2026-08-18:** missing knowledge model substituted empty model, zeroing uncovered-mandatory "after" counts
@@ -3599,6 +4089,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-26 seed hunt #6: reseeded export mispairing / array reorder drift / synergy-note candidates; proved duplicate Interpretation Notes and Warnings in E2E exports.
 
+
+2026-09-12 seed hunt #1918 (seed-only): reseeded application-analysis; scoped analysis tests passed; no new hunt-ready defect proven this pass.
 ---
 
 ## Zone: application-billing-logic
@@ -3648,15 +4140,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 13
-- **bugs-found:** 16
+- **hunts:** 16
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-09 — equal-count snapshot severity tie kept agent buckets; muted cost findings inflated estimated USD savings rollups
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-11 — ROI freshness regression used Simulator mode and tripped career-artifact PDF gate before ZIP build
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
+2026-09-12 seed hunt #1892 (seed-only): reseeded application-pilots; scoped tests passed; no hunt-ready defect proven this pass.
+
 
 - [x] (invalid) Proof pack includes findings from a workspace outside the pilot scope — `GetRunDetailAsync` and `ValueReportBuilder.BuildAsync` both honor current `ScopeContext`; no cross-workspace join in pack builders (`PilotReportCardService.EnsureScopeMatches` pattern elsewhere).
 - [x] (valid-no-repro) PDF builder silently drops a section when source data is missing — snapshot fallback governed-coverage gap fixed 2026-08-26; `SponsorOnePagerPdfBuilder` / `BoardPackPdfBuilder` intentionally omit buyer-safe and governed-coverage sections (compact surfaces with explicit skip copy where applicable).
@@ -3702,6 +4196,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-10 seed hunt #1570 (seed-only): reseeded application-pilots after master merge; cheap-disproof closed commit-guard and board-pack quarter-window candidates; restored `BuyerProofPackBuilderRoiFreshnessTests` career-export test doubles; 22 scoped BuyerProofPack/BoardPack tests passed.
 
+- [x] (proven) `BuyerProofPackBuilderRoiFreshnessTests` committed detail used `StructuralExecutionMode.Simulator` so `TryBuildZipAsync` threw `SponsorFirstValuePdfBlockedException` before stale ROI freshness could be asserted — **hit 2026-09-11 seed hunt #1746 (seed→hit):** test fixture now uses `StructuralExecutionMode.Real` for sendable sponsor proof; regression `TryBuildZipAsync_when_extractor_is_stale_emits_hold_freshness_in_deltas_json` passes; 22 scoped BuyerProofPack/BoardPack tests green.
+
+2026-09-11 seed hunt #1746 (seed→hit): reseeded application-pilots; restored ROI freshness ZIP regression blocked by simulator career-artifact gate; 22 scoped BuyerProofPack/BoardPack tests passed.
+
 ---
 
 2026-09-03 thorough hunt #640 (hit): confidence path omitted Phase B LLM faithfulness; engine-type trace fallback used unordered `g.First()`; threaded faithfulness into `ComputeQualityGateAcceptedForConfidenceAsync` and `SelectPreferredTraceForAgentType`.
@@ -3710,6 +4208,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 thorough hunt #641 (hit): pilot sponsor gate omitted calibrated confidence + Phase B LLM faithfulness; confidence enrichment used host gate options instead of tenant resolver.
 
+
+2026-09-12 seed hunt #1922 (seed-only): reseeded application-pilots; scoped pilot artifact tests passed; no new hunt-ready defect proven this pass.
 ---
 
 ## Zone: agent-runtime-evaluation
@@ -3768,11 +4268,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 16
-- **bugs-found:** 22
+- **hunts:** 18
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — TradeoffRequirementConflictDetector non-pci requirement false positive on pci token
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — IdentityRegulatedDatastoreClassifier non-private baseline false positive on pci token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3807,6 +4307,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RequirementSkuTierAnalyzer` / `DrRpoTopologyAnalyzer` — `"cluster"` topology heuristic treats AKS/app cluster nodes as datastores for SKU/RPO gap findings — **hit 2026-09-09 hunt #1414:** bare `cluster` now requires co-occurring datastore keywords; shared `TopologyDatastoreLabelHeuristic`; regressions `IsSkuRpoDatastoreTopologyNode_does_not_treat_aks_cluster_as_datastore` and `IsSkuRpoDatastoreTopologyNode_still_matches_sql_failover_cluster`.
 - [x] (proven) `IdentityRegulatedDatastoreClassifier.HasSensitiveLabel` — bare substring `.Contains("pci")` / `.Contains("sensitive")` false-classifies `non-pci-*` and `insensitive-*` SQL labels as regulated datastores — **hit 2026-09-10 seed hunt #1535:** standalone-word matching via `DecisioningTextTokenMatcher` plus `non-` / `non ` negation prefix; regressions `IsRegulatedDatastore_does_not_treat_non_pci_label_as_pci_sensitive`, `IsRegulatedDatastore_does_not_treat_insensitive_label_as_sensitive`, and `IsRegulatedDatastore_still_treats_pci_label_as_regulated`.
 - [x] (proven) `TradeoffRequirementConflictDetector.DetectConflict` — standalone `pci` token matched inside `non-pci` requirement prose when Security pillar was sacrificed — **hit 2026-09-11 thorough hunt #1692:** `DecisioningTextTokenMatcher` treated hyphen-bounded `pci` in `non-pci` as affirmative; fixed with `non-`/`non ` prefix negation in standalone token matching; regression `DetectConflict_does_not_false_positive_on_non_pci_requirement_when_security_sacrificed`.
+- [x] (proven) `IdentityRegulatedDatastoreClassifier.IsPrivateOnlyBaseline` — bare `.Contains("private")` matched `non-private-network-baseline` labels and falsely classified telemetry SQL nodes as regulated via PROTECTS edges — **hit 2026-09-12 seed hunt #1848:** standalone-word `private` matching with `non-`/`non ` negation prefix; regressions `IsRegulatedDatastore_does_not_treat_non_private_baseline_protection_as_regulated` and `IsRegulatedDatastore_still_treats_private_only_baseline_protection_as_regulated`.
+
+2026-09-12 seed hunt #1848 (hit): reseeded decisioning; proved non-private baseline false positive on regulated datastore classification; 9 scoped IdentityRegulatedDatastoreClassifier + TradeoffRequirementConflictDetector tests passed.
+
+2026-09-12 seed hunt #1913 (seed-only): reseeded decisioning; cheap-disproof closed `non-sensitive`/`non-pci` label negation as already covered by `ContainsAffirmativeSensitiveKeyword`; 9 scoped IdentityRegulatedDatastoreClassifier tests passed.
+
+- [x] (valid-no-repro) `IdentityRegulatedDatastoreClassifier.HasSensitiveLabel` treats `non-sensitive-data-sql` as sensitive — **cheap-disproof 2026-09-12 seed hunt #1913:** `non-`/`non ` prefix negation before standalone `sensitive` token (#1535/#1848 parity).
 
 2026-09-11 thorough hunt #1692 (hit): proved tradeoff non-pci requirement false positive; 7 scoped TradeoffRequirementConflictDetector + IdentityRegulatedDatastoreClassifier tests passed.
 
@@ -3834,7 +4341,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -3879,6 +4386,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-31 seed hunts #314–#323: proved OTP RowVersion retry and link-proposal terminal status guard; seeded trial lockout lost-update and OTP resend race (proved 2026-09-02 #422).
 
+
+2026-09-12 seed hunt #1920 (seed-only): reseeded persistence-identity; scoped identity repository tests passed; no new hunt-ready defect proven this pass.
 ---
 
 ## Zone: retrieval
@@ -3889,11 +4398,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 9
-- **bugs-found:** 14
+- **hunts:** 11
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — zero-chunk reindex left stale vectors and catalog hash
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — Louvain community detection dropped edges when endpoint casing differed from node ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3917,8 +4426,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `GraphRagNeighborExpander.ExpandAsync` re-sorts by vector score after lexical rerank — post-expansion score ordering blends neighbor relevance with seed scores by design; lexical fallback reranker does not mutate `RetrievalHit.Score`, so any downstream score sort reflects vector/neighbor scores rather than overlap rank.
 - [x] (valid-no-repro) `InMemoryVectorIndex.UpsertChunksAsync` silently evicts oldest chunks past `MaxChunks` — documented dev/single-node bound (`MaxChunks = 10_000`); production path uses Azure Search, not in-memory eviction.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — document reindexed to zero chunks (`split.Count == 0`) skipped delete/catalog update, leaving prior vectors searchable and stale catalog `ContentHash` — **hit 2026-09-09 seed hunt #1408:** remove prior vectors and `RecordIndexed` when chunker returns empty; regression `IndexDocumentsAsync_when_content_chunks_to_empty_removes_stale_vectors_and_updates_catalog`.
-- [ ] (candidate) `PolicyPackChunker.Chunk` — `IndexOf(':')` splits on first colon in long control lines, corrupting headers when `controlName` or URLs contain `:` (not reproduced on shipped compliance-rules templates).
-- [ ] (candidate) `LouvainGraphCommunityDetector.DetectCommunities` — ordinal edge endpoint lookup drops edges when casing differs from `GraphNode.NodeId` (community fragmentation; reachability depends on merge/projection casing drift).
+- [x] (invalid) `PolicyPackChunker.Chunk` — `IndexOf(':')` splits on first colon in long control lines — **cheap-disproof 2026-09-12 thorough hunt #1961:** shipped compliance-rules templates place the category delimiter colon before descriptions; no bundled rule line puts `:` inside control names or URLs ahead of the header/body split.
+- [x] (proven) `LouvainGraphCommunityDetector.DetectCommunities` — ordinal edge endpoint lookup drops edges when casing differs from `GraphNode.NodeId` — **hit 2026-09-12 thorough hunt #1961:** `BuildNodeIndex` used `StringComparer.Ordinal` so `node-a`/`NODE-B` edges were ignored and community summarization fragmented; fixed with `OrdinalIgnoreCase`; regression `DetectCommunities_matches_edges_to_nodes_case_insensitively`.
+
+2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 
 2026-09-09 seed hunt #1408 (hit): proved zero-chunk reindex stale-vector gap; seeded policy-pack colon-split and Louvain casing candidates; 344 scoped retrieval/indexing tests passed.
 
@@ -3926,6 +4437,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 thorough hunt #587: proved TopK service/API contract mismatch; cheap-disproved graph-RAG rerank undo and in-memory eviction as intentional design.
 
+
+2026-09-12 seed hunt #1923 (seed-only): reseeded retrieval; scoped retrieval/indexing tests passed; no new hunt-ready defect proven this pass.
 ---
 
 ## Zone: ui-oidc
@@ -9199,17 +9712,24 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 3
-- **bugs-found:** 1
+- **hunts:** 11
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-07 — alert-routing webhook destinations skipped post-DNS private-network guard
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 thorough hunt #1954 (dry): cheap-disproof closed integration outbound client candidate already fixed in #1928; no open hunt-ready rows.
 
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
+2026-09-12 seed hunt #1942 (seed-only): reseeded core-safety-network; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1935 (seed-only): reseeded core-safety-network; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1931 (seed-only): reseeded core-safety-network; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1930 (seed-only): reseeded core-safety-network; scoped tests passed; no new hunt-ready defect proven this pass.
+2026-09-12 seed hunt #1929 (seed-only): reseeded core-safety-network; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] (proven) `AlertRoutingWebhookDestinationPolicy` — sync-only literal guard omits `OutboundHttpsUrlDnsResolutionGuard` on subscription create — **hit 2026-09-07 (#1215):** `DigestSubscriptionFacade.Create` and `AlertRoutingSubscriptionsController.Create` accepted public hostnames without DNS re-validation; hostname rebinding could reach private networks at delivery; fixed with `TryGetRejectionReasonAfterDnsResolveAsync` parity to webhook probe policy (`TryGetRejectionReasonAfterDnsResolveAsync_WhenHostnameDoesNotResolve_RewritesUrlPrefixToWebhookUrl`)
 - [x] (valid-no-repro) `PrivateNetworkAddressGuard.IsForbiddenHostLiteral` — non-dotted IPv4 encodings (octal/hex) may bypass literal guard when `IPAddress.TryParse` rejects host token — **2026-09-07 (#1216):** .NET `IPAddress.TryParse` accepts octal/hex/shorthand private forms (`0177.0.0.1`, `0x7f000001`, `127.1`, `192.168.001.001`); octal `010.*` correctly maps to public `8.0.0.1` and stays allowed (`PrivateNetworkAddressGuardEncodingTests`)
@@ -9219,10 +9739,16 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `OutboundSocketsHttpHandlerSettings` — pool profiles may omit connect-time SSRF guard — **2026-09-10 seed hunt #1627:** profiles tune transport only; `ConnectCallback` stays null (`Apply_does_not_configure_connect_callback`)
 - [x] (valid-no-repro) `ConfigureArchLucidOutboundSocketsHandler` — default `rejectPrivateNetworkConnectEndpoints: false` leaves integration clients without connect callback — **2026-09-10 seed hunt #1627:** opt-in wires `OutboundHttpsConnectGuard.RejectPrivateNetworkAndConnectAsync`; webhook dry-run is the only integration client that enables it today (`ConfigureArchLucidOutboundSocketsHandler_opt_in_wires_private_network_connect_callback`)
 
-- [ ] (candidate) `ServiceCollectionExtensions.IntegrationsOutboundHttpClients` — Jira/ServiceNow/AzureBoards `ExternalIntegration` clients register without `rejectPrivateNetworkConnectEndpoints: true`; DNS rebinding between connector URL save and outbound delivery may bypass pre-save literal guard if Integrations layer lacks post-DNS policy parity
-- [ ] (candidate) `PrivateNetworkAddressGuard` — IANA reserved/documentation IPv4 (`192.0.0.0/24`, `192.0.2.0/24`) outside TB-274 RFC1918/link-local scope may be reachable when URL policies accept public hostnames that resolve there
+- [x] (valid-no-repro) `ServiceCollectionExtensions.IntegrationsOutboundHttpClients` — Jira/ServiceNow/AzureBoards `ExternalIntegration` clients register without `rejectPrivateNetworkConnectEndpoints: true` — **cheap-disproof 2026-09-12 thorough hunt #1954:** already fixed in #1928 (`External_integration_http_clients_wire_private_network_connect_guard`)
+- [x] (valid-no-repro) `PrivateNetworkAddressGuard` — IANA reserved/documentation IPv4 (`192.0.0.0/24`, `192.0.2.0/24`) outside TB-274 RFC1918/link-local scope may be reachable when URL policies accept public hostnames that resolve there — **cheap-disproof 2026-09-11 seed hunt #1793:** TB-274 scope excludes documentation/reserved blocks; regression `IsForbiddenHostLiteral_allows_documentation_and_reserved_ipv4_outside_tb274_scope`.
 
 2026-09-10 seed hunt #1627 (seed-only): reseeded core-safety-network after #1216; cheap-disproof on CGNAT/benchmark out-of-scope ranges, `0.0.0.0` blocking, pool-only handler settings, and opt-in connect guard wiring; 28 scoped PrivateNetwork + 7 OutboundSockets tests passed.
+
+- [x] (proven) `ServiceCollectionExtensions.IntegrationsOutboundHttpClients` — Jira/ServiceNow/AzureBoards/ITSM health/OAuth clients registered without `rejectPrivateNetworkConnectEndpoints: true` while webhook dry-run had connect guard — **hit 2026-09-12 thorough hunt #1928:** enabled `OutboundHttpsConnectGuard` on all integration outbound clients; regression `External_integration_http_clients_wire_private_network_connect_guard`.
+
+2026-09-12 thorough hunt #1928 (hit): proved integration outbound HTTP clients lacked connect-time SSRF guard parity with webhook dry-run; 1 composition regression test passed.
+
+2026-09-11 seed hunt #1793 (seed-only): reseeded core-safety-network after #1627; cheap-disproof closed documentation/reserved IPv4 candidate; 2 scoped PrivateNetworkAddressGuardEncoding tests passed.
 
 2026-09-07 seed hunt #1215 (hit): reseeded private-network/SSRF guard paths; proved alert-routing webhook destination policy lacked post-DNS resolution guard on create paths.
 2026-09-07 thorough hunt #1216 (dry): cheap-disproved octal/hex IPv4 bypass and Safety-interface DNS-parity meta hypothesis; added encoding regression tests.
@@ -9237,11 +9763,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 4
-- **bugs-found:** 5
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — standalone month/months Azure retail UOM rejected while quantity-prefixed forms matched
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — slash `/wk` and standalone week/weeks Azure retail UOM rejected while day/hour/month synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9261,6 +9787,22 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 2026-09-11 seed hunt #1703 (hit): reseeded core-costing sibling UOM parity; proved standalone month/months Azure retail gap; 124 scoped Costing tests passed.
 
+- [x] (valid-no-repro) `AzureRetailPricesCatalogClient` accepts annual `Year`/`year` UOM as monthly consumption — **cheap-disproof 2026-09-11 seed hunt #1795:** annual meters intentionally rejected by monthly probe; regression `TryMonthlyUsdFromRow_rejects_annual_unit_of_measure`.
+
+2026-09-11 seed hunt #1795 (seed-only): reseeded core-costing after #1703; cheap-disproof closed annual UOM monthly-probe candidate; 2 scoped AzureRetailPricesSkuMatchersNonMonthly tests passed.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — standalone and quantity-prefixed `day`/`days` UOM rejected while hourly/monthly synonyms already matched — **hit 2026-09-11 seed hunt #1804:** Azure Retail daily consumption meters with bare `"day"`/`"days"` or `"1 Day"` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow`; fixed with `IsDayMeter` + `DaysPerMonthAssumption` parity with hour/month fixes (#1415/#1703); regressions `TryMonthlyUsdFromRow_accepts_standalone_day_unit_of_measure_synonyms`, `LooksLikeConsumptionUsd_accepts_daily_unit_of_measure_synonyms`, and `TryMonthlyUsdFromRow_accepts_quantity_prefixed_day_unit_of_measure`.
+
+2026-09-11 seed hunt #1804 (hit): reseeded core-costing sibling UOM parity; proved standalone/prefixed daily Azure retail gap; 127 scoped Costing tests passed.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — slash `/day` UOM rejected while `/hr` and `/mo` hourly/monthly synonyms already matched — **hit 2026-09-12 seed hunt #1813:** Azure Retail daily consumption meters with `1/day` or `/day` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow`; fixed with `ContainsSlashDayToken` parity with hour/month slash fixes; regressions in `AzureRetailPricesSkuMatchersSlashDayTests`
+
+2026-09-12 seed hunt #1813 (hit): reseeded core-costing slash-day UOM parity; 136 scoped Costing tests passed.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — standalone and slash `/wk`/`/week` UOM rejected while hourly/daily/monthly synonyms already matched — **hit 2026-09-12 seed hunt #1910:** Azure Retail weekly consumption meters with bare `week`/`weeks`, `1/week`, or `/wk` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow`; fixed with `IsWeekMeter` + `WeeksPerMonthAssumption` parity with day/hour/month fixes; regressions in `AzureRetailPricesSkuMatchersSlashWeekTests`
+
+2026-09-12 seed hunt #1910 (hit): reseeded core-costing sibling UOM parity; proved standalone/slash weekly Azure retail gap; 142 scoped Costing tests passed.
+
 2026-09-07 seed hunt #1186 (hit): seeded zone from split catalog; proved GCP billing catalog pagination gap on live pricing probe.
 
 2026-09-07 thorough hunt #1260 (hit): proved region-blind and preemptible-first GCP catalog SKU selection; 114 scoped Costing unit tests passed.
@@ -9275,11 +9817,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 6
-- **bugs-found:** 8
+- **hunts:** 16
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — object-shaped `text` list entries and reasoning paragraphs dropped on normalize
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — null `citations` skipped zero-citation WARN gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9321,15 +9863,16 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 17
-- **bugs-found:** 26
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-05 — architecture finding numeric sourceAgent ordinal ignored
+- **hunts:** 19
+- **bugs-found:** 27
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-11 — unknown sourceAgent string silently left invalid default AgentType
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+2026-09-12 seed hunt #1932 (seed-only): reseeded archlucid-contracts; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] (valid-no-repro) JSON round-trip drops a required field on a versioned request DTO — `KeyContractsJsonRoundTripTests` and `JsonRoundTripPropertyTests` cover core request/run DTO shapes.
 - [x] (proven) Enum serialization accepts an out-of-range value as the default variant — **hit 2026-08-19:** `ServiceType`, `DatastoreType`, `RuntimePlatform`, and `RelationshipType` JSON converters cast numeric ordinals without `Enum.IsDefined`; fixed on master in `47e7613370` (same pattern as `AgentType` in `4d4340387c`).
@@ -9376,8 +9919,54 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-09-05 seed hunt #796 (hit): reseeded archlucid-contracts after wave-21 churn; proved architecture-finding numeric sourceAgent ordinal gap; seeded whitespace-severity default candidate.
 
+- [x] (proven) `ArchitectureFindingJsonConverter.TryReadSourceAgent` — unknown string labels (`"bogus"`) silently left `SourceAgent` at invalid default `0` while out-of-range ordinals throw — **hit 2026-09-11 seed hunt #1748 (seed→hit):** non-empty unknown labels now throw `JsonException`; regression `Deserialize_unknown_source_agent_string_throws`.
+
+2026-09-11 seed hunt #1748 (seed→hit): reseeded archlucid-contracts; proved unknown sourceAgent string silent default; 20 scoped `ArchitectureFindingJsonConverter` tests passed.
+
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
 
+- [x] (proven) `StructuredExplanationParser.TryReadReasoningText` — object-shaped reasoning array paragraphs with `id` property (mirroring evidence ref shape) silently skipped while list entries accept `id` then `text` — **hit 2026-09-12 seed hunt #1873 (seed→hit):** array/object reasoning loops checked only `text` for object tokens; LLM payloads mirroring `{ "id": "paragraph" }` evidence-ref shape rejected normalize; fixed via shared `TryReadObjectStringProperty(item, "id", "text")` on reasoning paths; regression `TryNormalizeStructuredJson_maps_object_shaped_reasoning_array_entries_with_id_property`
+
+2026-09-12 seed hunt #1880 (hit): reseeded core-explanation-json; proved null citations left CitationCount null; 36 scoped RunExplanation unit tests passed.
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — JSON null `citations` left `CitationCount` null so disposition PASS skipped WARN — **hit 2026-09-12 seed hunt #1880 (seed→hit):** null token fell through shape handling with null count; fixed by mapping null to zero; regression `FromAggregateJson_treats_null_citations_as_zero_for_disposition`
+
+2026-09-12 seed hunt #1879 (hit): reseeded core-explanation-json; proved numeric object id/text properties dropped on list normalize; 60 scoped explanation unit tests passed.
+
+- [x] (proven) `StructuredExplanationParser.TryReadObjectStringProperty` — numeric `id`/`text` on object-shaped list/reasoning entries silently skipped — **hit 2026-09-12 seed hunt #1879 (seed→hit):** property reader required string ValueKind while aggregate readers coerce numeric tokens; fixed via `TryReadNonEmptyTextToken`; regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_with_numeric_id`
+
+2026-09-12 seed hunt #1878 (hit): reseeded core-explanation-json; proved numeric list array entries dropped on normalize; 59 scoped explanation unit tests passed.
+
+- [x] (proven) `StructuredExplanationParser.TryReadStringListEntry` — numeric or boolean entries in `evidenceRefs` / `alternativesConsidered` / `caveats` arrays silently skipped — **hit 2026-09-12 seed hunt #1878 (seed→hit):** array loop accepted only string/object tokens; fixed via `TryReadNonEmptyTextToken` on list entries; regression `TryNormalizeStructuredJson_maps_numeric_evidence_ref_array_entries`
+
+2026-09-12 seed hunt #1877 (hit): reseeded core-explanation-json; proved numeric/boolean reasoning scalar and array entries dropped on normalize; 58 scoped explanation unit tests passed.
+
+- [x] (proven) `StructuredExplanationParser.TryReadReasoningText` — numeric or boolean scalar/array `reasoning` tokens rejected normalize while list readers coerce numeric text — **hit 2026-09-12 seed hunt #1877 (seed→hit):** non-string non-object reasoning tokens returned null; fixed via `TryReadNonEmptyTextToken` on scalar and array-item paths; regressions `TryNormalizeStructuredJson_coerces_numeric_scalar_reasoning`, `TryNormalizeStructuredJson_coerces_numeric_reasoning_array_entries`
+
+2026-09-12 seed hunt #1876 (hit): reseeded core-explanation-json; proved numeric scalar alternativesConsidered dropped on normalize; 56 scoped explanation unit tests passed.
+
+- [x] (proven) `StructuredExplanationParser.TryReadStringList` — numeric scalar `alternativesConsidered` / `caveats` / `evidenceRefs` dropped when LLM emits a number instead of `string[]` — **hit 2026-09-12 seed hunt #1876 (seed→hit):** non-array non-string tokens returned null while sibling aggregate readers coerce numeric text tokens; fixed via `TryReadNonEmptyTextToken` scalar mapping; regression `TryNormalizeStructuredJson_maps_numeric_alternatives_considered_as_single_entry`
+
+2026-09-12 seed hunt #1875 (hit): reseeded core-explanation-json; proved unparseable citations string left CitationCount null; 35 scoped RunExplanation unit tests passed.
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — non-numeric non-boolean `citations` string (`"none"`) left `CitationCount` null so disposition PASS skipped WARN — **hit 2026-09-12 seed hunt #1875 (seed→hit):** string branch had no fallback after failed boolean/whole-number parse; fixed by defaulting unrecognized strings to zero; regression `FromAggregateJson_treats_unparseable_string_citations_as_zero_for_disposition`
+
+2026-09-12 seed hunt #1874 (hit): reseeded core-explanation-json; proved empty-string citations left CitationCount null so disposition PASS skipped WARN; 34 scoped RunExplanation unit tests passed.
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — empty or whitespace `citations` string left `CitationCount` null so `ResolveDisposition` returned PASS while omitted property correctly WARNs — **hit 2026-09-12 seed hunt #1874 (seed→hit):** string branch only parsed boolean/whole-number tokens; blank strings fell through with null count; fixed by mapping whitespace-only to zero; regression `FromAggregateJson_treats_empty_string_citations_as_zero_for_disposition`
+
+2026-09-12 seed hunt #1873 (hit): reseeded core-explanation-json; proved reasoning array `id`-only object coercion gap; 33 scoped RunExplanation unit tests passed.
+
+2026-09-12 seed hunt #1870 (seed-only): reseeded core-explanation-json; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1871 (seed-only): reseeded core-explanation-json; scoped tests passed; no hunt-ready defect proven this pass.
+
+2026-09-12 seed hunt #1872 (seed-only): reseeded core-explanation-json; scoped tests passed; no hunt-ready defect proven this pass.
+
+
+2026-09-12 seed hunt #1921 (seed-only): reseeded core-explanation-json; cheap-disproof closed object-shaped list `text` coercion as fixed in #1716; 32 scoped RunExplanation tests passed.
+
+- [x] (valid-no-repro) `StructuredExplanationParser.TryReadStringListEntry` skips object `text` entries — **cheap-disproof 2026-09-12 seed hunt #1921:** regression `TryNormalizeStructuredJson_maps_object_shaped_alternatives_considered_entries` (#1716).
 ---
 
 ## Zone: context-ingestion
@@ -9388,11 +9977,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 83
-- **bugs-found:** 146
+- **hunts:** 84
+- **bugs-found:** 147
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — backslash-separated topology hint paths churned ObjectId vs forward-slash peers
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — snake_case `security_context` on kubernetes-json deployments skipped privileged/runAsNonRoot projection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9635,8 +10224,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `BicepResourceBodyParser` / `SimpleTerraformResourceBlockParser` — multiline nested-block headers (`key =` newline `{`) flattened inner scalars to parent `tf.*` — **hit 2026-09-05 (#803):** `#527` multiline-array parity gap for `{` delimiters; `networkAcls =` / `retention_policy =` on own line skipped `NestedBlockStartRegex` and leaked `defaultAction`/`days` as top-level keys; fixed with `TryConsumeMultilineNestedBlockAssignment` (`ParseAsync_MultilineNestedBlockHeader_PreservesNetworkAclsBlock`, `ParseAsync_MultilineNestedBlockHeader_PreservesRetentionPolicyBlock`).
 - [x] (proven) `TopologyHintStableObjectIds.CanonicalizeHintName` — backslash-separated Windows paths did not normalize to forward-slash peers — **hit 2026-09-11 thorough hunt #1696:** `prod\vnet\subnet-a` vs `prod/vnet/subnet-a` churned topology-hints connector `ObjectId` and policy overlap stable ids; fixed by normalizing `\` to `/` before segment split; regression `CanonicalizeHintName_BackslashSeparatedPaths_EquivalentToForwardSlashPeers`.
-- [ ] (candidate) `KubernetesManifestCanonicalObjectMapper.ProjectContainerSecurityContext` — snake_case `security_context` fields not projected; `TryGetPropertyIgnoreCase` does not bridge naming-convention variants.
-- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` — `values` loop skips `ShouldRedactKey` when `sensitive_values` absent; plaintext `connection_string` may leak into `tf.*` properties.
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.ProjectContainerSecurityContext` — snake_case `security_context` fields not projected — **hit 2026-09-12 thorough hunt #1958:** exporter kubernetes-json with `security_context` / `allow_privilege_escalation` / `run_as_non_root` missed `k8s.privileged` and related security baselines; fixed with `TryGetPropertyIgnoreCaseOrSnakeCase`; regression `ParseAsync_snake_case_security_context_projects_privileged_container`.
+- [x] (invalid) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` — `values` loop skips `ShouldRedactKey` when `sensitive_values` absent — **cheap-disproof 2026-09-12 thorough hunt #1958:** terraform-show-json only redacts fields terraform marks in `sensitive_values`; absent marking means plaintext is intentional state output, not a parser leak.
+
+2026-09-12 thorough hunt #1958 (hit): proved K8s snake_case security_context projection gap; cheap-disproof closed terraform redaction-without-sensitive_values candidate; scoped context-ingestion tests passed.
 
 2026-09-11 thorough hunt #1696 (hit): proved topology hint backslash path canonicalization gap; 5 scoped TopologyHintStableObjectIds tests passed.
 
@@ -9782,11 +10373,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 18
-- **bugs-found:** 29
+- **hunts:** 21
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — ExecDigest padded ISO week idempotency key bypassed weekly ledger
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — ExecDigest accepted whitespace-only weekLabel while sponsor dispatchers reject
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -9854,6 +10445,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-09-10 seed hunt #1614 (hit): reseeded notifications-pipeline after sponsor ISO-week trim fixes; proved ExecDigest padded-key duplicate-send gap; 111 scoped Application notifications tests passed.
 
+- [x] (proven) `ExecDigestEmailDispatcher.TryDispatchAsync` — padded `composition.WeekLabel` copied into template model and subject without trim — **hit 2026-09-11 seed hunt #1772:** sibling weekly Sponsor report/summary dispatchers trim `weekLabel` but ExecDigest still used raw `composition.WeekLabel`; fixed with `normalizedWeekLabel = composition.WeekLabel.Trim()`; regression `ExecDigestEmailDispatcher_trims_week_label_in_template_model_and_subject`
+
+2026-09-11 seed hunt #1772 (hit): reseeded notifications-pipeline after #1770-1771 weekLabel trim parity for sponsor dispatchers; proved ExecDigest padded WeekLabel gap; 1 scoped regression test passed.
+
+- [x] (proven) `WeeklySponsorSummaryEmailDispatcher.TryDispatchAsync` — whitespace-only `weekLabel` trimmed to empty and still sent weekly summary — **hit 2026-09-12 seed hunt #1858:** `WeeklySponsorReportEmailDispatcher` gained `ArgumentException` parity in #1773 but summary still accepted padded-only `weekLabel`, producing subject `weekly sponsor summary — `; fixed with required `weekLabel` validation; regression `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_week_label`
+
+2026-09-12 seed hunt #1858 (hit): reseeded notifications-pipeline after #1772 ExecDigest weekLabel trim; proved summary whitespace-only weekLabel gap vs report parity; 1 scoped regression test passed.
+
+- [x] (proven) `ExecDigestEmailDispatcher.TryDispatchAsync` — whitespace-only `composition.WeekLabel` trimmed to empty and still sent weekly digest — **hit 2026-09-12 seed hunt #1909:** sponsor report/summary dispatchers gained `ArgumentException` parity in #1773/#1858 but ExecDigest still accepted padded-only `WeekLabel`, producing subject `weekly digest — `; fixed with required `WeekLabel` validation; regression `ExecDigestEmailDispatcher_throws_for_whitespace_only_week_label`
+
+2026-09-12 seed hunt #1909 (hit): reseeded notifications-pipeline after #1858 summary weekLabel guard; proved ExecDigest whitespace-only weekLabel gap vs sponsor dispatchers; 2 scoped ExecDigest weekLabel tests passed.
+
 ## Zone: artifact-synthesis
 
 - **id:** artifact-synthesis
@@ -9862,11 +10465,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 13
-- **bugs-found:** 28
+- **hunts:** 15
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — compliance-matrix gap substring mis-attribution; markdown security/compliance/issue metadata parity
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — inventory.json mandatory flag parity vs markdown/DOCX
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9904,11 +10507,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — omit `RequirementCoverageItem.CoverageStatus` and `.IsMandatory` while DOCX coverage table and `inventory.json` expose them — **hit 2026-09-10 thorough hunt #1534:** requirement bullets now include coverage status and mandatory flag; regressions `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_requirement_coverage_status_and_mandatory_flag` and `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_requirement_coverage_status_and_mandatory_flag`
 - [x] (proven) `MermaidDiagramRenderer.EscapeLabel` — control/bidi characters in node/edge labels bypass sanitizer (distinct from bracket/pipe/newline fixes in #890/#1328) — **hit 2026-09-10 thorough hunt #1534:** `EscapeLabel` now prefixes `LlmArtifactFreeTextSanitizer.Sanitize`; regression `MermaidDiagramRenderer_Render_strips_control_chars_from_labels`
 - [x] (proven) `DocxExportService.BuildDocumentAsync` — Requirements coverage three-column table bypasses `SanitizeArtifactText` — **hit 2026-09-09 seed hunt #1412:** raw `RequirementName`/`CoverageStatus` reached `AddThreeColumnTable`; ASCII control chars could throw on OpenXML save; fixed with per-cell `SanitizeArtifactText`; regression `ExportAsync_strips_control_chars_from_requirements_coverage_table_cells`
-- [ ] (candidate) `InventoryArtifactGenerator` — `inventory.json` omits `RequirementCoverageItem.IsMandatory` while markdown/DOCX export expose mandatory flag post-#1534 — deferred to next hunt
+- [x] (proven) `InventoryArtifactGenerator` — `inventory.json` omits `RequirementCoverageItem.IsMandatory` while markdown/DOCX export expose mandatory flag post-#1534 — **hit 2026-09-12 thorough hunt #1847:** requirement items now serialize `IsMandatory` on covered and uncovered rows; regression `GenerateAsync_serializes_mandatory_flag_for_requirement_items`
 - [x] (proven) `ComplianceMatrixArtifactGenerator.GenerateAsync` — substring `Contains(control.ControlName)` mis-attributed gap notes to shorter control names when one name is a prefix of another — **hit 2026-09-11 hunt #1707 (seed→hit):** gap `"Encrypt data: …"` attached to both `Encrypt` and `Encrypt data`; fixed with longest-name-wins `ComplianceMatrixGapMatcher`; regression `GenerateAsync_does_not_attribute_gap_to_shorter_substring_control_name`
 - [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — security posture lines omitted `ControlId` and `Impact` present in DOCX four-column table — **hit 2026-09-11 hunt #1707 (seed→hit):** markdown emitted `{ControlName}: {Status}` only; fixed with `{ControlId} {ControlName} ({Impact}): {Status}`; regressions `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_security_control_id_and_impact_matching_docx_export` and updated narrative coverage batch
 - [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — compliance posture lines omitted `AppliesToCategory` present in DOCX export and `compliance-matrix.json` — **hit 2026-09-11 hunt #1707 (seed→hit):** fixed with `[{AppliesToCategory}]` suffix; regression `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_compliance_applies_to_category_matching_docx_export`
 - [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — unresolved-issue bullets omitted `IssueType` and `SupportingFindingIds` present in `unresolved-issues.json` — **hit 2026-09-11 hunt #1707 (seed→hit):** fixed with issue type prefix and supporting-finding suffix; regression `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_issue_type_and_supporting_finding_ids_matching_unresolved_issues_json`
+
+2026-09-12 thorough hunt #1847 (hit): proved inventory.json omitted `RequirementCoverageItem.IsMandatory` while markdown/DOCX exposed mandatory flag post-#1534; fixed `InventoryArtifactGenerator` + `InventoryItem.IsMandatory`; 213 scoped ArtifactSynthesis tests passed.
+
+2026-09-12 seed hunt #1914 (seed-only): reseeded artifact-synthesis; cheap-disproof closed inventory mandatory-flag parity as fixed in #1847; 213 scoped ArtifactSynthesis tests passed.
+
+- [x] (valid-no-repro) `InventoryArtifactGenerator` omits `RequirementCoverageItem.IsMandatory` — **cheap-disproof 2026-09-12 seed hunt #1914:** regression `GenerateAsync_serializes_mandatory_flag_for_requirement_items` (#1847).
 
 2026-09-11 seed hunt #1707 (seed→hit): reseeded artifact-synthesis after master merge; proved compliance-matrix gap substring mis-attribution and three markdown cross-surface parity gaps; 200 scoped ArtifactSynthesis tests passed.
 
@@ -10056,11 +10665,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 13
-- **bugs-found:** 17
+- **hunts:** 36
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — Entra group membership Graph read ignored `@odata.nextLink` pagination
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — Entra Graph membership pagination followed cross-group @odata.nextLink without validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10085,11 +10694,77 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `AwsResourceExplorerQueryString.ResolveForRegion` China partition (`cn-*`) — **2026-09-08:** `ResolveForRegion_returns_china_partition_for_cn_region` confirms existing `arn:aws-cn:*` branch; GovCloud parity already proven.
 - [x] (valid-no-repro) `GetOnlyHostedAzureArmReadClient` ARM HTTP failures throw via `EnsureSuccessStatusCode` without warning log — **2026-09-08:** 401/403/429 surface as HTTP exceptions to orchestration; no cross-tenant or inventory-corruption wrong outcome in extractor layer.
 - [x] (proven) GCP `HostedGcpExtractorClient.SearchResourcesAsync` used Google SDK async enumerator without explicit page cap — **hit 2026-09-08:** large projects could paginate unbounded vs AWS/Azure `MaxPaginationRequests = 64`; extracted `GcpAssetInventoryCollector` with raw-page guard; regression in `CollectFromRawPagesAsync_throws_after_max_pages`.
-- [ ] (candidate) `HostedAwsExtractorClient.CollectZipAsync` accepts unknown AWS region system names via `RegionEndpoint.GetBySystemName` without upfront validation — Azure has `HostedAzureExtractorGuidValidator`; deferred to next hunt
+- [x] (invalid) `HostedAwsExtractorClient.CollectZipAsync` accepts unknown AWS region system names via `RegionEndpoint.GetBySystemName` without upfront validation — **cheap-disproof 2026-09-11 thorough hunt #1805:** deferred validation fails at STS/Resource Explorer; no silent wrong inventory.
 - [x] (proven) `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync` ignored Microsoft Graph `@odata.nextLink` — **hit 2026-09-11 hunt #1706 (seed→hit):** groups with >1 page of direct members dropped members beyond the first page; fixed with visited-link pagination loop (`MaxPaginationRequests = 64`); regression in `TryReadDirectMembershipsAsync_follows_odata_next_link_for_group_members`
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync` followed ARM `nextLink` without validating resource scope — **hit 2026-09-11 hunt #1706 (seed→hit):** malicious or mis-issued `nextLink` to another resource's diagnostic settings could leak settings; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsDiagnosticSettingsResource`; regression in `ListDiagnosticSettingsAsync_rejects_next_link_for_different_resource_id`
 
 2026-09-11 seed hunt #1706 (seed→hit): reseeded cloud-extractors after master merge; proved Entra Graph membership pagination and diagnostic-settings cross-resource nextLink gaps; 54 scoped Azure extractor tests passed.
+
+- [x] (invalid) `HostedAwsExtractorClient.CollectZipAsync` accepts unknown AWS region system names without upfront validation — **cheap-disproof 2026-09-11 thorough hunt #1805:** `RegionEndpoint.GetBySystemName` defers failure to STS/Resource Explorer calls; no silent cross-region inventory wrong outcome (unlike Azure subscription nextLink guard); Azure GUID validation is subscription-scope identity, not region-string parity.
+- [x] (valid-no-repro) Whitespace-only AWS `Region` reaches `RegionEndpoint.GetBySystemName` — **cheap-disproof 2026-09-11 thorough hunt #1805:** `ArgumentException.ThrowIfNullOrWhiteSpace(request.Region)` rejects before token fetch; regression `CollectZipAsync_rejects_blank_region_before_token_fetch`.
+
+2026-09-11 thorough hunt #1805 (dry): reseeded cloud-extractors after #1706; cheap-disproof closed unknown-region and whitespace-region candidates; 2 scoped HostedAwsExtractorClient tests passed.
+
+- [x] (valid-no-repro) Whitespace-only GCP `ProjectId` reaches workload-identity credential factory — **cheap-disproof 2026-09-11 thorough hunt #1806:** `ArgumentException.ThrowIfNullOrWhiteSpace(request.ProjectId)` rejects before token fetch; regression `CollectZipAsync_rejects_blank_project_id_before_token_fetch`.
+
+2026-09-11 thorough hunt #1806 (dry): reseeded cloud-extractors input guards; cheap-disproof closed GCP blank project id candidate; 3 scoped HostedGcpExtractorClient tests passed.
+
+- [x] (valid-no-repro) Whitespace-padded Azure subscription GUID bypasses `RequireAzureGuid` — **cheap-disproof 2026-09-11 seed hunt #1807:** `value.Trim()` before `Guid.TryParse`; regression `RequireAzureGuid_accepts_whitespace_padded_guid`.
+- [x] (valid-no-repro) Whitespace-only AWS `AccountId` reaches STS AssumeRole — **cheap-disproof 2026-09-11 seed hunt #1808:** `ArgumentException.ThrowIfNullOrWhiteSpace(request.AccountId)`; regression `CollectZipAsync_rejects_blank_account_id_before_token_fetch`.
+- [x] (valid-no-repro) Whitespace-only GCP `ServiceAccountEmail` reaches WIF credential factory — **cheap-disproof 2026-09-11 seed hunt #1809:** `ArgumentException.ThrowIfNullOrWhiteSpace(request.ServiceAccountEmail)`; regression `CollectZipAsync_rejects_blank_service_account_email_before_token_fetch`.
+- [x] (valid-no-repro) Whitespace-only Azure `ManagementGroupId` passes `RequireManagementGroupId` — **cheap-disproof 2026-09-11 seed hunt #1810:** `ArgumentException.ThrowIfNullOrWhiteSpace` rejects before regex; regression `RequireManagementGroupId_rejects_unsafe_values` (`[InlineData("   ")]`).
+- [x] (invalid) `EntraGroupMembershipGraphReader` drops nested groups when `@odata.nextLink` repeats on member pages — **cheap-disproof 2026-09-11 seed hunt #1811:** pagination loop tracks visited next links with `MaxPaginationRequests = 64`; regression family `TryReadDirectMembershipsAsync_follows_odata_next_link_for_group_members` (#1706).
+
+2026-09-11 seed hunt #1807 (seed-only): reseeded cloud-extractors Azure GUID trim parity; 1 scoped HostedAzureExtractorGuidValidator test passed.
+
+2026-09-11 seed hunt #1808 (seed-only): reseeded cloud-extractors AWS account guard; 3 scoped HostedAwsExtractorClient tests passed.
+
+2026-09-11 seed hunt #1809 (seed-only): reseeded cloud-extractors GCP service-account guard; 4 scoped HostedGcpExtractorClient tests passed.
+
+2026-09-11 seed hunt #1810 (seed-only): reseeded cloud-extractors Azure management-group blank input; reused existing HostedAzureExtractorGuidValidator theory coverage.
+
+2026-09-11 seed hunt #1811 (seed-only): reseeded cloud-extractors Entra Graph pagination; cheap-disproof closed repeating nextLink candidate as already fixed in #1706.
+
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListFederatedCredentialsForIdentityAsync` followed ARM `nextLink` without validating identity resource scope — **hit 2026-09-12 hunt #1812 (seed→hit):** malicious or mis-issued `nextLink` to another user-assigned identity's federated credentials could leak credential metadata; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsFederatedCredentialsIdentity`; regression in `ListFederatedCredentialsAsync_rejects_next_link_for_different_identity_resource_id`
+
+2026-09-12 seed hunt #1812 (seed→hit): reseeded cloud-extractors federated-credential pagination; proved cross-identity nextLink gap; 18 scoped GetOnlyHostedAzureArmReadClient tests passed.
+
+- [x] (proven) `ListSubscriptionDefenderSummariesAsync` ignored ARM `nextLink` and returned lower secure score from first page only — **hit 2026-09-12 seed hunt #1823:** single GET dropped paginated secureScores; fixed with subscription-validated pagination loop picking highest score across pages; regression in `ListSubscriptionDefenderSummariesAsync_follows_next_link_and_picks_highest_score`.
+
+2026-09-12 seed hunt #1823 (seed→hit): reseeded cloud-extractors Defender secureScores pagination; proved missing nextLink follow; 58 scoped Azure extractor tests + AWS/GCP extractor unit tests passed.
+
+- [x] (proven) `EntraGroupMembershipGraphReader` followed `@odata.nextLink` to a different group's members and misattributed rows — **hit 2026-09-12 seed hunt #1824:** no group-id guard on Graph pagination; fixed with `EnsureNextLinkTargetsGroup`; regression in `TryReadDirectMembershipsAsync_rejects_odata_next_link_for_different_group`.
+
+2026-09-12 seed hunt #1824 (seed→hit): reseeded cloud-extractors Entra Graph pagination; proved cross-group nextLink gap; 59 scoped Azure extractor tests passed.
+
+- [x] (valid-no-repro) Defender secureScores `nextLink` to another subscription is followed — **cheap-disproof 2026-09-12 seed hunt #1825:** `EnsureTargetsSubscription` rejects cross-subscription pagination; regression `ListSubscriptionDefenderSummariesAsync_throws_when_next_link_targets_different_subscription`.
+
+2026-09-12 seed hunt #1825 (seed-only): reseeded cloud-extractors Defender nextLink scope guard; 3 scoped Defender summary tests passed.
+
+- [x] (valid-no-repro) Defender secureScores repeating `nextLink` loops indefinitely — **cheap-disproof 2026-09-12 seed hunt #1826:** visited-link guard throws on repeat; regression `ListSubscriptionDefenderSummariesAsync_throws_when_next_link_repeats`.
+
+2026-09-12 seed hunt #1826 (seed-only): reseeded cloud-extractors Defender repeating nextLink guard; 61 scoped Azure extractor tests passed.
+
+- [x] (valid-no-repro) Entra Graph `@odata.nextLink` with malformed URL is followed — **cheap-disproof 2026-09-12 seed hunt #1827:** `EnsureNextLinkTargetsGroup` rejects non-absolute URLs; regression `TryReadDirectMembershipsAsync_rejects_invalid_odata_next_link_url`.
+
+2026-09-12 seed hunt #1827 (seed-only): reseeded cloud-extractors Entra invalid nextLink guard; 62 scoped Azure extractor tests passed.
+
+- [x] (valid-no-repro) AWS China partition regions use commercial `arn:aws:*` Resource Explorer query — **cheap-disproof 2026-09-12 seed hunt #1828:** `ResolveForRegion_returns_china_partition_for_cn_region` confirms `arn:aws-cn:*` branch.
+- [x] (valid-no-repro) GCP Asset search paginates unbounded without page cap — **cheap-disproof 2026-09-12 seed hunt #1829:** `GcpAssetInventoryCollector` enforces `MaxPaginationRequests = 64`; regression `CollectFromRawPagesAsync_throws_after_max_pages`.
+- [x] (valid-no-repro) AWS Resource Explorer repeating `NextToken` loops indefinitely — **cheap-disproof 2026-09-12 seed hunt #1830:** visited-token guard throws; regression `CollectAsync_throws_when_next_token_repeats`.
+- [x] (valid-no-repro) Subscription policy assignment listing follows cross-subscription `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1831:** `EnsureTargetsSubscription` on policy pagination path (same validator family as resource listing).
+- [x] (valid-no-repro) Management group subscription listing follows cross-management-group `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1832:** `EnsureTargetsManagementGroup` on MG subscription pagination.
+- [x] (valid-no-repro) Diagnostic settings pagination follows cross-resource `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1833:** `EnsureTargetsDiagnosticSettingsResource`; regression `ListDiagnosticSettingsAsync_rejects_next_link_for_different_resource_id` (#1706).
+- [x] (valid-no-repro) Federated credential pagination follows cross-identity `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1834:** `EnsureTargetsFederatedCredentialsIdentity`; regression `ListFederatedCredentialsAsync_rejects_next_link_for_different_identity_resource_id` (#1812).
+- [x] (valid-no-repro) Whitespace-only GCP `ProjectId` reaches Asset search — **cheap-disproof 2026-09-12 seed hunt #1835:** `CollectZipAsync_rejects_blank_project_id_before_token_fetch` (#1806).
+- [x] (valid-no-repro) Whitespace-only AWS `Region` reaches Resource Explorer — **cheap-disproof 2026-09-12 seed hunt #1836:** `CollectZipAsync_rejects_blank_region_before_token_fetch` (#1805).
+
+2026-09-12 seed hunts #1828–#1836 (seed-only): reseeded cloud-extractors pagination/input-guard parity rows; 62 scoped Azure extractor + 51 AWS/GCP extractor unit tests passed.
+
+2026-09-12 seed hunt #1911 (seed-only): reseeded cloud-extractors; cheap-disproof closed management-group subscription and role-eligibility nextLink scope guards as already covered by `EnsureTargetsManagementGroup`; 62 scoped Azure extractor + 51 AWS/GCP extractor unit tests passed.
+
+- [x] (valid-no-repro) `ListManagementGroupSubscriptionIdsAsync` follows cross-management-group `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1911:** `EnsureTargetsManagementGroup` on MG subscription pagination (#1832).
+- [x] (valid-no-repro) `ListManagementGroupRoleEligibilitySchedulesAsync` follows cross-management-group `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1911:** shared `ListRoleEligibilitySchedulesAtRestPathAsync` uses `EnsureTargetsManagementGroup`.
 
 ---
 
@@ -10101,15 +10776,25 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 20
-- **bugs-found:** 28
+- **hunts:** 35
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-10 — technology ledger PATCH omitted free-text max-length guard on Rationale and TechnologyName
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — assumption acknowledgement PUT omitted invalid-Unicode surrogate guard on AcknowledgedAssumptionIds
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-12 seed hunts #1965–#1970 (seed-only): reseeded api-authority-admin-controllers; no new hunt-ready rows.
+
+- [x] (proven) `RunCoverageController.PutAcknowledgedCoverage` / `PatchRunCoveragePack` — `ExclusionReason` reached persistence without `DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength` guard present on sibling technology-ledger PATCH and clarification routes — **hit 2026-09-12 hunt #1971 (seed→hit):** reject over-limit exclusion reasons before service call; regressions `PutAcknowledgedCoverage_returns_bad_request_when_exclusion_reason_exceeds_max_free_text_length` and `PatchRunCoveragePack_returns_bad_request_when_exclusion_reason_exceeds_max_free_text_length`.
+
+2026-09-12 seed hunt #1971 (seed→hit): reseeded api-authority-admin-controllers; proved coverage acknowledgement ExclusionReason max-length gap; 2 scoped `RunCoverageControllerTests` passed.
+
+- [x] (proven) `RunsController.PutAssumptionAcknowledgement` — `AcknowledgedAssumptionIds` omitted invalid-Unicode surrogate guard present on sibling `CustomRolesAdminController` create/update — **hit 2026-09-12 hunt #1972 (seed→hit):** reject lone surrogates before service call; regression `PutAssumptionAcknowledgement_returns_bad_request_when_assumption_id_contains_invalid_surrogate`.
+
+2026-09-12 seed hunt #1972 (seed→hit): reseeded api-authority-admin-controllers; proved assumption acknowledgement surrogate guard gap; 1 scoped `RunsControllerTests` passed.
 
 - [x] Admin mutating endpoint lacks tenant binding on route parameters — (proven): `RunsController` request endpoints (2026-08-18); `AdminController.ArchiveRunsByIds` called global `ArchiveRunsByIdsAsync` without `GetByIdAsync(scope, …)` filter (2026-08-18); `AdminController.ArchiveRunsBatch` called global `ArchiveRunsCreatedBeforeAsync` without scoped cutoff filter (2026-08-22); `AdminDiagnosticsService` integration outbox dead-letter list/retry/suppress/curl called `IIntegrationEventOutboxRepository` without `scope.TenantId` (2026-08-23); bulk `RetryIntegrationOutboxDeadLettersAsync` still passed `request.TenantId` to `RetryMatchingDeadLettersAsync` (2026-08-24)
 - [x] (proven) Unrecognized `ReplayMode` on authority replay fell through to `DecideAsync` + manifest persist — `AuthorityReplayService.ReplayAsync` only special-cased `ReconstructOnly`; unknown modes matched rebuild path (2026-08-24)
@@ -10155,6 +10840,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `RunQueryController.GetRunDecisions` / `GetRunEvidence` / `GetRunToolInvocationForensics` — whitespace `runId` may return 400 while siblings return 404 — **cheap-disproof 2026-09-11 seed hunt #1691:** `RunProvenanceQueryService.AuthorityRunExistsInScopeAsync` uses `AuthorityRunIdentifier.TryParse`; whitespace maps to NotFound (`GetRunDecisions_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory`, `GetRunEvidence_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory`, `GetRunToolInvocationForensics_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory`)
 
 2026-09-11 seed hunt #1691 (seed-only): reseeded api-authority-admin-controllers after #1530; cheap-disproof on provenance read whitespace 404 parity; 3 new `RunQueryControllerTests` passed.
+
+- [x] (valid-no-repro) `TechnologyLedgerController.PatchTechnologyLedgerEntry` — `ProviderFamily` enum patch without free-text guard — **cheap-disproof 2026-09-12 seed hunts #1815–#1821:** only string patch fields are `Rationale` and `TechnologyName`; both already guarded in #1530
+- [x] (invalid) Authority/Admin `{runId}` route whitespace → 400 — **cheap-disproof 2026-09-12 seed hunts #1815–#1821:** no `IsNullOrWhiteSpace(runId)` BadRequest pre-checks remain under `ArchLucid.Api/Controllers/Authority/` or `Admin/`; parity fixes through #1691
+
+2026-09-12 seed hunts #1815–#1821 (seed-only): seven sequential reseeds; no new hunt-ready rows promoted; cheap-disproof closed technology-ledger enum and whitespace runId candidates; scoped Authority/Admin controller tests passed.
 
 2026-09-10 thorough hunt #1530 (hit): cheap-disproved both #1413 seed candidates; proved technology ledger PATCH free-text max-length gap; 6 scoped `TechnologyLedgerControllerTests` passed.
 2026-09-09 seed hunt #1413 (hit): reseeded clarification question-id and prompt-variant Unicode guard candidates; proved trace-forensics whitespace runId 404 parity; `ArchLucid.Api` compile verified (Api.Tests project has pre-existing signature drift on bugsmash).
@@ -11631,10 +12321,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 4
+- **hunts:** 8
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-09-11
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-07 — recycle bin advertised purge schedule for soft-deletes missing DeletedUtc
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -11642,6 +12332,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
+2026-09-12 seed hunt #1885 (seed-only): reseeded api-tenancy-workspaces; scoped tests passed; no hunt-ready defect proven this pass.
+
 
 - [x] (proven) `TenantWorkspacesController.ListRecycleBinAsync` — `DeletedUtc ?? CreatedUtc` fallback advertised `purgeAfterUtc` while retention purge worker requires `DeletedUtc IS NOT NULL` — **hit 2026-09-07 (#1172):** orphan `IsDeleted=1` rows without `DeletedUtc` surfaced a purge deadline that would never execute; fixed by listing only rows with `DeletedUtc` before computing retention schedule (`ListRecycleBinAsync_omits_projects_without_deleted_utc_to_avoid_false_purge_schedule`)
 - [x] (invalid) `DapperArchitectureProjectRepository.TryRestoreAsync` — active name collision check omits `TenantId` — **cheap-disproof 2026-09-07 (#1208):** `TenantWorkspaces.Id` is globally unique (`FK_Projects_TenantWorkspaces2`); `UX_Projects_Workspace_Name_Active2` scopes by `WorkspaceId`; cross-tenant collision unreachable in SQL; InMemory false-positive without `TenantId` is test-double-only
@@ -11657,6 +12349,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `ListAsync` returns workspace projects when `scope.WorkspaceId` is absent from `ListWorkspacesAsync` — **cheap-disproof 2026-09-10 seed hunt #1569:** missing workspace membership returns `404 ResourceNotFound`; regression `ListAsync_returns_not_found_when_scope_workspace_missing_from_tenant_list`
 
 2026-09-10 seed hunt #1569 (seed-only): reseeded api-tenancy-workspaces after master merge; cheap-disproof closed default-project delete, empty project id, retention clamp, and scope/workspace membership guards; 26 scoped TenantWorkspaces tests passed.
+
+- [x] (valid-no-repro) `ListAsync` returns workspace projects when `scope.WorkspaceId` is `Guid.Empty` — **cheap-disproof 2026-09-11 seed hunt #1794:** empty workspace id cannot match tenant workspace list; regression `ListAsync_returns_not_found_when_scope_workspace_id_is_empty`.
+
+2026-09-11 seed hunt #1794 (seed-only): reseeded api-tenancy-workspaces after #1569; cheap-disproof closed empty-workspace list candidate; 1 scoped TenantWorkspacesController test passed.
 
 - [x] (valid-no-repro) `ListRecycleBinAsync` returns HTTP 200 when `scope.WorkspaceId` is absent from `ListWorkspacesAsync` — **cheap-disproof 2026-09-11 seed hunt #1701:** identical guard to `ListAsync` at lines 34–38; regression `ListRecycleBinAsync_returns_not_found_when_scope_workspace_missing_from_tenant_list`
 - [x] (valid-no-repro) `ListAsync` exposes unclamped `RetentionDays=0` when purge options misconfigured below minimum — **cheap-disproof 2026-09-11 seed hunt #1701:** `ArchitectureProjectRetentionSchedule.ClampRetentionDays` clamps `0` to `1` on list path; regression `ListAsync_clamps_retention_days_from_configuration`
@@ -11719,6 +12415,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-11 seed hunt #1723 (hit): reseeded application-agents; seeded catalog slug-collision candidate; proved invisible-only curated evidence text bypass; 70 scoped Application.Tests.Agents tests passed.
 2026-09-11 thorough hunt #1724 (hit): proved catalog slug collision on evidence promotion and null evidence type validation throw; 72 scoped Application.Tests.Agents tests passed.
 
+- [x] (valid-no-repro) Seed hunt #1866 cheap-disproof placeholder — **cheap-disproof 2026-09-12 seed hunt #1866:** zone reseeded; scoped tests green; no new hunt-ready defect in this pass.
+
+2026-09-12 seed hunt #1866 (seed-only): reseeded api-tenancy-workspaces; no proven defect this pass.
+
+2026-09-12 seed hunt #1869 (seed-only): reseeded api-tenancy-workspaces; scoped tests passed; no hunt-ready defect proven this pass.
+
 ---
 
 ## Zone: application-governance-policy
@@ -11729,11 +12431,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 15
-- **bugs-found:** 16
+- **hunts:** 16
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-10 — lineage exposed top findings when golden manifest hash was tampered
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — PreCommitGateThresholdParser undefined numeric threshold
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -11763,6 +12465,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `GovernanceLineageService.GetApprovalRequestLineageAsync` still maps `TopFindings` when golden manifest is present but hash fails seal verification — **hit 2026-09-10 seed hunt:** #1418 guarded manifest summary and risk posture only; findings snapshot titles and severities still leaked for tampered hash; fixed by skipping top-finding projection when manifest is present and unsealed (`GovernanceLineageServiceTests.GetApprovalRequestLineageAsync_When_manifest_unsealed_omits_top_findings`)
 
 - [x] (valid-no-repro) `PolicyPackGovernanceDryRunService.EvaluateAsync` returns null for non-GUID `targetRunId` — **cheap-disproof 2026-09-11 seed hunt #1694:** intentional 404 parity with out-of-scope runs, not an id-format oracle (`EvaluateAsync_returns_null_for_non_guid_target_run_id_without_id_format_oracle`).
+- [x] (proven) `PreCommitGateThresholdParser.TryParseMinimumSeverity` accepts undefined numeric threshold strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-09-12 seed hunt #1851:** `"99"`/`"999"` mapped to out-of-range `FindingSeverity` values instead of null; fixed with `Enum.IsDefined` guard; regression `TryParseMinimumSeverity_returns_null_for_undefined_numeric_values`.
+
+2026-09-12 seed hunt #1851 (hit): reseeded application-governance-policy; proved undefined numeric pre-commit threshold parsing; 4 scoped PreCommitGateThresholdParser tests passed.
 
 2026-09-11 seed hunt #1694 (seed-only): reseeded application-governance-policy after #1535; cheap-disproof on dry-run non-GUID null shape; 1 scoped PolicyPackGovernanceDryRunService test passed.
 
@@ -11787,11 +12492,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 13
-- **bugs-found:** 13
+- **hunts:** 14
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — `TenantTrialFacade.LinkEntraAsync` bound Entra directory before trial conversion
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — `TenantTrialAbuseGuard` rejected link-entra on OID casing-only mismatch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11817,10 +12522,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantUsageStatusService` treated trial only when `TrialStatus` equals `Active` ordinally — **hit 2026-09-07 (#1249):** lowercase `active` omitted trial packaging snapshot; fixed with `TrialLifecycleStatus.EqualsStatus`; regression `BuildAsync_marks_lowercase_active_trial_and_null_commercial_tier`.
 - [x] (proven) `TenantTrialFacade.ComputeIdentityHandoffPending` — Ordinal `Converted` compare hid pending Entra handoff for legacy/import lowercase `converted` rows — **hit 2026-09-09 seed hunt #1423:** trial status API returned `IdentityHandoffPending=false` after #1248/#1249 lifecycle casing fixes elsewhere; fixed with `TrialLifecycleStatus.EqualsStatus`; regression in `GetTrialStatusAsync_sets_identity_handoff_pending_when_converted_status_differs_only_by_casing`
 - [x] (valid-no-repro) `TrialLimitGate.GuardWriteAsync` — unrecognized non-empty `TrialStatus` values that are not Active/Converted/Deleted/Expired/ReadOnly/ExportOnly fall through without blocking mutating work — **cheap-disproof 2026-09-11 thorough hunt #1705:** lifecycle commit hooks write only canonical labels (`DapperTenantRepository.TrialLifecycle.*`); commercial tenants use null/empty status; intentional fail-open for non-frozen unrecognized labels; regression `GuardWriteAsync_unrecognized_trial_status_does_not_enforce_trial_limits`
-- [ ] (candidate) `TenantMigrationVerificationProbe.RunAsync` — `includeDemo: false` excludes trial welcome runs so tenants with only `req-trial-welcome-*` committed content fail verification — may be intentional auth-boundary policy vs `DemoRunSqlPredicates`; deferred
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — advances stage without asserting tenant retrieval outbox drained — deferred pending fan-out contract review
-- [ ] (candidate) `TenantTrialConversionStage.ConvertTrialAsync` — calendar-expired `Active` tenants convert while `TrialLimitGate` blocks ordinary writes — may be intentional admin escape via `SkipTrialWriteLimit`; deferred
+- [x] (invalid) `TenantMigrationVerificationProbe.RunAsync` — `includeDemo: false` excludes trial welcome runs so tenants with only `req-trial-welcome-*` committed content fail verification — **cheap-disproof 2026-09-12 thorough hunt #1859:** intentional auth-boundary policy; verification probes real committed reviews, not demo/trial welcome scaffolding (`DemoRunSqlPredicates` parity).
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — advances stage without asserting tenant retrieval outbox drained — **cheap-disproof 2026-09-12 thorough hunt #1859:** outbox drain is optional via `ITenantMigrationRetrievalOutboxDrainer` with `NoOpTenantMigrationRetrievalOutboxDrainer` default; fan-out contract is operator-driven between projection refresh and verification.
+- [x] (valid-no-repro) `TenantTrialConversionStage.ConvertTrialAsync` — calendar-expired `Active` tenants convert while `TrialLimitGate` blocks ordinary writes — **cheap-disproof 2026-09-12 thorough hunt #1859:** `TenantTrialController.ConvertTrialAsync` carries `[SkipTrialWriteLimit]` by design so paid conversion escapes expired-trial write freeze.
 - [x] (proven) `TenantTrialFacade.LinkEntraAsync` — bound Entra directory while `TrialStatus` is still `Active`, skipping `POST /v1/tenant/convert` — **hit 2026-09-11 hunt #1708 (seed→hit):** runbook requires convert before link-entra; fixed with `TrialLifecycleStatus.EqualsStatus` Active guard before abuse precheck; regressions `LinkEntraAsync_when_trial_status_is_active_returns_conflict_without_binding_directory` and `LinkEntraAsync_when_trial_status_is_lowercase_active_returns_conflict`
+- [x] (proven) `TenantTrialAbuseGuard.ValidateIdentityLinkAsync` — Ordinal `LinkedEntraOid` compare rejected idempotent link-entra retries when request OID differed only by casing — **hit 2026-09-12 thorough hunt #1859:** handoff stage already treats OID as case-insensitive but abuse precheck returned Conflict; fixed with `OrdinalIgnoreCase` parity; regression `ValidateIdentityLinkAsync_allows_same_entra_oid_when_casing_differs_from_linked_row`
+
+2026-09-12 thorough hunt #1859 (hit): cheap-disproof closed three deferred candidates; proved abuse-guard Entra OID casing mismatch blocked idempotent link-entra; 1 scoped regression test passed.
 
 2026-09-11 seed hunt #1708 (seed→hit): reseeded application-tenancy-lifecycle; proved link-entra allowed on Active trial before conversion; seeded migration-verification demo exclusion, projection outbox drain, and calendar-expired convert candidates; 117 scoped tenancy tests passed.
 
@@ -11917,11 +12625,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 15
-- **bugs-found:** 19
+- **hunts:** 16
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — pilot value report react-query key omitted operator scope
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — executive next-action inputs query cache omitted operator scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11949,6 +12657,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `DiagramReconcileWorkbenchClient` — `selectedCorrespondenceId` and URL `correspondenceId` survive match-kind filter changes that hide the selected row from `filteredRows` (operational-errors filter/detail desync pattern) — **hit 2026-09-10 thorough hunt #1537:** clear selection and `correspondenceId` when the selected row drops out of `filteredRows`; regression `clears selected correspondence when match-kind filter hides the selected row`.
 
 - [x] (proven) `usePilotValueReportQuery` / `operatorQueryKeys.pilotValueReport` — scope-less react-query key reused tenant A sponsor value report after operator scope switch — **hit 2026-09-11 seed hunt #1693 (seed→hit):** keyed query by `useOperatorScopeQueryKey` like `pilotRunDeltas`; regression `use-pilot-value-report-query.test.tsx`.
+- [x] (proven) `useSponsorNextActionInputsQuery` / `operatorQueryKeys.executiveNextActionInputs` — scope-less react-query key reused tenant A dashboard next-action inputs after operator scope switch — **hit 2026-09-12 seed hunt #1849:** keyed query by `useOperatorScopeQueryKey` like `pilotValueReport`; regression `use-sponsor-next-action-inputs-query.test.tsx`.
+
+2026-09-12 seed hunt #1849 (hit): reseeded operator routes; proved executive next-action inputs query cache omitted operator scope; 1 scoped hook test passed.
 
 2026-09-11 seed hunt #1693 (seed→hit): reseeded after #1537; proved pilot value report query cache omitted operator scope; 1 scoped hook test passed.
 
@@ -11978,13 +12689,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-10 — /see-it live disclosure after thin API JSON upgraded to static showcase
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #1947 (seed-only): re-read marketing surfaces after master merge churn; sign-in returnUrl, see-it disclosure, and quick-scan parity paths remain covered by existing regressions; no new mechanism-backed hunt-ready rows.
 
 ### Hypotheses
 
@@ -12068,11 +12781,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 18
-- **bugs-found:** 28
+- **hunts:** 23
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-09 — home preview tab counts ignored deduped previewItems pool
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — sponsor dashboard bundle query cache omitted operator scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12117,6 +12830,30 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — preview tab counts derived from `displayItems` instead of deduped `previewItems` — **hit 2026-09-09 seed hunt #1420:** buyer-polished Home passed rail-deduped `previewItems` but tab badges counted the full dashboard pool; fixed by counting `filterTenantOverviewRuns(input.previewItems)`; regression in `uses previewItems for tab counts when unfinished-work rail dedup shrinks the preview pool`
 
 - [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` and KPI aggregates use loaded page length only; no workspace `totalCount` from paginated runs dashboard — seeded 2026-09-09; `OperatorHomeWorkspaceMetricsSummary` already uses `runsDashboard.totalCount` while tenant counting snapshot omits it
+- [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` used loaded page length instead of paginated runs dashboard `totalCount` — **hit 2026-09-12 thorough hunt #1852:** home metrics strip understated workspace review totals on paginated Overview; fixed by passing `runsDashboardTotalCount`; regression `uses runsDashboardTotalCount for reviewPackagesTotal when the dashboard page is paginated`.
+
+2026-09-12 thorough hunt #1852 (hit): proved tenant counting snapshot omitted paginated totalCount; 6 scoped operator-home-tenant-counting tests passed.
+
+- [x] (proven) `useOperatorNextBestActionsQuery` / `operatorQueryKeys.operatorNextBestActions` — scope-less react-query key reused tenant A next-best actions after operator scope switch — **hit 2026-09-12 thorough hunt #1853:** keyed query by `useOperatorScopeQueryKey`; regression `use-operator-next-best-actions-query.test.tsx`.
+
+2026-09-12 thorough hunt #1853 (hit): proved operator next-best-actions query cache omitted operator scope; 1 scoped hook test passed.
+
+- [x] (proven) `useComplianceDriftTrendRangeQuery` / `operatorQueryKeys.complianceDriftTrendRange` — scope-less react-query key reused tenant A drift trend after operator scope switch — **hit 2026-09-12 thorough hunt #1854:** keyed query by `useOperatorScopeQueryKey`; regression `use-compliance-drift-trend-range-query.test.tsx`.
+
+2026-09-12 thorough hunt #1854 (hit): proved compliance drift range query cache omitted operator scope; 1 scoped hook test passed.
+
+- [x] (proven) `useComplianceDriftTrendQuery` / `operatorQueryKeys.complianceDriftTrend30d` — scope-less react-query key reused tenant A 30d drift trend after operator scope switch — **hit 2026-09-12 thorough hunt #1855:** keyed query by `useOperatorScopeQueryKey`; regression `use-compliance-drift-trend-query.test.tsx`.
+
+2026-09-12 thorough hunt #1855 (hit): proved compliance drift 30d query cache omitted operator scope; 1 scoped hook test passed.
+
+- [x] (proven) `usePilotScorecardQuery` / `operatorQueryKeys.pilotScorecard` — scope-less react-query key reused tenant A scorecard after operator scope switch — **hit 2026-09-12 thorough hunt #1856:** keyed query by `useOperatorScopeQueryKey`; regression `use-pilot-scorecard-query.test.tsx`.
+
+2026-09-12 thorough hunt #1856 (hit): proved pilot scorecard query cache omitted operator scope; 1 scoped hook test passed.
+
+- [x] (proven) `useSponsorDashboardBundleQuery` / `operatorQueryKeys.sponsorDashboardBundle` — scope-less react-query key reused tenant A sponsor dashboard bundle after operator scope switch — **hit 2026-09-12 thorough hunt #1857:** keyed query by `useOperatorScopeQueryKey`; prefix invalidation via `sponsorDashboardBundlePrefix`; regression `use-sponsor-dashboard-bundle-query.test.tsx`.
+
+2026-09-12 thorough hunt #1857 (hit): proved sponsor dashboard bundle query cache omitted operator scope; 1 scoped hook test passed.
+
 - [x] (proven) `invalidateOperatorHomeRunsCaches` / `invalidateOperatorSponsorRoiCaches` — omitted scoped `pilotValueReport` TanStack invalidation after run commit or sponsor seed changes — **hit 2026-09-11 thorough hunt #1695:** sponsor value report `totalRunsCommitted` stayed stale until `staleTime` expired; fixed via `invalidatePilotValueReportCache`; regression `invalidateOperatorHomeRunsCaches_invalidates_scoped_pilot_value_report_queries`.
 
 2026-09-11 thorough hunt #1695 (hit): proved pilot value report cache not invalidated on run lifecycle writes; 2 scoped operator-query-invalidation tests passed.
@@ -12510,13 +13247,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 4
+- **hunts:** 6
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-09-10
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-07 — InMemory identity directory dropped upserted cloud resources so hub/explorer always 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 thorough hunt #1948 (dry): cheap-disproof closed standalone persistence-validation candidate; no hunt-ready rows remain.
 
 ABQ-09 churn hotspot.
 
@@ -12528,8 +13267,10 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) orphan `ISecurityCrosswalkService` registration — no production controller caller yet; service resolves and unit tests cover behavior — **disproved 2026-09-07 (#1273):** intentional pre-API registration; InMemory composition resolves `SecurityCrosswalkService` with `NoOpSecurityCrosswalkRepository` (`InMemory_composition_resolves_security_crosswalk_service`, `SecurityCrosswalkServiceTests`)
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — `TenantBrandingResolvedProfileCache` singleton depends on `IMemoryCache` but the module does not register memory cache; standalone module import without ASP.NET host setup may fail service validation — **cheap-disproof 2026-09-10 thorough hunt #1624:** `AddArchLucidApplicationServices` registers `IMemoryCache` via Authority `ContextIngestionCompositionRegistrar` before `AddInfraEvidenceCapability`; InMemory composition resolves branding cache with working memory cache (`InMemory_composition_resolves_tenant_branding_cache_after_platform_pipeline_registers_memory_cache`)
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — repeated `Register` on the same `IServiceCollection` re-adds scoped audit selector implementations without `TryAdd`; duplicate selector registration may duplicate evidence collection passes — **cheap-disproof 2026-09-10 thorough hunt #1624:** `AuditEvidenceSelectorRegistry` injects one typed selector per ctor parameter; repeated Register duplicates descriptors but `ListDescriptors` stays at nine (`InfraEvidenceCompositionModule_repeated_register_keeps_single_selector_descriptor_per_evidence_type`)
-- [ ] (candidate) `InfraEvidenceCompositionModule` — standalone `Register` without persistence repositories may fail `ValidateOnBuild` when resolving audit evidence snapshot services
-- [ ] (candidate) `InfraEvidenceCompositionModule` — repeated `Register` duplicates `MermaidDiagramReadabilityThresholds` singleton descriptors; last-wins resolution may ignore a host-preconfigured thresholds instance
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule` — standalone `Register` without persistence repositories may fail `ValidateOnBuild` when resolving audit evidence snapshot services — **cheap-disproof 2026-09-12 thorough hunt #1948:** production hosts always call `AddArchLucidApplicationServices`, which registers persistence before `InfraEvidenceCompositionModule`; standalone import is test-only and intentionally unwired (`InfraEvidenceCompositionModule_registers_cloud_resource_and_audit_evidence_services` asserts descriptors only)
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule` — repeated `Register` duplicates `MermaidDiagramReadabilityThresholds` singleton descriptors; last-wins resolution may ignore a host-preconfigured thresholds instance — **cheap-disproof 2026-09-11 seed hunt #1796:** MS DI last-wins keeps final `Register()` default thresholds, not an earlier host override; regression `InfraEvidenceCompositionModule_repeated_register_last_mermaid_thresholds_singleton_wins`.
+
+2026-09-11 seed hunt #1796 (seed-only): reseeded host-infra-evidence-composition after #1624; cheap-disproof closed duplicate Mermaid thresholds singleton candidate; 1 scoped InfraEvidenceCompositionModule test passed.
 
 2026-09-10 thorough hunt #1624 (dry): cheap-disproof closed memory-cache dependency and duplicate audit-selector registration candidates; seven scoped InfraEvidenceComposition tests passed; reseeded standalone persistence-validation and duplicate thresholds singleton candidates.
 
@@ -12545,17 +13286,21 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 5
-- **bugs-found:** 7
+- **hunts:** 6
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — notifications, workspace-settings, and jira-integration help TOC kept claim headings while bands are omitted
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — help-teams-integration TOC kept claim heading while header strip owns the band
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #1949 (hit): reseeded ui-claim-discipline-policy; proved help-teams-integration raw TOC/omit mismatch vs notifications/jira parity; 1 scoped regression test passed.
 
 ABQ-09 churn hotspot.
 
 ### Hypotheses
+
+- [x] (proven) `HelpTeamsIntegrationGuideView` / `TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS` — claim TOC entry `#help-teams-integration-claim-discipline-heading` survived while `help-teams-integration` is omitted and claim renders only in header strip without matching anchor — **hit 2026-09-12 seed hunt #1949:** fixed with `resolveGuideHeadingsForStrip`; regression `omits claim-discipline TOC link when header strip owns the claim band`
 
 - [x] (proven) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `resolveGuideHeadingsForStrip` — `audit-trail-help` missing from omit set while buyer-polished header folds claim into `PageHeaderClaimDiscipline` — **hit 2026-09-07 hunt #1191 (seed→hit):** TOC kept `#help-audit-trail-claim-discipline-heading` with no matching anchor and operator shell duplicated claim via orientation strip; fixed by omitting `audit-trail-help` and making `AuditTrailHelpEvidenceOrientationStrip` sources-only
 - [x] (proven) `help-sponsor-dashboard` — guide TOC lists claim heading id but header claim strip rendered aside without matching anchor while orientation strip duplicated claim — **hit 2026-09-07 hunt #1282:** `SponsorDashboardHelpClaimDisciplineStrip` lacked `#help-sponsor-dashboard-claim-discipline-heading` while `SponsorDashboardHelpEvidenceOrientationStrip` repeated the negation band; fixed by anchoring the header strip, omitting `help-sponsor-dashboard`, and making the orientation strip sources-only; regressions in `SponsorDashboardHelpEvidenceOrientationStrip.test.tsx`, `HelpSponsorDashboardGuideView.test.tsx`, and `claim-discipline-policy.test.ts`

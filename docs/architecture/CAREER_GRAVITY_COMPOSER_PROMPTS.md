@@ -3,10 +3,11 @@
 > **Paste-ready files:** [`.cursor/prompts/career-gravity-00-index.md`](../../.cursor/prompts/career-gravity-00-index.md) (**CG-001–CG-100**)
 > **Predecessor:** [`LOST_WRITE_COMPOSER_PROMPTS.md`](LOST_WRITE_COMPOSER_PROMPTS.md) (**LW-001–LW-100**, issue 4). **Do not re-run LW.** Architecture-spine AS-076–085 shipped Career/Rehearsal **doors**; this wave owns leftover **gravity** (unlabeled Simulator as Career).
 > **Successor:** [`SYSTEM_NOT_JOB_COMPOSER_PROMPTS.md`](SYSTEM_NOT_JOB_COMPOSER_PROMPTS.md) (**SN-001–040**).
+> **Copy overlay (wave 31):** [`RECORD_PRACTICE_COMPOSER_PROMPTS.md`](RECORD_PRACTICE_COMPOSER_PROMPTS.md) (**RP-001–024**) — user-facing Record / Practice. Do **not** re-run CG.
 
 # Career-gravity Composer prompts (CG-001–CG-100)
 
-**Created:** 2026-09-11 · **Status:** ready to run · **Do not re-run** prior waves except as a numbered leftover.
+**Created:** 2026-09-11 · **Status:** shipped · **Close audit:** [`CAREER_GRAVITY_ACCEPTANCE_2026-09-11.md`](CAREER_GRAVITY_ACCEPTANCE_2026-09-11.md) · **Do not re-run** prior waves except as a numbered leftover.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record.
 
@@ -54,6 +55,14 @@ Load-bearing ADRs: **0091** (this wave); **0086** doors not rewritten.
 - No live presence / finding-comment chat / per-architecture ACL beyond RestrictToShares (0087).
 - No 40th coverage engine.
 - No GTM **M-90 / M-44 / M-91 / M-92**. No reopen **TB-135 / TB-136**.
+
+## Prompt inventory (CG-099)
+
+Vitest ratchet: `archlucid-ui/src/lib/career-gravity-prompt-inventory.test.ts` — expects `career-gravity-00-index.md` and **100** numbered `career-gravity-NNN-*.md` files with no numbering gaps or duplicate test files. Confirm with `npm run test -- --run src/lib/career-gravity-prompt-inventory.test.ts`.
+
+## Out-of-wave residuals
+
+Explicit skips recorded for **CG-100** close audit — **do not pretend shipped**. See [`CAREER_GRAVITY_OUT_OF_WAVE_RESIDUALS.md`](CAREER_GRAVITY_OUT_OF_WAVE_RESIDUALS.md) (ratchet: `career-gravity-out-of-wave-residuals.ts`). **CG-098:** in-app changelog / What's new remains product backlog (LW-100 residual).
 
 ## Global constraints
 

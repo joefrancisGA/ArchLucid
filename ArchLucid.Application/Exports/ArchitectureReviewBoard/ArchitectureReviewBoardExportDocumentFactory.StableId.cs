@@ -39,6 +39,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         IReadOnlyList<string> topFindingTitles,
         string? activeTrialExportNotice = null,
         string? careerExportHonestyPlainText = null,
+        string? sendableExportCoverPlainText = null,
         string? architectRestatementMarkdown = null)
 
         => RunSummaryOnePagerDocumentFactory.Create(
@@ -47,6 +48,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             topFindingTitles,
             activeTrialExportNotice,
             careerExportHonestyPlainText: careerExportHonestyPlainText,
+            sendableExportCoverPlainText: sendableExportCoverPlainText,
             architectRestatementMarkdown: architectRestatementMarkdown);
 
 
@@ -62,7 +64,8 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         bool? isDemoTenant = null,
         string? tenantDisplayName = null,
         string? explanationConfidenceCallout = null,
-        string? careerExportHonestyPlainText = null)
+        string? careerExportHonestyPlainText = null,
+        string? sendableExportCoverPlainText = null)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(report);
@@ -102,6 +105,9 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             CareerExportHonestyPlainText = string.IsNullOrWhiteSpace(careerExportHonestyPlainText)
                 ? null
                 : careerExportHonestyPlainText.Trim(),
+            SendableExportCoverPlainText = string.IsNullOrWhiteSpace(sendableExportCoverPlainText)
+                ? null
+                : sendableExportCoverPlainText.Trim(),
         };
     }
 }

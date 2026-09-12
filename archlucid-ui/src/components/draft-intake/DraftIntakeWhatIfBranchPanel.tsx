@@ -21,6 +21,7 @@ import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture
 import { isApiRequestError } from "@/lib/api-request-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatDraftBranchQuotaSummary } from "@/lib/draft-branch-quota-display";
+import { SYSTEM_NOT_JOB_WHAT_IF_COST_CAP_OVER_CAP_BLOCKED } from "@/lib/system-not-job-what-if-cost-cap-chrome";
 import { BILLING_ARCHITECTURE_PACKAGE_OVERAGE_UNIT_LABEL } from "@/lib/vocabulary/billing-meter-vocabulary";
 import {
   DRAFT_INTAKE_SELECT_UNSET_VALUE,
@@ -255,8 +256,11 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
         ) : null}
 
         {!quotaAllowsBranch ? (
-          <p className={cn("m-0 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
-            Branch cap reached for this parent draft — submit an existing branch or start a new intake.
+          <p
+            className={cn("m-0 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="draft-intake-branch-cap-reached"
+          >
+            {SYSTEM_NOT_JOB_WHAT_IF_COST_CAP_OVER_CAP_BLOCKED}
           </p>
         ) : null}
 

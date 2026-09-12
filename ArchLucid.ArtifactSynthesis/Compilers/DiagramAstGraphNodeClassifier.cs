@@ -62,6 +62,18 @@ internal static class DiagramAstGraphNodeClassifier
         return TryParseResourceGroupFromArmId(ReadArmId(node));
     }
 
+    public static string? ReadRegion(GraphNode node)
+    {
+        if (node.Properties != null
+            && node.Properties.TryGetValue("arm.location", out string? location)
+            && !string.IsNullOrWhiteSpace(location))
+        {
+            return location.Trim();
+        }
+
+        return null;
+    }
+
     public static string? ReadSubscriptionId(GraphNode node)
     {
         if (node.Properties.TryGetValue("arm.subscriptionId", out string? subscriptionId) && !string.IsNullOrWhiteSpace(subscriptionId))
@@ -78,6 +90,25 @@ internal static class DiagramAstGraphNodeClassifier
             || string.Equals(node.SourceType, "azure-inventory-snapshot", StringComparison.OrdinalIgnoreCase);
     }
 
+    public static Guid? ReadCloudResourceId(GraphNode node)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+
+        if (node.Properties != null
+            && node.Properties.TryGetValue("cloudResourceId", out string? propertyValue)
+            && Guid.TryParse(propertyValue, out Guid propertyId))
+        {
+            return propertyId;
+        }
+
+        if (Guid.TryParse(node.NodeId, out Guid nodeId))
+        {
+            return nodeId;
+        }
+
+        return null;
+    }
+
     public static bool IsExecutiveSummaryNode(GraphNode node)
     {
         string armType = ReadArmType(node);
@@ -87,7 +118,7 @@ internal static class DiagramAstGraphNodeClassifier
             return true;
         }
 
-        if (armType.Contains("/virtualnetworks", StringComparison.OrdinalIgnoreCase))
+        if (AzureInventoryTopologyCategory.IsVirtualNetworkArmType(armType))
         {
             return true;
         }

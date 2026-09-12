@@ -1,8 +1,10 @@
 "use client";
 
 import { PilotRoiValidationHandoffClient } from "@/components/pilots/PilotRoiValidationHandoffCard";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { SponsorReportMetricCard } from "@/components/sponsor-report/SponsorReportMetricCard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { cn } from "@/lib/utils";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
@@ -72,7 +74,13 @@ export function PilotValueReportMetricsSection(props: Props) {
       )}
 
       {scopedRunId.length > 0 ? (
-        <PilotRoiValidationHandoffClient runId={scopedRunId} />
+        <>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="pilot-value-report-metrics-non-summing">
+            {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+          </p>
+          <PolicyPackInfluenceHonestyChip />
+          <PilotRoiValidationHandoffClient runId={scopedRunId} />
+        </>
       ) : null}
 
       <section aria-labelledby="review-activity-heading">

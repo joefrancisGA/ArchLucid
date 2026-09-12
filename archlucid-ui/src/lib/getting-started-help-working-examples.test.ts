@@ -10,6 +10,7 @@ import {
   resolveGettingStartedHelpPipelineIntro,
   resolveGettingStartedHelpPipelineTextStages,
   resolveGettingStartedHelpPrimaryActions,
+  resolveGettingStartedHelpSources,
   resolveGettingStartedHelpTechnicalTerms,
   resolveGettingStartedHelpWorkflowSteps,
 } from "@/lib/getting-started-help-guide-content";
@@ -44,6 +45,13 @@ describe("getting-started help Working examples (SY-87)", () => {
 
     expect(steps[1]?.href).toBe(REVIEWS_LIST_PATH);
     expect(steps[0]?.href).toBe("/architecture/reviews/new");
+  });
+
+  it("links Working getting-started diligence sources to architecture-desk help (SN-032 / WS-20)", () => {
+    const sources = resolveGettingStartedHelpSources("architecture", true);
+
+    expect(sources.some((link) => link.href.includes("architecture-desk"))).toBe(true);
+    expect(sources.some((link) => link.href === "/architecture/reviews/new")).toBe(false);
   });
 
   it("uses review-progress vocabulary on Working getting-started pipeline copy (WS-16 / WS-20)", () => {

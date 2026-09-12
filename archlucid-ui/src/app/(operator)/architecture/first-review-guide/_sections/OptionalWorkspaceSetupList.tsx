@@ -11,8 +11,11 @@ import {
   type FinishSetupWizardContext,
 } from "@/lib/finish-setup-wizard-steps";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
+import { FIRST_REVIEW_GUIDE_SSO_OPTIONAL_COPY } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { Button } from "@/components/ui/button";
 
 type OptionalWorkspaceSetupRow = {
@@ -31,7 +34,7 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
     {
       id: "identity",
       title: "Identity and single sign-on (optional)",
-      benefit: "Allow users to sign in with corporate credentials.",
+      benefit: FIRST_REVIEW_GUIDE_SSO_OPTIONAL_COPY,
       statusLabel: context.identityConfigured === true ? "Ready" : "Draft",
       statusKind: context.identityConfigured === true ? "ready" : "draft",
       href: "/administration/identity/sso-wizard",
@@ -63,9 +66,19 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
   }
 
   rows.push({
+    id: "policy-packs",
+    title: "Policy pack assignment (optional)",
+    benefit: "Choose which packed standards drive findings and the pre-commit gate.",
+    statusLabel: "Draft",
+    statusKind: "draft",
+    href: GOVERNANCE_POLICY_PACKS_PATH,
+    actionLabel: "Review policy packs",
+  });
+
+  rows.push({
     id: "roi-baseline",
     title: "ROI baseline (optional)",
-    benefit: "Add assumptions used in sponsor and portfolio value reporting.",
+    benefit: `Add assumptions used in sponsor and portfolio value reporting. ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`,
     statusLabel: "Draft",
     statusKind: "draft",
     href: "/administration/baseline",

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpPilotGuideClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpPilotGuideClaimOrientationStrip";
 import { HelpPilotGuideHeaderActions } from "@/app/(operator)/help/_sections/HelpPilotGuideHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -146,6 +147,7 @@ export function HelpPilotGuideView(props: HelpPilotGuideViewProps): React.ReactE
         </div>
 
         <div data-testid="help-pilot-guide-orientation-bottom">
+          <SponsorSendPathHonestyPanel testIdPrefix="help-pilot-guide" showSsoOptional={false} />
           <HelpPilotGuideClaimOrientationStrip />
         </div>
       </div>

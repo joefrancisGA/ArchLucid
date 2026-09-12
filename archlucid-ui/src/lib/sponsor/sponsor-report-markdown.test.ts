@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { buildSponsorSummaryMarkdown } from "@/lib/sponsor/sponsor-report-markdown";
+import { POLICY_PACK_INFLUENCE_HONESTY_LINE } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import manifest from "@/lib/data/roi-sponsor-facing-scope-labels.v1.json";
 import { ROI_NON_ADDITIVITY_CAVEAT } from "@/lib/roi-sponsor-scope-labels";
 
@@ -49,5 +51,22 @@ describe("sponsor-report-markdown", () => {
 
     expect(markdown).toContain("Custom headline scope from API");
     expect(markdown).toContain("Custom system-row scope from API");
+  });
+
+  it("includes sendable export cover honesty lines", () => {
+    const markdown = buildSponsorSummaryMarkdown({
+      totalEstimatedUsdSavings: 1_000,
+      systemCount: 1,
+      latestRunCount: 1,
+      eaDiscountMultiplier: 1,
+      savingsPricingBasis: "Estimate",
+      systems: [],
+      topSystemicIssues: [],
+    });
+
+    expect(markdown).toContain("**Sponsor ROI honesty:**");
+    expect(markdown).toContain(SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE);
+    expect(markdown).toContain("**Policy influence:**");
+    expect(markdown).toContain(POLICY_PACK_INFLUENCE_HONESTY_LINE);
   });
 });

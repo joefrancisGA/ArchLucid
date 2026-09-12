@@ -1,5 +1,7 @@
 "use client";
 
+import { Suspense } from "react";
+
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
@@ -18,6 +20,8 @@ import { ArchitecturesHubBuyerChrome } from "./ArchitecturesHubBuyerChrome";
 import { ArchitecturesHubListSection } from "./ArchitecturesHubListSection";
 import { ArchitecturesHubObjectMapStrip } from "./ArchitecturesHubObjectMapStrip";
 import { ArchitecturesHubPageHeader } from "./ArchitecturesHubPageHeader";
+import { ArchitecturesHubWorkingAskBindEmptyStrip } from "./ArchitecturesHubWorkingAskBindEmptyStrip";
+import { ArchitecturesHubWorkingGraphBindEmptyStrip } from "./ArchitecturesHubWorkingGraphBindEmptyStrip";
 
 /** Shared `/architecture/architectures` layout — skip link, header, and draft inventory workspace (ARA). */
 export function ArchitecturesHubPageShell(): React.JSX.Element {
@@ -28,6 +32,10 @@ export function ArchitecturesHubPageShell(): React.JSX.Element {
 
   const architecturesHubWorkspaceBody = (
     <>
+      <Suspense fallback={null}>
+        <ArchitecturesHubWorkingAskBindEmptyStrip />
+        <ArchitecturesHubWorkingGraphBindEmptyStrip />
+      </Suspense>
       <ArchitecturesHubObjectMapStrip />
       <ArchitecturesHubListSection />
     </>

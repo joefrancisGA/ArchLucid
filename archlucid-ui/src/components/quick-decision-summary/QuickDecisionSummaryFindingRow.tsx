@@ -9,7 +9,10 @@ import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceB
 import { FindingFeedbackThumbs } from "@/components/findings/FindingFeedbackThumbs";
 import { FindingDidNotThinkOfThatButton } from "@/components/findings/FindingDidNotThinkOfThatButton";
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
+import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
+import { isDecisionGradeFinding } from "@/lib/findings/review-detail-findings-classification-band";
 import { FindingPolicyCitationProminentStrip } from "@/components/findings/FindingPolicyCitationProminentStrip";
 import { FindingPolicyEvidenceCitationLinks } from "@/components/findings/FindingPolicyEvidenceCitationLinks";
 import { FindingCreateWorkItemActions } from "@/components/work-items/FindingCreateWorkItemActions";
@@ -99,7 +102,13 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
-        <FindingSemanticSupportBandChip finding={finding} />
+        <FindingClassificationChip
+          classification={finding.classification}
+          treatment={finding.treatment}
+          findingId={finding.findingId}
+          showReason
+        />
+        <FindingSemanticSupportBandChip finding={finding} showReason />
         {findingHasNoSourceEvidence(finding) ? (
           <StatusTag
             kind="needs-attention"
@@ -179,6 +188,14 @@ export function QuickDecisionSummaryFindingRow({
           <FindingDidNotThinkOfThatButton runId={props.runId} findingId={finding.findingId} compact />
         ) : null}
       </div>
+      {isDecisionGradeFinding(finding) ? (
+        <p
+          className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`quick-decision-density-honesty-${finding.findingId}`}
+        >
+          {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
+        </p>
+      ) : null}
       {finding.traceConfidenceLabel !== null &&
       finding.traceConfidenceLabel !== undefined &&
       finding.traceConfidenceLabel.trim().length > 0 ? (

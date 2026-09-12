@@ -92,7 +92,10 @@ export function RunDetailReviewPackageStampViewport(
     return (
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
         {firstReviewSpineSummary !== null ? (
-          <RunDetailFirstReviewSpineBand summary={firstReviewSpineSummary} />
+          <RunDetailFirstReviewSpineBand
+            summary={firstReviewSpineSummary}
+            unmappedFindingCount={props.unmappedFindingCount}
+          />
         ) : null}
         {!pipelineTerminalFailure ? (
           <>
@@ -168,7 +171,11 @@ export function RunDetailReviewPackageStampViewport(
   return (
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
       {firstReviewSpineSummary !== null ? (
-        <RunDetailFirstReviewSpineBand summary={firstReviewSpineSummary} />
+        <RunDetailFirstReviewSpineBand
+          summary={firstReviewSpineSummary}
+          unmappedFindingCount={props.unmappedFindingCount}
+          runId={props.runId}
+        />
       ) : null}
       {!pipelineTerminalFailure ? (
         <>

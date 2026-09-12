@@ -1,3 +1,4 @@
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 
@@ -48,5 +49,7 @@ public sealed class SponsorRoiBoardPackMarkdownBuilderTests
         markdown.Should().Contain("Security");
         markdown.Should().Contain("Payments");
         markdown.Should().Contain("00-abc-trace");
+        markdown.Should().Contain(SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine);
+        markdown.Should().Contain(SendableExportCoverComposer.PolicyPackInfluenceHonestyLine);
     }
 }

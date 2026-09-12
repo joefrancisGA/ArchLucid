@@ -72,11 +72,69 @@ function Add-ArchLucidSecurityInventoryResourceProperties
     {
         try
         {
-            [string]$subnetId = "$( $AzResource.Properties.ipConfigurations[0].properties.subnet.id )".Trim()
+            [int]$ipConfigIndex = 0
 
-            if (-not ([string]::IsNullOrWhiteSpace($subnetId)))
+            foreach ($ipConfig in @($AzResource.Properties.ipConfigurations))
             {
-                $Properties["ipConfiguration.subnet.id"] = $subnetId
+                [string]$subnetId = "$( $ipConfig.properties.subnet.id )".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($subnetId)))
+                {
+                    if ($ipConfigIndex -eq 0)
+                    {
+                        $Properties["ipConfiguration.subnet.id"] = $subnetId
+                    }
+
+                    $Properties["ipConfiguration.subnet.id[$ipConfigIndex]"] = $subnetId
+                }
+
+                [string]$publicIpId = "$( $ipConfig.properties.publicIPAddress.id )".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($publicIpId)))
+                {
+                    $Properties["ipConfiguration.publicIPAddress.id[$ipConfigIndex]"] = $publicIpId
+                }
+
+                $ipConfigIndex++
+            }
+
+            [string]$nsgId = "$( $AzResource.Properties.networkSecurityGroup.id )".Trim()
+
+            if (-not ([string]::IsNullOrWhiteSpace($nsgId)))
+            {
+                $Properties["networkSecurityGroup.id"] = $nsgId
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    if ($AzResource.ResourceType -like "*virtualMachines*")
+    {
+        try
+        {
+            [int]$nicIndex = 0
+
+            foreach ($nic in @($AzResource.Properties.networkProfile.networkInterfaces))
+            {
+                [string]$nicId = "$( $nic.id )".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($nicId)))
+                {
+                    $Properties["networkProfile.networkInterfaces[$nicIndex]"] = $nicId
+                    $nicIndex++
+                }
+            }
+
+            if ($nicIndex -gt 0)
+            {
+                $Properties["networkProfile.networkInterfaces"] = (
+                    @($Properties.Keys |
+                        Where-Object { $_ -like 'networkProfile.networkInterfaces[*]' } |
+                        Sort-Object |
+                        ForEach-Object { $Properties[$_] }) -join '|'
+                )
             }
         }
         catch
@@ -104,11 +162,40 @@ function Add-ArchLucidSecurityInventoryResourceProperties
     {
         try
         {
-            [string]$targetId = "$( $AzResource.Properties.privateLinkServiceConnections[0].properties.privateLinkServiceId )".Trim()
+            [int]$connectionIndex = 0
 
-            if (-not ([string]::IsNullOrWhiteSpace($targetId)))
+            foreach ($connection in @($AzResource.Properties.privateLinkServiceConnections))
             {
-                $Properties["privateLinkServiceId"] = $targetId
+                [string]$targetId = "$( $connection.properties.privateLinkServiceId )".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($targetId)))
+                {
+                    if ($connectionIndex -eq 0)
+                    {
+                        $Properties["privateLinkServiceId"] = $targetId
+                    }
+
+                    $Properties["privateLinkServiceId[$connectionIndex]"] = $targetId
+                    $connectionIndex++
+                }
+            }
+
+            foreach ($connection in @($AzResource.Properties.manualPrivateLinkServiceConnections))
+            {
+                [string]$targetId = "$( $connection.properties.privateLinkServiceId )".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($targetId)))
+                {
+                    $Properties["privateLinkServiceId[$connectionIndex]"] = $targetId
+                    $connectionIndex++
+                }
+            }
+
+            [string]$subnetId = "$( $AzResource.Properties.subnet.id )".Trim()
+
+            if (-not ([string]::IsNullOrWhiteSpace($subnetId)))
+            {
+                $Properties["subnet.id"] = $subnetId
             }
         }
         catch
@@ -160,6 +247,11 @@ function Add-ArchLucidSecurityInventoryResourceProperties
             if ($null -ne $AzResource.Properties.subnets)
             {
                 $Properties["subnets"] = ($AzResource.Properties.subnets | ConvertTo-Json -Depth 20 -Compress)
+            }
+
+            if ($null -ne $AzResource.Properties.virtualNetworkPeerings)
+            {
+                $Properties["virtualNetworkPeerings"] = ($AzResource.Properties.virtualNetworkPeerings | ConvertTo-Json -Depth 20 -Compress)
             }
         }
         catch
@@ -418,6 +510,20 @@ function Add-ArchLucidAzureRoleEligibilityScheduleRowsFromRestPath
     }
 }
 
+function Get-ArchLucidInventoryPropertyEntries([object] $Properties)
+{
+    if ($null -eq $Properties) { return @() }
+
+    if ($Properties -is [System.Collections.IDictionary])
+    {
+        return @($Properties.GetEnumerator() | ForEach-Object {
+            [PSCustomObject]@{ Name = "$( $_.Key )"; Value = $_.Value }
+        })
+    }
+
+    return @($Properties.psobject.Properties)
+}
+
 function Get-ArchLucidAzureNetworkAssociationCompanionRows
 {
     param(
@@ -438,18 +544,76 @@ function Get-ArchLucidAzureNetworkAssociationCompanionRows
         if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
         if ([string]::IsNullOrWhiteSpace($resourceType)) { continue }
 
+        if ($resourceType -like "*virtualMachines*")
+        {
+            foreach ($property in @(Get-ArchLucidInventoryPropertyEntries $resource.properties))
+            {
+                if (-not ($property.Name -like 'networkProfile.networkInterfaces[*]')) { continue }
+
+                [string]$nicId = "$( $property.Value )".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($nicId)))
+                {
+                    Add-ArchLucidNetworkAssociationRow `
+                        -Rows $rows `
+                        -Seen $seen `
+                        -FromResourceId $resourceId `
+                        -ToResourceId $nicId `
+                        -AssociationType "vmToNic"
+                }
+            }
+        }
+
         if ($resourceType -like "*networkInterfaces*")
         {
-            [string]$subnetId = "$( $resource.properties.'ipConfiguration.subnet.id' )".Trim()
+            foreach ($property in @(Get-ArchLucidInventoryPropertyEntries $resource.properties))
+            {
+                if ($property.Name -like 'ipConfiguration.subnet.id[*]' -or $property.Name -eq 'ipConfiguration.subnet.id')
+                {
+                    [string]$subnetId = "$( $property.Value )".Trim()
 
-            if (-not ([string]::IsNullOrWhiteSpace($subnetId)))
+                    if (-not ([string]::IsNullOrWhiteSpace($subnetId)))
+                    {
+                        Add-ArchLucidNetworkAssociationRow `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -FromResourceId $resourceId `
+                            -ToResourceId $subnetId `
+                            -AssociationType "nicToSubnet"
+                    }
+                }
+
+                if ($property.Name -like 'ipConfiguration.publicIPAddress.id[*]')
+                {
+                    [string]$publicIpId = "$( $property.Value )".Trim()
+
+                    if (-not ([string]::IsNullOrWhiteSpace($publicIpId)))
+                    {
+                        Add-ArchLucidNetworkAssociationRow `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -FromResourceId $publicIpId `
+                            -ToResourceId $resourceId `
+                            -AssociationType "publicIpToNic"
+                    }
+                }
+            }
+
+            [string]$nsgId = ""
+
+            if ($resource.properties.PSObject.Properties.Match('networkSecurityGroup.id').Count -gt 0)
+            {
+                $nsgId = "$( $resource.properties.'networkSecurityGroup.id' )".Trim()
+            }
+
+            if (-not ([string]::IsNullOrWhiteSpace($nsgId)))
             {
                 Add-ArchLucidNetworkAssociationRow `
                     -Rows $rows `
                     -Seen $seen `
                     -FromResourceId $resourceId `
-                    -ToResourceId $subnetId `
-                    -AssociationType "nicToSubnet"
+                    -ToResourceId $nsgId `
+                    -AssociationType "nicToNsg"
             }
         }
 
@@ -475,16 +639,117 @@ function Get-ArchLucidAzureNetworkAssociationCompanionRows
 
         if ($resourceType -like "*privateEndpoints*")
         {
-            [string]$targetResourceId = "$( $resource.properties.privateLinkServiceId )".Trim()
+            foreach ($property in @(Get-ArchLucidInventoryPropertyEntries $resource.properties))
+            {
+                if (-not ($property.Name -like 'privateLinkServiceId*')) { continue }
 
-            if (-not ([string]::IsNullOrWhiteSpace($targetResourceId)))
+                [string]$targetResourceId = "$( $property.Value )".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($targetResourceId)))
+                {
+                    Add-ArchLucidNetworkAssociationRow `
+                        -Rows $rows `
+                        -Seen $seen `
+                        -FromResourceId $resourceId `
+                        -ToResourceId $targetResourceId `
+                        -AssociationType "privateEndpointTarget"
+                }
+            }
+
+            [string]$subnetId = "$( $resource.properties.'subnet.id' )".Trim()
+
+            if (-not ([string]::IsNullOrWhiteSpace($subnetId)))
             {
                 Add-ArchLucidNetworkAssociationRow `
                     -Rows $rows `
                     -Seen $seen `
                     -FromResourceId $resourceId `
-                    -ToResourceId $targetResourceId `
-                    -AssociationType "privateEndpointTarget"
+                    -ToResourceId $subnetId `
+                    -AssociationType "peToSubnet"
+            }
+        }
+
+        if ($resourceType -like "*virtualNetworks*" -and $resourceType -notlike "*virtualNetworkLinks*")
+        {
+            [string]$subnetsJson = "$( $resource.properties.subnets )".Trim()
+
+            if (-not ([string]::IsNullOrWhiteSpace($subnetsJson)))
+            {
+                try
+                {
+                    foreach ($subnet in @(ConvertFrom-Json -InputObject $subnetsJson))
+                    {
+                        [string]$subnetId = "$( $subnet.id )".Trim()
+
+                        if ([string]::IsNullOrWhiteSpace($subnetId))
+                        {
+                            [string]$subnetName = "$( $subnet.name )".Trim()
+
+                            if (-not ([string]::IsNullOrWhiteSpace($subnetName)))
+                            {
+                                $subnetId = "$resourceId/subnets/$subnetName"
+                            }
+                        }
+
+                        [string]$subnetNsgId = "$( $subnet.properties.networkSecurityGroup.id )".Trim()
+
+                        if (-not ([string]::IsNullOrWhiteSpace($subnetId)) -and -not ([string]::IsNullOrWhiteSpace($subnetNsgId)))
+                        {
+                            Add-ArchLucidNetworkAssociationRow `
+                                -Rows $rows `
+                                -Seen $seen `
+                                -FromResourceId $subnetId `
+                                -ToResourceId $subnetNsgId `
+                                -AssociationType "subnetToNsg"
+                        }
+
+                        [string]$routeTableId = "$( $subnet.properties.routeTable.id )".Trim()
+
+                        if (-not ([string]::IsNullOrWhiteSpace($subnetId)) -and -not ([string]::IsNullOrWhiteSpace($routeTableId)))
+                        {
+                            Add-ArchLucidNetworkAssociationRow `
+                                -Rows $rows `
+                                -Seen $seen `
+                                -FromResourceId $subnetId `
+                                -ToResourceId $routeTableId `
+                                -AssociationType "subnetToRouteTable"
+                        }
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            [string]$peeringsJson = ""
+
+            if ($resource.properties.PSObject.Properties.Match('virtualNetworkPeerings').Count -gt 0)
+            {
+                $peeringsJson = "$( $resource.properties.virtualNetworkPeerings )".Trim()
+            }
+
+            if (-not ([string]::IsNullOrWhiteSpace($peeringsJson)))
+            {
+                try
+                {
+                    foreach ($peering in @(ConvertFrom-Json -InputObject $peeringsJson))
+                    {
+                        [string]$remoteVnetId = "$( $peering.properties.remoteVirtualNetwork.id )".Trim()
+
+                        if (-not ([string]::IsNullOrWhiteSpace($remoteVnetId)))
+                        {
+                            Add-ArchLucidNetworkAssociationRow `
+                                -Rows $rows `
+                                -Seen $seen `
+                                -FromResourceId $resourceId `
+                                -ToResourceId $remoteVnetId `
+                                -AssociationType "vnetPeering"
+                        }
+                    }
+                }
+                catch
+                {
+                }
             }
         }
     }
@@ -611,6 +876,159 @@ function Get-ArchLucidAzureFederatedCredentialCompanionRows
     }
 
     return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureEffectiveNetworkControlCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+    $nicResourceIds = [System.Collections.Generic.List[string]]::new()
+    $maxNicCount = 200
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not ($resourceType -like "*networkInterfaces*")) { continue }
+        if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
+
+        if (-not $nicResourceIds.Contains($resourceId))
+        {
+            [void]$nicResourceIds.Add($resourceId)
+        }
+    }
+
+    $nicResourceIds.Sort([System.StringComparer]::OrdinalIgnoreCase)
+
+    if ($nicResourceIds.Count -gt $maxNicCount)
+    {
+        $nicResourceIds = [System.Collections.Generic.List[string]]::new(@($nicResourceIds.GetRange(0, $maxNicCount)))
+    }
+
+    foreach ($nicResourceId in @($nicResourceIds))
+    {
+        [void]$rows.Add((Get-ArchLucidAzureEffectiveNetworkControlRow `
+            -NicResourceId $nicResourceId `
+            -Kind 'effectiveNsg' `
+            -RelativePath 'effectiveNetworkSecurityGroups' `
+            -ResolveEffectiveResourceId { param($payload) Get-ArchLucidEffectiveNsgResourceId -Payload $payload }))
+
+        [void]$rows.Add((Get-ArchLucidAzureEffectiveNetworkControlRow `
+            -NicResourceId $nicResourceId `
+            -Kind 'effectiveRoutes' `
+            -RelativePath 'effectiveRouteTable' `
+            -ResolveEffectiveResourceId { param($payload) Get-ArchLucidEffectiveRouteTableResourceId -Payload $payload }))
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureEffectiveNetworkControlRow
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $NicResourceId,
+
+        [Parameter(Mandatory = $true)]
+        [string] $Kind,
+
+        [Parameter(Mandatory = $true)]
+        [string] $RelativePath,
+
+        [Parameter(Mandatory = $true)]
+        [scriptblock] $ResolveEffectiveResourceId
+    )
+
+    $row = [ordered]@{
+        nicResourceId = $NicResourceId
+        kind = $Kind
+        collectionStatus = 'Skipped'
+    }
+
+    try
+    {
+        [string]$path = "$NicResourceId/$RelativePath?api-version=2023-09-01"
+        $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+
+        if ($response.StatusCode -eq 404 -or $response.StatusCode -eq 403)
+        {
+            return $row
+        }
+
+        if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+        {
+            return $row
+        }
+
+        $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+        [string]$effectiveResourceId = & $ResolveEffectiveResourceId $payload
+
+        if ([string]::IsNullOrWhiteSpace($effectiveResourceId))
+        {
+            return $row
+        }
+
+        $hashBytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash(
+            [System.Text.Encoding]::UTF8.GetBytes([string]$response.Content))
+
+        $row.collectionStatus = 'Succeeded'
+        $row.effectiveResourceId = $effectiveResourceId
+        $row.payloadHashSha256 = -join ($hashBytes | ForEach-Object { $_.ToString('x2') })
+    }
+    catch
+    {
+    }
+
+    return $row
+}
+
+function Get-ArchLucidEffectiveNsgResourceId
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object] $Payload
+    )
+
+    foreach ($item in @($Payload.value))
+    {
+        if ($null -eq $item) { continue }
+
+        [string]$nsgId = "$( $item.networkSecurityGroup.id )".Trim()
+
+        if (-not ([string]::IsNullOrWhiteSpace($nsgId)))
+        {
+            return $nsgId
+        }
+    }
+
+    return $null
+}
+
+function Get-ArchLucidEffectiveRouteTableResourceId
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object] $Payload
+    )
+
+    [string]$routeTableId = "$( $Payload.id )".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($routeTableId)) { return $null }
+    if ($routeTableId -notlike '*/routeTables/*') { return $null }
+
+    return $routeTableId
 }
 
 function Get-ArchLucidAzureNsgAllowRuleCompanionRows

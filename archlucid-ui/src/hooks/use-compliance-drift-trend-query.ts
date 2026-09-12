@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { getComplianceDriftTrend } from "@/lib/api";
 import { isBrowser } from "@/lib/api/http";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
@@ -32,8 +33,10 @@ type UseComplianceDriftTrendQueryOptions = {
 };
 
 export function useComplianceDriftTrendQuery(options?: UseComplianceDriftTrendQueryOptions) {
+  const scope = useOperatorScopeQueryKey();
+
   return useQuery<ComplianceDriftTrendPoint[]>({
-    queryKey: operatorQueryKeys.complianceDriftTrend30d,
+    queryKey: operatorQueryKeys.complianceDriftTrend30d(scope),
     queryFn: fetchComplianceDriftTrend30Days,
     enabled: options?.enabled ?? isBrowser(),
     refetchInterval: options?.refetchIntervalMs ?? false,

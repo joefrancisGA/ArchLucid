@@ -51,7 +51,7 @@ function New-ArchLucidCollectedResourceGraphRecord([PSObject] $Row)
         location = $Row.location
         sku = $Row.sku
         tags = $Row.tags
-        properties = $Row.properties
+        properties = @{}
     }
 }
 
@@ -125,12 +125,12 @@ function Get-ArchLucidAzureResourcesViaResourceGraph(
 
     Import-Module Az.ResourceGraph -ErrorAction Stop
 
-    [string]$query = "Resources | project id, name, type, location, tags, sku, properties"
+    [string]$query = "Resources | project id, name, type, location, tags, sku, resourceGroup"
 
     if (-not ([string]::IsNullOrWhiteSpace("$ResourceGroupScope")))
     {
         [string]$rg = "$ResourceGroupScope".Trim()
-        $query = "Resources | where resourceGroup =~ '$rg' | project id, name, type, location, tags, sku, properties"
+        $query = "Resources | where resourceGroup =~ '$rg' | project id, name, type, location, tags, sku, resourceGroup"
     }
 
     [System.Collections.Generic.List[object]]$accumulator = [System.Collections.Generic.List[object]]::new()

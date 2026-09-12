@@ -131,6 +131,86 @@ public sealed class EntraGroupMembershipGraphReaderTests
     }
 
     [Fact]
+    public async Task TryReadDirectMembershipsAsync_rejects_odata_next_link_for_different_group()
+    {
+        const string leakedMember = "ffffffff-ffff-ffff-ffff-ffffffffffff";
+        int requestCount = 0;
+
+        HttpClient httpClient = CreateHttpClient(request =>
+        {
+            int current = Interlocked.Increment(ref requestCount);
+
+            if (current == 1)
+            {
+                return JsonResponse(
+                    $$"""
+                    {
+                      "value": [
+                        {
+                          "id": "{{MemberUser}}",
+                          "@odata.type": "#microsoft.graph.user"
+                        }
+                      ],
+                      "@odata.nextLink": "https://graph.microsoft.com/v1.0/groups/{{GroupB}}/members?$select=id&$skiptoken=leak"
+                    }
+                    """);
+            }
+
+            return JsonResponse(
+                $$"""
+                {
+                  "value": [
+                    {
+                      "id": "{{leakedMember}}",
+                      "@odata.type": "#microsoft.graph.user"
+                    }
+                  ]
+                }
+                """);
+        });
+
+        EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            sut.TryReadDirectMembershipsAsync(
+                new StubTokenCredential(),
+                [GroupA],
+                maxNestedDepth: 0,
+                CancellationToken.None));
+
+        Assert.Contains("different group", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
+    public async Task TryReadDirectMembershipsAsync_rejects_invalid_odata_next_link_url()
+    {
+        HttpClient httpClient = CreateHttpClient(_ => JsonResponse(
+            """
+            {
+              "value": [
+                {
+                  "id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+                  "@odata.type": "#microsoft.graph.user"
+                }
+              ],
+              "@odata.nextLink": "not-a-valid-url"
+            }
+            """));
+
+        EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            sut.TryReadDirectMembershipsAsync(
+                new StubTokenCredential(),
+                [GroupA],
+                maxNestedDepth: 0,
+                CancellationToken.None));
+
+        Assert.Contains("invalid @odata.nextLink", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task TryReadDirectMembershipsAsync_respects_nested_depth_cap()
     {
         List<string> requestedGroupIds = [];

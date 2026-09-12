@@ -14,8 +14,23 @@ import {
   subscribeInFlightOperations,
   type TrackedInFlightOperation,
 } from "@/lib/operations/in-flight-operations-store";
+import { resolveWorkingCreateStartHref } from "@/lib/system-not-job-start-review-from-desk-only-working";
 import { resolveWorkingStartHref } from "@/lib/working-start-route";
 import type { RunSummary } from "@/types/authority";
+
+function resolveWorkingArchitectureContext(input: {
+  readonly inFlightParentArchitectureId: string;
+}): {
+  readonly lastOpenArchitectureId: string | null;
+  readonly inFlightParentArchitectureId: string | null;
+} {
+  const parentArchitectureId = input.inFlightParentArchitectureId.trim();
+
+  return {
+    lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+    inFlightParentArchitectureId: parentArchitectureId.length > 0 ? parentArchitectureId : null,
+  };
+}
 
 function subscribeInFlight(onStoreChange: () => void): () => void {
   return subscribeInFlightOperations(onStoreChange);
@@ -53,7 +68,7 @@ function resolveDeskContinuityFromPreferences(): DeskContinuityDto {
   return mergeDeskContinuity(defaultDeskContinuityDto(), prefs.deskContinuity);
 }
 
-/** Client hook — resolves Working Start / Alt+N href from desk state (ADR 0077 / AO-15). */
+/** Client hook — bare `/reviews/new` redirect lands on the architecture desk (ADR 0077 / AO-15). */
 export function useWorkingStartHref(_runs: readonly RunSummary[] = []): string {
   const [deskContinuity, setDeskContinuity] = useState<DeskContinuityDto>(() => resolveDeskContinuityFromPreferences());
   const inFlightParentArchitectureId = useSyncExternalStore(
@@ -77,11 +92,38 @@ export function useWorkingStartHref(_runs: readonly RunSummary[] = []): string {
   }, []);
 
   return useMemo(() => {
-    const parentArchitectureId = inFlightParentArchitectureId.trim();
+    return resolveWorkingStartHref(
+      resolveWorkingArchitectureContext({ inFlightParentArchitectureId }),
+    ).href;
+  }, [deskContinuity.lastOpenDraftId, inFlightParentArchitectureId]);
+}
 
-    return resolveWorkingStartHref({
-      lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
-      inFlightParentArchitectureId: parentArchitectureId.length > 0 ? parentArchitectureId : null,
-    }).href;
+/** Client hook — Working Alt+N / New review creates under the open architecture (SN-019). */
+export function useWorkingCreateStartHref(_runs: readonly RunSummary[] = []): string {
+  const [deskContinuity, setDeskContinuity] = useState<DeskContinuityDto>(() => resolveDeskContinuityFromPreferences());
+  const inFlightParentArchitectureId = useSyncExternalStore(
+    subscribeInFlight,
+    getInFlightParentArchitectureIdSnapshot,
+    getInFlightParentArchitectureIdSnapshot,
+  );
+
+  useEffect(() => {
+    void getUserPreferences()
+      .then((prefs) => {
+        if (!prefs.deskContinuityIsExplicit) {
+          return;
+        }
+
+        setDeskContinuity(mergeDeskContinuity(defaultDeskContinuityDto(), prefs.deskContinuity));
+      })
+      .catch(() => {
+        /* offline */
+      });
+  }, []);
+
+  return useMemo(() => {
+    return resolveWorkingCreateStartHref(
+      resolveWorkingArchitectureContext({ inFlightParentArchitectureId }),
+    ).href;
   }, [deskContinuity.lastOpenDraftId, inFlightParentArchitectureId]);
 }
