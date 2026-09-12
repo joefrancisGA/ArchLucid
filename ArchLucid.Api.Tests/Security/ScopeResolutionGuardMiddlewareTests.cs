@@ -175,6 +175,28 @@ public sealed class ScopeResolutionGuardMiddlewareTests
         nextCalled.Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData("/robots.txt")]
+    [InlineData("/sitemap.xml")]
+    public async Task InvokeAsync_staging_host_skips_public_crawler_hint_paths(string path)
+    {
+        DefaultHttpContext context = CreateContext(path);
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
     [Fact]
     public async Task InvokeAsync_staging_host_rejects_development_default_tenant_claim()
     {

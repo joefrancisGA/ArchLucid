@@ -154,6 +154,32 @@ public sealed class RouteTenantScopeBindingFilterTests
         next.Should().BeTrue();
     }
 
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_allow_cross_tenant_route_metadata_skips_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantB, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContext(
+            TenantA,
+            "/v1/admin/tenants/" + TenantA + "/catalog-migration/default-scope",
+            new AllowCrossTenantRouteAttribute());
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeTrue();
+    }
+
     private static ActionExecutingContext BuildExecutingContext(
         Guid routeTenantId,
         string path,
