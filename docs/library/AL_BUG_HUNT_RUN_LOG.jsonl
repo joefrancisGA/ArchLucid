@@ -2361,3 +2361,4 @@
 {"at":"2026-09-12T16:48:14.1210878Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
 {"at":"2026-09-12T16:48:26.6699013Z","zoneId":"commit-output-integrity","outcome":"seed-only"}
 {"at":"2026-09-12T16:58:23.2052248Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
+{"at":"2026-09-12T17:00:14.3753160Z","zoneId":"finding-disposition","outcome":"seed-only"}
