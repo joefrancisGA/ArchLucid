@@ -2397,3 +2397,4 @@
 {"at":"2026-09-12T17:39:12.9328419Z","zoneId":"auth-return-path","outcome":"seed-only"}
 {"at":"2026-09-12T17:39:27.2715866Z","zoneId":"tenant-erasure","outcome":"seed-only"}
 {"at":"2026-09-12T17:39:41.0657652Z","zoneId":"review-recurrence","outcome":"seed-only"}
+{"at":"2026-09-12T17:39:54.4315730Z","zoneId":"alert-simulation","outcome":"seed-only"}
