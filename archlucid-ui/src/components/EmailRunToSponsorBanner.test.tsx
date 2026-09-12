@@ -119,6 +119,8 @@ describe("EmailRunToSponsorBanner", () => {
       "data-readiness-classification",
       "Sendable",
     );
+    expect(screen.getByTestId("email-run-to-sponsor-roi-non-summing")).toBeInTheDocument();
+    expect(screen.getByTestId("policy-pack-influence-honesty-chip")).toBeInTheDocument();
   });
 
   it("renders blocked readiness for demo-flagged completeness", async () => {

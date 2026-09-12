@@ -48,3 +48,37 @@ export function priorPackageInheritedTitle(summary: {
 
   return toReviewDisplayTitle(summary.description);
 }
+
+export type PriorPackageSemanticCounts = {
+  readonly actorCount: number;
+  readonly assumptionCount: number;
+  readonly decisionCount: number;
+  readonly requirementCount: number;
+};
+
+/** Formats inherited semantic counts for the prior-package strip (TB-2350). */
+export function priorPackageInheritedSemanticSummary(counts: PriorPackageSemanticCounts): string {
+  const segments: string[] = [];
+
+  if (counts.actorCount > 0) {
+    segments.push(`${counts.actorCount} actor${counts.actorCount === 1 ? "" : "s"}`);
+  }
+
+  if (counts.assumptionCount > 0) {
+    segments.push(`${counts.assumptionCount} assumption${counts.assumptionCount === 1 ? "" : "s"}`);
+  }
+
+  if (counts.requirementCount > 0) {
+    segments.push(`${counts.requirementCount} requirement${counts.requirementCount === 1 ? "" : "s"}`);
+  }
+
+  if (counts.decisionCount > 0) {
+    segments.push(`${counts.decisionCount} decision${counts.decisionCount === 1 ? "" : "s"}`);
+  }
+
+  if (segments.length === 0) {
+    return "Semantic objects from the prior package will carry forward when you start this review.";
+  }
+
+  return `Carrying forward ${segments.join(", ")} from the prior package.`;
+}

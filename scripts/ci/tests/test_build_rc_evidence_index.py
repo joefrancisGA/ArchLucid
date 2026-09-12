@@ -58,7 +58,8 @@ class BuildRcEvidenceIndexTests(unittest.TestCase):
             )
 
             self.assertEqual(ship_row["verdict"], "PASS")
-            self.assertEqual(faith_row["verdict"], "PASS")
+            self.assertEqual(faith_row["verdict"], "WARN")
+            self.assertIn("enforce flip still owner", faith_row["detail"])
 
 
 if __name__ == "__main__":

@@ -4,19 +4,25 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { InAppHelpLink } from "@/components/InAppHelpLink";
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { Button } from "@/components/ui/button";
 import {
+  FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
   FIRST_REVIEW_GUIDE_GET_MORE_ROI_COPY,
   FIRST_REVIEW_GUIDE_GET_MORE_TITLE,
   FIRST_REVIEW_GUIDE_OUTCOMES,
   FIRST_REVIEW_GUIDE_OUTCOMES_COMPLETED_TITLE,
   FIRST_REVIEW_GUIDE_OUTCOMES_TITLE,
+  FIRST_REVIEW_GUIDE_POLICY_PACK_ASSIGNMENT_COPY,
   FIRST_REVIEW_GUIDE_SAMPLE_REVIEW_RAIL_BODY,
   FIRST_REVIEW_GUIDE_SAMPLE_REVIEW_RAIL_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF } from "@/lib/core-pilot-help-ia-dual";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
+import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveFirstReviewGuideOutcomeLinks } from "@/lib/first-review-guide-state";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -92,6 +98,31 @@ export function FirstReviewGuideSupportPanel({ sealedRunId, className }: FirstRe
           {FIRST_REVIEW_GUIDE_GET_MORE_TITLE}
         </h3>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{FIRST_REVIEW_GUIDE_GET_MORE_ROI_COPY}</p>
+        <p
+          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="first-review-guide-roi-non-summing"
+        >
+          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+        </p>
+        <p
+          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="first-review-guide-disposition-next-action"
+        >
+          {FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY}{" "}
+          <Link href={GOVERNANCE_FINDINGS_PATH} className={OPERATOR_LINK.inline}>
+            Open findings queue
+          </Link>
+        </p>
+        <p
+          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="first-review-guide-policy-pack-cta"
+        >
+          {FIRST_REVIEW_GUIDE_POLICY_PACK_ASSIGNMENT_COPY}{" "}
+          <Link href={GOVERNANCE_POLICY_PACKS_PATH} className={OPERATOR_LINK.inline}>
+            Review policy pack assignments
+          </Link>
+        </p>
+        <PolicyPackInfluenceHonestyChip className="mt-3" />
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
           Step-by-step walkthrough:{" "}
           <InAppHelpLink
@@ -99,10 +130,21 @@ export function FirstReviewGuideSupportPanel({ sealedRunId, className }: FirstRe
             label={FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE}
             variant="text"
           />
+          {" · "}
+          <Link
+            href={EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF}
+            className={OPERATOR_LINK.inline}
+            data-testid="first-review-guide-evidence-only-fast-path"
+          >
+            Evidence-only fast path
+          </Link>
         </p>
-        <div className="mt-2">
+        <div className="mt-2 flex flex-wrap gap-2">
           <Button asChild size="sm" variant="outline">
             <Link href="/administration/baseline">Configure ROI baseline</Link>
+          </Button>
+          <Button asChild size="sm" variant="outline">
+            <Link href={GOVERNANCE_POLICY_PACKS_PATH}>Open policy packs</Link>
           </Button>
         </div>
       </section>

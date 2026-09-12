@@ -9,6 +9,7 @@ import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceB
 import { FindingFeedbackThumbs } from "@/components/findings/FindingFeedbackThumbs";
 import { FindingDidNotThinkOfThatButton } from "@/components/findings/FindingDidNotThinkOfThatButton";
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { isDecisionGradeFinding } from "@/lib/findings/review-detail-findings-classification-band";
@@ -101,6 +102,12 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
+        <FindingClassificationChip
+          classification={finding.classification}
+          treatment={finding.treatment}
+          findingId={finding.findingId}
+          showReason
+        />
         <FindingSemanticSupportBandChip finding={finding} showReason />
         {findingHasNoSourceEvidence(finding) ? (
           <StatusTag

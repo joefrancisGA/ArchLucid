@@ -13,6 +13,7 @@ import {
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { Button } from "@/components/ui/button";
 
 type OptionalWorkspaceSetupRow = {
@@ -61,6 +62,16 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
       actionLabel: "Open system health",
     });
   }
+
+  rows.push({
+    id: "policy-packs",
+    title: "Policy pack assignment (optional)",
+    benefit: "Choose which packed standards drive findings and the pre-commit gate.",
+    statusLabel: "Draft",
+    statusKind: "draft",
+    href: GOVERNANCE_POLICY_PACKS_PATH,
+    actionLabel: "Review policy packs",
+  });
 
   rows.push({
     id: "roi-baseline",

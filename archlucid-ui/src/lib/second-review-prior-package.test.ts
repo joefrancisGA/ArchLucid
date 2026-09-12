@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   compareToPriorPackageHref,
+  priorPackageInheritedSemanticSummary,
   priorPackageInheritedTitle,
   readPriorRunIdFromSearch,
   secondReviewFromPriorHref,
@@ -34,5 +35,16 @@ describe("second-review-prior-package", () => {
         description: null,
       }),
     ).toBe("Retail API modernization review");
+  });
+
+  it("formats inherited semantic counts for the prior-package strip", () => {
+    expect(
+      priorPackageInheritedSemanticSummary({
+        actorCount: 1,
+        assumptionCount: 2,
+        decisionCount: 3,
+        requirementCount: 4,
+      }),
+    ).toBe("Carrying forward 1 actor, 2 assumptions, 4 requirements, 3 decisions from the prior package.");
   });
 });
