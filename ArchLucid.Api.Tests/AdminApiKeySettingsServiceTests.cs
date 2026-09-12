@@ -260,6 +260,27 @@ public sealed class AdminApiKeySettingsServiceTests
         response.AppendConfigSuffix.Should().BeNull();
     }
 
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_whitespace_only()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "   "
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "whitespace-only config is not authenticatable key material");
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "Admin", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
     private static AdminApiKeySettingsService CreateService(ApiKeyAuthenticationOptions options)
     {
         Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> monitor = new();
