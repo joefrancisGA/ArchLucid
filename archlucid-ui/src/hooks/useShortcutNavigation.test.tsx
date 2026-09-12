@@ -33,6 +33,21 @@ vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
   useArchitectureDraftRegistryEntries: () => [],
 }));
 
+vi.mock("@/lib/desk-continuity-preference", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/desk-continuity-preference")>();
+
+  return {
+    ...actual,
+    readCachedLastOpenArchitectureId: () => "architecture-identity-001",
+    readCachedDeskContinuity: () => ({
+      lastOpenArchitectureId: "architecture-identity-001",
+      lastOpenReviewId: null,
+      lastOpenDraftId: null,
+      lastVisitWatermarkUtc: null,
+    }),
+  };
+});
+
 vi.mock("@/lib/operations/in-flight-operations-store", () => ({
   getInFlightOperations: () => [],
   subscribeInFlightOperations: () => () => {},
@@ -128,7 +143,7 @@ describe("useShortcutNavigation", () => {
     expect(routerPush).toHaveBeenCalledWith("/insights/compare-two-reviews?priorRunId=run-abc");
   });
 
-  it("prefills Compare base review when Alt+C is pressed on review-detail in Working mode", () => {
+  it("prefills nested Compare base review when Alt+C is pressed on review-detail in Working mode", () => {
     const architectureId = "architecture-identity-001";
 
     mockPathname.mockReturnValue("/architecture/reviews/run-abc");
@@ -146,7 +161,7 @@ describe("useShortcutNavigation", () => {
     fireEvent.keyDown(window, { key: "c", altKey: true });
 
     expect(routerPush).toHaveBeenCalledWith(
-      `${architectureNestedComparePath(architectureId)}?priorRunId=run-abc&architectureId=${architectureId}`,
+      `${architectureNestedComparePath(architectureId)}?leftRunId=run-abc`,
     );
   });
 

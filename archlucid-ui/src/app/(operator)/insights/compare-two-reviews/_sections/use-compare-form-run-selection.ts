@@ -105,6 +105,19 @@ export function useCompareFormRunSelection(options: {
     });
 
     if (siblingDefaults === null) {
+      if (leftRunId.trim().length === 0 && rightRunId.trim().length === 0) {
+        const reviews = architectureQuery.data.reviews;
+
+        if (reviews.length === 1) {
+          const onlyRunId = reviews[0]?.runId.trim() ?? "";
+
+          if (onlyRunId.length > 0) {
+            setLeftRunId(onlyRunId);
+            syncSelectionToUrlRef.current(onlyRunId, rightRunId);
+          }
+        }
+      }
+
       return;
     }
 

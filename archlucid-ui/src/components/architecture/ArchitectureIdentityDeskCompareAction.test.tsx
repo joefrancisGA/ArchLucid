@@ -3,19 +3,32 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { architectureNestedComparePath } from "@/lib/architecture/architecture-routes";
 
-const useWorkspaceModeMock = vi.fn();
+const mockWorkspaceMode = vi.fn(() => ({
+  mode: "guided" as const,
+  mounted: true,
+  accountSyncState: "synced" as const,
+  isWorkingMode: false,
+  setAndPersist: vi.fn(),
+}));
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
-  useWorkspaceMode: () => useWorkspaceModeMock(),
+  useWorkspaceMode: () => mockWorkspaceMode(),
+}));
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { ArchitectureIdentityDeskCompareAction } from "@/components/architecture/ArchitectureIdentityDeskCompareAction";
 
-describe("ArchitectureIdentityDeskCompareAction (CA-30 / AO-29)", () => {
+describe("ArchitectureIdentityDeskCompareAction (CA-30 / AO-29 / SN-027)", () => {
   beforeEach(() => {
-    useWorkspaceModeMock.mockReturnValue({
+    mockWorkspaceMode.mockReturnValue({
       mode: "guided",
+      mounted: true,
+      accountSyncState: "synced",
       isWorkingMode: false,
+      setAndPersist: vi.fn(),
     });
   });
 
@@ -36,15 +49,31 @@ describe("ArchitectureIdentityDeskCompareAction (CA-30 / AO-29)", () => {
     );
   });
 
-  it("SN-017: Working nests Compare on the architecture desk", () => {
-    useWorkspaceModeMock.mockReturnValue({
+  it("shows an inline disabled reason when fewer than two reviews exist in Guided mode", () => {
+    render(
+      <ArchitectureIdentityDeskCompareAction
+        architectureId="architecture-identity-001"
+        reviews={[{ runId: "review-1", description: "Only review", createdUtc: "2026-01-01T00:00:00Z" }]}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-identity-compare-disabled-reason")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-identity-compare-entry")).not.toBeInTheDocument();
+  });
+
+  it("SN-017 / SN-027: Working mode opens nested compare with both sibling reviews prefilled", () => {
+    mockWorkspaceMode.mockReturnValue({
       mode: "working",
+      mounted: true,
+      accountSyncState: "synced",
       isWorkingMode: true,
+      setAndPersist: vi.fn(),
     });
 
     render(
       <ArchitectureIdentityDeskCompareAction
         architectureId="architecture-identity-001"
+        latestReviewId="review-newer"
         reviews={[
           { runId: "review-newer", description: "Second review", createdUtc: "2026-01-02T00:00:00Z" },
           { runId: "review-older", description: "First review", createdUtc: "2026-01-01T00:00:00Z" },
@@ -58,15 +87,26 @@ describe("ArchitectureIdentityDeskCompareAction (CA-30 / AO-29)", () => {
     );
   });
 
-  it("shows an inline disabled reason when fewer than two reviews exist", () => {
+  it("SN-027: Working mode pre-fills base when only one sealed child exists", () => {
+    mockWorkspaceMode.mockReturnValue({
+      mode: "working",
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: true,
+      setAndPersist: vi.fn(),
+    });
+
     render(
       <ArchitectureIdentityDeskCompareAction
         architectureId="architecture-identity-001"
+        latestReviewId="review-1"
         reviews={[{ runId: "review-1", description: "Only review", createdUtc: "2026-01-01T00:00:00Z" }]}
       />,
     );
 
-    expect(screen.getByTestId("architecture-identity-compare-disabled-reason")).toBeInTheDocument();
-    expect(screen.queryByTestId("architecture-identity-compare-entry")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-compare-entry")).toHaveAttribute(
+      "href",
+      `${architectureNestedComparePath("architecture-identity-001")}?leftRunId=review-1`,
+    );
   });
 });

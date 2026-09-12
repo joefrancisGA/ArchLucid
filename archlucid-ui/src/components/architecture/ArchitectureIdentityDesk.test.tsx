@@ -36,6 +36,31 @@ vi.mock("@/hooks/use-shell-in-flight-operations", () => ({
   useShellInFlightOperations: () => useShellInFlightOperationsMock(),
 }));
 
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => ({
+      mode: "guided" as const,
+      mounted: true,
+      accountSyncState: "synced" as const,
+      isWorkingMode: false,
+      setAndPersist: vi.fn(),
+    }),
+  };
+});
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  };
+});
+
 import { ArchitectureIdentityDesk } from "@/components/architecture/ArchitectureIdentityDesk";
 
 const architectureId = "architecture-identity-001";

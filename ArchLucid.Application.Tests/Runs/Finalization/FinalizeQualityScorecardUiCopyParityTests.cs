@@ -41,6 +41,7 @@ public sealed class FinalizeQualityScorecardUiCopyParityTests
     {
         { "blockingFindingCount", FinalizeQualityScorecardBlockedReasonFormatter.BlockingFindings },
         { "uncoveredMandatoryRequirementCount", FinalizeQualityScorecardBlockedReasonFormatter.UncoveredMandatoryRequirements },
+        { "missingRequiredCapabilityCount", FinalizeQualityScorecardBlockedReasonFormatter.MissingRequiredCapabilities },
         { "openDeferredCount", FinalizeQualityScorecardBlockedReasonFormatter.OpenDeferred },
         { "openContradictionCount", FinalizeQualityScorecardBlockedReasonFormatter.OpenContradictions },
         { "openCannotDetermineCount", FinalizeQualityScorecardBlockedReasonFormatter.OpenCannotDetermine },

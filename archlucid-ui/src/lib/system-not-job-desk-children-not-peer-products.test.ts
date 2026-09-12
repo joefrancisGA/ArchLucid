@@ -67,11 +67,11 @@ describe("SN-017 desk children not peer products", () => {
   );
 
   it.each(SYSTEM_NOT_JOB_DESK_PEER_INSIGHTS_CTA_ROWS.map((row) => [row.relativePath, row.surface] as const))(
-    "%s uses resolveSystemNotJobWorkingDeskCompareHref for %s",
+    "%s uses resolveArchitectureDeskCompareHref for %s",
     (relativePath) => {
       const content = readFileSync(join(repoRoot, relativePath), "utf8");
 
-      expect(content).toContain("resolveSystemNotJobWorkingDeskCompareHref");
+      expect(content).toContain("resolveArchitectureDeskCompareHref");
       expect(content).not.toMatch(/compareTwoReviewsHref\s*\(/);
     },
   );

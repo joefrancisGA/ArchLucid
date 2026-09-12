@@ -3,33 +3,28 @@ using FluentAssertions;
 namespace ArchLucid.Architecture.Tests;
 
 /// <summary>
-/// SN-017 ratchet: architecture desk lists child reviews/drafts and Working Compare nests under the architecture (ADR 0079).
+/// SN-027 ratchet: architecture desk Compare opens nested compare with base prefill (not empty peer page).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
-public sealed class SystemNotJobSn017DeskChildrenNotPeerProductsArchitectureTests
+public sealed class SystemNotJobSn027CompareEntryFromDeskArchitectureTests
 {
     private static readonly string RepoRoot = FindRepoRoot();
 
     [Fact]
-    public void Sn017_module_names_nested_compare_resolver_and_child_surfaces()
+    public void Sn027_compare_entry_module_names_base_prefill_and_nested_path()
     {
         string module = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "archlucid-ui",
-                "src",
-                "lib",
-                "system-not-job-desk-children-not-peer-products.ts"));
+            Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-compare-entry-from-desk.ts"));
 
-        module.Should().Contain("resolveSystemNotJobWorkingDeskCompareHref");
-        module.Should().Contain("SYSTEM_NOT_JOB_DESK_CHILD_LIST_SURFACES");
-        module.Should().Contain("SN-017");
-        module.Should().Contain("0079");
+        module.Should().Contain("resolveArchitectureDeskCompareBaseRunId");
+        module.Should().Contain("resolveArchitectureDeskCompareHref");
+        module.Should().Contain("architectureNestedComparePath");
+        module.Should().Contain("SN-027");
     }
 
     [Fact]
-    public void Sn017_desk_compare_action_uses_nested_resolver()
+    public void Sn027_desk_compare_action_uses_resolver_not_peer_compare_two_reviews_only()
     {
         string compareAction = File.ReadAllText(
             Path.Combine(
@@ -41,11 +36,12 @@ public sealed class SystemNotJobSn017DeskChildrenNotPeerProductsArchitectureTest
                 "ArchitectureIdentityDeskCompareAction.tsx"));
 
         compareAction.Should().Contain("resolveArchitectureDeskCompareHref");
-        compareAction.Should().Contain("workingMode");
+        compareAction.Should().Contain("latestReviewId");
+        compareAction.Should().NotContain("resolveArchitectureCompareSiblingDefaults");
     }
 
     [Fact]
-    public void Sn017_vitest_ratchet_names_nested_compare_and_guided_peer_fallback()
+    public void Sn027_vitest_ratchet_names_working_nested_prefill_and_single_review_base()
     {
         string test = File.ReadAllText(
             Path.Combine(
@@ -53,11 +49,11 @@ public sealed class SystemNotJobSn017DeskChildrenNotPeerProductsArchitectureTest
                 "archlucid-ui",
                 "src",
                 "lib",
-                "system-not-job-desk-children-not-peer-products.test.ts"));
+                "system-not-job-compare-entry-from-desk.test.ts"));
 
-        test.Should().Contain("SN-017");
-        test.Should().Contain("nests Working desk Compare");
-        test.Should().Contain("keeps Guided desk Compare on peer Insights");
+        test.Should().Contain("SN-027");
+        test.Should().Contain("nested compare");
+        test.Should().Contain("single sealed child");
     }
 
     private static string FindRepoRoot()
