@@ -205,6 +205,9 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeQualityGate
 - Execute run with **decision-grade provenance violation** → finalize **409** with `ProblemTypes.Conflict` aligned with readiness `integrity` / `decision_grade_provenance` block.
 - Execute run with **unacknowledged existential assumption** on request → finalize **409** aligned with readiness `integrity` / `existential_assumption` block.
 - Execute run with **rejected agent output quality trace** (Real + PilotStrict) → finalize **409** aligned with readiness `integrity` / `agent_output_quality` block.
+- Execute run with **evidence referential integrity violation** (pinned evidence packages + Critical finding without resolvable linkage) → finalize **409** aligned with readiness `integrity` / `evidence_referential_integrity` block.
+- Execute run with **Mixed structural execution mode** → finalize **409** aligned with readiness `integrity` / `structural_execution_mode` block.
+- Execute run with **Unsupported semantic support** on a decision-grade finding (Real + PilotStrict + TB-1228 opt-in host flag) → finalize **409** aligned with readiness `integrity` / `unsupported_semantic_support` block.
 
 ```bash
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeConflictSqlIntegrationTests"
@@ -219,6 +222,7 @@ dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~FinalizeConflictSql
 - `GET …/reviews/{runId}/terraform-advisory-export` (`DownloadTerraformAdvisoryExport`) — sealed hash drift
 - `GET …/reviews/{runId}/decision-receipt` (`DownloadRunDecisionReceipt`) — sealed-hash mismatch outcome
 - `GET …/architecture/reviews/{runId}/artifacts` (`ListArtifactsForRun`) — manifest compare guard
+- `GET …/architecture/reviews/{runId}/artifacts/bundle` (`DownloadBundleForRun`) — manifest compare guard
 
 ```bash
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~ArtifactExportSealedManifestRuntimeConflictTests"

@@ -74,4 +74,19 @@ describe("resolveFinalizeReadinessBlockAction", () => {
       label: "Review semantic support gaps",
     });
   });
+
+  it("deep-links evidence referential integrity blocks to findings", () => {
+    const block: FinalizeReadinessBlock = {
+      layer: "integrity",
+      code: "evidence_referential_integrity",
+      message: "Commit blocked: finding evidence referential integrity failed.",
+    };
+
+    const action = resolveFinalizeReadinessBlockAction("run-123", block);
+
+    expect(action).toEqual({
+      href: "/architecture/reviews/run-123?reviewTab=findings",
+      label: "Review finding evidence linkage",
+    });
+  });
 });

@@ -31,7 +31,12 @@ internal static class FinalizeConflictSqlIntegrationFixture
 {
     internal const string DeferredScorecardProofFindingId = "scorecard-proof-deferred";
 
+    internal const string EvidenceIntegrityProofFindingId = "scorecard-proof-evidence-integrity";
+
     internal const string IntegrationDevUserId = "dev-user";
+
+    private static readonly Guid EvidenceIntegrityProofPackageId =
+        Guid.Parse("22222222-2222-2222-2222-222222222222");
 
     private static readonly Guid PreCommitProofPolicyPackId = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
@@ -454,6 +459,130 @@ internal static class FinalizeConflictSqlIntegrationFixture
         await traceRepository.CreateAsync(trace, cancellationToken).ConfigureAwait(false);
     }
 
+    internal static async Task PinEvidenceReferentialIntegrityViolationAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IServiceProvider services = serviceScope.ServiceProvider;
+        IRunRepository runRepository = services.GetRequiredService<IRunRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for evidence integrity proof pin.");
+
+        PinnedEvidencePackageRow[] pinRows =
+        [
+            new("integration-proof", EvidenceIntegrityProofPackageId, DateTime.UtcNow),
+        ];
+
+        run.PinnedEvidencePackagePinsJson =
+            JsonSerializer.Serialize(pinRows, ContractJson.CamelCaseIgnoreNullCompact);
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+
+        await InjectPinnedScorecardFindingAsync(
+            factory,
+            runId,
+            finding =>
+            {
+                finding.FindingId = EvidenceIntegrityProofFindingId;
+                finding.Title = "Critical finding lacks resolvable evidence linkage.";
+                finding.Rationale = "Pinned for evidence referential integrity SQL proof.";
+                finding.Severity = FindingSeverity.Critical;
+                finding.EvidenceRefs = [];
+                finding.EvidencePackageId = null;
+            },
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    internal static async Task PinStructuralExecutionModeMixedAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IRunRepository runRepository =
+            serviceScope.ServiceProvider.GetRequiredService<IRunRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for structural execution mode proof pin.");
+
+        run.StructuralExecutionMode = StructuralExecutionMode.Mixed;
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal static async Task PinUnsupportedSemanticSupportFindingAsync(
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            throw new ArgumentException("Run id must be a GUID.", nameof(runId));
+
+        using IServiceScope serviceScope = factory.Services.CreateScope();
+        IServiceProvider services = serviceScope.ServiceProvider;
+        IRunRepository runRepository = services.GetRequiredService<IRunRepository>();
+        ITenantSettingsRepository tenantSettingsRepository =
+            services.GetRequiredService<ITenantSettingsRepository>();
+
+        RunRecord? run = await runRepository
+            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new InvalidOperationException("Executed run was not found for unsupported semantic support proof pin.");
+
+        run.StructuralExecutionMode = StructuralExecutionMode.Real;
+
+        await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+
+        await tenantSettingsRepository
+            .UpsertAsync(
+                DefaultScope.TenantId,
+                TenantSettingKeys.AgentOutputQualityGateMode,
+                AgentOutputQualityGateMode.PilotStrict.ToString(),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        await InjectPinnedScorecardFindingAsync(
+            factory,
+            runId,
+            finding =>
+            {
+                finding.FindingId = "scorecard-proof-unsupported-semantic";
+                finding.Title = "Decision-grade finding with unsupported semantic support band.";
+                finding.Rationale = "Pinned for unsupported semantic support SQL proof.";
+                finding.Classification = FindingClassification.DecisionGradeFinding;
+                finding.SemanticSupportBand = FindingSemanticSupportBand.Unsupported;
+            },
+            cancellationToken).ConfigureAwait(false);
+    }
+
     private static string BuildPreCommitProofPinJson()
     {
         PinnedPolicyPackRow[] pinRows =
@@ -638,6 +767,8 @@ internal static class FinalizeConflictSqlIntegrationFixture
             IsMuted = source.IsMuted,
             ConfidenceLevel = source.ConfidenceLevel,
             EnforcementTier = source.EnforcementTier,
+            Classification = source.Classification,
+            SemanticSupportBand = source.SemanticSupportBand,
         };
     }
 }

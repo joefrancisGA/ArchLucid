@@ -27,6 +27,7 @@ import {
   operatorDemoReviewApiResponse,
   OPERATOR_DEMO_REVIEW_RUN_ID,
 } from "./fixtures/index";
+import { buildFinalizeReadinessDeferredBlockMock } from "./fixtures/finalize-readiness-mock";
 import { toMockBuyerRunDetailSummary } from "./fixtures/buyer-run-detail-summary";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
@@ -618,6 +619,13 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
 
       if (stageTimelineMatch) {
         sendJson(res, 200, []);
+        return;
+      }
+
+      const finalizeReadinessMatch = /^\/v1\/governance\/pre-finalize\/readiness\/([^/]+)$/.exec(pathname);
+
+      if (req.method === "GET" && finalizeReadinessMatch) {
+        sendJson(res, 200, buildFinalizeReadinessDeferredBlockMock(finalizeReadinessMatch[1] ?? ""));
         return;
       }
 
