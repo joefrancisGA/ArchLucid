@@ -10,7 +10,7 @@
 
 **Reasoning engine:** Cursor Composer 2.5, code-and-doc desk review. **No live Azure OpenAI call this pass.** Scoped unit tests executed (Vitest export-cover + compare-delta; Python RC evidence script; `FindingTraceConfidenceMapperTests`). Real-mode first-review was **not** re-run.
 
-**Inspected HEAD:** `cursor/arch-quality-roi-improvements-0d83` **`052162e84e`** (ROI batches **5A** `83f88fd7b4` + **5B**: markdown sendable-cover WK-21/Lane B parity, showReason chips, pack-delta spine CTA, RC bundle auto-attach, governance queue semantic band, compare-two-reviews band delta, tenant-wide audit CSV disclaimer, `@release-gate` showReason witness).
+**Inspected HEAD:** `cursor/arch-quality-roi-improvements-0d83` **`67527fc8d8`** (ROI batches **5A** + **5B** `ca5debd82c`: markdown sendable-cover WK-21/Lane B parity, showReason chips, pack-delta spine CTA, RC bundle auto-attach, governance queue semantic band, compare-two-reviews band delta, tenant-wide audit CSV disclaimer, `@release-gate` showReason witness).
 
 ### Pass delta vs 2026-09-12 pre-batch-5 (`LATEST_GPT55` v16 @ 78.18% → this HEAD)
 
