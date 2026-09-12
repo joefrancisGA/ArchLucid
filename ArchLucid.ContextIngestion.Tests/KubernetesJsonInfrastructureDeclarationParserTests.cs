@@ -251,6 +251,45 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_snake_case_cron_job_template_projects_host_network_exposure()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "cron-host-network.json",
+            Format = "kubernetes-json",
+            Content = """
+                      {
+                        "apiVersion": "batch/v1",
+                        "kind": "CronJob",
+                        "metadata": { "name": "nightly", "namespace": "prod" },
+                        "spec": {
+                          "job_template": {
+                            "spec": {
+                              "template": {
+                                "spec": {
+                                  "host_network": true,
+                                  "containers": [
+                                    {
+                                      "name": "worker",
+                                      "image": "busybox"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        CanonicalObject cronJob = result.Should().ContainSingle().Subject;
+        cronJob.Properties["k8s.hostNetwork"].Should().Be("true");
+    }
+
+    [Fact]
     public async Task ParseAsync_reparse_produces_stable_object_ids_for_deployments()
     {
         InfrastructureDeclarationReference declaration = new()

@@ -10416,13 +10416,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 87
-- **bugs-found:** 149
+- **hunts:** 88
+- **bugs-found:** 150
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — snake_case `init_containers` on kubernetes-json deployments skipped init-container privileged projection
+- **last-bug:** 2026-09-12 — snake_case `job_template` on kubernetes-json CronJobs skipped host network exposure projection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2065 (seed→hit): reseeded context-ingestion; proved snake_case `job_template` CronJob projection gap; regression `ParseAsync_snake_case_cron_job_template_projects_host_network_exposure`.
 
 2026-09-12 seed hunt #2056 (seed→hit): reseeded context-ingestion; proved snake_case `init_containers` projection gap; regression `ParseAsync_snake_case_init_containers_projects_privileged_security_context`.
 

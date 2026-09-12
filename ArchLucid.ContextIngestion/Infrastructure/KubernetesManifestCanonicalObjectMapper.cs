@@ -226,7 +226,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         if (string.Equals(kind, "CronJob", StringComparison.OrdinalIgnoreCase))
         {
-            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "jobTemplate", out JsonElement jobTemplate)
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(specElement, "jobTemplate", out JsonElement jobTemplate)
                 && jobTemplate.ValueKind is JsonValueKind.Object
                 && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(jobTemplate, "spec", out JsonElement cronJobSpec)
                 && cronJobSpec.ValueKind is JsonValueKind.Object
