@@ -289,6 +289,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("oracle_autonomous", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("storage_mover", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("storage_queue", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("storage_table", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("site_recovery", StringComparison.OrdinalIgnoreCase);
     }
 
