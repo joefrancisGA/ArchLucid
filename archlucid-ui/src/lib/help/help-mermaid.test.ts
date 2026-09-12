@@ -38,16 +38,21 @@ describe("help-mermaid", () => {
   it("removes mermaid bind and error nodes left on document.body", () => {
     const bind = document.createElement("div");
     bind.id = "darch-diagram-r1";
+    const iframe = document.createElement("iframe");
+    iframe.id = "iarch-diagram-r1";
     const errorSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     errorSvg.id = "arch-diagram-r1";
     document.body.appendChild(bind);
+    document.body.appendChild(iframe);
     document.body.appendChild(errorSvg);
 
     removeMermaidRenderBindElement("  ");
     expect(document.getElementById("darch-diagram-r1")).not.toBeNull();
+    expect(document.getElementById("iarch-diagram-r1")).not.toBeNull();
 
     removeMermaidRenderBindElement("arch-diagram-r1");
     expect(document.getElementById("darch-diagram-r1")).toBeNull();
+    expect(document.getElementById("iarch-diagram-r1")).toBeNull();
     expect(document.getElementById("arch-diagram-r1")).toBeNull();
   });
 
