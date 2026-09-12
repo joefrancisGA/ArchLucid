@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { isBrowser } from "@/lib/api/http";
 import { fetchSponsorDashboardBundleClient } from "@/lib/fetch-sponsor-dashboard-bundle-client";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
@@ -11,8 +12,10 @@ import {
 } from "@/lib/query/operator-query-stale-time";
 
 export function useSponsorDashboardBundleQuery(options?: { enabled?: boolean }) {
+  const scope = useOperatorScopeQueryKey();
+
   return useQuery({
-    queryKey: operatorQueryKeys.sponsorDashboardBundle,
+    queryKey: operatorQueryKeys.sponsorDashboardBundle(scope),
     queryFn: fetchSponsorDashboardBundleClient,
     enabled: isBrowser() && (options?.enabled ?? true),
     staleTime: OPERATOR_QUERY_STALE_MS,

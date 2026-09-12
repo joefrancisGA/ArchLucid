@@ -133,20 +133,30 @@ public sealed class BackgroundJobQueueProcessorHostedService(
 
         BackgroundJobRow row = prepared.RowWhenRunnable;
 
-        BackgroundJobWorkUnit? workUnit = BackgroundJobWorkUnitJson.Deserialize(row.WorkUnitJson);
-
-        if (workUnit is null)
+        if (operationCancellationRegistry.IsCancelRequestedAnyScope(OperationIdCodec.ForJob(jobId)))
         {
-            logger.LogError("Job {JobId} has invalid WorkUnitJson; failing permanently.", LogSanitizer.Sanitize(jobId));
-            await repository.MarkFailedTerminalAsync(jobId, "Invalid job payload.", row.RetryCount + 1, stoppingToken);
+            await repository.MarkCanceledAsync(jobId, stoppingToken);
             await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
 
             return;
         }
 
-        if (operationCancellationRegistry.IsCancelRequestedAnyScope(OperationIdCodec.ForJob(jobId)))
+        BackgroundJobWorkUnit? workUnit = BackgroundJobWorkUnitJson.Deserialize(row.WorkUnitJson);
+
+        if (workUnit is null)
         {
-            await repository.MarkCanceledAsync(jobId, stoppingToken);
+            BackgroundJobRow? current = await repository.GetAsync(jobId, stoppingToken);
+
+            if (current is not null
+                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+            {
+                await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                return;
+            }
+
+            logger.LogError("Job {JobId} has invalid WorkUnitJson; failing permanently.", LogSanitizer.Sanitize(jobId));
+            await repository.MarkFailedTerminalAsync(jobId, "Invalid job payload.", row.RetryCount + 1, stoppingToken);
             await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
 
             return;

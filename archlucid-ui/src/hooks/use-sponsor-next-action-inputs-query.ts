@@ -36,7 +36,7 @@ export function useSponsorNextActionInputsQuery(
   const scope = useOperatorScopeQueryKey();
 
   return useQuery<SponsorNextActionInputs>({
-    queryKey: operatorQueryKeys.executiveNextActionInputs(range),
+    queryKey: operatorQueryKeys.executiveNextActionInputs(scope, range),
     queryFn: async () => {
       const { fromUtc, toUtc } = windowForSponsorRange(range);
       const fromKey = fromUtc ?? "open";
@@ -51,7 +51,7 @@ export function useSponsorNextActionInputsQuery(
       const driftFrom = fromUtc ?? report.fromUtc;
 
       const driftPoints = await queryClient.fetchQuery({
-        queryKey: operatorQueryKeys.complianceDriftTrendRange(driftFrom, report.toUtc),
+        queryKey: operatorQueryKeys.complianceDriftTrendRange(scope, driftFrom, report.toUtc),
         queryFn: () => getComplianceDriftTrend(driftFrom, report.toUtc, 1440),
         staleTime: OPERATOR_QUERY_STALE_MS,
         gcTime: OPERATOR_QUERY_GC_MS,

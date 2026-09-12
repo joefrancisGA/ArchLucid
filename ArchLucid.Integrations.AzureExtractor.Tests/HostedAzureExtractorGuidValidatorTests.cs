@@ -17,6 +17,14 @@ public sealed class HostedAzureExtractorGuidValidatorTests
             ValidGuid.ToString("D"));
     }
 
+    [Fact]
+    public void RequireAzureGuid_accepts_whitespace_padded_guid()
+    {
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(
+            nameof(HostedAzureExtractorCollectionRequest.SubscriptionId),
+            "  " + ValidGuid.ToString("D") + "  ");
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
@@ -95,6 +103,7 @@ public sealed class HostedAzureExtractorGuidValidatorTests
     [Theory]
     [InlineData("../corp")]
     [InlineData("corp/prod")]
+    [InlineData("   ")]
     public void RequireManagementGroupId_rejects_unsafe_values(string value)
     {
         ArgumentException ex = Assert.Throws<ArgumentException>(() =>

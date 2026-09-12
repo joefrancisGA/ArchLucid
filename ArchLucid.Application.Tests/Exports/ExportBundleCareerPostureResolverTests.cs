@@ -44,6 +44,21 @@ public sealed class ExportBundleCareerPostureResolverTests
     }
 
     [Fact]
+    public void ResolveFromDeltasJson_blocks_sample_workspace_run_when_is_sample_run_true()
+    {
+        string json =
+            """
+            {"isDemoTenant":false,"isSampleRun":true,"structuralExecutionMode":"Real","workingCareerRehearsalDoor":"career","proofPackageCompleteness":{"runInCommittedStatus":true}}
+            """;
+
+        ExportBundleCareerPostureResult result = ExportBundleCareerPostureResolver.ResolveFromDeltasJson(json);
+
+        result.IsBlocked.Should().BeTrue();
+        result.BlockReason.Should().Be(CareerArtifactCompletenessValidator.SampleWorkspaceExportBlockMessage);
+        result.Stamp.Should().BeNull();
+    }
+
+    [Fact]
     public void ResolveFromDeltasJson_stamps_career_for_real_mode()
     {
         string json =

@@ -4,7 +4,11 @@ export function resolveWebhooksCreateSteps(input: {
   readonly destinationConfigured: boolean;
   readonly eventsConfigured: boolean;
   readonly subscriptionEnabled: boolean;
+  readonly subscriptionsLoaded: boolean;
 }): readonly IntegrationConnectChecklistStep[] {
+  const enableStepComplete =
+    !input.subscriptionsLoaded || input.subscriptionEnabled;
+
   return [
     {
       id: "destination",
@@ -19,7 +23,7 @@ export function resolveWebhooksCreateSteps(input: {
     {
       id: "enable",
       label: "Save and enable subscription",
-      complete: input.subscriptionEnabled,
+      complete: enableStepComplete,
     },
   ];
 }
@@ -28,6 +32,7 @@ export function resolveWebhooksCreateEmphasizedStepId(input: {
   readonly destinationConfigured: boolean;
   readonly eventsConfigured: boolean;
   readonly subscriptionEnabled: boolean;
+  readonly subscriptionsLoaded: boolean;
 }): string {
   const steps = resolveWebhooksCreateSteps(input);
   const incomplete = steps.find((step) => !step.complete);

@@ -57,7 +57,8 @@ public sealed class TenantTrialAbuseGuard(
             return Failure(TenantTrialHttpOutcome.ValidationFailed, entraOidError!);
         }
 
-        if (localRow.LinkedEntraOid is { } existingLinkedOid && existingLinkedOid != requestedOid)
+        if (localRow.LinkedEntraOid is { } existingLinkedOid
+            && !string.Equals(existingLinkedOid, requestedOid, StringComparison.OrdinalIgnoreCase))
         {
             return Failure(
                 TenantTrialHttpOutcome.Conflict,

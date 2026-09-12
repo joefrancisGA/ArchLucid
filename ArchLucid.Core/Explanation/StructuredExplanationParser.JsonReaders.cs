@@ -23,6 +23,12 @@ public static partial class StructuredExplanationParser
 
         if (arrayElement.ValueKind != JsonValueKind.Array)
         {
+            if (RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(arrayElement, out string? scalar)
+                && !string.IsNullOrWhiteSpace(scalar))
+            {
+                return [scalar.Trim()];
+            }
+
             return null;
         }
 
@@ -46,21 +52,23 @@ public static partial class StructuredExplanationParser
         if (item.ValueKind == JsonValueKind.String)
             return item.GetString();
 
-        if (item.ValueKind != JsonValueKind.Object)
-            return null;
+        if (item.ValueKind == JsonValueKind.Object)
+            return TryReadObjectStringProperty(item, "id", "text");
 
-        return TryReadObjectStringProperty(item, "id", "text");
+        return RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out string? scalar)
+            ? scalar
+            : null;
     }
 
     private static string? TryReadObjectStringProperty(JsonElement item, params ReadOnlySpan<string> propertyNames)
     {
         foreach (string propertyName in propertyNames)
         {
-
             if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(item, propertyName, out JsonElement element)
-                && element.ValueKind == JsonValueKind.String)
+                && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(element, out string? value)
+                && !string.IsNullOrWhiteSpace(value))
             {
-                return element.GetString();
+                return value;
             }
         }
 
@@ -73,10 +81,14 @@ public static partial class StructuredExplanationParser
             return reasoningElement.GetString();
 
         if (reasoningElement.ValueKind == JsonValueKind.Object)
-            return TryReadObjectStringProperty(reasoningElement, "text");
+            return TryReadObjectStringProperty(reasoningElement, "id", "text");
 
         if (reasoningElement.ValueKind != JsonValueKind.Array)
-            return null;
+        {
+            return RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(reasoningElement, out string? scalar)
+                ? scalar
+                : null;
+        }
 
         List<string> parts = [];
 
@@ -85,8 +97,10 @@ public static partial class StructuredExplanationParser
             string? part = item.ValueKind switch
             {
                 JsonValueKind.String => item.GetString(),
-                JsonValueKind.Object => TryReadObjectStringProperty(item, "text"),
-                _ => null,
+                JsonValueKind.Object => TryReadObjectStringProperty(item, "id", "text"),
+                _ => RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out string? scalar)
+                    ? scalar
+                    : null,
             };
 
             if (string.IsNullOrWhiteSpace(part))

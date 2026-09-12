@@ -252,6 +252,101 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListFederatedCredentialsAsync_rejects_next_link_for_different_identity_resource_id()
+    {
+        const string identityResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami1";
+        const string otherIdentityResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami2";
+        const string crossIdentityNextLink =
+            $"https://management.azure.com{otherIdentityResourceId}/federatedIdentityCredentials?api-version=2023-01-31&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "cred-page-one",
+                                     "properties": {
+                                       "issuer": "https://token.actions.githubusercontent.com",
+                                       "subject": "repo:org/repo:ref:refs/heads/main"
+                                     }
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_IDENTITY_LINK"
+                               }
+                               """.Replace("CROSS_IDENTITY_LINK", crossIdentityNextLink, StringComparison.Ordinal);
+
+        string secondPageBody = """
+                                {
+                                  "value": [
+                                    {
+                                      "name": "cred-leaked",
+                                      "properties": {
+                                        "issuer": "https://evil.example",
+                                        "subject": "repo:evil/evil:ref:refs/heads/main"
+                                      }
+                                    }
+                                  ]
+                                }
+                                """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                if (current == 2)
+                {
+                    Assert.Equal(crossIdentityNextLink, request.RequestUri?.AbsoluteUri);
+
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(secondPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: federated credential listing did not stop on cross-identity nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListFederatedCredentialsAsync(
+                "token-abc",
+                [
+                    new HostedAzureArmResourceRecord(
+                        "Microsoft.ManagedIdentity/userAssignedIdentities",
+                        identityResourceId,
+                        "uami1",
+                        "eastus",
+                        null,
+                        null,
+                        new Dictionary<string, object?>
+                        {
+                            ["principalId"] = "11111111-1111-1111-1111-111111111111",
+                        }),
+                ],
+                CancellationToken.None));
+
+        Assert.Contains("identity", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListSubscriptionRoleEligibilitySchedulesAsync_maps_eligible_assignments()
     {
         HttpMessageHandler handler = new RecordingHandler(
@@ -811,6 +906,168 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Single(summaries);
         Assert.Equal($"/subscriptions/{subscriptionId}", summaries[0].ResourceId);
         Assert.Equal(72, summaries[0].SecureScore);
+    }
+
+    [Fact]
+    public async Task ListSubscriptionDefenderSummariesAsync_follows_next_link_and_picks_highest_score()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string pageTwoLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Security/secureScores?api-version=2020-01-01&$skiptoken=page2";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "ascScore",
+                                     "properties": {
+                                       "score": {
+                                         "percentage": 0.50
+                                       }
+                                     }
+                                   }
+                                 ],
+                                 "nextLink": "PAGE_TWO_LINK"
+                               }
+                               """.Replace("PAGE_TWO_LINK", pageTwoLink, StringComparison.Ordinal);
+
+        string secondPageBody = """
+                                {
+                                  "value": [
+                                    {
+                                      "name": "subscriptionScore",
+                                      "properties": {
+                                        "score": {
+                                          "percentage": 0.90
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                                """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                Assert.Equal(pageTwoLink, request.RequestUri?.AbsoluteUri);
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(secondPageBody)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmDefenderSummaryRecord> summaries =
+            await client.ListSubscriptionDefenderSummariesAsync(
+                "token-abc",
+                subscriptionId,
+                CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.Single(summaries);
+        Assert.Equal(90, summaries[0].SecureScore);
+    }
+
+    [Fact]
+    public async Task ListSubscriptionDefenderSummariesAsync_throws_when_next_link_targets_different_subscription()
+    {
+        const string requestedSubscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string otherSubscriptionId = "22222222-2222-2222-2222-222222222222";
+        const string crossSubscriptionNextLink =
+            $"https://management.azure.com/subscriptions/{otherSubscriptionId}/providers/Microsoft.Security/secureScores?api-version=2020-01-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "ascScore",
+                                     "properties": {
+                                       "score": {
+                                         "percentage": 0.72
+                                       }
+                                     }
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_SUBSCRIPTION_LINK"
+                               }
+                               """.Replace("CROSS_SUBSCRIPTION_LINK", crossSubscriptionNextLink, StringComparison.Ordinal);
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(firstPageBody)
+                }));
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListSubscriptionDefenderSummariesAsync(
+                "token-abc",
+                requestedSubscriptionId,
+                CancellationToken.None));
+
+        Assert.Contains("different subscription", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task ListSubscriptionDefenderSummariesAsync_throws_when_next_link_repeats()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string repeatingNextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Security/secureScores?api-version=2020-01-01&$skiptoken=repeat";
+
+        string body = """
+                      {
+                        "value": [
+                          {
+                            "name": "ascScore",
+                            "properties": {
+                              "score": {
+                                "percentage": 0.72
+                              }
+                            }
+                          }
+                        ],
+                        "nextLink": "REPEATING_LINK"
+                      }
+                      """.Replace("REPEATING_LINK", repeatingNextLink, StringComparison.Ordinal);
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(body)
+                }));
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListSubscriptionDefenderSummariesAsync(
+                "token-abc",
+                subscriptionId,
+                CancellationToken.None));
+
+        Assert.Contains("repeating nextLink", exception.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)
