@@ -2337,3 +2337,4 @@
 {"at":"2026-09-12T16:30:19.5266364Z","zoneId":"api-key-auth","outcome":"seed-only"}
 {"at":"2026-09-12T16:31:23.0745722Z","zoneId":"api-key-auth","outcome":"seed-only"}
 {"at":"2026-09-12T16:31:35.9134489Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
+{"at":"2026-09-12T16:31:47.8266978Z","zoneId":"host-composition","outcome":"seed-only"}
