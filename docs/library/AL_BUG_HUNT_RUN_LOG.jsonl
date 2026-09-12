@@ -2401,4 +2401,5 @@
 {"at":"2026-09-12T17:40:08.2192254Z","zoneId":"weekly-digest-email","outcome":"seed-only"}
 {"at":"2026-09-12T17:40:59.8437953Z","zoneId":"outbound-webhook-dry-run","outcome":"seed-only"}
 {"at":"2026-09-12T17:41:13.627713Z","zoneId":"architecture-recommendation","outcome":"seed-only"}
-{"at":"2026-09-12T17:41:26.9593300Z","zoneId":"extraction-router","outcome":"seed-only"}
+{"at":"2026-09-12T17:41:26.95933Z","zoneId":"extraction-router","outcome":"seed-only"}
+{"at":"2026-09-12T17:41:40.9883709Z","zoneId":"cli-tenant-isolation","outcome":"seed-only"}
