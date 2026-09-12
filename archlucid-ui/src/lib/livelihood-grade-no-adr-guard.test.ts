@@ -28,6 +28,7 @@ describe("livelihood-grade-no ADR guard (LN-001 / ADR 0093)", () => {
 
     expect(statusMatch, "ADR 0093 must declare Proposed or Accepted status").not.toBeNull();
     expect(LIVELIHOOD_GRADE_NO_ADR_0093_ACCEPTED_STATUSES).toContain(statusMatch![1]);
+    expect(statusMatch![1]).toBe("Accepted");
 
     expect(adr).toMatch(/hard infeasible/i);
     expect(adr).toMatch(/citation/i);

@@ -8,7 +8,7 @@
 
 ## Verdict
 
-**Shipped** on this branch for Working production seats, subject to residuals below. ADR **0093** (Proposed) authors policy; **LN-004** wires server export gate. Inventories name hard-infeasible and extraction provenance surfaces. Out-of-wave skips record LLM judge default-on, G-REAL-06, and density predicate rewrite.
+**Shipped** on this branch for Working production seats, subject to residuals below. ADR **0093** (**Accepted** 2026-09-12) authors policy; **LN-004** wires server export gate. Inventories name hard-infeasible and extraction provenance surfaces. Out-of-wave skips record LLM judge default-on, G-REAL-06, and density predicate rewrite.
 
 This audit does **not** claim insight-density engines closed, live estate proof, Gate 1 PASS, CPA SOC 2 (**G-REAL-05**), third-party pen-test publication (**G-ASSURANCE-02**), or LLM semantic judge default-on.
 
@@ -26,7 +26,7 @@ This audit does **not** claim insight-density engines closed, live estate proof,
 
 | Cluster | Prompts | Shipped? | Primary evidence | Residual |
 |---------|---------|----------|------------------|----------|
-| Kernel ADR + inventories | LN-001–003 | **Yes** | ADR 0093; hard + extraction inventories | ADR 0093 **Proposed** |
+| Kernel ADR + inventories | LN-001–003 | **Yes** | ADR 0093 (**Accepted**); hard + extraction inventories | — |
 | Gates | LN-004–009, LN-013–019, LN-036 | **Partial** | LN-004 server gate; LN-005 evidence-backed source pointer; 0078 leftovers documented | Playwright E2E not required |
 | Desk / copy / help | LN-006–008, LN-014, LN-021, LN-024, LN-034, LN-028 | **Yes** | Desk demoted-hard copy; help guides; finding inspect citation chips | — |
 | CLI / export / compare | LN-022–023, LN-037–038 | **Yes** | CLI `infeasible honesty`; compare citation delta; `SponsorFeasibilityHardCitationHonestyFormatter`; decision-receipt-export | — |
@@ -36,7 +36,6 @@ This audit does **not** claim insight-density engines closed, live estate proof,
 
 | Item | Tracking | Notes |
 |------|----------|-------|
-| ADR **0093** formal **Accepted** | LN-001 | Remains **Proposed** |
 | G-REAL-06 / host Mode flip | GTM (**LN-026**) | Explicit skip |
 | LLM judge default-on | TB-1228 (**LN-025**) | Explicit skip |
 | ADR **0070** predicate rewrite | DX (**LN-035**) | Explicit skip |

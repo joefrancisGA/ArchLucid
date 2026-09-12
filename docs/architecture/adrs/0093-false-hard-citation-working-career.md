@@ -4,8 +4,9 @@
 
 # ADR 0093: False-hard citation on Working Career
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-11
+- **Accepted:** 2026-09-12 (owner)
 - **Owner decision:** A confident **impossible** without a law, theorem, or invariant contradiction is a career-killing error (R5). Working Career persist/export must fail-close uncited **hard** infeasible. Soft infeasible remains an envelope. No 40th engine. No G-REAL-06.
 
 ## Context
