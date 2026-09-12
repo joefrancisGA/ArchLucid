@@ -7,6 +7,9 @@ export const FIRST_REVIEW_AZURE_INVENTORY_ZIP_PROMPT_TITLE = "Upload Azure inven
 export const FIRST_REVIEW_AZURE_INVENTORY_ZIP_PROMPT_BODY =
   "Run the read-only Azure packager in your tenant, then upload the resulting ZIP here. This is the V1 upload path — ArchLucid does not pull live subscription inventory unless your workspace has hosted extractor configured." as const;
 
+export const FIRST_REVIEW_INVENTORY_ZIP_MULTICLOUD_SCRIPTS_LINE =
+  "Azure: Get-ArchLucidAzurePackage.ps1 · AWS: Get-ArchLucidAwsPackage.ps1 · GCP: Get-ArchLucidGcpPackage.ps1" as const;
+
 const WORKSPACE_SCOPE_KEY = "__workspace__" as const;
 
 const SKIP_STORAGE_PREFIX = "archlucid.firstReview.azureInventoryZip.skipped." as const;

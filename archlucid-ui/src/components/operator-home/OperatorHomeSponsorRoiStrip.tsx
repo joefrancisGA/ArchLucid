@@ -15,6 +15,7 @@ import {
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { resolveSponsorHeadlineScopeLabel } from "@/lib/roi-sponsor-scope-labels";
 import {
   buildSponsorServerSavingsSummary,
@@ -109,6 +110,7 @@ export function OperatorHomeSponsorRoiStrip(): React.JSX.Element | null {
         {" ("}
         {scopeLabel}
         {"). "}
+        {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}{" "}
         <Link
           href="/insights/architecture-scorecard"
           className={OPERATOR_LINK.optional}

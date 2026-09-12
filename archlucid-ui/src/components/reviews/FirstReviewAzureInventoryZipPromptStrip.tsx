@@ -10,6 +10,7 @@ import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assu
 import {
   FIRST_REVIEW_AZURE_INVENTORY_ZIP_PROMPT_BODY,
   FIRST_REVIEW_AZURE_INVENTORY_ZIP_PROMPT_TITLE,
+  FIRST_REVIEW_INVENTORY_ZIP_MULTICLOUD_SCRIPTS_LINE,
   resolveFirstReviewAzureInventoryZipPrompt,
   writeFirstReviewAzureInventoryZipPromptSkipped,
 } from "@/lib/first-review/azure-inventory-zip-first-review-prompt";
@@ -111,6 +112,12 @@ export function FirstReviewAzureInventoryZipPromptStrip(
           </p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {FIRST_REVIEW_AZURE_INVENTORY_ZIP_PROMPT_BODY}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="first-review-inventory-zip-multicloud-scripts"
+          >
+            {FIRST_REVIEW_INVENTORY_ZIP_MULTICLOUD_SCRIPTS_LINE}
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">

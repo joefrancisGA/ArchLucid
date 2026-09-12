@@ -137,6 +137,15 @@ def _resolve_bundle_artifact_path(bundle_dir: Path, artifact: str) -> Path | Non
     return None
 
 
+def _faithfulness_warn_only_verdict(bundle_dir: Path) -> tuple[str, str]:
+    path = _resolve_bundle_artifact_path(bundle_dir, "faithfulness-nightly-warn-status.json")
+
+    if path is None or not path.is_file():
+        return ("NOT_RUN", "faithfulness-nightly-warn-status.json missing")
+
+    return ("WARN", "G-FAITH-01 warn-only scaffold attached; enforce flip still owner")
+
+
 def build_index(root: Path, bundle_dir: Path) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
     hold_count = 0
@@ -148,6 +157,8 @@ def build_index(root: Path, bundle_dir: Path) -> dict[str, Any]:
             verdict, detail = _claim_gate_verdict(bundle_dir)
         elif artifact == "real-llm-evidence-gate.json":
             verdict, detail = _real_mode_verdict(bundle_dir)
+        elif artifact == "faithfulness-nightly-warn-status.json":
+            verdict, detail = _faithfulness_warn_only_verdict(bundle_dir)
         else:
             verdict, detail = _artifact_verdict(bundle_dir, artifact, sponsor_critical)
 

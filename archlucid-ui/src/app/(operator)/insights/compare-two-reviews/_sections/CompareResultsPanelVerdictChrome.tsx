@@ -28,6 +28,7 @@ import { ComparePinToDeskActions } from "@/app/(operator)/insights/compare-two-r
 import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
 import { CompareClassificationBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareClassificationBandDeltaPanel";
 import { CompareTreatmentBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareTreatmentBandDeltaPanel";
+import { CompareRoiHeadlineDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRoiHeadlineDeltaPanel";
 import { CompareSemanticSupportBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSemanticSupportBandDeltaPanel";
 import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaBand";
 import { deriveCompareQualityDeltaFromGolden } from "@/lib/review-quality/compare-quality-delta";
@@ -97,6 +98,7 @@ export function CompareResultsPanelVerdictChrome({
     verdictSummary,
     findingCorrelationState,
     semanticSupportBandDeltaState,
+    roiHeadlineDeltaState,
     newFindingTrustLanes,
     result,
   } = viewModel;
@@ -170,6 +172,13 @@ export function CompareResultsPanelVerdictChrome({
         <CompareTreatmentBandDeltaPanel
           loading={semanticSupportBandDeltaState.loading}
           view={semanticSupportBandDeltaState.treatmentView}
+        />
+      ) : null}
+
+      {golden !== null ? (
+        <CompareRoiHeadlineDeltaPanel
+          loading={roiHeadlineDeltaState.loading}
+          view={roiHeadlineDeltaState.view}
         />
       ) : null}
 
