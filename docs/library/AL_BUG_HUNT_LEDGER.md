@@ -2242,7 +2242,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-09-12
@@ -4219,6 +4219,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-bug:** 2026-09-12 — hunt #2218: snake_case working_career_rehearsal_door ignored on CLI career export gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2233 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2218 (seed→hit): reseeded tenant-data-export with `-Hint tenant export`; proved snake_case `working_career_rehearsal_door` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_stamps_career_when_working_career_rehearsal_door_snake_case`.
 
