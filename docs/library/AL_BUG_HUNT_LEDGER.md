@@ -4456,13 +4456,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-09 — Unicode line separators bypassed #1410 newline collapse and enabled prompt field spoofing inside quarantine
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2136 (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2073 (seed-only): reseeded agent-runtime-safety; 4 scoped tests passed; no new hunt-ready rows
 

@@ -2455,3 +2455,4 @@
 {"at":"2026-09-12T18:52:02.7932875Z","zoneId":"tenant-settings-sql","outcome":"seed-only"}
 {"at":"2026-09-12T18:52:13.9947636Z","zoneId":"commit-output-integrity","outcome":"seed-only"}
 {"at":"2026-09-12T18:52:25.3439578Z","zoneId":"extraction-router","outcome":"seed-only"}
+{"at":"2026-09-12T18:52:36.7670801Z","zoneId":"agent-runtime-safety","outcome":"seed-only"}
