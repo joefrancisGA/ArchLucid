@@ -78,6 +78,7 @@ export function GraphPageCanvasShell(props: GraphPageCanvasShellProps): React.JS
             onPresentationViewChange={vm.setPresentationView}
             sampleGraphActive={vm.sampleGraphActive}
             operatorListFirst={vm.workingMode}
+            pinnedArchitectureId={vm.pinnedArchitectureId}
           />
         </>
       ) : null}
