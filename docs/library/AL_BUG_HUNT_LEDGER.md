@@ -4092,7 +4092,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -4160,6 +4160,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 thorough hunt #641 (hit): pilot sponsor gate omitted calibrated confidence + Phase B LLM faithfulness; confidence enrichment used host gate options instead of tenant resolver.
 
+
+2026-09-12 seed hunt #1922 (seed-only): reseeded application-pilots; scoped pilot artifact tests passed; no new hunt-ready defect proven this pass.
 ---
 
 ## Zone: agent-runtime-evaluation
