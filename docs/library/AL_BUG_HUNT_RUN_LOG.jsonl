@@ -2159,3 +2159,5 @@
 {"at":"2026-09-12T01:00:14.2704294Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
 {"at":"2026-09-12T01:00:15.1462249Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
 {"at":"2026-09-12T01:00:15.9576745Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
+{"at":"2026-09-12T01:15:53.385Z","zoneId":"artifact-synthesis","outcome":"hit"}
+{"at":"2026-09-12T01:15:53.6810769Z","zoneId":"artifact-synthesis","outcome":"hit"}
