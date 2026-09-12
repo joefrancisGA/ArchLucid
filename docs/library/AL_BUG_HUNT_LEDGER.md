@@ -3897,15 +3897,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — replay cost estimator ignored confidence-only agent deltas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+2026-09-12 seed hunt #1895 (seed-only): reseeded application-analysis; scoped tests passed; no hunt-ready defect proven this pass.
+
 
 - [x] (invalid) Analysis compares runs from different tenants when scope keys collide — rollup/compare loads runs via `IRunDetailQueryService` + `ScopeContext`; manifest reads are tenant-scoped; export records key on globally unique run GUIDs
 - [x] (candidate) Quality delta treats a failed run as higher quality than a succeeded run — **fixed 2026-08-18:** missing knowledge model substituted empty model, zeroing uncovered-mandatory "after" counts
