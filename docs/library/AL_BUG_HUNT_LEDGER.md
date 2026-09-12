@@ -9708,6 +9708,10 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 2026-09-12 seed hunt #1813 (hit): reseeded core-costing slash-day UOM parity; 136 scoped Costing tests passed.
 
+- [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — standalone and slash `/wk`/`/week` UOM rejected while hourly/daily/monthly synonyms already matched — **hit 2026-09-12 seed hunt #1910:** Azure Retail weekly consumption meters with bare `week`/`weeks`, `1/week`, or `/wk` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow`; fixed with `IsWeekMeter` + `WeeksPerMonthAssumption` parity with day/hour/month fixes; regressions in `AzureRetailPricesSkuMatchersSlashWeekTests`
+
+2026-09-12 seed hunt #1910 (hit): reseeded core-costing sibling UOM parity; proved standalone/slash weekly Azure retail gap; 142 scoped Costing tests passed.
+
 2026-09-07 seed hunt #1186 (hit): seeded zone from split catalog; proved GCP billing catalog pagination gap on live pricing probe.
 
 2026-09-07 thorough hunt #1260 (hit): proved region-blind and preemptible-first GCP catalog SKU selection; 114 scoped Costing unit tests passed.
@@ -10559,7 +10563,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -10654,6 +10658,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) Whitespace-only AWS `Region` reaches Resource Explorer — **cheap-disproof 2026-09-12 seed hunt #1836:** `CollectZipAsync_rejects_blank_region_before_token_fetch` (#1805).
 
 2026-09-12 seed hunts #1828–#1836 (seed-only): reseeded cloud-extractors pagination/input-guard parity rows; 62 scoped Azure extractor + 51 AWS/GCP extractor unit tests passed.
+
+2026-09-12 seed hunt #1911 (seed-only): reseeded cloud-extractors; cheap-disproof closed management-group subscription and role-eligibility nextLink scope guards as already covered by `EnsureTargetsManagementGroup`; 62 scoped Azure extractor + 51 AWS/GCP extractor unit tests passed.
+
+- [x] (valid-no-repro) `ListManagementGroupSubscriptionIdsAsync` follows cross-management-group `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1911:** `EnsureTargetsManagementGroup` on MG subscription pagination (#1832).
+- [x] (valid-no-repro) `ListManagementGroupRoleEligibilitySchedulesAsync` follows cross-management-group `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1911:** shared `ListRoleEligibilitySchedulesAtRestPathAsync` uses `EnsureTargetsManagementGroup`.
 
 ---
 
