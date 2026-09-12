@@ -275,8 +275,15 @@ export function DiagramsWorkbenchClient() {
   useEffect(() => {
     setSeedNodeDraft(urlSeedNodeId);
 
-    if (urlMermaidMode === "dependencyNeighborhood") {
-      setAppliedSeedNodeId(urlSeedNodeId);
+    if (urlMermaidMode !== "dependencyNeighborhood") {
+      setAppliedSeedNodeId("");
+      return;
+    }
+
+    const trimmedUrlSeed = urlSeedNodeId.trim();
+
+    if (trimmedUrlSeed.length > 0) {
+      setAppliedSeedNodeId(trimmedUrlSeed);
     }
   }, [urlMermaidMode, urlSeedNodeId]);
 
@@ -824,9 +831,17 @@ export function DiagramsWorkbenchClient() {
       setSeedNodeDraft(trimmedSeed);
       setAppliedSeedNodeId(trimmedSeed);
       setDependencySeedBlockedDialog(null);
+      setRenderResult(null);
+      setLoadError(null);
       setSelectedMode("dependencyNeighborhood");
       setSelectedViewKey("");
       syncUrl({ mermaidMode: "dependencyNeighborhood", mermaidView: "", seedNodeId: trimmedSeed });
+
+      const primaryContent = document.getElementById(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID);
+
+      if (primaryContent != null) {
+        primaryContent.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     },
     [syncUrl],
   );

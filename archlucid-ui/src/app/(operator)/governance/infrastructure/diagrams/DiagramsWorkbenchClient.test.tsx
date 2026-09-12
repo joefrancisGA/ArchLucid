@@ -180,6 +180,24 @@ describe("DiagramsWorkbenchClient", () => {
   });
 
   it("renders human-readable snapshot label above the diagram", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "flowchart LR\n  A-->B",
+      metrics: {
+        nodeCount: 2,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 120,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+    }));
+
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DiagramsWorkbenchClient />);
 
@@ -621,6 +639,84 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("dependencyNeighborhood");
     expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue(seedId);
+  });
+
+  it("clears the stale executive diagram while focusing a dependency neighborhood", async () => {
+    const seedId = "22222222-2222-2222-2222-222222222222";
+    let dependencyFetchStarted = false;
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
+      if (query.mode === "dependencyNeighborhood") {
+        dependencyFetchStarted = true;
+
+        await new Promise((resolve) => {
+          setTimeout(resolve, 50);
+        });
+
+        return {
+          snapshotId: "11111111-1111-1111-1111-111111111111",
+          mode: "dependencyNeighborhood",
+          fallbackKey: null,
+          status: "Succeeded",
+          mermaid: 'flowchart TD\n    n_vnet["focused-neighborhood"]',
+          metrics: {
+            nodeCount: 3,
+            edgeCount: 2,
+            subgraphCount: 0,
+            maxDegree: 2,
+            crossSubgraphEdgeCount: 0,
+            textSizeBytes: 400,
+            layoutEstimate: 200,
+          },
+          fallbackArtifacts: [],
+        };
+      }
+
+      return {
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        mode: query.mode ?? "executive",
+        fallbackKey: query.fallbackKey ?? null,
+        status: "Succeeded",
+        mermaid: [
+          "flowchart TD",
+          `    %% al-type=Microsoft.Network/virtualNetworks al-rg=anly-aep-test-hi al-seed=${seedId}`,
+          '    n_vnet["vnet-aep-hi-test-wus-001"]',
+        ].join("\n"),
+        metrics: {
+          nodeCount: 11,
+          edgeCount: 10,
+          subgraphCount: 0,
+          maxDegree: 2,
+          crossSubgraphEdgeCount: 0,
+          textSizeBytes: 400,
+          layoutEstimate: 200,
+        },
+        fallbackArtifacts: [],
+      };
+    });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Focus neighborhood from vnet-aep-hi-test-wus-001" }),
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
+    });
+    expect(dependencyFetchStarted).toBe(true);
+
+    expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+    expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+      "11111111-1111-1111-1111-111111111111",
+      expect.objectContaining({
+        mode: "dependencyNeighborhood",
+        seedNodeId: seedId,
+      }),
+    );
   });
 
   it("shows resource group cards when Pick a Resource Group is selected", async () => {
