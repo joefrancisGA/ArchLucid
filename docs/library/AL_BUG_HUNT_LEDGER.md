@@ -3415,13 +3415,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — activation persisted invisible-only claim-mapping IdpValue/ArchLucidRole entries
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-12 seed hunt #2120 (seed-only): reseeded identity-provider-config with `-Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
 
