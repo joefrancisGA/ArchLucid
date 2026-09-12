@@ -12,5 +12,6 @@ public interface IRecurrenceCompletionEmailDispatcher
         int resolvedFindingCount,
         Guid sourceRunId,
         IReadOnlyList<string> toMailboxes,
+        Guid? architectureId,
         CancellationToken cancellationToken);
 }

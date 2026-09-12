@@ -1,9 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Headers;
 
-using ArchLucid.Cli.SecondRun;
-using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Requests;
+using ArchLucid.Application.Operator;
 
 namespace ArchLucid.Cli.Commands;
 
@@ -157,7 +155,8 @@ internal static class SecondRunCommand
 
         string firstValueUrl =
             $"{baseUrl}/v1/pilots/runs/{Uri.EscapeDataString(runId)}/first-value-report";
-        string runUrl = $"{options.UiBaseUrl.TrimEnd('/')}/runs/{Uri.EscapeDataString(runId)}";
+        string runUrl =
+            $"{options.UiBaseUrl.TrimEnd('/')}{WorkingOperatorReviewLinks.BuildReviewWorkspaceRelativePath(runId, null)}";
 
         await Console.Out.WriteLineAsync();
         await Console.Out.WriteLineAsync($"First-value report URL: {firstValueUrl}");

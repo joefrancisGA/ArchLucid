@@ -237,6 +237,7 @@ public sealed class AuthorityPipelineFindingsStage(
                 _authorityQueryService,
                 _manifestHashService,
                 _publicSiteOptions.CurrentValue.BaseUrl,
+                run.ArchitectureId,
                 context.UnitOfWork.SupportsExternalTransaction ? context.UnitOfWork.Connection : null,
                 context.UnitOfWork.SupportsExternalTransaction ? context.UnitOfWork.Transaction : null,
                 cancellationToken);

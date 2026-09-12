@@ -74,6 +74,7 @@ public sealed class GlobalSearchResponse
                     Description = r.Description,
                     AuthorityProjectSlug = r.AuthorityProjectSlug,
                     CreatedUtc = r.CreatedUtc,
+                    ArchitectureId = r.ArchitectureId,
                 })
                 .ToList(),
             Findings = result.Findings
@@ -83,6 +84,7 @@ public sealed class GlobalSearchResponse
                     FindingId = f.FindingId,
                     Title = f.Title,
                     Severity = f.Severity,
+                    ArchitectureId = f.ArchitectureId,
                 })
                 .ToList(),
             PolicyPacks = result.PolicyPacks
@@ -122,11 +124,23 @@ public sealed class GlobalSearchRunResponse
         get;
         init;
     }
+
+    public Guid? ArchitectureId
+    {
+        get;
+        init;
+    }
 }
 
 public sealed class GlobalSearchFindingResponse
 {
     public Guid RunId
+    {
+        get;
+        init;
+    }
+
+    public Guid? ArchitectureId
     {
         get;
         init;

@@ -4835,6 +4835,8 @@ export interface components {
             passed?: boolean;
         };
         GlobalSearchFindingResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             findingId?: string;
             /** Format: uuid */
             runId?: string;
@@ -4853,6 +4855,8 @@ export interface components {
             runs?: components["schemas"]["GlobalSearchRunResponse"][];
         };
         GlobalSearchRunResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             authorityProjectSlug?: null | string;
             /** Format: date-time */
             createdUtc?: string;

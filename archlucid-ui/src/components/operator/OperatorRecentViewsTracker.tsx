@@ -11,6 +11,7 @@ import {
   persistDeskContinuityPatch,
   writeCachedLastOpenArchitectureId,
 } from "@/lib/desk-continuity-preference";
+import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
 import {
   persistRecentViewsState,
   readStoredRecentViewsState,
@@ -41,11 +42,16 @@ export function OperatorRecentViewsTracker(): null {
     try {
       const state = readStoredRecentViewsState();
       const architectureId = extractArchitectureIdentityIdFromPathname(pathname, search);
+      const nestedRoute = parseArchitectureNestedRoute(pathname);
+      const parentArchitectureId =
+        architectureId ??
+        (nestedRoute?.childKind === "reviews" ? nestedRoute.architectureId : null);
       const next = recordRecentView(state, {
         href,
         label,
         kind: recentViewKindFromPathname(pathname, search),
         ...(architectureId !== null ? { architectureId } : {}),
+        ...(parentArchitectureId !== null ? { parentArchitectureId } : {}),
       });
 
       persistRecentViewsState(next);
