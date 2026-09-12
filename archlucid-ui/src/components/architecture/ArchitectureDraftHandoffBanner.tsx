@@ -29,6 +29,7 @@ export function ArchitectureDraftHandoffBanner(
     <div
       role="alert"
       data-testid="architecture-draft-handoff-banner"
+      data-spawn-lock-url-honesty="snapshot"
       className={cn(DESIGN_TOKENS.callout.warn, "p-4 shadow-sm", OPERATOR_TYPOGRAPHY.body)}
     >
       <p className="m-0 font-semibold">{buildArchitectureDraftHandoffBannerTitle(props.linkedReviewTitle)}</p>

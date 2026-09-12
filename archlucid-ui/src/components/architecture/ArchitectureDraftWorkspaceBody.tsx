@@ -235,7 +235,7 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
     );
   }
 
-  if (isWorkingMode && handoffEditorLocked && linkedReviewId !== null) {
+  if (handoffEditorLocked && linkedReviewId !== null) {
     return (
       <div className="space-y-4" data-testid="architecture-draft-workspace">
         <WorkingNestedDraftIdentityAnchors parentArchitectureId={props.parentArchitectureId} />

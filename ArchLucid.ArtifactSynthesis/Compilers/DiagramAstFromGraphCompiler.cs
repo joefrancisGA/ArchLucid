@@ -85,6 +85,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
         DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode);
+        DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
 
         return ast;
@@ -109,7 +110,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         switch (mode)
         {
             case DiagramMode.Executive:
-                return ApplyExecutiveFilter(nodes);
+                return IncludeInventoryConnectedVirtualMachines(graph, ApplyExecutiveFilter(nodes));
             case DiagramMode.Architecture:
                 return FilterByCategories(
                     nodes,
@@ -117,7 +118,9 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                     GraphTopologyCategories.Network,
                     GraphTopologyCategories.Storage);
             case DiagramMode.Network:
-                return FilterByCategories(nodes, GraphTopologyCategories.Network);
+                return IncludeInventoryConnectedVirtualMachines(
+                    graph,
+                    FilterByCategories(nodes, GraphTopologyCategories.Network));
             case DiagramMode.Security:
                 return FilterSecurityNodes(nodes);
             case DiagramMode.Identity:
@@ -153,6 +156,60 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         return summaryNodes
             .Take(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes)
             .ToList();
+    }
+
+    private static List<GraphNode> IncludeInventoryConnectedVirtualMachines(
+        GraphSnapshot graph,
+        List<GraphNode> nodes)
+    {
+        HashSet<string> includedNodeIds = nodes
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        Dictionary<string, GraphNode> nodesById = graph.Nodes.ToDictionary(
+            node => node.NodeId,
+            StringComparer.Ordinal);
+
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (edge.Weight < DiagramAstFromGraphCompilerConstants.MinimumEdgeWeight)
+            {
+                continue;
+            }
+
+            if (!edge.EdgeType.Equals(GraphEdgeTypes.ConnectsTo, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (!nodesById.TryGetValue(edge.FromNodeId, out GraphNode? fromNode)
+                || !nodesById.TryGetValue(edge.ToNodeId, out GraphNode? toNode))
+            {
+                continue;
+            }
+
+            if (includedNodeIds.Contains(edge.FromNodeId) && IsVirtualMachineNode(toNode))
+            {
+                nodes.Add(toNode);
+                includedNodeIds.Add(toNode.NodeId);
+            }
+
+            if (includedNodeIds.Contains(edge.ToNodeId) && IsVirtualMachineNode(fromNode))
+            {
+                nodes.Add(fromNode);
+                includedNodeIds.Add(fromNode.NodeId);
+            }
+        }
+
+        return nodes
+            .OrderBy(DiagramAstGraphNodeClassifier.ReadArmId, StringComparer.Ordinal)
+            .ToList();
+    }
+
+    private static bool IsVirtualMachineNode(GraphNode node)
+    {
+        return DiagramAstGraphNodeClassifier.ReadArmType(node)
+            .Contains("virtualMachines", StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<GraphNode> FilterByCategories(List<GraphNode> nodes, params string[] categories)

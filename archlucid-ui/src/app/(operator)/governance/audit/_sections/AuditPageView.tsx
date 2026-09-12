@@ -50,6 +50,7 @@ import { CtoDemoAuditIntegrityExportButton } from "@/components/cto-demo/CtoDemo
 import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
 
 import { AuditTrailIntegrityNote } from "@/components/audit/AuditTrailIntegrityNote";
+import { AuditDualChannelHonestyNote } from "@/components/audit/AuditDualChannelHonestyNote";
 import { AuditBuyerHeaderMetrics } from "./AuditBuyerHeaderMetrics";
 import { AuditOperatorExportSection } from "./AuditOperatorExportSection";
 import { AuditPageBreadcrumb } from "./AuditPageBreadcrumb";
@@ -224,6 +225,7 @@ export function AuditPageView(props: AuditPageViewProps) {
       ) : null}
 
       {!buyerPolishedShell ? <AuditTrailIntegrityNote /> : null}
+      {!buyerPolishedShell ? <AuditDualChannelHonestyNote className="mt-2" /> : null}
 
       {props.ctoDemoAuditFilterActive ? (
         <div
