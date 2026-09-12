@@ -273,7 +273,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("verifiedaccess", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("workloads_orchestrator", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("extended_location", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("confidential_ledger", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("confidential_ledger", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("site_recovery", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
