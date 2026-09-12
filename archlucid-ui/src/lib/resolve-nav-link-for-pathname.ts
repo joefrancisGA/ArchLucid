@@ -1,7 +1,16 @@
 import type { LucideIcon } from "lucide-react";
 
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { flattenNavLinks } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config.types";
+
+/** SecureNow routes that reuse governance nav-config identity (icon + longest-prefix match). */
+const SECURENOW_NAV_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
+  [SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH]: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+};
 
 function hrefToPathname(href: string): string {
   try {
@@ -9,6 +18,10 @@ function hrefToPathname(href: string): string {
   } catch {
     return href.split("?")[0] ?? href;
   }
+}
+
+function normalizeNavLookupPathname(pathname: string): string {
+  return SECURENOW_NAV_LOOKUP_ALIASES[pathname] ?? pathname;
 }
 
 function pathMatchesNavHref(pathname: string, linkHref: string | undefined): boolean {
@@ -39,7 +52,7 @@ function pathMatchesNavHref(pathname: string, linkHref: string | undefined): boo
  * Navigation config is the authoritative source for route identity icons.
  */
 export function resolveNavLinkForPathname(pathname: string): NavLinkItem | undefined {
-  const normalizedPath = hrefToPathname(pathname);
+  const normalizedPath = normalizeNavLookupPathname(hrefToPathname(pathname));
   let bestMatch: NavLinkItem | undefined;
   let bestLength = -1;
 

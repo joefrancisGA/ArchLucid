@@ -8,6 +8,7 @@ import { HelpAzureBoardsSetupStepCtAs } from "@/app/(operator)/help/_sections/He
 import { HelpAzureBoardsSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpAzureBoardsSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { AzureBoardsHelpClaimDisciplineStrip } from "@/components/help/AzureBoardsHelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -206,6 +207,8 @@ export function HelpAzureBoardsGuideView(props: HelpAzureBoardsGuideViewProps): 
         ) : (
           <AzureBoardsActionPanel showInlineSources />
         )}
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-azure-boards" showSsoOptional={false} />
 
         <div className={HELP_PAGE_LAYOUT.contentGrid}>
           <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-azure-boards-content">

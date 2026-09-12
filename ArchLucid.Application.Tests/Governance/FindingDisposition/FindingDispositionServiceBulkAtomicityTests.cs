@@ -118,6 +118,28 @@ public sealed class FindingDispositionServiceBulkAtomicityTests
     }
 
     [Fact]
+    public async Task RecordBulkAsync_rejects_case_variant_duplicate_finding_ids_in_single_batch()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        RecordFindingDispositionRequest first = CreateRequest(
+            "Finding-A",
+            FindingDispositionKind.Accepted,
+            "first accepted disposition",
+            tradeOffAcknowledgment: "accepting first disposition trade-off for pilot scope");
+        RecordFindingDispositionRequest second = CreateRequest(
+            "finding-a",
+            FindingDispositionKind.Remediated,
+            "second remediated disposition for same finding");
+
+        Func<Task> act = () => sut.RecordBulkAsync([first, second], Scope, "bob", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithMessage("*duplicate finding*");
+        trailRepository.EventCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task RecordBulkAsync_rejects_invalid_base64_expected_row_version_before_repository()
     {
         ConcurrentFindingReviewTrailRepository trailRepository = new();

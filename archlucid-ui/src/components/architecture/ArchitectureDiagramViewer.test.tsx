@@ -349,6 +349,28 @@ describe('ArchitectureDiagramViewer', () => {
     expect(viewport).toContainElement(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION }));
   });
 
+  it('places stacked viewport controls above the diagram viewport when requested', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+        viewportControlsLayout="stacked"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-viewport')).toBeInTheDocument();
+    });
+
+    const viewport = screen.getByTestId('architecture-diagram-viewport');
+    const controls = screen.getByTestId('architecture-diagram-viewport-controls');
+
+    expect(viewport).not.toContainElement(controls);
+    expect(controls.compareDocumentPosition(viewport) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('zooms the mermaid viewport with ctrl+wheel', async () => {
     replaceMock.mockClear();
 

@@ -8,6 +8,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { PathChooserHelpClaimDisciplineStrip } from "@/components/help/PathChooserHelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { PathChooserHelpRelatedNextStepsStrip } from "@/components/help/PathChooserHelpRelatedNextStepsStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
@@ -227,6 +228,8 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
             >
               {firstViewportBody}
             </div>
+
+            <SponsorSendPathHonestyPanel testIdPrefix="help-path-chooser" showSsoOptional={false} />
 
             <section
               aria-labelledby="help-path-chooser-reference-heading"

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpSoc2SelfAssessmentHeaderMetadata } from "@/app/(operator)/help/_sections/HelpSoc2SelfAssessmentHeaderMetadata";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Soc2SelfAssessmentHelpClaimDisciplineStrip } from "@/components/help/Soc2SelfAssessmentHelpClaimDisciplineStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -129,6 +130,8 @@ export function HelpSoc2SelfAssessmentGuideView(
               </Link>
             </div>
           </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-soc2-self-assessment" showSsoOptional={false} />
 
           <section
             aria-labelledby="help-soc2-self-assessment-job-matrix-heading"
