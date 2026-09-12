@@ -4805,13 +4805,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — IdentityRegulatedDatastoreClassifier non-private baseline false positive on pci token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-12 seed hunt #2156 (seed-only): reseeded decisioning with `-Hint decisioning`; no new hunt-ready rows.
+
 
 2026-09-12 seed hunt #2117 (seed-only): reseeded decisioning; no new hunt-ready rows.
 
@@ -10853,6 +10855,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ProjectContainerSecurityContext` — snake_case `ephemeral_containers` not walked — **hit 2026-09-12 seed hunt #2102:** exporter kubernetes-json with `ephemeral_containers` and `security_context.privileged` missed `k8s.privileged` while `init_containers` and `containers` worked; fixed with `TryGetPropertyIgnoreCaseOrSnakeCase` on ephemeral container array; regression `ParseAsync_snake_case_ephemeral_containers_projects_privileged_security_context`.
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.TryAddResource` — snake_case `api_version` not projected — **hit 2026-09-12 seed hunt #2140:** exporter kubernetes-json with `api_version` omitted `k8s.apiVersion` while camelCase `apiVersion` worked; fixed with `ReadTopLevelStringIgnoreCaseOrSnakeCase`; regression `ParseAsync_snake_case_api_version_projects_k8s_api_version`.
 - [x] (proven) `CanonicalInfrastructureJsonElementReader.ReadMetadataString` — snake_case `meta_data` omitted resource name/namespace — **hit 2026-09-12 seed hunt #2154:** exporter kubernetes-json with `meta_data` instead of `metadata` dropped the entire resource because `ReadMetadataString` only resolved camelCase `metadata`; fixed with `TryGetMetadataObject` alias; regression `ParseAsync_snake_case_meta_data_key_resolves_resource_name`.
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.ResolvePodSpec` — snake_case `pod_template` omitted pod security projection — **hit 2026-09-12 seed hunt #2155:** exporter kubernetes-json with `pod_template` instead of `template` under Deployment spec skipped `ProjectContainerSecurityContext`; fixed with `TryGetWorkloadPodTemplate` alias; regression `ParseAsync_snake_case_pod_template_projects_privileged`.
 - [x] (invalid) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` — `values` loop skips `ShouldRedactKey` when `sensitive_values` absent — **cheap-disproof 2026-09-12 thorough hunt #1958:** terraform-show-json only redacts fields terraform marks in `sensitive_values`; absent marking means plaintext is intentional state output, not a parser leak.
 
 2026-09-12 thorough hunt #1958 (hit): proved K8s snake_case security_context projection gap; cheap-disproof closed terraform redaction-without-sensitive_values candidate; scoped context-ingestion tests passed.
