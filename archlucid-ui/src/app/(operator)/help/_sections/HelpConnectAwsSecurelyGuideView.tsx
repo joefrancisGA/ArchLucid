@@ -8,6 +8,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { AwsCloudConnectionPermissionsTable } from "@/components/help/AwsCloudConnectionPermissionsTable";
 import { ConnectAwsSecurelyHelpClaimDisciplineStrip } from "@/components/help/ConnectAwsSecurelyHelpClaimDisciplineStrip";
 import { ConnectAwsSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectAwsSecurelyHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpConnectAwsSecurelyBreadcrumb } from "@/components/help/HelpConnectAwsSecurelyBreadcrumb";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -364,6 +365,8 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
                 ))}
               </ul>
             </section>
+
+            <SponsorSendPathHonestyPanel testIdPrefix="help-connect-aws-securely" showSsoOptional={false} />
           </div>
           <HelpTopicTableOfContents headings={CONNECT_AWS_SECURELY_TOC_HEADINGS} enableScrollSpy />
         </div>
