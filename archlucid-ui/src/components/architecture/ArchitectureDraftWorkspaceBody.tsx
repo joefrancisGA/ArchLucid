@@ -42,6 +42,7 @@ import {
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ReviewStartStageId } from "@/lib/review-start-progress-stages";
+import { shouldRenderSpawnLockedHandoffLayout } from "@/lib/system-not-job-spawn-lock-handoff-layout";
 import { cn } from "@/lib/utils";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
@@ -240,7 +241,7 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
     );
   }
 
-  if (handoffEditorLocked && linkedReviewId !== null) {
+  if (shouldRenderSpawnLockedHandoffLayout({ handoffEditorLocked, linkedReviewId })) {
     return (
       <div className="space-y-4" data-testid="architecture-draft-workspace">
         <WorkingNestedDraftIdentityAnchors
