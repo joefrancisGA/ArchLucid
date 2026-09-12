@@ -229,6 +229,20 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
         const rect = node.getBoundingClientRect();
         return { x: rect.x, y: rect.y, w: rect.width, h: rect.height };
       });
+      const sortedByRow = [...nodeRects].sort((left, right) => left.y - right.y || left.x - right.x);
+      const rowTolerance = Math.max(8, (sortedByRow[0]?.h ?? 0) * 0.35);
+      const firstRow = sortedByRow.filter(
+        (node) => Math.abs(node.y - (sortedByRow[0]?.y ?? 0)) <= rowTolerance,
+      );
+      firstRow.sort((left, right) => left.x - right.x);
+      const horizontalGaps: number[] = [];
+
+      for (let index = 1; index < firstRow.length; index += 1) {
+        horizontalGaps.push(firstRow[index]!.x - (firstRow[index - 1]!.x + firstRow[index - 1]!.w));
+      }
+
+      const minY = nodeRects.reduce((acc, node) => Math.min(acc, node.y), Number.POSITIVE_INFINITY);
+      const maxY = nodeRects.reduce((acc, node) => Math.max(acc, node.y + node.h), Number.NEGATIVE_INFINITY);
 
       const visibleNodeCount = nodeRects.filter((node) => {
         const intersectionW = Math.max(
@@ -310,7 +324,7 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
         }
 
         const distance = Math.hypot(from.cx - to.cx, from.cy - to.cy);
-        const threshold = Math.max(280, 3.5 * Math.max(from.w, from.h, to.w, to.h));
+        const threshold = Math.max(180, 2.5 * Math.max(from.w, from.h, to.w, to.h));
         peeringPairs.push({ distance, threshold });
       }
 
@@ -323,6 +337,11 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
         viewBoxHeight,
         unionWidth,
         unionHeight,
+        heightSpanRatio: (maxY - minY) / viewportRect.height,
+        maxHorizontalGapRatio:
+          horizontalGaps.length === 0
+            ? 0
+            : Math.max(...horizontalGaps) / Math.max(1, firstRow[0]?.w ?? 1),
         peeringPairs,
         edgePathCount: svg.querySelectorAll("g.edgePaths path").length,
         outlineEdgeRows:
@@ -341,12 +360,14 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
     }
 
     expect(metrics).not.toBeNull();
-    expect(metrics?.visibleNodeCount).toBeGreaterThanOrEqual(4);
+    expect(metrics?.visibleNodeCount).toBeGreaterThanOrEqual(8);
     expect(metrics?.minNodeHeight).toBeGreaterThanOrEqual(minNodeHeightPx);
     expect(metrics?.outlineEdgeRows).toBe(6);
     expect(metrics?.edgePathCount).toBeGreaterThanOrEqual(6);
-    expect(metrics?.viewBoxWidth).toBeLessThanOrEqual((metrics?.unionWidth ?? 0) * 1.5 + 1);
-    expect(metrics?.viewBoxHeight).toBeLessThanOrEqual((metrics?.unionHeight ?? 0) * 1.5 + 1);
+    expect(metrics?.heightSpanRatio).toBeLessThanOrEqual(0.7);
+    expect(metrics?.maxHorizontalGapRatio).toBeLessThanOrEqual(0.5);
+    expect(metrics?.viewBoxWidth).toBeLessThanOrEqual((metrics?.unionWidth ?? 0) * 1.2 + 1);
+    expect(metrics?.viewBoxHeight).toBeLessThanOrEqual((metrics?.unionHeight ?? 0) * 1.2 + 1);
 
     for (const pair of metrics?.peeringPairs ?? []) {
       expect(pair.distance).toBeLessThanOrEqual(pair.threshold);

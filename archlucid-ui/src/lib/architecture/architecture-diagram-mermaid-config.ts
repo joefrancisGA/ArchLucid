@@ -5,13 +5,13 @@ export const ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE = {
 } as const;
 
 /** Horizontal gap between dagre-ranked nodes (Mermaid flowchart.nodeSpacing). */
-export const ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING = 28;
+export const ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING = 16;
 
 /** Vertical gap between dagre ranks (Mermaid flowchart.rankSpacing). */
-export const ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING = 32;
+export const ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING = 20;
 
 /** Padding around the whole flowchart plate (Mermaid flowchart.padding). */
-export const ARCHITECTURE_DIAGRAM_MERMAID_PADDING = 10;
+export const ARCHITECTURE_DIAGRAM_MERMAID_PADDING = 6;
 
 /** Max label width before Mermaid wraps long VNet names (flowchart.wrappingWidth). */
 export const ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH = 240;
@@ -43,8 +43,8 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
     fontFamily: "ui-sans-serif, system-ui, sans-serif",
     flowchart: {
       htmlLabels: false,
-      // basis + tight-tree spread disconnected peering pairs across a padded plate;
-      // linear + network-simplex keeps connectors short and packs unrelated components.
+      // IDL-07 briefly loosened gaps for the zero-edge grid; IDT-01 re-tightens for sparse forests.
+      // linear + network-simplex keeps connectors short; basis + tight-tree spreads components apart.
       curve: "linear",
       padding: ARCHITECTURE_DIAGRAM_MERMAID_PADDING,
       nodeSpacing: ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING,

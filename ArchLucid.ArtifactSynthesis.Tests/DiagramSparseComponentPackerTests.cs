@@ -24,10 +24,11 @@ public sealed class DiagramSparseComponentPackerTests
         DiagramEdgeVisibility.CountVisible(ast.Edges).Should().Be(6);
         ast.Subgraphs.Should().OnlyContain(subgraph => DiagramSparseComponentPacker.IsPackingSubgraph(subgraph));
         ast.Subgraphs.Count.Should().Be(5);
-        mermaid.Should().Contain("~~~");
+        mermaid.Split("~~~", StringSplitOptions.None).Length.Should().BeGreaterThanOrEqualTo(5);
         mermaid.Should().Contain("-->|\"peered\"|");
         mermaid.Should().Contain("subgraph alpack_");
         mermaid.Should().Contain("style alpack_0 fill:transparent,stroke:none");
+        mermaid.Should().Contain("classDef alpackCluster fill:transparent,stroke:none");
     }
 
     [Fact]

@@ -55,6 +55,7 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         }
 
         AppendEdges(ast, sb);
+        AppendPackingClusterClassDefs(ast, sb);
 
         return sb.ToString();
     }
@@ -67,6 +68,25 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         }
 
         AppendEdges(ast, sb);
+        AppendPackingClusterClassDefs(ast, sb);
+    }
+
+    private static void AppendPackingClusterClassDefs(DiagramAst ast, StringBuilder sb)
+    {
+        List<string> packingSubgraphIds = ast.Subgraphs
+            .Where(DiagramSparseComponentPacker.IsPackingSubgraph)
+            .Select(subgraph => MermaidIdSanitizer.Sanitize(subgraph.SubgraphId))
+            .OrderBy(subgraphId => subgraphId, StringComparer.Ordinal)
+            .ToList();
+
+        if (packingSubgraphIds.Count == 0)
+        {
+            return;
+        }
+
+        // classDef keeps alpack cluster chrome invisible; dagre still needs the compound wrapper.
+        sb.AppendLine("    classDef alpackCluster fill:transparent,stroke:none");
+        sb.AppendLine($"    class {string.Join(',', packingSubgraphIds)} alpackCluster");
     }
 
     private static void RenderSubgraphTree(

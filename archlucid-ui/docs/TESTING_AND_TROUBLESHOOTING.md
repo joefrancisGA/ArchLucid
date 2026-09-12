@@ -437,7 +437,7 @@ $env:MOCK_E2E_SKIP_NEXT_BUILD = "1"
 npx playwright test -c playwright.operator-mock.config.ts infra-diagrams-layout
 ```
 
-Use the same origin the standalone server logs for **`page.goto`** (**`127.0.0.1`** vs **`localhost`** mismatch can trigger the Next dev-origin block). The sparse-peering case lives in the same **`infra-diagrams-layout`** file as the IDL-06 grid and chain cases.
+Use the same origin the standalone server logs for **`page.goto`** (**`127.0.0.1`** vs **`localhost`** mismatch can trigger the Next dev-origin block). The sparse-peering case lives in the same **`infra-diagrams-layout`** file as the IDL-06 grid and chain cases. After **IDT-03**, that case also asserts **8/11** nodes visible at default zoom, **`maxHorizontalGapRatio ≤ 0.5`**, and a tighter viewBox-to-ink ratio than IDS-04.
 
 **From the repo root:** **`test-ui-smoke.cmd`** / **`test-ui-smoke.ps1`** ( **`npm ci`**, browser install, **`npm run test:e2e`** ).
 
