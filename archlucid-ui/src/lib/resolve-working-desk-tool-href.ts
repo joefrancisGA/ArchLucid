@@ -15,6 +15,7 @@ import { governanceFindingsArchitectureScopeHrefFromSearch } from "@/lib/governa
 import { extractArchitectureIdentityIdFromPathname } from "@/lib/desk-continuity-preference";
 import { resolveOpenPackageRunId } from "@/lib/resolve-open-package-run-id";
 import { resolveSystemNotJobWorkingAskPortfolioHref } from "@/lib/system-not-job-ask-bound-to-open-package";
+import { resolveSystemNotJobWorkingGraphPortfolioHref } from "@/lib/system-not-job-graph-bound-to-open-package";
 
 export type WorkingDeskTool = "ask" | "compare" | "graph" | "findings";
 
@@ -59,6 +60,10 @@ export function resolveWorkingDeskToolHref(input: ResolveWorkingDeskToolHrefInpu
   if (architectureId === null) {
     if (input.tool === "ask") {
       return resolveSystemNotJobWorkingAskPortfolioHref();
+    }
+
+    if (input.tool === "graph") {
+      return resolveSystemNotJobWorkingGraphPortfolioHref();
     }
 
     return ARCHITECTURES_LIST_PATH;
