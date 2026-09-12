@@ -1,3 +1,4 @@
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import {
@@ -99,6 +100,7 @@ export function GovernanceResolutionExportControls(
           Refresh policy resolution data before exporting a diagnostic report.
         </p>
       ) : null}
+      <SponsorExportSendHonestyStrip className="mt-3 max-w-xl" testIdPrefix="governance-resolution-export" />
     </section>
   );
 }

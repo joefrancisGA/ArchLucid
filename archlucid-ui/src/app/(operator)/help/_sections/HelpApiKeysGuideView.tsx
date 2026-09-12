@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpApiKeysClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpApiKeysClaimOrientationStrip";
 import { HelpApiKeysHeaderActions } from "@/app/(operator)/help/_sections/HelpApiKeysHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -145,6 +146,8 @@ export function HelpApiKeysGuideView(props: HelpApiKeysGuideViewProps): React.Re
               {API_KEYS_HELP_OVERVIEW}
             </p>
           )}
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-api-keys" showSsoOptional={false} />
 
           <section
             id={API_KEYS_HELP_ACTION_PANEL_ID}

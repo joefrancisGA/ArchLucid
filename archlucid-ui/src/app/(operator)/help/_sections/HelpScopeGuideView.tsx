@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpScopeHeaderActions } from "@/app/(operator)/help/_sections/HelpScopeHeaderActions";
 import { HelpScopeSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpScopeSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -114,6 +115,8 @@ export function HelpScopeGuideView(props: HelpScopeGuideViewProps): React.ReactE
         )}
 
         {!buyerPolishedShell ? <ScopeHelpClaimDisciplineStrip /> : null}
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-scope" showSsoOptional={false} />
 
         {buyerPolishedShell ? (
           <div

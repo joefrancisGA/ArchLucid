@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { WorkspaceSettingsHelpClaimDisciplineStrip } from "@/components/help/WorkspaceSettingsHelpClaimDisciplineStrip";
 import { WorkspaceSettingsHelpEvidenceOrientationStrip } from "@/components/help/WorkspaceSettingsHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
@@ -102,6 +103,8 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
       />
 
       <WorkspaceSettingsHelpClaimDisciplineStrip />
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-workspace-settings" showSsoOptional={false} />
 
       <div className={contentGridClass}>
         <div
