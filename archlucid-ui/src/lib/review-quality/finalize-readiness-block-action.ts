@@ -42,6 +42,21 @@ export function resolveFinalizeReadinessBlockAction(
         href: buildArchitectureActivityFinalizeReadinessHref(trimmedRunId),
         label: "Review pre-commit gate",
       };
+    case "agent_output_quality":
+      return {
+        href: buildReviewActivityHref(trimmedRunId),
+        label: "Review agent output quality",
+      };
+    case "unsupported_semantic_support":
+      return {
+        href: buildReviewFindingsTabHref(trimmedRunId),
+        label: "Review semantic support gaps",
+      };
+    case "structural_execution_mode":
+      return {
+        href: buildReviewActivityHref(trimmedRunId),
+        label: "Review execution mode",
+      };
     case "decision_grade_provenance":
       return {
         href: buildReviewFindingsTabHref(trimmedRunId),
@@ -52,15 +67,15 @@ export function resolveFinalizeReadinessBlockAction(
         href: buildArchitectureActivityFinalizeReadinessHref(trimmedRunId),
         label: "Acknowledge assumptions",
       };
+    case "evidence_referential_integrity":
+      return {
+        href: buildReviewFindingsTabHref(trimmedRunId),
+        label: "Review finding evidence linkage",
+      };
     case "lifecycle_phase_incomplete":
       return {
         href: buildReviewActivityHref(trimmedRunId),
         label: "Complete the review pipeline",
-      };
-    case "agent_output_quality":
-      return {
-        href: buildReviewActivityHref(trimmedRunId),
-        label: "Review agent output quality",
       };
     default:
       return null;

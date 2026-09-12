@@ -39,6 +39,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         IReadOnlyList<string> topFindingTitles,
         string? activeTrialExportNotice = null,
         string? careerExportHonestyPlainText = null,
+        string? sendableExportCoverPlainText = null,
         string? architectRestatementMarkdown = null)
 
         => RunSummaryOnePagerDocumentFactory.Create(
@@ -47,6 +48,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             topFindingTitles,
             activeTrialExportNotice,
             careerExportHonestyPlainText: careerExportHonestyPlainText,
+            sendableExportCoverPlainText: sendableExportCoverPlainText,
             architectRestatementMarkdown: architectRestatementMarkdown);
 
 

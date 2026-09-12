@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState, type ReactElement } from "
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isMermaidDiagramSource, prepareMermaidSvgForResponsiveLayout, sanitizeMermaidRenderId } from "@/lib/help/help-mermaid";
+import { stripInlineMermaidFlowchartComments } from "@/lib/mermaid/strip-inline-mermaid-flowchart-comments";
 import {
   resolveStoredEvidenceDiagramPreviewFormat,
   storedEvidenceDiagramShapeHighlightHonestyMessage,
@@ -65,7 +66,7 @@ export function RunStoredEvidenceDiagramPreviewBody(
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
         });
 
-        const result = await mermaid.render(renderId, textContent.trim());
+        const result = await mermaid.render(renderId, stripInlineMermaidFlowchartComments(textContent.trim()));
 
         if (!canceled) {
           setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));

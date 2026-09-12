@@ -36,7 +36,13 @@ describe("RunScopedAuditExportButton", () => {
   it("exports run-scoped audit CSV for Auditor principals", async () => {
     mockPrincipal(["Auditor"], "Auditor");
 
-    render(<RunScopedAuditExportButton runId="run-123" manifestVersion="manifest-123" />);
+    render(
+      <RunScopedAuditExportButton
+        runId="run-123"
+        manifestVersion="manifest-123"
+        enginesSucceeded={41}
+      />,
+    );
 
     fireEvent.click(screen.getByTestId("run-scoped-audit-export-button"));
 
@@ -73,7 +79,13 @@ describe("RunScopedAuditExportButton", () => {
       new ApiRequestError("Forbidden", { httpStatus: 403, correlationId: null, problem: null }),
     );
 
-    render(<RunScopedAuditExportButton runId="run-403" manifestVersion="manifest-403" />);
+    render(
+      <RunScopedAuditExportButton
+        runId="run-403"
+        manifestVersion="manifest-403"
+        enginesSucceeded={41}
+      />,
+    );
 
     fireEvent.click(screen.getByTestId("run-scoped-audit-export-button"));
 

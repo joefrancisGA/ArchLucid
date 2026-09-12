@@ -34,7 +34,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
   const {
     blockingApprovalCount,
     commitBlockedReason,
-    finalizeAssumptionGateApplies,
+    finalizeReadinessEnabled,
     finalizeReadinessBlocks,
     quickDecisionFindings,
     requestAssumptionTexts,
@@ -65,7 +65,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       hasGoldenManifest={Boolean(model.manifestId)}
       commitBlockedReason={commitBlockedReason}
       serverFinalizeReadinessBlocks={finalizeReadinessBlocks}
-      finalizeAssumptionGateApplies={finalizeAssumptionGateApplies}
+      finalizeReadinessEnabled={finalizeReadinessEnabled}
       quickDecisionFindings={quickDecisionFindings}
       requestAssumptionTexts={requestAssumptionTexts}
       transparencyTrail={

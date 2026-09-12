@@ -58,6 +58,12 @@ test.describe(
     await expect(page.getByTestId("run-detail-package-spine-export-co-location")).toBeVisible({
       timeout: 60_000,
     });
+    await expect(page.getByTestId("run-scoped-audit-export-button")).toBeVisible({ timeout: 60_000 });
+
+    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "policies");
+    await expect(page.getByTestId("review-detail-policy-pack-impact-callout")).toBeVisible({
+      timeout: 60_000,
+    });
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "findings");
 
@@ -84,6 +90,16 @@ test.describe(
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "findings");
 
     await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });
+
+    const primaryCard = quickSummary.locator('[data-finding-workspace-primary="true"]');
+    await expect(primaryCard).toBeVisible({ timeout: 60_000 });
+    await primaryCard.scrollIntoViewIfNeeded();
+    await expect(primaryCard.locator('[data-testid^="finding-classification-chip-"]')).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(primaryCard.getByTestId("working-finding-semantic-support-band")).toBeVisible({
+      timeout: 30_000,
+    });
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "policies");
 

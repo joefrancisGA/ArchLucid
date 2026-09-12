@@ -106,13 +106,14 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         string safeLabel = EscapeLabel(node.Label);
         string metadataComment = BuildInventoryNodeMetadataComment(node);
 
-        if (string.IsNullOrEmpty(metadataComment))
+        if (!string.IsNullOrEmpty(metadataComment))
         {
-            sb.AppendLine($"{indentText}{safeNodeId}[\"{safeLabel}\"]");
-            return;
+            // Mermaid flowcharts only strip %% comments that start a line. An inline
+            // comment after id["label"] is lexed as NODE_STRING and fails parse.
+            sb.AppendLine($"{indentText}{metadataComment}");
         }
 
-        sb.AppendLine($"{indentText}{safeNodeId}[\"{safeLabel}\"] {metadataComment}");
+        sb.AppendLine($"{indentText}{safeNodeId}[\"{safeLabel}\"]");
     }
 
     private static string BuildInventoryNodeMetadataComment(DiagramNode node)
