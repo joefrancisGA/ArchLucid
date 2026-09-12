@@ -9760,6 +9760,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `StructuredExplanationParser.TryReadReasoningText` — object-shaped reasoning array paragraphs with `id` property (mirroring evidence ref shape) silently skipped while list entries accept `id` then `text` — **hit 2026-09-12 seed hunt #1873 (seed→hit):** array/object reasoning loops checked only `text` for object tokens; LLM payloads mirroring `{ "id": "paragraph" }` evidence-ref shape rejected normalize; fixed via shared `TryReadObjectStringProperty(item, "id", "text")` on reasoning paths; regression `TryNormalizeStructuredJson_maps_object_shaped_reasoning_array_entries_with_id_property`
 
+2026-09-12 seed hunt #1874 (hit): reseeded core-explanation-json; proved empty-string citations left CitationCount null so disposition PASS skipped WARN; 34 scoped RunExplanation unit tests passed.
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — empty or whitespace `citations` string left `CitationCount` null so `ResolveDisposition` returned PASS while omitted property correctly WARNs — **hit 2026-09-12 seed hunt #1874 (seed→hit):** string branch only parsed boolean/whole-number tokens; blank strings fell through with null count; fixed by mapping whitespace-only to zero; regression `FromAggregateJson_treats_empty_string_citations_as_zero_for_disposition`
+
 2026-09-12 seed hunt #1873 (hit): reseeded core-explanation-json; proved reasoning array `id`-only object coercion gap; 33 scoped RunExplanation unit tests passed.
 
 2026-09-12 seed hunt #1870 (seed-only): reseeded core-explanation-json; scoped tests passed; no hunt-ready defect proven this pass.

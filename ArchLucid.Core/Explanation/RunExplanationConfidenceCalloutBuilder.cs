@@ -142,7 +142,11 @@ public static class RunExplanationConfidenceCalloutBuilder
             {
                 string? raw = citationsEl.GetString();
 
-                if (RunExplanationAggregateJsonReader.TryParseBooleanString(raw, out bool booleanCount))
+                if (string.IsNullOrWhiteSpace(raw))
+                {
+                    citationCount = 0;
+                }
+                else if (RunExplanationAggregateJsonReader.TryParseBooleanString(raw, out bool booleanCount))
                 {
                     citationCount = booleanCount ? 1 : 0;
                 }
