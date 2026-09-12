@@ -16,14 +16,24 @@ export const FINDING_CLASSIFICATION_DECISION_GRADE_LABEL = "Decision-grade" as c
 
 export const FINDING_CLASSIFICATION_CHECKLIST_LABEL = "Checklist coverage" as const;
 
+export const FINDING_CLASSIFICATION_CHECKLIST_DEMOTED_LABEL = "Checklist-demoted" as const;
+
+/** API `FindingTreatment.DemoteToChecklist` ordinal when insight-density gate demotes a finding. */
+export const FINDING_TREATMENT_DEMOTE_TO_CHECKLIST = 1 as const;
+
 export function resolveFindingClassificationLabel(
   classification: FindingClassificationValue,
+  treatment?: number | null,
 ): string | null {
   if (classification === FINDING_CLASSIFICATION_DECISION_GRADE) {
     return FINDING_CLASSIFICATION_DECISION_GRADE_LABEL;
   }
 
   if (classification === FINDING_CLASSIFICATION_CHECKLIST_COVERAGE) {
+    if (treatment === FINDING_TREATMENT_DEMOTE_TO_CHECKLIST) {
+      return FINDING_CLASSIFICATION_CHECKLIST_DEMOTED_LABEL;
+    }
+
     return FINDING_CLASSIFICATION_CHECKLIST_LABEL;
   }
 
@@ -42,13 +52,14 @@ export function findingClassificationStatusTagKind(
 
 export type FindingClassificationChipProps = {
   readonly classification: FindingClassificationValue;
+  readonly treatment?: number | null;
   readonly findingId: string;
   readonly className?: string;
 };
 
 /** Two-band classification chip — never uses Ready/Approved workflow semantics (SD-12 / IS-07). */
 export function FindingClassificationChip(props: FindingClassificationChipProps): ReactElement | null {
-  const label = resolveFindingClassificationLabel(props.classification);
+  const label = resolveFindingClassificationLabel(props.classification, props.treatment);
 
   if (label === null) {
     return null;

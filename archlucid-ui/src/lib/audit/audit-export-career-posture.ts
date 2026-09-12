@@ -1,5 +1,6 @@
 import { resolveCareerArtifactExportHonestyDoorFields } from "@/lib/career-artifact/resolve-career-artifact-export-honesty-input";
 import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
+import { AUDIT_DUAL_CHANNEL_HONESTY_NOTE } from "@/lib/buyer-copy/audit";
 import { isRehearsalStructuralExecutionMode } from "@/lib/governance/simulator-career-honesty";
 import {
   normalizeStructuralExecutionModeWire,
@@ -81,10 +82,16 @@ export function resolveAuditExportCareerBlockedReason(input: {
 export function buildAuditExportCsvHonestyPreambleLines(
   posture: AuditExportCareerPosture | null,
 ): readonly string[] {
+  const dualChannelLines = [
+    "# dualChannelHonesty=durableSqlLedgerOnly",
+    `# dualChannelNote=${AUDIT_DUAL_CHANNEL_HONESTY_NOTE.replace(/\r?\n/g, " ")}`,
+  ];
+
   if (posture === null) {
     return [
       "# ArchLucid audit CSV export posture (CG-026)",
       "# Run-scoped posture stamps apply when runId query filter is set.",
+      ...dualChannelLines,
     ];
   }
 
@@ -93,5 +100,10 @@ export function buildAuditExportCsvHonestyPreambleLines(
     `# structuralExecutionMode=${posture.structuralExecutionMode}`,
     `# workingCareerRehearsalDoor=${posture.workingCareerRehearsalDoor}`,
     `# rehearsalIncomplete=${posture.rehearsalIncomplete ? "True" : "False"}`,
+    ...dualChannelLines,
   ];
 }
+
+/** Shown when governance audit CSV export has no runId filter — CG-026 posture is per-run only. */
+export const AUDIT_CSV_TENANT_WIDE_SCOPE_DISCLAIMER =
+  "Tenant-wide audit CSV exports list events across reviews. CG-026 execution-mode and career-door posture stamps apply only when you filter to a single review id before export.";

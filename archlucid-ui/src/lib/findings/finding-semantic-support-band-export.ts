@@ -69,6 +69,26 @@ export function resolveFindingSemanticSupportBandExportFields(
   };
 }
 
+export function hasUncheckedDecisionGradeSemanticSupportBand(
+  findings: readonly FindingSemanticSupportBandExportInput[] | null | undefined,
+): boolean {
+  if (findings === null || findings === undefined || findings.length === 0) {
+    return false;
+  }
+
+  for (const finding of findings) {
+    if (!isDecisionGradeForSemanticSupportExport(finding)) {
+      continue;
+    }
+
+    if (resolveDecisionGradeSemanticSupportBand(finding.semanticSupportBand) === "Unchecked") {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export function buildSemanticSupportBandExportStamp(
   findings: readonly QuickDecisionFinding[],
   structuralExecutionMode?: StructuralExecutionModeInput,

@@ -42,4 +42,14 @@ public sealed class PrivateNetworkAddressGuardEncodingTests
     {
         PrivateNetworkAddressGuard.IsForbiddenHostLiteral("0.0.0.0").Should().BeTrue();
     }
+
+    [Theory]
+    [InlineData("192.0.2.1")]
+    [InlineData("192.0.0.1")]
+    public void IsForbiddenHostLiteral_allows_documentation_and_reserved_ipv4_outside_tb274_scope(string host)
+    {
+        // TB-274 scope is RFC1918 / link-local / loopback / IPv6 ULA — not IANA TEST-NET or reserved blocks.
+        PrivateNetworkAddressGuard.IsForbiddenHostLiteral(host).Should().BeFalse();
+        PrivateNetworkAddressGuard.IsForbiddenIpAddress(IPAddress.Parse(host)).Should().BeFalse();
+    }
 }

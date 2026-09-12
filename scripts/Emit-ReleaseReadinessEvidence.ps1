@@ -417,6 +417,53 @@ if (Test-Path -LiteralPath $faithfulnessSource) {
     Copy-Item -LiteralPath $faithfulnessSource -Destination (Join-Path $OutDir "faithfulness-report.md") -Force
 }
 
+[string] $faithfulnessWarnSource = Join-Path $root "docs/quality/faithfulness-nightly-warn-status.json"
+
+if (Test-Path -LiteralPath $faithfulnessWarnSource) {
+    Copy-Item -LiteralPath $faithfulnessWarnSource -Destination (Join-Path $OutDir "faithfulness-nightly-warn-status.json") -Force
+    Add-CheckRow $checks "Offline faithfulness nightly warn (G-FAITH-01)" "PASS" "warn-status scaffold attached for RC signoff bundle" "faithfulness-nightly-warn-status.json"
+}
+else {
+    Add-CheckRow $checks "Offline faithfulness nightly warn (G-FAITH-01)" "WARN" "run: python scripts/ci/eval_agent_faithfulness.py" "(none)"
+}
+
+[string] $shipGateDest = Join-Path $OutDir "ship-gate-evidence.json"
+[string] $shipGateAttached = $null
+[string[]] $shipGateCandidates = @(
+    (Join-Path $OutDir "artifacts/ship-gate-evidence/ship-gate-evidence.json")
+)
+
+[string] $repoShipGateRoot = Join-Path $root "artifacts/ship-gate-evidence"
+
+if (Test-Path -LiteralPath $repoShipGateRoot) {
+    $shipGateCandidates += @(Get-ChildItem -LiteralPath $repoShipGateRoot -Recurse -Filter "ship-gate-evidence.json" -File -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })
+}
+
+[string] $bundleShipGateRoot = Join-Path $OutDir "artifacts/ship-gate-evidence"
+
+if (Test-Path -LiteralPath $bundleShipGateRoot) {
+    $shipGateCandidates += @(Get-ChildItem -LiteralPath $bundleShipGateRoot -Recurse -Filter "ship-gate-evidence.json" -File -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })
+}
+
+foreach ($candidate in $shipGateCandidates) {
+    if ([string]::IsNullOrWhiteSpace($candidate)) {
+        continue
+    }
+
+    if (Test-Path -LiteralPath $candidate) {
+        Copy-Item -LiteralPath $candidate -Destination $shipGateDest -Force
+        $shipGateAttached = $candidate
+        break
+    }
+}
+
+if ($null -ne $shipGateAttached) {
+    Add-CheckRow $checks "Ship gate evidence (release-smoke witness)" "PASS" "attached from $shipGateAttached" "ship-gate-evidence.json"
+}
+else {
+    Add-CheckRow $checks "Ship gate evidence (release-smoke witness)" "WARN" "run release-smoke.ps1 or archlucid pilot ship-gate-evidence" "(none)"
+}
+
 [string] $materialFindingJson = Join-Path $OutDir "material-finding-faithfulness-summary.json"
 [string] $materialFindingMd = Join-Path $OutDir "material-finding-faithfulness-summary.md"
 & python (Join-Path $root "scripts/ci/build_material_finding_faithfulness_summary.py") `

@@ -74,4 +74,26 @@ describe("QuickDecisionWorkspace finding cards (PC-10)", () => {
 
     expect(screen.queryByTestId("finding-workspace-record-correction-finding-1")).not.toBeInTheDocument();
   });
+
+  it("shows checklist-demoted classification chip on primary card", () => {
+    const finding = {
+      ...buildFinding(JSON.stringify({})),
+      classification: "ChecklistCoverage" as const,
+      treatment: 1,
+    };
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={finding}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-classification-chip-finding-1")).toHaveTextContent("Checklist-demoted");
+  });
 });

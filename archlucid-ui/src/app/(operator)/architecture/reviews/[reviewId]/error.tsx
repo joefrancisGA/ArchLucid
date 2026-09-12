@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useEffect, useLayoutEffect, useState } from "react";
 
 import { OperatorErrorUiReferenceLine } from "@/components/operator/OperatorErrorUiReferenceLine";
@@ -9,6 +10,7 @@ import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunDetailMinimalChromeMount } from "@/components/runs/RunDetailMinimalChromeMount";
+import { ErrorRecoveryCareerHonestyStrip } from "@/components/usability/ErrorRecoveryCareerHonestyStrip";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { Button } from "@/components/ui/button";
 import { ERROR_BOUNDARY_IDLE_SNAPSHOT_PRESERVED_COPY } from "@/lib/auth/error-boundary-idle-snapshot-copy";
@@ -31,6 +33,8 @@ export default function RunDetailSegmentError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const params = useParams();
+  const reviewId = typeof params.reviewId === "string" ? params.reviewId : "";
   const [idleSnapshotsPreserved, setIdleSnapshotsPreserved] = useState(false);
 
   useLayoutEffect(() => {
@@ -113,6 +117,7 @@ export default function RunDetailSegmentError({
         <OperatorErrorRecoveryContract
           presentation={errorRecoveryContractForScenario("review-detail-segment-error")}
         />
+        <ErrorRecoveryCareerHonestyStrip scopedRunId={reviewId} />
         {idleSnapshotsPreserved ? (
           <p
             className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
