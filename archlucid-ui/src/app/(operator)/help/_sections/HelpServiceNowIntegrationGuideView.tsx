@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpServiceNowIntegrationClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpServiceNowIntegrationClaimOrientationStrip";
 import { HelpServiceNowIntegrationHeaderActions } from "@/app/(operator)/help/_sections/HelpServiceNowIntegrationHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -188,6 +189,8 @@ export function HelpServiceNowIntegrationGuideView(
         </div>
 
         <div data-testid="help-servicenow-integration-orientation-bottom">
+          <SponsorSendPathHonestyPanel testIdPrefix="help-servicenow-integration" showSsoOptional={false} />
+
           <HelpServiceNowIntegrationClaimOrientationStrip />
         </div>
       </div>
