@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { ArchitectureDraftCloneSnapshotControl } from "@/components/architecture/ArchitectureDraftCloneSnapshotControl";
+import { ArchitectureDraftSpawnLockSnapshotSummary } from "@/components/architecture/ArchitectureDraftSpawnLockSnapshotSummary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -22,6 +23,7 @@ import {
 } from "@/lib/architecture/architecture-draft-spawn-lock-url-honesty";
 import { CTA_WIDTH, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
+import { SPAWN_LOCK_HANDOFF_LAYOUT_TEST_IDS } from "@/lib/system-not-job-spawn-lock-handoff-layout";
 import { cn } from "@/lib/utils";
 
 export const ARCHITECTURE_DRAFT_HANDOFF_LOCK_SENTENCE =
@@ -60,7 +62,7 @@ export function ArchitectureDraftHandoffPanel(
   return (
     <div
       className="space-y-4"
-      data-testid="architecture-draft-handoff-panel"
+      data-testid={SPAWN_LOCK_HANDOFF_LAYOUT_TEST_IDS.panel}
       data-spawn-lock-url-honesty="snapshot"
     >
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-spawn-lock-back-honesty">
@@ -83,24 +85,10 @@ export function ArchitectureDraftHandoffPanel(
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_DRAFT_HANDOFF_LOCK_SENTENCE}</p>
           </div>
 
-          <dl className="m-0 grid gap-3 sm:grid-cols-2">
-            <div>
-              <dt className={OPERATOR_TYPOGRAPHY.helper}>Architecture</dt>
-              <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{props.workspaceHeading}</dd>
-            </div>
-            <div>
-              <dt className={OPERATOR_TYPOGRAPHY.helper}>Business outcome</dt>
-              <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                {props.fields.businessOutcome.trim().length > 0 ? props.fields.businessOutcome : "—"}
-              </dd>
-            </div>
-            <div className="sm:col-span-2">
-              <dt className={OPERATOR_TYPOGRAPHY.helper}>Intent summary</dt>
-              <dd className={cn("m-0 whitespace-pre-wrap", OPERATOR_TYPOGRAPHY.body)}>
-                {props.fields.freeTextIntent.trim().length > 0 ? props.fields.freeTextIntent : "—"}
-              </dd>
-            </div>
-          </dl>
+          <ArchitectureDraftSpawnLockSnapshotSummary
+            workspaceHeading={props.workspaceHeading}
+            fields={props.fields}
+          />
 
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Button
