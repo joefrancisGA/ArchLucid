@@ -3,7 +3,7 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 export const INTEGRATION_EVENTS_DLQ_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.failedIntegrationMessages;
 
 export const INTEGRATION_EVENTS_DLQ_PAGE_SUBTITLE =
-  "Inspect outbound integration events that exceeded publish retries. Rows are dead-lettered ops triage — not sealed Career proof — until you retry after fixing the root cause.";
+  "Inspect outbound integration events that exceeded publish retries. Rows are dead-lettered ops triage — not sealed-record proof — until you retry after fixing the root cause.";
 
 export const INTEGRATION_EVENTS_DLQ_BULK_RETRY_ACKNOWLEDGMENT = "all tenants" as const;
 

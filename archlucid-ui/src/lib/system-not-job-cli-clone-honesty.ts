@@ -13,6 +13,7 @@ export const SYSTEM_NOT_JOB_CLI_CLONE_SNAPSHOT_API_PATH =
 
 export const SYSTEM_NOT_JOB_CLI_CLONE_HONESTY_LINES = {
   careerRehearsalRule: "Start-review stamps your Working Career or Rehearsal door on the new run (CG-062)",
-  simulatorCareerBlock: "Career door on Simulator host Mode cannot produce unlabeled career proof (CG-021)",
+  simulatorCareerBlock:
+    "Record on Simulator host Mode cannot produce unlabeled sealed-record proof (CG-021)",
   casPatchReminder: "send ExpectedUpdatedUtc from the last GET/PATCH response (LW)",
 } as const;

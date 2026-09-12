@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invite-reviewer-flow";
@@ -57,6 +58,8 @@ export function ReviewPackageAfterFinalizeNextStepsStrip(
           <Link href={`${SPONSOR_REPORT_PATH}?runId=${encodeURIComponent(runId)}`}>Open sponsor report</Link>
         </Button>
       </div>
+
+      <SponsorExportSendHonestyStrip className="mt-3 w-full" testIdPrefix="review-package-after-finalize-next-steps" />
     </section>
   );
 }

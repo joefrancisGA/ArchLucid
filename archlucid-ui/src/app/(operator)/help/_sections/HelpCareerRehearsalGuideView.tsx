@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -65,6 +66,9 @@ export function HelpCareerRehearsalGuideView(props: HelpCareerRehearsalGuideView
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{CAREER_REHEARSAL_HELP_SIMULATOR_HONESTY}</p>
           <p className={cn("mt-3 mb-0", OPERATOR_TYPOGRAPHY.helper)}>{CAREER_REHEARSAL_HELP_CLAIM_DISCIPLINE}</p>
         </section>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-career-rehearsal" showSsoOptional={false} />
+
         <HelpTopicRegistryProvenanceLine entry={entry} />
       </div>
     </div>

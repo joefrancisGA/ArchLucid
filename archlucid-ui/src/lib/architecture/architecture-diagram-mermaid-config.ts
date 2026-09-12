@@ -4,6 +4,18 @@ export const ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE = {
   border: "#7A6535",
 } as const;
 
+/** Horizontal gap between dagre-ranked nodes (Mermaid flowchart.nodeSpacing). */
+export const ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING = 28;
+
+/** Vertical gap between dagre ranks (Mermaid flowchart.rankSpacing). */
+export const ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING = 32;
+
+/** Padding around the whole flowchart plate (Mermaid flowchart.padding). */
+export const ARCHITECTURE_DIAGRAM_MERMAID_PADDING = 10;
+
+/** Max label width before Mermaid wraps long VNet names (flowchart.wrappingWidth). */
+export const ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH = 240;
+
 /** Shared Mermaid init for operator architecture and inventory diagrams. */
 export function createArchitectureDiagramMermaidConfig(dark: boolean): {
   startOnLoad: false;
@@ -13,10 +25,12 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
   fontFamily: string;
   flowchart: {
     htmlLabels: false;
-    curve: "basis";
+    curve: "linear";
     padding: number;
     nodeSpacing: number;
     rankSpacing: number;
+    ranker: "network-simplex";
+    wrappingWidth: number;
     useMaxWidth: false;
   };
   themeVariables: Record<string, string>;
@@ -29,10 +43,14 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
     fontFamily: "ui-sans-serif, system-ui, sans-serif",
     flowchart: {
       htmlLabels: false,
-      curve: "basis",
-      padding: 10,
-      nodeSpacing: 28,
-      rankSpacing: 32,
+      // basis + tight-tree spread disconnected peering pairs across a padded plate;
+      // linear + network-simplex keeps connectors short and packs unrelated components.
+      curve: "linear",
+      padding: ARCHITECTURE_DIAGRAM_MERMAID_PADDING,
+      nodeSpacing: ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING,
+      rankSpacing: ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING,
+      ranker: "network-simplex",
+      wrappingWidth: ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH,
       useMaxWidth: false,
     },
     themeVariables: {

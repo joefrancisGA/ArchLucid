@@ -199,6 +199,39 @@ function readMermaidGroupInkBBox(svg: SVGSVGElement): DOMRect | null {
 }
 
 /**
+ * Union of node boxes only — excludes edge paths whose Bézier bbox inflates the plate.
+ */
+function readMappedNodeUnionBBox(svg: SVGSVGElement): { union: DOMRect; nodeCount: number } | null {
+  const inkBoxes: DOMRect[] = [];
+
+  for (const element of svg.querySelectorAll("g.node")) {
+    if (!(element instanceof SVGGraphicsElement)) {
+      continue;
+    }
+
+    const localBox = readGraphicsElementBBox(element);
+
+    if (localBox === null) {
+      continue;
+    }
+
+    const mapped = mapLocalBBoxToSvgUserSpace(element, svg, localBox);
+
+    if (mapped !== null) {
+      inkBoxes.push(mapped);
+    }
+  }
+
+  const union = unionDomRects(inkBoxes);
+
+  if (union === null) {
+    return null;
+  }
+
+  return { union, nodeCount: inkBoxes.length };
+}
+
+/**
  * Prefer node ink over cluster shells, but only in SVG user space.
  * Mermaid `.node` getBBox is local to a translated group; using it unmapped
  * crops the viewBox to the origin and hides the graph until the user scrolls.
@@ -490,6 +523,46 @@ export function resolveMermaidInkViewBox(
   return tightened;
 }
 
+/** Crop to the union of node boxes when every g.node mapped; never clip a missing row. */
+export function resolveMermaidNodeUnionViewBox(
+  sourceViewBox: DOMRect | null,
+  nodeUnion: DOMRect | null,
+  measuredNodeCount: number,
+  expectedNodeCount: number,
+  paddingPx: number,
+): DOMRect | null {
+  if (nodeUnion === null || expectedNodeCount === 0 || measuredNodeCount !== expectedNodeCount) {
+    return sourceViewBox;
+  }
+
+  if (sourceViewBox === null) {
+    return new DOMRect(
+      nodeUnion.x - paddingPx,
+      nodeUnion.y - paddingPx,
+      nodeUnion.width + paddingPx * 2,
+      nodeUnion.height + paddingPx * 2,
+    );
+  }
+
+  const tolerance = 1;
+  const unionInsideSource =
+    nodeUnion.x >= sourceViewBox.x - tolerance
+    && nodeUnion.y >= sourceViewBox.y - tolerance
+    && nodeUnion.x + nodeUnion.width <= sourceViewBox.x + sourceViewBox.width + tolerance
+    && nodeUnion.y + nodeUnion.height <= sourceViewBox.y + sourceViewBox.height + tolerance;
+
+  if (!unionInsideSource) {
+    return sourceViewBox;
+  }
+
+  return new DOMRect(
+    nodeUnion.x - paddingPx,
+    nodeUnion.y - paddingPx,
+    nodeUnion.width + paddingPx * 2,
+    nodeUnion.height + paddingPx * 2,
+  );
+}
+
 function ensureMermaidInkViewBox(
   svg: SVGSVGElement,
   paddingPx: number,
@@ -501,8 +574,23 @@ function ensureMermaidInkViewBox(
   }
 
   const sourceViewBox = readMermaidSourceViewBox(svg);
-  const measuredInk = readMermaidInkBBox(svg);
-  const resolvedViewBox = resolveMermaidInkViewBox(sourceViewBox, measuredInk, paddingPx);
+  const expectedNodeCount = svg.querySelectorAll("g.node").length;
+  const nodeUnionResult = readMappedNodeUnionBBox(svg);
+  let resolvedViewBox: DOMRect | null;
+
+  if (nodeUnionResult !== null && expectedNodeCount > 0) {
+    resolvedViewBox = resolveMermaidNodeUnionViewBox(
+      sourceViewBox,
+      nodeUnionResult.union,
+      nodeUnionResult.nodeCount,
+      expectedNodeCount,
+      paddingPx,
+    );
+  }
+  else {
+    const measuredInk = readMermaidInkBBox(svg);
+    resolvedViewBox = resolveMermaidInkViewBox(sourceViewBox, measuredInk, paddingPx);
+  }
 
   if (resolvedViewBox === null) {
     return null;

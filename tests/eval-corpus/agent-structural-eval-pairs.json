@@ -25,5 +25,9 @@
   ],
   "briefGroundingScenarios": [
     "scenario-brief-conflict-grounding.json"
-  ]
+  ],
+  "closedLoopStrengtheningScenarios": [
+    "scenario-closed-loop-strengthening.json"
+  ],
+  "mutationMicrocasesManifest": "mutation-microcases.json"
 }

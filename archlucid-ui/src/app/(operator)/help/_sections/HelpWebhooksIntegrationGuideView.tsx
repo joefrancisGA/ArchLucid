@@ -4,6 +4,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpWebhooksIntegrationHeaderActions } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationHeaderActions";
 import { HelpWebhooksIntegrationSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationSourcesOrientationStrip";
 import { WebhooksIntegrationHelpClaimDisciplineStrip } from "@/components/help/WebhooksIntegrationHelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { WebhooksIntegrationHelpEvidenceOrientationStrip } from "@/components/help/WebhooksIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -258,6 +259,8 @@ export function HelpWebhooksIntegrationGuideView(props: HelpWebhooksIntegrationG
 
           <HelpTopicTableOfContents headings={tocHeadings} />
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-webhooks-integration" showSsoOptional={false} />
 
         {buyerPolishedShell ? (
           <HelpWebhooksIntegrationSourcesOrientationStrip />

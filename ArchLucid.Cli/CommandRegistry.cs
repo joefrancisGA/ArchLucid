@@ -143,6 +143,13 @@ internal sealed partial class CommandRegistry
 
         Register(
             new CommandDescriptor(
+                "infeasible",
+                "Infeasibility honesty reference for CLI export paths.",
+                "infeasible honesty [--json]"),
+            CliCommandHandlers.HandleInfeasible);
+
+        Register(
+            new CommandDescriptor(
                 "request",
                 "Create an architecture request from a file.",
                 "request create --from-file <path> [--request-id <id>]"),

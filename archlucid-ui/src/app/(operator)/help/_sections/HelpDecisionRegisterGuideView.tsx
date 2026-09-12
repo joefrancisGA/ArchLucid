@@ -5,6 +5,7 @@ import { HelpDecisionRegisterSourcesOrientationStrip } from "@/app/(operator)/he
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { DecisionRegisterHelpClaimDisciplineStrip } from "@/components/help/DecisionRegisterHelpClaimDisciplineStrip";
 import { DecisionRegisterHelpEvidenceOrientationStrip } from "@/components/help/DecisionRegisterHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -221,6 +222,8 @@ export function HelpDecisionRegisterGuideView(props: HelpDecisionRegisterGuideVi
 
           <HelpTopicTableOfContents headings={tocHeadings} />
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-decision-register" showSsoOptional={false} />
 
         {buyerPolishedShell ? <HelpDecisionRegisterSourcesOrientationStrip /> : null}
       </div>

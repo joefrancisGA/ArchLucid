@@ -1,5 +1,5 @@
 const FINALIZE_READINESS_LAYER_LABELS: Readonly<Record<string, string>> = {
-  "career-artifact": "Career artifact",
+  "career-artifact": "Sealed record",
   integrity: "Integrity",
   governance: "Governance",
   scorecard: "Quality scorecard",

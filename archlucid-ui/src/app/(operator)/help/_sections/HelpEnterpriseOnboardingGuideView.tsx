@@ -4,6 +4,7 @@ import { HelpEnterpriseOnboardingClaimOrientationStrip } from "@/app/(operator)/
 import { HelpEnterpriseOnboardingHeaderActions } from "@/app/(operator)/help/_sections/HelpEnterpriseOnboardingHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { EnterpriseOnboardingHubSteps } from "@/components/help/EnterpriseOnboardingHubSteps";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -186,6 +187,8 @@ export function HelpEnterpriseOnboardingGuideView(
 
           {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-enterprise-onboarding" showSsoOptional={false} />
 
         <div data-testid="help-enterprise-onboarding-orientation-bottom">
           <HelpEnterpriseOnboardingClaimOrientationStrip />

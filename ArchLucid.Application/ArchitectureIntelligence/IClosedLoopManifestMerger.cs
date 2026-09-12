@@ -24,6 +24,24 @@ public sealed class ClosedLoopManifestMergeResult
         get;
         init;
     }
+
+    public int MergedTopologyServiceCount
+    {
+        get;
+        init;
+    }
+
+    public int MergedTopologyDatastoreCount
+    {
+        get;
+        init;
+    }
+
+    public int MergedTopologyRelationshipCount
+    {
+        get;
+        init;
+    }
 }
 
 public interface IClosedLoopManifestMerger

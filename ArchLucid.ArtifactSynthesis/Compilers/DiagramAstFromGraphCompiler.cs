@@ -96,6 +96,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode);
         DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
+        DiagramSparseComponentPacker.Pack(ast);
 
         return ast;
     }
