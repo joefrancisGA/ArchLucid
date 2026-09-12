@@ -5,6 +5,7 @@ import {
   architectureNestedComparePath,
   architectureNestedFindingsPath,
   architectureNestedGraphPath,
+  architectureNestedImpactPreviewPath,
 } from "@/lib/architecture/architecture-routes";
 import { resolveWorkingInsightsNavHref } from "./resolve-working-insights-nav-href";
 
@@ -20,6 +21,17 @@ describe("resolveWorkingInsightsNavHref (LS-05 / SY-45 / AO-31)", () => {
         lastOpenArchitectureId: architectureId,
       }),
     ).toBe(`${architectureNestedAskPath(architectureId)}?runId=run-last`);
+  });
+
+  it("SN-007: scopes Impact preview to nested architecture desk with open package run", () => {
+    expect(
+      resolveWorkingInsightsNavHref({
+        href: "/insights/impact-preview",
+        pathname: "/architecture/architectures/architecture-identity-001",
+        lastOpenReviewId: "run-last",
+        lastOpenArchitectureId: architectureId,
+      }),
+    ).toBe(`${architectureNestedImpactPreviewPath(architectureId)}?runId=run-last`);
   });
 
   it("scopes Compare to nested architecture desk with open package run", () => {
