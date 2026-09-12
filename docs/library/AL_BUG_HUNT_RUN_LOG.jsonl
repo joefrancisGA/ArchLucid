@@ -2527,3 +2527,4 @@
 {"at":"2026-09-12T21:10:35.4490285Z","zoneId":"retrieval","outcome":"seed-only"}
 {"at":"2026-09-12T21:13:30.1954227Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-12T21:14:16.2184747Z","zoneId":"core-costing","outcome":"hit"}
+{"at":"2026-09-12T21:14:54.9492495Z","zoneId":"finding-disposition","outcome":"seed-only"}
