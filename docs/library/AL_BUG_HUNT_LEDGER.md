@@ -871,13 +871,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — whitespace-only EvidenceRef on existing row blocked distinct grounded agent proposals with the same technology name
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2094 (seed-only): reseeded technology-ledger-merge; no new hunt-ready rows.
 
 2026-09-12 thorough hunt #2009 (hit): proved whitespace-only existing EvidenceRef incorrectly triggered name dedupe against distinct grounded candidate refs; fixed with `ShouldTreatAsDuplicateByName`; cheap-disproof closed padded-ref-only delta candidate; 14 scoped TechnologyLedger merge policy tests passed.
 

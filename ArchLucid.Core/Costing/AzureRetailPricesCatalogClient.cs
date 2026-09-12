@@ -15,6 +15,8 @@ public sealed partial class AzureRetailPricesCatalogClient
 
     internal const double WeeksPerMonthAssumption = DaysPerMonthAssumption / 7d;
 
+    internal const double MinutesPerMonthAssumption = HoursPerMonthAssumption * 60d;
+
     private const int MaxPagesPerProbe = 6;
 
     private static readonly TimeSpan NegativeCacheLifetime = TimeSpan.FromMinutes(45);

@@ -2414,3 +2414,4 @@
 {"at":"2026-09-12T18:17:07.3727116Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
 {"at":"2026-09-12T18:19:36.9756071Z","zoneId":"cloud-extractors","outcome":"seed-only"}
 {"at":"2026-09-12T18:19:39.7722501Z","zoneId":"technology-ledger-merge","outcome":"seed-only"}
+{"at":"2026-09-12T18:20:11.0368959Z","zoneId":"core-costing","outcome":"hit"}

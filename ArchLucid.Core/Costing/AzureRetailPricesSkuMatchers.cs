@@ -28,7 +28,8 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         string meter = row.UnitOfMeasure ?? string.Empty;
 
-        return AzureRetailPricesCatalogClient.IsHourMeter(meter) ||
+        return AzureRetailPricesCatalogClient.IsMinuteMeter(meter) ||
+               AzureRetailPricesCatalogClient.IsHourMeter(meter) ||
                AzureRetailPricesCatalogClient.IsDayMeter(meter) ||
                AzureRetailPricesCatalogClient.IsWeekMeter(meter) ||
                AzureRetailPricesCatalogClient.IsMonthlyMeter(meter);
@@ -45,6 +46,16 @@ public sealed partial class AzureRetailPricesCatalogClient
             return false;
 
         string raw = dto.UnitOfMeasure ?? string.Empty;
+
+        if (IsMinuteMeter(raw))
+        {
+            decimal perResource = decimal.Multiply(unit,
+                (decimal)MinutesPerMonthAssumption);
+
+            monthly = decimal.Multiply(perResource, quantity);
+
+            return true;
+        }
 
         if (IsHourMeter(raw))
         {
@@ -90,6 +101,51 @@ public sealed partial class AzureRetailPricesCatalogClient
                 up
                 :
                 dto.RetailPrice ?? 0m;
+
+    internal static bool IsMinuteMeter(string uom)
+    {
+        if (string.IsNullOrWhiteSpace(uom))
+            return false;
+
+        string trimmed = uom.Trim();
+
+        return ContainsMinuteWordToken(trimmed)
+            || ContainsSlashMinToken(trimmed)
+            || string.Equals(trimmed, "min", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "mins", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "minute", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "minutes", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsMinuteWordToken(string trimmed)
+    {
+        return ContainsBoundedToken(trimmed, " min")
+            || ContainsBoundedToken(trimmed, " mins")
+            || ContainsBoundedToken(trimmed, " minute")
+            || ContainsBoundedToken(trimmed, " minutes");
+    }
+
+    private static bool ContainsSlashMinToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/min", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterMin = index + 4;
+
+            if (afterMin >= trimmed.Length || !char.IsLetter(trimmed[afterMin]))
+                return true;
+
+            index = afterMin;
+        }
+
+        return false;
+    }
 
     internal static bool IsHourMeter(string uom)
     {
