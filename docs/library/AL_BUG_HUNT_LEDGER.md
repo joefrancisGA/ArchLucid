@@ -121,13 +121,15 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 32
-- **bugs-found:** 11
+- **hunts:** 33
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-08-23 — hunt #50: greenfield compliance declared endpoints but graph merge dropped dangling edges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2195 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_site_recovery_vault` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_site_recovery_vault_node_has_data_category_but_synthetic_service_id_used`.
 
 2026-09-12 seed hunt #2187 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_confidential_ledger` Data-category node omitted `svc-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_confidential_ledger_node_has_data_category_but_synthetic_service_id_used` and graph-merge parity.
 
@@ -2178,13 +2180,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-12 seed hunt #2194 (seed-only): reseeded finding-disposition with `-Hint finding-disposition`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2186 (seed-only): reseeded finding-disposition with `-Hint finding-disposition`; no new hunt-ready rows.
 
@@ -10386,13 +10390,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 19
-- **bugs-found:** 16
+- **hunts:** 20
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — slash `/m` month UOM rejected while `/mo` and standalone `m` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2193 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/hrs` hour UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashHrsTests`.
 
 2026-09-12 seed hunt #2185 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/m` month UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashMonthShortTests`.
 
@@ -10633,13 +10639,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 98
+- **hunts:** 99
 - **bugs-found:** 156
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — CronJob `job_template.spec.pod_template` omitted pod security projection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2192 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2184 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved CronJob `job_template.spec.pod_template` pod security projection gap; regression `ParseAsync_snake_case_cron_job_pod_template_projects_host_network_exposure`.
 
