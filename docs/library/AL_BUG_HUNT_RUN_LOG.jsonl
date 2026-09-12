@@ -2270,3 +2270,4 @@
 {"at":"2026-09-12T05:24:04.8175677Z","zoneId":"host-infra-evidence-composition","outcome":"dry"}
 {"at":"2026-09-12T05:26:41.0447358Z","zoneId":"ui-claim-discipline-policy","outcome":"hit"}
 {"at":"2026-09-12T05:27:29.9508164Z","zoneId":"commit-output-integrity","outcome":"seed-only"}
+{"at":"2026-09-12T05:28:09.2359469Z","zoneId":"commit-output-integrity","outcome":"seed-only"}
