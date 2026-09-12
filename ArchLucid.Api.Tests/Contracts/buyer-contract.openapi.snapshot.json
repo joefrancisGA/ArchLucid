@@ -33221,6 +33221,13 @@
       },
       "RunSummaryResponse": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "authorityLifecyclePhase": {
             "$ref": "#/components/schemas/AuthorityRunLifecyclePhase"
           },
