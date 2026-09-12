@@ -245,4 +245,16 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.Reasoning.Should().Be("First paragraph.\n\nSecond paragraph.");
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_reasoning_array_entries_with_id_property()
+    {
+        const string json =
+            """{"reasoning":[{"id":"First paragraph."},{"id":"Second paragraph."}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("First paragraph.\n\nSecond paragraph.");
+    }
 }

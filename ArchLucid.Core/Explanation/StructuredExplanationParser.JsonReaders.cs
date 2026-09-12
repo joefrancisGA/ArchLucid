@@ -73,7 +73,7 @@ public static partial class StructuredExplanationParser
             return reasoningElement.GetString();
 
         if (reasoningElement.ValueKind == JsonValueKind.Object)
-            return TryReadObjectStringProperty(reasoningElement, "text");
+            return TryReadObjectStringProperty(reasoningElement, "id", "text");
 
         if (reasoningElement.ValueKind != JsonValueKind.Array)
             return null;
@@ -85,7 +85,7 @@ public static partial class StructuredExplanationParser
             string? part = item.ValueKind switch
             {
                 JsonValueKind.String => item.GetString(),
-                JsonValueKind.Object => TryReadObjectStringProperty(item, "text"),
+                JsonValueKind.Object => TryReadObjectStringProperty(item, "id", "text"),
                 _ => null,
             };
 

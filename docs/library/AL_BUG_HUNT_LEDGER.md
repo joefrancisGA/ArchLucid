@@ -9651,11 +9651,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 9
-- **bugs-found:** 8
+- **hunts:** 10
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — object-shaped `text` list entries and reasoning paragraphs dropped on normalize
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — object-shaped reasoning array entries with `id` property dropped on normalize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9757,6 +9757,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-11 seed hunt #1748 (seed→hit): reseeded archlucid-contracts; proved unknown sourceAgent string silent default; 20 scoped `ArchitectureFindingJsonConverter` tests passed.
 
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
+
+- [x] (proven) `StructuredExplanationParser.TryReadReasoningText` — object-shaped reasoning array paragraphs with `id` property (mirroring evidence ref shape) silently skipped while list entries accept `id` then `text` — **hit 2026-09-12 seed hunt #1873 (seed→hit):** array/object reasoning loops checked only `text` for object tokens; LLM payloads mirroring `{ "id": "paragraph" }` evidence-ref shape rejected normalize; fixed via shared `TryReadObjectStringProperty(item, "id", "text")` on reasoning paths; regression `TryNormalizeStructuredJson_maps_object_shaped_reasoning_array_entries_with_id_property`
+
+2026-09-12 seed hunt #1873 (hit): reseeded core-explanation-json; proved reasoning array `id`-only object coercion gap; 33 scoped RunExplanation unit tests passed.
 
 2026-09-12 seed hunt #1870 (seed-only): reseeded core-explanation-json; scoped tests passed; no hunt-ready defect proven this pass.
 
