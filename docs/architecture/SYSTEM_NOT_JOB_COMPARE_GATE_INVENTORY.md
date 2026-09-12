@@ -16,7 +16,7 @@ All-day architects sketch in Working. **Compare** is the Career proof engine: it
 | --- | --- | --- |
 | **Backend** | `CompareRunsAsync` loads both runs; manifest diff runs only when **both** `GoldenManifestId` values are set | `ArchLucid.Persistence/Coordination/Compare/AuthorityCompareService.cs` |
 | **Manifest diff** | `CompareManifestsAsync` loads sealed `ManifestDocument` rows by id | `IGoldenManifestRepository` |
-| **UI inventory** | Compare pickers use `committedOnly: true` and `hasGoldenManifest` | `useCompareFinalizedRunAvailability.ts` |
+| **UI inventory** | Compare pickers always use `committedOnly: true` (Working + buyer) and `hasGoldenManifest` | `CompareRunPickersSection` · `useCompareFinalizedRunAvailability.ts` |
 | **Baseline anchor** | `isRunCommittedForBaseline` requires `hasGoldenManifest === true` | `compare-baseline-run.ts` |
 | **409 copy** | Lifecycle/sealed-hash prerequisite failures surface via `compareRunPairBlockedReason` | `compare-run-pair-blocked-reason.ts` |
 | **R12 branch** | Parent vs branch auto-compare polls until `bothRunsReadyForBranchCompare` | `draft-branch-auto-compare.ts` · `WhatIfBranchCompareBanner` |
@@ -44,7 +44,7 @@ All-day architects sketch in Working. **Compare** is the Career proof engine: it
 | **inFlightRunVsSealedRun** | Compare in-progress run to baseline | Run w/o manifest | Sealed manifest | **Blocked** | Manifest diff skipped / 409 copy | — |
 | **inFlightRunVsInFlightRun** | Compare two in-flight runs | Run w/o manifest | Run w/o manifest | **Blocked** | Neither side sealed | — |
 | **labeledEnvelopePreview** | Treat envelope preview as Compare | Local preview | Any seal | **Orientation only** | Preview is not sealed Compare | **SN-008** |
-| **labeledEnvelopeVsSeal** | Compare Rehearsal envelope to Career seal | ADR 0092 envelope | Sealed manifest | **Blocked** | Envelope not Career-complete | **SN-008** |
+| **labeledEnvelopeVsSeal** | Compare Rehearsal envelope to Career seal | ADR 0092 committed envelope | Career sealed manifest | **Allowed** | Both sides committed; stamps on pickers (SN-014 / CG-057) | **SN-014** |
 | **whatIfBranchBeforeFinalize** | Auto-compare parent vs branch after submit | Parent run | Branch run | **Polls until sealed** | `bothRunsReadyForBranchCompare` | — |
 | **comparePageInsufficientFinalized** | Open Compare with &lt;2 finalized reviews | Scope inventory | N/A | **Blocked** | `insufficientForCompare` | — |
 | **nestedArchitectureCompareScoped** | Compare from architecture desk | Finalized (scoped) | Finalized (scoped) | **Blocked** until 2 seals | Same gate; scope filters pickers only | — |

@@ -3,6 +3,7 @@ export const SYSTEM_NOT_JOB_COMPARE_GATE_INVENTORY_DOC_PATH =
   "docs/architecture/SYSTEM_NOT_JOB_COMPARE_GATE_INVENTORY.md" as const;
 
 export type SystemNotJobCompareGateOutcome =
+  | "allowed"
   | "blocked"
   | "polls-until-sealed"
   | "orientation-only";
@@ -103,14 +104,15 @@ export const SYSTEM_NOT_JOB_COMPARE_GATE_JOURNEYS: readonly SystemNotJobCompareG
   {
     journeyId: "labeledEnvelopeVsSeal",
     userIntent: "Compare a Rehearsal-stamped cheap envelope sketch to Career proof",
-    leftSide: "Labeled what-if envelope (ADR 0092, not Career-complete)",
-    rightSide: "Committed golden manifest",
-    gateOutcome: "blocked",
-    blockedReason: "Labeled envelopes do not satisfy Compare as Career proof until CE runner seals.",
-    surface: "Working desk · clone-from-snapshot path (SN-008)",
-    backendGate: "AuthorityCompareService · ADR 0092 FAQ",
-    cheapPathOwner: "SN-008",
-    draftDiffRejected: true,
+    leftSide: "Labeled what-if envelope (ADR 0092, committed golden manifest)",
+    rightSide: "Committed golden manifest (Career seal)",
+    gateOutcome: "allowed",
+    blockedReason:
+      "Both sides are committed runs; Compare pickers show door stamps and diff manifests (SN-014 / CG-057).",
+    surface: "CompareForm · CompareRunPickersSection · committedOnly + stamp footnotes",
+    backendGate: "AuthorityCompareService.CompareRunsAsync · GoldenManifestId on both runs",
+    cheapPathOwner: "SN-014",
+    draftDiffRejected: false,
   },
   {
     journeyId: "whatIfBranchBeforeFinalize",
@@ -180,3 +182,6 @@ export const SYSTEM_NOT_JOB_COMPARE_GATE_DRAFT_DIFF_REJECTED_COUNT_BASELINE = 5;
 
 /** Cheap-path pointer for journeys that die at Compare — clone-from-snapshot desk (SN-008). */
 export const SYSTEM_NOT_JOB_COMPARE_GATE_CHEAP_PATH_OWNER = "SN-008" as const;
+
+/** Allowed labeled-envelope Compare path — committed rehearsal vs Career seal (SN-014). */
+export const SYSTEM_NOT_JOB_COMPARE_LABELED_ENVELOPE_OWNER = "SN-014" as const;
