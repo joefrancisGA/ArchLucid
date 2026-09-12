@@ -4291,7 +4291,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-11
@@ -4336,6 +4336,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-31 seed hunts #314–#323: proved OTP RowVersion retry and link-proposal terminal status guard; seeded trial lockout lost-update and OTP resend race (proved 2026-09-02 #422).
 
+
+2026-09-12 seed hunt #1920 (seed-only): reseeded persistence-identity; scoped identity repository tests passed; no new hunt-ready defect proven this pass.
 ---
 
 ## Zone: retrieval
