@@ -2516,3 +2516,4 @@
 {"at":"2026-09-12T20:36:08.8266784Z","zoneId":"application-analysis","outcome":"seed-only"}
 {"at":"2026-09-12T20:44:22.0081682Z","zoneId":"retrieval","outcome":"seed-only"}
 {"at":"2026-09-12T20:46:08.0162821Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-09-12T20:49:23.1325126Z","zoneId":"core-costing","outcome":"hit"}

@@ -382,6 +382,7 @@ public sealed partial class AzureRetailPricesCatalogClient
         return ContainsMonthWordToken(trimmed)
             || ContainsSlashMonthWordToken(trimmed)
             || ContainsSlashMonthToken(trimmed)
+            || ContainsSlashMToken(trimmed)
             || ContainsBoundedToken(trimmed, " mo")
             || string.Equals(trimmed, "m", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase)
@@ -434,6 +435,28 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterMo;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashMToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/m", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterM = index + 2;
+
+            if (afterM >= trimmed.Length || !char.IsLetter(trimmed[afterM]))
+                return true;
+
+            index = afterM;
         }
 
         return false;
