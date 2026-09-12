@@ -102,6 +102,19 @@ public sealed class MemoryCacheBillingWebhookReplayGuardTests
     }
 
     [Fact]
+    public async Task HasSeenAsync_treats_whitespace_padded_provider_name_as_same_event()
+    {
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        await sut.RememberAsync("stripe", "evt_provider_trim", CancellationToken.None);
+
+        bool paddedProviderSeen = await sut.HasSeenAsync("  stripe  ", "evt_provider_trim", CancellationToken.None);
+
+        paddedProviderSeen.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task TryRegisterEventAsync_only_first_concurrent_caller_wins()
     {
         MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 64 });
