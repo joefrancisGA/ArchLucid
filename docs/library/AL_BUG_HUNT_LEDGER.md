@@ -10456,13 +10456,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 21
-- **bugs-found:** 18
+- **hunts:** 22
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — slash `/mins` minute UOM rejected while `/min` and standalone `mins` synonyms matched
+- **last-bug:** 2026-09-12 — slash `/days` day UOM rejected while `/day` and `/d` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2232 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/days` day UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashDaysTests`.
 
 2026-09-12 seed hunt #2216 (seed→hit): reseeded core-costing with `-Hint retail prices`; proved slash `/mins` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashMinsTests`.
 
@@ -10526,6 +10528,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — standalone `d` UOM rejected while `day`/`days` synonyms matched — **hit 2026-09-12 seed hunt #2112:** Azure Retail daily consumption meters with bare `d` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while hour `h` parity already existed; fixed with standalone `d` synonym; regressions in `AzureRetailPricesSkuMatchersStandaloneDayTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — standalone `w` UOM rejected while `wk`/`week` synonyms matched — **hit 2026-09-12 seed hunt #2141:** Azure Retail weekly consumption meters with bare `w` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `d`/`h` standalone parity already existed; fixed with standalone `w` synonym; regressions in `AzureRetailPricesSkuMatchersSlashWeekTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — standalone `m` UOM rejected while `mo`/`month` synonyms matched — **hit 2026-09-12 seed hunt #2149:** Azure Retail monthly consumption meters with bare `m` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `h`/`d`/`w` standalone parity already existed; fixed with standalone `m` synonym; regressions in `AzureRetailPricesSkuMatchersStandaloneMonthTests`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — slash `/days` UOM rejected while `/day` and `/d` synonyms matched — **hit 2026-09-12 seed hunt #2232:** Azure Retail daily consumption meters with bare `/days` or `1/days` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/day` and `/d` already matched (parity with `/mins` and `/hrs`); fixed with `ContainsSlashDaysToken`; regressions in `AzureRetailPricesSkuMatchersSlashDaysTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — slash `/d` UOM rejected while `/day` and standalone `d` synonyms matched — **hit 2026-09-12 seed hunt #2152:** Azure Retail daily consumption meters with bare `/d` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/day` and `d` already matched (parity with `/h` and `/wk`); fixed with `ContainsSlashDToken`; regressions in `AzureRetailPricesSkuMatchersSlashDayTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — slash `/hrs` UOM rejected while `/hr` and standalone `hrs` synonyms matched — **hit 2026-09-12 seed hunt #2193:** Azure Retail hourly consumption meters with bare `/hrs` or `1/hrs` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/hr` and `hrs` already matched; fixed with `ContainsSlashHrsToken`; regressions in `AzureRetailPricesSkuMatchersSlashHrsTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — slash `/hrs` UOM rejected while `/hr` and standalone `hrs` synonyms matched — **hit 2026-09-12 seed hunt #2193:** Azure Retail hourly consumption meters with bare `/hrs` or `1/hrs` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/hr` and `hrs` already matched; fixed with `ContainsSlashHrsToken`; regressions in `AzureRetailPricesSkuMatchersSlashHrsTests`.
