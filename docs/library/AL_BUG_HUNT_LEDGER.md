@@ -2674,13 +2674,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-09 — present/future lifecycle synonyms ignored in `InferLifecycleScopeForIndex`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2082 (seed-only): reseeded extraction-router; 14 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
 
