@@ -9752,7 +9752,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -9897,6 +9897,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-09-12 seed hunt #1872 (seed-only): reseeded core-explanation-json; scoped tests passed; no hunt-ready defect proven this pass.
 
+
+2026-09-12 seed hunt #1921 (seed-only): reseeded core-explanation-json; cheap-disproof closed object-shaped list `text` coercion as fixed in #1716; 32 scoped RunExplanation tests passed.
+
+- [x] (valid-no-repro) `StructuredExplanationParser.TryReadStringListEntry` skips object `text` entries — **cheap-disproof 2026-09-12 seed hunt #1921:** regression `TryNormalizeStructuredJson_maps_object_shaped_alternatives_considered_entries` (#1716).
 ---
 
 ## Zone: context-ingestion
