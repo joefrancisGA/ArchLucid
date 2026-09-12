@@ -26,6 +26,7 @@ describe("mode-gravity ADR guard (MG-001 / ADR 0094)", () => {
 
     expect(statusMatch, "ADR 0094 must declare Proposed or Accepted status").not.toBeNull();
     expect(MODE_GRAVITY_ADR_0094_ACCEPTED_STATUSES).toContain(statusMatch![1]);
+    expect(statusMatch![1]).toBe("Accepted");
 
     expect(adr).toMatch(/one execute gravity/i);
     expect(adr).toMatch(/Is operator-experience a Career door\?/);

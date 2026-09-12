@@ -4,8 +4,9 @@
 
 # ADR 0094: Working has one execute gravity
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-11
+- **Accepted:** 2026-09-12 (owner)
 - **Owner decision:** Working production has **one execute gravity** — Career unless the operator explicitly opens **Rehearsal**. `NEXT_PUBLIC_OPERATOR_EXPERIENCE` is engineering chrome density, not a third gravity. Guided stays a second product. Host Mode default is unchanged.
 
 ## Context
