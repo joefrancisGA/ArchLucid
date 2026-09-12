@@ -41,7 +41,6 @@ public sealed class ExecDigestEmailDispatcher(
 
         string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
         ArgumentNullException.ThrowIfNull(composition);
-        string normalizedWeekLabel = composition.WeekLabel.Trim();
 
         if (string.IsNullOrWhiteSpace(composition.WeekLabel))
             throw new ArgumentException("Week label is required.", nameof(composition));
