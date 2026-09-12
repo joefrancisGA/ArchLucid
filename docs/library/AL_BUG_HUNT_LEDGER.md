@@ -9694,13 +9694,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 thorough hunt #1954 (dry): cheap-disproof closed integration outbound client candidate already fixed in #1928; no open hunt-ready rows.
 
 Split from retired `archlucid-core` (ABQ-08).
 
