@@ -2946,7 +2946,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -3038,6 +3038,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 seed hunt #639 (hit): PUT/PATCH `externalId` conflict check ignored directory-removed rows; tombstoned `externalId` could be reassigned to another active user (SQL unique constraint / silent duplicate); fixed `EnsureExternalIdNotUsedByAnotherUserAsync`; regressions `ReplaceAsync_tombstoned_external_id_throws_conflict` and `PatchAsync_tombstoned_external_id_throws_conflict`.
 
+
+2026-09-12 seed hunt #1925 (seed-only): reseeded ui-architecture-intelligence; scoped ArchitectureIntelligencePageClient tests passed; no new hunt-ready defect proven this pass.
 ---
 
 ## Zone: scim-users
