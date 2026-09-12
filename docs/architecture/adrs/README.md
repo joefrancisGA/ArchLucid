@@ -86,7 +86,11 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0088](0088-draft-patch-cas-mandatory.md) | Draft PATCH **CAS is mandatory** unless audited `forceOverwrite` — omit `expectedUpdatedUtc` is 409, not last-write-wins (**Status: Proposed** 2026-09-10; LW-001) |
 | [0089](0089-livelihood-mutation-401-resume.md) | Livelihood **mutating** writes resume after 401 from `localStorage` with the same idempotency key — not GET, not auth bootstrap (**Status: Proposed** 2026-09-10; LW-007) |
 | [0090](0090-architecture-work-lease-without-presence.md) | Soft exclusive **work-lease** on a draft (acquire / heartbeat / release / steal-with-confirm) — not live presence; ADR 0088 CAS still required (**Status: Proposed** 2026-09-10; LW-008) |
+<<<<<<< HEAD
 | [0091](0091-career-is-working-default-day.md) | Working production **Career is the default execute gravity** — Rehearsal is explicit; unlabeled Simulator is not the day’s work; host `AgentExecution:Mode` default stays Simulator (**Status: Accepted** 2026-09-12; CG-001; **not** G-REAL-06; does not rewrite 0086) |
+=======
+| [0091](0091-career-is-working-default-day.md) | Working production **Career is the default execute gravity** — Rehearsal is explicit; unlabeled Simulator is not the day’s work; host `AgentExecution:Mode` default stays Simulator (**Status: Proposed** 2026-09-11; CG-001; **not** G-REAL-06; does not rewrite 0086) |
+>>>>>>> origin/master
 | [0092](0092-working-cheap-what-if-envelope.md) | Working **labeled what-if envelope** without Career seal — cheap Rehearsal-stamped sketch; Career what-if stays R12 full run; **no** draft-diff Compare; kernels unmerged (**Status: Accepted** 2026-09-12; SN-001 / CE; **not** G-REAL-06; does not rewrite 0068/R12) |
 | [0093](0093-false-hard-citation-working-career.md) | Working Career **hard infeasible** requires citation — uncited hard demoted or withheld on export; extends ADR 0050/R5; does not replace 0082; no 40th engine (**Status: Accepted** 2026-09-12; LN-001; **not** G-REAL-06) |
 | [0094](0094-working-one-execute-gravity.md) | Working production **one execute gravity** — Career default per 0091; operator-experience is density not Mode; Guided/demo/trial remain eval; host `AgentExecution:Mode` stays Simulator (**Status: Accepted** 2026-09-12; MG-001; **not** G-REAL-06; does not delete Guided) |

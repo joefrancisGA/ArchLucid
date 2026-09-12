@@ -13,6 +13,9 @@ describe("createArchitectureDiagramMermaidConfig", () => {
     const config = createArchitectureDiagramMermaidConfig(false);
 
     expect(config.flowchart.htmlLabels).toBe(false);
+    expect(config.flowchart.padding).toBe(10);
+    expect(config.flowchart.nodeSpacing).toBe(28);
+    expect(config.flowchart.rankSpacing).toBe(32);
     expect(config.suppressErrorRendering).toBe(true);
     expect(config.startOnLoad).toBe(false);
     expect(config.themeVariables.primaryColor).toBe("#E6CF8A");

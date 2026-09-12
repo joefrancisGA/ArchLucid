@@ -5,13 +5,13 @@ export const ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE = {
 } as const;
 
 /** Horizontal gap between dagre-ranked nodes (Mermaid flowchart.nodeSpacing). */
-export const ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING = 24;
+export const ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING = 28;
 
 /** Vertical gap between dagre ranks (Mermaid flowchart.rankSpacing). */
-export const ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING = 28;
+export const ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING = 32;
 
 /** Padding around the whole flowchart plate (Mermaid flowchart.padding). */
-export const ARCHITECTURE_DIAGRAM_MERMAID_PADDING = 8;
+export const ARCHITECTURE_DIAGRAM_MERMAID_PADDING = 10;
 
 /** Max label width before Mermaid wraps long VNet names (flowchart.wrappingWidth). */
 export const ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH = 240;
