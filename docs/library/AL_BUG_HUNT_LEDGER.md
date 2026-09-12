@@ -10776,11 +10776,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 34
-- **bugs-found:** 29
+- **hunts:** 35
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — coverage acknowledgement PATCH/PUT omitted free-text max-length guard on ExclusionReason
+- **last-bug:** 2026-09-12 — assumption acknowledgement PUT omitted invalid-Unicode surrogate guard on AcknowledgedAssumptionIds
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
