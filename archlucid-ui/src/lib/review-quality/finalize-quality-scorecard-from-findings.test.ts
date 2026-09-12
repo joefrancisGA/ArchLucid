@@ -71,6 +71,36 @@ describe("finalize-quality-scorecard-from-findings", () => {
     expect(input.uncoveredMandatoryRequirementCount).toBe(1);
   });
 
+  it("counts open required-capability-coverage findings for TB-2346", () => {
+    const input = deriveFinalizeQualityScorecardInput(
+      [
+        sampleFinding({
+          findingId: "cap1",
+          title: "Required capabilities are not fully evidenced",
+          aiReasoning: {
+            reasoningTrace: "",
+            wireJson: JSON.stringify({
+              engineType: "required-capability-coverage",
+              findingType: "RequiredCapabilityCoverageFinding",
+            }),
+          },
+        }),
+        sampleFinding({
+          findingId: "cap2",
+          title: "Required capabilities are not fully evidenced",
+          isMuted: true,
+          aiReasoning: {
+            reasoningTrace: "",
+            wireJson: JSON.stringify({ engineType: "required-capability-coverage" }),
+          },
+        }),
+      ],
+      0,
+    );
+
+    expect(input.missingRequiredCapabilityCount).toBe(1);
+  });
+
   it("counts deferred and contradiction job views", () => {
     const input = deriveFinalizeQualityScorecardInput(
       [
