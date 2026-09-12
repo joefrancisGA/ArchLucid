@@ -54,7 +54,7 @@ export const SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_CONCEPT_TILES: readonly Syste
       id: "clone-after-spawn",
       title: `${SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DESK_CTA_LABEL} after spawn lock`,
       body:
-        "When a draft spawns a linked review, the parent snapshot stays sealed. Use New version (clone) on the desk to open the next editable draft under the same architecture — the legal successor, not a second desk product.",
+        "When a draft spawns a linked review, the parent snapshot stays sealed. Use Sketch a change on the desk to open the next editable draft under the same architecture — the legal successor, not a second desk product.",
     },
   ] as const;
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpJiraIntegrationSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpJiraIntegrationSourcesOrientationStrip";
 import { JiraIntegrationHelpClaimDisciplineStrip } from "@/components/help/JiraIntegrationHelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { JiraIntegrationHelpEvidenceOrientationStrip } from "@/components/help/JiraIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -254,6 +255,8 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
                 ))}
               </ol>
             </section>
+
+            <SponsorSendPathHonestyPanel testIdPrefix="help-jira-integration" showSsoOptional={false} />
           </div>
 
             {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}

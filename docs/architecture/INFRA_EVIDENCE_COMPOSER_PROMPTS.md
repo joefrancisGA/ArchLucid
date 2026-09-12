@@ -3,7 +3,7 @@
 
 # Infrastructure-evidence Composer prompts
 
-**Created:** 2026-09-04 · **Revised:** 2026-09-11 (added **IE-RF-01–IE-RF-12** relationship-first topology collection; **IE-ID-01–IE-ID-03** Identity diagram compiles but does not paint; **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931).
+**Created:** 2026-09-04 · **Revised:** 2026-09-12 (added **IE-DD-01–IE-DD-04** Data diagram render failed; **IDS-01–IDS-04** inventory-diagram spacing: real peerings skip the peer-grid; resources and connectors too far apart; **IE-RF-01–IE-RF-12** relationship-first topology collection; **IE-ID-01–IE-ID-03** Identity diagram compiles but does not paint; **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931).
 
 **Status:** ready to run — **one prompt per chat**.
 
@@ -23,6 +23,8 @@ Canonical design: [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md
 | [`INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ND-01–IE-ND-05** Network mode empty despite `Microsoft.Network/*` inventory (category substring bug, mermaid contract, sparse flatten, subnet subgraphs, honest empty UX) |
 | [`INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md) | **IE-RF-01–IE-RF-12** Relationship-first ARG projections + type-scoped ARM lists → association table → Mermaid (not ARM export / `dependsOn`) |
 | [`INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ID-01–IE-ID-03** Identity mode compiles (Succeeded + outline) but the canvas does not paint (sparse flatten leftover from IE-ND-03, mermaid contract, overlay collapse) |
+| [`INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-DD-01–IE-DD-04** Data mode Render failed (38 nodes / 70 edges / 38 subgraphs): SQL/Cosmos/DBfor category slash-bug, mermaid contract, owner Failed ratchet, honest validation errors |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md) | **IDS-01–IDS-04** Executive canvas is better after IDL, but resources and connectors sit too far apart (peering forest skips the peer-grid; padded viewBox) |
 
 ## Why this set exists
 
@@ -104,6 +106,10 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | **IE-ID-01** | Flatten sparse Identity-mode RG swimlanes | IE-16, IE-UX-02, IE-ND-03 |
 | **IE-ID-02** | Identity-mode mermaid contract from inventory snapshots | IE-ID-01 |
 | **IE-ID-03** | Inventory mermaid viewport must not collapse to overlay-only | IDV-01–03 (parallel with IE-ID-01) |
+| **IE-DD-01** | Canonical Azure data/storage topology category (`Microsoft.Sql/` / `DocumentDB` / `DBfor*` not `Contains("/sql")`) | IE-16, IE-ND-01 |
+| **IE-DD-02** | Data-mode mermaid contract from inventory snapshots | IE-DD-01 |
+| **IE-DD-03** | Owner Failed ratchet (flatten + emitter/validator/`IsLayoutOnly`) | IE-DD-01 (parallel with 02) |
+| **IE-DD-04** | Honest Failed UX (`validationErrors` on render + workbench) | IE-DD-03 |
 | **IE-RF-01** | Association type catalog on `network-associations.json` | IE-02 ZIP layout |
 | **IE-RF-02** | Tier 1 ARG relationship projections | IE-RF-01 |
 | **IE-RF-03** | Hosted type-scoped ARM list GETs | IE-RF-01 (parallel with 02) |
@@ -122,6 +128,10 @@ Run **IE-UX-00 first** after backend batches land; then IE-UX-01–IE-UX-05 in o
 **Network diagram empty despite inventory:** run **IE-ND-01 first**, then **IE-ND-02**. **IE-ND-03** and **IE-ND-04** may run in parallel after 01. **IE-ND-05** after 02. Prompts: [`INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_NETWORK_DIAGRAM_COMPOSER_PROMPTS.md).
 
 **Identity diagram compiles but does not paint:** run **IE-ID-01 first**, then **IE-ID-02**. **IE-ID-03** may run in parallel with 01. Prompts: [`INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-identity-00-index.md`](../../.cursor/prompts/inventory-diagram-identity-00-index.md).
+
+**Data diagram render failed:** run **IE-DD-01 first**, then **IE-DD-02**. **IE-DD-03** may run in parallel with 02 after 01. **IE-DD-04** after 03. Prompts: [`INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-data-00-index.md`](../../.cursor/prompts/inventory-diagram-data-00-index.md).
+
+**Inventory diagram resources and connectors too far apart (after IDL):** run **IDS-01** (viewer spacing) and **IDS-02** (component packer) in parallel, then **IDS-03** (node-union crop; may parallel 02). **IDS-04** last. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-spacing-00-index.md`](../../.cursor/prompts/inventory-diagram-spacing-00-index.md). Do **not** re-run IDL-01–06.
 
 **Relationship-first topology (sparse ARM flatten / no VM→NIC):** run **IE-RF-01 first**, then **IE-RF-02** and **IE-RF-03** in parallel. **IE-RF-10** must not block 01–09. **IE-RF-12** is a hold. Prompts: [`INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/infra-evidence-relationship-first-00-index.md`](../../.cursor/prompts/infra-evidence-relationship-first-00-index.md).
 
@@ -172,3 +182,7 @@ Attack-path / capability-to-flow engines over **live inventory** are **SA-01–S
 | IE-RF-07, IE-RF-09, IE-RF-11 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` |
 | IE-RF-08 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
 | IE-RF-10 | Extractor tests + Application.Tests if edges map |
+| IE-DD-01 | `ArchLucid.KnowledgeGraph.Tests/ArchLucid.KnowledgeGraph.Tests.csproj` (+ ArtifactSynthesis `DiagramAstFromGraphCompilerTests` named in the prompt) |
+| IE-DD-02 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` |
+| IE-DD-03 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` (+ Application.Tests named in the prompt) |
+| IE-DD-04 | `ArchLucid.Application.Tests` + `archlucid-ui` Vitest as specified in the prompt |

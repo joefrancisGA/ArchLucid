@@ -4,8 +4,9 @@
 
 # ADR 0086: Working Career vs Rehearsal doors (no host Mode flip)
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-10
+- **Accepted:** 2026-09-12 (owner)
 - **Owner decision:** Working product chrome exposes two explicit doors — **Career** (Real execute, career artifacts) and **Rehearsal** (Simulator, labeled incomplete). Host `AgentExecution:Mode` default may remain Simulator for local/dev clones. **Do not implement G-REAL-06 in this wave.**
 
 ## Context

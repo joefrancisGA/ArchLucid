@@ -4,8 +4,9 @@
 
 # ADR 0092: Working cheap what-if envelope (no kernel merge)
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-11
+- **Accepted:** 2026-09-12 (owner)
 - **Owner decision:** All-day architects need cheap sketches. R12 made every branch a billable full run. The envelope must not launder Career. Two kernels stay separate.
 
 ## Context

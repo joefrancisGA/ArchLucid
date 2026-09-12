@@ -9,6 +9,12 @@
 
 **Legacy filename / env:** doc path and `NEXT_PUBLIC_OPERATOR_EXPERIENCE` keep the historical `operator` identifier; product language is **architect workspace**.
 
+## Gravity vs density (ADR 0094 / MG wave)
+
+**Execute gravity (Working only):** Career vs Rehearsal is the **only** execute posture control on Working production seats (ADR 0086 / 0091 / **0094**). `NEXT_PUBLIC_OPERATOR_EXPERIENCE` and product line are **density and packaging**, not a third Career door. Support reads `workspaceMode`, door stamp, and host `AgentExecution:Mode` from the bundle — not operator-experience alone (MG-023 / CG-092).
+
+**TB-643 history retained:** production Working already has dense chrome without `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`. The flag opts into extra engineering surfaces for local dev and power users; it does not change Career vs Rehearsal or export stamp.
+
 ## Production default: Working desk (TB-643 history)
 
 **Production identity (2026-09):** authenticated **Working** seats on env-unset builds use **dense architect-workspace chrome** via `resolveProductionDeskChrome()` / `useProductionDeskChrome()`. Demo, static showcase, frictionless trial, and **Guided** mode use eval/teaching chrome via `resolveProductionEvalChrome()`.

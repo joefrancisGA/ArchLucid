@@ -1,6 +1,6 @@
 /** TB-645 copy for Working Record door gate (AS-078 / ADR 0086). TB-1299: no silent Simulator as Record. */
 
-export const WORKING_CAREER_DOOR_BLOCKED_TITLE = "Sealed record blocked";
+export const WORKING_CAREER_DOOR_BLOCKED_TITLE = "This host cannot produce a sealed record";
 
 export const WORKING_CAREER_DOOR_HOST_SIMULATOR_BLOCKED_DETAIL =
   "Record needs live AI execution. This host is pinned to rule-based analysis (Simulator mode), so runs cannot execute as sealed-record proof here.";

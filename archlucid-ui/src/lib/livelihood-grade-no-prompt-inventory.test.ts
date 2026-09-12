@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 const PROMPTS_DIR = join(process.cwd(), "..", ".cursor", "prompts");
 
-describe("livelihood-grade-no prompt inventory (LN-040)", () => {
+describe("livelihood-grade-no prompt inventory (LN-032)", () => {
   it("includes the LN-00 index and LN-001 through LN-040 paste-ready files", () => {
     const files = readdirSync(PROMPTS_DIR)
       .filter((name) => name.startsWith("livelihood-grade-no-") && name.endsWith(".md"))

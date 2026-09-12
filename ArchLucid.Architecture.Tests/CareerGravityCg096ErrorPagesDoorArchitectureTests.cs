@@ -35,7 +35,7 @@ public sealed class CareerGravityCg096ErrorPagesDoorArchitectureTests
                 "error.tsx"));
 
         copy.Should().Contain("ERROR_RECOVERY_RETRY_NO_POSTURE_CHANGE");
-        copy.Should().Contain("does not mark a rehearsal run Career-complete");
+        copy.Should().Contain("does not mark a practice run record-complete");
         reviewError.Should().Contain("ErrorRecoveryCareerHonestyStrip");
         reviewError.Should().Contain("scopedRunId={reviewId}");
     }

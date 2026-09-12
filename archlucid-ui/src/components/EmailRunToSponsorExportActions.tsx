@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -261,6 +262,8 @@ export function EmailRunToSponsorExportActions({
                   : "Step 1: generate the sponsor one‑pager PDF — same storyline as the Markdown narrative."}
         </span>
       </div>
+
+      <SponsorExportSendHonestyStrip className="mt-3" testIdPrefix="email-run-to-sponsor-export" />
 
       <ul className={cn("m-0 mt-3 list-none space-y-1.5 p-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         <li>

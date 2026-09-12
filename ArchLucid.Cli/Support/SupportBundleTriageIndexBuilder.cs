@@ -276,7 +276,7 @@ public static class SupportBundleTriageIndexBuilder
         sb.AppendLine($"Working Career/Rehearsal door: {careerPosture.WorkingCareerRehearsalDoor}");
         sb.AppendLine($"Career posture label: {careerPosture.CareerPostureLabel}");
         sb.AppendLine($"Rehearsal incomplete: {(careerPosture.RehearsalIncomplete ? "yes" : "no")}");
-        sb.AppendLine($"Career blocked: {(careerPosture.CareerBlocked ? "yes" : "no")}");
+        sb.AppendLine($"Sealed record blocked: {(careerPosture.CareerBlocked ? "yes" : "no")}");
     }
 
     private static string? SummarizeLatestFailedGate(SupportBundlePayload payload)

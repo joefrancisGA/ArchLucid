@@ -376,6 +376,23 @@ export function DiagramsWorkbenchClient() {
     return !snapshots.some((snapshot) => snapshot.snapshotId === urlSnapshotId);
   }, [loadingSnapshots, snapshots, urlSnapshotId]);
 
+  const selectedSnapshot = useMemo(
+    () => snapshots.find((snapshot) => snapshot.snapshotId === selectedSnapshotId) ?? null,
+    [selectedSnapshotId, snapshots],
+  );
+
+  const selectedSnapshotDisplayLabel = useMemo(() => {
+    if (selectedSnapshot != null) {
+      return formatInfraEvidenceDiagramsSnapshotPickerLabel(selectedSnapshot);
+    }
+
+    if (selectedSnapshotId.length > 0) {
+      return selectedSnapshotId;
+    }
+
+    return null;
+  }, [selectedSnapshot, selectedSnapshotId]);
+
   const selectedModeLabel = useMemo(
     () => resolveInfraDiagramsModeLabel(selectedMode, effectiveFallbackKey, selectedResourceGroupName),
     [effectiveFallbackKey, selectedMode, selectedResourceGroupName],
@@ -397,13 +414,14 @@ export function DiagramsWorkbenchClient() {
         ? `${metrics.nodeCount} nodes, ${metrics.edgeCount} edges, ${metrics.subgraphCount} subgraphs.`
         : "";
 
-    return `Diagram snapshot ${selectedSnapshotId} selected. Mode ${selectedModeLabel}. Render status ${status}.${metricLine.length > 0 ? ` ${metricLine}` : ""}`;
+    return `Diagram snapshot ${selectedSnapshotDisplayLabel} selected. Mode ${selectedModeLabel}. Render status ${status}.${metricLine.length > 0 ? ` ${metricLine}` : ""}`;
   }, [
     activeModePreview?.status,
     deepLinkedSnapshotMissing,
     renderResult?.metrics,
     renderResult?.status,
     selectedModeLabel,
+    selectedSnapshotDisplayLabel,
     selectedSnapshotId,
   ]);
 
@@ -467,8 +485,8 @@ export function DiagramsWorkbenchClient() {
   const diagramScopeContextLine = useMemo(() => {
     const parts: string[] = [];
 
-    if (selectedSnapshotId.length > 0) {
-      parts.push(`Snapshot ${selectedSnapshotId}`);
+    if (selectedSnapshotDisplayLabel != null) {
+      parts.push(`Snapshot ${selectedSnapshotDisplayLabel}`);
     }
 
     parts.push(selectedModeLabel);
@@ -478,7 +496,7 @@ export function DiagramsWorkbenchClient() {
     }
 
     return parts.join(" · ");
-  }, [selectedModeLabel, selectedSnapshotId, urlCloudResourceId]);
+  }, [selectedModeLabel, selectedSnapshotDisplayLabel, urlCloudResourceId]);
 
   const renderQuery = useMemo((): InfraEvidenceMermaidRenderQuery | null => {
     if (isInfraDiagramsResourceGroupMode(selectedMode)) {
@@ -841,11 +859,6 @@ export function DiagramsWorkbenchClient() {
       "text/plain;charset=utf-8",
     );
   }, [effectiveFallbackKey, mermaidExportDisabled, mermaidSource, selectedMode, selectedSnapshotId]);
-
-  const selectedSnapshot = useMemo(
-    () => snapshots.find((snapshot) => snapshot.snapshotId === selectedSnapshotId) ?? null,
-    [selectedSnapshotId, snapshots],
-  );
 
   return (
     <OperatorPageContainer
@@ -1375,8 +1388,8 @@ export function DiagramsWorkbenchClient() {
           ) : null}
           <ArchitectureDiagramViewer
             mermaidSource={mermaidSource}
-            textAlternative={`Inventory diagram for snapshot ${selectedSnapshotId} in ${selectedModeLabel} mode.`}
-            viewportAriaLabel={`Inventory diagram for snapshot ${selectedSnapshotId}`}
+            textAlternative={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId} in ${selectedModeLabel} mode.`}
+            viewportAriaLabel={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId}`}
             fullscreenTitle={`Inventory diagram · ${selectedModeLabel}`}
             scopeContextLine={diagramScopeContextLine}
             canvasStale={renderInFlight}

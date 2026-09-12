@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useState } from "react";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
+import { POLICY_PACK_INFLUENCE_HONESTY_LINE } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
@@ -22,6 +24,7 @@ import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-arti
 import { downloadFirstValueReportPdf } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { firstValueReportMutationBlockedReason } from "@/lib/pilots/first-value-report-mutation-blocked-reason";
@@ -102,7 +105,16 @@ export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): Re
     }
 
     const headline = systemName?.trim() ?? "Signed review";
-    const body = `# ${headline}\n\n${BUYER_MANIFEST_AUTHORITY_SUMMARY}\n\nReview ID: ${runIdTrimmed}\n`;
+    const body = [
+      `# ${headline}`,
+      "",
+      BUYER_MANIFEST_AUTHORITY_SUMMARY,
+      "",
+      `Review ID: ${runIdTrimmed}`,
+      "",
+      `**Sponsor ROI honesty:** ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`,
+      `**Policy influence:** ${POLICY_PACK_INFLUENCE_HONESTY_LINE}`,
+    ].join("\n");
     const slug = headline.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
     triggerGoldenManifestMarkdownDownload(body, `decision-receipt-${slug || runIdTrimmed}.md`);
@@ -122,6 +134,7 @@ export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): Re
       {deliverableDisabledReason !== null ? (
         <WhyDisabledCtaHint id={blockedHintId} reason={deliverableDisabledReason} />
       ) : null}
+      <SponsorExportSendHonestyStrip testIdPrefix="manifest-deliverable" />
       <div className="grid gap-3 sm:grid-cols-2">
         {showPdfTile ? (
           <DeliverableTile

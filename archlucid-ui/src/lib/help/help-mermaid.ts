@@ -199,12 +199,45 @@ function readMermaidGroupInkBBox(svg: SVGSVGElement): DOMRect | null {
 }
 
 /**
- * Prefer node/edge ink over cluster shells, but only in SVG user space.
+ * Union of node boxes only — excludes edge paths whose Bézier bbox inflates the plate.
+ */
+function readMappedNodeUnionBBox(svg: SVGSVGElement): { union: DOMRect; nodeCount: number } | null {
+  const inkBoxes: DOMRect[] = [];
+
+  for (const element of svg.querySelectorAll("g.node")) {
+    if (!(element instanceof SVGGraphicsElement)) {
+      continue;
+    }
+
+    const localBox = readGraphicsElementBBox(element);
+
+    if (localBox === null) {
+      continue;
+    }
+
+    const mapped = mapLocalBBoxToSvgUserSpace(element, svg, localBox);
+
+    if (mapped !== null) {
+      inkBoxes.push(mapped);
+    }
+  }
+
+  const union = unionDomRects(inkBoxes);
+
+  if (union === null) {
+    return null;
+  }
+
+  return { union, nodeCount: inkBoxes.length };
+}
+
+/**
+ * Prefer node ink over cluster shells, but only in SVG user space.
  * Mermaid `.node` getBBox is local to a translated group; using it unmapped
  * crops the viewBox to the origin and hides the graph until the user scrolls.
  */
 function readMappedNodeInkBBox(svg: SVGSVGElement): DOMRect | null {
-  const inkElements = svg.querySelectorAll("g.node, g.edgePaths path, g.edgeLabel");
+  const inkElements = svg.querySelectorAll("g.node");
   const inkBoxes: DOMRect[] = [];
 
   for (const element of inkElements) {
@@ -378,7 +411,79 @@ function readMermaidSourceViewBox(svg: SVGSVGElement): DOMRect | null {
   return parseSvgViewBoxAttribute(svg.getAttribute("viewBox"));
 }
 
-/** Measured ink may tighten Mermaid's padded canvas; it must never clip rows or columns. */
+function expandDomRectWithPadding(rect: DOMRect, paddingPx: number): DOMRect {
+  return new DOMRect(
+    rect.x - paddingPx,
+    rect.y - paddingPx,
+    rect.width + paddingPx * 2,
+    rect.height + paddingPx * 2,
+  );
+}
+
+function clampDomRectToBounds(rect: DOMRect, bounds: DOMRect): DOMRect {
+  const x = Math.max(bounds.x, rect.x);
+  const y = Math.max(bounds.y, rect.y);
+  const right = Math.min(bounds.x + bounds.width, rect.x + rect.width);
+  const bottom = Math.min(bounds.y + bounds.height, rect.y + rect.height);
+  const width = Math.max(0, right - x);
+  const height = Math.max(0, bottom - y);
+
+  return new DOMRect(x, y, width, height);
+}
+
+function intersectDomRects(first: DOMRect, second: DOMRect): DOMRect | null {
+  const x = Math.max(first.x, second.x);
+  const y = Math.max(first.y, second.y);
+  const right = Math.min(first.x + first.width, second.x + second.width);
+  const bottom = Math.min(first.y + first.height, second.y + second.height);
+
+  if (right <= x || bottom <= y) {
+    return null;
+  }
+
+  return new DOMRect(x, y, right - x, bottom - y);
+}
+
+/**
+ * Mis-mapped ink often sits inside the source box but clips the first row/column.
+ * A padded canvas subset is much smaller than the source on at least one axis.
+ */
+function isLikelyMisMappedInkCrop(
+  sourceViewBox: DOMRect,
+  measuredInk: DOMRect,
+  paddingPx: number,
+): boolean {
+  const measuredInsideSource =
+    measuredInk.x >= sourceViewBox.x
+    && measuredInk.y >= sourceViewBox.y
+    && measuredInk.x + measuredInk.width <= sourceViewBox.x + sourceViewBox.width
+    && measuredInk.y + measuredInk.height <= sourceViewBox.y + sourceViewBox.height;
+
+  if (!measuredInsideSource) {
+    return false;
+  }
+
+  const insetThreshold = paddingPx * 2;
+  const flushLeft = measuredInk.x <= sourceViewBox.x + insetThreshold;
+  const flushTop = measuredInk.y <= sourceViewBox.y + insetThreshold;
+  const flushRight =
+    measuredInk.x + measuredInk.width >= sourceViewBox.x + sourceViewBox.width - insetThreshold;
+  const flushBottom =
+    measuredInk.y + measuredInk.height >= sourceViewBox.y + sourceViewBox.height - insetThreshold;
+  const coversMostOfSourceWidth = measuredInk.width >= sourceViewBox.width * 0.65;
+  const coversMostOfSourceHeight = measuredInk.height >= sourceViewBox.height * 0.55;
+
+  return (
+    coversMostOfSourceWidth
+    && coversMostOfSourceHeight
+    && !flushLeft
+    && !flushTop
+    && !flushRight
+    && !flushBottom
+  );
+}
+
+/** Measured node ink may tighten Mermaid's padded canvas; it must never clip rows or columns. */
 export function resolveMermaidInkViewBox(
   sourceViewBox: DOMRect | null,
   measuredInk: DOMRect | null,
@@ -389,42 +494,73 @@ export function resolveMermaidInkViewBox(
       return null;
     }
 
-    return new DOMRect(
-      measuredInk.x - paddingPx,
-      measuredInk.y - paddingPx,
-      measuredInk.width + paddingPx * 2,
-      measuredInk.height + paddingPx * 2,
-    );
+    return expandDomRectWithPadding(measuredInk, paddingPx);
   }
 
   if (measuredInk === null) {
     return sourceViewBox;
   }
 
-  const measuredInsideSource =
-    measuredInk.x >= sourceViewBox.x
-    && measuredInk.y >= sourceViewBox.y
-    && measuredInk.x + measuredInk.width <= sourceViewBox.x + sourceViewBox.width
-    && measuredInk.y + measuredInk.height <= sourceViewBox.y + sourceViewBox.height;
-  const measuredLargeEnough =
-    measuredInk.width >= sourceViewBox.width * 0.6 && measuredInk.height >= sourceViewBox.height * 0.6;
-  // Mis-mapped ink often sits inside the source box but clips the first row/column; require flush edges.
-  const measuredCoversSourceExtents =
-    measuredInk.x <= sourceViewBox.x + paddingPx
-    && measuredInk.y <= sourceViewBox.y + paddingPx
-    && measuredInk.x + measuredInk.width >= sourceViewBox.x + sourceViewBox.width - paddingPx
-    && measuredInk.y + measuredInk.height >= sourceViewBox.y + sourceViewBox.height - paddingPx;
+  const overlap = intersectDomRects(sourceViewBox, measuredInk);
 
-  if (measuredInsideSource && measuredLargeEnough && measuredCoversSourceExtents) {
+  if (overlap === null) {
+    return sourceViewBox;
+  }
+
+  if (isLikelyMisMappedInkCrop(sourceViewBox, measuredInk, paddingPx)) {
+    return sourceViewBox;
+  }
+
+  const tightened = clampDomRectToBounds(
+    expandDomRectWithPadding(overlap, paddingPx),
+    sourceViewBox,
+  );
+
+  if (tightened.width <= 0 || tightened.height <= 0) {
+    return sourceViewBox;
+  }
+
+  return tightened;
+}
+
+/** Crop to the union of node boxes when every g.node mapped; never clip a missing row. */
+export function resolveMermaidNodeUnionViewBox(
+  sourceViewBox: DOMRect | null,
+  nodeUnion: DOMRect | null,
+  measuredNodeCount: number,
+  expectedNodeCount: number,
+  paddingPx: number,
+): DOMRect | null {
+  if (nodeUnion === null || expectedNodeCount === 0 || measuredNodeCount !== expectedNodeCount) {
+    return sourceViewBox;
+  }
+
+  if (sourceViewBox === null) {
     return new DOMRect(
-      measuredInk.x - paddingPx,
-      measuredInk.y - paddingPx,
-      measuredInk.width + paddingPx * 2,
-      measuredInk.height + paddingPx * 2,
+      nodeUnion.x - paddingPx,
+      nodeUnion.y - paddingPx,
+      nodeUnion.width + paddingPx * 2,
+      nodeUnion.height + paddingPx * 2,
     );
   }
 
-  return sourceViewBox;
+  const tolerance = 1;
+  const unionInsideSource =
+    nodeUnion.x >= sourceViewBox.x - tolerance
+    && nodeUnion.y >= sourceViewBox.y - tolerance
+    && nodeUnion.x + nodeUnion.width <= sourceViewBox.x + sourceViewBox.width + tolerance
+    && nodeUnion.y + nodeUnion.height <= sourceViewBox.y + sourceViewBox.height + tolerance;
+
+  if (!unionInsideSource) {
+    return sourceViewBox;
+  }
+
+  return new DOMRect(
+    nodeUnion.x - paddingPx,
+    nodeUnion.y - paddingPx,
+    nodeUnion.width + paddingPx * 2,
+    nodeUnion.height + paddingPx * 2,
+  );
 }
 
 function ensureMermaidInkViewBox(
@@ -438,8 +574,23 @@ function ensureMermaidInkViewBox(
   }
 
   const sourceViewBox = readMermaidSourceViewBox(svg);
-  const measuredInk = readMermaidInkBBox(svg);
-  const resolvedViewBox = resolveMermaidInkViewBox(sourceViewBox, measuredInk, paddingPx);
+  const expectedNodeCount = svg.querySelectorAll("g.node").length;
+  const nodeUnionResult = readMappedNodeUnionBBox(svg);
+  let resolvedViewBox: DOMRect | null;
+
+  if (nodeUnionResult !== null && expectedNodeCount > 0) {
+    resolvedViewBox = resolveMermaidNodeUnionViewBox(
+      sourceViewBox,
+      nodeUnionResult.union,
+      nodeUnionResult.nodeCount,
+      expectedNodeCount,
+      paddingPx,
+    );
+  }
+  else {
+    const measuredInk = readMermaidInkBBox(svg);
+    resolvedViewBox = resolveMermaidInkViewBox(sourceViewBox, measuredInk, paddingPx);
+  }
 
   if (resolvedViewBox === null) {
     return null;

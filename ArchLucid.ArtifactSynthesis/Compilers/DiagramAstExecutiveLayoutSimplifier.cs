@@ -48,6 +48,12 @@ internal static class DiagramAstExecutiveLayoutSimplifier
             return;
         }
 
+        // IDS-02 packing subgraphs are layout chrome — do not flatten them.
+        if (ast.Subgraphs.All(DiagramSparseComponentPacker.IsPackingSubgraph))
+        {
+            return;
+        }
+
         FlattenAllSubgraphs(ast);
     }
 

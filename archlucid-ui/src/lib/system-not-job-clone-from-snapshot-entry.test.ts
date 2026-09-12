@@ -12,8 +12,8 @@ import {
 const repoRoot = join(__dirname, "..", "..", "..");
 
 describe("SN-008 clone-from-snapshot working path", () => {
-  it("uses the desk CTA label New version (clone)", () => {
-    expect(SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DESK_CTA_LABEL).toBe("New version (clone)");
+  it("uses the desk CTA label Sketch a change", () => {
+    expect(SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DESK_CTA_LABEL).toBe("Sketch a change");
   });
 
   it("names Practice stamp, CG door rules, and SN-009 cap pointer in confirm copy", () => {

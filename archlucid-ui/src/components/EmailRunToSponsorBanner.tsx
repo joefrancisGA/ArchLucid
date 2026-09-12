@@ -205,7 +205,7 @@ export function EmailRunToSponsorBanner({
           data-testid="email-run-to-sponsor-career-artifact-gap"
           className={cn("mt-3 rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50", OPERATOR_TYPOGRAPHY.body)}
         >
-          <p className="m-0 font-semibold">Career artifact honesty blocks sponsor PDF</p>
+          <p className="m-0 font-semibold">Sealed-record honesty blocks sponsor PDF</p>
           {banner.careerArtifactVerdict.blockedReasons.map((reason) => (
             <p key={reason} className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
               {reason}

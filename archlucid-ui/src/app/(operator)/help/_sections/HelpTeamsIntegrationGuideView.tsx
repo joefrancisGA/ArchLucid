@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { TeamsIntegrationHelpClaimDisciplineStrip } from "@/components/help/TeamsIntegrationHelpClaimDisciplineStrip";
 import { TeamsIntegrationHelpEvidenceOrientationStrip } from "@/components/help/TeamsIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -200,6 +201,7 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
             </ul>
           </section>
 
+          <SponsorSendPathHonestyPanel testIdPrefix="help-teams-integration" showSsoOptional={false} />
         </div>
 
         <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />

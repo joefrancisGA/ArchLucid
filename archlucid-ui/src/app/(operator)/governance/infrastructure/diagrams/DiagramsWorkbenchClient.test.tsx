@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
@@ -72,7 +73,13 @@ vi.mock("@/lib/infra-evidence/infra-evidence-mermaid-api", () => ({
 }));
 
 vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
-  ArchitectureDiagramViewer: () => <div data-testid="architecture-diagram-viewer-mock" />,
+  ArchitectureDiagramViewer: (props: { scopeContextLine?: string | null }) => (
+    <div data-testid="architecture-diagram-viewer-mock">
+      {props.scopeContextLine != null ? (
+        <p data-testid="architecture-diagram-scope-context">{props.scopeContextLine}</p>
+      ) : null}
+    </div>
+  ),
 }));
 
 vi.mock("@/lib/use-nav-surface", () => ({
@@ -155,6 +162,18 @@ describe("DiagramsWorkbenchClient", () => {
         },
       ],
     }));
+  });
+
+  it("renders human-readable snapshot label above the diagram", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DiagramsWorkbenchClient />);
+
+    const snapshotLabel = formatInfraEvidenceDiagramsSnapshotPickerLabel(defaultSnapshotsResponse.items[0]);
+
+    const scopeContext = await screen.findByTestId("architecture-diagram-scope-context");
+
+    expect(scopeContext).toHaveTextContent(`Snapshot ${snapshotLabel}`);
+    expect(scopeContext).not.toHaveTextContent("11111111-1111-1111-1111-111111111111");
   });
 
   it("renders snapshot picker and partitioned fallback cards", async () => {

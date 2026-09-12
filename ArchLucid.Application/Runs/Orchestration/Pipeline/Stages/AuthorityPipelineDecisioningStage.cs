@@ -22,6 +22,7 @@ public sealed class AuthorityPipelineDecisioningStage(
     IAuthorityPipelineStagePersistence stagePersistence,
     IAuditService auditService,
     IAuthorityClosedLoopStrengtheningPass closedLoopStrengtheningPass,
+    IClosedLoopStrengtheningScoreSyncService closedLoopScoreSyncService,
     IManifestHashService manifestHashService,
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
     ILogger<AuthorityPipelineDecisioningStage> logger) : IAuthorityPipelineDecisioningStage
@@ -37,6 +38,9 @@ public sealed class AuthorityPipelineDecisioningStage(
 
     private readonly IAuthorityClosedLoopStrengtheningPass _closedLoopStrengtheningPass =
         closedLoopStrengtheningPass ?? throw new ArgumentNullException(nameof(closedLoopStrengtheningPass));
+
+    private readonly IClosedLoopStrengtheningScoreSyncService _closedLoopScoreSyncService =
+        closedLoopScoreSyncService ?? throw new ArgumentNullException(nameof(closedLoopScoreSyncService));
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
@@ -75,6 +79,44 @@ public sealed class AuthorityPipelineDecisioningStage(
             context.Request,
             manifest,
             cancellationToken);
+
+        if (context.FindingsSnapshot is not null && context.GraphSnapshot is not null)
+        {
+            ClosedLoopStrengtheningScoreSyncResult scoreSyncResult = _closedLoopScoreSyncService.SyncScoreSignals(
+                manifest,
+                context.GraphSnapshot,
+                context.FindingsSnapshot);
+
+            if (scoreSyncResult.ProjectedFindingCount > 0
+                || scoreSyncResult.EnrichedGraphNodeCount > 0
+                || scoreSyncResult.MutedRequiredCapabilityFinding
+                || scoreSyncResult.UpdatedRequiredCapabilityFinding)
+            {
+                await _stagePersistence.SaveFindingsAsync(
+                    context.FindingsSnapshot,
+                    context.UnitOfWork,
+                    cancellationToken);
+
+                await _stagePersistence.SaveGraphAsync(
+                    context.GraphSnapshot,
+                    scope,
+                    context.UnitOfWork,
+                    cancellationToken);
+            }
+
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation(
+                    "Closed-loop score sync for run {RunId}: projected {ProjectedFindingCount} finding(s), "
+                    + "enriched {EnrichedGraphNodeCount} graph node(s), mutedCapability={MutedCapability}, "
+                    + "updatedCapability={UpdatedCapability}.",
+                    run.RunId,
+                    scoreSyncResult.ProjectedFindingCount,
+                    scoreSyncResult.EnrichedGraphNodeCount,
+                    scoreSyncResult.MutedRequiredCapabilityFinding,
+                    scoreSyncResult.UpdatedRequiredCapabilityFinding);
+            }
+        }
 
         manifest.ManifestHash = _manifestHashService.ComputeHash(manifest);
 

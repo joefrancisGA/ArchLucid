@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -73,6 +74,9 @@ export function HelpArchitectureSharingGuideView(props: HelpArchitectureSharingG
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{ARCHITECTURE_SHARING_HELP_NOT_IN_PRODUCT_COPY}</p>
           <p className={cn("mt-3 mb-0", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_SHARING_HELP_CLAIM_DISCIPLINE}</p>
         </section>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-architecture-sharing" showSsoOptional={false} />
+
         <HelpTopicRegistryProvenanceLine entry={entry} />
       </div>
     </div>

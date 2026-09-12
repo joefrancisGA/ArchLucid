@@ -14,6 +14,7 @@ import {
   readMermaidViewportFitBudget,
   removeMermaidRenderBindElement,
   resolveMermaidInkViewBox,
+  resolveMermaidNodeUnionViewBox,
   sanitizeMermaidRenderId,
 } from "@/lib/help/help-mermaid";
 
@@ -313,6 +314,127 @@ describe("help-mermaid", () => {
     expect(resolved?.y).toBe(0);
     expect(resolved?.width).toBe(1144);
     expect(resolved?.height).toBe(322);
+  });
+
+  it("resolveMermaidInkViewBox tightens a padded canvas to measured node ink", () => {
+    const source = new DOMRect(0, 0, 4000, 3000);
+    const measured = new DOMRect(1200, 900, 1500, 1100);
+
+    const resolved = resolveMermaidInkViewBox(source, measured, 12);
+
+    expect(resolved?.x).toBe(1188);
+    expect(resolved?.y).toBe(888);
+    expect(resolved?.width).toBe(1524);
+    expect(resolved?.height).toBe(1124);
+  });
+
+  it("resolveMermaidInkViewBox tightens a grid whose source viewBox matches node ink", () => {
+    const source = new DOMRect(0, 0, 1144, 322);
+    const measured = new DOMRect(12, 24, 1100, 280);
+
+    const resolved = resolveMermaidInkViewBox(source, measured, 12);
+
+    expect(resolved?.x).toBe(0);
+    expect(resolved?.y).toBe(12);
+    expect(resolved?.width).toBe(1124);
+    expect(resolved?.height).toBe(304);
+  });
+
+  it("resolveMermaidNodeUnionViewBox tightens ink on the right of a padded plate", () => {
+    const source = new DOMRect(0, 0, 4000, 800);
+    const nodeUnion = new DOMRect(2800, 40, 900, 120);
+
+    const resolved = resolveMermaidNodeUnionViewBox(source, nodeUnion, 11, 11, 12);
+
+    expect(resolved?.x).toBe(2788);
+    expect(resolved?.y).toBe(28);
+    expect(resolved?.width).toBe(924);
+    expect(resolved?.height).toBe(144);
+  });
+
+  it("resolveMermaidNodeUnionViewBox keeps source when the node union is incomplete", () => {
+    const source = new DOMRect(0, 0, 1144, 322);
+    const nodeUnion = new DOMRect(119.31, 54.5, 865.58, 205.75);
+
+    const resolved = resolveMermaidNodeUnionViewBox(source, nodeUnion, 10, 11, 12);
+
+    expect(resolved).toBe(source);
+  });
+
+  it("resolveMermaidNodeUnionViewBox keeps source when the union extends outside it", () => {
+    const source = new DOMRect(0, 0, 400, 200);
+    const nodeUnion = new DOMRect(350, 10, 120, 80);
+
+    const resolved = resolveMermaidNodeUnionViewBox(source, nodeUnion, 3, 3, 12);
+
+    expect(resolved).toBe(source);
+  });
+
+  it("crops viewport fit to a clustered node union inside a huge source viewBox", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 4000 800");
+    svg.setAttribute("data-al-source-viewbox", "0 0 4000 800");
+
+    const identityMatrix = {
+      a: 1,
+      b: 0,
+      c: 0,
+      d: 1,
+      e: 0,
+      f: 0,
+      inverse: () => identityMatrix,
+      multiply: () => identityMatrix,
+    };
+
+    for (let index = 0; index < 11; index += 1) {
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.setAttribute("class", "node");
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      const x = 2800 + (index % 4) * 100;
+      const y = 40 + Math.floor(index / 4) * 50;
+      rect.setAttribute("x", String(x));
+      rect.setAttribute("y", String(y));
+      rect.setAttribute("width", "80");
+      rect.setAttribute("height", "30");
+      group.appendChild(rect);
+      svg.appendChild(group);
+
+      const graphics = group as SVGGraphicsElement;
+      graphics.getScreenCTM = () => identityMatrix as DOMMatrix;
+      graphics.getBBox = () =>
+        ({
+          x,
+          y,
+          width: 80,
+          height: 30,
+          top: y,
+          right: x + 80,
+          bottom: y + 30,
+          left: x,
+          toJSON: () => ({}),
+        }) as DOMRect;
+    }
+
+    document.body.appendChild(svg);
+
+    svg.getScreenCTM = () => identityMatrix as DOMMatrix;
+    svg.createSVGPoint = () =>
+      ({
+        x: 0,
+        y: 0,
+        matrixTransform(matrix: DOMMatrix) {
+          return { x: this.x, y: this.y };
+        },
+      }) as SVGPoint;
+
+    const baseFit = fitMermaidSvgElementToViewport(svg, 1166, 558, 12);
+
+    expect(baseFit).not.toBeNull();
+    expect(baseFit?.fitScale).toBeGreaterThan(0.7);
+    expect(svg.getAttribute("viewBox")).not.toBe("0 0 4000 800");
+    expect(svg.getAttribute("viewBox")?.startsWith("2788 28")).toBe(true);
+
+    svg.remove();
   });
 
   it("contains tall narrow ink using the legibility floor and allows overflow scroll", () => {

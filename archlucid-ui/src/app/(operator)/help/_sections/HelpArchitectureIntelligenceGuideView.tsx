@@ -4,6 +4,7 @@ import { HelpArchitectureIntelligenceClaimOrientationStrip } from "@/app/(operat
 import { HelpArchitectureIntelligenceHeaderActions } from "@/app/(operator)/help/_sections/HelpArchitectureIntelligenceHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
@@ -187,6 +188,8 @@ export function HelpArchitectureIntelligenceGuideView(
         {guideSections}
       </div>
       <div data-testid={ARCHITECTURE_INTELLIGENCE_HELP_ORIENTATION_BOTTOM_TEST_ID}>
+        <SponsorSendPathHonestyPanel testIdPrefix="help-architecture-intelligence" showSsoOptional={false} />
+
         <HelpArchitectureIntelligenceClaimOrientationStrip />
       </div>
     </>
@@ -217,6 +220,8 @@ export function HelpArchitectureIntelligenceGuideView(
       </div>
 
       <div data-testid={ARCHITECTURE_INTELLIGENCE_HELP_ORIENTATION_BOTTOM_TEST_ID}>
+        <SponsorSendPathHonestyPanel testIdPrefix="help-architecture-intelligence" showSsoOptional={false} />
+
         <HelpArchitectureIntelligenceClaimOrientationStrip />
       </div>
     </>
