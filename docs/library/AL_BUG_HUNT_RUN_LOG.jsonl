@@ -2167,3 +2167,5 @@
 {"at":"2026-09-12T01:19:53.5697893Z","zoneId":"ui-operator-routes","outcome":"hit"}
 {"at":"2026-09-12T01:22:55Z","zoneId":"billing-webhooks","outcome":"seed-only"}
 {"at":"2026-09-12T01:22:55.6873738Z","zoneId":"billing-webhooks","outcome":"seed-only"}
+{"at":"2026-09-12T01:27:05Z","zoneId":"application-governance-policy","outcome":"hit"}
+{"at":"2026-09-12T01:27:05.9319304Z","zoneId":"application-governance-policy","outcome":"hit"}

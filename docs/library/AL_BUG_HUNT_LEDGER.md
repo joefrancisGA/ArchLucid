@@ -12153,11 +12153,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 15
-- **bugs-found:** 16
+- **hunts:** 16
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-10 — lineage exposed top findings when golden manifest hash was tampered
+- **last-hunt:** 2026-09-12
+- **last-bug:** 2026-09-12 — PreCommitGateThresholdParser undefined numeric threshold
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -12187,6 +12187,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `GovernanceLineageService.GetApprovalRequestLineageAsync` still maps `TopFindings` when golden manifest is present but hash fails seal verification — **hit 2026-09-10 seed hunt:** #1418 guarded manifest summary and risk posture only; findings snapshot titles and severities still leaked for tampered hash; fixed by skipping top-finding projection when manifest is present and unsealed (`GovernanceLineageServiceTests.GetApprovalRequestLineageAsync_When_manifest_unsealed_omits_top_findings`)
 
 - [x] (valid-no-repro) `PolicyPackGovernanceDryRunService.EvaluateAsync` returns null for non-GUID `targetRunId` — **cheap-disproof 2026-09-11 seed hunt #1694:** intentional 404 parity with out-of-scope runs, not an id-format oracle (`EvaluateAsync_returns_null_for_non_guid_target_run_id_without_id_format_oracle`).
+- [x] (proven) `PreCommitGateThresholdParser.TryParseMinimumSeverity` accepts undefined numeric threshold strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-09-12 seed hunt #1851:** `"99"`/`"999"` mapped to out-of-range `FindingSeverity` values instead of null; fixed with `Enum.IsDefined` guard; regression `TryParseMinimumSeverity_returns_null_for_undefined_numeric_values`.
+
+2026-09-12 seed hunt #1851 (hit): reseeded application-governance-policy; proved undefined numeric pre-commit threshold parsing; 4 scoped PreCommitGateThresholdParser tests passed.
 
 2026-09-11 seed hunt #1694 (seed-only): reseeded application-governance-policy after #1535; cheap-disproof on dry-run non-GUID null shape; 1 scoped PolicyPackGovernanceDryRunService test passed.
 
