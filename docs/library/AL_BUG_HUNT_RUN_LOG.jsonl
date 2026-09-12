@@ -2423,3 +2423,4 @@
 {"at":"2026-09-12T18:21:31.9731125Z","zoneId":"technology-ledger-merge","outcome":"seed-only"}
 {"at":"2026-09-12T18:25:07.824468Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-12T18:27:38.7821913Z","zoneId":"core-costing","outcome":"hit"}
+{"at":"2026-09-12T18:32:21.3112367Z","zoneId":"finding-disposition","outcome":"seed-only"}
