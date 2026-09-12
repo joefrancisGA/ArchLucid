@@ -105,6 +105,24 @@ public sealed class GraphMaterializationStageTests
     }
 
     [Fact]
+    public async Task RequestActorsStage_materializes_external_actor_with_trust_boundary()
+    {
+        ContextSnapshot snapshot = CreateSnapshot();
+        snapshot.SourceHashes[ContextScopeMetadataKeys.Actors] =
+            """
+            [{"label":"Partner portal user","kind":"Human","trustOrigin":"External","contract":"Sync","origin":"Asserted","confidence":100}]
+            """;
+
+        GraphMaterializationContext context = CreateContext(snapshot);
+        await RunThroughStage(context, "request-actors");
+
+        context.Nodes.Should().Contain(n => n.NodeType == GraphNodeTypes.Actor && n.Label == "Partner portal user");
+        context.Nodes.Should().Contain(n =>
+            n.NodeType == GraphNodeTypes.TrustBoundary
+            && n.Properties.ContainsKey("actorNodeId"));
+    }
+
+    [Fact]
     public async Task DeclarationIdentityActorsStage_materializes_from_k8s_service_account_when_intake_missing()
     {
         ContextSnapshot snapshot = CreateSnapshot();
