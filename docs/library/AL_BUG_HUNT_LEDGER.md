@@ -12555,6 +12555,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-09-12 thorough hunt #1853 (hit): proved operator next-best-actions query cache omitted operator scope; 1 scoped hook test passed.
 
+- [x] (proven) `useComplianceDriftTrendRangeQuery` / `operatorQueryKeys.complianceDriftTrendRange` — scope-less react-query key reused tenant A drift trend after operator scope switch — **hit 2026-09-12 thorough hunt #1854:** keyed query by `useOperatorScopeQueryKey`; regression `use-compliance-drift-trend-range-query.test.tsx`.
+
+2026-09-12 thorough hunt #1854 (hit): proved compliance drift range query cache omitted operator scope; 1 scoped hook test passed.
+
 - [x] (proven) `invalidateOperatorHomeRunsCaches` / `invalidateOperatorSponsorRoiCaches` — omitted scoped `pilotValueReport` TanStack invalidation after run commit or sponsor seed changes — **hit 2026-09-11 thorough hunt #1695:** sponsor value report `totalRunsCommitted` stayed stale until `staleTime` expired; fixed via `invalidatePilotValueReportCache`; regression `invalidateOperatorHomeRunsCaches_invalidates_scoped_pilot_value_report_queries`.
 
 2026-09-11 thorough hunt #1695 (hit): proved pilot value report cache not invalidated on run lifecycle writes; 2 scoped operator-query-invalidation tests passed.
