@@ -155,15 +155,13 @@ export function SponsorRoiDashboardLiveKpiCards({
 
   return (
     <>
-      {!executiveDetails ? (
-        <p
-          className={cn("m-0 text-al-text-secondary sm:col-span-2 lg:col-span-3", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="exec-kpi-live-non-summing"
-        >
-          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
-        </p>
-      ) : null}
-      {!executiveDetails ? <PolicyPackInfluenceHonestyChip className="sm:col-span-2 lg:col-span-3" /> : null}
+      <p
+        className={cn("m-0 text-al-text-secondary sm:col-span-2 lg:col-span-3", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid={executiveDetails ? "exec-kpi-sponsor-details-non-summing" : "exec-kpi-live-non-summing"}
+      >
+        {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+      </p>
+      <PolicyPackInfluenceHonestyChip className="sm:col-span-2 lg:col-span-3" />
       {pilotDayNumber !== null && !buyerPolished ? (
         <p
           className={cn("m-0 text-al-text-secondary sm:col-span-2 lg:col-span-3", OPERATOR_TYPOGRAPHY.body)}
