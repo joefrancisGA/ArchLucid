@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
+import { SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
@@ -23,10 +24,11 @@ const {
 }));
 
 let searchParams = new URLSearchParams();
+let pathname = "/governance/infrastructure/diagrams";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
-  usePathname: () => "/governance/infrastructure/diagrams",
+  usePathname: () => pathname,
   useSearchParams: () => searchParams,
 }));
 
@@ -115,6 +117,7 @@ const defaultSnapshotsResponse = {
 
 describe("DiagramsWorkbenchClient", () => {
   beforeEach(() => {
+    pathname = "/governance/infrastructure/diagrams";
     fetchInfraEvidenceSnapshotsMock.mockReset();
     fetchInfraEvidenceSnapshotsMock.mockResolvedValue(defaultSnapshotsResponse);
     downloadInfraEvidenceMermaidPngMock.mockReset();
@@ -163,6 +166,17 @@ describe("DiagramsWorkbenchClient", () => {
         },
       ],
     }));
+  });
+
+  it("renders the inventory diagrams nav icon before the page title on SecureNow routes", async () => {
+    pathname = SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH;
+    searchParams = new URLSearchParams();
+    render(<DiagramsWorkbenchClient />);
+
+    const icon = await screen.findByTestId("page-heading-icon");
+    const title = screen.getByTestId("infra-diagrams-page-title");
+
+    expect(icon.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("renders human-readable snapshot label above the diagram", async () => {
