@@ -2284,3 +2284,4 @@
 {"at":"2026-09-12T05:53:19.4745264Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
 {"at":"2026-09-12T05:54:22.3956543Z","zoneId":"retrieval","outcome":"hit"}
 {"at":"2026-09-12T05:54:53.1616682Z","zoneId":"api-key-auth","outcome":"seed-only"}
+{"at":"2026-09-12T05:55:05.4809514Z","zoneId":"api-authority-admin-controllers","outcome":"seed-only"}
