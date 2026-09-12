@@ -1,5 +1,7 @@
 using ArchLucid.Application.DataConsistency;
 using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.User;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
@@ -52,6 +54,10 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
     private static object CreateAuthorityRunCompleted()
     {
         Guid runId = Guid.NewGuid();
+        IntegrationEventCareerPostureFields careerPosture = IntegrationEventCareerHonestyPresenter.Resolve(
+            isSampleRun: false,
+            StructuralExecutionMode.Simulator,
+            WorkingCareerRehearsalDoorValues.Rehearsal);
 
         return new
         {
@@ -65,13 +71,21 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
             findings = new[]
             {
                 new { findingId = "finding-primary", deepLinkUrl = $"https://archlucid.net/runs/{runId:D}/findings/finding-primary", severity = "High" }
-            }
+            },
+            structuralExecutionMode = careerPosture.StructuralExecutionMode,
+            workingCareerRehearsalDoor = careerPosture.WorkingCareerRehearsalDoor,
+            careerComplete = careerPosture.CareerComplete
         };
     }
 
     /// <remarks>Mirrors <c>ManifestFinalizationService</c> outbox payload.</remarks>
     private static object CreateManifestFinalized()
     {
+        IntegrationEventCareerPostureFields careerPosture = IntegrationEventCareerHonestyPresenter.Resolve(
+            isSampleRun: false,
+            StructuralExecutionMode.Simulator,
+            WorkingCareerRehearsalDoorValues.Rehearsal);
+
         return new
         {
             schemaVersion = 1,
@@ -83,7 +97,10 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
             projectId = Guid.NewGuid(),
             findingsSnapshotId = Guid.NewGuid(),
             artifactBundleId = (Guid?)Guid.NewGuid(),
-            manifestVersion = "v1"
+            manifestVersion = "v1",
+            structuralExecutionMode = careerPosture.StructuralExecutionMode,
+            workingCareerRehearsalDoor = careerPosture.WorkingCareerRehearsalDoor,
+            careerComplete = careerPosture.CareerComplete
         };
     }
 

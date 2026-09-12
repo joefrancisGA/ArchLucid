@@ -45,9 +45,11 @@ describe("reviews-hub-copy", () => {
     );
   });
 
-  it("AO-26: frames Working inbox copy separately from Guided portfolio language", () => {
+  it("SN-011: frames Working inbox copy separately from Guided portfolio language", () => {
     expect(WORKING_REVIEWS_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("cross-architecture");
+    expect(WORKING_REVIEWS_HUB_PAGE_SUBTITLE).toContain("Alt+R");
     expect(WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("open architectures");
+    expect(WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("triage");
   });
 
   it("avoids retired package terminology in hub copy", () => {

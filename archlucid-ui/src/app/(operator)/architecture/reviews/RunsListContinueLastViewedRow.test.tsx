@@ -24,4 +24,24 @@ describe("RunsListContinueLastViewedRow", () => {
       "/architecture/reviews/run-1",
     );
   });
+
+  it("SN-012: nests continue-last open link under architecture desk in Working mode", () => {
+    render(
+      <RunsListContinueLastViewedRow
+        run={{
+          runId: "run-1",
+          projectId: "project-1",
+          requestId: "architecture-identity-001",
+          title: "Platform review",
+          createdUtc: "2026-01-01T00:00:00Z",
+        } as never}
+        workingMode
+      />,
+    );
+
+    expect(screen.getByTestId("runs-list-continue-last-viewed-open")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/run-1",
+    );
+  });
 });

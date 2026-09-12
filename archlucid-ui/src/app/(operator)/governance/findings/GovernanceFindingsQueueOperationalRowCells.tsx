@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
+import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
 import {
@@ -19,6 +20,7 @@ import {
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { findingDerivationFromGovernanceQueueRow } from "@/lib/findings/finding-derivation-sentence";
 import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPolicyTraceabilityBadges";
+import { POLICY_PACK_INFLUENCE_HONESTY_LINE } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
@@ -27,6 +29,10 @@ import {
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
+import {
+  FINDING_CLASSIFICATION_DECISION_GRADE,
+} from "@/lib/findings/review-detail-findings-classification-band";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
   GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS,
   GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS,
@@ -54,6 +60,22 @@ function formatRiskRegisterUtcLabel(utc: string | null | undefined): string {
     month: "short",
     day: "numeric",
   });
+}
+
+function governanceQueueSemanticBandFinding(row: GovernanceFindingQueueRow): QuickDecisionFinding {
+  return {
+    findingId: row.findingId,
+    title: row.title,
+    recommendation: row.recommended,
+    severityValue: 0,
+    findingOrder: 0,
+    aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+    isMuted: false,
+    muteReason: null,
+    enforcementTier: "PolicyViolation",
+    classification: row.classification ?? FINDING_CLASSIFICATION_DECISION_GRADE,
+    semanticSupportBand: row.semanticSupportBand ?? null,
+  };
 }
 
 function resolveGovernanceQueueDueUtc(row: GovernanceFindingQueueRow): string | null {
@@ -155,7 +177,22 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
         ) : null}
         {row.recordKind === "finding" && row.classification !== null && row.classification !== undefined ? (
           <div className="mt-1">
-            <FindingClassificationChip classification={row.classification} findingId={row.findingId} />
+            <FindingClassificationChip
+              classification={row.classification}
+              treatment={row.treatment}
+              findingId={row.findingId}
+            />
+            {row.classification === FINDING_CLASSIFICATION_DECISION_GRADE ? (
+              <div className="mt-1">
+                <FindingSemanticSupportBandChip
+                  finding={governanceQueueSemanticBandFinding(row)}
+                  showReason
+                />
+              </div>
+            ) : null}
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+              {POLICY_PACK_INFLUENCE_HONESTY_LINE}
+            </p>
           </div>
         ) : null}
         {showInsightDensityScore &&

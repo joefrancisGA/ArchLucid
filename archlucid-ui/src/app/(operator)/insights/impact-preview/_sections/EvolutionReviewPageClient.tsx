@@ -11,6 +11,9 @@ import { useEvolutionReviewPage } from "./use-evolution-review-page";
 
 type Props = {
   readonly loaded: EvolutionReviewPageServerLoad;
+  readonly basePathname?: string;
+  readonly pinnedArchitectureId?: string;
+  readonly nestedPolicyEnvelopeEntry?: boolean;
 };
 
 function resolveImpactPreviewScopedRunId(searchParams: URLSearchParams): string {
@@ -35,7 +38,9 @@ export function EvolutionReviewPageClient(props: Props) {
   const scopedRunId = resolveImpactPreviewScopedRunId(searchParams);
   const scopedRunFilterActive = scopedRunId.length > 0;
 
-  const model = useEvolutionReviewPage(props.loaded, scopedRunId);
+  const basePathname = props.basePathname?.trim() ?? IMPACT_PREVIEW_PATH;
+  const pinnedArchitectureId = props.pinnedArchitectureId?.trim() ?? "";
+  const model = useEvolutionReviewPage(props.loaded, scopedRunId, { basePathname });
 
   const onPickReviewForSimulating = useCallback(
     (reviewId: string) => {
@@ -48,9 +53,9 @@ export function EvolutionReviewPageClient(props: Props) {
       const params = new URLSearchParams(searchParams.toString());
       params.set("runId", trimmed);
 
-      router.replace(`${IMPACT_PREVIEW_PATH}?${params.toString()}`, { scroll: false });
+      router.replace(`${basePathname}?${params.toString()}`, { scroll: false });
     },
-    [router, searchParams],
+    [basePathname, router, searchParams],
   );
 
   return (
@@ -59,6 +64,9 @@ export function EvolutionReviewPageClient(props: Props) {
       scopedRunId={scopedRunId}
       scopedRunFilterActive={scopedRunFilterActive}
       onPickReviewForSimulating={onPickReviewForSimulating}
+      basePathname={basePathname}
+      pinnedArchitectureId={pinnedArchitectureId.length > 0 ? pinnedArchitectureId : null}
+      nestedPolicyEnvelopeEntry={props.nestedPolicyEnvelopeEntry === true}
     />
   );
 }

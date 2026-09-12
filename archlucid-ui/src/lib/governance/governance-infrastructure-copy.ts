@@ -161,25 +161,42 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL = "Snapshot" as c
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL = "Diagram mode" as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL = "Seed cloud resource id" as const;
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL = "Starting Resource" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL = "Resource Id" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER =
+  "Pick a Nodes row, or paste a cloud resource id or ARM id." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT =
+  "To diagram one resource and its neighbors, choose Focus neighborhood on that row." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE =
-  "Pick a seed resource before rendering" as const;
+  "Pick a starting resource before rendering" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_BODY =
-  "Dependency neighborhood mode needs a graph node id. Paste the cloud resource GUID from the node table (not an ARM resource path), then choose Focus neighborhood." as const;
+  "Dependency neighborhood starts from one inventory resource. Choose Focus neighborhood on a Nodes row (for example a virtual network). You can also paste a cloud resource id or ARM id, then choose Focus neighborhood." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_TITLE =
-  "Choose a seed to render the dependency neighborhood" as const;
+  "Choose a starting resource" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_BODY =
-  "Enter a graph node id below and choose Focus neighborhood. The diagram will not render until a seed is applied." as const;
+  "Open Executive, Network, Identity, or Data, then choose Focus neighborhood on a Nodes row. The diagram shows that resource plus its neighbors." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION =
   "Focus neighborhood" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_DIALOG_DISMISS =
   "Got it" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_EMPTY_TITLE =
+  "Starting resource did not match this snapshot" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_EMPTY_BODY =
+  "No neighborhood was found for that starting resource. Choose Focus neighborhood on a Nodes row, or paste the cloud resource id or ARM id for a resource in this snapshot." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_RENDER_FAILED_BODY =
+  "Diagram rendering failed for the selected starting resource. Pick a different Nodes row and try again." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE =
   "No diagram nodes for this mode" as const;

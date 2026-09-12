@@ -54,6 +54,47 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
     }
 
     [Fact]
+    public void Build_emits_vm_to_nic_and_two_nic_to_subnet_rows_for_multi_ipconfig_nic()
+    {
+        HostedAzureArmResourceRecord vm = new(
+            ResourceType: "Microsoft.Compute/virtualMachines",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1",
+            Name: "vm1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["networkProfile.networkInterfaces[0]"] =
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1",
+                ["networkProfile.networkInterfaces[1]"] =
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic2",
+            });
+
+        HostedAzureArmResourceRecord nic = new(
+            ResourceType: "Microsoft.Network/networkInterfaces",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1",
+            Name: "nic1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["ipConfiguration.subnet.id[0]"] =
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/a",
+                ["ipConfiguration.subnet.id[1]"] =
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/b",
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([vm, nic]);
+
+        Assert.Equal(4, associations.Count);
+        Assert.Equal(2, associations.Count(row => row.AssociationType == "vmToNic"));
+        Assert.Equal(2, associations.Count(row => row.AssociationType == "nicToSubnet"));
+    }
+
+    [Fact]
     public void BuildZip_writes_role_assignments_and_network_associations_entries()
     {
         HostedAzureArmRoleAssignmentRecord roleAssignment = new(
