@@ -6,7 +6,7 @@
 
 # Cheap-exploration Composer prompts (CE-001–CE-040)
 
-**Created:** 2026-09-11 · **Status:** ready to run · **Do not re-run** prior waves except as a numbered leftover.
+**Created:** 2026-09-11 · **Status:** shipped (CE-040 close audit [`CHEAP_EXPLORATION_ACCEPTANCE_2026-09-12.md`](CHEAP_EXPLORATION_ACCEPTANCE_2026-09-12.md)) · **Do not re-run** prior waves except as a numbered leftover.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record.
 

@@ -5,7 +5,7 @@
 
 # Livelihood-gravity Composer prompts (waves 24–30)
 
-**Created:** 2026-09-11 · **Status:** ready to run · issue **4** is LW (wave 23).
+**Created:** 2026-09-11 · **Status:** shipped (waves 24–31 close audits) · issue **4** is LW (wave 23) — do not re-run.
 
 The 2026-09-11 diagnosis: ArchLucid is aimed at “Excel for architecture decisions” but is still built like a governed batch review. Overlays made a desk. These waves own the remaining **load-bearing** failures.
 

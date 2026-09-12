@@ -39,6 +39,26 @@ const HelpSealedVsDecisionRegisterGuideView = dynamic(() =>
     (module) => module.HelpSealedVsDecisionRegisterGuideView,
   ),
 );
+const HelpSketchAChangeGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpSketchAChangeGuideView").then(
+    (module) => module.HelpSketchAChangeGuideView,
+  ),
+);
+const HelpImpactPreviewVsArchitectureEnvelopeGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpImpactPreviewVsArchitectureEnvelopeGuideView").then(
+    (module) => module.HelpImpactPreviewVsArchitectureEnvelopeGuideView,
+  ),
+);
+const HelpBackgroundWaitGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpBackgroundWaitGuideView").then(
+    (module) => module.HelpBackgroundWaitGuideView,
+  ),
+);
+const HelpProxyTimeoutRealExecuteGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpProxyTimeoutRealExecuteGuideView").then(
+    (module) => module.HelpProxyTimeoutRealExecuteGuideView,
+  ),
+);
 const HelpArchitectureDraftsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView").then((module) => module.HelpArchitectureDraftsGuideView),
 );
@@ -312,6 +332,18 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "sealed-record-vs-decision-register") {
     return <HelpSealedVsDecisionRegisterGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "sketch-a-change") {
+    return <HelpSketchAChangeGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "impact-preview-vs-architecture-envelope") {
+    return <HelpImpactPreviewVsArchitectureEnvelopeGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "background-wait") {
+    return <HelpBackgroundWaitGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "proxy-timeout-real-execute") {
+    return <HelpProxyTimeoutRealExecuteGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "architecture-drafts") {
     return <HelpArchitectureDraftsGuideView entry={loaded.entry} />;

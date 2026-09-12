@@ -52,7 +52,7 @@ describe("system-not-job palette clone new version (SN-033)", () => {
 
   it("shows palette clone on architecture draft routes when spawn-lock CTA is visible", () => {
     document.body.innerHTML =
-      '<button data-testid="architecture-spawn-lock-clone-snapshot" type="button">New version (clone)</button>';
+      '<button data-testid="architecture-spawn-lock-clone-snapshot" type="button">Sketch a change</button>';
 
     expect(resolveSystemNotJobPaletteCloneNewVersionVisible("/architecture/architectures/arch-1/drafts/d-1")).toBe(
       true,
@@ -65,7 +65,7 @@ describe("system-not-job palette clone new version (SN-033)", () => {
 
   it("does not expose clone on non-architecture routes even when CTA is visible", () => {
     document.body.innerHTML =
-      '<button data-testid="architecture-spawn-lock-clone-snapshot" type="button">New version (clone)</button>';
+      '<button data-testid="architecture-spawn-lock-clone-snapshot" type="button">Sketch a change</button>';
 
     expect(resolveSystemNotJobPaletteCloneNewVersionVisible("/architecture/reviews/run-1")).toBe(false);
   });

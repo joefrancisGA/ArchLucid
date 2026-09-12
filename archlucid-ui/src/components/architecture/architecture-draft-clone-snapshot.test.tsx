@@ -68,7 +68,7 @@ describe("architecture-draft-clone-snapshot", () => {
     expect(ARCHITECTURE_DRAFT_CLONE_SNAPSHOT_LABEL).toBe("Start a new draft from this snapshot");
   });
 
-  it("SN-008: spawn-locked desk action uses New version (clone) label and confirm gate", async () => {
+  it("SN-008 / CE-001: spawn-locked desk action uses Sketch a change label and confirm gate", async () => {
     cloneDraftSnapshot.mockResolvedValue({
       clone: {
         draftId: "draft-clone-001",

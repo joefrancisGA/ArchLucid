@@ -18,7 +18,7 @@ public sealed class SystemNotJobSn008CloneFromSnapshotWorkingPathArchitectureTes
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-clone-from-snapshot-entry.ts"));
 
         module.Should().Contain("SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DESK_CTA_LABEL");
-        module.Should().Contain("New version (clone)");
+        module.Should().Contain("CHEAP_EXPLORATION_SKETCH_A_CHANGE_DESK_CTA_LABEL");
         module.Should().Contain("resolveSystemNotJobCloneFromSnapshotConfirmCopy");
         module.Should().Contain("CG door rules");
         module.Should().Contain("architecture-spawn-lock-clone-snapshot");
@@ -58,7 +58,7 @@ public sealed class SystemNotJobSn008CloneFromSnapshotWorkingPathArchitectureTes
                 "CommandPaletteWorkActionBridge.tsx"));
 
         handlers.Should().Contain("action-clone-from-snapshot");
-        handlers.Should().Contain("New version (clone)");
+        handlers.Should().Contain("SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_HANDLER.label");
         dom.Should().Contain("queryVisibleSpawnLockCloneSnapshotControl");
         bridge.Should().Contain("COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT");
     }

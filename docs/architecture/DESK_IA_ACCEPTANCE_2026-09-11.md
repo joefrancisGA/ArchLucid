@@ -8,7 +8,7 @@
 
 ## Verdict
 
-**Shipped** on this branch for Working production seats, subject to residuals below. Sealed list is not 404. Governance nav includes the ledger. Desktop tabs are not behind **More**. ADR **0095** remains **Proposed** (formal owner acceptance is a separate step).
+**Shipped** on this branch for Working production seats, subject to residuals below. Sealed list is not 404. Governance nav includes the ledger. Desktop tabs are not behind **More**. ADR **0095** is **Accepted** (2026-09-12 owner).
 
 This audit does **not** claim G-REAL-06, CPA SOC 2 (**G-REAL-05**), third-party pen-test publication (**G-ASSURANCE-02**), or live GTM cohorts (**M-90 / M-44 / M-91 / M-92**).
 
@@ -26,7 +26,7 @@ This audit does **not** claim G-REAL-06, CPA SOC 2 (**G-REAL-05**), third-party 
 
 | Cluster | Prompts | Shipped? | Primary evidence | Residual |
 |---------|---------|----------|------------------|----------|
-| Kernel ADR + inventory | DI-001–002 | **Yes** | ADR 0095; `DESK_IA_404_ORPHANS_INVENTORY.md`; `desk-ia-adr-guard.test.ts` | ADR 0095 **Proposed** |
+| Kernel ADR + inventory | DI-001–002 | **Yes** | ADR 0095; `DESK_IA_404_ORPHANS_INVENTORY.md`; `desk-ia-adr-guard.test.ts` | — |
 | IA + nav + help | DI-003–023 | **Yes** | Sealed list page; Governance nav; help topic | Approval parent detail (DI-017) |
 | Skips / close | DI-019–024 | **Yes** | `desk-ia-prompt-inventory.test.ts`; this file | Six sponsor routes not merged |
 
@@ -34,7 +34,7 @@ This audit does **not** claim G-REAL-06, CPA SOC 2 (**G-REAL-05**), third-party 
 
 | Item | Tracking | Notes |
 |------|----------|-------|
-| ADR **0095** formal **Accepted** | DI-001 | Proposed in this wave |
+| ADR **0095** formal **Accepted** | DI-001 | **Done** 2026-09-12 |
 | Merge six sponsor routes | DI-021 skip | Explicit out-of-wave |
 | System-wide breadcrumbs | DI-022 skip | TB-2090 |
 | Approval request parent detail | DI-017 | Lineage exists; parent page residual |

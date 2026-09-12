@@ -35,7 +35,7 @@ describe("CommandPaletteWorkActionBridge (LD-09)", () => {
     const cloneClick = vi.fn();
 
     document.body.innerHTML = `
-      <button data-testid="architecture-spawn-lock-clone-snapshot" type="button">New version (clone)</button>
+      <button data-testid="architecture-spawn-lock-clone-snapshot" type="button">Sketch a change</button>
     `;
 
     document.querySelector<HTMLButtonElement>('[data-testid="architecture-spawn-lock-clone-snapshot"]')!.onclick =
