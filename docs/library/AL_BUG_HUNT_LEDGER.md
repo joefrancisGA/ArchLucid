@@ -2590,13 +2590,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-08 — webhook dry-run connect-time guard blocks DNS rebind to private networks
 - **related-pd-tb:** none
 - **code-changed-since:** 7
+
+2026-09-12 seed hunt #2139 (seed-only): reseeded outbound-webhook-dry-run with `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2080 (seed-only): reseeded outbound-webhook-dry-run; 22 scoped tests passed; no new hunt-ready rows
 
