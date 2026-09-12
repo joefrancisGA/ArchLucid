@@ -181,6 +181,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
               classification={row.classification}
               treatment={row.treatment}
               findingId={row.findingId}
+              showReason
             />
             {row.classification === FINDING_CLASSIFICATION_DECISION_GRADE ? (
               <div className="mt-1">

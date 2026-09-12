@@ -17,6 +17,12 @@ public static class AuditEventCsvLineFormatter
 
     public const string HeaderLine = BaseHeaderLine + "," + PostureColumns;
 
+    /// <summary>
+    /// Dual-channel honesty mirrored from UI audit export preamble (AUDIT_COVERAGE_MATRIX).
+    /// </summary>
+    public const string DualChannelHonestyNote =
+        "This export lists durable SQL audit events only. Baseline orchestration also writes structured log-only mutation lines that do not populate dbo.AuditEvents — grep both channels during a security review.";
+
     public static string FormatEventLine(
         ExportFormatterService exportFormatter,
         AuditEvent auditEvent,
@@ -49,6 +55,11 @@ public static class AuditEventCsvLineFormatter
         ArgumentNullException.ThrowIfNull(writer);
 
         await writer.WriteLineAsync("# ArchLucid audit CSV export posture (CG-026)".AsMemory(), cancellationToken);
+
+        await writer.WriteLineAsync("# dualChannelHonesty=durableSqlLedgerOnly".AsMemory(), cancellationToken);
+        await writer.WriteLineAsync(
+            $"# dualChannelNote={DualChannelHonestyNote}".AsMemory(),
+            cancellationToken);
 
         if (postureStamp is null)
         {

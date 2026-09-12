@@ -1,60 +1,35 @@
 import type { ReactElement } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
-  FINDING_CLASSIFICATION_DECISION_GRADE,
-} from "@/lib/findings/review-detail-findings-classification-band";
+  findingClassificationStatusTagKind,
+  resolveFindingClassificationChipAriaLabel,
+  resolveFindingClassificationChipReason,
+  resolveFindingClassificationLabel,
+  type FindingClassificationValue,
+} from "@/lib/findings/finding-classification-chip-presentation";
+import { cn } from "@/lib/utils";
 
-export type FindingClassificationValue =
-  | typeof FINDING_CLASSIFICATION_DECISION_GRADE
-  | typeof FINDING_CLASSIFICATION_CHECKLIST_COVERAGE
-  | null
-  | undefined;
+export type {
+  FindingClassificationValue,
+} from "@/lib/findings/finding-classification-chip-presentation";
 
-export const FINDING_CLASSIFICATION_DECISION_GRADE_LABEL = "Decision-grade" as const;
-
-export const FINDING_CLASSIFICATION_CHECKLIST_LABEL = "Checklist coverage" as const;
-
-export const FINDING_CLASSIFICATION_CHECKLIST_DEMOTED_LABEL = "Checklist-demoted" as const;
-
-/** API `FindingTreatment.DemoteToChecklist` ordinal when insight-density gate demotes a finding. */
-export const FINDING_TREATMENT_DEMOTE_TO_CHECKLIST = 1 as const;
-
-export function resolveFindingClassificationLabel(
-  classification: FindingClassificationValue,
-  treatment?: number | null,
-): string | null {
-  if (classification === FINDING_CLASSIFICATION_DECISION_GRADE) {
-    return FINDING_CLASSIFICATION_DECISION_GRADE_LABEL;
-  }
-
-  if (classification === FINDING_CLASSIFICATION_CHECKLIST_COVERAGE) {
-    if (treatment === FINDING_TREATMENT_DEMOTE_TO_CHECKLIST) {
-      return FINDING_CLASSIFICATION_CHECKLIST_DEMOTED_LABEL;
-    }
-
-    return FINDING_CLASSIFICATION_CHECKLIST_LABEL;
-  }
-
-  return null;
-}
-
-export function findingClassificationStatusTagKind(
-  classification: FindingClassificationValue,
-): "neutral" | "needs-attention" {
-  if (classification === FINDING_CLASSIFICATION_CHECKLIST_COVERAGE) {
-    return "needs-attention";
-  }
-
-  return "neutral";
-}
+export {
+  FINDING_CLASSIFICATION_CHECKLIST_DEMOTED_LABEL,
+  FINDING_CLASSIFICATION_CHECKLIST_LABEL,
+  FINDING_CLASSIFICATION_DECISION_GRADE_LABEL,
+  FINDING_TREATMENT_DEMOTE_TO_CHECKLIST,
+  findingClassificationStatusTagKind,
+  resolveFindingClassificationLabel,
+} from "@/lib/findings/finding-classification-chip-presentation";
 
 export type FindingClassificationChipProps = {
   readonly classification: FindingClassificationValue;
   readonly treatment?: number | null;
   readonly findingId: string;
   readonly className?: string;
+  readonly showReason?: boolean;
 };
 
 /** Two-band classification chip — never uses Ready/Approved workflow semantics (SD-12 / IS-07). */
@@ -65,12 +40,23 @@ export function FindingClassificationChip(props: FindingClassificationChipProps)
     return null;
   }
 
+  const showReason = props.showReason === true;
+  const reason = resolveFindingClassificationChipReason(props.classification, props.treatment);
+
   return (
-    <StatusTag
-      kind={findingClassificationStatusTagKind(props.classification)}
-      label={label}
-      className={props.className}
-      data-testid={`finding-classification-chip-${props.findingId}`}
-    />
+    <div
+      className={cn("flex flex-col gap-1", props.className)}
+      data-testid={`finding-classification-chip-wrap-${props.findingId}`}
+    >
+      <StatusTag
+        kind={findingClassificationStatusTagKind(props.classification)}
+        label={label}
+        data-testid={`finding-classification-chip-${props.findingId}`}
+        aria-label={resolveFindingClassificationChipAriaLabel(props.classification, props.treatment) ?? label}
+      />
+      {showReason && reason !== null ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{reason}</p>
+      ) : null}
+    </div>
   );
 }

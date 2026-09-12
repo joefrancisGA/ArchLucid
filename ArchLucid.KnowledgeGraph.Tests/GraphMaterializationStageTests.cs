@@ -222,6 +222,33 @@ public sealed class GraphMaterializationStageTests
     }
 
     [Fact]
+    public async Task RequestAssumptionEdgesStage_materializes_relates_to_edges_for_confirmed_assumptions()
+    {
+        ContextSnapshot snapshot = CreateSnapshot();
+        snapshot.SourceHashes[ContextScopeMetadataKeys.Assumptions] = "Entra ID for staff operators";
+        snapshot.CanonicalObjects =
+        [
+            new CanonicalObject
+            {
+                ObjectId = "req-staff",
+                ObjectType = GraphNodeTypes.Requirement,
+                Name = "Staff operator access",
+                SourceType = "test",
+                SourceId = "req-staff",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+            },
+        ];
+
+        GraphMaterializationContext context = CreateContext(snapshot);
+        await RunThroughStage(context, "request-assumption-edges");
+
+        context.Nodes.Should().Contain(n => n.NodeType == GraphNodeTypes.Assumption);
+        context.Edges.Should().Contain(e =>
+            e.EdgeType == GraphEdgeTypes.RelatesTo
+            && e.InferenceSource == GraphEdgeInferenceSources.StructuredBriefAssumptionLink);
+    }
+
+    [Fact]
     public async Task RequestQualityAttributesStage_materializes_from_metadata_when_canonical_missing()
     {
         ContextSnapshot snapshot = CreateSnapshot();

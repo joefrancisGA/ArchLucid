@@ -151,6 +151,7 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
                 classification={finding.classification}
                 treatment={finding.treatment}
                 findingId={finding.findingId}
+                showReason
               />
             ) : null}
             {isDecisionGradeFinding(finding) ? (

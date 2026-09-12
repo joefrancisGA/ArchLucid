@@ -149,12 +149,14 @@ export function FindingDetailInspectBody({ presentation }: Props) {
                       classification={resolveFindingInspectExportClassification(inspectPayload)}
                       treatment={resolveFindingInspectExportTreatment(inspectPayload)}
                       findingId={decodedFindingId}
+                      showReason
                     />
                   ) : null}
                   {inspectPayload !== null ? (
-                    <FindingSemanticSupportBandChip
-                      finding={mapInspectPayloadToQuickDecisionFinding(inspectPayload)}
-                    />
+                  <FindingSemanticSupportBandChip
+                    finding={mapInspectPayloadToQuickDecisionFinding(inspectPayload)}
+                    showReason
+                  />
                   ) : null}
                 </div>
               ) : null}

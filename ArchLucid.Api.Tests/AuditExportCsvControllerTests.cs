@@ -60,6 +60,8 @@ public sealed class AuditExportCsvControllerTests
         await response.EnsureSuccessForTestAsync();
         string body = await response.Content.ReadAsStringAsync();
         body.Should().Contain("# ArchLucid audit CSV export posture (CG-026)");
+        body.Should().Contain("# dualChannelHonesty=durableSqlLedgerOnly");
+        body.Should().Contain("# dualChannelNote=");
         body.Should().Contain(
             "EventId,OccurredUtc,EventType,ActorUserId,ActorUserName,RunId,ManifestId,CorrelationId,DataJson,StructuralExecutionMode,WorkingCareerRehearsalDoor,RehearsalIncomplete");
     }

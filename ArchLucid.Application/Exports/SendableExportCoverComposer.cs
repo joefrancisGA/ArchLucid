@@ -23,6 +23,10 @@ public static class SendableExportCoverComposer
     public const string SemanticSupportBandLaneBAsyncHonestyLine =
         "Semantic support is async and may lag the sealed review. Lane B scores are not a commit gate.";
 
+    /// <summary>V1 §2.8: disposition-aware headline vs per-system row semantics on sendable covers.</summary>
+    public const string SponsorRoiNonSummingHeadlineLine =
+        "Portfolio headline savings are disposition-aware and deduplicated by FindingId; per-system rows do not sum to the headline.";
+
     public static IReadOnlyList<string> RenderPlainTextLines(CareerExportCoverageHonestyInput input)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -51,6 +55,8 @@ public static class SendableExportCoverComposer
         {
             lines.Add($"Semantic support: {SemanticSupportBandLaneBAsyncHonestyLine}");
         }
+
+        lines.Add($"Sponsor ROI: {SponsorRoiNonSummingHeadlineLine}");
 
         return lines;
     }
