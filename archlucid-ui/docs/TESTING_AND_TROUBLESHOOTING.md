@@ -428,6 +428,17 @@ npm run test:e2e
 
 Optional: **`npm run typecheck:e2e`** — TypeScript check for **`e2e/`** only.
 
+**Inventory diagram layout ratchet (IDL-06 + IDS-04):** after a production build, run the operator-mock spec that asserts Executive-mode Mermaid legibility (zero-edge peer grid, legacy chain, and sparse-peering forest fixtures) without rebuilding on every iteration:
+
+```powershell
+cd archlucid-ui
+npm run build
+$env:MOCK_E2E_SKIP_NEXT_BUILD = "1"
+npx playwright test -c playwright.operator-mock.config.ts infra-diagrams-layout
+```
+
+Use the same origin the standalone server logs for **`page.goto`** (**`127.0.0.1`** vs **`localhost`** mismatch can trigger the Next dev-origin block). The sparse-peering case lives in the same **`infra-diagrams-layout`** file as the IDL-06 grid and chain cases.
+
 **From the repo root:** **`test-ui-smoke.cmd`** / **`test-ui-smoke.ps1`** ( **`npm ci`**, browser install, **`npm run test:e2e`** ).
 
 **Release smoke (optional):** repo root **`.\release-smoke.ps1 -RunPlaywright`** runs this same **`npm run test:e2e`** after the usual release-smoke steps. That UI gate uses **archlucid-ui’s mocks**, not the C# API instance **`release-smoke`** may have started for steps 5–6 — see **[docs/library/RELEASE_SMOKE.md](../../../docs/library/RELEASE_SMOKE.md)** (also § *Mock Playwright vs live* above).

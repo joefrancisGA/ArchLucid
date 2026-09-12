@@ -99,6 +99,10 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-layout-<short
 4. **Executive grouping.** For sparse snapshots (one VNet per RG), should Executive group VNets by **region** subgraph, by **resource group**, or stay flat with count-bearing labels only? IDL-05 defaults to region subgraphs + counts.
 5. **Edge honesty in metrics.** After IDL-01 the status strip will read "11 nodes · **0 edges**" for this snapshot. Acceptable, or should layout-only links be shown separately ("0 relationships · 8 layout links")?
 
+## Follow-on (do not implement from this file)
+
+After IDL-05 peering edges landed, the owner screenshot is **11 nodes · 6 edges · 0 subgraphs** with readable labels but nodes/connectors too far apart. That leftover is **IDS-01–IDS-04**, not another IDL prompt: [`.cursor/prompts/inventory-diagram-spacing-00-index.md`](inventory-diagram-spacing-00-index.md).
+
 ## After each prompt
 
 Summarize: files changed, tests run, whether the 11-VNet Executive snapshot renders as a **multi-column grid with ≥ 11 px labels, no fabricated arrows, no clipped rows**, residual risk.
