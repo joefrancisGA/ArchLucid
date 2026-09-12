@@ -10776,11 +10776,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 35
-- **bugs-found:** 30
+- **hunts:** 36
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — assumption acknowledgement PUT omitted invalid-Unicode surrogate guard on AcknowledgedAssumptionIds
+- **last-bug:** 2026-09-12 — run operator governance disposition POST omitted 2000-char rationale cap matching `dbo.Runs.OperatorGovernanceDecisionRationale`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10860,6 +10860,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-03 seed hunt #546: proved rephrase `QuestionPrompt` max length, interactive-graph and export whitespace 404 parity, and custom-role update Unicode guard; seeded knowledge-model clarification answer length and provenance-node whitespace candidates.
 
 2026-09-02 thorough hunt #424: closed three stale ledger candidates (already fixed 2026-08-28); proved stage-timeline whitespace 404 parity and explain `SuggestionText` max-length gap.
+
+- [x] (proven) `AuthorityQueryController.RecordRunOperatorGovernanceDisposition` — `Rationale` reached `dbo.Runs.OperatorGovernanceDecisionRationale` (NVARCHAR(2000)) without max-length guard present on sibling `PostFindingFeedback` comment and `FindingMuteController` reason — **hit 2026-09-12 hunt #1993 (seed→hit):** reject over-2000-char rationale before service call; regression `RecordRunOperatorGovernanceDisposition_returns_bad_request_when_rationale_exceeds_max_length`.
+
+2026-09-12 seed hunt #1993 (seed→hit): reseeded api-authority-admin-controllers; proved run disposition rationale max-length gap; 1 scoped `AuthorityQueryControllerDispositionTests` passed.
 
 ---
 

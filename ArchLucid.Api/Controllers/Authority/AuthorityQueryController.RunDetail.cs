@@ -175,6 +175,13 @@ public sealed partial class AuthorityQueryController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (request.Rationale is { Length: > 2000 })
+        {
+            return this.BadRequestProblem(
+                "Rationale exceeds maximum length (2000).",
+                ProblemTypes.ValidationFailed);
+        }
+
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
