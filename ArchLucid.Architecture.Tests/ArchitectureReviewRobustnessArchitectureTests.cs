@@ -246,6 +246,33 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     }
 
     [Fact]
+    public void TB2349_brief_grounding_runs_in_structural_post_processor_enricher()
+    {
+        string enricher = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Agents",
+                "Evidence",
+                "AgentProposalStructuralPostProcessorEnricher.cs"));
+
+        enricher.Should().Contain("ApplyBriefGrounding");
+        enricher.Should().Contain("StructuralGroundingDropLog");
+
+        string postProcessor = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Orchestration",
+                "AgentProposalStructuralPostProcessor.cs"));
+
+        postProcessor.Should().Contain("ApplyBriefGroundingToProposal");
+        postProcessor.Should().Contain("PruneRelationshipsAfterGroundingDrops");
+        postProcessor.Should().Contain("IsConfirmedBriefEntry");
+    }
+
+    [Fact]
     public void Suggestion8_topology_proposals_validate_before_overlay()
     {
         string path = Path.Combine(
