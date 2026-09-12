@@ -3281,7 +3281,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -3290,6 +3290,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** yes
 
 ### Hypotheses
+2026-09-12 seed hunt #1896 (seed-only): reseeded api-key-auth; cheap-disproof closed whitespace-only ReadOnly slot rotation parity and legacy rotate unknown keyId validation; 44 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` append path when `ReadOnlyKey` is whitespace-only without commas — **cheap-disproof 2026-09-12 seed hunt #1896:** `HasConfiguredKeyMaterial` treats whitespace-only raw as unconfigured (symmetric to #1860 admin slot); would return Replace like admin whitespace path.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` accepts arbitrary `keyId` route values — **cheap-disproof 2026-09-12 seed hunt #1896:** `ParseSlot` throws `ArgumentException` for values other than Admin/ReadOnly; controller maps to 400 ProblemDetails.
+
 2026-09-12 seed hunt #1893 (seed-only): reseeded api-key-auth; scoped tests passed; no hunt-ready defect proven this pass.
 
 2026-09-12 seed hunt #1891 (seed-only): reseeded api-key-auth; scoped tests passed; no hunt-ready defect proven this pass.
