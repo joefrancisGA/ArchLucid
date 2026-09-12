@@ -2476,3 +2476,4 @@
 {"at":"2026-09-12T19:40:18.0428374Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-12T19:42:53.0338513Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-12T19:51:19.2802222Z","zoneId":"decisioning","outcome":"seed-only"}
+{"at":"2026-09-12T19:55:16.1570849Z","zoneId":"cloud-extractors","outcome":"seed-only"}
