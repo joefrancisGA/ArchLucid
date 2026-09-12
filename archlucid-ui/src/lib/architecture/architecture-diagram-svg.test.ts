@@ -66,4 +66,63 @@ describe("architecture-diagram-svg", () => {
     expect(converted).toContain('fill-opacity="0.12"');
     expect(converted).toMatch(/<path[^>]*fill="none"/);
   });
+
+  it("wraps long foreignObject names into tspans that fit the node rect", () => {
+    const svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120" viewBox="0 0 400 120">',
+      '  <g class="node" transform="translate(120, 40)">',
+      '    <rect width="160" height="36" x="-80" y="-18" fill="#ececec" stroke="#999"/>',
+      '    <g class="label">',
+      '      <foreignObject width="160" height="36" x="-80" y="-18">',
+      '        <div xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">Azure Kubernetes Service (AKS) Cluster</span></div>',
+      "      </foreignObject>",
+      "    </g>",
+      "  </g>",
+      "</svg>",
+    ].join("");
+
+    const converted = replaceMermaidForeignObjectLabelsWithSvgText(svg);
+
+    expect(converted).toContain("Azure Kubernetes");
+    expect(converted).toContain("tspan");
+    expect(converted).not.toContain("foreignObject");
+    expect(converted.match(/<tspan /g)?.length ?? 0).toBeGreaterThan(1);
+    const rectHeight = Number.parseFloat(converted.match(/<rect[^>]*height="([^"]+)"/)?.[1] ?? "0");
+    expect(rectHeight).toBeGreaterThan(36);
+  });
+
+  it("preserves mermaid <br> line breaks when converting labels", () => {
+    const svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg">',
+      '  <g class="node">',
+      '    <rect width="160" height="48" x="-80" y="-24"/>',
+      '    <foreignObject width="160" height="48" x="-80" y="-24">',
+      '      <div xmlns="http://www.w3.org/1999/xhtml">Azure Kubernetes Service<br/>(AKS) Cluster</div>',
+      "    </foreignObject>",
+      "  </g>",
+      "</svg>",
+    ].join("");
+
+    const converted = replaceMermaidForeignObjectLabelsWithSvgText(svg);
+
+    expect(converted).toContain("Azure Kubernetes Service");
+    expect(converted).toContain("(AKS) Cluster");
+    expect(converted.match(/<tspan /g)?.length ?? 0).toBeGreaterThan(1);
+  });
+
+  it("wraps native SVG node text that overruns a narrow rect", () => {
+    const svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg">',
+      '  <g class="node">',
+      '    <rect width="160" height="36" x="-80" y="-18"/>',
+      '    <text class="nodeLabel" x="0" y="0">Azure Kubernetes Service (AKS) Cluster</text>',
+      "  </g>",
+      "</svg>",
+    ].join("");
+
+    const converted = replaceMermaidForeignObjectLabelsWithSvgText(svg);
+
+    expect(converted.match(/<tspan /g)?.length ?? 0).toBeGreaterThan(1);
+    expect(converted).toContain("Azure Kubernetes");
+  });
 });
