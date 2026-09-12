@@ -2406,3 +2406,4 @@
 {"at":"2026-09-12T17:41:54.5084214Z","zoneId":"cli-draft-new","outcome":"seed-only"}
 {"at":"2026-09-12T17:42:29.781148Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}
 {"at":"2026-09-12T17:42:44.5951228Z","zoneId":"llm-wallet","outcome":"seed-only"}
+{"at":"2026-09-12T17:42:58.5396659Z","zoneId":"scim-users","outcome":"seed-only"}

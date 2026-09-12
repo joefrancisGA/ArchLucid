@@ -3355,13 +3355,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-03 — PUT/PATCH assigned `externalId` still held by directory-removed user
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2087 (seed-only): reseeded scim-users; 13 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
 
