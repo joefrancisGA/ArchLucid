@@ -10,6 +10,7 @@ public sealed class AzureRetailPricesSkuMatchersSlashDayTests
     [Theory]
     [InlineData("1/day")]
     [InlineData("/day")]
+    [InlineData("/d")]
     public void TryMonthlyUsdFromRow_accepts_slash_day_unit_of_measure_synonyms(string unitOfMeasure)
     {
         AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
@@ -29,6 +30,7 @@ public sealed class AzureRetailPricesSkuMatchersSlashDayTests
     [Theory]
     [InlineData("1/day")]
     [InlineData("/day")]
+    [InlineData("/d")]
     public void LooksLikeConsumptionUsd_accepts_slash_day_unit_of_measure_synonyms(string unitOfMeasure)
     {
         AzureRetailPricesCatalogClient.RetailPriceDto dto = new()

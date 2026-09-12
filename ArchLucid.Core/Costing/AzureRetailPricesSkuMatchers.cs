@@ -226,6 +226,7 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return ContainsDayWordToken(trimmed)
             || ContainsSlashDayToken(trimmed)
+            || ContainsSlashDToken(trimmed)
             || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "d", StringComparison.OrdinalIgnoreCase);
@@ -254,6 +255,28 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterDay;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashDToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/d", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterD = index + 2;
+
+            if (afterD >= trimmed.Length || !char.IsLetter(trimmed[afterD]))
+                return true;
+
+            index = afterD;
         }
 
         return false;

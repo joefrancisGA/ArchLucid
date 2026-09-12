@@ -10328,13 +10328,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 16
-- **bugs-found:** 13
+- **hunts:** 17
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — standalone `m` month UOM rejected while `mo`/`month` synonyms matched
+- **last-bug:** 2026-09-12 — slash `/d` day UOM rejected while `/day` and standalone `d` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2152 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/d` day UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashDayTests`.
 
 2026-09-12 seed hunt #2149 (seed→hit): reseeded core-costing with `-Refresh`; proved standalone `m` month UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneMonthTests`.
 
@@ -10388,6 +10390,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — standalone `d` UOM rejected while `day`/`days` synonyms matched — **hit 2026-09-12 seed hunt #2112:** Azure Retail daily consumption meters with bare `d` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while hour `h` parity already existed; fixed with standalone `d` synonym; regressions in `AzureRetailPricesSkuMatchersStandaloneDayTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — standalone `w` UOM rejected while `wk`/`week` synonyms matched — **hit 2026-09-12 seed hunt #2141:** Azure Retail weekly consumption meters with bare `w` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `d`/`h` standalone parity already existed; fixed with standalone `w` synonym; regressions in `AzureRetailPricesSkuMatchersSlashWeekTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — standalone `m` UOM rejected while `mo`/`month` synonyms matched — **hit 2026-09-12 seed hunt #2149:** Azure Retail monthly consumption meters with bare `m` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `h`/`d`/`w` standalone parity already existed; fixed with standalone `m` synonym; regressions in `AzureRetailPricesSkuMatchersStandaloneMonthTests`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — slash `/d` UOM rejected while `/day` and standalone `d` synonyms matched — **hit 2026-09-12 seed hunt #2152:** Azure Retail daily consumption meters with bare `/d` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/day` and `d` already matched (parity with `/h` and `/wk`); fixed with `ContainsSlashDToken`; regressions in `AzureRetailPricesSkuMatchersSlashDayTests`.
 
 2026-09-12 seed hunt #1910 (hit): reseeded core-costing sibling UOM parity; proved standalone/slash weekly Azure retail gap; 142 scoped Costing tests passed.
 
