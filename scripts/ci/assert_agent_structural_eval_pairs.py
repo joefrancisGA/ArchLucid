@@ -225,6 +225,61 @@ def verify_pairs(paths: CorpusPaths, pairs_path: Path) -> list[str]:
         if agent_type not in seen_agents:
             failures.append(f"missing pair for agentType {agent_type!r}")
 
+    brief_grounding = pairs_document.get("briefGroundingScenarios")
+
+    if brief_grounding is not None:
+        if not isinstance(brief_grounding, list) or not brief_grounding:
+            failures.append(f"{pairs_path}: briefGroundingScenarios[] required when present")
+        else:
+            for relative in brief_grounding:
+                if not isinstance(relative, str) or not relative.strip():
+                    failures.append(f"{pairs_path}: briefGroundingScenarios entries must be strings")
+                    continue
+
+                relative = relative.strip()
+                scenario_path = paths.corpus_root / relative
+
+                if not scenario_path.is_file():
+                    failures.append(f"briefGroundingScenarios: missing scenario file {relative}")
+                    continue
+
+                if relative not in manifest_scenarios:
+                    failures.append(f"briefGroundingScenarios: {relative} not listed in manifest.json")
+
+                try:
+                    quality = _quality_evidence(paths, relative)
+                except (OSError, ValueError, json.JSONDecodeError) as exc:
+                    failures.append(f"briefGroundingScenarios: {relative}: {exc}")
+                    continue
+
+                if quality.get("agentType") != "Topology":
+                    failures.append(
+                        f"briefGroundingScenarios: {relative} qualityEvidence.agentType must be 'Topology'",
+                    )
+
+                try:
+                    sim_result = _agent_result_path(paths, relative, "simulator")
+                except (OSError, ValueError, FileNotFoundError) as exc:
+                    failures.append(f"briefGroundingScenarios: {relative}: {exc}")
+                    continue
+
+                if not sim_result.is_file():
+                    failures.append(
+                        f"briefGroundingScenarios: missing simulator AgentResult at {sim_result.relative_to(REPO_ROOT)}",
+                    )
+
+                try:
+                    scenario_id = _scenario_id_from_path(paths, relative)
+                    baseline = _baseline_path(paths, scenario_id)
+                except (OSError, ValueError, json.JSONDecodeError) as exc:
+                    failures.append(f"briefGroundingScenarios: {relative}: {exc}")
+                    continue
+
+                if not baseline.is_file():
+                    failures.append(
+                        f"briefGroundingScenarios: missing baseline {baseline.relative_to(REPO_ROOT)}",
+                    )
+
     return failures
 
 

@@ -35,6 +35,7 @@ public static class FinalizeQualityScorecardEvaluator
         int verifyHypothesis = 0;
         int lowConfidence = 0;
         int unresolvedHighSeverity = 0;
+        int missingRequiredCapabilities = 0;
 
         foreach (Finding finding in findings.Findings)
         {
@@ -45,6 +46,9 @@ public static class FinalizeQualityScorecardEvaluator
 
             if (FinalizeQualityFindingSignals.IsCoverageGapJobView(finding, disposition))
                 uncovered++;
+
+            if (FinalizeQualityFindingSignals.IsOpenRequiredCapabilityCoverageJobView(finding, disposition))
+                missingRequiredCapabilities++;
 
             if (FinalizeQualityFindingSignals.IsOpenDeferredJobView(finding, disposition))
                 deferred++;
@@ -78,7 +82,8 @@ public static class FinalizeQualityScorecardEvaluator
             verifyHypothesis,
             unverifiedAssumptions,
             lowConfidence,
-            unresolvedHighSeverity);
+            unresolvedHighSeverity,
+            missingRequiredCapabilities);
     }
 
     /// <summary>Blocking reasons in the same order the UI scorecard lists them.</summary>
@@ -101,6 +106,12 @@ public static class FinalizeQualityScorecardEvaluator
         {
             reasons.Add(FinalizeQualityScorecardBlockedReasonFormatter.UncoveredMandatoryRequirements(
                 counts.UncoveredMandatoryRequirementCount));
+        }
+
+        if (counts.MissingRequiredCapabilityCount > 0)
+        {
+            reasons.Add(FinalizeQualityScorecardBlockedReasonFormatter.MissingRequiredCapabilities(
+                counts.MissingRequiredCapabilityCount));
         }
 
         if (counts.OpenDeferredCount > 0)

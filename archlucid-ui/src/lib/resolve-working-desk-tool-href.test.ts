@@ -62,6 +62,16 @@ describe("resolveWorkingDeskToolHref (SY-08–11 / ADR 0079)", () => {
     expect(resolveWorkingDeskToolHref({ tool: "ask" })).toBe("/architecture/architectures");
   });
 
+  it("SN-027: pre-fills nested Compare base from desk continuity when no open package run", () => {
+    expect(
+      resolveWorkingDeskToolHref({
+        tool: "compare",
+        lastOpenArchitectureId: architectureId,
+        compareBaseRunId: "run-career-latest",
+      }),
+    ).toBe(`${architectureNestedComparePath(architectureId)}?leftRunId=run-career-latest`);
+  });
+
   it("comparePageHrefOnBase keeps query on nested compare path", () => {
     expect(
       comparePageHrefOnBase(
