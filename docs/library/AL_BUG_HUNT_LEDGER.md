@@ -3320,10 +3320,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 9
+- **hunts:** 19
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-04 — production-like guard trusted Guid.Empty claim-bound scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3370,6 +3370,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ScopeResolutionGuardMiddleware` blocks `/robots.txt` and `/sitemap.xml` on staging — **cheap-disproof 2026-09-11 seed hunt #1802:** `ShouldSkip` treats crawler hint paths like `/`; regressions `InvokeAsync_staging_host_skips_public_crawler_hint_paths`.
 
 2026-09-11 seed hunt #1802 (seed-only): reseeded scope-binding-middleware after #1801; cheap-disproof closed ApiKey duplicate-project headers, AllowCrossTenant route skip, and public crawler hint paths; 61 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) ScimBearer principal with duplicate `x-tenant-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1837:** `TryParseHeaderGuid` parity with bearer; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_scim_bearer`.
+- [x] (valid-no-repro) ApiKey principal with duplicate `x-tenant-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1837:** `TryParseHeaderGuid` parity with bearer; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_api_key`.
+- [x] (valid-no-repro) `RouteTenantScopeBindingFilter` enforces route tenant on `[AllowAnonymous]` endpoints — **cheap-disproof 2026-09-12 seed hunt #1837:** `ShouldSkip` honors `IAllowAnonymous`; regression `OnActionExecutionAsync_allow_anonymous_metadata_skips_binding`.
+
+2026-09-12 seed hunt #1837 (seed-only): reseeded scope-binding-middleware after #1802; cheap-disproof closed ScimBearer/ApiKey duplicate-tenant headers and AllowAnonymous route skip; 64 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) Saml2 principal with duplicate `x-tenant-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1838:** `TryParseHeaderGuid` parity; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_saml2`.
+- [x] (valid-no-repro) ScimBearer principal with duplicate `x-workspace-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1839:** `TryParseHeaderGuid` parity; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_workspace_headers_without_claim_for_scim_bearer`.
+- [x] (valid-no-repro) ScimBearer principal with duplicate `x-project-id` headers bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1840:** `TryParseHeaderGuid` parity; regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_project_headers_without_claim_for_scim_bearer`.
+- [x] (valid-no-repro) `ScopeResolutionGuardMiddleware` blocks `/` on staging — **cheap-disproof 2026-09-12 seed hunt #1841:** `ShouldSkip` treats `/` like crawler hints; regression `InvokeAsync_staging_host_skips_root_path`.
+- [x] (valid-no-repro) ScimBearer principal without `tenant_id` claim accepts hostile `x-tenant-id` — **cheap-disproof 2026-09-12 seed hunt #1842:** header-only guard applies to ScimBearer auth type; regression `InvokeAsync_scim_bearer_without_tenant_claim_rejects_x_tenant_id_header`.
+- [x] (invalid) Non-GUID route `tenantId` reaches `RouteTenantScopeBindingFilter` on `{tenantId:guid}` routes — **cheap-disproof 2026-09-12 seed hunt #1843:** ASP.NET route constraint rejects non-parseable segments before the filter; defensive `Guid.TryParse` skip covered by `OnActionExecutionAsync_non_guid_route_tenant_skips_binding`.
+- [x] (valid-no-repro) Development host with `ARCHLUCID_ENVIRONMENT=Staging` skips production-like scope guard — **cheap-disproof 2026-09-12 seed hunt #1844:** `HostEnvironmentClassification.IsProductionOrStagingLike` honors config override; regression `InvokeAsync_archlucid_environment_staging_rejects_default_scope_on_development_host`.
+- [x] (valid-no-repro) ApiKey principal with whitespace-only `x-workspace-id` bypasses header-only escalation — **cheap-disproof 2026-09-12 seed hunt #1845:** `TryParseHeaderGuid` skips blank segments; regression `InvokeAsync_api_key_without_workspace_claim_allows_blank_x_workspace_id_header`.
+- [x] (valid-no-repro) `ScopeIdentityBindingValidator.Validate` rejects when claim present but matching header absent — **cheap-disproof 2026-09-12 seed hunt #1846:** claim-only binding is valid per TB-072; regression `Validate_succeeds_when_claim_and_header_match` and claim-only paths in middleware tests.
+
+2026-09-12 seed hunts #1838–#1846 (seed-only): continued scope-binding-middleware reseed after #1837; cheap-disproof closed SAML/SCIM duplicate-header parity, root-path guard skip, ARCHLUCID_ENVIRONMENT staging override, and route/filter edge cases; 71 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
 
 ---
 
