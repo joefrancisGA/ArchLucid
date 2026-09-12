@@ -10,10 +10,6 @@ import {
 } from "@/lib/system-not-job-no-create-architecture-vs-review-fork-working";
 import { resolveSystemNotJobWorkingArchitecturesListNavTitle } from "@/lib/system-not-job-draft-list-reachable-from-portfolio";
 import {
-  ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE,
-  ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE,
-} from "@/lib/architecture/architecture-identity-desk-copy";
-import {
   ARCHITECTURES_LIST_PATH,
   ARCHITECTURES_NEW_PATH,
   REVIEWS_LIST_PATH,
