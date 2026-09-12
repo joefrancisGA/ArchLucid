@@ -2496,3 +2496,4 @@
 {"at":"2026-09-12T20:12:52.8257404Z","zoneId":"extraction-router","outcome":"seed-only"}
 {"at":"2026-09-12T20:13:59.7973532Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-12T20:17:50.1625184Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only"}
+{"at":"2026-09-12T20:20:31.3963400Z","zoneId":"persistence-identity","outcome":"seed-only"}
