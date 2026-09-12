@@ -15,7 +15,7 @@ export const SYSTEM_NOT_JOB_IMPACT_PREVIEW_POLICY_ENVELOPE_BODY =
 export const SYSTEM_NOT_JOB_IMPACT_PREVIEW_PRODUCTION_DISCLAIMER = IMPACT_PREVIEW_SCOPE_WHAT_IT_IS_NOT;
 
 export const SYSTEM_NOT_JOB_NESTED_IMPACT_PREVIEW_PAGE_SUBTITLE =
-  "Policy cheap envelope on this architecture desk — simulate policy-pack and finding impact before you treat output as Career proof." as const;
+  "Policy cheap envelope on this architecture desk — simulate policy-pack and finding impact before you treat output as sealed-record proof." as const;
 
 export const SYSTEM_NOT_JOB_IMPACT_PREVIEW_ARCHITECTURE_SKETCH_HELPER =
   "For architecture sketch envelopes, use clone from snapshot on the desk — labeled Rehearsal per ADR 0092 (SN-008)." as const;

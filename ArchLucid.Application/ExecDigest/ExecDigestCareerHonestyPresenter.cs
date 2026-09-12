@@ -13,7 +13,7 @@ public static class ExecDigestCareerHonestyPresenter
     public const string BodyDisclaimer =
         "This digest includes rehearsal or Simulator runs — not production customer evidence. Treat highlighted rows by their rehearsal labels.";
 
-    public const string CareerBlockedRowLabel = "Career blocked";
+    public const string CareerBlockedRowLabel = "Sealed record blocked";
 
     public const string RehearsalIncompleteRowLabel = "Rehearsal incomplete";
 

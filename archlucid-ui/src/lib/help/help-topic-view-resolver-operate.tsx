@@ -34,6 +34,11 @@ const HelpWhichModeAmIInGuideView = dynamic(() =>
     (module) => module.HelpWhichModeAmIInGuideView,
   ),
 );
+const HelpSealedVsDecisionRegisterGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpSealedVsDecisionRegisterGuideView").then(
+    (module) => module.HelpSealedVsDecisionRegisterGuideView,
+  ),
+);
 const HelpArchitectureDraftsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView").then((module) => module.HelpArchitectureDraftsGuideView),
 );
@@ -304,6 +309,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "which-mode-am-i-in") {
     return <HelpWhichModeAmIInGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "sealed-record-vs-decision-register") {
+    return <HelpSealedVsDecisionRegisterGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "architecture-drafts") {
     return <HelpArchitectureDraftsGuideView entry={loaded.entry} />;

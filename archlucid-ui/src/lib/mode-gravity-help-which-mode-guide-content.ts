@@ -4,7 +4,7 @@ export const MODE_GRAVITY_HELP_WHICH_MODE_SLUG = "which-mode-am-i-in" as const;
 export const MODE_GRAVITY_HELP_WHICH_MODE_TITLE = "Which mode am I in?" as const;
 
 export const MODE_GRAVITY_HELP_WHICH_MODE_OVERVIEW =
-  "Start with workspace mode: Working is your all-day instrument; Guided is eval teaching. On Working, Record means Career gravity and Practice means Rehearsal. Demo and trial builds use eval chrome — they are not Working Career days." as const;
+  "Start with workspace mode: Working is your all-day instrument; Guided is eval teaching. On Working, Record means sealed-record proof and Practice means labeled dry-run. Demo and trial builds use eval chrome — they are not Working Record days." as const;
 
 export const MODE_GRAVITY_HELP_WHICH_MODE_ALIASES = [
   "which mode",

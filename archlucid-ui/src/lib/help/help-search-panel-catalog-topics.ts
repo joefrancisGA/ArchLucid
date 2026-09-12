@@ -131,7 +131,7 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     id: "which-mode-am-i-in",
     title: "Which mode am I in?",
     description:
-      "Working vs Guided, then Career vs Rehearsal — demo and trial builds use eval chrome, not Working Career gravity.",
+      "Working vs Guided, then Record vs Practice — demo and trial builds use eval chrome, not Working Record gravity.",
     keywords: [
       "which mode",
       "am i in working",
@@ -143,6 +143,25 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
       "adr 0094",
     ],
     action: { kind: "route", href: "/help/which-mode-am-i-in", helpSlug: "which-mode-am-i-in" },
+  },
+  {
+    id: "sealed-record-vs-decision-register",
+    title: "Sealed review record vs decision register",
+    description:
+      "A sealed review record is the finalized package for one review; the decision register is the ledger of dispositions.",
+    keywords: [
+      "sealed record",
+      "signed record",
+      "finalized review record",
+      "decision register",
+      "package vs ledger",
+      "signed decision record",
+    ],
+    action: {
+      kind: "route",
+      href: "/help/sealed-record-vs-decision-register",
+      helpSlug: "sealed-record-vs-decision-register",
+    },
   },
   {
     id: "career-rehearsal-doors",

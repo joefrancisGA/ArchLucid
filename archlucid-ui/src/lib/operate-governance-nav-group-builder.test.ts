@@ -36,12 +36,13 @@ describe("OperateGovernanceNavGroupBuilder", () => {
       "/governance/remediation-patterns",
       "/governance/audit-evidence",
       "/governance/decision-register",
+      "/governance/sealed-records",
       "/governance/advisory-scans",
       "/governance/audit",
       "/governance/alerts",
     ]);
     expect(group.caption).toBe(
-      "Approve findings, track exceptions and decisions, and monitor audit trail and alerts.",
+      "Approve findings, track exceptions and decisions, browse sealed review records, and monitor audit trail and alerts.",
     );
     expect(group.links.some((link) => link.href === "/governance/policy-packs")).toBe(false);
   });

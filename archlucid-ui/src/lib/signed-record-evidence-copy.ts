@@ -2,7 +2,11 @@ import {
   HUB_SECONDARY_FOLLOW_UPS_TITLES,
   hubSecondaryFollowUpsIntro,
 } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
-import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_DECISION_REGISTER_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
@@ -25,6 +29,7 @@ export const SIGNED_RECORD_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
 /** Operator Sources — no self-href to the dynamic signed-record detail path. */
 export const SIGNED_RECORD_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Finalized review records", href: SIGNED_RECORDS_LIST_PATH },
+  { label: "Decision register", href: GOVERNANCE_DECISION_REGISTER_PATH },
   { label: "Reviews help guide", href: inAppHelpHref("review-packages") },
   { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },

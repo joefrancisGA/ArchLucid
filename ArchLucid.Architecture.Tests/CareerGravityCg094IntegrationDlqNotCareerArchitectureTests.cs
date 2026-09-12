@@ -35,7 +35,7 @@ public sealed class CareerGravityCg094IntegrationDlqNotCareerArchitectureTests
                 "IntegrationEventsDlqPageClient.tsx"));
 
         copy.Should().Contain("INTEGRATION_EVENTS_DLQ_CAREER_HONESTY_TITLE");
-        copy.Should().Contain("not sealed Career proof");
+        copy.Should().Contain("sealed-record proof");
         pageClient.Should().Contain("IntegrationEventsDlqCareerHonestyStrip");
         pageClient.Should().NotContain("careerComplete");
     }
