@@ -351,12 +351,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ## Zone: arm-terraform-source-ids
 
 - **id:** arm-terraform-source-ids
+
+2026-09-13 seed hunt #2397 (seed-only): reseeded arm-terraform-source-ids; no new hunt-ready rows.
 - **status:** open
 - **impact:** medium
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 61
+- **hunts:** 62
 - **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
