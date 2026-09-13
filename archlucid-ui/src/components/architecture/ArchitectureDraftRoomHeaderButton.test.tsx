@@ -46,7 +46,7 @@ describe("ArchitectureDraftRoomHeaderButton (DR-16)", () => {
     expect(pushMock).toHaveBeenCalledWith("/architecture/reviews/run-42?roomElicitation=1");
   });
 
-  it("AO-38: navigates to nested room elicitation when parent architecture id is known", () => {
+  it("IR-013: navigates to inhabited findings room when parent architecture id is known", () => {
     render(
       <ArchitectureDraftRoomHeaderButton
         linkedReviewId="run-42"
@@ -57,7 +57,7 @@ describe("ArchitectureDraftRoomHeaderButton (DR-16)", () => {
     fireEvent.click(screen.getByTestId("review-room-enter"));
 
     expect(pushMock).toHaveBeenCalledWith(
-      "/architecture/architectures/architecture-identity-001/reviews/run-42?roomElicitation=1",
+      "/architecture/architectures/architecture-identity-001/findings?runId=run-42&roomElicitation=1",
     );
   });
 

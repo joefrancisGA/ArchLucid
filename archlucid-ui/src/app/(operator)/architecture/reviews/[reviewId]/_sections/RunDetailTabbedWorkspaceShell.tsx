@@ -116,6 +116,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       <RunDetailPresenterElicitationBridge
         runId={model.resolvedDetail.run.runId}
         architectureRequestId={model.resolvedDetail.run.architectureRequestId}
+        parentArchitectureId={model.resolvedDetail.run.architectureId ?? null}
         defensibilityStrip={resolved.defensibilityStripEl}
         tabSectionNav={
           <RunDetailTabbedSectionNavDeferred

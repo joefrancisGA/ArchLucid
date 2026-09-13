@@ -6,13 +6,16 @@ import { ArchitectureDraftCloneSnapshotControl } from "@/components/architecture
 import { ArchitectureDraftSpawnLockSnapshotSummary } from "@/components/architecture/ArchitectureDraftSpawnLockSnapshotSummary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
 import {
   architectureDraftPath,
   architectureIdentityDraftHref,
   resolveArchitectureReviewHref,
 } from "@/lib/architecture/architecture-routes";
 import { formatInhabitSpawnLockHandoffContinueLabel } from "@/lib/inhabit/inhabit-handoff-copy";
+import { INHABIT_FINDINGS_COMPARE_DISABLED_REASON } from "@/lib/inhabit/inhabit-exploration-copy";
 import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
+import { resolveArchitectureDeskCompareHref } from "@/lib/system-not-job-compare-entry-from-desk";
 import { resolveFinalizeSuccessDeskHref } from "@/lib/architecture/finalize-success-desk-href";
 import {
   ARCHITECTURE_SPAWN_LOCKED_DRAFT_BACK_TO_REVIEW_LABEL,
@@ -70,6 +73,21 @@ export function ArchitectureDraftHandoffPanel(
   const reviewLabel = props.linkedReviewTitle.trim().length > 0
     ? props.linkedReviewTitle
     : "Linked review";
+
+  const identityQuery = useArchitectureIdentityQuery(
+    parentArchitectureId,
+    parentArchitectureId.length > 0,
+  );
+  const compareResolution =
+    parentArchitectureId.length > 0 && identityQuery.data !== undefined
+      ? resolveArchitectureDeskCompareHref({
+          architectureId: parentArchitectureId,
+          reviews: identityQuery.data.reviews,
+          latestReviewId: identityQuery.data.latestReviewId,
+          selectedChildRunId: props.linkedReviewId,
+          workingMode: true,
+        })
+      : null;
 
   return (
     <div
@@ -143,6 +161,24 @@ export function ArchitectureDraftHandoffPanel(
               variant="outline"
               spawnLockedDeskAction
             />
+            {compareResolution?.kind === "href" ? (
+              <Button
+                asChild
+                type="button"
+                variant="outline"
+                className={CTA_WIDTH.content}
+                data-testid="architecture-draft-handoff-compare-committed"
+              >
+                <Link href={compareResolution.href}>Compare committed reviews</Link>
+              </Button>
+            ) : compareResolution?.kind === "disabled" ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="architecture-draft-handoff-compare-disabled"
+              >
+                {INHABIT_FINDINGS_COMPARE_DISABLED_REASON}
+              </p>
+            ) : null}
           </div>
 
           <p

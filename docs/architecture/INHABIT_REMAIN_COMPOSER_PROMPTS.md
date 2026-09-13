@@ -6,7 +6,7 @@
 
 # Inhabit remain Composer prompts (IR-001–IR-018)
 
-**Created:** 2026-09-13 · **Status:** ready (prompt-set only — do not implement product from this document) · **Do not re-run** IH-001–080 product bodies except as a numbered leftover.
+**Created:** 2026-09-13 · **Status:** closed — product **IR-001–IR-014** shipped; see [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md) · Fresh diagnosis: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md) · **Do not re-run** IH-001–080 product bodies except as a numbered leftover.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record.
 
@@ -14,16 +14,7 @@ Paste **one** `.cursor/prompts/inhabit-remain-NNN-*.md` file per Composer sessio
 
 ## The problem these prompts solve
 
-Overlays, wave 34, and the start/completeness leftovers made Working an inhabited findings afternoon. Remaining livelihood failures are **incomplete inhabit**, not “this is still a casual evaluator”:
-
-1. Run-progress **Ready** chrome can still read complete without naming quiet engines.
-2. Core-pilot and first-review guide still teach the **job pipeline**.
-3. Inspect and quick-decision can still edit findings **without** an architecture identity.
-4. Compact finding row / queue client hide **disposition history** after the 300s toast.
-5. Keyboard does not land on the first finding unless focus is already inside a card.
-6. Continue-last and pins still index **reviews**, not architectures.
-7. Presenter / draft-header / L0 MUST elicitation still **leave** the findings document.
-8. Spawn-lock handoff still lacks committed Compare (no draft-diff).
+Overlays, wave 34, the start/completeness leftovers, and **IR-001–IR-014** made Working an inhabited findings afternoon. The eight livelihood classes below were the remain pack scope — all product rows are **shipped** (see acceptance doc).
 
 ## Diagnosis → prompt
 
