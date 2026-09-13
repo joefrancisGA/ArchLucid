@@ -19,7 +19,7 @@
 | Remount cheap-envelope runner | CE wave scope | **IH-047** | **Not shipped** | Reuse shipped CE entry; do not remount CE-001. |
 | Re-implement daytime wait | DW wave scope | standing forbid | **Not shipped** | Do not re-run DW; no progress URL. |
 
-Follow-up after wave 34 (not a new wave): [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md) (start/completeness leftovers). Remain leftover prompts: [`INHABIT_REMAIN_COMPOSER_PROMPTS.md`](INHABIT_REMAIN_COMPOSER_PROMPTS.md) (**IR-001–IR-018**). Do not start wave 35.
+Follow-up after wave 34 (not a new wave): [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md) (start/completeness leftovers). Remain leftover prompts: [`INHABIT_REMAIN_COMPOSER_PROMPTS.md`](INHABIT_REMAIN_COMPOSER_PROMPTS.md) (**IR-001–IR-018**, closed). Fresh diagnosis after IR close: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md). Do not start wave 35.
 
 ## Do not claim
 

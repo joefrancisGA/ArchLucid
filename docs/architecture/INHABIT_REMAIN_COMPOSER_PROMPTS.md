@@ -6,7 +6,7 @@
 
 # Inhabit remain Composer prompts (IR-001–IR-018)
 
-**Created:** 2026-09-13 · **Status:** closed — product **IR-001–IR-014** shipped; see [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md) · **Do not re-run** IH-001–080 product bodies except as a numbered leftover.
+**Created:** 2026-09-13 · **Status:** closed — product **IR-001–IR-014** shipped; see [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md) · Fresh diagnosis: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md) · **Do not re-run** IH-001–080 product bodies except as a numbered leftover.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record.
 

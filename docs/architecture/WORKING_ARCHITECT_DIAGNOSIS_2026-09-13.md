@@ -103,6 +103,6 @@ See [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-0
 
 ## Recommendation
 
-1. Treat inhabit remain livelihood leaks as **closed** unless a new diagnosis names a regression.
+1. Treat inhabit remain livelihood leaks as **closed**.
 2. Do **not** paste a wave-35 inhabit pack.
-3. Keep `inhabit-leak-inventories.ts` and markdown in sync when future **IH** or **IR** work ships.
+3. Fresh diagnosis after IR close: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md).

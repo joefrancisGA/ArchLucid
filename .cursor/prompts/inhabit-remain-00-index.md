@@ -31,6 +31,7 @@ Canonical leak truth: `archlucid-ui/src/lib/inhabit-leak-inventories.ts` (markdo
 | Nested findings landing / inhabited chrome | IH-015 / IH-016 / IH-040 / IH-059 |
 | Remain pack IR-001–IR-014 | [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](../../docs/architecture/INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md) |
 | Peer queue architecture scope | **IR-015 skip** — stays peer |
+| Fresh diagnosis after IR close | [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md`](../../docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md) — do not reopen IR rows |
 
 ## Prompt files (paste one per session)
 

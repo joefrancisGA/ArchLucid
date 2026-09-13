@@ -84,6 +84,6 @@ Focused Vitest suites for remain product areas, inventory ratchet, and prompt in
 
 ## Recommendation
 
-1. Treat remain livelihood leaks as **closed** unless a new diagnosis names a specific regression.
+1. Remain livelihood leaks named in this pack are **closed**.
 2. Do **not** paste a wave-35 inhabit pack to “finish inhabit.”
-3. Next working-architect work should come from a fresh diagnosis, not from reopening IR rows.
+3. Fresh diagnosis after this close: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md) — secondary inspector landings, not reopened IR rows.
