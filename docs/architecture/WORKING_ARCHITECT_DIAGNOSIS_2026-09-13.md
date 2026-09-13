@@ -2,7 +2,9 @@
 >
 > **Origin diagnosis:** ArchLucid is a **working-architect tool** — all-day use; livelihoods may depend on the sealed record (`docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` R4 / R13).
 >
-> **Prompt index:** [`.cursor/prompts/inhabit-00-index.md`](../../.cursor/prompts/inhabit-00-index.md) · **Wave 34 close audit:** [`INHABIT_ACCEPTANCE_2026-09-13.md`](INHABIT_ACCEPTANCE_2026-09-13.md) · **Inventories:** [`INHABIT_LEAK_INVENTORIES.md`](INHABIT_LEAK_INVENTORIES.md)
+> **Prompt index:** [`.cursor/prompts/inhabit-00-index.md`](../../.cursor/prompts/inhabit-00-index.md) · **Remain leftovers (not wave 35):** [`.cursor/prompts/inhabit-remain-00-index.md`](../../.cursor/prompts/inhabit-remain-00-index.md) · **Wave 34 close audit:** [`INHABIT_ACCEPTANCE_2026-09-13.md`](INHABIT_ACCEPTANCE_2026-09-13.md) · **Inventories:** [`INHABIT_LEAK_INVENTORIES.md`](INHABIT_LEAK_INVENTORIES.md)
+
+**Status (after start/completeness leftover follow-up):** the three leaks this file closed (wizard/re-run Start honesty, peer-table Simulator support band, pre-finalize quiet engines) are **shipped**. Remaining livelihood leaks are **IR-001–IR-014** in the remain pack — not a wave-35 pack.
 
 # Working-architect diagnosis — 2026-09-13 leftovers
 

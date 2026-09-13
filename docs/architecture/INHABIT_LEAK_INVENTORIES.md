@@ -4,7 +4,7 @@
 
 **Last reviewed:** 2026-09-13 · **ADR:** [0100](adrs/0100-working-inhabit-architecture-findings-document.md)
 
-These tables name where Working still behaves like a governed job inspector instead of an inhabited architecture afternoon. Shrink rows when a later **IH** prompt closes the leak. Source of truth: `archlucid-ui/src/lib/inhabit-leak-inventories.ts`. Follow-up diagnosis after wave 34: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md).
+These tables name where Working still behaves like a governed job inspector instead of an inhabited architecture afternoon. Shrink rows when a later **IH** or **IR** prompt closes the leak. Source of truth: `archlucid-ui/src/lib/inhabit-leak-inventories.ts`. Follow-up diagnosis after wave 34: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md). Remain leftover prompts (not wave 35): [`INHABIT_REMAIN_COMPOSER_PROMPTS.md`](INHABIT_REMAIN_COMPOSER_PROMPTS.md).
 
 ## IH-004 — Findings editor still on review-detail
 
@@ -99,3 +99,4 @@ Guided / demo / trial may keep eval chrome (**IH-070**).
 
 - `archlucid-ui/src/lib/inhabit-leak-inventories.ts`
 - `archlucid-ui/src/lib/inhabit-leak-inventories.test.ts`
+- Remain leftover prompts (do not flip rows from the prompt-set PR): [`INHABIT_REMAIN_COMPOSER_PROMPTS.md`](INHABIT_REMAIN_COMPOSER_PROMPTS.md)
