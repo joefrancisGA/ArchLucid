@@ -2610,3 +2610,4 @@
 {"at":"2026-09-13T00:13:30.2926562Z","zoneId":"decisioning","outcome":"seed-only"}
 {"at":"2026-09-13T00:13:43.1411794Z","zoneId":"security-analyzers","outcome":"seed-only"}
 {"at":"2026-09-13T00:13:56.4507894Z","zoneId":"cli-draft-new","outcome":"seed-only"}
+{"at":"2026-09-13T00:14:09.5022991Z","zoneId":"tenant-erasure","outcome":"seed-only"}
