@@ -8,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -200,6 +201,7 @@ export function ReviewBoardWhitelabelConsultingExportButton(
             {sealedManifestBlockedReason}
           </p>
         ) : null}
+        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="whitelabel-consulting-export" />
       </div>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-lg gap-4" data-testid="whitelabel-export-modal">
@@ -253,6 +255,7 @@ export function ReviewBoardWhitelabelConsultingExportButton(
               />
             </div>
           </div>
+          <SponsorExportSendHonestyStrip className="w-full max-w-xl" testIdPrefix="whitelabel-consulting-export" />
           <DialogFooter>
             <Button type="button" variant="outline" disabled={busy} onClick={() => onOpenChange(false)}>
               Cancel

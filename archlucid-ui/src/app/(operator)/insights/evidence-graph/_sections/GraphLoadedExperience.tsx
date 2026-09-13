@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -242,6 +243,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             {exportError}
           </p>
         ) : null}
+        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="evidence-graph-export" />
       </div>
       <GraphInteractiveCanvas
         graphSurfaceKey={graphSurfaceKey}
