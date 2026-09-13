@@ -1,3 +1,5 @@
+import "server-only";
+
 import { notFound } from "next/navigation";
 
 import { getArchitectureIdentity } from "@/lib/api/architecture-identity-api";

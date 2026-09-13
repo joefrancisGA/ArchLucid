@@ -6,7 +6,7 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   formatWorkingArchitectureDocumentTitle,
   WORKING_NESTED_REVIEW_DOCUMENT_TITLE_SUFFIX,
-} from "@/lib/architecture/working-architecture-document-title";
+} from "@/lib/architecture/working-architecture-document-title-format";
 
 type WorkingInstrumentDocumentTitleProps = {
   readonly architectureDisplayName: string;
