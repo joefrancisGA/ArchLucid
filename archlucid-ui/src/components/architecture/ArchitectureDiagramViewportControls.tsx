@@ -18,6 +18,7 @@ export type ArchitectureDiagramViewportControlsProps = {
   readonly maxZoomPercent: number;
   readonly atMinZoom: boolean;
   readonly atMaxZoom: boolean;
+  readonly fitInViewDisabled: boolean;
   readonly onZoomPercentDraftChange: (value: string) => void;
   readonly onZoomPercentFocus: () => void;
   readonly onCommitZoomPercent: (raw: string) => void;
@@ -116,7 +117,13 @@ export function ArchitectureDiagramViewportControls(
         >
           {props.resetZoomLabel}
         </Button>
-        <Button type="button" variant="outline" size="sm" onClick={props.onFitInView}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={props.fitInViewDisabled}
+          onClick={props.onFitInView}
+        >
           {props.fitInViewLabel}
         </Button>
         {props.fullscreenAction != null ? (

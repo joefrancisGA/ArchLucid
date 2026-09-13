@@ -242,6 +242,7 @@ function useDiagramZoomState(pathname: string) {
   const zoomPercentInputValue = zoomPercentDraft ?? String(zoomPercent);
   const atMinZoom = zoom <= MIN_ARCHITECTURE_DIAGRAM_ZOOM + 0.001;
   const atMaxZoom = zoom >= MAX_ARCHITECTURE_DIAGRAM_ZOOM - 0.001;
+  const atDefaultZoom = Math.abs(zoom - 1) <= 0.001;
 
   return {
     zoom,
@@ -249,6 +250,7 @@ function useDiagramZoomState(pathname: string) {
     zoomPercentInputValue,
     atMinZoom,
     atMaxZoom,
+    atDefaultZoom,
     setZoomPercentDraft,
     setZoomClamped,
     setZoom,
@@ -276,6 +278,7 @@ function renderDiagramViewportControls(
       maxZoomPercent={MAX_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT}
       atMinZoom={zoom.atMinZoom}
       atMaxZoom={zoom.atMaxZoom}
+      fitInViewDisabled={zoom.atDefaultZoom}
       onZoomPercentDraftChange={zoom.setZoomPercentDraft}
       onZoomPercentFocus={() => zoom.setZoomPercentDraft(String(zoom.zoomPercent))}
       onCommitZoomPercent={zoom.commitZoomPercent}
