@@ -130,7 +130,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         ArgumentNullException.ThrowIfNull(node);
 
         string graphvizId = GraphvizIdEscaper.QuoteIdentifier(MermaidIdSanitizer.Sanitize(node.NodeId));
-        string label = GraphvizIdEscaper.QuoteLabel(MermaidDiagramRenderer.EscapeLabel(node.Label));
+        string label = DiagramGraphvizHtmlNodeLabel.Format(node);
         builder.AppendLine($"{indentText}{graphvizId} [label={label}];");
     }
 

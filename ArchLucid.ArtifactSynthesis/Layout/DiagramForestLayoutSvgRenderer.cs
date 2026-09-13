@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Security;
 using System.Xml.Linq;
 
 using ArchLucid.ArtifactSynthesis.Compilers;
@@ -132,9 +131,9 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         foreach (DiagramNode node in orderedNodes)
         {
-            double width = ResolveNodeWidth(node.Label, options);
-            placements.Add(new NodePlacement(node, 0, nodeY, width, options.NodeHeight));
-            nodeY += options.NodeHeight + options.NodeVerticalGap;
+            DiagramForestNodeMetrics metrics = DiagramForestNodeMetricsCalculator.Measure(node, options);
+            placements.Add(new NodePlacement(node, 0, nodeY, metrics.Width, metrics.Height));
+            nodeY += metrics.Height + options.NodeVerticalGap;
         }
 
         double maxWidth = placements.Count == 0 ? options.MinNodeWidth : placements.Max(placement => placement.Width);
@@ -156,17 +155,17 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         foreach (IReadOnlyList<DiagramNode> layer in layers)
         {
-            List<(DiagramNode Node, double Width)> sized = layer
-                .Select(node => (Node: node, Width: (double)ResolveNodeWidth(node.Label, options)))
+            List<(DiagramNode Node, DiagramForestNodeMetrics Metrics)> sized = layer
+                .Select(node => (Node: node, Metrics: DiagramForestNodeMetricsCalculator.Measure(node, options)))
                 .ToList();
-            double columnWidth = sized.Count == 0 ? options.MinNodeWidth : sized.Max(item => item.Width);
+            double columnWidth = sized.Count == 0 ? options.MinNodeWidth : sized.Max(item => item.Metrics.Width);
             double nodeY = 0;
 
-            foreach ((DiagramNode node, double width) in sized)
+            foreach ((DiagramNode node, DiagramForestNodeMetrics metrics) in sized)
             {
-                double nodeX = columnX + ((columnWidth - width) / 2.0);
-                placements.Add(new NodePlacement(node, nodeX, nodeY, width, options.NodeHeight));
-                nodeY += options.NodeHeight + options.NodeVerticalGap;
+                double nodeX = columnX + ((columnWidth - metrics.Width) / 2.0);
+                placements.Add(new NodePlacement(node, nodeX, nodeY, metrics.Width, metrics.Height));
+                nodeY += metrics.Height + options.NodeVerticalGap;
             }
 
             columnX += columnWidth + options.NodeHorizontalGap;
@@ -280,32 +279,21 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                      .ThenBy(candidate => candidate.Node.NodeId, StringComparer.Ordinal))
         {
             string safeId = MermaidIdSanitizer.Sanitize(placement.Node.NodeId);
-            string safeLabel = EscapeSvgText(MermaidDiagramRenderer.EscapeLabel(placement.Node.Label));
-            XElement nodeGroup = new(
-                svgNamespace + "g",
-                new XAttribute("class", "node"),
-                new XAttribute("id", $"node-{safeId}"),
-                new XAttribute(
-                    "transform",
-                    string.Create(
-                        CultureInfo.InvariantCulture,
-                        $"translate({placement.X:0.###},{placement.Y:0.###})")));
-            nodeGroup.Add(new XElement(
-                svgNamespace + "rect",
-                new XAttribute("width", FormatCoordinate(placement.Width)),
-                new XAttribute("height", FormatCoordinate(placement.Height)),
-                new XAttribute("rx", "4"),
-                new XAttribute("fill", "#f8fafc"),
-                new XAttribute("stroke", "#64748b")));
-            nodeGroup.Add(new XElement(
-                svgNamespace + "text",
-                new XAttribute("x", FormatCoordinate(placement.Width / 2.0)),
-                new XAttribute("y", FormatCoordinate(placement.Height / 2.0)),
-                new XAttribute("text-anchor", "middle"),
-                new XAttribute("dominant-baseline", "middle"),
-                new XAttribute("font-size", "12"),
-                new XAttribute("font-family", "system-ui,sans-serif"),
-                safeLabel));
+            DiagramForestNodeMetrics metrics = DiagramForestNodeMetricsCalculator.Measure(
+                placement.Node,
+                options);
+            XElement nodeGroup = DiagramForestNodeSvgEmitter.Emit(
+                svgNamespace,
+                safeId,
+                placement.Width,
+                placement.Height,
+                metrics,
+                options);
+            nodeGroup.Add(new XAttribute(
+                "transform",
+                string.Create(
+                    CultureInfo.InvariantCulture,
+                    $"translate({placement.X:0.###},{placement.Y:0.###})")));
             root.Add(nodeGroup);
         }
 
@@ -440,20 +428,6 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         }
 
         return ordered;
-    }
-
-    private static int ResolveNodeWidth(string label, DiagramForestLayoutOptions options)
-    {
-        string safeLabel = MermaidDiagramRenderer.EscapeLabel(label);
-        int estimated = (int)Math.Ceiling(safeLabel.Length * options.CharacterWidth) + 16;
-        int clamped = Math.Max(options.MinNodeWidth, estimated);
-
-        return Math.Min(options.MaxNodeWidth, clamped);
-    }
-
-    private static string EscapeSvgText(string value)
-    {
-        return SecurityElement.Escape(value) ?? string.Empty;
     }
 
     private static string FormatCoordinate(double value)

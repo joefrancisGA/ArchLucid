@@ -55,5 +55,35 @@ public sealed class DiagramForestLayoutOptions
     {
         get;
         init;
-    } = 7.2;
+    } = 7.6;
+
+    public int PictogramSize
+    {
+        get;
+        init;
+    } = 28;
+
+    public int IconToLabelGap
+    {
+        get;
+        init;
+    } = 6;
+
+    public int LineHeight
+    {
+        get;
+        init;
+    } = 16;
+
+    public int NodePaddingX
+    {
+        get;
+        init;
+    } = 8;
+
+    public int NodePaddingY
+    {
+        get;
+        init;
+    } = 6;
 }

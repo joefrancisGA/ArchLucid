@@ -38,8 +38,12 @@ public sealed class DiagramForestLayoutSvgRendererTests
             && string.Equals((string?)element.Attribute("class"), "node", StringComparison.Ordinal));
         nodeCount.Should().Be(11);
 
-        int edgeCount = root.Descendants().Count(element =>
-            string.Equals(element.Name.LocalName, "line", StringComparison.Ordinal));
+        int edgeCount = root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge", StringComparison.Ordinal))
+            .SelectMany(group => group.Elements())
+            .Count(element => string.Equals(element.Name.LocalName, "line", StringComparison.Ordinal));
         edgeCount.Should().Be(6);
 
         string[] viewBoxParts = (root.Attribute("viewBox")?.Value ?? string.Empty)
@@ -50,8 +54,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
         double viewBoxHeight = double.Parse(viewBoxParts[3], CultureInfo.InvariantCulture);
 
         viewBoxWidth.Should().BeLessThan(900);
-        viewBoxHeight.Should().BeLessThan(500);
-        (viewBoxWidth / viewBoxHeight).Should().BeGreaterThan(1.0);
+        viewBoxHeight.Should().BeLessThan(800);
     }
 
     [Fact]
@@ -102,6 +105,45 @@ public sealed class DiagramForestLayoutSvgRendererTests
 
         nodeXs.Should().HaveCount(11);
         nodeXs.Distinct().Count().Should().BeGreaterThanOrEqualTo(3);
+    }
+
+    [Fact]
+    public void Render_uses_pictograms_and_bold_wrapped_names()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "labels",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "vm-1",
+                    Label = "vm-userprovision-hi-nonprod01",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "db-1",
+                    Label = "sqldb-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Sql/servers/databases",
+                    OrderKey = 1,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+        result.Succeeded.Should().BeTrue();
+        result.Svg.Should().Contain("font-weight=\"700\"");
+        result.Svg.Should().Contain("class=\"pictogram\"");
+        result.Svg.Should().Contain("data-kind=\"Compute\"");
+        result.Svg.Should().Contain("data-kind=\"Data\"");
+        result.Svg.Should().Contain("<title>vm-userprovision-hi-nonprod01 (Virtual machine)</title>");
+        result.Svg.Should().Contain("<title>sqldb-app (SQL database)</title>");
+        result.Svg.Should().Contain("<tspan");
+        result.Svg.Should().NotContain("fill=\"#f8fafc\"");
     }
 
     [Fact]
