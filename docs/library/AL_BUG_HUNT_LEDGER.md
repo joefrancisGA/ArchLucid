@@ -5276,12 +5276,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: retrieval
 
 - **id:** retrieval
+
+2026-09-13 seed hunt #2391 (seed-only): reseeded retrieval; no new hunt-ready rows.
 - **status:** open
 - **impact:** medium
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
