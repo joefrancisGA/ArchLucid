@@ -50,23 +50,6 @@ internal static class ExecutiveVnetSummaryBuilder
             diagramNode.Label = BuildVnetLabel(diagramNode.Label, counts);
         }
 
-        NormalizePeeringEdgeLabels(ast);
-    }
-
-    private static void NormalizePeeringEdgeLabels(DiagramAst ast)
-    {
-        foreach (DiagramEdge edge in ast.Edges)
-        {
-            if (edge.IsLayoutOnly)
-            {
-                continue;
-            }
-
-            if (string.Equals(edge.Label, GraphEdgeTypes.PeersWith, StringComparison.Ordinal))
-            {
-                edge.Label = "peered";
-            }
-        }
     }
 
     private static string BuildVnetLabel(string baseLabel, VnetResourceCounts counts)

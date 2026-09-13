@@ -176,6 +176,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
             <thead className="bg-neutral-50 dark:bg-neutral-900/60">
               <tr>
                 <th className="px-3 py-2 font-medium">From</th>
+                <th className="px-3 py-2 font-medium">Relationship</th>
                 <th className="px-3 py-2 font-medium">To</th>
               </tr>
             </thead>
@@ -186,6 +187,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   className="border-t border-neutral-200 dark:border-neutral-800"
                 >
                   <td className="px-3 py-2">{resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from)}</td>
+                  <td className="px-3 py-2">{formatOutlineCell(edge.label)}</td>
                   <td className="px-3 py-2">{resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.to)}</td>
                 </tr>
               ))}
