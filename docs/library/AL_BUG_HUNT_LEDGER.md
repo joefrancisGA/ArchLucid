@@ -121,17 +121,19 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 59
-- **bugs-found:** 36
+- **hunts:** 60
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2285: virtual_wan
+- **last-bug:** 2026-09-13 — hunt #2286: private_dns_resolver
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-13 seed hunt #2284 (seed→hit): reseeded topology-proposal-merge; proved `azurerm_blueprint_assignment` Data-category svc- alias gap; regression `FilterValidatedProposals_keeps_relationship_when_blueprint_assignment_node_has_data_category_but_synthetic_service_id_used`.
 
 2026-09-13 seed hunt #2285 (seed→hit): reseeded topology-proposal-merge; proved `azurerm_virtual_wan` Data-category svc- alias gap; regression `FilterValidatedProposals_keeps_relationship_when_virtual_wan_node_has_data_category_but_synthetic_service_id_used`.
+
+2026-09-13 seed hunt #2286 (seed→hit): reseeded topology-proposal-merge; proved `azurerm_private_dns_resolver` Data-category svc- alias gap; regression `FilterValidatedProposals_keeps_relationship_when_private_dns_resolver_node_has_data_category_but_synthetic_service_id_used`.
 
 2026-09-13 seed hunt #2283 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_maintenance_configuration` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_maintenance_configuration_node_has_data_category_but_synthetic_service_id_used`.
 
@@ -216,6 +218,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+- [x] (proven) `azurerm_private_dns_resolver` omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-13 #2286:** `private_dns_resolver` parity fix; regression `FilterValidatedProposals_keeps_relationship_when_private_dns_resolver_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_virtual_wan` omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-13 #2285:** `virtual_wan` parity fix; regression `FilterValidatedProposals_keeps_relationship_when_virtual_wan_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_blueprint_assignment` omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-13 #2284:** `blueprint_assignment` parity fix; regression `FilterValidatedProposals_keeps_relationship_when_blueprint_assignment_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_maintenance_configuration` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-13 seed hunt #2283:** `maintenance_configuration` was absent from both lists; `azurerm_maintenance_configuration.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with `maintenance_configuration` parity in both lists; regression `FilterValidatedProposals_keeps_relationship_when_maintenance_configuration_node_has_data_category_but_synthetic_service_id_used`.
