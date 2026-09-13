@@ -121,13 +121,15 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 55
-- **bugs-found:** 32
+- **hunts:** 56
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-12 — hunt #2215: data_lake_gen2 svc- synthetic alias on Data-category nodes
+- **last-bug:** 2026-09-13 — hunt #2281: hdinsight svc- synthetic alias on Data-category nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2281 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_hdinsight_hadoop_cluster` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_hdinsight_hadoop_cluster_node_has_data_category_but_synthetic_service_id_used`.
 
 2026-09-13 seed hunt #2261 (seed-only): reseeded topology-proposal-merge with `-Hint topology -Refresh`; no new hunt-ready rows.
 
@@ -206,6 +208,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+- [x] (proven) `azurerm_hdinsight_hadoop_cluster` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-13 seed hunt #2281:** `hdinsight` was absent from both service and datastore lists; `azurerm_hdinsight_hadoop_cluster.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with `hdinsight` parity in both lists; regression `FilterValidatedProposals_keeps_relationship_when_hdinsight_hadoop_cluster_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_data_lake_gen2_filesystem` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2215:** `data_lake_gen2` was only in the datastore list; `azurerm_data_lake_gen2_filesystem.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_data_lake_gen2_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_storage_data_lake` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2214:** `storage_data_lake` was only in the datastore list; `azurerm_storage_data_lake.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_storage_data_lake_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_storage_container` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-12 seed hunt #2213:** `storage_container` was only in the datastore list; `azurerm_storage_container.main` on Data-category nodes dropped `svc-` synthetic aliases; fixed with service-list parity; regression `FilterValidatedProposals_keeps_relationship_when_storage_container_node_has_data_category_but_synthetic_service_id_used`.

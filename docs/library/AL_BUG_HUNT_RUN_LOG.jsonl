@@ -2614,3 +2614,4 @@
 {"at":"2026-09-13T00:14:22.5226329Z","zoneId":"core-configuration-summary","outcome":"seed-only"}
 {"at":"2026-09-13T00:14:35.3085126Z","zoneId":"host-composition","outcome":"seed-only"}
 {"at":"2026-09-13T00:14:47.9505089Z","zoneId":"application-pilots","outcome":"seed-only"}
+{"at":"2026-09-13T00:34:59.4652095Z","zoneId":"topology-proposal-merge","outcome":"hit"}
