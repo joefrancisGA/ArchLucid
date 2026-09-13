@@ -1017,6 +1017,13 @@ internal static class KubernetesManifestCanonicalObjectMapper
             {
                 CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "readOnlyRootFilesystem", "true");
             }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "runAsUser", out JsonElement runAsUserElement)
+                && runAsUserElement.ValueKind is JsonValueKind.Number
+                && runAsUserElement.TryGetInt64(out long runAsUserValue))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "runAsUser", runAsUserValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            }
                 else if (runAsNonRootElement.ValueKind is JsonValueKind.False)
                     anyRunAsNonRootFalse = true;
             }
