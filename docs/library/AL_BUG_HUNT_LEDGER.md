@@ -283,13 +283,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-11 — padded declared endpoint alias keys skipped edge resolution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2437 (seed-only): reseeded arm-terraform-source-ids; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2434 (seed-only): reseeded arm-terraform-source-ids; no new hunt-ready rows.
 
