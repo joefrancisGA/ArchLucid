@@ -3,6 +3,7 @@
 > **Paste files:** [`.cursor/prompts/inventory-diagram-graphviz-00-index.md`](../../.cursor/prompts/inventory-diagram-graphviz-00-index.md) (one numbered file per session).
 >
 > **Do not** re-run **IDL**, **IDS**, **IDT**, or **IDH**. Do **not** retune Mermaid `nodeSpacing`. Do **not** change the PowerShell extractor.
+> **Follow-on (not this wave):** [`DIAGRAM_AI_USABILITY_COMPOSER_PROMPTS.md`](DIAGRAM_AI_USABILITY_COMPOSER_PROMPTS.md) (**DAU-01–DAU-12**) — AI compiles intent into existing modes/patches; does **not** replace Graphviz `fdp`.
 
 # IDG-01–IDG-05 — Inventory diagrams: Graphviz layout from DiagramAst
 

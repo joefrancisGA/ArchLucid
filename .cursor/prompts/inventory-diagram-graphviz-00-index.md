@@ -88,6 +88,10 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-graphviz-<sho
 | 05 | `inventory-diagram-graphviz-05-owner-shape-ratchet.md` | No browser lock that 11/6 is compact |
 | HOLD | `inventory-diagram-graphviz-06-hold.md` | Extractor DOT / `dependsOn` temptation |
 
+## Follow-on (do not implement from this file)
+
+Owner 2026-09-13 also asked for **AI to improve human usability** of diagramming (intent-to-view, camera, NL patches). That wave is **DAU-01–DAU-12**: [`.cursor/prompts/diagram-ai-usability-00-index.md`](diagram-ai-usability-00-index.md). Do not start DAU inside an IDG session. Do not treat DAU as a substitute for Graphviz `fdp`.
+
 ## Open questions for the owner (defaults apply if unanswered)
 
 1. **Default engine.** IDG-03 default: Graphviz `fdp` for inventory snapshot canvases when `fdp` exists; Mermaid if the binary is missing. Review-detail architecture artifacts stay Mermaid. OK?

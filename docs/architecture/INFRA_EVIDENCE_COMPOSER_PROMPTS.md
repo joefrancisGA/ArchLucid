@@ -3,7 +3,7 @@
 
 # Infrastructure-evidence Composer prompts
 
-**Created:** 2026-09-04 · **Revised:** 2026-09-13 (added **IE-DT-01–IE-DT-04** Drift & snapshots table overlapping microscopic text — `content-visibility` on `EnterpriseTable` rows; **IDG-01–IDG-05** Graphviz `fdp` from `DiagramAst` after the owner still saw a white sea and asked for Composer prompts; **IDH-01–IDH-03** inventory-diagram human layout from owner `.mmd`; **IE-DD-01–IE-DD-04** Data diagram render failed; **IDS-01–IDS-04** inventory-diagram spacing — **do not re-run**, packing subgraphs superseded by IDH/IDG; **IE-RF-01–IE-RF-12** relationship-first topology collection; **IE-ID-01–IE-ID-03** Identity diagram compiles but does not paint; **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931).
+**Created:** 2026-09-04 · **Revised:** 2026-09-13 (added **DAU-01–DAU-12** diagram AI usability — compile intent into existing view/model controls, not LLM Mermaid; **IE-DT-01–IE-DT-04** Drift & snapshots table overlapping microscopic text — `content-visibility` on `EnterpriseTable` rows; **IDG-01–IDG-05** Graphviz `fdp` from `DiagramAst` after the owner still saw a white sea and asked for Composer prompts; **IDH-01–IDH-03** inventory-diagram human layout from owner `.mmd`; **IE-DD-01–IE-DD-04** Data diagram render failed; **IDS-01–IDS-04** inventory-diagram spacing — **do not re-run**, packing subgraphs superseded by IDH/IDG; **IE-RF-01–IE-RF-12** relationship-first topology collection; **IE-ID-01–IE-ID-03** Identity diagram compiles but does not paint; **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931).
 
 **Status:** ready to run — **one prompt per chat**.
 
@@ -28,6 +28,7 @@ Canonical design: [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md
 | [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_HUMAN_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_HUMAN_COMPOSER_PROMPTS.md) | **IDH-01–IDH-03** Owner Executive `.mmd` (11 VNets / 6 unlabeled arrows / 0 subgraphs) must pack as TD columns, not `alpack_*` LR pairs |
 | [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_DENSE_SPACING_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_DENSE_SPACING_COMPOSER_PROMPTS.md) | **IDT-01–IDT-04** Residual Mermaid slack — **do not start another IDT/IDS gap pass**; owner 2026-09-13 chose **IDG** |
 | [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_GRAPHVIZ_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_GRAPHVIZ_COMPOSER_PROMPTS.md) | **IDG-01–IDG-05** + hold — Graphviz `fdp` from `DiagramAst` for inventory canvases; Mermaid stays export/fail-soft; **no** extractor DOT |
+| [`DIAGRAM_AI_USABILITY_COMPOSER_PROMPTS.md`](DIAGRAM_AI_USABILITY_COMPOSER_PROMPTS.md) | **DAU-01–DAU-12** AI usability: Ask `ViewPlan`, density coach, camera, walkthrough, path, finding spotlight, reconcile overlay, NL model patches, inferred merge, vision accept desk — **not** LLM Mermaid as source of truth |
 | [`INFRA_EVIDENCE_DRIFT_TABLE_LAYOUT_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_DRIFT_TABLE_LAYOUT_COMPOSER_PROMPTS.md) | **IE-DT-01–IE-DT-04** Drift & snapshots change table overlapping microscopic text (`content-visibility` on `EnterpriseTable` `<tr>`; prompts only until implementation chats) |
 
 ## Why this set exists
@@ -48,7 +49,8 @@ Naive implementation would add a second Azure collector, a second finding type n
 | Replacing aztfexport | §2.17 |
 | Merging scanner findings into `FindingsSnapshot` | [`FINDING_STREAM_PRODUCT_OF_RECORD.md`](../library/FINDING_STREAM_PRODUCT_OF_RECORD.md) |
 | New coverage `IFindingEngine` | [`HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md) |
-| FIT-01–05 re-run; diagram OCR as default-on V1 claim | Archives / IE-20 gated |
+| FIT-01–05 re-run; diagram OCR as default-on V1 claim | Archives / IE-20 gated; **DAU-11** is accept UX only |
+| LLM-authored Mermaid/DOT as the diagram of record | **DAU-01** / ADR 0101 — assist compiles into existing controls |
 | GTM M-90 / M-44 / M-91 / M-92; SOC 2 CPA; third-party pen test | Owner/GTM |
 | Desktop review tab collapse | workspace rule |
 | `Export-AzResourceGroup` / `dependsOn` as architecture arrows | **IE-RF-12** — ARG projections + type lists, not a deploy DAG |
@@ -205,3 +207,7 @@ Attack-path / capability-to-flow engines over **live inventory** are **SA-01–S
 | IDG-01, IDG-02 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
 | IDG-03, IDG-04 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` + `archlucid-ui` Vitest named in the prompt |
 | IDG-05 | `archlucid-ui` Playwright `infra-diagrams-layout` (operator-mock) |
+| DAU-01, DAU-12 | ADR markdown + honesty tests named in the prompt |
+| DAU-02 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` (`InfraEvidenceAsk` + ViewPlan validator) |
+| DAU-03, DAU-04, DAU-05, DAU-07, DAU-08, DAU-09, DAU-10, DAU-11 | `archlucid-ui` focused Vitest named in the prompt |
+| DAU-06 | `ArchLucid.ArtifactSynthesis.Tests` (`DiagramVisiblePathFinder`) + focused Vitest |
