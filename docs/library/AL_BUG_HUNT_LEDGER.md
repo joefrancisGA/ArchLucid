@@ -13876,13 +13876,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** chatops webhook; authority commit notification; slack teams delivery
 - **paths:** ArchLucid.Notifications/AuthorityRunCommittedChatOpsHook.cs; ArchLucid.Notifications/AuthorityRunCompletedChatOpsIntegrationEventHandler.cs
 - **test-filter:** FullyQualifiedName~AuthorityRunCommittedChatOps|FullyQualifiedName~AuthorityRunCompletedChatOps
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-08 — ChatOps hook swallowed all-target delivery failures so Service Bus completed without retry
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-13 seed hunt #2264 (seed-only): reseeded chatops-delivery with `-Hint webhook`; no new hunt-ready rows.
 
 ### Hypotheses
 
