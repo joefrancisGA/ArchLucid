@@ -990,13 +990,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — whitespace-only EvidenceRef on existing row blocked distinct grounded agent proposals with the same technology name
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-13 seed hunt #2299 (seed-only): reseeded technology-ledger-merge; no new hunt-ready rows.
+
 
 2026-09-12 seed hunt #2146 (seed-only): reseeded technology-ledger-merge with `-Refresh`; no new hunt-ready rows.
 
