@@ -5467,6 +5467,23 @@ public sealed class AgentTopologyProposalGraphMergeTests
             e.ToNodeId == "vnet-1");
     }
 
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_subnet_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "subnet-1", label: "app", sourceId: "azurerm_subnet.app"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-app")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "subnet-1");
+    }
+
     [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_workloads_orchestrator_node_has_compute_category_but_synthetic_datastore_id_used()
     {
