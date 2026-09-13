@@ -2602,3 +2602,4 @@
 {"at":"2026-09-13T00:11:46.5933298Z","zoneId":"extraction-router","outcome":"seed-only"}
 {"at":"2026-09-13T00:11:59.5469246Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-13T00:12:12.6688343Z","zoneId":"finding-disposition","outcome":"seed-only"}
+{"at":"2026-09-13T00:12:25.8236380Z","zoneId":"api-key-auth","outcome":"seed-only"}
