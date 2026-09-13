@@ -203,6 +203,24 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL })).toBeInTheDocument();
   });
 
+  it('paints server layout SVG without invoking client mermaid render', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"] --> b["B"]'}
+        layoutSvg={measurableMermaidSvg}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    expect(renderMock).not.toHaveBeenCalled();
+    expect(screen.getByText('Node A')).toBeInTheDocument();
+  });
+
   it('strips inline mermaid comments before calling mermaid.render', async () => {
     render(
       <ArchitectureDiagramViewer

@@ -33,10 +33,43 @@ function buildMermaidBody(edgeLine: (from: string, to: string) => string): strin
   return `${lines.join("\n")}\n`;
 }
 
+/**
+ * Stand-in for compact `fdp -Tsvg` output (IDG-05). Node `class="node"` matches IDG-04 fit queries.
+ */
+export function elevenVnetOwnerGraphvizLayoutSvg(): string {
+  const nodeWidth = 88;
+  const nodeHeight = 36;
+  const columnGap = 24;
+  const rowGap = 20;
+  const columns = 4;
+  const lines: string[] = [
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200">',
+  ];
+
+  for (let index = 0; index < VNET_LABELS.length; index += 1) {
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    const x = 12 + column * (nodeWidth + columnGap);
+    const y = 12 + row * (nodeHeight + rowGap);
+    const label = VNET_LABELS[index];
+    lines.push(
+      `<g class="node" id="node-${index}" transform="translate(${x},${y})">` +
+        `<rect width="${nodeWidth}" height="${nodeHeight}" rx="4" />` +
+        `<text x="${nodeWidth / 2}" y="${nodeHeight / 2}" text-anchor="middle" dominant-baseline="middle">${label}</text>` +
+        `</g>`,
+    );
+  }
+
+  lines.push("</svg>");
+  return lines.join("");
+}
+
 function buildRenderResponse(
   mermaid: string,
   edgeCount: number,
   subgraphCount = 0,
+  layoutSvg: string | null = null,
+  layoutEngine: string | null = null,
 ): InfraEvidenceMermaidRenderResponse {
   const nodeCount = VNET_LABELS.length;
 
@@ -46,6 +79,8 @@ function buildRenderResponse(
     fallbackKey: null,
     status: "Succeeded",
     mermaid,
+    layoutSvg,
+    layoutEngine,
     metrics: {
       nodeCount,
       edgeCount,
@@ -171,4 +206,20 @@ export function elevenVnetChainLegacyRenderResponse(): InfraEvidenceMermaidRende
 
 export function elevenVnetSparsePeeringRenderResponse(): InfraEvidenceMermaidRenderResponse {
   return buildRenderResponse(elevenVnetSparsePeeringMermaid(), 6, 0);
+}
+
+/** Owner-shape Executive with Graphviz canvas (IDG-03/05). */
+export function elevenVnetOwnerGraphvizRenderResponse(): InfraEvidenceMermaidRenderResponse {
+  return buildRenderResponse(
+    elevenVnetSparsePeeringMermaid(),
+    6,
+    0,
+    elevenVnetOwnerGraphvizLayoutSvg(),
+    "graphviz-fdp",
+  );
+}
+
+/** Mermaid-only fail-soft path — must not use the owner-shape Graphviz default. */
+export function elevenVnetSparsePeeringMermaidOnlyRenderResponse(): InfraEvidenceMermaidRenderResponse {
+  return buildRenderResponse(elevenVnetSparsePeeringMermaid(), 6, 0, null, "mermaid-dagre");
 }

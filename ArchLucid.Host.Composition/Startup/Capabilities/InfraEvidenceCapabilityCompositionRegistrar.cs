@@ -24,7 +24,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(AzureExtractorAutoPullOptions.SectionName));
         services.Configure<SecureNowArchitectNeighborhoodOptions>(
             configuration.GetSection(SecureNowArchitectNeighborhoodOptions.SectionName));
-        InfraEvidenceCompositionModule.Register(services);
+        InfraEvidenceCompositionModule.Register(services, configuration);
         RegisterAzureExtractorAutoPullHostedService(services, hostingRole);
         RegisterAwsExtractorAutoPullHostedService(services, hostingRole);
         RegisterGcpExtractorAutoPullHostedService(services, hostingRole);
