@@ -114,6 +114,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " mis")
             || ContainsSlashMinToken(trimmed)
             || ContainsSlashMinsToken(trimmed)
+            || ContainsSlashMisToken(trimmed)
             || ContainsSlashMinuteWordToken(trimmed)
             || ContainsSlashMinutesToken(trimmed)
             || HasCompactMinuteSuffix(trimmed)
@@ -154,6 +155,29 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterMin;
+        }
+
+        return false;
+    }
+
+
+    private static bool ContainsSlashMisToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/mis", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterMis = index + 4;
+
+            if (afterMis >= trimmed.Length || !char.IsLetter(trimmed[afterMis]))
+                return true;
+
+            index = afterMis;
         }
 
         return false;
