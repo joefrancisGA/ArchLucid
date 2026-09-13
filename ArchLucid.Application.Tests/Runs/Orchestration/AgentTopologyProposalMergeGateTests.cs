@@ -1529,6 +1529,23 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
 
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_firewall_policy_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "fp-1", label: "perimeter", sourceId: "azurerm_firewall_policy.perimeter"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-perimeter")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRenamedServiceOverlayWhenServiceIdHasSurroundingWhitespace()
     {
