@@ -2612,3 +2612,4 @@
 {"at":"2026-09-13T00:13:56.4507894Z","zoneId":"cli-draft-new","outcome":"seed-only"}
 {"at":"2026-09-13T00:14:09.5022991Z","zoneId":"tenant-erasure","outcome":"seed-only"}
 {"at":"2026-09-13T00:14:22.5226329Z","zoneId":"core-configuration-summary","outcome":"seed-only"}
+{"at":"2026-09-13T00:14:35.3085126Z","zoneId":"host-composition","outcome":"seed-only"}
