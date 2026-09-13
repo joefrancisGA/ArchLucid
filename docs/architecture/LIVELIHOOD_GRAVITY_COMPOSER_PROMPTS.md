@@ -3,6 +3,7 @@
 > **Copy overlay (wave 31):** [`RECORD_PRACTICE_COMPOSER_PROMPTS.md`](RECORD_PRACTICE_COMPOSER_PROMPTS.md) (**RP-001–024**) — user-facing Record / Practice. Do not re-run CG.
 > **Issue 2 residual (wave 32):** [`SYSTEM_GRAVITY_COMPOSER_PROMPTS.md`](SYSTEM_GRAVITY_COMPOSER_PROMPTS.md) (**SG-001–120**) — instrument after spawn is still the nested review job. Do not re-run SN / AO / SY / CE.
 > **Wave 33 (stamp + leftovers):** [`LIVELIHOOD_DAY_COMPOSER_PROMPTS.md`](LIVELIHOOD_DAY_COMPOSER_PROMPTS.md) (**LY-001–120**, ADR **0099**) — Real finalize LLM judge default-on. Do not re-run SG-001–081.
+> **Wave 34 (inhabit):** [`INHABIT_COMPOSER_PROMPTS.md`](INHABIT_COMPOSER_PROMPTS.md) (**IH-001–080**, ADR **0100**) — findings as the afternoon document. Do not re-run SG / LY bodies except as a numbered leftover.
 > **Issue 4 (in-flight writes):** already [`LOST_WRITE_COMPOSER_PROMPTS.md`](LOST_WRITE_COMPOSER_PROMPTS.md) (**LW-001–LW-100**) — **do not re-run**.
 
 # Livelihood-gravity Composer prompts (waves 24–30)
@@ -58,6 +59,7 @@ Owner indexes:
 - Wave 31 copy overlay: [`RECORD_PRACTICE_COMPOSER_PROMPTS.md`](RECORD_PRACTICE_COMPOSER_PROMPTS.md) — not a ninth diagnosis issue; do not re-run CG
 - Wave 32 issue-2 residual: [`SYSTEM_GRAVITY_COMPOSER_PROMPTS.md`](SYSTEM_GRAVITY_COMPOSER_PROMPTS.md) — locator shipped; instrument after spawn still the nested job; do not re-run SN
 - Wave 33 stamp leftover: [`LIVELIHOOD_DAY_COMPOSER_PROMPTS.md`](LIVELIHOOD_DAY_COMPOSER_PROMPTS.md) — Real finalize LLM judge default-on; do not re-run SG-001–081
+- Wave 34 inhabit leftover: [`INHABIT_COMPOSER_PROMPTS.md`](INHABIT_COMPOSER_PROMPTS.md) — after spawn the architect still operates a job; findings as the afternoon document; do not re-run SG / LY bodies except as a numbered leftover
 
 ## Family forbids (every wave)
 

@@ -1,0 +1,33 @@
+> **Scope:** Close audit — livelihood UX wave 34 (inhabit / **IH**). Internal engineering only.
+
+# Inhabit acceptance — 2026-09-13
+
+**Wave:** 34 (**IH-001–IH-080**). **ADR:** [0100](adrs/0100-working-inhabit-architecture-findings-document.md) (Proposed). **Index:** [`.cursor/prompts/inhabit-00-index.md`](../../.cursor/prompts/inhabit-00-index.md).
+
+## Kernel shipped in the prompt-set PR (IH-001 / IH-072 / IH-079)
+
+| Item | Status |
+|------|--------|
+| ADR 0100 Working inhabits the architecture (Proposed) | **Shipped** (contract) |
+| README pointer after 0099 | **Shipped** |
+| FAQ: inhabit yes; review-detail not Monday; no merge; no 300s/unseal | **Shipped** |
+| Prompt inventory IH-001–080 + index | **Shipped** |
+| ADR guard Vitest | **Shipped** |
+
+## Paste-ready leftovers (do not claim done)
+
+IH-002–078 remain one-prompt-per-session leftovers (findings document, default-day honesty, amend, completeness, sketch/room/keyboard/continuity) plus ratchets/skips except the contract guards above. **Do not** claim IH-015 landing shipped. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare or live presence.
+
+## Skips (intentional)
+
+| Skip | Prompt |
+|------|--------|
+| G-REAL-06 / host Mode flip | IH-076 |
+| Draft-diff Compare | IH-077 |
+| Presence / finding chat / unseal / 40th engine / merge kernels | IH-078 |
+| Lengthen 300s undo | IH-073 |
+
+## Ratchets
+
+- `archlucid-ui/src/lib/inhabit-adr-guard.test.ts` (IH-001 / IH-072)
+- `archlucid-ui/src/lib/inhabit-prompt-inventory.test.ts` (IH-079)
