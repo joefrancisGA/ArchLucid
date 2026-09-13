@@ -218,7 +218,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("vpn_gateway", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cdn_frontdoor", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cdn_profile", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("cdn_endpoint", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("cdn_endpoint", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("nat_gateway", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
