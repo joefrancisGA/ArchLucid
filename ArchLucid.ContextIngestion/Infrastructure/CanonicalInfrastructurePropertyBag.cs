@@ -39,6 +39,7 @@ public static class CanonicalInfrastructurePropertyBag
         "automountserviceaccounttoken",
         "imagepullsecret",
         "dnsnameserver",
+        "hostaliasip",
     ];
 
     public static string SanitizePropertyKey(string name)

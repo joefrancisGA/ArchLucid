@@ -11067,6 +11067,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-13 seed hunt #2517 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `host_aliases` pod spec projection gap; regression `ParseAsync_snake_case_host_aliases_projects_host_alias_ip_exposure`.
+
 2026-09-13 seed hunt #2514 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config` pod spec projection gap; regression `ParseAsync_snake_case_dns_config_projects_dns_nameserver_exposure`.
 
 2026-09-13 seed hunt #2509 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `image_pull_secrets` pod spec dropped by secret-key redaction; regression `ParseAsync_snake_case_image_pull_secrets_projects_image_pull_secret_exposure`.
@@ -11111,8 +11113,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 142
-- **bugs-found:** 185
+- **hunts:** 152
+- **bugs-found:** 195
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-13 — hunt #2499: `priority` pod spec not projected
