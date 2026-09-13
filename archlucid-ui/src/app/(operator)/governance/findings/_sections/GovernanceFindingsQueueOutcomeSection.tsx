@@ -29,10 +29,22 @@ import {
 } from "@/lib/governance/governance-assigned-to-me-empty-state";
 
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
+import { usePathname } from "next/navigation";
+import { resolveInhabitedFindingsEmptyStateCopy } from "@/lib/inhabit/inhabit-findings-document-presentation";
 
 export function GovernanceFindingsQueueOutcomeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element {
+  const pathname = usePathname();
+  const inhabitedEmptyState = resolveInhabitedFindingsEmptyStateCopy({
+    workingMode: props.isWorkingMode,
+    pathname,
+    scopedArchitectureId: props.scopedArchitectureId,
+    architectureDisplayName: props.architectureDisplayName,
+    scopedRunId: props.scopedRunId,
+    scopedRunTitle: props.scopedRunContextTitle,
+  });
+
   return (
     <>
       {!props.loading && props.rows.length === 0 && props.loadFailed ? (
@@ -89,9 +101,11 @@ export function GovernanceFindingsQueueOutcomeSection(
             title={
               props.isAssignedToMe
                 ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT.title
-                : props.buyerPolishedShell
-                  ? BUYER_RISK_REGISTER_EMPTY_TITLE
-                  : ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE
+                : inhabitedEmptyState !== null
+                  ? inhabitedEmptyState.title
+                  : props.buyerPolishedShell
+                    ? BUYER_RISK_REGISTER_EMPTY_TITLE
+                    : ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE
             }
             description={
               props.isAssignedToMe
@@ -101,9 +115,11 @@ export function GovernanceFindingsQueueOutcomeSection(
                     checkedAt: props.assignedToMeCheckedAt,
                     fetchBasis: props.assignedToMeFetchBasis,
                   })
-                : props.buyerPolishedShell
-                  ? BUYER_RISK_REGISTER_EMPTY_BODY
-                  : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
+                : inhabitedEmptyState !== null
+                  ? inhabitedEmptyState.description
+                  : props.buyerPolishedShell
+                    ? BUYER_RISK_REGISTER_EMPTY_BODY
+                    : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
             }
             actions={
               props.isAssignedToMe

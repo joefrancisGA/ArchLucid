@@ -23,6 +23,9 @@ export type UseGovernanceFindingsQueueModeInput = {
   readonly workingMode?: boolean;
   readonly pathname?: string | null;
   readonly scopedArchitectureId?: string | null;
+  readonly architectureDisplayName?: string | null;
+  readonly scopedRunId?: string | null;
+  readonly scopedRunTitle?: string | null;
 };
 
 export function useGovernanceFindingsQueueMode({
@@ -30,6 +33,9 @@ export function useGovernanceFindingsQueueMode({
   workingMode = false,
   pathname = null,
   scopedArchitectureId = null,
+  architectureDisplayName = null,
+  scopedRunId = null,
+  scopedRunTitle = null,
 }: UseGovernanceFindingsQueueModeInput) {
   const { productLine } = useProductLine();
   const isAssignedToMe = mode === "assigned-to-me";
@@ -48,12 +54,24 @@ export function useGovernanceFindingsQueueMode({
       : null;
   const loadFailure = isAssignedToMe ? assignedToMeQuery.loadFailure : tenantQuery.loadFailure;
 
-  const pageTitle = resolveGovernanceFindingsPageTitle(isAssignedToMe, buyerPolishedShell);
+  const presentationOptions = {
+    workingMode,
+    pathname,
+    scopedArchitectureId,
+    architectureDisplayName,
+    scopedRunId,
+    scopedRunTitle,
+  };
+  const pageTitle = resolveGovernanceFindingsPageTitle(
+    isAssignedToMe,
+    buyerPolishedShell,
+    presentationOptions,
+  );
   const pageSubtitle = resolveGovernanceFindingsPageSubtitle(
     isAssignedToMe,
     buyerPolishedShell,
     productLine,
-    { workingMode, pathname },
+    presentationOptions,
   );
   const navHref = resolveGovernanceFindingsQueueHeaderNavHref({
     isAssignedToMe,

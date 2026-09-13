@@ -75,6 +75,7 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   };
   readonly isWorkingMode: boolean;
   readonly scopedArchitectureId: string | null;
+  readonly architectureDisplayName: string | null;
   readonly lastOpenArchitectureId: string | null;
   readonly onLoadFindingsSavedView: (view: import("@/lib/api/operator-saved-views").OperatorSavedView) => void;
   readonly loading: boolean;

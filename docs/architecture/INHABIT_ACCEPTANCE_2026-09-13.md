@@ -16,7 +16,17 @@
 
 ## Paste-ready leftovers (do not claim done)
 
-IH-002–014 inventories and IH-015 landing + IH-025 start honesty shipped in implementation pass. IH-016–078 remain one-prompt-per-session leftovers (findings document depth, amend, completeness, sketch/room/keyboard/continuity) plus ratchets/skips except the contract guards above. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare or live presence.
+| IH-002 0098 vs 0100 quote | **Shipped** (ADR 0100 + OPERATOR_UI_EXPERIENCE_MODES) |
+| IH-003 vocabulary inventory | **Shipped** (inventory + nested desk copy) |
+| IH-013 compat matrix | **Shipped** (`INHABIT_COMPAT_MATRIX.md`) |
+| IH-014 inhabit help slug | **Shipped** (`/help/inhabit-the-architecture`) |
+| IH-015 landing | **Shipped** |
+| IH-016–021 findings document cluster | **Shipped** (presentation, trail, finalize, empty honesty) |
+| IH-024 back href inventory | **Partial** (canonical `working-back-href`; leak inventory updated) |
+| IH-025 Record + Simulator start honesty | **Shipped** |
+| IH-026 Practice start honesty | **Shipped** |
+
+IH-027–078 remain one-prompt-per-session leftovers (default-day, amend, completeness, sketch/room/keyboard/continuity) plus ratchets/skips except the contract guards above. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare or live presence.
 
 ## Skips (intentional)
 

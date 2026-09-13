@@ -19,6 +19,11 @@ const HelpArchitectureDeskGuideView = dynamic(() =>
     (module) => module.HelpArchitectureDeskGuideView,
   ),
 );
+const HelpInhabitTheArchitectureGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpInhabitTheArchitectureGuideView").then(
+    (module) => module.HelpInhabitTheArchitectureGuideView,
+  ),
+);
 const HelpSystemGravityGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpSystemGravityGuideView").then(
     (module) => module.HelpSystemGravityGuideView,
@@ -330,6 +335,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "architecture-desk") {
     return <HelpArchitectureDeskGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "inhabit-the-architecture") {
+    return <HelpInhabitTheArchitectureGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "system-gravity") {
     return <HelpSystemGravityGuideView entry={loaded.entry} />;

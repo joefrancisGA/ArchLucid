@@ -349,6 +349,15 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
     "releaseApplicability": "Working system-not-job help (SN-032 / WS-20 / ADR 0079)",
   },
   {
+    "slug": "inhabit-the-architecture",
+    "title": "Inhabit the architecture",
+    "summary": "Working orientation — the system is what you inhabit; nested findings are the afternoon document; review-detail stays a job inspector. Record vs Practice start honesty.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-09-13",
+    "releaseApplicability": "Inhabit help (IH-014 / ADR 0100)",
+  },
+  {
     "slug": "system-gravity",
     "title": "System gravity",
     "summary": "Working orientation — architecture desk is the instrument after spawn; nested review-detail is a job inspector, not Monday Home. Record and Practice terms per ADR 0097.",

@@ -33,6 +33,10 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE } from "@/lib/governance/governance-findings-evidence-copy";
 import {
+  resolveInhabitedFindingsDocumentPresentation,
+  type InhabitedFindingsDocumentInput,
+} from "@/lib/inhabit/inhabit-findings-document-presentation";
+import {
   resolveSystemNotJobGovernanceFindingsClaimDiscipline,
   resolveSystemNotJobGovernanceFindingsPageSubtitle,
 } from "@/lib/system-not-job-findings-are-verbs-on-the-system";
@@ -237,21 +241,45 @@ export function hasAssignedToMeCountMismatch(options: {
 
 export { EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS };
 
+export type ResolveGovernanceFindingsPresentationOptions = {
+  readonly workingMode?: boolean;
+  readonly pathname?: string | null;
+  readonly scopedArchitectureId?: string | null;
+  readonly architectureDisplayName?: string | null;
+  readonly scopedRunId?: string | null;
+  readonly scopedRunTitle?: string | null;
+};
+
+function resolveInhabitedPresentationInput(
+  options: ResolveGovernanceFindingsPresentationOptions,
+): InhabitedFindingsDocumentInput {
+  return {
+    workingMode: options.workingMode === true,
+    pathname: options.pathname ?? null,
+    scopedArchitectureId: options.scopedArchitectureId ?? null,
+    architectureDisplayName: options.architectureDisplayName ?? null,
+    scopedRunId: options.scopedRunId ?? null,
+    scopedRunTitle: options.scopedRunTitle ?? null,
+  };
+}
+
 export function resolveGovernanceFindingsPageTitle(
   isAssignedToMe: boolean,
   buyerPolishedShell: boolean,
+  options: ResolveGovernanceFindingsPresentationOptions = {},
 ): string {
   if (isAssignedToMe) {
     return "Assigned to me";
   }
 
+  const inhabited = resolveInhabitedFindingsDocumentPresentation(resolveInhabitedPresentationInput(options));
+
+  if (inhabited !== null) {
+    return inhabited.pageTitle;
+  }
+
   return buyerPolishedShell ? BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE : ARCHITECTURE_RISK_REGISTER_PAGE_TITLE;
 }
-
-export type ResolveGovernanceFindingsPresentationOptions = {
-  readonly workingMode?: boolean;
-  readonly pathname?: string | null;
-};
 
 export function resolveGovernanceFindingsPageSubtitle(
   isAssignedToMe: boolean,
@@ -261,6 +289,12 @@ export function resolveGovernanceFindingsPageSubtitle(
 ): string {
   if (isAssignedToMe) {
     return resolveGovernanceAssignedToMePageSubtitle(productLineId, buyerPolishedShell);
+  }
+
+  const inhabited = resolveInhabitedFindingsDocumentPresentation(resolveInhabitedPresentationInput(options));
+
+  if (inhabited !== null) {
+    return inhabited.pageSubtitle;
   }
 
   const guidedSubtitle = buyerPolishedShell
@@ -282,6 +316,12 @@ export function resolveGovernanceFindingsClaimDiscipline(
 ): string {
   if (isAssignedToMe) {
     return resolveGovernanceAssignedToMeClaimDiscipline(productLineId, buyerPolishedShell);
+  }
+
+  const inhabited = resolveInhabitedFindingsDocumentPresentation(resolveInhabitedPresentationInput(options));
+
+  if (inhabited !== null) {
+    return inhabited.claimDiscipline;
   }
 
   return resolveSystemNotJobGovernanceFindingsClaimDiscipline({

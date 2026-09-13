@@ -131,8 +131,8 @@ export type InhabitQuietEngineCompletenessRow = {
 export const INHABIT_QUIET_ENGINE_COMPLETENESS_ROWS: readonly InhabitQuietEngineCompletenessRow[] = [
   {
     surface: "Nested findings empty state",
-    relativePath: "app/(operator)/architecture/architectures/[architectureId]/findings/ArchitectureNestedFindingsPageClient.tsx",
-    namesQuietEnginesOnDesk: false,
+    relativePath: "app/(operator)/governance/findings/_sections/GovernanceFindingsQueueOutcomeSection.tsx",
+    namesQuietEnginesOnDesk: true,
     ownerPrompt: "IH-021",
   },
   {
