@@ -2634,4 +2634,5 @@
 {"at":"2026-09-13T00:58:04.6388241Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only"}
 {"at":"2026-09-13T01:00:38.0376184Z","zoneId":"technology-ledger-merge","outcome":"seed-only"}
 {"at":"2026-09-13T01:00:51.2127354Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T01:01:04.3796830Z","zoneId":"persistence-identity","outcome":"seed-only"}
+{"at":"2026-09-13T01:01:04.379683Z","zoneId":"persistence-identity","outcome":"seed-only"}
+{"at":"2026-09-13T01:01:16.9034653Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
