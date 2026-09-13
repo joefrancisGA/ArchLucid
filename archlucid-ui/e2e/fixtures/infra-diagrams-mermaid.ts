@@ -34,34 +34,67 @@ function buildMermaidBody(edgeLine: (from: string, to: string) => string): strin
 }
 
 /**
- * Stand-in for compact `fdp -Tsvg` output (IDG-05). Node `class="node"` matches IDG-04 fit queries.
+ * Stand-in for inventory-forest layout SVG. Node `class="node"` matches viewport fit queries.
+ * Five peering components on a 3-column TD grid (owner-shape Executive forest).
  */
-export function elevenVnetOwnerGraphvizLayoutSvg(): string {
-  const nodeWidth = 88;
+export function elevenVnetOwnerForestLayoutSvg(): string {
   const nodeHeight = 36;
-  const columnGap = 24;
-  const rowGap = 20;
-  const columns = 4;
-  const lines: string[] = [
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200">',
+  const nodeWidth = 200;
+  const gapX = 24;
+  const gapY = 20;
+  const padding = 12;
+  const components: Array<Array<string>> = [
+    [VNET_LABELS[0], VNET_LABELS[6], VNET_LABELS[4]],
+    [VNET_LABELS[2], VNET_LABELS[7]],
+    [VNET_LABELS[1], VNET_LABELS[8]],
+    [VNET_LABELS[3], VNET_LABELS[9]],
+    [VNET_LABELS[5], VNET_LABELS[10]],
   ];
+  const columns = 3;
+  const columnWidths = [nodeWidth, nodeWidth, nodeWidth];
+  const rowHeights = [
+    nodeHeight * 3 + gapY * 2,
+    nodeHeight * 2 + gapY,
+  ];
+  const lines: string[] = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 672 220">'];
 
-  for (let index = 0; index < VNET_LABELS.length; index += 1) {
-    const column = index % columns;
-    const row = Math.floor(index / columns);
-    const x = 12 + column * (nodeWidth + columnGap);
-    const y = 12 + row * (nodeHeight + rowGap);
-    const label = VNET_LABELS[index];
-    lines.push(
-      `<g class="node" id="node-${index}" transform="translate(${x},${y})">` +
-        `<rect width="${nodeWidth}" height="${nodeHeight}" rx="4" />` +
-        `<text x="${nodeWidth / 2}" y="${nodeHeight / 2}" text-anchor="middle" dominant-baseline="middle">${label}</text>` +
-        `</g>`,
-    );
+  for (let componentIndex = 0; componentIndex < components.length; componentIndex += 1) {
+    const row = Math.floor(componentIndex / columns);
+    const column = componentIndex % columns;
+    let cellX = padding;
+
+    for (let index = 0; index < column; index += 1) {
+      cellX += columnWidths[index] + gapX;
+    }
+
+    let cellY = padding;
+
+    for (let index = 0; index < row; index += 1) {
+      cellY += rowHeights[index] + gapY;
+    }
+
+    const stack = components[componentIndex];
+
+    for (let stackIndex = 0; stackIndex < stack.length; stackIndex += 1) {
+      const label = stack[stackIndex];
+      const x = cellX;
+      const y = cellY + stackIndex * (nodeHeight + gapY);
+      lines.push(
+        `<g class="node" id="node-${nodeId(label)}" transform="translate(${x},${y})">` +
+          `<rect width="${nodeWidth}" height="${nodeHeight}" rx="4" />` +
+          `<text x="${nodeWidth / 2}" y="${nodeHeight / 2}" text-anchor="middle" dominant-baseline="middle">${label}</text>` +
+          `</g>`,
+      );
+    }
   }
 
   lines.push("</svg>");
   return lines.join("");
+}
+
+/** @deprecated Use elevenVnetOwnerForestLayoutSvg — kept for import stability in older tests. */
+export function elevenVnetOwnerGraphvizLayoutSvg(): string {
+  return elevenVnetOwnerForestLayoutSvg();
 }
 
 function buildRenderResponse(
@@ -208,15 +241,20 @@ export function elevenVnetSparsePeeringRenderResponse(): InfraEvidenceMermaidRen
   return buildRenderResponse(elevenVnetSparsePeeringMermaid(), 6, 0);
 }
 
-/** Owner-shape Executive with Graphviz canvas (IDG-03/05). */
-export function elevenVnetOwnerGraphvizRenderResponse(): InfraEvidenceMermaidRenderResponse {
+/** Owner-shape Executive with inventory-forest canvas layout. */
+export function elevenVnetOwnerForestRenderResponse(): InfraEvidenceMermaidRenderResponse {
   return buildRenderResponse(
     elevenVnetSparsePeeringMermaid(),
     6,
     0,
-    elevenVnetOwnerGraphvizLayoutSvg(),
-    "graphviz-fdp",
+    elevenVnetOwnerForestLayoutSvg(),
+    "inventory-forest",
   );
+}
+
+/** @deprecated Use elevenVnetOwnerForestRenderResponse. */
+export function elevenVnetOwnerGraphvizRenderResponse(): InfraEvidenceMermaidRenderResponse {
+  return elevenVnetOwnerForestRenderResponse();
 }
 
 /** Mermaid-only fail-soft path — must not use the owner-shape Graphviz default. */

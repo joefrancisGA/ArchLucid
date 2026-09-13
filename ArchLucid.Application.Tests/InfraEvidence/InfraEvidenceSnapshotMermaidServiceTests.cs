@@ -4,6 +4,7 @@ using ArchLucid.Application.Graphviz;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.ArtifactSynthesis.Graphviz;
+using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Mermaid;
@@ -1201,6 +1202,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             brandedDiagramExportService.Object,
             new NullDiagramImageRenderer(),
             new DiagramAstGraphvizDotEmitter(),
+            new DiagramForestLayoutSvgRenderer(),
             graphvizLayoutRenderer ?? new NullGraphvizLayoutRenderer(),
             new NoOpArchitectureDiagramReconciliationRepository(),
             Mock.Of<IAuthorityQueryService>(),
@@ -1209,14 +1211,44 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
-    public async Task Executive_mode_sets_graphviz_layout_when_renderer_returns_svg()
+    public async Task Executive_mode_sets_inventory_forest_layout_without_graphviz()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
         InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
         InfraEvidenceSnapshotMermaidService service = CreateService(
             repository,
             new MermaidDiagramReadabilityThresholds(),
-            graphvizLayoutRenderer: new StubGraphvizLayoutRenderer("<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>"));
+            graphvizLayoutRenderer: new NullGraphvizLayoutRenderer());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.LayoutEngine.Should().Be("inventory-forest");
+        result.Value.LayoutSvg.Should().NotBeNullOrWhiteSpace();
+        result.Value.LayoutSvg.Should().Contain("g class=\"node\"");
+        result.Value.Mermaid.Should().Contain("flowchart");
+    }
+
+    [Fact]
+    public async Task Executive_mode_falls_back_to_graphviz_when_forest_layout_disabled()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = new(
+            new AzureInventorySnapshotGraphResolver(repository),
+            CreateInventoryRenderOrchestrator(),
+            CreateFallbackSetBuilder(),
+            Mock.Of<IBrandedDiagramExportService>(),
+            new NullDiagramImageRenderer(),
+            new DiagramAstGraphvizDotEmitter(),
+            new NullForestLayoutSvgRenderer(),
+            new StubGraphvizLayoutRenderer("<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>"),
+            new NoOpArchitectureDiagramReconciliationRepository(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            new MermaidDiagramReadabilityThresholds());
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
@@ -1225,7 +1257,14 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         result.Succeeded.Should().BeTrue();
         result.Value!.LayoutEngine.Should().Be("graphviz-fdp");
         result.Value.LayoutSvg.Should().NotBeNullOrWhiteSpace();
-        result.Value.Mermaid.Should().Contain("flowchart");
+    }
+
+    private sealed class NullForestLayoutSvgRenderer : IDiagramForestLayoutSvgRenderer
+    {
+        public DiagramForestLayoutResult Render(DiagramAst ast, DiagramForestLayoutOptions? options = null)
+        {
+            return DiagramForestLayoutResult.Failed("Forest layout disabled in test.");
+        }
     }
 
     private sealed class StubGraphvizLayoutRenderer(string svg) : IGraphvizLayoutRenderer

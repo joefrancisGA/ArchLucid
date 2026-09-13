@@ -1,6 +1,8 @@
 using ArchLucid.Application.Graphviz;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.ArtifactSynthesis.Graphviz;
+using ArchLucid.ArtifactSynthesis.Layout;
+using ArchLucid.ContextIngestion.Diagram;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -22,6 +24,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
     IBrandedDiagramExportService brandedDiagramExportService,
     IDiagramImageRenderer diagramImageRenderer,
     IDiagramAstGraphvizDotEmitter graphvizDotEmitter,
+    IDiagramForestLayoutSvgRenderer forestLayoutSvgRenderer,
     IGraphvizLayoutRenderer graphvizLayoutRenderer,
     IArchitectureDiagramReconciliationRepository reconciliationRepository,
     IAuthorityQueryService authorityQueryService,
@@ -54,6 +57,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
 
     private readonly IDiagramAstGraphvizDotEmitter _graphvizDotEmitter =
         graphvizDotEmitter ?? throw new ArgumentNullException(nameof(graphvizDotEmitter));
+
+    private readonly IDiagramForestLayoutSvgRenderer _forestLayoutSvgRenderer =
+        forestLayoutSvgRenderer ?? throw new ArgumentNullException(nameof(forestLayoutSvgRenderer));
 
     private readonly IGraphvizLayoutRenderer _graphvizLayoutRenderer =
         graphvizLayoutRenderer ?? throw new ArgumentNullException(nameof(graphvizLayoutRenderer));
@@ -443,7 +449,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string brandedMermaid,
         CancellationToken cancellationToken)
     {
-        if (string.Equals(renderResponse.LayoutEngine, "graphviz-fdp", StringComparison.Ordinal))
+        if (string.Equals(renderResponse.LayoutEngine, "inventory-forest", StringComparison.Ordinal)
+            || string.Equals(renderResponse.LayoutEngine, "graphviz-fdp", StringComparison.Ordinal))
         {
             MermaidDiagramRenderResult? renderResult = await TryResolveLatestRenderResultAsync(
                 scope,
@@ -514,6 +521,23 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             and not MermaidDiagramRenderStatus.Partitioned)
         {
             return InfraEvidenceInventoryLayoutResult.MermaidDagreFallback;
+        }
+
+        DiagramForestLayoutResult forestResult = _forestLayoutSvgRenderer.Render(renderResult.RepairedAst);
+
+        if (forestResult.Succeeded && !string.IsNullOrWhiteSpace(forestResult.Svg))
+        {
+            SvgDiagramSanitizeResult sanitized = SvgDiagramSanitizer.Sanitize(forestResult.Svg);
+
+            if (!string.IsNullOrWhiteSpace(sanitized.SanitizedContent))
+            {
+                return new InfraEvidenceInventoryLayoutResult
+                {
+                    LayoutSvg = sanitized.SanitizedContent,
+                    LayoutEngine = "inventory-forest",
+                    RepairedAst = renderResult.RepairedAst,
+                };
+            }
         }
 
         string dot = _graphvizDotEmitter.Emit(renderResult.RepairedAst);
