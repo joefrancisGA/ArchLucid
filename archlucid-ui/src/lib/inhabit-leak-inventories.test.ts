@@ -43,18 +43,25 @@ describe("inhabit leak inventories (IH-004–IH-012)", () => {
   it("IH-006 inventories disposition reversibility without lengthening undo", () => {
     expect(MUTATION_UNDO_WINDOW_SECONDS).toBe(300);
     expect(INHABIT_DISPOSITION_REVERSIBILITY_ROWS.some((row) => row.toastUndo)).toBe(true);
-    expect(INHABIT_DISPOSITION_REVERSIBILITY_ROWS.some((row) => !row.dispositionHistory)).toBe(true);
+    expect(INHABIT_DISPOSITION_REVERSIBILITY_ROWS.every((row) => row.dispositionHistory)).toBe(true);
+    expect(
+      INHABIT_DISPOSITION_REVERSIBILITY_ROWS.find((row) => row.ownerPrompt === "IR-007")?.dispositionHistory,
+    ).toBe(true);
   });
 
   it("IH-007 inventories quiet-engine desk vs export surfaces", () => {
-    expect(INHABIT_QUIET_ENGINE_COMPLETENESS_ROWS.some((row) => !row.namesQuietEnginesOnDesk)).toBe(true);
-    expect(INHABIT_QUIET_ENGINE_COMPLETENESS_ROWS.some((row) => row.namesQuietEnginesOnDesk)).toBe(true);
+    expect(INHABIT_QUIET_ENGINE_COMPLETENESS_ROWS.every((row) => row.namesQuietEnginesOnDesk)).toBe(true);
 
     const preFinalize = INHABIT_QUIET_ENGINE_COMPLETENESS_ROWS.find((row) =>
       row.relativePath.includes("PreFinalizeChecklistPanel"),
     );
+    const runProgress = INHABIT_QUIET_ENGINE_COMPLETENESS_ROWS.find((row) =>
+      row.relativePath.includes("use-run-progress-tracker"),
+    );
 
     expect(preFinalize?.namesQuietEnginesOnDesk).toBe(true);
+    expect(runProgress?.ownerPrompt).toBe("IR-001");
+    expect(runProgress?.namesQuietEnginesOnDesk).toBe(true);
   });
 
   it("IH-008 inventories exploration ceremony gaps on nested findings", () => {
@@ -78,17 +85,33 @@ describe("inhabit leak inventories (IH-004–IH-012)", () => {
 
   it("IH-010 inventories keyboard focus gaps", () => {
     const nestedRow = INHABIT_KEYBOARD_FOCUS_ROWS.find((row) => row.ownerPrompt === "IH-059");
+    const shortcutsRow = INHABIT_KEYBOARD_FOCUS_ROWS.find((row) => row.ownerPrompt === "IR-008");
+    const paletteRow = INHABIT_KEYBOARD_FOCUS_ROWS.find((row) => row.ownerPrompt === "IR-009");
+
     expect(nestedRow?.defaultFocusFirstFinding).toBe(true);
+    expect(shortcutsRow?.defaultFocusFirstFinding).toBe(true);
+    expect(paletteRow?.defaultFocusFirstFinding).toBe(true);
   });
 
   it("IH-011 inventories continuity persistence shapes", () => {
-    expect(INHABIT_CONTINUITY_ROWS.some((row) => row.persistKind === "local-storage")).toBe(true);
-    expect(INHABIT_CONTINUITY_ROWS.some((row) => !row.architectureShaped)).toBe(true);
+    expect(INHABIT_CONTINUITY_ROWS.some((row) => row.persistKind === "account-prefs")).toBe(true);
+    expect(INHABIT_CONTINUITY_ROWS.filter((row) => row.architectureShaped).length).toBeGreaterThanOrEqual(3);
+    expect(
+      INHABIT_CONTINUITY_ROWS.find((row) => row.ownerPrompt === "IR-010")?.architectureShaped,
+    ).toBe(true);
+    expect(
+      INHABIT_CONTINUITY_ROWS.find((row) => row.ownerPrompt === "IR-011")?.architectureShaped,
+    ).toBe(true);
   });
 
   it("IH-012 inventories Working Home pipeline teaching surfaces", () => {
-    expect(INHABIT_WORKING_HOME_PIPELINE_ROWS.some((row) => row.teachesPipeline)).toBe(true);
-    expect(INHABIT_WORKING_HOME_PIPELINE_ROWS.some((row) => !row.teachesPipeline)).toBe(true);
+    expect(INHABIT_WORKING_HOME_PIPELINE_ROWS.every((row) => !row.teachesPipeline)).toBe(true);
+    expect(
+      INHABIT_WORKING_HOME_PIPELINE_ROWS.find((row) => row.ownerPrompt === "IR-002")?.teachesPipeline,
+    ).toBe(false);
+    expect(
+      INHABIT_WORKING_HOME_PIPELINE_ROWS.find((row) => row.ownerPrompt === "IR-003")?.teachesPipeline,
+    ).toBe(false);
   });
 
   it("IH-024 inventories nested review back-href surfaces", () => {

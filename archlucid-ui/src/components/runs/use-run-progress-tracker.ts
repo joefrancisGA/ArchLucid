@@ -429,6 +429,11 @@ export function useRunProgressTracker({
   const shouldRender =
     pollEnabled || effectivePreFinalizeTerminal || buyerAssessmentCopy || pipelineTerminalFailure;
 
+  const analysisCompleteWithoutSealedRecord =
+    analysisStagesComplete(activeSummary) && !manifest;
+
+  const showQuietEnginesCompletenessHint = workingDesk && analysisCompleteWithoutSealedRecord;
+
   return {
     runId,
     initialSummary,
@@ -477,6 +482,7 @@ export function useRunProgressTracker({
     handleEnableNotifications,
     resumeWatching,
     shouldRender,
+    showQuietEnginesCompletenessHint,
   };
 }
 

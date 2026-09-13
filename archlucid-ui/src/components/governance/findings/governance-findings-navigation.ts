@@ -1,6 +1,7 @@
 import type { KeyboardEvent } from "react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
+import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
@@ -10,8 +11,30 @@ import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
-export function governanceFindingInspectHref(runId: string, findingId: string): string {
-  return getFindingEvidenceTraceHref(runId, findingId);
+export type GovernanceFindingInspectHrefOptions = {
+  readonly architectureId?: string | null;
+  readonly isWorkingMode?: boolean;
+  readonly findingsQueueRunId?: string | null;
+};
+
+/** IR-004 — Working inspect stays architecture-id-known via nested findings focusedFinding. */
+export function governanceFindingInspectHref(
+  runId: string,
+  findingId: string,
+  options?: GovernanceFindingInspectHrefOptions,
+): string {
+  const architectureId = options?.architectureId?.trim() ?? "";
+  const isWorkingMode = options?.isWorkingMode === true;
+
+  if (isWorkingMode && architectureId.length > 0) {
+    const params = new URLSearchParams();
+    params.set("runId", runId.trim());
+    params.set("focusedFinding", findingId.trim());
+
+    return `${architectureNestedFindingsPath(architectureId)}?${params.toString()}`;
+  }
+
+  return getFindingEvidenceTraceHref(runId, findingId, options?.findingsQueueRunId);
 }
 
 export function governanceFindingManifestRecordHref(runId: string, manifestId: string): string {
@@ -46,8 +69,9 @@ export function navigateGovernanceFindingDetail(
   router: AppRouterInstance,
   runId: string,
   findingId: string,
+  options?: GovernanceFindingInspectHrefOptions,
 ): void {
-  router.push(governanceFindingInspectHref(runId, findingId));
+  router.push(governanceFindingInspectHref(runId, findingId, options));
 }
 
 export function governanceFindingDetailKeyboardActivate(
@@ -55,11 +79,12 @@ export function governanceFindingDetailKeyboardActivate(
   router: AppRouterInstance,
   runId: string,
   findingId: string,
+  options?: GovernanceFindingInspectHrefOptions,
 ): void {
   if (event.key !== "Enter" && event.key !== " ") {
     return;
   }
 
   event.preventDefault();
-  navigateGovernanceFindingDetail(router, runId, findingId);
+  navigateGovernanceFindingDetail(router, runId, findingId, options);
 }

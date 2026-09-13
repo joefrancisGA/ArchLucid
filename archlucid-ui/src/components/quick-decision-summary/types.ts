@@ -24,6 +24,8 @@ export type QuickDecisionSummaryMutedVisibility = {
 export type QuickDecisionSummaryProps = {
   readonly runId: string;
   readonly findings: readonly QuickDecisionFinding[];
+  /** IR-005 — parent architecture identity for Working in-page quick-decision cards. */
+  readonly architectureId?: string | null;
   /** When true and headline counts disagree with extracted findings, show a finalized-review-safe narrative (buyer shell). */
   readonly buyerPolishedShell?: boolean;
   readonly headlineFindingCount?: number | null;

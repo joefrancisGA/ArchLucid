@@ -60,10 +60,21 @@ function toFavoriteReviewRows(
       }
 
       const title = row.title?.trim();
+      const architectureId = row.architectureId?.trim();
 
-      return title !== undefined && title.length > 0
-        ? { runId, pinnedAt, title }
-        : { runId, pinnedAt };
+      if (title !== undefined && title.length > 0 && architectureId !== undefined && architectureId.length > 0) {
+        return { runId, pinnedAt, title, architectureId };
+      }
+
+      if (title !== undefined && title.length > 0) {
+        return { runId, pinnedAt, title };
+      }
+
+      if (architectureId !== undefined && architectureId.length > 0) {
+        return { runId, pinnedAt, architectureId };
+      }
+
+      return { runId, pinnedAt };
     })
     .filter((row): row is FavoriteReview => row !== null);
 }
@@ -108,6 +119,7 @@ export function buildWorkingWorkspaceContinuityPayload(): WorkingWorkspaceContin
       runId: row.runId,
       pinnedAtUtc: row.pinnedAt,
       ...(row.title !== undefined ? { title: row.title } : {}),
+      ...(row.architectureId !== undefined ? { architectureId: row.architectureId } : {}),
     })),
     recentViewEntries: recentState.entries.map((entry) => ({
       href: entry.href,

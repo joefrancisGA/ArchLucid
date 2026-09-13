@@ -4,8 +4,10 @@ import Link from "next/link";
 
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { listArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
 import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +21,7 @@ const DEFAULT_HEADING = "Pinned reviews";
 /** Lists localStorage favorites with deep links into architecture reviews (TB-2206). Hidden when empty. */
 export function FavoriteReviewsList(props: FavoriteReviewsListProps): React.JSX.Element | null {
   const { favorites } = useFavoriteReviews();
+  const { isWorkingMode } = useWorkspaceMode();
   const heading = props.heading ?? DEFAULT_HEADING;
   const draftRegistryEntries = listArchitectureDraftRegistryEntries();
 
@@ -38,10 +41,20 @@ export function FavoriteReviewsList(props: FavoriteReviewsListProps): React.JSX.
 
       <ul className="m-0 list-none space-y-1 p-0">
         {favorites.map((row) => {
-          const href = resolveWorkingRunReviewLocator({
+          const locator = resolveWorkingRunReviewLocator({
             runId: row.runId,
+            architectureId: row.architectureId,
             draftRegistryEntries,
-          }).href;
+          });
+          const href =
+            isWorkingMode && locator.architectureId !== null
+              ? resolveWorkingInhabitedFindingsLandingHref({
+                  runId: row.runId,
+                  architectureId: locator.architectureId,
+                  draftRegistryEntries,
+                  workingMode: true,
+                })
+              : locator.href;
           const label =
             row.title !== undefined && row.title.trim().length > 0
               ? row.title.trim()
@@ -60,7 +73,11 @@ export function FavoriteReviewsList(props: FavoriteReviewsListProps): React.JSX.
               >
                 {label}
               </Link>
-              <FavoriteReviewToggle runId={row.runId} title={row.title} />
+              <FavoriteReviewToggle
+                runId={row.runId}
+                title={row.title}
+                architectureId={row.architectureId ?? locator.architectureId}
+              />
             </li>
           );
         })}

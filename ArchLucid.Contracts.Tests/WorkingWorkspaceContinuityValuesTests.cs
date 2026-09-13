@@ -19,6 +19,7 @@ public sealed class WorkingWorkspaceContinuityValuesTests
                     RunId = "run-1",
                     Title = "Payments",
                     PinnedAtUtc = "2026-09-13T12:00:00Z",
+                    ArchitectureId = "arch-1",
                 },
             ],
             RecentViewEntries =
@@ -41,6 +42,7 @@ public sealed class WorkingWorkspaceContinuityValuesTests
         parsed.Should().NotBeNull();
         parsed!.FavoriteReviews.Should().HaveCount(1);
         parsed.FavoriteReviews[0].RunId.Should().Be("run-1");
+        parsed.FavoriteReviews[0].ArchitectureId.Should().Be("arch-1");
         parsed.RecentViewEntries.Should().HaveCount(1);
         parsed.RecentViewEntries[0].ArchitectureId.Should().Be("arch-1");
         parsed.UpdatedAtUtc.Should().Be("2026-09-13T12:02:00Z");

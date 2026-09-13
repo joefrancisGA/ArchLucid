@@ -112,6 +112,7 @@ public static class WorkingWorkspaceContinuityValues
             RunId = runId,
             Title = title,
             PinnedAtUtc = pinnedAtUtc,
+            ArchitectureId = NormalizeOptionalId(entry.ArchitectureId),
         };
     }
 

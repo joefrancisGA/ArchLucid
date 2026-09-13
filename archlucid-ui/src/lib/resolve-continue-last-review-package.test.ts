@@ -24,6 +24,32 @@ describe("resolve-continue-last-review-package (CD-11)", () => {
     expect(resolveContinueLastReviewPackageTarget([run])).toBeNull();
   });
 
+  it("IR-010: uses architectureId from account-prefs recent entry on Working", () => {
+    localStorage.setItem(
+      OPERATOR_RECENT_VIEWS_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 2,
+        entries: [
+          {
+            href: "/architecture/reviews/run-abc",
+            label: "Payments modernization",
+            kind: "review",
+            visitedAtUtc: "2026-01-02T00:00:00Z",
+            architectureId: "architecture-identity-001",
+          },
+        ],
+      }),
+    );
+
+    const target = resolveContinueLastReviewPackageTarget([run], undefined, {
+      workingMode: true,
+    });
+
+    expect(target?.href).toBe(
+      `${architectureNestedFindingsPath("architecture-identity-001")}?runId=run-abc`,
+    );
+  });
+
   it("SY-64: nests continue-last review href under the architecture desk on Working", () => {
     const nestedRun: RunSummary = {
       ...run,

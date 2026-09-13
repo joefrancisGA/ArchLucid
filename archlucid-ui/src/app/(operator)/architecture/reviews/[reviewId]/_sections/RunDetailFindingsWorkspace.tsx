@@ -320,6 +320,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const showFindingStreamDualCount = architectWorkspaceChrome && (sealedStreamCount > 0 || agentStreamCount > 0);
   const findingsListProps = {
     runId: props.runId,
+    architectureId: parentArchitectureId.length > 0 ? parentArchitectureId : null,
     findings: listFindings,
     sourceFindingsCount: props.findings.length,
     buyerPolishedShell: props.buyerPolishedShell,
@@ -414,6 +415,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   return (
     <FindingKeyboardTriageHost
       resolveRunId={(findingId) => (findingId.trim().length > 0 ? props.runId : null)}
+      defaultFocusFirstFinding={isWorkingMode && parentArchitectureId.length > 0}
       resolveDispositionBlockedReason={(findingId) => {
         const finding = props.findings.find((row) => row.findingId === findingId);
 

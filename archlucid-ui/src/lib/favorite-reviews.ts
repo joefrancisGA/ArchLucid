@@ -11,10 +11,18 @@ export type FavoriteReview = {
   readonly runId: string;
   readonly title?: string;
   readonly pinnedAt: string;
+  /** IR-011 — architecture identity when known on Working. */
+  readonly architectureId?: string;
 };
 
 function normalizeRunId(runId: string): string {
   return runId.trim();
+}
+
+function normalizeArchitectureId(architectureId?: string | null): string | undefined {
+  const trimmed = architectureId?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : undefined;
 }
 
 function isFavoriteReviewRow(row: unknown): row is FavoriteReview {
@@ -22,7 +30,12 @@ function isFavoriteReviewRow(row: unknown): row is FavoriteReview {
     return false;
   }
 
-  const candidate = row as { runId?: unknown; title?: unknown; pinnedAt?: unknown };
+  const candidate = row as {
+    runId?: unknown;
+    title?: unknown;
+    pinnedAt?: unknown;
+    architectureId?: unknown;
+  };
 
   if (typeof candidate.runId !== "string" || normalizeRunId(candidate.runId).length === 0) {
     return false;
@@ -36,6 +49,10 @@ function isFavoriteReviewRow(row: unknown): row is FavoriteReview {
     return false;
   }
 
+  if (candidate.architectureId !== undefined && typeof candidate.architectureId !== "string") {
+    return false;
+  }
+
   return true;
 }
 
@@ -44,12 +61,21 @@ function normalizeFavorite(row: FavoriteReview): FavoriteReview {
   const pinnedAt = row.pinnedAt.trim();
   const title =
     row.title !== undefined && row.title.trim().length > 0 ? row.title.trim() : undefined;
+  const architectureId = normalizeArchitectureId(row.architectureId);
 
-  if (title === undefined) {
+  if (title === undefined && architectureId === undefined) {
     return { runId, pinnedAt };
   }
 
-  return { runId, title, pinnedAt };
+  if (title === undefined) {
+    return { runId, pinnedAt, architectureId };
+  }
+
+  if (architectureId === undefined) {
+    return { runId, title, pinnedAt };
+  }
+
+  return { runId, title, pinnedAt, architectureId };
 }
 
 /** Reads favorites from localStorage (newest pin first). */
@@ -109,7 +135,12 @@ export function isFavoriteReview(favorites: readonly FavoriteReview[], runId: st
 
 export function addFavoriteReview(
   current: readonly FavoriteReview[],
-  entry: { readonly runId: string; readonly title?: string; readonly pinnedAt?: string },
+  entry: {
+    readonly runId: string;
+    readonly title?: string;
+    readonly pinnedAt?: string;
+    readonly architectureId?: string | null;
+  },
 ): FavoriteReview[] {
   const runId = normalizeRunId(entry.runId);
 
@@ -124,8 +155,13 @@ export function addFavoriteReview(
       : new Date().toISOString();
   const title =
     entry.title !== undefined && entry.title.trim().length > 0 ? entry.title.trim() : undefined;
-  const next: FavoriteReview =
-    title === undefined ? { runId, pinnedAt } : { runId, title, pinnedAt };
+  const architectureId = normalizeArchitectureId(entry.architectureId);
+  const next: FavoriteReview = normalizeFavorite({
+    runId,
+    pinnedAt,
+    ...(title !== undefined ? { title } : {}),
+    ...(architectureId !== undefined ? { architectureId } : {}),
+  });
 
   return [next, ...without].slice(0, FAVORITE_REVIEWS_MAX);
 }
@@ -145,7 +181,12 @@ export function removeFavoriteReview(
 
 export function toggleFavoriteReview(
   current: readonly FavoriteReview[],
-  entry: { readonly runId: string; readonly title?: string; readonly pinnedAt?: string },
+  entry: {
+    readonly runId: string;
+    readonly title?: string;
+    readonly pinnedAt?: string;
+    readonly architectureId?: string | null;
+  },
 ): FavoriteReview[] {
   if (isFavoriteReview(current, entry.runId)) {
     return removeFavoriteReview(current, entry.runId);

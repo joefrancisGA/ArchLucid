@@ -19,6 +19,7 @@ export const FAVORITE_REVIEWS_CHANGED_EVENT = "archlucid:favorite-reviews-change
 export type FavoriteReviewInput = {
   readonly runId: string;
   readonly title?: string;
+  readonly architectureId?: string | null;
 };
 
 /** Shared favorite-review state for hub rows, detail header, and pinned lists. */

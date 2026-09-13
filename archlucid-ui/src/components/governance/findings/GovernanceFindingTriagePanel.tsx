@@ -10,7 +10,10 @@ import { GovernanceFindingDetailPane } from "@/components/governance/findings/Go
 import { FindingDispositionRestoreButton } from "@/components/governance/findings/FindingDispositionRestoreButton";
 import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { FindingDispositionHistorySection } from "@/components/governance/findings/FindingDispositionHistorySection";
-import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
+import {
+  governanceFindingInspectHref,
+  type GovernanceFindingInspectHrefOptions,
+} from "@/components/governance/findings/governance-findings-navigation";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SeverityTag } from "@/components/ui/severity-tag";
@@ -28,6 +31,7 @@ export type GovernanceFindingTriagePanelProps = {
   readonly totalCount: number;
   readonly buyerPolishedShell: boolean;
   readonly inhabitedFindingsDocument?: boolean;
+  readonly inspectHrefOptions?: GovernanceFindingInspectHrefOptions;
   readonly canGoPrevious: boolean;
   readonly canGoNext: boolean;
   readonly onOpenChange: (open: boolean) => void;
@@ -56,7 +60,7 @@ export function GovernanceFindingTriagePanel(props: GovernanceFindingTriagePanel
     return null;
   }
 
-  const inspectHref = governanceFindingInspectHref(row.runId, row.findingId);
+  const inspectHref = governanceFindingInspectHref(row.runId, row.findingId, props.inspectHrefOptions);
   const positionLabel = `${activeIndex + 1} of ${totalCount}`;
   const panelDescription =
     props.inhabitedFindingsDocument === true
@@ -131,12 +135,10 @@ export function GovernanceFindingTriagePanel(props: GovernanceFindingTriagePanel
 
           <FindingDispositionRestoreButton findingId={row.findingId} runId={row.runId} />
 
-          {props.inhabitedFindingsDocument === true ? (
-            <FindingDispositionHistorySection
-              findingId={row.findingId}
-              testId="governance-finding-triage-disposition-history"
-            />
-          ) : null}
+          <FindingDispositionHistorySection
+            findingId={row.findingId}
+            testId="governance-finding-triage-disposition-history"
+          />
 
           {row.latestDisposition !== null && row.latestDisposition !== undefined && row.latestDisposition.trim().length > 0 ? (
             <FindingDispositionRecordCorrectionControl

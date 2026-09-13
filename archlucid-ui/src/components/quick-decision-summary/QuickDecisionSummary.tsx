@@ -366,6 +366,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
 
   const workspaceCardContext: QuickDecisionWorkspaceCardContext = {
     runId: props.runId,
+    architectureId: props.architectureId,
     allFindings: props.findings,
     packageCommitted: props.packageCommitted,
     providerNeutralWorkItems: props.providerNeutralWorkItems,

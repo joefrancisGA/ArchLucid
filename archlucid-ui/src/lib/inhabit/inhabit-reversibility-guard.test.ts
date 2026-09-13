@@ -106,6 +106,21 @@ describe("inhabit completeness guard (IH-041–046)", () => {
     expect(row).toContain("structuralExecutionMode");
   });
 
+  it("IR-006/IR-007 mount disposition history on finding row and triage panel", () => {
+    const row = readFileSync(
+      join(SRC_ROOT, "components/governance/findings/GovernanceFindingRow.tsx"),
+      "utf8",
+    );
+    const triagePanel = readFileSync(
+      join(SRC_ROOT, "components/governance/findings/GovernanceFindingTriagePanel.tsx"),
+      "utf8",
+    );
+
+    expect(row).toContain("FindingDispositionHistorySection");
+    expect(triagePanel).toContain("FindingDispositionHistorySection");
+    expect(triagePanel).not.toMatch(/inhabitedFindingsDocument === true \? \([\s\S]*FindingDispositionHistorySection/);
+  });
+
   it("IH-043 passes structural execution mode on the peer findings table", () => {
     const operational = readFileSync(
       join(SRC_ROOT, "app/(operator)/governance/findings/GovernanceFindingsQueueOperationalRowCells.tsx"),
