@@ -19,16 +19,19 @@
 | Remount cheap-envelope runner | CE wave scope | **IH-047** | **Not shipped** | Reuse shipped CE entry; do not remount CE-001. |
 | Re-implement daytime wait | DW wave scope | standing forbid | **Not shipped** | Do not re-run DW; no progress URL. |
 
-Follow-up after wave 34 (not a new wave): [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md).
+Follow-up after wave 34 (not a new wave): [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md) (start/completeness leftovers). Remain leftover prompts: [`INHABIT_REMAIN_COMPOSER_PROMPTS.md`](INHABIT_REMAIN_COMPOSER_PROMPTS.md) (**IR-001–IR-018**). Do not start wave 35.
 
 ## Do not claim
 
 - Inhabit findings-document landing shipped until **IH-015** tests exist.
 - G-REAL-06 executed or host Mode moved to Real.
 - Draft-diff Compare, presence, unseal, merged kernels, or a 40th engine shipped in wave 34.
-- ADR **0100** formal **Accepted** — it is **Proposed** until owner acceptance.
+- Remain product IRs shipped until the matching `inhabit-leak-inventories.ts` booleans flip (prompt-set only is not product close).
+
+ADR **0100** is **Accepted** in `docs/architecture/adrs/0100-working-inhabit-architecture-findings-document.md`.
 
 ## Ratchet (prompt-set PR)
 
 - `archlucid-ui/src/lib/inhabit-prompt-inventory.test.ts`
 - `archlucid-ui/src/lib/inhabit-adr-guard.test.ts`
+- `archlucid-ui/src/lib/inhabit-remain-prompt-inventory.test.ts` (IR-017)
