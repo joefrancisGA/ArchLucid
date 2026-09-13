@@ -116,6 +116,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashMinutesToken(trimmed)
             || HasCompactMinuteSuffix(trimmed)
             || HasCompactMinsSuffix(trimmed)
+            || HasCompactMiSuffix(trimmed)
             || HasCompactMinuteWordSuffix(trimmed)
             || HasCompactMinutesWordSuffix(trimmed)
             || string.Equals(trimmed, "min", StringComparison.OrdinalIgnoreCase)
@@ -1055,6 +1056,15 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return trimmed.EndsWith("mins", StringComparison.OrdinalIgnoreCase)
             && char.IsDigit(trimmed[^5]);
+    }
+
+    private static bool HasCompactMiSuffix(string trimmed)
+    {
+        if (trimmed.Length < 3)
+            return false;
+
+        return trimmed.EndsWith("mi", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^3]);
     }
 
     private static bool HasCompactMinuteWordSuffix(string trimmed)

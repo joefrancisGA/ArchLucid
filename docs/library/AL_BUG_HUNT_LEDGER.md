@@ -4372,6 +4372,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** tenant-data-export
 
+2026-09-13 seed hunt #2601 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved camelCase string `"y"` for `isSampleRun` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_camel_case_string_y`.
+
 2026-09-13 seed hunt #2594 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2589 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved string `"yes"` for `is_sample_run` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_string_yes`.
@@ -10822,6 +10824,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ## Zone: core-costing
 
 - **id:** core-costing
+
+2026-09-13 seed hunt #2600 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10mi` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactMiTests`.
 
 2026-09-13 seed hunt #2593 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10minute` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactMinuteWordTests`.
 
