@@ -1045,6 +1045,16 @@ internal static class KubernetesManifestCanonicalObjectMapper
             InspectSecurityContext(securityContext);
         }
 
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "securityContext", out JsonElement podSecurityContextForFsGroup)
+            && podSecurityContextForFsGroup.ValueKind is JsonValueKind.Object
+            && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSecurityContextForFsGroup, "fsGroup", out JsonElement fsGroupElement)
+            && fsGroupElement.ValueKind is JsonValueKind.Number
+            && fsGroupElement.TryGetInt64(out long fsGroupValue))
+        {
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "fsGroup", fsGroupValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+
         if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "securityContext", out JsonElement podSecurityContext)
             && podSecurityContext.ValueKind is JsonValueKind.Object)
             InspectSecurityContext(podSecurityContext);
