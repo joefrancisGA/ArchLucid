@@ -336,6 +336,24 @@ export const LIVELIHOOD_DAY_SG_LEFTOVER_CLOSE_ROWS: readonly LivelihoodDaySgLeft
     marker: "SG-034",
   },
   {
+    lyPrompt: "LY-101",
+    relativeTestPath: "ArchLucid.Application.Tests/Operator/WorkingOperatorReviewLinksTests.cs",
+    marker: "uses_nested_path_when_architecture_id_is_known",
+    root: "repo",
+  },
+  {
+    lyPrompt: "LY-102",
+    relativeTestPath:
+      "ArchLucid.Application.Tests/Notifications/Email/RecurrenceCompletionEmailDispatcherTests.cs",
+    marker: "uses_nested_architecture_url_when_architecture_id_is_known",
+    root: "repo",
+  },
+  {
+    lyPrompt: "LY-103",
+    relativeTestPath: "lib/system-gravity-wave32-batch5-guard.test.ts",
+    marker: "SG-087",
+  },
+  {
     lyPrompt: "LY-104",
     relativeTestPath: "lib/system-not-job-help-system-not-job.test.ts",
     marker: "SG-080",
