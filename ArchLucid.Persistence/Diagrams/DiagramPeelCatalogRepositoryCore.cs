@@ -18,6 +18,12 @@ internal static class DiagramPeelCatalogRepositoryCore
             init;
         }
 
+        public bool AlwaysDispose
+        {
+            get;
+            init;
+        }
+
         public bool IsEnabled
         {
             get;
@@ -37,6 +43,7 @@ internal static class DiagramPeelCatalogRepositoryCore
         {
             ArmResourceType = row.ArmResourceType,
             PeelRank = row.PeelRank,
+            AlwaysDispose = row.AlwaysDispose,
             IsEnabled = row.IsEnabled,
             Notes = row.Notes,
         };
@@ -48,6 +55,7 @@ internal static class DiagramPeelCatalogRepositoryCore
         {
             ArmResourceType = entry.ArmResourceType,
             PeelRank = entry.PeelRank,
+            AlwaysDispose = entry.AlwaysDispose,
             IsEnabled = entry.IsEnabled,
             Notes = entry.Notes,
         };

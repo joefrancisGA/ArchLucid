@@ -19,7 +19,10 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
             insert,
             TimeProvider.System.GetUtcNow());
 
-        _byId[row.Id] = row;
+        if (!_byId.TryAdd(row.Id, row))
+        {
+            throw new DuplicateEmailOtpChallengeException(row.Id);
+        }
 
         return Task.FromResult(row);
     }
@@ -168,7 +171,8 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
                 insert,
                 TimeProvider.System.GetUtcNow());
 
-            _byId[created.Id] = created;
+            if (!_byId.TryAdd(created.Id, created))
+                throw new DuplicateEmailOtpChallengeException(created.Id);
 
             return Task.FromResult(created);
         }

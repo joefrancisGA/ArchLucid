@@ -1,3 +1,4 @@
+using ArchLucid.Application.Graphviz;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
@@ -20,6 +21,7 @@ using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Persistence.InfraEvidence;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Host.Composition.Startup.Modules;
@@ -27,8 +29,10 @@ namespace ArchLucid.Host.Composition.Startup.Modules;
 /// <summary>Infrastructure-evidence plane application and persistence registrations.</summary>
 public static class InfraEvidenceCompositionModule
 {
-    public static void Register(IServiceCollection services)
+    public static void Register(IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<GraphvizOptions>(configuration.GetSection(GraphvizOptions.SectionName));
+        services.AddScoped<IGraphvizLayoutRenderer, GraphvizFdpLayoutRenderer>();
         services.AddScoped<IAzureInventorySnapshotHeaderService, AzureInventorySnapshotHeaderService>();
         services.AddScoped<IAzureInventorySnapshotMaterializer, AzureInventorySnapshotMaterializer>();
         services.AddScoped<IAzureInventoryDiffService, AzureInventoryDiffService>();

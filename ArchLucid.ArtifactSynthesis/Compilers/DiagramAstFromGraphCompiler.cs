@@ -113,6 +113,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             return $"Azure inventory ({mode}) — {DiagramAstFromGraphCompilerConstants.ResourceGroupMapTitleSuffix}";
         }
 
+        if (mode == DiagramMode.FullSubscription && options.CollapseToBackboneKeep)
+        {
+            return $"Azure inventory ({mode}) — {DiagramAstFromGraphCompilerConstants.BackboneKeepTitleSuffix}";
+        }
+
         return $"Azure inventory ({mode})";
     }
 

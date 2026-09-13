@@ -232,8 +232,218 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && hostUsers.ValueKind is JsonValueKind.True)
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostUsers", "true");
 
-        ProjectContainerSecurityContext(podSpec, properties);
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "enableServiceLinks", out JsonElement enableServiceLinks)
+            && enableServiceLinks.ValueKind is JsonValueKind.False)
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "enableServiceLinks", "false");
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "automountServiceAccountToken", out JsonElement automountServiceAccountToken)
+            && automountServiceAccountToken.ValueKind is JsonValueKind.False)
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "automountServiceAccountToken", "false");
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "dnsPolicy", out JsonElement dnsPolicy)
+            && dnsPolicy.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(dnsPolicy.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsPolicy", dnsPolicy.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "serviceAccountName", out JsonElement serviceAccountName)
+            && serviceAccountName.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(serviceAccountName.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "serviceAccountName", serviceAccountName.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "priorityClassName", out JsonElement priorityClassName)
+            && priorityClassName.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(priorityClassName.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "priorityClassName", priorityClassName.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "runtimeClassName", out JsonElement runtimeClassName)
+            && runtimeClassName.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(runtimeClassName.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "runtimeClassName", runtimeClassName.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "hostname", out JsonElement hostname)
+            && hostname.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(hostname.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostname", hostname.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "subdomain", out JsonElement subdomain)
+            && subdomain.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(subdomain.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "subdomain", subdomain.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "restartPolicy", out JsonElement restartPolicy)
+            && restartPolicy.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(restartPolicy.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "restartPolicy", restartPolicy.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "nodeName", out JsonElement nodeName)
+            && nodeName.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(nodeName.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "nodeName", nodeName.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "schedulerName", out JsonElement schedulerName)
+            && schedulerName.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(schedulerName.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "schedulerName", schedulerName.GetString()!);
+
+        if (TryGetSetHostnameAsFqdn(podSpec, out JsonElement setHostnameAsFqdn)
+            && setHostnameAsFqdn.ValueKind is JsonValueKind.True)
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "setHostnameAsFQDN", "true");
+
+        if (TryGetTerminationGracePeriodSeconds(podSpec, out JsonElement terminationGracePeriodSeconds)
+            && terminationGracePeriodSeconds.ValueKind is JsonValueKind.Number
+            && terminationGracePeriodSeconds.TryGetInt64(out long graceSeconds))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "terminationGracePeriodSeconds", graceSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        if (TryGetActiveDeadlineSeconds(podSpec, out JsonElement activeDeadlineSeconds)
+            && activeDeadlineSeconds.ValueKind is JsonValueKind.Number
+            && activeDeadlineSeconds.TryGetInt64(out long deadlineSeconds))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "activeDeadlineSeconds", deadlineSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        if (TryGetPreemptionPolicy(podSpec, out JsonElement preemptionPolicy)
+            && preemptionPolicy.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(preemptionPolicy.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "preemptionPolicy", preemptionPolicy.GetString()!);
+
+        if (TryGetPriority(podSpec, out JsonElement priority)
+            && priority.ValueKind is JsonValueKind.Number
+            && priority.TryGetInt32(out int priorityValue))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "priority", priorityValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "nodeSelector", out JsonElement nodeSelector)
+            && nodeSelector.ValueKind is JsonValueKind.Object)
+        {
+            foreach (JsonProperty selector in nodeSelector.EnumerateObject())
+            {
+                if (selector.Value.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(selector.Value.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        $"nodeSelector.{selector.Name}",
+                        selector.Value.GetString()!);
+                }
+            }
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "imagePullSecrets", out JsonElement imagePullSecrets)
+            && imagePullSecrets.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement secret in imagePullSecrets.EnumerateArray())
+            {
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(secret, "name", out JsonElement secretName)
+                    && secretName.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(secretName.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "imagePullSecret", secretName.GetString()!);
+                    break;
+                }
+            }
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "dnsConfig", out JsonElement dnsConfig)
+            && dnsConfig.ValueKind is JsonValueKind.Object)
+        {
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "nameservers", out JsonElement nameservers)
+                && nameservers.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement nameserver in nameservers.EnumerateArray())
+                {
+                    if (nameserver.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(nameserver.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsNameserver", nameserver.GetString()!);
+                        break;
+                    }
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "searches", out JsonElement searches)
+                && searches.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement search in searches.EnumerateArray())
+                {
+                    if (search.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(search.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsSearch", search.GetString()!);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "hostAliases", out JsonElement hostAliases)
+            && hostAliases.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement hostAlias in hostAliases.EnumerateArray())
+            {
+                if (hostAlias.ValueKind is not JsonValueKind.Object)
+                    continue;
+
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(hostAlias, "ip", out JsonElement aliasIp)
+                    && aliasIp.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(aliasIp.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostAliasIp", aliasIp.GetString()!);
+                    break;
+                }
+            }
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "readinessGates", out JsonElement readinessGates)
+            && readinessGates.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement readinessGate in readinessGates.EnumerateArray())
+            {
+                if (readinessGate.ValueKind is not JsonValueKind.Object)
+                    continue;
+
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(readinessGate, "conditionType", out JsonElement conditionType)
+                    && conditionType.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(conditionType.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "readinessGate", conditionType.GetString()!);
+                    break;
+                }
+            }
+        }
+
+        ProjectContainerSecurityContext(podSpec, properties);    }
+
+    private static bool TryGetSetHostnameAsFqdn(JsonElement podSpec, out JsonElement value)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "setHostnameAsFQDN", out value))
+            return true;
+
+        return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "set_hostname_as_fqdn", out value);
     }
+
+    private static bool TryGetTerminationGracePeriodSeconds(JsonElement podSpec, out JsonElement value)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "terminationGracePeriodSeconds", out value))
+            return true;
+
+        return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "termination_grace_period_seconds", out value);
+    }
+
+    private static bool TryGetActiveDeadlineSeconds(JsonElement podSpec, out JsonElement value)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "activeDeadlineSeconds", out value))
+            return true;
+
+        return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "active_deadline_seconds", out value);
+    }
+
+    private static bool TryGetPreemptionPolicy(JsonElement podSpec, out JsonElement value)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "preemptionPolicy", out value))
+            return true;
+
+        return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "preemption_policy", out value);
+    }
+
+    private static bool TryGetPriority(JsonElement podSpec, out JsonElement value) =>
+        CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "priority", out value);
 
     private static JsonElement ResolvePodSpec(JsonElement specElement, string kind)
     {

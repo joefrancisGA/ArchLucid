@@ -47,7 +47,7 @@ public sealed class DapperDiagramPeelCatalogRepository(ISqlConnectionFactory con
             await connection.QueryAsync<DiagramPeelCatalogRepositoryCore.EntryDbRow>(
                 new CommandDefinition(
                     """
-                    SELECT ArmResourceType, PeelRank, IsEnabled, Notes
+                    SELECT ArmResourceType, PeelRank, AlwaysDispose, IsEnabled, Notes
                     FROM dbo.DiagramPeelCatalogEntry WITH (NOLOCK)
                     ORDER BY PeelRank, ArmResourceType;
                     """,
@@ -71,17 +71,19 @@ public sealed class DapperDiagramPeelCatalogRepository(ISqlConnectionFactory con
                 WHEN MATCHED THEN
                     UPDATE SET
                         PeelRank = @PeelRank,
+                        AlwaysDispose = @AlwaysDispose,
                         IsEnabled = @IsEnabled,
                         Notes = @Notes,
                         UpdatedUtc = SYSUTCDATETIME()
                 WHEN NOT MATCHED THEN
-                    INSERT (ArmResourceType, PeelRank, IsEnabled, Notes)
-                    VALUES (@ArmResourceType, @PeelRank, @IsEnabled, @Notes);
+                    INSERT (ArmResourceType, PeelRank, AlwaysDispose, IsEnabled, Notes)
+                    VALUES (@ArmResourceType, @PeelRank, @AlwaysDispose, @IsEnabled, @Notes);
                 """,
                 new
                 {
                     entry.ArmResourceType,
                     entry.PeelRank,
+                    entry.AlwaysDispose,
                     entry.IsEnabled,
                     entry.Notes,
                 },
