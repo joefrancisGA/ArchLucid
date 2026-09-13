@@ -2637,3 +2637,4 @@
 {"at":"2026-09-13T01:01:04.379683Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-13T01:01:16.9034653Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
 {"at":"2026-09-13T01:01:29.6610158Z","zoneId":"identity-provider-config","outcome":"seed-only"}
+{"at":"2026-09-13T01:01:42.7042411Z","zoneId":"persistence-identity","outcome":"seed-only"}
