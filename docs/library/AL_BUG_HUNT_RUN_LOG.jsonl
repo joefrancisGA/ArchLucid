@@ -2640,3 +2640,4 @@
 {"at":"2026-09-13T01:01:42.7042411Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-13T01:01:55.107574Z","zoneId":"ui-operator-routes","outcome":"seed-only"}
 {"at":"2026-09-13T01:02:08.2034648Z","zoneId":"context-ingestion","outcome":"seed-only"}
+{"at":"2026-09-13T01:02:21.5406043Z","zoneId":"authority-pipeline-payload","outcome":"seed-only"}
