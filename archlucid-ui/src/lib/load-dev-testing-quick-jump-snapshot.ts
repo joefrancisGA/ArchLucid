@@ -11,9 +11,7 @@ export const DEV_TESTING_QUICK_JUMP_MANIFEST_PROBE_RUNS = 4;
 
 export const DEV_TESTING_QUICK_JUMP_ARTIFACT_PROBE_MANIFESTS = 2;
 
-const QUIET_PROBE_GET_OPTIONS: ApiGetOptions = {
-  suppressErrorToast: true,
-};
+const QUIET_PROBE_GET_OPTIONS: ApiGetOptions = {};
 
 export type DevTestingQuickJumpPlanLink = {
   readonly planId: string;

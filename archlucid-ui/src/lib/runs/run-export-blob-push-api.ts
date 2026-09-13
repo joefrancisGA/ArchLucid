@@ -16,7 +16,6 @@ export async function pushRunExportToBlob(
     return await apiPostAcceptedWithLocation(
       `/v1/artifacts/runs/${encodeURIComponent(runId)}/export/push`,
       { destinationSasUrl: body.destinationSasUrl },
-      { suppressErrorToast: true },
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

@@ -103,7 +103,6 @@ export async function executeArchitectureRunAsync(
     const accepted = await apiPostAcceptedWithLocation(
       `/v1/architecture/review/${encodeURIComponent(runId)}/execute/async`,
       {},
-      { suppressErrorToast: true },
     );
     const operationId =
       parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
@@ -148,7 +147,6 @@ export async function replayArchitectureRunAsync(
         commitReplay: body.commitReplay,
         manifestVersionOverride: body.manifestVersionOverride ?? undefined,
       },
-      { suppressErrorToast: true },
     );
     const operationId =
       parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);

@@ -22,6 +22,7 @@ export type GovernanceFindingsQueryState = {
   readonly loadFailed: boolean;
   readonly loadFailure: GovernanceFindingsFetchFailure | null;
   readonly refresh: () => void;
+  readonly refreshing: boolean;
 };
 
 export function useGovernanceFindingsQuery(enabled = true): GovernanceFindingsQueryState {
@@ -40,11 +41,14 @@ export function useGovernanceFindingsQuery(enabled = true): GovernanceFindingsQu
     void query.refetch();
   }, [query]);
 
+  const refreshing = query.isFetching && !query.isPending;
+
   return {
     rows: query.data?.rows ?? [],
-    loading: query.isPending,
-    loadFailed: query.data?.loadFailed ?? false,
-    loadFailure: query.data?.failure ?? null,
+    loading: query.isPending || refreshing,
+    loadFailed: refreshing ? false : (query.data?.loadFailed ?? false),
+    loadFailure: refreshing ? null : (query.data?.failure ?? null),
     refresh,
+    refreshing,
   };
 }

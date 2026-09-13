@@ -1261,6 +1261,191 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
 
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_windows_web_app_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "win-1", label: "iis", sourceId: "azurerm_windows_web_app.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-iis")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_web_app_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "site-1", label: "site", sourceId: "azurerm_web_app.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-site")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_monitor_action_group_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "mag-1", label: "alerts", sourceId: "azurerm_monitor_action_group.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-alerts")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_workloads_sap_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "sap-1", label: "sap", sourceId: "azurerm_workloads_sap.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-sap")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_workloads_orchestrator_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "wo-1", label: "orchestrator", sourceId: "azurerm_workloads_orchestrator.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-orchestrator")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_palo_alto_local_rulestack_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "pa-1", label: "firewall", sourceId: "azurerm_palo_alto_local_rulestack.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-firewall")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_verifiedaccess_instance_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "va-1", label: "ztna", sourceId: "azurerm_verifiedaccess_instance.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-ztna")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_extended_location_custom_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "el-1", label: "edgezone", sourceId: "azurerm_extended_location_custom.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-edgezone")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_network_security_group_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "nsg-1", label: "perimeter", sourceId: "azurerm_network_security_group.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-perimeter")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_virtual_network_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "vnet-1", label: "core", sourceId: "azurerm_virtual_network.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-core")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_subnet_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "subnet-1", label: "app", sourceId: "azurerm_subnet.app"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-app")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRenamedServiceOverlayWhenServiceIdHasSurroundingWhitespace()
     {

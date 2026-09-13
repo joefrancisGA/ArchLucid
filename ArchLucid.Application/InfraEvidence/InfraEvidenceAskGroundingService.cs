@@ -69,8 +69,33 @@ public sealed class InfraEvidenceAskGroundingService(
                 };
             }
 
+            HashSet<string> allowedSeedNodeIds = DiagramViewPlanValidator.ExtractAllowedSeedNodeIds(bundle);
+
             if (request.UseSimulator)
             {
+                DiagramViewPlan? simulatorPlan =
+                    InfraEvidenceAskPromptBuilder.BuildSimulatorViewPlan(request.Question, request, bundle);
+
+                if (topicKind == InfraEvidenceAskTopicKinds.DiagramView
+                    && (simulatorPlan is null
+                        || !DiagramViewPlanValidator.TryValidate(simulatorPlan, allowedSeedNodeIds, out _)))
+                {
+                    return new InfraEvidenceAskGroundingResult
+                    {
+                        Succeeded = true,
+                        Response = new InfraEvidenceAskResponse
+                        {
+                            TopicKind = topicKind,
+                            InsufficientEvidence = true,
+                            Answer =
+                                "Insufficient structured evidence is available to propose a diagram view in the current scope. "
+                                + "No ARM resource ids or seed nodes were inferred.",
+                            Citations = InfraEvidenceAskPromptBuilder.SelectSimulatorCitations(bundle).ToList(),
+                            SimulatorLabel = InfraEvidenceAskPromptBuilder.SimulatorLabel,
+                        },
+                    };
+                }
+
                 return new InfraEvidenceAskGroundingResult
                 {
                     Succeeded = true,
@@ -80,6 +105,7 @@ public sealed class InfraEvidenceAskGroundingService(
                         Answer = InfraEvidenceAskPromptBuilder.BuildSimulatorAnswer(request.Question, bundle),
                         Citations = InfraEvidenceAskPromptBuilder.SelectSimulatorCitations(bundle).ToList(),
                         SimulatorLabel = InfraEvidenceAskPromptBuilder.SimulatorLabel,
+                        ViewPlan = simulatorPlan,
                     },
                 };
             }
@@ -93,12 +119,40 @@ public sealed class InfraEvidenceAskGroundingService(
                 maxTokens: null,
                 cancellationToken: cancellationToken);
 
-            if (!InfraEvidenceAskPromptBuilder.TryParseLlmResponse(llmJson, bundle, out string answer, out IReadOnlyList<InfraEvidenceAskCitation> citations))
+            if (!InfraEvidenceAskPromptBuilder.TryParseLlmResponse(
+                    llmJson,
+                    bundle,
+                    out string answer,
+                    out IReadOnlyList<InfraEvidenceAskCitation> citations,
+                    out DiagramViewPlan? viewPlan))
             {
                 return new InfraEvidenceAskGroundingResult
                 {
                     Succeeded = false,
                     ErrorMessage = "LLM response could not be parsed into a grounded answer with citations.",
+                };
+            }
+
+            if (viewPlan is not null
+                && !DiagramViewPlanValidator.TryValidate(viewPlan, allowedSeedNodeIds, out _))
+            {
+                viewPlan = null;
+            }
+
+            if (topicKind == InfraEvidenceAskTopicKinds.DiagramView && viewPlan is null)
+            {
+                return new InfraEvidenceAskGroundingResult
+                {
+                    Succeeded = true,
+                    Response = new InfraEvidenceAskResponse
+                    {
+                        TopicKind = topicKind,
+                        InsufficientEvidence = true,
+                        Answer =
+                            "Insufficient structured evidence is available to propose a validated diagram view. "
+                            + "No ARM resource ids were invented.",
+                        Citations = citations.ToList(),
+                    },
                 };
             }
 
@@ -110,6 +164,7 @@ public sealed class InfraEvidenceAskGroundingService(
                     TopicKind = topicKind,
                     Answer = answer,
                     Citations = citations.ToList(),
+                    ViewPlan = viewPlan,
                 },
             };
         }
