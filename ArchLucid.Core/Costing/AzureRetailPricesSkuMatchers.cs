@@ -377,6 +377,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " dy")
             || ContainsBoundedToken(trimmed, " d")
             || HasCompactDaySuffix(trimmed)
+            || HasCompactDayWordSuffix(trimmed)
             || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "d", StringComparison.OrdinalIgnoreCase)
