@@ -115,19 +115,23 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 ---
 ## Zone: topology-proposal-merge
 
+
+2026-09-13 seed hunt #2370 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_dynatrace_monitor.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_dynatrace_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 - **id:** topology-proposal-merge
 - **status:** open
 - **impact:** medium
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 79
-- **bugs-found:** 48
+- **hunts:** 81
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2368: dashboard_grafana Compute-category ds- alias gap
+- **last-bug:** 2026-09-13 — hunt #2370: dynatrace Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2369 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_chaos_studio_target.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_chaos_studio_target_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 
 2026-09-13 seed hunt #2368 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_dashboard_grafana.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_dashboard_grafana_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 

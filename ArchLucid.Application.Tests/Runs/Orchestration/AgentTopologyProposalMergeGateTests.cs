@@ -2853,6 +2853,22 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_dynatrace_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "dt-1", label: "apm", sourceId: "azurerm_dynatrace_monitor.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-apm")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_dynatrace_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(

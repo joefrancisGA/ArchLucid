@@ -178,7 +178,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("monitor_alert_prometheus_rule_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("policy_assignment", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("dashboard_grafana", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("chaos_studio", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("chaos_studio", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dynatrace", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
