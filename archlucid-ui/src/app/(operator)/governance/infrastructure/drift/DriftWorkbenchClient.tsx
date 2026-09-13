@@ -1075,7 +1075,7 @@ export function DriftWorkbenchClient() {
               {renderSortableHeader("risk", "Risk")}
             </EnterpriseTableHeadRow>
           </EnterpriseTableHead>
-          <EnterpriseTableBody>
+          <EnterpriseTableBody data-testid="infra-drift-changes-body">
             {visibleChanges.length === 0 ? renderChangesEmptyState() : null}
             {visibleChanges.map((row) => (
               <EnterpriseTableRow

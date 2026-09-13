@@ -12,8 +12,8 @@ export function DriftChangeResourceCells(props: {
 
   return (
     <>
-      <EnterpriseTableCell className="max-w-xs">
-        <div className={cn(OPERATOR_TYPOGRAPHY.body, "font-medium")}>
+      <EnterpriseTableCell className="max-w-xs min-w-0">
+        <div className={cn(OPERATOR_TYPOGRAPHY.body, "min-w-0 break-words font-medium")}>
           {display.name}
         </div>
       </EnterpriseTableCell>
