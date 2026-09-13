@@ -164,7 +164,11 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("hdinsight", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("scheduled_query_rules", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("maintenance_configuration", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("blueprint_assignment", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("blueprint_assignment", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_wan", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("private_dns_resolver", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_workspace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("security_center_automation", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -302,7 +306,11 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("hdinsight", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("scheduled_query_rules", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("maintenance_configuration", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("blueprint_assignment", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("blueprint_assignment", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_wan", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("private_dns_resolver", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_workspace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("security_center_automation", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
