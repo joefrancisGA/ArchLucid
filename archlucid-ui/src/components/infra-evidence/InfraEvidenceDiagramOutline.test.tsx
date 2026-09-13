@@ -43,11 +43,12 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(edgesTable as HTMLTableElement).getByText("—")).toBeTruthy();
 
     expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Label, ascending" })).toBeTruthy();
-    expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Resource type" })).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Resource group" })).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).queryByRole("columnheader", { name: "Id" })).toBeNull();
+    expect(within(nodesTable as HTMLTableElement).queryByRole("columnheader", { name: "Resource type" })).toBeNull();
     expect(within(nodesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
-    expect(within(nodesTable as HTMLTableElement).getByText("Microsoft.Network/virtualNetworks")).toBeTruthy();
+    expect(within(nodesTable as HTMLTableElement).getByText("(Virtual Network)")).toBeTruthy();
+    expect(within(nodesTable as HTMLTableElement).queryByText("Microsoft.Network/virtualNetworks")).toBeNull();
     expect(within(nodesTable as HTMLTableElement).getByText("rg-network")).toBeTruthy();
     expect(within(edgesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
     expect(within(edgesTable as HTMLTableElement).getByText("n_missing")).toBeTruthy();
