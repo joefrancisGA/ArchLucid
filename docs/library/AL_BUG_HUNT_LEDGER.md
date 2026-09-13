@@ -4374,6 +4374,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** tenant-data-export
 
+2026-09-13 seed hunt #2606 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved camelCase string `"on"` for `isDemoTenant` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_demo_tenant_when_is_demo_tenant_camel_case_string_on`.
+
 2026-09-13 seed hunt #2601 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved camelCase string `"y"` for `isSampleRun` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_camel_case_string_y`.
 
 2026-09-13 seed hunt #2594 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
@@ -10829,6 +10831,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-costing
 
+2026-09-13 seed hunt #2605 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved standalone `mi` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneMiTests`.
+
 2026-09-13 seed hunt #2600 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10mi` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactMiTests`.
 
 2026-09-13 seed hunt #2593 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10minute` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactMinuteWordTests`.
@@ -11202,6 +11206,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ## Zone: context-ingestion
 
 - **id:** context-ingestion
+
+2026-09-13 seed hunt #2604 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` ip6-nobind pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_ip6_nobind_projects_dns_option_ip6_nobind_exposure`.
 
 2026-09-13 seed hunt #2599 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` no-aaaa pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_no_aaaa_projects_dns_option_no_aaaa_exposure`.
 
