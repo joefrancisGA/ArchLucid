@@ -3171,6 +3171,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
             e.ToNodeId == "hci-1");
     }
 
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_voice_services_gateway_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "vs-1", label: "telephony", sourceId: "azurerm_voice_services_communications_gateway.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-telephony")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "vs-1");
+    }
+
 
     [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_application_gateway_node_has_compute_category_but_synthetic_datastore_id_used()
