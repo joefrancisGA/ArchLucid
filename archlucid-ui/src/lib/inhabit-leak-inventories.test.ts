@@ -50,19 +50,26 @@ describe("inhabit leak inventories (IH-004–IH-012)", () => {
 
   it("IH-008 inventories exploration ceremony gaps on nested findings", () => {
     const nested = INHABIT_EXPLORATION_CEREMONY_ROWS.find((row) =>
-      row.relativePath.includes("ArchitectureNestedFindingsPageClient"),
+      row.relativePath.includes("InhabitedFindingsDocumentChrome"),
     );
 
     expect(nested).toBeDefined();
-    expect(nested!.sketchEntry).toBe(false);
+    expect(nested!.sketchEntry).toBe(true);
+    expect(nested!.committedCompareFromDesk).toBe(true);
   });
 
   it("IH-009 inventories presenter-only room mounts", () => {
-    expect(INHABIT_ROOM_PRESENTER_ROWS.every((row) => row.requiresLeavingArchitectureFindings)).toBe(true);
+    expect(
+      INHABIT_ROOM_PRESENTER_ROWS.some((row) => !row.requiresLeavingArchitectureFindings),
+    ).toBe(true);
+    expect(
+      INHABIT_ROOM_PRESENTER_ROWS.filter((row) => row.requiresLeavingArchitectureFindings).length,
+    ).toBeGreaterThanOrEqual(2);
   });
 
   it("IH-010 inventories keyboard focus gaps", () => {
-    expect(INHABIT_KEYBOARD_FOCUS_ROWS.every((row) => !row.defaultFocusFirstFinding)).toBe(true);
+    const nestedRow = INHABIT_KEYBOARD_FOCUS_ROWS.find((row) => row.ownerPrompt === "IH-059");
+    expect(nestedRow?.defaultFocusFirstFinding).toBe(true);
   });
 
   it("IH-011 inventories continuity persistence shapes", () => {

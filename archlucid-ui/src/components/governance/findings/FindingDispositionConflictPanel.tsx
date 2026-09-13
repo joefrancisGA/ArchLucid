@@ -2,8 +2,16 @@
 
 import type { ReactElement } from "react";
 
+import Link from "next/link";
+
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { Button } from "@/components/ui/button";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+import {
+  formatInhabitFindingDispositionConflictMessage,
+  INHABIT_FINDING_409_CONFLICT_HELP_HREF,
+} from "@/lib/inhabit/inhabit-409-conflict-copy";
 import {
   formatFindingDispositionConflictMessage,
   type FindingDispositionConflictDetail,
@@ -25,12 +33,22 @@ export function FindingDispositionConflictPanel(
 ): ReactElement {
   const testId = props.testId ?? "finding-disposition-conflict";
 
+  const conflictMessage =
+    props.message
+    ?? (props.onKeepMine !== undefined
+      ? formatInhabitFindingDispositionConflictMessage(props.conflict)
+      : formatFindingDispositionConflictMessage(props.conflict));
+
   return (
     <div className="space-y-2" data-testid={testId}>
-      <OperatorMutationInlineError
-        testId={`${testId}-message`}
-        message={props.message ?? formatFindingDispositionConflictMessage(props.conflict)}
-      />
+      <OperatorMutationInlineError testId={`${testId}-message`} message={conflictMessage} />
+      {props.onKeepMine !== undefined ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link href={INHABIT_FINDING_409_CONFLICT_HELP_HREF} className={OPERATOR_LINK.inline}>
+            Lease and CAS help
+          </Link>
+        </p>
+      ) : null}
       <div className="flex flex-wrap gap-2">
         {props.onKeepMine !== undefined ? (
           <Button

@@ -196,9 +196,9 @@ export const INHABIT_EXPLORATION_CEREMONY_ROWS: readonly InhabitExplorationCerem
   },
   {
     surface: "Nested findings document chrome",
-    relativePath: "app/(operator)/architecture/architectures/[architectureId]/findings/ArchitectureNestedFindingsPageClient.tsx",
-    sketchEntry: false,
-    committedCompareFromDesk: false,
+    relativePath: "components/governance/InhabitedFindingsDocumentChrome.tsx",
+    sketchEntry: true,
+    committedCompareFromDesk: true,
     ownerPrompt: "IH-047",
   },
   {
@@ -219,6 +219,12 @@ export type InhabitRoomPresenterRow = {
 
 /** IH-009 — R4 room elicitation mounts (no presence / finding chat). */
 export const INHABIT_ROOM_PRESENTER_ROWS: readonly InhabitRoomPresenterRow[] = [
+  {
+    surface: "Inhabited findings room card",
+    relativePath: "components/governance/InhabitedFindingsRoomCard.tsx",
+    requiresLeavingArchitectureFindings: false,
+    ownerPrompt: "IH-053",
+  },
   {
     surface: "Review presenter elicitation bridge",
     relativePath: "components/reviews/RunDetailPresenterElicitationBridge.tsx",
@@ -251,16 +257,16 @@ export type InhabitKeyboardFocusRow = {
 export const INHABIT_KEYBOARD_FOCUS_ROWS: readonly InhabitKeyboardFocusRow[] = [
   {
     surface: "Nested findings page client",
-    relativePath: "app/(operator)/architecture/architectures/[architectureId]/findings/ArchitectureNestedFindingsPageClient.tsx",
-    defaultFocusFirstFinding: false,
-    paletteWorkActionsFirst: false,
+    relativePath: "app/(operator)/governance/findings/_sections/GovernanceFindingsQueueResultsSection.tsx",
+    defaultFocusFirstFinding: true,
+    paletteWorkActionsFirst: true,
     ownerPrompt: "IH-059",
   },
   {
     surface: "Finding keyboard triage host",
-    relativePath: "components/governance/findings/FindingKeyboardTriageHost.tsx",
+    relativePath: "components/CommandPaletteActions.tsx",
     defaultFocusFirstFinding: false,
-    paletteWorkActionsFirst: false,
+    paletteWorkActionsFirst: true,
     ownerPrompt: "IH-060",
   },
   {
@@ -288,8 +294,8 @@ export const INHABIT_CONTINUITY_ROWS: readonly InhabitContinuityRow[] = [
     concern: "Operator recent views (last-open review)",
     storageKeyOrMechanism: "operator-recent-views localStorage",
     persistKind: "local-storage",
-    architectureShaped: false,
-    ownerPrompt: "IH-064",
+    architectureShaped: true,
+    ownerPrompt: "IH-065",
   },
   {
     concern: "Continue-last review package target",
@@ -307,7 +313,7 @@ export const INHABIT_CONTINUITY_ROWS: readonly InhabitContinuityRow[] = [
   },
   {
     concern: "Finding selection on nested findings",
-    storageKeyOrMechanism: "URL query / in-memory",
+    storageKeyOrMechanism: "focusedFinding URL query",
     persistKind: "url",
     architectureShaped: true,
     ownerPrompt: "IH-064",

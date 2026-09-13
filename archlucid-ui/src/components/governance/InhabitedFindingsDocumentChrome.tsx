@@ -8,8 +8,13 @@ import { GovernanceFindingsQueueQuietEnginesHint } from "@/app/(operator)/govern
 import { ArchitectureIdentityDeskReviewFinalizeAction } from "@/components/architecture/ArchitectureIdentityDeskReviewFinalizeAction";
 import { WorkingInstrumentDocumentTitle } from "@/components/architecture/WorkingInstrumentDocumentTitle";
 import { TransparencyTrailPanel } from "@/components/feasibility/TransparencyTrailPanel";
+import { InhabitedFindingsAssumptionDeltaEntry } from "@/components/governance/InhabitedFindingsAssumptionDeltaEntry";
+import { InhabitedFindingsExplorationStrip } from "@/components/governance/InhabitedFindingsExplorationStrip";
+import { InhabitedFindingsRoomCard } from "@/components/governance/InhabitedFindingsRoomCard";
+import { InhabitedFindingsWorkLeaseHonesty } from "@/components/governance/InhabitedFindingsWorkLeaseHonesty";
 import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
 import { fetchRunDetailCriticalPageBundle } from "@/lib/fetch-run-detail-page-bundle-client";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INHABIT_FINDINGS_DENSITY_IS_GENERATION_SENTENCE } from "@/lib/inhabit/inhabit-findings-density-generation-copy";
@@ -38,6 +43,11 @@ export function InhabitedFindingsDocumentChrome(
   );
   const scopedRunId = props.scopedRunId?.trim() ?? "";
   const architectureDisplayName = props.architectureDisplayName?.trim() ?? "";
+
+  const identityQuery = useArchitectureIdentityQuery(
+    resolvedArchitectureId ?? "",
+    presentation !== null && resolvedArchitectureId !== null,
+  );
 
   const trailQuery = useQuery({
     queryKey: ["inhabited-findings-transparency-trail", scopedRunId],
@@ -79,6 +89,37 @@ export function InhabitedFindingsDocumentChrome(
         >
           {presentation.jobSubtitle}
         </p>
+      ) : null}
+
+      {identityQuery.data !== undefined ? (
+        <InhabitedFindingsWorkLeaseHonesty
+          drafts={identityQuery.data.drafts}
+          currentDraftId={identityQuery.data.currentDraftId}
+          latestReviewId={identityQuery.data.latestReviewId}
+        />
+      ) : null}
+
+      {architectureDisplayName.length > 0 && identityQuery.data !== undefined ? (
+        <InhabitedFindingsRoomCard
+          architectureDisplayName={architectureDisplayName}
+          architectureRequestId={identityQuery.data.currentDraftId}
+          scopedRunId={scopedRunId}
+          scopedRunTitle={props.scopedRunTitle}
+        />
+      ) : null}
+
+      {resolvedArchitectureId !== null ? (
+        <InhabitedFindingsExplorationStrip
+          architectureId={resolvedArchitectureId}
+          scopedRunId={scopedRunId}
+        />
+      ) : null}
+
+      {resolvedArchitectureId !== null ? (
+        <InhabitedFindingsAssumptionDeltaEntry
+          architectureId={resolvedArchitectureId}
+          scopedRunId={scopedRunId}
+        />
       ) : null}
 
       {trailQuery.data !== undefined ? (

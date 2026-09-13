@@ -14,10 +14,13 @@ describe("cheap-exploration palette sketch a change (CE-013)", () => {
     );
   });
 
-  it("only matches architecture draft paths", () => {
+  it("matches architecture desk and nested findings paths (IH-051)", () => {
     expect(isCheapExplorationPaletteSketchArchitecturePath("/architecture/architectures/a1")).toBe(
       true,
     );
+    expect(
+      isCheapExplorationPaletteSketchArchitecturePath("/architecture/architectures/a1/findings"),
+    ).toBe(true);
     expect(isCheapExplorationPaletteSketchArchitecturePath("/architecture/reviews/r1")).toBe(false);
   });
 

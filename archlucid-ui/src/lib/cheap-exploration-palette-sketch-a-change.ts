@@ -4,6 +4,7 @@ import {
   CHEAP_EXPLORATION_ENVELOPE_RUNNER_DOM_TEST_ID,
   CHEAP_EXPLORATION_ENVELOPE_RUNNER_OWNER,
 } from "@/lib/cheap-exploration-envelope-runner-entry";
+import { isInhabitPaletteSketchArchitecturePath } from "@/lib/inhabit/inhabit-palette-sketch-path";
 import { SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_ACTION_ID } from "@/lib/system-not-job-palette-clone-new-version";
 
 /** CE-013 — palette work action for cheap envelope sketch on architecture desk. */
@@ -15,10 +16,8 @@ export const CHEAP_EXPLORATION_PALETTE_SKETCH_A_CHANGE_ACTION_ID =
 export const CHEAP_EXPLORATION_PALETTE_SKETCH_A_CHANGE_SEARCH_VALUE =
   "sketch a change clone snapshot rehearsal envelope architecture desk palette" as const;
 
-const architectureDraftPathPattern = /^\/architecture\/architectures(\/|$)/;
-
 export function isCheapExplorationPaletteSketchArchitecturePath(pathname: string): boolean {
-  return architectureDraftPathPattern.test(pathname);
+  return isInhabitPaletteSketchArchitecturePath(pathname);
 }
 
 /**

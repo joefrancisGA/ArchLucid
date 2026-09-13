@@ -3,6 +3,10 @@ import {
   WORKING_CAREER_DOOR_LABEL,
   WORKING_REHEARSAL_DOOR_LABEL,
 } from "@/lib/governance/working-career-rehearsal-door-copy";
+import {
+  INHABIT_SKETCH_IS_PRACTICE_NOT_RECORD_BODY,
+  INHABIT_SKETCH_IS_PRACTICE_NOT_RECORD_TITLE,
+} from "@/lib/inhabit/inhabit-exploration-copy";
 
 export const INHABIT_THE_ARCHITECTURE_HELP_SLUG = "inhabit-the-architecture" as const;
 
@@ -21,6 +25,7 @@ export const INHABIT_THE_ARCHITECTURE_HELP_GUIDE_HEADINGS = [
   { id: "two-controls-only", label: "Two controls only" },
   { id: "record-simulator-incomplete", label: "Record on Simulator host" },
   { id: "record-vs-practice", label: "Record vs Practice" },
+  { id: "sketch-is-practice", label: "Sketch is Practice" },
 ] as const;
 
 /** IH-028 — workspace density + Record/Practice; host Mode is honesty only. */
@@ -30,6 +35,11 @@ export const INHABIT_THE_ARCHITECTURE_HELP_TWO_CONTROLS_BODY =
 /** IH-029 — why Record can start but finalize/export stays incomplete on Simulator. */
 export const INHABIT_THE_ARCHITECTURE_HELP_RECORD_SIMULATOR_BODY =
   `${WORKING_CAREER_DOOR_LABEL} is the production proof door. When the host runs in Simulator, you can start and disposition on the architecture findings document, but sealed-record-complete proof and career exports stay incomplete until Real execution is provisioned for the workspace. That is host honesty — not “Career blocked,” and not a self-serve flip of host Mode in production docs. Next step is workspace Real when your operator provisions it.` as const;
+
+/** IH-052 — Sketch a change is Practice on the inhabited desk. */
+export const INHABIT_THE_ARCHITECTURE_HELP_SKETCH_PRACTICE_BODY = INHABIT_SKETCH_IS_PRACTICE_NOT_RECORD_BODY;
+
+export const INHABIT_THE_ARCHITECTURE_HELP_SKETCH_PRACTICE_TITLE = INHABIT_SKETCH_IS_PRACTICE_NOT_RECORD_TITLE;
 
 export const INHABIT_THE_ARCHITECTURE_HELP_CONCEPT_TILES = [
   {
@@ -63,6 +73,10 @@ export const INHABIT_THE_ARCHITECTURE_HELP_SECONDARY_ACTIONS = [
   {
     label: "Record and Practice doors",
     href: inAppHelpHref("career-rehearsal-doors"),
+  },
+  {
+    label: "Sketch a change (Practice)",
+    href: inAppHelpHref("sketch-a-change"),
   },
   {
     label: "System gravity (instrument vs inhabit)",
