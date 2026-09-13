@@ -3,13 +3,16 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 
+import { RunDetailInfeasibleDecisionLead } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailInfeasibleDecisionLead";
 import { GovernanceFindingsQueueQuietEnginesHint } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueQuietEnginesHint";
 import { ArchitectureIdentityDeskReviewFinalizeAction } from "@/components/architecture/ArchitectureIdentityDeskReviewFinalizeAction";
 import { WorkingInstrumentDocumentTitle } from "@/components/architecture/WorkingInstrumentDocumentTitle";
 import { TransparencyTrailPanel } from "@/components/feasibility/TransparencyTrailPanel";
+import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { fetchRunDetailCriticalPageBundle } from "@/lib/fetch-run-detail-page-bundle-client";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { INHABIT_FINDINGS_DENSITY_IS_GENERATION_SENTENCE } from "@/lib/inhabit/inhabit-findings-density-generation-copy";
 import {
   resolveInhabitedFindingsArchitectureId,
   resolveInhabitedFindingsDocumentPresentation,
@@ -43,9 +46,14 @@ export function InhabitedFindingsDocumentChrome(
     queryFn: async () => {
       const bundle = await fetchRunDetailCriticalPageBundle(scopedRunId);
 
+      const feasibilityVerdict = bundle.data.manifestSummary?.feasibilityVerdict ?? null;
+      const progressSummary = bundle.data.progressSummary;
+
       return {
-        trail: bundle.data.feasibilityVerdict?.transparencyTrail ?? null,
-        runCompleted: analysisStagesCompleteOnSummary(bundle.data.progressSummary),
+        trail: feasibilityVerdict?.transparencyTrail ?? null,
+        feasibilityVerdict,
+        enginesSucceeded: progressSummary?.enginesSucceeded ?? null,
+        runCompleted: analysisStagesCompleteOnSummary(progressSummary),
       };
     },
   });
@@ -87,6 +95,30 @@ export function InhabitedFindingsDocumentChrome(
         <div data-testid="inhabited-findings-quiet-engines">
           <GovernanceFindingsQueueQuietEnginesHint scopedRunId={scopedRunId} />
         </div>
+      ) : null}
+
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="inhabited-findings-density-generation-honesty"
+      >
+        {INHABIT_FINDINGS_DENSITY_IS_GENERATION_SENTENCE}
+      </p>
+
+      {trailQuery.data !== undefined && trailQuery.data.feasibilityVerdict !== null ? (
+        <div data-testid="inhabited-findings-infeasible-package">
+          <RunDetailInfeasibleDecisionLead
+            feasibilityVerdict={trailQuery.data.feasibilityVerdict}
+            runId={scopedRunId}
+          />
+        </div>
+      ) : null}
+
+      {trailQuery.data !== undefined ? (
+        <RunDetailInsightDensityMeasurementDenominatorStrip
+          enginesSucceeded={trailQuery.data.enginesSucceeded}
+          analysisStagesComplete={trailQuery.data.runCompleted}
+          className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+        />
       ) : null}
 
       {scopedRunId.length > 0 && resolvedArchitectureId !== null ? (

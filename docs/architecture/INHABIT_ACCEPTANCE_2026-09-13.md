@@ -37,8 +37,20 @@
 | IH-033 record correction on card rows | **Shipped** |
 | IH-040 quiet engines on document | **Shipped** |
 | IH-069 pipeline stepper ratchet | **Shipped** |
+| IH-034 disposition history on inspect/panel | **Shipped** |
+| IH-035 undo toast → record correction copy | **Shipped** |
+| IH-036 draft in-tab undo honesty | **Shipped** |
+| IH-037 finding CAS 409 Keep mine on desk | **Shipped** |
+| IH-038 amend does not unseal ratchet | **Shipped** |
+| IH-039 toast-only amend leak inventory | **Shipped** |
+| IH-041 coverage floor before Ready chrome | **Shipped** |
+| IH-042 support band on findings row | **Shipped** |
+| IH-043 Simulator never green Supported | **Shipped** |
+| IH-044 Ready suppressed inventory (inhabit) | **Shipped** |
+| IH-045 infeasible package on desk | **Shipped** |
+| IH-046 density generation ratchet | **Shipped** |
 
-IH-034–078 remain one-prompt-per-session leftovers (amend history, completeness bands, sketch/room/keyboard/continuity) plus ratchets/skips except the contract guards above. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare or live presence.
+IH-047–078 remain one-prompt-per-session leftovers (sketch/room/keyboard/continuity) plus ratchets/skips except the contract guards above. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare or live presence.
 
 ## Skips (intentional)
 

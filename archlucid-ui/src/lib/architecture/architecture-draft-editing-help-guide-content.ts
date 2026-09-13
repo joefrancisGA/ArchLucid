@@ -1,7 +1,13 @@
 /** LW-094 — in-app help: work lease + CAS when two architects edit one draft (ADR 0090). */
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { ARCHITECTURE_DRAFT_EDITING_HELP_PATH } from "@/lib/architecture/architecture-draft-editing-help-route";
+import {
+  ARCHITECTURE_DRAFT_EDITING_HELP_UNDO_COPY,
+  ARCHITECTURE_DRAFT_EDITING_HELP_UNDO_TITLE,
+} from "@/lib/inhabit/inhabit-draft-undo-honesty-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export { ARCHITECTURE_DRAFT_EDITING_HELP_UNDO_COPY, ARCHITECTURE_DRAFT_EDITING_HELP_UNDO_TITLE };
 
 export const ARCHITECTURE_DRAFT_EDITING_HELP_PAGE_TITLE = "Two people on one draft";
 
@@ -59,6 +65,7 @@ export const ARCHITECTURE_DRAFT_EDITING_HELP_GUIDE_HEADINGS: readonly HelpMarkdo
   { level: 2, id: "edit-lease", title: ARCHITECTURE_DRAFT_EDITING_HELP_LEASE_TITLE },
   { level: 2, id: "take-over-lease", title: ARCHITECTURE_DRAFT_EDITING_HELP_STEAL_TITLE },
   { level: 2, id: "conflict-keep-mine", title: ARCHITECTURE_DRAFT_EDITING_HELP_CONFLICT_TITLE },
+  { level: 2, id: "in-tab-undo", title: ARCHITECTURE_DRAFT_EDITING_HELP_UNDO_TITLE },
   { level: 2, id: "offline-reconnect", title: ARCHITECTURE_DRAFT_EDITING_HELP_OFFLINE_TITLE },
   { level: 2, id: "not-collab", title: ARCHITECTURE_DRAFT_EDITING_HELP_BOUNDARY_TITLE },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },

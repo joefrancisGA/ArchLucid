@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, type ReactElement, type SetStateActio
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { FindingDispositionConflictPanel } from "@/components/governance/findings/FindingDispositionConflictPanel";
 import { GovernanceRecordCorrectionDialog } from "@/components/governance/GovernanceRecordCorrectionDialog";
 import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
@@ -29,6 +30,10 @@ import {
 } from "@/lib/command-palette-handler-actions";
 import { recordFindingDisposition } from "@/lib/api/governance-stickiness-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import {
+  readFindingDispositionConflictFromError,
+  type FindingDispositionConflictDetail,
+} from "@/lib/findings/finding-disposition-conflict";
 import { findingDispositionKindLabel } from "@/lib/disposition-export-before-after";
 import { findingKeyboardDispositionBlockedReason } from "@/lib/findings/finding-keyboard-disposition-blocked-reason";
 import { computeFindingDispositionRevisitDueUtc } from "@/lib/findings/finding-disposition-revisit-window";
@@ -103,6 +108,8 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     correctionTarget,
   });
   const [correctionRecorded, setCorrectionRecorded] = useState(false);
+  const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(null);
+  const [dispositionConflictBusy, setDispositionConflictBusy] = useState(false);
 
   const syncKeyboardTriageConfirmToUrl = useCallback(
     (state: PendingKeyboardDisposition | null) => {
@@ -284,7 +291,7 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     };
   }, [canMutate, onAction, workbenchSelection?.setSelectedFindingId]);
 
-  async function applyPending(): Promise<void> {
+  async function applyPending(conflictOverride?: FindingDispositionConflictDetail | null): Promise<void> {
     if (pending === null) {
       return;
     }
@@ -303,6 +310,7 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     const appliedFindingId = pending.findingId;
     const appliedRunId = pending.runId;
     const appliedDisposition = pending.disposition;
+    const rowVersion = conflictOverride?.currentDispositionRowVersionBase64?.trim() ?? "";
 
     try {
       await recordFindingDisposition(
@@ -311,6 +319,7 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
           disposition: appliedDisposition,
           rationale: trimmedReason,
           runId: appliedRunId,
+          ...(rowVersion.length > 0 ? { expectedCurrentDispositionRowVersionBase64: rowVersion } : {}),
         },
         { idempotencyKey: createGovernanceMutationIdempotencyKey() },
       );
@@ -350,11 +359,21 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
         props.onApplied?.();
         router.refresh();
       });
+      setDispositionConflict(null);
       setPending(null);
       setRationale("");
       props.onApplied?.();
       router.refresh();
     } catch (err) {
+      const conflict = readFindingDispositionConflictFromError(err);
+
+      if (conflict !== null) {
+        setDispositionConflict(conflict);
+        setInlineErrorMessage(null);
+
+        return;
+      }
+
       const failure = toApiLoadFailure(err);
       setInlineErrorMessage(
         findingKeyboardDispositionBlockedReason(failure)
@@ -362,6 +381,20 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
       );
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function keepMineAfterDispositionConflict(): Promise<void> {
+    if (dispositionConflict === null) {
+      return;
+    }
+
+    setDispositionConflictBusy(true);
+
+    try {
+      await applyPending(dispositionConflict);
+    } finally {
+      setDispositionConflictBusy(false);
     }
   }
 
@@ -441,6 +474,7 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
             setPending(null);
             setInlineErrorMessage(null);
             setRationale("");
+            setDispositionConflict(null);
           }
         }}
         title="Confirm finding disposition"
@@ -450,7 +484,27 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
         busy={busy}
         extraContent={
           <div className="mt-2 space-y-3">
-            {inlineErrorMessage !== null ? (
+            {dispositionConflict !== null ? (
+              <FindingDispositionConflictPanel
+                conflict={dispositionConflict}
+                keepMineBusy={dispositionConflictBusy || busy}
+                onKeepMine={() => {
+                  void keepMineAfterDispositionConflict();
+                }}
+                onReload={() => {
+                  setDispositionConflict(null);
+                  setPending(null);
+                  setRationale("");
+                  props.onApplied?.();
+                  router.refresh();
+                }}
+                onDismiss={() => {
+                  setDispositionConflict(null);
+                }}
+                testId="finding-keyboard-disposition-conflict"
+              />
+            ) : null}
+            {dispositionConflict === null && inlineErrorMessage !== null ? (
               <OperatorMutationInlineError
                 message={inlineErrorMessage}
                 testId="finding-keyboard-disposition-inline-error"

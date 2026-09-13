@@ -352,6 +352,10 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
         {dispositionConflict !== null ? (
           <FindingDispositionConflictPanel
             conflict={dispositionConflict}
+            onKeepMine={() => {
+              void submitDisposition();
+            }}
+            keepMineBusy={busyAction === "disposition"}
             onReload={() => {
               void reloadDispositionConflict();
             }}

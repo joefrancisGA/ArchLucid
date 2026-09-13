@@ -28,6 +28,10 @@ export const MUTATION_UNDO_WINDOW_SECONDS = 300;
 /** LY-051 / LY-052 — visible Undo toast copy. Not unlimited. Not unseal authority. */
 export const MUTATION_UNDO_WINDOW_VISIBLE_COPY = "Available for 300 seconds (five minutes)";
 
+/** IH-035 — undo toast is not authority; record correction stays on the finding row. */
+export const MUTATION_UNDO_WINDOW_RECORD_CORRECTION_COPY =
+  "After five minutes, use Record correction on the finding row. The toast is not the audit trail.";
+
 export const FINDING_DISPOSITION_REVISIT_WINDOW_HOURS = 24;
 
 export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<

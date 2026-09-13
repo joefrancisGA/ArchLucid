@@ -12,6 +12,8 @@ import {
   ARCHITECTURE_DRAFT_EDITING_HELP_BOUNDARY_TITLE,
   ARCHITECTURE_DRAFT_EDITING_HELP_CONFLICT_COPY,
   ARCHITECTURE_DRAFT_EDITING_HELP_CONFLICT_TITLE,
+  ARCHITECTURE_DRAFT_EDITING_HELP_UNDO_COPY,
+  ARCHITECTURE_DRAFT_EDITING_HELP_UNDO_TITLE,
   ARCHITECTURE_DRAFT_EDITING_HELP_FIRST_VIEWPORT_TEST_ID,
   ARCHITECTURE_DRAFT_EDITING_HELP_LEASE_COPY,
   ARCHITECTURE_DRAFT_EDITING_HELP_LEASE_TITLE,
@@ -100,6 +102,12 @@ export function HelpArchitectureDraftEditingGuideView(
             title={ARCHITECTURE_DRAFT_EDITING_HELP_CONFLICT_TITLE}
             copy={ARCHITECTURE_DRAFT_EDITING_HELP_CONFLICT_COPY}
             testId="help-architecture-draft-editing-conflict"
+          />
+          <HelpSection
+            id="in-tab-undo"
+            title={ARCHITECTURE_DRAFT_EDITING_HELP_UNDO_TITLE}
+            copy={ARCHITECTURE_DRAFT_EDITING_HELP_UNDO_COPY}
+            testId="help-architecture-draft-editing-undo"
           />
           <HelpSection
             id="offline-reconnect"

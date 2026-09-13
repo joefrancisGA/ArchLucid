@@ -12,6 +12,8 @@ import {
 export type FindingDispositionConflictPanelProps = {
   readonly conflict: FindingDispositionConflictDetail;
   readonly onReload: () => void;
+  readonly onKeepMine?: () => void;
+  readonly keepMineBusy?: boolean;
   readonly onDismiss?: () => void;
   readonly testId?: string;
   readonly message?: string;
@@ -30,16 +32,30 @@ export function FindingDispositionConflictPanel(
         message={props.message ?? formatFindingDispositionConflictMessage(props.conflict)}
       />
       <div className="flex flex-wrap gap-2">
+        {props.onKeepMine !== undefined ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="default"
+            disabled={props.keepMineBusy === true}
+            data-testid={`${testId}-keep-mine`}
+            onClick={() => {
+              props.onKeepMine?.();
+            }}
+          >
+            {props.keepMineBusy === true ? "Saving…" : "Keep mine"}
+          </Button>
+        ) : null}
         <Button
           type="button"
           size="sm"
-          variant="default"
+          variant={props.onKeepMine !== undefined ? "outline" : "default"}
           data-testid={`${testId}-reload`}
           onClick={() => {
             props.onReload();
           }}
         >
-          Reload current disposition
+          {props.onKeepMine !== undefined ? "Load theirs" : "Reload current disposition"}
         </Button>
         {props.onDismiss !== undefined ? (
           <Button

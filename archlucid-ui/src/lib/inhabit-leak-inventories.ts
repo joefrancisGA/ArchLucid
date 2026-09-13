@@ -100,14 +100,14 @@ export const INHABIT_DISPOSITION_REVERSIBILITY_ROWS: readonly InhabitDisposition
     toastUndo: true,
     recordCorrectionVisible: true,
     dispositionHistory: false,
-    ownerPrompt: "IH-033",
+    ownerPrompt: "IH-039",
   },
   {
     surface: "Finding inspect disposition form",
     relativePath: "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectDispositionForm.tsx",
     toastUndo: true,
     recordCorrectionVisible: true,
-    dispositionHistory: false,
+    dispositionHistory: true,
     ownerPrompt: "IH-034",
   },
   {
@@ -123,8 +123,16 @@ export const INHABIT_DISPOSITION_REVERSIBILITY_ROWS: readonly InhabitDisposition
     relativePath: "components/governance/findings/GovernanceFindingsList.tsx",
     toastUndo: true,
     recordCorrectionVisible: true,
-    dispositionHistory: false,
-    ownerPrompt: "IH-033",
+    dispositionHistory: true,
+    ownerPrompt: "IH-034",
+  },
+  {
+    surface: "Governance finding triage panel",
+    relativePath: "components/governance/findings/GovernanceFindingTriagePanel.tsx",
+    toastUndo: false,
+    recordCorrectionVisible: true,
+    dispositionHistory: true,
+    ownerPrompt: "IH-034",
   },
 ];
 
