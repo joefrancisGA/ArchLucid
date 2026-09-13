@@ -8,7 +8,7 @@ import { MERMAID_MIN_LEGIBLE_LABEL_FONT_PX } from "@/lib/help/help-mermaid";
 
 import {
   elevenVnetChainLegacyRenderResponse,
-  elevenVnetOwnerGraphvizRenderResponse,
+  elevenVnetOwnerForestRenderResponse,
   elevenVnetPeerGridRenderResponse,
   elevenVnetSparsePeeringMermaidOnlyRenderResponse,
 } from "./fixtures/infra-diagrams-mermaid";
@@ -221,9 +221,9 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
     expect(metrics?.scrollHeight).toBeGreaterThan(metrics?.clientHeight ?? 0);
   });
 
-  test("owner peering forest is a compact graphviz canvas at 100 percent zoom", async ({ page }, testInfo: TestInfo) => {
+  test("owner peering forest is a compact inventory-forest canvas at 100 percent zoom", async ({ page }, testInfo: TestInfo) => {
     await page.setViewportSize({ width: 1440, height: 1400 });
-    await mockDiagramRoutes(page, elevenVnetOwnerGraphvizRenderResponse());
+    await mockDiagramRoutes(page, elevenVnetOwnerForestRenderResponse());
 
     await page.goto(
       `/governance/infrastructure/diagrams?snapshotId=${snapshotId}&mermaidMode=executive`,

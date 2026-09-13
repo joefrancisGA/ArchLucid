@@ -6,6 +6,7 @@ using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.ArtifactSynthesis.Graphviz;
+using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Mermaid;
@@ -330,6 +331,7 @@ public sealed class InfraEvidenceCompositionModuleTests
         services.AddScoped(_ => Mock.Of<IBrandedDiagramExportService>());
         services.AddScoped(_ => Mock.Of<IDiagramImageRenderer>());
         services.AddSingleton<IDiagramAstGraphvizDotEmitter, DiagramAstGraphvizDotEmitter>();
+        services.AddSingleton<IDiagramForestLayoutSvgRenderer, DiagramForestLayoutSvgRenderer>();
         services.AddScoped(_ => Mock.Of<IGraphvizLayoutRenderer>());
         services.AddScoped(_ => Mock.Of<IArchitectureDiagramReconciliationRepository>());
         services.AddScoped(_ => Mock.Of<IAuthorityQueryService>());
