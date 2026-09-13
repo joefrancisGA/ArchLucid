@@ -10653,6 +10653,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-costing
 
+2026-09-13 seed hunt #2450 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved standalone `mn` month UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneMnTests`.
+
 2026-09-13 seed hunt #2418 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved standalone `dy` day UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneDyTests`.
 
 2026-09-13 seed hunt #2423 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved standalone `mon` month UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneMonTests`.
@@ -10981,11 +10983,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 122
-- **bugs-found:** 165
+- **hunts:** 123
+- **bugs-found:** 166
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2386: snake_case `enable_service_links` pod spec not projected
+- **last-bug:** 2026-09-13 — hunt #2449: snake_case `priority_class_name` pod spec not projected
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -624,6 +624,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || string.Equals(trimmed, "month", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "months", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mon", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "mn", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mos", StringComparison.OrdinalIgnoreCase);
     }
 
