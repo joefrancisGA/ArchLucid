@@ -10989,6 +10989,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-13 seed hunt #2464 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `subdomain` pod spec projection gap; regression `ParseAsync_snake_case_subdomain_projects_subdomain_exposure`.
+
 2026-09-13 seed hunt #2459 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `hostname` pod spec projection gap; regression `ParseAsync_snake_case_hostname_projects_hostname_exposure`.
 
 2026-09-13 seed hunt #2454 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `runtime_class_name` pod spec projection gap; regression `ParseAsync_snake_case_runtime_class_name_projects_runtime_class_name_exposure`.
