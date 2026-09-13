@@ -40,9 +40,10 @@ function buildMermaidBody(edgeLine: (from: string, to: string) => string): strin
 export function elevenVnetOwnerForestLayoutSvg(): string {
   const nodeHeight = 36;
   const nodeWidth = 200;
-  const gapX = 24;
-  const gapY = 20;
-  const padding = 12;
+  const nodeGapY = 20;
+  const componentGapX = 48;
+  const componentGapY = 40;
+  const padding = 16;
   const components: Array<Array<string>> = [
     [VNET_LABELS[0], VNET_LABELS[6], VNET_LABELS[4]],
     [VNET_LABELS[2], VNET_LABELS[7]],
@@ -53,10 +54,10 @@ export function elevenVnetOwnerForestLayoutSvg(): string {
   const columns = 3;
   const columnWidths = [nodeWidth, nodeWidth, nodeWidth];
   const rowHeights = [
-    nodeHeight * 3 + gapY * 2,
-    nodeHeight * 2 + gapY,
+    nodeHeight * 3 + nodeGapY * 2,
+    nodeHeight * 2 + nodeGapY,
   ];
-  const lines: string[] = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 672 220">'];
+  const lines: string[] = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 728 312">'];
 
   for (let componentIndex = 0; componentIndex < components.length; componentIndex += 1) {
     const row = Math.floor(componentIndex / columns);
@@ -64,13 +65,13 @@ export function elevenVnetOwnerForestLayoutSvg(): string {
     let cellX = padding;
 
     for (let index = 0; index < column; index += 1) {
-      cellX += columnWidths[index] + gapX;
+      cellX += columnWidths[index] + componentGapX;
     }
 
     let cellY = padding;
 
     for (let index = 0; index < row; index += 1) {
-      cellY += rowHeights[index] + gapY;
+      cellY += rowHeights[index] + componentGapY;
     }
 
     const stack = components[componentIndex];
@@ -78,7 +79,7 @@ export function elevenVnetOwnerForestLayoutSvg(): string {
     for (let stackIndex = 0; stackIndex < stack.length; stackIndex += 1) {
       const label = stack[stackIndex];
       const x = cellX;
-      const y = cellY + stackIndex * (nodeHeight + gapY);
+      const y = cellY + stackIndex * (nodeHeight + nodeGapY);
       lines.push(
         `<g class="node" id="node-${nodeId(label)}" transform="translate(${x},${y})">` +
           `<rect width="${nodeWidth}" height="${nodeHeight}" rx="4" />` +

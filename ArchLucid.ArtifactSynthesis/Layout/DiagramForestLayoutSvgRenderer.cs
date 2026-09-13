@@ -1,6 +1,4 @@
 using System.Globalization;
-using System.Security;
-using System.Text;
 using System.Xml.Linq;
 
 using ArchLucid.ArtifactSynthesis.Compilers;
@@ -89,17 +87,18 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             for (int columnIndex = 0; columnIndex < row.Count; columnIndex++)
             {
                 IReadOnlyList<DiagramNode> component = row[columnIndex];
-                List<DiagramNode> orderedNodes = OrderNodesVertically(component, visibleEdges);
-                List<NodeSize> nodeSizes = orderedNodes
-                    .Select(node => new NodeSize(node, ResolveNodeWidth(node.Label, options), options.NodeHeight))
-                    .ToList();
-                double width = nodeSizes.Count == 0 ? options.MinNodeWidth : nodeSizes.Max(size => size.Width);
-                double height = ResolveComponentHeight(nodeSizes, options);
+                List<NodePlacement> relativePlacements = LayoutComponentInterior(component, visibleEdges, options);
+                double width = relativePlacements.Count == 0
+                    ? options.MinNodeWidth
+                    : relativePlacements.Max(placement => placement.X + placement.Width);
+                double height = relativePlacements.Count == 0
+                    ? options.NodeHeight
+                    : relativePlacements.Max(placement => placement.Y + placement.Height);
 
                 layouts.Add(new ComponentLayout(
                     RowIndex: rowIndex,
                     ColumnIndex: columnIndex,
-                    NodeSizes: nodeSizes,
+                    RelativePlacements: relativePlacements,
                     Width: width,
                     Height: height));
             }
@@ -108,21 +107,71 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         return layouts;
     }
 
-    private static double ResolveComponentHeight(IReadOnlyList<NodeSize> nodeSizes, DiagramForestLayoutOptions options)
+    private static List<NodePlacement> LayoutComponentInterior(
+        IReadOnlyList<DiagramNode> component,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        DiagramForestLayoutOptions options)
     {
-        if (nodeSizes.Count == 0)
+        if (DiagramLeftToRightLayerPlanner.ShouldLayoutLeftToRight(component))
         {
-            return options.NodeHeight;
+            return LayoutLeftToRight(component, visibleEdges, options);
         }
 
-        double nodeStack = nodeSizes.Sum(size => size.Height);
+        return LayoutTopDown(component, visibleEdges, options);
+    }
 
-        if (nodeSizes.Count > 1)
+    private static List<NodePlacement> LayoutTopDown(
+        IReadOnlyList<DiagramNode> component,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        DiagramForestLayoutOptions options)
+    {
+        List<DiagramNode> orderedNodes = OrderNodesAlongFlow(component, visibleEdges);
+        List<NodePlacement> placements = [];
+        double nodeY = 0;
+
+        foreach (DiagramNode node in orderedNodes)
         {
-            nodeStack += (nodeSizes.Count - 1) * options.VerticalGap;
+            DiagramForestNodeMetrics metrics = DiagramForestNodeMetricsCalculator.Measure(node, options);
+            placements.Add(new NodePlacement(node, 0, nodeY, metrics.Width, metrics.Height));
+            nodeY += metrics.Height + options.NodeVerticalGap;
         }
 
-        return nodeStack;
+        double maxWidth = placements.Count == 0 ? options.MinNodeWidth : placements.Max(placement => placement.Width);
+
+        return placements
+            .Select(placement => placement with { X = (maxWidth - placement.Width) / 2.0 })
+            .ToList();
+    }
+
+    private static List<NodePlacement> LayoutLeftToRight(
+        IReadOnlyList<DiagramNode> component,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        DiagramForestLayoutOptions options)
+    {
+        IReadOnlyList<IReadOnlyList<DiagramNode>> layers =
+            DiagramLeftToRightLayerPlanner.AssignLayers(component, visibleEdges);
+        List<NodePlacement> placements = [];
+        double columnX = 0;
+
+        foreach (IReadOnlyList<DiagramNode> layer in layers)
+        {
+            List<(DiagramNode Node, DiagramForestNodeMetrics Metrics)> sized = layer
+                .Select(node => (Node: node, Metrics: DiagramForestNodeMetricsCalculator.Measure(node, options)))
+                .ToList();
+            double columnWidth = sized.Count == 0 ? options.MinNodeWidth : sized.Max(item => item.Metrics.Width);
+            double nodeY = 0;
+
+            foreach ((DiagramNode node, DiagramForestNodeMetrics metrics) in sized)
+            {
+                double nodeX = columnX + ((columnWidth - metrics.Width) / 2.0);
+                placements.Add(new NodePlacement(node, nodeX, nodeY, metrics.Width, metrics.Height));
+                nodeY += metrics.Height + options.NodeVerticalGap;
+            }
+
+            columnX += columnWidth + options.NodeHorizontalGap;
+        }
+
+        return placements;
     }
 
     private static List<NodePlacement> PlaceNodes(
@@ -148,23 +197,23 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
             for (int column = 0; column < layout.ColumnIndex; column++)
             {
-                cellX += columnWidths[column] + options.HorizontalGap;
+                cellX += columnWidths[column] + options.ComponentHorizontalGap;
             }
 
             double cellY = options.Padding;
 
             for (int row = 0; row < layout.RowIndex; row++)
             {
-                cellY += rowHeights[row] + options.VerticalGap;
+                cellY += rowHeights[row] + options.ComponentVerticalGap;
             }
 
-            double nodeY = cellY;
-
-            foreach (NodeSize nodeSize in layout.NodeSizes)
+            foreach (NodePlacement relative in layout.RelativePlacements)
             {
-                double nodeX = cellX + (layout.Width - nodeSize.Width) / 2.0;
-                placements.Add(new NodePlacement(nodeSize.Node, nodeX, nodeY, nodeSize.Width, nodeSize.Height));
-                nodeY += nodeSize.Height + options.VerticalGap;
+                placements.Add(relative with
+                {
+                    X = cellX + relative.X,
+                    Y = cellY + relative.Y,
+                });
             }
         }
 
@@ -212,10 +261,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 continue;
             }
 
-            double fromX = fromPlacement.X + fromPlacement.Width / 2.0;
-            double fromY = fromPlacement.Y + fromPlacement.Height;
-            double toX = toPlacement.X + toPlacement.Width / 2.0;
-            double toY = toPlacement.Y;
+            (double fromX, double fromY, double toX, double toY) = ResolveEdgeEndpoints(fromPlacement, toPlacement);
 
             edgeLayer.Add(new XElement(
                 svgNamespace + "line",
@@ -233,39 +279,73 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                      .ThenBy(candidate => candidate.Node.NodeId, StringComparer.Ordinal))
         {
             string safeId = MermaidIdSanitizer.Sanitize(placement.Node.NodeId);
-            string safeLabel = EscapeSvgText(MermaidDiagramRenderer.EscapeLabel(placement.Node.Label));
-            XElement nodeGroup = new(
-                svgNamespace + "g",
-                new XAttribute("class", "node"),
-                new XAttribute("id", $"node-{safeId}"),
-                new XAttribute(
-                    "transform",
-                    string.Create(
-                        CultureInfo.InvariantCulture,
-                        $"translate({placement.X:0.###},{placement.Y:0.###})")));
-            nodeGroup.Add(new XElement(
-                svgNamespace + "rect",
-                new XAttribute("width", FormatCoordinate(placement.Width)),
-                new XAttribute("height", FormatCoordinate(placement.Height)),
-                new XAttribute("rx", "4"),
-                new XAttribute("fill", "#f8fafc"),
-                new XAttribute("stroke", "#64748b")));
-            nodeGroup.Add(new XElement(
-                svgNamespace + "text",
-                new XAttribute("x", FormatCoordinate(placement.Width / 2.0)),
-                new XAttribute("y", FormatCoordinate(placement.Height / 2.0)),
-                new XAttribute("text-anchor", "middle"),
-                new XAttribute("dominant-baseline", "middle"),
-                new XAttribute("font-size", "12"),
-                new XAttribute("font-family", "system-ui,sans-serif"),
-                safeLabel));
+            DiagramForestNodeMetrics metrics = DiagramForestNodeMetricsCalculator.Measure(
+                placement.Node,
+                options);
+            XElement nodeGroup = DiagramForestNodeSvgEmitter.Emit(
+                svgNamespace,
+                safeId,
+                placement.Width,
+                placement.Height,
+                metrics,
+                options);
+            nodeGroup.Add(new XAttribute(
+                "transform",
+                string.Create(
+                    CultureInfo.InvariantCulture,
+                    $"translate({placement.X:0.###},{placement.Y:0.###})")));
             root.Add(nodeGroup);
         }
 
         return root.ToString(SaveOptions.DisableFormatting);
     }
 
-    private static List<DiagramNode> OrderNodesVertically(
+    private static (double FromX, double FromY, double ToX, double ToY) ResolveEdgeEndpoints(
+        NodePlacement fromPlacement,
+        NodePlacement toPlacement)
+    {
+        double fromCenterX = fromPlacement.X + (fromPlacement.Width / 2.0);
+        double fromCenterY = fromPlacement.Y + (fromPlacement.Height / 2.0);
+        double toCenterX = toPlacement.X + (toPlacement.Width / 2.0);
+        double toCenterY = toPlacement.Y + (toPlacement.Height / 2.0);
+        double deltaX = toCenterX - fromCenterX;
+        double deltaY = toCenterY - fromCenterY;
+
+        if (Math.Abs(deltaX) >= Math.Abs(deltaY))
+        {
+            if (deltaX >= 0)
+            {
+                return (
+                    fromPlacement.X + fromPlacement.Width,
+                    fromCenterY,
+                    toPlacement.X,
+                    toCenterY);
+            }
+
+            return (
+                fromPlacement.X,
+                fromCenterY,
+                toPlacement.X + toPlacement.Width,
+                toCenterY);
+        }
+
+        if (deltaY >= 0)
+        {
+            return (
+                fromCenterX,
+                fromPlacement.Y + fromPlacement.Height,
+                toCenterX,
+                toPlacement.Y);
+        }
+
+        return (
+            fromCenterX,
+            fromPlacement.Y,
+            toCenterX,
+            toPlacement.Y + toPlacement.Height);
+    }
+
+    private static List<DiagramNode> OrderNodesAlongFlow(
         IReadOnlyList<DiagramNode> component,
         IReadOnlyList<DiagramEdge> visibleEdges)
     {
@@ -350,31 +430,15 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         return ordered;
     }
 
-    private static int ResolveNodeWidth(string label, DiagramForestLayoutOptions options)
-    {
-        string safeLabel = MermaidDiagramRenderer.EscapeLabel(label);
-        int estimated = (int)Math.Ceiling(safeLabel.Length * options.CharacterWidth) + 16;
-        int clamped = Math.Max(options.MinNodeWidth, estimated);
-
-        return Math.Min(options.MaxNodeWidth, clamped);
-    }
-
-    private static string EscapeSvgText(string value)
-    {
-        return SecurityElement.Escape(value) ?? string.Empty;
-    }
-
     private static string FormatCoordinate(double value)
     {
         return value.ToString("0.###", CultureInfo.InvariantCulture);
     }
 
-    private sealed record NodeSize(DiagramNode Node, double Width, double Height);
-
     private sealed record ComponentLayout(
         int RowIndex,
         int ColumnIndex,
-        IReadOnlyList<NodeSize> NodeSizes,
+        IReadOnlyList<NodePlacement> RelativePlacements,
         double Width,
         double Height);
 }

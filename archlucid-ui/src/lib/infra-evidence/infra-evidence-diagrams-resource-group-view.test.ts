@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildInfraDiagramsResourceGroupModeToken,
   isInfraDiagramsResourceGroupMode,
+  isInfraEvidenceBackboneKeepMermaid,
   isInfraEvidenceResourceGroupMapMermaid,
   parseInfraDiagramsResourceGroupName,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-resource-group-view";
@@ -23,5 +24,12 @@ describe("infra-evidence-diagrams-resource-group-view", () => {
       isInfraEvidenceResourceGroupMapMermaid("flowchart TD\n    %% al-view=resource-group-map\n    n1[\"rg-a\"]"),
     ).toBe(true);
     expect(isInfraEvidenceResourceGroupMapMermaid("flowchart TD\n    n1[\"vnet\"]")).toBe(false);
+  });
+
+  it("detects the backbone-keep mermaid marker", () => {
+    expect(
+      isInfraEvidenceBackboneKeepMermaid("flowchart TD\n    %% al-view=backbone-keep\n    n1[\"vm-1\"]"),
+    ).toBe(true);
+    expect(isInfraEvidenceBackboneKeepMermaid("flowchart TD\n    n1[\"vm-1\"]")).toBe(false);
   });
 });

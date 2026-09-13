@@ -8,6 +8,7 @@ import { PolicyPackAssignFromReviewStrip } from "@/components/governance/PolicyP
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
 import { AssignedToMeContinueOldestFindingStrip } from "@/components/usability/AssignedToMeContinueOldestFindingStrip";
 import { FindingsTriageFirstFindingStrip } from "@/components/usability/FindingsTriageFirstFindingStrip";
+import { InhabitedFindingsFocusCoordinator } from "@/components/governance/InhabitedFindingsFocusCoordinator";
 import { WorkingFindingsKeyboardHint } from "@/components/governance/findings/WorkingFindingsKeyboardHint";
 import { resolveInhabitedFindingsDocumentPresentation } from "@/lib/inhabit/inhabit-findings-document-presentation";
 import { usePathname } from "next/navigation";
@@ -110,6 +111,12 @@ export function GovernanceFindingsQueueResultsSection(
             />
           ) : null}
           <WorkingFindingsKeyboardHint />
+          {inhabitedFindingsDocument ? (
+            <InhabitedFindingsFocusCoordinator
+              enabled={inhabitedFindingsDocument}
+              hasFindingCards={props.displayedRows.some((row) => row.recordKind === "finding")}
+            />
+          ) : null}
           <GovernanceFindingsList
             displayedRows={props.displayedRows}
             buyerPolishedShell={props.buyerPolishedShell}

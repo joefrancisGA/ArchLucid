@@ -61,7 +61,9 @@ At Execute+, shortcuts call the same path as the triage buttons (then **Confirm*
 
 ## Page-specific: Findings (`/governance/findings` and review findings lists)
 
-Focus a finding card or row (`data-finding-id`, typically `role="article"` / `tabIndex={0}`) or a control inside it. Implemented in [`useFindingCardShortcuts`](../src/hooks/useFindingCardShortcuts.ts) via [`FindingKeyboardTriageHost`](../src/components/governance/findings/FindingKeyboardTriageHost.tsx). **Alt+1-3 register only when** the same **`useOperateCapability()`** gate used for disposition confirm is true (Execute+ rank in the shell); read-tier callers keep **Alt+J / Alt+K** only.
+On **Working**, architecture-nested findings (`/architecture/architectures/{id}/findings`) is the inhabited afternoon document — not a pipeline Home. **Alt+N** starts nested review work on the open architecture; **Alt+R** returns to the architecture desk (`/architecture/architectures/{id}`). On load, Working nested findings focuses the first `[data-finding-id]` card (or use **Skip to findings list**) so **Alt+1–3** work immediately.
+
+Focus a finding card or row (`data-finding-id`, typically `role="article"` / `tabIndex={0}`) or a control inside it. Implemented in [`useFindingCardShortcuts`](../src/hooks/useFindingCardShortcuts.ts) via [`FindingKeyboardTriageHost`](../src/components/governance/findings/FindingKeyboardTriageHost.tsx). **Alt+1-3 register only when** the same **`useOperateCapability()`** gate used for disposition confirm is true (Execute+ rank in the shell); read-tier callers keep **Alt+J / Alt+K** only. Selected finding persists in the **`focusedFinding`** URL query on refresh (IH-064).
 
 | Shortcut | Action |
 |----------|--------|

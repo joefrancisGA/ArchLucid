@@ -6,6 +6,9 @@ import { memo, type ReactElement } from "react";
 
 import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
+import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
+import { governanceQueueRowToSemanticSupportChipFinding } from "@/lib/governance/governance-finding-queue-row-semantic-support";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
@@ -46,6 +49,7 @@ export type GovernanceFindingRowProps = {
   readonly buyerPolishedShell: boolean;
   readonly variant: "buyer" | "operational";
   readonly showNewSinceLastVisit?: boolean;
+  readonly inhabitedFindingsDocument?: boolean;
   readonly onOpenRow?: () => void;
   readonly onOpenFinding?: (row: GovernanceFindingQueueRow) => void;
 };
@@ -55,13 +59,17 @@ function GovernanceFindingRowComponent({
   buyerPolishedShell,
   variant,
   showNewSinceLastVisit = false,
+  inhabitedFindingsDocument = false,
   onOpenRow,
   onOpenFinding,
 }: GovernanceFindingRowProps): ReactElement {
   const router = useRouter();
+  const { mode: structuralExecutionMode } = useAgentExecutionMode();
   const rowIsDecision = row.recordKind === "decision";
   const buyerVariant = variant === "buyer";
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
+  const semanticSupportChipFinding =
+    inhabitedFindingsDocument ? governanceQueueRowToSemanticSupportChipFinding(row) : null;
   const evidenceTraceHref =
     row.recordKind === "finding" ? governanceFindingInspectHref(row.runId, row.findingId) : null;
 
@@ -136,6 +144,13 @@ function GovernanceFindingRowComponent({
                 className="mt-2"
               />
             </div>
+          ) : null}
+          {semanticSupportChipFinding !== null ? (
+            <FindingSemanticSupportBandChip
+              finding={semanticSupportChipFinding}
+              structuralExecutionMode={structuralExecutionMode}
+              className="mt-2"
+            />
           ) : null}
         </CardHeader>
         <CardContent className={cn("grid gap-3 pt-0", OPERATOR_TYPOGRAPHY.body)}>

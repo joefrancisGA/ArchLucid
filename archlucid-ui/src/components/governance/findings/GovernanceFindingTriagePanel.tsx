@@ -9,6 +9,7 @@ import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { GovernanceFindingDetailPane } from "@/components/governance/findings/GovernanceFindingDetailPane";
 import { FindingDispositionRestoreButton } from "@/components/governance/findings/FindingDispositionRestoreButton";
 import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
+import { FindingDispositionHistorySection } from "@/components/governance/findings/FindingDispositionHistorySection";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -129,6 +130,13 @@ export function GovernanceFindingTriagePanel(props: GovernanceFindingTriagePanel
           />
 
           <FindingDispositionRestoreButton findingId={row.findingId} runId={row.runId} />
+
+          {props.inhabitedFindingsDocument === true ? (
+            <FindingDispositionHistorySection
+              findingId={row.findingId}
+              testId="governance-finding-triage-disposition-history"
+            />
+          ) : null}
 
           {row.latestDisposition !== null && row.latestDisposition !== undefined && row.latestDisposition.trim().length > 0 ? (
             <FindingDispositionRecordCorrectionControl

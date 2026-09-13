@@ -127,10 +127,13 @@ export const DESIGN_TOKENS = {
   table: {
     shell: "w-full overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800",
     table: "w-full border-collapse text-[13px]",
-    headRow: "border-b border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900",
+    // Sticky header stays visible while long inventory tables scroll inside the shell.
+    headRow:
+      "sticky top-0 z-10 border-b border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900",
     headCell: `px-3 py-2.5 text-left ${OPERATOR_TYPE_SCALE.tab} text-al-text-secondary`,
     body: "divide-y divide-neutral-100 dark:divide-neutral-800",
-    row: "content-visibility-auto outline-none transition-colors hover:bg-[var(--al-layer-hover)] dark:hover:bg-neutral-800/80",
+    // Never put content-visibility on table-row — Chromium skips cell measure and columns collapse.
+    row: "outline-none transition-colors hover:bg-[var(--al-layer-hover)] dark:hover:bg-neutral-800/80",
     rowSelected:
       "border-l-2 border-l-[var(--al-accent-interactive)] bg-[var(--al-layer-hover)] dark:bg-neutral-800/80",
     cell: "px-3 py-3 align-top text-[13px] leading-snug text-al-text-primary",

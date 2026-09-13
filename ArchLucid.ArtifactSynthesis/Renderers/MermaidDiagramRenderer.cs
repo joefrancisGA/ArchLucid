@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Sanitization;
@@ -21,6 +22,11 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         if (InventoryDiagramResourceGroupMapBuilder.TitleMarksResourceGroupMap(ast.Title))
         {
             sb.AppendLine($"    %% {InventoryDiagramResourceGroupMapBuilder.ViewMarker}");
+        }
+
+        if (InventoryDiagramBackboneArmTypes.TitleMarksBackboneKeep(ast.Title))
+        {
+            sb.AppendLine($"    %% {InventoryDiagramBackboneArmTypes.ViewMarker}");
         }
 
         if (ast.Subgraphs.Count == 0)
@@ -109,7 +115,7 @@ public class MermaidDiagramRenderer : IDiagramRenderer
     {
         string indentText = new(' ', indent * 4);
         string safeNodeId = MermaidIdSanitizer.Sanitize(node.NodeId);
-        string safeLabel = EscapeLabel(node.Label);
+        string safeLabel = EscapeLabel(DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText);
         string metadataComment = BuildInventoryNodeMetadataComment(node);
 
         if (!string.IsNullOrEmpty(metadataComment))

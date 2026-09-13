@@ -31,6 +31,12 @@ import {
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
 import { usePathname } from "next/navigation";
 import { resolveInhabitedFindingsEmptyStateCopy } from "@/lib/inhabit/inhabit-findings-document-presentation";
+import {
+  INHABIT_FINDINGS_LIVE_RECOVERY_BODY,
+  INHABIT_FINDINGS_LIVE_RECOVERY_TITLE,
+  resolveInhabitFindingsLiveRecoveryActions,
+} from "@/lib/inhabit/inhabit-live-recovery-contract";
+import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 
 export function GovernanceFindingsQueueOutcomeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
@@ -47,7 +53,23 @@ export function GovernanceFindingsQueueOutcomeSection(
 
   return (
     <>
-      {!props.loading && props.rows.length === 0 && props.loadFailed ? (
+      {!props.loading && props.rows.length === 0 && props.loadFailed && inhabitedEmptyState !== null && isLiveOperatorShellRecoveryContext() ? (
+        <EnterpriseCompactEmptyState
+          testId="inhabited-findings-live-recovery"
+          title={INHABIT_FINDINGS_LIVE_RECOVERY_TITLE}
+          description={INHABIT_FINDINGS_LIVE_RECOVERY_BODY}
+          actions={resolveInhabitFindingsLiveRecoveryActions(props.scopedArchitectureId)}
+          prominentBoundary
+          role="alert"
+          footer={
+            <Button type="button" size="sm" variant="outline" onClick={() => props.onRefresh()}>
+              Retry load
+            </Button>
+          }
+        />
+      ) : null}
+
+      {!props.loading && props.rows.length === 0 && props.loadFailed && (inhabitedEmptyState === null || !isLiveOperatorShellRecoveryContext()) ? (
         <EnterpriseInlineErrorNotification
           testId={props.loadFailedPreset.testId}
           title={

@@ -29,6 +29,9 @@ public sealed class DiagramAstGraphvizDotEmitterTests
         dot.Should().NotContain("~~~");
         dot.Should().Contain("digraph Inventory");
         dot.Should().Contain("layout=fdp");
+        dot.Should().Contain("sep=\"+36,28\"");
+        dot.Should().Contain("K=1.8");
+        dot.Should().Contain("pack=true");
     }
 
     [Fact]

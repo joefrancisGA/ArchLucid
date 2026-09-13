@@ -132,7 +132,8 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
     label: "Finalize review",
     searchValue: "action finalize review commit seal scorecard ready",
     isAvailable: (pathname) =>
-      isReviewDetailWorkPath(pathname) && isCommandPaletteFinalizeReviewAvailable(),
+      (isReviewDetailWorkPath(pathname) || nestedArchitectureFindingsPathPattern.test(pathname))
+      && isCommandPaletteFinalizeReviewAvailable(),
   },
   {
     id: "action-room-elicitation",

@@ -89,6 +89,7 @@ import {
 import {
   buildInfraDiagramsResourceGroupModeToken,
   isInfraDiagramsResourceGroupMode,
+  isInfraEvidenceBackboneKeepMermaid,
   isInfraEvidenceResourceGroupMapMermaid,
   parseInfraDiagramsResourceGroupName,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-resource-group-view";
@@ -132,6 +133,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_PROMPT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_PROMPT_TITLE,
@@ -455,6 +457,7 @@ export function DiagramsWorkbenchClient() {
     && !paintDiagramCanvas
     && !showFallbackCards;
   const isResourceGroupMapDiagram = isInfraEvidenceResourceGroupMapMermaid(mermaidSource);
+  const isBackboneKeepDiagram = isInfraEvidenceBackboneKeepMermaid(mermaidSource);
   const diagramContentEmpty =
     isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount)
     && (layoutSvg ?? "").trim().length === 0;
@@ -1501,6 +1504,14 @@ export function DiagramsWorkbenchClient() {
               data-testid="infra-diagrams-resource-group-map-caption"
             >
               {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION}
+            </p>
+          ) : null}
+          {isBackboneKeepDiagram ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="infra-diagrams-backbone-keep-caption"
+            >
+              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION}
             </p>
           ) : null}
           <ArchitectureDiagramViewer

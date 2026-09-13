@@ -218,6 +218,82 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByRole("button", { name: "Resource type" })).toBeInTheDocument();
   });
 
+  it("renders a discrete drift change table with sortable headers (IE-DT-02)", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
+    render(<DriftWorkbenchClient />);
+
+    expect(await screen.findByRole("table", { name: "Inventory drift changes" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Resource" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Resource group" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Resource type" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Change" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Property" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Risk" })).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-changes-body")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-drift-change-row-change-1")).toBeInTheDocument();
+  });
+
+  it("renders one row per drift change when multiple changes are returned (IE-DT-02)", async () => {
+    mockFetchChanges.mockResolvedValueOnce({
+      items: [
+        {
+          changeId: "change-1",
+          diffId: "diff-1",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-a/providers/Microsoft.Network/publicIPAddresses/gw-a",
+          changeType: "Modified",
+          property: "sku",
+          oldValue: "Basic",
+          newValue: "Standard",
+          riskClassification: "Medium",
+          evidenceReference: "snapshot-diff",
+        },
+        {
+          changeId: "change-2",
+          diffId: "diff-1",
+          cloudResourceId: "33333333-3333-3333-3333-333333333333",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-b/providers/Microsoft.Storage/storageAccounts/logs",
+          changeType: "Added",
+          property: "tags",
+          oldValue: null,
+          newValue: "env=prod",
+          riskClassification: null,
+          evidenceReference: "snapshot-diff",
+        },
+        {
+          changeId: "change-3",
+          diffId: "diff-1",
+          cloudResourceId: "44444444-4444-4444-4444-444444444444",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-c/providers/Microsoft.Compute/virtualMachines/app-01",
+          changeType: "Removed",
+          property: "size",
+          oldValue: "Standard_D2s_v3",
+          newValue: null,
+          riskClassification: "High",
+          evidenceReference: "snapshot-diff",
+        },
+      ],
+      totalCount: 3,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
+    render(<DriftWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-drift-change-row-change-1")).toBeInTheDocument();
+      expect(screen.getByTestId("infra-drift-change-row-change-2")).toBeInTheDocument();
+      expect(screen.getByTestId("infra-drift-change-row-change-3")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("infra-drift-changes-body").querySelectorAll("tr")).toHaveLength(3);
+  });
+
   it("keeps snapshot ids behind disclosure and uses human snapshot labels", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
     render(<DriftWorkbenchClient />);

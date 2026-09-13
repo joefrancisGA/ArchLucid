@@ -12686,6 +12686,7 @@ BEGIN
     (
         ArmResourceType NVARCHAR(256) NOT NULL CONSTRAINT PK_DiagramPeelCatalogEntry PRIMARY KEY,
         PeelRank        INT NULL,
+        AlwaysDispose   BIT NOT NULL CONSTRAINT DF_DiagramPeelCatalogEntry_AlwaysDispose DEFAULT (0),
         IsEnabled       BIT NOT NULL CONSTRAINT DF_DiagramPeelCatalogEntry_IsEnabled DEFAULT (1),
         Notes           NVARCHAR(512) NOT NULL CONSTRAINT DF_DiagramPeelCatalogEntry_Notes DEFAULT (N''),
         UpdatedUtc      DATETIME2(7) NOT NULL CONSTRAINT DF_DiagramPeelCatalogEntry_UpdatedUtc DEFAULT SYSUTCDATETIME()
@@ -12694,6 +12695,10 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_DiagramPeelCatalogEntry_PeelRank
         ON dbo.DiagramPeelCatalogEntry (PeelRank, ArmResourceType)
         WHERE PeelRank IS NOT NULL AND IsEnabled = 1;
+
+    CREATE NONCLUSTERED INDEX IX_DiagramPeelCatalogEntry_AlwaysDispose
+        ON dbo.DiagramPeelCatalogEntry (ArmResourceType)
+        WHERE AlwaysDispose = 1 AND IsEnabled = 1;
 END;
 GO
 
@@ -12713,7 +12718,6 @@ BEGIN
         (N'Microsoft.Network/loadBalancers/probes', 20, N'Child resource — LB probe'),
         (N'Microsoft.Network/applicationGateways/frontendIPConfigurations', 20, N'Child resource — AppGw frontend'),
         (N'Microsoft.Storage/storageAccounts/blobServices', 20, N'Child resource — storage sub-service'),
-        (N'Microsoft.Compute/virtualMachines/extensions', 20, N'Child resource — VM extension'),
         (N'Microsoft.Network/networkInterfaces', 30, N'Attachment — VM/NIC hop'),
         (N'Microsoft.Network/publicIPAddresses', 40, N'Attachment — address on NIC/LB'),
         (N'Microsoft.Compute/disks', 50, N'Attachment — disk on VM');
@@ -12735,5 +12739,92 @@ BEGIN
         (N'Microsoft.Network/applicationGateways', NULL, N'Backbone — never peel'),
         (N'Microsoft.Network/loadBalancers', NULL, N'Backbone — never peel'),
         (N'Microsoft.Network/privateEndpoints', NULL, N'Backbone — never peel');
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM dbo.DiagramPeelCatalogEntry WHERE ArmResourceType = N'Microsoft.Sql/servers/databases')
+BEGIN
+    INSERT INTO dbo.DiagramPeelCatalogEntry (ArmResourceType, PeelRank, Notes)
+    VALUES
+        (N'Microsoft.Sql/servers/databases', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Sql/managedInstances', NULL, N'Backbone — never peel'),
+        (N'Microsoft.DBforPostgreSQL/flexibleServers', NULL, N'Backbone — never peel'),
+        (N'Microsoft.DBforPostgreSQL/servers', NULL, N'Backbone — never peel'),
+        (N'Microsoft.DBforMySQL/flexibleServers', NULL, N'Backbone — never peel'),
+        (N'Microsoft.DBforMySQL/servers', NULL, N'Backbone — never peel'),
+        (N'Microsoft.DocumentDB/databaseAccounts', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Cache/Redis', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Compute/virtualMachineScaleSets', NULL, N'Backbone — never peel'),
+        (N'Microsoft.ContainerService/managedClusters', NULL, N'Backbone — never peel'),
+        (N'Microsoft.Web/serverFarms', NULL, N'Backbone — never peel'),
+        (N'Microsoft.KeyVault/vaults', NULL, N'Backbone — never peel');
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogVersion', N'U') IS NOT NULL
+   AND EXISTS (SELECT 1 FROM dbo.DiagramPeelCatalogVersion WHERE CatalogVersion < 2)
+BEGIN
+    DELETE FROM dbo.DiagramPeelCatalogVersion;
+    INSERT INTO dbo.DiagramPeelCatalogVersion (CatalogVersion) VALUES (2);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DiagramPeelCatalogEntry', N'AlwaysDispose') IS NULL
+BEGIN
+    ALTER TABLE dbo.DiagramPeelCatalogEntry
+        ADD AlwaysDispose BIT NOT NULL
+            CONSTRAINT DF_DiagramPeelCatalogEntry_AlwaysDispose DEFAULT (0);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DiagramPeelCatalogEntry', N'AlwaysDispose') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'IX_DiagramPeelCatalogEntry_AlwaysDispose'
+          AND object_id = OBJECT_ID(N'dbo.DiagramPeelCatalogEntry'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_DiagramPeelCatalogEntry_AlwaysDispose
+        ON dbo.DiagramPeelCatalogEntry (ArmResourceType)
+        WHERE AlwaysDispose = 1 AND IsEnabled = 1;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DiagramPeelCatalogEntry', N'AlwaysDispose') IS NOT NULL
+BEGIN
+    MERGE dbo.DiagramPeelCatalogEntry AS target
+    USING (VALUES
+        (N'Microsoft.Portal/dashboards', N'Always dispose — portal dashboard'),
+        (N'Microsoft.Network/dnszones', N'Always dispose — DNS zone'),
+        (N'Microsoft.Network/privateDnsZones', N'Always dispose — private DNS zone'),
+        (N'Microsoft.Network/dnsResolvers', N'Always dispose — DNS resolver'),
+        (N'Microsoft.Compute/virtualMachines/extensions', N'Always dispose — VM extension'),
+        (N'Microsoft.Compute/virtualMachineScaleSets/extensions', N'Always dispose — VMSS extension'),
+        (N'Microsoft.HybridCompute/machines/extensions', N'Always dispose — Arc extension'),
+        (N'Microsoft.Maintenance/maintenanceConfigurations', N'Always dispose — maintenance window'),
+        (N'Microsoft.Maintenance/configurationAssignments', N'Always dispose — maintenance assignment')
+    ) AS source (ArmResourceType, Notes)
+        ON target.ArmResourceType = source.ArmResourceType
+    WHEN MATCHED THEN
+        UPDATE SET
+            PeelRank = 0,
+            AlwaysDispose = 1,
+            Notes = source.Notes,
+            UpdatedUtc = SYSUTCDATETIME()
+    WHEN NOT MATCHED THEN
+        INSERT (ArmResourceType, PeelRank, AlwaysDispose, IsEnabled, Notes)
+        VALUES (source.ArmResourceType, 0, 1, 1, source.Notes);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogVersion', N'U') IS NOT NULL
+   AND EXISTS (SELECT 1 FROM dbo.DiagramPeelCatalogVersion WHERE CatalogVersion < 3)
+BEGIN
+    DELETE FROM dbo.DiagramPeelCatalogVersion;
+    INSERT INTO dbo.DiagramPeelCatalogVersion (CatalogVersion) VALUES (3);
 END;
 GO

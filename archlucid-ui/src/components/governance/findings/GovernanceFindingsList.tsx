@@ -176,6 +176,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
                   row={row}
                   buyerPolishedShell={buyerPolishedShell}
                   variant="buyer"
+                  inhabitedFindingsDocument={inhabitedFindingsDocument}
                   showNewSinceLastVisit={isGovernanceRowNewSinceLastVisit(row)}
                   onOpenRow={() => {
                     openTriageRow(row);

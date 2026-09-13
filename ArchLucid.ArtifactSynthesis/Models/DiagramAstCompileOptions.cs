@@ -34,4 +34,13 @@ public sealed class DiagramAstCompileOptions
         get;
         init;
     }
+
+    /// <summary>
+    /// When true, Full subscription compiles the backbone-only graph (VMs, databases, networks).
+    /// </summary>
+    public bool CollapseToBackboneKeep
+    {
+        get;
+        init;
+    }
 }

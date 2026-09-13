@@ -136,7 +136,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID = "infra-diag
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL = "Skip to diagram viewer" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
-  "Render inventory diagrams from snapshot evidence. Full subscription shows every resource when readable, or one node per resource group when the leaf graph exceeds readability thresholds. Pick a Resource Group to see resources inside a group." as const;
+  "Render inventory diagrams from snapshot evidence. Full subscription keeps virtual machines, databases, and other backbone resources when the full leaf graph is too large. Attachment and platform resources may be hidden. Pick a Resource Group to see every resource in one group." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL = "Scoped to resource" as const;
 
@@ -216,6 +216,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_PROMPT_BOD
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION =
   "This diagram shows one node per resource group, not every Azure resource. Pick a Resource Group to see resources inside a group." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION =
+  "This diagram keeps virtual machines, databases, networks, and other backbone resources. Attachment and platform resources are hidden. Pick a Resource Group to see every resource in one group." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PARTITIONED_BODY =
   "This snapshot is too large for a single diagram in the selected mode. Pick a focused view — Executive is the default — or choose Pick a Resource Group." as const;

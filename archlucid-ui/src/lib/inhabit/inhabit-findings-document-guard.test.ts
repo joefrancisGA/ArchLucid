@@ -42,6 +42,16 @@ describe("inhabit findings document guard (IH-016–019 / IH-073)", () => {
     expect(chrome).toContain("inhabited-findings-quiet-engines");
   });
 
+  it("mounts measurement floor and infeasible package on inhabited chrome (IH-041 / IH-045)", () => {
+    const chrome = readFileSync(
+      join(SRC_ROOT, "components/governance/InhabitedFindingsDocumentChrome.tsx"),
+      "utf8",
+    );
+
+    expect(chrome).toContain("RunDetailInsightDensityMeasurementDenominatorStrip");
+    expect(chrome).toContain("RunDetailInfeasibleDecisionLead");
+  });
+
   it("uses card disposition layout on inhabited findings list (IH-017)", () => {
     const list = readFileSync(
       join(SRC_ROOT, "components/governance/findings/GovernanceFindingsList.tsx"),
