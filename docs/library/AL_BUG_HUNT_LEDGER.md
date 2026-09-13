@@ -1,5 +1,7 @@
 ## Zone: topology-proposal-merge
 
+2026-09-13 seed hunt #2503 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `linux_virtual_machine` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
 2026-09-13 seed hunt #2498 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_firewall` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
 
 2026-09-13 seed hunt #2496 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `virtual_network_gateway` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
@@ -98,11 +100,11 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** ."125"
-- **bugs-found:** ."93"
+- **hunts:** ."126"
+- **bugs-found:** ."94"
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2498: azurerm_firewall Compute-category ds- alias gap
+- **last-bug:** 2026-09-13 — hunt #2503: linux_virtual_machine Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4366,7 +4368,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
@@ -5189,6 +5191,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** persistence-identity
 
+2026-09-13 seed hunt #2502 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
 2026-09-13 seed hunt #2495 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2490 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
@@ -5221,7 +5225,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** ."42"
+- **hunts:** ."43"
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
