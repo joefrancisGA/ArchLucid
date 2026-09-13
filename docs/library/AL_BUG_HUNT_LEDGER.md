@@ -13629,13 +13629,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — executive next-action inputs query cache omitted operator scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2305 (seed-only): reseeded ui-operator-routes; no new hunt-ready rows.
 
 ### Hypotheses
 
