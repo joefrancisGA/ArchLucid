@@ -1812,6 +1812,22 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
 
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_virtual_hub_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "vh-1", label: "wan", sourceId: "azurerm_virtual_hub.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-wan")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
 
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_route_server_node_has_compute_category_but_synthetic_datastore_id_used()
