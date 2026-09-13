@@ -246,11 +246,11 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
     private static bool TryGetWorkloadPodTemplate(JsonElement specElement, out JsonElement podTemplate)
     {
-        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "template", out podTemplate)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(specElement, "template", out podTemplate)
             && podTemplate.ValueKind is JsonValueKind.Object)
             return true;
 
-        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "pod_template", out podTemplate)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(specElement, "podTemplate", out podTemplate)
             && podTemplate.ValueKind is JsonValueKind.Object)
             return true;
 

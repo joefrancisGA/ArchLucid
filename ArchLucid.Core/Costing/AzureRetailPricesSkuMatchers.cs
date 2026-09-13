@@ -112,6 +112,8 @@ public sealed partial class AzureRetailPricesCatalogClient
         return ContainsMinuteWordToken(trimmed)
             || ContainsSlashMinToken(trimmed)
             || ContainsSlashMinsToken(trimmed)
+            || ContainsSlashMinuteWordToken(trimmed)
+            || ContainsSlashMinutesToken(trimmed)
             || string.Equals(trimmed, "min", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mins", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "minute", StringComparison.OrdinalIgnoreCase)
@@ -170,6 +172,50 @@ public sealed partial class AzureRetailPricesCatalogClient
         return false;
     }
 
+    private static bool ContainsSlashMinuteWordToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/minute", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterMinute = index + 7;
+
+            if (afterMinute >= trimmed.Length || !char.IsLetter(trimmed[afterMinute]))
+                return true;
+
+            index = afterMinute;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashMinutesToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/minutes", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterMinutes = index + 8;
+
+            if (afterMinutes >= trimmed.Length || !char.IsLetter(trimmed[afterMinutes]))
+                return true;
+
+            index = afterMinutes;
+        }
+
+        return false;
+    }
+
     internal static bool IsHourMeter(string uom)
     {
         if (string.IsNullOrWhiteSpace(uom))
@@ -182,6 +228,8 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " hr")
             || ContainsSlashHrToken(trimmed)
             || ContainsSlashHrsToken(trimmed)
+            || ContainsSlashHourWordToken(trimmed)
+            || ContainsSlashHoursToken(trimmed)
             || ContainsSlashHourToken(trimmed)
             || ContainsBoundedToken(trimmed, " h")
             || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
@@ -241,6 +289,50 @@ public sealed partial class AzureRetailPricesCatalogClient
         return false;
     }
 
+    private static bool ContainsSlashHourWordToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/hour", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterHour = index + 5;
+
+            if (afterHour >= trimmed.Length || !char.IsLetter(trimmed[afterHour]))
+                return true;
+
+            index = afterHour;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashHoursToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/hours", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterHours = index + 6;
+
+            if (afterHours >= trimmed.Length || !char.IsLetter(trimmed[afterHours]))
+                return true;
+
+            index = afterHours;
+        }
+
+        return false;
+    }
+
     private static bool ContainsSlashHourToken(string trimmed)
     {
         int index = 0;
@@ -272,6 +364,7 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return ContainsDayWordToken(trimmed)
             || ContainsSlashDayToken(trimmed)
+            || ContainsSlashDaysToken(trimmed)
             || ContainsSlashDToken(trimmed)
             || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase)
@@ -301,6 +394,28 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterDay;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashDaysToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/days", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterDays = index + 5;
+
+            if (afterDays >= trimmed.Length || !char.IsLetter(trimmed[afterDays]))
+                return true;
+
+            index = afterDays;
         }
 
         return false;
@@ -337,6 +452,7 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return ContainsWeekWordToken(trimmed)
             || ContainsSlashWeekToken(trimmed)
+            || ContainsSlashWeeksToken(trimmed)
             || ContainsSlashWkToken(trimmed)
             || ContainsSlashWToken(trimmed)
             || string.Equals(trimmed, "week", StringComparison.OrdinalIgnoreCase)
@@ -369,6 +485,28 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterWeek;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashWeeksToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/weeks", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterWeeks = index + 6;
+
+            if (afterWeeks >= trimmed.Length || !char.IsLetter(trimmed[afterWeeks]))
+                return true;
+
+            index = afterWeeks;
         }
 
         return false;
@@ -427,6 +565,7 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return ContainsMonthWordToken(trimmed)
             || ContainsSlashMonthWordToken(trimmed)
+            || ContainsSlashMonthsToken(trimmed)
             || ContainsSlashMonthToken(trimmed)
             || ContainsSlashMToken(trimmed)
             || ContainsBoundedToken(trimmed, " mo")
@@ -459,6 +598,28 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterMonth;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashMonthsToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/months", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterMonths = index + 7;
+
+            if (afterMonths >= trimmed.Length || !char.IsLetter(trimmed[afterMonths]))
+                return true;
+
+            index = afterMonths;
         }
 
         return false;
