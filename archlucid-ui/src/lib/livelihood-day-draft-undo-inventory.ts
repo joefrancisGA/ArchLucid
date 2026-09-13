@@ -23,6 +23,11 @@ export const LIVELIHOOD_DAY_DRAFT_UNDO_SURFACES: readonly LivelihoodDayDraftUndo
     notes: "Same stacks as architecture-draft-document-undo. Not a second kernel.",
   },
   {
+    surface: "Architecture draft editing help (in-tab undo honesty)",
+    scope: "in-tab",
+    notes: "IH-036 — Ctrl+Z is this tab; refresh clears stack; autosave is server document.",
+  },
+  {
     surface: "Finding disposition Undo toast",
     scope: "governed-toast",
     notes: "MUTATION_UNDO_WINDOW_SECONDS = 300. Visible, not unseal authority.",

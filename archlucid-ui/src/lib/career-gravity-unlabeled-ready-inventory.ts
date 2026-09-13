@@ -140,6 +140,18 @@ export const CAREER_GRAVITY_UNLABELED_READY_ROWS: readonly CareerGravityUnlabele
     ownerPrompt: "CG-033",
     inLiteralScan: false,
   },
+  {
+    relativePath: "components/governance/InhabitedFindingsDocumentChrome.tsx",
+    leakClass: "covered",
+    ownerPrompt: "IH-041",
+    inLiteralScan: false,
+  },
+  {
+    relativePath: "components/architecture/ArchitectureIdentityDeskReviewFinalizeAction.tsx",
+    leakClass: "covered",
+    ownerPrompt: "IH-044",
+    inLiteralScan: false,
+  },
 ] as const;
 
 const SKIP_DIRECTORY_NAMES = new Set(["node_modules", ".next"]);

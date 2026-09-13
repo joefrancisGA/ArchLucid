@@ -37,8 +37,43 @@
 | IH-033 record correction on card rows | **Shipped** |
 | IH-040 quiet engines on document | **Shipped** |
 | IH-069 pipeline stepper ratchet | **Shipped** |
+| IH-034 disposition history on inspect/panel | **Shipped** |
+| IH-035 undo toast → record correction copy | **Shipped** |
+| IH-036 draft in-tab undo honesty | **Shipped** |
+| IH-037 finding CAS 409 Keep mine on desk | **Shipped** |
+| IH-038 amend does not unseal ratchet | **Shipped** |
+| IH-039 toast-only amend leak inventory | **Shipped** |
+| IH-041 coverage floor before Ready chrome | **Shipped** |
+| IH-042 support band on findings row | **Shipped** |
+| IH-043 Simulator never green Supported | **Shipped** |
+| IH-044 Ready suppressed inventory (inhabit) | **Shipped** |
+| IH-045 infeasible package on desk | **Shipped** |
+| IH-046 density generation ratchet | **Shipped** |
+| IH-047 sketch from findings document | **Shipped** |
+| IH-048 assumption delta on inhabited findings | **Shipped** |
+| IH-049 compare committed jobs from findings | **Shipped** |
+| IH-050 last Practice sketch sibling | **Shipped** |
+| IH-051 palette sketch when spawn-locked on findings | **Shipped** |
+| IH-052 help sketch is Practice | **Shipped** |
+| IH-053 room card MUST on findings | **Shipped** |
+| IH-054 room card architecture + job | **Shipped** |
+| IH-055 presenter quiet on Working | **Shipped** (existing presenter/Guided split) |
+| IH-056 share includes architecture URL | **Shipped** (`working-share-href`) |
+| IH-057 work-lease honesty on findings | **Shipped** |
+| IH-058 concurrent 409 without presence | **Shipped** |
+| IH-059 default focus first finding | **Shipped** |
+| IH-060 palette work actions before nav | **Shipped** |
+| IH-061 shortcut overlay inhabit-first | **Shipped** (existing Working overlay order) |
+| IH-062 teaching overlay fail-closed ratchet | **Shipped** |
+| IH-063 keyboard docs match inhabit landing | **Shipped** |
+| IH-064 finding selection URL (`focusedFinding`) | **Shipped** |
+| IH-065 recents are architectures | **Shipped** (recent-views collapse) |
+| IH-067 second window restore architecture | **Shipped** (resume href) |
+| IH-068 idle restore architecture | **Shipped** (portfolio resume) |
+| IH-070 Guided keeps eval chrome | **Shipped** (ratchet) |
+| IH-071 live recovery no sample | **Shipped** |
 
-IH-034–078 remain one-prompt-per-session leftovers (amend history, completeness bands, sketch/room/keyboard/continuity) plus ratchets/skips except the contract guards above. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare or live presence.
+IH-066 pins/recents server sync remains a **named leftover** (`INHABIT_OUT_OF_WAVE_RESIDUALS.md`). IH-080 close audit is this file. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare or live presence.
 
 ## Skips (intentional)
 
@@ -53,3 +88,6 @@ IH-034–078 remain one-prompt-per-session leftovers (amend history, completenes
 
 - `archlucid-ui/src/lib/inhabit-adr-guard.test.ts` (IH-001 / IH-072)
 - `archlucid-ui/src/lib/inhabit-prompt-inventory.test.ts` (IH-079)
+- `archlucid-ui/src/lib/inhabit/inhabit-exploration-guard.test.ts` (IH-047–052)
+- `archlucid-ui/src/lib/inhabit/inhabit-room-keyboard-guard.test.ts` (IH-053–062)
+- `archlucid-ui/src/lib/inhabit/inhabit-continuity-dual-spine-guard.test.ts` (IH-064–071)

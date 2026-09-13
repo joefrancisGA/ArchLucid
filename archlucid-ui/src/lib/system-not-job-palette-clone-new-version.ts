@@ -1,5 +1,6 @@
 /** SN-033 — command palette clone when spawn-locked; SN-009 cost cap in confirm dialog. */
 import { isCommandPaletteCloneFromSnapshotAvailable } from "@/lib/command-palette-work-action-dom";
+import { isInhabitPaletteSketchArchitecturePath } from "@/lib/inhabit/inhabit-palette-sketch-path";
 import {
   SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DESK_CTA_LABEL,
   SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_SPAWN_LOCK_DOM_TEST_ID,
@@ -18,10 +19,8 @@ export const SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_EVENT =
 export const SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_SEARCH_VALUE =
   "action clone snapshot spawn locked new version architecture sketch palette" as const;
 
-const architectureDraftPathPattern = /^\/architecture\/architectures(\/|$)/;
-
 export function isSystemNotJobPaletteCloneArchitectureDraftPath(pathname: string): boolean {
-  return architectureDraftPathPattern.test(pathname);
+  return isInhabitPaletteSketchArchitecturePath(pathname);
 }
 
 /**

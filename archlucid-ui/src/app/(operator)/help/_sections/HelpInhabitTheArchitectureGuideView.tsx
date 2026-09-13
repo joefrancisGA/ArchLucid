@@ -18,6 +18,8 @@ import {
   INHABIT_THE_ARCHITECTURE_HELP_GUIDE_HEADINGS,
   INHABIT_THE_ARCHITECTURE_HELP_OVERVIEW,
   INHABIT_THE_ARCHITECTURE_HELP_RECORD_SIMULATOR_BODY,
+  INHABIT_THE_ARCHITECTURE_HELP_SKETCH_PRACTICE_BODY,
+  INHABIT_THE_ARCHITECTURE_HELP_SKETCH_PRACTICE_TITLE,
   INHABIT_THE_ARCHITECTURE_HELP_TWO_CONTROLS_BODY,
   INHABIT_THE_ARCHITECTURE_HELP_PAGE_SUBTITLE,
   INHABIT_THE_ARCHITECTURE_HELP_PAGE_TITLE,
@@ -115,6 +117,13 @@ export function HelpInhabitTheArchitectureGuideView(
               data-testid="help-inhabit-the-architecture-record-simulator"
             >
               {INHABIT_THE_ARCHITECTURE_HELP_RECORD_SIMULATOR_BODY}
+            </p>
+          </section>
+
+          <section aria-labelledby="sketch-is-practice" className="space-y-3">
+            <HelpSectionHeading id="sketch-is-practice">{INHABIT_THE_ARCHITECTURE_HELP_SKETCH_PRACTICE_TITLE}</HelpSectionHeading>
+            <p className={readingBodyClass} data-testid="help-inhabit-the-architecture-sketch-practice">
+              {INHABIT_THE_ARCHITECTURE_HELP_SKETCH_PRACTICE_BODY}
             </p>
           </section>
 

@@ -15,6 +15,8 @@ import { useEffectiveNavCommittedArchitectureReview } from "@/hooks/use-effectiv
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
 import { useWorkingCreateStartHref } from "@/hooks/use-working-start-href";
 import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+import { pathIsWorkingInhabitedFindingsRoute } from "@/lib/inhabit/inhabit-help-route";
+import { sortInhabitFindingsPaletteHandlerActions } from "@/lib/inhabit/inhabit-palette-findings-rank";
 
 export function CommandPaletteActions({
   paletteOpen,
@@ -43,13 +45,17 @@ export function CommandPaletteActions({
     visibleNavHrefs,
     lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
   });
-  const handlerActions: readonly CommandPaletteHandlerAction[] = useMemo(
-    () =>
-      resolveVisibleCommandPaletteHandlerActions(pathname, {
-        reversibleUndoAvailable: isCommandPaletteReversibleUndoAvailable(),
-      }),
-    [pathname, paletteOpen],
-  );
+  const handlerActions: readonly CommandPaletteHandlerAction[] = useMemo(() => {
+    const resolved = resolveVisibleCommandPaletteHandlerActions(pathname, {
+      reversibleUndoAvailable: isCommandPaletteReversibleUndoAvailable(),
+    });
+
+    if (workingMode && pathIsWorkingInhabitedFindingsRoute(pathname)) {
+      return sortInhabitFindingsPaletteHandlerActions(resolved);
+    }
+
+    return resolved;
+  }, [pathname, paletteOpen, workingMode]);
 
   if (hrefActions.length === 0 && handlerActions.length === 0) {
     return null;
