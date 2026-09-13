@@ -1477,6 +1477,7 @@ export function DiagramsWorkbenchClient() {
           ) : null}
           <ArchitectureDiagramViewer
             mermaidSource={mermaidSource}
+            layoutSvg={renderResult?.layoutSvg ?? null}
             textAlternative={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId} in ${selectedModeLabel} mode.`}
             viewportAriaLabel={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId}`}
             fullscreenTitle={`Inventory diagram · ${selectedModeLabel}`}

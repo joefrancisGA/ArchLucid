@@ -38,6 +38,8 @@ export type InfraEvidenceMermaidRenderResponse = {
   fallbackKey: string | null;
   status: string;
   mermaid: string | null;
+  layoutSvg: string | null;
+  layoutEngine: string | null;
   metrics: InfraEvidenceMermaidComplexityMetrics | null;
   fallbackArtifacts: InfraEvidenceMermaidFallbackArtifactSummary[];
 };

@@ -11,6 +11,13 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// </summary>
 internal static class DiagramSparseComponentPacker
 {
+    public static bool IsPackingSubgraph(DiagramSubgraph subgraph)
+    {
+        ArgumentNullException.ThrowIfNull(subgraph);
+
+        return subgraph.SubgraphId.StartsWith("alpack_", StringComparison.Ordinal);
+    }
+
     public static void Pack(DiagramAst ast)
     {
         ArgumentNullException.ThrowIfNull(ast);

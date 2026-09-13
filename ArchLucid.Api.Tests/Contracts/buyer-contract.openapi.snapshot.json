@@ -19104,6 +19104,18 @@
               "string"
             ]
           },
+          "layoutEngine": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "layoutSvg": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "mermaid": {
             "type": [
               "null",
