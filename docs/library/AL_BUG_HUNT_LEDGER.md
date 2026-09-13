@@ -1,5 +1,7 @@
 ## Zone: topology-proposal-merge
 
+2026-09-13 seed hunt #2603 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `local_network_gateway` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
 2026-09-13 seed hunt #2598 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `ip_group` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
 
 2026-09-13 seed hunt #2596 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `route_table` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
@@ -5264,6 +5266,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: persistence-identity
 
 - **id:** persistence-identity
+
+2026-09-13 seed hunt #2602 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2595 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
