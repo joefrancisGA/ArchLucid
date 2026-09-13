@@ -186,7 +186,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("logic_app", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("service_plan", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("spring_cloud", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("servicebus_namespace", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("servicebus_namespace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("container_registry", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
