@@ -48,6 +48,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "sponsor-dashboard": "product-help",
   "architecture-intelligence": "product-help",
   "architecture-desk": "product-help",
+  "inhabit-the-architecture": "product-help",
   "system-gravity": "product-help",
   "false-hard-infeasibility": "product-help",
   "extraction-fidelity": "product-help",

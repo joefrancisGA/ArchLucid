@@ -45,6 +45,15 @@ Local `next dev` sets this in **`archlucid-ui/.env.development`** so engineers k
 
 Implementation: `resolveArchitectWorkspaceChrome()` / `useArchitectWorkspaceChrome()` in `archlucid-ui/src/lib/architect-workspace-chrome.ts`.
 
+## ADR 0098 instrument vs ADR 0100 inhabit (IH-002)
+
+| ADR | Owns | Does not own |
+|-----|------|----------------|
+| **0098** (system gravity) | Instrument chrome after spawn — architecture H1, last-open, nested review-detail as **job inspector** | The afternoon’s document type |
+| **0100** (inhabit) | **Inhabited work** — architecture-nested findings as the pre-seal document (disposition, trail, quiet-engine honesty, finalize verb returning to desk) | Merging `DraftRequests` and `Runs`; making review-detail Monday morning |
+
+Help: [`/help/inhabit-the-architecture`](/help/inhabit-the-architecture) (IH-014). ADR bodies are not rewritten here — pointer only.
+
 ## Guided vs Working workspace mode
 
 Personal preference stored in `dbo.UserSettings` (`WorkspaceMode`). **Missing/null server values default to Working** (repeat-professional default).

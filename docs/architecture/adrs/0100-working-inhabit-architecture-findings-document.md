@@ -18,6 +18,8 @@ The remaining livelihood failure: after Start review, the architect still **oper
 
 ADR **0098** owns instrument chrome (H1, last-open, inspector vs Monday morning). This ADR owns **inhabited work**: the pre-seal afternoon is findings work on the open architecture — disposition, trail, quiet-engine honesty, amend after the undo toast — without merging kernels or unsealing.
 
+> **0098 instrument vs 0100 inhabit (IH-002):** ADR **0098** answers *where chrome and bookmarks land after spawn* — architecture H1, last-open, nested review as job inspector. ADR **0100** answers *what the architect inhabits for the afternoon* — architecture-nested findings as the working document (rows are the work; the child job is a subtitle). Do not rewrite 0098; pointer only.
+
 **Rejected alternatives:**
 
 - **Merge `DraftRequests` and `Runs`** — violates ADR 0068 and sealed-record immutability (ADR 0039).

@@ -89,34 +89,6 @@ export default function GovernanceFindingsQueueClient({
     toggleGroupByResource,
     applyGroupByResource,
   } = useGovernanceFindingsFilter({ mode, isWorkingMode });
-  const queueMode = useGovernanceFindingsQueueMode({
-    mode,
-    workingMode: isWorkingMode,
-    pathname,
-    scopedArchitectureId,
-  });
-  const {
-    isAssignedToMe,
-    buyerPolishedShell,
-    assignedToMeQuery,
-    assignedToMeCountQuery,
-    rows,
-    loading,
-    loadFailed,
-    refresh,
-    assignedToMeFetchBasis,
-    assignedToMeCheckedAt,
-    loadFailure,
-    pageTitle,
-    pageSubtitle,
-    navHref,
-    currentJobId,
-    loadFailedPreset,
-    assignedToMeCount,
-    assignedToMeLoadedFindingCount,
-    assignedToMeCountMismatch,
-  } = queueMode;
-  const bulkActions = useGovernanceFindingsQueueBulkActions({ refresh, mode });
   const draftRegistryEntries = useArchitectureDraftRegistryEntries();
   const architectureIdentityQuery = useArchitectureIdentityQuery(
     scopedArchitectureId ?? "",
@@ -142,6 +114,41 @@ export default function GovernanceFindingsQueueClient({
   const scopedRunContextQuery = useRunDetailWorkspaceContextBundleQuery(scopedRunId ?? "", {
     enabled: scopedRunId !== null && scopedRunId.length > 0,
   });
+  const scopedRunContextTitle =
+    scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.displayName ??
+    scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.runId ??
+    null;
+  const queueMode = useGovernanceFindingsQueueMode({
+    mode,
+    workingMode: isWorkingMode,
+    pathname,
+    scopedArchitectureId,
+    architectureDisplayName: architectureIdentityQuery.data?.displayName ?? null,
+    scopedRunId,
+    scopedRunTitle: scopedRunContextTitle,
+  });
+  const {
+    isAssignedToMe,
+    buyerPolishedShell,
+    assignedToMeQuery,
+    assignedToMeCountQuery,
+    rows,
+    loading,
+    loadFailed,
+    refresh,
+    assignedToMeFetchBasis,
+    assignedToMeCheckedAt,
+    loadFailure,
+    pageTitle,
+    pageSubtitle,
+    navHref,
+    currentJobId,
+    loadFailedPreset,
+    assignedToMeCount,
+    assignedToMeLoadedFindingCount,
+    assignedToMeCountMismatch,
+  } = queueMode;
+  const bulkActions = useGovernanceFindingsQueueBulkActions({ refresh, mode });
   const scopedFindingLifecycleCompareHref = resolveScopedFindingLifecycleCompareHref(
     scopedRunId,
     scopedRunContextQuery.data?.priorCommittedRunId,
@@ -271,6 +278,10 @@ export default function GovernanceFindingsQueueClient({
         currentJobId={currentJobId}
         workingMode={isWorkingMode}
         pathname={pathname}
+        scopedArchitectureId={scopedArchitectureId}
+        architectureDisplayName={architectureIdentityQuery.data?.displayName ?? null}
+        scopedRunId={scopedRunId}
+        scopedRunTitle={scopedRunContextTitle}
       />
       <GovernanceFindingsQueueTableShell
         isAssignedToMe={isAssignedToMe}
@@ -325,11 +336,8 @@ export default function GovernanceFindingsQueueClient({
         sponsorSynopsisPackageTitle={synopsis.sponsorSynopsisPackageTitle}
         sponsorSynopsisCounts={synopsis.sponsorSynopsisCounts}
         sponsorHandoffHref={synopsis.sponsorHandoffHref}
-        scopedRunContextTitle={
-          scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.displayName ??
-          scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.runId ??
-          null
-        }
+        scopedRunContextTitle={scopedRunContextTitle}
+        architectureDisplayName={architectureIdentityQuery.data?.displayName ?? null}
         continueLastFinding={synopsis.continueLastFinding}
         assignedToMeOldestFindingTarget={synopsis.assignedToMeOldestFindingTarget}
         firstFindingTriageTarget={synopsis.firstFindingTriageTarget}

@@ -21,12 +21,36 @@ import { cn } from "@/lib/utils";
 
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
 import { GovernanceFindingsQueueQuietEnginesHint } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueQuietEnginesHint";
+import { InhabitedFindingsDocumentChrome } from "@/components/governance/InhabitedFindingsDocumentChrome";
+import { usePathname } from "next/navigation";
+import { resolveInhabitedFindingsDocumentPresentation } from "@/lib/inhabit/inhabit-findings-document-presentation";
 
 export function GovernanceFindingsQueueScopeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element {
+  const pathname = usePathname();
+  const inhabitedPresentation = resolveInhabitedFindingsDocumentPresentation({
+    workingMode: props.isWorkingMode,
+    pathname,
+    scopedArchitectureId: props.scopedArchitectureId,
+    architectureDisplayName: props.architectureDisplayName,
+    scopedRunId: props.scopedRunId,
+    scopedRunTitle: props.scopedRunContextTitle,
+  });
+  const suppressPipelineChrome = inhabitedPresentation?.suppressPipelineChrome === true;
+
   return (
     <>
+      {inhabitedPresentation !== null ? (
+        <InhabitedFindingsDocumentChrome
+          workingMode={props.isWorkingMode}
+          pathname={pathname}
+          scopedArchitectureId={props.scopedArchitectureId}
+          architectureDisplayName={props.architectureDisplayName}
+          scopedRunId={props.scopedRunId}
+          scopedRunTitle={props.scopedRunContextTitle}
+        />
+      ) : null}
       {props.secondaryViewPresentation !== null ? (
         <CanonicalObjectSecondaryViewStrip
           presentation={props.secondaryViewPresentation}
@@ -61,7 +85,9 @@ export function GovernanceFindingsQueueScopeSection(
             Compare with prior review (finding lifecycle)
           </Link>
         </p>
-      ) : !props.isAssignedToMe && (props.scopedRunId === null || props.scopedRunId.length === 0) ? (
+      ) : !suppressPipelineChrome &&
+        !props.isAssignedToMe &&
+        (props.scopedRunId === null || props.scopedRunId.length === 0) ? (
         <FindingsQueuePickReviewBeforeTriageStrip
           selectedReviewId=""
           onSelectReview={props.onPickReviewForTriage}
@@ -72,7 +98,7 @@ export function GovernanceFindingsQueueScopeSection(
         <GovernanceFindingsQueueQuietEnginesHint scopedRunId={props.scopedRunId} />
       ) : null}
 
-      {props.scopedRunFilterActive ? (
+      {props.scopedRunFilterActive && !suppressPipelineChrome ? (
         <IntegrationConnectChecklist
           title="Triage checklist"
           steps={props.findingsQueueTriageSteps}

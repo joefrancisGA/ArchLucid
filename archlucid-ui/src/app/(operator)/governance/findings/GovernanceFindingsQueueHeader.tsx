@@ -50,6 +50,10 @@ export type GovernanceFindingsQueueHeaderProps = {
   readonly currentJobId: GovernanceJobId;
   readonly workingMode?: boolean;
   readonly pathname?: string | null;
+  readonly scopedArchitectureId?: string | null;
+  readonly architectureDisplayName?: string | null;
+  readonly scopedRunId?: string | null;
+  readonly scopedRunTitle?: string | null;
 };
 
 export function GovernanceFindingsQueueHeader({
@@ -69,6 +73,10 @@ export function GovernanceFindingsQueueHeader({
   currentJobId,
   workingMode = false,
   pathname = null,
+  scopedArchitectureId = null,
+  architectureDisplayName = null,
+  scopedRunId = null,
+  scopedRunTitle = null,
 }: GovernanceFindingsQueueHeaderProps) {
   const { productLine } = useProductLine();
   const skipLinkTargetId = isAssignedToMe
@@ -81,7 +89,14 @@ export function GovernanceFindingsQueueHeader({
     isAssignedToMe,
     productLine,
     buyerPolishedShell,
-    { workingMode, pathname },
+    {
+      workingMode,
+      pathname,
+      scopedArchitectureId,
+      architectureDisplayName,
+      scopedRunId,
+      scopedRunTitle,
+    },
   );
   const claimDisciplineTestId = isAssignedToMe
     ? "governance-assigned-to-me-claim-discipline"

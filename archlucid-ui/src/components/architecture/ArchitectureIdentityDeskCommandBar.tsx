@@ -13,6 +13,7 @@ import {
   ARCHITECTURE_IDENTITY_DESK_COMPARE_LABEL,
   ARCHITECTURE_IDENTITY_DESK_START_REVIEW_LABEL,
 } from "@/lib/architecture/architecture-identity-desk-copy";
+import { WorkingPracticeStartHonestyNotice } from "@/components/governance/WorkingPracticeStartHonestyNotice";
 import { WorkingRecordSimulatorStartHonestyNotice } from "@/components/governance/WorkingRecordSimulatorStartHonestyNotice";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveWorkingDeskToolHref } from "@/lib/resolve-working-desk-tool-href";
@@ -68,6 +69,7 @@ export function ArchitectureIdentityDeskCommandBar(
   return (
     <div className="space-y-2" data-testid={ARCHITECTURE_IDENTITY_DESK_COMMAND_BAR_TEST_ID}>
       <WorkingRecordSimulatorStartHonestyNotice />
+      <WorkingPracticeStartHonestyNotice />
       <div className={cn("flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}>
       <Button asChild size="sm" variant="outline">
         <Link href={toolHref("ask")} data-testid="architecture-identity-desk-command-ask">

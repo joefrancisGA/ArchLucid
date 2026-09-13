@@ -99,6 +99,7 @@ function buildProps(
     architectureScopeHonesty: { hiddenCount: 0, line: null },
     isWorkingMode: false,
     scopedArchitectureId: null,
+    architectureDisplayName: null,
     lastOpenArchitectureId: null,
     onLoadFindingsSavedView: vi.fn(),
     loading: false,

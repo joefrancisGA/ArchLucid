@@ -16,6 +16,9 @@ import {
   REVIEW_WORKSPACE_HELP_TOPIC,
   pathIsReviewWorkspaceDetail,
 } from "@/lib/review-workspace-evidence-copy";
+import { INHABIT_THE_ARCHITECTURE_HELP_TOPIC_LABEL } from "@/lib/inhabit/inhabit-help-evidence-copy";
+import { INHABIT_THE_ARCHITECTURE_HELP_SLUG } from "@/lib/inhabit/inhabit-help-guide-content";
+import { pathIsWorkingInhabitedFindingsRoute } from "@/lib/inhabit/inhabit-help-route";
 import { pathIsSettingsHubRoot } from "@/lib/settings-admin-route-paths";
 import {
   ARTIFACT_PREVIEW_HELP_TOPIC,
@@ -105,6 +108,10 @@ export function pageHelpTopicForPathname(pathname: string, productLineId?: Produ
 
   if (pathIsFindingEvidenceTrace(path)) {
     return { slug: "findings", label: FINDING_EVIDENCE_TRACE_HELP_TOPIC_LABEL };
+  }
+
+  if (pathIsWorkingInhabitedFindingsRoute(path)) {
+    return { slug: INHABIT_THE_ARCHITECTURE_HELP_SLUG, label: INHABIT_THE_ARCHITECTURE_HELP_TOPIC_LABEL };
   }
 
   if (path === "/") {

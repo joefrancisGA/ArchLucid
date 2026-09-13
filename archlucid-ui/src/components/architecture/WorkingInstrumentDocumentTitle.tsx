@@ -11,6 +11,7 @@ import {
 type WorkingInstrumentDocumentTitleProps = {
   readonly architectureDisplayName: string;
   readonly parentArchitectureId?: string | null;
+  readonly documentTitleSuffix?: string;
 };
 
 /** SG-036 / SY-61 — Working review chrome uses the architecture name in the browser tab. */
@@ -26,10 +27,8 @@ export function WorkingInstrumentDocumentTitle(
       return;
     }
 
-    const nextTitle = formatWorkingArchitectureDocumentTitle(
-      architectureDisplayName,
-      WORKING_NESTED_REVIEW_DOCUMENT_TITLE_SUFFIX,
-    );
+    const suffix = props.documentTitleSuffix ?? WORKING_NESTED_REVIEW_DOCUMENT_TITLE_SUFFIX;
+    const nextTitle = formatWorkingArchitectureDocumentTitle(architectureDisplayName, suffix);
     const previousTitle = document.title;
 
     document.title = nextTitle;
@@ -37,7 +36,7 @@ export function WorkingInstrumentDocumentTitle(
     return () => {
       document.title = previousTitle;
     };
-  }, [architectureDisplayName, isWorkingMode, parentArchitectureId]);
+  }, [architectureDisplayName, isWorkingMode, parentArchitectureId, props.documentTitleSuffix]);
 
   return null;
 }
