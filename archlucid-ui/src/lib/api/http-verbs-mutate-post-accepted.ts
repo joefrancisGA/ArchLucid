@@ -20,7 +20,7 @@ export async function apiPostAcceptedWithLocation(
   body: unknown,
   options?: {
     readonly extraHeaders?: Record<string, string>;
-    readonly suppressErrorToast?: boolean;
+    readonly showErrorToast?: boolean;
   },
 ): Promise<{ readonly location: string | null; readonly status: number }> {
   await ensureOidcBearerReady();
@@ -41,19 +41,19 @@ export async function apiPostAcceptedWithLocation(
   captureTraceContextFromResponse(response);
   const text = await response.text();
 
-  const errorToastOptions: Pick<ApiGetOptions, "suppressErrorToast"> | undefined =
-    options?.suppressErrorToast === true ? { suppressErrorToast: true } : undefined;
+  const errorPresentationOptions: Pick<ApiGetOptions, "showErrorToast"> | undefined =
+    options?.showErrorToast === true ? { showErrorToast: true } : undefined;
 
   if (response.status !== 202) {
     if (!response.ok) {
-      throwApiRequestError(response, text, correlationId, errorToastOptions);
+      throwApiRequestError(response, text, correlationId, errorPresentationOptions);
     }
 
     throwApiRequestError(
       response,
       text.length > 0 ? text : "Expected 202 Accepted with a Location header.",
       correlationId,
-      errorToastOptions,
+      errorPresentationOptions,
     );
   }
 

@@ -1,3 +1,6 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+
 export type ErrorRecoveryContractPresentation = {
   readonly whatFailed: string;
   readonly whatIsIntact: string;
@@ -23,17 +26,25 @@ export const ERROR_RECOVERY_CONTRACT_MARKERS = {
   nextStep: "operator-error-recovery-next-step",
 } as const;
 
-const API_PROBLEM_RECOVERY: ErrorRecoveryContractPresentation = {
-  whatFailed: "ArchLucid could not complete this request.",
-  whatIsIntact: "Your workspace data and in-progress drafts were not changed by this failed request.",
-  nextStep: "Retry the action, then open troubleshooting if the error repeats.",
-};
+function apiProblemRecovery(productLineId: ProductLineId): ErrorRecoveryContractPresentation {
+  const productName = productLineDisplayName(productLineId);
 
-const CONNECTIVITY_RECOVERY: ErrorRecoveryContractPresentation = {
-  whatFailed: "ArchLucid could not reach the API from this browser session.",
-  whatIsIntact: "Saved workspace configuration and committed reviews remain on the server when connectivity returns.",
-  nextStep: "Confirm network access, then retry or check system health.",
-};
+  return {
+    whatFailed: `${productName} could not complete this request.`,
+    whatIsIntact: "Your workspace data and in-progress drafts were not changed by this failed request.",
+    nextStep: "Retry the action, then open troubleshooting if the error repeats.",
+  };
+}
+
+function connectivityRecovery(productLineId: ProductLineId): ErrorRecoveryContractPresentation {
+  const productName = productLineDisplayName(productLineId);
+
+  return {
+    whatFailed: `${productName} could not reach the API from this browser session.`,
+    whatIsIntact: "Saved workspace configuration and committed reviews remain on the server when connectivity returns.",
+    nextStep: "Confirm network access, then retry or check system health.",
+  };
+}
 
 const REVIEW_PACKAGE_LOAD_RECOVERY: ErrorRecoveryContractPresentation = {
   whatFailed: "This architecture review could not be loaded in the current workspace.",
@@ -105,23 +116,27 @@ export function errorRecoveryContractForScenario(
   context?: {
     readonly failureSummary?: string | null;
     readonly workingMode?: boolean;
+    readonly productLineId?: ProductLineId;
   },
 ): ErrorRecoveryContractPresentation {
+  const productLineId = context?.productLineId ?? "architecture";
+
   switch (scenario) {
     case "api-problem": {
       const summary = context?.failureSummary?.trim() ?? "";
+      const base = apiProblemRecovery(productLineId);
 
       if (summary.length > 0) {
         return {
-          ...API_PROBLEM_RECOVERY,
+          ...base,
           whatFailed: summary,
         };
       }
 
-      return API_PROBLEM_RECOVERY;
+      return base;
     }
     case "connectivity":
-      return CONNECTIVITY_RECOVERY;
+      return connectivityRecovery(productLineId);
     case "review-package-load":
       return REVIEW_PACKAGE_LOAD_RECOVERY;
     case "review-package-workspace-mismatch":
