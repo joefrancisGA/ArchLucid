@@ -129,6 +129,8 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-09-13 seed hunt #2284 (seed→hit): reseeded topology-proposal-merge; proved `azurerm_blueprint_assignment` Data-category svc- alias gap; regression `FilterValidatedProposals_keeps_relationship_when_blueprint_assignment_node_has_data_category_but_synthetic_service_id_used`.
+
 2026-09-13 seed hunt #2283 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_maintenance_configuration` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_maintenance_configuration_node_has_data_category_but_synthetic_service_id_used`.
 
 2026-09-13 seed hunt #2282 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_monitor_scheduled_query_rules_alert` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_monitor_scheduled_query_rules_alert_node_has_data_category_but_synthetic_service_id_used`.
