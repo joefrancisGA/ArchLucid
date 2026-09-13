@@ -2,9 +2,9 @@
 >
 > **Origin diagnosis:** ArchLucid is a **working-architect tool** — all-day use; livelihoods may depend on the sealed record (`docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` R4 / R13).
 >
-> **Prompt index:** [`.cursor/prompts/inhabit-00-index.md`](../../.cursor/prompts/inhabit-00-index.md) · **Remain leftovers (not wave 35):** [`.cursor/prompts/inhabit-remain-00-index.md`](../../.cursor/prompts/inhabit-remain-00-index.md) · **Wave 34 close audit:** [`INHABIT_ACCEPTANCE_2026-09-13.md`](INHABIT_ACCEPTANCE_2026-09-13.md) · **Inventories:** [`INHABIT_LEAK_INVENTORIES.md`](INHABIT_LEAK_INVENTORIES.md)
+> **Prompt index:** [`.cursor/prompts/inhabit-00-index.md`](../../.cursor/prompts/inhabit-00-index.md) · **Remain index:** [`.cursor/prompts/inhabit-remain-00-index.md`](../../.cursor/prompts/inhabit-remain-00-index.md) · **Wave 34 close:** [`INHABIT_ACCEPTANCE_2026-09-13.md`](INHABIT_ACCEPTANCE_2026-09-13.md) · **Remain close:** [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md) · **Inventories:** [`INHABIT_LEAK_INVENTORIES.md`](INHABIT_LEAK_INVENTORIES.md)
 
-**Status (after start/completeness leftover follow-up):** the three leaks this file closed (wizard/re-run Start honesty, peer-table Simulator support band, pre-finalize quiet engines) are **shipped**. Remaining livelihood leaks are **IR-001–IR-014** in the remain pack — not a wave-35 pack.
+**Status:** start/completeness honesty (this diagnosis’s first follow-up) and **IR-001–IR-014** remain product rows are **shipped**. **IR-015** peer-queue skip is documented. See [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md). **Wave 35 is not started.**
 
 # Working-architect diagnosis — 2026-09-13 leftovers
 
@@ -15,7 +15,8 @@
 | Metric | Count |
 |--------|------:|
 | **Closed in this follow-up** | **3** (IH-025 remaining Start surfaces, IH-043 peer table, IH-041 pre-finalize) |
-| **Named leftovers (not this PR)** | Keyboard default-focus on finding cards, first-review / core-pilot pipeline teaching, continue-last still localStorage, peer `/governance/findings` back is not architecture-scoped, room still leaves findings for presenter/draft/L0 |
+| **Remain pack (IR-001–IR-014)** | **Shipped** — see [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md) |
+| **Intentional skip (IR-015)** | Peer `/governance/findings` stays run-scoped — not architecture Home |
 | **Intentional skips** | G-REAL-06, draft-diff Compare, presence/chat, unseal, merge kernels, lengthen 300s undo, desktop tab **More** |
 
 **Headline:** The product already assumes a repeat professional. Remaining livelihood failures were **false confidence at execute** (Record CTA without Simulator incompleteness on wizard / re-run), **Career Supported on Simulator** on the peer findings table, and **quiet engines unnamed** on the pre-finalize checklist. Those three are now on the same honesty modules the desk already used.
@@ -63,15 +64,9 @@ Nested findings chrome already names quiet engines. The pre-finalize checklist c
 
 **Shipped:** `GovernanceFindingsQueueQuietEnginesHint` on `PreFinalizeChecklistPanel`. Run-progress Ready chrome remains the named open row (`namesQuietEnginesOnDesk: false`).
 
-## Named leftovers, not this PR
+## Remain pack closed (IR-001–IR-014)
 
-| Leak | Why not here |
-|-------|----------------|
-| Room still leaves findings for presenter / draft / L0 | `INHABIT_ROOM_PRESENTER_ROWS` — no presence/chat |
-| `useFindingCardShortcuts` default-focus incomplete | IH-010 remainder |
-| First-review guide + `core-pilot-steps` still teach pipeline | IH-012 / IH-069 ratchet already exists; Guided may keep eval |
-| Continue-last still localStorage | IH-011 |
-| Peer `/governance/findings` back is not architecture-scoped | Intentional peer queue |
+See [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md) for the full shipped list. Peer `/governance/findings` intentionally stays peer (**IR-015**).
 
 ## Intentional skips (do not “fix”)
 
@@ -108,6 +103,6 @@ Nested findings chrome already names quiet engines. The pre-finalize checklist c
 
 ## Recommendation
 
-1. Merge this follow-up. Do **not** paste a wave-35 inhabit pack while these leftovers were the remaining livelihood leaks.
-2. Next inhabit work, if any, is the named leftovers above — not a new 80-prompt wave.
-3. Keep inventories and TS rows in sync; markdown was stale vs inspect/triage history and quiet-engine desk flags.
+1. Treat inhabit remain livelihood leaks as **closed** unless a new diagnosis names a regression.
+2. Do **not** paste a wave-35 inhabit pack.
+3. Keep `inhabit-leak-inventories.ts` and markdown in sync when future **IH** or **IR** work ships.

@@ -33,11 +33,12 @@ export const INHABIT_FINDINGS_EDITOR_SURFACE_ROWS: readonly InhabitFindingsEdito
     ownerPrompt: "IR-004",
   },
   {
+    // IR-015 skip: run-scoped peer queue stays peer — do not architecture-scope Working inhabit.
     surface: "Governance findings queue (peer)",
     hrefPattern: "/governance/findings?runId={runId}",
     architectureIdKnown: false,
     editorKind: "governance-queue",
-    ownerPrompt: "IH-015",
+    ownerPrompt: "IR-015",
   },
   {
     surface: "Quick decision workspace cards",
@@ -383,9 +384,10 @@ export const INHABIT_NESTED_REVIEW_BACK_HREF_ROWS: readonly InhabitNestedReviewB
     ownerPrompt: "IH-020",
   },
   {
+    // IR-015 skip: Back does not return to architecture desk — peer queue is intentional.
     surface: "Peer governance findings queue (no architecture scope)",
     relativePath: "app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx",
     returnsToArchitecture: false,
-    ownerPrompt: "IH-015",
+    ownerPrompt: "IR-015",
   },
 ];

@@ -29,6 +29,8 @@ Canonical leak truth: `archlucid-ui/src/lib/inhabit-leak-inventories.ts` (markdo
 | Simulator Career Supported on peer table | `GovernanceFindingsQueueOperationalRowCells` passes `structuralExecutionMode` |
 | Pre-finalize quiet engines | `PreFinalizeChecklistPanel` mounts `GovernanceFindingsQueueQuietEnginesHint` |
 | Nested findings landing / inhabited chrome | IH-015 / IH-016 / IH-040 / IH-059 |
+| Remain pack IR-001–IR-014 | [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](../../docs/architecture/INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md) |
+| Peer queue architecture scope | **IR-015 skip** — stays peer |
 
 ## Prompt files (paste one per session)
 

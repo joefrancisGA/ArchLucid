@@ -27,7 +27,20 @@ describe("inhabit leak inventories (IH-004–IH-012)", () => {
 
     expect(kinds).toContain("nested-findings-desk");
     expect(kinds).toContain("review-detail-inspect");
-    expect(INHABIT_FINDINGS_EDITOR_SURFACE_ROWS.some((row) => row.ownerPrompt === "IH-015")).toBe(true);
+    expect(INHABIT_FINDINGS_EDITOR_SURFACE_ROWS.some((row) => row.ownerPrompt === "IR-004")).toBe(true);
+    expect(INHABIT_FINDINGS_EDITOR_SURFACE_ROWS.some((row) => row.ownerPrompt === "IR-005")).toBe(true);
+  });
+
+  it("IR-015: peer governance queue intentionally stays peer (no architecture scope)", () => {
+    const peerEditor = INHABIT_FINDINGS_EDITOR_SURFACE_ROWS.find((row) => row.editorKind === "governance-queue");
+    const peerBack = INHABIT_NESTED_REVIEW_BACK_HREF_ROWS.find((row) =>
+      row.relativePath.includes("GovernanceFindingsQueueClient"),
+    );
+
+    expect(peerEditor?.architectureIdKnown).toBe(false);
+    expect(peerEditor?.ownerPrompt).toBe("IR-015");
+    expect(peerBack?.returnsToArchitecture).toBe(false);
+    expect(peerBack?.ownerPrompt).toBe("IR-015");
   });
 
   it("IH-005 inventories Record CTA Simulator leaks and marks IH-025 surfaces", () => {
@@ -103,7 +116,7 @@ describe("inhabit leak inventories (IH-004–IH-012)", () => {
 
   it("IH-011 inventories continuity persistence shapes", () => {
     expect(INHABIT_CONTINUITY_ROWS.some((row) => row.persistKind === "account-prefs")).toBe(true);
-    expect(INHABIT_CONTINUITY_ROWS.filter((row) => row.architectureShaped).length).toBeGreaterThanOrEqual(3);
+    expect(INHABIT_CONTINUITY_ROWS.every((row) => row.architectureShaped)).toBe(true);
     expect(
       INHABIT_CONTINUITY_ROWS.find((row) => row.ownerPrompt === "IR-010")?.architectureShaped,
     ).toBe(true);
@@ -127,13 +140,16 @@ describe("inhabit leak inventories (IH-004–IH-012)", () => {
     expect(INHABIT_NESTED_REVIEW_BACK_HREF_ROWS.some((row) => !row.returnsToArchitecture)).toBe(true);
   });
 
-  it("documents IH-004–012 in markdown without claiming IH-015 shipped beyond landing resolver", () => {
+  it("IR-016: markdown inventory matches remain pack close state", () => {
     const doc = readFileSync(join(REPO_ROOT, INHABIT_LEAK_INVENTORIES_DOC_PATH), "utf8");
 
     expect(doc).toContain("IH-004");
     expect(doc).toContain("IH-012");
+    expect(doc).toContain("IR-014");
+    expect(doc).toContain("IR-015");
     expect(doc).toContain("MUTATION_UNDO_WINDOW_SECONDS = 300");
     expect(doc).not.toMatch(/draft-diff Compare is shipped/i);
+    expect(doc).toContain("INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md");
   });
 
   it("keeps inventory module paths present on disk", () => {

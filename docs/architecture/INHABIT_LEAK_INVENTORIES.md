@@ -1,10 +1,10 @@
-> **Scope:** Shrink-only inventories — inhabit wave 34 leaks (**IH-004–IH-012**). Do not fix rows in this file; numbered prompts own the close.
+> **Scope:** Shrink-only inventories — inhabit wave 34 (**IH-004–IH-012**) plus remain pack (**IR-001–IR-014** closed). **IR-015** is an intentional skip.
 
 # Inhabit leak inventories (IH-004–IH-012)
 
 **Last reviewed:** 2026-09-13 · **ADR:** [0100](adrs/0100-working-inhabit-architecture-findings-document.md)
 
-These tables name where Working still behaves like a governed job inspector instead of an inhabited architecture afternoon. Shrink rows when a later **IH** or **IR** prompt closes the leak. Source of truth: `archlucid-ui/src/lib/inhabit-leak-inventories.ts`. Follow-up diagnosis after wave 34: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md). Remain leftover prompts (not wave 35): [`INHABIT_REMAIN_COMPOSER_PROMPTS.md`](INHABIT_REMAIN_COMPOSER_PROMPTS.md).
+These tables record where Working inhabit behavior is defined and ratcheted. Source of truth: `archlucid-ui/src/lib/inhabit-leak-inventories.ts`. Wave 34 close: [`INHABIT_ACCEPTANCE_2026-09-13.md`](INHABIT_ACCEPTANCE_2026-09-13.md). Remain close: [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md). Diagnosis: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md).
 
 ## IH-004 — Findings editor still on review-detail
 
@@ -12,7 +12,7 @@ These tables name where Working still behaves like a governed job inspector inst
 | --- | --- | --- | --- | --- |
 | Architecture nested findings desk | `/architecture/architectures/{id}/findings?runId=` | Yes | nested-findings-desk | IH-015 |
 | Review-detail finding inspect | `/architecture/reviews/{id}/findings/{findingId}` | Yes | review-detail-inspect | IR-004 |
-| Governance findings queue | `/governance/findings?runId=` | No | governance-queue | IH-015 |
+| Governance findings queue (peer — IR-015 skip) | `/governance/findings?runId=` | No | governance-queue | IR-015 |
 | Quick decision workspace | in-page | Yes | quick-decision | IR-005 |
 
 ## IH-005 — Record CTA implies Simulator work is career-complete
@@ -95,8 +95,17 @@ No avatars. No finding-comment chat.
 
 Guided / demo / trial may keep eval chrome (**IH-070**).
 
+## IH-024 — Nested review Back href
+
+| Surface | Returns to architecture | Owner |
+| --- | --- | --- |
+| Finding detail page | Yes | IH-024 |
+| Spawn-lock draft handoff | Yes | IH-022 |
+| Governance finding triage panel | Yes | IH-020 |
+| Peer governance findings queue (IR-015 skip) | No | IR-015 |
+
 ## Ratchet
 
 - `archlucid-ui/src/lib/inhabit-leak-inventories.ts`
 - `archlucid-ui/src/lib/inhabit-leak-inventories.test.ts`
-- Remain leftover prompts (do not flip rows from the prompt-set PR): [`INHABIT_REMAIN_COMPOSER_PROMPTS.md`](INHABIT_REMAIN_COMPOSER_PROMPTS.md)
+- Remain close audit: [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md)
