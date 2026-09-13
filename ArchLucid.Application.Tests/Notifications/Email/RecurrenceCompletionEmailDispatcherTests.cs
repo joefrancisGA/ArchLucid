@@ -63,6 +63,7 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
             resolvedFindingCount: 1,
             sourceRunId,
             ["ops@example.test"],
+            null,
             CancellationToken.None);
 
         sent.Should().BeTrue();
@@ -117,6 +118,7 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
             resolvedFindingCount: 0,
             sourceRunId,
             ["ops@example.test"],
+            null,
             CancellationToken.None);
 
         await firstAttempt.Should().ThrowAsync<InvalidOperationException>();
@@ -130,6 +132,7 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
             resolvedFindingCount: 0,
             sourceRunId,
             ["ops@example.test"],
+            null,
             CancellationToken.None);
 
         secondAttempt.Should().BeTrue("template render failures must not reserve the recurrence completion ledger");
@@ -188,6 +191,7 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
             resolvedFindingCount: 0,
             sourceRunId,
             [mailbox],
+            null,
             CancellationToken.None);
 
         sent.Should().BeTrue("idempotent replays must report success when the ledger already recorded all recipients");
@@ -228,6 +232,7 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
             resolvedFindingCount: 0,
             Guid.Parse("28282828-2828-2828-2828-282828282828"),
             [" ", ""],
+            null,
             CancellationToken.None);
 
         sent.Should().BeFalse();

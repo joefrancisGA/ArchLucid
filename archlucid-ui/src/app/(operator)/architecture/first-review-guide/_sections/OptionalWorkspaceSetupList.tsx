@@ -4,7 +4,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import {
   FINISH_SETUP_SYSTEM_HEALTH_PATH,
   resolveFinishSetupWizardDeploymentOptions,
@@ -90,6 +92,7 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
 
 export function OptionalWorkspaceSetupList(): React.JSX.Element | null {
   const { phase, context } = useFinishSetupReadinessContext();
+  const { isWorkingMode } = useWorkspaceMode();
 
   if (phase === "loading" || context === null) {
     return null;
@@ -98,28 +101,44 @@ export function OptionalWorkspaceSetupList(): React.JSX.Element | null {
   const rows = resolveOptionalWorkspaceSetupRows(context);
 
   return (
-    <ul className="m-0 list-none space-y-3 p-0" data-testid="optional-workspace-setup-list">
-      {rows.map((row) => (
-        <li
-          key={row.id}
-          className="flex flex-col gap-2 border-b border-neutral-100 pb-3 last:border-b-0 last:pb-0 dark:border-neutral-800 sm:flex-row sm:items-start sm:justify-between"
-          data-testid={`optional-workspace-setup-row-${row.id}`}
-        >
-          <div className="min-w-0 space-y-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                {row.title}
-              </span>
-              <StatusTag kind={row.statusKind} label={row.statusLabel} />
+    <div className="space-y-3" data-testid="optional-workspace-setup-panel">
+      <ul className="m-0 list-none space-y-3 p-0" data-testid="optional-workspace-setup-list">
+        {rows.map((row) => (
+          <li
+            key={row.id}
+            className="flex flex-col gap-2 border-b border-neutral-100 pb-3 last:border-b-0 last:pb-0 dark:border-neutral-800 sm:flex-row sm:items-start sm:justify-between"
+            data-testid={`optional-workspace-setup-row-${row.id}`}
+          >
+            <div className="min-w-0 space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+                  {row.title}
+                </span>
+                <StatusTag kind={row.statusKind} label={row.statusLabel} />
+              </div>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{row.benefit}</p>
             </div>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{row.benefit}</p>
-          </div>
-          <Link href={row.href} className={cn(OPERATOR_LINK.inline, "shrink-0", OPERATOR_TYPOGRAPHY.body)}>
-            {row.actionLabel}
-          </Link>
-        </li>
-      ))}
-    </ul>
+            <Link href={row.href} className={cn(OPERATOR_LINK.inline, "shrink-0", OPERATOR_TYPOGRAPHY.body)}>
+              {row.actionLabel}
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      {isWorkingMode ? (
+        <div
+          className="space-y-2 border-t border-neutral-100 pt-3 dark:border-neutral-800"
+          data-testid="optional-workspace-setup-architectures-cta"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            Finish optional setup, then return to your architecture desk — not the reviews inbox.
+          </p>
+          <Button asChild size="sm" variant="primary">
+            <Link href={ARCHITECTURES_LIST_PATH}>Open architectures</Link>
+          </Button>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

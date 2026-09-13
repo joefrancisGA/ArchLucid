@@ -84,7 +84,7 @@ public sealed class FindingDispositionService(
         List<byte[]?> expectedRowVersions = new(requests.Count);
 
         bool isWorkingDesk = await _userWorkspaceModeReader.IsWorkingDeskAsync(reviewerUserId, cancellationToken);
-        HashSet<string> seenFindingIds = new(StringComparer.Ordinal);
+        HashSet<string> seenFindingIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (RecordFindingDispositionRequest request in requests)
         {

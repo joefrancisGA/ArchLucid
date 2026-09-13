@@ -114,6 +114,22 @@ public sealed partial class ArchLucidApiClient
         }
     }
 
+    public sealed class GetRunSummaryResult
+    {
+        public Guid RunId
+        {
+            get;
+            set;
+        }
+
+        /// <summary>Parent architecture identity when the run is nested on Working (SG-095).</summary>
+        public Guid? ArchitectureId
+        {
+            get;
+            set;
+        }
+    }
+
     public sealed class AgentTaskInfo
     {
         public string TaskId

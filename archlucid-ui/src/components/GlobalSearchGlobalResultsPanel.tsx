@@ -152,7 +152,7 @@ export function GlobalSearchGlobalResultsPanel(props: GlobalSearchGlobalResultsP
                   className={cn("w-full rounded px-1 py-1.5 text-left hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                   onClick={() => {
                     if (run.runId) {
-                      navigateToRun(run.runId);
+                      navigateToRun(run.runId, run.architectureId);
                     }
                   }}
                 >
@@ -174,7 +174,7 @@ export function GlobalSearchGlobalResultsPanel(props: GlobalSearchGlobalResultsP
                   className={cn("w-full rounded px-1 py-1.5 text-left hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                   onClick={() => {
                     if (finding.runId && finding.findingId) {
-                      navigateToFinding(finding.runId, finding.findingId);
+                      navigateToFinding(finding.runId, finding.findingId, finding.architectureId);
                     }
                   }}
                 >

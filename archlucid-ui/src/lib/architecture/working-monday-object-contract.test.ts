@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  WORKING_INSTRUMENT_AFTER_SPAWN_CONTRACT,
+  WORKING_INSTRUMENT_AFTER_SPAWN_FAILURE_IDS,
   WORKING_MONDAY_OBJECT_ADR_ID,
   WORKING_MONDAY_OBJECT_CONTRACT,
   WORKING_MONDAY_OBJECT_FAILURE_IDS,
@@ -19,5 +21,13 @@ describe("working-monday-object-contract (SY-03 / ADR 0079)", () => {
     expect(architectureNestedAskPath("architecture-identity-001")).toBe(
       "/architecture/architectures/architecture-identity-001/ask",
     );
+  });
+
+  it("SG-105: ADR 0098 instrument failures extend the Monday contract", () => {
+    expect(WORKING_INSTRUMENT_AFTER_SPAWN_CONTRACT.adrId).toBe("0098");
+    expect(WORKING_INSTRUMENT_AFTER_SPAWN_FAILURE_IDS).toHaveLength(2);
+    expect(WORKING_INSTRUMENT_AFTER_SPAWN_FAILURE_IDS).toContain("review-detail-is-job-not-home");
+    expect(WORKING_MONDAY_OBJECT_ADR_ID).toBe("0079");
+    expect(WORKING_MONDAY_OBJECT_FAILURE_IDS).toHaveLength(5);
   });
 });

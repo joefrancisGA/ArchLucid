@@ -15,7 +15,12 @@ import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { evidenceAbsenceFindingLabel } from "@/lib/evidence-absence-finding-copy";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { extractAttachedIntakeFileNames } from "@/lib/intake-attached-file-names";
-import { isGeneratedIntakeBrief, isUnusableReviewTitleCandidate, toReviewDisplayTitle } from "@/lib/review-display-title";
+import {
+  clampReviewWorkspaceH1Title,
+  isGeneratedIntakeBrief,
+  isUnusableReviewTitleCandidate,
+  toReviewDisplayTitle,
+} from "@/lib/review-display-title";
 import {
   isQualityRejectedRunStatus,
   resolveExecutionFailedWorkspaceStatusLabel,
@@ -100,7 +105,7 @@ export function deriveArchitectureSystemName(run: RunSummary, headline: string):
       const normalizedDisplayName = toReviewDisplayTitle(displayName);
 
       if (normalizedDisplayName.length > 0) {
-        return normalizedDisplayName;
+        return clampReviewWorkspaceH1Title(normalizedDisplayName);
       }
     }
   }
@@ -118,7 +123,7 @@ export function deriveArchitectureSystemName(run: RunSummary, headline: string):
     const normalized = toReviewDisplayTitle(description);
 
     if (normalized.length > 0 && !isUnusableReviewTitleCandidate(normalized)) {
-      return normalized;
+      return clampReviewWorkspaceH1Title(normalized);
     }
   }
 

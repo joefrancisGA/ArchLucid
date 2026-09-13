@@ -10,6 +10,7 @@ public sealed class AzureRetailPricesSkuMatchersStandaloneMonthTests
     [Theory]
     [InlineData("month")]
     [InlineData("months")]
+    [InlineData("m")]
     public void TryMonthlyUsdFromRow_accepts_standalone_month_unit_of_measure_synonyms(string unitOfMeasure)
     {
         AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
@@ -29,6 +30,7 @@ public sealed class AzureRetailPricesSkuMatchersStandaloneMonthTests
     [Theory]
     [InlineData("month")]
     [InlineData("months")]
+    [InlineData("m")]
     public void LooksLikeConsumptionUsd_accepts_standalone_month_unit_of_measure_synonyms(string unitOfMeasure)
     {
         AzureRetailPricesCatalogClient.RetailPriceDto dto = new()

@@ -47,6 +47,7 @@ export const HELP_APP_GUIDED_TOPIC_SLUGS = [
   "architecture-intelligence",
   "sponsor-dashboard",
   "architecture-desk",
+  "system-gravity",
   "false-hard-infeasibility",
   "extraction-fidelity",
   "which-mode-am-i-in",

@@ -4,6 +4,7 @@ import {
   getFindingEvidenceInspectHref,
   getFindingEvidenceTraceHref,
   getFindingGovernanceDispositionHref,
+  resolveFindingsQueueNavHref,
 } from "@/lib/findings/finding-evidence-navigation";
 
 describe("finding-evidence-navigation", () => {
@@ -23,5 +24,24 @@ describe("finding-evidence-navigation", () => {
     expect(getFindingEvidenceInspectHref("run-1", "finding-9")).toBe(
       "/architecture/reviews/run-1/findings/finding-9/evidence-trace",
     );
+  });
+
+  it("SG-027: returns nested architecture findings when Working parent is known", () => {
+    expect(
+      resolveFindingsQueueNavHref({
+        findingsQueueRunId: "run-abc",
+        architectureId: "arch-001",
+        isWorkingMode: true,
+      }),
+    ).toBe("/architecture/architectures/arch-001/findings?runId=run-abc");
+  });
+
+  it("SG-027: keeps governance queue when Working parent is unknown", () => {
+    expect(
+      resolveFindingsQueueNavHref({
+        findingsQueueRunId: "run-abc",
+        isWorkingMode: true,
+      }),
+    ).toBe("/governance/findings?runId=run-abc");
   });
 });

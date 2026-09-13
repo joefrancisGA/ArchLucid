@@ -67,7 +67,7 @@ public static class ExportBundleCareerPostureResolver
             TryParseWorkingCareerRehearsalDoor(root));
 
         bool isDemoTenant = root.TryGetProperty("isDemoTenant", out JsonElement demoEl)
-            && demoEl.ValueKind == JsonValueKind.True;
+            && TryParseJsonBoolean(demoEl);
 
         bool isSampleRun = TryParseSampleRun(root) || isDemoTenant;
 
@@ -116,7 +116,24 @@ public static class ExportBundleCareerPostureResolver
     {
         if (root.TryGetProperty("isSampleRun", out JsonElement sampleEl))
         {
-            return sampleEl.ValueKind == JsonValueKind.True;
+            return TryParseJsonBoolean(sampleEl);
+        }
+
+        return false;
+    }
+
+    private static bool TryParseJsonBoolean(JsonElement element)
+    {
+        if (element.ValueKind is JsonValueKind.True)
+            return true;
+
+        if (element.ValueKind is JsonValueKind.False)
+            return false;
+
+        if (element.ValueKind is JsonValueKind.String
+            && bool.TryParse(element.GetString(), out bool parsed))
+        {
+            return parsed;
         }
 
         return false;

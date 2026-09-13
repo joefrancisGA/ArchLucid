@@ -8,6 +8,7 @@ import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
 import { tryLoadApprovedDecisionTitlesForRun } from "@/lib/try-load-approved-decision-titles-for-run";
 import { tryLoadStatedConstraintContextForRun } from "@/lib/try-load-stated-constraint-context";
+import { fetchRunDetailCriticalPageBundle } from "@/lib/fetch-run-detail-page-bundle-client";
 
 import { FindingInspectView } from "../FindingInspectView";
 
@@ -55,11 +56,15 @@ export default async function FindingEvidenceTracePage({
     notFound();
   }
 
-  const [runExecutionFootnote, statedConstraintContext, approvedDecisionTitles] = await Promise.all([
+  const [runExecutionFootnote, statedConstraintContext, approvedDecisionTitles, criticalBundle] =
+    await Promise.all([
     tryLoadRunExecutionFootnote(runId),
     tryLoadStatedConstraintContextForRun(runId),
     tryLoadApprovedDecisionTitlesForRun(runId),
+    fetchRunDetailCriticalPageBundle(runId).catch(() => null),
   ]);
+  const parentArchitectureId =
+    criticalBundle?.data.buyerSummary?.run?.architectureId?.trim() ?? "";
 
   return (
     <FindingInspectView
@@ -71,6 +76,7 @@ export default async function FindingEvidenceTracePage({
       statedConstraintContext={statedConstraintContext}
       approvedDecisionTitles={approvedDecisionTitles}
       findingsQueueRunId={findingsQueueRunId ?? null}
+      parentArchitectureId={parentArchitectureId.length > 0 ? parentArchitectureId : null}
     />
   );
 }
