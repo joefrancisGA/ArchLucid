@@ -341,22 +341,38 @@ internal static class KubernetesManifestCanonicalObjectMapper
         }
 
         if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "dnsConfig", out JsonElement dnsConfig)
-            && dnsConfig.ValueKind is JsonValueKind.Object
-            && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "nameservers", out JsonElement nameservers)
-            && nameservers.ValueKind is JsonValueKind.Array)
+            && dnsConfig.ValueKind is JsonValueKind.Object)
         {
-            foreach (JsonElement nameserver in nameservers.EnumerateArray())
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "nameservers", out JsonElement nameservers)
+                && nameservers.ValueKind is JsonValueKind.Array)
             {
-                if (nameserver.ValueKind is JsonValueKind.String
-                    && !string.IsNullOrWhiteSpace(nameserver.GetString()))
+                foreach (JsonElement nameserver in nameservers.EnumerateArray())
                 {
-                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsNameserver", nameserver.GetString()!);
-                    break;
+                    if (nameserver.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(nameserver.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsNameserver", nameserver.GetString()!);
+                        break;
+                    }
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "searches", out JsonElement searches)
+                && searches.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement search in searches.EnumerateArray())
+                {
+                    if (search.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(search.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsSearch", search.GetString()!);
+                        break;
+                    }
                 }
             }
         }
 
-if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "hostAliases", out JsonElement hostAliases)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "hostAliases", out JsonElement hostAliases)
             && hostAliases.ValueKind is JsonValueKind.Array)
         {
             foreach (JsonElement hostAlias in hostAliases.EnumerateArray())
@@ -374,5 +390,22 @@ if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase
             }
         }
 
-        
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "readinessGates", out JsonElement readinessGates)
+            && readinessGates.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement readinessGate in readinessGates.EnumerateArray())
+            {
+                if (readinessGate.ValueKind is not JsonValueKind.Object)
+                    continue;
+
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(readinessGate, "conditionType", out JsonElement conditionType)
+                    && conditionType.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(conditionType.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "readinessGate", conditionType.GetString()!);
+                    break;
+                }
+            }
+        }
+
         ProjectContainerSecurityContext(podSpec, properties);
