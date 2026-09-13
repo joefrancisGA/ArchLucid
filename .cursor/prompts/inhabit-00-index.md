@@ -125,4 +125,4 @@ Kernel **IH-001** authors ADR **0100** (**Accepted**): Working **inhabits** the 
 
 Owner spine: [`docs/architecture/INHABIT_COMPOSER_PROMPTS.md`](../../docs/architecture/INHABIT_COMPOSER_PROMPTS.md).
 
-**Do not start wave 35.** Start/completeness leftovers after IH-001–080 are named in [`docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](../../docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md). Remaining inhabit leaks after that follow-up: [`.cursor/prompts/inhabit-remain-00-index.md`](inhabit-remain-00-index.md) (**IR-001–IR-018**). Do not paste a new 80-prompt pack.
+**Do not start wave 35.** Start/completeness leftovers after IH-001–080 are named in [`docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](../../docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md). Remain pack **IR-001–IR-018** is closed. Post-IR leftovers: [`.cursor/prompts/inhabit-post-00-index.md`](inhabit-post-00-index.md) (**IP-001–IP-015**). Do not paste a new 80-prompt pack.

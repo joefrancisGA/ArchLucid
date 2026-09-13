@@ -137,12 +137,7 @@ Canonical findings-document finalize stays closed.
 ## Recommendation
 
 1. **Do not** paste wave 35 or re-run IH-001–080 / IR-001–018 product bodies.
-2. If the owner wants a next engineering slice, it is a **small named leftover pack** (not 80 prompts) in this order:
-   1. Working + known-architecture **resume hrefs** (Reviews hub Continue, search, share) → inhabited findings / `focusedFinding`.
-   2. **Room** on review-detail matches Present (redirect when architecture known).
-   3. Inspect **support band** + secondary **re-run honesty**.
-   4. Inspector **finalize** passes `parentArchitectureId` (or is demoted when parent is known).
-   5. Inhabited **run-scope banner** / first-paint trail (lowest rank).
-3. Keep `inhabit-leak-inventories.ts` as the ratchet for **closed** rows. New leftovers belong in a **new** inventory, not flipped-back IR booleans.
+2. Named leftover pack (not 80 prompts): [`.cursor/prompts/inhabit-post-00-index.md`](../../.cursor/prompts/inhabit-post-00-index.md) (**IP-001–IP-015**). Spine: [`INHABIT_POST_IR_COMPOSER_PROMPTS.md`](INHABIT_POST_IR_COMPOSER_PROMPTS.md).
+3. Keep `inhabit-leak-inventories.ts` as the ratchet for **closed** remain rows. New leftovers belong in the post-IR inventory (**IP-001**), not flipped-back IR booleans.
 
 Canonical leak truth for remain-closed rows remains `archlucid-ui/src/lib/inhabit-leak-inventories.ts`. This file names **post-IR** leftovers only.
