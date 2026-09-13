@@ -4662,13 +4662,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — replay cost estimator ignored confidence-only agent deltas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2259 (seed-only): reseeded application-analysis with `-Hint application analysis`; no new hunt-ready rows.
 2026-09-12 seed hunt #2166 (seed-only): reseeded application-analysis with `-Hint application-analysis`; no new hunt-ready rows.
 2026-09-12 seed hunt #2166 (seed-only): reseeded application-analysis with `-Hint application-analysis`; no new hunt-ready rows.
 
