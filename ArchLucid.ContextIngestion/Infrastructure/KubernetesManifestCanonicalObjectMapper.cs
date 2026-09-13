@@ -228,6 +228,10 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && shareProcessNamespace.ValueKind is JsonValueKind.True)
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "shareProcessNamespace", "true");
 
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "hostUsers", out JsonElement hostUsers)
+            && hostUsers.ValueKind is JsonValueKind.True)
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostUsers", "true");
+
         ProjectContainerSecurityContext(podSpec, properties);
     }
 
