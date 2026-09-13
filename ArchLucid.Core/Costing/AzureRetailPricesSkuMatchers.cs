@@ -433,6 +433,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " dy")
             || ContainsBoundedToken(trimmed, " d")
             || HasCompactDaySuffix(trimmed)
+            || HasCompactDySuffix(trimmed)
             || HasCompactDayWordSuffix(trimmed)
             || HasCompactDaysWordSuffix(trimmed)
             || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
@@ -988,6 +989,15 @@ public sealed partial class AzureRetailPricesCatalogClient
             return false;
 
         return char.IsDigit(trimmed[^2]);
+    }
+
+    private static bool HasCompactDySuffix(string trimmed)
+    {
+        if (trimmed.Length < 3)
+            return false;
+
+        return trimmed.EndsWith("dy", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^3]);
     }
 
 
