@@ -121,13 +121,17 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 53
+- **hunts:** 55
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — hunt #2215: data_lake_gen2 svc- synthetic alias on Data-category nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2261 (seed-only): reseeded topology-proposal-merge with `-Hint topology -Refresh`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2246 (seed-only): reseeded topology-proposal-merge with `-Hint topology merge`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2215 (seed→hit): reseeded topology-proposal-merge with `-Hint graph merge`; proved `azurerm_data_lake_gen2_filesystem` Data-category node omitted `svc-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_data_lake_gen2_node_has_data_category_but_synthetic_service_id_used`.
 
@@ -1094,13 +1098,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 26
+- **hunts:** 28
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-10 — Verify skipped pending invitation when user had one existing membership
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-13 seed hunt #2272 (seed-only): reseeded email-otp-auth with `-Hint email otp`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2253 (seed-only): reseeded email-otp-auth with `-Hint email otp`; no new hunt-ready rows.
 2026-09-12 seed hunt #2159 (seed-only): reseeded email-otp-auth with `-Hint email-otp-auth`; no new hunt-ready rows.
 2026-09-12 seed hunt #2159 (seed-only): reseeded email-otp-auth with `-Hint email-otp-auth`; no new hunt-ready rows.
 
@@ -1449,13 +1457,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 251
+- **hunts:** 252
 - **bugs-found:** 484
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-11
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2277 (seed-only): reseeded tenant-erasure with `-Hint tenant erasure`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2076 (seed-only): reseeded tenant-erasure; 8 scoped tests passed; no new hunt-ready rows
 
@@ -1529,13 +1539,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 35
+- **hunts:** 37
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-09 — pipeline-dead-letter runs matched committed-run lookups via retained manifest headers
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2263 (seed-only): reseeded sql-run-repository with `-Hint sql`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2249 (seed-only): reseeded sql-run-repository with `-Hint sql run repository`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2122 (seed-only): reseeded sql-run-repository with `-Refresh`; no new hunt-ready rows.
 
@@ -2242,13 +2256,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 30
+- **hunts:** 34
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-13 seed hunt #2268 (seed-only): reseeded finding-disposition with `-Hint finding disposition`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2250 (seed-only): reseeded finding-disposition with `-Hint finding disposition`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2242 (seed-only): reseeded finding-disposition with `-Hint finding-disposition` -Refresh; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2194 (seed-only): reseeded finding-disposition with `-Hint finding-disposition`; no new hunt-ready rows.
 
@@ -2804,13 +2824,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 16
+- **hunts:** 18
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-09 — present/future lifecycle synonyms ignored in `InferLifecycleScopeForIndex`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2266 (seed-only): reseeded extraction-router with `-Hint extraction`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2255 (seed-only): reseeded extraction-router with `-Hint extraction router`; no new hunt-ready rows.
 2026-09-12 seed hunt #2169 (seed-only): reseeded extraction-router with `-Hint extraction-router`; no new hunt-ready rows.
 2026-09-12 seed hunt #2169 (seed-only): reseeded extraction-router with `-Hint extraction-router`; no new hunt-ready rows.
 
@@ -2965,13 +2989,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-04 — MUST-question skip/answer scope validation parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2276 (seed-only): reseeded cli-draft-new with `-Hint cli draft`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2084 (seed-only): reseeded cli-draft-new; no new hunt-ready rows
 
@@ -3283,13 +3309,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — create checklist marked enable step incomplete before subscription list hydration
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-12 seed hunt #2256 (seed-only): reseeded ui-webhooks-settings with `-Hint ui webhooks`; no new hunt-ready rows.
 2026-09-12 seed hunt #2160 (seed-only): reseeded ui-webhooks-settings with `-Hint ui-webhooks-settings`; no new hunt-ready rows.
 2026-09-12 seed hunt #2160 (seed-only): reseeded ui-webhooks-settings with `-Hint ui-webhooks-settings`; no new hunt-ready rows.
 
@@ -3532,13 +3560,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — activation persisted invisible-only claim-mapping IdpValue/ArchLucidRole entries
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-12 seed hunt #2260 (seed-only): reseeded identity-provider-config with `-Hint identity provider`; no new hunt-ready rows.
 2026-09-12 seed hunt #2163 (seed-only): reseeded identity-provider-config with `-Hint identity-provider-config`; no new hunt-ready rows.
 2026-09-12 seed hunt #2163 (seed-only): reseeded identity-provider-config with `-Hint identity-provider-config`; no new hunt-ready rows.
 
@@ -3644,13 +3674,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — padded payment_intent id bypassed wallet idempotency key
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-13 seed hunt #2262 (seed-only): reseeded billing-webhooks with `-Hint billing` `-Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
 2026-09-12 seed hunt #1907 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
@@ -3772,13 +3804,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 49
+- **hunts:** 51
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-11 — comma-only AdminKey config made zero-downtime rotation Append instead of Replace
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2269 (seed-only): reseeded api-key-auth with `-Hint api-key`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2251 (seed-only): reseeded api-key-auth with `-Hint api key auth`; no new hunt-ready rows.
 2026-09-12 seed hunt #2164 (seed-only): reseeded api-key-auth with `-Hint api-key-auth`; no new hunt-ready rows.
 2026-09-12 seed hunt #2164 (seed-only): reseeded api-key-auth with `-Hint api-key-auth`; no new hunt-ready rows.
 
@@ -4212,13 +4248,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 28
+- **hunts:** 31
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — hunt #2218: snake_case working_career_rehearsal_door ignored on CLI career export gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2247 (seed-only): reseeded tenant-data-export with `-Hint tenant export`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2241 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export` -Refresh; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2233 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2218 (seed→hit): reseeded tenant-data-export with `-Hint tenant export`; proved snake_case `working_career_rehearsal_door` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_stamps_career_when_working_career_rehearsal_door_snake_case`.
 
@@ -4515,13 +4557,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-05 — AL0003 missed `[MutatingAuditExcluded]` on implemented interface methods
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2275 (seed-only): reseeded security-analyzers with `-Hint security analyzers`; no new hunt-ready rows.
 
 ### Hypotheses
 
@@ -4640,13 +4684,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — replay cost estimator ignored confidence-only agent deltas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2259 (seed-only): reseeded application-analysis with `-Hint application analysis`; no new hunt-ready rows.
 2026-09-12 seed hunt #2166 (seed-only): reseeded application-analysis with `-Hint application-analysis`; no new hunt-ready rows.
 2026-09-12 seed hunt #2166 (seed-only): reseeded application-analysis with `-Hint application-analysis`; no new hunt-ready rows.
 
@@ -4782,13 +4828,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-11 — ROI freshness regression used Simulator mode and tripped career-artifact PDF gate before ZIP build
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-13 seed hunt #2280 (seed-only): reseeded application-pilots `-Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
 2026-09-12 seed hunt #1892 (seed-only): reseeded application-pilots; scoped tests passed; no hunt-ready defect proven this pass.
@@ -4910,13 +4958,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 27
+- **hunts:** 29
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — IdentityRegulatedDatastoreClassifier non-private baseline false positive on pci token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2274 (seed-only): reseeded decisioning with `-Hint decisioning`; no new hunt-ready rows.
+2026-09-12 seed hunt #2237 (seed-only): reseeded decisioning with `-Hint decisioning`; no new hunt-ready rows.
+
 2026-09-12 seed hunt #2190 (seed-only): reseeded decisioning with `-Hint decisioning`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2156 (seed-only): reseeded decisioning with `-Hint decisioning`; no new hunt-ready rows.
@@ -4998,13 +5050,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 16
+- **hunts:** 18
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-11 — InMemory recovery grant InsertAsync silently overwrote duplicate GrantId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2267 (seed-only): reseeded persistence-identity with `-Hint persistence`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2252 (seed-only): reseeded persistence-identity with `-Hint persistence identity`; no new hunt-ready rows.
 2026-09-12 seed hunt #2161 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 2026-09-12 seed hunt #2161 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
@@ -5062,13 +5118,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 22
+- **hunts:** 24
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — Louvain community detection dropped edges when endpoint casing differed from node ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2273 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
+2026-09-12 seed hunt #2236 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
+
 2026-09-12 seed hunt #2191 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2167 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
@@ -10138,13 +10198,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-08 — compound ConnectionString config paths leaked through config summary redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2278 (seed-only): reseeded core-configuration-summary with `-Hint archlucid-core` `-Refresh`; no new hunt-ready rows.
 
 Split from retired `archlucid-core` (ABQ-08).
 
@@ -10456,13 +10518,21 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 21
-- **bugs-found:** 18
+- **hunts:** 25
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — slash `/mins` minute UOM rejected while `/min` and standalone `mins` synonyms matched
+- **last-bug:** 2026-09-12 — hunt #2244: slash `/minute` and `/minutes` UOM rejected while `/min` and `/mins` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2244 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/minute` and `/minutes` UOM parity gaps; regression `AzureRetailPricesSkuMatchersSlashMinuteWordTests`.
+
+2026-09-12 seed hunt #2243 (seed→hit): reseeded core-costing with `-Hint retail prices`; proved slash `/hour` and `/hours` UOM parity gaps; regression `AzureRetailPricesSkuMatchersSlashHourWordTests`.
+
+2026-09-12 seed hunt #2240 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/weeks` and `/months` UOM parity gaps; regressions `AzureRetailPricesSkuMatchersSlashWeeksTests`, `AzureRetailPricesSkuMatchersSlashMonthsTests`.
+
+2026-09-12 seed hunt #2232 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/days` day UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashDaysTests`.
 
 2026-09-12 seed hunt #2216 (seed→hit): reseeded core-costing with `-Hint retail prices`; proved slash `/mins` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashMinsTests`.
 
@@ -10526,6 +10596,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — standalone `d` UOM rejected while `day`/`days` synonyms matched — **hit 2026-09-12 seed hunt #2112:** Azure Retail daily consumption meters with bare `d` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while hour `h` parity already existed; fixed with standalone `d` synonym; regressions in `AzureRetailPricesSkuMatchersStandaloneDayTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — standalone `w` UOM rejected while `wk`/`week` synonyms matched — **hit 2026-09-12 seed hunt #2141:** Azure Retail weekly consumption meters with bare `w` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `d`/`h` standalone parity already existed; fixed with standalone `w` synonym; regressions in `AzureRetailPricesSkuMatchersSlashWeekTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — standalone `m` UOM rejected while `mo`/`month` synonyms matched — **hit 2026-09-12 seed hunt #2149:** Azure Retail monthly consumption meters with bare `m` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `h`/`d`/`w` standalone parity already existed; fixed with standalone `m` synonym; regressions in `AzureRetailPricesSkuMatchersStandaloneMonthTests`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — slash `/months` UOM rejected while `/month` and `/mo` synonyms matched — **hit 2026-09-12 seed hunt #2240:** Azure Retail monthly consumption meters with bare `/months` or `1/months` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/month` and `/mo` already matched (parity with `/days` and `/weeks`); fixed with `ContainsSlashMonthsToken`; regressions in `AzureRetailPricesSkuMatchersSlashMonthsTests`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsMinuteMeter` — slash `/minute` and `/minutes` UOM rejected while `/min` and `/mins` synonyms matched — **hit 2026-09-12 seed hunt #2244:** Azure Retail minute consumption meters with bare `/minute`, `/minutes`, `1/minute`, or `1/minutes` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/min` and `/mins` already matched; fixed with `ContainsSlashMinuteWordToken` and `ContainsSlashMinutesToken`; regression in `AzureRetailPricesSkuMatchersSlashMinuteWordTests`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — slash `/hour` and `/hours` UOM rejected while `/hr` and `/hrs` synonyms matched — **hit 2026-09-12 seed hunt #2243:** Azure Retail hourly consumption meters with bare `/hour`, `/hours`, `1/hour`, or `1/hours` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/hr` and `/hrs` already matched (parity with `/days` and `/weeks`); fixed with `ContainsSlashHourWordToken` and `ContainsSlashHoursToken`; regression in `AzureRetailPricesSkuMatchersSlashHourWordTests`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — slash `/weeks` UOM rejected while `/week` and `/wk` synonyms matched — **hit 2026-09-12 seed hunt #2240:** Azure Retail weekly consumption meters with bare `/weeks` or `1/weeks` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/week` and `/wk` already matched (parity with `/days` and `/hrs`); fixed with `ContainsSlashWeeksToken`; regressions in `AzureRetailPricesSkuMatchersSlashWeeksTests`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — slash `/days` UOM rejected while `/day` and `/d` synonyms matched — **hit 2026-09-12 seed hunt #2232:** Azure Retail daily consumption meters with bare `/days` or `1/days` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/day` and `/d` already matched (parity with `/mins` and `/hrs`); fixed with `ContainsSlashDaysToken`; regressions in `AzureRetailPricesSkuMatchersSlashDaysTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — slash `/d` UOM rejected while `/day` and standalone `d` synonyms matched — **hit 2026-09-12 seed hunt #2152:** Azure Retail daily consumption meters with bare `/d` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/day` and `d` already matched (parity with `/h` and `/wk`); fixed with `ContainsSlashDToken`; regressions in `AzureRetailPricesSkuMatchersSlashDayTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — slash `/hrs` UOM rejected while `/hr` and standalone `hrs` synonyms matched — **hit 2026-09-12 seed hunt #2193:** Azure Retail hourly consumption meters with bare `/hrs` or `1/hrs` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/hr` and `hrs` already matched; fixed with `ContainsSlashHrsToken`; regressions in `AzureRetailPricesSkuMatchersSlashHrsTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — slash `/hrs` UOM rejected while `/hr` and standalone `hrs` synonyms matched — **hit 2026-09-12 seed hunt #2193:** Azure Retail hourly consumption meters with bare `/hrs` or `1/hrs` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/hr` and `hrs` already matched; fixed with `ContainsSlashHrsToken`; regressions in `AzureRetailPricesSkuMatchersSlashHrsTests`.
@@ -10548,13 +10623,15 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — null `citations` skipped zero-citation WARN gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2258 (seed-only): reseeded core-explanation-json with `-Hint explanation json`; no new hunt-ready rows.
 
 Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Explanation/` hunts.
 2026-09-12 seed hunt #2174 (seed-only): reseeded core-explanation-json with `-Hint explanation -Refresh`; no new hunt-ready rows.
@@ -10709,13 +10786,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 100
-- **bugs-found:** 156
+- **hunts:** 103
+- **bugs-found:** 157
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — CronJob `job_template.spec.pod_template` omitted pod security projection
+- **last-bug:** 2026-09-12 — camelCase `podTemplate` workload template omitted pod security projection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2245 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2239 (seed-only): reseeded context-ingestion with `-Hint context-ingestion` -Refresh; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2231 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved camelCase `podTemplate` workload template gap; regression `ParseAsync_camel_case_podTemplate_projects_privileged`.
 
 2026-09-12 seed hunt #2192 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
@@ -10997,6 +11080,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `CanonicalInfrastructureJsonElementReader.ReadMetadataString` — snake_case `meta_data` omitted resource name/namespace — **hit 2026-09-12 seed hunt #2154:** exporter kubernetes-json with `meta_data` instead of `metadata` dropped the entire resource because `ReadMetadataString` only resolved camelCase `metadata`; fixed with `TryGetMetadataObject` alias; regression `ParseAsync_snake_case_meta_data_key_resolves_resource_name`.
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ResolvePodSpec` — CronJob `job_template.spec.pod_template` omitted pod security projection — **hit 2026-09-12 seed hunt #2184:** exporter kubernetes-json CronJob with `pod_template` under `job_template.spec` skipped `host_network` and container security projection while Deployment `pod_template` worked; fixed by reusing `TryGetWorkloadPodTemplate` for CronJob inner template; regression `ParseAsync_snake_case_cron_job_pod_template_projects_host_network_exposure`.
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ResolvePodSpec` — snake_case `pod_template` omitted pod security projection — **hit 2026-09-12 seed hunt #2155:** exporter kubernetes-json with `pod_template` instead of `template` under Deployment spec skipped `ProjectContainerSecurityContext`; fixed with `TryGetWorkloadPodTemplate` alias; regression `ParseAsync_snake_case_pod_template_projects_privileged`.
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.TryGetWorkloadPodTemplate` — camelCase `podTemplate` omitted pod security projection — **hit 2026-09-12 seed hunt #2231:** exporter kubernetes-json with `podTemplate` instead of `template` under Deployment spec skipped `ProjectContainerSecurityContext` while `pod_template` and `template` worked; fixed with `TryGetPropertyIgnoreCaseOrSnakeCase` on `podTemplate`; regression `ParseAsync_camel_case_podTemplate_projects_privileged`.
 - [x] (invalid) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` — `values` loop skips `ShouldRedactKey` when `sensitive_values` absent — **cheap-disproof 2026-09-12 thorough hunt #1958:** terraform-show-json only redacts fields terraform marks in `sensitive_values`; absent marking means plaintext is intentional state output, not a parser leak.
 
 2026-09-12 thorough hunt #1958 (hit): proved K8s snake_case security_context projection gap; cheap-disproof closed terraform redaction-without-sensitive_values candidate; scoped context-ingestion tests passed.
@@ -11067,13 +11151,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 17
+- **hunts:** 19
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-11 — duplicate parallel edges after AS-018 diagram canonical bind remap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2270 (seed-only): reseeded knowledge-graph-provenance with `-Hint knowledge graph`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2254 (seed-only): reseeded knowledge-graph-provenance with `-Hint knowledge graph`; no new hunt-ready rows.
 2026-09-12 seed hunt #2162 (seed-only): reseeded knowledge-graph-provenance with `-Hint knowledge-graph-provenance`; no new hunt-ready rows.
 2026-09-12 seed hunt #2162 (seed-only): reseeded knowledge-graph-provenance with `-Hint knowledge-graph-provenance`; no new hunt-ready rows.
 
@@ -11149,13 +11237,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 31
+- **hunts:** 33
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — ExecDigest accepted whitespace-only weekLabel while sponsor dispatchers reject
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-13 seed hunt #2271 (seed-only): reseeded notifications-pipeline with `-Hint notifications`; no new hunt-ready rows.
+2026-09-12 seed hunt #2238 (seed-only): reseeded notifications-pipeline with `-Hint notifications-pipeline`; no new hunt-ready rows.
+
 2026-09-12 seed hunt #2165 (seed-only): reseeded notifications-pipeline with `-Hint notifications-pipeline`; no new hunt-ready rows.
 2026-09-12 seed hunt #2165 (seed-only): reseeded notifications-pipeline with `-Hint notifications-pipeline`; no new hunt-ready rows.
 
@@ -11338,13 +11430,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 31
+- **hunts:** 33
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-11
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2279 (seed-only): reseeded host-composition with `-Hint host composition`; no new hunt-ready rows.
+
+2026-09-12 seed hunt #2257 (seed-only): reseeded host-composition with `-Hint host composition`; no new hunt-ready rows.
 2026-09-12 seed hunt #2158 (seed-only): reseeded host-composition with `-Hint host-composition`; no new hunt-ready rows.
 2026-09-12 seed hunt #2158 (seed-only): reseeded host-composition with `-Hint host-composition`; no new hunt-ready rows.
 
@@ -11465,13 +11561,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — Entra Graph membership pagination followed cross-group @odata.nextLink without validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-12 seed hunt #2235 (seed-only): reseeded cloud-extractors with `-Hint cloud-extractors`; no new hunt-ready rows.
+
 2026-09-12 seed hunt #2188 (seed-only): reseeded cloud-extractors with `-Hint cloud-extractors`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2157 (seed-only): reseeded cloud-extractors with `-Hint cloud-extractors`; no new hunt-ready rows.
@@ -13205,13 +13303,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-11 — run-level model label duplicated deployment names that differed only by case
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-12 seed hunt #2248 (seed-only): reseeded application-agents with `-Hint application agents`; no new hunt-ready rows.
 2026-09-12 seed hunt #2179 (seed-only): reseeded application-agents with `-Hint application agents -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
@@ -13268,13 +13368,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — PreCommitGateThresholdParser undefined numeric threshold
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-13 seed hunt #2265 (seed-only): reseeded application-governance-policy with `-Hint governance` `-Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
 
@@ -13806,13 +13908,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** chatops webhook; authority commit notification; slack teams delivery
 - **paths:** ArchLucid.Notifications/AuthorityRunCommittedChatOpsHook.cs; ArchLucid.Notifications/AuthorityRunCompletedChatOpsIntegrationEventHandler.cs
 - **test-filter:** FullyQualifiedName~AuthorityRunCommittedChatOps|FullyQualifiedName~AuthorityRunCompletedChatOps
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-08 — ChatOps hook swallowed all-target delivery failures so Service Bus completed without retry
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-13 seed hunt #2264 (seed-only): reseeded chatops-delivery with `-Hint webhook`; no new hunt-ready rows.
 
 ### Hypotheses
 
