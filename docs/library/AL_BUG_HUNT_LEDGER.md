@@ -11221,13 +11221,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — ExecDigest accepted whitespace-only weekLabel while sponsor dispatchers reject
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-13 seed hunt #2271 (seed-only): reseeded notifications-pipeline with `-Hint notifications`; no new hunt-ready rows.
 2026-09-12 seed hunt #2238 (seed-only): reseeded notifications-pipeline with `-Hint notifications-pipeline`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2165 (seed-only): reseeded notifications-pipeline with `-Hint notifications-pipeline`; no new hunt-ready rows.

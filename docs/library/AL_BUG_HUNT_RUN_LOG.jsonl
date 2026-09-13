@@ -2604,3 +2604,4 @@
 {"at":"2026-09-13T00:12:12.6688343Z","zoneId":"finding-disposition","outcome":"seed-only"}
 {"at":"2026-09-13T00:12:25.823638Z","zoneId":"api-key-auth","outcome":"seed-only"}
 {"at":"2026-09-13T00:12:38.7720213Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only"}
+{"at":"2026-09-13T00:12:51.7795565Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
