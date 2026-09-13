@@ -46,6 +46,7 @@ public static class CanonicalInfrastructurePropertyBag
         "dnsoptioninet6",
         "dnsoptionip6dotint",
         "dnsoptionip6bytestring",
+        "dnsoptionnoaaaa",
         "dnsoptionnotldquery",
         "dnsoptionedns0",
         "dnsoptionsinglerequestreopen",

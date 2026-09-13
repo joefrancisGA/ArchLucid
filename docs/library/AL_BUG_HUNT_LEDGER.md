@@ -11195,6 +11195,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-13 seed hunt #2599 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` no-aaaa pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_no_aaaa_projects_dns_option_no_aaaa_exposure`.
+
 2026-09-13 seed hunt #2597 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` ip6-bytestring pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_ip6_bytestring_projects_dns_option_ip6_bytestring_exposure`.
 
 2026-09-13 seed hunt #2592 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` ip6-dotint pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_ip6_dotint_projects_dns_option_ip6_dotint_exposure`.
