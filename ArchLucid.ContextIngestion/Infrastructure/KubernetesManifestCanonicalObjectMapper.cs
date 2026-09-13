@@ -508,6 +508,29 @@ internal static class KubernetesManifestCanonicalObjectMapper
                     }
                 }
             }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "options", out JsonElement dnsOptionsSingleRequestReopen)
+                && dnsOptionsSingleRequestReopen.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement dnsOption in dnsOptionsSingleRequestReopen.EnumerateArray())
+                {
+                    if (dnsOption.ValueKind is not JsonValueKind.Object)
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "name", out JsonElement optionName)
+                        || optionName.ValueKind is not JsonValueKind.String
+                        || !string.Equals(optionName.GetString(), "single-request-reopen", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "value", out JsonElement optionValue)
+                        && optionValue.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(optionValue.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsOptionSingleRequestReopen", optionValue.GetString()!);
+                        break;
+                    }
+                }
+            }
         }
 
         if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "hostAliases", out JsonElement hostAliases)
