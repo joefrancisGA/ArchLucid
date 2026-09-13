@@ -66,6 +66,16 @@ public sealed class DiagramForestLayoutSvgRendererTests
             .Count(element => string.Equals(element.Name.LocalName, "line", StringComparison.Ordinal));
         edgeCount.Should().Be(6);
 
+        root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge-label", StringComparison.Ordinal))
+            .SelectMany(group => group.Elements())
+            .Count(element => string.Equals(element.Name.LocalName, "text", StringComparison.Ordinal)
+                && string.Equals(element.Value, "peering", StringComparison.Ordinal))
+            .Should()
+            .Be(6);
+
         string[] viewBoxParts = (root.Attribute("viewBox")?.Value ?? string.Empty)
             .Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         viewBoxParts.Should().HaveCount(4);

@@ -130,6 +130,14 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toBeInTheDocument();
   });
 
+  it('disables fit in view at the default 100 percent zoom', () => {
+    render(
+      <ArchitectureDiagramViewer source={sampleSvg} sourceKind="html" alt="Inventory topology" />
+    );
+
+    expect(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL })).toBeDisabled();
+  });
+
   it('fit in view clears diagram zoom from the URL and shows 100 percent', async () => {
     searchParamsMock.set('diagZoom', '1.50');
 
@@ -139,13 +147,18 @@ describe('ArchitectureDiagramViewer', () => {
 
     expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(150);
 
-    fireEvent.click(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL }));
+    const fitInViewButton = screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL });
+
+    expect(fitInViewButton).toBeEnabled();
+
+    fireEvent.click(fitInViewButton);
 
     expect(replaceMock).toHaveBeenCalled();
     const lastCall = replaceMock.mock.calls.at(-1);
 
     expect(lastCall?.[0]).not.toContain('diagZoom=');
     expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(100);
+    expect(fitInViewButton).toBeDisabled();
   });
 
   it('applies a custom zoom percentage from the input', async () => {

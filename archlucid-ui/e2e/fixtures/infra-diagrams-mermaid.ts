@@ -165,7 +165,7 @@ export function elevenVnetOwnerExportMermaid(): string {
 /**
  * Compiler/renderer golden for the owner-shape Executive graph (11 VNets / 6 peerings)
  * after IDH-01 row-pack. Source: DiagramSparseComponentPackerTests.BuildExecutiveOwnerShapePeeringGraph
- * through MermaidDiagramRenderer — 0 packing subgraphs, layout-only ~~~, six |"peered"| arrows.
+ * through MermaidDiagramRenderer — 0 packing subgraphs, layout-only ~~~, six |"peering"| arrows.
  */
 export function elevenVnetSparsePeeringMermaid(): string {
   return `flowchart TD
@@ -191,12 +191,12 @@ export function elevenVnetSparsePeeringMermaid(): string {
     n_97bc743c90f3ec01["vnet-edw-hi-tst"]
     %% al-type=Microsoft.Network/virtualNetworks al-rg=network-rg-9 al-seed=vnet-9
     n_a33f5b6ab8d05c6f["vnet-pcoe-hi-nprd"]
-    n_faa008cc79752e5b -->|"peered"| n_a024bdcfecd7841b
-    n_4c3bc94d23429abf -->|"peered"| n_b99e8dfe6dcbb15e
-    n_921b0a636e54b675 -->|"peered"| n_97bc743c90f3ec01
-    n_6d475eea46fe20d1 -->|"peered"| n_a33f5b6ab8d05c6f
-    n_708ea1a6331ccb16 -->|"peered"| n_25c297f402f0707e
-    n_a024bdcfecd7841b -->|"peered"| n_3e895df044c2a881
+    n_faa008cc79752e5b -->|"peering"| n_a024bdcfecd7841b
+    n_4c3bc94d23429abf -->|"peering"| n_b99e8dfe6dcbb15e
+    n_921b0a636e54b675 -->|"peering"| n_97bc743c90f3ec01
+    n_6d475eea46fe20d1 -->|"peering"| n_a33f5b6ab8d05c6f
+    n_708ea1a6331ccb16 -->|"peering"| n_25c297f402f0707e
+    n_a024bdcfecd7841b -->|"peering"| n_3e895df044c2a881
     n_3e895df044c2a881 ~~~ n_4c3bc94d23429abf
     n_97bc743c90f3ec01 ~~~ n_6d475eea46fe20d1
     n_3e895df044c2a881 ~~~ n_6d475eea46fe20d1

@@ -81,7 +81,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             {
                 FromNodeId = fromId,
                 ToNodeId = toId,
-                Label = string.IsNullOrWhiteSpace(edge.Label) ? edge.EdgeType : edge.Label!,
+                Label = DiagramEdgeLabelHumanizer.ResolveDisplayLabel(edge.Label, edge.EdgeType),
             });
         }
 
@@ -97,6 +97,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
         DiagramSparseComponentPacker.Pack(ast);
+        DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
 
         return ast;
     }

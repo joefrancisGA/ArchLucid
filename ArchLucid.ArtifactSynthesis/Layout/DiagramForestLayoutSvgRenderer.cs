@@ -266,7 +266,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     CultureInfo.InvariantCulture,
                     $"{minX:0.###} {minY:0.###} {viewBoxWidth:0.###} {viewBoxHeight:0.###}")));
 
-        XElement edgeLayer = new(svgNamespace + "g", new XAttribute("class", "edge"));
+        XElement edgeLayer = new(svgNamespace + "g", new XAttribute("class", "edges"));
 
         foreach (DiagramEdge edge in visibleEdges)
         {
@@ -278,14 +278,13 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
             (double fromX, double fromY, double toX, double toY) = ResolveEdgeEndpoints(fromPlacement, toPlacement);
 
-            edgeLayer.Add(new XElement(
-                svgNamespace + "line",
-                new XAttribute("x1", FormatCoordinate(fromX)),
-                new XAttribute("y1", FormatCoordinate(fromY)),
-                new XAttribute("x2", FormatCoordinate(toX)),
-                new XAttribute("y2", FormatCoordinate(toY)),
-                new XAttribute("stroke", "#64748b"),
-                new XAttribute("stroke-width", "1.5")));
+            edgeLayer.Add(DiagramForestEdgeLabelSvgEmitter.EmitEdgeGroup(
+                svgNamespace,
+                edge,
+                fromX,
+                fromY,
+                toX,
+                toY));
         }
 
         root.Add(edgeLayer);

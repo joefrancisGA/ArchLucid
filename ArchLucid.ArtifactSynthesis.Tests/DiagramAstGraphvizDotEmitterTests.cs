@@ -78,7 +78,7 @@ public sealed class DiagramAstGraphvizDotEmitterTests
             ],
             Edges =
             [
-                new DiagramEdge { FromNodeId = "vnet-a", ToNodeId = "vnet-b", Label = "peered" },
+                new DiagramEdge { FromNodeId = "vnet-a", ToNodeId = "vnet-b", Label = "peering" },
             ],
         };
 
