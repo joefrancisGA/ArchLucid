@@ -10572,7 +10572,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
@@ -10617,6 +10617,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-12 seed hunt #2095 (seed→hit): reseeded core-costing; proved minute UOM parity gap; regression `AzureRetailPricesSkuMatchersMinuteTests`.
 
 Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Costing/` hunts.
+
+2026-09-13 seed hunt #2310 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
 
 ### Hypotheses
 
