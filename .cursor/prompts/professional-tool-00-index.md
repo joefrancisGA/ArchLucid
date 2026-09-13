@@ -24,7 +24,9 @@
      Wave 22: architecture-spine-00-index.md (AS-001–100) shipped.
      Wave 23: lost-write-00-index.md (LW-001–LW-100) shipped — do not re-run.
      Waves 24–31: livelihood-gravity-00-index.md (CG/SN/LN/MG/DI/CE/DW/RP) shipped.
-     Wave 32: system-gravity-00-index.md (SG-001–120) — issue-2 residual. -->
+     Wave 32: system-gravity-00-index.md (SG-001–120) — issue-2 residual.
+     Wave 33: livelihood-day-00-index.md (LY-001–120) — finalize judge default-on.
+     Wave 34: inhabit-00-index.md (IH-001–080) — inhabit the architecture; findings as afternoon document. -->
 
 # Professional-tool mitigations — Composer prompt set
 
@@ -56,6 +58,8 @@ ArchLucid sells a **seat for a repeat professional**. Production UX still treats
 **Wave 23 (shipped):** [`lost-write-00-index.md`](lost-write-00-index.md) (**LW-001–LW-100**). Do not re-run.
 **Waves 24–31 (shipped):** [`livelihood-gravity-00-index.md`](livelihood-gravity-00-index.md) — **CG**, **SN**, **LN**, **MG**, **DI**, **CE**, **DW**, **RP**. **SN** is system-not-job, not SecureNow brand.
 **Wave 32 (ready):** [`system-gravity-00-index.md`](system-gravity-00-index.md) (**SG-001–120**) — issue-2 residual: instrument after spawn is still the nested review job. Do not re-run AO / SY / SN / CE.
+**Wave 33:** [`livelihood-day-00-index.md`](livelihood-day-00-index.md) (**LY-001–120**). Do not re-run SG-001–081.
+**Wave 34:** [`inhabit-00-index.md`](inhabit-00-index.md) (**IH-001–080**, ADR **0100**) — inhabit the architecture; findings as the afternoon document. Do not re-run SG / LY product bodies except as a numbered leftover.
 
 **Do not treat this set as a V1 assessment scorecard.** Do not add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or closed assurance programs (**TB-645** vocabulary must stay; **TB-135** / **TB-136** stay closed).
 
