@@ -2679,4 +2679,5 @@
 {"at":"2026-09-13T01:38:12.7770869Z","zoneId":"authority-pipeline-payload","outcome":"seed-only"}
 {"at":"2026-09-13T01:38:25.7739996Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
 {"at":"2026-09-13T01:38:38.2156058Z","zoneId":"application-governance-policy","outcome":"seed-only"}
-{"at":"2026-09-13T01:38:50.5492300Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only"}
+{"at":"2026-09-13T01:38:50.54923Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only"}
+{"at":"2026-09-13T01:39:02.5616909Z","zoneId":"core-findings-advice","outcome":"seed-only"}
