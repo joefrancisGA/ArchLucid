@@ -886,6 +886,16 @@ public sealed partial class AzureRetailPricesCatalogClient
         return char.IsDigit(trimmed[^2]);
     }
 
+
+    private static bool HasCompactDayWordSuffix(string trimmed)
+    {
+        if (trimmed.Length < 4)
+            return false;
+
+        return trimmed.EndsWith("day", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^4]);
+    }
+
     private static bool HasCompactWeekSuffix(string trimmed)
     {
         if (trimmed.Length < 2)
