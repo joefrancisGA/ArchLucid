@@ -62,6 +62,10 @@
 2026-09-13 seed hunt #2370 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_dynatrace_monitor.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_dynatrace_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 - **id:** topology-proposal-merge
 
+2026-09-13 seed hunt #2421 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `lab_service` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
+2026-09-13 seed hunt #2426 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `kubernetes_configuration` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
 2026-09-13 seed hunt #2399 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_kubernetes_cluster.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_kubernetes_cluster_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 
 2026-09-13 seed hunt #2395 (seed-only): reseeded topology-proposal-merge; no new hunt-ready rows.
@@ -70,8 +74,8 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 112
-- **bugs-found:** 80
+- **hunts:** 114
+- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-13 — hunt #2399: kubernetes_cluster Compute-category ds- alias gap
@@ -4286,6 +4290,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** tenant-data-export
 
+2026-09-13 seed hunt #2419 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2424 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2429 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
 2026-09-13 seed hunt #2394 (seed-only): reseeded tenant-data-export; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2388 (seed-only): reseeded tenant-data-export; no new hunt-ready rows.
@@ -4294,7 +4304,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 39
+- **hunts:** 42
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
@@ -5111,6 +5121,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** persistence-identity
 
+2026-09-13 seed hunt #2420 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2425 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2430 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
 2026-09-13 seed hunt #2398 (seed-only): reseeded persistence-identity; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2392 (seed-only): reseeded persistence-identity; no new hunt-ready rows.
@@ -5119,7 +5135,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 31
+- **hunts:** 34
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
@@ -10611,6 +10627,12 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-costing
 
+2026-09-13 seed hunt #2418 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved standalone `dy` day UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneDyTests`.
+
+2026-09-13 seed hunt #2423 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved standalone `mon` month UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneMonTests`.
+
+2026-09-13 seed hunt #2428 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved standalone `mos` month UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneMosTests`.
+
 2026-09-13 seed hunt #2393 (seed-only): reseeded core-costing; no new hunt-ready rows.
 - **split-from:** archlucid-core
 - **status:** open
@@ -10618,8 +10640,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 40
-- **bugs-found:** 27
+- **hunts:** 43
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-13 — hunt #2354: slash `/dy` day UOM rejected while `/day` and `/d` synonyms matched
@@ -10917,6 +10939,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-13 seed hunt #2422 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_policy` pod spec projection gap; regression `ParseAsync_snake_case_dns_policy_projects_dns_policy_exposure`.
+
+2026-09-13 seed hunt #2427 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `service_account_name` pod spec projection gap; regression `ParseAsync_snake_case_service_account_name_projects_service_account_name_exposure`.
+
 2026-09-13 seed hunt #2417 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `automount_service_account_token` pod spec dropped because `ShouldRedactKey` false-positives on `token` substring and `TryAddK8sProperty` recursed on redaction; regression `ParseAsync_snake_case_automount_service_account_token_projects_automount_service_account_token_exposure`.
 
 2026-09-13 seed hunt #2396 (seed-only): reseeded context-ingestion; no new hunt-ready rows.
@@ -10927,8 +10953,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 120
-- **bugs-found:** 163
+- **hunts:** 122
+- **bugs-found:** 165
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-13 — hunt #2386: snake_case `enable_service_links` pod spec not projected
