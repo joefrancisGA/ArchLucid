@@ -2608,3 +2608,4 @@
 {"at":"2026-09-13T00:13:04.7811096Z","zoneId":"email-otp-auth","outcome":"seed-only"}
 {"at":"2026-09-13T00:13:17.8583Z","zoneId":"retrieval","outcome":"seed-only"}
 {"at":"2026-09-13T00:13:30.2926562Z","zoneId":"decisioning","outcome":"seed-only"}
+{"at":"2026-09-13T00:13:43.1411794Z","zoneId":"security-analyzers","outcome":"seed-only"}
