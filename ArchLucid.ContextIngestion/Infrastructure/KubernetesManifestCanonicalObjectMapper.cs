@@ -270,6 +270,11 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && !string.IsNullOrWhiteSpace(subdomain.GetString()))
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "subdomain", subdomain.GetString()!);
 
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "restartPolicy", out JsonElement restartPolicy)
+            && restartPolicy.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(restartPolicy.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "restartPolicy", restartPolicy.GetString()!);
+
         ProjectContainerSecurityContext(podSpec, properties);
     }
 
