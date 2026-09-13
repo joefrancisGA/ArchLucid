@@ -39,6 +39,7 @@ internal static class AuthorityRunMapper
             ExecutePostureCapturedUtc = run.ExecutePostureCapturedUtc,
             AuthorityLifecyclePhase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(run),
             LegacyRunStatus = run.LegacyRunStatus,
+            ArchitectureId = run.ArchitectureId,
         };
     }
 

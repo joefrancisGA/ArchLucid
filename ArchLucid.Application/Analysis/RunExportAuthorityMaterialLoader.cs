@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.Operator;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.ArtifactSynthesis.Packaging;
@@ -95,7 +96,9 @@ public sealed class RunExportAuthorityMaterialLoader(
             RuleSetHash = string.IsNullOrWhiteSpace(golden.RuleSetHash) ? null : golden.RuleSetHash,
             PolicyAtCommitSummary = CommittedEffectiveGovernanceSnapshotExportFormatter.FormatReadmeHeadline(golden.EffectiveGovernanceAtCommit),
             PolicyAtCommitDetailLines = CommittedEffectiveGovernanceSnapshotExportFormatter.FormatReadmeDetailLines(golden.EffectiveGovernanceAtCommit),
-            OperatorShellReviewRelativePath = $"/reviews/{runId:D}"
+            OperatorShellReviewRelativePath = WorkingOperatorReviewLinks.BuildReviewWorkspaceRelativePath(
+                runId.ToString("D"),
+                runDetail.Run.ArchitectureId),
         };
 
         return RunExportAuthorityMaterialLoadResult.Success(

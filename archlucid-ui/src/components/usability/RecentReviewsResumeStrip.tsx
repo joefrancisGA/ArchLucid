@@ -21,7 +21,7 @@ function readRecentReviewEntries(): readonly OperatorRecentViewEntry[] {
     const raw = window.localStorage.getItem(OPERATOR_RECENT_VIEWS_STORAGE_KEY);
     const state = parseStoredRecentViews(raw);
 
-    return state.entries.filter((entry) => entry.kind === "review").slice(0, 3);
+    return state.entries.filter((entry) => entry.kind === "architecture").slice(0, 3);
   } catch {
     return [];
   }
@@ -49,7 +49,7 @@ export function RecentReviewsResumeStrip(): React.JSX.Element | null {
         id="recent-reviews-resume-heading"
         className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}
       >
-        Resume a recent review
+        Resume a recent architecture
       </h2>
       <ul className="m-0 mt-2 flex list-none flex-wrap gap-2 p-0">
         {entries.map((entry) => (

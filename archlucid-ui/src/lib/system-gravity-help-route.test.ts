@@ -1,0 +1,44 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+
+import { HELP_APP_GUIDED_TOPIC_SLUGS } from "@/lib/help/help-topic-content-loader";
+import {
+  SYSTEM_GRAVITY_HELP_CONCEPT_TILES,
+  SYSTEM_GRAVITY_HELP_OVERVIEW,
+  SYSTEM_GRAVITY_HELP_SLUG,
+} from "@/lib/system-gravity-help-guide-content";
+import {
+  SYSTEM_GRAVITY_HELP_PATH,
+} from "@/lib/system-gravity-help-route";
+
+const REPO_ROOT = join(process.cwd(), "..");
+
+/** ADR 0098 — SG-107 help topic registration. */
+describe("system-gravity help route (SG-107)", () => {
+  it("registers slug, path, and resolver wiring", () => {
+    expect(SYSTEM_GRAVITY_HELP_SLUG).toBe("system-gravity");
+    expect(SYSTEM_GRAVITY_HELP_PATH).toBe("/help/system-gravity");
+    expect(HELP_APP_GUIDED_TOPIC_SLUGS).toContain("system-gravity");
+
+    const resolverSource = readFileSync(
+      join(REPO_ROOT, "archlucid-ui/src/lib/help/help-topic-view-resolver-operate.tsx"),
+      "utf8",
+    );
+
+    expect(resolverSource).toContain("HelpSystemGravityGuideView");
+  });
+
+  it("teaches system vs job vs inspector without GitHub blob links", () => {
+    const corpus = [
+      SYSTEM_GRAVITY_HELP_OVERVIEW,
+      ...SYSTEM_GRAVITY_HELP_CONCEPT_TILES.map((tile) => `${tile.title} ${tile.body}`),
+    ].join(" ");
+
+    expect(corpus).toMatch(/instrument after spawn/i);
+    expect(corpus).toMatch(/inspector/i);
+    expect(corpus).toMatch(/Record/i);
+    expect(corpus).toMatch(/Practice/i);
+    expect(corpus).not.toMatch(/github\.com/i);
+  });
+});

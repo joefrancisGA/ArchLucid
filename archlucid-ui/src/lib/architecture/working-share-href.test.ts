@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { workingShareHref, WORKING_SHARE_UNLINKED_JOB_TOAST } from "@/lib/architecture/working-share-href";
 
 describe("workingShareHref (AO-09)", () => {
-  it("SY-20: prefers nested review path when architecture id is known", () => {
+  it("SG-034 / SY-20: prefers nested review path when architecture id is known", () => {
     const result = workingShareHref({
       architectureId: "architecture-identity-001",
       reviewId: "run-001",

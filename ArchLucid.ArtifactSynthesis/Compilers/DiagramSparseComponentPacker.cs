@@ -3,15 +3,14 @@ using ArchLucid.ArtifactSynthesis.Models;
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-/// When a diagram has real edges but multiple disconnected components, dagre spreads each
-/// tiny peering tree across the canvas. Wrapping components in packing subgraphs and linking
-/// representatives with invisible <c>~~~</c> edges steers a viewport-shaped grid without
-/// hiding real arrows.
+/// When a diagram has real edges but multiple disconnected components, dagre spreads
+/// each tiny peering tree across one wide rank. Layout-only <c>~~~</c> links from a
+/// previous-row sink to the next-row heads pack the forest in a viewport-shaped TD
+/// grid. Do not wrap components in subgraphs — Mermaid 11 extracts edge-free
+/// subgraphs as LR clusters with hard-coded 50/50 spacing.
 /// </summary>
 internal static class DiagramSparseComponentPacker
 {
-    public const string PackingSubgraphIdPrefix = "alpack_";
-
     public static void Pack(DiagramAst ast)
     {
         ArgumentNullException.ThrowIfNull(ast);
@@ -27,9 +26,7 @@ internal static class DiagramSparseComponentPacker
             return;
         }
 
-        bool hasNonPackingSubgraphs = ast.Subgraphs.Any(subgraph => !IsPackingSubgraph(subgraph));
-
-        if (hasNonPackingSubgraphs)
+        if (ast.Subgraphs.Count > 0)
         {
             PackInsideExistingSubgraphs(ast);
             return;
@@ -38,29 +35,15 @@ internal static class DiagramSparseComponentPacker
         PackFlatGraph(ast);
     }
 
-    public static bool IsPackingSubgraph(DiagramSubgraph subgraph)
-    {
-        ArgumentNullException.ThrowIfNull(subgraph);
-
-        return subgraph.SubgraphId.StartsWith(PackingSubgraphIdPrefix, StringComparison.Ordinal);
-    }
-
     private static void PackFlatGraph(DiagramAst ast)
     {
         List<List<DiagramNode>> components = BuildComponents(ast.Nodes, ast.Edges);
-
-        if (components.Count <= 1)
-        {
-            return;
-        }
-
-        WrapComponentsInPackingSubgraphs(ast, components, parentSubgraphId: null);
-        AppendRepresentativeGridLinks(ast, components);
+        AppendAlignmentLinks(ast, components);
     }
 
     private static void PackInsideExistingSubgraphs(DiagramAst ast)
     {
-        foreach (DiagramSubgraph subgraph in ast.Subgraphs.Where(candidate => !IsPackingSubgraph(candidate)).ToList())
+        foreach (DiagramSubgraph subgraph in ast.Subgraphs.ToList())
         {
             List<DiagramNode> members = ast.Nodes
                 .Where(node => string.Equals(node.SubgraphId, subgraph.SubgraphId, StringComparison.Ordinal))
@@ -74,64 +57,23 @@ internal static class DiagramSparseComponentPacker
             }
 
             List<List<DiagramNode>> components = BuildComponents(members, ast.Edges);
-
-            if (components.Count <= 1)
-            {
-                continue;
-            }
-
-            AppendRepresentativeGridLinks(ast, components);
+            AppendAlignmentLinks(ast, components);
         }
     }
 
-    private static void WrapComponentsInPackingSubgraphs(
-        DiagramAst ast,
-        IReadOnlyList<List<DiagramNode>> components,
-        string? parentSubgraphId)
+    private static void AppendAlignmentLinks(DiagramAst ast, IReadOnlyList<List<DiagramNode>> components)
     {
-        int orderKey = ast.Subgraphs.Count;
-
-        for (int index = 0; index < components.Count; index++)
+        if (components.Count <= 1)
         {
-            string subgraphId = $"{PackingSubgraphIdPrefix}{index}";
-            ast.Subgraphs.Add(new DiagramSubgraph
-            {
-                SubgraphId = subgraphId,
-                // Mermaid rejects empty labels; chrome is hidden via renderer style + host CSS.
-                Label = " ",
-                ParentSubgraphId = parentSubgraphId,
-                OrderKey = orderKey++,
-            });
-
-            foreach (DiagramNode node in components[index])
-            {
-                node.SubgraphId = subgraphId;
-            }
+            return;
         }
-    }
 
-    private static void AppendRepresentativeGridLinks(
-        DiagramAst ast,
-        IReadOnlyList<List<DiagramNode>> components)
-    {
-        List<DiagramNode> representatives = components
-            .Select(SelectRepresentative)
-            .OrderBy(node => node.OrderKey)
-            .ThenBy(node => node.NodeId, StringComparer.Ordinal)
-            .ToList();
+        IReadOnlyList<DiagramEdge> visibleEdges = DiagramEdgeVisibility.VisibleEdges(ast.Edges).ToList();
 
-        foreach (DiagramEdge link in DiagramPeerGridPlanner.BuildGridLinks(representatives))
+        foreach (DiagramEdge link in DiagramComponentRowPlanner.BuildAlignmentLinks(components, visibleEdges))
         {
             ast.Edges.Add(link);
         }
-    }
-
-    private static DiagramNode SelectRepresentative(IReadOnlyList<DiagramNode> component)
-    {
-        return component
-            .OrderBy(node => node.OrderKey)
-            .ThenBy(node => node.NodeId, StringComparer.Ordinal)
-            .First();
     }
 
     private static List<List<DiagramNode>> BuildComponents(
@@ -176,8 +118,6 @@ internal static class DiagramSparseComponentPacker
                 .OrderBy(node => node.OrderKey)
                 .ThenBy(node => node.NodeId, StringComparer.Ordinal)
                 .ToList())
-            .OrderBy(component => component[0].OrderKey)
-            .ThenBy(component => component[0].NodeId, StringComparer.Ordinal)
             .ToList();
     }
 

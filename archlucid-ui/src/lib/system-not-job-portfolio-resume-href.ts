@@ -1,4 +1,5 @@
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import { resolveFinalizeSuccessDeskHref } from "@/lib/architecture/finalize-success-desk-href";
 import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 
@@ -41,7 +42,7 @@ export function resolveRunIdFromWorkingReviewHref(href: string): string | null {
   return runId;
 }
 
-/** SN-012: Working resume opens nested review jobs when architecture id is known; honest peer fallback otherwise. */
+/** SN-012 / SG-040: Working resume lands on the architecture desk when parent id is known; honest peer fallback otherwise. */
 export function resolveSystemNotJobWorkingResumeReviewHref(
   input: SystemNotJobWorkingResumeReviewHrefInput,
 ): string {
@@ -51,10 +52,16 @@ export function resolveSystemNotJobWorkingResumeReviewHref(
     return reviewDetailPath(runId);
   }
 
-  return resolveWorkingRunReviewLocator({
+  const locator = resolveWorkingRunReviewLocator({
     runId,
     requestId: input.requestId,
     architectureId: input.architectureId,
     draftRegistryEntries: input.draftRegistryEntries,
-  }).href;
+  });
+
+  if (locator.architectureId !== null) {
+    return resolveFinalizeSuccessDeskHref(locator.architectureId, runId);
+  }
+
+  return locator.href;
 }

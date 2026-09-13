@@ -13,6 +13,7 @@ const REVIEW_DETAIL_PATH_IMPORT_ALLOWLIST: readonly string[] = [
   "lib/resolve-audit-trail-review-href.ts",
   "lib/resolve-invite-reviewer-review-href.ts",
   "lib/first-review-guide-status.ts",
+  "lib/system-not-job-portfolio-resume-href.ts",
   "lib/reviews/review-room-elicitation-url.ts",
   "lib/reviews/review-pin-run-url.ts",
   "lib/buyer/buyer-safe-review-navigation.ts",

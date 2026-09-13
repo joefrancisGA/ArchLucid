@@ -1,3 +1,4 @@
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
 import { getActiveSampleScenario } from "@/lib/samples/registry";
@@ -30,6 +31,15 @@ export function showcaseSampleReviewPackageHref(
   runId: string = SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId,
 ): string {
   return `/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`;
+}
+
+/** SG-063 — Working showcase links open the architecture portfolio, not peer review Home. */
+export function resolveShowcaseSampleReviewPackageHref(workingMode: boolean): string {
+  if (workingMode) {
+    return ARCHITECTURES_LIST_PATH;
+  }
+
+  return showcaseSampleReviewPackageHref();
 }
 
 function showcaseSampleReviewTabHref(

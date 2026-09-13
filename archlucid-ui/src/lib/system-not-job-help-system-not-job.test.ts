@@ -8,9 +8,11 @@ import {
 import { HELP_APP_GUIDED_TOPIC_SLUGS } from "@/lib/help/help-topic-content-loader";
 import { AO42_WORKING_HELP_DENYLIST } from "@/lib/help/help-workspace-mode-copy";
 import {
+  SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_CONCEPT_TILES,
   SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_OVERVIEW,
   SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_PAGE_SUBTITLE,
   SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_PAGE_TITLE,
+  SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_SECONDARY_ACTIONS,
   SYSTEM_NOT_JOB_HELP_WORKING_AUTHORITY_PIPELINE_MARKERS,
   SYSTEM_NOT_JOB_HELP_WORKING_TWO_START_PRODUCT_MARKERS,
 } from "@/lib/system-not-job-help-system-not-job-guide-content";
@@ -57,5 +59,24 @@ describe("system-not-job help architecture desk (SN-032)", () => {
 
     expect(guidedSources).toEqual(GETTING_STARTED_HELP_SOURCES);
     expect(guidedSources.some((link) => link.href === "/architecture/reviews/new")).toBe(true);
+  });
+
+  it("SG-080: teaches system-as-object, Practice sketch, and Record what-if branch cap", () => {
+    const corpus = [
+      SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_OVERVIEW,
+      ...SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_CONCEPT_TILES.map((tile) => `${tile.title} ${tile.body}`),
+    ].join(" ");
+
+    expect(corpus).toMatch(/Sketch a change is Practice/i);
+    expect(corpus).toMatch(/Record what-if is a capped full run/i);
+    expect(corpus).toMatch(/Impact preview is not Sketch a change/i);
+    expect(corpus).toMatch(/Rehearsal-stamped/i);
+    expect(corpus).toMatch(/branch cap/i);
+
+    expect(
+      SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_SECONDARY_ACTIONS.some(
+        (action) => action.href.includes("sketch-a-change"),
+      ),
+    ).toBe(true);
   });
 });

@@ -13,9 +13,9 @@ describe("createArchitectureDiagramMermaidConfig", () => {
     const config = createArchitectureDiagramMermaidConfig(false);
 
     expect(config.flowchart.htmlLabels).toBe(false);
-    expect(config.flowchart.padding).toBe(10);
-    expect(config.flowchart.nodeSpacing).toBe(28);
-    expect(config.flowchart.rankSpacing).toBe(32);
+    expect(config.flowchart.padding).toBe(6);
+    expect(config.flowchart.nodeSpacing).toBe(16);
+    expect(config.flowchart.rankSpacing).toBe(20);
     expect(config.suppressErrorRendering).toBe(true);
     expect(config.startOnLoad).toBe(false);
     expect(config.themeVariables.primaryColor).toBe("#E6CF8A");
@@ -24,14 +24,14 @@ describe("createArchitectureDiagramMermaidConfig", () => {
     expect(config.themeVariables.primaryTextColor).toBe("#0f172a");
   });
 
-  it.each([false, true])("uses compact linear network-simplex flowchart layout (dark=%s)", (dark) => {
+  it.each([false, true])("uses compact linear flowchart layout without a no-op ranker (dark=%s)", (dark) => {
     const config = createArchitectureDiagramMermaidConfig(dark);
 
     expect(config.flowchart.nodeSpacing).toBe(ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING);
     expect(config.flowchart.rankSpacing).toBe(ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING);
     expect(config.flowchart.padding).toBe(ARCHITECTURE_DIAGRAM_MERMAID_PADDING);
     expect(config.flowchart.curve).toBe("linear");
-    expect(config.flowchart.ranker).toBe("network-simplex");
+    expect(config.flowchart).not.toHaveProperty("ranker");
     expect(config.flowchart.wrappingWidth).toBe(ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH);
     expect(config.flowchart.useMaxWidth).toBe(false);
     expect(config.flowchart.htmlLabels).toBe(false);

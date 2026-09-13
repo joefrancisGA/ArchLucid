@@ -14,20 +14,27 @@ public sealed class DiagramSparseComponentPackerTests
     private readonly MermaidDiagramRenderer renderer = new();
 
     [Fact]
-    public void Pack_owner_shape_executive_vnets_with_six_peerings_wraps_components_and_emits_grid_links()
+    public void Pack_owner_shape_executive_vnets_emits_row_links_without_packing_subgraphs()
     {
         GraphSnapshot graph = BuildExecutiveOwnerShapePeeringGraph();
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
         string mermaid = renderer.Render(ast);
 
+        ast.Nodes.Should().HaveCount(11);
         DiagramEdgeVisibility.CountVisible(ast.Edges).Should().Be(6);
-        ast.Subgraphs.Should().OnlyContain(subgraph => DiagramSparseComponentPacker.IsPackingSubgraph(subgraph));
-        ast.Subgraphs.Count.Should().Be(5);
+        ast.Subgraphs.Should().BeEmpty();
+        ast.Edges.Count(edge => edge.IsLayoutOnly).Should().BeGreaterThanOrEqualTo(2);
         mermaid.Should().Contain("~~~");
-        mermaid.Should().Contain("-->|\"peered\"|");
-        mermaid.Should().Contain("subgraph alpack_");
-        mermaid.Should().Contain("style alpack_0 fill:transparent,stroke:none");
+        mermaid.Should().Contain("-->");
+        mermaid.Should().NotContain("subgraph alpack");
+        mermaid.Should().NotContain("style alpack_");
+        mermaid.Should().NotContain("classDef alpack");
+        mermaid.Should().Contain("vnet-eastus-1");
+
+        DiagramNode eastusOne = ast.Nodes.Single(node => node.Label.Contains("vnet-eastus-1", StringComparison.Ordinal));
+        ast.Edges.Should().Contain(edge =>
+            edge.IsLayoutOnly && string.Equals(edge.FromNodeId, eastusOne.NodeId, StringComparison.Ordinal));
     }
 
     [Fact]
@@ -39,10 +46,11 @@ public sealed class DiagramSparseComponentPackerTests
 
         ast.Subgraphs.Should().BeEmpty();
         ast.Edges.Should().OnlyContain(edge => edge.IsLayoutOnly);
+        renderer.Render(ast).Should().NotContain("subgraph alpack");
     }
 
     [Fact]
-    public void Pack_single_connected_graph_does_not_add_packing_subgraphs()
+    public void Pack_single_connected_graph_does_not_add_row_planner_links()
     {
         GraphSnapshot graph = BuildExecutiveSparseVnetGraph(resourceGroupCount: 11);
 
@@ -61,11 +69,31 @@ public sealed class DiagramSparseComponentPackerTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
 
         DiagramEdgeVisibility.CountVisible(ast.Edges).Should().Be(10);
-        ast.Subgraphs.Should().NotContain(subgraph => DiagramSparseComponentPacker.IsPackingSubgraph(subgraph));
+        ast.Subgraphs.Should().BeEmpty();
         renderer.Render(ast).Should().NotContain("~~~");
+        renderer.Render(ast).Should().NotContain("subgraph alpack");
     }
 
-    private static GraphSnapshot BuildExecutiveOwnerShapePeeringGraph()
+    [Fact]
+    public void Pack_region_swimlanes_align_inside_region_and_does_not_wrap_over_frames()
+    {
+        GraphSnapshot graph = BuildExecutiveTwoRegionPeeringForest();
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+        string mermaid = renderer.Render(ast);
+
+        ast.Subgraphs.Should().HaveCount(2);
+        ast.Subgraphs.Should().OnlyContain(subgraph => subgraph.Label.StartsWith("Region ", StringComparison.Ordinal));
+        ast.Nodes.Should().OnlyContain(node => !string.IsNullOrWhiteSpace(node.SubgraphId));
+        DiagramEdgeVisibility.CountVisible(ast.Edges).Should().Be(4);
+        ast.Edges.Should().Contain(edge => edge.IsLayoutOnly);
+        mermaid.Should().Contain("Region eastus");
+        mermaid.Should().Contain("Region westus");
+        mermaid.Should().NotContain("subgraph alpack");
+        mermaid.Should().Contain("~~~");
+    }
+
+    internal static GraphSnapshot BuildExecutiveOwnerShapePeeringGraph()
     {
         GraphSnapshot graph = new()
         {
@@ -107,10 +135,10 @@ public sealed class DiagramSparseComponentPackerTests
         [
             (0, 6),
             (2, 7),
+            (1, 8),
+            (3, 9),
+            (5, 10),
             (6, 4),
-            (1, 9),
-            (3, 5),
-            (8, 10),
         ];
 
         for (int index = 0; index < peerings.Length; index++)
@@ -125,6 +153,35 @@ public sealed class DiagramSparseComponentPackerTests
                 Weight = 1,
             });
         }
+
+        return graph;
+    }
+
+    private static GraphSnapshot BuildExecutiveTwoRegionPeeringForest()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        const string subscriptionId = "55555555-5555-5555-5555-555555555555";
+
+        graph.Nodes.Add(CreateRegionVnet("east-a", "vnet-east-hub", "network-rg-east-a", subscriptionId, "eastus"));
+        graph.Nodes.Add(CreateRegionVnet("east-b", "vnet-east-spoke", "network-rg-east-b", subscriptionId, "eastus"));
+        graph.Nodes.Add(CreateRegionVnet("east-c", "vnet-east-dev", "network-rg-east-c", subscriptionId, "eastus"));
+        graph.Nodes.Add(CreateRegionVnet("east-d", "vnet-east-tst", "network-rg-east-d", subscriptionId, "eastus"));
+        graph.Nodes.Add(CreateRegionVnet("east-e", "vnet-east-ppd", "network-rg-east-e", subscriptionId, "eastus"));
+        graph.Nodes.Add(CreateRegionVnet("east-f", "vnet-east-nprd", "network-rg-east-f", subscriptionId, "eastus"));
+        graph.Nodes.Add(CreateRegionVnet("west-a", "vnet-west-hub", "network-rg-west-a", subscriptionId, "westus"));
+        graph.Nodes.Add(CreateRegionVnet("west-b", "vnet-west-spoke", "network-rg-west-b", subscriptionId, "westus"));
+
+        graph.Edges.Add(CreatePeering("peering-east-hub-spoke", "east-a", "east-b"));
+        graph.Edges.Add(CreatePeering("peering-east-dev-tst", "east-c", "east-d"));
+        graph.Edges.Add(CreatePeering("peering-east-ppd-nprd", "east-e", "east-f"));
+        graph.Edges.Add(CreatePeering("peering-west", "west-a", "west-b"));
 
         return graph;
     }
@@ -153,6 +210,37 @@ public sealed class DiagramSparseComponentPackerTests
         }
 
         return graph;
+    }
+
+    private static GraphNode CreateRegionVnet(
+        string nodeId,
+        string label,
+        string resourceGroup,
+        string subscriptionId,
+        string location)
+    {
+        GraphNode node = CreateTopologyNode(
+            nodeId,
+            label,
+            "Microsoft.Network/virtualNetworks",
+            resourceGroup,
+            subscriptionId,
+            GraphTopologyCategories.Network);
+        node.Properties["arm.location"] = location;
+
+        return node;
+    }
+
+    private static GraphEdge CreatePeering(string edgeId, string fromNodeId, string toNodeId)
+    {
+        return new GraphEdge
+        {
+            EdgeId = edgeId,
+            FromNodeId = fromNodeId,
+            ToNodeId = toNodeId,
+            EdgeType = GraphEdgeTypes.PeersWith,
+            Weight = 1,
+        };
     }
 
     private static GraphNode CreateTopologyNode(

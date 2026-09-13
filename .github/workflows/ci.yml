@@ -126,6 +126,7 @@ jobs:
       run_openapi: ${{ steps.detect.outputs.run_openapi }}
       run_dotnet: ${{ steps.detect.outputs.run_dotnet }}
       run_terraform: ${{ steps.detect.outputs.run_terraform }}
+      run_infra_diagrams_layout: ${{ steps.detect.outputs.run_infra_diagrams_layout }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -4344,6 +4345,51 @@ jobs:
         with:
           name: ui-mock-smoke-blob-report
           path: archlucid-ui/blob-report
+          if-no-files-found: warn
+
+  ui-playwright-infra-diagrams-layout:
+    name: "Operator UI: Inventory diagram layout ratchet (PR)"
+    needs:
+      - gitleaks
+      - ci-path-lanes
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Path-skip inventory diagram layout Playwright
+        if: needs.ci-path-lanes.outputs.run_infra_diagrams_layout != 'true'
+        run: "echo 'Path-skip: inventory diagram layout ratchet not required for this PR lane set.'"
+
+      - uses: actions/setup-node@v7
+        if: needs.ci-path-lanes.outputs.run_infra_diagrams_layout == 'true'
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Inventory diagram layout Playwright (mapped bbox, owner .mmd)
+        if: needs.ci-path-lanes.outputs.run_infra_diagrams_layout == 'true'
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          NODE_OPTIONS: --max-old-space-size=6144
+          NEXT_PUBLIC_OPERATOR_EXPERIENCE: operator
+          NEXT_PUBLIC_DEMO_MODE: "false"
+          NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false"
+          NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
+          NEXT_PUBLIC_SUPPRESS_ONBOARDING_TOUR: "1"
+        run: |
+          npm ci
+          npm run build
+          MOCK_E2E_SKIP_NEXT_BUILD=1 npx playwright install --with-deps chromium
+          MOCK_E2E_SKIP_NEXT_BUILD=1 MOCK_E2E_OPERATOR_PORT=3002 npx playwright test -c playwright.operator-mock.config.ts --project=chromium-infra-diagrams-layout
+
+      - uses: actions/upload-artifact@v7
+        if: always() && needs.ci-path-lanes.outputs.run_infra_diagrams_layout == 'true'
+        with:
+          name: ui-infra-diagrams-layout-test-results
+          path: archlucid-ui/test-results
           if-no-files-found: warn
 
   ui-playwright-accessibility:

@@ -64,3 +64,30 @@ export const WORKING_PEER_INSIGHTS_TOOL_PATHS = {
 
 /** Portfolio fallback when Working has no open architecture for desk-first navigation (SY-07). */
 export const WORKING_DESK_PORTFOLIO_HREF = ARCHITECTURES_LIST_PATH;
+
+/** ADR 0098 — instrument-after-spawn failures SG-105 extends SY-03 (Working seat only). */
+export const WORKING_INSTRUMENT_AFTER_SPAWN_ADR_ID = "0098" as const;
+
+/**
+ * Instrument-after-spawn failures this wave closes (Working seat only; Guided is exempt):
+ *
+ * 1. After spawn, shell H1 / chrome identity reads as the review job, not the architecture desk.
+ * 2. Nested review-detail classifies or presents as Working Home / Start / Alt+R landing.
+ */
+export const WORKING_INSTRUMENT_AFTER_SPAWN_FAILURE_IDS = [
+  "after-spawn-shell-identity-is-architecture",
+  "review-detail-is-job-not-home",
+] as const;
+
+export type WorkingInstrumentAfterSpawnFailureId =
+  (typeof WORKING_INSTRUMENT_AFTER_SPAWN_FAILURE_IDS)[number];
+
+export type WorkingInstrumentAfterSpawnContract = {
+  readonly adrId: typeof WORKING_INSTRUMENT_AFTER_SPAWN_ADR_ID;
+  readonly failureIds: readonly WorkingInstrumentAfterSpawnFailureId[];
+};
+
+export const WORKING_INSTRUMENT_AFTER_SPAWN_CONTRACT: WorkingInstrumentAfterSpawnContract = {
+  adrId: WORKING_INSTRUMENT_AFTER_SPAWN_ADR_ID,
+  failureIds: WORKING_INSTRUMENT_AFTER_SPAWN_FAILURE_IDS,
+};

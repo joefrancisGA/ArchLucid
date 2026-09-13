@@ -111,7 +111,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
         if (string.IsNullOrWhiteSpace(kind))
             return;
 
-        string apiVersion = CanonicalInfrastructureJsonElementReader.ReadTopLevelString(resource, "apiVersion") ?? string.Empty;
+        string apiVersion = CanonicalInfrastructureJsonElementReader.ReadTopLevelStringIgnoreCaseOrSnakeCase(resource, "apiVersion") ?? string.Empty;
         string namespaceValue = CanonicalInfrastructureJsonElementReader.ReadMetadataString(resource, "metadata", "namespace") ?? string.Empty;
         string name = CanonicalInfrastructureJsonElementReader.ReadMetadataString(resource, "metadata", "name") ?? string.Empty;
 
@@ -212,7 +212,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
         if (podSpec.ValueKind is not JsonValueKind.Object)
             return;
 
-        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "hostNetwork", out JsonElement hostNetwork)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "hostNetwork", out JsonElement hostNetwork)
             && hostNetwork.ValueKind is JsonValueKind.True)
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostNetwork", "true");
 
@@ -226,24 +226,37 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         if (string.Equals(kind, "CronJob", StringComparison.OrdinalIgnoreCase))
         {
-            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "jobTemplate", out JsonElement jobTemplate)
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(specElement, "jobTemplate", out JsonElement jobTemplate)
                 && jobTemplate.ValueKind is JsonValueKind.Object
                 && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(jobTemplate, "spec", out JsonElement cronJobSpec)
                 && cronJobSpec.ValueKind is JsonValueKind.Object
-                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(cronJobSpec, "template", out JsonElement cronJobPodTemplate)
-                && cronJobPodTemplate.ValueKind is JsonValueKind.Object
+                && TryGetWorkloadPodTemplate(cronJobSpec, out JsonElement cronJobPodTemplate)
                 && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(cronJobPodTemplate, "spec", out JsonElement cronJobPodSpec))
                 return cronJobPodSpec;
 
             return default;
         }
 
-        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "template", out JsonElement workloadTemplate)
-            && workloadTemplate.ValueKind is JsonValueKind.Object
+        if (TryGetWorkloadPodTemplate(specElement, out JsonElement workloadTemplate)
             && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(workloadTemplate, "spec", out JsonElement workloadPodSpec))
             return workloadPodSpec;
 
         return default;
+    }
+
+    private static bool TryGetWorkloadPodTemplate(JsonElement specElement, out JsonElement podTemplate)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "template", out podTemplate)
+            && podTemplate.ValueKind is JsonValueKind.Object)
+            return true;
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "pod_template", out podTemplate)
+            && podTemplate.ValueKind is JsonValueKind.Object)
+            return true;
+
+        podTemplate = default;
+
+        return false;
     }
 
     private static void ProjectContainerSecurityContext(JsonElement podSpec, Dictionary<string, string> properties)
@@ -254,12 +267,8 @@ internal static class KubernetesManifestCanonicalObjectMapper
         bool allRunAsNonRootTrue = true;
         bool anyRunAsNonRootFalse = false;
 
-        void InspectContainer(JsonElement container)
+        void InspectSecurityContext(JsonElement securityContext)
         {
-            if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
-                || securityContext.ValueKind is not JsonValueKind.Object)
-                return;
-
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(securityContext, "privileged", out JsonElement privilegedElement)
                 && privilegedElement.ValueKind is JsonValueKind.True)
                 privileged = true;
@@ -279,6 +288,19 @@ internal static class KubernetesManifestCanonicalObjectMapper
             }
         }
 
+        void InspectContainer(JsonElement container)
+        {
+            if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
+                || securityContext.ValueKind is not JsonValueKind.Object)
+                return;
+
+            InspectSecurityContext(securityContext);
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "securityContext", out JsonElement podSecurityContext)
+            && podSecurityContext.ValueKind is JsonValueKind.Object)
+            InspectSecurityContext(podSecurityContext);
+
         if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "containers", out JsonElement containers)
             && containers.ValueKind is JsonValueKind.Array)
         {
@@ -286,10 +308,17 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 InspectContainer(container);
         }
 
-        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "initContainers", out JsonElement initContainers)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "initContainers", out JsonElement initContainers)
             && initContainers.ValueKind is JsonValueKind.Array)
         {
             foreach (JsonElement container in initContainers.EnumerateArray())
+                InspectContainer(container);
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "ephemeralContainers", out JsonElement ephemeralContainers)
+            && ephemeralContainers.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement container in ephemeralContainers.EnumerateArray())
                 InspectContainer(container);
         }
 
