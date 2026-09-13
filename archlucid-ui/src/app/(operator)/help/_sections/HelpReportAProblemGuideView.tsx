@@ -5,6 +5,7 @@ import { HelpReportAProblemHeaderActions } from "@/app/(operator)/help/_sections
 import { HelpReportAProblemSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpReportAProblemSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { ReportProblemAuditVocabularyRail } from "@/components/ReportProblemAuditVocabularyRail";
 import { ReportProblemHelpEvidenceOrientationStrip } from "@/components/help/ReportProblemHelpEvidenceOrientationStrip";
@@ -282,6 +283,8 @@ export function HelpReportAProblemGuideView(
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-report-a-problem-overview">
             {REPORT_A_PROBLEM_HELP_OVERVIEW}
           </p>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-report-a-problem" showSsoOptional={false} />
 
           <HelpReportAProblemDeferredDetailsDisclosure
             summary={REPORT_A_PROBLEM_HELP_DEFERRED_DETAILS_SUMMARY}

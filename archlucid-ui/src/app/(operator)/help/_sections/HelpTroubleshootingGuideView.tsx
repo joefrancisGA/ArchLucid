@@ -6,6 +6,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTroubleshootingAdvancedDiagnostics } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnostics";
 import { HelpTroubleshootingAdvancedDiagnosticsDisclosure } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnosticsDisclosure";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { TroubleshootingCommonIssuesList } from "@/components/help/TroubleshootingCommonIssuesList";
@@ -123,6 +124,8 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
           <p className={readingBodyClass} data-testid="help-troubleshooting-overview">
             {overview}
           </p>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-troubleshooting" showSsoOptional={false} />
 
           <section
             id="start-here"
