@@ -11,6 +11,7 @@ import {
   architectureIdentityDraftHref,
   resolveArchitectureReviewHref,
 } from "@/lib/architecture/architecture-routes";
+import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
 import { resolveFinalizeSuccessDeskHref } from "@/lib/architecture/finalize-success-desk-href";
 import {
   ARCHITECTURE_SPAWN_LOCKED_DRAFT_BACK_TO_REVIEW_LABEL,
@@ -43,7 +44,12 @@ type ArchitectureDraftHandoffPanelProps = {
 export function ArchitectureDraftHandoffPanel(
   props: ArchitectureDraftHandoffPanelProps,
 ): React.JSX.Element {
-  const reviewHref = resolveArchitectureReviewHref(props.linkedReviewId, props.parentArchitectureId);
+  const reviewJobHref = resolveArchitectureReviewHref(props.linkedReviewId, props.parentArchitectureId);
+  const inhabitedFindingsHref = resolveWorkingInhabitedFindingsLandingHref({
+    runId: props.linkedReviewId,
+    architectureId: props.parentArchitectureId,
+    workingMode: true,
+  });
   const spawnLockedBackLocator = resolveSpawnLockedDraftBackLocator({
     linkedReviewId: props.linkedReviewId,
     parentArchitectureId: props.parentArchitectureId,
@@ -76,14 +82,14 @@ export function ArchitectureDraftHandoffPanel(
             Back to architecture desk
           </Link>
         ) : (
-          <Link href={spawnLockedBackLocator.reviewJobHref} className={OPERATOR_LINK.nav}>
+          <Link href={inhabitedFindingsHref} className={OPERATOR_LINK.nav}>
             {ARCHITECTURE_SPAWN_LOCKED_DRAFT_BACK_TO_REVIEW_LABEL}
           </Link>
         )}
         {deskHref !== null ? (
           <>
             <span className="text-al-text-secondary"> · </span>
-            <Link href={spawnLockedBackLocator.reviewJobHref} className={OPERATOR_LINK.nav}>
+            <Link href={inhabitedFindingsHref} className={OPERATOR_LINK.nav}>
               {ARCHITECTURE_SPAWN_LOCKED_DRAFT_BACK_TO_REVIEW_LABEL}
             </Link>
           </>
@@ -126,7 +132,7 @@ export function ArchitectureDraftHandoffPanel(
               className={CTA_WIDTH.content}
               data-testid="architecture-draft-handoff-open-review"
             >
-              <Link href={reviewHref}>Open review — {reviewLabel}</Link>
+              <Link href={inhabitedFindingsHref}>Continue findings — {reviewLabel}</Link>
             </Button>
             <ArchitectureDraftCloneSnapshotControl
               draftId={props.draftId}
@@ -141,8 +147,8 @@ export function ArchitectureDraftHandoffPanel(
             data-testid="architecture-draft-spawn-lock-clone-honesty"
           >
             {ARCHITECTURE_DRAFT_SPAWN_LOCK_CLONE_LEGAL_SENTENCE}{" "}
-            <Link href={reviewHref} className={OPERATOR_LINK.inline}>
-              View review status
+            <Link href={reviewJobHref} className={OPERATOR_LINK.inline}>
+              View review job
             </Link>
           </p>
         </CardContent>

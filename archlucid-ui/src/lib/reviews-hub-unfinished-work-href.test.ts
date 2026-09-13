@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   ARCHITECTURES_LIST_PATH,
   REVIEWS_LIST_PATH,
+  architectureNestedFindingsPath,
 } from "@/lib/architecture/architecture-routes";
 import {
   REVIEWS_HUB_UNFINISHED_WORK_HREF,
@@ -34,7 +35,9 @@ describe("reviews-hub-unfinished-work-href (SY-54)", () => {
         inFlightParentArchitectureId: "architecture-identity-002",
         inFlightRunId: "run-in-flight-001",
       }),
-    ).toBe("/architecture/architectures/architecture-identity-002/reviews/run-in-flight-001");
+    ).toBe(
+      `${architectureNestedFindingsPath("architecture-identity-002")}?runId=run-in-flight-001`,
+    );
   });
 
   it("never uses the hub filter as the Working unfinished-work CTA", () => {

@@ -1,5 +1,6 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 
+import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
 import { resolveContinueLastReviewPackageTarget } from "@/lib/resolve-continue-last-review-package";
 import type { RunSummary } from "@/types/authority";
@@ -48,8 +49,11 @@ describe("resolve-continue-last-review-package (CD-11)", () => {
       workingMode: true,
     });
 
-    expect(target?.href).toBe("/architecture/architectures/architecture-identity-001/reviews/run-abc");
+    expect(target?.href).toBe(
+      `${architectureNestedFindingsPath("architecture-identity-001")}?runId=run-abc`,
+    );
     expect(target?.href).not.toBe("/architecture/reviews/run-abc");
+    expect(target?.href).not.toContain("/reviews/run-abc");
   });
 
   it("resumes the last-open review when it is still accessible", () => {
@@ -85,7 +89,9 @@ describe("resolve-continue-last-review-package (CD-11)", () => {
       workingMode: true,
     });
 
-    expect(target?.href).toBe("/architecture/architectures/architecture-identity-001/reviews/run-abc");
+    expect(target?.href).toBe(
+      `${architectureNestedFindingsPath("architecture-identity-001")}?runId=run-abc`,
+    );
   });
 
   it("prefers server last-open review id over local recent views", () => {

@@ -3,7 +3,7 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import { architectureDraftHasLinkedReview } from "@/lib/architecture/architecture-draft-handoff-gate";
 import { ARCHITECTURE_DRAFT_STATUS_LABELS } from "@/lib/architecture/architecture-draft-status";
 import { architectureDraftPath, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
-import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
 import { ENTERPRISE_STATUS_LABELS, type EnterpriseStatusKind } from "@/lib/design-tokens";
@@ -240,6 +240,7 @@ function resolveRunRailStatusTag(run: RunSummary): {
 function buildRunItems(
   runs: readonly RunSummary[],
   draftRegistryEntries: readonly ArchitectureDraftRegistryEntry[],
+  workingMode?: boolean,
 ): UnfinishedWorkRailItem[] {
   const items: UnfinishedWorkRailItem[] = [];
 
@@ -268,11 +269,12 @@ function buildRunItems(
     const kind: UnfinishedWorkRailItemKind =
       statusTag.kind === "needs-attention" ? "awaiting-disposition" : "review-in-progress";
 
-    const reviewHref = resolveWorkingRunReviewLocator({
+    const reviewHref = resolveWorkingInhabitedFindingsLandingHref({
       runId,
       requestId: run.requestId,
       draftRegistryEntries,
-    }).href;
+      workingMode: workingMode === true,
+    });
 
     items.push(
       buildRailItemBase({
@@ -337,7 +339,7 @@ export function summarizeUnfinishedWorkRailItems(
   }
 
   const combined = collapseUnfinishedWorkLifecycleDuplicates([
-    ...buildRunItems(inputs.runs, inputs.drafts),
+    ...buildRunItems(inputs.runs, inputs.drafts, inputs.workingMode),
     ...buildDraftItems(inputs.drafts),
     ...buildWizardItems(inputs.incompleteWizards),
   ]);

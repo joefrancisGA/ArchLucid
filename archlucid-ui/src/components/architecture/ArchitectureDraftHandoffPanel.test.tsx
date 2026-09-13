@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDraftHandoffPanel } from "@/components/architecture/ArchitectureDraftHandoffPanel";
+import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief-state";
 
@@ -47,7 +48,7 @@ describe("ArchitectureDraftHandoffPanel (SD-10 / AO-07)", () => {
     );
     expect(screen.getByTestId("architecture-draft-handoff-open-review")).toHaveAttribute(
       "href",
-      "/architecture/architectures/architecture-identity-001/reviews/run-42",
+      `${architectureNestedFindingsPath("architecture-identity-001")}?runId=run-42`,
     );
     expect(screen.getByTestId("architecture-draft-handoff-open-review")).not.toHaveAttribute(
       "href",

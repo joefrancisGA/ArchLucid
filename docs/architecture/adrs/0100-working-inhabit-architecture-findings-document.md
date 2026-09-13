@@ -4,7 +4,7 @@
 
 # ADR 0100: Working inhabits the architecture (findings as the afternoon document)
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-13
 - **Evidence:** `.cursor/prompts/inhabit-00-index.md` (IH-001) — proposed 2026-09-13.
 
