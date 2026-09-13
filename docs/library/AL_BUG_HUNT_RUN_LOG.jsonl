@@ -2667,3 +2667,4 @@
 {"at":"2026-09-13T01:32:25.2034877Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only"}
 {"at":"2026-09-13T01:35:05.0395567Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
 {"at":"2026-09-13T01:35:59.6708719Z","zoneId":"identity-provider-config","outcome":"seed-only"}
+{"at":"2026-09-13T01:36:18.8852739Z","zoneId":"persistence-identity","outcome":"seed-only"}
