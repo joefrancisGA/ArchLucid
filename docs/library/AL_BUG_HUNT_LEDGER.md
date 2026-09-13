@@ -134,11 +134,11 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** ."142"
-- **bugs-found:** ."110"
+- **hunts:** ."143"
+- **bugs-found:** ."111"
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2586: network_interface Compute-category ds- alias gap
+- **last-bug:** 2026-09-13 — hunt #2591: application_security_group Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11184,6 +11184,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ## Zone: context-ingestion
 
 - **id:** context-ingestion
+
+2026-09-13 seed hunt #2592 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` ip6-dotint pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_ip6_dotint_projects_dns_option_ip6_dotint_exposure`.
 
 2026-09-13 seed hunt #2587 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` inet6 pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_inet6_projects_dns_option_inet6_exposure`.
 
