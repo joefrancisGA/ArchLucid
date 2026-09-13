@@ -34,4 +34,28 @@ describe("resolveReviewsHubContinueReviewCandidate", () => {
     expect(candidate?.runId).toBe("awaiting");
     expect(candidate?.kind).toBe("awaiting-disposition");
   });
+
+  it("IP-002: lands on inhabited findings when parent architecture id is known", () => {
+    const candidate = resolveReviewsHubContinueReviewCandidate(
+      [run({ runId: "run-001", requestId: "architecture-identity-001" })],
+      {
+        draftRegistryEntries: [
+          {
+            draftId: "draft-001",
+            displayName: "Payments",
+            customerStatus: "in-review",
+            ownerLabel: "You",
+            lastUpdatedUtc: "2026-01-15T12:00:00.000Z",
+            linkedReviewId: "run-001",
+            serverUpdatedUtc: "2026-01-15T12:00:00.000Z",
+            parentArchitectureId: "architecture-identity-001",
+          },
+        ],
+      },
+    );
+
+    expect(candidate?.href).toBe(
+      "/architecture/architectures/architecture-identity-001/findings?runId=run-001",
+    );
+  });
 });

@@ -8,19 +8,20 @@ These tables record **secondary** Working inhabit leaks on the job inspector and
 
 `leakOpen: Yes` means the livelihood leak is **still open**. Product IPs (**IP-002**–**IP-011**) flip rows to **No** via **IP-013**.
 
-## IP-002 — Reviews hub lands on the job inspector
+## IP-002 — Reviews hub lands on inhabited findings (closed)
 
 | Surface | Module | Leak open | Owner |
 | --- | --- | --- | --- |
-| Reviews hub Continue strip | `reviews-hub-continue-review.ts` | Yes | IP-002 |
-| Reviews hub row primary href | `reviews-hub-package-display.ts` | Yes | IP-002 |
+| Reviews hub Continue strip | `reviews-hub-continue-review.ts` | No | IP-002 |
+| Reviews hub row primary href | `reviews-hub-package-display.ts` | No | IP-002 |
 
-## IP-003 — Global search resume exiles inhabited findings
+## IP-003 — Global search resume stays on inhabited findings (closed)
 
 | Surface | Module | Leak open | Owner |
 | --- | --- | --- | --- |
-| Global search run resume | `use-global-search-bar.ts` | Yes | IP-003 |
-| Global search finding inspect | `use-global-search-bar.ts` | Yes | IP-003 |
+| Global search run resume | `use-global-search-bar.ts` | No | IP-003 |
+| Global search finding inspect | `use-global-search-bar.ts` | No | IP-003 |
+| Global search package finding link | `GlobalSearchPackageResultsPanel.tsx` | No | IP-003 |
 
 ## IP-004 — Working share copies the inspector URL
 

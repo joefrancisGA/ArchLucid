@@ -14,13 +14,13 @@ export const INHABIT_POST_IR_REVIEWS_HUB_LANDING_ROWS: readonly InhabitPostIrLea
   {
     surface: "Reviews hub Continue strip",
     relativePath: "lib/reviews-hub-continue-review.ts",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-002",
   },
   {
     surface: "Reviews hub row primary href",
     relativePath: "app/(operator)/architecture/reviews/_sections/reviews-hub-package-display.ts",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-002",
   },
 ];
@@ -30,13 +30,19 @@ export const INHABIT_POST_IR_GLOBAL_SEARCH_LANDING_ROWS: readonly InhabitPostIrL
   {
     surface: "Global search run resume",
     relativePath: "components/use-global-search-bar.ts",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-003",
   },
   {
     surface: "Global search finding inspect",
     relativePath: "components/use-global-search-bar.ts",
-    leakOpen: true,
+    leakOpen: false,
+    ownerPrompt: "IP-003",
+  },
+  {
+    surface: "Global search package finding link",
+    relativePath: "components/GlobalSearchPackageResultsPanel.tsx",
+    leakOpen: false,
     ownerPrompt: "IP-003",
   },
 ];
