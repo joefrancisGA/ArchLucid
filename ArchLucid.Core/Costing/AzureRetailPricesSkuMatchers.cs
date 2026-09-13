@@ -116,6 +116,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashMinutesToken(trimmed)
             || HasCompactMinuteSuffix(trimmed)
             || HasCompactMinsSuffix(trimmed)
+            || HasCompactMinuteWordSuffix(trimmed)
             || HasCompactMinutesWordSuffix(trimmed)
             || string.Equals(trimmed, "min", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mins", StringComparison.OrdinalIgnoreCase)

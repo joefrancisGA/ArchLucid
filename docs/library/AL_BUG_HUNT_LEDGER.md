@@ -10815,6 +10815,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-costing
 
+2026-09-13 seed hunt #2593 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10minute` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactMinuteWordTests`.
+
 2026-09-13 seed hunt #2588 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10minutes` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactMinutesWordTests`.
 
 2026-09-13 seed hunt #2583 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10days` day UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactDaysWordTests`.
@@ -11263,11 +11265,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 167
-- **bugs-found:** 210
+- **hunts:** 168
+- **bugs-found:** 211
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2587: snake_case dns_config.options inet6 pod spec projection gap
+- **last-bug:** 2026-09-13 — hunt #2592: snake_case dns_config.options ip6-dotint pod spec projection gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
