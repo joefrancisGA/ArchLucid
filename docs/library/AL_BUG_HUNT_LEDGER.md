@@ -1,5 +1,7 @@
 ## Zone: topology-proposal-merge
 
+2026-09-13 seed hunt #2401 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `traffic_manager` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_traffic_manager_profile_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
 2026-09-13 seed hunt #2400 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `batch_account` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_batch_account_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 
 
@@ -38,8 +40,8 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 96
-- **bugs-found:** 64
+- **hunts:** 97
+- **bugs-found:** 65
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-13 — hunt #2399: kubernetes_cluster Compute-category ds- alias gap

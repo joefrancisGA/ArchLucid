@@ -1716,6 +1716,22 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
 
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_traffic_manager_profile_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "tm-1", label: "traffic", sourceId: "azurerm_traffic_manager_profile.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-traffic")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
 
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_route_server_node_has_compute_category_but_synthetic_datastore_id_used()
