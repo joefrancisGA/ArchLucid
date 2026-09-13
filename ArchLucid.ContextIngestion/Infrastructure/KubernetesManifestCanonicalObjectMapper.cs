@@ -386,6 +386,20 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 {
                     CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostAliasIp", aliasIp.GetString()!);
                     break;
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(hostAlias, "hostnames", out JsonElement hostnames)
+                    && hostnames.ValueKind is JsonValueKind.Array)
+                {
+                    foreach (JsonElement hostname in hostnames.EnumerateArray())
+                    {
+                        if (hostname.ValueKind is JsonValueKind.String
+                            && !string.IsNullOrWhiteSpace(hostname.GetString()))
+                        {
+                            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostAliasHostname", hostname.GetString()!);
+                            break;
+                        }
+                    }
+                }
+
                 }
             }
         }
