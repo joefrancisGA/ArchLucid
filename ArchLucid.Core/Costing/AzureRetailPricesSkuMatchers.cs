@@ -127,6 +127,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || string.Equals(trimmed, "min", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mins", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mi", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "mis", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "minute", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "minutes", StringComparison.OrdinalIgnoreCase);
     }
