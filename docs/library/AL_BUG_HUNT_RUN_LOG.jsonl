@@ -2765,3 +2765,4 @@
 {"at":"2026-09-13T04:12:36.0573276Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-13T05:09:01.1792197Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
 {"at": "2026-09-13T05:19:34.4549536Z", "zoneId": "application-pilots", "outcome": "seed-only"}
+{"at": "2026-09-13T05:19:34.4549536Z", "zoneId": "identity-provider-config", "outcome": "seed-only"}
