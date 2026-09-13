@@ -139,10 +139,18 @@ public static class ExportBundleCareerPostureResolver
         if (element.ValueKind is JsonValueKind.False)
             return false;
 
-        if (element.ValueKind is JsonValueKind.String
-            && bool.TryParse(element.GetString(), out bool parsed))
+        if (element.ValueKind is JsonValueKind.String)
         {
-            return parsed;
+            string? text = element.GetString();
+
+            if (bool.TryParse(text, out bool parsed))
+                return parsed;
+
+            if (string.Equals(text, "1", StringComparison.Ordinal))
+                return true;
+
+            if (string.Equals(text, "0", StringComparison.Ordinal))
+                return false;
         }
 
         if (element.ValueKind is JsonValueKind.Number

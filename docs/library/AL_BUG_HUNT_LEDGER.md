@@ -4318,6 +4318,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** tenant-data-export
 
+2026-09-13 seed hunt #2469 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved string `"1"` for `is_demo_tenant` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_demo_tenant_when_is_demo_tenant_string_one`.
+
 2026-09-13 seed hunt #2461 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2456 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
@@ -4338,11 +4340,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 43
-- **bugs-found:** 35
+- **hunts:** 44
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2355: numeric `is_sample_run` ignored on CLI career export gate
+- **last-bug:** 2026-09-13 — hunt #2469: string `"1"` for `is_demo_tenant` ignored on CLI career export gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5161,6 +5163,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** persistence-identity
 
+2026-09-13 seed hunt #2470 (seed→hit): reseeded persistence-identity with `-Hint persistence-identity`; proved `ReplaceActiveChallengeForEmailAsync` silently overwrote duplicate challenge id; regression `ReplaceActiveChallengeForEmailAsync_throws_when_new_challenge_id_collides_with_existing_row`.
+
 2026-09-13 seed hunt #2462 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2457 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
@@ -5181,11 +5185,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** ."36"
-- **bugs-found:** 17
+- **hunts:** ."37"
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — InMemory recovery-admin InsertAsync silently overwrote duplicate composite key
+- **last-bug:** 2026-09-13 — hunt #2470: ReplaceActiveChallengeForEmailAsync silently overwrote duplicate challenge id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
