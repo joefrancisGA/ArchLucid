@@ -236,7 +236,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("workloads_sap", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("workloads_orchestrator", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("palo_alto", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("verifiedaccess", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("verifiedaccess", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("extended_location", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
