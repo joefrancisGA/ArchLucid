@@ -642,6 +642,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || HasCompactMonthSuffix(trimmed)
             || HasCompactMosSuffix(trimmed)
             || HasCompactMonthWordSuffix(trimmed)
+            || HasCompactMonthsWordSuffix(trimmed)
             || string.Equals(trimmed, "m", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "month", StringComparison.OrdinalIgnoreCase)
@@ -899,6 +900,16 @@ public sealed partial class AzureRetailPricesCatalogClient
             && char.IsDigit(trimmed[^5]);
     }
 
+
+
+    private static bool HasCompactMonthsWordSuffix(string trimmed)
+    {
+        if (trimmed.Length < 7)
+            return false;
+
+        return trimmed.EndsWith("months", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^7]);
+    }
 
     private static bool HasCompactMonthWordSuffix(string trimmed)
     {
