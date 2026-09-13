@@ -5190,13 +5190,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** persistence-identity
 
+2026-09-13 seed hunt #2398 (seed-only): reseeded persistence-identity; no new hunt-ready rows.
+
 2026-09-13 seed hunt #2392 (seed-only): reseeded persistence-identity; no new hunt-ready rows.
 - **status:** open
 - **impact:** high
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
