@@ -37,6 +37,15 @@ vi.mock("@/hooks/use-tenant-branding-presentation-query", () => ({
   useTenantBrandingPresentationQuery: () => ({ data: null }),
 }));
 
+vi.mock("@/lib/use-iana-time-zone-preference", () => ({
+  useIanaTimeZonePreference: () => ({
+    ianaTimeZoneId: "America/New_York",
+    mounted: true,
+    accountSyncState: "idle",
+    setAndPersist: vi.fn(),
+  }),
+}));
+
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   fetchInfraEvidenceSnapshots: fetchInfraEvidenceSnapshotsMock,
   formatInfraEvidenceApiError: (error: unknown) => String(error),
@@ -234,6 +243,8 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(scopeContext).toHaveTextContent(`Snapshot ${snapshotLabel}`);
     expect(scopeContext).not.toHaveTextContent("11111111-1111-1111-1111-111111111111");
+    expect(scopeContext).toHaveTextContent("EDT");
+    expect(scopeContext.textContent ?? "").not.toMatch(/\d{1,2}:\d{2}:\d{2}/);
   });
 
   it("renders snapshot picker and partitioned fallback cards", async () => {
