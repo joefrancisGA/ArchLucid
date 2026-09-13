@@ -18,10 +18,18 @@ export const INHABIT_THE_ARCHITECTURE_HELP_OVERVIEW =
 
 export const INHABIT_THE_ARCHITECTURE_HELP_GUIDE_HEADINGS = [
   { id: "what-is-this-desk", label: "What is this desk?" },
-  { id: "what-to-do-next", label: "What to do next" },
-  { id: "why-empty", label: "Why empty findings?" },
+  { id: "two-controls-only", label: "Two controls only" },
+  { id: "record-simulator-incomplete", label: "Record on Simulator host" },
   { id: "record-vs-practice", label: "Record vs Practice" },
 ] as const;
+
+/** IH-028 — workspace density + Record/Practice; host Mode is honesty only. */
+export const INHABIT_THE_ARCHITECTURE_HELP_TWO_CONTROLS_BODY =
+  "Working production chrome exposes two customer controls: workspace density (Guided vs Working) and execute gravity as Record or Practice. Host AgentExecution Mode (Simulator vs Real) appears only as start and in-flight honesty — not as a third peer chooser. Operator-experience modes are not the same as host Mode." as const;
+
+/** IH-029 — why Record can start but finalize/export stays incomplete on Simulator. */
+export const INHABIT_THE_ARCHITECTURE_HELP_RECORD_SIMULATOR_BODY =
+  `${WORKING_CAREER_DOOR_LABEL} is the production proof door. When the host runs in Simulator, you can start and disposition on the architecture findings document, but sealed-record-complete proof and career exports stay incomplete until Real execution is provisioned for the workspace. That is host honesty — not “Career blocked,” and not a self-serve flip of host Mode in production docs. Next step is workspace Real when your operator provisions it.` as const;
 
 export const INHABIT_THE_ARCHITECTURE_HELP_CONCEPT_TILES = [
   {

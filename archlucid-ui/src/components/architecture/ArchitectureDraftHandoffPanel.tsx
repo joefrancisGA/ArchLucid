@@ -11,6 +11,7 @@ import {
   architectureIdentityDraftHref,
   resolveArchitectureReviewHref,
 } from "@/lib/architecture/architecture-routes";
+import { formatInhabitSpawnLockHandoffContinueLabel } from "@/lib/inhabit/inhabit-handoff-copy";
 import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
 import { resolveFinalizeSuccessDeskHref } from "@/lib/architecture/finalize-success-desk-href";
 import {
@@ -132,7 +133,9 @@ export function ArchitectureDraftHandoffPanel(
               className={CTA_WIDTH.content}
               data-testid="architecture-draft-handoff-open-review"
             >
-              <Link href={inhabitedFindingsHref}>Continue findings — {reviewLabel}</Link>
+              <Link href={inhabitedFindingsHref}>
+                {formatInhabitSpawnLockHandoffContinueLabel(reviewLabel)}
+              </Link>
             </Button>
             <ArchitectureDraftCloneSnapshotControl
               draftId={props.draftId}

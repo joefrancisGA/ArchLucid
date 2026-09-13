@@ -9,6 +9,8 @@ import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorSto
 import { AssignedToMeContinueOldestFindingStrip } from "@/components/usability/AssignedToMeContinueOldestFindingStrip";
 import { FindingsTriageFirstFindingStrip } from "@/components/usability/FindingsTriageFirstFindingStrip";
 import { WorkingFindingsKeyboardHint } from "@/components/governance/findings/WorkingFindingsKeyboardHint";
+import { resolveInhabitedFindingsDocumentPresentation } from "@/lib/inhabit/inhabit-findings-document-presentation";
+import { usePathname } from "next/navigation";
 import { INSIGHT_DENSITY_GENERIC_THRESHOLD } from "@/lib/governance/governance-findings-density-sort";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -18,6 +20,17 @@ import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(opera
 export function GovernanceFindingsQueueResultsSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element {
+  const pathname = usePathname();
+  const inhabitedFindingsDocument =
+    resolveInhabitedFindingsDocumentPresentation({
+      workingMode: props.isWorkingMode,
+      pathname,
+      scopedArchitectureId: props.scopedArchitectureId,
+      architectureDisplayName: props.architectureDisplayName,
+      scopedRunId: props.scopedRunId,
+      scopedRunTitle: props.scopedRunContextTitle,
+    }) !== null;
+
   return (
     <>
       {props.loading ? (
@@ -100,6 +113,7 @@ export function GovernanceFindingsQueueResultsSection(
           <GovernanceFindingsList
             displayedRows={props.displayedRows}
             buyerPolishedShell={props.buyerPolishedShell}
+            inhabitedFindingsDocument={inhabitedFindingsDocument}
             groupByResource={props.groupByResource}
             queueMode={props.mode}
             selectedFindingIds={props.selectedFindingIds}

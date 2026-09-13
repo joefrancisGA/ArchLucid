@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 
+import { GovernanceFindingsQueueQuietEnginesHint } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueQuietEnginesHint";
 import { ArchitectureIdentityDeskReviewFinalizeAction } from "@/components/architecture/ArchitectureIdentityDeskReviewFinalizeAction";
 import { WorkingInstrumentDocumentTitle } from "@/components/architecture/WorkingInstrumentDocumentTitle";
 import { TransparencyTrailPanel } from "@/components/feasibility/TransparencyTrailPanel";
@@ -79,6 +80,12 @@ export function InhabitedFindingsDocumentChrome(
             missingTrailDefect={trailQuery.data.runCompleted && trailQuery.data.trail === null}
             defaultExpanded={true}
           />
+        </div>
+      ) : null}
+
+      {scopedRunId.length > 0 ? (
+        <div data-testid="inhabited-findings-quiet-engines">
+          <GovernanceFindingsQueueQuietEnginesHint scopedRunId={scopedRunId} />
         </div>
       ) : null}
 

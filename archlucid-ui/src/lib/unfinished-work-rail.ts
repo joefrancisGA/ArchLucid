@@ -3,6 +3,10 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import { architectureDraftHasLinkedReview } from "@/lib/architecture/architecture-draft-handoff-gate";
 import { ARCHITECTURE_DRAFT_STATUS_LABELS } from "@/lib/architecture/architecture-draft-status";
 import { architectureDraftPath, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import {
+  INHABIT_WORKING_HOME_UNFINISHED_WORK_AWAITING_DISPOSITION_STATUS,
+  INHABIT_WORKING_HOME_UNFINISHED_WORK_IN_PROGRESS_STATUS,
+} from "@/lib/inhabit/inhabit-working-home-copy";
 import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
@@ -269,6 +273,13 @@ function buildRunItems(
     const kind: UnfinishedWorkRailItemKind =
       statusTag.kind === "needs-attention" ? "awaiting-disposition" : "review-in-progress";
 
+    const workingStatusLabel =
+      workingMode === true
+        ? kind === "awaiting-disposition"
+          ? INHABIT_WORKING_HOME_UNFINISHED_WORK_AWAITING_DISPOSITION_STATUS
+          : INHABIT_WORKING_HOME_UNFINISHED_WORK_IN_PROGRESS_STATUS
+        : statusTag.label ?? UNFINISHED_WORK_RAIL_STATUS_LABELS[kind];
+
     const reviewHref = resolveWorkingInhabitedFindingsLandingHref({
       runId,
       requestId: run.requestId,
@@ -282,7 +293,7 @@ function buildRunItems(
         kind,
         title: resolveReviewTitle(run),
         href: reviewHref,
-        statusLabel: statusTag.label ?? UNFINISHED_WORK_RAIL_STATUS_LABELS[kind],
+        statusLabel: workingStatusLabel,
         statusKind: statusTag.kind,
         updatedUtc: run.createdUtc ?? null,
       }),

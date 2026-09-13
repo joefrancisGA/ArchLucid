@@ -46,5 +46,6 @@ describe("inhabit landing guard (IH-015 / IH-074)", () => {
     );
 
     expect(source).toContain("resolveWorkingInhabitedFindingsLandingHref");
+    expect(source).toContain("formatInhabitSpawnLockHandoffContinueLabel");
   });
 });

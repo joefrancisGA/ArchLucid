@@ -94,7 +94,7 @@ export function GovernanceFindingsQueueScopeSection(
         />
       ) : null}
 
-      {props.scopedRunFilterActive ? (
+      {props.scopedRunFilterActive && !suppressPipelineChrome ? (
         <GovernanceFindingsQueueQuietEnginesHint scopedRunId={props.scopedRunId} />
       ) : null}
 

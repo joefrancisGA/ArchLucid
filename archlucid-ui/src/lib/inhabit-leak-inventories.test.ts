@@ -13,6 +13,7 @@ import {
   INHABIT_QUIET_ENGINE_COMPLETENESS_ROWS,
   INHABIT_RECORD_CTA_SIMULATOR_LEAK_ROWS,
   INHABIT_ROOM_PRESENTER_ROWS,
+  INHABIT_NESTED_REVIEW_BACK_HREF_ROWS,
   INHABIT_WORKING_HOME_PIPELINE_ROWS,
 } from "@/lib/inhabit-leak-inventories";
 import { MUTATION_UNDO_WINDOW_SECONDS } from "@/lib/mutation-reversibility-registry";
@@ -72,6 +73,11 @@ describe("inhabit leak inventories (IH-004–IH-012)", () => {
   it("IH-012 inventories Working Home pipeline teaching surfaces", () => {
     expect(INHABIT_WORKING_HOME_PIPELINE_ROWS.some((row) => row.teachesPipeline)).toBe(true);
     expect(INHABIT_WORKING_HOME_PIPELINE_ROWS.some((row) => !row.teachesPipeline)).toBe(true);
+  });
+
+  it("IH-024 inventories nested review back-href surfaces", () => {
+    expect(INHABIT_NESTED_REVIEW_BACK_HREF_ROWS.some((row) => row.returnsToArchitecture)).toBe(true);
+    expect(INHABIT_NESTED_REVIEW_BACK_HREF_ROWS.some((row) => !row.returnsToArchitecture)).toBe(true);
   });
 
   it("documents IH-004–012 in markdown without claiming IH-015 shipped beyond landing resolver", () => {
