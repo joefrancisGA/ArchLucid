@@ -111,6 +111,7 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return ContainsMinuteWordToken(trimmed)
             || ContainsBoundedToken(trimmed, " mi")
+            || ContainsBoundedToken(trimmed, " mis")
             || ContainsSlashMinToken(trimmed)
             || ContainsSlashMinsToken(trimmed)
             || ContainsSlashMinuteWordToken(trimmed)
