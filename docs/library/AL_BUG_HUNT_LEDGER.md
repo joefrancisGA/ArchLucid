@@ -11043,6 +11043,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-13 seed hunt #2499 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved `priority` pod spec projection gap; regression `ParseAsync_snake_case_priority_projects_priority_exposure`.
+
 2026-09-13 seed hunt #2497 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `preemption_policy` pod spec projection gap; regression `ParseAsync_snake_case_preemption_policy_projects_preemption_policy_exposure`.
 
 2026-09-13 seed hunt #2492 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `active_deadline_seconds` pod spec projection gap; regression `ParseAsync_snake_case_active_deadline_seconds_projects_active_deadline_seconds_exposure`.
@@ -11079,11 +11081,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 131
-- **bugs-found:** 174
+- **hunts:** 132
+- **bugs-found:** 175
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2497: snake_case `preemption_policy` pod spec not projected pod spec not projected pod spec not projected pod spec not projected
+- **last-bug:** 2026-09-13 — hunt #2499: `priority` pod spec not projected
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

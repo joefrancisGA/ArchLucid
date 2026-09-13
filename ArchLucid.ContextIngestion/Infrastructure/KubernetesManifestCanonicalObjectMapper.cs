@@ -304,6 +304,11 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && !string.IsNullOrWhiteSpace(preemptionPolicy.GetString()))
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "preemptionPolicy", preemptionPolicy.GetString()!);
 
+        if (TryGetPriority(podSpec, out JsonElement priority)
+            && priority.ValueKind is JsonValueKind.Number
+            && priority.TryGetInt32(out int priorityValue))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "priority", priorityValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
         ProjectContainerSecurityContext(podSpec, properties);
     }
 
@@ -338,6 +343,9 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "preemption_policy", out value);
     }
+
+    private static bool TryGetPriority(JsonElement podSpec, out JsonElement value) =>
+        CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "priority", out value);
 
     private static JsonElement ResolvePodSpec(JsonElement specElement, string kind)
     {
