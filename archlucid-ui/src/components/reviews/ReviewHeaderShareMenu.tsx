@@ -10,6 +10,7 @@ import { ShareableReviewLinkButton } from "@/components/usability/ShareableRevie
 import { WorkingReviewCopyLinkButton } from "@/components/reviews/WorkingReviewCopyLinkButton";
 
 import { Button, buttonVariants } from "@/components/ui/button";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -236,6 +237,7 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
               {collateralExportBlockedReason}
             </p>
           ) : null}
+          <SponsorExportSendHonestyStrip className="w-full pt-2" testIdPrefix="review-header-share-export" />
         </div>
       </PopoverContent>
     </Popover>

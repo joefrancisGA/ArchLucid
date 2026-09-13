@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, type ReactElement, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import {
   Dialog,
   DialogContent,
@@ -223,6 +224,7 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
             </li>
           ))}
         </ol>
+        <SponsorExportSendHonestyStrip className="w-full max-w-xl" testIdPrefix="review-meeting-packet-export" />
         <DialogFooter>
           <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
             Close

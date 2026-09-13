@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { BUYER_CTO_DEMO_SHOWCASE_ANCHOR_ISO } from "@/lib/buyer/buyer-cto-demo-orchestration";
 import {
   BUYER_CTO_DEMO_AUDIT_EXPORT_BUSY,
@@ -58,15 +59,18 @@ export function CtoDemoAuditIntegrityExportButton(): React.JSX.Element | null {
   }
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      disabled={busy}
-      data-testid="cto-demo-audit-integrity-export"
-      onClick={() => void onExport()}
-    >
-      {busy ? BUYER_CTO_DEMO_AUDIT_EXPORT_BUSY : BUYER_CTO_DEMO_AUDIT_EXPORT_CTA}
-    </Button>
+    <div className="flex flex-col gap-2">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={busy}
+        data-testid="cto-demo-audit-integrity-export"
+        onClick={() => void onExport()}
+      >
+        {busy ? BUYER_CTO_DEMO_AUDIT_EXPORT_BUSY : BUYER_CTO_DEMO_AUDIT_EXPORT_CTA}
+      </Button>
+      <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="cto-demo-audit-integrity-export" />
+    </div>
   );
 }
