@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
@@ -15,7 +16,8 @@ internal static class InventoryDiagramPeelBudgetApplier
         bool StructurallyValid,
         IReadOnlyList<string> PeeledArmTypes,
         bool UsedResourceGroupMap,
-        bool UsedBackboneKeep);
+        bool UsedBackboneKeep,
+        IReadOnlyList<string> AlwaysDisposedArmTypes);
 
     public static PeelCompileResult CompileWithPeelBudget(
         GraphSnapshot graph,
@@ -38,8 +40,18 @@ internal static class InventoryDiagramPeelBudgetApplier
         ArgumentNullException.ThrowIfNull(deterministicRepairer);
         ArgumentNullException.ThrowIfNull(structuralValidator);
 
+        IReadOnlySet<string> alwaysDisposeTypes = DiagramPeelAlwaysDisposeResolver.Resolve(catalog, graph);
+        GraphSnapshot workingGraph = InventoryDiagramGraphPeelFilter.Filter(graph, alwaysDisposeTypes);
+        List<string> alwaysDisposedArmTypes = graph.Nodes
+            .Where(DiagramAstGraphNodeClassifier.IsTopologyResource)
+            .Select(DiagramAstGraphNodeClassifier.ReadArmType)
+            .Where(armType => alwaysDisposeTypes.Contains(armType))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(armType => armType, StringComparer.Ordinal)
+            .ToList();
+
         PeelCompileResult initial = CompileOnce(
-            graph,
+            workingGraph,
             mode,
             compileOptions,
             graphCompiler,
@@ -49,7 +61,8 @@ internal static class InventoryDiagramPeelBudgetApplier
             structuralValidator,
             peeledArmTypes: [],
             usedResourceGroupMap: false,
-            usedBackboneKeep: false);
+            usedBackboneKeep: false,
+            alwaysDisposedArmTypes);
 
         if (!MermaidDiagramInventoryRenderOrchestrator.ShouldAttemptPeelBudget(mode)
             || !initial.Metrics.ExceedsReadableThresholds(thresholds))
@@ -57,8 +70,8 @@ internal static class InventoryDiagramPeelBudgetApplier
             return initial;
         }
 
-        IReadOnlyList<string> peelOrder = DiagramPeelCatalogOrderResolver.ResolvePeelOrder(catalog, graph);
-        HashSet<string> excludedArmTypes = new(StringComparer.OrdinalIgnoreCase);
+        IReadOnlyList<string> peelOrder = DiagramPeelCatalogOrderResolver.ResolvePeelOrder(catalog, workingGraph);
+        HashSet<string> excludedArmTypes = new(alwaysDisposeTypes, StringComparer.OrdinalIgnoreCase);
         List<string> peeledArmTypes = [];
 
         foreach (string armType in peelOrder)
@@ -69,7 +82,7 @@ internal static class InventoryDiagramPeelBudgetApplier
             }
 
             peeledArmTypes.Add(armType);
-            GraphSnapshot filteredGraph = InventoryDiagramGraphPeelFilter.Filter(graph, excludedArmTypes);
+            GraphSnapshot filteredGraph = InventoryDiagramGraphPeelFilter.Filter(workingGraph, excludedArmTypes);
 
             PeelCompileResult peeled = CompileOnce(
                 filteredGraph,
@@ -82,7 +95,8 @@ internal static class InventoryDiagramPeelBudgetApplier
                 structuralValidator,
                 peeledArmTypes,
                 usedResourceGroupMap: false,
-                usedBackboneKeep: false);
+                usedBackboneKeep: false,
+                alwaysDisposedArmTypes);
 
             if (!peeled.Metrics.ExceedsReadableThresholds(thresholds) && peeled.StructurallyValid)
             {
@@ -98,7 +112,7 @@ internal static class InventoryDiagramPeelBudgetApplier
 
         if (mode == DiagramMode.FullSubscription)
         {
-            GraphSnapshot backboneGraph = InventoryDiagramBackboneKeepFilter.Filter(graph, catalog);
+            GraphSnapshot backboneGraph = InventoryDiagramBackboneKeepFilter.Filter(workingGraph, catalog);
             PeelCompileResult backbone = CompileOnce(
                 backboneGraph,
                 mode,
@@ -110,7 +124,8 @@ internal static class InventoryDiagramPeelBudgetApplier
                 structuralValidator,
                 peeledArmTypes,
                 usedResourceGroupMap: false,
-                usedBackboneKeep: true);
+                usedBackboneKeep: true,
+                alwaysDisposedArmTypes);
 
             if (backbone.StructurallyValid && !backbone.Metrics.ExceedsReadableThresholds(thresholds))
             {
@@ -119,7 +134,7 @@ internal static class InventoryDiagramPeelBudgetApplier
         }
 
         if (mode == DiagramMode.FullSubscription
-            && InventoryDiagramResourceGroupMapBuilder.TryBuild(graph, thresholds.MaxNodes, out GraphSnapshot mapGraph))
+            && InventoryDiagramResourceGroupMapBuilder.TryBuild(workingGraph, thresholds.MaxNodes, out GraphSnapshot mapGraph))
         {
             PeelCompileResult mapped = CompileOnce(
                 mapGraph,
@@ -132,7 +147,8 @@ internal static class InventoryDiagramPeelBudgetApplier
                 structuralValidator,
                 peeledArmTypes,
                 usedResourceGroupMap: true,
-                usedBackboneKeep: false);
+                usedBackboneKeep: false,
+                alwaysDisposedArmTypes);
 
             if (mapped.StructurallyValid)
             {
@@ -154,7 +170,8 @@ internal static class InventoryDiagramPeelBudgetApplier
         IMermaidDiagramStructuralValidator structuralValidator,
         IReadOnlyList<string> peeledArmTypes,
         bool usedResourceGroupMap,
-        bool usedBackboneKeep)
+        bool usedBackboneKeep,
+        IReadOnlyList<string> alwaysDisposedArmTypes)
     {
         DiagramAst ast = graphCompiler.Compile(graph, mode, compileOptions);
         DiagramAst repaired = deterministicRepairer.Repair(ast, out _);
@@ -169,7 +186,8 @@ internal static class InventoryDiagramPeelBudgetApplier
             structurallyValid,
             peeledArmTypes,
             usedResourceGroupMap,
-            usedBackboneKeep);
+            usedBackboneKeep,
+            alwaysDisposedArmTypes);
     }
 
     private static DiagramAstCompileOptions CreateResourceGroupMapCompileOptions(DiagramAstCompileOptions? compileOptions)

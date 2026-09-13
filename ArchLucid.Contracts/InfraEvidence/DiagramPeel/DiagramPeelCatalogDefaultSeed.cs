@@ -3,7 +3,7 @@ namespace ArchLucid.Contracts.InfraEvidence.DiagramPeel;
 /// <summary>Default peel catalog when SQL is unavailable or the table is empty (IE-17).</summary>
 public static class DiagramPeelCatalogDefaultSeed
 {
-    public const int DefaultCatalogVersion = 2;
+    public const int DefaultCatalogVersion = 3;
 
     public static DiagramPeelCatalogSnapshot BuildSnapshot()
     {
@@ -29,7 +29,15 @@ public static class DiagramPeelCatalogDefaultSeed
             Entry("Microsoft.Network/loadBalancers/probes", 20, "Child resource — LB probe"),
             Entry("Microsoft.Network/applicationGateways/frontendIPConfigurations", 20, "Child resource — AppGw frontend"),
             Entry("Microsoft.Storage/storageAccounts/blobServices", 20, "Child resource — storage sub-service"),
-            Entry("Microsoft.Compute/virtualMachines/extensions", 20, "Child resource — VM extension"),
+            AlwaysDispose("Microsoft.Portal/dashboards", "Always dispose — portal dashboard"),
+            AlwaysDispose("Microsoft.Network/dnszones", "Always dispose — DNS zone"),
+            AlwaysDispose("Microsoft.Network/privateDnsZones", "Always dispose — private DNS zone"),
+            AlwaysDispose("Microsoft.Network/dnsResolvers", "Always dispose — DNS resolver"),
+            AlwaysDispose("Microsoft.Compute/virtualMachines/extensions", "Always dispose — VM extension"),
+            AlwaysDispose("Microsoft.Compute/virtualMachineScaleSets/extensions", "Always dispose — VMSS extension"),
+            AlwaysDispose("Microsoft.HybridCompute/machines/extensions", "Always dispose — Arc extension"),
+            AlwaysDispose("Microsoft.Maintenance/maintenanceConfigurations", "Always dispose — maintenance window"),
+            AlwaysDispose("Microsoft.Maintenance/configurationAssignments", "Always dispose — maintenance assignment"),
             Entry("Microsoft.Network/networkInterfaces", 30, "Attachment — VM/NIC hop"),
             Entry("Microsoft.Network/publicIPAddresses", 40, "Attachment — address on NIC/LB"),
             Entry("Microsoft.Compute/disks", 50, "Attachment — disk on VM"),
@@ -64,6 +72,19 @@ public static class DiagramPeelCatalogDefaultSeed
         {
             ArmResourceType = armResourceType,
             PeelRank = peelRank,
+            AlwaysDispose = false,
+            IsEnabled = true,
+            Notes = notes,
+        };
+    }
+
+    private static DiagramPeelCatalogEntry AlwaysDispose(string armResourceType, string notes)
+    {
+        return new DiagramPeelCatalogEntry
+        {
+            ArmResourceType = armResourceType,
+            PeelRank = 0,
+            AlwaysDispose = true,
             IsEnabled = true,
             Notes = notes,
         };
@@ -75,6 +96,7 @@ public static class DiagramPeelCatalogDefaultSeed
         {
             ArmResourceType = armResourceType,
             PeelRank = null,
+            AlwaysDispose = false,
             IsEnabled = true,
             Notes = "Backbone — never peel",
         };

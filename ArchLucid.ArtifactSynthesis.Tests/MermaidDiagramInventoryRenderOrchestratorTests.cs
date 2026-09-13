@@ -2,6 +2,7 @@ using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.Contracts.InfraEvidence.DiagramPeel;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph;
 
@@ -123,6 +124,52 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
         result.CollapseReport.Entries.Should().NotContain(entry =>
             entry.Kind == InventoryDiagramResourceGroupMapBuilder.CollapseKind);
         result.Metrics.NodeCount.Should().Be(36);
+    }
+
+    [Fact]
+    public async Task RenderFromGraphAsync_always_disposes_dashboards_extensions_dns_and_maintenance()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                CreateTopology("vm-1", "Microsoft.Compute/virtualMachines"),
+                CreateTopology("dash-1", "Microsoft.Portal/dashboards"),
+                CreateTopology("ext-1", "Microsoft.Compute/virtualMachines/extensions"),
+                CreateTopology("dns-1", "Microsoft.Network/dnszones"),
+                CreateTopology("mw-1", "Microsoft.Maintenance/maintenanceConfigurations"),
+            ],
+        };
+
+        MermaidDiagramRenderResult result = await orchestrator.RenderFromGraphAsync(
+            graph,
+            DiagramMode.Executive,
+            null,
+            new MermaidDiagramReadabilityThresholds { MaxNodes = 400 });
+
+        result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
+        result.PrimaryMermaid.Should().Contain("vm-1");
+        result.PrimaryMermaid.Should().NotContain("dash-1");
+        result.PrimaryMermaid.Should().NotContain("ext-1");
+        result.PrimaryMermaid.Should().NotContain("dns-1");
+        result.PrimaryMermaid.Should().NotContain("mw-1");
+        result.CollapseReport!.Entries.Should().Contain(entry =>
+            entry.Kind == DiagramPeelAlwaysDisposeArmTypes.CollapseKind
+            && entry.Reason.Contains("Microsoft.Portal/dashboards", StringComparison.Ordinal));
+    }
+
+    private static GraphNode CreateTopology(string nodeId, string armType)
+    {
+        GraphNode node = new()
+        {
+            NodeId = nodeId,
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = nodeId,
+            SourceType = "azure-inventory-snapshot",
+        };
+        node.Properties["arm.type"] = armType;
+
+        return node;
     }
 
     private static MermaidDiagramInventoryRenderOrchestrator CreateOrchestrator()

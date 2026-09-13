@@ -37,6 +37,8 @@ public sealed class DiagramPeelCatalogOrderResolverTests
             order.IndexOf("Microsoft.Network/networkInterfaces"));
         order.Should().NotContain("Microsoft.Sql/servers/databases");
         order.Should().NotContain("Microsoft.Compute/virtualMachines");
+        order.Should().NotContain("Microsoft.Portal/dashboards");
+        order.Should().NotContain("Microsoft.Compute/virtualMachines/extensions");
     }
 
     [Theory]

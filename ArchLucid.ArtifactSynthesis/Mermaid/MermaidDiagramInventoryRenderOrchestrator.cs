@@ -67,6 +67,7 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
             cancellationToken);
 
         if (compiled.PeeledArmTypes.Count == 0
+            && compiled.AlwaysDisposedArmTypes.Count == 0
             && !compiled.UsedResourceGroupMap
             && !compiled.UsedBackboneKeep)
         {
@@ -85,7 +86,8 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
                 compiled.PeeledArmTypes,
                 catalog.CatalogVersion,
                 compiled.UsedResourceGroupMap,
-                compiled.UsedBackboneKeep),
+                compiled.UsedBackboneKeep,
+                compiled.AlwaysDisposedArmTypes),
             ValidationErrors = result.ValidationErrors,
             RepairedAst = result.RepairedAst,
         };
@@ -147,9 +149,19 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
         IReadOnlyList<string> peeledArmTypes,
         int catalogVersion,
         bool usedResourceGroupMap,
-        bool usedBackboneKeep)
+        bool usedBackboneKeep,
+        IReadOnlyList<string> alwaysDisposedArmTypes)
     {
         List<MermaidDiagramCollapseEntry> entries = repairCollapse?.Entries.ToList() ?? [];
+
+        foreach (string armType in alwaysDisposedArmTypes)
+        {
+            entries.Add(new MermaidDiagramCollapseEntry
+            {
+                Kind = DiagramPeelAlwaysDisposeArmTypes.CollapseKind,
+                Reason = $"Always dispose — never shown on inventory diagrams: {armType}",
+            });
+        }
 
         foreach (string armType in peeledArmTypes)
         {
