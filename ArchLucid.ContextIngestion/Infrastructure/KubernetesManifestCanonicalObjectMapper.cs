@@ -236,6 +236,10 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && enableServiceLinks.ValueKind is JsonValueKind.False)
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "enableServiceLinks", "false");
 
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "automountServiceAccountToken", out JsonElement automountServiceAccountToken)
+            && automountServiceAccountToken.ValueKind is JsonValueKind.False)
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "automountServiceAccountToken", "false");
+
         ProjectContainerSecurityContext(podSpec, properties);
     }
 

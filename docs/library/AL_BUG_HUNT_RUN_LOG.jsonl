@@ -2749,3 +2749,4 @@
 {"at":"2026-09-13T03:56:46.7183029Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-13T03:58:21.0274922Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-13T04:02:55.1409966Z","zoneId":"topology-proposal-merge","outcome":"hit"}
+{"at":"2026-09-13T04:07:26.2184388Z","zoneId":"context-ingestion","outcome":"hit"}
