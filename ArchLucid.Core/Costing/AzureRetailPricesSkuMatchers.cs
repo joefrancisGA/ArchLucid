@@ -621,6 +621,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashMonthToken(trimmed)
             || ContainsSlashMToken(trimmed)
             || ContainsBoundedToken(trimmed, " mo")
+            || ContainsBoundedToken(trimmed, " mn")
             || string.Equals(trimmed, "m", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "month", StringComparison.OrdinalIgnoreCase)
