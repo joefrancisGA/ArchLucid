@@ -195,4 +195,14 @@ public class RunSummaryDto
         get;
         set;
     }
+
+    /// <summary>
+    ///     Parent architecture identity when the run is nested under a Working desk locator (ADR 0077 / SG-095).
+    ///     Null for legacy peer-only runs.
+    /// </summary>
+    public Guid? ArchitectureId
+    {
+        get;
+        set;
+    }
 }

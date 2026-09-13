@@ -6,6 +6,7 @@ using ArchLucid.Application.WeeklySponsorReport;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Tenancy;
 
@@ -200,6 +201,7 @@ public sealed class ApplicationPackageCoverageBatch8Tests
         return new WeeklySponsorReportDeliveryScanner(
             tenants,
             authority,
+            new Mock<IRunRepository>().Object,
             export,
             recipients,
             dispatcher,
