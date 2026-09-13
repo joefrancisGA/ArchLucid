@@ -2900,3 +2900,4 @@
 {"at":"2026-09-13T15:29:46.7849443Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-13T15:35:56.9553965Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-13T15:39:55.2555615Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-09-13T15:39:59.3371796Z","zoneId":"core-costing","outcome":"hit"}
