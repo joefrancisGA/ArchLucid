@@ -4366,6 +4366,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** tenant-data-export
 
+2026-09-13 seed hunt #2589 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved string `"yes"` for `is_sample_run` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_string_yes`.
+
 2026-09-13 seed hunt #2584 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved string `"yes"` for `is_demo_tenant` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_demo_tenant_when_is_demo_tenant_string_yes`.
 
 2026-09-13 seed hunt #2579 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
@@ -10880,11 +10882,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** ."68"
-- **bugs-found:** ."54"
+- **hunts:** ."69"
+- **bugs-found:** ."55"
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2583: compact `10days` day UOM parity gap
+- **last-bug:** 2026-09-13 — hunt #2588: compact `10minutes` minute UOM parity gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
