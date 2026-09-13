@@ -169,7 +169,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("private_dns_resolver", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_workspace", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("security_center_automation", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("monitor_metric_alert", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("monitor_metric_alert", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_diagnostic_setting", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -312,7 +313,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("private_dns_resolver", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_workspace", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("security_center_automation", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("monitor_metric_alert", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("monitor_metric_alert", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_diagnostic_setting", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
