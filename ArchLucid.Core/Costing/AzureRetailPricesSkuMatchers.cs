@@ -110,12 +110,14 @@ public sealed partial class AzureRetailPricesCatalogClient
         string trimmed = uom.Trim();
 
         return ContainsMinuteWordToken(trimmed)
+            || ContainsBoundedToken(trimmed, " mi")
             || ContainsSlashMinToken(trimmed)
             || ContainsSlashMinsToken(trimmed)
             || ContainsSlashMinuteWordToken(trimmed)
             || ContainsSlashMinutesToken(trimmed)
             || HasCompactMinuteSuffix(trimmed)
             || HasCompactMinsSuffix(trimmed)
+            || HasCompactMisSuffix(trimmed)
             || HasCompactMiSuffix(trimmed)
             || HasCompactMinuteWordSuffix(trimmed)
             || HasCompactMinutesWordSuffix(trimmed)
@@ -1066,6 +1068,15 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return trimmed.EndsWith("mi", StringComparison.OrdinalIgnoreCase)
             && char.IsDigit(trimmed[^3]);
+    }
+
+    private static bool HasCompactMisSuffix(string trimmed)
+    {
+        if (trimmed.Length < 4)
+            return false;
+
+        return trimmed.EndsWith("mis", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^4]);
     }
 
     private static bool HasCompactMinuteWordSuffix(string trimmed)
