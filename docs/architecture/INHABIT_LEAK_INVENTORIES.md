@@ -4,7 +4,7 @@
 
 **Last reviewed:** 2026-09-13 · **ADR:** [0100](adrs/0100-working-inhabit-architecture-findings-document.md)
 
-These tables name where Working still behaves like a governed job inspector instead of an inhabited architecture afternoon. Shrink rows when a later **IH** prompt closes the leak.
+These tables name where Working still behaves like a governed job inspector instead of an inhabited architecture afternoon. Shrink rows when a later **IH** or **IR** prompt closes the leak. Source of truth: `archlucid-ui/src/lib/inhabit-leak-inventories.ts`. Follow-up diagnosis after wave 34: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md). Remain leftover prompts (not wave 35): [`INHABIT_REMAIN_COMPOSER_PROMPTS.md`](INHABIT_REMAIN_COMPOSER_PROMPTS.md).
 
 ## IH-004 — Findings editor still on review-detail
 
@@ -21,16 +21,18 @@ These tables name where Working still behaves like a governed job inspector inst
 | --- | --- | --- | --- |
 | Draft Start review footer | `ArchitectureDraftWorkspaceStartReviewFooter.tsx` | **IH-025** | IH-025 |
 | Identity desk Start review | `ArchitectureIdentityDeskCommandBar.tsx` | **IH-025** | IH-025 |
-| Review package re-run strip | `ReviewPackageDoThisNextStrip.tsx` | Open | IH-025 |
-| New run wizard submit | `NewRunWizardClient.tsx` | Open | IH-025 |
+| Review package re-run strip | `ReviewPackageDoThisNextStrip.tsx` | **IH-025** | IH-025 |
+| New run wizard submit | `NewRunWizardClient.tsx` | **IH-025** | IH-025 |
 
 ## IH-006 — Disposition reversible only via 300s toast
 
 | Surface | Toast undo | Record correction visible | Disposition history | Owner |
 | --- | --- | --- | --- | --- |
-| Governance finding row | Yes | Yes | No | IH-033 |
-| Finding inspect form | Yes | Yes | No | IH-034 |
-| Governance queue client | Yes | No | No | IH-004 |
+| Governance finding row | Yes | Yes | No | IH-039 |
+| Finding inspect form | Yes | Yes | Yes | IH-034 |
+| Governance queue client | Yes | Yes | No | IH-033 |
+| Inhabited findings document card rows | Yes | Yes | Yes | IH-034 |
+| Governance finding triage panel | No | Yes | Yes | IH-034 |
 
 `MUTATION_UNDO_WINDOW_SECONDS = 300` stays. Do not lengthen.
 
@@ -38,9 +40,10 @@ These tables name where Working still behaves like a governed job inspector inst
 
 | Surface | Names quiet engines on desk | Owner |
 | --- | --- | --- |
-| Nested findings empty state | No | IH-021 |
+| Nested findings empty state | Yes | IH-021 |
+| Inhabited findings document chrome | Yes | IH-040 |
 | Run progress Ready chrome | No | IH-040 |
-| Pre-finalize checklist | No | IH-041 |
+| Pre-finalize checklist | Yes | IH-041 |
 | Career export gate | Yes (export-only) | CG-021 |
 
 ## IH-008 — Exploration requires clone ceremony
@@ -48,8 +51,8 @@ These tables name where Working still behaves like a governed job inspector inst
 | Surface | Sketch entry | Committed Compare from desk | Owner |
 | --- | --- | --- | --- |
 | Architecture identity desk | Yes | Yes | IH-047 |
-| Nested findings document | No | No | IH-047 |
-| Spawn-lock handoff | Clone only | No | IH-008 |
+| Nested findings document chrome | Yes | Yes | IH-047 |
+| Spawn-lock handoff | Yes (clone) | No | IH-008 |
 
 No draft-diff Compare. No CE Sketch runner remount.
 
@@ -57,6 +60,7 @@ No draft-diff Compare. No CE Sketch runner remount.
 
 | Surface | Leaves architecture findings document | Owner |
 | --- | --- | --- |
+| Inhabited findings room card | No | IH-053 |
 | Presenter elicitation bridge | Yes | IH-053 |
 | Draft room header | Yes | IH-053 |
 | Quick start L0 must questions | Yes | IH-053 |
@@ -67,24 +71,24 @@ No avatars. No finding-comment chat.
 
 | Surface | Default focus first finding | Palette work actions first | Owner |
 | --- | --- | --- | --- |
-| Nested findings page | No | No | IH-059 |
-| Keyboard triage host | No | No | IH-060 |
+| Nested findings page | Yes | Yes | IH-059 |
+| Keyboard triage host | No | Yes | IH-060 |
 | Finding card shortcuts | No | No | IH-010 |
 
 ## IH-011 — Recents, pins, selection not inhabited continuity
 
 | Concern | Mechanism | Persist | Architecture-shaped | Owner |
 | --- | --- | --- | --- | --- |
-| Recent views | localStorage | tab-local | No | IH-064 |
-| Continue-last | resolver + recents | tab-local | **IH-015** | IH-015 |
-| Pins | localStorage + user preferences API | account-prefs | Yes | IH-066 |
-| Finding selection | URL / memory | partial | Yes | IH-064 |
+| Recent views | localStorage + user preferences API | account-prefs | Yes | IH-066 |
+| Continue-last | `resolve-continue-last-review-package` | local-storage | No | IH-015 |
+| Pins | favoriteReviews localStorage + user preferences API | account-prefs | No | IH-066 |
+| Finding selection | `focusedFinding` URL query | url | Yes | IH-064 |
 
 ## IH-012 — Working Home teaches pipeline
 
 | Surface | Pipeline hero / stepper | Owner |
 | --- | --- | --- |
-| Unfinished work rail | Yes | IH-027 |
+| Unfinished work rail | No | IH-027 |
 | First review guide | Yes | IH-027 |
 | Identity desk command bar | No (desk verbs) | IH-027 |
 | Core pilot steps | Yes | IH-069 |
@@ -95,3 +99,4 @@ Guided / demo / trial may keep eval chrome (**IH-070**).
 
 - `archlucid-ui/src/lib/inhabit-leak-inventories.ts`
 - `archlucid-ui/src/lib/inhabit-leak-inventories.test.ts`
+- Remain leftover prompts (do not flip rows from the prompt-set PR): [`INHABIT_REMAIN_COMPOSER_PROMPTS.md`](INHABIT_REMAIN_COMPOSER_PROMPTS.md)

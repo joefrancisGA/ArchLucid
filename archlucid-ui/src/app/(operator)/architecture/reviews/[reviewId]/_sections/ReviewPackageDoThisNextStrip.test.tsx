@@ -12,6 +12,10 @@ vi.mock("@/hooks/use-review-pipeline-rerun-in-flight", () => ({
   useReviewPipelineReRunInFlight: useReviewPipelineReRunInFlightMock,
 }));
 
+vi.mock("@/components/governance/WorkingExecuteStartHonestyNotices", () => ({
+  WorkingExecuteStartHonestyNotices: () => <div data-testid="working-execute-start-honesty-notices" />,
+}));
+
 const readySessionAiReadiness: SessionAiReadinessState = {
   sessionMode: "Simulator",
   hostMode: "Simulator",
@@ -181,6 +185,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
     );
 
     expect(screen.getByTestId("review-package-do-this-next-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("working-execute-start-honesty-notices")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-do-this-next-sentence")).toHaveTextContent("Evidence is still thin");
     expect(screen.getByRole("link", { name: "Add evidence" })).toHaveAttribute(
       "href",

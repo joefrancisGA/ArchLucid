@@ -15,6 +15,14 @@ describe("inhabit start honesty guard (IH-025 / IH-026 / IH-075)", () => {
       join(SRC_ROOT, "components/architecture/ArchitectureIdentityDeskCommandBar.tsx"),
       "utf8",
     );
+    const doThisNext = readFileSync(
+      join(SRC_ROOT, "app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackageDoThisNextStrip.tsx"),
+      "utf8",
+    );
+    const newRunWizard = readFileSync(
+      join(SRC_ROOT, "app/(operator)/architecture/reviews/new/NewRunWizardClient.tsx"),
+      "utf8",
+    );
 
     const notice = readFileSync(
       join(SRC_ROOT, "components/governance/WorkingRecordSimulatorStartHonestyNotice.tsx"),
@@ -30,6 +38,8 @@ describe("inhabit start honesty guard (IH-025 / IH-026 / IH-075)", () => {
     expect(draftFooter).toContain("WorkingPracticeStartHonestyNotice");
     expect(commandBar).toContain("WorkingRecordSimulatorStartHonestyNotice");
     expect(commandBar).toContain("WorkingPracticeStartHonestyNotice");
+    expect(doThisNext).toContain("WorkingExecuteStartHonestyNotices");
+    expect(newRunWizard).toContain("WorkingExecuteStartHonestyNotices");
     expect(notice).toContain("working-record-simulator-start-honesty");
     expect(practiceNotice).toContain("working-practice-start-honesty");
   });

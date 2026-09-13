@@ -27,6 +27,12 @@ vi.mock("@/lib/api/pre-finalize-checklist", () => ({
   getPreFinalizeChecklist: vi.fn(),
 }));
 
+vi.mock("@/app/(operator)/governance/findings/GovernanceFindingsQueueQuietEnginesHint", () => ({
+  GovernanceFindingsQueueQuietEnginesHint: ({ scopedRunId }: { scopedRunId: string | null }) => (
+    <div data-testid="pre-finalize-quiet-engines">{scopedRunId}</div>
+  ),
+}));
+
 import { getPreFinalizeChecklist } from "@/lib/api/pre-finalize-checklist";
 
 describe("PreFinalizeChecklistPanel", () => {
@@ -127,6 +133,7 @@ describe("PreFinalizeChecklistPanel", () => {
     render(<PreFinalizeChecklistPanel runId="run-1" manifestFinalized={false} />);
 
     expect(await screen.findByTestId("pre-finalize-checklist-items")).toBeInTheDocument();
+    expect(screen.getByTestId("pre-finalize-quiet-engines")).toHaveTextContent("run-1");
     expect(screen.getByText("Review before finalize")).toBeInTheDocument();
     expect(screen.getByText("Technology baseline confirmed")).toBeInTheDocument();
     expect(screen.getByText("Finding evidence linkage")).toBeInTheDocument();

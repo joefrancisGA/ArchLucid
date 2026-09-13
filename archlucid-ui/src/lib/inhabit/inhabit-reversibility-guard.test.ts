@@ -106,6 +106,18 @@ describe("inhabit completeness guard (IH-041–046)", () => {
     expect(row).toContain("structuralExecutionMode");
   });
 
+  it("IH-043 passes structural execution mode on the peer findings table", () => {
+    const operational = readFileSync(
+      join(SRC_ROOT, "app/(operator)/governance/findings/GovernanceFindingsQueueOperationalRowCells.tsx"),
+      "utf8",
+    );
+
+    expect(operational).toContain("FindingSemanticSupportBandChip");
+    expect(operational).toContain("structuralExecutionMode={structuralExecutionMode}");
+    expect(operational).toContain("governanceQueueRowToSemanticSupportChipFinding");
+    expect(operational).toContain("useAgentExecutionMode");
+  });
+
   it("IH-036 documents in-tab draft undo honesty in architecture draft editing help", () => {
     const help = readFileSync(
       join(SRC_ROOT, "lib/architecture/architecture-draft-editing-help-guide-content.ts"),

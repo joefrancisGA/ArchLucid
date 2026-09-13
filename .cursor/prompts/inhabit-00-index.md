@@ -4,7 +4,8 @@
      Diagnosis leftover after waves 1–33: overlays made a desk; after Start review the
      architect still operates a job on a system (mode matrix, five-minute undo,
      clone-to-explore, host default not the career record).
-     Livelihood UX wave 34. Do not implement from this index. -->
+     Livelihood UX wave 34. Do not implement from this index.
+     Remain leftovers (not wave 35): inhabit-remain-00-index.md (IR-001–018). -->
 
 # Inhabit mitigations — Composer prompt set (IH-001–IH-080)
 
@@ -18,7 +19,7 @@ ArchLucid sells a **seat for a repeat professional** (`docs/ARCHLUCID_FOUNDATION
 
 User-facing execute labels are **Record** / **Practice** (ADR **0097**). Stored tokens stay `"career"` / `"rehearsal"`.
 
-Kernel **IH-001** authors ADR **0100** (Proposed): Working **inhabits** the open architecture; the pre-seal afternoon is **document-grade findings work** on that identity.
+Kernel **IH-001** authors ADR **0100** (**Accepted**): Working **inhabits** the open architecture; the pre-seal afternoon is **document-grade findings work** on that identity.
 
 ## Prompt files (paste one per session)
 
@@ -123,3 +124,5 @@ Kernel **IH-001** authors ADR **0100** (Proposed): Working **inhabits** the open
 | Skips / close | **IH-076–080** |
 
 Owner spine: [`docs/architecture/INHABIT_COMPOSER_PROMPTS.md`](../../docs/architecture/INHABIT_COMPOSER_PROMPTS.md).
+
+**Do not start wave 35.** Start/completeness leftovers after IH-001–080 are named in [`docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](../../docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md). Remaining inhabit leaks after that follow-up: [`.cursor/prompts/inhabit-remain-00-index.md`](inhabit-remain-00-index.md) (**IR-001–IR-018**). Do not paste a new 80-prompt pack.

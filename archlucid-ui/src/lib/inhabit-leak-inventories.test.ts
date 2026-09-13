@@ -34,6 +34,9 @@ describe("inhabit leak inventories (IH-004–IH-012)", () => {
     const covered = INHABIT_RECORD_CTA_SIMULATOR_LEAK_ROWS.filter((row) => row.hasSimulatorIncompletenessCopy);
 
     expect(covered.length).toBeGreaterThanOrEqual(2);
+    expect(INHABIT_RECORD_CTA_SIMULATOR_LEAK_ROWS.every((row) => row.hasSimulatorIncompletenessCopy)).toBe(
+      true,
+    );
     expect(covered.every((row) => row.ownerPrompt === "IH-025")).toBe(true);
   });
 
@@ -46,6 +49,12 @@ describe("inhabit leak inventories (IH-004–IH-012)", () => {
   it("IH-007 inventories quiet-engine desk vs export surfaces", () => {
     expect(INHABIT_QUIET_ENGINE_COMPLETENESS_ROWS.some((row) => !row.namesQuietEnginesOnDesk)).toBe(true);
     expect(INHABIT_QUIET_ENGINE_COMPLETENESS_ROWS.some((row) => row.namesQuietEnginesOnDesk)).toBe(true);
+
+    const preFinalize = INHABIT_QUIET_ENGINE_COMPLETENESS_ROWS.find((row) =>
+      row.relativePath.includes("PreFinalizeChecklistPanel"),
+    );
+
+    expect(preFinalize?.namesQuietEnginesOnDesk).toBe(true);
   });
 
   it("IH-008 inventories exploration ceremony gaps on nested findings", () => {
