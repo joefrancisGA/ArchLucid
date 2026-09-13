@@ -4213,6 +4213,22 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_data_collection_endpoint_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "dce-1", label: "logs", sourceId: "azurerm_data_collection_endpoint.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-logs")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_cognitive_services_account_node_has_compute_category_but_synthetic_datastore_id_used()
     {
         GraphSnapshot graph = Graph(
