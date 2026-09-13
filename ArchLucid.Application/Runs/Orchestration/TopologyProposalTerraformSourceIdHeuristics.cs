@@ -160,7 +160,15 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("storage_blob", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("storage_container", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("storage_data_lake", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("data_lake_gen2", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("data_lake_gen2", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("hdinsight", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("scheduled_query_rules", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("maintenance_configuration", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("blueprint_assignment", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_wan", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("private_dns_resolver", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_workspace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("security_center_automation", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -294,7 +302,15 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("storage_container", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("storage_data_lake", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("data_lake_gen2", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("site_recovery", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("site_recovery", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("hdinsight", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("scheduled_query_rules", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("maintenance_configuration", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("blueprint_assignment", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_wan", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("private_dns_resolver", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_workspace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("security_center_automation", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
