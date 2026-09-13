@@ -96,6 +96,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0098](0098-working-instrument-after-spawn-is-desk.md) | Working instrument after spawn is the architecture desk — nested review-detail is a job inspector (**Status: Proposed**; SG wave; **not** G-REAL-06) |
 | [0099](0099-semantic-support-llm-judge-default-on-finalize.md) | Semantic support Premium LLM judge **default-on for Real finalize** — emit stays heuristic; warn-not-block; Simulator skip (**Status: Accepted** 2026-09-13; LY wave; supersedes LN-025 skip for finalize only; **not** G-REAL-06) |
 | [0100](0100-working-inhabit-architecture-findings-document.md) | Working **inhabits** the architecture — pre-seal afternoon is document-grade findings work on that identity; nested review-detail stays a job inspector (**Status: Proposed**; IH wave; **not** G-REAL-06; does not rewrite 0068/0098) |
+| [0101](0101-ai-diagram-assist-compiles-to-existing-controls.md) | AI diagram assist **compiles into existing controls** — view plans, model patches, narration, camera/path over compiled AST; not LLM Mermaid SoT (**Status: Proposed** 2026-09-13; DAU wave) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, and Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 
