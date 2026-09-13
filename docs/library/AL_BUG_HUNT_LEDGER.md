@@ -11855,13 +11855,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 277
+- **hunts:** 278
 - **bugs-found:** 506
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-08 — pre-finalize checklist disposition lookback and evidence-linkage disposition parity
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-13 seed hunt #2298 (seed-only): reseeded api-governance-tenancy-controllers; cheap-disproof closed mutation-corrections and insights tenant preflight siblings; 128 scoped Api tests passed (25 SQL integration skipped); no new hunt-ready rows.
 
 ### Hypotheses
 
