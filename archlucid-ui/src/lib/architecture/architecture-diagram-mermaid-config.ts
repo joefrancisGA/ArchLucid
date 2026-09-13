@@ -13,8 +13,8 @@ export const ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING = 20;
 /** Padding around the whole flowchart plate (Mermaid flowchart.padding). */
 export const ARCHITECTURE_DIAGRAM_MERMAID_PADDING = 6;
 
-/** Max label width before Mermaid wraps long VNet names (flowchart.wrappingWidth). */
-export const ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH = 240;
+/** Uniform node box width for inventory/architecture Mermaid canvases (flowchart.wrappingWidth). */
+export const ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH = 400;
 
 /** Shared Mermaid init for operator architecture and inventory diagrams. */
 export function createArchitectureDiagramMermaidConfig(dark: boolean): {

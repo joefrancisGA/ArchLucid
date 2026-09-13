@@ -39,7 +39,7 @@ function buildMermaidBody(edgeLine: (from: string, to: string) => string): strin
  */
 export function elevenVnetOwnerForestLayoutSvg(): string {
   const nodeHeight = 36;
-  const nodeWidth = 200;
+  const nodeWidth = 400;
   const nodeGapY = 20;
   const componentGapX = 48;
   const componentGapY = 40;
@@ -57,7 +57,7 @@ export function elevenVnetOwnerForestLayoutSvg(): string {
     nodeHeight * 3 + nodeGapY * 2,
     nodeHeight * 2 + nodeGapY,
   ];
-  const lines: string[] = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 728 312">'];
+  const lines: string[] = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1328 312">'];
 
   for (let componentIndex = 0; componentIndex < components.length; componentIndex += 1) {
     const row = Math.floor(componentIndex / columns);
