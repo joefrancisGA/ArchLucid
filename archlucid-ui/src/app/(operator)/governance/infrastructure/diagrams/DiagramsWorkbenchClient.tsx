@@ -83,7 +83,7 @@ import {
   resolveInfraDiagramsFallbackArtifacts,
   resolveInfraDiagramsResourceGroupFallbackArtifacts,
   resolveInfraDiagramsThematicFallbackArtifacts,
-  shouldPaintInfraDiagramsMermaidSource,
+  shouldPaintInfraDiagramsCanvas,
   shouldShowInfraDiagramsPartitionedViews,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-partitioned-view";
 import {
@@ -268,6 +268,7 @@ export function DiagramsWorkbenchClient() {
   const [exportableSvgMarkup, setExportableSvgMarkup] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadGeneration, setLoadGeneration] = useState(0);
+  const [renderRequestGeneration, setRenderRequestGeneration] = useState(0);
 
   const { data: brandingPresentation } = useTenantBrandingPresentationQuery({ context: "MermaidDiagram" });
   const tenantBrandActive = brandingPresentation?.usesTenantVisualBrand === true;
@@ -442,17 +443,21 @@ export function DiagramsWorkbenchClient() {
     selectedMode,
     appliedSeedNodeId,
   );
-  const paintMermaidSource = shouldPaintInfraDiagramsMermaidSource({
+  const layoutSvg = renderResult?.layoutSvg ?? null;
+  const paintDiagramCanvas = shouldPaintInfraDiagramsCanvas({
     mermaidSource,
+    layoutSvg,
     effectiveFallbackKey,
     renderFallbackKey: renderResult?.fallbackKey,
   });
   const tooLargeForBrowser =
     exceedsInfraEvidenceMermaidClientGuard(metrics)
-    && !paintMermaidSource
+    && !paintDiagramCanvas
     && !showFallbackCards;
   const isResourceGroupMapDiagram = isInfraEvidenceResourceGroupMapMermaid(mermaidSource);
-  const diagramContentEmpty = isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount);
+  const diagramContentEmpty =
+    isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount)
+    && (layoutSvg ?? "").trim().length === 0;
   const renderInFlight = loadingPreview || loadingRender;
   const exportsDisabled =
     exportBusy
@@ -461,7 +466,7 @@ export function DiagramsWorkbenchClient() {
     || deepLinkedSnapshotMissing
     || dependencyNeighborhoodAwaitingSeed
     || resourceGroupPickerAwaitingSelection;
-  const mermaidExportDisabled = exportsDisabled || !paintMermaidSource;
+  const mermaidExportDisabled = exportsDisabled || !paintDiagramCanvas;
 
   const renderStatusPresentation = useMemo(() => {
     const status = renderResult?.status ?? activeModePreview?.status ?? "";
@@ -748,7 +753,14 @@ export function DiagramsWorkbenchClient() {
     return (): void => {
       cancelled = true;
     };
-  }, [deepLinkedSnapshotMissing, loadGeneration, renderQuery, selectedSnapshotId, selectedViewKey.length]);
+  }, [
+    deepLinkedSnapshotMissing,
+    loadGeneration,
+    renderQuery,
+    renderRequestGeneration,
+    selectedSnapshotId,
+    selectedViewKey.length,
+  ]);
 
   useEffect(() => {
     if (selectedMode !== "dependencyNeighborhood") {
@@ -832,13 +844,20 @@ export function DiagramsWorkbenchClient() {
         return;
       }
 
+      const seedChanged = trimmedSeed !== appliedSeedNodeId.trim();
+
       setSeedNodeDraft(trimmedSeed);
       setAppliedSeedNodeId(trimmedSeed);
       setDependencySeedBlockedDialog(null);
-      setRenderResult(null);
       setLoadError(null);
       setSelectedMode("dependencyNeighborhood");
       setSelectedViewKey("");
+
+      if (seedChanged) {
+        setRenderResult(null);
+      }
+
+      setRenderRequestGeneration((current) => current + 1);
       syncUrl({ mermaidMode: "dependencyNeighborhood", mermaidView: "", seedNodeId: trimmedSeed });
 
       const primaryContent = document.getElementById(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID);
@@ -847,7 +866,7 @@ export function DiagramsWorkbenchClient() {
         primaryContent.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     },
-    [syncUrl],
+    [appliedSeedNodeId, syncUrl],
   );
 
   const handleSeedNodeApply = useCallback(() => {
@@ -1459,13 +1478,22 @@ export function DiagramsWorkbenchClient() {
             />
           ) : null}
         </>
+      ) : loadingRender && renderResult == null ? (
+        <div
+          className={cn("flex min-h-[18rem] items-center justify-center gap-2", cnCard)}
+          data-testid="infra-diagrams-canvas-loading"
+          aria-live="polite"
+        >
+          <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+          <span className={OPERATOR_TYPOGRAPHY.body}>Loading diagram…</span>
+        </div>
       ) : diagramContentEmpty && renderResult?.status === "Succeeded" ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE}
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY}
           testId="infra-diagrams-empty-content"
         />
-      ) : paintMermaidSource ? (
+      ) : paintDiagramCanvas ? (
         <>
           {isResourceGroupMapDiagram ? (
             <p
