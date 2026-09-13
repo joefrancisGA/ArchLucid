@@ -285,7 +285,19 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && !string.IsNullOrWhiteSpace(schedulerName.GetString()))
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "schedulerName", schedulerName.GetString()!);
 
+        if (TryGetSetHostnameAsFqdn(podSpec, out JsonElement setHostnameAsFqdn)
+            && setHostnameAsFqdn.ValueKind is JsonValueKind.True)
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "setHostnameAsFQDN", "true");
+
         ProjectContainerSecurityContext(podSpec, properties);
+    }
+
+    private static bool TryGetSetHostnameAsFqdn(JsonElement podSpec, out JsonElement value)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "setHostnameAsFQDN", out value))
+            return true;
+
+        return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "set_hostname_as_fqdn", out value);
     }
 
     private static JsonElement ResolvePodSpec(JsonElement specElement, string kind)
