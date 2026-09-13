@@ -1200,10 +1200,10 @@ public sealed class AgentTopologyProposalMergeGateTests
     public void FilterValidatedProposals_keeps_relationship_when_app_service_node_has_compute_category_but_synthetic_datastore_id_used()
     {
         GraphSnapshot graph = Graph(
-            ComputeNode(),
-            ComputeNode(nodeId: "appsvc-1", label: "api", sourceId: "azurerm_app_service.main"));
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "appsvc-1", label: "portal", sourceId: "azurerm_app_service.main"));
 
-        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-api")));
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-portal")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);

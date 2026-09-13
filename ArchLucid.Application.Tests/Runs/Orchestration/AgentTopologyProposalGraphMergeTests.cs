@@ -2536,10 +2536,10 @@ public sealed class AgentTopologyProposalGraphMergeTests
     public void WithMergedTopologyProposals_materializes_edge_when_app_service_node_has_compute_category_but_synthetic_datastore_id_used()
     {
         GraphSnapshot graph = Graph(
-            ComputeNode(),
-            ComputeNode(nodeId: "appsvc-1", label: "api", sourceId: "azurerm_app_service.main"));
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "appsvc-1", label: "portal", sourceId: "azurerm_app_service.main"));
 
-        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-api")), resultId: "topology-1");
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-portal")), resultId: "topology-1");
 
         GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
 
