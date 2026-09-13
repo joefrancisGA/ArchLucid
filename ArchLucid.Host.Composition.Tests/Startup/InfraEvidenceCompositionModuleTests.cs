@@ -1,9 +1,12 @@
 using System.Reflection;
 
+using ArchLucid.Application.Graphviz;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.InfraEvidence.Mermaid;
+using ArchLucid.ArtifactSynthesis.Graphviz;
+using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Mermaid;
@@ -45,7 +48,7 @@ public sealed class InfraEvidenceCompositionModuleTests
     public void InfraEvidenceCompositionModule_registers_cloud_resource_and_audit_evidence_services()
     {
         ServiceCollection services = [];
-        InfraEvidenceCompositionModule.Register(services);
+        InfraEvidenceCompositionModule.Register(services, new ConfigurationBuilder().Build());
 
         services.Should().Contain(static d => d.ServiceType == typeof(ICloudResourceEvidenceHubService));
         services.Should().Contain(static d => d.ServiceType == typeof(ICloudResourceExplorerQueryService));
@@ -229,8 +232,8 @@ public sealed class InfraEvidenceCompositionModuleTests
         ServiceCollection services = [];
         MermaidDiagramReadabilityThresholds hostConfigured = new() { MaxNodes = 4242 };
         services.AddSingleton(hostConfigured);
-        InfraEvidenceCompositionModule.Register(services);
-        InfraEvidenceCompositionModule.Register(services);
+        InfraEvidenceCompositionModule.Register(services, new ConfigurationBuilder().Build());
+        InfraEvidenceCompositionModule.Register(services, new ConfigurationBuilder().Build());
 
         using ServiceProvider provider = services.BuildServiceProvider();
         MermaidDiagramReadabilityThresholds resolved =
@@ -245,8 +248,8 @@ public sealed class InfraEvidenceCompositionModuleTests
     public void InfraEvidenceCompositionModule_repeated_register_keeps_single_selector_descriptor_per_evidence_type()
     {
         ServiceCollection services = [];
-        InfraEvidenceCompositionModule.Register(services);
-        InfraEvidenceCompositionModule.Register(services);
+        InfraEvidenceCompositionModule.Register(services, new ConfigurationBuilder().Build());
+        InfraEvidenceCompositionModule.Register(services, new ConfigurationBuilder().Build());
 
         int inventorySelectorRegistrations = services.Count(
             static descriptor => descriptor.ServiceType == typeof(InventoryAuditEvidenceSelector));
@@ -327,6 +330,9 @@ public sealed class InfraEvidenceCompositionModuleTests
         services.AddScoped(_ => Mock.Of<IMermaidDiagramFallbackSetBuilder>());
         services.AddScoped(_ => Mock.Of<IBrandedDiagramExportService>());
         services.AddScoped(_ => Mock.Of<IDiagramImageRenderer>());
+        services.AddSingleton<IDiagramAstGraphvizDotEmitter, DiagramAstGraphvizDotEmitter>();
+        services.AddSingleton<IDiagramForestLayoutSvgRenderer, DiagramForestLayoutSvgRenderer>();
+        services.AddScoped(_ => Mock.Of<IGraphvizLayoutRenderer>());
         services.AddScoped(_ => Mock.Of<IArchitectureDiagramReconciliationRepository>());
         services.AddScoped(_ => Mock.Of<IAuthorityQueryService>());
         services.AddScoped(_ => Mock.Of<IManifestHashService>());

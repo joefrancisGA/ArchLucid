@@ -69,6 +69,37 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
     }
 
     [Fact]
+    public async Task InsertAsync_throws_when_challenge_id_already_exists()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        Guid id = Guid.NewGuid();
+        DateTimeOffset expires = TimeProvider.System.GetUtcNow().AddMinutes(10);
+
+        await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                Id = id,
+                NormalizedEmail = "user@example.com",
+                CodeHash = "hash-a",
+                ExpiresUtc = expires,
+            },
+            CancellationToken.None);
+
+        Func<Task> duplicate = () => sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                Id = id,
+                NormalizedEmail = "other@example.com",
+                CodeHash = "hash-b",
+                ExpiresUtc = expires,
+            },
+            CancellationToken.None);
+
+        await duplicate.Should().ThrowAsync<DuplicateEmailOtpChallengeException>();
+        (await sut.GetByIdAsync(id, CancellationToken.None))!.CodeHash.Should().Be("hash-a");
+    }
+
+    [Fact]
     public async Task TryComplete_covers_not_found_expired_invalid_lockout_and_success()
     {
         InMemoryEmailOtpChallengeRepository sut = new();

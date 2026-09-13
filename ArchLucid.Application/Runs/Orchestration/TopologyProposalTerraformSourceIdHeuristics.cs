@@ -112,6 +112,10 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("search_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("eventhub_namespace", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_account", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cognitive_services", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cognitive_deployment", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("data_collection_endpoint", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("data_collection_rule", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("synapse_workspace", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("data_factory", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("mariadb", StringComparison.OrdinalIgnoreCase)
@@ -189,7 +193,32 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("servicebus_namespace", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("container_registry", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("service_fabric", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("application_gateway", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("kubernetes_cluster", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("communication_service", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("fluid_relay", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("orbital", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("lab_service", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("healthbot", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("notification_hub", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("voice_services", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("stack_hci", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("relay_namespace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("kubernetes_fleet", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("kubernetes_configuration", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_hub", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("web_pubsub", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dns_zone", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_account", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("container_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("azurerm_lb", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("traffic_manager", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("batch_account", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("application_gateway", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("route_server", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("vpn_gateway", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cdn_frontdoor", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cdn_profile", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cdn_endpoint", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -337,7 +366,9 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("network_ddos_protection_plan", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cost_anomaly_alert", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_alert_prometheus_rule_group", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("policy_assignment", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("policy_assignment", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("route_server", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("vpn_gateway", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>

@@ -25,5 +25,8 @@ public sealed class InMemoryDiagramPeelCatalogRepositoryTests
         entries.Should().Contain(entry =>
             string.Equals(entry.ArmResourceType, "Microsoft.Network/networkInterfaces", StringComparison.Ordinal)
             && entry.PeelRank == 30);
+        entries.Should().Contain(entry =>
+            string.Equals(entry.ArmResourceType, "Microsoft.Portal/dashboards", StringComparison.Ordinal)
+            && entry.AlwaysDispose);
     }
 }

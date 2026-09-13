@@ -66,7 +66,10 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
             graph,
             cancellationToken);
 
-        if (compiled.PeeledArmTypes.Count == 0 && !compiled.UsedResourceGroupMap)
+        if (compiled.PeeledArmTypes.Count == 0
+            && compiled.AlwaysDisposedArmTypes.Count == 0
+            && !compiled.UsedResourceGroupMap
+            && !compiled.UsedBackboneKeep)
         {
             return result;
         }
@@ -82,8 +85,11 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
                 result.CollapseReport,
                 compiled.PeeledArmTypes,
                 catalog.CatalogVersion,
-                compiled.UsedResourceGroupMap),
+                compiled.UsedResourceGroupMap,
+                compiled.UsedBackboneKeep,
+                compiled.AlwaysDisposedArmTypes),
             ValidationErrors = result.ValidationErrors,
+            RepairedAst = result.RepairedAst,
         };
     }
 
@@ -142,9 +148,20 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
         MermaidDiagramCollapseReport? repairCollapse,
         IReadOnlyList<string> peeledArmTypes,
         int catalogVersion,
-        bool usedResourceGroupMap)
+        bool usedResourceGroupMap,
+        bool usedBackboneKeep,
+        IReadOnlyList<string> alwaysDisposedArmTypes)
     {
         List<MermaidDiagramCollapseEntry> entries = repairCollapse?.Entries.ToList() ?? [];
+
+        foreach (string armType in alwaysDisposedArmTypes)
+        {
+            entries.Add(new MermaidDiagramCollapseEntry
+            {
+                Kind = DiagramPeelAlwaysDisposeArmTypes.CollapseKind,
+                Reason = $"Always dispose — never shown on inventory diagrams: {armType}",
+            });
+        }
 
         foreach (string armType in peeledArmTypes)
         {
@@ -152,6 +169,15 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
             {
                 Kind = "PeelBudgetArmType",
                 Reason = $"Hidden to fit readability thresholds (catalog v{catalogVersion}): {armType}",
+            });
+        }
+
+        if (usedBackboneKeep)
+        {
+            entries.Add(new MermaidDiagramCollapseEntry
+            {
+                Kind = InventoryDiagramBackboneArmTypes.CollapseKind,
+                Reason = InventoryDiagramBackboneArmTypes.Caption,
             });
         }
 

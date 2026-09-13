@@ -280,7 +280,6 @@ export default function GovernanceFindingsQueueClient({
         pathname={pathname}
         scopedArchitectureId={scopedArchitectureId}
         architectureDisplayName={architectureIdentityQuery.data?.displayName ?? null}
-        scopedRunId={scopedRunId}
         scopedRunTitle={scopedRunContextTitle}
       />
       <GovernanceFindingsQueueTableShell

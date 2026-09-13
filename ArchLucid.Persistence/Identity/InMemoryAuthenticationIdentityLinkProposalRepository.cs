@@ -14,7 +14,10 @@ public sealed class InMemoryAuthenticationIdentityLinkProposalRepository : IAuth
     {
         _ = cancellationToken;
 
-        _byId[record.Id] = record;
+        if (!_byId.TryAdd(record.Id, record))
+        {
+            throw new DuplicateAuthenticationIdentityLinkProposalException(record.Id);
+        }
 
         return Task.FromResult(record);
     }

@@ -7,6 +7,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER,
@@ -483,7 +484,7 @@ describe("DiagramsWorkbenchClient", () => {
       GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
     );
     expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
-    expect(screen.queryByText(/graph is too large/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/too large for a single diagram/i)).not.toBeInTheDocument();
   });
 
   it("shows deep-linked missing snapshot status and suppresses render strip", async () => {
@@ -839,6 +840,35 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(await screen.findByTestId("infra-diagrams-resource-group-map-caption")).toHaveTextContent(
       GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
+    );
+    expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+  });
+
+  it("shows the backbone caption when Full subscription keeps VMs and databases", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "full",
+      fallbackKey: null,
+      status: "Succeeded",
+      mermaid:
+        "flowchart TD\n    %% al-view=backbone-keep\n    n1[\"vm-app-01\"]\n    n2[\"sqldb-claims\"]",
+      metrics: {
+        nodeCount: 2,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 180,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=full");
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-backbone-keep-caption")).toHaveTextContent(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION,
     );
     expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
   });

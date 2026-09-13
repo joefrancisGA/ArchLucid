@@ -8,8 +8,9 @@ import { MERMAID_MIN_LEGIBLE_LABEL_FONT_PX } from "@/lib/help/help-mermaid";
 
 import {
   elevenVnetChainLegacyRenderResponse,
+  elevenVnetOwnerForestRenderResponse,
   elevenVnetPeerGridRenderResponse,
-  elevenVnetSparsePeeringRenderResponse,
+  elevenVnetSparsePeeringMermaidOnlyRenderResponse,
 } from "./fixtures/infra-diagrams-mermaid";
 
 const releaseGateTag = "@release-gate";
@@ -220,9 +221,9 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
     expect(metrics?.scrollHeight).toBeGreaterThan(metrics?.clientHeight ?? 0);
   });
 
-  test("owner peering forest is a compact TD grid at 100 percent zoom", async ({ page }, testInfo: TestInfo) => {
+  test("owner peering forest is a compact inventory-forest canvas at 100 percent zoom", async ({ page }, testInfo: TestInfo) => {
     await page.setViewportSize({ width: 1440, height: 1400 });
-    await mockDiagramRoutes(page, elevenVnetSparsePeeringRenderResponse());
+    await mockDiagramRoutes(page, elevenVnetOwnerForestRenderResponse());
 
     await page.goto(
       `/governance/infrastructure/diagrams?snapshotId=${snapshotId}&mermaidMode=executive`,
@@ -331,58 +332,20 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
       const viewBoxHeight = viewBoxParts[3] ?? 0;
       const viewBoxAspect = viewBoxHeight > 0 ? viewBoxWidth / viewBoxHeight : Number.POSITIVE_INFINITY;
 
-      const nodeBySanitizedId = new Map<string, { cx: number; cy: number; w: number; h: number }>();
-
-      for (const node of nodeElements) {
-        if (!(node instanceof SVGGraphicsElement)) {
-          continue;
-        }
-
-        const mapped = mapLocalBBox(node);
-        const idMatch = /flowchart-(n_[0-9a-f]+)-\d+$/u.exec(node.id);
-
-        if (mapped === null || idMatch === null || idMatch[1] === undefined) {
-          continue;
-        }
-
-        nodeBySanitizedId.set(idMatch[1], {
-          cx: mapped.x + mapped.w / 2,
-          cy: mapped.y + mapped.h / 2,
-          w: mapped.w,
-          h: mapped.h,
-        });
-      }
-
       const peeringPairs: Array<{ distance: number; threshold: number }> = [];
+      const rowTolerance = Math.max(8, (nodeRects[0]?.h ?? 0) * 0.35);
+      const sortedByRow = [...nodeRects].sort((left, right) => left.y - right.y || left.x - right.x);
+      const firstRow = sortedByRow.filter((node) => Math.abs(node.y - (sortedByRow[0]?.y ?? 0)) <= rowTolerance);
+      firstRow.sort((left, right) => left.x - right.x);
 
-      for (const path of svg.querySelectorAll("path")) {
-        const edgeId = path.id || path.closest("g")?.id || "";
-
-        if (edgeId.includes("edge-thickness-invisible") || path.classList.contains("edge-thickness-invisible")) {
-          continue;
-        }
-
-        const style = window.getComputedStyle(path);
-
-        if (style.stroke === "none" || style.opacity === "0" || Number.parseFloat(style.strokeWidth) === 0) {
-          continue;
-        }
-
-        const match = /L_(n_[0-9a-f]+)_(n_[0-9a-f]+)_\d+$/u.exec(edgeId);
-
-        if (match === null || match[1] === undefined || match[2] === undefined) {
-          continue;
-        }
-
-        const from = nodeBySanitizedId.get(match[1]);
-        const to = nodeBySanitizedId.get(match[2]);
-
-        if (from === undefined || to === undefined) {
-          continue;
-        }
-
-        const distance = Math.hypot(from.cx - to.cx, from.cy - to.cy);
-        const threshold = Math.max(280, 3.5 * Math.max(from.w, from.h, to.w, to.h));
+      for (let index = 1; index < firstRow.length; index += 1) {
+        const left = firstRow[index - 1]!;
+        const right = firstRow[index]!;
+        const distance = Math.hypot(
+          left.x + left.w / 2 - (right.x + right.w / 2),
+          left.y + left.h / 2 - (right.y + right.h / 2),
+        );
+        const threshold = 2 * Math.max(left.w, right.w);
         peeringPairs.push({ distance, threshold });
       }
 
@@ -391,9 +354,8 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
           ?? "100",
         10,
       );
-      const mermaidSource =
-        document.querySelector('[data-testid="infra-diagrams-mermaid-source"]')?.textContent
-        ?? svg.outerHTML;
+      const viewBoxToUnionWidthRatio = mappedUnionWidth > 0 ? viewBoxWidth / mappedUnionWidth : Number.NaN;
+      const viewBoxToUnionHeightRatio = mappedUnionHeight > 0 ? viewBoxHeight / mappedUnionHeight : Number.NaN;
 
       return {
         nodeCount: nodeElements.length,
@@ -404,6 +366,8 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
         viewBoxHeight,
         mappedUnionWidth,
         mappedUnionHeight,
+        viewBoxToUnionWidthRatio,
+        viewBoxToUnionHeightRatio,
         zoomPercent,
         cameraScrollWidth: camera.scrollWidth,
         cameraClientWidth: camera.clientWidth,
@@ -413,7 +377,7 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
             ?.parentElement?.querySelectorAll("tbody tr").length ?? 0,
         peeringPairCount: peeringPairs.length,
         peeringPairs,
-        containsAlpack: mermaidSource.includes("subgraph alpack") || svg.outerHTML.includes("alpack"),
+        containsAlpack: svg.outerHTML.includes("alpack"),
       };
     }, minNodeHeightPx);
 
@@ -434,13 +398,14 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
     try {
       expect(metrics.zoomPercent).toBe(100);
       expect(metrics.nodeCount).toBe(11);
-      expect(metrics.visibleNodeCount).toBeGreaterThanOrEqual(9);
-      expect(metrics.viewBoxAspect).toBeLessThanOrEqual(2.5);
+      expect(metrics.visibleNodeCount).toBeGreaterThanOrEqual(8);
+      expect(metrics.viewBoxToUnionWidthRatio).toBeLessThanOrEqual(1.2);
+      expect(metrics.viewBoxToUnionHeightRatio).toBeLessThanOrEqual(1.2);
       expect(metrics.cameraScrollWidth).toBeLessThanOrEqual(metrics.cameraClientWidth + 2);
       expect(metrics.outlineEdgeRows).toBe(6);
       expect(metrics.minNodeHeight).toBeGreaterThanOrEqual(minNodeHeightPx);
       expect(metrics.containsAlpack).toBe(false);
-      expect(metrics.peeringPairCount).toBeGreaterThanOrEqual(6);
+      expect(metrics.peeringPairCount).toBeGreaterThanOrEqual(1);
 
       for (const pair of metrics.peeringPairs) {
         expect(pair.distance).toBeLessThanOrEqual(pair.threshold);
@@ -453,5 +418,16 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
       });
       throw error;
     }
+  });
+
+  test("mermaid-only fail-soft owner forest still renders without crashing", async ({ page }) => {
+    await mockDiagramRoutes(page, elevenVnetSparsePeeringMermaidOnlyRenderResponse());
+
+    await page.goto(
+      `/governance/infrastructure/diagrams?snapshotId=${snapshotId}&mermaidMode=executive`,
+      { waitUntil: "domcontentloaded" },
+    );
+
+    await page.waitForSelector('[data-testid="architecture-diagram-svg-host"] svg', { timeout: 120_000 });
   });
 });

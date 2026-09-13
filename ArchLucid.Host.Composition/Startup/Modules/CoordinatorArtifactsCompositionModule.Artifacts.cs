@@ -1,5 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Docx;
+using ArchLucid.ArtifactSynthesis.Graphviz;
+using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.FindingVerification;
 using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Interfaces;
@@ -28,6 +30,8 @@ partial class CoordinatorArtifactsCompositionModule
         services.AddSingleton<IArtifactBundleValidator, ArtifactBundleValidator>();
         services.AddSingleton<ITechnologyLedgerArtifactLinter, TechnologyLedgerArtifactLinter>();
         services.AddSingleton<IDiagramRenderer, MermaidDiagramRenderer>();
+        services.AddSingleton<IDiagramAstGraphvizDotEmitter, DiagramAstGraphvizDotEmitter>();
+        services.AddSingleton<IDiagramForestLayoutSvgRenderer, DiagramForestLayoutSvgRenderer>();
         services.AddSingleton<IDiagramAstFromGraphCompiler, DiagramAstFromGraphCompiler>();
         services.AddSingleton<IMermaidDiagramComplexityAnalyzer, MermaidDiagramComplexityAnalyzer>();
         services.AddSingleton<IMermaidDiagramDeterministicRepairer, MermaidDiagramDeterministicRepairer>();

@@ -1,3 +1,5 @@
+import "server-only";
+
 import type { Metadata } from "next";
 
 import {
@@ -5,22 +7,17 @@ import {
   LEGACY_UNTITLED_ARCHITECTURE_LABEL,
 } from "@/lib/architecture/architecture-draft-status";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import {
+  formatWorkingArchitectureDocumentTitle,
+  WORKING_NESTED_REVIEW_DOCUMENT_TITLE_SUFFIX,
+} from "@/lib/architecture/working-architecture-document-title-format";
 import { loadArchitectureDraftForRouteCached } from "@/lib/load-architecture-draft-for-route-cached";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 
-export const WORKING_NESTED_REVIEW_DOCUMENT_TITLE_SUFFIX = " · Review" as const;
-
-/** SY-61 / SY-85 — browser tab titles on Working nested routes use the architecture display name. */
-export function formatWorkingArchitectureDocumentTitle(
-  displayName: string,
-  suffix?: string,
-): string {
-  if (suffix === undefined || suffix.length === 0) {
-    return displayName;
-  }
-
-  return `${displayName}${suffix}`;
-}
+export {
+  formatWorkingArchitectureDocumentTitle,
+  WORKING_NESTED_REVIEW_DOCUMENT_TITLE_SUFFIX,
+} from "@/lib/architecture/working-architecture-document-title-format";
 
 export async function resolveWorkingArchitectureDisplayName(architectureId: string): Promise<string> {
   const trimmed = architectureId.trim();
