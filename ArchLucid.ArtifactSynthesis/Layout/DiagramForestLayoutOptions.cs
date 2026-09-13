@@ -8,17 +8,24 @@ public sealed class DiagramForestLayoutOptions
         init;
     } = 36;
 
+    /// <summary>Uniform node box width for forest canvases (px).</summary>
+    public int UniformNodeWidth
+    {
+        get;
+        init;
+    } = 400;
+
     public int MinNodeWidth
     {
         get;
         init;
-    } = 72;
+    } = 400;
 
     public int MaxNodeWidth
     {
         get;
         init;
-    } = 220;
+    } = 400;
 
     public int NodeHorizontalGap
     {
