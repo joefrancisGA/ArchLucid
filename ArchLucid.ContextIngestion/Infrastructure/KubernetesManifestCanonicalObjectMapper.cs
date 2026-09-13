@@ -250,6 +250,11 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && !string.IsNullOrWhiteSpace(serviceAccountName.GetString()))
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "serviceAccountName", serviceAccountName.GetString()!);
 
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "priorityClassName", out JsonElement priorityClassName)
+            && priorityClassName.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(priorityClassName.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "priorityClassName", priorityClassName.GetString()!);
+
         ProjectContainerSecurityContext(podSpec, properties);
     }
 
