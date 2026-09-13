@@ -368,6 +368,8 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashDyToken(trimmed)
             || ContainsSlashDToken(trimmed)
             || ContainsBoundedToken(trimmed, " dy")
+            || ContainsBoundedToken(trimmed, " d")
+            || HasCompactDaySuffix(trimmed)
             || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "d", StringComparison.OrdinalIgnoreCase)
@@ -860,5 +862,18 @@ public sealed partial class AzureRetailPricesCatalogClient
         }
 
         return false;
+    }
+
+    private static bool HasCompactDaySuffix(string trimmed)
+    {
+        if (trimmed.Length < 2)
+            return false;
+
+        char suffix = trimmed[^1];
+
+        if (suffix is not 'd' and not 'D')
+            return false;
+
+        return char.IsDigit(trimmed[^2]);
     }
 }
