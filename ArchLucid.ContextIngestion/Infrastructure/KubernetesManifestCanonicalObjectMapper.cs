@@ -1005,13 +1005,6 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 && escalationElement.ValueKind is JsonValueKind.True)
                 allowPrivilegeEscalation = true;
 
-            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "runAsNonRoot", out JsonElement runAsNonRootElement))
-            {
-                sawRunAsNonRoot = true;
-
-                if (runAsNonRootElement.ValueKind is JsonValueKind.True)
-                    allRunAsNonRootTrue = allRunAsNonRootTrue && true;
-
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "readOnlyRootFilesystem", out JsonElement readOnlyRootFilesystemElement)
                 && readOnlyRootFilesystemElement.ValueKind is JsonValueKind.True)
             {
@@ -1031,6 +1024,20 @@ internal static class KubernetesManifestCanonicalObjectMapper
             {
                 CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "runAsGroup", runAsGroupValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
             }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "fsGroup", out JsonElement fsGroupElement)
+                && fsGroupElement.ValueKind is JsonValueKind.Number
+                && fsGroupElement.TryGetInt64(out long fsGroupValue))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "fsGroup", fsGroupValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "runAsNonRoot", out JsonElement runAsNonRootElement))
+            {
+                sawRunAsNonRoot = true;
+
+                if (runAsNonRootElement.ValueKind is JsonValueKind.True)
+                    allRunAsNonRootTrue = allRunAsNonRootTrue && true;
                 else if (runAsNonRootElement.ValueKind is JsonValueKind.False)
                     anyRunAsNonRootFalse = true;
             }
@@ -1043,16 +1050,6 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 return;
 
             InspectSecurityContext(securityContext);
-        }
-
-
-        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "securityContext", out JsonElement podSecurityContextForFsGroup)
-            && podSecurityContextForFsGroup.ValueKind is JsonValueKind.Object
-            && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSecurityContextForFsGroup, "fsGroup", out JsonElement fsGroupElement)
-            && fsGroupElement.ValueKind is JsonValueKind.Number
-            && fsGroupElement.TryGetInt64(out long fsGroupValue))
-        {
-            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "fsGroup", fsGroupValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
         }
 
         if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "securityContext", out JsonElement podSecurityContext)
