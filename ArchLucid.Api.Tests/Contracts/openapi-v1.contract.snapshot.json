@@ -12664,6 +12664,49 @@
         },
         "type": "object"
       },
+      "DiagramViewPlan": {
+        "properties": {
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fitTargetNodeId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "honestyLabel": {
+            "type": "string"
+          },
+          "mermaidMode": {
+            "type": "string"
+          },
+          "resourceGroupName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "seedNodeId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "DiffItemResponse": {
         "properties": {
           "afterValue": {
@@ -19008,6 +19051,16 @@
           },
           "topicKind": {
             "type": "string"
+          },
+          "viewPlan": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DiagramViewPlan"
+              }
+            ]
           }
         },
         "type": "object"

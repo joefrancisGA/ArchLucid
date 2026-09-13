@@ -773,3 +773,114 @@ export function fitMermaidSvgElementToHost(
 
   applyMermaidSvgPixelSize(svg, width, height);
 }
+
+function normalizeDiagramFocusToken(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function inventoryNodeElementMatchesFocusIds(
+  element: SVGGraphicsElement,
+  focusNodeIds: readonly string[],
+): boolean {
+  if (focusNodeIds.length === 0) {
+    return false;
+  }
+
+  const id = element.getAttribute("id") ?? "";
+  const title = element.querySelector("title")?.textContent?.trim() ?? "";
+
+  for (const focusId of focusNodeIds) {
+    const trimmed = focusId.trim();
+
+    if (trimmed.length === 0) {
+      continue;
+    }
+
+    if (id.includes(trimmed) || title.includes(trimmed)) {
+      return true;
+    }
+
+    const normalizedFocus = normalizeDiagramFocusToken(trimmed);
+    const normalizedId = normalizeDiagramFocusToken(id);
+    const normalizedTitle = normalizeDiagramFocusToken(title);
+
+    if (
+      normalizedFocus.length > 0
+      && (normalizedId.includes(normalizedFocus) || normalizedTitle.includes(normalizedFocus))
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function readMappedFocusNodeUnionBBox(
+  svg: SVGSVGElement,
+  focusNodeIds: readonly string[],
+): DOMRect | null {
+  const inkBoxes: DOMRect[] = [];
+
+  for (const element of queryInventoryDiagramNodeElements(svg)) {
+    if (!inventoryNodeElementMatchesFocusIds(element, focusNodeIds)) {
+      continue;
+    }
+
+    const localBox = readGraphicsElementBBox(element);
+
+    if (localBox === null) {
+      continue;
+    }
+
+    const mapped = mapLocalBBoxToSvgUserSpace(element, svg, localBox);
+
+    if (mapped !== null) {
+      inkBoxes.push(mapped);
+    }
+  }
+
+  return unionDomRects(inkBoxes);
+}
+
+/** Fit the viewport to a subset of inventory diagram nodes (seed + neighbors). */
+export function fitInventoryDiagramSvgElementToFocusNodeIds(
+  svg: SVGSVGElement,
+  viewportWidthPx: number,
+  viewportHeightPx: number,
+  focusNodeIds: readonly string[],
+  paddingPx = 12,
+): MermaidViewportFitDimensions | null {
+  resetMermaidSvgViewportInkCache(svg);
+
+  if (focusNodeIds.length === 0) {
+    return fitInventoryDiagramSvgElementToViewport(svg, viewportWidthPx, viewportHeightPx, paddingPx);
+  }
+
+  const focusUnion = readMappedFocusNodeUnionBBox(svg, focusNodeIds);
+
+  if (focusUnion === null) {
+    return fitInventoryDiagramSvgElementToViewport(svg, viewportWidthPx, viewportHeightPx, paddingPx);
+  }
+
+  const viewBox = new DOMRect(
+    focusUnion.x - paddingPx,
+    focusUnion.y - paddingPx,
+    focusUnion.width + paddingPx * 2,
+    focusUnion.height + paddingPx * 2,
+  );
+  const { viewWidth, viewHeight } = applyMermaidSvgViewBoxRect(svg, viewBox, true);
+  const availableWidth = Math.max(1, viewportWidthPx - paddingPx * 2);
+  const availableHeight = Math.max(1, viewportHeightPx - paddingPx * 2);
+  const rawScale = Math.min(availableWidth / viewWidth, availableHeight / viewHeight);
+  const fitScale = Math.min(
+    MERMAID_VIEWPORT_MAX_FIT_SCALE,
+    Math.max(MERMAID_VIEWPORT_MIN_FIT_SCALE, rawScale),
+  );
+  const baseWidthPx = Math.max(1, Math.round(viewWidth * fitScale));
+  const baseHeightPx = Math.max(1, Math.round(viewHeight * fitScale));
+  const overflows = baseWidthPx > availableWidth || baseHeightPx > availableHeight;
+
+  applyMermaidSvgPixelSize(svg, baseWidthPx, baseHeightPx);
+
+  return { baseWidthPx, baseHeightPx, inkMeasured: true, fitScale, overflows };
+}

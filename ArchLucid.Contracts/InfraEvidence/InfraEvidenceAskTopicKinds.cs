@@ -8,6 +8,8 @@ public static class InfraEvidenceAskTopicKinds
 
     public const string DiagramGap = "DiagramGap";
 
+    public const string DiagramView = "DiagramView";
+
     public const string PatternCoverage = "PatternCoverage";
 
     public const string ArchitectureAsOfDate = "ArchitectureAsOfDate";
