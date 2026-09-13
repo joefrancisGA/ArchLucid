@@ -1,5 +1,21 @@
 ## Zone: topology-proposal-merge
 
+2026-09-13 seed hunt #2613 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `private_link_service` Compute-category node omitted `ds-` synthetic alias; regression for merge gate.
+
+2026-09-13 seed hunt #2608 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `network_profile` Compute-category node omitted `ds-` synthetic alias; regression for merge gate.
+
+2026-09-13 seed hunt #2603 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `local_network_gateway` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
+2026-09-13 seed hunt #2598 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `ip_group` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
+2026-09-13 seed hunt #2596 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `route_table` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
+2026-09-13 seed hunt #2591 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `application_security_group` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
+2026-09-13 seed hunt #2586 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `network_interface` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
+2026-09-13 seed hunt #2581 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `public_ip` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
 2026-09-13 seed hunt #2566 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `network_security_group` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
 
 2026-09-13 seed hunt #2503 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `linux_virtual_machine` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
@@ -90,6 +106,12 @@
 2026-09-13 seed hunt #2370 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_dynatrace_monitor.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_dynatrace_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 - **id:** topology-proposal-merge
 
+2026-09-13 seed hunt #2626 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `point_to_site_vpn_gateway` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
+2026-09-13 seed hunt #2621 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `network_manager` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
+2026-09-13 seed hunt #2616 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `firewall_policy` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
 2026-09-13 seed hunt #2576 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `subnet` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
 
 2026-09-13 seed hunt #2571 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `virtual_network` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
@@ -128,11 +150,11 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** ."140"
-- **bugs-found:** ."108"
+- **hunts:** ."147"
+- **bugs-found:** ."115"
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2566: network_security_group Compute-category ds- alias gap
+- **last-bug:** 2026-09-13 — hunt #2596: route_table Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4362,6 +4384,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** tenant-data-export
 
+2026-09-13 seed hunt #2629 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2624 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2619 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved snake_case string `"t"` for `is_demo_tenant` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_demo_tenant_when_is_demo_tenant_snake_case_string_t`.
+
+2026-09-13 seed hunt #2611 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved snake_case string `"on"` for `is_demo_tenant` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_demo_tenant_when_is_demo_tenant_snake_case_string_on`.
+
+2026-09-13 seed hunt #2606 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved camelCase string `"on"` for `isDemoTenant` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_demo_tenant_when_is_demo_tenant_camel_case_string_on`.
+
+2026-09-13 seed hunt #2601 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved camelCase string `"y"` for `isSampleRun` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_camel_case_string_y`.
+
+2026-09-13 seed hunt #2594 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2589 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved string `"yes"` for `is_sample_run` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_string_yes`.
+
+2026-09-13 seed hunt #2584 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved string `"yes"` for `is_demo_tenant` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_demo_tenant_when_is_demo_tenant_string_yes`.
+
 2026-09-13 seed hunt #2579 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2574 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
@@ -4424,11 +4464,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 62
-- **bugs-found:** 38
+- **hunts:** 68
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2479: camelCase string `"1"` for `isDemoTenant` ignored on CLI career export gate
+- **last-bug:** 2026-09-13 — hunt #2589: string `"yes"` for `is_sample_run` ignored on CLI career export gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5247,6 +5287,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** persistence-identity
 
+2026-09-13 seed hunt #2630 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2625 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2620 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2612 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2607 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2602 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2595 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2590 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2585 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
 2026-09-13 seed hunt #2580 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2575 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
@@ -5309,7 +5367,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** ."55"
+- **hunts:** ."61"
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
@@ -10801,6 +10859,26 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-costing
 
+2026-09-13 seed hunt #2628 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/mi` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashMiTests`.
+
+2026-09-13 seed hunt #2623 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/mis` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashMisTests`.
+
+2026-09-13 seed hunt #2618 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved bounded `10 mis` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersBoundedMisTests`.
+
+2026-09-13 seed hunt #2615 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10mis` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactMisTests`.
+
+2026-09-13 seed hunt #2610 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved bounded `10 mi` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersBoundedMiTests`.
+
+2026-09-13 seed hunt #2605 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved standalone `mi` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneMiTests`.
+
+2026-09-13 seed hunt #2600 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10mi` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactMiTests`.
+
+2026-09-13 seed hunt #2593 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10minute` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactMinuteWordTests`.
+
+2026-09-13 seed hunt #2588 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10minutes` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactMinutesWordTests`.
+
+2026-09-13 seed hunt #2583 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10days` day UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactDaysWordTests`.
+
 2026-09-13 seed hunt #2578 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10months` month UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactMonthsWordTests`.
 
 2026-09-13 seed hunt #2573 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10day` day UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactDayTests`.
@@ -10868,11 +10946,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** ."67"
-- **bugs-found:** ."53"
+- **hunts:** ."73"
+- **bugs-found:** ."59"
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2500: compact `10w` week UOM parity gap
+- **last-bug:** 2026-09-13 — hunt #2593: compact `10minute` minute UOM parity gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11167,6 +11245,28 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-13 seed hunt #2627 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` ip6-arpa pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_ip6_arpa_projects_dns_option_ip6_arpa_exposure`.
+
+2026-09-13 seed hunt #2622 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` localise pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_localise_projects_dns_option_localise_exposure`.
+
+2026-09-13 seed hunt #2617 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` no-check-names pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_no_check_names_projects_dns_option_no_check_names_exposure`.
+
+2026-09-13 seed hunt #2614 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` noglue pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_noglue_projects_dns_option_noglue_exposure`.
+
+2026-09-13 seed hunt #2609 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` no-reload pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_no_reload_projects_dns_option_no_reload_exposure`.
+
+2026-09-13 seed hunt #2604 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` ip6-nobind pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_ip6_nobind_projects_dns_option_ip6_nobind_exposure`.
+
+2026-09-13 seed hunt #2599 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` no-aaaa pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_no_aaaa_projects_dns_option_no_aaaa_exposure`.
+
+2026-09-13 seed hunt #2597 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` ip6-bytestring pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_ip6_bytestring_projects_dns_option_ip6_bytestring_exposure`.
+
+2026-09-13 seed hunt #2592 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` ip6-dotint pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_ip6_dotint_projects_dns_option_ip6_dotint_exposure`.
+
+2026-09-13 seed hunt #2587 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` inet6 pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_inet6_projects_dns_option_inet6_exposure`.
+
+2026-09-13 seed hunt #2582 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` debug pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_debug_projects_dns_option_debug_exposure`.
+
 2026-09-13 seed hunt #2577 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` trust-ad pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_trust_ad_projects_dns_option_trust_ad_exposure`.
 
 2026-09-13 seed hunt #2572 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config.options` no-tld-query pod spec projection gap; regression `ParseAsync_snake_case_dns_config_options_no_tld_query_projects_dns_option_no_tld_query_exposure`.
@@ -11239,11 +11339,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 165
-- **bugs-found:** 208
+- **hunts:** 172
+- **bugs-found:** 215
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2499: `priority` pod spec not projected
+- **last-bug:** 2026-09-13 — hunt #2597: snake_case dns_config.options ip6-bytestring pod spec projection gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
