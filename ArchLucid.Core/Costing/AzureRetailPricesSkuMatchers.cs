@@ -453,6 +453,7 @@ public sealed partial class AzureRetailPricesCatalogClient
         return ContainsWeekWordToken(trimmed)
             || ContainsSlashWeekToken(trimmed)
             || ContainsSlashWeeksToken(trimmed)
+            || ContainsSlashWksToken(trimmed)
             || ContainsSlashWkToken(trimmed)
             || ContainsSlashWToken(trimmed)
             || string.Equals(trimmed, "week", StringComparison.OrdinalIgnoreCase)
@@ -512,6 +513,28 @@ public sealed partial class AzureRetailPricesCatalogClient
         return false;
     }
 
+    private static bool ContainsSlashWksToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/wks", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterWks = index + 4;
+
+            if (afterWks >= trimmed.Length || !char.IsLetter(trimmed[afterWks]))
+                return true;
+
+            index = afterWks;
+        }
+
+        return false;
+    }
+
     private static bool ContainsSlashWkToken(string trimmed)
     {
         int index = 0;
@@ -566,6 +589,8 @@ public sealed partial class AzureRetailPricesCatalogClient
         return ContainsMonthWordToken(trimmed)
             || ContainsSlashMonthWordToken(trimmed)
             || ContainsSlashMonthsToken(trimmed)
+            || ContainsSlashMosToken(trimmed)
+            || ContainsSlashMonToken(trimmed)
             || ContainsSlashMonthToken(trimmed)
             || ContainsSlashMToken(trimmed)
             || ContainsBoundedToken(trimmed, " mo")
@@ -620,6 +645,50 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterMonths;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashMonToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/mon", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterMon = index + 4;
+
+            if (afterMon >= trimmed.Length || !char.IsLetter(trimmed[afterMon]))
+                return true;
+
+            index = afterMon;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashMosToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/mos", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterMos = index + 4;
+
+            if (afterMos >= trimmed.Length || !char.IsLetter(trimmed[afterMos]))
+                return true;
+
+            index = afterMos;
         }
 
         return false;
