@@ -10992,13 +10992,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-13 seed hunt #2396 (seed-only): reseeded context-ingestion; no new hunt-ready rows.
+
 2026-09-13 seed hunt #2390 (seed-only): reseeded context-ingestion; no new hunt-ready rows.
 - **status:** open
 - **impact:** medium
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 118
+- **hunts:** 119
 - **bugs-found:** 162
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
