@@ -34,6 +34,11 @@ public static class CanonicalInfrastructurePropertyBag
         "primary_key",
     ];
 
+    private static readonly string[] NonSecretK8sPropertyKeys =
+    [
+        "automountserviceaccounttoken",
+    ];
+
     public static string SanitizePropertyKey(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -79,9 +84,23 @@ public static class CanonicalInfrastructurePropertyBag
 
         string normalized = NormalizeSensitiveKeyName(rawKey);
 
+        if (IsNonSecretK8sPropertyKey(normalized))
+            return false;
+
         foreach (string fragment in SensitiveKeyFragments)
         {
             if (normalized.Contains(NormalizeSensitiveKeyName(fragment), StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsNonSecretK8sPropertyKey(string normalizedKey)
+    {
+        foreach (string allowed in NonSecretK8sPropertyKeys)
+        {
+            if (string.Equals(normalizedKey, allowed, StringComparison.Ordinal))
                 return true;
         }
 
@@ -396,10 +415,9 @@ public static class CanonicalInfrastructurePropertyBag
         if (string.IsNullOrEmpty(sanitizedKey))
             return false;
 
-        if (ShouldRedactKey(rawKey))
-            return TryAddK8sProperty(properties, rawKey, "[REDACTED]");
-
-        string valueText = CanonicalizeScalarValue(rawValue);
+        string valueText = ShouldRedactKey(rawKey) || IsRedactionToken(rawValue)
+            ? "[REDACTED]"
+            : CanonicalizeScalarValue(rawValue);
 
         if (string.IsNullOrWhiteSpace(valueText))
             return false;
