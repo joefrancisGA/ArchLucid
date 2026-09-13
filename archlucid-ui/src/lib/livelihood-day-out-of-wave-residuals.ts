@@ -12,7 +12,7 @@ export type LivelihoodDayOutOfWaveResidualRow = {
   readonly notes: string;
 };
 
-/** LY-043 / 046 / 058 / 059 / 116–118 — explicit skips for LY-120 close audit. */
+/** LY-043 / 046 / 058 / 059 / 071 / 089 / 090 / 116–118 skips plus LY-042 / 093 deferred. */
 export const LIVELIHOOD_DAY_OUT_OF_WAVE_RESIDUAL_ROWS: readonly LivelihoodDayOutOfWaveResidualRow[] =
   [
     {
@@ -63,5 +63,47 @@ export const LIVELIHOOD_DAY_OUT_OF_WAVE_RESIDUAL_ROWS: readonly LivelihoodDayOut
       ownerPrompt: "LY-013",
       status: "not-shipped",
       notes: "Host JSON EnableLlmJudgeOnFinalize=false is the opt-out.",
+    },
+    {
+      item: "Cross-refresh draft undo",
+      tracking: "ADR 0071 / LY-041",
+      ownerPrompt: "LY-042",
+      status: "deferred",
+      notes: "In-tab stacks only. Do not fake with sessionStorage as undo SoT. Prefer existing CAS/history if a later prompt implements it.",
+    },
+    {
+      item: "General server undo log for sealed records",
+      tracking: "ADR 0039",
+      ownerPrompt: "LY-044",
+      status: "not-shipped",
+      notes: "Sealed records stay immutable. Draft-only undo stays in-tab.",
+    },
+    {
+      item: "Uncited-hard leftover (LN-025 residual)",
+      tracking: "LN-025",
+      ownerPrompt: "LY-071",
+      status: "not-shipped",
+      notes: "Do not re-run LN uncited-hard. Residual stays not-shipped.",
+    },
+    {
+      item: "Extraction provenance leftover (LN)",
+      tracking: "LN leftover",
+      ownerPrompt: "LY-089",
+      status: "not-shipped",
+      notes: "Do not re-run LN extraction provenance. No 40th engine.",
+    },
+    {
+      item: "Adversarial/eval band named leftover (LN)",
+      tracking: "LN leftover",
+      ownerPrompt: "LY-090",
+      status: "not-shipped",
+      notes: "Do not let 0099 Supported wash eval rows into Career Supported.",
+    },
+    {
+      item: "Recents/pins server sync",
+      tracking: "SG-088 leftover",
+      ownerPrompt: "LY-093",
+      status: "deferred",
+      notes: "Operator recents remain localStorage. Not sessionStorage SoT. No new recents kernel.",
     },
   ];

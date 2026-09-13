@@ -25,6 +25,9 @@ describe("livelihood-day out-of-wave residuals (LY-043 / 046 / 058 / 059 / 116â€
     expect(prompts).toContain("LY-117");
     expect(prompts).toContain("LY-118");
     expect(prompts).toContain("LY-043");
+    expect(prompts).toContain("LY-042");
+    expect(prompts).toContain("LY-044");
+    expect(prompts).toContain("LY-071");
     expect(MUTATION_UNDO_WINDOW_SECONDS).toBe(300);
   });
 

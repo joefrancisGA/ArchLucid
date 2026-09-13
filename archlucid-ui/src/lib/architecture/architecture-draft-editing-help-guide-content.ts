@@ -14,7 +14,7 @@ export const ARCHITECTURE_DRAFT_EDITING_HELP_OVERVIEW =
 export const ARCHITECTURE_DRAFT_EDITING_HELP_LEASE_TITLE = "Edit lease banner";
 
 export const ARCHITECTURE_DRAFT_EDITING_HELP_LEASE_COPY =
-  "When you open a drafting desk, ArchLucid tries to acquire a short-lived edit lease. If someone else already holds an unexpired lease, you see a banner naming the holder and when the lease expires. That banner is not live presence — it only reflects the last lease the server recorded. When the lease expires, saving is blocked until you acquire it again — the other architect did not vanish from a presence feed.";
+  "When you open a drafting desk, ArchLucid tries to acquire a short-lived edit lease. If someone else already holds an unexpired lease, you see a banner naming the holder and when the lease expires. That banner is not live presence — it only reflects the last lease the server recorded. This work lease is not the run execute lease that owns a Record job. When the lease expires, saving is blocked until you acquire it again — the other architect did not vanish from a presence feed.";
 
 export const ARCHITECTURE_DRAFT_EDITING_HELP_STEAL_TITLE = "Take over the lease";
 

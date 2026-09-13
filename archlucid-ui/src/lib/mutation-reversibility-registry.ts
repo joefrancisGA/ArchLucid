@@ -25,6 +25,9 @@ export type MutationReversibilityEntry = {
 
 export const MUTATION_UNDO_WINDOW_SECONDS = 300;
 
+/** LY-051 / LY-052 — visible Undo toast copy. Not unlimited. Not unseal authority. */
+export const MUTATION_UNDO_WINDOW_VISIBLE_COPY = "Available for 300 seconds (five minutes)";
+
 export const FINDING_DISPOSITION_REVISIT_WINDOW_HOURS = 24;
 
 export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
@@ -70,7 +73,7 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
     classification: "reversible",
     amendable: true,
     confirmationLead:
-      "Disposition changes are recorded on the evidence trail. You can undo for several minutes after confirming, revisit deferred findings for 24 hours, or record a correction on the audit trail after confirming if the disposition was mistaken.",
+      "Disposition changes are recorded on the evidence trail. You can undo for 300 seconds (five minutes) after confirming, revisit deferred findings for 24 hours, or record a correction on the audit trail after confirming if the disposition was mistaken.",
     undoWindowSeconds: MUTATION_UNDO_WINDOW_SECONDS,
   },
   governance_keyboard_finding_disposition: {
@@ -78,7 +81,7 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
     classification: "reversible",
     amendable: true,
     confirmationLead:
-      "This disposition is recorded on the evidence trail. You can undo for several minutes after confirming, revisit deferred findings for 24 hours, or record a correction on the audit trail after confirming if the disposition was mistaken.",
+      "This disposition is recorded on the evidence trail. You can undo for 300 seconds (five minutes) after confirming, revisit deferred findings for 24 hours, or record a correction on the audit trail after confirming if the disposition was mistaken.",
     undoWindowSeconds: MUTATION_UNDO_WINDOW_SECONDS,
   },
   governance_policy_pack_publish: {

@@ -12,6 +12,9 @@ namespace ArchLucid.Application.Exports;
 /// </summary>
 public static class CareerExportSemanticSupportBandMarkdownFormatter
 {
+    public const string UncheckedWarnLine =
+        "Remaining Unchecked decision-grade rows still warn after Record finalize. The judge may have reduced the count; remaining Unchecked is not hidden.";
+
     public static string FormatMarkdown(IReadOnlyList<Finding>? findings)
     {
         if (findings is not { Count: > 0 })
@@ -35,6 +38,12 @@ public static class CareerExportSemanticSupportBandMarkdownFormatter
             $"Scorer version: `{CareerExportSemanticSupportBandScorerVersionResolver.ResolveStampVersion(findings)}`.");
         sb.AppendLine(stampLine);
         sb.AppendLine();
+
+        if (counts.Unchecked > 0)
+        {
+            sb.AppendLine(UncheckedWarnLine);
+            sb.AppendLine();
+        }
 
         return sb.ToString();
     }

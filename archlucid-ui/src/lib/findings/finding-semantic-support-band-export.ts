@@ -15,12 +15,15 @@ import {
   type FindingSemanticSupportBandValue,
 } from "@/lib/findings/semantic-support-band-presentation";
 
-
 /** Mirrors `FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1` (AS-057 / AS-060). */
 export const FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION = "as057-v1";
 
 /** Mirrors `FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1` (ADR 0099). */
 export const FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION = "as099-llm-finalize-v1";
+
+/** LY-077 — remaining Unchecked after finalize judge still warn; do not hide the count. */
+export const CAREER_EXPORT_UNCHECKED_SEMANTIC_SUPPORT_WARN =
+  "Remaining Unchecked decision-grade rows still warn after Record finalize. The judge may have reduced the count; remaining Unchecked is not hidden.";
 
 export type FindingSemanticSupportBandExportFields = {
   readonly semanticSupportBand: FindingSemanticSupportBandValue;
@@ -161,6 +164,10 @@ export function formatCareerExportSemanticSupportBandMarkdownSection(
     stamp.stampLine,
     "",
   ];
+
+  if (hasUncheckedDecisionGradeSemanticSupportBand(findings)) {
+    lines.push(CAREER_EXPORT_UNCHECKED_SEMANTIC_SUPPORT_WARN, "");
+  }
 
   return lines.join("\n");
 }
