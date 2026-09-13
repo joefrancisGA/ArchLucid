@@ -36,6 +36,7 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertFalse(lanes["run_openapi"])
         self.assertFalse(lanes["run_dotnet"])
         self.assertFalse(lanes["run_terraform"])
+        self.assertFalse(lanes["run_infra_diagrams_layout"])
         self.assertFalse(lanes["force_all"])
 
     def test_ui_component_only_skips_dotnet_and_openapi(self) -> None:
@@ -46,6 +47,7 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertFalse(lanes["run_openapi"])
         self.assertFalse(lanes["run_dotnet"])
         self.assertFalse(lanes["run_terraform"])
+        self.assertFalse(lanes["run_infra_diagrams_layout"])
 
     def test_api_types_generated_triggers_openapi(self) -> None:
         lanes = DETECT.classify_paths(["archlucid-ui/src/lib/api-types.generated.ts"])
@@ -65,6 +67,7 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertTrue(lanes["run_openapi"])
         self.assertTrue(lanes["run_dotnet"])
         self.assertFalse(lanes["run_terraform"])
+        self.assertFalse(lanes["run_infra_diagrams_layout"])
 
     def test_cli_only_triggers_dotnet_not_openapi(self) -> None:
         lanes = DETECT.classify_paths(["ArchLucid.Cli/Program.cs"])
@@ -87,6 +90,7 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertTrue(lanes["run_openapi"])
         self.assertTrue(lanes["run_dotnet"])
         self.assertTrue(lanes["run_terraform"])
+        self.assertTrue(lanes["run_infra_diagrams_layout"])
 
     def test_empty_diff_fail_open(self) -> None:
         lanes = DETECT.classify_paths([])
@@ -94,6 +98,7 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertTrue(lanes["run_openapi"])
         self.assertTrue(lanes["run_dotnet"])
         self.assertTrue(lanes["run_terraform"])
+        self.assertTrue(lanes["run_infra_diagrams_layout"])
         self.assertEqual(lanes["reason"], "empty_or_unknown_diff_fail_open")
 
     def test_merge_group_forces_all_lanes(self) -> None:
@@ -106,6 +111,7 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertTrue(payload["run_openapi"])
         self.assertTrue(payload["run_dotnet"])
         self.assertTrue(payload["run_terraform"])
+        self.assertTrue(payload["run_infra_diagrams_layout"])
         self.assertEqual(payload["reason"], "merge_group_semantic_conflict_guard")
 
     def test_non_pull_request_forces_all_lanes(self) -> None:
@@ -118,6 +124,7 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertTrue(payload["run_openapi"])
         self.assertTrue(payload["run_dotnet"])
         self.assertTrue(payload["run_terraform"])
+        self.assertTrue(payload["run_infra_diagrams_layout"])
         self.assertEqual(payload["reason"], "non_pull_request_full_lanes")
 
     def test_write_github_output_flags(self) -> None:
@@ -128,6 +135,7 @@ class DetectCiPathLanesTests(unittest.TestCase):
                     "run_openapi": True,
                     "run_dotnet": False,
                     "run_terraform": True,
+                    "run_infra_diagrams_layout": False,
                     "force_all": False,
                     "reason": "path_lanes",
                 },
@@ -138,7 +146,22 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertIn("run_openapi=true", text)
         self.assertIn("run_dotnet=false", text)
         self.assertIn("run_terraform=true", text)
+        self.assertIn("run_infra_diagrams_layout=false", text)
         self.assertIn("reason=path_lanes", text)
+
+    def test_viewer_or_packer_paths_trigger_infra_diagrams_layout_lane(self) -> None:
+        lanes = DETECT.classify_paths(
+            ["archlucid-ui/src/components/architecture/ArchitectureDiagramViewer.tsx"]
+        )
+
+        self.assertTrue(lanes["run_infra_diagrams_layout"])
+        self.assertFalse(lanes["run_dotnet"])
+
+    def test_layout_spec_triggers_infra_diagrams_layout_lane(self) -> None:
+        lanes = DETECT.classify_paths(["archlucid-ui/e2e/infra-diagrams-layout.mock.spec.ts"])
+
+        self.assertTrue(lanes["run_infra_diagrams_layout"])
+        self.assertFalse(lanes["run_dotnet"])
 
     def test_normalize_git_path_uses_forward_slashes(self) -> None:
         self.assertEqual(

@@ -11,6 +11,7 @@ import {
   architectureIdentityDraftHref,
   resolveArchitectureReviewHref,
 } from "@/lib/architecture/architecture-routes";
+import { resolveFinalizeSuccessDeskHref } from "@/lib/architecture/finalize-success-desk-href";
 import {
   ARCHITECTURE_SPAWN_LOCKED_DRAFT_BACK_TO_REVIEW_LABEL,
   assertSpawnLockedDraftBackHrefHonest,
@@ -48,6 +49,10 @@ export function ArchitectureDraftHandoffPanel(
     parentArchitectureId: props.parentArchitectureId,
   });
   const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
+  const deskHref =
+    parentArchitectureId.length > 0
+      ? resolveFinalizeSuccessDeskHref(parentArchitectureId, props.linkedReviewId)
+      : spawnLockedBackLocator.architectureDeskHref;
   const draftEditorHref =
     parentArchitectureId.length > 0
       ? architectureIdentityDraftHref(parentArchitectureId, props.draftId)
@@ -66,10 +71,23 @@ export function ArchitectureDraftHandoffPanel(
       data-spawn-lock-url-honesty="snapshot"
     >
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-spawn-lock-back-honesty">
-        <Link href={spawnLockedBackLocator.reviewJobHref} className={OPERATOR_LINK.nav}>
-          {ARCHITECTURE_SPAWN_LOCKED_DRAFT_BACK_TO_REVIEW_LABEL}
-        </Link>
-        {spawnLockedBackLocator.architectureDeskHref !== null ? (
+        {deskHref !== null ? (
+          <Link href={deskHref} className={OPERATOR_LINK.nav}>
+            Back to architecture desk
+          </Link>
+        ) : (
+          <Link href={spawnLockedBackLocator.reviewJobHref} className={OPERATOR_LINK.nav}>
+            {ARCHITECTURE_SPAWN_LOCKED_DRAFT_BACK_TO_REVIEW_LABEL}
+          </Link>
+        )}
+        {deskHref !== null ? (
+          <>
+            <span className="text-al-text-secondary"> · </span>
+            <Link href={spawnLockedBackLocator.reviewJobHref} className={OPERATOR_LINK.nav}>
+              {ARCHITECTURE_SPAWN_LOCKED_DRAFT_BACK_TO_REVIEW_LABEL}
+            </Link>
+          </>
+        ) : spawnLockedBackLocator.architectureDeskHref !== null ? (
           <>
             <span className="text-al-text-secondary"> · </span>
             <Link href={spawnLockedBackLocator.architectureDeskHref} className={OPERATOR_LINK.nav}>
@@ -91,9 +109,20 @@ export function ArchitectureDraftHandoffPanel(
           />
 
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            {deskHref !== null ? (
+              <Button
+                asChild
+                type="button"
+                className={CTA_WIDTH.content}
+                data-testid="architecture-draft-handoff-return-desk"
+              >
+                <Link href={deskHref}>Return to architecture desk</Link>
+              </Button>
+            ) : null}
             <Button
               asChild
               type="button"
+              variant={deskHref !== null ? "outline" : "default"}
               className={CTA_WIDTH.content}
               data-testid="architecture-draft-handoff-open-review"
             >

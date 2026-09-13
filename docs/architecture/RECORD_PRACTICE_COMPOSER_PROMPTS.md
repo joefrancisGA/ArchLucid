@@ -3,6 +3,7 @@
 > **Paste-ready files:** [`.cursor/prompts/record-practice-00-index.md`](../../.cursor/prompts/record-practice-00-index.md) (**RP-001–RP-024**)
 > **Predecessor:** [`CAREER_GRAVITY_COMPOSER_PROMPTS.md`](CAREER_GRAVITY_COMPOSER_PROMPTS.md) (**CG-001–100**, shipped). Do **not** re-run CG.
 > **Family:** [`LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md`](LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md) (waves 24–30). This overlay is livelihood UX **wave 31**.
+> **Issue-2 residual (wave 32):** [`SYSTEM_GRAVITY_COMPOSER_PROMPTS.md`](SYSTEM_GRAVITY_COMPOSER_PROMPTS.md) (**SG-001–120**) — do **not** re-run RP.
 
 # Record-practice Composer prompts (RP-001–RP-024)
 

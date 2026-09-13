@@ -2,7 +2,8 @@
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/system-not-job-00-index.md`](../../.cursor/prompts/system-not-job-00-index.md) (**SN-001–SN-040**)
 > **Predecessor:** [`CAREER_GRAVITY_COMPOSER_PROMPTS.md`](CAREER_GRAVITY_COMPOSER_PROMPTS.md) (**CG**). **Do not re-run CG/SY.**
-> **Successor:** [`LIVELIHOOD_GRADE_NO_COMPOSER_PROMPTS.md`](LIVELIHOOD_GRADE_NO_COMPOSER_PROMPTS.md) (**LN**). Envelope **runner** is [`CHEAP_EXPLORATION_COMPOSER_PROMPTS.md`](CHEAP_EXPLORATION_COMPOSER_PROMPTS.md).
+> **Successor:** [`LIVELIHOOD_GRADE_NO_COMPOSER_PROMPTS.md`](LIVELIHOOD_GRADE_NO_COMPOSER_PROMPTS.md) (**LN**, shipped). Envelope **runner** is [`CHEAP_EXPLORATION_COMPOSER_PROMPTS.md`](CHEAP_EXPLORATION_COMPOSER_PROMPTS.md) (**CE**, shipped).
+> **Issue-2 residual (wave 32):** [`SYSTEM_GRAVITY_COMPOSER_PROMPTS.md`](SYSTEM_GRAVITY_COMPOSER_PROMPTS.md) (**SG-001–120**) — do **not** re-run SN.
 
 # System-not-job Composer prompts (SN-001–SN-040)
 

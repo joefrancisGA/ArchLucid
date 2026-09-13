@@ -66,8 +66,7 @@ public static class ExportBundleCareerPostureResolver
         string workingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.ParseOrDefault(
             TryParseWorkingCareerRehearsalDoor(root));
 
-        bool isDemoTenant = root.TryGetProperty("isDemoTenant", out JsonElement demoEl)
-            && demoEl.ValueKind == JsonValueKind.True;
+        bool isDemoTenant = TryGetJsonBooleanProperty(root, "isDemoTenant", "is_demo_tenant");
 
         bool isSampleRun = TryParseSampleRun(root) || isDemoTenant;
 
@@ -112,11 +111,38 @@ public static class ExportBundleCareerPostureResolver
             Stamp: stamp);
     }
 
-    private static bool TryParseSampleRun(JsonElement root)
+    private static bool TryParseSampleRun(JsonElement root) =>
+        TryGetJsonBooleanProperty(root, "isSampleRun", "is_sample_run");
+
+    private static bool TryGetJsonBooleanProperty(JsonElement root, string camelCaseName, string snakeCaseName)
     {
-        if (root.TryGetProperty("isSampleRun", out JsonElement sampleEl))
+        if (root.TryGetProperty(camelCaseName, out JsonElement camelCaseElement)
+            && TryParseJsonBoolean(camelCaseElement))
         {
-            return sampleEl.ValueKind == JsonValueKind.True;
+            return true;
+        }
+
+        if (root.TryGetProperty(snakeCaseName, out JsonElement snakeCaseElement)
+            && TryParseJsonBoolean(snakeCaseElement))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryParseJsonBoolean(JsonElement element)
+    {
+        if (element.ValueKind is JsonValueKind.True)
+            return true;
+
+        if (element.ValueKind is JsonValueKind.False)
+            return false;
+
+        if (element.ValueKind is JsonValueKind.String
+            && bool.TryParse(element.GetString(), out bool parsed))
+        {
+            return parsed;
         }
 
         return false;
@@ -124,7 +150,7 @@ public static class ExportBundleCareerPostureResolver
 
     private static StructuralExecutionMode? TryParseStructuralExecutionMode(JsonElement root)
     {
-        if (!root.TryGetProperty("structuralExecutionMode", out JsonElement modeEl))
+        if (!TryGetJsonStringProperty(root, "structuralExecutionMode", "structural_execution_mode", out JsonElement modeEl))
         {
             return null;
         }
@@ -147,7 +173,7 @@ public static class ExportBundleCareerPostureResolver
 
     private static string? TryParseWorkingCareerRehearsalDoor(JsonElement root)
     {
-        if (!root.TryGetProperty("workingCareerRehearsalDoor", out JsonElement doorEl))
+        if (!TryGetJsonStringProperty(root, "workingCareerRehearsalDoor", "working_career_rehearsal_door", out JsonElement doorEl))
         {
             return null;
         }
@@ -158,5 +184,25 @@ public static class ExportBundleCareerPostureResolver
         }
 
         return doorEl.GetString();
+    }
+
+    private static bool TryGetJsonStringProperty(
+        JsonElement root,
+        string camelCaseName,
+        string snakeCaseName,
+        out JsonElement value)
+    {
+        if (root.TryGetProperty(camelCaseName, out value))
+        {
+            return true;
+        }
+
+        if (root.TryGetProperty(snakeCaseName, out value))
+        {
+            return true;
+        }
+
+        value = default;
+        return false;
     }
 }

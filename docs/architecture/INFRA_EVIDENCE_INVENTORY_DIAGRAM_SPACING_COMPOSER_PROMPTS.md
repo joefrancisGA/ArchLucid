@@ -2,6 +2,8 @@
 > **Index:** [`INFRA_EVIDENCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS.md). **Contract:** [`../library/INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md).
 > **Paste files:** [`.cursor/prompts/inventory-diagram-spacing-00-index.md`](../../.cursor/prompts/inventory-diagram-spacing-00-index.md) (one numbered file per session).
 >
+> **Superseded (2026-09-12):** IDS-01–IDS-04 **landed — do not re-run.** Owner Export Mermaid showed 0 subgraphs; IDS-02 `alpack_*` wrapping widens that graph. Next wave: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_HUMAN_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_HUMAN_COMPOSER_PROMPTS.md).
+>
 > **Do not** re-implement **IDL-01–IDL-06**, **IDV**, **IDC**, **IE-ID**, or **IE-ND**. IDL-02's grid is correct for zero real edges. This wave is the leftover after IDL-05 peering edges skipped that grid.
 
 # IDS-01–IDS-04 — Inventory diagram resources and connectors are too far apart

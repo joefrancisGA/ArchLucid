@@ -11,21 +11,21 @@ import {
 const repoRoot = join(__dirname, "..", "..", "..");
 
 describe("SN-012 portfolio resume href resolver", () => {
-  it("nests Working resume review href when architecture id is known", () => {
+  it("SG-040: lands Working resume on the architecture desk when architecture id is known", () => {
     expect(
       resolveSystemNotJobWorkingResumeReviewHref({
         runId: "run-42",
         requestId: "architecture-identity-001",
         workingMode: true,
       }),
-    ).toBe("/architecture/architectures/architecture-identity-001/reviews/run-42");
+    ).toBe("/architecture/architectures/architecture-identity-001?highlightReviewId=run-42");
     expect(
       resolveSystemNotJobWorkingResumeReviewHref({
         runId: "run-42",
         requestId: "architecture-identity-001",
         workingMode: true,
       }),
-    ).not.toBe("/architecture/reviews/run-42");
+    ).not.toBe("/architecture/architectures/architecture-identity-001/reviews/run-42");
   });
 
   it("keeps Guided peer resume href outside Working mode", () => {

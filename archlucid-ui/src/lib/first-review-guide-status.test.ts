@@ -20,7 +20,7 @@ const baseContext = {
 };
 
 describe("first-review-guide-status Working hrefs (SY-18)", () => {
-  it("uses nested review URLs on Working when architectureId is known", () => {
+  it("SG-045 / SY-18: uses nested review URLs on Working when architectureId is known", () => {
     const input = {
       commitContext: baseContext,
       canExecute: true,

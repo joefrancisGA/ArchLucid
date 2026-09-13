@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ArchitectureDiagramViewer } from '@/components/architecture/ArchitectureDiagramViewer';
@@ -349,6 +349,69 @@ describe('ArchitectureDiagramViewer', () => {
     expect(viewport).toContainElement(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION }));
   });
 
+  it('pins mermaid zoom controls to the visible frame, not the scrolling camera', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    const viewport = screen.getByTestId('architecture-diagram-viewport');
+    const camera = screen.getByTestId('architecture-diagram-camera');
+    const controls = screen.getByTestId('architecture-diagram-viewport-controls');
+
+    expect(viewport).toContainElement(controls);
+    expect(viewport).toContainElement(camera);
+    expect(camera).toContainElement(screen.getByTestId('architecture-diagram-svg-host'));
+    expect(camera.contains(controls)).toBe(false);
+    expect(viewport.className.split(/\s+/u)).not.toContain('overflow-auto');
+    expect(camera.className.split(/\s+/u)).toContain('overflow-auto');
+
+    fireEvent.click(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-fullscreen-viewport')).toBeInTheDocument();
+    });
+
+    const fullscreen = screen.getByTestId('architecture-diagram-fullscreen-viewport');
+    const fullscreenCamera = screen.getByTestId('architecture-diagram-fullscreen-camera');
+    const fullscreenControls = within(fullscreen).getByTestId('architecture-diagram-viewport-controls');
+
+    expect(fullscreen).toContainElement(fullscreenControls);
+    expect(fullscreenCamera.contains(fullscreenControls)).toBe(false);
+    expect(fullscreen.className.split(/\s+/u)).not.toContain('overflow-auto');
+    expect(fullscreenCamera.className.split(/\s+/u)).toContain('overflow-auto');
+  });
+
+  it('places stacked viewport controls above the diagram viewport when requested', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+        viewportControlsLayout="stacked"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-viewport')).toBeInTheDocument();
+    });
+
+    const viewport = screen.getByTestId('architecture-diagram-viewport');
+    const controls = screen.getByTestId('architecture-diagram-viewport-controls');
+
+    expect(viewport).not.toContainElement(controls);
+    expect(controls.compareDocumentPosition(viewport) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('zooms the mermaid viewport with ctrl+wheel', async () => {
     replaceMock.mockClear();
 
@@ -399,6 +462,38 @@ describe('ArchitectureDiagramViewer', () => {
         scroll: false,
       });
     });
+  });
+
+  it('keeps URL zoom on first mermaid mount and resets to 100 percent when the source changes', async () => {
+    searchParamsMock.set('diagZoom', '0.30');
+
+    const { rerender } = render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(30);
+    });
+
+    rerender(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  b["B"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/securenow/inventory', {
+        scroll: false,
+      });
+    });
+
+    expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(100);
   });
 
   it('sizes mermaid svg from measured ink after render without paint failure', async () => {

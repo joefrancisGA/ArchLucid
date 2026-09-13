@@ -6,7 +6,7 @@ import { useCallback, useEffect, useId, useRef, useState, type SetStateAction } 
 import { palettePressUsesPaletteModifier } from "@/components/CommandPalette";
 import { dispatchOpenCommandPalette } from "@/lib/shortcut-registry";
 import { useGlobalSearchMode, useGlobalSearchRouteLocalQuerySync } from "@/components/use-global-search-mode";
-import { useGlobalSearchResults } from "@/components/use-global-search-results";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
 import { useReviewPackageSearchScope } from "@/hooks/use-review-package-search-scope";
 import {
   globalSearchBarOverlayHrefFromSearch,
@@ -205,18 +205,18 @@ export function useGlobalSearchBar() {
   );
 
   const navigateToRun = useCallback(
-    (runId: string) => {
-      router.push(`/architecture/reviews/${encodeURIComponent(runId)}`);
+    (runId: string, architectureId?: string | null) => {
+      const href = resolveWorkingRunReviewLocator({ runId, architectureId }).href;
+      router.push(href);
       closePanel();
     },
     [closePanel, router],
   );
 
   const navigateToFinding = useCallback(
-    (runId: string, findingId: string) => {
-      router.push(
-        `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`,
-      );
+    (runId: string, findingId: string, architectureId?: string | null) => {
+      const reviewHref = resolveWorkingRunReviewLocator({ runId, architectureId }).href;
+      router.push(`${reviewHref}/findings/${encodeURIComponent(findingId)}`);
       closePanel();
     },
     [closePanel, router],

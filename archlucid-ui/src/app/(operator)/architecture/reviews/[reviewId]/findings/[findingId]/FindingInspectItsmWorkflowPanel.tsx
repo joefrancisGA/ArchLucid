@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FindingCorrelationVocabularyDisambiguation } from "@/components/findings/FindingCorrelationVocabularyDisambiguation";
@@ -13,12 +15,14 @@ import {
   type FindingHumanReviewDispositionDivergence,
 } from "@/lib/findings/finding-human-review-disposition-divergence";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
+import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingInspectItsmWorkflowPanelProps = {
   readonly findingId: string;
+  readonly parentArchitectureId?: string | null;
   readonly humanReviewStatusLabel?: string | null;
   readonly humanReviewDispositionDivergence?: FindingHumanReviewDispositionDivergence | null;
 };
@@ -26,18 +30,31 @@ export type FindingInspectItsmWorkflowPanelProps = {
 /** TB-063: ITSM workflow on finding inspect. TB-387: one-click create gated; inbound sync + correlations remain. TB-2236: triad clarity. */
 export function FindingInspectItsmWorkflowPanel({
   findingId,
+  parentArchitectureId = null,
   humanReviewStatusLabel = null,
   humanReviewDispositionDivergence = null,
 }: FindingInspectItsmWorkflowPanelProps) {
   const nativeCreateEnabled = useItsmNativeCreateEnabled();
   const buyerPolishedShell = resolveProductionEvalChromeFromStorage();
   const isWorkingDesk = useProductionDeskChrome();
+  const architectureId = parentArchitectureId?.trim() ?? "";
+  const architectureDeskHref =
+    isWorkingDesk && architectureId.length > 0 ? architectureIdentityPath(architectureId) : null;
   const showDivergenceBanner =
     isWorkingDesk && humanReviewDispositionDivergence?.isDiverged === true;
+  const architectureReturnLink =
+    architectureDeskHref !== null ? (
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="finding-inspect-itsm-architecture-return">
+        <Link href={architectureDeskHref} className={OPERATOR_LINK.nav}>
+          Back to architecture desk
+        </Link>
+      </p>
+    ) : null;
 
   if (!nativeCreateEnabled && !humanReviewStatusLabel) {
     return (
       <div className="space-y-3">
+        {architectureReturnLink}
         {buyerPolishedShell ? null : (
           <ItsmConnectorsFindingTicketVocabularyRail currentSurfaceId="finding-ticket-linkage" />
         )}
@@ -58,6 +75,7 @@ export function FindingInspectItsmWorkflowPanel({
         </CardTitle>
       </CardHeader>
       <CardContent className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
+        {architectureReturnLink}
         {showDivergenceBanner ? (
           <div
             className="rounded-md border border-amber-300 bg-amber-50 p-3 text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"

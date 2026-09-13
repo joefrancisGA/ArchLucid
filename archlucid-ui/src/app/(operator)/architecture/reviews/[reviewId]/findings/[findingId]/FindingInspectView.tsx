@@ -35,6 +35,7 @@ import {
 import { findingRecommendedActionParagraph } from "./_sections/finding-detail-route-display";
 import { findingIdsAlignForInspectRoute } from "@/lib/load-finding-inspect-for-route";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   buildFindingPolicyEvidenceCitationsFromInspect,
   resolvePolicyTraceExcerptFromInspect,
@@ -80,6 +81,7 @@ export type FindingInspectViewProps = {
   readonly approvedDecisionTitles?: readonly string[];
   readonly statedConstraintContext?: StatedConstraintContext | null;
   readonly findingsQueueRunId?: string | null;
+  readonly parentArchitectureId?: string | null;
 };
 
 /**
@@ -95,9 +97,15 @@ export function FindingInspectView({
   approvedDecisionTitles = [],
   statedConstraintContext = null,
   findingsQueueRunId = null,
+  parentArchitectureId = null,
 }: FindingInspectViewProps) {
   const buyerPolishedShell = resolveProductionEvalChromeFromStorage();
-  const findingsQueueNavHref = resolveFindingsQueueNavHref(findingsQueueRunId);
+  const { isWorkingMode } = useWorkspaceMode();
+  const findingsQueueNavHref = resolveFindingsQueueNavHref({
+    findingsQueueRunId,
+    architectureId: parentArchitectureId,
+    isWorkingMode,
+  });
 
   if (failure || !payload) {
     if (buyerPolishedShell && failure) {
@@ -369,6 +377,7 @@ export function FindingInspectView({
 
         <FindingInspectItsmWorkflowPanel
           findingId={decodedFindingId}
+          parentArchitectureId={parentArchitectureId}
           humanReviewStatusLabel={formatFindingHumanReviewStatusLabel(payload.humanReviewStatus)}
           humanReviewDispositionDivergence={humanReviewDispositionDivergence}
         />

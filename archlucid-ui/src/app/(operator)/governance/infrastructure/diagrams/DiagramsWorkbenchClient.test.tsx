@@ -2,12 +2,14 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
+import { SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { DiagramsWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient";
 
@@ -22,10 +24,11 @@ const {
 }));
 
 let searchParams = new URLSearchParams();
+let pathname = "/governance/infrastructure/diagrams";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
-  usePathname: () => "/governance/infrastructure/diagrams",
+  usePathname: () => pathname,
   useSearchParams: () => searchParams,
 }));
 
@@ -114,19 +117,24 @@ const defaultSnapshotsResponse = {
 
 describe("DiagramsWorkbenchClient", () => {
   beforeEach(() => {
+    pathname = "/governance/infrastructure/diagrams";
     fetchInfraEvidenceSnapshotsMock.mockReset();
     fetchInfraEvidenceSnapshotsMock.mockResolvedValue(defaultSnapshotsResponse);
     downloadInfraEvidenceMermaidPngMock.mockReset();
     downloadInfraEvidenceMermaidPngMock.mockResolvedValue({ usedBrowserFallback: false });
     fetchInfraEvidenceMermaidRenderMock.mockReset();
-    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
-      snapshotId: "11111111-1111-1111-1111-111111111111",
-      mode: query.mode ?? "executive",
-      fallbackKey: query.fallbackKey ?? null,
-      status: query.mode === "dependencyNeighborhood" ? "Succeeded" : "Partitioned",
-      mermaid: "flowchart LR\n  A-->B",
-      metrics:
-        query.mode === "dependencyNeighborhood"
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
+      const fallbackKey = query.fallbackKey ?? null;
+      const isFallback = fallbackKey != null && fallbackKey.length > 0;
+
+      return {
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        mode: isFallback ? fallbackKey : (query.mode ?? "executive"),
+        fallbackKey,
+        status:
+          query.mode === "dependencyNeighborhood" ? "Succeeded" : isFallback ? "Succeeded" : "Partitioned",
+        mermaid: "flowchart LR\n  A-->B",
+        metrics: query.mode === "dependencyNeighborhood"
           ? {
               nodeCount: 3,
               edgeCount: 2,
@@ -136,35 +144,86 @@ describe("DiagramsWorkbenchClient", () => {
               textSizeBytes: 1200,
               layoutEstimate: 800,
             }
-          : {
-              nodeCount: 500,
-              edgeCount: 900,
-              subgraphCount: 12,
-              maxDegree: 20,
-              crossSubgraphEdgeCount: 40,
-              textSizeBytes: 12000,
-              layoutEstimate: 8000,
-            },
-      fallbackArtifacts: [
-        {
-          key: "executive",
-          label: "Executive (executive)",
-          status: "Succeeded",
-          nodeCount: 120,
-          edgeCount: 180,
-        },
-        {
-          key: "network",
-          label: "Network (network)",
-          status: "Succeeded",
-          nodeCount: 90,
-          edgeCount: 140,
-        },
-      ],
-    }));
+          : isFallback
+            ? {
+                nodeCount: 120,
+                edgeCount: 180,
+                subgraphCount: 2,
+                maxDegree: 8,
+                crossSubgraphEdgeCount: 4,
+                textSizeBytes: 4000,
+                layoutEstimate: 2000,
+              }
+            : {
+                nodeCount: 500,
+                edgeCount: 900,
+                subgraphCount: 12,
+                maxDegree: 20,
+                crossSubgraphEdgeCount: 40,
+                textSizeBytes: 12000,
+                layoutEstimate: 8000,
+              },
+        fallbackArtifacts: [
+          {
+            key: "executive",
+            label: "Executive (executive)",
+            status: "Succeeded",
+            nodeCount: 120,
+            edgeCount: 180,
+          },
+          {
+            key: "network",
+            label: "Network (network)",
+            status: "Succeeded",
+            nodeCount: 90,
+            edgeCount: 140,
+          },
+        ],
+      };
+    });
+  });
+
+  it("renders the inventory diagrams nav icon before the page title on SecureNow routes", async () => {
+    pathname = SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH;
+    searchParams = new URLSearchParams();
+    render(<DiagramsWorkbenchClient />);
+
+    const icon = await screen.findByTestId("page-heading-icon");
+    const title = screen.getByTestId("infra-diagrams-page-title");
+
+    expect(icon.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("renders the inventory diagrams nav icon before the page title on SecureNow routes", async () => {
+    pathname = SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH;
+    searchParams = new URLSearchParams();
+    render(<DiagramsWorkbenchClient />);
+
+    const icon = await screen.findByTestId("page-heading-icon");
+    const title = screen.getByTestId("infra-diagrams-page-title");
+
+    expect(icon.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("renders human-readable snapshot label above the diagram", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "flowchart LR\n  A-->B",
+      metrics: {
+        nodeCount: 2,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 120,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+    }));
+
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DiagramsWorkbenchClient />);
 
@@ -290,12 +349,62 @@ describe("DiagramsWorkbenchClient", () => {
     );
     render(<DiagramsWorkbenchClient />);
 
-    expect(await screen.findByTestId("infra-diagrams-dependency-seed-prompt")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-diagrams-mermaid-outline")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
     expect(fetchInfraEvidenceMermaidRenderMock).not.toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({ mode: "dependencyNeighborhood" }),
     );
+  });
+
+  it("shows the starting resource helper above the seed controls", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    const helper = await screen.findByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER);
+    const input = screen.getByTestId("infra-diagrams-seed-node-input");
+
+    expect(helper.compareDocumentPosition(input) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByText("Pick a Nodes row, or paste a cloud resource id or ARM id.")).not.toBeInTheDocument();
+  });
+
+  it("loads executive resources for dependency neighborhood seed picking", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: [
+        "flowchart TD",
+        '    %% al-type=Microsoft.Network/virtualNetworks al-rg=rg-net al-seed=seed-vnet',
+        '    n_vnet["vnet-aep-hi-test-wus-001"]',
+        '    %% al-type=Microsoft.Network/publicIPAddresses al-rg=rg-net al-seed=seed-pip',
+        '    n_pip["gateway-pip"]',
+        "    n_vnet --> n_pip",
+      ].join("\n"),
+      metrics: {
+        nodeCount: 2,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 400,
+        layoutEstimate: 200,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-mermaid-outline")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Focus neighborhood from vnet-aep-hi-test-wus-001/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Focus neighborhood from gateway-pip/i })).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-dependency-seed-prompt")).not.toBeInTheDocument();
   });
 
   it("shows a modal when Focus neighborhood is clicked without a seed", async () => {
@@ -556,6 +665,84 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("dependencyNeighborhood");
     expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue(seedId);
+  });
+
+  it("clears the stale executive diagram while focusing a dependency neighborhood", async () => {
+    const seedId = "22222222-2222-2222-2222-222222222222";
+    let dependencyFetchStarted = false;
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
+      if (query.mode === "dependencyNeighborhood") {
+        dependencyFetchStarted = true;
+
+        await new Promise((resolve) => {
+          setTimeout(resolve, 50);
+        });
+
+        return {
+          snapshotId: "11111111-1111-1111-1111-111111111111",
+          mode: "dependencyNeighborhood",
+          fallbackKey: null,
+          status: "Succeeded",
+          mermaid: 'flowchart TD\n    n_vnet["focused-neighborhood"]',
+          metrics: {
+            nodeCount: 3,
+            edgeCount: 2,
+            subgraphCount: 0,
+            maxDegree: 2,
+            crossSubgraphEdgeCount: 0,
+            textSizeBytes: 400,
+            layoutEstimate: 200,
+          },
+          fallbackArtifacts: [],
+        };
+      }
+
+      return {
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        mode: query.mode ?? "executive",
+        fallbackKey: query.fallbackKey ?? null,
+        status: "Succeeded",
+        mermaid: [
+          "flowchart TD",
+          `    %% al-type=Microsoft.Network/virtualNetworks al-rg=anly-aep-test-hi al-seed=${seedId}`,
+          '    n_vnet["vnet-aep-hi-test-wus-001"]',
+        ].join("\n"),
+        metrics: {
+          nodeCount: 11,
+          edgeCount: 10,
+          subgraphCount: 0,
+          maxDegree: 2,
+          crossSubgraphEdgeCount: 0,
+          textSizeBytes: 400,
+          layoutEstimate: 200,
+        },
+        fallbackArtifacts: [],
+      };
+    });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Focus neighborhood from vnet-aep-hi-test-wus-001" }),
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
+    });
+    expect(dependencyFetchStarted).toBe(true);
+
+    expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+    expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+      "11111111-1111-1111-1111-111111111111",
+      expect.objectContaining({
+        mode: "dependencyNeighborhood",
+        seedNodeId: seedId,
+      }),
+    );
   });
 
   it("shows resource group cards when Pick a Resource Group is selected", async () => {

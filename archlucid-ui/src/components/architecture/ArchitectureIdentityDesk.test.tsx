@@ -125,6 +125,8 @@ describe("ArchitectureIdentityDesk (DA-04 / AO-20 Working fixture)", () => {
     );
     expect(screen.getAllByTestId(/^architecture-identity-review-row-/)).toHaveLength(2);
     expect(screen.getByTestId("architecture-identity-latest-seal-link")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-desk-sealed-receipt-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("decision-receipt-export")).toBeInTheDocument();
   });
 
   it("shows Start review when there are no child reviews yet", () => {

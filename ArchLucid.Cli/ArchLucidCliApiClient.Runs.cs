@@ -144,6 +144,28 @@ public sealed partial class ArchLucidApiClient
     }
 
     /// <summary>
+    ///     Lightweight run summary including parent <c>architectureId</c> when linked (SG-095 / SG-109).
+    /// </summary>
+    public async Task<GetRunSummaryResult?> GetRunSummaryAsync(string runId, CancellationToken ct = default)
+    {
+        try
+        {
+            if (!Guid.TryParse(runId, out Guid runGuid))
+                return null;
+
+            Gen.RunSummaryResponse summary = await _api.SummaryGET7Async(runGuid, null, ct);
+
+            return DeserializeRoundTrip<GetRunSummaryResult>(summary);
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure($"GetRunSummary({runId})", ex);
+
+            return null;
+        }
+    }
+
+    /// <summary>
     ///     Get manifest by version.
     /// </summary>
     public async Task<object?> GetManifestAsync(string version, CancellationToken ct = default)

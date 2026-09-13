@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { PinReviewToDeskButton } from "@/components/reviews/PinReviewToDeskButton";
+import { ArchitectureIdentityDeskReviewFinalizeAction } from "@/components/architecture/ArchitectureIdentityDeskReviewFinalizeAction";
 import { InventoryShowingCountBand } from "@/components/usability/InventoryShowingCountBand";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useShellInFlightOperations } from "@/hooks/use-shell-in-flight-operations";
@@ -99,6 +100,9 @@ export function ArchitectureIdentityDeskReviewsTable(
             <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
           ) : null}
           {isWorkingMode ? (
+            <EnterpriseTableHeaderCell className="text-right">Actions</EnterpriseTableHeaderCell>
+          ) : null}
+          {isWorkingMode ? (
             <EnterpriseTableHeaderCell className="text-right">Pin</EnterpriseTableHeaderCell>
           ) : null}
         </EnterpriseTableHeadRow>
@@ -148,6 +152,15 @@ export function ArchitectureIdentityDeskReviewsTable(
                   ) : (
                     <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>—</span>
                   )}
+                </EnterpriseTableCell>
+              ) : null}
+              {isWorkingMode ? (
+                <EnterpriseTableCell className="text-right">
+                  <ArchitectureIdentityDeskReviewFinalizeAction
+                    runId={review.runId}
+                    architectureId={props.architectureId}
+                    skipWhenInFlight={inFlightOperation !== null}
+                  />
                 </EnterpriseTableCell>
               ) : null}
               {isWorkingMode ? (

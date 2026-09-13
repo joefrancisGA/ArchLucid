@@ -1,5 +1,5 @@
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY } from "@/lib/buyer/buyer-polish-copy";
 
 /** Guided first-session deferral — Operate groups stay hidden until first commit. */
@@ -121,6 +121,20 @@ const WORKING_OPERATE_DEFERRAL_BY_VARIANT: Partial<Record<FirstWeekRouteGuidance
   "reviews-list": "",
 };
 
+/** SG-056 — Working Home is portfolio/desk, not a pipeline stepper. */
+const WORKING_HOME_GUIDANCE: Partial<FirstWeekRouteGuidanceConfig> = {
+  bridgeCopy:
+    "Your architecture portfolio is the durable desk — child reviews are jobs on each named system. Start from briefs, diagrams, or IaC only (evidence-only); cloud inventory ZIP is optional when you need live architecture structure or cost grounding.",
+  primaryAction: { label: "Open architectures", href: ARCHITECTURES_LIST_PATH },
+};
+
+/** SG-061 — onboarding must not teach reviews hub as Working Home. */
+const WORKING_ONBOARDING_GUIDANCE: Partial<FirstWeekRouteGuidanceConfig> = {
+  bridgeCopy:
+    "Finish optional setup below, then return to your architecture desk — not the reviews inbox as Home.",
+  primaryAction: { label: "Open architectures", href: ARCHITECTURES_LIST_PATH },
+};
+
 function resolveWorkingOperateDeferralNote(
   variant: FirstWeekRouteGuidanceVariant,
   guidedNote: string,
@@ -160,6 +174,22 @@ export function resolveFirstWeekRouteGuidanceForShell(
 
   if (input.evalChrome) {
     return base;
+  }
+
+  if (variant === "home") {
+    return {
+      ...base,
+      ...WORKING_HOME_GUIDANCE,
+      operateDeferralNote: resolveWorkingOperateDeferralNote(variant, base.operateDeferralNote),
+    };
+  }
+
+  if (variant === "onboarding") {
+    return {
+      ...base,
+      ...WORKING_ONBOARDING_GUIDANCE,
+      operateDeferralNote: resolveWorkingOperateDeferralNote(variant, base.operateDeferralNote),
+    };
   }
 
   return {

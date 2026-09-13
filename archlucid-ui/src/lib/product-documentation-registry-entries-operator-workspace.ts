@@ -349,6 +349,15 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
     "releaseApplicability": "Working system-not-job help (SN-032 / WS-20 / ADR 0079)",
   },
   {
+    "slug": "system-gravity",
+    "title": "System gravity",
+    "summary": "Working orientation — architecture desk is the instrument after spawn; nested review-detail is a job inspector, not Monday Home. Record and Practice terms per ADR 0097.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-09-12",
+    "releaseApplicability": "System-gravity help (SG-107 / ADR 0098)",
+  },
+  {
     "slug": "sketch-a-change",
     "title": "Sketch a change",
     "summary": "Cheap labeled envelope on the architecture desk — Rehearsal-stamped clone from snapshot after spawn lock (ADR 0092).",

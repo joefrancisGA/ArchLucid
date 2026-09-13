@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Operator;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -12,6 +13,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Demo;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Options;
@@ -29,6 +31,7 @@ public sealed class QuickStartService(
     IAuditService auditService,
     IActorContext actorContext,
     IScopeContextProvider scopeContextProvider,
+    IRunRepository runRepository,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     ILogger<QuickStartService> logger)
 {
@@ -54,6 +57,9 @@ public sealed class QuickStartService(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     public async Task<DemoQuickStartResponse> RunAsync(DemoQuickStartRequest request,
         CancellationToken cancellationToken)
@@ -87,7 +93,13 @@ public sealed class QuickStartService(
 
         string manifestVersion = committed.Manifest.Metadata.ManifestVersion;
         string trimmedBaseUrl = _publicSiteOptions.CurrentValue.BaseUrl.TrimEnd('/');
-        string runDetailUrl = $"{trimmedBaseUrl}/runs/{Uri.EscapeDataString(runId)}";
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        Guid? architectureId = await WorkingOperatorRunArchitectureIdResolver.TryResolveAsync(
+            _runRepository,
+            scope,
+            runId,
+            cancellationToken).ConfigureAwait(false);
+        string runDetailUrl = WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl(trimmedBaseUrl, runId, architectureId);
 
         if (_logger.IsEnabled(LogLevel.Information))
 
