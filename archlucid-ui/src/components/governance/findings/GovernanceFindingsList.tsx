@@ -42,6 +42,8 @@ export type GovernanceFindingsListProps = {
   readonly onSelectionChange: (next: ReadonlySet<string>) => void;
   readonly onBulkApplied: () => void;
   readonly showInsightDensityScore?: boolean;
+  /** IH-017 — card rows with disposition on architecture-nested findings document. */
+  readonly inhabitedFindingsDocument?: boolean;
 };
 
 function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): ReactElement {
@@ -54,7 +56,10 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
     onSelectionChange,
     onBulkApplied,
     showInsightDensityScore = false,
+    inhabitedFindingsDocument = false,
   } = props;
+
+  const useCardDispositionLayout = buyerPolishedShell || inhabitedFindingsDocument;
 
   const findingRows = displayedRows.filter((row) => row.recordKind === "finding");
   const decisionRows = displayedRows.filter((row) => row.recordKind === "decision");
@@ -138,7 +143,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
     return `${bulkDispositionSuccessMessage} ${GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE}`;
   }
 
-  if (buyerPolishedShell) {
+  if (useCardDispositionLayout) {
     return (
       <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={handleBulkApplied}>
       <div className="space-y-4">
@@ -148,6 +153,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
           activeIndex={triage.activeIndex}
           totalCount={triage.findingRows.length}
           buyerPolishedShell={buyerPolishedShell}
+          inhabitedFindingsDocument={inhabitedFindingsDocument}
           canGoPrevious={triage.canGoPrevious}
           canGoNext={triage.canGoNext}
           onOpenChange={triage.setOpen}
@@ -218,6 +224,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
         activeIndex={triage.activeIndex}
         totalCount={triage.findingRows.length}
         buyerPolishedShell={buyerPolishedShell}
+        inhabitedFindingsDocument={inhabitedFindingsDocument}
         canGoPrevious={triage.canGoPrevious}
         canGoNext={triage.canGoNext}
         onOpenChange={triage.setOpen}

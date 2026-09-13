@@ -17,12 +17,16 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
+export const INHABIT_FINDING_TRIAGE_PANEL_DESCRIPTION =
+  "Stay on this architecture's findings document while you inspect evidence. Use previous and next to move through findings without opening review-detail as home." as const;
+
 export type GovernanceFindingTriagePanelProps = {
   readonly open: boolean;
   readonly row: GovernanceFindingQueueRow | null;
   readonly activeIndex: number;
   readonly totalCount: number;
   readonly buyerPolishedShell: boolean;
+  readonly inhabitedFindingsDocument?: boolean;
   readonly canGoPrevious: boolean;
   readonly canGoNext: boolean;
   readonly onOpenChange: (open: boolean) => void;
@@ -53,6 +57,10 @@ export function GovernanceFindingTriagePanel(props: GovernanceFindingTriagePanel
 
   const inspectHref = governanceFindingInspectHref(row.runId, row.findingId);
   const positionLabel = `${activeIndex + 1} of ${totalCount}`;
+  const panelDescription =
+    props.inhabitedFindingsDocument === true
+      ? `${INHABIT_FINDING_TRIAGE_PANEL_DESCRIPTION} (${positionLabel}).`
+      : `Stay in the queue while you review evidence. Use previous and next to move through findings (${positionLabel}).`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
@@ -73,7 +81,7 @@ export function GovernanceFindingTriagePanel(props: GovernanceFindingTriagePanel
             id="governance-finding-triage-panel-description"
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           >
-            Stay in the queue while you review evidence. Use previous and next to move through findings ({positionLabel}).
+            {panelDescription}
           </p>
         </DialogHeader>
 

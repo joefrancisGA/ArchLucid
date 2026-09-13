@@ -31,4 +31,24 @@ describe("inhabit findings document guard (IH-016–019 / IH-073)", () => {
     expect(mapSource).toContain("pathIsWorkingInhabitedFindingsRoute");
     expect(mapSource).toContain("INHABIT_THE_ARCHITECTURE_HELP_SLUG");
   });
+
+  it("mounts quiet-engine honesty on inhabited findings document chrome (IH-040)", () => {
+    const chrome = readFileSync(
+      join(SRC_ROOT, "components/governance/InhabitedFindingsDocumentChrome.tsx"),
+      "utf8",
+    );
+
+    expect(chrome).toContain("GovernanceFindingsQueueQuietEnginesHint");
+    expect(chrome).toContain("inhabited-findings-quiet-engines");
+  });
+
+  it("uses card disposition layout on inhabited findings list (IH-017)", () => {
+    const list = readFileSync(
+      join(SRC_ROOT, "components/governance/findings/GovernanceFindingsList.tsx"),
+      "utf8",
+    );
+
+    expect(list).toContain("inhabitedFindingsDocument");
+    expect(list).toContain("useCardDispositionLayout");
+  });
 });

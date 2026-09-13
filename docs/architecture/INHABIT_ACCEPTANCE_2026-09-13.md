@@ -22,11 +22,23 @@
 | IH-014 inhabit help slug | **Shipped** (`/help/inhabit-the-architecture`) |
 | IH-015 landing | **Shipped** |
 | IH-016–021 findings document cluster | **Shipped** (presentation, trail, finalize, empty honesty) |
-| IH-024 back href inventory | **Partial** (canonical `working-back-href`; leak inventory updated) |
+| IH-022 spawn-lock handoff copy | **Shipped** |
+| IH-024 back href inventory | **Shipped** (leak inventory rows) |
 | IH-025 Record + Simulator start honesty | **Shipped** |
 | IH-026 Practice start honesty | **Shipped** |
+| IH-027 Working home first paint | **Shipped** |
+| IH-028 two controls only (help) | **Shipped** |
+| IH-029 Record + Simulator help | **Shipped** |
+| IH-030 empty desk Record honesty | **Shipped** (IH-025 on command bar) |
+| IH-031 in-flight chip stamp | **Shipped** |
+| IH-032 no third Mode chooser ratchet | **Shipped** |
+| IH-017 disposition on inhabited document | **Shipped** |
+| IH-020 inspect triage panel copy | **Shipped** |
+| IH-033 record correction on card rows | **Shipped** |
+| IH-040 quiet engines on document | **Shipped** |
+| IH-069 pipeline stepper ratchet | **Shipped** |
 
-IH-027–078 remain one-prompt-per-session leftovers (default-day, amend, completeness, sketch/room/keyboard/continuity) plus ratchets/skips except the contract guards above. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare or live presence.
+IH-034–078 remain one-prompt-per-session leftovers (amend history, completeness bands, sketch/room/keyboard/continuity) plus ratchets/skips except the contract guards above. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare or live presence.
 
 ## Skips (intentional)
 

@@ -17,6 +17,8 @@ import {
   INHABIT_THE_ARCHITECTURE_HELP_CONCEPT_TILES,
   INHABIT_THE_ARCHITECTURE_HELP_GUIDE_HEADINGS,
   INHABIT_THE_ARCHITECTURE_HELP_OVERVIEW,
+  INHABIT_THE_ARCHITECTURE_HELP_RECORD_SIMULATOR_BODY,
+  INHABIT_THE_ARCHITECTURE_HELP_TWO_CONTROLS_BODY,
   INHABIT_THE_ARCHITECTURE_HELP_PAGE_SUBTITLE,
   INHABIT_THE_ARCHITECTURE_HELP_PAGE_TITLE,
   INHABIT_THE_ARCHITECTURE_HELP_PATH,
@@ -94,6 +96,26 @@ export function HelpInhabitTheArchitectureGuideView(
                 </article>
               ))}
             </div>
+          </section>
+
+          <section aria-labelledby="two-controls-only" className="space-y-3">
+            <HelpSectionHeading id="two-controls-only">Two controls only</HelpSectionHeading>
+            <p
+              className={readingBodyClass}
+              data-testid="help-inhabit-the-architecture-two-controls"
+            >
+              {INHABIT_THE_ARCHITECTURE_HELP_TWO_CONTROLS_BODY}
+            </p>
+          </section>
+
+          <section aria-labelledby="record-simulator-incomplete" className="space-y-3">
+            <HelpSectionHeading id="record-simulator-incomplete">Record on Simulator host</HelpSectionHeading>
+            <p
+              className={readingBodyClass}
+              data-testid="help-inhabit-the-architecture-record-simulator"
+            >
+              {INHABIT_THE_ARCHITECTURE_HELP_RECORD_SIMULATOR_BODY}
+            </p>
           </section>
 
           <section aria-labelledby="where-to-go-next" className="space-y-3">

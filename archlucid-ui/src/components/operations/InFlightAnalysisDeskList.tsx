@@ -13,6 +13,9 @@ export type InFlightAnalysisDeskListProps = {
   readonly headingId: string;
   readonly testId: string;
   readonly rowLinkTestIdPrefix: string;
+  /** IH-031 — Record/Practice · Simulator host stamp; never Ready. */
+  readonly modeStampLabel?: string | null;
+  readonly detailLineOverride?: string | null;
 };
 
 /** Shared in-flight analysis desk rows — discrete step labels, no fake percent. */
@@ -42,12 +45,19 @@ export function InFlightAnalysisDeskList(props: InFlightAnalysisDeskListProps): 
                 {row.title}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {row.detailLine}
+                {props.detailLineOverride ?? row.detailLine}
               </p>
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              <StatusTag kind="in-progress" label={row.statusLabel} />
+              {props.modeStampLabel !== undefined && props.modeStampLabel !== null ? (
+                <StatusTag
+                  kind="in-progress"
+                  label={props.modeStampLabel}
+                  data-testid={`${props.rowLinkTestIdPrefix}-mode-stamp-${row.operationId}`}
+                />
+              ) : null}
+              <StatusTag kind="in-progress" label={row.stepLabel} />
               <Link
                 href={row.href}
                 className="text-al-link underline-offset-2 hover:underline"

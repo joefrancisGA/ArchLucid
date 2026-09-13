@@ -114,9 +114,17 @@ export const INHABIT_DISPOSITION_REVERSIBILITY_ROWS: readonly InhabitDisposition
     surface: "Governance findings queue client",
     relativePath: "app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx",
     toastUndo: true,
-    recordCorrectionVisible: false,
+    recordCorrectionVisible: true,
     dispositionHistory: false,
-    ownerPrompt: "IH-004",
+    ownerPrompt: "IH-033",
+  },
+  {
+    surface: "Inhabited findings document card rows",
+    relativePath: "components/governance/findings/GovernanceFindingsList.tsx",
+    toastUndo: true,
+    recordCorrectionVisible: true,
+    dispositionHistory: false,
+    ownerPrompt: "IH-033",
   },
 ];
 
@@ -134,6 +142,12 @@ export const INHABIT_QUIET_ENGINE_COMPLETENESS_ROWS: readonly InhabitQuietEngine
     relativePath: "app/(operator)/governance/findings/_sections/GovernanceFindingsQueueOutcomeSection.tsx",
     namesQuietEnginesOnDesk: true,
     ownerPrompt: "IH-021",
+  },
+  {
+    surface: "Inhabited findings document chrome",
+    relativePath: "components/governance/InhabitedFindingsDocumentChrome.tsx",
+    namesQuietEnginesOnDesk: true,
+    ownerPrompt: "IH-040",
   },
   {
     surface: "Run progress tracker Ready chrome",
@@ -304,7 +318,7 @@ export const INHABIT_WORKING_HOME_PIPELINE_ROWS: readonly InhabitWorkingHomePipe
   {
     surface: "Operator home unfinished work rail",
     relativePath: "components/operator-home/UnfinishedWorkRail.tsx",
-    teachesPipeline: true,
+    teachesPipeline: false,
     ownerPrompt: "IH-027",
   },
   {
@@ -324,5 +338,40 @@ export const INHABIT_WORKING_HOME_PIPELINE_ROWS: readonly InhabitWorkingHomePipe
     relativePath: "lib/core-pilot-steps.ts",
     teachesPipeline: true,
     ownerPrompt: "IH-069",
+  },
+];
+
+export type InhabitNestedReviewBackHrefRow = {
+  readonly surface: string;
+  readonly relativePath: string;
+  readonly returnsToArchitecture: boolean;
+  readonly ownerPrompt: string;
+};
+
+/** IH-024 — nested review-detail Back targets that still exile the architecture. */
+export const INHABIT_NESTED_REVIEW_BACK_HREF_ROWS: readonly InhabitNestedReviewBackHrefRow[] = [
+  {
+    surface: "Finding detail page (Working back resolver)",
+    relativePath: "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/_sections/FindingDetailPageView.tsx",
+    returnsToArchitecture: true,
+    ownerPrompt: "IH-024",
+  },
+  {
+    surface: "Spawn-lock draft handoff",
+    relativePath: "components/architecture/ArchitectureDraftHandoffPanel.tsx",
+    returnsToArchitecture: true,
+    ownerPrompt: "IH-022",
+  },
+  {
+    surface: "Governance finding triage panel (in-document inspect)",
+    relativePath: "components/governance/findings/GovernanceFindingTriagePanel.tsx",
+    returnsToArchitecture: true,
+    ownerPrompt: "IH-020",
+  },
+  {
+    surface: "Peer governance findings queue (no architecture scope)",
+    relativePath: "app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx",
+    returnsToArchitecture: false,
+    ownerPrompt: "IH-015",
   },
 ];
