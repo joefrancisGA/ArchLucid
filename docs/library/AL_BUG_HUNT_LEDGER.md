@@ -1,5 +1,7 @@
 ## Zone: topology-proposal-merge
 
+2026-09-13 seed hunt #2631 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `management_group` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
 2026-09-13 seed hunt #2613 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `private_link_service` Compute-category node omitted `ds-` synthetic alias; regression for merge gate.
 
 2026-09-13 seed hunt #2608 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `network_profile` Compute-category node omitted `ds-` synthetic alias; regression for merge gate.
@@ -150,11 +152,11 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** ."147"
-- **bugs-found:** ."115"
+- **hunts:** 148
+- **bugs-found:** 116
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2596: route_table Compute-category ds- alias gap
+- **last-bug:** 2026-09-13 — hunt #2631: management_group Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
