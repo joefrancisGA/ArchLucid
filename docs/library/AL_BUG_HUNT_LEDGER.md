@@ -4334,6 +4334,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** tenant-data-export
 
+2026-09-13 seed hunt #2511 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
 2026-09-13 seed hunt #2506 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2501 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
@@ -5192,6 +5194,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: persistence-identity
 
 - **id:** persistence-identity
+
+2026-09-13 seed hunt #2512 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2507 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2502 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
@@ -10719,6 +10725,10 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-costing
 
+2026-09-13 seed hunt #2515 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10min` minute UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactMinTests`.
+
+2026-09-13 seed hunt #2510 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10h` hour UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactHTests`.
+
 2026-09-13 seed hunt #2505 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10mo` month UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactMoTests`.
 
 2026-09-13 seed hunt #2500 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10w` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWTests`.
@@ -11054,6 +11064,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ## Zone: context-ingestion
 
 - **id:** context-ingestion
+
+2026-09-13 seed hunt #2514 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_config` pod spec projection gap; regression `ParseAsync_snake_case_dns_config_projects_dns_nameserver_exposure`.
+
+2026-09-13 seed hunt #2509 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `image_pull_secrets` pod spec dropped by secret-key redaction; regression `ParseAsync_snake_case_image_pull_secrets_projects_image_pull_secret_exposure`.
 
 2026-09-13 seed hunt #2504 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `node_selector` pod spec projection gap; regression `ParseAsync_snake_case_node_selector_projects_node_selector_exposure`.
 
