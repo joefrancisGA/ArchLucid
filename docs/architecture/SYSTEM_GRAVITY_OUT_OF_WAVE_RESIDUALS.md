@@ -26,3 +26,5 @@
 - `archlucid-ui/src/lib/system-gravity-out-of-wave-residuals.ts`
 - `archlucid-ui/src/lib/system-gravity-out-of-wave-residuals.test.ts`
 - `archlucid-ui/src/lib/system-gravity-wave32-batch5-guard.test.ts`
+- `archlucid-ui/src/lib/system-gravity-wave32-batch7-guard.test.ts`
+- `archlucid-ui/src/lib/system-gravity-close-audit.test.ts`
