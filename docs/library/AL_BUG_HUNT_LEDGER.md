@@ -1,5 +1,7 @@
 ## Zone: topology-proposal-merge
 
+2026-09-13 seed hunt #2598 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `ip_group` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
 2026-09-13 seed hunt #2596 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `route_table` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
 
 2026-09-13 seed hunt #2591 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `application_security_group` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
