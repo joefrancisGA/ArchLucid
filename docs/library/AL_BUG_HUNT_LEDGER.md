@@ -11363,7 +11363,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
@@ -11393,6 +11393,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-09-12 seed hunt #2046 (seed-only): reseeded notifications-pipeline; no new hunt-ready rows.
 2026-09-12 seed hunt #2180 (seed-only): reseeded notifications-pipeline with `-Hint notifications`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2337 (seed-only): reseeded notifications-pipeline; no new hunt-ready rows.
 
 ### Hypotheses
 
