@@ -78,7 +78,7 @@ IH-080 close audit is this file. **Do not** claim G-REAL-06. **Do not** claim dr
 
 ## Follow-up (2026-09-13 leftovers — not a new wave)
 
-Start / completeness honesty that wave 34 left on wizard, re-run strip, peer findings table, and pre-finalize is closed in [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md). Remaining inhabit leaks: [`.cursor/prompts/inhabit-remain-00-index.md`](../../.cursor/prompts/inhabit-remain-00-index.md) (**IR-001–IR-018**). Do not paste a wave-35 pack.
+Start / completeness honesty that wave 34 left on wizard, re-run strip, peer findings table, and pre-finalize is closed in [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md). Remain pack **IR-001–IR-018** is closed in [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md). Fresh diagnosis after that close: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md). Do not paste a wave-35 pack.
 
 ## Skips (intentional)
 
