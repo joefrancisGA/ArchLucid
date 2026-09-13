@@ -11273,11 +11273,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 168
-- **bugs-found:** 211
+- **hunts:** 169
+- **bugs-found:** 212
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2592: snake_case dns_config.options ip6-dotint pod spec projection gap
+- **last-bug:** 2026-09-13 — hunt #2597: snake_case dns_config.options ip6-bytestring pod spec projection gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
