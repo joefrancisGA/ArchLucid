@@ -125,6 +125,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("private_endpoint", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("log_analytics", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("load_test", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("api_center", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("application_insights", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("managed_disk", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("stream_analytics", StringComparison.OrdinalIgnoreCase)
