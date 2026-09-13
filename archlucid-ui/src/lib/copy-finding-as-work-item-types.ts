@@ -56,6 +56,7 @@ export type FindingWorkItemBuildInput = {
   /** Insight-density treatment when present (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
   treatment?: number | null;
   semanticSupportBand?: FindingSemanticSupportBandValue | null;
+  semanticSupportBandScorerVersion?: string | null;
   /** Committed manifest version from inspect payload when available. */
   manifestVersion?: string | null;
   /** Pre-rendered honesty line for Working clipboard exports (FD-07). */
@@ -83,6 +84,7 @@ export type TraceRowWorkItemInput = {
   /** Insight-density treatment when present (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
   treatment?: number | null;
   semanticSupportBand?: FindingSemanticSupportBandValue | null;
+  semanticSupportBandScorerVersion?: string | null;
   /** Pre-rendered honesty line for Working clipboard exports (FC-41). */
   coverageHonestyLine?: string | null;
   /** When false, omit coverage honesty even if populated (Guided paste). */

@@ -124,6 +124,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("site_recovery", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("private_endpoint", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("log_analytics", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("load_test", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("api_center", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("application_insights", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("managed_disk", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("stream_analytics", StringComparison.OrdinalIgnoreCase)
@@ -168,7 +170,26 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("virtual_wan", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("private_dns_resolver", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_workspace", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("security_center_automation", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("security_center_automation", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_metric_alert", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_diagnostic_setting", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_ddos_protection_plan", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cost_anomaly_alert", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_alert_prometheus_rule_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("policy_assignment", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dashboard_grafana", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("chaos_studio", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dynatrace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("api_management", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("static_site", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("signalr_service", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("logic_app", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("service_plan", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("spring_cloud", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("servicebus_namespace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("container_registry", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("service_fabric", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("application_gateway", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -310,7 +331,13 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("virtual_wan", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("private_dns_resolver", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_workspace", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("security_center_automation", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("security_center_automation", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_metric_alert", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_diagnostic_setting", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_ddos_protection_plan", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cost_anomaly_alert", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_alert_prometheus_rule_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("policy_assignment", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>

@@ -16,7 +16,9 @@ import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStar
 import {
   ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL,
 } from "@/lib/architecture/architecture-draft-intake-mode";
-import { resolveArchitectureReviewHref, startReviewFromDraftContextHref } from "@/lib/architecture/architecture-routes";
+import { startReviewFromDraftContextHref } from "@/lib/architecture/architecture-routes";
+import { WorkingRecordSimulatorStartHonestyNotice } from "@/components/governance/WorkingRecordSimulatorStartHonestyNotice";
+import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import type { ArchitectureDraftWorkspaceBodyProps } from "./ArchitectureDraftWorkspaceBody";
 
@@ -121,6 +123,8 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
         <PreExecuteCostEstimateNotice testId="architecture-draft-pre-execute-cost" />
       ) : null}
 
+      {linkedReviewId === null && !briefFrozen ? <WorkingRecordSimulatorStartHonestyNotice /> : null}
+
       <div className="space-y-2">
         <ArchitectureDraftStartReviewGate
           linkedReviewId={linkedReviewId}
@@ -157,7 +161,15 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
             </Button>
           ) : linkedReviewId !== null ? (
             <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-continue-review">
-              <Link href={resolveArchitectureReviewHref(linkedReviewId, parentArchitectureId)}>Continue in review</Link>
+              <Link
+                href={resolveWorkingInhabitedFindingsLandingHref({
+                  runId: linkedReviewId,
+                  architectureId: parentArchitectureId,
+                  workingMode: true,
+                })}
+              >
+                Continue findings work
+              </Link>
             </Button>
           ) : (
             <ReviewStartLoadingButton

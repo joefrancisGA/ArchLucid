@@ -78,6 +78,37 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
     );
   });
 
+  it("uses overlay as099 scorer version on stamp and CSV when present (LY-018)", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f1",
+        title: "Open port",
+        recommendation: "Close the port.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
+        semanticSupportBand: "Supported",
+        semanticSupportBandScorerVersion: "as099-llm-finalize-v1",
+      },
+    ];
+
+    const document = buildRunFindingsItsmJsonExportDocument(
+      "run-a",
+      findings,
+      "https://demo.example.org",
+    );
+
+    expect(document.semanticSupportBandStamp?.scorerVersion).toBe("as099-llm-finalize-v1");
+    expect(document.workItems[0]?.semanticSupportBandScorerVersion).toBe("as099-llm-finalize-v1");
+
+    const csv = buildQuickDecisionFindingsCsv("run-a", findings);
+    expect(csv).toContain("as099-llm-finalize-v1");
+  });
+
   it("omits checklist coverage rows and records omitted count", () => {
     const findings: QuickDecisionFinding[] = [
       {

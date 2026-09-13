@@ -1,6 +1,6 @@
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
-import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
 import type { RunSummary } from "@/types/authority";
 
 const REVIEW_PATH_PREFIX = "/architecture/reviews/";
@@ -42,11 +42,12 @@ function buildContinueLastReviewPackageHref(
   const run = runs.find((item) => item.runId === trimmedRunId);
 
   if (options?.workingMode === true) {
-    return resolveWorkingRunReviewLocator({
+    return resolveWorkingInhabitedFindingsLandingHref({
       runId: trimmedRunId,
       requestId: run?.requestId,
       draftRegistryEntries: options.draftRegistryEntries,
-    }).href;
+      workingMode: true,
+    });
   }
 
   return `${REVIEW_PATH_PREFIX}${encodeURIComponent(trimmedRunId)}`;

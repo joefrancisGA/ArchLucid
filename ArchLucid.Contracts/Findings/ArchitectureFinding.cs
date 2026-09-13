@@ -141,6 +141,16 @@ public sealed class ArchitectureFinding
         set;
     }
 
+    /// <summary>
+    ///     Overlay scorer stamp when a persisted band overlay exists (AS-060 / ADR 0099).
+    ///     Heuristic emit is <c>as057-v1</c>; Real finalize LLM overlay is <c>as099-llm-finalize-v1</c>.
+    /// </summary>
+    public string? SemanticSupportBandScorerVersion
+    {
+        get;
+        set;
+    }
+
     /// <summary>LLM-derived rationale for why the insight is not generic (TB-382; Phase 2).</summary>
     public string? WhyThisIsNotGeneric
     {

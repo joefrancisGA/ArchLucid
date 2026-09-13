@@ -15446,6 +15446,12 @@
               }
             ]
           },
+          "semanticSupportBandScorerVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "severity": {
             "$ref": "#/components/schemas/FindingSeverity"
           },

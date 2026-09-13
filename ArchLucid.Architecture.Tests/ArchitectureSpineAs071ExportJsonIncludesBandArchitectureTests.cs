@@ -16,6 +16,8 @@ public sealed class ArchitectureSpineAs071ExportJsonIncludesBandArchitectureTest
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "findings", "finding-semantic-support-band-export.ts"));
 
         exportModule.Should().Contain("FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION");
+        exportModule.Should().Contain("FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION");
+        exportModule.Should().Contain("resolveFindingSemanticSupportBandScorerVersion");
         exportModule.Should().Contain("resolveFindingSemanticSupportBandExportFields");
         exportModule.Should().Contain("buildSemanticSupportBandExportStamp");
         exportModule.Should().Contain("formatCareerExportSemanticSupportBandMarkdownSection");

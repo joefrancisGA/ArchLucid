@@ -76,6 +76,8 @@ UI alignment: **`docs/operator-shell.md`**.
 
 ## Changing the HTTP contract (PR checklist)
 
+**2026-09-13 (LY-018 / ADR 0099):** `Finding` and `ArchitectureFinding` add additive optional `semanticSupportBandScorerVersion`. Overlay apply copies overlay `ScorerVersion` (`as057-v1` or `as099-llm-finalize-v1`). Null/omitted means heuristic default. Non-breaking.
+
 **2026-09-11 (CG-019):** `ArchitectureRun` and `RunSummaryResponse` add additive `workingCareerRehearsalDoor` (`career` | `rehearsal`) and `executePostureCapturedUtc`. Captured at first execute start from UserSettings (CG-011). Null on legacy rows that never executed after the stamp. Career honesty reads the stamp, not the live chooser. Does not add an execute POST body. Non-breaking.
 
 **2026-09-11 (CG-011):** `GET /v1/user/preferences` adds additive `workingCareerRehearsalDoor` / `workingCareerRehearsalDoorIsExplicit`. `PUT /v1/user/preferences/working-career-rehearsal-door` persists an explicit Working Career vs Rehearsal pick (`career` | `rehearsal`) in UserSettings. Unset GET defaults to `career` with `isExplicit=false` (AS-080 clients must not treat that as a stored pick). Guided does not PUT this field. Non-breaking.

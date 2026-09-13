@@ -56,6 +56,7 @@ public sealed class FindingSemanticSupportBandFinalizeJudgeTests
 
         recording.InvocationCount.Should().Be(1);
         finding.SemanticSupportBand.Should().Be(FindingSemanticSupportBand.Supported);
+        finding.SemanticSupportBandScorerVersion.Should().Be(FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1);
 
         IReadOnlyDictionary<string, ArchLucid.Core.Persistence.FindingSemanticSupportBandOverlayRecord> overlays =
             await repo.GetBySnapshotAsync(snapshotId, Scope);

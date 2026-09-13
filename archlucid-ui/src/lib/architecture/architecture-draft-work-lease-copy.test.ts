@@ -13,6 +13,7 @@ describe("architecture-draft-work-lease-copy (LW-091 / LW-092)", () => {
     expect(ARCHITECTURE_DRAFT_WORK_LEASE_HELD_BY_OTHER_TITLE.toLowerCase()).not.toContain("online");
     expect(ARCHITECTURE_DRAFT_WORK_LEASE_HELD_BY_OTHER_BODY).toContain("not live presence");
     expect(ARCHITECTURE_DRAFT_WORK_LEASE_HELD_BY_OTHER_BODY).toContain("conflict");
+    expect(ARCHITECTURE_DRAFT_WORK_LEASE_HELD_BY_OTHER_BODY).toContain("execute lease");
   });
 
   it("steal confirm copy warns about no merge and audit", () => {
@@ -23,5 +24,8 @@ describe("architecture-draft-work-lease-copy (LW-091 / LW-092)", () => {
 
   it("lease lost copy tells the operator to refresh before saving", () => {
     expect(ARCHITECTURE_DRAFT_WORK_LEASE_LOST_BODY).toContain("Refresh");
+    expect(ARCHITECTURE_DRAFT_WORK_LEASE_LOST_BODY).toContain("Saving is blocked");
+    expect(ARCHITECTURE_DRAFT_WORK_LEASE_LOST_BODY.toLowerCase()).not.toContain("online");
+    expect(ARCHITECTURE_DRAFT_WORK_LEASE_LOST_BODY.toLowerCase()).not.toContain("vanished");
   });
 });

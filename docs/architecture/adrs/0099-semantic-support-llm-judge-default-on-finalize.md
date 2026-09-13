@@ -4,7 +4,7 @@
 
 # ADR 0099: Semantic support LLM judge default-on for Real finalize
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-13
 - **Evidence:** `ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureTests`, `FindingSemanticSupportBandFinalizeJudgeTests`, `PremiumFindingSemanticSupportBandLlmJudgeTests`
 
@@ -71,9 +71,9 @@ The remaining livelihood defect: Working Career **Real** finalize still stamps *
 
 **Operations:** Host JSON default `EnableLlmJudgeOnFinalize=true`; operators disable per environment. No SQL migration. Architecture ratchet `ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureTests`.
 
-**Cost:** Extra Premium completions proportional to Unchecked decision-grade rows with citations at Real finalize. Emit path adds none. Simulator adds none. Tenant can opt out.
+**Cost:** Extra Premium completions proportional to Unchecked decision-grade rows with citations at Real finalize, billed through the existing `IAgentTierCompletionRouter` pipeline (no separate judge wallet). Emit path adds none. Simulator adds none. Operators disable spend with host JSON `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudgeOnFinalize=false`. There is no tenant `finding-engine-controls` key for this flag — do not confuse it with insight-density `EnableLlmJudge`. No per-snapshot Unchecked-row cap shipped; leftover if a hard cap is later required.
 
-**Teams:** Engineering ships LY-001–012 with this ADR; remaining LY prompts own desk/reversibility/collab leftovers without re-running SG-001–081.
+**Teams:** Engineering ships LY-001–012 with this ADR; remaining LY prompts own desk/reversibility/collab leftovers without re-running SG-001–081. Overlay scorer version `as099-llm-finalize-v1` is the export stamp when present.
 
 ## Consequences
 

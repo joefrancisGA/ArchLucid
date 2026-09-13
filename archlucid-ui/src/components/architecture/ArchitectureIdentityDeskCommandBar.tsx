@@ -13,6 +13,7 @@ import {
   ARCHITECTURE_IDENTITY_DESK_COMPARE_LABEL,
   ARCHITECTURE_IDENTITY_DESK_START_REVIEW_LABEL,
 } from "@/lib/architecture/architecture-identity-desk-copy";
+import { WorkingRecordSimulatorStartHonestyNotice } from "@/components/governance/WorkingRecordSimulatorStartHonestyNotice";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveWorkingDeskToolHref } from "@/lib/resolve-working-desk-tool-href";
 import { resolveArchitectureDeskCompareHref } from "@/lib/system-not-job-compare-entry-from-desk";
@@ -65,10 +66,9 @@ export function ArchitectureIdentityDeskCommandBar(
     });
 
   return (
-    <div
-      className={cn("flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}
-      data-testid={ARCHITECTURE_IDENTITY_DESK_COMMAND_BAR_TEST_ID}
-    >
+    <div className="space-y-2" data-testid={ARCHITECTURE_IDENTITY_DESK_COMMAND_BAR_TEST_ID}>
+      <WorkingRecordSimulatorStartHonestyNotice />
+      <div className={cn("flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}>
       <Button asChild size="sm" variant="outline">
         <Link href={toolHref("ask")} data-testid="architecture-identity-desk-command-ask">
           {DESK_TOOL_VERB_LABELS.ask}
@@ -109,6 +109,7 @@ export function ArchitectureIdentityDeskCommandBar(
           {ARCHITECTURE_IDENTITY_DESK_START_REVIEW_LABEL}
         </Link>
       </Button>
+      </div>
     </div>
   );
 }

@@ -604,7 +604,7 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-handoff-open-review")).toHaveAttribute(
       "href",
-      "/architecture/architectures/architecture-identity-001/reviews/run-001",
+      "/architecture/architectures/architecture-identity-001/findings?runId=run-001",
     );
     expect(screen.getByTestId("architecture-draft-handoff-open-review")).not.toHaveAttribute(
       "href",

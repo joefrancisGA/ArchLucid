@@ -10,6 +10,9 @@ public static class FirstValueReportSemanticSupportBandSectionFormatter
 {
     public const string SectionHeading = "## Semantic support (decision-grade)";
 
+    public const string HeuristicHonestyLead =
+        "Heuristic semantic support bands for decision-grade findings — not LLM verified. Unsupported rows remain visible on sponsor artifacts — do not forward a clean PDF when citations do not support the claim.";
+
     public static void AppendMarkdownSection(
         StringBuilder sb,
         ArchitectureRunDetail detail,
@@ -34,8 +37,7 @@ public static class FirstValueReportSemanticSupportBandSectionFormatter
 
         sb.AppendLine(SectionHeading);
         sb.AppendLine();
-        sb.AppendLine(
-            "Heuristic semantic support bands for decision-grade findings. Unsupported rows remain visible on sponsor artifacts — do not forward a clean PDF when citations do not support the claim.");
+        sb.AppendLine(HeuristicHonestyLead);
         sb.AppendLine();
         sb.AppendLine($"**Summary:** {line}");
 
