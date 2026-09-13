@@ -19,6 +19,7 @@ import {
   recentViewLabelFromPathname,
   recordRecentView,
 } from "@/lib/operator/operator-recent-views";
+import { persistWorkingWorkspaceContinuityToServer } from "@/lib/operator/working-workspace-continuity-sync";
 
 /** Records the current route in localStorage for {@link OperatorRecentViewsPanel}. */
 export function OperatorRecentViewsTracker(): null {
@@ -55,6 +56,12 @@ export function OperatorRecentViewsTracker(): null {
       });
 
       persistRecentViewsState(next);
+
+      if (isWorkingMode) {
+        void persistWorkingWorkspaceContinuityToServer().catch(() => {
+          /* offline or unauthenticated */
+        });
+      }
     }
     catch {
       /* ignore storage failures */

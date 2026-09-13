@@ -77,7 +77,7 @@ No avatars. No finding-comment chat.
 | --- | --- | --- | --- | --- |
 | Recent views | localStorage | tab-local | No | IH-064 |
 | Continue-last | resolver + recents | tab-local | **IH-015** | IH-015 |
-| Pins | client store | memory | No | IH-066 |
+| Pins | localStorage + user preferences API | account-prefs | Yes | IH-066 |
 | Finding selection | URL / memory | partial | Yes | IH-064 |
 
 ## IH-012 — Working Home teaches pipeline

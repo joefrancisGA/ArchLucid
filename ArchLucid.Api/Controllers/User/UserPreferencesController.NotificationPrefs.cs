@@ -316,4 +316,35 @@ public sealed partial class UserPreferencesController
 
         return NoContent();
     }
+
+    /// <summary>Persists the authenticated user's Working pins and recents.</summary>
+    [HttpPut("working-workspace-continuity")]
+    [MutatingAuditExcluded("Personal Working workspace continuity stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetWorkingWorkspaceContinuity(
+        [FromBody] SetWorkingWorkspaceContinuityRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (body.Continuity is null)
+        {
+            return this.BadRequestProblem("continuity is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+        string serialized = WorkingWorkspaceContinuityValues.Serialize(body.Continuity);
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.WorkingWorkspaceContinuity,
+            serialized,
+            cancellationToken);
+
+        return NoContent();
+    }
 }

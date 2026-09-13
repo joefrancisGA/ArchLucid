@@ -292,10 +292,10 @@ export type InhabitContinuityRow = {
 export const INHABIT_CONTINUITY_ROWS: readonly InhabitContinuityRow[] = [
   {
     concern: "Operator recent views (last-open review)",
-    storageKeyOrMechanism: "operator-recent-views localStorage",
-    persistKind: "local-storage",
+    storageKeyOrMechanism: "operator-recent-views localStorage + user preferences API",
+    persistKind: "account-prefs",
     architectureShaped: true,
-    ownerPrompt: "IH-065",
+    ownerPrompt: "IH-066",
   },
   {
     concern: "Continue-last review package target",
@@ -306,8 +306,8 @@ export const INHABIT_CONTINUITY_ROWS: readonly InhabitContinuityRow[] = [
   },
   {
     concern: "Favorite reviews pins",
-    storageKeyOrMechanism: "pinned-reviews client store",
-    persistKind: "memory",
+    storageKeyOrMechanism: "favoriteReviews localStorage + user preferences API",
+    persistKind: "account-prefs",
     architectureShaped: false,
     ownerPrompt: "IH-066",
   },

@@ -44,4 +44,7 @@ public static class UserSettingKeys
 
     /// <summary>JSON blob of Working desk continuity (last-open review/draft and visit watermark).</summary>
     public const string DeskContinuity = "DeskContinuity";
+
+    /// <summary>JSON blob of Working pins and recents for cross-device inhabit continuity (IH-066).</summary>
+    public const string WorkingWorkspaceContinuity = "WorkingWorkspaceContinuity";
 }
