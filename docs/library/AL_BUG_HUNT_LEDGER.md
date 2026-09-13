@@ -13514,7 +13514,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
@@ -13525,6 +13525,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-13 seed hunt #2265 (seed-only): reseeded application-governance-policy with `-Hint governance` `-Refresh`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2335 (seed-only): reseeded application-governance-policy; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2345 (seed-only): reseeded application-governance-policy; no new hunt-ready rows.
 
 ### Hypotheses
 
