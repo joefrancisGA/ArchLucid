@@ -4,6 +4,7 @@ import { memo, useCallback, useEffect, useState, type ReactElement, type SetStat
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
@@ -229,6 +230,8 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
           Group by resource
         </FilterChip>
       </div>
+
+      <SponsorExportSendHonestyStrip className="max-w-xl pt-2" testIdPrefix="governance-findings-export" />
 
       {props.onNaturalLanguageFilterApply !== undefined ? (
         <FindingsNaturalLanguageFilter onApply={props.onNaturalLanguageFilterApply} />
