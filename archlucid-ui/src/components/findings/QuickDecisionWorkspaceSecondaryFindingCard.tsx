@@ -14,7 +14,6 @@ import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSem
 import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { isDecisionGradeFinding } from "@/lib/findings/review-detail-findings-classification-band";
-import { isDecisionGradeFinding } from "@/lib/findings/review-detail-findings-classification-band";
 import { QuickDecisionWorkspaceFindingSupportingDetails } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import type { QuickDecisionWorkspaceCardContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import { Button } from "@/components/ui/button";
@@ -22,7 +21,10 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { quickDecisionFindingHasRecordedDisposition } from "@/lib/findings/finding-recorded-disposition";
-import { getFindingDetailHref, getFindingGovernanceDispositionHref } from "@/lib/findings/finding-evidence-navigation";
+import {
+  resolveQuickDecisionFindingDispositionHref,
+  resolveQuickDecisionFindingInspectHref,
+} from "@/lib/findings/finding-evidence-navigation";
 import { quickDecisionRecommendationSnippet } from "@/lib/quick-decision-finding-links";
 import {
   parseQuickDecisionSecondaryFindingFindingIdFromSearch,
@@ -35,6 +37,7 @@ import {
 } from "@/lib/quick-decision-summary-derive";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { cn } from "@/lib/utils";
 
 export type QuickDecisionWorkspaceSecondaryFindingCardProps = {
@@ -53,6 +56,11 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
   const badgeLabel = severityBadgeLabel(finding.severityValue);
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
+  const { isWorkingMode } = useWorkspaceMode();
+  const findingNavOptions = {
+    architectureId: props.context.architectureId,
+    isWorkingMode,
+  };
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -173,7 +181,7 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
           <div className="flex flex-wrap gap-2">
             <Button type="button" size="sm" variant="default" className="h-8" asChild>
               <Link
-                href={getFindingGovernanceDispositionHref(runId, finding.findingId)}
+                href={resolveQuickDecisionFindingDispositionHref(runId, finding.findingId, findingNavOptions)}
                 prefetch={false}
                 data-testid={`finding-record-disposition-${finding.findingId}`}
               >
@@ -181,7 +189,10 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
               </Link>
             </Button>
             <Button type="button" size="sm" variant="outline" className="h-8" asChild>
-              <Link href={getFindingDetailHref(runId, finding.findingId)} prefetch={false}>
+              <Link
+                href={resolveQuickDecisionFindingInspectHref(runId, finding.findingId, findingNavOptions)}
+                prefetch={false}
+              >
                 Open finding
               </Link>
             </Button>

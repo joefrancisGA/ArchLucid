@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/enterprise-table";
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
+import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   OPERATOR_LIST_VIRTUALIZE_MIN_ROWS,
   shouldVirtualizeOperatorList,
@@ -29,6 +30,7 @@ const RUN_DETAIL_FINDINGS_ROW_ESTIMATE_PX = 72;
 
 export type RunDetailFindingsDenseTableProps = {
   readonly runId: string;
+  readonly architectureId?: string | null;
   readonly findings: readonly QuickDecisionFinding[];
   readonly showDensityScore?: boolean;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
@@ -36,6 +38,7 @@ export type RunDetailFindingsDenseTableProps = {
 
 export function RunDetailFindingsDenseTable(props: RunDetailFindingsDenseTableProps): ReactElement {
   const { runId, findings, showDensityScore = false } = props;
+  const { isWorkingMode } = useWorkspaceMode();
   const router = useRouter();
   const scrollParentRef = useRef<HTMLDivElement>(null);
   const useVirtualization = shouldVirtualizeOperatorList(findings.length);
@@ -49,7 +52,12 @@ export function RunDetailFindingsDenseTable(props: RunDetailFindingsDenseTablePr
         return;
       }
 
-      router.push(getFindingDetailHref(runId, finding.findingId));
+      router.push(
+        resolveQuickDecisionFindingInspectHref(runId, finding.findingId, {
+          architectureId: props.architectureId,
+          isWorkingMode,
+        }),
+      );
     },
   });
 
@@ -141,6 +149,7 @@ export function RunDetailFindingsDenseTable(props: RunDetailFindingsDenseTablePr
                   <RunDetailFindingsDenseTableRow
                     key={finding.findingId}
                     runId={runId}
+                    architectureId={props.architectureId}
                     finding={finding}
                     showDensityScore={showDensityScore}
                     structuralExecutionMode={props.structuralExecutionMode}
@@ -160,6 +169,7 @@ export function RunDetailFindingsDenseTable(props: RunDetailFindingsDenseTablePr
               <RunDetailFindingsDenseTableRow
                 key={finding.findingId}
                 runId={runId}
+                architectureId={props.architectureId}
                 finding={finding}
                 showDensityScore={showDensityScore}
                 structuralExecutionMode={props.structuralExecutionMode}

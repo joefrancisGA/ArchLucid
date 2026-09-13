@@ -52,13 +52,13 @@ export const INHABIT_POST_IR_WORKING_SHARE_ROWS: readonly InhabitPostIrLeakRow[]
   {
     surface: "Working share href resolver",
     relativePath: "lib/architecture/working-share-href.ts",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-004",
   },
   {
     surface: "Working review copy link button",
     relativePath: "components/reviews/WorkingReviewCopyLinkButton.tsx",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-004",
   },
 ];
@@ -68,7 +68,19 @@ export const INHABIT_POST_IR_QUICK_DECISION_ROWS: readonly InhabitPostIrLeakRow[
   {
     surface: "Quick-decision primary finding card",
     relativePath: "components/findings/QuickDecisionWorkspacePrimaryFindingCard.tsx",
-    leakOpen: true,
+    leakOpen: false,
+    ownerPrompt: "IP-005",
+  },
+  {
+    surface: "Quick-decision secondary finding card",
+    relativePath: "components/findings/QuickDecisionWorkspaceSecondaryFindingCard.tsx",
+    leakOpen: false,
+    ownerPrompt: "IP-005",
+  },
+  {
+    surface: "Run detail findings dense table",
+    relativePath: "components/findings/RunDetailFindingsDenseTable.tsx",
+    leakOpen: false,
     ownerPrompt: "IP-005",
   },
 ];
@@ -78,7 +90,13 @@ export const INHABIT_POST_IR_COMPLETION_TOAST_ROWS: readonly InhabitPostIrLeakRo
   {
     surface: "Review completion notification",
     relativePath: "hooks/use-review-completion-notification.ts",
-    leakOpen: true,
+    leakOpen: false,
+    ownerPrompt: "IP-006",
+  },
+  {
+    surface: "Review completion href resolver",
+    relativePath: "lib/reviews/resolve-review-completion-href.ts",
+    leakOpen: false,
     ownerPrompt: "IP-006",
   },
 ];

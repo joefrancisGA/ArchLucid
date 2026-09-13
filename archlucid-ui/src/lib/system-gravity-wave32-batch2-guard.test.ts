@@ -24,10 +24,10 @@ describe("system-gravity wave 32 batch 2 ratchets (ADR 0098)", () => {
     ).toBe(`/architecture/architectures/${architectureId}/reviews/${runId}`);
   });
 
-  it("SG-034: share href keeps nested architecture URL when parent is known", () => {
+  it("SG-034: share href keeps nested findings URL when parent is known", () => {
     expect(
       workingShareHref({ architectureId, reviewId: runId }).href,
-    ).toBe(`/architecture/architectures/${architectureId}/reviews/${runId}`);
+    ).toBe(`/architecture/architectures/${architectureId}/findings?runId=${runId}`);
   });
 
   it("SG-045: first-review guide primary href nests under architecture on Working", () => {

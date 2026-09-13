@@ -23,24 +23,27 @@ These tables record **secondary** Working inhabit leaks on the job inspector and
 | Global search finding inspect | `use-global-search-bar.ts` | No | IP-003 |
 | Global search package finding link | `GlobalSearchPackageResultsPanel.tsx` | No | IP-003 |
 
-## IP-004 — Working share copies the inspector URL
+## IP-004 — Working share copies inhabited findings (closed)
 
 | Surface | Module | Leak open | Owner |
 | --- | --- | --- | --- |
-| Working share href resolver | `working-share-href.ts` | Yes | IP-004 |
-| Working review copy link button | `WorkingReviewCopyLinkButton.tsx` | Yes | IP-004 |
+| Working share href resolver | `working-share-href.ts` | No | IP-004 |
+| Working review copy link button | `WorkingReviewCopyLinkButton.tsx` | No | IP-004 |
 
-## IP-005 — Quick-decision cards ignore architecture-scoped hrefs
-
-| Surface | Module | Leak open | Owner |
-| --- | --- | --- | --- |
-| Quick-decision primary finding card | `QuickDecisionWorkspacePrimaryFindingCard.tsx` | Yes | IP-005 |
-
-## IP-006 — Completion notification opens review-detail
+## IP-005 — Quick-decision cards use inhabited hrefs (closed)
 
 | Surface | Module | Leak open | Owner |
 | --- | --- | --- | --- |
-| Review completion notification | `use-review-completion-notification.ts` | Yes | IP-006 |
+| Quick-decision primary finding card | `QuickDecisionWorkspacePrimaryFindingCard.tsx` | No | IP-005 |
+| Quick-decision secondary finding card | `QuickDecisionWorkspaceSecondaryFindingCard.tsx` | No | IP-005 |
+| Run detail findings dense table | `RunDetailFindingsDenseTable.tsx` | No | IP-005 |
+
+## IP-006 — Completion notification opens inhabited findings (closed)
+
+| Surface | Module | Leak open | Owner |
+| --- | --- | --- | --- |
+| Review completion notification | `use-review-completion-notification.ts` | No | IP-006 |
+| Review completion href resolver | `resolve-review-completion-href.ts` | No | IP-006 |
 
 ## IP-007 — Room on review-detail (Present already redirects)
 

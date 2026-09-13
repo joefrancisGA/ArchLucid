@@ -353,6 +353,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const findingsListEl = useDenseTable ? (
     <RunDetailFindingsDenseTable
       runId={props.runId}
+      architectureId={parentArchitectureId.length > 0 ? parentArchitectureId : null}
       findings={listFindings}
       showDensityScore={architectWorkspaceChrome}
       structuralExecutionMode={props.structuralExecutionMode}

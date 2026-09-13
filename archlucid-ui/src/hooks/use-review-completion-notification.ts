@@ -16,9 +16,9 @@ import {
   markReviewPipelineCompletionNotified,
   wasReviewPipelineCompletionNotified,
 } from "@/lib/review-pipeline-completion-notify-dedupe";
-import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
-import { extractArchitectureIdentityIdFromPathname } from "@/lib/desk-continuity-preference";
+import { resolveReviewCompletionHref } from "@/lib/reviews/resolve-review-completion-href";
 import {
   REVIEW_PIPELINE_COMPLETION_NOTIFICATION_TITLE,
   REVIEW_PIPELINE_COMPLETION_TOAST_TITLE,
@@ -42,21 +42,6 @@ function pathnameMatchesRun(pathname: string, runId: string): boolean {
   return false;
 }
 
-function resolveReviewCompletionHref(
-  runId: string,
-  pathname: string,
-  architectureId?: string | null,
-  requestId?: string | null,
-): string {
-  const architectureIdFromPath = extractArchitectureIdentityIdFromPathname(pathname, "");
-
-  return resolveWorkingRunReviewLocator({
-    runId,
-    architectureId: architectureId ?? architectureIdFromPath,
-    requestId,
-  }).href;
-}
-
 export type UseReviewCompletionNotificationOptions = {
   readonly runId: string;
   readonly enabled: boolean;
@@ -74,6 +59,7 @@ export function useReviewCompletionNotification(
   options: UseReviewCompletionNotificationOptions,
 ): void {
   const pathname = usePathname() ?? "/";
+  const { isWorkingMode } = useWorkspaceMode();
   const notifiedRef = useRef(false);
   const wasCompleteRef = useRef(options.isComplete);
 
@@ -106,12 +92,13 @@ export function useReviewCompletionNotification(
           : "Open the review to see results.";
 
       if (!onRunPage || isDocumentHidden()) {
-        const href = resolveReviewCompletionHref(
-          options.runId,
+        const href = resolveReviewCompletionHref({
+          runId: options.runId,
           pathname,
-          options.architectureId,
-          options.requestId,
-        );
+          architectureId: options.architectureId,
+          requestId: options.requestId,
+          isWorkingMode,
+        });
         const notified = showDesktopNotification(REVIEW_PIPELINE_COMPLETION_NOTIFICATION_TITLE, {
           body: description,
           tag: `review-complete:${options.runId}`,
@@ -144,6 +131,7 @@ export function useReviewCompletionNotification(
     options.reviewLabel,
     options.runId,
     pathname,
+    isWorkingMode,
   ]);
 
   useEffect(() => {
