@@ -1,4 +1,4 @@
-﻿> **Scope:** Contributor-reference â€” curated `/al-bug` hunt zones. Not a buyer or operator document. Agents must not invent extra zones in the same invocation; update this file after each hunt.
+> **Scope:** Contributor-reference â€” curated `/al-bug` hunt zones. Not a buyer or operator document. Agents must not invent extra zones in the same invocation; update this file after each hunt.
 
 # `/al-bug` hunt ledger
 
@@ -4358,12 +4358,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: tenant-data-export
 
 - **id:** tenant-data-export
+
+2026-09-13 seed hunt #2388 (seed-only): reseeded tenant-data-export; no new hunt-ready rows.
 - **status:** open
 - **impact:** high
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
