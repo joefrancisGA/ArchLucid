@@ -74,4 +74,41 @@ public sealed class InMemoryTenantSignInEmailDomainRecoveryAdminRepositoryCovera
             .Should()
             .ContainSingle(r => r.NormalizedRecoveryAdminEmail == "admin@example.com");
     }
+
+    [Fact]
+    public async Task InsertAsync_throws_when_recovery_admin_already_exists()
+    {
+        InMemoryTenantSignInEmailDomainRecoveryAdminRepository sut = new();
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        TenantSignInEmailDomainRecoveryAdminRecord first = new()
+        {
+            TenantId = tenantId,
+            NormalizedDomain = "example.com",
+            NormalizedRecoveryAdminEmail = "admin@example.com",
+            DisplayRecoveryAdminEmail = "Admin@Example.com",
+            CreatedUtc = now,
+            CreatedByActorId = "ops",
+        };
+
+        await sut.InsertAsync(first, CancellationToken.None);
+
+        Func<Task> duplicate = () => sut.InsertAsync(
+            new TenantSignInEmailDomainRecoveryAdminRecord
+            {
+                TenantId = tenantId,
+                NormalizedDomain = "example.com",
+                NormalizedRecoveryAdminEmail = "admin@example.com",
+                DisplayRecoveryAdminEmail = "Other@Example.com",
+                CreatedUtc = now.AddMinutes(1),
+                CreatedByActorId = "other",
+            },
+            CancellationToken.None);
+
+        await duplicate.Should().ThrowAsync<DuplicateTenantSignInEmailDomainRecoveryAdminException>();
+        (await sut.ListByDomainAsync(tenantId, "example.com", CancellationToken.None))
+            .Should()
+            .ContainSingle(r => r.DisplayRecoveryAdminEmail == "Admin@Example.com");
+    }
 }
