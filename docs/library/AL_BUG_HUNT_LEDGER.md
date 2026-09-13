@@ -3596,7 +3596,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
@@ -3613,6 +3613,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2120 (seed-only): reseeded identity-provider-config with `-Refresh`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2303 (seed-only): reseeded identity-provider-config; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2308 (seed-only): reseeded identity-provider-config; no new hunt-ready rows.
 
 ### Hypotheses
 
