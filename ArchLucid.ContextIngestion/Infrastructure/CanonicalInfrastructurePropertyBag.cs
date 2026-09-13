@@ -37,6 +37,8 @@ public static class CanonicalInfrastructurePropertyBag
     private static readonly string[] NonSecretK8sPropertyKeys =
     [
         "automountserviceaccounttoken",
+        "imagepullsecret",
+        "dnsnameserver",
     ];
 
     public static string SanitizePropertyKey(string name)
