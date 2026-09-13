@@ -18,7 +18,6 @@
 | System-wide breadcrumbs | TB-2090 retired IA | standing forbid | **Not shipped** | Desk continuity and nested locators replace breadcrumbs. |
 | Remount cheap-envelope runner | CE wave scope | **IH-047** | **Not shipped** | Reuse shipped CE entry; do not remount CE-001. |
 | Re-implement daytime wait | DW wave scope | standing forbid | **Not shipped** | Do not re-run DW; no progress URL. |
-| Pins/recents server sync | product leftover | **IH-066** | **Named leftover** | If not shipped in IH-066, keep this row — do not silently no-op. |
 
 ## Do not claim
 

@@ -474,6 +474,62 @@ public sealed class UserPreferencesControllerTests
     }
 
     [SkippableFact]
+    public async Task GetPreferences_ReturnsStoredWorkingWorkspaceContinuity()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.WorkingWorkspaceContinuity, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                """{"favoriteReviews":[{"runId":"run-1","pinnedAtUtc":"2026-09-13T12:00:00Z"}],"recentViewEntries":[{"href":"/architecture/architectures/arch-1","label":"Architecture","kind":"architecture","visitedAtUtc":"2026-09-13T12:01:00Z","architectureId":"arch-1"}],"updatedAtUtc":"2026-09-13T12:02:00Z"}""");
+
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.GetPreferences(CancellationToken.None);
+
+        OkObjectResult ok = (OkObjectResult)result;
+        UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
+        body.WorkingWorkspaceContinuity.FavoriteReviews.Should().HaveCount(1);
+        body.WorkingWorkspaceContinuity.FavoriteReviews[0].RunId.Should().Be("run-1");
+        body.WorkingWorkspaceContinuity.RecentViewEntries.Should().HaveCount(1);
+        body.WorkingWorkspaceContinuityIsExplicit.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task SetWorkingWorkspaceContinuity_ReturnsNoContentWhenValid()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetWorkingWorkspaceContinuity(
+            new SetWorkingWorkspaceContinuityRequest
+            {
+                Continuity = new WorkingWorkspaceContinuityDto
+                {
+                    FavoriteReviews =
+                    [
+                        new FavoriteReviewEntryDto
+                        {
+                            RunId = "run-42",
+                            PinnedAtUtc = "2026-09-13T12:00:00Z",
+                        },
+                    ],
+                    UpdatedAtUtc = "2026-09-13T12:00:00Z",
+                },
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
+                UserSettingKeys.WorkingWorkspaceContinuity,
+                It.Is<string>(json => json.Contains("run-42")),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task SetDeskContinuity_ReturnsNoContentWhenValid()
     {
         Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
@@ -546,6 +602,9 @@ public sealed class UserPreferencesControllerTests
             .ReturnsAsync((string?)null);
         repository
             .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.DeskContinuity, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.WorkingWorkspaceContinuity, It.IsAny<CancellationToken>()))
             .ReturnsAsync((string?)null);
 
         return repository;

@@ -4319,6 +4319,11 @@ export interface components {
             mode?: string;
             sourceUrl?: string;
         };
+        FavoriteReviewEntryDto: {
+            pinnedAtUtc?: string;
+            runId?: string;
+            title?: null | string;
+        };
         /** @enum {string} */
         FeasibilityCitationKind: "NamedLaw" | "NamedTheorem" | "InvariantContradiction";
         FeasibilityHardCitation: {
@@ -6536,6 +6541,14 @@ export interface components {
             href?: string;
             reason?: string;
             title?: string;
+        };
+        OperatorRecentViewEntryDto: {
+            architectureId?: null | string;
+            href?: string;
+            kind?: string;
+            label?: string;
+            parentArchitectureId?: null | string;
+            visitedAtUtc?: string;
         };
         OperatorSavedViewListResponse: {
             views?: components["schemas"]["OperatorSavedViewResponse"][];
@@ -10141,6 +10154,9 @@ export interface components {
         SetWorkingCareerRehearsalDoorRequest: {
             door?: string;
         };
+        SetWorkingWorkspaceContinuityRequest: {
+            continuity?: components["schemas"]["WorkingWorkspaceContinuityDto"];
+        };
         SetWorkspaceModeGraduationOfferRequest: {
             state?: string;
         };
@@ -11691,6 +11707,8 @@ export interface components {
             whereToGoNextIsExplicit?: boolean;
             workingCareerRehearsalDoor?: string;
             workingCareerRehearsalDoorIsExplicit?: boolean;
+            workingWorkspaceContinuity?: components["schemas"]["WorkingWorkspaceContinuityDto"];
+            workingWorkspaceContinuityIsExplicit?: boolean;
             workspaceMode?: string;
             workspaceModeGraduationOffer?: string;
             workspaceModeGraduationOfferIsExplicit?: boolean;
@@ -11785,6 +11803,11 @@ export interface components {
             /** Format: date-time */
             updatedUtc?: string;
             wizardId?: string;
+        };
+        WorkingWorkspaceContinuityDto: {
+            favoriteReviews?: components["schemas"]["FavoriteReviewEntryDto"][];
+            recentViewEntries?: components["schemas"]["OperatorRecentViewEntryDto"][];
+            updatedAtUtc?: null | string;
         };
         WorkspaceAiAvailabilityCheckRow: {
             detail?: string;

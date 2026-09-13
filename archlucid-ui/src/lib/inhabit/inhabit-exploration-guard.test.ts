@@ -5,10 +5,6 @@ import { describe, expect, it } from "vitest";
 
 import { isInhabitPaletteSketchArchitecturePath } from "@/lib/inhabit/inhabit-palette-sketch-path";
 import { resolveInhabitLatestPracticeSketchSibling } from "@/lib/inhabit/inhabit-latest-practice-sketch-sibling";
-import {
-  INHABIT_FINDINGS_SKETCH_CTA_LABEL,
-  INHABIT_SKETCH_IS_PRACTICE_NOT_RECORD_TITLE,
-} from "@/lib/inhabit/inhabit-exploration-copy";
 
 const SRC_ROOT = join(process.cwd(), "src");
 

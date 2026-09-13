@@ -42,6 +42,29 @@ export type UserPreferencesResponse = {
   findingsShowAdvisoryEnabledIsExplicit: boolean;
   deskContinuity: DeskContinuityDto;
   deskContinuityIsExplicit: boolean;
+  workingWorkspaceContinuity: WorkingWorkspaceContinuityDto;
+  workingWorkspaceContinuityIsExplicit: boolean;
+};
+
+export type FavoriteReviewEntryDto = {
+  readonly runId: string;
+  readonly title?: string | null;
+  readonly pinnedAtUtc: string;
+};
+
+export type OperatorRecentViewEntryDto = {
+  readonly href: string;
+  readonly label: string;
+  readonly kind: string;
+  readonly visitedAtUtc: string;
+  readonly architectureId?: string | null;
+  readonly parentArchitectureId?: string | null;
+};
+
+export type WorkingWorkspaceContinuityDto = {
+  readonly favoriteReviews: readonly FavoriteReviewEntryDto[];
+  readonly recentViewEntries: readonly OperatorRecentViewEntryDto[];
+  readonly updatedAtUtc?: string | null;
 };
 
 export type DeskContinuityDto = {
@@ -101,6 +124,10 @@ export type SetDeskContinuityRequest = {
   continuity: DeskContinuityDto;
 };
 
+export type SetWorkingWorkspaceContinuityRequest = {
+  continuity: WorkingWorkspaceContinuityDto;
+};
+
 export type FindingsVisibilityPreferences = {
   readonly hideGenericEnabled: boolean;
   readonly showLowConfidenceEnabled: boolean;
@@ -149,6 +176,16 @@ export function defaultUserPreferencesResponse(): UserPreferencesResponse {
     findingsShowAdvisoryEnabledIsExplicit: false,
     deskContinuity: defaultDeskContinuityDto(),
     deskContinuityIsExplicit: false,
+    workingWorkspaceContinuity: defaultWorkingWorkspaceContinuityDto(),
+    workingWorkspaceContinuityIsExplicit: false,
+  };
+}
+
+export function defaultWorkingWorkspaceContinuityDto(): WorkingWorkspaceContinuityDto {
+  return {
+    favoriteReviews: [],
+    recentViewEntries: [],
+    updatedAtUtc: null,
   };
 }
 

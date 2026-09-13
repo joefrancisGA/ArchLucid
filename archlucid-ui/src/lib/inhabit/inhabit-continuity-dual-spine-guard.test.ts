@@ -32,6 +32,21 @@ describe("inhabit continuity guard (IH-064–068)", () => {
     expect(recents).toContain("architectureIdentityPath");
   });
 
+  it("IH-066 syncs pins and recents through user preferences API", () => {
+    const sync = readFileSync(
+      join(SRC_ROOT, "lib/operator/working-workspace-continuity-sync.ts"),
+      "utf8",
+    );
+    const hydrator = readFileSync(
+      join(SRC_ROOT, "components/operator/WorkingWorkspaceContinuityHydrator.tsx"),
+      "utf8",
+    );
+
+    expect(sync).toContain("setUserWorkingWorkspaceContinuity");
+    expect(sync).toContain("persistWorkingWorkspaceContinuityToServer");
+    expect(hydrator).toContain("applyWorkingWorkspaceContinuityFromServer");
+  });
+
   it("IH-067 resume href prefers architecture desk on Working", () => {
     expect(
       resolveSystemNotJobWorkingResumeReviewHref({

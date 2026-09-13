@@ -72,6 +72,10 @@ public sealed partial class UserPreferencesController
             userId,
             UserSettingKeys.DeskContinuity,
             cancellationToken);
+        string? workingWorkspaceContinuityStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.WorkingWorkspaceContinuity,
+            cancellationToken);
 
         string appearancePreference = AppearancePreferenceValues.NormalizeOrNull(appearanceStored)
             ?? AppearancePreferenceValues.Default;
@@ -94,6 +98,8 @@ public sealed partial class UserPreferencesController
         bool findingsShowAdvisoryEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsShowAdvisoryStored);
         DeskContinuityDto deskContinuity = DeskContinuityValues.NormalizeOrDefault(deskContinuityStored);
         deskContinuity = await EnrichDeskContinuityFromReviewAsync(deskContinuity, cancellationToken);
+        WorkingWorkspaceContinuityDto workingWorkspaceContinuity =
+            WorkingWorkspaceContinuityValues.NormalizeOrDefault(workingWorkspaceContinuityStored);
 
         return Ok(new UserPreferencesResponse
         {
@@ -128,6 +134,8 @@ public sealed partial class UserPreferencesController
             FindingsShowAdvisoryEnabledIsExplicit = FindingsVisibilityToggleValues.IsExplicitValue(findingsShowAdvisoryStored),
             DeskContinuity = deskContinuity,
             DeskContinuityIsExplicit = DeskContinuityValues.TryParse(deskContinuityStored) is not null,
+            WorkingWorkspaceContinuity = workingWorkspaceContinuity,
+            WorkingWorkspaceContinuityIsExplicit = WorkingWorkspaceContinuityValues.TryParse(workingWorkspaceContinuityStored) is not null,
         });
     }
 

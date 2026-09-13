@@ -196,4 +196,18 @@ public sealed class UserPreferencesResponse
         get;
         set;
     }
+
+    /// <summary>Working pins and recents for inhabit continuity across devices.</summary>
+    public WorkingWorkspaceContinuityDto WorkingWorkspaceContinuity
+    {
+        get;
+        set;
+    } = WorkingWorkspaceContinuityValues.Default;
+
+    /// <summary>True when the user has an explicit stored working-workspace-continuity row.</summary>
+    public bool WorkingWorkspaceContinuityIsExplicit
+    {
+        get;
+        set;
+    }
 }

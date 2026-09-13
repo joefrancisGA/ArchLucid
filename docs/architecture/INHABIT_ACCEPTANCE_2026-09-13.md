@@ -68,12 +68,13 @@
 | IH-063 keyboard docs match inhabit landing | **Shipped** |
 | IH-064 finding selection URL (`focusedFinding`) | **Shipped** |
 | IH-065 recents are architectures | **Shipped** (recent-views collapse) |
+| IH-066 pins/recents server sync | **Shipped** (`working-workspace-continuity` user preferences) |
 | IH-067 second window restore architecture | **Shipped** (resume href) |
 | IH-068 idle restore architecture | **Shipped** (portfolio resume) |
 | IH-070 Guided keeps eval chrome | **Shipped** (ratchet) |
 | IH-071 live recovery no sample | **Shipped** |
 
-IH-066 pins/recents server sync remains a **named leftover** (`INHABIT_OUT_OF_WAVE_RESIDUALS.md`). IH-080 close audit is this file. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare or live presence.
+IH-080 close audit is this file. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare or live presence.
 
 ## Skips (intentional)
 
