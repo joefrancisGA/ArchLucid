@@ -3349,6 +3349,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_linux_virtual_machine_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "vm-1", label: "worker", sourceId: "azurerm_linux_virtual_machine.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-worker")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "vm-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_postgresql_flexible_server_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
