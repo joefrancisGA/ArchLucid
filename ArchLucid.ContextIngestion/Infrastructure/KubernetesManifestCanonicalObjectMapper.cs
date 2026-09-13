@@ -1043,15 +1043,27 @@ internal static class KubernetesManifestCanonicalObjectMapper
             }
 
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "seLinuxOptions", out JsonElement seLinuxOptionsElement)
-                && seLinuxOptionsElement.ValueKind is JsonValueKind.Object
-                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(seLinuxOptionsElement, "level", out JsonElement seLinuxLevelElement)
-                && seLinuxLevelElement.ValueKind is JsonValueKind.String
-                && !string.IsNullOrWhiteSpace(seLinuxLevelElement.GetString()))
+                && seLinuxOptionsElement.ValueKind is JsonValueKind.Object)
             {
-                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
-                    properties,
-                    "seLinuxLevel",
-                    seLinuxLevelElement.GetString()!);
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(seLinuxOptionsElement, "level", out JsonElement seLinuxLevelElement)
+                    && seLinuxLevelElement.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(seLinuxLevelElement.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "seLinuxLevel",
+                        seLinuxLevelElement.GetString()!);
+                }
+
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(seLinuxOptionsElement, "user", out JsonElement seLinuxUserElement)
+                    && seLinuxUserElement.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(seLinuxUserElement.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "seLinuxUser",
+                        seLinuxUserElement.GetString()!);
+                }
             }
 
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "supplementalGroups", out JsonElement supplementalGroupsElement)
