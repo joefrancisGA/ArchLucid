@@ -5,6 +5,7 @@ import {
   resolveInfraDiagramsDefaultFallbackKey,
   resolveInfraDiagramsEffectiveFallbackKey,
   resolveInfraDiagramsFallbackArtifacts,
+  shouldPaintInfraDiagramsCanvas,
   shouldPaintInfraDiagramsMermaidSource,
   shouldShowInfraDiagramsPartitionedViews,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-partitioned-view";
@@ -175,6 +176,28 @@ describe("infra-evidence-diagrams-partitioned-view", () => {
       shouldPaintInfraDiagramsMermaidSource({
         mermaidSource: "   ",
         effectiveFallbackKey: "",
+        renderFallbackKey: null,
+      }),
+    ).toBe(false);
+  });
+
+  it("paints server layout svg when mermaid source is withheld", () => {
+    expect(
+      shouldPaintInfraDiagramsCanvas({
+        mermaidSource: "",
+        layoutSvg: "<svg viewBox=\"0 0 10 10\"></svg>",
+        effectiveFallbackKey: "",
+        renderFallbackKey: null,
+      }),
+    ).toBe(true);
+  });
+
+  it("does not paint layout svg until the selected partition arrives", () => {
+    expect(
+      shouldPaintInfraDiagramsCanvas({
+        mermaidSource: "",
+        layoutSvg: "<svg viewBox=\"0 0 10 10\"></svg>",
+        effectiveFallbackKey: "executive",
         renderFallbackKey: null,
       }),
     ).toBe(false);

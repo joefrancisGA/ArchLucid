@@ -26,6 +26,10 @@ export type InfraDiagramsPaintMermaidSourceInput = {
   readonly renderFallbackKey: string | null | undefined;
 };
 
+export type InfraDiagramsPaintCanvasInput = InfraDiagramsPaintMermaidSourceInput & {
+  readonly layoutSvg: string | null | undefined;
+};
+
 /**
  * Partitioned mode responses include oversized primary mermaid. A follow-up
  * fetch of one partition then returns that artifact's own Succeeded status.
@@ -116,6 +120,19 @@ export function resolveInfraDiagramsEffectiveFallbackKey(
   return resolveInfraDiagramsDefaultFallbackKey(input.fallbackArtifacts);
 }
 
+function partitionMatchesSelectedFallback(
+  effectiveFallbackKey: string,
+  renderFallbackKey: string | null | undefined,
+): boolean {
+  if (effectiveFallbackKey.length === 0) {
+    return true;
+  }
+
+  const normalizedRenderFallbackKey = (renderFallbackKey ?? "").trim();
+
+  return normalizedRenderFallbackKey === effectiveFallbackKey;
+}
+
 /** Skip painting Partitioned primary mermaid until the selected partition has been fetched. */
 export function shouldPaintInfraDiagramsMermaidSource(
   input: InfraDiagramsPaintMermaidSourceInput,
@@ -124,11 +141,16 @@ export function shouldPaintInfraDiagramsMermaidSource(
     return false;
   }
 
-  if (input.effectiveFallbackKey.length === 0) {
-    return true;
+  return partitionMatchesSelectedFallback(input.effectiveFallbackKey, input.renderFallbackKey);
+}
+
+/** Paint inventory canvas when server Graphviz SVG or client Mermaid source is ready. */
+export function shouldPaintInfraDiagramsCanvas(
+  input: InfraDiagramsPaintCanvasInput,
+): boolean {
+  if ((input.layoutSvg ?? "").trim().length > 0) {
+    return partitionMatchesSelectedFallback(input.effectiveFallbackKey, input.renderFallbackKey);
   }
 
-  const renderFallbackKey = (input.renderFallbackKey ?? "").trim();
-
-  return renderFallbackKey === input.effectiveFallbackKey;
+  return shouldPaintInfraDiagramsMermaidSource(input);
 }
