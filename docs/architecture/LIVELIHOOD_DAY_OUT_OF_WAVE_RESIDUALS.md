@@ -26,7 +26,7 @@
 - Draft-diff Compare, live presence, or finding-comment chat shipped in this wave.
 - A tenant Finding engines toggle for `EnableLlmJudgeOnFinalize`.
 - CPA/SOC attestation or legally verified semantic support.
-- Cross-refresh draft undo, sealed-record server undo, or SG-082–120 product bodies.
+- Cross-refresh draft undo or sealed-record server undo. Wave 32 **SG-001–120** is shipped — do not re-run those bodies from this wave.
 
 ## Ratchet
 

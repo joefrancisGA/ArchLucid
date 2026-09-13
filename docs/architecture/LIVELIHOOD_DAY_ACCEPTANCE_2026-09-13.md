@@ -61,7 +61,7 @@ LY-021–040 close against existing Working locator tests (`livelihood-day-sg-le
 
 ## Throughput leftovers this batch
 
-LY-091–092, 094–100, 104–105 close against existing SG/AO/SY tests. Recents **widget** is architectures (**LY-098**); **server** recents/pins sync stays deferred (**LY-093**).
+LY-091–092, 094–103, 104–105 close against existing SG/AO/SY tests (CLI, digest, and notification-center deep links nest under architecture when known). Recents **widget** is architectures (**LY-098**); **server** recents/pins sync stays deferred (**LY-093**).
 
 ## Skips (intentional)
 
@@ -74,7 +74,7 @@ LY-091–092, 094–100, 104–105 close against existing SG/AO/SY tests. Recent
 
 ## Paste-ready leftovers (do not claim done)
 
-LY-101 (CLI architecture URLs), LY-102 (email digest architecture links), and LY-103 (notification-center deep links) remain one-prompt leftovers — do **not** claim SG-082–120 shipped. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare, live presence, cross-refresh undo, or sealed-record server undo.
+None remaining. Wave 32 **SG-001–120** is **shipped** on master — do **not** re-run those bodies from this wave. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare, live presence, cross-refresh undo, or sealed-record server undo.
 
 ## Ratchets
 
@@ -85,5 +85,5 @@ LY-101 (CLI architecture URLs), LY-102 (email digest architecture links), and LY
 - `ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTests`
 - `archlucid-ui/src/lib/livelihood-day-prompt-inventory.test.ts` (LY-119)
 - `archlucid-ui/src/lib/livelihood-day-out-of-wave-residuals.test.ts` (LY-117 / 118)
-- `archlucid-ui/src/lib/livelihood-day-sg-leftover-close.test.ts` (LY-021–105 close map)
+- `archlucid-ui/src/lib/livelihood-day-sg-leftover-close.test.ts` (LY-021–105 close map, including LY-101–103)
 - `archlucid-ui/src/lib/livelihood-day-draft-undo-inventory.test.ts` (LY-041)
