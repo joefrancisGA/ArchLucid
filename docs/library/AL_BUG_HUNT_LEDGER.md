@@ -10993,6 +10993,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-13 seed hunt #2467 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `restart_policy` pod spec projection gap; regression `ParseAsync_snake_case_restart_policy_projects_restart_policy_exposure`.
+
 2026-09-13 seed hunt #2464 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `subdomain` pod spec projection gap; regression `ParseAsync_snake_case_subdomain_projects_subdomain_exposure`.
 
 2026-09-13 seed hunt #2459 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `hostname` pod spec projection gap; regression `ParseAsync_snake_case_hostname_projects_hostname_exposure`.
@@ -11015,11 +11017,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 124
-- **bugs-found:** 167
+- **hunts:** 125
+- **bugs-found:** 168
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2449: snake_case `priority_class_name` pod spec not projected
+- **last-bug:** 2026-09-13 — hunt #2467: snake_case `restart_policy` pod spec not projected
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
