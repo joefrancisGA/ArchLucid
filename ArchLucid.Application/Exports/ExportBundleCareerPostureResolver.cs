@@ -153,11 +153,13 @@ public static class ExportBundleCareerPostureResolver
                 return false;
 
             if (string.Equals(text, "yes", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(text, "y", StringComparison.OrdinalIgnoreCase))
+                || string.Equals(text, "y", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(text, "on", StringComparison.OrdinalIgnoreCase))
                 return true;
 
             if (string.Equals(text, "no", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(text, "n", StringComparison.OrdinalIgnoreCase))
+                || string.Equals(text, "n", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(text, "off", StringComparison.OrdinalIgnoreCase))
                 return false;
         }
 
