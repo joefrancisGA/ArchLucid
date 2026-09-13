@@ -1,7 +1,7 @@
-/** Light-mode inventory/architecture node fill — option E (pale honey) on a white canvas. */
+/** Light-mode inventory/architecture node fill — rich honey on a white canvas. */
 export const ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE = {
-  fill: "#E6CF8A",
-  border: "#7A6535",
+  fill: "#D4A84B",
+  border: "#6B5424",
 } as const;
 
 /** Horizontal gap between dagre-ranked nodes (Mermaid flowchart.nodeSpacing). */
@@ -54,7 +54,7 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
     },
     themeVariables: {
       fontSize: "15px",
-      // Transparent SVG plate — node fill comes from pale honey on the white viewport canvas.
+      // Transparent SVG plate — node fill comes from honey on the white viewport canvas.
       background: "transparent",
       primaryColor: dark ? "#334155" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill,
       mainBkg: dark ? "#334155" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill,
