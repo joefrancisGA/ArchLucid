@@ -1482,6 +1482,22 @@ public sealed class AgentTopologyProposalMergeGateTests
 
 
     [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_application_security_group_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "asg-1", label: "web", sourceId: "azurerm_application_security_group.web"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-web")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRenamedServiceOverlayWhenServiceIdHasSurroundingWhitespace()
     {
         GraphSnapshot graph = Graph(ComputeNode(), DataNode());
