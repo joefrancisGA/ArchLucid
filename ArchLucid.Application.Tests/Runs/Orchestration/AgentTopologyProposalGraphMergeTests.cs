@@ -2533,6 +2533,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_api_management_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "apim-1", label: "apim", sourceId: "azurerm_api_management.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-apim")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "apim-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_api_management_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
