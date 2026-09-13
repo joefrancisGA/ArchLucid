@@ -190,6 +190,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("container_registry", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("service_fabric", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("kubernetes_cluster", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("azurerm_lb", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("traffic_manager", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("batch_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("application_gateway", StringComparison.OrdinalIgnoreCase)
