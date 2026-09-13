@@ -59,6 +59,7 @@ public static class CanonicalInfrastructurePropertyBag
         "dnsoptionattempts",
         "dnsoptionsinglerequest",
         "dnsoptionndots",
+        "dnsoptionip6arpa",
         "dnsoptionlocalise",
         "dnsoptionnochecknames",
         "hostaliashostname",
