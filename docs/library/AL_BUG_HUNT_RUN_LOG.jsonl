@@ -2590,3 +2590,4 @@
 {"at":"2026-09-13T00:04:26.9454039Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only"}
 {"at":"2026-09-13T00:04:29.6704154Z","zoneId":"extraction-router","outcome":"seed-only"}
 {"at":"2026-09-13T00:04:32.2327415Z","zoneId":"ui-webhooks-settings","outcome":"seed-only"}
+{"at":"2026-09-13T00:04:34.8030543Z","zoneId":"host-composition","outcome":"seed-only"}
