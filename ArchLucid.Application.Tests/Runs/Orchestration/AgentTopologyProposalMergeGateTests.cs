@@ -1606,6 +1606,22 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_service_fabric_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "sf-1", label: "fabric", sourceId: "azurerm_service_fabric_cluster.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-fabric")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_service_fabric_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
