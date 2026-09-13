@@ -2581,4 +2581,5 @@
 {"at":"2026-09-13T00:04:03.0917844Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-13T00:04:05.8408323Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
 {"at":"2026-09-13T00:04:08.383333Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-13T00:04:10.9582360Z","zoneId":"application-agents","outcome":"seed-only"}
+{"at":"2026-09-13T00:04:10.958236Z","zoneId":"application-agents","outcome":"seed-only"}
+{"at":"2026-09-13T00:04:13.6947479Z","zoneId":"sql-run-repository","outcome":"seed-only"}
