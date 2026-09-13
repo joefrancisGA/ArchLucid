@@ -10548,13 +10548,16 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — hunt #2244: slash `/minute` and `/minutes` UOM rejected while `/min` and `/mins` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2294 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
 
 2026-09-13 seed hunt #2290 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
 
