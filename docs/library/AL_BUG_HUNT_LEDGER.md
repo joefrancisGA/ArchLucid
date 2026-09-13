@@ -5034,13 +5034,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-11 — InMemory recovery grant InsertAsync silently overwrote duplicate GrantId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2267 (seed-only): reseeded persistence-identity with `-Hint persistence`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2252 (seed-only): reseeded persistence-identity with `-Hint persistence identity`; no new hunt-ready rows.
 2026-09-12 seed hunt #2161 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
