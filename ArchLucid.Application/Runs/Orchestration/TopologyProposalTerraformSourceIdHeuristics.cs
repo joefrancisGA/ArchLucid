@@ -246,7 +246,9 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("application_security_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("route_table", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("ip_group", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("local_network_gateway", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("local_network_gateway", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_profile", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("private_link_service", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -405,7 +407,9 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("application_security_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("route_table", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("ip_group", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("local_network_gateway", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("local_network_gateway", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_profile", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("private_link_service", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
