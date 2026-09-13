@@ -143,17 +143,19 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 2026-09-13 seed hunt #2370 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_dynatrace_monitor.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_dynatrace_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 - **id:** topology-proposal-merge
 
+2026-09-13 seed hunt #2399 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_kubernetes_cluster.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_kubernetes_cluster_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
 2026-09-13 seed hunt #2395 (seed-only): reseeded topology-proposal-merge; no new hunt-ready rows.
 - **status:** open
 - **impact:** medium
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 94
-- **bugs-found:** 62
+- **hunts:** 95
+- **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2389: vpn_gateway Compute-category ds- alias gap
+- **last-bug:** 2026-09-13 — hunt #2399: kubernetes_cluster Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

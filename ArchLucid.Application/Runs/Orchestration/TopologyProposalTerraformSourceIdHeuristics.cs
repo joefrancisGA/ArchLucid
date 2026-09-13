@@ -189,6 +189,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("servicebus_namespace", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("container_registry", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("service_fabric", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("kubernetes_cluster", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("application_gateway", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("route_server", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("vpn_gateway", StringComparison.OrdinalIgnoreCase);
