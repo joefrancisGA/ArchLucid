@@ -66,14 +66,21 @@ describe("inhabit post-IR leak inventories (IP-001)", () => {
     expect(INHABIT_POST_IR_COMPLETION_TOAST_ROWS.every((row) => !row.leakOpen)).toBe(true);
   });
 
+  it("IP-002–IP-010: closed product rows stay flipped off", () => {
+    expect(INHABIT_POST_IR_ROOM_ON_REVIEW_DETAIL_ROWS.every((row) => !row.leakOpen)).toBe(true);
+    expect(INHABIT_POST_IR_INSPECT_SUPPORT_BAND_ROWS.every((row) => !row.leakOpen)).toBe(true);
+    expect(INHABIT_POST_IR_SECONDARY_RERUN_ROWS.every((row) => !row.leakOpen)).toBe(true);
+    expect(INHABIT_POST_IR_INSPECTOR_FINALIZE_ROWS.every((row) => !row.leakOpen)).toBe(true);
+  });
+
   it("IP-001: remaining product rows stay open until their IP ships", () => {
     const openOwnerPrompts = new Set(
       INHABIT_POST_IR_ALL_LEAK_ROWS.filter((row) => row.leakOpen).map((row) => row.ownerPrompt),
     );
 
     expect(openOwnerPrompts.has("IP-002")).toBe(false);
-    expect(openOwnerPrompts.has("IP-006")).toBe(false);
-    expect(openOwnerPrompts.has("IP-007")).toBe(true);
+    expect(openOwnerPrompts.has("IP-010")).toBe(false);
+    expect(openOwnerPrompts.has("IP-011")).toBe(true);
   });
 
   it("IP-001: covers every product owner prompt IP-002 through IP-011", () => {

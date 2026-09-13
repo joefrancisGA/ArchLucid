@@ -212,6 +212,25 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
     expect(screen.queryByTestId("review-presenter-surface")).toBeNull();
   });
 
+  it("IP-007: redirects room elicitation deep links to inhabited findings when architecture id is known", () => {
+    searchParamsMock.value = new URLSearchParams("reviewTab=overview&roomElicitation=1");
+
+    render(
+      <RunDetailPresenterElicitationBridge
+        runId={RUN_ID}
+        architectureRequestId="draft-1"
+        parentArchitectureId="architecture-identity-001"
+        panels={panels}
+      />,
+    );
+
+    expect(routerReplaceMock).toHaveBeenCalledWith(
+      "/architecture/architectures/architecture-identity-001/findings?runId=run-a&roomElicitation=1",
+      { scroll: false },
+    );
+    expect(screen.queryByTestId("review-room-elicitation-panel")).toBeNull();
+  });
+
   it("does not show elicitation chrome when neither presenter nor room flag is set", () => {
     workspaceModeMock.isWorkingMode = true;
     searchParamsMock.value = new URLSearchParams("reviewTab=overview");

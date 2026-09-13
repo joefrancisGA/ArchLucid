@@ -14,6 +14,7 @@ import { useQueueStatusElapsed } from "@/hooks/use-queue-status-elapsed";
 import {
   LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT,
 } from "@/lib/operations/long-operation-wait-copy";
+import { WorkingExecuteStartHonestyNotices } from "@/components/governance/WorkingExecuteStartHonestyNotices";
 import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { renderDoThisNextReferenceCopy } from "@/lib/usability/do-this-next-reference-copy";
@@ -162,15 +163,18 @@ export function RunProgressTracker({
       ) : null}
 
       {tracker.showPipelineTerminalFailure && !deferFailureRecoveryToDoThisNext ? (
-        <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="run-progress-terminal-failure-actions">
-          <ReRunReviewButton
-            runId={runId}
-            retryCount={diagnosticContext?.retryCount ?? initialSummary?.retryCount ?? null}
-            data-testid="run-progress-re-run-review"
-          />
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Re-invokes agent execution for this review with the same intake.
-          </p>
+        <div className="mt-3 space-y-2" data-testid="run-progress-terminal-failure-actions">
+          <WorkingExecuteStartHonestyNotices />
+          <div className="flex flex-wrap items-center gap-2">
+            <ReRunReviewButton
+              runId={runId}
+              retryCount={diagnosticContext?.retryCount ?? initialSummary?.retryCount ?? null}
+              data-testid="run-progress-re-run-review"
+            />
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              Re-invokes agent execution for this review with the same intake.
+            </p>
+          </div>
         </div>
       ) : null}
 

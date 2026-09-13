@@ -106,6 +106,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       architectureRequestId={model.resolvedDetail.run.architectureRequestId}
       azureInventoryEvidencePresent={hasAzureInventoryZipEvidence(presentation.evidenceInventoryItems)}
       structuralExecutionMode={model.resolvedDetail.run.structuralExecutionMode}
+      parentArchitectureId={model.resolvedDetail.run.architectureId ?? null}
       degradedFindingCoverage={model.resolvedDetail.degradedFindingCoverage === true}
       degradedFindingCoverageFailedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
     />
