@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpAdvisoryScansSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpAdvisoryScansSourcesOrientationStrip";
 import { HelpAdvisoryScansTroubleshootingList } from "@/app/(operator)/help/_sections/HelpAdvisoryScansTroubleshootingList";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { AdvisoryScansHelpClaimDisciplineStrip } from "@/components/help/AdvisoryScansHelpClaimDisciplineStrip";
 import { AdvisoryScansHelpEvidenceOrientationStrip } from "@/components/help/AdvisoryScansHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -212,6 +213,8 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
         )}
 
         {buyerPolishedShell ? null : <AdvisoryScansHelpClaimDisciplineStrip />}
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-advisory-scans" showSsoOptional={false} />
 
         {!buyerPolishedShell && showSectionNav ? (
           <HelpTopicTableOfContents headings={guideHeadings} placement="header-inline" />

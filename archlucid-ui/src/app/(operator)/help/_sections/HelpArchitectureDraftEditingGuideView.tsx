@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -78,6 +79,8 @@ export function HelpArchitectureDraftEditingGuideView(
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-architecture-draft-editing-overview">
           {ARCHITECTURE_DRAFT_EDITING_HELP_OVERVIEW}
         </p>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-architecture-draft-editing" showSsoOptional={false} />
 
         <div className="space-y-4">
           <HelpSection
