@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Classify PR changed paths into CI lanes (OpenAPI, .NET corset, Terraform).
+"""Classify PR changed paths into CI lanes (OpenAPI, .NET corset, Terraform, inventory diagrams).
 
 Used by ci.yml so docs/UI-only PRs skip expensive .NET/OpenAPI/Terraform work while
 required check *jobs* still run and report success (soft-skip inside the job).
@@ -80,6 +80,21 @@ TERRAFORM_PREFIXES: tuple[str, ...] = (
 TERRAFORM_EXACT_FILES: frozenset[str] = frozenset(
     {
         "deploy/archlucid.stack.example.yaml",
+    }
+)
+
+# Inventory diagram human-layout ratchet (IDH-03). PR job ui-playwright-infra-diagrams-layout.
+INFRA_DIAGRAMS_LAYOUT_PREFIXES: tuple[str, ...] = (
+    "ArchLucid.ArtifactSynthesis/",
+)
+
+INFRA_DIAGRAMS_LAYOUT_EXACT_FILES: frozenset[str] = frozenset(
+    {
+        "archlucid-ui/e2e/infra-diagrams-layout.mock.spec.ts",
+        "archlucid-ui/e2e/fixtures/infra-diagrams-mermaid.ts",
+        "archlucid-ui/src/lib/help/help-mermaid.ts",
+        "archlucid-ui/src/lib/architecture/architecture-diagram-mermaid-config.ts",
+        "archlucid-ui/src/components/architecture/ArchitectureDiagramViewer.tsx",
     }
 )
 
@@ -167,6 +182,19 @@ def path_matches_terraform(path: str) -> bool:
     return False
 
 
+def path_matches_infra_diagrams_layout(path: str) -> bool:
+    normalized = normalize_git_path(path)
+
+    if normalized in INFRA_DIAGRAMS_LAYOUT_EXACT_FILES:
+        return True
+
+    for prefix in INFRA_DIAGRAMS_LAYOUT_PREFIXES:
+        if normalized.startswith(prefix):
+            return True
+
+    return False
+
+
 def classify_paths(changed_paths: list[str]) -> dict[str, object]:
     """Return lane flags. Empty/unknown diffs fail open (run all lanes)."""
     normalized = [normalize_git_path(path) for path in changed_paths if path.strip()]
@@ -176,11 +204,13 @@ def classify_paths(changed_paths: list[str]) -> dict[str, object]:
             "run_openapi": True,
             "run_dotnet": True,
             "run_terraform": True,
+            "run_infra_diagrams_layout": True,
             "force_all": True,
             "reason": "empty_or_unknown_diff_fail_open",
             "matched_openapi": [],
             "matched_dotnet": [],
             "matched_terraform": [],
+            "matched_infra_diagrams_layout": [],
         }
 
     force_all = any(path_matches_force_all(path) for path in normalized)
@@ -190,26 +220,35 @@ def classify_paths(changed_paths: list[str]) -> dict[str, object]:
             "run_openapi": True,
             "run_dotnet": True,
             "run_terraform": True,
+            "run_infra_diagrams_layout": True,
             "force_all": True,
             "reason": "ci_or_packaging_paths",
             "matched_openapi": sorted({path for path in normalized if path_matches_openapi(path)}),
             "matched_dotnet": sorted({path for path in normalized if path_matches_dotnet(path)}),
             "matched_terraform": sorted({path for path in normalized if path_matches_terraform(path)}),
+            "matched_infra_diagrams_layout": sorted(
+                {path for path in normalized if path_matches_infra_diagrams_layout(path)}
+            ),
         }
 
     matched_openapi = sorted({path for path in normalized if path_matches_openapi(path)})
     matched_dotnet = sorted({path for path in normalized if path_matches_dotnet(path)})
     matched_terraform = sorted({path for path in normalized if path_matches_terraform(path)})
+    matched_infra_diagrams_layout = sorted(
+        {path for path in normalized if path_matches_infra_diagrams_layout(path)}
+    )
 
     return {
         "run_openapi": len(matched_openapi) > 0,
         "run_dotnet": len(matched_dotnet) > 0,
         "run_terraform": len(matched_terraform) > 0,
+        "run_infra_diagrams_layout": len(matched_infra_diagrams_layout) > 0,
         "force_all": False,
         "reason": "path_lanes",
         "matched_openapi": matched_openapi,
         "matched_dotnet": matched_dotnet,
         "matched_terraform": matched_terraform,
+        "matched_infra_diagrams_layout": matched_infra_diagrams_layout,
     }
 
 
@@ -231,12 +270,14 @@ def detect_ci_path_lanes(
             "run_openapi": True,
             "run_dotnet": True,
             "run_terraform": True,
+            "run_infra_diagrams_layout": True,
             "force_all": True,
             "reason": "merge_group_semantic_conflict_guard",
             "changedPaths": [],
             "matched_openapi": [],
             "matched_dotnet": [],
             "matched_terraform": [],
+            "matched_infra_diagrams_layout": [],
         }
 
     if event_name != "pull_request":
@@ -248,12 +289,14 @@ def detect_ci_path_lanes(
             "run_openapi": True,
             "run_dotnet": True,
             "run_terraform": True,
+            "run_infra_diagrams_layout": True,
             "force_all": True,
             "reason": "non_pull_request_full_lanes",
             "changedPaths": [],
             "matched_openapi": [],
             "matched_dotnet": [],
             "matched_terraform": [],
+            "matched_infra_diagrams_layout": [],
         }
 
     changed = git_diff_name_only(base_ref, root_path)
@@ -289,6 +332,7 @@ def write_github_output(payload: dict[str, object], output_path: Path | None = N
         f"run_openapi={flag('run_openapi')}",
         f"run_dotnet={flag('run_dotnet')}",
         f"run_terraform={flag('run_terraform')}",
+        f"run_infra_diagrams_layout={flag('run_infra_diagrams_layout')}",
         f"force_all={flag('force_all')}",
         f"reason={payload.get('reason', '')}",
     ]
@@ -329,6 +373,7 @@ def main(argv: list[str] | None = None) -> int:
         f" openapi={payload.get('run_openapi')}"
         f" dotnet={payload.get('run_dotnet')}"
         f" terraform={payload.get('run_terraform')}"
+        f" infra_diagrams_layout={payload.get('run_infra_diagrams_layout')}"
         f" reason={payload.get('reason')}"
     )
 

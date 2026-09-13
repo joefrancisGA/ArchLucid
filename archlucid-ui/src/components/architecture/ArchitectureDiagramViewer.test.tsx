@@ -464,6 +464,38 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
+  it('keeps URL zoom on first mermaid mount and resets to 100 percent when the source changes', async () => {
+    searchParamsMock.set('diagZoom', '0.30');
+
+    const { rerender } = render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(30);
+    });
+
+    rerender(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  b["B"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/securenow/inventory', {
+        scroll: false,
+      });
+    });
+
+    expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(100);
+  });
+
   it('sizes mermaid svg from measured ink after render without paint failure', async () => {
     render(
       <ArchitectureDiagramViewer

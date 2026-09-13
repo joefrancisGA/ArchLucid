@@ -51,7 +51,8 @@ internal static class DiagramPeerGridPlanner
 
     /// <summary>
     /// Vertical plus horizontal <c>~~~</c> links steer both rank breaks and same-rank placement.
-    /// Used when packing disconnected peering components into <c>alpack_*</c> subgraphs.
+    /// Used by the zero-edge IDL-02 grid. Do not call this on visible-edge component heads —
+    /// <see cref="DiagramComponentRowPlanner"/> owns that forest.
     /// </summary>
     public static IReadOnlyList<DiagramEdge> BuildDenseGridLinks(IReadOnlyList<DiagramNode> orderedNodes)
     {
