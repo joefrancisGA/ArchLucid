@@ -43,6 +43,7 @@ public static class CanonicalInfrastructurePropertyBag
         "hostaliasip",
         "dnsoptiontrustad",
         "dnsoptiondebug",
+        "dnsoptioninet6",
         "dnsoptionnotldquery",
         "dnsoptionedns0",
         "dnsoptionsinglerequestreopen",
