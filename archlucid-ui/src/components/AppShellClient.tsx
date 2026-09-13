@@ -6,8 +6,6 @@ import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, ty
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
-import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
-import { WorkspaceModeSealDefaultEffect } from "@/components/workspace-mode/WorkspaceModeSealDefaultEffect";
 import { OperatorShellStatusQueryGate } from "@/components/shell/OperatorShellStatusQueryGate";
 import {
   AppShellIdleOverlaysDeferred,
@@ -159,14 +157,11 @@ function AppShellDeferChromeBoundary({
  */
 export function AppShellClient({ children }: AppShellClientProps) {
   return (
-    <OperatorQueryProvider>
-      <WorkspaceModeSealDefaultEffect />
-      <OperatorShellStatusQueryGate>
-        <OperatorChromeModeProvider>
-          <AppShellInner>{children}</AppShellInner>
-        </OperatorChromeModeProvider>
-      </OperatorShellStatusQueryGate>
-    </OperatorQueryProvider>
+    <OperatorShellStatusQueryGate>
+      <OperatorChromeModeProvider>
+        <AppShellInner>{children}</AppShellInner>
+      </OperatorChromeModeProvider>
+    </OperatorShellStatusQueryGate>
   );
 }
 

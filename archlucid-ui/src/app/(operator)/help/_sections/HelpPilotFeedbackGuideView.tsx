@@ -4,6 +4,7 @@ import { HelpPilotFeedbackClaimOrientationStrip } from "@/app/(operator)/help/_s
 import { HelpPilotFeedbackHeaderActions } from "@/app/(operator)/help/_sections/HelpPilotFeedbackHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -125,6 +126,8 @@ export function HelpPilotFeedbackGuideView(props: HelpPilotFeedbackGuideViewProp
           <p className={readingBodyClass} data-testid="help-pilot-feedback-overview">
             {PILOT_FEEDBACK_HELP_OVERVIEW}
           </p>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-pilot-feedback" showSsoOptional={false} />
 
           <section
             className="space-y-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"

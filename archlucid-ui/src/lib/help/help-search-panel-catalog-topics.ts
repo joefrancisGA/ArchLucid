@@ -97,6 +97,23 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/architecture-desk", helpSlug: "architecture-desk" },
   },
   {
+    id: "system-gravity",
+    title: "System gravity",
+    description:
+      "Working help — architecture desk is the instrument after spawn; nested review is a job inspector, not Home. System vs job vs inspector.",
+    keywords: [
+      "system gravity",
+      "instrument after spawn",
+      "job inspector",
+      "nested review",
+      "architecture desk",
+      "adr 0098",
+      "record",
+      "practice",
+    ],
+    action: { kind: "route", href: "/help/system-gravity", helpSlug: "system-gravity" },
+  },
+  {
     id: "false-hard-infeasibility",
     title: "Hard vs soft infeasibility",
     description:
@@ -556,6 +573,8 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   "data handling": ["data-handling-help", "security-trust-help"],
   privacy: ["data-handling-help", "security-trust-help"],
   "architecture desk": ["architecture-desk"],
+  "system gravity": ["system-gravity"],
+  "job inspector": ["system-gravity"],
   "hard infeasible": ["false-hard-infeasibility"],
   "false hard": ["false-hard-infeasibility"],
   "extraction fidelity": ["extraction-fidelity"],

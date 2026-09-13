@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Application.Integration;
+using ArchLucid.Application.Operator;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
@@ -27,6 +28,7 @@ internal static class FindingsIntegrationEventPublishing
         IAuthorityQueryService authorityQueryService,
         IManifestHashService manifestHashService,
         string publicBaseUrl,
+        Guid? architectureId,
         IDbConnection? connection,
         IDbTransaction? transaction,
         CancellationToken cancellationToken)
@@ -55,7 +57,7 @@ internal static class FindingsIntegrationEventPublishing
             cancellationToken);
 
         string normalizedBaseUrl = NormalizePublicSiteBaseUrl(publicBaseUrl);
-        object[] findingRows = BuildFindingRows(findingsSnapshot.RunId, highSeverityFindings, normalizedBaseUrl);
+        object[] findingRows = BuildFindingRows(findingsSnapshot.RunId, highSeverityFindings, normalizedBaseUrl, architectureId);
 
         object payload = new
         {
@@ -93,9 +95,14 @@ internal static class FindingsIntegrationEventPublishing
     private static bool IsHighSeverity(FindingSeverity severity) =>
         severity >= FindingSeverity.Error;
 
-    private static object[] BuildFindingRows(Guid runId, IReadOnlyList<Finding> findings, string publicBaseUrl)
+    private static object[] BuildFindingRows(
+        Guid runId,
+        IReadOnlyList<Finding> findings,
+        string publicBaseUrl,
+        Guid? architectureId)
     {
         List<object> rows = [];
+        string runHex = runId.ToString("D");
 
         foreach (Finding finding in findings)
         {
@@ -103,7 +110,8 @@ internal static class FindingsIntegrationEventPublishing
                 continue;
 
             string findingId = finding.FindingId.Trim();
-            string deepLinkUrl = $"{publicBaseUrl}/runs/{runId:D}/findings/{Uri.EscapeDataString(findingId)}";
+            string relativePath = WorkingOperatorReviewLinks.BuildFindingInspectRelativePath(runHex, findingId, architectureId);
+            string deepLinkUrl = $"{publicBaseUrl}{relativePath}";
 
             rows.Add(new
             {

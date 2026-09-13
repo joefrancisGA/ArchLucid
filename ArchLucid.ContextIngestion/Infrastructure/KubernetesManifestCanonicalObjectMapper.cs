@@ -230,8 +230,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 && jobTemplate.ValueKind is JsonValueKind.Object
                 && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(jobTemplate, "spec", out JsonElement cronJobSpec)
                 && cronJobSpec.ValueKind is JsonValueKind.Object
-                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(cronJobSpec, "template", out JsonElement cronJobPodTemplate)
-                && cronJobPodTemplate.ValueKind is JsonValueKind.Object
+                && TryGetWorkloadPodTemplate(cronJobSpec, out JsonElement cronJobPodTemplate)
                 && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(cronJobPodTemplate, "spec", out JsonElement cronJobPodSpec))
                 return cronJobPodSpec;
 
@@ -247,11 +246,11 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
     private static bool TryGetWorkloadPodTemplate(JsonElement specElement, out JsonElement podTemplate)
     {
-        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "template", out podTemplate)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(specElement, "template", out podTemplate)
             && podTemplate.ValueKind is JsonValueKind.Object)
             return true;
 
-        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(specElement, "pod_template", out podTemplate)
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(specElement, "podTemplate", out podTemplate)
             && podTemplate.ValueKind is JsonValueKind.Object)
             return true;
 

@@ -193,6 +193,7 @@ export function useRunProgressTracker({
     enabled: pollEnabled,
     isComplete: clientPhase === "complete",
     reviewLabel: summary?.displayName ?? summary?.description ?? null,
+    requestId: summary?.requestId ?? null,
   });
 
   useEffect(() => {

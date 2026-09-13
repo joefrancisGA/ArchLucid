@@ -204,5 +204,6 @@ public sealed partial class AuthorityRunReadHandlers(
             ExecutePostureCapturedUtc = x.ExecutePostureCapturedUtc,
             AuthorityLifecyclePhase = x.AuthorityLifecyclePhase,
             LegacyRunStatus = x.LegacyRunStatus,
+            ArchitectureId = x.ArchitectureId,
         };
 }

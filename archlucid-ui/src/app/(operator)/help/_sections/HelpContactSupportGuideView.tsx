@@ -7,6 +7,7 @@ import { ContactSupportHelpEvidenceOrientationStrip } from "@/components/help/Co
 import { ContactSupportHelpOrientationStack } from "@/components/help/ContactSupportHelpOrientationStack";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import {
@@ -99,6 +100,8 @@ export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewPr
         <p className={readingBodyClass} data-testid="help-contact-support-overview">
           {CONTACT_SUPPORT_HELP_OVERVIEW}
         </p>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-contact-support" showSsoOptional={false} />
 
         <section
           aria-labelledby="contact-support-actions"

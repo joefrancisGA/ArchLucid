@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -385,6 +386,7 @@ export function TerraformWorkbenchClient() {
               </Link>
             </Button>
           </div>
+          <SponsorExportSendHonestyStrip className="mt-3 max-w-xl" testIdPrefix="infra-terraform-advisory-zip" />
         </section>
       ) : null}
 

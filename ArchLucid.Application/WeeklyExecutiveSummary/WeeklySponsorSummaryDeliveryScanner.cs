@@ -3,9 +3,11 @@ using System.Text;
 
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Application.Operator;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
@@ -20,6 +22,7 @@ namespace ArchLucid.Application.WeeklySponsorSummary;
 public sealed class WeeklySponsorSummaryDeliveryScanner(
     ITenantRepository tenantRepository,
     IAuthorityQueryService authorityQueryService,
+    IRunRepository runRepository,
     IRunSummaryOnePagerExportService runSummaryOnePagerExportService,
     ISponsorReportRecipientLookup recipientLookup,
     IWeeklySponsorSummaryEmailDispatcher emailDispatcher,
@@ -29,6 +32,9 @@ public sealed class WeeklySponsorSummaryDeliveryScanner(
 {
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     private readonly IWeeklySponsorSummaryEmailDispatcher _emailDispatcher =
         emailDispatcher ?? throw new ArgumentNullException(nameof(emailDispatcher));
@@ -139,7 +145,17 @@ public sealed class WeeklySponsorSummaryDeliveryScanner(
         string weekLabel = FormatWeekLabel(weekStartUtc, weekEndUtc);
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? "http://localhost:3000" : emailOptions.OperatorBaseUrl.Trim();
-        string runDetailUrl = $"{operatorBase.TrimEnd('/')}/reviews/{latestRunHex}";
+        string runDetailUrl;
+
+        using (AmbientScopeContext.Push(scope))
+        {
+            runDetailUrl = await WorkingOperatorReviewLinks.BuildReviewWorkspaceUrlForRunAsync(
+                _runRepository,
+                scope,
+                operatorBase,
+                latestRunHex,
+                cancellationToken).ConfigureAwait(false);
+        }
 
         await _emailDispatcher.TryDispatchAsync(
             tenant.Id,

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { PreferencesHelpClaimDisciplineStrip } from "@/components/help/PreferencesHelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { PreferencesHelpEvidenceOrientationStrip } from "@/components/help/PreferencesHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -85,6 +86,8 @@ export function HelpPreferencesGuideView(props: HelpPreferencesGuideViewProps): 
       />
 
       <PreferencesHelpClaimDisciplineStrip />
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-preferences" showSsoOptional={false} />
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>

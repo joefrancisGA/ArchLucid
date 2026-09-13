@@ -16896,6 +16896,13 @@
       },
       "GlobalSearchFindingResponse": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "findingId": {
             "type": "string"
           },
@@ -16952,6 +16959,13 @@
       },
       "GlobalSearchRunResponse": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "authorityProjectSlug": {
             "type": [
               "null",
@@ -33207,6 +33221,13 @@
       },
       "RunSummaryResponse": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "authorityLifecyclePhase": {
             "$ref": "#/components/schemas/AuthorityRunLifecyclePhase"
           },

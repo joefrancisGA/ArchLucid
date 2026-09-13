@@ -13,6 +13,8 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Demo;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -209,7 +211,7 @@ public sealed class QuickStartServiceTests
         Assert.Equal(nameof(FindingSeverity.Critical), body.TopFindings[0].Severity);
         Assert.Equal("next-error", body.TopFindings[1].Title);
         Assert.Equal("third-warn", body.TopFindings[2].Title);
-        Assert.Equal($"https://app.example/runs/{Uri.EscapeDataString(runHex)}", body.RunDetailUrl);
+        Assert.Equal($"https://app.example/architecture/reviews/{Uri.EscapeDataString(runHex)}", body.RunDetailUrl);
 
         Guid expectedParsed = Guid.ParseExact(runHex, "N");
 
@@ -390,6 +392,15 @@ public sealed class QuickStartServiceTests
 
         scopes.Setup(static s => s.GetCurrentScope()).Returns(DemoScopePinned);
 
+        Mock<IRunRepository> runs = new();
+
+        runs
+            .Setup(r => r.GetByIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
         return new QuickStartService(
             create,
             execute,
@@ -397,6 +408,7 @@ public sealed class QuickStartServiceTests
             auditService,
             actor.Object,
             scopes.Object,
+            runs.Object,
             publicSite,
             NullLogger<QuickStartService>.Instance);
     }

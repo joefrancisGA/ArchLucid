@@ -4835,6 +4835,8 @@ export interface components {
             passed?: boolean;
         };
         GlobalSearchFindingResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             findingId?: string;
             /** Format: uuid */
             runId?: string;
@@ -4853,6 +4855,8 @@ export interface components {
             runs?: components["schemas"]["GlobalSearchRunResponse"][];
         };
         GlobalSearchRunResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             authorityProjectSlug?: null | string;
             /** Format: date-time */
             createdUtc?: string;
@@ -9691,6 +9695,8 @@ export interface components {
             originalFileName?: string;
         };
         RunSummaryResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             createdByUserId?: null | string;
             /** Format: date-time */

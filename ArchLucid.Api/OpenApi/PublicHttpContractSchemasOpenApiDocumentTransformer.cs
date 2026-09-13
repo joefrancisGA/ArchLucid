@@ -42,6 +42,15 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
         OpenApiSchemaContractMutator.AddBooleanIfMissing(schema.Properties, "hasWarnings");
         OpenApiSchemaContractMutator.AddBooleanIfMissing(schema.Properties, "hasGovernanceWarnings");
 
+        if (!schema.Properties.ContainsKey("architectureId"))
+        {
+            schema.Properties["architectureId"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.String,
+                Format = "uuid",
+            };
+        }
+
         OpenApiSchemaContractMutator.EnsureRequired(schema, "runId", "projectId", "createdUtc");
     }
 

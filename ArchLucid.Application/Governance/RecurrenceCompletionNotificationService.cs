@@ -99,6 +99,7 @@ public sealed class RecurrenceCompletionNotificationService(
             resolvedFindingCount,
             schedule.SourceRunId,
             recipients,
+            schedule.ArchitectureId,
             cancellationToken).ConfigureAwait(false);
 
         await DurableAuditLogRetry.TryLogAsync(

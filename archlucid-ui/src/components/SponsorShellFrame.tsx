@@ -9,7 +9,6 @@ import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { SponsorShellDeferredChrome } from "@/components/sponsor/SponsorShellDeferredChrome";
-import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { Button } from "@/components/ui/button";
@@ -51,9 +50,8 @@ export function SponsorShellFrame({ children }: SponsorShellFrameProps) {
   const pathname = usePathname();
 
   return (
-    <OperatorQueryProvider>
-      <TooltipProvider delayDuration={200}>
-        <ShellReadySurface className="min-h-screen overflow-x-hidden bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+    <TooltipProvider delayDuration={200}>
+      <ShellReadySurface className="min-h-screen overflow-x-hidden bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
         <a href="#main-content" className="skip-to-main">
           Skip to main content
         </a>
@@ -108,6 +106,5 @@ export function SponsorShellFrame({ children }: SponsorShellFrameProps) {
         </main>
       </ShellReadySurface>
     </TooltipProvider>
-    </OperatorQueryProvider>
   );
 }

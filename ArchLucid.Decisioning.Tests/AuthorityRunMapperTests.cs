@@ -39,7 +39,8 @@ public sealed class AuthorityRunMapperTests
             FindingsSnapshotId = findings,
             GoldenManifestId = manifest,
             DecisionTraceId = trace,
-            ArtifactBundleId = bundle
+            ArtifactBundleId = bundle,
+            ArchitectureId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         };
 
         RunSummaryDto dto = AuthorityRunMapper.MapSummary(run);
@@ -54,6 +55,7 @@ public sealed class AuthorityRunMapperTests
         dto.GoldenManifestId.Should().Be(manifest);
         dto.DecisionTraceId.Should().Be(trace);
         dto.ArtifactBundleId.Should().Be(bundle);
+        dto.ArchitectureId.Should().Be(run.ArchitectureId);
         dto.HasContextSnapshot.Should().BeTrue();
         dto.HasGoldenManifest.Should().BeTrue();
         dto.RunDegradedExecution.Should().BeFalse();

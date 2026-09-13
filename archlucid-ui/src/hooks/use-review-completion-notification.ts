@@ -16,15 +16,45 @@ import {
   markReviewPipelineCompletionNotified,
   wasReviewPipelineCompletionNotified,
 } from "@/lib/review-pipeline-completion-notify-dedupe";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
+import { extractArchitectureIdentityIdFromPathname } from "@/lib/desk-continuity-preference";
 import {
   REVIEW_PIPELINE_COMPLETION_NOTIFICATION_TITLE,
   REVIEW_PIPELINE_COMPLETION_TOAST_TITLE,
 } from "@/lib/review-execution-background-safety-copy";
 
 function pathnameMatchesRun(pathname: string, runId: string): boolean {
-  const runSegment = `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const trimmedRunId = runId.trim();
+  const encodedRunId = encodeURIComponent(trimmedRunId);
+  const peerSegment = `/architecture/reviews/${encodedRunId}`;
 
-  return pathname === runSegment || pathname.startsWith(`${runSegment}/`);
+  if (pathname === peerSegment || pathname.startsWith(`${peerSegment}/`)) {
+    return true;
+  }
+
+  const nestedRoute = parseArchitectureNestedRoute(pathname.split("?")[0] ?? "");
+
+  if (nestedRoute?.childKind === "reviews" && nestedRoute.childId === trimmedRunId) {
+    return true;
+  }
+
+  return false;
+}
+
+function resolveReviewCompletionHref(
+  runId: string,
+  pathname: string,
+  architectureId?: string | null,
+  requestId?: string | null,
+): string {
+  const architectureIdFromPath = extractArchitectureIdentityIdFromPathname(pathname, "");
+
+  return resolveWorkingRunReviewLocator({
+    runId,
+    architectureId: architectureId ?? architectureIdFromPath,
+    requestId,
+  }).href;
 }
 
 export type UseReviewCompletionNotificationOptions = {
@@ -32,6 +62,8 @@ export type UseReviewCompletionNotificationOptions = {
   readonly enabled: boolean;
   readonly isComplete: boolean;
   readonly reviewLabel?: string | null;
+  readonly architectureId?: string | null;
+  readonly requestId?: string | null;
 };
 
 /**
@@ -74,7 +106,12 @@ export function useReviewCompletionNotification(
           : "Open the review to see results.";
 
       if (!onRunPage || isDocumentHidden()) {
-        const href = `/architecture/reviews/${encodeURIComponent(options.runId)}`;
+        const href = resolveReviewCompletionHref(
+          options.runId,
+          pathname,
+          options.architectureId,
+          options.requestId,
+        );
         const notified = showDesktopNotification(REVIEW_PIPELINE_COMPLETION_NOTIFICATION_TITLE, {
           body: description,
           tag: `review-complete:${options.runId}`,
@@ -99,7 +136,15 @@ export function useReviewCompletionNotification(
     }
 
     wasCompleteRef.current = options.isComplete;
-  }, [options.enabled, options.isComplete, options.reviewLabel, options.runId, pathname]);
+  }, [
+    options.architectureId,
+    options.enabled,
+    options.isComplete,
+    options.requestId,
+    options.reviewLabel,
+    options.runId,
+    pathname,
+  ]);
 
   useEffect(() => {
     notifiedRef.current = false;

@@ -2,14 +2,12 @@
 import { cn } from "@/lib/utils";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { QueryClientProvider } from "@tanstack/react-query";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
 import { useMarketingPublicPricingQuery } from "@/hooks/use-marketing-public-pricing-query";
-import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { MarketingPricingEarlyAdopterBanner } from "@/components/marketing/MarketingPricingEarlyAdopterBanner";
 import { MarketingPricingFitMatrix } from "@/components/marketing/MarketingPricingFitMatrix";
 import { MarketingPricingUniversalIncludesStrip } from "@/components/marketing/MarketingPricingUniversalIncludesStrip";
@@ -62,13 +60,7 @@ export type MarketingTierPricingSectionProps = {
 
 /** Renders tier cards from server-supplied pricing, falling back to a client `/pricing.json` fetch. */
 export function MarketingTierPricingSection(props: MarketingTierPricingSectionProps): React.JSX.Element {
-  const [queryClient] = useState(() => getOperatorQueryClient());
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <MarketingTierPricingSectionInner {...props} />
-    </QueryClientProvider>
-  );
+  return <MarketingTierPricingSectionInner {...props} />;
 }
 
 function MarketingTierPricingSectionInner(props: MarketingTierPricingSectionProps): React.JSX.Element {
