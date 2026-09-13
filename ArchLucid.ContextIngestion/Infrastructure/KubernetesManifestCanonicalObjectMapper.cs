@@ -289,6 +289,21 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && setHostnameAsFqdn.ValueKind is JsonValueKind.True)
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "setHostnameAsFQDN", "true");
 
+        if (TryGetTerminationGracePeriodSeconds(podSpec, out JsonElement terminationGracePeriodSeconds)
+            && terminationGracePeriodSeconds.ValueKind is JsonValueKind.Number
+            && terminationGracePeriodSeconds.TryGetInt64(out long graceSeconds))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "terminationGracePeriodSeconds", graceSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        if (TryGetActiveDeadlineSeconds(podSpec, out JsonElement activeDeadlineSeconds)
+            && activeDeadlineSeconds.ValueKind is JsonValueKind.Number
+            && activeDeadlineSeconds.TryGetInt64(out long deadlineSeconds))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "activeDeadlineSeconds", deadlineSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        if (TryGetPreemptionPolicy(podSpec, out JsonElement preemptionPolicy)
+            && preemptionPolicy.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(preemptionPolicy.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "preemptionPolicy", preemptionPolicy.GetString()!);
+
         ProjectContainerSecurityContext(podSpec, properties);
     }
 
@@ -298,6 +313,30 @@ internal static class KubernetesManifestCanonicalObjectMapper
             return true;
 
         return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "set_hostname_as_fqdn", out value);
+    }
+
+    private static bool TryGetTerminationGracePeriodSeconds(JsonElement podSpec, out JsonElement value)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "terminationGracePeriodSeconds", out value))
+            return true;
+
+        return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "termination_grace_period_seconds", out value);
+    }
+
+    private static bool TryGetActiveDeadlineSeconds(JsonElement podSpec, out JsonElement value)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "activeDeadlineSeconds", out value))
+            return true;
+
+        return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "active_deadline_seconds", out value);
+    }
+
+    private static bool TryGetPreemptionPolicy(JsonElement podSpec, out JsonElement value)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "preemptionPolicy", out value))
+            return true;
+
+        return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "preemption_policy", out value);
     }
 
     private static JsonElement ResolvePodSpec(JsonElement specElement, string kind)
