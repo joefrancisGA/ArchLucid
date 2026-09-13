@@ -1,4 +1,4 @@
-import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
+import { POLICY_PACK_INFLUENCE_HONESTY_LINE } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
@@ -9,26 +9,42 @@ export type SponsorExportSendHonestyStripProps = {
   readonly testIdPrefix?: string;
 };
 
+const SPONSOR_EXPORT_SEND_HONESTY_LINES = [
+  SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE,
+  FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
+  POLICY_PACK_INFLUENCE_HONESTY_LINE,
+] as const;
+
+const SPONSOR_EXPORT_SEND_HONESTY_LINE_TEST_IDS = [
+  "non-summing",
+  "disposition",
+  "policy-influence",
+] as const;
+
 /** Compact non-summing ROI + disposition literacy at sponsor export download CTAs. */
 export function SponsorExportSendHonestyStrip({
   className,
   testIdPrefix = "sponsor-export-send",
 }: SponsorExportSendHonestyStripProps): React.JSX.Element {
   return (
-    <div
+    <ul
       className={cn(
-        "space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40",
+        "m-0 list-disc space-y-1 pl-5 text-al-text-secondary",
+        OPERATOR_TYPOGRAPHY.helper,
         className,
       )}
       data-testid={`${testIdPrefix}-honesty-strip`}
+      role="note"
+      aria-label="Before you export"
     >
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={`${testIdPrefix}-non-summing`}>
-        {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
-      </p>
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={`${testIdPrefix}-disposition`}>
-        {FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY}
-      </p>
-      <PolicyPackInfluenceHonestyChip />
-    </div>
+      {SPONSOR_EXPORT_SEND_HONESTY_LINES.map((line, index) => (
+        <li
+          key={SPONSOR_EXPORT_SEND_HONESTY_LINE_TEST_IDS[index]}
+          data-testid={`${testIdPrefix}-${SPONSOR_EXPORT_SEND_HONESTY_LINE_TEST_IDS[index]}`}
+        >
+          {line}
+        </li>
+      ))}
+    </ul>
   );
 }
