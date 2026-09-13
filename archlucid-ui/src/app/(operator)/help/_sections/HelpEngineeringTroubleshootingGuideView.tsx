@@ -7,6 +7,7 @@ import { HelpEngineeringTroubleshootingSourceLinks } from "@/app/(operator)/help
 import { HelpEngineeringTroubleshootingSymptomIndex } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingSymptomIndex";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { EngineeringTroubleshootingHelpClaimDisciplineStrip } from "@/components/help/EngineeringTroubleshootingHelpClaimDisciplineStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorSeverityCallout } from "@/components/help/OperatorSeverityCallout";
@@ -198,6 +199,8 @@ export function HelpEngineeringTroubleshootingGuideView(
           </Link>
         </div>
       </section>
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-engineering-troubleshooting" showSsoOptional={false} />
 
       {showSectionNav ? (
         <HelpTopicTableOfContents headings={headings} placement="header-inline" />

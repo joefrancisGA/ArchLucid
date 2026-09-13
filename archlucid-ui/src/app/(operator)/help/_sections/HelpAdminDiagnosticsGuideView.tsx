@@ -6,6 +6,7 @@ import { HelpAdminDiagnosticsSourceLinks } from "@/app/(operator)/help/_sections
 import { HelpAdminDiagnosticsSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpAdminDiagnosticsSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
@@ -170,6 +171,10 @@ export function HelpAdminDiagnosticsGuideView(
         ) : null}
 
         {!buyerPolishedShell ? (
+          <SponsorSendPathHonestyPanel testIdPrefix="help-admin-diagnostics" showSsoOptional={false} />
+        ) : null}
+
+        {!buyerPolishedShell ? (
           <section
             className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
             data-testid="help-admin-diagnostics-action-panel"
@@ -206,6 +211,10 @@ export function HelpAdminDiagnosticsGuideView(
           >
             {ADMIN_DIAGNOSTICS_HELP_BUYER_OVERVIEW}
           </p>
+        ) : null}
+
+        {buyerPolishedShell ? (
+          <SponsorSendPathHonestyPanel testIdPrefix="help-admin-diagnostics" showSsoOptional={false} />
         ) : null}
 
         <section

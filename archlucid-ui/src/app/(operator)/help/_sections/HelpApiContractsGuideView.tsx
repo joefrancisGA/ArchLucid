@@ -7,6 +7,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { DeveloperApiContractsApiKeysVocabularyRail } from "@/components/DeveloperApiContractsApiKeysVocabularyRail";
 import { HelpTechnicalReferenceNavigation } from "@/components/help/HelpTechnicalReferenceNavigation";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -285,6 +286,8 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
             </div>
           </section>
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-api-contracts" showSsoOptional={false} />
 
         {buyerPolishedShell ? null : (
           <DeveloperApiContractsApiKeysVocabularyRail currentSurfaceId="api-contracts" />
