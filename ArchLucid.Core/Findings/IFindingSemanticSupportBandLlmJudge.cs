@@ -16,4 +16,15 @@ public interface IFindingSemanticSupportBandLlmJudge
         string findingMessage,
         IReadOnlyList<string> citationExcerpts,
         FindingSemanticSupportBandOptions options);
+
+    /// <summary>
+    ///     Async Premium completion for finalize. Default wraps <see cref="TryScore"/> so NoOp and tests stay sync.
+    /// </summary>
+    Task<FindingSemanticSupportBand?> TryScoreAsync(
+        Finding finding,
+        string findingMessage,
+        IReadOnlyList<string> citationExcerpts,
+        FindingSemanticSupportBandOptions options,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(TryScore(finding, findingMessage, citationExcerpts, options));
 }

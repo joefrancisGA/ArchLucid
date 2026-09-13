@@ -22,4 +22,6 @@ Paste from a **wave** index, not from this file.
 
 **Issue 2 residual (wave 32):** [`system-gravity-00-index.md`](system-gravity-00-index.md) (**SG-001–120**, ADR **0098**) — instrument after spawn is still the nested review job. Do not re-run SN / AO / SY / CE.
 
-Owner spine: [`docs/architecture/LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md`](../../docs/architecture/LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md). Overlay: [`docs/architecture/RECORD_PRACTICE_COMPOSER_PROMPTS.md`](../../docs/architecture/RECORD_PRACTICE_COMPOSER_PROMPTS.md). Residual: [`docs/architecture/SYSTEM_GRAVITY_COMPOSER_PROMPTS.md`](../../docs/architecture/SYSTEM_GRAVITY_COMPOSER_PROMPTS.md).
+**Wave 33 (stamp + leftovers):** [`livelihood-day-00-index.md`](livelihood-day-00-index.md) (**LY-001–120**, ADR **0099**) — LLM judge default-on for Real finalize; remaining desk / reversibility / collab leftovers. Do not re-run SG-001–081.
+
+Owner spine: [`docs/architecture/LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md`](../../docs/architecture/LIVELIHOOD_GRAVITY_COMPOSER_PROMPTS.md). Overlay: [`docs/architecture/RECORD_PRACTICE_COMPOSER_PROMPTS.md`](../../docs/architecture/RECORD_PRACTICE_COMPOSER_PROMPTS.md). Residual: [`docs/architecture/SYSTEM_GRAVITY_COMPOSER_PROMPTS.md`](../../docs/architecture/SYSTEM_GRAVITY_COMPOSER_PROMPTS.md). Wave 33: [`docs/architecture/LIVELIHOOD_DAY_COMPOSER_PROMPTS.md`](../../docs/architecture/LIVELIHOOD_DAY_COMPOSER_PROMPTS.md).

@@ -2,6 +2,7 @@
 > **Paste-ready indexes:** career-gravity · system-not-job · livelihood-grade-no · mode-gravity · desk-ia · cheap-exploration · daytime-wait
 > **Copy overlay (wave 31):** [`RECORD_PRACTICE_COMPOSER_PROMPTS.md`](RECORD_PRACTICE_COMPOSER_PROMPTS.md) (**RP-001–024**) — user-facing Record / Practice. Do not re-run CG.
 > **Issue 2 residual (wave 32):** [`SYSTEM_GRAVITY_COMPOSER_PROMPTS.md`](SYSTEM_GRAVITY_COMPOSER_PROMPTS.md) (**SG-001–120**) — instrument after spawn is still the nested review job. Do not re-run SN / AO / SY / CE.
+> **Wave 33 (stamp + leftovers):** [`LIVELIHOOD_DAY_COMPOSER_PROMPTS.md`](LIVELIHOOD_DAY_COMPOSER_PROMPTS.md) (**LY-001–120**, ADR **0099**) — Real finalize LLM judge default-on. Do not re-run SG-001–081.
 > **Issue 4 (in-flight writes):** already [`LOST_WRITE_COMPOSER_PROMPTS.md`](LOST_WRITE_COMPOSER_PROMPTS.md) (**LW-001–LW-100**) — **do not re-run**.
 
 # Livelihood-gravity Composer prompts (waves 24–30)
@@ -19,6 +20,7 @@ Paste **one numbered file** from **one** wave index per Composer session. Do not
 | **1** | Career work can still be unlabeled rehearsal | **24** | `career-gravity` (**CG**) | **001–100** | **0091** |
 | **2** | Day’s object is still a job | **25** | `system-not-job` (**SN**) | **001–040** | **0092** |
 | **2 residual** | Instrument after spawn is still the job | **32** | `system-gravity` (**SG**) | **001–120** | **0098** |
+| **Stamp leftover** | Semantic judge off at Real finalize; remaining desk/reversibility/collab | **33** | `livelihood-day` (**LY**) | **001–120** | **0099** |
 | **3** | The “no” is not livelihood-grade | **26** | `livelihood-grade-no` (**LN**) | **001–040** | **0093** |
 | **4** | In-flight work still lost/overwritten | **23** | `lost-write` (**LW**) | **001–100** already | **0088–0090** |
 | **5** | Too many modes | **27** | `mode-gravity` (**MG**) | **001–024** | **0094** |
@@ -55,6 +57,7 @@ Owner indexes:
 - Issue 4: [`LOST_WRITE_COMPOSER_PROMPTS.md`](LOST_WRITE_COMPOSER_PROMPTS.md)
 - Wave 31 copy overlay: [`RECORD_PRACTICE_COMPOSER_PROMPTS.md`](RECORD_PRACTICE_COMPOSER_PROMPTS.md) — not a ninth diagnosis issue; do not re-run CG
 - Wave 32 issue-2 residual: [`SYSTEM_GRAVITY_COMPOSER_PROMPTS.md`](SYSTEM_GRAVITY_COMPOSER_PROMPTS.md) — locator shipped; instrument after spawn still the nested job; do not re-run SN
+- Wave 33 stamp leftover: [`LIVELIHOOD_DAY_COMPOSER_PROMPTS.md`](LIVELIHOOD_DAY_COMPOSER_PROMPTS.md) — Real finalize LLM judge default-on; do not re-run SG-001–081
 
 ## Family forbids (every wave)
 

@@ -28,4 +28,24 @@ public sealed class FindingSemanticSupportBandOverlayScoringTests
         score.EvidenceExcerptHashSha256.Should().NotBeNullOrWhiteSpace();
         score.EvidenceExcerptHashSha256!.Length.Should().Be(64);
     }
+
+    [Fact]
+    public void ScoreFinding_stamps_supplied_scorer_version_without_rescoring_assigned_band()
+    {
+        Finding finding = new()
+        {
+            FindingId = "f-llm",
+            Title = "Paraphrase",
+            Rationale = "Storefront TLS terminates at the gateway.",
+            SemanticSupportBand = FindingSemanticSupportBand.Supported,
+            EvidenceRefs = ["The API gateway terminates TLS for the storefront."],
+        };
+
+        FindingSemanticSupportBandOverlayScoreResult score = FindingSemanticSupportBandOverlayScoring.ScoreFinding(
+            finding,
+            FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1);
+
+        score.Band.Should().Be(FindingSemanticSupportBand.Supported);
+        score.ScorerVersion.Should().Be(FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1);
+    }
 }

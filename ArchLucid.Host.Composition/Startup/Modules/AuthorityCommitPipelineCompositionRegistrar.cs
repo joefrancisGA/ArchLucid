@@ -91,6 +91,7 @@ internal static class AuthorityCommitPipelineCompositionRegistrar
         services.AddScoped<IAuthorityPipelineArtifactsStage, AuthorityPipelineArtifactsStage>();
         services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
         services.AddScoped<ICommitPipelineManifestReuseService, CommitPipelineManifestReuseService>();
+        services.AddScoped<IFindingSemanticSupportBandFinalizeJudge, FindingSemanticSupportBandFinalizeJudge>();
         services.AddScoped<ICommitOutputIntegrityService, CommitOutputIntegrityService>();
         services.AddScoped<IReviewCompletedEventHandler, ReviewCompletedEventHandler>();
     }

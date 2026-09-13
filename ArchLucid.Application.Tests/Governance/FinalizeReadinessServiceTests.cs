@@ -1,5 +1,6 @@
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
@@ -568,6 +569,7 @@ public sealed class FinalizeReadinessServiceTests
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             Options.Create(new FinalizeQualityGateOptions { Enabled = true }),
             Options.Create(new ExplainGovernanceBlocksOptions { Enabled = explainGovernanceBlocksEnabled }),
+            Mock.Of<IFindingSemanticSupportBandFinalizeJudge>(),
             Mock.Of<Microsoft.Extensions.Logging.ILogger<FinalizeReadinessService>>());
     }
 }
