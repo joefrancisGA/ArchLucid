@@ -10616,13 +10616,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 34
-- **bugs-found:** 25
+- **hunts:** 35
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2321: slash `/mon` month UOM rejected while `/mo` and `/month` synonyms matched
+- **last-bug:** 2026-09-13 — hunt #2350: slash `/mn` month UOM rejected while `/mon` and `/mo` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2350 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/mn` month UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashMnTests`.
 
 2026-09-13 seed hunt #2330 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
 
