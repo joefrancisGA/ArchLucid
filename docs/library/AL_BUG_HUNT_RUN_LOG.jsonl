@@ -2575,4 +2575,5 @@
 {"at":"2026-09-12T23:50:50.1857607Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-12T23:50:52.9479584Z","zoneId":"tenant-data-export","outcome":"seed-only"}
 {"at":"2026-09-12T23:50:55.6632625Z","zoneId":"finding-disposition","outcome":"seed-only"}
-{"at":"2026-09-12T23:51:33.8748080Z","zoneId":"core-costing","outcome":"hit"}
+{"at":"2026-09-12T23:51:33.874808Z","zoneId":"core-costing","outcome":"hit"}
+{"at":"2026-09-13T00:00:36.1120960Z","zoneId":"core-costing","outcome":"hit"}

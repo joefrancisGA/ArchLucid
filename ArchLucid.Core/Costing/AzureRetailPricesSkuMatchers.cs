@@ -182,6 +182,8 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " hr")
             || ContainsSlashHrToken(trimmed)
             || ContainsSlashHrsToken(trimmed)
+            || ContainsSlashHourWordToken(trimmed)
+            || ContainsSlashHoursToken(trimmed)
             || ContainsSlashHourToken(trimmed)
             || ContainsBoundedToken(trimmed, " h")
             || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
@@ -236,6 +238,50 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterHrs;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashHourWordToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/hour", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterHour = index + 5;
+
+            if (afterHour >= trimmed.Length || !char.IsLetter(trimmed[afterHour]))
+                return true;
+
+            index = afterHour;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashHoursToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/hours", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterHours = index + 6;
+
+            if (afterHours >= trimmed.Length || !char.IsLetter(trimmed[afterHours]))
+                return true;
+
+            index = afterHours;
         }
 
         return false;
