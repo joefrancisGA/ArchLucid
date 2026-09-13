@@ -7,6 +7,7 @@ import { resolveApiRequestErrorToastPlan } from "@/lib/api-error-toast-policy";
 import type { ApiRequestError } from "@/lib/api-request-error";
 import type { ApiValidationFieldError } from "@/lib/api-validation-problem";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { resolveToastDuration } from "@/lib/toast";
 
 /** Browser-only API failure toast with correlation id copy affordance. */
@@ -57,7 +58,11 @@ export function showMutationApiError(title: string, options?: Omit<ApiErrorToast
 }
 
 export function showApiRequestErrorToast(err: ApiRequestError, title = "Server error"): void {
-  const plan = resolveApiRequestErrorToastPlan(err, isBuyerPolishedOperatorShellEnv());
+  const plan = resolveApiRequestErrorToastPlan(
+    err,
+    isBuyerPolishedOperatorShellEnv(),
+    resolveProductLineIdFromEnv(),
+  );
 
   if (plan.action === "suppress") {
     return;
