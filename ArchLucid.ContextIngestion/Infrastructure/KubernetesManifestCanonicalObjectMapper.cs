@@ -449,27 +449,32 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 if (hostAlias.ValueKind is not JsonValueKind.Object)
                     continue;
 
+                bool hostAliasProjected = false;
+
                 if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(hostAlias, "ip", out JsonElement aliasIp)
                     && aliasIp.ValueKind is JsonValueKind.String
                     && !string.IsNullOrWhiteSpace(aliasIp.GetString()))
                 {
-                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostAliasIp", aliasIp.GetString()!);
-                    break;
+                    hostAliasProjected = CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostAliasIp", aliasIp.GetString()!);
+                }
+
                 if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(hostAlias, "hostnames", out JsonElement hostnames)
                     && hostnames.ValueKind is JsonValueKind.Array)
                 {
-                    foreach (JsonElement hostname in hostnames.EnumerateArray())
+                    foreach (JsonElement aliasHostname in hostnames.EnumerateArray())
                     {
-                        if (hostname.ValueKind is JsonValueKind.String
-                            && !string.IsNullOrWhiteSpace(hostname.GetString()))
+                        if (aliasHostname.ValueKind is JsonValueKind.String
+                            && !string.IsNullOrWhiteSpace(aliasHostname.GetString()))
                         {
-                            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostAliasHostname", hostname.GetString()!);
+                            hostAliasProjected = CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostAliasHostname", aliasHostname.GetString()!)
+                                || hostAliasProjected;
                             break;
                         }
                     }
                 }
 
-                }
+                if (hostAliasProjected)
+                    break;
             }
         }
 
