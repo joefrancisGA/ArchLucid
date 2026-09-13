@@ -27,7 +27,8 @@
      Wave 32: system-gravity-00-index.md (SG-001–120) — issue-2 residual.
      Wave 33: livelihood-day-00-index.md (LY-001–120) — finalize judge default-on.
      Wave 34: inhabit-00-index.md (IH-001–080) — inhabit the architecture; findings as afternoon document.
-     Inhabit remain (not wave 35): inhabit-remain-00-index.md (IR-001–018). -->
+     Inhabit remain (not wave 35): inhabit-remain-00-index.md (IR-001–018).
+     Inhabit post-IR leftovers (not wave 35): inhabit-post-00-index.md (IP-001–015). -->
 
 # Professional-tool mitigations — Composer prompt set
 
@@ -64,7 +65,7 @@ ArchLucid sells a **seat for a repeat professional**. Production UX still treats
 
 **2026-09-13 leftover diagnosis (start/completeness honesty — do not start wave 35):** [`docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](../../docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md) — IH-025 / IH-041 / IH-043 remaining surfaces after inhabit wave 34.
 
-**Inhabit remain (not wave 35):** [`inhabit-remain-00-index.md`](inhabit-remain-00-index.md) (**IR-001–IR-018**). Remaining leaks after those honesty leftovers: Ready chrome quiet engines, first-week pipeline teaching, inspect/quick-decision dual-place, disposition history on compact row, keyboard default-focus, continue-last/pins, room elicitation leaving findings. Spine: [`docs/architecture/INHABIT_REMAIN_COMPOSER_PROMPTS.md`](../../docs/architecture/INHABIT_REMAIN_COMPOSER_PROMPTS.md). Do not paste a new 80-prompt pack.
+**Inhabit remain (not wave 35):** [`inhabit-remain-00-index.md`](inhabit-remain-00-index.md) (**IR-001–IR-018**, closed). **Post-IR leftovers (not wave 35):** [`inhabit-post-00-index.md`](inhabit-post-00-index.md) (**IP-001–IP-015**) — secondary inspector landings after remain close. Spine: [`docs/architecture/INHABIT_POST_IR_COMPOSER_PROMPTS.md`](../../docs/architecture/INHABIT_POST_IR_COMPOSER_PROMPTS.md). Do not paste a new 80-prompt pack.
 
 **Do not treat this set as a V1 assessment scorecard.** Do not add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or closed assurance programs (**TB-645** vocabulary must stay; **TB-135** / **TB-136** stay closed).
 

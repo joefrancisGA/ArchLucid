@@ -2,7 +2,8 @@
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/inhabit-00-index.md`](../../.cursor/prompts/inhabit-00-index.md) (**IH-001–IH-080**)
 > **Follow-up diagnosis:** [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md) — remaining IH-025 / IH-041 / IH-043 surfaces after wave 34 (those three are closed in the leftover follow-up).
-> **Remain leftovers (not wave 35):** [`INHABIT_REMAIN_COMPOSER_PROMPTS.md`](INHABIT_REMAIN_COMPOSER_PROMPTS.md) (**IR-001–IR-018**).
+> **Remain leftovers (not wave 35):** [`INHABIT_REMAIN_COMPOSER_PROMPTS.md`](INHABIT_REMAIN_COMPOSER_PROMPTS.md) (**IR-001–IR-018**, closed).
+> **Post-IR leftovers (not wave 35):** [`INHABIT_POST_IR_COMPOSER_PROMPTS.md`](INHABIT_POST_IR_COMPOSER_PROMPTS.md) (**IP-001–IP-015**).
 
 # Inhabit Composer prompts (IH-001–IH-080)
 
