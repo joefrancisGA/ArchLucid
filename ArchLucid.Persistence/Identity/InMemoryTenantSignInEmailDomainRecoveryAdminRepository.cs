@@ -51,7 +51,15 @@ public sealed class InMemoryTenantSignInEmailDomainRecoveryAdminRepository
     {
         _ = cancellationToken;
 
-        _rows[Key(record.TenantId, record.NormalizedDomain, record.NormalizedRecoveryAdminEmail)] = record;
+        string key = Key(record.TenantId, record.NormalizedDomain, record.NormalizedRecoveryAdminEmail);
+
+        if (!_rows.TryAdd(key, record))
+        {
+            throw new DuplicateTenantSignInEmailDomainRecoveryAdminException(
+                record.TenantId,
+                record.NormalizedDomain,
+                record.NormalizedRecoveryAdminEmail);
+        }
 
         return Task.CompletedTask;
     }
