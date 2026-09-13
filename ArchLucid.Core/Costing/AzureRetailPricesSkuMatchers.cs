@@ -365,6 +365,7 @@ public sealed partial class AzureRetailPricesCatalogClient
         return ContainsDayWordToken(trimmed)
             || ContainsSlashDayToken(trimmed)
             || ContainsSlashDaysToken(trimmed)
+            || ContainsSlashDyToken(trimmed)
             || ContainsSlashDToken(trimmed)
             || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase)
@@ -416,6 +417,28 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterDays;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashDyToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/dy", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterDy = index + 3;
+
+            if (afterDy >= trimmed.Length || !char.IsLetter(trimmed[afterDy]))
+                return true;
+
+            index = afterDy;
         }
 
         return false;
@@ -591,6 +614,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashMonthsToken(trimmed)
             || ContainsSlashMosToken(trimmed)
             || ContainsSlashMonToken(trimmed)
+            || ContainsSlashMnToken(trimmed)
             || ContainsSlashMonthToken(trimmed)
             || ContainsSlashMToken(trimmed)
             || ContainsBoundedToken(trimmed, " mo")
@@ -689,6 +713,28 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterMos;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSlashMnToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/mn", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterMn = index + 3;
+
+            if (afterMn >= trimmed.Length || !char.IsLetter(trimmed[afterMn]))
+                return true;
+
+            index = afterMn;
         }
 
         return false;

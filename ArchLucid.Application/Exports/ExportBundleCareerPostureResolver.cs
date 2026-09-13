@@ -145,6 +145,12 @@ public static class ExportBundleCareerPostureResolver
             return parsed;
         }
 
+        if (element.ValueKind is JsonValueKind.Number
+            && element.TryGetInt32(out int numeric))
+        {
+            return numeric != 0;
+        }
+
         return false;
     }
 
