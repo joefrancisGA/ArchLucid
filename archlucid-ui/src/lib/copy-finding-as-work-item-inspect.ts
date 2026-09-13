@@ -109,6 +109,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   const semanticSupportFields = resolveFindingSemanticSupportBandExportFields({
     classification: input.classification ?? "DecisionGradeFinding",
     semanticSupportBand: input.semanticSupportBand ?? null,
+    semanticSupportBandScorerVersion: input.semanticSupportBandScorerVersion ?? null,
   });
   const classificationLine = formatFindingClassificationExportLine(input.classification ?? null, input.treatment);
   const policyInfluenceLine = formatFindingWorkItemPolicyInfluenceExportLine();

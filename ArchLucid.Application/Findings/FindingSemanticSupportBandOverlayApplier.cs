@@ -25,6 +25,7 @@ public static class FindingSemanticSupportBandOverlayApplier
                     continue;
 
                 finding.SemanticSupportBand = overlay.Band;
+                FindingSemanticSupportBandOverlayScorerVersionApplier.Apply(finding, overlay);
             }
         }
     }
@@ -45,6 +46,7 @@ public static class FindingSemanticSupportBandOverlayApplier
                 continue;
 
             finding.SemanticSupportBand = overlay.Band;
+            FindingSemanticSupportBandOverlayScorerVersionApplier.Apply(finding, overlay);
         }
     }
 }

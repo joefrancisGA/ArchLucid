@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildSemanticSupportBandExportStamp,
+  FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION,
   FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION,
   formatCareerExportSemanticSupportBandMarkdownSection,
   resolveFindingSemanticSupportBandExportFields,
@@ -58,6 +59,32 @@ describe("finding-semantic-support-band-export (AS-071)", () => {
     expect(stamp.counts.unsupported).toBe(1);
     expect(stamp.stampLine).toContain("1 Supported");
     expect(stamp.stampLine).toContain("1 Unsupported");
+  });
+
+  it("buildSemanticSupportBandExportStamp prefers as099 overlay version when present", () => {
+    const stamp = buildSemanticSupportBandExportStamp([
+      sampleFinding({ semanticSupportBand: "Supported" }),
+      sampleFinding({
+        findingId: "f-llm",
+        semanticSupportBand: "Supported",
+        semanticSupportBandScorerVersion: FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION,
+      }),
+    ]);
+
+    expect(stamp.scorerVersion).toBe(FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION);
+  });
+
+  it("resolveFindingSemanticSupportBandExportFields prefers overlay scorer version", () => {
+    expect(
+      resolveFindingSemanticSupportBandExportFields(
+        sampleFinding({
+          semanticSupportBandScorerVersion: FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION,
+        }),
+      ),
+    ).toEqual({
+      semanticSupportBand: "Unsupported",
+      semanticSupportBandScorerVersion: FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION,
+    });
   });
 
   it("formatCareerExportSemanticSupportBandMarkdownSection includes scorer version", () => {

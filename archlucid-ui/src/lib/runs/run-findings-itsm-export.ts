@@ -4,7 +4,7 @@ import {
 } from "@/lib/copy-finding-as-work-item";
 import {
   buildSemanticSupportBandExportStamp,
-  FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION,
+  resolveFindingSemanticSupportBandScorerVersion,
 } from "@/lib/findings/finding-semantic-support-band-export";
 import { severityBadgeLabel, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { partitionFindingsForItsmExport } from "@/lib/findings/decision-grade-finding-export-filter";
@@ -124,7 +124,7 @@ export function buildQuickDecisionFindingsCsv(
       "trustLabel" in trustFields ? trustFields.trustLabel : "",
       "trustLabelReason" in trustFields ? trustFields.trustLabelReason ?? "" : "",
       semanticSupportBand,
-      semanticSupportBand.length > 0 ? FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION : "",
+      semanticSupportBand.length > 0 ? resolveFindingSemanticSupportBandScorerVersion(finding) : "",
       finding.isMuted ? "Muted" : "Open",
       escapeCsvCell(recordStatus),
     ].join(",");
@@ -164,6 +164,7 @@ export function buildRunFindingsItsmJsonExportDocument(
       trustLabelReason: finding.trustLabelReason ?? null,
       classification: finding.classification ?? "DecisionGradeFinding",
       semanticSupportBand: finding.semanticSupportBand ?? null,
+      semanticSupportBandScorerVersion: finding.semanticSupportBandScorerVersion ?? null,
     });
 
     return JSON.parse(jsonBody) as FindingWorkItemJsonDocument;

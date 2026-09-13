@@ -36,6 +36,30 @@ public sealed class CareerExportSemanticSupportBandMarkdownFormatterTests
     }
 
     [Fact]
+    public void FormatMarkdown_prefers_as099_overlay_scorer_version_when_present()
+    {
+        string markdown = CareerExportSemanticSupportBandMarkdownFormatter.FormatMarkdown(
+        [
+            new Finding
+            {
+                FindingId = "f-heuristic",
+                Classification = FindingClassification.DecisionGradeFinding,
+                SemanticSupportBand = FindingSemanticSupportBand.Supported,
+            },
+            new Finding
+            {
+                FindingId = "f-llm",
+                Classification = FindingClassification.DecisionGradeFinding,
+                SemanticSupportBand = FindingSemanticSupportBand.Supported,
+                SemanticSupportBandScorerVersion = FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1,
+            },
+        ]);
+
+        markdown.Should().Contain(FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1);
+        markdown.Should().NotContain($"`{FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1}`");
+    }
+
+    [Fact]
     public void FormatMarkdown_omits_checklist_coverage_rows()
     {
         string markdown = CareerExportSemanticSupportBandMarkdownFormatter.FormatMarkdown(

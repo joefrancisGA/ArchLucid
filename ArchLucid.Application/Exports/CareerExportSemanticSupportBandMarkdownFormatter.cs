@@ -3,7 +3,6 @@ using System.Text;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Findings;
-using ArchLucid.Decisioning.Findings;
 
 namespace ArchLucid.Application.Exports;
 
@@ -33,7 +32,7 @@ public static class CareerExportSemanticSupportBandMarkdownFormatter
         sb.AppendLine("## Semantic support");
         sb.AppendLine();
         sb.AppendLine(
-            $"Scorer version: `{FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1}`.");
+            $"Scorer version: `{CareerExportSemanticSupportBandScorerVersionResolver.ResolveStampVersion(findings)}`.");
         sb.AppendLine(stampLine);
         sb.AppendLine();
 

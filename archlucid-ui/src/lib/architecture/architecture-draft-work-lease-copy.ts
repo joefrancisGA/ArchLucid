@@ -7,7 +7,7 @@ export const ARCHITECTURE_DRAFT_WORK_LEASE_HELD_BY_OTHER_BODY =
 export const ARCHITECTURE_DRAFT_WORK_LEASE_LOST_TITLE = "You lost the edit lease";
 
 export const ARCHITECTURE_DRAFT_WORK_LEASE_LOST_BODY =
-  "Another architect took the edit lease. Refresh before saving so you do not overwrite their work.";
+  "Another architect took the edit lease. Saving is blocked until you take over. Refresh before saving so you do not overwrite their work. This is not a presence feed showing someone left.";
 
 export const ARCHITECTURE_DRAFT_WORK_LEASE_STEAL_CONFIRM_TITLE = "Take over the edit lease?";
 

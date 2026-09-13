@@ -23,5 +23,8 @@ describe("architecture-draft-work-lease-copy (LW-091 / LW-092)", () => {
 
   it("lease lost copy tells the operator to refresh before saving", () => {
     expect(ARCHITECTURE_DRAFT_WORK_LEASE_LOST_BODY).toContain("Refresh");
+    expect(ARCHITECTURE_DRAFT_WORK_LEASE_LOST_BODY).toContain("Saving is blocked");
+    expect(ARCHITECTURE_DRAFT_WORK_LEASE_LOST_BODY.toLowerCase()).not.toContain("online");
+    expect(ARCHITECTURE_DRAFT_WORK_LEASE_LOST_BODY.toLowerCase()).not.toContain("vanished");
   });
 });

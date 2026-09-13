@@ -73,6 +73,7 @@ function buildTraceRowWorkItemJsonDocument(input: TraceRowWorkItemInput): Findin
   const semanticSupportFields = resolveFindingSemanticSupportBandExportFields({
     classification: input.classification ?? "DecisionGradeFinding",
     semanticSupportBand: input.semanticSupportBand ?? null,
+    semanticSupportBandScorerVersion: input.semanticSupportBandScorerVersion ?? null,
   });
 
   return {

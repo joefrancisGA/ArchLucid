@@ -61,6 +61,8 @@ export type QuickDecisionFinding = {
   streamBand?: "sealed" | "agent";
   /** AS-059 / ADR 0085 semantic support band when present on the wire. */
   semanticSupportBand?: ReturnType<typeof normalizeFindingSemanticSupportBand>;
+  /** Overlay scorer stamp when present (`as057-v1` or `as099-llm-finalize-v1`). */
+  semanticSupportBandScorerVersion?: string | null;
 };
 
 function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel | null {
@@ -287,6 +289,11 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         typeof treatmentRaw === "number" && Number.isFinite(treatmentRaw) ? Math.trunc(treatmentRaw) : null;
 
       const semanticSupportBand = normalizeFindingSemanticSupportBand(fr.semanticSupportBand);
+      const scorerVersionRaw = fr.semanticSupportBandScorerVersion;
+      const semanticSupportBandScorerVersion =
+        typeof scorerVersionRaw === "string" && scorerVersionRaw.trim().length > 0
+          ? scorerVersionRaw.trim()
+          : null;
 
       out.push({
         findingId,
@@ -314,6 +321,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         classification,
         treatment,
         semanticSupportBand,
+        semanticSupportBandScorerVersion,
       });
     }
   }
