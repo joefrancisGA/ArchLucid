@@ -234,6 +234,8 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashHourToken(trimmed)
             || ContainsBoundedToken(trimmed, " h")
             || HasCompactHourSuffix(trimmed)
+            || HasCompactHrSuffix(trimmed)
+            || HasCompactHrsSuffix(trimmed)
             || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "hrs", StringComparison.OrdinalIgnoreCase)
@@ -915,6 +917,16 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return char.IsDigit(trimmed[^2]);
     }
+
+    private static bool HasCompactHrSuffix(string trimmed)
+    {
+        if (trimmed.Length < 3)
+            return false;
+
+        return trimmed.EndsWith("hr", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^3]);
+    }
+
 
     private static bool HasCompactMinuteSuffix(string trimmed)
     {
