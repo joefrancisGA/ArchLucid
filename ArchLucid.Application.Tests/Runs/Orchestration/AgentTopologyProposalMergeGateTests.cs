@@ -1563,6 +1563,23 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
 
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_point_to_site_vpn_gateway_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "p2s-1", label: "remote", sourceId: "azurerm_point_to_site_vpn_gateway.remote"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-remote")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRenamedServiceOverlayWhenServiceIdHasSurroundingWhitespace()
     {

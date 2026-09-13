@@ -5617,6 +5617,23 @@ public sealed class AgentTopologyProposalGraphMergeTests
             e.ToNodeId == "nm-1");
     }
 
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_point_to_site_vpn_gateway_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "p2s-1", label: "remote", sourceId: "azurerm_point_to_site_vpn_gateway.remote"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-remote")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "p2s-1");
+    }
+
     [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_workloads_orchestrator_node_has_compute_category_but_synthetic_datastore_id_used()
     {
