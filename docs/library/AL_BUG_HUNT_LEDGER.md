@@ -4899,13 +4899,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-11 — ROI freshness regression used Simulator mode and tripped career-artifact PDF gate before ZIP build
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-13 seed hunt #2432 (seed-only): reseeded application-pilots; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2280 (seed-only): reseeded application-pilots `-Refresh`; no new hunt-ready rows.
 
