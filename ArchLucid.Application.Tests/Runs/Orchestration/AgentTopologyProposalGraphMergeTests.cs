@@ -3219,6 +3219,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
             e.ToNodeId == "hb-1");
     }
 
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_fluid_relay_server_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "fr-1", label: "collab", sourceId: "azurerm_fluid_relay_server.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-collab")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "fr-1");
+    }
+
 
     [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_application_gateway_node_has_compute_category_but_synthetic_datastore_id_used()

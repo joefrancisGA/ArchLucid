@@ -1924,6 +1924,22 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
 
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_fluid_relay_server_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "fr-1", label: "collab", sourceId: "azurerm_fluid_relay_server.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-collab")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
 
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_route_server_node_has_compute_category_but_synthetic_datastore_id_used()
