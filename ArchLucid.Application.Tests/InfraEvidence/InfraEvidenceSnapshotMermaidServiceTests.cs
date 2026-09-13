@@ -1,7 +1,10 @@
 using System.Reflection;
 
+using ArchLucid.Application.Graphviz;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.InfraEvidence.Mermaid;
+using ArchLucid.ArtifactSynthesis.Graphviz;
+using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Mermaid;
@@ -658,40 +661,6 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             new MermaidDiagramStructuralValidator());
     }
 
-    private static InfraEvidenceSnapshotMermaidService CreateService(
-        IAzureInventorySnapshotRepository repository,
-        MermaidDiagramReadabilityThresholds thresholds,
-        IDiagramAstFromGraphCompiler? graphCompiler = null)
-    {
-        Mock<IBrandedDiagramExportService> brandedDiagramExportService = new();
-        brandedDiagramExportService
-            .Setup(service => service.DecorateMermaidSourceForExportAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<string>(),
-                It.IsAny<BrandingDisplayContext>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Guid _, string source, BrandingDisplayContext _, CancellationToken _) => source);
-
-        brandedDiagramExportService
-            .Setup(service => service.WrapRenderedPngForExportAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<byte[]>(),
-                It.IsAny<BrandingDisplayContext>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Guid _, byte[]? png, BrandingDisplayContext _, CancellationToken _) => png);
-
-        return new InfraEvidenceSnapshotMermaidService(
-            new AzureInventorySnapshotGraphResolver(repository),
-            CreateInventoryRenderOrchestrator(graphCompiler),
-            CreateFallbackSetBuilder(graphCompiler),
-            brandedDiagramExportService.Object,
-            new NullDiagramImageRenderer(),
-            new NoOpArchitectureDiagramReconciliationRepository(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
-            thresholds);
-    }
-
     private static MermaidDiagramFallbackSetBuilder CreateFallbackSetBuilder(
         IDiagramAstFromGraphCompiler? graphCompiler = null)
     {
@@ -1180,5 +1149,142 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     {
         public Task<byte[]?> RenderMermaidPngAsync(string mermaidDiagram, CancellationToken cancellationToken = default)
             => Task.FromResult<byte[]?>(null);
+    }
+
+    private sealed class NullGraphvizLayoutRenderer : IGraphvizLayoutRenderer
+    {
+        public Task<GraphvizLayoutRenderResult> RenderSvgAsync(string dot, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new GraphvizLayoutRenderResult
+            {
+                Succeeded = false,
+                Error = "Graphviz unavailable in unit tests.",
+            });
+        }
+
+        public Task<GraphvizLayoutRenderResult> RenderPngAsync(string dot, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new GraphvizLayoutRenderResult
+            {
+                Succeeded = false,
+                Error = "Graphviz unavailable in unit tests.",
+            });
+        }
+    }
+
+    private static InfraEvidenceSnapshotMermaidService CreateService(
+        IAzureInventorySnapshotRepository repository,
+        MermaidDiagramReadabilityThresholds thresholds,
+        IDiagramAstFromGraphCompiler? graphCompiler = null,
+        IGraphvizLayoutRenderer? graphvizLayoutRenderer = null)
+    {
+        Mock<IBrandedDiagramExportService> brandedDiagramExportService = new();
+        brandedDiagramExportService
+            .Setup(service => service.DecorateMermaidSourceForExportAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<BrandingDisplayContext>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, string source, BrandingDisplayContext _, CancellationToken _) => source);
+
+        brandedDiagramExportService
+            .Setup(service => service.WrapRenderedPngForExportAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<byte[]>(),
+                It.IsAny<BrandingDisplayContext>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, byte[]? png, BrandingDisplayContext _, CancellationToken _) => png);
+
+        return new InfraEvidenceSnapshotMermaidService(
+            new AzureInventorySnapshotGraphResolver(repository),
+            CreateInventoryRenderOrchestrator(graphCompiler),
+            CreateFallbackSetBuilder(graphCompiler),
+            brandedDiagramExportService.Object,
+            new NullDiagramImageRenderer(),
+            new DiagramAstGraphvizDotEmitter(),
+            new DiagramForestLayoutSvgRenderer(),
+            graphvizLayoutRenderer ?? new NullGraphvizLayoutRenderer(),
+            new NoOpArchitectureDiagramReconciliationRepository(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            thresholds);
+    }
+
+    [Fact]
+    public async Task Executive_mode_sets_inventory_forest_layout_without_graphviz()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds(),
+            graphvizLayoutRenderer: new NullGraphvizLayoutRenderer());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.LayoutEngine.Should().Be("inventory-forest");
+        result.Value.LayoutSvg.Should().NotBeNullOrWhiteSpace();
+        result.Value.LayoutSvg.Should().Contain("g class=\"node\"");
+        result.Value.Mermaid.Should().Contain("flowchart");
+    }
+
+    [Fact]
+    public async Task Executive_mode_falls_back_to_graphviz_when_forest_layout_disabled()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = new(
+            new AzureInventorySnapshotGraphResolver(repository),
+            CreateInventoryRenderOrchestrator(),
+            CreateFallbackSetBuilder(),
+            Mock.Of<IBrandedDiagramExportService>(),
+            new NullDiagramImageRenderer(),
+            new DiagramAstGraphvizDotEmitter(),
+            new NullForestLayoutSvgRenderer(),
+            new StubGraphvizLayoutRenderer("<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>"),
+            new NoOpArchitectureDiagramReconciliationRepository(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.LayoutEngine.Should().Be("graphviz-fdp");
+        result.Value.LayoutSvg.Should().NotBeNullOrWhiteSpace();
+    }
+
+    private sealed class NullForestLayoutSvgRenderer : IDiagramForestLayoutSvgRenderer
+    {
+        public DiagramForestLayoutResult Render(DiagramAst ast, DiagramForestLayoutOptions? options = null)
+        {
+            return DiagramForestLayoutResult.Failed("Forest layout disabled in test.");
+        }
+    }
+
+    private sealed class StubGraphvizLayoutRenderer(string svg) : IGraphvizLayoutRenderer
+    {
+        public Task<GraphvizLayoutRenderResult> RenderSvgAsync(string dot, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new GraphvizLayoutRenderResult
+            {
+                Succeeded = true,
+                Svg = svg,
+            });
+        }
+
+        public Task<GraphvizLayoutRenderResult> RenderPngAsync(string dot, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new GraphvizLayoutRenderResult
+            {
+                Succeeded = true,
+                Png = [0x89, 0x50, 0x4E, 0x47],
+            });
+        }
     }
 }

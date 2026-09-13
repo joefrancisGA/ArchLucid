@@ -84,6 +84,7 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
                 catalog.CatalogVersion,
                 compiled.UsedResourceGroupMap),
             ValidationErrors = result.ValidationErrors,
+            RepairedAst = result.RepairedAst,
         };
     }
 

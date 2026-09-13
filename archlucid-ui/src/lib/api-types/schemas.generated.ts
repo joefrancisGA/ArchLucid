@@ -5536,6 +5536,8 @@ export interface components {
         InfraEvidenceMermaidRenderResponse: {
             fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
             fallbackKey?: null | string;
+            layoutEngine?: null | string;
+            layoutSvg?: null | string;
             mermaid?: null | string;
             metrics?: null | components["schemas"]["InfraEvidenceMermaidComplexityMetrics"];
             mode?: string;

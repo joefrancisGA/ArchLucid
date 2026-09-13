@@ -132,7 +132,7 @@ internal static class DiagramComponentRowPlanner
             .NodeId;
     }
 
-    private static List<IReadOnlyList<DiagramNode>> OrderComponents(
+    internal static List<IReadOnlyList<DiagramNode>> OrderComponents(
         IReadOnlyList<IReadOnlyList<DiagramNode>> components)
     {
         return components
@@ -143,7 +143,7 @@ internal static class DiagramComponentRowPlanner
             .ToList();
     }
 
-    private static List<List<IReadOnlyList<DiagramNode>>> ChunkRows(
+    internal static List<List<IReadOnlyList<DiagramNode>>> ChunkRows(
         IReadOnlyList<IReadOnlyList<DiagramNode>> ordered,
         int columnCount)
     {

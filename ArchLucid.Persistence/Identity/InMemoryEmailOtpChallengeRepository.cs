@@ -19,7 +19,10 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
             insert,
             TimeProvider.System.GetUtcNow());
 
-        _byId[row.Id] = row;
+        if (!_byId.TryAdd(row.Id, row))
+        {
+            throw new DuplicateEmailOtpChallengeException(row.Id);
+        }
 
         return Task.FromResult(row);
     }

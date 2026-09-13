@@ -1,120 +1,43 @@
-﻿> **Scope:** Contributor-reference â€” curated `/al-bug` hunt zones. Not a buyer or operator document. Agents must not invent extra zones in the same invocation; update this file after each hunt.
-
-# `/al-bug` hunt ledger
-
-Curated zones covering the full product surface (API, persistence, UI, CLI, orchestration, billing, governance, auth, exports, background jobs, analyzers, pipeline engines, core libraries). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit + **impact** weight, not LLM ranking). Do **not** invent extra zones mid-hunt. Use `.\scripts\agent\al-bug-pick-zone.ps1 -Nominate` to find gaps.
-
-**Updated:** 2026-08-17 (hypothesis quality bar: unseeded / candidate / hunt-ready / proven / invalid / valid-no-repro).
-
-## How to use
-
-1. Run `.\scripts\agent\al-bug-pick-zone.ps1 -Preview` (add `-Hint 'â€¦'` when the user named an area; add `-Refresh` to recompute git churn).
-2. Hunt **only** the returned zone's `paths`. After the picker, announce **seed hunt** or **thorough defect hunt** from `seedHunt` before reading files. Treat `huntReadyHypotheses` as claims; treat `candidateHypotheses` as search lenses until a seed hunt. When `seedHunt` is true because all stored rows are closed, read the source again and generate fresh mechanism-backed hypotheses; an empty list is not a dry-run result. Queued `/al-bug` messages do not shorten a thorough hunt.
-3. After the hunt, edit this file (the script does **not** write it):
-   - **Hit:** increment `hunts` and `bugs-found`; set `consecutive-dry-hunts` to `0`; set `last-hunt` and `last-bug` to today (`YYYY-MM-DD`); tick the hypothesis as `(proven)`.
-   - **Dry:** increment `hunts` and `consecutive-dry-hunts`; set `last-hunt` to today; tick attempted hunt-ready rows as `(valid-no-repro)` or `(invalid)`. Do not invent another bug in the same files.
-   - **Seed-only:** increment `hunts`; set `last-hunt`; set `status` to `open`; do **not** increment `consecutive-dry-hunts`. Promote or retire candidates. Do not refill with three harm-class templates.
-   - **Reopened:** when JSON `reopened` is `true`, set `status` back to `open`.
-4. Record the outcome and print rolling 24h yield: `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only [-DefectClass boolean-coercion] -Rolling24h`. Commit `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger update.
-
-Proven-row revert honesty (optional batch): `python3 scripts/agent/al-bug-verify-proven-revert.py --limit 5` samples recent `(proven)` rows — the cited test must fail if only the production hunk is reverted.
-
-For proven-row validity see `docs/library/AL_BUG_HUNT_VALIDITY_AUDIT.md` (regenerate with `python3 scripts/agent/al-bug-audit-proven-rows.py`). It classifies every proven row, not a sample: **57.2% (2321 of 4061)** are treadmill rows that re-prove one guard against a new surface form, and **82.7%** of the retired `archlucid-core` mega-zone is treadmill. Read `bugs-found` accordingly — picker preview and scoring use **effective-bugs** (`min(bugs-found, hunts)` when `hunts > 0`); run `python3 scripts/agent/al-bug-lint-ledger-counters.py` to list zones where raw `bugs-found` exceeds `hunts` (retired mega-zones are footnoted, not rewritten).
-
-### Zone status
-
-| Status | Meaning |
-| --- | --- |
-| `unseeded` | Never read for hypotheses. Listed `[ ]` rows are **candidates**. First hunt is a seed hunt. |
-| `open` | Seeded or previously hunted. Eligible for normal hunts. |
-| `cooling` | Yield dropped; picker waits while any `open` or `unseeded` zone remains. |
-| `exhausted` | All three exhaustion conditions hold. Reopens only on git churn. |
-
-New zones start **`unseeded`** with zero hunt-ready rows. Do not template-seed three cross-tenant / stale-cache / fail-open one-liners.
-
-### Hypothesis tags
-
-Open rows:
-
-- `[ ] (candidate) â€¦` â€” harm-class or unverified template. Not hunt-ready. No picker tie-break.
-- `[ ] (hunt-ready) …` — locus + input + wrong outcome + mechanism + **reachability** filled from **these** files (cite ARM/config/OpenAPI/UI/trust-boundary origin for the input). Optional defect-class tag: `[class:boolean-coercion]` (closed enum — see Scoring).
-
-Closed rows (never tick a miss as bare `[x]` â€” that counts as proven):
-
-- `[x] (proven) â€¦` â€” failing repro (this hunt or earlier).
-- `[x] (invalid) â€¦` â€” claim does not describe this code (missing path, wrong shape).
-- `[x] (valid-no-repro) â€¦` â€” claim matches this code; current behavior is correct (cite the test).
-
-Untagged `[ ]` on `unseeded` or `hunts: 0` is treated as **candidate**. Untagged `[ ]` after the zone has been hunted is treated as **hunt-ready**. Untagged `[x]` is treated as **proven**.
-
-A hunt-ready row must name a locus, a concrete input, an observable wrong outcome, a mechanism, and **reachability** (where the input originates). Harm-class-only rows stay `(candidate)` until the files show the prerequisite (join, cache, fail-open catch). Constructed literals without reachability (e.g. fictional property names) stay `(candidate)` or `(invalid)`. After a miss, replacement rows must cite a **different mechanism** and reachability.
-
-## Scoring (picker)
-
-Time unit is **hunts**, not wall-clock minutes. Exploit zones with a short mean hunts-per-bug; explore untried / under-sampled zones so the catalog can learn. Ledger `bugs-found` must not inflate speed when it exceeds `hunts`; scoring uses at most one hit per hunt.
-
-```text
-effective_bugs     = min(bugs-found, hunts) when hunts > 0
-mean_hunts_per_bug = hunts / max(1, effective_bugs) when hunts > 0, else hunts + 2 (prior)
-speed              = min(1, 1 / mean_hunts_per_bug)
-explore            = 1 / sqrt(thoroughHunts + 1)   # thorough = run-log hit|dry only (not seed-only)
-precision          = proven / (proven + invalid) when that sum >= 2, else omitted
-                     (valid-no-repro is not in the denominator)
-
-base_score =
-  6 × speed
-+ 3 × explore
-+ 2 × recent_churn              (min(3, commitCount since last-hunt))
-+ 1 × related_PD_or_TB          (min(2, id count))
-+ 0.25 × min(3, hunt-ready open hypotheses)
-+ 0.5 × precision               (0 when omitted)
-− 2 × consecutive_dry_hunts
-− 1 when escapeCount90d ≥ 1 (escaped defects in last 90d; see escape log)
-
-score = base_score × impact_multiplier   (high ×1.40, medium ×1.00, low ×0.65; missing → medium)
-```
-
-Hunt-ready count is a small tie-break only. Candidate/template rows must not inflate score or lock the catalog. Analyzer-seed volume does not score. Precision rewards zones whose hypotheses matched the code; it does not punish valid-no-repro exhaustion.
-
-**Seed-only:** Stanza `hunts` still increments on seed-only runs (audit trail). Seed-only does **not** count toward `thoroughHunts` for explore and does not satisfy a queued thorough hunt.
-
-**Cooldown (hit-rate):** When `AL_BUG_HUNT_RUN_LOG.jsonl` is available, a zone is treated as `cooling` for picker eligibility if it has ≥ 8 hits in the last 7 calendar days **or** a 24h hit rate ≥ 0.7 with ≥ 5 hunts in that window (seed-only excluded from the rate). `cooling` zones are ineligible while any `open` or `unseeded` zone remains. Preview JSON exposes `cooledByHitRate: true` when this applies.
-
-**Cooldown (defect-class saturation):** Optional `[class:boolean-coercion]` tags on hunt-ready/proven rows. Run log hits may record `defectClass`. A class is **saturated** when the last 14 days have ≥ 4 hits with that class across ≥ 2 zones or ≥ 3 production files (`paths` in the run log). Preview JSON lists `saturatedClasses`. Zones whose **only** hunt-ready rows carry a saturated class are `cooling` while any other `open`/`unseeded` zone remains — ship a shared mechanism fix (ABQ-01/04/15 pattern) or close invalid/dry; do not add sibling synonym copies.
-
-**Escape rate:** `docs/library/AL_BUG_ESCAPE_LOG.jsonl` records defects found outside `/al-bug` (`/al-defect`, CI, pilot proof). Preview JSON exposes `escapeCount90d` / `escapeRate90d`. Hunt yield is not product quality — see `/al-defect`. Default-branch CI can **propose** `source: ci` lines via `python3 scripts/agent/al-bug-ingest-ci-escape.py --dry-run` (artifact `ci-escape-candidate.jsonl`); humans still own `PD-###`. Unknown production paths are skipped (not written as `unzoned`). Empty escape log is valid.
-
-**Flake log:** `docs/library/AL_BUG_FLAKE_LOG.jsonl` is separate (retry-then-pass tests). `python3 scripts/agent/al-bug-seed-from-flake-log.py --preview` emits `(candidate)` rows for tests that flaked ≥ 3 times in 30 days. Flakes are not proven hits.
-
-**Window math is UTC.** Picker/escape/class-saturation windows (24h / 7d / 14d / 90d) parse JSONL `at` as UTC (`ConvertTo-RunLogUtcDateTime` accepts ISO strings and `[datetime]`, including Kind Local from `ConvertFrom-Json`).
-
-**Retired-class CI bans:** once a class has a canonical helper, new copies fail CI (`scripts/ci/al-bug-ban-retired-classes.py` + `scripts/ci/al-bug-retired-class-allowlist.txt`). The closed enum does not grow.
-
-**Revert-verifier ratchet (sample window):** new unguarded `(proven)` keys fail vs `scripts/ci/al-bug-unguarded-proven-baseline.json`. Historical unguarded rows stay baselined; do not mass-retick checkboxes.
-
-**Seeded-defect drills** (`scripts/agent/al-bug-seeded-defect-drill.py`) measure picker/seed hit offline. They do not count as hunts and must not push `bugsmash`.
-
-**Mutation score (display-only):** When zone `paths` map to a scheduled Stryker label (`scripts/agent/al-bug-stryker-zone-map.json` + `scripts/ci/stryker-baselines.json`), preview shows `mutationScore` / `strykerLabel`. Unmapped zones use `mutationScoreMissing: true` (not `0`). Test quality signal only — do not run `dotnet stryker` during `/al-bug`.
-
-Rolling 24h preview warns when hit rate ≥ 0.6 with ≥ 8 hunts in the window — a catalog health signal, not a yield celebration.
-
-Eligibility: `open` and `unseeded` always; `cooling` only when no `open` or `unseeded` zone remains; `exhausted` only when git shows commits on `paths` since `last-hunt`.
-
-## Nominate mode
-
-`.\scripts\agent\al-bug-pick-zone.ps1 -Nominate -Preview` (optional `-Since`, `-SkipGit` in tests, optional `-CoverageCobertura` from a prior local `dotnet test --collect:"XPlat Code Coverage"`) diffs recent production file churn against every zone `paths` prefix. Files with no covering zone are **gaps**. Rank uses `commitCount × (1 − coverageRatio) × log(1 + lineCount)` when coverage is supplied; otherwise churn-only (preview notes `coverage: omitted`). JSON includes `nominate: true`, `gaps: [{ path, commitCount, coverageRatio?, lineCount, rank }]`, and up to ~15 `proposedZones` entries (`id`, `paths`, `impact`, `testFilterGuess`). Preview prints paste-ready markdown stanzas for agent-led ledger updates — use when implicated files fall outside every current zone. Excludes tests, docs, generated OpenAPI, and lockfiles. Retired mega-zones pointing at this ledger do not cover production paths.
-
-## Exhaustion (all must hold)
-
-1. Every listed hypothesis has a passing regression test, or was retired as `(invalid)` or `(valid-no-repro)`.
-2. **3 consecutive dry hunts**.
-3. **No production-path commits** in that zone since `last-hunt`.
-
-Set `status` to `cooling` when yield has dropped (for example two dry hunts) but exhaustion is not complete. Set `exhausted` only when all three conditions hold.
-
----
 ## Zone: topology-proposal-merge
 
+2026-09-13 seed hunt #2416 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `orbital_spacecraft` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_orbital_spacecraft_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2415 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `communication_service` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_communication_service_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2414 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `fluid_relay` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_fluid_relay_server_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2413 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `healthbot` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_healthbot_healthbot_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2412 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `notification_hub` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_notification_hub_namespace_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2411 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `voice_services` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_voice_services_gateway_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2410 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `stack_hci` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_stack_hci_cluster_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2409 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `relay_namespace` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_relay_namespace_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2408 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `kubernetes_fleet` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_kubernetes_fleet_manager_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2407 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `virtual_hub` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_virtual_hub_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2406 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `web_pubsub` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_web_pubsub_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2405 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `dns_zone` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_dns_zone_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2404 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `automation_account` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_automation_account_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2403 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `container_group` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_container_group_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2402 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_lb` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_azurerm_lb_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2401 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `traffic_manager` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_traffic_manager_profile_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2400 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `batch_account` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_batch_account_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+
+2026-09-13 seed hunt #2389 (seed→hit): reseeded topology-proposal-merge with `-Hint topology proposal merge Terraform svc ds aliases`; proved `azurerm_vpn_gateway.main` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_vpn_gateway_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-13 seed hunt #2385 (seed→hit): reseeded topology-proposal-merge with `-Hint topology proposal merge Terraform svc ds aliases`; proved `azurerm_route_server.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_route_server_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 
 2026-09-13 seed hunt #2380 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_application_gateway.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_application_gateway_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 
@@ -138,16 +61,24 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 
 2026-09-13 seed hunt #2370 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_dynatrace_monitor.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_dynatrace_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 - **id:** topology-proposal-merge
+
+2026-09-13 seed hunt #2421 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `lab_service` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
+2026-09-13 seed hunt #2426 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `kubernetes_configuration` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
+2026-09-13 seed hunt #2399 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_kubernetes_cluster.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_kubernetes_cluster_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
+
+2026-09-13 seed hunt #2395 (seed-only): reseeded topology-proposal-merge; no new hunt-ready rows.
 - **status:** open
 - **impact:** medium
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 91
-- **bugs-found:** 60
+- **hunts:** 114
+- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2380: application_gateway Compute-category ds- alias gap
+- **last-bug:** 2026-09-13 — hunt #2399: kubernetes_cluster Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -345,12 +276,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ## Zone: arm-terraform-source-ids
 
 - **id:** arm-terraform-source-ids
+
+2026-09-13 seed hunt #2397 (seed-only): reseeded arm-terraform-source-ids; no new hunt-ready rows.
 - **status:** open
 - **impact:** medium
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 61
+- **hunts:** 62
 - **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
@@ -4356,12 +4289,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: tenant-data-export
 
 - **id:** tenant-data-export
+
+2026-09-13 seed hunt #2419 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2424 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2429 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2394 (seed-only): reseeded tenant-data-export; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2388 (seed-only): reseeded tenant-data-export; no new hunt-ready rows.
 - **status:** open
 - **impact:** high
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 37
+- **hunts:** 42
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
@@ -5177,16 +5120,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: persistence-identity
 
 - **id:** persistence-identity
+
+2026-09-13 seed hunt #2420 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2425 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2430 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2398 (seed-only): reseeded persistence-identity; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2392 (seed-only): reseeded persistence-identity; no new hunt-ready rows.
 - **status:** open
 - **impact:** high
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 25
-- **bugs-found:** 14
+- **hunts:** 34
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-11 — InMemory recovery grant InsertAsync silently overwrote duplicate GrantId
+- **last-bug:** 2026-09-13 — InMemory recovery-admin InsertAsync silently overwrote duplicate composite key
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5215,6 +5168,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-13 seed hunt #2339 (seed-only): reseeded persistence-identity; no new hunt-ready rows.
 
+2026-09-13 seed hunt #2381 (hit): promoted and proved in-memory link-proposal duplicate Id overwrite; `TryAdd` + `DuplicateAuthenticationIdentityLinkProposalException`; 3 link-proposal repository unit tests passed.
+
+2026-09-13 seed hunt #2382 (hit): promoted and proved in-memory email OTP duplicate challenge Id overwrite; `TryAdd` + `DuplicateEmailOtpChallengeException`; 3 OTP challenge repository unit tests passed.
+
+2026-09-13 seed hunt #2383 (hit): promoted and proved in-memory recovery-admin duplicate composite-key overwrite; `TryAdd` + `DuplicateTenantSignInEmailDomainRecoveryAdminException`; 2 recovery-admin repository unit tests passed.
+
+2026-09-13 seed hunt #2384 (seed-only): reseeded persistence-identity; duplicate-insert parity family exhausted; no new hunt-ready rows.
+
 ### Hypotheses
 
 - [x] (invalid) Identity lookup by email returns a user from another tenant — `IAuthenticationIdentityRepository` has no email lookup; sign-in domain routing uses global domain keys by design.
@@ -5239,6 +5200,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `InMemoryTenantSignInEmailDomainRepository.InsertAsync` — soft-removed domain row still occupies `_byDomain` key so blind re-insert throws — **cheap-disproved 2026-09-10 seed hunt #1544:** mirrors SQL `UX_TenantSignInEmailDomains_NormalizedDomain`; `TenantAuthDomainVerificationService.ProposeDomainAsync` must update the removed row (application layer), not persistence insert parity.
 - [x] (invalid) `TenantAuthDomainVerificationService.ProposeDomainAsync` — after `RemoveDomainAsync`, `FindByNormalizedDomainAsync` hides the removed row but `InsertAsync` fails on both stores; re-propose path needs update-not-insert — **cheap-disproof 2026-09-11 thorough hunt #1685:** application-layer concern; persistence `InsertAsync` throw on soft-removed key is intentional SQL parity (#1544).
 - [x] (proven) `InMemoryPlatformTenantAuthRecoveryGrantRepository.InsertAsync` — duplicate explicit `GrantId` silently overwrote the prior grant while SQL raises PK violation — **hit 2026-09-11 thorough hunt #1685:** `TryAdd` + `DuplicatePlatformTenantAuthRecoveryGrantException`; regression in `InsertAsync_throws_when_grant_id_already_exists`.
+- [x] (proven) `InMemoryAuthenticationIdentityLinkProposalRepository.InsertAsync` — duplicate explicit proposal `Id` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2381:** `TryAdd` + `DuplicateAuthenticationIdentityLinkProposalException`; regression in `InsertAsync_throws_when_proposal_id_already_exists`.
+- [x] (proven) `InMemoryEmailOtpChallengeRepository.InsertAsync` — duplicate explicit challenge `Id` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2382:** `TryAdd` + `DuplicateEmailOtpChallengeException`; regression in `InsertAsync_throws_when_challenge_id_already_exists`.
+- [x] (proven) `InMemoryTenantSignInEmailDomainRecoveryAdminRepository.InsertAsync` — duplicate `(TenantId, NormalizedDomain, NormalizedRecoveryAdminEmail)` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2383:** `TryAdd` + `DuplicateTenantSignInEmailDomainRecoveryAdminException`; regression in `InsertAsync_throws_when_recovery_admin_already_exists`.
 
 2026-09-11 thorough hunt #1685 (hit): proved in-memory recovery-grant duplicate Id overwrite; cheap-disproved application-layer domain re-propose candidate; 3 recovery-grant repository unit tests passed.
 
@@ -5259,12 +5223,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: retrieval
 
 - **id:** retrieval
+
+2026-09-13 seed hunt #2391 (seed-only): reseeded retrieval; no new hunt-ready rows.
 - **status:** open
 - **impact:** medium
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
@@ -10660,19 +10626,29 @@ Split from retired `archlucid-core` (ABQ-08).
 ## Zone: core-costing
 
 - **id:** core-costing
+
+2026-09-13 seed hunt #2418 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved standalone `dy` day UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneDyTests`.
+
+2026-09-13 seed hunt #2423 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved standalone `mon` month UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneMonTests`.
+
+2026-09-13 seed hunt #2428 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved standalone `mos` month UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneMosTests`.
+
+2026-09-13 seed hunt #2393 (seed-only): reseeded core-costing; no new hunt-ready rows.
 - **split-from:** archlucid-core
 - **status:** open
 - **impact:** medium
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 38
-- **bugs-found:** 27
+- **hunts:** 43
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-13 — hunt #2354: slash `/dy` day UOM rejected while `/day` and `/d` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2387 (seed-only): reseeded core-costing with `-Hint core costing Azure UOM`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2365 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
 
@@ -10962,18 +10938,30 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ## Zone: context-ingestion
 
 - **id:** context-ingestion
+
+2026-09-13 seed hunt #2422 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `dns_policy` pod spec projection gap; regression `ParseAsync_snake_case_dns_policy_projects_dns_policy_exposure`.
+
+2026-09-13 seed hunt #2427 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `service_account_name` pod spec projection gap; regression `ParseAsync_snake_case_service_account_name_projects_service_account_name_exposure`.
+
+2026-09-13 seed hunt #2417 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `automount_service_account_token` pod spec dropped because `ShouldRedactKey` false-positives on `token` substring and `TryAddK8sProperty` recursed on redaction; regression `ParseAsync_snake_case_automount_service_account_token_projects_automount_service_account_token_exposure`.
+
+2026-09-13 seed hunt #2396 (seed-only): reseeded context-ingestion; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2390 (seed-only): reseeded context-ingestion; no new hunt-ready rows.
 - **status:** open
 - **impact:** medium
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 116
-- **bugs-found:** 161
+- **hunts:** 122
+- **bugs-found:** 165
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2353: snake_case `host_users` pod spec not projected
+- **last-bug:** 2026-09-13 — hunt #2386: snake_case `enable_service_links` pod spec not projected
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2386 (seed→hit): reseeded context-ingestion with `-Hint context ingestion K8s snake_case`; proved snake_case `enable_service_links` pod spec projection gap; regression `ParseAsync_snake_case_enable_service_links_projects_enable_service_links_exposure`.
 
 2026-09-13 seed hunt #2364 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 

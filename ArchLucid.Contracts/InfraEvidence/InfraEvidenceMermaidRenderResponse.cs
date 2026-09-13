@@ -43,4 +43,16 @@ public sealed class InfraEvidenceMermaidRenderResponse
         get;
         set;
     } = [];
+
+    public string? LayoutSvg
+    {
+        get;
+        set;
+    }
+
+    public string? LayoutEngine
+    {
+        get;
+        set;
+    }
 }
