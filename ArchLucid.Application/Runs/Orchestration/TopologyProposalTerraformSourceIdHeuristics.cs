@@ -115,6 +115,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("cognitive_services", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_deployment", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("data_collection_endpoint", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("data_collection_rule", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("synapse_workspace", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("data_factory", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("mariadb", StringComparison.OrdinalIgnoreCase)

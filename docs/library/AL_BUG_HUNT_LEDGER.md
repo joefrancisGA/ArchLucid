@@ -1,5 +1,7 @@
 ## Zone: topology-proposal-merge
 
+2026-09-13 seed hunt #2463 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `monitor_data_collection_rule` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
+
 2026-09-13 seed hunt #2458 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `data_collection_endpoint` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
 
 2026-09-13 seed hunt #2453 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `cognitive_services_account` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
