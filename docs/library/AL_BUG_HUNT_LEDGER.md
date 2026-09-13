@@ -121,13 +121,16 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 62
+- **hunts:** 63
 - **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-13 — hunt #2288: security_center_automation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2292 (seed-only): reseeded topology-proposal-merge with `-Hint topology merge`; no new hunt-ready rows.
+
 
 2026-09-13 seed hunt #2284 (seed→hit): reseeded topology-proposal-merge; proved `azurerm_blueprint_assignment` Data-category svc- alias gap; regression `FilterValidatedProposals_keeps_relationship_when_blueprint_assignment_node_has_data_category_but_synthetic_service_id_used`.
 
