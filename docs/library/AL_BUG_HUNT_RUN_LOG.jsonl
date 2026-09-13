@@ -2586,3 +2586,4 @@
 {"at":"2026-09-13T00:04:16.3427994Z","zoneId":"finding-disposition","outcome":"seed-only"}
 {"at":"2026-09-13T00:04:18.9615942Z","zoneId":"api-key-auth","outcome":"seed-only"}
 {"at":"2026-09-13T00:04:21.6806321Z","zoneId":"persistence-identity","outcome":"seed-only"}
+{"at":"2026-09-13T00:04:24.4010014Z","zoneId":"email-otp-auth","outcome":"seed-only"}
