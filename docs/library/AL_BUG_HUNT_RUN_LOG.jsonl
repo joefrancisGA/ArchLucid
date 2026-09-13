@@ -2676,3 +2676,4 @@
 {"at":"2026-09-13T01:37:35.4903807Z","zoneId":"application-pilots","outcome":"seed-only"}
 {"at":"2026-09-13T01:37:48.657289Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only"}
 {"at":"2026-09-13T01:38:00.6299937Z","zoneId":"identity-provider-config","outcome":"seed-only"}
+{"at":"2026-09-13T01:38:12.7770869Z","zoneId":"authority-pipeline-payload","outcome":"seed-only"}
