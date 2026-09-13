@@ -50,7 +50,7 @@ public sealed class FindingSemanticSupportBandFinalizeJudge(
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!ShouldJudgeFinding(finding))
+            if (!FindingSemanticSupportBandFinalizeJudgeEligibility.ShouldJudge(finding))
                 continue;
 
             string findingMessage = FindingSemanticSupportBandClaimMessageResolver.Resolve(finding);
@@ -74,6 +74,7 @@ public sealed class FindingSemanticSupportBandFinalizeJudge(
                 continue;
 
             finding.SemanticSupportBand = llmBand.Value;
+            finding.SemanticSupportBandScorerVersion = FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1;
             rescored.Add(finding);
         }
 
@@ -87,14 +88,5 @@ public sealed class FindingSemanticSupportBandFinalizeJudge(
                 FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1,
                 cancellationToken)
             .ConfigureAwait(false);
-    }
-
-    private static bool ShouldJudgeFinding(Finding finding)
-    {
-        if (!DecisionGradeFindingExportFilter.IsDecisionGradeForExport(finding))
-            return false;
-
-        return finding.SemanticSupportBand is null
-            || finding.SemanticSupportBand == FindingSemanticSupportBand.Unchecked;
     }
 }

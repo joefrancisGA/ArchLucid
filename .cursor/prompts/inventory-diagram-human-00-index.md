@@ -75,6 +75,10 @@ Do **not** wrap components in subgraphs (including `direction TB` inside `alpack
 
 Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-human-<short-name>-c5f0`. This prompt-set PR lives on `cursor/inventory-diagram-human-prompts-c5f0`.
 
+## Follow-on (do not implement from this file)
+
+Owner 2026-09-13 asked for **Graphviz** layout from `DiagramAst` rather than another Mermaid pass. That wave is **IDG-01–IDG-05**: [`.cursor/prompts/inventory-diagram-graphviz-00-index.md`](inventory-diagram-graphviz-00-index.md). Do not start IDH-04.
+
 ## Prompt files (paste one per session)
 
 | # | File | Flaw it mitigates |

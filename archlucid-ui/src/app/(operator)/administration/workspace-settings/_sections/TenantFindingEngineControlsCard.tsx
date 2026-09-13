@@ -125,7 +125,9 @@ export function TenantFindingEngineControlsCard() {
         <p className="m-0">
           Optional finding engines that add Premium LLM judge passes or scan other systems in this workspace. Portfolio
           recurrence is on unless you disable it here (same tenant catalog only). When deployment runs in Real mode, the
-          insight-density judge defaults on unless you override it off here.
+          insight-density judge defaults on unless you override it off here. These toggles do not control the semantic
+          support judge that Record finalize runs on Unchecked decision-grade rows (host
+          EnableLlmJudgeOnFinalize, default on; operators disable in host JSON). Practice skips that finalize judge.
         </p>
 
         {controlsQuery.isPending ? (

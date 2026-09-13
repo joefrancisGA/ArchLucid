@@ -33,6 +33,31 @@ public sealed class CareerExportSemanticSupportBandMarkdownFormatterTests
         markdown.Should().Contain(FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1);
         markdown.Should().Contain("1 Supported");
         markdown.Should().Contain("1 Unsupported");
+        markdown.Should().NotContain(CareerExportSemanticSupportBandMarkdownFormatter.UncheckedWarnLine);
+    }
+
+    [Fact]
+    public void FormatMarkdown_prefers_as099_overlay_scorer_version_when_present()
+    {
+        string markdown = CareerExportSemanticSupportBandMarkdownFormatter.FormatMarkdown(
+        [
+            new Finding
+            {
+                FindingId = "f-heuristic",
+                Classification = FindingClassification.DecisionGradeFinding,
+                SemanticSupportBand = FindingSemanticSupportBand.Supported,
+            },
+            new Finding
+            {
+                FindingId = "f-llm",
+                Classification = FindingClassification.DecisionGradeFinding,
+                SemanticSupportBand = FindingSemanticSupportBand.Supported,
+                SemanticSupportBandScorerVersion = FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1,
+            },
+        ]);
+
+        markdown.Should().Contain(FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1);
+        markdown.Should().NotContain($"`{FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1}`");
     }
 
     [Fact]
@@ -49,5 +74,28 @@ public sealed class CareerExportSemanticSupportBandMarkdownFormatterTests
         ]);
 
         markdown.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FormatMarkdown_warns_when_remaining_unchecked_decision_grade_rows_exist()
+    {
+        string markdown = CareerExportSemanticSupportBandMarkdownFormatter.FormatMarkdown(
+        [
+            new Finding
+            {
+                FindingId = "f-1",
+                Classification = FindingClassification.DecisionGradeFinding,
+                SemanticSupportBand = FindingSemanticSupportBand.Supported,
+            },
+            new Finding
+            {
+                FindingId = "f-unchecked",
+                Classification = FindingClassification.DecisionGradeFinding,
+                SemanticSupportBand = FindingSemanticSupportBand.Unchecked,
+            },
+        ]);
+
+        markdown.Should().Contain("Remaining Unchecked");
+        markdown.Should().Contain(CareerExportSemanticSupportBandMarkdownFormatter.UncheckedWarnLine);
     }
 }

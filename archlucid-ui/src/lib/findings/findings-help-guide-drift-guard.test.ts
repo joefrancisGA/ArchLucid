@@ -6,10 +6,12 @@ import {
   FINDINGS_HELP_SOURCES,
 } from "@/lib/findings/findings-help-evidence-copy";
 import {
+  FINDINGS_HELP_ANATOMY_FIELDS,
   FINDINGS_HELP_GUIDE_HEADINGS,
   FINDINGS_HELP_NEGATION_DRIFT_MARKERS,
   FINDINGS_HELP_OVERVIEW,
   FINDINGS_HELP_PAGE_SUBTITLE,
+  FINDINGS_HELP_SEMANTIC_SUPPORT_COPY,
 } from "@/lib/findings/findings-help-guide-content";
 
 describe("findings help drift guard", () => {
@@ -37,6 +39,14 @@ describe("findings help drift guard", () => {
     expect(
       FINDINGS_HELP_GUIDE_HEADINGS.some((heading) => heading.id === "help-findings-claim-discipline-heading"),
     ).toBe(true);
+  });
+
+  it("mentions Record finalize may rescore Unchecked without a second slug (LY-019)", () => {
+    expect(FINDINGS_HELP_SEMANTIC_SUPPORT_COPY).toMatch(/Record finalize/);
+    expect(FINDINGS_HELP_SEMANTIC_SUPPORT_COPY).toMatch(/Practice skips/);
+    expect(FINDINGS_HELP_SEMANTIC_SUPPORT_COPY).toMatch(/not legal truth/i);
+    expect(FINDINGS_HELP_CLAIM_DISCIPLINE).toMatch(/does not block seal/);
+    expect(FINDINGS_HELP_ANATOMY_FIELDS.some((field) => field.label === "Semantic support")).toBe(true);
   });
 
   it("lists findings help sources with unique hrefs and no self-href", () => {

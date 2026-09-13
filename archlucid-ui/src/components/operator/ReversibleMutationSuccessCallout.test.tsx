@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { MUTATION_UNDO_WINDOW_SECONDS } from "@/lib/mutation-reversibility-registry";
+import { MUTATION_UNDO_WINDOW_SECONDS, MUTATION_UNDO_WINDOW_VISIBLE_COPY } from "@/lib/mutation-reversibility-registry";
 import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 
 describe("ReversibleMutationSuccessCallout (TB-2148)", () => {
@@ -26,7 +26,7 @@ describe("ReversibleMutationSuccessCallout (TB-2148)", () => {
 
     expect(screen.getByText("Marked 2 finding(s) as accepted.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Undo" })).toBeInTheDocument();
-    expect(screen.getByText("Available for several minutes")).toBeInTheDocument();
+    expect(screen.getByText(MUTATION_UNDO_WINDOW_VISIBLE_COPY)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Undo" }));
 

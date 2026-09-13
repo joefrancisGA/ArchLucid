@@ -22,6 +22,8 @@ describe("architecture-draft-editing-help-guide-content (LW-094)", () => {
     expect(corpus.toLowerCase()).not.toMatch(/real-time collab/);
     expect(corpus).toMatch(/not live presence/i);
     expect(corpus).toMatch(/keep mine/i);
+    expect(corpus).toMatch(/execute lease/i);
+    expect(corpus).toMatch(/draft-thread chat/i);
     expect(corpus.toLowerCase()).not.toMatch(/live occupancy/);
   });
 

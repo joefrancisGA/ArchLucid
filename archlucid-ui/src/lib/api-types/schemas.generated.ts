@@ -4467,6 +4467,7 @@ export interface components {
             reviewedByUserId?: null | string;
             runIdRef?: null | string;
             semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
+            semanticSupportBandScorerVersion?: null | string;
             severity?: components["schemas"]["FindingSeverity"];
             title?: string;
             trace?: components["schemas"]["ExplainabilityTrace"];
