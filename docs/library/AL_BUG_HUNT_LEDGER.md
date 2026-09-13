@@ -5182,11 +5182,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 27
-- **bugs-found:** 16
+- **hunts:** 28
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — InMemory email OTP InsertAsync silently overwrote duplicate challenge Id
+- **last-bug:** 2026-09-13 — InMemory recovery-admin InsertAsync silently overwrote duplicate composite key
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5219,6 +5219,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-13 seed hunt #2382 (hit): promoted and proved in-memory email OTP duplicate challenge Id overwrite; `TryAdd` + `DuplicateEmailOtpChallengeException`; 3 OTP challenge repository unit tests passed.
 
+2026-09-13 seed hunt #2383 (hit): promoted and proved in-memory recovery-admin duplicate composite-key overwrite; `TryAdd` + `DuplicateTenantSignInEmailDomainRecoveryAdminException`; 2 recovery-admin repository unit tests passed.
+
 ### Hypotheses
 
 - [x] (invalid) Identity lookup by email returns a user from another tenant — `IAuthenticationIdentityRepository` has no email lookup; sign-in domain routing uses global domain keys by design.
@@ -5245,6 +5247,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InMemoryPlatformTenantAuthRecoveryGrantRepository.InsertAsync` — duplicate explicit `GrantId` silently overwrote the prior grant while SQL raises PK violation — **hit 2026-09-11 thorough hunt #1685:** `TryAdd` + `DuplicatePlatformTenantAuthRecoveryGrantException`; regression in `InsertAsync_throws_when_grant_id_already_exists`.
 - [x] (proven) `InMemoryAuthenticationIdentityLinkProposalRepository.InsertAsync` — duplicate explicit proposal `Id` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2381:** `TryAdd` + `DuplicateAuthenticationIdentityLinkProposalException`; regression in `InsertAsync_throws_when_proposal_id_already_exists`.
 - [x] (proven) `InMemoryEmailOtpChallengeRepository.InsertAsync` — duplicate explicit challenge `Id` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2382:** `TryAdd` + `DuplicateEmailOtpChallengeException`; regression in `InsertAsync_throws_when_challenge_id_already_exists`.
+- [x] (proven) `InMemoryTenantSignInEmailDomainRecoveryAdminRepository.InsertAsync` — duplicate `(TenantId, NormalizedDomain, NormalizedRecoveryAdminEmail)` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2383:** `TryAdd` + `DuplicateTenantSignInEmailDomainRecoveryAdminException`; regression in `InsertAsync_throws_when_recovery_admin_already_exists`.
 
 2026-09-11 thorough hunt #1685 (hit): proved in-memory recovery-grant duplicate Id overwrite; cheap-disproved application-layer domain re-propose candidate; 3 recovery-grant repository unit tests passed.
 
