@@ -369,7 +369,8 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashDToken(trimmed)
             || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trimmed, "d", StringComparison.OrdinalIgnoreCase);
+            || string.Equals(trimmed, "d", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "dy", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ContainsDayWordToken(string trimmed)
@@ -621,7 +622,9 @@ public sealed partial class AzureRetailPricesCatalogClient
             || string.Equals(trimmed, "m", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "month", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trimmed, "months", StringComparison.OrdinalIgnoreCase);
+            || string.Equals(trimmed, "months", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "mon", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "mos", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ContainsMonthWordToken(string trimmed)

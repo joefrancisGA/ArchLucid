@@ -10917,6 +10917,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-13 seed hunt #2417 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `automount_service_account_token` pod spec dropped because `ShouldRedactKey` false-positives on `token` substring and `TryAddK8sProperty` recursed on redaction; regression `ParseAsync_snake_case_automount_service_account_token_projects_automount_service_account_token_exposure`.
+
 2026-09-13 seed hunt #2396 (seed-only): reseeded context-ingestion; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2390 (seed-only): reseeded context-ingestion; no new hunt-ready rows.
