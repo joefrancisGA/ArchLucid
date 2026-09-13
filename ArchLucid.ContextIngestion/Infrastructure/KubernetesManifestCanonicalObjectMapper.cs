@@ -1064,6 +1064,16 @@ internal static class KubernetesManifestCanonicalObjectMapper
                         "seLinuxUser",
                         seLinuxUserElement.GetString()!);
                 }
+
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(seLinuxOptionsElement, "role", out JsonElement seLinuxRoleElement)
+                    && seLinuxRoleElement.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(seLinuxRoleElement.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "seLinuxRole",
+                        seLinuxRoleElement.GetString()!);
+                }
             }
 
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "supplementalGroups", out JsonElement supplementalGroupsElement)

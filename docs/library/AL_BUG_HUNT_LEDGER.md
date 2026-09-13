@@ -11309,6 +11309,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-13 seed hunt #2672 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case pod `security_context.se_linux_options.role` projection gap; regression `ParseAsync_snake_case_pod_security_context_se_linux_options_role_projects_se_linux_role_exposure`.
+
 2026-09-13 seed hunt #2667 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case pod `security_context.se_linux_options.user` projection gap; regression `ParseAsync_snake_case_pod_security_context_se_linux_options_user_projects_se_linux_user_exposure`.
 
 2026-09-13 thorough hunt #2664 (dry): reseeded context-ingestion with `-Hint context-ingestion`; hunt-ready pod security_context rows tested; no failing repro beyond shipped supplemental_groups/fs_group_change_policy/se_linux_options.
@@ -11421,8 +11423,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 181
-- **bugs-found:** 223
+- **hunts:** 182
+- **bugs-found:** 224
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-13 — hunt #2649: snake_case pod security_context.supplemental_groups projection gap
