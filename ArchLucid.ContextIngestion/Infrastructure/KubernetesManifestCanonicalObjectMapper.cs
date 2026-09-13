@@ -220,6 +220,10 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && hostPid.ValueKind is JsonValueKind.True)
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostPID", "true");
 
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "hostIpc", out JsonElement hostIpc)
+            && hostIpc.ValueKind is JsonValueKind.True)
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostIPC", "true");
+
         ProjectContainerSecurityContext(podSpec, properties);
     }
 
