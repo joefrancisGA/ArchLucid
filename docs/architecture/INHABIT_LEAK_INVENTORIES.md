@@ -52,7 +52,7 @@ These tables name where Working still behaves like a governed job inspector inst
 | --- | --- | --- | --- |
 | Architecture identity desk | Yes | Yes | IH-047 |
 | Nested findings document chrome | Yes | Yes | IH-047 |
-| Spawn-lock handoff | Yes (clone) | No | IH-008 |
+| Spawn-lock handoff | Yes (clone) | Yes | IR-014 |
 
 No draft-diff Compare. No CE Sketch runner remount.
 
@@ -61,9 +61,9 @@ No draft-diff Compare. No CE Sketch runner remount.
 | Surface | Leaves architecture findings document | Owner |
 | --- | --- | --- |
 | Inhabited findings room card | No | IH-053 |
-| Presenter elicitation bridge | Yes | IH-053 |
-| Draft room header | Yes | IH-053 |
-| Quick start L0 must questions | Yes | IH-053 |
+| Presenter elicitation bridge | No | IR-012 |
+| Draft room header | No | IR-013 |
+| Quick start L0 must questions | No | IR-013 |
 
 No avatars. No finding-comment chat.
 

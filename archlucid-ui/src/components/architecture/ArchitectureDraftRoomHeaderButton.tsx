@@ -12,7 +12,7 @@ import {
   isReviewPipelineIncomplete,
 } from "@/lib/run-detail-workspace-derive";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
-import { reviewDetailRoomElicitationHref } from "@/lib/reviews/review-room-elicitation-url";
+import { resolveWorkingRoomElicitationHref } from "@/lib/reviews/review-room-elicitation-url";
 import { cn } from "@/lib/utils";
 
 export type ArchitectureDraftRoomHeaderButtonProps = {
@@ -83,7 +83,12 @@ export function ArchitectureDraftRoomHeaderButton(
       size="sm"
       data-testid="review-room-enter"
       onClick={() => {
-        router.push(reviewDetailRoomElicitationHref(linkedReviewId, props.parentArchitectureId));
+        router.push(
+          resolveWorkingRoomElicitationHref({
+            architectureId: props.parentArchitectureId,
+            runId: linkedReviewId,
+          }),
+        );
       }}
     >
       Room

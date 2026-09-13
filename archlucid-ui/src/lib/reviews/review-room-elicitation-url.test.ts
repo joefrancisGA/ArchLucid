@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  inhabitedFindingsRoomElicitationHref,
   readRoomElicitationFromSearchParams,
+  resolveWorkingRoomElicitationHref,
   reviewDetailRoomElicitationHref,
   reviewRoomElicitationHrefFromSearch,
 } from "@/lib/reviews/review-room-elicitation-url";
@@ -43,6 +45,29 @@ describe("review-room-elicitation-url (DR-16)", () => {
     );
     expect(reviewDetailRoomElicitationHref("run-42", "architecture-identity-001")).not.toContain(
       "/architecture/reviews/run-42",
+    );
+  });
+
+  it("IR-012 / IR-013: inhabited findings room elicitation keeps Working on the document", () => {
+    expect(inhabitedFindingsRoomElicitationHref("architecture-identity-001", "run-42")).toBe(
+      "/architecture/architectures/architecture-identity-001/findings?runId=run-42&roomElicitation=1",
+    );
+    expect(inhabitedFindingsRoomElicitationHref("architecture-identity-001", "run-42")).not.toContain(
+      "/reviews/",
+    );
+  });
+
+  it("resolveWorkingRoomElicitationHref prefers inhabited findings when architecture is known", () => {
+    expect(
+      resolveWorkingRoomElicitationHref({
+        architectureId: "architecture-identity-001",
+        runId: "run-42",
+      }),
+    ).toBe(
+      "/architecture/architectures/architecture-identity-001/findings?runId=run-42&roomElicitation=1",
+    );
+    expect(resolveWorkingRoomElicitationHref({ runId: "run-42" })).toBe(
+      "/architecture/reviews/run-42?roomElicitation=1",
     );
   });
 });

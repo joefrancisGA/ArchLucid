@@ -1,4 +1,8 @@
-import { resolveArchitectureReviewHref, reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import {
+  architectureNestedFindingsPath,
+  resolveArchitectureReviewHref,
+  reviewDetailPath,
+} from "@/lib/architecture/architecture-routes";
 
 export const REVIEW_ROOM_ELICITATION_PARAM = "roomElicitation";
 
@@ -53,4 +57,43 @@ export function reviewDetailRoomElicitationHref(
   const base = resolveArchitectureReviewHref(trimmedReviewId, architectureId);
 
   return `${base}?${params.toString()}`;
+}
+
+/** IR-012 / IR-013 — Working room elicitation on the inhabited findings document. */
+export function inhabitedFindingsRoomElicitationHref(
+  architectureId: string,
+  runId: string,
+): string {
+  const trimmedArchitectureId = architectureId.trim();
+  const trimmedRunId = runId.trim();
+  const params = new URLSearchParams();
+
+  if (trimmedRunId.length > 0) {
+    params.set("runId", trimmedRunId);
+  }
+
+  params.set(REVIEW_ROOM_ELICITATION_PARAM, "1");
+
+  if (trimmedArchitectureId.length === 0) {
+    return reviewDetailRoomElicitationHref(trimmedRunId);
+  }
+
+  const query = params.toString();
+
+  return `${architectureNestedFindingsPath(trimmedArchitectureId)}?${query}`;
+}
+
+/** Working room handoff — nested findings when architecture is known; else review-detail room. */
+export function resolveWorkingRoomElicitationHref(input: {
+  readonly architectureId?: string | null;
+  readonly runId: string;
+}): string {
+  const architectureId = input.architectureId?.trim() ?? "";
+  const runId = input.runId.trim();
+
+  if (architectureId.length > 0) {
+    return inhabitedFindingsRoomElicitationHref(architectureId, runId);
+  }
+
+  return reviewDetailRoomElicitationHref(runId);
 }

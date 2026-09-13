@@ -68,19 +68,27 @@ describe("inhabit leak inventories (IH-004–IH-012)", () => {
     const nested = INHABIT_EXPLORATION_CEREMONY_ROWS.find((row) =>
       row.relativePath.includes("InhabitedFindingsDocumentChrome"),
     );
+    const handoff = INHABIT_EXPLORATION_CEREMONY_ROWS.find((row) =>
+      row.relativePath.includes("ArchitectureDraftHandoffPanel"),
+    );
 
     expect(nested).toBeDefined();
     expect(nested!.sketchEntry).toBe(true);
     expect(nested!.committedCompareFromDesk).toBe(true);
+    expect(handoff?.committedCompareFromDesk).toBe(true);
+    expect(handoff?.ownerPrompt).toBe("IR-014");
   });
 
   it("IH-009 inventories presenter-only room mounts", () => {
     expect(
-      INHABIT_ROOM_PRESENTER_ROWS.some((row) => !row.requiresLeavingArchitectureFindings),
+      INHABIT_ROOM_PRESENTER_ROWS.every((row) => !row.requiresLeavingArchitectureFindings),
     ).toBe(true);
     expect(
-      INHABIT_ROOM_PRESENTER_ROWS.filter((row) => row.requiresLeavingArchitectureFindings).length,
-    ).toBeGreaterThanOrEqual(2);
+      INHABIT_ROOM_PRESENTER_ROWS.find((row) => row.ownerPrompt === "IR-012"),
+    ).toBeDefined();
+    expect(
+      INHABIT_ROOM_PRESENTER_ROWS.filter((row) => row.ownerPrompt === "IR-013").length,
+    ).toBe(2);
   });
 
   it("IH-010 inventories keyboard focus gaps", () => {

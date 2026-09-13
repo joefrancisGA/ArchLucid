@@ -205,8 +205,8 @@ export const INHABIT_EXPLORATION_CEREMONY_ROWS: readonly InhabitExplorationCerem
     surface: "Spawn-lock handoff clone control",
     relativePath: "components/architecture/ArchitectureDraftHandoffPanel.tsx",
     sketchEntry: true,
-    committedCompareFromDesk: false,
-    ownerPrompt: "IH-008",
+    committedCompareFromDesk: true,
+    ownerPrompt: "IR-014",
   },
 ];
 
@@ -228,20 +228,20 @@ export const INHABIT_ROOM_PRESENTER_ROWS: readonly InhabitRoomPresenterRow[] = [
   {
     surface: "Review presenter elicitation bridge",
     relativePath: "components/reviews/RunDetailPresenterElicitationBridge.tsx",
-    requiresLeavingArchitectureFindings: true,
-    ownerPrompt: "IH-053",
+    requiresLeavingArchitectureFindings: false,
+    ownerPrompt: "IR-012",
   },
   {
     surface: "Architecture draft room header",
     relativePath: "components/architecture/ArchitectureDraftRoomHeaderButton.tsx",
-    requiresLeavingArchitectureFindings: true,
-    ownerPrompt: "IH-053",
+    requiresLeavingArchitectureFindings: false,
+    ownerPrompt: "IR-013",
   },
   {
     surface: "Quick start L0 must questions panel",
     relativePath: "components/architecture/QuickStartL0MustQuestionsPanel.tsx",
-    requiresLeavingArchitectureFindings: true,
-    ownerPrompt: "IH-053",
+    requiresLeavingArchitectureFindings: false,
+    ownerPrompt: "IR-013",
   },
 ];
 

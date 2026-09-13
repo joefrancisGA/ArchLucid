@@ -316,6 +316,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
               runId={props.runId}
               reviewCompleted={!reviewPipelineIncomplete}
               manifestVersion={props.signedReviewRecordId}
+              parentArchitectureId={props.parentArchitectureId}
             />
             <ReviewRoomElicitationShortcutHost />
             <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
