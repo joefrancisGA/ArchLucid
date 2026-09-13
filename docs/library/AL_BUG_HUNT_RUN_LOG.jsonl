@@ -2731,3 +2731,4 @@
 {"at":"2026-09-13T03:23:32.2644725Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-13T03:23:45.7487131Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only"}
 {"at":"2026-09-13T03:28:08.4439751Z","zoneId":"persistence-identity","outcome":"seed-only"}
+{"at":"2026-09-13T03:31:58.5619141Z","zoneId":"topology-proposal-merge","outcome":"hit"}
