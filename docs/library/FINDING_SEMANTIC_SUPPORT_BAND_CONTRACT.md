@@ -3,7 +3,7 @@
 # Finding semantic support band contract (ADR 0085 / TB-1228)
 
 > **Audience:** Principal architects, contributors, and GTM reviewers explaining support-band chips on the Working desk, career exports, and finalize honesty strips.  
-> **ADR:** [`0085-semantic-support-band-working-career-not-commit-gate.md`](../architecture/adrs/0085-semantic-support-band-working-career-not-commit-gate.md).  
+> **ADR:** [`0085-semantic-support-band-working-career-not-commit-gate.md`](../architecture/adrs/0085-semantic-support-band-working-career-not-commit-gate.md) · [`0099-semantic-support-llm-judge-default-on-finalize.md`](../architecture/adrs/0099-semantic-support-llm-judge-default-on-finalize.md).  
 > **Lane split (authoritative):** [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md) (**TB-1228**).  
 > **Honesty CI:** **TB-1229** / **AS-067** — support band is **not** legal truth or semantically verified seal.
 
@@ -37,9 +37,10 @@
 | **Version stamp** | `as057-v1` (`FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1`) |
 | **Inputs** | Finding claim (`Rationale` / title) vs trimmed `EvidenceRefs` excerpt strings |
 | **Rules** | Exact quote span → **Supported**; zero token overlap → **Unsupported**; partial overlap → **Unchecked**; empty citations → **NotScored** (provenance, not Unsupported) |
-| **Premium LLM judge** | **Default off** — `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudge` (**AS-074**). Heuristic remains default until explicit opt-in and a wired judge. |
+| **Premium LLM judge (emit)** | **Default off** — `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudge` (**AS-074**). Heuristic remains the emit scorer so merge is not a sync LLM tax (TB-1228). |
+| **Premium LLM judge (finalize)** | **Default on for Real** — `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudgeOnFinalize` (**ADR 0099**). Runs on Unchecked decision-grade rows at finalize/readiness; Simulator/Fallback skip; warn-not-block stays; overlay stamp `as099-llm-finalize-v1`. |
 
-**Code anchors:** `FindingSemanticSupportBandEmissionApplicator`, `FindingSemanticSupportBandOverlayScoring`, `finding-semantic-support-band-export.ts` (`FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION`).
+**Code anchors:** `FindingSemanticSupportBandEmissionApplicator`, `FindingSemanticSupportBandOverlayScoring`, `FindingSemanticSupportBandFinalizeJudge`, `finding-semantic-support-band-export.ts` (`FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION`).
 
 ---
 
@@ -126,8 +127,9 @@ Simulator and Fallback structural execution modes must **not** display career-lo
 | **066** | `ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTests` |
 | **068** | `simulator-career-honesty` presenter tests |
 | **073** | `ArchitectureSpineAs073HeuristicMismatchArchitectureTests` |
-| **074** | `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudge` default **false** (ADR 0085 follow-ups) |
+| **074** | `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudge` default **false** (ADR 0085 follow-ups; emit path) |
 | **075** | `ArchitectureSpineAs075SemanticContractDocArchitectureTests` (this document) |
+| **0099** | `EnableLlmJudgeOnFinalize` default **true** on Real finalize; emit stays off; `ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureTests` |
 
 ---
 

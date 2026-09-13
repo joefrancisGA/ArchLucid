@@ -8,7 +8,9 @@ namespace ArchLucid.Decisioning.Findings;
 /// <summary>AS-060: score + hash inputs for overlay persistence without mutating sealed finding prose.</summary>
 public static class FindingSemanticSupportBandOverlayScoring
 {
-    public static FindingSemanticSupportBandOverlayScoreResult ScoreFinding(Finding finding)
+    public static FindingSemanticSupportBandOverlayScoreResult ScoreFinding(
+        Finding finding,
+        string? scorerVersion = null)
     {
         ArgumentNullException.ThrowIfNull(finding);
 
@@ -18,11 +20,15 @@ public static class FindingSemanticSupportBandOverlayScoring
         FindingSemanticSupportBand band = finding.SemanticSupportBand
             ?? FindingSemanticSupportBandScorer.Score(findingMessage, citationExcerpts);
 
+        string version = string.IsNullOrWhiteSpace(scorerVersion)
+            ? FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1
+            : scorerVersion.Trim();
+
         string? evidenceHash = TryHashCitationExcerpts(citationExcerpts);
 
         return new FindingSemanticSupportBandOverlayScoreResult(
             band,
-            FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1,
+            version,
             evidenceHash);
     }
 

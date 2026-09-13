@@ -93,6 +93,8 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0095](0095-sealed-record-governance-home.md) | Sealed review records **Governance inventory home** — list at `/governance/sealed-records`; desk remains Monday-morning; no tab collapse; legacy redirects (**Status: Accepted** 2026-09-12; DI-001; does not merge kernels) |
 | [0096](0096-career-real-never-owns-the-tab.md) | Career **Real** execute never owns the tab — async operations (202 + poll); no `GET /v1/runs/{runId}/progress`; no fake percentComplete; Working not stay-on-this-page (**Status: Accepted** 2026-09-12; DW-001; **not** G-REAL-06) |
 | [0097](0097-record-and-practice-user-facing-labels.md) | Working operator chrome uses **Record / Practice** user labels — stored tokens stay `career` / `rehearsal`; parse aliases `record` / `practice`; help slug `career-rehearsal-doors` unchanged (**Status: Accepted** 2026-09-12; RP wave) |
+| [0098](0098-working-instrument-after-spawn-is-desk.md) | Working instrument after spawn is the architecture desk — nested review-detail is a job inspector (**Status: Proposed**; SG wave; **not** G-REAL-06) |
+| [0099](0099-semantic-support-llm-judge-default-on-finalize.md) | Semantic support Premium LLM judge **default-on for Real finalize** — emit stays heuristic; warn-not-block; Simulator skip (**Status: Proposed**; LY wave; supersedes LN-025 skip for finalize only; **not** G-REAL-06) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, and Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

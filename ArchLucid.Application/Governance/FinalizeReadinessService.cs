@@ -60,6 +60,7 @@ public sealed class FinalizeReadinessService(
     IOptions<PreCommitGovernanceGateOptions> preCommitGovernanceGateOptions,
     IOptions<FinalizeQualityGateOptions> finalizeQualityGateOptions,
     IOptions<ExplainGovernanceBlocksOptions> explainGovernanceBlocksOptions,
+    IFindingSemanticSupportBandFinalizeJudge semanticSupportBandFinalizeJudge,
     ILogger<FinalizeReadinessService> logger) : IFinalizeReadinessService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
@@ -130,6 +131,9 @@ public sealed class FinalizeReadinessService(
 
     private readonly IOptions<ExplainGovernanceBlocksOptions> _explainGovernanceBlocksOptions =
         explainGovernanceBlocksOptions ?? throw new ArgumentNullException(nameof(explainGovernanceBlocksOptions));
+
+    private readonly IFindingSemanticSupportBandFinalizeJudge _semanticSupportBandFinalizeJudge =
+        semanticSupportBandFinalizeJudge ?? throw new ArgumentNullException(nameof(semanticSupportBandFinalizeJudge));
 
     private readonly ILogger<FinalizeReadinessService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -208,6 +212,10 @@ public sealed class FinalizeReadinessService(
         }
 
         FindingsSnapshot findings = await LoadFindingsAsync(scope, runId, runRecord, cancellationToken)
+            .ConfigureAwait(false);
+
+        await _semanticSupportBandFinalizeJudge
+            .ApplyAsync(architectureRun, findings, scope, cancellationToken)
             .ConfigureAwait(false);
 
         bool workingDesk = await _userWorkspaceModeReader

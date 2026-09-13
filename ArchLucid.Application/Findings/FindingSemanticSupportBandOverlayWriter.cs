@@ -13,11 +13,44 @@ public sealed class FindingSemanticSupportBandOverlayWriter(
     private readonly IFindingSemanticSupportBandOverlayRepository _overlayRepository =
         overlayRepository ?? throw new ArgumentNullException(nameof(overlayRepository));
 
-    public async Task PersistSnapshotOverlaysAsync(
+    public Task PersistSnapshotOverlaysAsync(
         Guid findingsSnapshotId,
         ScopeContext scope,
         IReadOnlyList<Finding> findings,
+        CancellationToken cancellationToken = default) =>
+        PersistSnapshotOverlaysCoreAsync(
+            findingsSnapshotId,
+            scope,
+            findings,
+            FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1,
+            cancellationToken);
+
+    /// <summary>
+    ///     Persist already-assigned bands (ADR 0099 LLM finalize) without re-running the heuristic scorer version stamp.
+    /// </summary>
+    public Task PersistAssignedOverlaysAsync(
+        Guid findingsSnapshotId,
+        ScopeContext scope,
+        IReadOnlyList<Finding> findings,
+        string scorerVersion,
         CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(scorerVersion);
+
+        return PersistSnapshotOverlaysCoreAsync(
+            findingsSnapshotId,
+            scope,
+            findings,
+            scorerVersion.Trim(),
+            cancellationToken);
+    }
+
+    private async Task PersistSnapshotOverlaysCoreAsync(
+        Guid findingsSnapshotId,
+        ScopeContext scope,
+        IReadOnlyList<Finding> findings,
+        string scorerVersion,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(findings);
@@ -33,7 +66,7 @@ public sealed class FindingSemanticSupportBandOverlayWriter(
                 continue;
 
             FindingSemanticSupportBandOverlayScoreResult score =
-                FindingSemanticSupportBandOverlayScoring.ScoreFinding(finding);
+                FindingSemanticSupportBandOverlayScoring.ScoreFinding(finding, scorerVersion);
 
             FindingSemanticSupportBandOverlayRecord overlay = new()
             {

@@ -34,7 +34,8 @@ public sealed class CommitOutputIntegrityService(
     IDraftRequestRepository draftRequestRepository,
     IArchitectureVersionRepository architectureVersionRepository,
     IFinalizeQualityGate finalizeQualityGate,
-    IRunAssumptionAcknowledgementService runAssumptionAcknowledgementService) : ICommitOutputIntegrityService
+    IRunAssumptionAcknowledgementService runAssumptionAcknowledgementService,
+    IFindingSemanticSupportBandFinalizeJudge semanticSupportBandFinalizeJudge) : ICommitOutputIntegrityService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -71,6 +72,9 @@ public sealed class CommitOutputIntegrityService(
 
     private readonly IRunAssumptionAcknowledgementService _runAssumptionAcknowledgementService =
         runAssumptionAcknowledgementService ?? throw new ArgumentNullException(nameof(runAssumptionAcknowledgementService));
+
+    private readonly IFindingSemanticSupportBandFinalizeJudge _semanticSupportBandFinalizeJudge =
+        semanticSupportBandFinalizeJudge ?? throw new ArgumentNullException(nameof(semanticSupportBandFinalizeJudge));
 
     /// <inheritdoc />
     public async Task EnsurePassOrThrowAsync(
@@ -164,6 +168,10 @@ public sealed class CommitOutputIntegrityService(
                 "Commit blocked: agent output quality gate rejected one or more traces. "
                 + string.Join(" ", qualityReasons));
         }
+
+        await _semanticSupportBandFinalizeJudge
+            .ApplyAsync(run, findings, scope, cancellationToken)
+            .ConfigureAwait(false);
 
         IReadOnlyList<string> unsupportedSemanticSupportReasons =
             UnsupportedSemanticSupportFinalizeHoldEvaluator.GetBlockingReasons(run, gateOptions, findings.Findings);

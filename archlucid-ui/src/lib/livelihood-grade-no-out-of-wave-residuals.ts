@@ -20,7 +20,7 @@ export const LIVELIHOOD_GRADE_NO_OUT_OF_WAVE_RESIDUAL_ROWS: readonly LivelihoodG
       tracking: "ADR 0085 / TB-1228",
       ownerPrompt: "LN-025",
       status: "not-shipped",
-      notes: "Unchecked warn on finalize (LN-008) is not default-on judge. Do not flip PilotStrict hold by default.",
+      notes: "LN wave skipped Unchecked-warn-only (LN-008). ADR 0099 / LY-001 owns Real finalize default-on; emit stays off. Do not flip PilotStrict hold by default.",
     },
     {
       item: "G-REAL-06 live packets / host Mode flip",

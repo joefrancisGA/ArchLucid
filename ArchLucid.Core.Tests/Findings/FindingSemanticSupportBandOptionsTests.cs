@@ -17,6 +17,14 @@ public sealed class FindingSemanticSupportBandOptionsTests
     }
 
     [Fact]
+    public void As099_default_enable_llm_judge_on_finalize_is_true()
+    {
+        FindingSemanticSupportBandOptions options = new();
+
+        options.EnableLlmJudgeOnFinalize.Should().BeTrue();
+    }
+
+    [Fact]
     public void As074_section_path_is_findings_semantic_support_band()
     {
         FindingSemanticSupportBandOptions.SectionPath
