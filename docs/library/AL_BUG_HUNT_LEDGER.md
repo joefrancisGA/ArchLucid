@@ -4880,7 +4880,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
@@ -4889,6 +4889,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** unknown
 
 2026-09-13 seed hunt #2280 (seed-only): reseeded application-pilots `-Refresh`; no new hunt-ready rows.
+
+2026-09-13 seed hunt #2315 (seed-only): reseeded application-pilots; no new hunt-ready rows.
 
 ### Hypotheses
 2026-09-12 seed hunt #1892 (seed-only): reseeded application-pilots; scoped tests passed; no hunt-ready defect proven this pass.
