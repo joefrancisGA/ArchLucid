@@ -10466,13 +10466,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 24
-- **bugs-found:** 21
+- **hunts:** 25
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — hunt #2243: slash `/hour` and `/hours` UOM rejected while `/hr` and `/hrs` synonyms matched
+- **last-bug:** 2026-09-12 — hunt #2244: slash `/minute` and `/minutes` UOM rejected while `/min` and `/mins` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-12 seed hunt #2244 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/minute` and `/minutes` UOM parity gaps; regression `AzureRetailPricesSkuMatchersSlashMinuteWordTests`.
 
 2026-09-12 seed hunt #2243 (seed→hit): reseeded core-costing with `-Hint retail prices`; proved slash `/hour` and `/hours` UOM parity gaps; regression `AzureRetailPricesSkuMatchersSlashHourWordTests`.
 
@@ -10543,6 +10545,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — standalone `w` UOM rejected while `wk`/`week` synonyms matched — **hit 2026-09-12 seed hunt #2141:** Azure Retail weekly consumption meters with bare `w` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `d`/`h` standalone parity already existed; fixed with standalone `w` synonym; regressions in `AzureRetailPricesSkuMatchersSlashWeekTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — standalone `m` UOM rejected while `mo`/`month` synonyms matched — **hit 2026-09-12 seed hunt #2149:** Azure Retail monthly consumption meters with bare `m` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `h`/`d`/`w` standalone parity already existed; fixed with standalone `m` synonym; regressions in `AzureRetailPricesSkuMatchersStandaloneMonthTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — slash `/months` UOM rejected while `/month` and `/mo` synonyms matched — **hit 2026-09-12 seed hunt #2240:** Azure Retail monthly consumption meters with bare `/months` or `1/months` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/month` and `/mo` already matched (parity with `/days` and `/weeks`); fixed with `ContainsSlashMonthsToken`; regressions in `AzureRetailPricesSkuMatchersSlashMonthsTests`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsMinuteMeter` — slash `/minute` and `/minutes` UOM rejected while `/min` and `/mins` synonyms matched — **hit 2026-09-12 seed hunt #2244:** Azure Retail minute consumption meters with bare `/minute`, `/minutes`, `1/minute`, or `1/minutes` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/min` and `/mins` already matched; fixed with `ContainsSlashMinuteWordToken` and `ContainsSlashMinutesToken`; regression in `AzureRetailPricesSkuMatchersSlashMinuteWordTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — slash `/hour` and `/hours` UOM rejected while `/hr` and `/hrs` synonyms matched — **hit 2026-09-12 seed hunt #2243:** Azure Retail hourly consumption meters with bare `/hour`, `/hours`, `1/hour`, or `1/hours` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/hr` and `/hrs` already matched (parity with `/days` and `/weeks`); fixed with `ContainsSlashHourWordToken` and `ContainsSlashHoursToken`; regression in `AzureRetailPricesSkuMatchersSlashHourWordTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — slash `/weeks` UOM rejected while `/week` and `/wk` synonyms matched — **hit 2026-09-12 seed hunt #2240:** Azure Retail weekly consumption meters with bare `/weeks` or `1/weeks` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/week` and `/wk` already matched (parity with `/days` and `/hrs`); fixed with `ContainsSlashWeeksToken`; regressions in `AzureRetailPricesSkuMatchersSlashWeeksTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsDayMeter` — slash `/days` UOM rejected while `/day` and `/d` synonyms matched — **hit 2026-09-12 seed hunt #2232:** Azure Retail daily consumption meters with bare `/days` or `1/days` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/day` and `/d` already matched (parity with `/mins` and `/hrs`); fixed with `ContainsSlashDaysToken`; regressions in `AzureRetailPricesSkuMatchersSlashDaysTests`.
