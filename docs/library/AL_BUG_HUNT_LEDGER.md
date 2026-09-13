@@ -121,13 +121,15 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 66
+- **hunts:** 67
 - **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-13 — hunt #2288: security_center_automation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2322 (seed-only): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2316 (seed-only): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; datastore/service heuristic lists in parity; 436 scoped topology merge tests passed; no new hunt-ready rows.
 
@@ -10584,13 +10586,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 30
-- **bugs-found:** 24
+- **hunts:** 31
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2318: slash `/mos` month UOM rejected while `/mo` and standalone `mo` synonyms matched
+- **last-bug:** 2026-09-13 — hunt #2321: slash `/mon` month UOM rejected while `/mo` and `/month` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2321 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/mon` month UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashMonTests`.
 
 2026-09-13 seed hunt #2318 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved slash `/mos` month UOM parity gap; regression `AzureRetailPricesSkuMatchersSlashMosTests`.
 
@@ -10686,6 +10690,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — slash `/w` UOM rejected while `/wk` and standalone `w` synonyms matched — **hit 2026-09-12 seed hunt #2153:** Azure Retail weekly consumption meters with bare `/w` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/wk` and `w` already matched (parity with `/d` and `/h`); fixed with `ContainsSlashWToken`; regressions in `AzureRetailPricesSkuMatchersSlashWeekTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — slash `/wks` UOM rejected while standalone `wks` and `/wk` synonyms matched — **hit 2026-09-13 seed hunt #2317:** Azure Retail weekly consumption meters with bare `/wks` or `1/wks` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while standalone `wks` and `/wk` already matched (parity with `/mins` and `/hrs`); fixed with `ContainsSlashWksToken`; regression in `AzureRetailPricesSkuMatchersSlashWksTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — slash `/mos` UOM rejected while `/mo` and standalone `mo` synonyms matched — **hit 2026-09-13 seed hunt #2318:** Azure Retail monthly consumption meters with bare `/mos` or `1/mos` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/mo` and `mo` already matched (parity with `/mins` and `/wks`); fixed with `ContainsSlashMosToken`; regression in `AzureRetailPricesSkuMatchersSlashMosTests`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — slash `/mon` UOM rejected while `/mo` and `/month` synonyms matched — **hit 2026-09-13 seed hunt #2321:** Azure Retail monthly consumption meters with bare `/mon` or `1/mon` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/mo` and `/month` already matched; fixed with `ContainsSlashMonToken`; regression in `AzureRetailPricesSkuMatchersSlashMonTests`.
 
 2026-09-12 seed hunt #1910 (hit): reseeded core-costing sibling UOM parity; proved standalone/slash weekly Azure retail gap; 142 scoped Costing tests passed.
 
@@ -11177,6 +11182,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ResolvePodSpec` — snake_case `pod_template` omitted pod security projection — **hit 2026-09-12 seed hunt #2155:** exporter kubernetes-json with `pod_template` instead of `template` under Deployment spec skipped `ProjectContainerSecurityContext`; fixed with `TryGetWorkloadPodTemplate` alias; regression `ParseAsync_snake_case_pod_template_projects_privileged`.
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.TryGetWorkloadPodTemplate` — camelCase `podTemplate` omitted pod security projection — **hit 2026-09-12 seed hunt #2231:** exporter kubernetes-json with `podTemplate` instead of `template` under Deployment spec skipped `ProjectContainerSecurityContext` while `pod_template` and `template` worked; fixed with `TryGetPropertyIgnoreCaseOrSnakeCase` on `podTemplate`; regression `ParseAsync_camel_case_podTemplate_projects_privileged`.
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ProjectSecuritySpecFields` — snake_case `host_pid` not projected — **hit 2026-09-13 seed hunt #2319:** exporter kubernetes-json with `host_pid: true` missed `k8s.hostPID` while `host_network` parity already existed; fixed with `TryGetPropertyIgnoreCaseOrSnakeCase` on `hostPid` (maps `host_pid` / `hostPID`); regression `ParseAsync_snake_case_host_pid_projects_host_pid_exposure`.
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.ProjectSecuritySpecFields` — snake_case `host_ipc` not projected — **hit 2026-09-13 seed hunt #2320:** exporter kubernetes-json with `host_ipc: true` missed `k8s.hostIPC` while `host_pid` parity landed in #2319; fixed with `TryGetPropertyIgnoreCaseOrSnakeCase` on `hostIpc`; regression `ParseAsync_snake_case_host_ipc_projects_host_ipc_exposure`.
 - [x] (invalid) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` — `values` loop skips `ShouldRedactKey` when `sensitive_values` absent — **cheap-disproof 2026-09-12 thorough hunt #1958:** terraform-show-json only redacts fields terraform marks in `sensitive_values`; absent marking means plaintext is intentional state output, not a parser leak.
 
 2026-09-12 thorough hunt #1958 (hit): proved K8s snake_case security_context projection gap; cheap-disproof closed terraform redaction-without-sensitive_values candidate; scoped context-ingestion tests passed.
