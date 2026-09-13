@@ -116,6 +116,8 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 ## Zone: topology-proposal-merge
 
 
+2026-09-13 seed hunt #2389 (seed→hit): reseeded topology-proposal-merge with `-Hint topology proposal merge Terraform svc ds aliases`; proved `azurerm_vpn_gateway.main` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_vpn_gateway_node_has_compute_category_but_synthetic_datastore_id_used`.
+
 2026-09-13 seed hunt #2385 (seed→hit): reseeded topology-proposal-merge with `-Hint topology proposal merge Terraform svc ds aliases`; proved `azurerm_route_server.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_route_server_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 
 2026-09-13 seed hunt #2380 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_application_gateway.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_application_gateway_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
@@ -145,11 +147,11 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 92
-- **bugs-found:** 61
+- **hunts:** 93
+- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2385: route_server Compute-category ds- alias gap
+- **last-bug:** 2026-09-13 — hunt #2389: vpn_gateway Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10681,13 +10683,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-13 — hunt #2354: slash `/dy` day UOM rejected while `/day` and `/d` synonyms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2387 (seed-only): reseeded core-costing with `-Hint core costing Azure UOM`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2365 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
 
