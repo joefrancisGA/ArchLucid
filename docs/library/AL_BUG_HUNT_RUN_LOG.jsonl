@@ -2597,4 +2597,5 @@
 {"at":"2026-09-13T00:09:56.8933642Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
 {"at":"2026-09-13T00:10:54.7971375Z","zoneId":"billing-webhooks","outcome":"seed-only"}
 {"at":"2026-09-13T00:11:07.8425465Z","zoneId":"sql-run-repository","outcome":"seed-only"}
-{"at":"2026-09-13T00:11:20.6143480Z","zoneId":"chatops-delivery","outcome":"seed-only"}
+{"at":"2026-09-13T00:11:20.614348Z","zoneId":"chatops-delivery","outcome":"seed-only"}
+{"at":"2026-09-13T00:11:33.7104551Z","zoneId":"application-governance-policy","outcome":"seed-only"}
