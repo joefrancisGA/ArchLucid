@@ -75,6 +75,11 @@ export const FINDINGS_HELP_ANATOMY_FIELDS: readonly FindingsHelpAnatomyField[] =
   { label: "Business impact", description: "Why the issue matters for delivery, compliance, or operations." },
   { label: "Evidence", description: "Inputs, diagrams, or policy checks that support the finding." },
   { label: "Recommendation", description: "Suggested remediation, monitoring, or next step." },
+  {
+    label: "Semantic support",
+    description:
+      "Whether cited excerpts back the claim (Supported, Unchecked, Unsupported, or not scored). Record finalize in Real may rescore Unchecked rows; Practice does not. This is not legal truth and does not block seal.",
+  },
   { label: "Owner", description: "The person accountable for follow-up when assigned." },
   { label: "Resolve outcome", description: "Recorded acceptance, waiver, remediation, or exception." },
 ] as const;
@@ -124,6 +129,9 @@ export const FINDINGS_HELP_PROVENANCE_TITLE = "Where findings come from";
 
 export const FINDINGS_HELP_PROVENANCE_INTRO =
   "Every finding is labeled by origin so you know what you are signing off on. Deterministic-rule findings come from policy pack rules. Deterministic-fallback findings appear when the live model path failed and a fallback path produced the row — verify independently. AI-generated findings come from a language model and carry a grounding label. Simulated findings come from the deterministic simulator and should not be cited as live-model evidence.";
+
+export const FINDINGS_HELP_SEMANTIC_SUPPORT_COPY =
+  "Semantic support chips say whether cited excerpts back the claim. Record finalize in Real may rescore Unchecked decision-grade rows; Practice skips that judge. The band is not legal truth and does not block seal.";
 
 export const FINDINGS_HELP_PROVENANCE_AXES = [
   {

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildSemanticSupportBandExportStamp,
+  CAREER_EXPORT_UNCHECKED_SEMANTIC_SUPPORT_WARN,
+  FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION,
   FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION,
   formatCareerExportSemanticSupportBandMarkdownSection,
   resolveFindingSemanticSupportBandExportFields,
@@ -60,6 +62,32 @@ describe("finding-semantic-support-band-export (AS-071)", () => {
     expect(stamp.stampLine).toContain("1 Unsupported");
   });
 
+  it("buildSemanticSupportBandExportStamp prefers as099 overlay version when present", () => {
+    const stamp = buildSemanticSupportBandExportStamp([
+      sampleFinding({ semanticSupportBand: "Supported" }),
+      sampleFinding({
+        findingId: "f-llm",
+        semanticSupportBand: "Supported",
+        semanticSupportBandScorerVersion: FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION,
+      }),
+    ]);
+
+    expect(stamp.scorerVersion).toBe(FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION);
+  });
+
+  it("resolveFindingSemanticSupportBandExportFields prefers overlay scorer version", () => {
+    expect(
+      resolveFindingSemanticSupportBandExportFields(
+        sampleFinding({
+          semanticSupportBandScorerVersion: FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION,
+        }),
+      ),
+    ).toEqual({
+      semanticSupportBand: "Unsupported",
+      semanticSupportBandScorerVersion: FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION,
+    });
+  });
+
   it("formatCareerExportSemanticSupportBandMarkdownSection includes scorer version", () => {
     const markdown = formatCareerExportSemanticSupportBandMarkdownSection([
       sampleFinding({ semanticSupportBand: "Supported" }),
@@ -68,6 +96,17 @@ describe("finding-semantic-support-band-export (AS-071)", () => {
     expect(markdown).toContain("## Semantic support");
     expect(markdown).toContain(FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION);
     expect(markdown).toContain("Supported");
+    expect(markdown).not.toContain(CAREER_EXPORT_UNCHECKED_SEMANTIC_SUPPORT_WARN);
+  });
+
+  it("formatCareerExportSemanticSupportBandMarkdownSection warns on Remaining Unchecked after finalize", () => {
+    const markdown = formatCareerExportSemanticSupportBandMarkdownSection([
+      sampleFinding({ semanticSupportBand: "Supported" }),
+      sampleFinding({ findingId: "f-2", semanticSupportBand: "Unchecked" }),
+    ]);
+
+    expect(markdown).toContain("Remaining Unchecked");
+    expect(markdown).toContain(CAREER_EXPORT_UNCHECKED_SEMANTIC_SUPPORT_WARN);
   });
 
   it("resolveSupportingFindingSemanticSupportBands maps supporting finding ids", () => {

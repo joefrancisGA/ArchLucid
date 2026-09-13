@@ -99,11 +99,13 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
         adr.Should().Contain("EnableLlmJudgeOnFinalize");
         adr.Should().Contain("warn");
         adr.Should().Contain("Simulator");
+        adr.Should().Contain("**Status:** Accepted");
         adr.Should().NotContain("G-REAL-06 live packets");
 
         string readme = File.ReadAllText(Path.Combine(RepoRoot, "docs", "architecture", "adrs", "README.md"));
         readme.Should().Contain("0099-semantic-support-llm-judge-default-on-finalize.md");
         readme.Should().Contain("0098-working-instrument-after-spawn-is-desk.md");
+        readme.Should().Contain("**Status: Accepted** 2026-09-13");
     }
 
     [Fact]
@@ -119,6 +121,20 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
 
         registrar.Should().Contain("IFindingSemanticSupportBandFinalizeJudge");
         registrar.Should().Contain("FindingSemanticSupportBandFinalizeJudge");
+    }
+
+    [Fact]
+    public void As099_inventory_and_residuals_docs_exist()
+    {
+        File.Exists(Path.Combine(RepoRoot, "docs", "architecture", "LIVELIHOOD_DAY_UNCHECKED_FINALIZE_INVENTORY.md"))
+            .Should()
+            .BeTrue();
+        File.Exists(Path.Combine(RepoRoot, "docs", "architecture", "LIVELIHOOD_DAY_OUT_OF_WAVE_RESIDUALS.md"))
+            .Should()
+            .BeTrue();
+        File.Exists(Path.Combine(RepoRoot, "docs", "architecture", "LIVELIHOOD_DAY_ACCEPTANCE_2026-09-13.md"))
+            .Should()
+            .BeTrue();
     }
 
     private static string FindRepoRoot()

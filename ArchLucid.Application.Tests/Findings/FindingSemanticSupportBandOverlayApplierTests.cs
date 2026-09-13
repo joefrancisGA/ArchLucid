@@ -2,6 +2,7 @@ using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Persistence;
+using ArchLucid.Decisioning.Findings;
 
 using FluentAssertions;
 
@@ -41,5 +42,31 @@ public sealed class FindingSemanticSupportBandOverlayApplierTests
 
         finding.SemanticSupportBand.Should().Be(FindingSemanticSupportBand.Supported);
         finding.Message.Should().Be("Sealed claim text must stay unchanged.");
+        finding.SemanticSupportBandScorerVersion.Should().Be("as057-v1");
+    }
+
+    [Fact]
+    public void ApplyToFindings_copies_as099_overlay_scorer_version()
+    {
+        Finding finding = new()
+        {
+            FindingId = "finding-2",
+            SemanticSupportBand = FindingSemanticSupportBand.Unchecked,
+        };
+
+        Dictionary<string, FindingSemanticSupportBandOverlayRecord> overlays = new(StringComparer.Ordinal)
+        {
+            ["finding-2"] = new FindingSemanticSupportBandOverlayRecord
+            {
+                FindingId = "finding-2",
+                Band = FindingSemanticSupportBand.Supported,
+                ScorerVersion = FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1,
+            },
+        };
+
+        FindingSemanticSupportBandOverlayApplier.ApplyToFindings([finding], overlays);
+
+        finding.SemanticSupportBand.Should().Be(FindingSemanticSupportBand.Supported);
+        finding.SemanticSupportBandScorerVersion.Should().Be(FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1);
     }
 }

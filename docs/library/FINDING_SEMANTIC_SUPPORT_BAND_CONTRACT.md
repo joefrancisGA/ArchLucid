@@ -38,9 +38,9 @@
 | **Inputs** | Finding claim (`Rationale` / title) vs trimmed `EvidenceRefs` excerpt strings |
 | **Rules** | Exact quote span → **Supported**; zero token overlap → **Unsupported**; partial overlap → **Unchecked**; empty citations → **NotScored** (provenance, not Unsupported) |
 | **Premium LLM judge (emit)** | **Default off** — `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudge` (**AS-074**). Heuristic remains the emit scorer so merge is not a sync LLM tax (TB-1228). |
-| **Premium LLM judge (finalize)** | **Default on for Real** — `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudgeOnFinalize` (**ADR 0099**). Runs on Unchecked decision-grade rows at finalize/readiness; Simulator/Fallback skip; warn-not-block stays; overlay stamp `as099-llm-finalize-v1`. |
+| **Premium LLM judge (finalize)** | **Default on for Real** — `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudgeOnFinalize` (**ADR 0099**). Runs on Unchecked (or null-band) **decision-grade** rows **with citations** at finalize/readiness; checklist coverage and empty refs are not judged. Simulator/Fallback skip even if the flag is true; warn-not-block stays; overlay stamp `as099-llm-finalize-v1`. **Host JSON opt-out** (`false`) — no tenant finding-engine-controls key. Completions reuse `IAgentTierCompletionRouter` (no separate judge wallet). |
 
-**Code anchors:** `FindingSemanticSupportBandEmissionApplicator`, `FindingSemanticSupportBandOverlayScoring`, `FindingSemanticSupportBandFinalizeJudge`, `finding-semantic-support-band-export.ts` (`FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION`).
+**Code anchors:** `FindingSemanticSupportBandEmissionApplicator`, `FindingSemanticSupportBandOverlayScoring`, `FindingSemanticSupportBandFinalizeJudge`, `finding-semantic-support-band-export.ts` (`FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION` heuristic default; overlay `as099-llm-finalize-v1` wins on stamp/export when the API returns it).
 
 ---
 

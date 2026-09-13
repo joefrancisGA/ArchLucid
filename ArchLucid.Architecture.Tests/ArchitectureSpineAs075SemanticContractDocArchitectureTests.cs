@@ -41,6 +41,7 @@ public sealed class ArchitectureSpineAs075SemanticContractDocArchitectureTests
         contract.Should().Contain("non-fusion");
         contract.Should().Contain("Honesty examples");
         contract.Should().Contain("Forbidden claims");
+        contract.Should().Contain("Host JSON");
     }
 
     [Fact]

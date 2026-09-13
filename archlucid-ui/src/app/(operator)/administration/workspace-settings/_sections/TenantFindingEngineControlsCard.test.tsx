@@ -73,4 +73,39 @@ describe("TenantFindingEngineControlsCard", () => {
       );
     });
   });
+
+  it("distinguishes insight-density toggles from the Record finalize semantic judge (LY-017)", async () => {
+    const fetchMock = vi.fn(async () => {
+      return new Response(
+        JSON.stringify({
+          effectiveEnableLlmJudge: false,
+          effectiveEnableLlmJudgeForEngineFindings: false,
+          effectivePortfolioRecurrenceEnabled: true,
+          hostDefaultEnableLlmJudge: false,
+          hostDefaultEnableLlmJudgeForEngineFindings: false,
+          hostDefaultPortfolioRecurrenceEnabled: true,
+          enableLlmJudgeOverridden: false,
+          enableLlmJudgeForEngineFindingsOverridden: false,
+          portfolioRecurrenceEnabledOverridden: false,
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderWithOperatorQuery(<TenantFindingEngineControlsCard />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("finding-engine-controls")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("tenant-finding-engine-controls-card")).toHaveTextContent(
+      "do not control the semantic support judge",
+    );
+    expect(screen.getByTestId("tenant-finding-engine-controls-card")).toHaveTextContent(
+      "EnableLlmJudgeOnFinalize",
+    );
+    expect(screen.getByTestId("tenant-finding-engine-controls-card")).toHaveTextContent("Practice skips");
+  });
 });

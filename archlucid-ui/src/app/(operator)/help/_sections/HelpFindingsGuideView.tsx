@@ -29,6 +29,7 @@ import {
   FINDINGS_HELP_PROVENANCE_TITLE,
   FINDINGS_HELP_RESPOND_INTRO,
   FINDINGS_HELP_ROLE_GUIDANCE,
+  FINDINGS_HELP_SEMANTIC_SUPPORT_COPY,
   FINDINGS_HELP_SEVERITY_INTRO,
   FINDINGS_HELP_SEVERITY_ROWS,
   findingsHelpAnatomyFields,
@@ -311,6 +312,9 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
             >
               <HelpSectionHeading id="where-findings-come-from">{FINDINGS_HELP_PROVENANCE_TITLE}</HelpSectionHeading>
               <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_PROVENANCE_INTRO}</p>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+                {FINDINGS_HELP_SEMANTIC_SUPPORT_COPY}
+              </p>
               <ul className={HELP_PAGE_LAYOUT.bulletList}>
                 {FINDINGS_HELP_PROVENANCE_AXES.map((row) => (
                   <li key={row.axis}>
