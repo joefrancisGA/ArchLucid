@@ -102,6 +102,29 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
             InventoryDiagramFallbackArtifactKeys.IsFullMachine(artifact.Key));
     }
 
+    [Fact]
+    public async Task RenderFromGraphAsync_full_subscription_keeps_vms_and_databases_instead_of_resource_group_map()
+    {
+        GraphSnapshot graph = BuildFullSubscriptionBackboneWithNoise(resourceGroupCount: 12, nsgPerGroup: 40);
+
+        MermaidDiagramRenderResult result = await orchestrator.RenderFromGraphAsync(
+            graph,
+            DiagramMode.FullSubscription,
+            null,
+            new MermaidDiagramReadabilityThresholds { MaxNodes = 400 });
+
+        result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
+        result.PrimaryMermaid.Should().Contain("al-view=backbone-keep");
+        result.PrimaryMermaid.Should().NotContain("al-view=resource-group-map");
+        result.PrimaryMermaid.Should().Contain("vm-0");
+        result.PrimaryMermaid.Should().Contain("sqldb-0");
+        result.CollapseReport!.Entries.Should().Contain(entry =>
+            entry.Kind == InventoryDiagramBackboneArmTypes.CollapseKind);
+        result.CollapseReport.Entries.Should().NotContain(entry =>
+            entry.Kind == InventoryDiagramResourceGroupMapBuilder.CollapseKind);
+        result.Metrics.NodeCount.Should().Be(36);
+    }
+
     private static MermaidDiagramInventoryRenderOrchestrator CreateOrchestrator()
     {
         MermaidDiagramRenderPipeline pipeline = new(
@@ -156,6 +179,72 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
                         Weight = 1.0d,
                     });
                 }
+            }
+        }
+
+        return new GraphSnapshot
+        {
+            Nodes = nodes,
+            Edges = edges,
+        };
+    }
+
+    private static GraphSnapshot BuildFullSubscriptionBackboneWithNoise(int resourceGroupCount, int nsgPerGroup)
+    {
+        List<GraphNode> nodes = [];
+        List<GraphEdge> edges = [];
+        int edgeIndex = 0;
+
+        for (int groupIndex = 0; groupIndex < resourceGroupCount; groupIndex++)
+        {
+            string resourceGroup = $"rg-{groupIndex}";
+            string vmNodeId = Guid.NewGuid().ToString("D");
+            string dbNodeId = Guid.NewGuid().ToString("D");
+            string vmArmId =
+                $"/subscriptions/sub/resourceGroups/{resourceGroup}/providers/Microsoft.Compute/virtualMachines/vm-{groupIndex}";
+            string dbArmId =
+                $"/subscriptions/sub/resourceGroups/{resourceGroup}/providers/Microsoft.Sql/servers/sql-{groupIndex}/databases/sqldb-{groupIndex}";
+
+            nodes.Add(CreateTopologyNode(
+                vmNodeId,
+                $"vm-{groupIndex}",
+                "Microsoft.Compute/virtualMachines",
+                vmArmId,
+                resourceGroup));
+            nodes.Add(CreateTopologyNode(
+                Guid.NewGuid().ToString("D"),
+                $"sql-{groupIndex}",
+                "Microsoft.Sql/servers",
+                $"/subscriptions/sub/resourceGroups/{resourceGroup}/providers/Microsoft.Sql/servers/sql-{groupIndex}",
+                resourceGroup));
+            nodes.Add(CreateTopologyNode(
+                dbNodeId,
+                $"sqldb-{groupIndex}",
+                "Microsoft.Sql/servers/databases",
+                dbArmId,
+                resourceGroup));
+
+            edges.Add(new GraphEdge
+            {
+                EdgeId = $"edge-{edgeIndex++}",
+                FromNodeId = vmNodeId,
+                ToNodeId = dbNodeId,
+                EdgeType = GraphEdgeTypes.ConnectsTo,
+                Weight = 1.0d,
+            });
+
+            for (int nsgIndex = 0; nsgIndex < nsgPerGroup; nsgIndex++)
+            {
+                string nsgNodeId = Guid.NewGuid().ToString("D");
+                string nsgArmId =
+                    $"/subscriptions/sub/resourceGroups/{resourceGroup}/providers/Microsoft.Network/networkSecurityGroups/nsg-{groupIndex}-{nsgIndex}";
+
+                nodes.Add(CreateTopologyNode(
+                    nsgNodeId,
+                    $"nsg-{groupIndex}-{nsgIndex}",
+                    "Microsoft.Network/networkSecurityGroups",
+                    nsgArmId,
+                    resourceGroup));
             }
         }
 

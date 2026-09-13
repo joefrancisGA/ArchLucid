@@ -5,6 +5,7 @@ using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
 
@@ -54,7 +55,35 @@ public sealed class DiagramForestLayoutSvgRendererTests
     }
 
     [Fact]
-    public void Render_owner_shape_uses_three_column_component_grid()
+    public void Render_five_node_chain_uses_left_to_right_ranks()
+    {
+        GraphSnapshot graph = BuildChainGraph(nodeCount: 5);
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+        XDocument document = XDocument.Parse(result.Svg!);
+        XElement root = document.Root!;
+
+        List<(double X, double Y)> nodes = root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "node", StringComparison.Ordinal))
+            .Select(element => (
+                X: ParseTranslateX(element.Attribute("transform")?.Value),
+                Y: ParseTranslateY(element.Attribute("transform")?.Value)))
+            .OrderBy(node => node.X)
+            .ToList();
+
+        nodes.Should().HaveCount(5);
+        nodes[0].X.Should().BeLessThan(nodes[1].X);
+        nodes[1].X.Should().BeLessThan(nodes[2].X);
+        nodes[2].X.Should().BeLessThan(nodes[3].X);
+        nodes[3].X.Should().BeLessThan(nodes[4].X);
+        nodes.Select(node => node.Y).Distinct().Count().Should().Be(1);
+    }
+
+    [Fact]
+    public void Render_owner_shape_separates_component_columns()
     {
         GraphSnapshot graph = DiagramSparseComponentPackerTests.BuildExecutiveOwnerShapePeeringGraph();
         DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
@@ -95,5 +124,67 @@ public sealed class DiagramForestLayoutSvgRendererTests
         string[] parts = inner.Split(',');
 
         return double.Parse(parts[0], CultureInfo.InvariantCulture);
+    }
+
+    private static double ParseTranslateY(string? transform)
+    {
+        if (string.IsNullOrWhiteSpace(transform) || !transform.StartsWith("translate(", StringComparison.Ordinal))
+        {
+            return double.NaN;
+        }
+
+        string inner = transform["translate(".Length..].TrimEnd(')');
+        string[] parts = inner.Split(',');
+
+        if (parts.Length < 2)
+        {
+            return double.NaN;
+        }
+
+        return double.Parse(parts[1], CultureInfo.InvariantCulture);
+    }
+
+    private static GraphSnapshot BuildChainGraph(int nodeCount)
+    {
+        List<GraphNode> nodes = [];
+        List<GraphEdge> edges = [];
+
+        for (int index = 0; index < nodeCount; index++)
+        {
+            string nodeId = $"vm-{index}";
+            string armId =
+                $"/subscriptions/sub/resourceGroups/rg-app/providers/Microsoft.Compute/virtualMachines/vm-{index}";
+            GraphNode node = new()
+            {
+                NodeId = nodeId,
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = $"vm-{index}",
+                SourceType = "azure-inventory-snapshot",
+                SourceId = armId,
+            };
+            node.Properties["arm.id"] = armId;
+            node.Properties["arm.type"] = "Microsoft.Compute/virtualMachines";
+            node.Properties["arm.resourceGroup"] = "rg-app";
+            node.Properties["arm.subscriptionId"] = "sub";
+            nodes.Add(node);
+
+            if (index > 0)
+            {
+                edges.Add(new GraphEdge
+                {
+                    EdgeId = $"edge-{index}",
+                    FromNodeId = $"vm-{index - 1}",
+                    ToNodeId = nodeId,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Weight = 1.0d,
+                });
+            }
+        }
+
+        return new GraphSnapshot
+        {
+            Nodes = nodes,
+            Edges = edges,
+        };
     }
 }

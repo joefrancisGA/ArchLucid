@@ -21,7 +21,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             .ToList();
 
         builder.AppendLine($"digraph {resolvedOptions.DigraphName} {{");
-        builder.AppendLine($"    graph [layout={resolvedOptions.LayoutEngine}, overlap=false, splines=true, outputorder=edgesfirst];");
+        builder.AppendLine($"    graph [layout={resolvedOptions.LayoutEngine}, overlap=false, sep=\"+36,28\", K=1.8, pack=true, packmode=graph, splines=true, outputorder=edgesfirst];");
         builder.AppendLine("    node [shape=box, style=filled, fontname=\"DejaVu Sans\"];");
 
         if (renderableSubgraphs.Count == 0)

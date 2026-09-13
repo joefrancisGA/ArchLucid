@@ -22,6 +22,8 @@ public sealed class DiagramPeelCatalogOrderResolverTests
             [
                 CreateNode("Microsoft.Network/networkInterfaces"),
                 CreateNode("Microsoft.Network/customChild/widgets"),
+                CreateNode("Microsoft.Sql/servers/databases"),
+                CreateNode("Microsoft.Compute/virtualMachines"),
             ],
         };
 
@@ -33,6 +35,8 @@ public sealed class DiagramPeelCatalogOrderResolverTests
             order.IndexOf("Microsoft.Network/customChild/widgets"));
         order.IndexOf("Microsoft.Network/customChild/widgets").Should().BeLessThan(
             order.IndexOf("Microsoft.Network/networkInterfaces"));
+        order.Should().NotContain("Microsoft.Sql/servers/databases");
+        order.Should().NotContain("Microsoft.Compute/virtualMachines");
     }
 
     [Theory]

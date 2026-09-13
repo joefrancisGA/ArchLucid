@@ -20,23 +20,36 @@ public sealed class DiagramForestLayoutOptions
         init;
     } = 220;
 
-    public int HorizontalGap
+    public int NodeHorizontalGap
     {
         get;
         init;
-    } = 24;
+    } = 28;
 
-    public int VerticalGap
+    public int NodeVerticalGap
     {
         get;
         init;
     } = 20;
 
+    /// <summary>Gap between disconnected components — a little more than intra-node gaps so groups read apart.</summary>
+    public int ComponentHorizontalGap
+    {
+        get;
+        init;
+    } = 48;
+
+    public int ComponentVerticalGap
+    {
+        get;
+        init;
+    } = 40;
+
     public int Padding
     {
         get;
         init;
-    } = 12;
+    } = 16;
 
     public double CharacterWidth
     {

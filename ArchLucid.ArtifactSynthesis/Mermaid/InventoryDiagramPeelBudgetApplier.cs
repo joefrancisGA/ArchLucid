@@ -14,7 +14,8 @@ internal static class InventoryDiagramPeelBudgetApplier
         MermaidDiagramComplexityMetrics Metrics,
         bool StructurallyValid,
         IReadOnlyList<string> PeeledArmTypes,
-        bool UsedResourceGroupMap);
+        bool UsedResourceGroupMap,
+        bool UsedBackboneKeep);
 
     public static PeelCompileResult CompileWithPeelBudget(
         GraphSnapshot graph,
@@ -47,7 +48,8 @@ internal static class InventoryDiagramPeelBudgetApplier
             deterministicRepairer,
             structuralValidator,
             peeledArmTypes: [],
-            usedResourceGroupMap: false);
+            usedResourceGroupMap: false,
+            usedBackboneKeep: false);
 
         if (!MermaidDiagramInventoryRenderOrchestrator.ShouldAttemptPeelBudget(mode)
             || !initial.Metrics.ExceedsReadableThresholds(thresholds))
@@ -79,7 +81,8 @@ internal static class InventoryDiagramPeelBudgetApplier
                 deterministicRepairer,
                 structuralValidator,
                 peeledArmTypes,
-                usedResourceGroupMap: false);
+                usedResourceGroupMap: false,
+                usedBackboneKeep: false);
 
             if (!peeled.Metrics.ExceedsReadableThresholds(thresholds) && peeled.StructurallyValid)
             {
@@ -90,6 +93,28 @@ internal static class InventoryDiagramPeelBudgetApplier
             {
                 excludedArmTypes.Remove(armType);
                 peeledArmTypes.RemoveAt(peeledArmTypes.Count - 1);
+            }
+        }
+
+        if (mode == DiagramMode.FullSubscription)
+        {
+            GraphSnapshot backboneGraph = InventoryDiagramBackboneKeepFilter.Filter(graph, catalog);
+            PeelCompileResult backbone = CompileOnce(
+                backboneGraph,
+                mode,
+                CreateBackboneKeepCompileOptions(compileOptions),
+                graphCompiler,
+                diagramRenderer,
+                complexityAnalyzer,
+                deterministicRepairer,
+                structuralValidator,
+                peeledArmTypes,
+                usedResourceGroupMap: false,
+                usedBackboneKeep: true);
+
+            if (backbone.StructurallyValid && !backbone.Metrics.ExceedsReadableThresholds(thresholds))
+            {
+                return backbone;
             }
         }
 
@@ -106,7 +131,8 @@ internal static class InventoryDiagramPeelBudgetApplier
                 deterministicRepairer,
                 structuralValidator,
                 peeledArmTypes,
-                usedResourceGroupMap: true);
+                usedResourceGroupMap: true,
+                usedBackboneKeep: false);
 
             if (mapped.StructurallyValid)
             {
@@ -127,7 +153,8 @@ internal static class InventoryDiagramPeelBudgetApplier
         IMermaidDiagramDeterministicRepairer deterministicRepairer,
         IMermaidDiagramStructuralValidator structuralValidator,
         IReadOnlyList<string> peeledArmTypes,
-        bool usedResourceGroupMap)
+        bool usedResourceGroupMap,
+        bool usedBackboneKeep)
     {
         DiagramAst ast = graphCompiler.Compile(graph, mode, compileOptions);
         DiagramAst repaired = deterministicRepairer.Repair(ast, out _);
@@ -141,7 +168,8 @@ internal static class InventoryDiagramPeelBudgetApplier
             metrics,
             structurallyValid,
             peeledArmTypes,
-            usedResourceGroupMap);
+            usedResourceGroupMap,
+            usedBackboneKeep);
     }
 
     private static DiagramAstCompileOptions CreateResourceGroupMapCompileOptions(DiagramAstCompileOptions? compileOptions)
@@ -153,6 +181,18 @@ internal static class InventoryDiagramPeelBudgetApplier
             NeighborhoodSeedNodeId = compileOptions?.NeighborhoodSeedNodeId,
             NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
             CollapseToResourceGroupMap = true,
+        };
+    }
+
+    private static DiagramAstCompileOptions CreateBackboneKeepCompileOptions(DiagramAstCompileOptions? compileOptions)
+    {
+        return new DiagramAstCompileOptions
+        {
+            ResourceGroupName = compileOptions?.ResourceGroupName,
+            SelectedNodeIds = compileOptions?.SelectedNodeIds,
+            NeighborhoodSeedNodeId = compileOptions?.NeighborhoodSeedNodeId,
+            NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
+            CollapseToBackboneKeep = true,
         };
     }
 }

@@ -23,6 +23,11 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             sb.AppendLine($"    %% {InventoryDiagramResourceGroupMapBuilder.ViewMarker}");
         }
 
+        if (InventoryDiagramBackboneArmTypes.TitleMarksBackboneKeep(ast.Title))
+        {
+            sb.AppendLine($"    %% {InventoryDiagramBackboneArmTypes.ViewMarker}");
+        }
+
         if (ast.Subgraphs.Count == 0)
         {
             RenderFlatGraph(ast, sb);
