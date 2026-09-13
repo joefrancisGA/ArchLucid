@@ -483,18 +483,18 @@ export function DiagramsWorkbenchClient() {
     || resourceGroupPickerAwaitingSelection;
   const mermaidExportDisabled = exportsDisabled || !paintDiagramCanvas;
 
-  const renderStatusPresentation = useMemo(() => {
-    const status = renderResult?.status ?? activeModePreview?.status ?? "";
+  const renderStatus = renderResult?.status ?? activeModePreview?.status ?? "";
 
-    if (status.length === 0) {
+  const renderStatusPresentation = useMemo(() => {
+    if (renderStatus.length === 0 || renderStatus !== "Failed") {
       return null;
     }
 
     return resolveInfraEvidenceMermaidRenderStatusPresentation({
-      status,
-      mermaidEmpty: diagramContentEmpty && status === "Succeeded",
+      status: renderStatus,
+      mermaidEmpty: diagramContentEmpty && renderStatus === "Succeeded",
     });
-  }, [activeModePreview?.status, diagramContentEmpty, mermaidSource, renderResult?.status]);
+  }, [diagramContentEmpty, renderStatus]);
 
   const mermaidOutline = useMemo(() => {
     if (mermaidSource.trim().length === 0) {
@@ -1421,12 +1421,6 @@ export function DiagramsWorkbenchClient() {
           aria-label="Diagram render status"
         >
           <StatusTag kind={renderStatusPresentation.kind} label={renderStatusPresentation.label} />
-          {metrics != null ? (
-            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {metrics.nodeCount} nodes · {metrics.edgeCount} edges · {metrics.subgraphCount} subgraphs
-            </span>
-          ) : null}
-          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{selectedModeLabel}</span>
         </div>
       ) : null}
 

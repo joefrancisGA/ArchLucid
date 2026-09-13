@@ -265,10 +265,31 @@ describe("DiagramsWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/ask?snapshotId=11111111-1111-1111-1111-111111111111&tab=diagram",
     );
-    expect(await screen.findByTestId("infra-diagrams-render-status-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-render-status-strip")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-snapshot-id-readout")).toHaveTextContent(
       "11111111-1111-1111-1111-111111111111",
     );
+  });
+
+  it("shows render status strip only when render fails", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Failed",
+      mermaid: null,
+      metrics: null,
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams();
+    render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      const strip = screen.getByTestId("infra-diagrams-render-status-strip");
+      expect(strip).toHaveTextContent("Render failed");
+      expect(strip).not.toHaveTextContent("subgraphs");
+    });
   });
 
   it("shows resource scope banner and scoped Ask link when cloudResourceId is in the URL", async () => {
