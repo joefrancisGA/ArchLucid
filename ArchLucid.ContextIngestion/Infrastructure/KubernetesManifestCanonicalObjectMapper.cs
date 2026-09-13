@@ -1032,6 +1032,28 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "fsGroup", fsGroupValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
             }
 
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "fsGroupChangePolicy", out JsonElement fsGroupChangePolicyElement)
+                && fsGroupChangePolicyElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(fsGroupChangePolicyElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "fsGroupChangePolicy",
+                    fsGroupChangePolicyElement.GetString()!);
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "seLinuxOptions", out JsonElement seLinuxOptionsElement)
+                && seLinuxOptionsElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(seLinuxOptionsElement, "level", out JsonElement seLinuxLevelElement)
+                && seLinuxLevelElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(seLinuxLevelElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "seLinuxLevel",
+                    seLinuxLevelElement.GetString()!);
+            }
+
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "supplementalGroups", out JsonElement supplementalGroupsElement)
                 && supplementalGroupsElement.ValueKind is JsonValueKind.Array)
             {
