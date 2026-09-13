@@ -633,6 +633,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " mn")
             || ContainsBoundedToken(trimmed, " mos")
             || HasCompactMonthSuffix(trimmed)
+            || HasCompactMosSuffix(trimmed)
             || string.Equals(trimmed, "m", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "month", StringComparison.OrdinalIgnoreCase)
@@ -927,6 +928,14 @@ public sealed partial class AzureRetailPricesCatalogClient
             && char.IsDigit(trimmed[^3]);
     }
 
+    private static bool HasCompactHrsSuffix(string trimmed)
+    {
+        if (trimmed.Length < 4)
+            return false;
+
+        return trimmed.EndsWith("hrs", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^4]);
+    }
 
     private static bool HasCompactMinuteSuffix(string trimmed)
     {
@@ -934,6 +943,15 @@ public sealed partial class AzureRetailPricesCatalogClient
             return false;
 
         return trimmed.EndsWith("min", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^4]);
+    }
+
+    private static bool HasCompactMosSuffix(string trimmed)
+    {
+        if (trimmed.Length < 4)
+            return false;
+
+        return trimmed.EndsWith("mos", StringComparison.OrdinalIgnoreCase)
             && char.IsDigit(trimmed[^4]);
     }
 }
