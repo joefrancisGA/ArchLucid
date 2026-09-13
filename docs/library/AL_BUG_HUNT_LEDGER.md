@@ -10659,6 +10659,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-costing
 
+2026-09-13 seed hunt #2455 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved bounded `10 dy` day UOM parity gap; regression `AzureRetailPricesSkuMatchersBoundedDyTests`.
+
 2026-09-13 seed hunt #2450 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved standalone `mn` month UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneMnTests`.
 
 2026-09-13 seed hunt #2418 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved standalone `dy` day UOM parity gap; regression `AzureRetailPricesSkuMatchersStandaloneDyTests`.
@@ -10674,11 +10676,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 43
-- **bugs-found:** 30
+- **hunts:** 45
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2354: slash `/dy` day UOM rejected while `/day` and `/d` synonyms matched
+- **last-bug:** 2026-09-13 — hunt #2455: bounded `10 dy` day UOM parity gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
