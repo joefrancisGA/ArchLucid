@@ -11017,6 +11017,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-13 seed hunt #2482 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `set_hostname_as_fqdn` pod spec projection gap (acronym snake_case alias); regression `ParseAsync_snake_case_set_hostname_as_fqdn_projects_set_hostname_as_fqdn_exposure`.
+
 2026-09-13 seed hunt #2477 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `scheduler_name` pod spec projection gap; regression `ParseAsync_snake_case_scheduler_name_projects_scheduler_name_exposure`.
 
 2026-09-13 seed hunt #2472 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `node_name` pod spec projection gap; regression `ParseAsync_snake_case_node_name_projects_node_name_exposure`.
@@ -11045,11 +11047,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 127
-- **bugs-found:** 170
+- **hunts:** 128
+- **bugs-found:** 171
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2477: snake_case `scheduler_name` pod spec not projected
+- **last-bug:** 2026-09-13 — hunt #2482: snake_case `set_hostname_as_fqdn` pod spec not projected
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
