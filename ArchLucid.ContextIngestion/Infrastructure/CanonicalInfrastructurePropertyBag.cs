@@ -41,6 +41,7 @@ public static class CanonicalInfrastructurePropertyBag
         "dnsnameserver",
         "dnssearch",
         "hostaliasip",
+        "dnsoptionattempts",
         "dnsoptionsinglerequest",
         "dnsoptionndots",
         "hostaliashostname",
