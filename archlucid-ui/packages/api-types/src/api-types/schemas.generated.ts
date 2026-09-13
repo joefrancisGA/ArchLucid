@@ -4331,6 +4331,7 @@ export interface components {
             sourceUrl?: string;
         };
         FavoriteReviewEntryDto: {
+            architectureId?: null | string;
             pinnedAtUtc?: string;
             runId?: string;
             title?: null | string;
