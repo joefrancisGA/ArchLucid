@@ -2725,6 +2725,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_spring_cloud_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "spring-1", label: "backend", sourceId: "azurerm_spring_cloud_service.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-backend")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "spring-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_spring_cloud_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
