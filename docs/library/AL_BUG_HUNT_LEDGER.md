@@ -10703,6 +10703,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-costing
 
+2026-09-13 seed hunt #2493 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
 2026-09-13 seed hunt #2488 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10d` day UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactDTests`.
 
 2026-09-13 seed hunt #2483 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved bounded `10 d` day UOM parity gap; regression `AzureRetailPricesSkuMatchersBoundedDTests`.
@@ -10734,7 +10736,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** ."51"
+- **hunts:** ."52"
 - **bugs-found:** ."38"
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
