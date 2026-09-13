@@ -224,7 +224,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("express_route", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("virtual_network_gateway", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("azurerm_firewall", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("virtual_machine", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("virtual_machine", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("app_service", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
