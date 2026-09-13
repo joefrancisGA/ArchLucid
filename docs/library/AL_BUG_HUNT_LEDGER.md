@@ -10685,6 +10685,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — slash `/m` UOM rejected while `/mo` and standalone `m` synonyms matched — **hit 2026-09-12 seed hunt #2185:** Azure Retail monthly consumption meters with bare `/m` or `1/m` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/mo` and `m` already matched (parity with `/d` and `/w`); fixed with `ContainsSlashMToken`; regressions in `AzureRetailPricesSkuMatchersSlashMonthShortTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — slash `/w` UOM rejected while `/wk` and standalone `w` synonyms matched — **hit 2026-09-12 seed hunt #2153:** Azure Retail weekly consumption meters with bare `/w` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/wk` and `w` already matched (parity with `/d` and `/h`); fixed with `ContainsSlashWToken`; regressions in `AzureRetailPricesSkuMatchersSlashWeekTests`.
 - [x] (proven) `AzureRetailPricesCatalogClient.IsWeekMeter` — slash `/wks` UOM rejected while standalone `wks` and `/wk` synonyms matched — **hit 2026-09-13 seed hunt #2317:** Azure Retail weekly consumption meters with bare `/wks` or `1/wks` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while standalone `wks` and `/wk` already matched (parity with `/mins` and `/hrs`); fixed with `ContainsSlashWksToken`; regression in `AzureRetailPricesSkuMatchersSlashWksTests`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — slash `/mos` UOM rejected while `/mo` and standalone `mo` synonyms matched — **hit 2026-09-13 seed hunt #2318:** Azure Retail monthly consumption meters with bare `/mos` or `1/mos` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `/mo` and `mo` already matched (parity with `/mins` and `/wks`); fixed with `ContainsSlashMosToken`; regression in `AzureRetailPricesSkuMatchersSlashMosTests`.
 
 2026-09-12 seed hunt #1910 (hit): reseeded core-costing sibling UOM parity; proved standalone/slash weekly Azure retail gap; 142 scoped Costing tests passed.
 
@@ -10865,13 +10866,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 107
-- **bugs-found:** 157
+- **hunts:** 108
+- **bugs-found:** 158
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-12 — camelCase `podTemplate` workload template omitted pod security projection
+- **last-bug:** 2026-09-13 — hunt #2319: snake_case `host_pid` pod spec not projected
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2319 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case `host_pid` pod spec projection gap; regression `ParseAsync_snake_case_host_pid_projects_host_pid_exposure`.
 
 2026-09-13 seed hunt #2297 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
