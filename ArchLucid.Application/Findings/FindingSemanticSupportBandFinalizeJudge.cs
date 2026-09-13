@@ -89,5 +89,4 @@ public sealed class FindingSemanticSupportBandFinalizeJudge(
                 cancellationToken)
             .ConfigureAwait(false);
     }
-
 }

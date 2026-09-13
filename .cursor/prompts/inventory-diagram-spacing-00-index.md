@@ -4,6 +4,8 @@
      resources and their connectors sit too far apart on a mostly empty canvas.
      Do not implement from this index. -->
 
+**Superseded for packing (2026-09-12):** IDS-01–IDS-04 landed. Do **not** re-run them. Owner **Export Mermaid** proved 0 subgraphs; IDS-02 `alpack_*` wrapping makes that graph *wider* (Mermaid 11 extractor flips edge-free subgraphs to LR). Next wave: [`.cursor/prompts/inventory-diagram-human-00-index.md`](inventory-diagram-human-00-index.md) (**IDH-01–IDH-03**).
+
 # Inventory-diagram spacing — Composer prompt set (IDS-01–IDS-04)
 
 ArchLucid sells a **seat for a repeat professional**. Inventory diagrams are an all-day SecureNow tool. A render that is *legible* but requires panning across a white sea to follow a peering connector is not done.

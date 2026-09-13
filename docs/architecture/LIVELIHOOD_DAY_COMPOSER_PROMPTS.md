@@ -1,7 +1,7 @@
 > **Scope:** Copy-paste Composer prompts — Livelihood-day Composer prompts (LY-001–LY-120). Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/livelihood-day-00-index.md`](../../.cursor/prompts/livelihood-day-00-index.md) (**LY-001–LY-120**)
-> **Predecessor:** [`SYSTEM_GRAVITY_COMPOSER_PROMPTS.md`](SYSTEM_GRAVITY_COMPOSER_PROMPTS.md) (**SG**, in progress) · [`LIVELIHOOD_GRADE_NO_COMPOSER_PROMPTS.md`](LIVELIHOOD_GRADE_NO_COMPOSER_PROMPTS.md) (**LN**, shipped)
+> **Predecessor:** [`SYSTEM_GRAVITY_COMPOSER_PROMPTS.md`](SYSTEM_GRAVITY_COMPOSER_PROMPTS.md) (**SG**, shipped) · [`LIVELIHOOD_GRADE_NO_COMPOSER_PROMPTS.md`](LIVELIHOOD_GRADE_NO_COMPOSER_PROMPTS.md) (**LN**, shipped)
 
 # Livelihood-day Composer prompts (LY-001–LY-120)
 

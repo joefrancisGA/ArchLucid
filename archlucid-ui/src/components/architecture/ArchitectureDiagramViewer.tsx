@@ -289,9 +289,6 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:leading-snug [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100',
   '[&_svg_.cluster_rect]:fill-white dark:[&_svg_.cluster_rect]:fill-neutral-950/80',
   '[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]',
-  // IDS-02 packing subgraphs (alpack_*) — hide cluster chrome; structure is layout-only.
-  '[&_svg_g[id*="alpack"]_.cluster_rect]:fill-transparent [&_svg_g[id*="alpack"]_.cluster_rect]:stroke-none',
-  '[&_svg_g.cluster[id*="alpack"]_rect]:fill-transparent [&_svg_g.cluster[id*="alpack"]_rect]:stroke-none',
   // Fallback ink when Mermaid CSS is stripped (light = pale honey on white canvas).
   '[&_svg_.node_rect]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_.node_rect]:fill-slate-700',
   '[&_svg_.node_rect]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_.node_rect]:stroke-slate-200',
@@ -344,8 +341,23 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   const mermaidFitRetryCountRef = useRef(0);
   const mermaidFitRetryTimeoutRef = useRef<number | null>(null);
   const zoom = useDiagramZoomState(pathname);
+  const previousMermaidSourceRef = useRef<string | null>(null);
 
   fullscreenOpenRef.current = fullscreenOpen;
+
+  useEffect(() => {
+    const trimmed = mermaidSource.trim();
+    const previous = previousMermaidSourceRef.current;
+    previousMermaidSourceRef.current = trimmed;
+
+    if (previous === null || previous === trimmed) {
+      return;
+    }
+
+    // 100% is contain-fit, not native mermaid pixels. A stale diagZoom from a
+    // previous empty plate must not hide the next source at 30%.
+    zoom.setZoom(1);
+  }, [mermaidSource, zoom.setZoom]);
 
   const setFullscreenOpen = useCallback(
     (value: SetStateAction<boolean>) => {

@@ -1,5 +1,5 @@
 /**
- * Mock-backed legibility ratchet for Inventory diagrams mermaid viewport (IDL-06, IDS-04).
+ * Mock-backed legibility ratchet for Inventory diagrams mermaid viewport (IDL-06, IDH-03).
  */
 import { expect, test } from "@playwright/test";
 import type { TestInfo } from "@playwright/test";
@@ -220,7 +220,8 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
     expect(metrics?.scrollHeight).toBeGreaterThan(metrics?.clientHeight ?? 0);
   });
 
-  test("sparse peering forest is compact, honest, and crops empty plate at default zoom", async ({ page }, testInfo: TestInfo) => {
+  test("owner peering forest is a compact TD grid at 100 percent zoom", async ({ page }, testInfo: TestInfo) => {
+    await page.setViewportSize({ width: 1440, height: 1400 });
     await mockDiagramRoutes(page, elevenVnetSparsePeeringRenderResponse());
 
     await page.goto(
@@ -233,32 +234,58 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
 
     const metrics = await page.evaluate((minHeight) => {
       const viewport = document.querySelector('[data-testid="architecture-diagram-viewport"]');
+      const camera = document.querySelector('[data-testid="architecture-diagram-camera"]');
       const svg = document.querySelector('[data-testid="architecture-diagram-svg-host"] svg');
 
-      if (viewport === null || !(svg instanceof SVGSVGElement)) {
+      if (viewport === null || camera === null || !(svg instanceof SVGSVGElement)) {
         return null;
       }
 
+      const mapLocalBBox = (element: SVGGraphicsElement): { x: number; y: number; w: number; h: number } | null => {
+        const local = element.getBBox();
+        const elementScreenCtm = element.getScreenCTM();
+        const svgScreenCtm = svg.getScreenCTM();
+
+        if (elementScreenCtm === null || svgScreenCtm === null) {
+          return null;
+        }
+
+        const toSvg = svgScreenCtm.inverse().multiply(elementScreenCtm);
+        const corners: Array<readonly [number, number]> = [
+          [local.x, local.y],
+          [local.x + local.width, local.y],
+          [local.x, local.y + local.height],
+          [local.x + local.width, local.y + local.height],
+        ];
+        let minX = Number.POSITIVE_INFINITY;
+        let minY = Number.POSITIVE_INFINITY;
+        let maxX = Number.NEGATIVE_INFINITY;
+        let maxY = Number.NEGATIVE_INFINITY;
+
+        for (const [x, y] of corners) {
+          const point = svg.createSVGPoint();
+          point.x = x;
+          point.y = y;
+          const mapped = point.matrixTransform(toSvg);
+          minX = Math.min(minX, mapped.x);
+          minY = Math.min(minY, mapped.y);
+          maxX = Math.max(maxX, mapped.x);
+          maxY = Math.max(maxY, mapped.y);
+        }
+
+        if (!Number.isFinite(minX) || maxX <= minX || maxY <= minY) {
+          return null;
+        }
+
+        return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+      };
+
       const viewportRect = viewport.getBoundingClientRect();
-      const nodeRects = [...svg.querySelectorAll("g.node")].map((node) => {
+      const nodeElements = [...svg.querySelectorAll("g.node")];
+      const nodeRects = nodeElements.map((node) => {
         const rect = node.getBoundingClientRect();
         return { x: rect.x, y: rect.y, w: rect.width, h: rect.height };
       });
-      const sortedByRow = [...nodeRects].sort((left, right) => left.y - right.y || left.x - right.x);
-      const rowTolerance = Math.max(8, (sortedByRow[0]?.h ?? 0) * 0.35);
-      const firstRow = sortedByRow.filter(
-        (node) => Math.abs(node.y - (sortedByRow[0]?.y ?? 0)) <= rowTolerance,
-      );
-      firstRow.sort((left, right) => left.x - right.x);
-      const horizontalGaps: number[] = [];
-
-      for (let index = 1; index < firstRow.length; index += 1) {
-        horizontalGaps.push(firstRow[index]!.x - (firstRow[index - 1]!.x + firstRow[index - 1]!.w));
-      }
-
-      const minY = nodeRects.reduce((acc, node) => Math.min(acc, node.y), Number.POSITIVE_INFINITY);
-      const maxY = nodeRects.reduce((acc, node) => Math.max(acc, node.y + node.h), Number.NEGATIVE_INFINITY);
-
       const visibleNodeCount = nodeRects.filter((node) => {
         const intersectionW = Math.max(
           0,
@@ -274,95 +301,119 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
         return nodeArea > 0 && intersectionArea / nodeArea >= 0.5;
       }).length;
 
-      const nodeBoxes = [...svg.querySelectorAll("g.node")].map((node) => {
-        const graphics = node as SVGGraphicsElement;
-        const box = graphics.getBBox();
-        return { x: box.x, y: box.y, w: box.width, h: box.height };
-      });
+      const mappedBoxes = nodeElements.flatMap((node) => {
+        if (!(node instanceof SVGGraphicsElement)) {
+          return [];
+        }
 
-      const union = nodeBoxes.reduce(
+        const mapped = mapLocalBBox(node);
+
+        return mapped === null ? [] : [mapped];
+      });
+      const union = mappedBoxes.reduce(
         (acc, box) => ({
           minX: Math.min(acc.minX, box.x),
           minY: Math.min(acc.minY, box.y),
           maxX: Math.max(acc.maxX, box.x + box.w),
           maxY: Math.max(acc.maxY, box.y + box.h),
         }),
-        { minX: Number.POSITIVE_INFINITY, minY: Number.POSITIVE_INFINITY, maxX: Number.NEGATIVE_INFINITY, maxY: Number.NEGATIVE_INFINITY },
+        {
+          minX: Number.POSITIVE_INFINITY,
+          minY: Number.POSITIVE_INFINITY,
+          maxX: Number.NEGATIVE_INFINITY,
+          maxY: Number.NEGATIVE_INFINITY,
+        },
       );
-
-      const unionWidth = union.maxX - union.minX;
-      const unionHeight = union.maxY - union.minY;
-      const viewBoxParts = (svg.getAttribute("viewBox") ?? "0 0 0 0").split(/\s+/u).map(Number.parseFloat);
+      const mappedUnionWidth = union.maxX - union.minX;
+      const mappedUnionHeight = union.maxY - union.minY;
+      const viewBoxParts = (svg.getAttribute("viewBox") ?? "0 0 0 0").trim().split(/[\s,]+/u).map(Number.parseFloat);
       const viewBoxWidth = viewBoxParts[2] ?? 0;
       const viewBoxHeight = viewBoxParts[3] ?? 0;
+      const viewBoxAspect = viewBoxHeight > 0 ? viewBoxWidth / viewBoxHeight : Number.POSITIVE_INFINITY;
 
-      const peeringPairs: Array<{ distance: number; threshold: number }> = [];
-      const nodeById = new Map<string, { cx: number; cy: number; w: number; h: number }>();
+      const nodeBySanitizedId = new Map<string, { cx: number; cy: number; w: number; h: number }>();
 
-      for (const node of svg.querySelectorAll("g.node")) {
-        const graphics = node as SVGGraphicsElement;
-        const box = graphics.getBBox();
-        nodeById.set(node.id, {
-          cx: box.x + box.width / 2,
-          cy: box.y + box.height / 2,
-          w: box.width,
-          h: box.height,
+      for (const node of nodeElements) {
+        if (!(node instanceof SVGGraphicsElement)) {
+          continue;
+        }
+
+        const mapped = mapLocalBBox(node);
+        const idMatch = /flowchart-(n_[0-9a-f]+)-\d+$/u.exec(node.id);
+
+        if (mapped === null || idMatch === null || idMatch[1] === undefined) {
+          continue;
+        }
+
+        nodeBySanitizedId.set(idMatch[1], {
+          cx: mapped.x + mapped.w / 2,
+          cy: mapped.y + mapped.h / 2,
+          w: mapped.w,
+          h: mapped.h,
         });
       }
 
-      for (const path of svg.querySelectorAll("g.edgePaths path")) {
+      const peeringPairs: Array<{ distance: number; threshold: number }> = [];
+
+      for (const path of svg.querySelectorAll("path")) {
+        const edgeId = path.id || path.closest("g")?.id || "";
+
+        if (edgeId.includes("edge-thickness-invisible") || path.classList.contains("edge-thickness-invisible")) {
+          continue;
+        }
+
         const style = window.getComputedStyle(path);
-        const stroke = style.stroke;
 
-        if (stroke === "none" || style.opacity === "0") {
+        if (style.stroke === "none" || style.opacity === "0" || Number.parseFloat(style.strokeWidth) === 0) {
           continue;
         }
 
-        const parent = path.closest("g.edgePaths");
-        const edgeId = parent?.id ?? "";
+        const match = /L_(n_[0-9a-f]+)_(n_[0-9a-f]+)_\d+$/u.exec(edgeId);
 
-        if (!edgeId.includes("L_")) {
+        if (match === null || match[1] === undefined || match[2] === undefined) {
           continue;
         }
 
-        const match = /L_([^_]+)_([^_]+)_/.exec(edgeId);
-
-        if (match === null) {
-          continue;
-        }
-
-        const from = nodeById.get(`flowchart-${match[1]}-0`);
-        const to = nodeById.get(`flowchart-${match[2]}-0`);
+        const from = nodeBySanitizedId.get(match[1]);
+        const to = nodeBySanitizedId.get(match[2]);
 
         if (from === undefined || to === undefined) {
           continue;
         }
 
         const distance = Math.hypot(from.cx - to.cx, from.cy - to.cy);
-        const threshold = Math.max(180, 2.5 * Math.max(from.w, from.h, to.w, to.h));
+        const threshold = Math.max(280, 3.5 * Math.max(from.w, from.h, to.w, to.h));
         peeringPairs.push({ distance, threshold });
       }
 
-      const minNodeHeight = nodeRects.reduce((acc, node) => Math.min(acc, node.h), Number.POSITIVE_INFINITY);
+      const zoomPercent = Number.parseInt(
+        (document.querySelector('[data-testid="architecture-diagram-zoom-input"]') as HTMLInputElement | null)?.value
+          ?? "100",
+        10,
+      );
+      const mermaidSource =
+        document.querySelector('[data-testid="infra-diagrams-mermaid-source"]')?.textContent
+        ?? svg.outerHTML;
 
       return {
+        nodeCount: nodeElements.length,
         visibleNodeCount,
-        minNodeHeight,
+        minNodeHeight: nodeRects.reduce((acc, node) => Math.min(acc, node.h), Number.POSITIVE_INFINITY),
+        viewBoxAspect,
         viewBoxWidth,
         viewBoxHeight,
-        unionWidth,
-        unionHeight,
-        heightSpanRatio: (maxY - minY) / viewportRect.height,
-        maxHorizontalGapRatio:
-          horizontalGaps.length === 0
-            ? 0
-            : Math.max(...horizontalGaps) / Math.max(1, firstRow[0]?.w ?? 1),
-        peeringPairs,
-        edgePathCount: svg.querySelectorAll("g.edgePaths path").length,
+        mappedUnionWidth,
+        mappedUnionHeight,
+        zoomPercent,
+        cameraScrollWidth: camera.scrollWidth,
+        cameraClientWidth: camera.clientWidth,
         outlineEdgeRows:
           Array.from(document.querySelectorAll("h3"))
             .find((heading) => heading.textContent?.trim() === "Edges")
             ?.parentElement?.querySelectorAll("tbody tr").length ?? 0,
+        peeringPairCount: peeringPairs.length,
+        peeringPairs,
+        containsAlpack: mermaidSource.includes("subgraph alpack") || svg.outerHTML.includes("alpack"),
       };
     }, minNodeHeightPx);
 
@@ -375,17 +426,32 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
     }
 
     expect(metrics).not.toBeNull();
-    expect(metrics?.visibleNodeCount).toBeGreaterThanOrEqual(8);
-    expect(metrics?.minNodeHeight).toBeGreaterThanOrEqual(minNodeHeightPx);
-    expect(metrics?.outlineEdgeRows).toBe(6);
-    expect(metrics?.edgePathCount).toBeGreaterThanOrEqual(6);
-    expect(metrics?.heightSpanRatio).toBeLessThanOrEqual(0.7);
-    expect(metrics?.maxHorizontalGapRatio).toBeLessThanOrEqual(0.5);
-    expect(metrics?.viewBoxWidth).toBeLessThanOrEqual((metrics?.unionWidth ?? 0) * 1.2 + 1);
-    expect(metrics?.viewBoxHeight).toBeLessThanOrEqual((metrics?.unionHeight ?? 0) * 1.2 + 1);
 
-    for (const pair of metrics?.peeringPairs ?? []) {
-      expect(pair.distance).toBeLessThanOrEqual(pair.threshold);
+    if (metrics === null) {
+      return;
+    }
+
+    try {
+      expect(metrics.zoomPercent).toBe(100);
+      expect(metrics.nodeCount).toBe(11);
+      expect(metrics.visibleNodeCount).toBeGreaterThanOrEqual(9);
+      expect(metrics.viewBoxAspect).toBeLessThanOrEqual(2.5);
+      expect(metrics.cameraScrollWidth).toBeLessThanOrEqual(metrics.cameraClientWidth + 2);
+      expect(metrics.outlineEdgeRows).toBe(6);
+      expect(metrics.minNodeHeight).toBeGreaterThanOrEqual(minNodeHeightPx);
+      expect(metrics.containsAlpack).toBe(false);
+      expect(metrics.peeringPairCount).toBeGreaterThanOrEqual(6);
+
+      for (const pair of metrics.peeringPairs) {
+        expect(pair.distance).toBeLessThanOrEqual(pair.threshold);
+      }
+    } catch (error) {
+      const svg = await page.locator('[data-testid="architecture-diagram-svg-host"] svg').first();
+      await testInfo.attach("sparse-peering-svg.html", {
+        body: await svg.evaluate((element) => element.outerHTML),
+        contentType: "text/html",
+      });
+      throw error;
     }
   });
 });

@@ -272,7 +272,29 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("palo_alto", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("verifiedaccess", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("workloads_orchestrator", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("extended_location", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("extended_location", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("confidential_ledger", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("managed_lustre", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("video_indexer", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("hpc_cache", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("mobile_network", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dev_center", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("graph_account", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("fabric_capacity", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("pinecone", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("mongo_cluster", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("elastic_cloud", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("neptune_cluster", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("oracle_cloud", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("oracle_autonomous", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("storage_mover", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("storage_queue", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("storage_table", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("storage_blob", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("storage_container", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("storage_data_lake", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("data_lake_gen2", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("site_recovery", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>

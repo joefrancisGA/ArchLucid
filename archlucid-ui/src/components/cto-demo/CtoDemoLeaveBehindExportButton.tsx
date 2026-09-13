@@ -4,6 +4,7 @@ import { Download } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { buildStaticCtoDemoRecapPayload } from "@/lib/buyer/buyer-cto-demo-recap";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { showError, showSuccess } from "@/lib/toast";
@@ -57,16 +58,19 @@ export function CtoDemoLeaveBehindExportButton(): React.JSX.Element {
   }, []);
 
   return (
-    <Button
-      type="button"
-      size="sm"
-      variant="outline"
-      disabled={busy}
-      onClick={() => void onDownload()}
-      data-testid="cto-demo-leave-behind-export"
-    >
-      <Download className="mr-1 h-3.5 w-3.5" aria-hidden />
-      {busy ? "Generating…" : "Download recap (PDF)"}
-    </Button>
+    <div className="flex flex-col gap-2">
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        disabled={busy}
+        onClick={() => void onDownload()}
+        data-testid="cto-demo-leave-behind-export"
+      >
+        <Download className="mr-1 h-3.5 w-3.5" aria-hidden />
+        {busy ? "Generating…" : "Download recap (PDF)"}
+      </Button>
+      <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="cto-demo-leave-behind-export" />
+    </div>
   );
 }

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
 import {
   downloadQuickDecisionFindingsCsv,
@@ -167,45 +168,48 @@ export function FindingsItsmExportToolbar({
   }
 
   const exportButtons = (
-    <div
-      className="flex flex-wrap items-center justify-end gap-2"
-      role="group"
-      aria-label="Export findings"
-    >
-      {scopeLabel !== null ? (
-        <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {scopeLabel}
-        </span>
-      ) : null}
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="h-8 gap-1.5"
-        disabled={exportingCsv || exportDisabled}
-        data-testid="findings-export-csv-button"
-        onClick={onExportCsv}
+    <div className="space-y-2">
+      <div
+        className="flex flex-wrap items-center justify-end gap-2"
+        role="group"
+        aria-label="Export findings"
       >
-        <FileSpreadsheet className="size-3.5" aria-hidden />
-        {exportingCsv ? "Exporting…" : csvLabel}
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="h-8 gap-1.5"
-        disabled={exportDisabled}
-        data-testid="findings-export-json-button"
-        onClick={onExportJson}
-      >
-        <FileJson className="size-3.5" aria-hidden />
-        {jsonLabel}
-      </Button>
-      {exportError !== null ? (
-        <p className={cn("m-0 w-full text-right text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-          {exportError}
-        </p>
-      ) : null}
+        {scopeLabel !== null ? (
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {scopeLabel}
+          </span>
+        ) : null}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5"
+          disabled={exportingCsv || exportDisabled}
+          data-testid="findings-export-csv-button"
+          onClick={onExportCsv}
+        >
+          <FileSpreadsheet className="size-3.5" aria-hidden />
+          {exportingCsv ? "Exporting…" : csvLabel}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5"
+          disabled={exportDisabled}
+          data-testid="findings-export-json-button"
+          onClick={onExportJson}
+        >
+          <FileJson className="size-3.5" aria-hidden />
+          {jsonLabel}
+        </Button>
+        {exportError !== null ? (
+          <p className={cn("m-0 w-full text-right text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+            {exportError}
+          </p>
+        ) : null}
+      </div>
+      <SponsorExportSendHonestyStrip className="w-full max-w-xl" testIdPrefix="findings-itsm-export" />
     </div>
   );
 
@@ -262,37 +266,38 @@ export function FindingsItsmExportToolbar({
       <div className="mt-2 space-y-2">
         <SimulatorModeAiOperationNotice testId="findings-export-simulator-notice" />
         <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          variant="default"
-          size="sm"
-          className="h-8 gap-1.5"
-          disabled={exportingCsv || exportDisabled}
-          data-testid="findings-export-csv-button"
-          onClick={onExportCsv}
-        >
-          <FileSpreadsheet className="size-3.5" aria-hidden />
-          {exportingCsv ? "Exporting…" : csvLabel}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-8 gap-1.5"
-          disabled={exportDisabled}
-          data-testid="findings-export-json-button"
-          onClick={onExportJson}
-        >
-          <FileJson className="size-3.5" aria-hidden />
-          {jsonLabel}
-        </Button>
+          <Button
+            type="button"
+            variant="default"
+            size="sm"
+            className="h-8 gap-1.5"
+            disabled={exportingCsv || exportDisabled}
+            data-testid="findings-export-csv-button"
+            onClick={onExportCsv}
+          >
+            <FileSpreadsheet className="size-3.5" aria-hidden />
+            {exportingCsv ? "Exporting…" : csvLabel}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5"
+            disabled={exportDisabled}
+            data-testid="findings-export-json-button"
+            onClick={onExportJson}
+          >
+            <FileJson className="size-3.5" aria-hidden />
+            {jsonLabel}
+          </Button>
         </div>
+        {exportError !== null ? (
+          <p className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+            {exportError}
+          </p>
+        ) : null}
+        <SponsorExportSendHonestyStrip className="w-full max-w-xl" testIdPrefix="findings-itsm-export" />
       </div>
-      {exportError !== null ? (
-        <p className={cn("m-0 mt-2 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-          {exportError}
-        </p>
-      ) : null}
     </div>
   );
 }

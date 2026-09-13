@@ -6,6 +6,7 @@ import { Suspense } from "react";
 
 import { HelpAzurePermissionsClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpAzurePermissionsClaimOrientationStrip";
 import { AzureCloudConnectionRolesTable } from "@/components/help/AzureCloudConnectionRolesTable";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAzurePermissionsHeaderActions } from "@/app/(operator)/help/_sections/HelpAzurePermissionsHeaderActions";
@@ -213,6 +214,8 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             actions={<HelpAzurePermissionsHeaderActions entry={entry} setupHref={verifySetupHref} />}
           />
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-azure-permissions" showSsoOptional={false} />
 
         <div className={buyerPolishedShell ? "min-w-0 space-y-8" : HELP_PAGE_LAYOUT.contentGrid}>
           <div className="min-w-0 space-y-8" data-testid="help-azure-permissions-primary">

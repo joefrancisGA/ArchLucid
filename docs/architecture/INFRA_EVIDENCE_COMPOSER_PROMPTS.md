@@ -3,7 +3,7 @@
 
 # Infrastructure-evidence Composer prompts
 
-**Created:** 2026-09-04 · **Revised:** 2026-09-12 (added **IE-DD-01–IE-DD-04** Data diagram render failed; **IDS-01–IDS-04** inventory-diagram spacing: real peerings skip the peer-grid; resources and connectors too far apart; **IE-RF-01–IE-RF-12** relationship-first topology collection; **IE-ID-01–IE-ID-03** Identity diagram compiles but does not paint; **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931).
+**Created:** 2026-09-04 · **Revised:** 2026-09-12 (added **IDH-01–IDH-03** inventory-diagram human layout from owner `.mmd`; **IE-DD-01–IE-DD-04** Data diagram render failed; **IDS-01–IDS-04** inventory-diagram spacing — **do not re-run**, packing subgraphs superseded by IDH; **IE-RF-01–IE-RF-12** relationship-first topology collection; **IE-ID-01–IE-ID-03** Identity diagram compiles but does not paint; **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931).
 
 **Status:** ready to run — **one prompt per chat**.
 
@@ -24,7 +24,8 @@ Canonical design: [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md
 | [`INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md) | **IE-RF-01–IE-RF-12** Relationship-first ARG projections + type-scoped ARM lists → association table → Mermaid (not ARM export / `dependsOn`) |
 | [`INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ID-01–IE-ID-03** Identity mode compiles (Succeeded + outline) but the canvas does not paint (sparse flatten leftover from IE-ND-03, mermaid contract, overlay collapse) |
 | [`INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-DD-01–IE-DD-04** Data mode Render failed (38 nodes / 70 edges / 38 subgraphs): SQL/Cosmos/DBfor category slash-bug, mermaid contract, owner Failed ratchet, honest validation errors |
-| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md) | **IDS-01–IDS-04** Executive canvas is better after IDL, but resources and connectors sit too far apart (peering forest skips the peer-grid; padded viewBox) |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md) | **IDS-01–IDS-04** (landed — **do not re-run**) Executive spacing; packing subgraphs superseded by IDH |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_HUMAN_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_HUMAN_COMPOSER_PROMPTS.md) | **IDH-01–IDH-03** Owner Executive `.mmd` (11 VNets / 6 unlabeled arrows / 0 subgraphs) must pack as TD columns, not `alpack_*` LR pairs |
 
 ## Why this set exists
 
@@ -131,7 +132,7 @@ Run **IE-UX-00 first** after backend batches land; then IE-UX-01–IE-UX-05 in o
 
 **Data diagram render failed:** run **IE-DD-01 first**, then **IE-DD-02**. **IE-DD-03** may run in parallel with 02 after 01. **IE-DD-04** after 03. Prompts: [`INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-data-00-index.md`](../../.cursor/prompts/inventory-diagram-data-00-index.md).
 
-**Inventory diagram resources and connectors too far apart (after IDL):** run **IDS-01** (viewer spacing) and **IDS-02** (component packer) in parallel, then **IDS-03** (node-union crop; may parallel 02). **IDS-04** last. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-spacing-00-index.md`](../../.cursor/prompts/inventory-diagram-spacing-00-index.md). Do **not** re-run IDL-01–06.
+**Inventory diagram resources and connectors too far apart (after IDL):** **IDS-01–IDS-04 landed — do not re-run.** Owner Export Mermaid is 11/6/0 with no packing subgraphs; IDS-02 `alpack_*` wrapping widens that graph. Next: **IDH-01** (row-pack, no subgraphs) in parallel with **IDH-02** (zoom reset + mapped crop). **IDH-03** last. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_HUMAN_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_HUMAN_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-human-00-index.md`](../../.cursor/prompts/inventory-diagram-human-00-index.md). Do **not** re-run IDL-01–06 or IDS-01–04.
 
 **Inventory diagram spacing still too loose (after IDS + IDL-07):** run **IDT-01** and **IDT-02** in parallel, then **IDT-03**, then **IDT-04**. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_DENSE_SPACING_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_DENSE_SPACING_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-dense-spacing-00-index.md`](../../.cursor/prompts/inventory-diagram-dense-spacing-00-index.md). Do **not** re-run IDS-01–04.
 

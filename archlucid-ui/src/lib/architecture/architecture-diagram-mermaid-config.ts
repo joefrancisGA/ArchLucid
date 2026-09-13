@@ -29,7 +29,6 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
     padding: number;
     nodeSpacing: number;
     rankSpacing: number;
-    ranker: "network-simplex";
     wrappingWidth: number;
     useMaxWidth: false;
   };
@@ -44,12 +43,12 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
     flowchart: {
       htmlLabels: false,
       // IDL-07 briefly loosened gaps for the zero-edge grid; IDT-01 re-tightens for sparse forests.
-      // linear + network-simplex keeps connectors short; basis + tight-tree spreads components apart.
+      // linear keeps connectors short. Do not set flowchart.ranker — Mermaid 11's dagre adapter
+      // does not forward it for flowcharts (a no-op that later agents kept "tuning").
       curve: "linear",
       padding: ARCHITECTURE_DIAGRAM_MERMAID_PADDING,
       nodeSpacing: ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING,
       rankSpacing: ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING,
-      ranker: "network-simplex",
       wrappingWidth: ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH,
       useMaxWidth: false,
     },

@@ -71,7 +71,8 @@ public static class SupportBundleTriageIndexBuilder
         List<string> notes =
         [
             "Identifiers only — no secrets, prompts, or evidence bodies.",
-            "Retrieval grounding trace ids are not captured unless a future diagnostics API exposes them."
+            "Retrieval grounding trace ids are not captured unless a future diagnostics API exposes them.",
+            "Working route hint: architecture desk = parent identity; nested job = review under /architecture/architectures/{id}/reviews/{runId}; inbox = /architecture/reviews; Practice/Rehearsal = structural execution mode on the run row."
         ];
 
         if (runSection is null && !string.IsNullOrWhiteSpace(runId))
@@ -146,6 +147,8 @@ public static class SupportBundleTriageIndexBuilder
             sb.AppendLine($"- manifestVersion: {OrNotCaptured(index.Run.ManifestVersion)}");
             sb.AppendLine($"- otelTraceId: {OrNotCaptured(index.Run.OtelTraceId)}");
             sb.AppendLine($"- executePostureCapturedUtc: {OrNotCaptured(index.Run.ExecutePostureCapturedUtc)}");
+            sb.AppendLine(
+                "- workingRouteHint: nested review job when parent architecture is known; peer /architecture/reviews when unlinked; desk is /architecture/architectures/{architectureId}");
             sb.AppendLine();
         }
 

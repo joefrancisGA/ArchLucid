@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -94,6 +95,7 @@ export function AiUsageRecentActivityPanel(props: Props) {
             </Button>
           ) : null}
         </div>
+        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="ai-usage-export-activity" />
       </CardHeader>
       <CardContent className={OPERATOR_CARD.content}>
         <AiUsageSectionState
