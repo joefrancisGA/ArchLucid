@@ -250,6 +250,41 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && !string.IsNullOrWhiteSpace(serviceAccountName.GetString()))
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "serviceAccountName", serviceAccountName.GetString()!);
 
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "priorityClassName", out JsonElement priorityClassName)
+            && priorityClassName.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(priorityClassName.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "priorityClassName", priorityClassName.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "runtimeClassName", out JsonElement runtimeClassName)
+            && runtimeClassName.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(runtimeClassName.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "runtimeClassName", runtimeClassName.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "hostname", out JsonElement hostname)
+            && hostname.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(hostname.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostname", hostname.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "subdomain", out JsonElement subdomain)
+            && subdomain.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(subdomain.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "subdomain", subdomain.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "restartPolicy", out JsonElement restartPolicy)
+            && restartPolicy.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(restartPolicy.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "restartPolicy", restartPolicy.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "nodeName", out JsonElement nodeName)
+            && nodeName.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(nodeName.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "nodeName", nodeName.GetString()!);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "schedulerName", out JsonElement schedulerName)
+            && schedulerName.ValueKind is JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(schedulerName.GetString()))
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "schedulerName", schedulerName.GetString()!);
+
         ProjectContainerSecurityContext(podSpec, properties);
     }
 

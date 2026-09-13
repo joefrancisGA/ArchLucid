@@ -96,6 +96,9 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
                 insert,
                 TimeProvider.System.GetUtcNow());
 
+            if (_byId.ContainsKey(row.Id))
+                throw new DuplicateAuthenticationIdentityException(key);
+
             if (!_activeExternalKeys.TryAdd(storageKey, row.Id))
                 throw new DuplicateAuthenticationIdentityException(key);
 

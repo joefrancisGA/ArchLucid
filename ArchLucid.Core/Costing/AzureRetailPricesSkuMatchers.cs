@@ -367,6 +367,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashDaysToken(trimmed)
             || ContainsSlashDyToken(trimmed)
             || ContainsSlashDToken(trimmed)
+            || ContainsBoundedToken(trimmed, " dy")
             || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "days", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "d", StringComparison.OrdinalIgnoreCase)
@@ -480,6 +481,8 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashWksToken(trimmed)
             || ContainsSlashWkToken(trimmed)
             || ContainsSlashWToken(trimmed)
+            || ContainsBoundedToken(trimmed, " wk")
+            || ContainsBoundedToken(trimmed, " wks")
             || string.Equals(trimmed, "week", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "weeks", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "w", StringComparison.OrdinalIgnoreCase)
@@ -619,11 +622,15 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashMonthToken(trimmed)
             || ContainsSlashMToken(trimmed)
             || ContainsBoundedToken(trimmed, " mo")
+            || ContainsBoundedToken(trimmed, " mon")
+            || ContainsBoundedToken(trimmed, " mn")
+            || ContainsBoundedToken(trimmed, " mos")
             || string.Equals(trimmed, "m", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "month", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "months", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mon", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "mn", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mos", StringComparison.OrdinalIgnoreCase);
     }
 
