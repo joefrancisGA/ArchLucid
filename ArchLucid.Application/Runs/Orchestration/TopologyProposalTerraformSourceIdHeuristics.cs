@@ -173,7 +173,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("monitor_diagnostic_setting", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("network_ddos_protection_plan", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cost_anomaly_alert", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("monitor_alert_prometheus_rule_group", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("monitor_alert_prometheus_rule_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("policy_assignment", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -320,7 +321,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("monitor_diagnostic_setting", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("network_ddos_protection_plan", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cost_anomaly_alert", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("monitor_alert_prometheus_rule_group", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("monitor_alert_prometheus_rule_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("policy_assignment", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
