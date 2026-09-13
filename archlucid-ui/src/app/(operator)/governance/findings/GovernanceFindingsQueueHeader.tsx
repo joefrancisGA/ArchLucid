@@ -52,7 +52,6 @@ export type GovernanceFindingsQueueHeaderProps = {
   readonly pathname?: string | null;
   readonly scopedArchitectureId?: string | null;
   readonly architectureDisplayName?: string | null;
-  readonly scopedRunId?: string | null;
   readonly scopedRunTitle?: string | null;
 };
 
@@ -75,7 +74,6 @@ export function GovernanceFindingsQueueHeader({
   pathname = null,
   scopedArchitectureId = null,
   architectureDisplayName = null,
-  scopedRunId = null,
   scopedRunTitle = null,
 }: GovernanceFindingsQueueHeaderProps) {
   const { productLine } = useProductLine();
