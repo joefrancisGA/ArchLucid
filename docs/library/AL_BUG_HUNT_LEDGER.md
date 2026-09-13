@@ -10980,13 +10980,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 116
-- **bugs-found:** 161
+- **hunts:** 117
+- **bugs-found:** 162
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-13 — hunt #2353: snake_case `host_users` pod spec not projected
+- **last-bug:** 2026-09-13 — hunt #2386: snake_case `enable_service_links` pod spec not projected
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2386 (seed→hit): reseeded context-ingestion with `-Hint context ingestion K8s snake_case`; proved snake_case `enable_service_links` pod spec projection gap; regression `ParseAsync_snake_case_enable_service_links_projects_enable_service_links_exposure`.
 
 2026-09-13 seed hunt #2364 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
