@@ -493,6 +493,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " wks")
             || HasCompactWeekSuffix(trimmed)
             || HasCompactWkSuffix(trimmed)
+            || HasCompactWeekWordSuffix(trimmed)
             || string.Equals(trimmed, "week", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "weeks", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "w", StringComparison.OrdinalIgnoreCase)
@@ -908,6 +909,16 @@ public sealed partial class AzureRetailPricesCatalogClient
         return char.IsDigit(trimmed[^2]);
     }
 
+
+
+    private static bool HasCompactWeekWordSuffix(string trimmed)
+    {
+        if (trimmed.Length < 5)
+            return false;
+
+        return trimmed.EndsWith("week", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^5]);
+    }
 
     private static bool HasCompactDayWordSuffix(string trimmed)
     {
