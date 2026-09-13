@@ -408,4 +408,165 @@ internal static class KubernetesManifestCanonicalObjectMapper
             }
         }
 
-        ProjectContainerSecurityContext(podSpec, properties);
+        ProjectContainerSecurityContext(podSpec, properties);    }
+
+    private static bool TryGetSetHostnameAsFqdn(JsonElement podSpec, out JsonElement value)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "setHostnameAsFQDN", out value))
+            return true;
+
+        return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "set_hostname_as_fqdn", out value);
+    }
+
+    private static bool TryGetTerminationGracePeriodSeconds(JsonElement podSpec, out JsonElement value)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "terminationGracePeriodSeconds", out value))
+            return true;
+
+        return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "termination_grace_period_seconds", out value);
+    }
+
+    private static bool TryGetActiveDeadlineSeconds(JsonElement podSpec, out JsonElement value)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "activeDeadlineSeconds", out value))
+            return true;
+
+        return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "active_deadline_seconds", out value);
+    }
+
+    private static bool TryGetPreemptionPolicy(JsonElement podSpec, out JsonElement value)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "preemptionPolicy", out value))
+            return true;
+
+        return CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "preemption_policy", out value);
+    }
+
+    private static bool TryGetPriority(JsonElement podSpec, out JsonElement value) =>
+        CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "priority", out value);
+
+    private static JsonElement ResolvePodSpec(JsonElement specElement, string kind)
+    {
+        if (string.Equals(kind, "Pod", StringComparison.OrdinalIgnoreCase))
+            return specElement;
+
+        if (string.Equals(kind, "CronJob", StringComparison.OrdinalIgnoreCase))
+        {
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(specElement, "jobTemplate", out JsonElement jobTemplate)
+                && jobTemplate.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(jobTemplate, "spec", out JsonElement cronJobSpec)
+                && cronJobSpec.ValueKind is JsonValueKind.Object
+                && TryGetWorkloadPodTemplate(cronJobSpec, out JsonElement cronJobPodTemplate)
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(cronJobPodTemplate, "spec", out JsonElement cronJobPodSpec))
+                return cronJobPodSpec;
+
+            return default;
+        }
+
+        if (TryGetWorkloadPodTemplate(specElement, out JsonElement workloadTemplate)
+            && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(workloadTemplate, "spec", out JsonElement workloadPodSpec))
+            return workloadPodSpec;
+
+        return default;
+    }
+
+    private static bool TryGetWorkloadPodTemplate(JsonElement specElement, out JsonElement podTemplate)
+    {
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(specElement, "template", out podTemplate)
+            && podTemplate.ValueKind is JsonValueKind.Object)
+            return true;
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(specElement, "podTemplate", out podTemplate)
+            && podTemplate.ValueKind is JsonValueKind.Object)
+            return true;
+
+        podTemplate = default;
+
+        return false;
+    }
+
+    private static void ProjectContainerSecurityContext(JsonElement podSpec, Dictionary<string, string> properties)
+    {
+        bool privileged = false;
+        bool allowPrivilegeEscalation = false;
+        bool sawRunAsNonRoot = false;
+        bool allRunAsNonRootTrue = true;
+        bool anyRunAsNonRootFalse = false;
+
+        void InspectSecurityContext(JsonElement securityContext)
+        {
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(securityContext, "privileged", out JsonElement privilegedElement)
+                && privilegedElement.ValueKind is JsonValueKind.True)
+                privileged = true;
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "allowPrivilegeEscalation", out JsonElement escalationElement)
+                && escalationElement.ValueKind is JsonValueKind.True)
+                allowPrivilegeEscalation = true;
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "runAsNonRoot", out JsonElement runAsNonRootElement))
+            {
+                sawRunAsNonRoot = true;
+
+                if (runAsNonRootElement.ValueKind is JsonValueKind.True)
+                    allRunAsNonRootTrue = allRunAsNonRootTrue && true;
+                else if (runAsNonRootElement.ValueKind is JsonValueKind.False)
+                    anyRunAsNonRootFalse = true;
+            }
+        }
+
+        void InspectContainer(JsonElement container)
+        {
+            if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
+                || securityContext.ValueKind is not JsonValueKind.Object)
+                return;
+
+            InspectSecurityContext(securityContext);
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "securityContext", out JsonElement podSecurityContext)
+            && podSecurityContext.ValueKind is JsonValueKind.Object)
+            InspectSecurityContext(podSecurityContext);
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase(podSpec, "containers", out JsonElement containers)
+            && containers.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement container in containers.EnumerateArray())
+                InspectContainer(container);
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "initContainers", out JsonElement initContainers)
+            && initContainers.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement container in initContainers.EnumerateArray())
+                InspectContainer(container);
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "ephemeralContainers", out JsonElement ephemeralContainers)
+            && ephemeralContainers.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement container in ephemeralContainers.EnumerateArray())
+                InspectContainer(container);
+        }
+
+        if (privileged)
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "privileged", "true");
+
+        if (allowPrivilegeEscalation)
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "allowPrivilegeEscalation", "true");
+
+        if (sawRunAsNonRoot && anyRunAsNonRootFalse)
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "runAsNonRoot", "false");
+        else if (sawRunAsNonRoot && allRunAsNonRootTrue)
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "runAsNonRoot", "true");
+    }
+
+    private static string ResolveObjectType(string kind)
+    {
+        return kind.ToLowerInvariant() switch
+        {
+            "networkpolicy" or "role" or "clusterrole" or "rolebinding" or "clusterrolebinding"
+                or "serviceaccount" or "ingress" or "secret" => "SecurityBaseline",
+            _ => "TopologyResource",
+        };
+    }
+}
