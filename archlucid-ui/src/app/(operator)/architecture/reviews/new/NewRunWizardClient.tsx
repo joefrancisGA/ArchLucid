@@ -2,6 +2,7 @@
 
 import { FormProvider } from "react-hook-form";
 
+import { WorkingExecuteStartHonestyNotices } from "@/components/governance/WorkingExecuteStartHonestyNotices";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { WizardAiSuggestedFieldsProvider } from "@/lib/wizard-ai-suggested-fields";
 
@@ -26,10 +27,12 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
       <WizardAiSuggestedFieldsProvider>
         {embeddedInPathSwitcher ? (
           <div ref={wizardReadyRef} className="space-y-4 pb-36" data-testid="new-run-wizard-panel">
+            <WorkingExecuteStartHonestyNotices />
             {stepBody}
           </div>
         ) : (
           <OperatorPageContainer ref={wizardReadyRef} variant="workflow" className="space-y-4 pb-36">
+            <WorkingExecuteStartHonestyNotices />
             {stepBody}
           </OperatorPageContainer>
         )}

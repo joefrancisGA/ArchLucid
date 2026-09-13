@@ -1,7 +1,7 @@
 > **Scope:** Copy-paste Composer prompts that close **inhabit wave-34** leftovers after SG / LY and the 2026-09-13 working-architect diagnosis. Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/inhabit-00-index.md`](../../.cursor/prompts/inhabit-00-index.md) (**IH-001–IH-080**)
-> **Predecessor:** [`LIVELIHOOD_DAY_COMPOSER_PROMPTS.md`](LIVELIHOOD_DAY_COMPOSER_PROMPTS.md) (**LY**, kernel shipped) · [`SYSTEM_GRAVITY_COMPOSER_PROMPTS.md`](SYSTEM_GRAVITY_COMPOSER_PROMPTS.md) (**SG**, shipped)
+> **Follow-up diagnosis:** [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md) — remaining IH-025 / IH-041 / IH-043 surfaces after wave 34. Do not start wave 35.
 
 # Inhabit Composer prompts (IH-001–IH-080)
 

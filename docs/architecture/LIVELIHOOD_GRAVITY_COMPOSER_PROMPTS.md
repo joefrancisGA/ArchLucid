@@ -59,7 +59,7 @@ Owner indexes:
 - Wave 31 copy overlay: [`RECORD_PRACTICE_COMPOSER_PROMPTS.md`](RECORD_PRACTICE_COMPOSER_PROMPTS.md) — not a ninth diagnosis issue; do not re-run CG
 - Wave 32 issue-2 residual: [`SYSTEM_GRAVITY_COMPOSER_PROMPTS.md`](SYSTEM_GRAVITY_COMPOSER_PROMPTS.md) — locator shipped; instrument after spawn still the nested job; do not re-run SN
 - Wave 33 stamp leftover: [`LIVELIHOOD_DAY_COMPOSER_PROMPTS.md`](LIVELIHOOD_DAY_COMPOSER_PROMPTS.md) — Real finalize LLM judge default-on; do not re-run SG-001–081
-- Wave 34 inhabit leftover: [`INHABIT_COMPOSER_PROMPTS.md`](INHABIT_COMPOSER_PROMPTS.md) — after spawn the architect still operates a job; findings as the afternoon document; do not re-run SG / LY bodies except as a numbered leftover
+- Wave 34 inhabit leftover: [`INHABIT_COMPOSER_PROMPTS.md`](INHABIT_COMPOSER_PROMPTS.md) — after spawn the architect still operates a job; findings as the afternoon document; do not re-run SG / LY bodies except as a numbered leftover. Post-wave diagnosis: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md) (do not start wave 35).
 
 ## Family forbids (every wave)
 

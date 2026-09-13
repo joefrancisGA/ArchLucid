@@ -52,6 +52,16 @@ describe("inhabit findings document guard (IH-016–019 / IH-073)", () => {
     expect(chrome).toContain("RunDetailInfeasibleDecisionLead");
   });
 
+  it("names quiet engines on the pre-finalize checklist (IH-041 leftover)", () => {
+    const preFinalize = readFileSync(
+      join(SRC_ROOT, "components/reviews/PreFinalizeChecklistPanel.tsx"),
+      "utf8",
+    );
+
+    expect(preFinalize).toContain("GovernanceFindingsQueueQuietEnginesHint");
+    expect(preFinalize).toContain("scopedRunId={runId}");
+  });
+
   it("uses card disposition layout on inhabited findings list (IH-017)", () => {
     const list = readFileSync(
       join(SRC_ROOT, "components/governance/findings/GovernanceFindingsList.tsx"),

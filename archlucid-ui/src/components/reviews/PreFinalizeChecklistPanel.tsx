@@ -9,6 +9,7 @@ import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessag
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { GovernanceFindingsQueueQuietEnginesHint } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueQuietEnginesHint";
 import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { getPreFinalizeChecklist } from "@/lib/api/pre-finalize-checklist";
@@ -161,6 +162,7 @@ export function PreFinalizeChecklistPanel({
         <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-muted-foreground")}>
           Human approval gates and advisory checks before sealing the architecture package.
         </p>
+        <GovernanceFindingsQueueQuietEnginesHint scopedRunId={runId} />
       </CardHeader>
       <CardContent>
         {loading ? <OperatorLoadingNotice>Loading pre-finalize checklist…</OperatorLoadingNotice> : null}

@@ -19,6 +19,8 @@
 | Remount cheap-envelope runner | CE wave scope | **IH-047** | **Not shipped** | Reuse shipped CE entry; do not remount CE-001. |
 | Re-implement daytime wait | DW wave scope | standing forbid | **Not shipped** | Do not re-run DW; no progress URL. |
 
+Follow-up after wave 34 (not a new wave): [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md).
+
 ## Do not claim
 
 - Inhabit findings-document landing shipped until **IH-015** tests exist.

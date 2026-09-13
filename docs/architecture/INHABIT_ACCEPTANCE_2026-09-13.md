@@ -76,6 +76,10 @@
 
 IH-080 close audit is this file. **Do not** claim G-REAL-06. **Do not** claim draft-diff Compare or live presence.
 
+## Follow-up (2026-09-13 leftovers — not a new wave)
+
+Start / completeness honesty that wave 34 left on wizard, re-run strip, peer findings table, and pre-finalize is closed in [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md). Do not paste a wave-35 pack.
+
 ## Skips (intentional)
 
 | Skip | Prompt |

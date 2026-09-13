@@ -123,3 +123,5 @@ Kernel **IH-001** authors ADR **0100** (Proposed): Working **inhabits** the open
 | Skips / close | **IH-076–080** |
 
 Owner spine: [`docs/architecture/INHABIT_COMPOSER_PROMPTS.md`](../../docs/architecture/INHABIT_COMPOSER_PROMPTS.md).
+
+**Do not start wave 35.** Remaining livelihood leaks after IH-001–080 are named in [`docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](../../docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md). Close those leftovers; do not paste a new 80-prompt pack.

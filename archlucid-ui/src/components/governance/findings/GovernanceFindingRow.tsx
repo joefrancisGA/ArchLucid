@@ -59,7 +59,6 @@ function GovernanceFindingRowComponent({
   buyerPolishedShell,
   variant,
   showNewSinceLastVisit = false,
-  inhabitedFindingsDocument = false,
   onOpenRow,
   onOpenFinding,
 }: GovernanceFindingRowProps): ReactElement {
@@ -68,8 +67,7 @@ function GovernanceFindingRowComponent({
   const rowIsDecision = row.recordKind === "decision";
   const buyerVariant = variant === "buyer";
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
-  const semanticSupportChipFinding =
-    inhabitedFindingsDocument ? governanceQueueRowToSemanticSupportChipFinding(row) : null;
+  const semanticSupportChipFinding = governanceQueueRowToSemanticSupportChipFinding(row);
   const evidenceTraceHref =
     row.recordKind === "finding" ? governanceFindingInspectHref(row.runId, row.findingId) : null;
 
@@ -242,6 +240,13 @@ function GovernanceFindingRowComponent({
           </>
         ) : null}
         <GovernanceFindingOperationalHeaderMeta row={row} buyerPolishedShell={buyerPolishedShell} />
+        {semanticSupportChipFinding !== null ? (
+          <FindingSemanticSupportBandChip
+            finding={semanticSupportChipFinding}
+            structuralExecutionMode={structuralExecutionMode}
+            className="mt-2"
+          />
+        ) : null}
       </CardHeader>
       <CardContent className={cn("grid gap-2 pt-0 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         <GovernanceFindingDetailPane row={row} buyerPolishedShell={buyerPolishedShell} variant="operational" />

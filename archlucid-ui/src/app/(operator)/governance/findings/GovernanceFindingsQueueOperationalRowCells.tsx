@@ -1,9 +1,13 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
+import { governanceQueueRowToSemanticSupportChipFinding } from "@/lib/governance/governance-finding-queue-row-semantic-support";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
 import {
@@ -32,7 +36,6 @@ import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture
 import {
   FINDING_CLASSIFICATION_DECISION_GRADE,
 } from "@/lib/findings/review-detail-findings-classification-band";
-import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
   GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS,
   GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS,
@@ -60,22 +63,6 @@ function formatRiskRegisterUtcLabel(utc: string | null | undefined): string {
     month: "short",
     day: "numeric",
   });
-}
-
-function governanceQueueSemanticBandFinding(row: GovernanceFindingQueueRow): QuickDecisionFinding {
-  return {
-    findingId: row.findingId,
-    title: row.title,
-    recommendation: row.recommended,
-    severityValue: 0,
-    findingOrder: 0,
-    aiReasoning: { wireJson: "{}", reasoningTrace: "" },
-    isMuted: false,
-    muteReason: null,
-    enforcementTier: "PolicyViolation",
-    classification: row.classification ?? FINDING_CLASSIFICATION_DECISION_GRADE,
-    semanticSupportBand: row.semanticSupportBand ?? null,
-  };
 }
 
 function resolveGovernanceQueueDueUtc(row: GovernanceFindingQueueRow): string | null {
@@ -132,6 +119,7 @@ export type GovernanceFindingsQueueOperationalRowCellsProps = {
 
 export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFindingsQueueOperationalRowCellsProps): ReactElement {
   const { row, showInsightDensityScore = false } = props;
+  const { mode: structuralExecutionMode } = useAgentExecutionMode();
   const graphHref = governanceQueueGraphEvidenceHref(row);
   const evidenceChipHref =
     graphHref ??
@@ -139,6 +127,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
   const evidenceTraceHref =
     row.recordKind === "finding" ? governanceFindingInspectHref(row.runId, row.findingId) : null;
+  const semanticSupportChipFinding = governanceQueueRowToSemanticSupportChipFinding(row);
 
   return (
     <>
@@ -183,11 +172,13 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
               findingId={row.findingId}
               showReason
             />
-            {row.classification === FINDING_CLASSIFICATION_DECISION_GRADE ? (
+            {row.classification === FINDING_CLASSIFICATION_DECISION_GRADE
+            && semanticSupportChipFinding !== null ? (
               <div className="mt-1">
                 <FindingSemanticSupportBandChip
-                  finding={governanceQueueSemanticBandFinding(row)}
+                  finding={semanticSupportChipFinding}
                   showReason
+                  structuralExecutionMode={structuralExecutionMode}
                 />
               </div>
             ) : null}

@@ -13,6 +13,14 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/use-agent-execution-mode", () => ({
+  useAgentExecutionMode: () => ({
+    mode: "Simulator",
+    isSimulator: true,
+    isLoading: false,
+  }),
+}));
+
 function sampleRow(index: number): GovernanceFindingQueueRow {
   return {
     runId: `run-${index}`,

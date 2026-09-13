@@ -72,13 +72,13 @@ export const INHABIT_RECORD_CTA_SIMULATOR_LEAK_ROWS: readonly InhabitRecordCtaSi
   {
     surface: "Review package re-run / execute strip",
     relativePath: "app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackageDoThisNextStrip.tsx",
-    hasSimulatorIncompletenessCopy: false,
+    hasSimulatorIncompletenessCopy: true,
     ownerPrompt: "IH-025",
   },
   {
     surface: "New run wizard final submit",
     relativePath: "app/(operator)/architecture/reviews/new/NewRunWizardClient.tsx",
-    hasSimulatorIncompletenessCopy: false,
+    hasSimulatorIncompletenessCopy: true,
     ownerPrompt: "IH-025",
   },
 ];
@@ -166,7 +166,7 @@ export const INHABIT_QUIET_ENGINE_COMPLETENESS_ROWS: readonly InhabitQuietEngine
   {
     surface: "Pre-finalize checklist panel",
     relativePath: "components/reviews/PreFinalizeChecklistPanel.tsx",
-    namesQuietEnginesOnDesk: false,
+    namesQuietEnginesOnDesk: true,
     ownerPrompt: "IH-041",
   },
   {

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { WorkingExecuteStartHonestyNotices } from "@/components/governance/WorkingExecuteStartHonestyNotices";
 import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
 import {
   OperatorErrorCallout,
@@ -572,6 +573,8 @@ export function ReviewPackageDoThisNextStrip(
             </div>
           ) : null}
 
+          <WorkingExecuteStartHonestyNotices />
+
           <div
             className="flex min-w-0 w-full max-w-full flex-col items-start gap-2"
             data-testid="review-package-do-this-next-action"
@@ -636,6 +639,8 @@ export function ReviewPackageDoThisNextStrip(
           {displayedSentence}
         </p>
       </div>
+
+      <WorkingExecuteStartHonestyNotices />
 
       <div
         className="flex min-w-0 w-full max-w-full shrink-0 flex-col items-stretch gap-2 sm:items-end"

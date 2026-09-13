@@ -61,6 +61,8 @@ ArchLucid sells a **seat for a repeat professional**. Production UX still treats
 **Wave 33:** [`livelihood-day-00-index.md`](livelihood-day-00-index.md) (**LY-001–120**). Do not re-run SG-001–081.
 **Wave 34:** [`inhabit-00-index.md`](inhabit-00-index.md) (**IH-001–080**, ADR **0100**) — inhabit the architecture; findings as the afternoon document. Do not re-run SG / LY product bodies except as a numbered leftover.
 
+**2026-09-13 leftover diagnosis (do not start wave 35):** [`docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md`](../../docs/architecture/WORKING_ARCHITECT_DIAGNOSIS_2026-09-13.md) — remaining IH-025 / IH-041 / IH-043 surfaces after inhabit wave 34. Close those leftovers; do not paste a new 80-prompt pack.
+
 **Do not treat this set as a V1 assessment scorecard.** Do not add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or closed assurance programs (**TB-645** vocabulary must stay; **TB-135** / **TB-136** stay closed).
 
 ## Already shipped — do not re-open
