@@ -4318,13 +4318,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 34
-- **bugs-found:** 33
+- **hunts:** 35
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-12 — hunt #2218: snake_case working_career_rehearsal_door ignored on CLI career export gate
+- **last-bug:** 2026-09-13 — hunt #2351: numeric `is_demo_tenant` ignored on CLI career export gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-13 seed hunt #2351 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved numeric `is_demo_tenant` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_demo_tenant_when_is_demo_tenant_numeric_one`.
 
 2026-09-13 seed hunt #2295 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
