@@ -42,6 +42,7 @@ public static class CanonicalInfrastructurePropertyBag
         "dnssearch",
         "hostaliasip",
         "dnsoptiontrustad",
+        "dnsoptiondebug",
         "dnsoptionnotldquery",
         "dnsoptionedns0",
         "dnsoptionsinglerequestreopen",
