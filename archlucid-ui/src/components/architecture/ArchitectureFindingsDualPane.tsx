@@ -17,6 +17,7 @@ import {
   type ArchitectureFindingsDualPaneDiagramNode,
   type ArchitectureFindingsDualPaneFindingRef,
 } from "@/lib/architecture/architecture-findings-dual-pane";
+import { buildFindingDiagramSpotlight } from "@/lib/architecture/build-finding-diagram-spotlight";
 import {
   architectureDiagramFindingHrefFromSearch,
   parseArchitectureDiagramFindingIdFromSearch,
@@ -91,6 +92,14 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
 
     return resolveFindingDiagramSelectionSync(toFindingRef(selectedFinding), diagramNodes);
   }, [diagramNodes, selectedFinding]);
+
+  const spotlightText = useMemo(() => {
+    if (selectedFinding === null || selectionSync === null) {
+      return null;
+    }
+
+    return buildFindingDiagramSpotlight(selectionSync, toFindingRef(selectedFinding));
+  }, [selectedFinding, selectionSync]);
 
   const onHighlightedNodeIdChange = props.onHighlightedNodeIdChange;
 
@@ -173,6 +182,16 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
           data-testid="architecture-findings-dual-pane-link-status"
         >
           {formatLinkedComponentStatus(selectionSync)}
+        </p>
+      ) : null}
+
+      {spotlightText !== null ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          role="status"
+          data-testid="architecture-findings-dual-pane-spotlight"
+        >
+          {spotlightText}
         </p>
       ) : null}
 

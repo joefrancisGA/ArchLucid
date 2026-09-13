@@ -194,6 +194,83 @@ public sealed class InfraEvidenceAskGroundingServiceTests
         topic.Should().Be(InfraEvidenceAskTopicKinds.DiagramGap);
     }
 
+    [Fact]
+    public void Resolve_show_identity_diagram_maps_to_diagram_view_topic()
+    {
+        string topic = InfraEvidenceAskIntentResolver.Resolve(new InfraEvidenceAskRequest
+        {
+            Question = "Show the identity diagram",
+        });
+
+        topic.Should().Be(InfraEvidenceAskTopicKinds.DiagramView);
+    }
+
+    [Fact]
+    public void BuildSimulatorViewPlan_identity_question_returns_identity_mode()
+    {
+        Guid snapshotId = Guid.NewGuid();
+        InfraEvidenceAskEvidenceBundle bundle = new()
+        {
+            TopicKind = InfraEvidenceAskTopicKinds.DiagramView,
+        };
+
+        bundle.AddCitation(
+            InfraEvidenceAskCitationKinds.SnapshotId,
+            snapshotId.ToString("D"),
+            "subscription",
+            $"snapshotId={snapshotId:D}");
+
+        bundle.AddCitation(
+            InfraEvidenceAskCitationKinds.DiagramViewPlan,
+            "identity",
+            "identity",
+            "allowedMode=identity");
+
+        InfraEvidenceAskRequest request = new()
+        {
+            Question = "Show the identity diagram",
+            SnapshotId = snapshotId,
+        };
+
+        DiagramViewPlan? plan = InfraEvidenceAskPromptBuilder.BuildSimulatorViewPlan(
+            request.Question,
+            request,
+            bundle);
+
+        plan.Should().NotBeNull();
+        plan!.MermaidMode.Should().Be("identity");
+        plan.SnapshotId.Should().Be(snapshotId);
+    }
+
+    [Fact]
+    public void BuildSimulatorViewPlan_unknown_neighborhood_seed_returns_null()
+    {
+        Guid snapshotId = Guid.NewGuid();
+        InfraEvidenceAskEvidenceBundle bundle = new()
+        {
+            TopicKind = InfraEvidenceAskTopicKinds.DiagramView,
+        };
+
+        bundle.AddCitation(
+            InfraEvidenceAskCitationKinds.SnapshotId,
+            snapshotId.ToString("D"),
+            "subscription",
+            $"snapshotId={snapshotId:D}");
+
+        InfraEvidenceAskRequest request = new()
+        {
+            Question = "Neighborhood of not-a-real-node",
+            SnapshotId = snapshotId,
+        };
+
+        DiagramViewPlan? plan = InfraEvidenceAskPromptBuilder.BuildSimulatorViewPlan(
+            request.Question,
+            request,
+            bundle);
+
+        plan.Should().BeNull();
+    }
+
     private static InfraEvidenceAskGroundingService CreateService()
     {
         Mock<IInfraEvidenceAskEvidenceCollector> collector = new();

@@ -3685,6 +3685,17 @@ export interface components {
             format?: string;
             name?: string;
         };
+        DiagramViewPlan: {
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            fitTargetNodeId?: null | string;
+            honestyLabel?: string;
+            mermaidMode?: string;
+            resourceGroupName?: null | string;
+            seedNodeId?: null | string;
+            /** Format: uuid */
+            snapshotId?: null | string;
+        };
         DiffItemResponse: {
             afterValue?: null | string;
             beforeValue?: null | string;
@@ -5498,6 +5509,7 @@ export interface components {
             insufficientEvidence?: boolean;
             simulatorLabel?: null | string;
             topicKind?: string;
+            viewPlan?: null | components["schemas"]["DiagramViewPlan"];
         };
         InfraEvidenceMermaidComplexityMetrics: {
             /** Format: int32 */

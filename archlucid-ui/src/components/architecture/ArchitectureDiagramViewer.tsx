@@ -46,6 +46,7 @@ import {
   applyMermaidSvgViewportZoom,
   fitMermaidSvgElementToHost,
   fitMermaidSvgElementToViewport,
+  fitInventoryDiagramSvgElementToFocusNodeIds,
   isMermaidViewportPaintTooSmall,
   mermaidViewportFitNeedsRetry,
   type MermaidViewportFitDimensions,
@@ -80,6 +81,10 @@ export type ArchitectureDiagramMermaidViewerProps = {
   readonly onExportableSvgMarkupChange?: (svgMarkup: string | null) => void;
   /** Overlay keeps zoom chrome on the canvas; stacked places it above the viewport. */
   readonly viewportControlsLayout?: 'stacked' | 'overlay';
+  /** When non-empty, camera fits the mapped union of these node ids after paint. */
+  readonly focusNodeIds?: readonly string[];
+  /** Increment when focus selection changes so camera refits. */
+  readonly focusNonce?: number;
 };
 
 export type ArchitectureDiagramStaticViewerProps = {
@@ -115,6 +120,7 @@ function applyMermaidViewportCamera(
   host: HTMLDivElement,
   viewport: HTMLDivElement,
   zoom: number,
+  focusNodeIds: readonly string[] = [],
 ): MermaidViewportFitDimensions | null {
   const svg = host.querySelector('svg');
 
@@ -123,7 +129,10 @@ function applyMermaidViewportCamera(
   }
 
   const { widthPx, heightPx } = readMermaidViewportFitBudget(viewport);
-  const baseFit = fitMermaidSvgElementToViewport(svg, widthPx, heightPx);
+  const baseFit =
+    focusNodeIds.length > 0
+      ? fitInventoryDiagramSvgElementToFocusNodeIds(svg, widthPx, heightPx, focusNodeIds)
+      : fitMermaidSvgElementToViewport(svg, widthPx, heightPx);
 
   if (baseFit !== null && baseFit.inkMeasured) {
     applyMermaidSvgViewportZoom(svg, baseFit, zoom);
@@ -152,12 +161,13 @@ function syncMermaidViewportCamera(
   host: HTMLDivElement | null,
   viewport: HTMLDivElement | null,
   zoom: number,
+  focusNodeIds: readonly string[] = [],
 ): MermaidViewportFitDimensions | null {
   if (host === null || viewport === null) {
     return null;
   }
 
-  return applyMermaidViewportCamera(host, viewport, zoom);
+  return applyMermaidViewportCamera(host, viewport, zoom, focusNodeIds);
 }
 
 function useDiagramZoomState(pathname: string) {
@@ -320,6 +330,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     scopeContextLine = null,
     canvasStale = false,
     viewportControlsLayout = 'overlay',
+    focusNodeIds = [],
+    focusNonce = 0,
   } = props;
   const router = useRouter();
   const pathname = usePathname() ?? '';
@@ -444,7 +456,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       return false;
     }
 
-    const baseFit = syncMermaidViewportCamera(host, viewport, zoom.zoom);
+    const baseFit = syncMermaidViewportCamera(host, viewport, zoom.zoom, focusNodeIds);
 
     if (mermaidViewportFitNeedsRetry(baseFit)) {
       if (baseFit !== null) {
@@ -458,7 +470,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     reportMermaidViewportPaintFailure(baseFit, zoom.zoom, setRenderError, onRenderFailure);
 
     return true;
-  }, [onRenderFailure, zoom.zoom]);
+  }, [focusNodeIds, onRenderFailure, zoom.zoom]);
 
   const syncFullscreenViewportCamera = useCallback((): boolean => {
     const host = fullscreenHostRef.current;
@@ -583,7 +595,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
       resizeObserver?.disconnect();
     };
-  }, [onRenderFailure, sanitizedSvg, syncInlineViewportCamera, zoom.zoom]);
+  }, [focusNonce, onRenderFailure, sanitizedSvg, syncInlineViewportCamera, zoom.zoom]);
 
   useLayoutEffect(() => {
     if (!fullscreenOpen || sanitizedSvg === null) {

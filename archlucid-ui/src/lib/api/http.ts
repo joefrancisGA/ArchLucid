@@ -10,7 +10,11 @@ export {
   withCorrelationHeaders,
 } from "./http-proxy";
 
-export type { ApiGetOptions, ApiResponseWithTrace } from "./http-verbs-get";
+export type {
+  ApiGetOptions,
+  ApiRequestErrorPresentationOptions,
+  ApiResponseWithTrace,
+} from "./http-verbs-get";
 export { apiGet, apiGetJsonWithTrace, fetchArchLucidJson, throwApiRequestError } from "./http-verbs-get";
 export {
   apiDelete,

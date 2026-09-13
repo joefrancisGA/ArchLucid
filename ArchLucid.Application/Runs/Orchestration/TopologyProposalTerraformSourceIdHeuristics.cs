@@ -229,7 +229,18 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("api_connection", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("function_app", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("container_app", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("linux_web_app", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("linux_web_app", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("windows_web_app", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("web_app", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_action_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("workloads_sap", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("workloads_orchestrator", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("palo_alto", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("verifiedaccess", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("extended_location", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_security_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_network", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("subnet", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -379,7 +390,10 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("monitor_alert_prometheus_rule_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("policy_assignment", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("route_server", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("vpn_gateway", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("vpn_gateway", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_security_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_network", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("subnet", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>

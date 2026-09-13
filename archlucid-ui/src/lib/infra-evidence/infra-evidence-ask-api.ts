@@ -6,6 +6,7 @@ import type {
   InfraEvidenceAskRequest,
   InfraEvidenceAskResponse,
 } from "@/lib/infra-evidence/infra-evidence-ask-types";
+import type { DiagramViewPlan } from "@/lib/infra-evidence/diagram-view-plan-types";
 
 const ASK_PATH = "/api/proxy/v1/infra-evidence/ask";
 
@@ -29,6 +30,7 @@ export async function submitInfraEvidenceAsk(
     answer: String(raw.answer ?? ""),
     insufficientEvidence: Boolean(raw.insufficientEvidence),
     simulatorLabel: raw.simulatorLabel != null ? String(raw.simulatorLabel) : null,
+    viewPlan: parseDiagramViewPlan(raw.viewPlan),
     citations: Array.isArray(raw.citations)
       ? raw.citations.map((item) => {
           const row = item as Record<string, unknown>;
@@ -40,6 +42,24 @@ export async function submitInfraEvidenceAsk(
           };
         })
       : [],
+  };
+}
+
+function parseDiagramViewPlan(raw: unknown): DiagramViewPlan | null {
+  if (raw == null || typeof raw !== "object" || Array.isArray(raw)) {
+    return null;
+  }
+
+  const row = raw as Record<string, unknown>;
+
+  return {
+    mermaidMode: String(row.mermaidMode ?? ""),
+    resourceGroupName: row.resourceGroupName != null ? String(row.resourceGroupName) : null,
+    seedNodeId: row.seedNodeId != null ? String(row.seedNodeId) : null,
+    snapshotId: row.snapshotId != null ? String(row.snapshotId) : null,
+    cloudResourceId: row.cloudResourceId != null ? String(row.cloudResourceId) : null,
+    fitTargetNodeId: row.fitTargetNodeId != null ? String(row.fitTargetNodeId) : null,
+    honestyLabel: String(row.honestyLabel ?? "Proposed view — existing diagram modes only"),
   };
 }
 

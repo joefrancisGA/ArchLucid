@@ -2,6 +2,7 @@
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/architecture-spine-00-index.md`](../../.cursor/prompts/architecture-spine-00-index.md) (**AS-001–AS-100**)
 > **Predecessor (wave 21 — finding-pointer CAS):** [`FINDING_POINTER_CAS_COMPOSER_PROMPTS.md`](FINDING_POINTER_CAS_COMPOSER_PROMPTS.md) (**FP-01–FP-24**). **Do not re-run FP.**
+> **Follow-on (diagram usability, not decide-path parsers):** [`DIAGRAM_AI_USABILITY_COMPOSER_PROMPTS.md`](DIAGRAM_AI_USABILITY_COMPOSER_PROMPTS.md) (**DAU-01–DAU-12**). **Do not re-run AS.** DAU consumes `diagram:` citations and NotVerifiable; it does not relax pixel rules.
 
 # Architecture-spine Composer prompts (AS-001–AS-100)
 

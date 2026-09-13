@@ -79,6 +79,8 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-human-<short-
 
 Owner 2026-09-13 asked for **Graphviz** layout from `DiagramAst` rather than another Mermaid pass. That wave is **IDG-01–IDG-05**: [`.cursor/prompts/inventory-diagram-graphviz-00-index.md`](inventory-diagram-graphviz-00-index.md). Do not start IDH-04.
 
+Owner 2026-09-13 also asked for **AI diagram usability** (intent-to-view, NL patches). That wave is **DAU-01–DAU-12**: [`.cursor/prompts/diagram-ai-usability-00-index.md`](diagram-ai-usability-00-index.md). Do not start DAU inside an IDH session.
+
 ## Prompt files (paste one per session)
 
 | # | File | Flaw it mitigates |

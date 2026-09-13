@@ -55,7 +55,7 @@ export async function getGovernanceApprovalRationale(
 /** Lists approval requests for a run (approval workflow). */
 export async function listApprovalRequests(
   runId: string,
-  options?: Pick<ApiGetOptions, "suppressErrorToast">,
+  options?: Pick<ApiGetOptions, "showErrorToast">,
 ): Promise<GovernanceApprovalRequest[]> {
   if (shouldSkipLiveAuthorityRunScopedApi(runId)) {
     return [];

@@ -48,6 +48,20 @@ describe("api-error-toast-policy", () => {
     });
   });
 
+  it("localizes connectivity toast titles for SecureNow when opt-in toasts are used", () => {
+    const err = new ApiRequestError("Upstream API unreachable: fetch failed", {
+      httpStatus: 502,
+      problem: null,
+      correlationId: "corr-securenow",
+    });
+
+    expect(resolveApiRequestErrorToastPlan(err, false, "security")).toMatchObject({
+      action: "show",
+      title: "SecureNow API unreachable",
+      type: "warning",
+    });
+  });
+
   it("shows API URL not configured for proxy 503 misconfiguration", () => {
     const err = new ApiRequestError("ArchLucid API not configured", {
       httpStatus: 503,

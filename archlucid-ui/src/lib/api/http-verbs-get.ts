@@ -2,7 +2,6 @@
 
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { notifyTrialLimitFromApiError } from "@/lib/trial-limit-modal-bridge";
-import { shouldShowJwtBearerMissingRoleBanner } from "@/lib/operator/operator-shell-principal-snapshot";
 import { parseTrialLimitProblemDetails } from "@/lib/trial-limit-problem";
 import { captureTraceContextFromResponse } from "@/lib/correlation";
 import { tryParseJsonResponseText } from "@/lib/parse-json-response-text";
@@ -22,18 +21,24 @@ export interface ApiResponseWithTrace<T> {
   traceId: string | null;
 }
 
+export type ApiRequestErrorPresentationOptions = {
+  /**
+   * When true, surface a Sonner toast for HTTP 5xx failures.
+   * Default false — callers render inline recovery on the surface that initiated the request.
+   */
+  readonly showErrorToast?: boolean;
+};
+
 export type ApiGetOptions = {
   readonly scopeHeaders?: Record<string, string>;
   readonly signal?: AbortSignal;
-  /** When true, do not surface automatic 5xx Sonner toasts (optional background probes). */
-  readonly suppressErrorToast?: boolean;
-};
+} & ApiRequestErrorPresentationOptions;
 
 export function throwApiRequestError(
   response: Response,
   bodyText: string,
   requestCorrelationId?: string | null,
-  options?: Pick<ApiGetOptions, "suppressErrorToast">,
+  options?: ApiRequestErrorPresentationOptions,
 ): never {
   const err = buildApiRequestErrorFromParts(response, bodyText, requestCorrelationId);
 
@@ -45,18 +50,7 @@ export function throwApiRequestError(
     }
   }
 
-  if (isBrowser() && err.httpStatus === 403 && shouldShowJwtBearerMissingRoleBanner()) {
-    void import("@/lib/api-error-toast").then(({ showApiError }) => {
-      showApiError("Not permitted — missing ArchLucid role", {
-        type: "warning",
-        detail:
-          "Your token is authenticated but does not map to an ArchLucid workspace role (Admin, Operator, Reader, or Auditor). Ask a workspace administrator to map your identity-provider groups, then sign in again.",
-        correlationId: err.correlationId,
-      });
-    });
-  }
-
-  if (isBrowser() && err.httpStatus >= 500 && options?.suppressErrorToast !== true) {
+  if (isBrowser() && err.httpStatus >= 500 && options?.showErrorToast === true) {
     void import("@/lib/api-error-toast").then(({ showApiRequestErrorToast }) => {
       showApiRequestErrorToast(err);
     });

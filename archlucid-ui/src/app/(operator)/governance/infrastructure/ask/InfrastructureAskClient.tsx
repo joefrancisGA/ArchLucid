@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH } from "@/lib/design-tokens-marketing";
 import { formatInfraEvidenceAskScopeStack } from "@/lib/infra-evidence/infra-evidence-ask-scope-summary";
 import {
   formatInfraEvidenceAskApiError,
@@ -79,6 +80,10 @@ import {
   INFRA_EVIDENCE_ASK_CANNED_QUESTIONS,
   type InfraEvidenceAskResponse,
 } from "@/lib/infra-evidence/infra-evidence-ask-types";
+import {
+  applyDiagramViewPlanToSearch,
+  isDiagramViewPlanValid,
+} from "@/lib/infra-evidence/apply-diagram-view-plan-to-search";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_ASK_CONTEXT_LABEL,
@@ -808,6 +813,33 @@ export function InfrastructureAskClient() {
             <div className="grid gap-2">
               <StatusTag kind="ready" label={turn.response.topicKind} />
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{turn.response.answer}</p>
+              {turn.response.viewPlan != null ? (
+                <div className="grid gap-2" data-testid="infra-ask-apply-view">
+                  <Button
+                    type="button"
+                    variant="primary"
+                    className={CTA_WIDTH.content}
+                    disabled={!isDiagramViewPlanValid(turn.response.viewPlan)}
+                    onClick={() => {
+                      const result = applyDiagramViewPlanToSearch(
+                        searchParams.toString(),
+                        turn.response.viewPlan!,
+                      );
+
+                      if (result.error == null) {
+                        router.push(result.href);
+                      }
+                    }}
+                  >
+                    Apply this view
+                  </Button>
+                  {!isDiagramViewPlanValid(turn.response.viewPlan) ? (
+                    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+                      This view plan cannot be applied until required fields are present.
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           )}
 

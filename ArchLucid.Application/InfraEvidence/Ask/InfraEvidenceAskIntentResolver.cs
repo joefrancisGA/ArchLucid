@@ -18,7 +18,23 @@ internal static class InfraEvidenceAskIntentResolver
             return InfraEvidenceAskTopicKinds.AuditControlEvidence;
         }
 
-        if (ContainsAny(question, "diagram", "not in diagram", "infrastructure only", "diagram gap", "missing from diagram"))
+        if (ContainsAny(question, "not in diagram", "infrastructure only", "diagram gap", "missing from diagram"))
+            return InfraEvidenceAskTopicKinds.DiagramGap;
+
+        if (ContainsAny(
+                question,
+                "show me",
+                "show the",
+                "diagram of",
+                "focus on",
+                "neighborhood of",
+                "executive view",
+                "identity diagram",
+                "network diagram",
+                "data diagram"))
+            return InfraEvidenceAskTopicKinds.DiagramView;
+
+        if (ContainsAny(question, "diagram"))
             return InfraEvidenceAskTopicKinds.DiagramGap;
 
         if (ContainsAny(question, "pattern", "remediation coverage", "exact match", "recurred"))

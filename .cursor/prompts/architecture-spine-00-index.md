@@ -52,6 +52,7 @@ Do **not** collapse desktop review workspace tabs behind **More**. Do **not** re
 | IE-01–IE-22 collector/snapshot implementation | Bind consumes; does not ship the plane |
 | G-REAL-06 Real-mode default host config | Owner/GTM |
 | CPA SOC 2 / third-party pen test | G-REAL-05 / G-ASSURANCE-02 |
+| Diagram **usability** (intent-to-view, NL patches, vision accept desk) | **DAU-01–DAU-12** [`diagram-ai-usability-00-index.md`](diagram-ai-usability-00-index.md) — not an AS leftover |
 
 ## Relationship to prior sets
 

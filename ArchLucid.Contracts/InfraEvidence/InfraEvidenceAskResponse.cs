@@ -31,4 +31,10 @@ public sealed class InfraEvidenceAskResponse
         get;
         set;
     }
+
+    public DiagramViewPlan? ViewPlan
+    {
+        get;
+        set;
+    }
 }

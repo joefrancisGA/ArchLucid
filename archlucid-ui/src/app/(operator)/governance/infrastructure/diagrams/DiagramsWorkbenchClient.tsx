@@ -52,8 +52,11 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-diagrams-filter-url";
 import {
   exceedsInfraEvidenceMermaidClientGuard,
+  INFRA_EVIDENCE_MERMAID_CLIENT_READABILITY_THRESHOLDS,
   INFRA_EVIDENCE_MERMAID_TOO_LARGE_FOR_BROWSER_MESSAGE,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-client-guard";
+import { buildDiagramWalkthrough } from "@/lib/infra-evidence/build-diagram-walkthrough";
+import { resolveDiagramCameraFocusNodeIds } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type {
   InfraEvidenceMermaidFallbackArtifactSummary,
   InfraEvidenceMermaidModePreview,
@@ -491,6 +494,51 @@ export function DiagramsWorkbenchClient() {
 
     return parseInfraEvidenceMermaidOutline(mermaidSource);
   }, [mermaidSource]);
+
+  const diagramWalkthrough = useMemo(() => {
+    if (mermaidOutline == null) {
+      return null;
+    }
+
+    return buildDiagramWalkthrough(mermaidOutline);
+  }, [mermaidOutline]);
+
+  const showDensityCoach = useMemo(() => {
+    const overPeelBudget =
+      metrics != null
+      && metrics.nodeCount >= INFRA_EVIDENCE_MERMAID_CLIENT_READABILITY_THRESHOLDS.maxNodes
+      && selectedMode !== "executive";
+
+    return (
+      showFallbackCards
+      || tooLargeForBrowser
+      || (diagramContentEmpty && renderResult?.status === "Succeeded")
+      || renderResult?.status === "Failed"
+      || overPeelBudget
+    );
+  }, [
+    diagramContentEmpty,
+    metrics,
+    renderResult?.status,
+    selectedMode,
+    showFallbackCards,
+    tooLargeForBrowser,
+  ]);
+
+  const cameraFocusNodeIds = useMemo(
+    () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, mermaidOutline),
+    [appliedSeedNodeId, mermaidOutline],
+  );
+
+  const [cameraFocusNonce, setCameraFocusNonce] = useState(0);
+
+  useEffect(() => {
+    if (cameraFocusNodeIds.length === 0) {
+      return;
+    }
+
+    setCameraFocusNonce((current) => current + 1);
+  }, [appliedSeedNodeId, cameraFocusNodeIds.length]);
 
   useEffect(() => {
     setSeedCandidateNodes([]);
@@ -1373,6 +1421,32 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
+      {showDensityCoach ? (
+        <section
+          className={cn("grid gap-3", cnCard)}
+          aria-label="Diagram density coach"
+          data-testid="infra-diagrams-density-coach"
+        >
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>This view is too large to read.</h2>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Pick a smaller existing workbench mode instead of zooming into an unreadable plate.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="primary" data-testid="infra-diagrams-density-coach-executive" onClick={() => handleModeChange("executive")}>
+              Executive
+            </Button>
+            {resourceGroupFallbackArtifacts.length > 0 ? (
+              <Button type="button" variant="primary" data-testid="infra-diagrams-density-coach-resource-group" onClick={() => handleModeChange("resourceGroup")}>
+                Pick a Resource Group
+              </Button>
+            ) : null}
+            <Button type="button" variant="primary" data-testid="infra-diagrams-density-coach-neighborhood" onClick={() => handleModeChange("dependencyNeighborhood")}>
+              Dependency neighborhood
+            </Button>
+          </div>
+        </section>
+      ) : null}
+
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions">
         <div className="flex flex-wrap items-center gap-2">
           <Button
@@ -1514,6 +1588,15 @@ export function DiagramsWorkbenchClient() {
               {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION}
             </p>
           ) : null}
+          {diagramWalkthrough != null ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              role="status"
+              data-testid="infra-diagrams-walkthrough"
+            >
+              {diagramWalkthrough}
+            </p>
+          ) : null}
           <ArchitectureDiagramViewer
             mermaidSource={mermaidSource}
             layoutSvg={renderResult?.layoutSvg ?? null}
@@ -1523,6 +1606,8 @@ export function DiagramsWorkbenchClient() {
             scopeContextLine={diagramScopeContextLine}
             canvasStale={renderInFlight}
             viewportControlsLayout="stacked"
+            focusNodeIds={cameraFocusNodeIds}
+            focusNonce={cameraFocusNonce}
             onRenderFailure={handleRenderFailure}
             onRetry={handleRenderRetry}
             onExportableSvgMarkupChange={setExportableSvgMarkup}

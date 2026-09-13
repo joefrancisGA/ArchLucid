@@ -7,6 +7,8 @@ import {
   sanitizeOperatorFacingText,
 } from "@/lib/api-validation-problem";
 import { operatorCopyForProblem } from "@/lib/api-problem-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { localizeProductCopy, productLineDisplayName } from "@/lib/product-line/product-line-display-name";
 
 export type ApiRequestErrorToastPlan =
   | { readonly action: "suppress" }
@@ -95,7 +97,9 @@ export function classifyApiConnectivityFailure(params: {
 export function resolveApiRequestErrorToastPlan(
   err: ApiRequestError,
   buyerPolishedShell: boolean,
+  productLineId: ProductLineId = "architecture",
 ): ApiRequestErrorToastPlan {
+  const productName = productLineDisplayName(productLineId);
   const connectivityKind = classifyApiConnectivityFailure({
     message: err.message,
     httpStatus: err.httpStatus,
@@ -124,31 +128,36 @@ export function resolveApiRequestErrorToastPlan(
     }
 
     if (connectivityKind === "api-not-configured") {
+      const defaultDetail = localizeProductCopy(
+        productLineId,
+        "Set ARCHLUCID_API_BASE_URL in archlucid-ui/.env.local to your ArchLucid.Api base URL, then restart npm run dev.",
+      );
+
       return {
         action: "show",
         title: "API URL not configured",
-        detail:
-          supportHint
-          ?? "Set ARCHLUCID_API_BASE_URL in archlucid-ui/.env.local to your ArchLucid.Api base URL, then restart npm run dev.",
+        detail: supportHint ?? defaultDetail,
         type: "error",
       };
     }
 
     if (connectivityKind === "upstream-unreachable") {
+      const defaultDetail = localizeProductCopy(
+        productLineId,
+        "The UI proxy could not reach the backend API. Verify ArchLucid.Api is running and ARCHLUCID_API_BASE_URL matches its port.",
+      );
+
       return {
         action: "show",
-        title: "ArchLucid API unreachable",
-        detail:
-          (supportHint
-            ?? "The UI proxy could not reach the backend API. Verify ArchLucid.Api is running and ARCHLUCID_API_BASE_URL matches its port.")
-          + correlationSuffix,
+        title: `${productName} API unreachable`,
+        detail: (supportHint ?? defaultDetail) + correlationSuffix,
         type: "warning",
       };
     }
 
     return {
       action: "show",
-      title: "Cannot reach ArchLucid API",
+      title: `Cannot reach ${productName} API`,
       detail: `Network or transport failure while calling the API.${correlationSuffix}`,
       type: "warning",
     };

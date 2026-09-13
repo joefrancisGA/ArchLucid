@@ -16,6 +16,7 @@ const mockAskResponse = {
     },
   ],
   simulatorLabel: "SIMULATOR — deterministic template grounded on cited structured rows only.",
+  viewPlan: null,
 };
 
 let searchParams = new URLSearchParams("");
