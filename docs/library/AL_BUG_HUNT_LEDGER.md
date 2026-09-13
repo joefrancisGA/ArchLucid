@@ -5182,7 +5182,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
@@ -5220,6 +5220,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-13 seed hunt #2382 (hit): promoted and proved in-memory email OTP duplicate challenge Id overwrite; `TryAdd` + `DuplicateEmailOtpChallengeException`; 3 OTP challenge repository unit tests passed.
 
 2026-09-13 seed hunt #2383 (hit): promoted and proved in-memory recovery-admin duplicate composite-key overwrite; `TryAdd` + `DuplicateTenantSignInEmailDomainRecoveryAdminException`; 2 recovery-admin repository unit tests passed.
+
+2026-09-13 seed hunt #2384 (seed-only): reseeded persistence-identity; duplicate-insert parity family exhausted; no new hunt-ready rows.
 
 ### Hypotheses
 
