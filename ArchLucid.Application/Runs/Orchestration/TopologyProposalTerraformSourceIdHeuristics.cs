@@ -218,7 +218,18 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("vpn_gateway", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cdn_frontdoor", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cdn_profile", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("cdn_endpoint", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("cdn_endpoint", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("nat_gateway", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("bastion_host", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("express_route", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_network_gateway", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("azurerm_firewall", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_machine", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("app_service", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("api_connection", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("function_app", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("container_app", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("linux_web_app", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
