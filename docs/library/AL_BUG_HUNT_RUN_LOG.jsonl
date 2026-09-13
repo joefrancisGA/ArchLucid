@@ -2832,3 +2832,4 @@
 {"at":"2026-09-13T12:16:01.4677524Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-13T12:20:43.9331539Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-13T12:22:24.8021833Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-09-13T12:27:05.4653415Z","zoneId":"core-costing","outcome":"hit"}
