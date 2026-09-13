@@ -67,6 +67,8 @@ export type ArchitectureDiagramSourceKind = 'html' | 'image';
 
 export type ArchitectureDiagramMermaidViewerProps = {
   readonly mermaidSource: string;
+  /** Server-side Graphviz layout SVG; when present, client Mermaid layout is skipped. */
+  readonly layoutSvg?: string | null;
   readonly textAlternative: string;
   readonly viewportAriaLabel?: string;
   readonly fullscreenTitle?: string;
@@ -311,6 +313,7 @@ const MERMAID_SVG_HOST_LIGHT_NODE_STYLE = {
 function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewerProps): React.JSX.Element {
   const {
     mermaidSource,
+    layoutSvg = null,
     onRenderFailure,
     viewportAriaLabel = 'Architecture diagram',
     fullscreenTitle = 'Architecture diagram',
@@ -380,10 +383,19 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
   useEffect(() => {
     let canceled = false;
+    const trimmedLayoutSvg = layoutSvg?.trim() ?? '';
 
     async function renderDiagram(): Promise<void> {
       setRenderError(null);
       setSvgMarkup(null);
+
+      if (trimmedLayoutSvg.length > 0) {
+        if (!canceled) {
+          setSvgMarkup(prepareMermaidSvgForResponsiveLayout(trimmedLayoutSvg));
+        }
+
+        return;
+      }
 
       try {
         const svg = await renderMermaidSvgMarkup(mermaidSource, {
@@ -410,7 +422,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     return (): void => {
       canceled = true;
     };
-  }, [dark, mermaidSource, onRenderFailure, renderGeneration, renderId]);
+  }, [dark, layoutSvg, mermaidSource, onRenderFailure, renderGeneration, renderId]);
 
   const sanitizedSvg = useMemo(() => {
     if (svgMarkup === null) {

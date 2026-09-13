@@ -198,13 +198,28 @@ function readMermaidGroupInkBBox(svg: SVGSVGElement): DOMRect | null {
   return readGraphicsElementBBox(svg);
 }
 
+/** Inventory diagram nodes from Mermaid (`g.node`) or Graphviz (`g[id^="node"]`). */
+export function queryInventoryDiagramNodeElements(svg: SVGSVGElement): SVGGraphicsElement[] {
+  const elements: SVGGraphicsElement[] = [];
+
+  for (const selector of ["g.node", 'g[id^="node"]']) {
+    for (const element of svg.querySelectorAll(selector)) {
+      if (element instanceof SVGGraphicsElement) {
+        elements.push(element);
+      }
+    }
+  }
+
+  return elements;
+}
+
 /**
  * Union of node boxes only — excludes edge paths whose Bézier bbox inflates the plate.
  */
 function readMappedNodeUnionBBox(svg: SVGSVGElement): { union: DOMRect; nodeCount: number } | null {
   const inkBoxes: DOMRect[] = [];
 
-  for (const element of svg.querySelectorAll("g.node")) {
+  for (const element of queryInventoryDiagramNodeElements(svg)) {
     if (!(element instanceof SVGGraphicsElement)) {
       continue;
     }
@@ -237,7 +252,7 @@ function readMappedNodeUnionBBox(svg: SVGSVGElement): { union: DOMRect; nodeCoun
  * crops the viewBox to the origin and hides the graph until the user scrolls.
  */
 function readMappedNodeInkBBox(svg: SVGSVGElement): DOMRect | null {
-  const inkElements = svg.querySelectorAll("g.node");
+  const inkElements = queryInventoryDiagramNodeElements(svg);
   const inkBoxes: DOMRect[] = [];
 
   for (const element of inkElements) {
@@ -574,7 +589,7 @@ function ensureMermaidInkViewBox(
   }
 
   const sourceViewBox = readMermaidSourceViewBox(svg);
-  const expectedNodeCount = svg.querySelectorAll("g.node").length;
+  const expectedNodeCount = queryInventoryDiagramNodeElements(svg).length;
   const nodeUnionResult = readMappedNodeUnionBBox(svg);
   let resolvedViewBox: DOMRect | null;
 
@@ -676,6 +691,15 @@ function applyMermaidSvgPixelSize(svg: SVGSVGElement, widthPx: number, heightPx:
  * Contain diagram ink inside a visible viewport box (width and height).
  * Used by inventory / architecture mermaid canvases — not help-topic width-fill.
  */
+export function fitInventoryDiagramSvgElementToViewport(
+  svg: SVGSVGElement,
+  viewportWidthPx: number,
+  viewportHeightPx: number,
+  paddingPx = 12,
+): MermaidViewportFitDimensions | null {
+  return fitMermaidSvgElementToViewport(svg, viewportWidthPx, viewportHeightPx, paddingPx);
+}
+
 export function fitMermaidSvgElementToViewport(
   svg: SVGSVGElement,
   viewportWidthPx: number,
