@@ -3295,13 +3295,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
 - **last-bug:** 2026-09-12 — create checklist marked enable step incomplete before subscription list hydration
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-12 seed hunt #2256 (seed-only): reseeded ui-webhooks-settings with `-Hint ui webhooks`; no new hunt-ready rows.
 2026-09-12 seed hunt #2160 (seed-only): reseeded ui-webhooks-settings with `-Hint ui-webhooks-settings`; no new hunt-ready rows.
 2026-09-12 seed hunt #2160 (seed-only): reseeded ui-webhooks-settings with `-Hint ui-webhooks-settings`; no new hunt-ready rows.
 
