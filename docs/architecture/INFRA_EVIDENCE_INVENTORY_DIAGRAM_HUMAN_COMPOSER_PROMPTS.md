@@ -155,3 +155,9 @@ Done when:
 - Sparse-peering case asserts ≥9 visible nodes, aspect ≤2.5, zoom 100, Edges table 6, no alpack
 - A path-filtered pull_request job runs this project (not skipped)
 ```
+
+---
+
+## Follow-on — Graphviz (not IDH-04)
+
+Owner 2026-09-13 asked for **Graphviz `fdp` from `DiagramAst`** rather than another Mermaid session. Next wave: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_GRAPHVIZ_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_GRAPHVIZ_COMPOSER_PROMPTS.md). Do not start IDH-04.

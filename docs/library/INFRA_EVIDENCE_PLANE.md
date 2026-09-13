@@ -142,7 +142,7 @@ Visual identity is tenant-scoped. Text may still say ArchLucid (powered-by, help
 | Concern | Approach |
 |---------|----------|
 | Security | Reader-only; no secrets; SVG sanitization; SoD; append-only hashed evidence; AI cannot authorize |
-| Scale | Normalized tables + blob; graph MaxNodes; Mermaid partition; catalog-driven collection (do not scrape unused categories) |
+| Scale | Normalized tables + blob; graph MaxNodes; Mermaid partition; Graphviz `fdp` inventory canvas (**IDG**, from `DiagramAst`, not ARM `dependsOn`); catalog-driven collection (do not scrape unused categories) |
 | Reliability | Idempotent ingest; completeness warnings; verification ≠ emit-200; stale evidence labeled |
 | Cost | Tier 1 default; auto-pull default off; LLM after deterministic paths |
 
