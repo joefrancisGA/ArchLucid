@@ -19,6 +19,7 @@ import { buildColorModeBootstrapInlineScript } from "@/lib/color-mode-bootstrap"
 import { resolveAuthorityThemeFromEnv } from "@/lib/ui-authority-theme";
 
 import { ColorModePreferenceProvider } from "@/components/ColorModePreferenceProvider";
+import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import { SampleReviewsOnOverviewPreferenceProvider } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { WhereToGoNextPreferenceProvider } from "@/components/WhereToGoNextPreferenceProvider";
 import { WorkspaceModeProvider } from "@/components/WorkspaceModeProvider";
@@ -84,11 +85,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-screen font-sans">
         <ColorModePreferenceProvider>
           <WorkspaceModeProvider>
-            <WorkingCareerRehearsalIntentProvider>
-            <WhereToGoNextPreferenceProvider>
-              <SampleReviewsOnOverviewPreferenceProvider>{children}</SampleReviewsOnOverviewPreferenceProvider>
-            </WhereToGoNextPreferenceProvider>
-            </WorkingCareerRehearsalIntentProvider>
+            <OperatorQueryProvider>
+              <WorkingCareerRehearsalIntentProvider>
+                <WhereToGoNextPreferenceProvider>
+                  <SampleReviewsOnOverviewPreferenceProvider>{children}</SampleReviewsOnOverviewPreferenceProvider>
+                </WhereToGoNextPreferenceProvider>
+              </WorkingCareerRehearsalIntentProvider>
+            </OperatorQueryProvider>
           </WorkspaceModeProvider>
         </ColorModePreferenceProvider>
       </body>
