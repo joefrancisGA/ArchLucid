@@ -6,6 +6,8 @@ export const INFRA_DIAGRAMS_RESOURCE_GROUP_KEY_PREFIX = "resourceGroup:";
 
 export const INFRA_DIAGRAMS_RESOURCE_GROUP_MAP_VIEW_MARKER = "al-view=resource-group-map";
 
+export const INFRA_DIAGRAMS_BACKBONE_KEEP_VIEW_MARKER = "al-view=backbone-keep";
+
 const THEMATIC_PARTITION_KEYS = new Set(["executive", "network", "identity", "data", "cross-boundary"]);
 
 export function isInfraDiagramsResourceGroupMode(mode: string): boolean {
@@ -46,4 +48,8 @@ export function buildInfraDiagramsResourceGroupModeToken(resourceGroupName: stri
 
 export function isInfraEvidenceResourceGroupMapMermaid(mermaidSource: string): boolean {
   return mermaidSource.includes(INFRA_DIAGRAMS_RESOURCE_GROUP_MAP_VIEW_MARKER);
+}
+
+export function isInfraEvidenceBackboneKeepMermaid(mermaidSource: string): boolean {
+  return mermaidSource.includes(INFRA_DIAGRAMS_BACKBONE_KEEP_VIEW_MARKER);
 }

@@ -18,6 +18,7 @@ public static class DiagramPeelCatalogOrderResolver
         HashSet<string> neverPeel = catalog.Entries
             .Where(entry => entry.IsEnabled && entry.PeelRank is null)
             .Select(entry => entry.ArmResourceType)
+            .Concat(InventoryDiagramBackboneArmTypes.ExtraNeverPeelArmTypes)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         HashSet<string> catalogTypes = catalog.Entries
@@ -25,7 +26,7 @@ public static class DiagramPeelCatalogOrderResolver
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         List<(int Rank, string ArmType)> ordered = catalog.Entries
-            .Where(entry => entry.IsEnabled && entry.PeelRank.HasValue)
+            .Where(entry => entry.IsEnabled && entry.PeelRank.HasValue && !entry.AlwaysDispose)
             .Select(entry => (entry.PeelRank!.Value, entry.ArmResourceType))
             .ToList();
 

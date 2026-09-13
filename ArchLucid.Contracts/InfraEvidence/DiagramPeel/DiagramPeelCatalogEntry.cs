@@ -16,6 +16,13 @@ public sealed class DiagramPeelCatalogEntry
         init;
     }
 
+    /// <summary>When true, the type is removed from every inventory diagram, even when under the node budget.</summary>
+    public bool AlwaysDispose
+    {
+        get;
+        init;
+    }
+
     public bool IsEnabled
     {
         get;

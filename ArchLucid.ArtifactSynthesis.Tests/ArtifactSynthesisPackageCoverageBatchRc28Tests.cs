@@ -124,7 +124,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
         string mermaid = renderer.Render(ast);
 
         mermaid.ReplaceLineEndings("\n").Should().Contain(
-            "%% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network\n    n_a1[\"nic-prod\"]");
+            "%% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network\n    n_a1[\"nic-prod (Network interface)\"]");
         mermaid.Should().NotContain("] %% ");
     }
 
@@ -152,7 +152,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
         string mermaid = renderer.Render(ast);
 
         mermaid.ReplaceLineEndings("\n").Should().Contain(
-            "%% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network al-seed=22222222-2222-2222-2222-222222222222\n    n_a1[\"nic-prod\"]");
+            "%% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network al-seed=22222222-2222-2222-2222-222222222222\n    n_a1[\"nic-prod (Network interface)\"]");
     }
 
     [Fact]

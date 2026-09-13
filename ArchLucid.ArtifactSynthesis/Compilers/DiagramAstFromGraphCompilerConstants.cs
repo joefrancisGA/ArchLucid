@@ -22,4 +22,7 @@ public static class DiagramAstFromGraphCompilerConstants
 
     /// <summary>Title suffix when Full subscription compiles as an RG map (IE-17).</summary>
     public const string ResourceGroupMapTitleSuffix = "resource group map";
+
+    /// <summary>Title suffix when Full subscription keeps VMs, databases, and other backbone types.</summary>
+    public const string BackboneKeepTitleSuffix = "backbone resources";
 }
