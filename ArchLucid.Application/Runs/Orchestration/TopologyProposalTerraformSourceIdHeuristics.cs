@@ -112,6 +112,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("search_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("eventhub_namespace", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_account", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cognitive_services", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_deployment", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("synapse_workspace", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("data_factory", StringComparison.OrdinalIgnoreCase)

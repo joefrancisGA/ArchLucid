@@ -5251,6 +5251,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_cognitive_services_account_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "cog-1", label: "openai", sourceId: "azurerm_cognitive_services_account.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-openai")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "cog-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_cognitive_deployment_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
