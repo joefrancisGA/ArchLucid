@@ -1024,6 +1024,13 @@ internal static class KubernetesManifestCanonicalObjectMapper
             {
                 CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "runAsUser", runAsUserValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
             }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "runAsGroup", out JsonElement runAsGroupElement)
+                && runAsGroupElement.ValueKind is JsonValueKind.Number
+                && runAsGroupElement.TryGetInt64(out long runAsGroupValue))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "runAsGroup", runAsGroupValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            }
                 else if (runAsNonRootElement.ValueKind is JsonValueKind.False)
                     anyRunAsNonRootFalse = true;
             }
