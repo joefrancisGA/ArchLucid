@@ -32,6 +32,7 @@ import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/find
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
 import { GovernanceFindingRow } from "@/components/governance/findings/GovernanceFindingRow";
+import type { GovernanceFindingInspectHrefOptions } from "@/components/governance/findings/governance-findings-navigation";
 
 export type GovernanceFindingsListProps = {
   readonly displayedRows: readonly GovernanceFindingQueueRow[];
@@ -44,6 +45,9 @@ export type GovernanceFindingsListProps = {
   readonly showInsightDensityScore?: boolean;
   /** IH-017 — card rows with disposition on architecture-nested findings document. */
   readonly inhabitedFindingsDocument?: boolean;
+  /** IR-004 — architecture-scoped inspect hrefs on inhabited findings. */
+  readonly scopedArchitectureId?: string | null;
+  readonly isWorkingMode?: boolean;
 };
 
 function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): ReactElement {
@@ -57,9 +61,15 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
     onBulkApplied,
     showInsightDensityScore = false,
     inhabitedFindingsDocument = false,
+    scopedArchitectureId = null,
+    isWorkingMode = false,
   } = props;
 
   const useCardDispositionLayout = buyerPolishedShell || inhabitedFindingsDocument;
+  const inspectHrefOptions: GovernanceFindingInspectHrefOptions | undefined =
+    inhabitedFindingsDocument && isWorkingMode && (scopedArchitectureId?.trim().length ?? 0) > 0
+      ? { architectureId: scopedArchitectureId, isWorkingMode: true }
+      : undefined;
 
   const findingRows = displayedRows.filter((row) => row.recordKind === "finding");
   const decisionRows = displayedRows.filter((row) => row.recordKind === "decision");
@@ -145,7 +155,11 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
 
   if (useCardDispositionLayout) {
     return (
-      <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={handleBulkApplied}>
+      <FindingKeyboardTriageHost
+        resolveRunId={resolveFindingRunId}
+        onApplied={handleBulkApplied}
+        defaultFocusFirstFinding={inhabitedFindingsDocument}
+      >
       <div className="space-y-4">
         <GovernanceFindingTriagePanel
           open={triage.open}
@@ -154,6 +168,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
           totalCount={triage.findingRows.length}
           buyerPolishedShell={buyerPolishedShell}
           inhabitedFindingsDocument={inhabitedFindingsDocument}
+          inspectHrefOptions={inspectHrefOptions}
           canGoPrevious={triage.canGoPrevious}
           canGoNext={triage.canGoNext}
           onOpenChange={triage.setOpen}
@@ -177,6 +192,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
                   buyerPolishedShell={buyerPolishedShell}
                   variant="buyer"
                   inhabitedFindingsDocument={inhabitedFindingsDocument}
+                  inspectHrefOptions={inspectHrefOptions}
                   showNewSinceLastVisit={isGovernanceRowNewSinceLastVisit(row)}
                   onOpenRow={() => {
                     openTriageRow(row);
@@ -217,7 +233,11 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
   }
 
   return (
-    <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={handleBulkApplied}>
+    <FindingKeyboardTriageHost
+      resolveRunId={resolveFindingRunId}
+      onApplied={handleBulkApplied}
+      defaultFocusFirstFinding={inhabitedFindingsDocument}
+    >
     <>
       <GovernanceFindingTriagePanel
         open={triage.open}
@@ -226,6 +246,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
         totalCount={triage.findingRows.length}
         buyerPolishedShell={buyerPolishedShell}
         inhabitedFindingsDocument={inhabitedFindingsDocument}
+        inspectHrefOptions={inspectHrefOptions}
         canGoPrevious={triage.canGoPrevious}
         canGoNext={triage.canGoNext}
         onOpenChange={triage.setOpen}

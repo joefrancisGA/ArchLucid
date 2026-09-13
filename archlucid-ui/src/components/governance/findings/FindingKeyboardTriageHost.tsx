@@ -68,6 +68,8 @@ export type FindingKeyboardTriageHostProps = {
   readonly resolveRunId: (findingId: string) => string | null;
   /** Return a user-facing reason when disposition must be blocked (e.g. merge conflict). */
   readonly resolveDispositionBlockedReason?: (findingId: string) => string | null;
+  /** IR-008 — default-focus first finding for Alt+J/K and disposition shortcuts. */
+  readonly defaultFocusFirstFinding?: boolean;
   readonly onApplied?: () => void;
   readonly children?: React.ReactNode;
 };
@@ -215,10 +217,15 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     onAction,
     mutationsEnabled: canMutate,
     onFindingFocus: workbenchSelection?.setSelectedFindingId,
+    defaultFocusFirstFinding: props.defaultFocusFirstFinding === true,
   });
 
   useEffect(() => {
     const onFindingFocus = workbenchSelection?.setSelectedFindingId;
+    const defaultFocusFirstFinding = props.defaultFocusFirstFinding === true;
+    const focusOptions = defaultFocusFirstFinding
+      ? { onFindingFocus, startFromFirstWhenUnfocused: true as const }
+      : { onFindingFocus };
 
     function resolveFocusedFindingId(): string | null {
       const focused = getFocusedFindingId();
@@ -227,17 +234,21 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
         return focused;
       }
 
-      focusAdjacentFindingCard(1, { onFindingFocus, startFromFirstWhenUnfocused: true });
+      if (!defaultFocusFirstFinding) {
+        return null;
+      }
+
+      focusAdjacentFindingCard(1, focusOptions);
 
       return getFocusedFindingId();
     }
 
     function onNext(): void {
-      focusAdjacentFindingCard(1, { onFindingFocus, startFromFirstWhenUnfocused: true });
+      focusAdjacentFindingCard(1, focusOptions);
     }
 
     function onPrev(): void {
-      focusAdjacentFindingCard(-1, { onFindingFocus, startFromFirstWhenUnfocused: true });
+      focusAdjacentFindingCard(-1, focusOptions);
     }
 
     function onAccept(): void {
@@ -289,7 +300,7 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
       window.removeEventListener(COMMAND_PALETTE_FINDING_REMEDIATE_EVENT, onRemediate);
       window.removeEventListener(COMMAND_PALETTE_FINDING_REJECT_EVENT, onReject);
     };
-  }, [canMutate, onAction, workbenchSelection?.setSelectedFindingId]);
+  }, [canMutate, onAction, props.defaultFocusFirstFinding, workbenchSelection?.setSelectedFindingId]);
 
   async function applyPending(conflictOverride?: FindingDispositionConflictDetail | null): Promise<void> {
     if (pending === null) {

@@ -62,6 +62,30 @@ describe("inhabit findings document guard (IH-016–019 / IH-073)", () => {
     expect(preFinalize).toContain("scopedRunId={runId}");
   });
 
+  it("names quiet engines on run progress Ready chrome (IR-001)", () => {
+    const tracker = readFileSync(join(SRC_ROOT, "components/runs/RunProgressTracker.tsx"), "utf8");
+    const hook = readFileSync(join(SRC_ROOT, "components/runs/use-run-progress-tracker.ts"), "utf8");
+
+    expect(tracker).toContain("GovernanceFindingsQueueQuietEnginesHint");
+    expect(tracker).toContain("showQuietEnginesCompletenessHint");
+    expect(tracker).toContain('data-testid="run-progress-quiet-engines"');
+    expect(hook).toContain("showQuietEnginesCompletenessHint");
+  });
+
+  it("IR-005 threads architectureId through quick-decision workspace cards", () => {
+    const summary = readFileSync(
+      join(SRC_ROOT, "components/quick-decision-summary/QuickDecisionSummary.tsx"),
+      "utf8",
+    );
+    const context = readFileSync(
+      join(SRC_ROOT, "components/findings/QuickDecisionWorkspaceFindingSupportingDetails.tsx"),
+      "utf8",
+    );
+
+    expect(summary).toContain("architectureId: props.architectureId");
+    expect(context).toContain("readonly architectureId?: string | null");
+  });
+
   it("uses card disposition layout on inhabited findings list (IH-017)", () => {
     const list = readFileSync(
       join(SRC_ROOT, "components/governance/findings/GovernanceFindingsList.tsx"),

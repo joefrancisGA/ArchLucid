@@ -52,6 +52,12 @@ vi.mock("@/hooks/use-health-ready-summary-query", () => ({
   }),
 }));
 
+vi.mock("@/app/(operator)/governance/findings/GovernanceFindingsQueueQuietEnginesHint", () => ({
+  GovernanceFindingsQueueQuietEnginesHint: ({ scopedRunId }: { scopedRunId: string | null }) => (
+    <div data-testid="run-progress-quiet-engines-hint">{scopedRunId}</div>
+  ),
+}));
+
 import { getRunSummary } from "@/lib/api";
 import { getRunStageTimeline } from "@/lib/api/architecture-runs";
 import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
@@ -114,6 +120,35 @@ describe("RunProgressTracker", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.useRealTimers();
+  });
+
+  it("mounts quiet-engine honesty on Working pre-finalize Ready chrome (IR-001)", async () => {
+    workingDeskMock.value = true;
+
+    render(
+      <RunProgressTracker
+        runId="prefinalize-quiet-engines-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "prefinalize-quiet-engines-1",
+          hasContextSnapshot: true,
+          hasGraphSnapshot: true,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+        }}
+        preFinalizeReadyToFinalize
+        buyerAssessmentCopy
+      />,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.getByTestId("run-progress-quiet-engines")).toBeInTheDocument();
+    expect(screen.getByTestId("run-progress-quiet-engines-hint")).toHaveTextContent(
+      "prefinalize-quiet-engines-1",
+    );
   });
 
   it("shows pre-finalize ready-to-finalize terminal state without polling", async () => {

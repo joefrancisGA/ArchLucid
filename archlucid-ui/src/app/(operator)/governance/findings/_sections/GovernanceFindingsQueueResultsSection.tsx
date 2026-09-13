@@ -121,6 +121,8 @@ export function GovernanceFindingsQueueResultsSection(
             displayedRows={props.displayedRows}
             buyerPolishedShell={props.buyerPolishedShell}
             inhabitedFindingsDocument={inhabitedFindingsDocument}
+            scopedArchitectureId={props.scopedArchitectureId}
+            isWorkingMode={props.isWorkingMode}
             groupByResource={props.groupByResource}
             queueMode={props.mode}
             selectedFindingIds={props.selectedFindingIds}

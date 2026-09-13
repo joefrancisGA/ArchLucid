@@ -87,6 +87,18 @@ describe("useFindingCardShortcuts", () => {
     expect(onAction).not.toHaveBeenCalled();
   });
 
+  it("IR-008: default-focus first finding when defaultFocusFirstFinding is true", () => {
+    const onAction = vi.fn();
+
+    renderHook(() => useFindingCardShortcuts({ onAction, defaultFocusFirstFinding: true }));
+
+    appendFindingCard("first-finding");
+
+    fireEvent.keyDown(window, { key: "1", altKey: true });
+
+    expect(onAction).toHaveBeenCalledWith("first-finding", "Accepted");
+  });
+
   it("moves focus to the next [data-finding-id] element on Alt+J", () => {
     const onAction = vi.fn();
 

@@ -20,4 +20,10 @@ public sealed class FavoriteReviewEntryDto
         get;
         set;
     } = string.Empty;
+
+    public string? ArchitectureId
+    {
+        get;
+        set;
+    }
 }

@@ -25,6 +25,8 @@ import {
   OperatorErrorCallout,
   OperatorWarningCallout,
 } from "@/components/operator/OperatorShellMessage";
+import { GovernanceFindingsQueueQuietEnginesHint } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueQuietEnginesHint";
+
 import { RunProgressTrackerStagesView } from "./RunProgressTrackerStagesView";
 import { useRunProgressTracker } from "./use-run-progress-tracker";
 
@@ -138,6 +140,12 @@ export function RunProgressTracker({
       <div aria-live="polite" aria-atomic="true" className={cn("mt-3 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         {renderDoThisNextReferenceCopy(tracker.liveStatus)}
       </div>
+
+      {tracker.showQuietEnginesCompletenessHint ? (
+        <div className="mt-3" data-testid="run-progress-quiet-engines">
+          <GovernanceFindingsQueueQuietEnginesHint scopedRunId={runId} />
+        </div>
+      ) : null}
 
       {tracker.terminalFailureDiagnosis !== null && !deferFailureRecoveryToDoThisNext ? (
         tracker.terminalFailureDiagnosis.severity === "warning" ? (

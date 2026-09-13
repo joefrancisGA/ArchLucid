@@ -50,6 +50,7 @@ export type FavoriteReviewEntryDto = {
   readonly runId: string;
   readonly title?: string | null;
   readonly pinnedAtUtc: string;
+  readonly architectureId?: string | null;
 };
 
 export type OperatorRecentViewEntryDto = {

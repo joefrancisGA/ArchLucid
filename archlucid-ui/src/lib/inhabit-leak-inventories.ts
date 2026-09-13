@@ -28,9 +28,9 @@ export const INHABIT_FINDINGS_EDITOR_SURFACE_ROWS: readonly InhabitFindingsEdito
   {
     surface: "Review-detail finding inspect route",
     hrefPattern: "/architecture/reviews/{reviewId}/findings/{findingId}",
-    architectureIdKnown: false,
+    architectureIdKnown: true,
     editorKind: "review-detail-inspect",
-    ownerPrompt: "IH-020",
+    ownerPrompt: "IR-004",
   },
   {
     surface: "Governance findings queue (peer)",
@@ -42,9 +42,9 @@ export const INHABIT_FINDINGS_EDITOR_SURFACE_ROWS: readonly InhabitFindingsEdito
   {
     surface: "Quick decision workspace cards",
     hrefPattern: "in-page (review workspace)",
-    architectureIdKnown: false,
+    architectureIdKnown: true,
     editorKind: "quick-decision",
-    ownerPrompt: "IH-017",
+    ownerPrompt: "IR-005",
   },
 ];
 
@@ -99,8 +99,8 @@ export const INHABIT_DISPOSITION_REVERSIBILITY_ROWS: readonly InhabitDisposition
     relativePath: "components/governance/findings/GovernanceFindingRow.tsx",
     toastUndo: true,
     recordCorrectionVisible: true,
-    dispositionHistory: false,
-    ownerPrompt: "IH-039",
+    dispositionHistory: true,
+    ownerPrompt: "IR-006",
   },
   {
     surface: "Finding inspect disposition form",
@@ -115,8 +115,8 @@ export const INHABIT_DISPOSITION_REVERSIBILITY_ROWS: readonly InhabitDisposition
     relativePath: "app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx",
     toastUndo: true,
     recordCorrectionVisible: true,
-    dispositionHistory: false,
-    ownerPrompt: "IH-033",
+    dispositionHistory: true,
+    ownerPrompt: "IR-007",
   },
   {
     surface: "Inhabited findings document card rows",
@@ -160,8 +160,8 @@ export const INHABIT_QUIET_ENGINE_COMPLETENESS_ROWS: readonly InhabitQuietEngine
   {
     surface: "Run progress tracker Ready chrome",
     relativePath: "components/runs/use-run-progress-tracker.ts",
-    namesQuietEnginesOnDesk: false,
-    ownerPrompt: "IH-040",
+    namesQuietEnginesOnDesk: true,
+    ownerPrompt: "IR-001",
   },
   {
     surface: "Pre-finalize checklist panel",
@@ -265,16 +265,16 @@ export const INHABIT_KEYBOARD_FOCUS_ROWS: readonly InhabitKeyboardFocusRow[] = [
   {
     surface: "Finding keyboard triage host",
     relativePath: "components/CommandPaletteActions.tsx",
-    defaultFocusFirstFinding: false,
+    defaultFocusFirstFinding: true,
     paletteWorkActionsFirst: true,
-    ownerPrompt: "IH-060",
+    ownerPrompt: "IR-009",
   },
   {
     surface: "Finding card shortcuts hook",
     relativePath: "hooks/useFindingCardShortcuts.ts",
-    defaultFocusFirstFinding: false,
-    paletteWorkActionsFirst: false,
-    ownerPrompt: "IH-010",
+    defaultFocusFirstFinding: true,
+    paletteWorkActionsFirst: true,
+    ownerPrompt: "IR-008",
   },
 ];
 
@@ -300,16 +300,16 @@ export const INHABIT_CONTINUITY_ROWS: readonly InhabitContinuityRow[] = [
   {
     concern: "Continue-last review package target",
     storageKeyOrMechanism: "resolve-continue-last-review-package",
-    persistKind: "local-storage",
-    architectureShaped: false,
-    ownerPrompt: "IH-015",
+    persistKind: "account-prefs",
+    architectureShaped: true,
+    ownerPrompt: "IR-010",
   },
   {
     concern: "Favorite reviews pins",
     storageKeyOrMechanism: "favoriteReviews localStorage + user preferences API",
     persistKind: "account-prefs",
-    architectureShaped: false,
-    ownerPrompt: "IH-066",
+    architectureShaped: true,
+    ownerPrompt: "IR-011",
   },
   {
     concern: "Finding selection on nested findings",
@@ -338,8 +338,8 @@ export const INHABIT_WORKING_HOME_PIPELINE_ROWS: readonly InhabitWorkingHomePipe
   {
     surface: "First review guide walkthrough",
     relativePath: "app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuideWalkthrough.tsx",
-    teachesPipeline: true,
-    ownerPrompt: "IH-027",
+    teachesPipeline: false,
+    ownerPrompt: "IR-003",
   },
   {
     surface: "Architecture identity desk (inhabit verbs)",
@@ -350,8 +350,8 @@ export const INHABIT_WORKING_HOME_PIPELINE_ROWS: readonly InhabitWorkingHomePipe
   {
     surface: "Core pilot wizard steps",
     relativePath: "lib/core-pilot-steps.ts",
-    teachesPipeline: true,
-    ownerPrompt: "IH-069",
+    teachesPipeline: false,
+    ownerPrompt: "IR-002",
   },
 ];
 

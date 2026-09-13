@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 type FavoriteReviewToggleProps = {
   readonly runId: string;
   readonly title?: string;
+  readonly architectureId?: string | null;
   readonly className?: string;
   readonly size?: "sm" | "icon";
 };
@@ -48,7 +49,11 @@ export function FavoriteReviewToggle(props: FavoriteReviewToggleProps): React.JS
         }
       }
 
-      toggleFavorite({ runId: props.runId, title: props.title });
+      toggleFavorite({
+        runId: props.runId,
+        title: props.title,
+        architectureId: props.architectureId,
+      });
     })();
   };
 

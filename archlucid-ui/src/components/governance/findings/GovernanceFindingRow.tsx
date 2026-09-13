@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { memo, type ReactElement } from "react";
 
+import { FindingDispositionHistorySection } from "@/components/governance/findings/FindingDispositionHistorySection";
 import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
@@ -41,6 +42,7 @@ import {
   governanceFindingDetailKeyboardActivate,
   governanceFindingInspectHref,
   navigateGovernanceFindingDetail,
+  type GovernanceFindingInspectHrefOptions,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
 
@@ -50,6 +52,7 @@ export type GovernanceFindingRowProps = {
   readonly variant: "buyer" | "operational";
   readonly showNewSinceLastVisit?: boolean;
   readonly inhabitedFindingsDocument?: boolean;
+  readonly inspectHrefOptions?: GovernanceFindingInspectHrefOptions;
   readonly onOpenRow?: () => void;
   readonly onOpenFinding?: (row: GovernanceFindingQueueRow) => void;
 };
@@ -59,6 +62,8 @@ function GovernanceFindingRowComponent({
   buyerPolishedShell,
   variant,
   showNewSinceLastVisit = false,
+  inhabitedFindingsDocument = false,
+  inspectHrefOptions,
   onOpenRow,
   onOpenFinding,
 }: GovernanceFindingRowProps): ReactElement {
@@ -69,7 +74,9 @@ function GovernanceFindingRowComponent({
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
   const semanticSupportChipFinding = governanceQueueRowToSemanticSupportChipFinding(row);
   const evidenceTraceHref =
-    row.recordKind === "finding" ? governanceFindingInspectHref(row.runId, row.findingId) : null;
+    row.recordKind === "finding"
+      ? governanceFindingInspectHref(row.runId, row.findingId, inspectHrefOptions)
+      : null;
 
   if (buyerVariant) {
     return (
@@ -109,7 +116,7 @@ function GovernanceFindingRowComponent({
             ) : null}
             <Link
               className={OPERATOR_LINK.inline}
-              href={governanceFindingInspectHref(row.runId, row.findingId)}
+              href={governanceFindingInspectHref(row.runId, row.findingId, inspectHrefOptions)}
               onClick={(event) => {
                 if (row.recordKind === "finding" && onOpenFinding !== undefined) {
                   event.preventDefault();
@@ -182,6 +189,12 @@ function GovernanceFindingRowComponent({
           {row.recordKind === "finding" ? (
             <FindingListDispositionRowActions findingId={row.findingId} compact />
           ) : null}
+          {row.recordKind === "finding" && inhabitedFindingsDocument ? (
+            <FindingDispositionHistorySection
+              findingId={row.findingId}
+              testId={`governance-row-disposition-history-${row.findingId}`}
+            />
+          ) : null}
           {row.recordKind === "finding"
           && row.latestDisposition !== null
           && row.latestDisposition !== undefined
@@ -210,7 +223,7 @@ function GovernanceFindingRowComponent({
         <CardTitle className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}>
           <Link
             className={OPERATOR_LINK.inline}
-            href={governanceFindingInspectHref(row.runId, row.findingId)}
+            href={governanceFindingInspectHref(row.runId, row.findingId, inspectHrefOptions)}
           >
             {row.title}
           </Link>
@@ -252,6 +265,12 @@ function GovernanceFindingRowComponent({
         <GovernanceFindingDetailPane row={row} buyerPolishedShell={buyerPolishedShell} variant="operational" />
         {row.recordKind === "finding" ? (
           <FindingListDispositionRowActions findingId={row.findingId} compact />
+        ) : null}
+        {row.recordKind === "finding" && inhabitedFindingsDocument ? (
+          <FindingDispositionHistorySection
+            findingId={row.findingId}
+            testId={`governance-row-disposition-history-${row.findingId}`}
+          />
         ) : null}
         {row.recordKind === "finding"
         && row.latestDisposition !== null

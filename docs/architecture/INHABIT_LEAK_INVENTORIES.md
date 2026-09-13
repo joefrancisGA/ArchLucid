@@ -11,9 +11,9 @@ These tables name where Working still behaves like a governed job inspector inst
 | Surface | Href pattern | ArchitectureId known | Editor kind | Owner |
 | --- | --- | --- | --- | --- |
 | Architecture nested findings desk | `/architecture/architectures/{id}/findings?runId=` | Yes | nested-findings-desk | IH-015 |
-| Review-detail finding inspect | `/architecture/reviews/{id}/findings/{findingId}` | Optional | review-detail-inspect | IH-020 |
+| Review-detail finding inspect | `/architecture/reviews/{id}/findings/{findingId}` | Yes | review-detail-inspect | IR-004 |
 | Governance findings queue | `/governance/findings?runId=` | No | governance-queue | IH-015 |
-| Quick decision workspace | in-page | No | quick-decision | IH-017 |
+| Quick decision workspace | in-page | Yes | quick-decision | IR-005 |
 
 ## IH-005 — Record CTA implies Simulator work is career-complete
 
@@ -28,9 +28,9 @@ These tables name where Working still behaves like a governed job inspector inst
 
 | Surface | Toast undo | Record correction visible | Disposition history | Owner |
 | --- | --- | --- | --- | --- |
-| Governance finding row | Yes | Yes | No | IH-039 |
+| Governance finding row | Yes | Yes | Yes | IR-006 |
 | Finding inspect form | Yes | Yes | Yes | IH-034 |
-| Governance queue client | Yes | Yes | No | IH-033 |
+| Governance queue client | Yes | Yes | Yes | IR-007 |
 | Inhabited findings document card rows | Yes | Yes | Yes | IH-034 |
 | Governance finding triage panel | No | Yes | Yes | IH-034 |
 
@@ -42,7 +42,7 @@ These tables name where Working still behaves like a governed job inspector inst
 | --- | --- | --- |
 | Nested findings empty state | Yes | IH-021 |
 | Inhabited findings document chrome | Yes | IH-040 |
-| Run progress Ready chrome | No | IH-040 |
+| Run progress Ready chrome | Yes | IR-001 |
 | Pre-finalize checklist | Yes | IH-041 |
 | Career export gate | Yes (export-only) | CG-021 |
 
@@ -72,16 +72,16 @@ No avatars. No finding-comment chat.
 | Surface | Default focus first finding | Palette work actions first | Owner |
 | --- | --- | --- | --- |
 | Nested findings page | Yes | Yes | IH-059 |
-| Keyboard triage host | No | Yes | IH-060 |
-| Finding card shortcuts | No | No | IH-010 |
+| Keyboard triage host | Yes | Yes | IR-009 |
+| Finding card shortcuts | Yes | Yes | IR-008 |
 
 ## IH-011 — Recents, pins, selection not inhabited continuity
 
 | Concern | Mechanism | Persist | Architecture-shaped | Owner |
 | --- | --- | --- | --- | --- |
 | Recent views | localStorage + user preferences API | account-prefs | Yes | IH-066 |
-| Continue-last | `resolve-continue-last-review-package` | local-storage | No | IH-015 |
-| Pins | favoriteReviews localStorage + user preferences API | account-prefs | No | IH-066 |
+| Continue-last | `resolve-continue-last-review-package` | account-prefs | Yes | IR-010 |
+| Pins | favoriteReviews localStorage + user preferences API | account-prefs | Yes | IR-011 |
 | Finding selection | `focusedFinding` URL query | url | Yes | IH-064 |
 
 ## IH-012 — Working Home teaches pipeline
@@ -89,9 +89,9 @@ No avatars. No finding-comment chat.
 | Surface | Pipeline hero / stepper | Owner |
 | --- | --- | --- |
 | Unfinished work rail | No | IH-027 |
-| First review guide | Yes | IH-027 |
+| First review guide | No | IR-003 |
 | Identity desk command bar | No (desk verbs) | IH-027 |
-| Core pilot steps | Yes | IH-069 |
+| Core pilot steps | No | IR-002 |
 
 Guided / demo / trial may keep eval chrome (**IH-070**).
 
