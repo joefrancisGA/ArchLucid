@@ -14874,6 +14874,23 @@
         },
         "type": "object"
       },
+      "FavoriteReviewEntryDto": {
+        "properties": {
+          "pinnedAtUtc": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "FeasibilityCitationKind": {
         "enum": [
           "NamedLaw",
@@ -22562,6 +22579,35 @@
             "type": "string"
           },
           "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "OperatorRecentViewEntryDto": {
+        "properties": {
+          "architectureId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "href": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "parentArchitectureId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "visitedAtUtc": {
             "type": "string"
           }
         },
@@ -34698,6 +34744,14 @@
         },
         "type": "object"
       },
+      "SetWorkingWorkspaceContinuityRequest": {
+        "properties": {
+          "continuity": {
+            "$ref": "#/components/schemas/WorkingWorkspaceContinuityDto"
+          }
+        },
+        "type": "object"
+      },
       "SetWorkspaceModeGraduationOfferRequest": {
         "properties": {
           "state": {
@@ -40083,6 +40137,12 @@
           "workingCareerRehearsalDoorIsExplicit": {
             "type": "boolean"
           },
+          "workingWorkspaceContinuity": {
+            "$ref": "#/components/schemas/WorkingWorkspaceContinuityDto"
+          },
+          "workingWorkspaceContinuityIsExplicit": {
+            "type": "boolean"
+          },
           "workspaceMode": {
             "type": "string"
           },
@@ -40349,6 +40409,29 @@
           },
           "wizardId": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WorkingWorkspaceContinuityDto": {
+        "properties": {
+          "favoriteReviews": {
+            "items": {
+              "$ref": "#/components/schemas/FavoriteReviewEntryDto"
+            },
+            "type": "array"
+          },
+          "recentViewEntries": {
+            "items": {
+              "$ref": "#/components/schemas/OperatorRecentViewEntryDto"
+            },
+            "type": "array"
+          },
+          "updatedAtUtc": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
