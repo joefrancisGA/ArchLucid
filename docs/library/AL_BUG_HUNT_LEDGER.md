@@ -10681,13 +10681,15 @@ Split from retired `archlucid-core` (ABQ-08).
 ## Zone: core-costing
 
 - **id:** core-costing
+
+2026-09-13 seed hunt #2393 (seed-only): reseeded core-costing; no new hunt-ready rows.
 - **split-from:** archlucid-core
 - **status:** open
 - **impact:** medium
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
