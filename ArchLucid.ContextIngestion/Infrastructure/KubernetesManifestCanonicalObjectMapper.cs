@@ -309,6 +309,53 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && priority.TryGetInt32(out int priorityValue))
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "priority", priorityValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "nodeSelector", out JsonElement nodeSelector)
+            && nodeSelector.ValueKind is JsonValueKind.Object)
+        {
+            foreach (JsonProperty selector in nodeSelector.EnumerateObject())
+            {
+                if (selector.Value.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(selector.Value.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        $"nodeSelector.{selector.Name}",
+                        selector.Value.GetString()!);
+                }
+            }
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "imagePullSecrets", out JsonElement imagePullSecrets)
+            && imagePullSecrets.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement secret in imagePullSecrets.EnumerateArray())
+            {
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(secret, "name", out JsonElement secretName)
+                    && secretName.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(secretName.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "imagePullSecret", secretName.GetString()!);
+                    break;
+                }
+            }
+        }
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "dnsConfig", out JsonElement dnsConfig)
+            && dnsConfig.ValueKind is JsonValueKind.Object
+            && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "nameservers", out JsonElement nameservers)
+            && nameservers.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement nameserver in nameservers.EnumerateArray())
+            {
+                if (nameserver.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(nameserver.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsNameserver", nameserver.GetString()!);
+                    break;
+                }
+            }
+        }
+
         ProjectContainerSecurityContext(podSpec, properties);
     }
 
