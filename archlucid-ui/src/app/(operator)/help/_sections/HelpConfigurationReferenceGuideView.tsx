@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { ConfigurationReferenceHelpClaimDisciplineStrip } from "@/components/help/ConfigurationReferenceHelpClaimDisciplineStrip";
 import { HelpConfigurationReferenceCatalogDisclosure } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceCatalogDisclosure";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
@@ -74,6 +75,8 @@ export function HelpConfigurationReferenceGuideView(
       />
 
       <ConfigurationReferenceHelpClaimDisciplineStrip />
+
+      <SponsorSendPathHonestyPanel testIdPrefix="help-configuration-reference" showSsoOptional={false} />
 
       <section
         aria-labelledby="help-configuration-reference-job-matrix-heading"

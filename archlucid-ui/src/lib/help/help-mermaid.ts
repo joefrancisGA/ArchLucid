@@ -578,11 +578,13 @@ function ensureMermaidInkViewBox(
   const nodeUnionResult = readMappedNodeUnionBBox(svg);
   let resolvedViewBox: DOMRect | null;
 
-  if (nodeUnionResult !== null && expectedNodeCount > 0) {
+  if (expectedNodeCount > 0) {
+    // Mapped union only. Unmapped g.node getBBox is local to a translated group
+    // and unions to a tiny origin box (~273×43 on the owner export).
     resolvedViewBox = resolveMermaidNodeUnionViewBox(
       sourceViewBox,
-      nodeUnionResult.union,
-      nodeUnionResult.nodeCount,
+      nodeUnionResult?.union ?? null,
+      nodeUnionResult?.nodeCount ?? 0,
       expectedNodeCount,
       paddingPx,
     );
