@@ -1580,6 +1580,57 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
 
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_resource_group_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "rg-1", label: "corp", sourceId: "azurerm_resource_group.corp"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-corp")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_user_assigned_identity_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "id-1", label: "worker", sourceId: "azurerm_user_assigned_identity.worker"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-worker")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_disk_encryption_set_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
+            ComputeNode(nodeId: "des-1", label: "keys", sourceId: "azurerm_disk_encryption_set.keys"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-keys")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRenamedServiceOverlayWhenServiceIdHasSurroundingWhitespace()
     {

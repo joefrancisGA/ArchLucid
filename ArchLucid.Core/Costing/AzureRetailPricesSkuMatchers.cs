@@ -127,6 +127,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || string.Equals(trimmed, "min", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mins", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "mi", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "mis", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "minute", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "minutes", StringComparison.OrdinalIgnoreCase);
     }
@@ -432,6 +433,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " dy")
             || ContainsBoundedToken(trimmed, " d")
             || HasCompactDaySuffix(trimmed)
+            || HasCompactDySuffix(trimmed)
             || HasCompactDayWordSuffix(trimmed)
             || HasCompactDaysWordSuffix(trimmed)
             || string.Equals(trimmed, "day", StringComparison.OrdinalIgnoreCase)
@@ -696,6 +698,8 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " mn")
             || ContainsBoundedToken(trimmed, " mos")
             || HasCompactMonthSuffix(trimmed)
+            || HasCompactMonSuffix(trimmed)
+            || HasCompactMnSuffix(trimmed)
             || HasCompactMosSuffix(trimmed)
             || HasCompactMonthWordSuffix(trimmed)
             || HasCompactMonthsWordSuffix(trimmed)
@@ -989,6 +993,15 @@ public sealed partial class AzureRetailPricesCatalogClient
         return char.IsDigit(trimmed[^2]);
     }
 
+    private static bool HasCompactDySuffix(string trimmed)
+    {
+        if (trimmed.Length < 3)
+            return false;
+
+        return trimmed.EndsWith("dy", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^3]);
+    }
+
 
 
 
@@ -1057,6 +1070,24 @@ public sealed partial class AzureRetailPricesCatalogClient
             return false;
 
         return trimmed.EndsWith("mo", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^3]);
+    }
+
+    private static bool HasCompactMonSuffix(string trimmed)
+    {
+        if (trimmed.Length < 4)
+            return false;
+
+        return trimmed.EndsWith("mon", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^4]);
+    }
+
+    private static bool HasCompactMnSuffix(string trimmed)
+    {
+        if (trimmed.Length < 3)
+            return false;
+
+        return trimmed.EndsWith("mn", StringComparison.OrdinalIgnoreCase)
             && char.IsDigit(trimmed[^3]);
     }
 
