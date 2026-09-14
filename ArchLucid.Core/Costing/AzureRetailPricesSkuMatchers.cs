@@ -562,6 +562,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " weel")
             || ContainsBoundedToken(trimmed, " weels")
             || ContainsBoundedToken(trimmed, " wels")
+            || ContainsBoundedToken(trimmed, " weekes")
             || HasCompactWeekSuffix(trimmed)
             || HasCompactWkSuffix(trimmed)
             || HasCompactWelSuffix(trimmed)
