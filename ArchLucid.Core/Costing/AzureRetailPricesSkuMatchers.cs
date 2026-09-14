@@ -549,6 +549,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashWksToken(trimmed)
             || ContainsSlashWkToken(trimmed)
             || ContainsSlashWToken(trimmed)
+            || ContainsBoundedToken(trimmed, " w")
             || ContainsBoundedToken(trimmed, " wk")
             || ContainsBoundedToken(trimmed, " wks")
             || HasCompactWeekSuffix(trimmed)
