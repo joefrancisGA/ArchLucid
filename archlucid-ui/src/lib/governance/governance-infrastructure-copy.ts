@@ -272,6 +272,20 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_BODY =
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL = "Diff vs other snapshot" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CROSS_SUBSCRIPTION_DIFF_DIALOG_TITLE =
+  "Different subscription selected" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CROSS_SUBSCRIPTION_DIFF_DIALOG_CANCEL = "Keep current selection" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CROSS_SUBSCRIPTION_DIFF_DIALOG_CONFIRM = "Continue anyway" as const;
+
+export function formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDescription(
+  anchorSubscriptionLabel: string,
+  nextSubscriptionLabel: string,
+): string {
+  return `You selected ${nextSubscriptionLabel}, which differs from the first snapshot subscription (${anchorSubscriptionLabel}). Drift diffs are normally compared within one Azure subscription. Do you still want to continue?`;
+}
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_TITLE = "No inventory snapshots yet" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY =

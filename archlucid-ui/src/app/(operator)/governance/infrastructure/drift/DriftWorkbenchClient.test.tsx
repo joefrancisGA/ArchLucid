@@ -44,24 +44,34 @@ const mockFetchChanges = vi.fn(async () => ({
   hasMore: false,
 }));
 
-const { downloadInfraEvidenceTerraformAdvisoryZipMock } = vi.hoisted(() => ({
+const { downloadInfraEvidenceTerraformAdvisoryZipMock, mockSnapshotItems } = vi.hoisted(() => ({
   downloadInfraEvidenceTerraformAdvisoryZipMock: vi.fn(async () => undefined),
+  mockSnapshotItems: [
+    {
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      subscriptionId: "sub-1",
+      subscriptionName: "Prod",
+      capturedUtc: "2026-09-01T12:00:00Z",
+      captureStatus: 1,
+      resourceCount: 42,
+      relationshipCount: 10,
+    },
+    {
+      snapshotId: "33333333-3333-3333-3333-333333333333",
+      subscriptionId: "sub-2",
+      subscriptionName: "Dev",
+      capturedUtc: "2026-08-15T12:00:00Z",
+      captureStatus: 1,
+      resourceCount: 18,
+      relationshipCount: 4,
+    },
+  ],
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   fetchInfraEvidenceSnapshots: vi.fn(async () => ({
-    items: [
-      {
-        snapshotId: "11111111-1111-1111-1111-111111111111",
-        subscriptionId: "sub-1",
-        subscriptionName: "Prod",
-        capturedUtc: "2026-09-01T12:00:00Z",
-        captureStatus: 1,
-        resourceCount: 42,
-        relationshipCount: 10,
-      },
-    ],
-    totalCount: 1,
+    items: mockSnapshotItems,
+    totalCount: mockSnapshotItems.length,
     page: 1,
     pageSize: 50,
     hasMore: false,
@@ -97,6 +107,28 @@ describe("DriftWorkbenchClient", () => {
     mockFetchChanges.mockClear();
     downloadInfraEvidenceTerraformAdvisoryZipMock.mockReset();
     downloadInfraEvidenceTerraformAdvisoryZipMock.mockResolvedValue(undefined);
+    mockSnapshotItems.splice(
+      0,
+      mockSnapshotItems.length,
+      {
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        subscriptionId: "sub-1",
+        subscriptionName: "Prod",
+        capturedUtc: "2026-09-01T12:00:00Z",
+        captureStatus: 1,
+        resourceCount: 42,
+        relationshipCount: 10,
+      },
+      {
+        snapshotId: "33333333-3333-3333-3333-333333333333",
+        subscriptionId: "sub-2",
+        subscriptionName: "Dev",
+        capturedUtc: "2026-08-15T12:00:00Z",
+        captureStatus: 1,
+        resourceCount: 18,
+        relationshipCount: 4,
+      },
+    );
   });
 
   it("renders snapshot table and export button after selecting a snapshot", async () => {
@@ -401,6 +433,60 @@ describe("DriftWorkbenchClient", () => {
 
     expect(await screen.findByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
     expect(screen.getByText("How drift compare works")).toBeInTheDocument();
+  });
+
+  it("prompts before selecting a snapshot from a different subscription", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DriftWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Prod");
+    });
+
+    fireEvent.click(screen.getByTestId("infra-drift-snapshot-row-33333333-3333-3333-3333-333333333333"));
+
+    expect(await screen.findByTestId("infra-drift-cross-subscription-dialog")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-cross-subscription-dialog")).toHaveTextContent("Dev");
+    expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Prod");
+  });
+
+  it("applies cross-subscription snapshot selection after confirmation", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DriftWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Prod");
+    });
+
+    fireEvent.click(screen.getByTestId("infra-drift-snapshot-row-33333333-3333-3333-3333-333333333333"));
+    fireEvent.click(await screen.findByTestId("infra-drift-cross-subscription-confirm"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Dev");
+    });
+    expect(screen.queryByTestId("infra-drift-cross-subscription-dialog")).not.toBeInTheDocument();
+  });
+
+  it("prompts before selecting a diff whose other snapshot is in a different subscription", async () => {
+    mockFetchDiffs.mockResolvedValueOnce([
+      {
+        diffId: "diff-cross-sub",
+        snapshotAId: "11111111-1111-1111-1111-111111111111",
+        snapshotBId: "33333333-3333-3333-3333-333333333333",
+        totalChanges: 1,
+        createdUtc: "2026-09-01T12:00:00Z",
+      },
+    ]);
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DriftWorkbenchClient />);
+
+    const diffPicker = await screen.findByTestId("infra-drift-diff-picker");
+    fireEvent.change(diffPicker, { target: { value: "diff-cross-sub" } });
+
+    expect(await screen.findByTestId("infra-drift-cross-subscription-dialog")).toBeInTheDocument();
+    expect(diffPicker).toHaveValue("");
+    expect(mockFetchChanges).not.toHaveBeenCalled();
   });
 
   it("shows an inline error instead of a toast when Terraform export fails", async () => {
