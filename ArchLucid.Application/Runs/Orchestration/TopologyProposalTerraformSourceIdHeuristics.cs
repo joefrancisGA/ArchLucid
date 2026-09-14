@@ -308,7 +308,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("monitor_private_link_scope", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_activity_log_alert", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("synapse_firewall_rule", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("monitor_smart_detector_alert_rule", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("monitor_smart_detector_alert_rule", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_autoscale_setting", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -527,7 +528,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("monitor_private_link_scope", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_activity_log_alert", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("synapse_firewall_rule", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("monitor_smart_detector_alert_rule", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("monitor_smart_detector_alert_rule", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_autoscale_setting", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
