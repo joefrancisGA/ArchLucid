@@ -64,6 +64,7 @@ public sealed class AzureInventorySnapshotMaterializer(
             List<AzureInventoryUnknownResourceWrite> unknowns = [];
             List<AzureInventoryRoleAssignmentWrite> roleAssignments = [];
             List<AzureInventoryDiagnosticConfigurationWrite> diagnostics = [];
+            List<AzureExtractorExtendedResourceRow> visibleInventoryRows = [];
 
             foreach (AzureExtractorExtendedResourceRow row in inventory.Resources)
             {
@@ -71,6 +72,8 @@ public sealed class AzureInventorySnapshotMaterializer(
                 {
                     continue;
                 }
+
+                visibleInventoryRows.Add(row);
 
                 string normalizedArmId = ArmResourceIdNormalizer.Normalize(row.AzureResourceId);
                 CloudResourceIdentityRecord identity = await cloudResourceIdentityDirectory.UpsertOnSnapshotAsync(
@@ -189,7 +192,7 @@ public sealed class AzureInventorySnapshotMaterializer(
 
             AzureInventorySecurityEdgeMaterializeResult securityEdges =
                 AzureInventorySecurityEdgeMaterializer.Materialize(
-                    inventory.Resources,
+                    visibleInventoryRows,
                     inventory.RoleAssignments,
                     inventory.NetworkAssociations,
                     inventory.PolicyAssignments,
@@ -201,7 +204,13 @@ public sealed class AzureInventorySnapshotMaterializer(
                     inventory.EffectiveNetworkControls,
                     inventory.EffectiveNetworkControlsFilePresent);
 
-            byte[] contentHash = ComputeContentHash(resources, securityEdges.Relationships);
+            HashSet<string> visibleArmIds = AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(resources);
+            List<AzureInventoryResourceRelationshipWrite> visibleRelationships =
+                AzureInventoryVisibleSnapshotProjection.FilterVisibleRelationships(
+                    securityEdges.Relationships,
+                    visibleArmIds);
+
+            byte[] contentHash = ComputeContentHash(resources, visibleRelationships);
             AzureInventoryCaptureStatus status = resources.Count == 0
                 ? AzureInventoryCaptureStatus.Partial
                 : AzureInventoryCaptureStatus.Succeeded;
@@ -213,7 +222,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                 {
                     CaptureStatus = status,
                     ResourceCount = resources.Count,
-                    RelationshipCount = securityEdges.Relationships.Count,
+                    RelationshipCount = visibleRelationships.Count,
                     CompletenessScore = resources.Count == 0 ? 0m : 1.0m,
                     WarningCount = securityEdges.CompletenessWarnings.Count,
                     ErrorCount = 0,
@@ -222,7 +231,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                     CollectorVersion = collectorVersion,
                     Resources = resources,
                     Properties = properties,
-                    Relationships = securityEdges.Relationships,
+                    Relationships = visibleRelationships,
                     RoleAssignments = roleAssignments,
                     Tags = tags,
                     Diagnostics = diagnostics,
@@ -248,7 +257,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                 Succeeded = true,
                 CaptureStatus = status,
                 ResourceCount = resources.Count,
-                RelationshipCount = securityEdges.Relationships.Count,
+                RelationshipCount = visibleRelationships.Count,
                 ContentHashSha256 = contentHash,
             };
         }

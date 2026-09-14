@@ -37,6 +37,8 @@ public static class AzureInventoryNeverShowArmTypes
         "configurationassignments",
     ];
 
+    public static readonly string[] ResourceTypeLastSegmentSuffixes = LastSegments;
+
     public static bool ShouldOmitFromInventory(string? armType)
     {
         if (string.IsNullOrWhiteSpace(armType))

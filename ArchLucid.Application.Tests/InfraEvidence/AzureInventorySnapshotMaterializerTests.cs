@@ -27,10 +27,6 @@ public sealed class AzureInventorySnapshotMaterializerTests
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };
         Guid snapshotId = Guid.NewGuid();
         Guid packageId = Guid.NewGuid();
-        string childArmId =
-            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
-        string normalizedChildArmId = ArmResourceIdNormalizer.Normalize(childArmId);
-        string parentArmId = normalizedChildArmId[..normalizedChildArmId.LastIndexOf('/')];
 
         AzureInventorySnapshotMaterializeWriteRequest? captured = null;
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = CreateSnapshotRepository(
@@ -70,12 +66,10 @@ public sealed class AzureInventorySnapshotMaterializerTests
 
         result.Succeeded.Should().BeTrue();
         captured.Should().NotBeNull();
-        captured!.Relationships.Should().ContainSingle(r =>
-            r.FromAzureResourceId == parentArmId
-            && r.ToAzureResourceId == normalizedChildArmId
-            && r.RelationshipType == GraphEdgeTypes.Contains
-            && r.ProvenanceKind == ProvenanceKind.ObservedFact
-            && r.InferenceSource == GraphEdgeInferenceSources.InventoryExplicitParentChild);
+        captured!.Relationships.Should().BeEmpty(
+            "parent-child edges are omitted when the parent ARM id is not itself a visible inventory row");
+        captured.RelationshipCount.Should().Be(0);
+        result.RelationshipCount.Should().Be(0);
     }
 
     [Fact]
@@ -201,7 +195,22 @@ public sealed class AzureInventorySnapshotMaterializerTests
         Mock<ICloudResourceIdentityDirectory> identityDirectory = CreateIdentityDirectory(scope, snapshotId);
 
         byte[] zipBytes = BuildZipWithDiagnostics(
-            "[]",
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "properties": {}
+              },
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1",
+                "resourceType": "Microsoft.OperationalInsights/workspaces",
+                "name": "log1",
+                "properties": {}
+              }
+            ]
+            """,
             """
             [
               {
@@ -229,12 +238,14 @@ public sealed class AzureInventorySnapshotMaterializerTests
 
         result.Succeeded.Should().BeTrue();
         captured.Should().NotBeNull();
-        captured!.Relationships.Should().Contain(r =>
+        captured!.Relationships.Should().ContainSingle(r =>
             r.FromAzureResourceId == normalizedTargetId
             && r.ToAzureResourceId == normalizedWorkspaceId
             && r.RelationshipType == GraphEdgeTypes.ConnectsTo
             && r.ProvenanceKind == ProvenanceKind.ObservedFact
             && r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticTarget);
+        captured.RelationshipCount.Should().Be(1);
+        result.RelationshipCount.Should().Be(1);
     }
 
     private static Mock<IAzureInventorySnapshotRepository> CreateSnapshotRepository(
