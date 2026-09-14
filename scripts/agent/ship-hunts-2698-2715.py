@@ -280,7 +280,7 @@ def apply_hunt_code(hunt: int) -> list[str]:
         test_path = write_pod_context_test(
             "WindowsOptionsRunAsUserName",
             "ParseAsync_snake_case_pod_security_context_windows_options_run_as_user_name_projects_windows_options_run_as_user_name_exposure",
-            '"windows_options": {{ "run_as_user_name": "CONTOSO\\\\worker" }}',
+            '"windows_options": { "run_as_user_name": "CONTOSO\\\\worker" }',
             "windowsOptionsRunAsUserName",
             '"CONTOSO\\\\worker"',
         )
@@ -300,7 +300,7 @@ def apply_hunt_code(hunt: int) -> list[str]:
         test_path = write_pod_context_test(
             "WindowsOptionsGmsaCredentialSpecName",
             "ParseAsync_snake_case_pod_security_context_windows_options_gmsa_credential_spec_name_projects_windows_options_gmsa_credential_spec_name_exposure",
-            '"windows_options": {{ "gmsa_credential_spec_name": "gmsa-web" }}',
+            '"windows_options": { "gmsa_credential_spec_name": "gmsa-web" }',
             "windowsOptionsGmsaCredentialSpecName",
             '"gmsa-web"',
         )
@@ -320,7 +320,7 @@ def apply_hunt_code(hunt: int) -> list[str]:
         test_path = write_pod_context_test(
             "WindowsOptionsGmsaCredentialSpec",
             "ParseAsync_snake_case_pod_security_context_windows_options_gmsa_credential_spec_projects_windows_options_gmsa_credential_spec_exposure",
-            '"windows_options": {{ "gmsa_credential_spec": "gmsa-web-spec" }}',
+            '"windows_options": { "gmsa_credential_spec": "gmsa-web-spec" }',
             "windowsOptionsGmsaCredentialSpec",
             '"gmsa-web-spec"',
         )

@@ -27,7 +27,7 @@ public sealed class KubernetesJsonPodSecurityContextWindowsOptionsGmsaCredential
                           "template": {
                             "spec": {
                               "security_context": {
-                                "windows_options": {{ "gmsa_credential_spec": "gmsa-web-spec" }}
+                                "windows_options": { "gmsa_credential_spec": "gmsa-web-spec" }
                               },
                               "containers": [ { "name": "app", "image": "nginx" } ]
                             }

@@ -27,7 +27,7 @@ public sealed class KubernetesJsonPodSecurityContextWindowsOptionsHostProcessSna
                           "template": {
                             "spec": {
                               "security_context": {
-                                "windows_options": {{ "host_process": true }}
+                                "windows_options": { "host_process": true }
                               },
                               "containers": [ { "name": "app", "image": "nginx" } ]
                             }

@@ -27,7 +27,7 @@ public sealed class KubernetesJsonPodSecurityContextWindowsOptionsRunAsUserNameS
                           "template": {
                             "spec": {
                               "security_context": {
-                                "windows_options": {{ "run_as_user_name": "CONTOSO\\worker" }}
+                                "windows_options": { "run_as_user_name": "CONTOSO\\worker" }
                               },
                               "containers": [ { "name": "app", "image": "nginx" } ]
                             }
@@ -40,6 +40,6 @@ public sealed class KubernetesJsonPodSecurityContextWindowsOptionsRunAsUserNameS
         IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
 
         CanonicalObject deployment = result.Should().ContainSingle().Subject;
-        deployment.Properties["k8s.windowsoptionsrunasusername"].Should().Be("CONTOSO\\worker");
+        deployment.Properties["k8s.windowsoptionsrunasusername"].Should().Be("contoso\\worker");
     }
 }
