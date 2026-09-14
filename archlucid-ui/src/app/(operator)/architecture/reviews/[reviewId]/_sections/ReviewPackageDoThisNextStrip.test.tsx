@@ -155,8 +155,13 @@ const failureRecoveryFixture = {
   },
 };
 
+const commitRunButtonPropsMock = vi.hoisted(() => ({ latest: null as Record<string, unknown> | null }));
+
 vi.mock("@/components/CommitRunButton", () => ({
-  CommitRunButton: () => <button type="button">Finalize review</button>,
+  CommitRunButton: (props: Record<string, unknown>) => {
+    commitRunButtonPropsMock.latest = props;
+    return <button type="button">Finalize review</button>;
+  },
 }));
 
 vi.mock("@/components/reviews/WorkspaceAiAvailabilityPanel", () => ({
@@ -544,5 +549,27 @@ describe("ReviewPackageDoThisNextStrip", () => {
     expect(screen.getByText("Reason code")).toBeInTheDocument();
     expect(screen.getByText("NoScheduledAgentTasks")).toBeInTheDocument();
     expect(screen.getByText("Likely cause")).toBeInTheDocument();
+  });
+
+  it("IP-010: passes parentArchitectureId into CommitRunButton on finalize-package", () => {
+    commitRunButtonPropsMock.latest = null;
+
+    render(
+      <ReviewPackageDoThisNextStrip
+        runId="run-1"
+        parentArchitectureId="architecture-identity-001"
+        hasGoldenManifest={false}
+        commitBlockedReason={null}
+        sessionAiReadiness={readySessionAiReadiness}
+        next={{
+          kind: "finalize-package",
+          sentence: "Finalize when the package is ready.",
+          actionLabel: "Finalize review",
+          href: null,
+        }}
+      />,
+    );
+
+    expect(commitRunButtonPropsMock.latest?.parentArchitectureId).toBe("architecture-identity-001");
   });
 });

@@ -106,19 +106,19 @@ export const INHABIT_POST_IR_ROOM_ON_REVIEW_DETAIL_ROWS: readonly InhabitPostIrL
   {
     surface: "Review room header button",
     relativePath: "components/reviews/ReviewRoomHeaderButton.tsx",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-007",
   },
   {
     surface: "Presenter elicitation bridge (room path)",
     relativePath: "components/reviews/RunDetailPresenterElicitationBridge.tsx",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-007",
   },
   {
     surface: "Room elicitation shortcut host (Alt+M)",
     relativePath: "components/reviews/ReviewRoomElicitationShortcutHost.tsx",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-007",
   },
 ];
@@ -129,20 +129,20 @@ export const INHABIT_POST_IR_INSPECT_SUPPORT_BAND_ROWS: readonly InhabitPostIrLe
     surface: "Finding detail header support chip",
     relativePath:
       "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/_sections/FindingDetailHeader.tsx",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-008",
   },
   {
     surface: "Finding detail inspect body support chip",
     relativePath:
       "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/_sections/FindingDetailInspectBody.tsx",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-008",
   },
   {
     surface: "Finding semantic support band inspect section",
     relativePath: "components/findings/FindingSemanticSupportBandInspectSection.tsx",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-008",
   },
 ];
@@ -152,13 +152,13 @@ export const INHABIT_POST_IR_SECONDARY_RERUN_ROWS: readonly InhabitPostIrLeakRow
   {
     surface: "Run progress tracker terminal-failure re-run",
     relativePath: "components/runs/RunProgressTracker.tsx",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-009",
   },
   {
     surface: "Run agent quality warnings re-run",
     relativePath: "components/runs/RunAgentQualityWarningsPanel.tsx",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-009",
   },
 ];
@@ -168,7 +168,7 @@ export const INHABIT_POST_IR_INSPECTOR_FINALIZE_ROWS: readonly InhabitPostIrLeak
   {
     surface: "Review package Do this next finalize",
     relativePath: "app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackageDoThisNextStrip.tsx",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-010",
   },
 ];
@@ -184,7 +184,7 @@ export const INHABIT_POST_IR_INHABITED_CHROME_ROWS: readonly InhabitPostIrLeakRo
   {
     surface: "Governance findings queue run-scope banner",
     relativePath: "app/(operator)/governance/findings/_sections/GovernanceFindingsQueueScopeSection.tsx",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-011",
   },
 ];

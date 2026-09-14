@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 
 import { FindingCrossReviewLifecycleHint } from "@/components/findings/FindingCrossReviewLifecycleHint";
 import { FindingJobViewLaneCallout } from "@/components/findings/FindingJobViewLaneCallout";
@@ -101,6 +102,7 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
     findingsQueueNavHref,
   } = props;
   const { isWorkingMode } = useWorkspaceMode();
+  const { mode: structuralExecutionMode } = useAgentExecutionMode();
   const inspectCounterfactualLine =
     isWorkingMode && !buyerPolishedShell
       ? parseCounterfactualFromPrefixedText(inspectPayload?.reasoningTrace ?? null)
@@ -181,6 +183,7 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
                 <FindingSemanticSupportBandChip
                   finding={mapInspectPayloadToQuickDecisionFinding(inspectPayload)}
                   showReason
+                  structuralExecutionMode={structuralExecutionMode}
                 />
               ) : null}
               {labels.categoryLabel ? <StatusTag kind="neutral" label={labels.categoryLabel} /> : null}

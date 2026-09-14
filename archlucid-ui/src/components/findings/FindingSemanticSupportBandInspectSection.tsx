@@ -1,6 +1,9 @@
+"use client";
+
 import type { ReactElement } from "react";
 
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   ARCHITECT_RESTATEMENT_SEMANTIC_SUPPORT_BAND_CLAIM_LINE_COPY,
@@ -38,6 +41,8 @@ export function findingSemanticSupportBandFromTypedPayload(
 export function FindingSemanticSupportBandInspectSection(
   props: FindingSemanticSupportBandInspectSectionProps,
 ): ReactElement | null {
+  const { mode: structuralExecutionMode } = useAgentExecutionMode();
+
   if (!isDecisionGradeFinding(props.finding)) {
     return null;
   }
@@ -56,7 +61,11 @@ export function FindingSemanticSupportBandInspectSection(
         Semantic support
       </p>
       <div className="mt-2">
-        <FindingSemanticSupportBandChip finding={props.finding} showReason />
+        <FindingSemanticSupportBandChip
+          finding={props.finding}
+          showReason
+          structuralExecutionMode={structuralExecutionMode}
+        />
       </div>
       {showRestatementSplit ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
