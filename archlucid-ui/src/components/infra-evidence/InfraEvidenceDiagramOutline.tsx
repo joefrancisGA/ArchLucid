@@ -17,6 +17,7 @@ import {
   toggleInfraEvidenceDiagramOutlineNodeSort,
   type InfraEvidenceDiagramOutlineNodeSortKey,
 } from "@/lib/infra-evidence/infra-evidence-diagram-outline-sort";
+import { InfraEvidenceDiagramOutlineNodeLabel } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
 import {
   resolveInfraEvidenceOutlineNodeLabel,
   type InfraEvidenceMermaidOutline,
@@ -118,13 +119,6 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   onSort={handleNodeSort}
                 />
                 <InfraEvidenceDiagramOutlineSortableHeader
-                  column="resourceType"
-                  label="Resource type"
-                  sortKey={nodeSortKey}
-                  sortDir={nodeSortDir}
-                  onSort={handleNodeSort}
-                />
-                <InfraEvidenceDiagramOutlineSortableHeader
                   column="resourceGroup"
                   label="Resource group"
                   sortKey={nodeSortKey}
@@ -141,8 +135,9 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
             <tbody>
               {nodeRows.map((node) => (
                 <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
-                  <td className="px-3 py-2">{node.label}</td>
-                  <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceType)}</td>
+                  <td className="px-3 py-2">
+                    <InfraEvidenceDiagramOutlineNodeLabel node={node} />
+                  </td>
                   <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceGroup)}</td>
                   {showNeighborhoodActions ? (
                     <td className="px-3 py-2">
@@ -176,19 +171,38 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
             <thead className="bg-neutral-50 dark:bg-neutral-900/60">
               <tr>
                 <th className="px-3 py-2 font-medium">From</th>
+                <th className="px-3 py-2 font-medium">Relationship</th>
                 <th className="px-3 py-2 font-medium">To</th>
               </tr>
             </thead>
             <tbody>
-              {edgeRows.map((edge, index) => (
-                <tr
-                  key={`${edge.from}-${edge.to}-${index}`}
-                  className="border-t border-neutral-200 dark:border-neutral-800"
-                >
-                  <td className="px-3 py-2">{resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from)}</td>
-                  <td className="px-3 py-2">{resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.to)}</td>
-                </tr>
-              ))}
+              {edgeRows.map((edge, index) => {
+                const fromNode = outline.nodes.find((node) => node.id === edge.from);
+                const toNode = outline.nodes.find((node) => node.id === edge.to);
+
+                return (
+                  <tr
+                    key={`${edge.from}-${edge.to}-${index}`}
+                    className="border-t border-neutral-200 dark:border-neutral-800"
+                  >
+                    <td className="px-3 py-2">
+                      {fromNode != null ? (
+                        <InfraEvidenceDiagramOutlineNodeLabel node={fromNode} />
+                      ) : (
+                        resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from)
+                      )}
+                    </td>
+                    <td className="px-3 py-2">{formatOutlineCell(edge.label)}</td>
+                    <td className="px-3 py-2">
+                      {toNode != null ? (
+                        <InfraEvidenceDiagramOutlineNodeLabel node={toNode} />
+                      ) : (
+                        resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.to)
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
           {edgeRows.length === 0 ? (

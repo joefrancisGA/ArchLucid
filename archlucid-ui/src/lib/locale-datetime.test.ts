@@ -4,6 +4,7 @@ import {
   formatBrowserTimeZoneAbbreviation,
   formatIanaTimeZoneAbbreviation,
   formatInstantForLocale,
+  formatInstantInPreferredTimeZone,
 } from "@/lib/locale-datetime";
 import { pilotOutcomesReportingPeriodHelper } from "@/lib/pilot-outcomes-page-copy";
 
@@ -20,6 +21,34 @@ describe("formatInstantForLocale", () => {
     expect(formatInstantForLocale("not-a-date")).toBe(" — ");
     expect(formatInstantForLocale(null)).toBe(" — ");
     expect(formatInstantForLocale(undefined)).toBe(" — ");
+  });
+});
+
+describe("formatInstantInPreferredTimeZone", () => {
+  it("defaults to Eastern daylight time without seconds", () => {
+    expect(formatInstantInPreferredTimeZone("2026-09-10T13:45:35Z")).toBe("9/10/2026, 9:45 AM EDT");
+  });
+
+  it("uses Eastern standard time in winter", () => {
+    expect(formatInstantInPreferredTimeZone("2026-01-10T13:45:35Z")).toBe("1/10/2026, 8:45 AM EST");
+  });
+
+  it("follows a non-default IANA preference", () => {
+    expect(formatInstantInPreferredTimeZone("2026-09-10T13:45:35Z", "America/Chicago")).toBe(
+      "9/10/2026, 8:45 AM CDT",
+    );
+  });
+
+  it("falls back to Eastern when the zone is unknown to Intl", () => {
+    expect(formatInstantInPreferredTimeZone("2026-09-10T13:45:35Z", "Not/A_RealZone")).toBe(
+      "9/10/2026, 9:45 AM EDT",
+    );
+  });
+
+  it("returns em dash for empty input", () => {
+    expect(formatInstantInPreferredTimeZone("")).toBe(" — ");
+    expect(formatInstantInPreferredTimeZone(null)).toBe(" — ");
+    expect(formatInstantInPreferredTimeZone(undefined)).toBe(" — ");
   });
 });
 

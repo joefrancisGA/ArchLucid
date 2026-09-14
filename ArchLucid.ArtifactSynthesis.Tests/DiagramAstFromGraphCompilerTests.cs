@@ -146,9 +146,9 @@ public sealed class DiagramAstFromGraphCompilerTests
         ast.Nodes.Should().HaveCount(3);
         ast.Subgraphs.Should().HaveCount(3);
         ast.Subgraphs.Should().OnlyContain(subgraph => subgraph.Label.StartsWith("Region ", StringComparison.Ordinal));
-        ast.Edges.Should().ContainSingle(edge => !edge.IsLayoutOnly && edge.Label == "peered");
+        ast.Edges.Should().ContainSingle(edge => !edge.IsLayoutOnly && edge.Label == "peering");
         ast.Nodes.Should().Contain(node => node.Label.Contains("2 subnets", StringComparison.Ordinal));
-        mermaid.Should().Contain("-->|\"peered\"|");
+        mermaid.Should().Contain("-->|\"peering\"|");
         mermaid.Should().Contain("Region eastus");
         mermaid.Should().Contain("Region westus");
         mermaid.Should().Contain("Region northeurope");
