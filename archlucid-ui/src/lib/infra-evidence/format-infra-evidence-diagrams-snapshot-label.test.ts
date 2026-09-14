@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 
@@ -18,20 +17,23 @@ function snapshot(overrides: Partial<InfraEvidenceSnapshotSummary> = {}): InfraE
 }
 
 describe("formatInfraEvidenceDiagramsSnapshotPickerLabel", () => {
-  it("leads with the Azure subscription display name", () => {
-    const captured = formatIsoUtcForDisplay("2026-09-10T13:45:35Z");
-
+  it("leads with the Azure subscription display name in Eastern Time without seconds", () => {
     expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot())).toBe(
-      `Contoso Production · captured ${captured} · 889 resources`,
+      "Contoso Production · captured 9/10/2026, 9:45 AM EDT · 889 resources",
     );
   });
 
   it("omits UUID subscription identity when no name is stored", () => {
     const unlabeled = snapshot({ subscriptionName: null });
-    const captured = formatIsoUtcForDisplay("2026-09-10T13:45:35Z");
 
     expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(unlabeled)).toBe(
-      `captured ${captured} · 889 resources`,
+      "captured 9/10/2026, 9:45 AM EDT · 889 resources",
+    );
+  });
+
+  it("follows the operator IANA preference", () => {
+    expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot(), "America/Chicago")).toBe(
+      "Contoso Production · captured 9/10/2026, 8:45 AM CDT · 889 resources",
     );
   });
 });

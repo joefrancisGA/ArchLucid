@@ -14919,6 +14919,12 @@
       },
       "FavoriteReviewEntryDto": {
         "properties": {
+          "architectureId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "pinnedAtUtc": {
             "type": "string"
           },

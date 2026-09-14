@@ -111,7 +111,6 @@ import {
 import { buildResourceHubDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
-import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
@@ -155,6 +154,7 @@ import {
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
+import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { cn } from "@/lib/utils";
 
 import { DiagramsBreadcrumb } from "./DiagramsBreadcrumb";
@@ -213,6 +213,7 @@ function FallbackCard(props: {
 
 export function DiagramsWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
+  const { ianaTimeZoneId } = useIanaTimeZonePreference();
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
@@ -398,9 +399,16 @@ export function DiagramsWorkbenchClient() {
     [selectedSnapshotId, snapshots],
   );
 
+  const formatSnapshotPickerLabel = useCallback(
+    (snapshot: InfraEvidenceSnapshotSummary): string => {
+      return formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot, ianaTimeZoneId);
+    },
+    [ianaTimeZoneId],
+  );
+
   const selectedSnapshotDisplayLabel = useMemo(() => {
     if (selectedSnapshot != null) {
-      return formatInfraEvidenceDiagramsSnapshotPickerLabel(selectedSnapshot);
+      return formatSnapshotPickerLabel(selectedSnapshot);
     }
 
     if (selectedSnapshotId.length > 0) {
@@ -408,7 +416,7 @@ export function DiagramsWorkbenchClient() {
     }
 
     return null;
-  }, [selectedSnapshot, selectedSnapshotId]);
+  }, [formatSnapshotPickerLabel, selectedSnapshot, selectedSnapshotId]);
 
   const selectedModeLabel = useMemo(
     () => resolveInfraDiagramsModeLabel(selectedMode, effectiveFallbackKey, selectedResourceGroupName),
@@ -474,18 +482,18 @@ export function DiagramsWorkbenchClient() {
     || resourceGroupPickerAwaitingSelection;
   const mermaidExportDisabled = exportsDisabled || !paintDiagramCanvas;
 
-  const renderStatusPresentation = useMemo(() => {
-    const status = renderResult?.status ?? activeModePreview?.status ?? "";
+  const renderStatus = renderResult?.status ?? activeModePreview?.status ?? "";
 
-    if (status.length === 0) {
+  const renderStatusPresentation = useMemo(() => {
+    if (renderStatus.length === 0 || renderStatus !== "Failed") {
       return null;
     }
 
     return resolveInfraEvidenceMermaidRenderStatusPresentation({
-      status,
-      mermaidEmpty: diagramContentEmpty && status === "Succeeded",
+      status: renderStatus,
+      mermaidEmpty: diagramContentEmpty && renderStatus === "Succeeded",
     });
-  }, [activeModePreview?.status, diagramContentEmpty, mermaidSource, renderResult?.status]);
+  }, [diagramContentEmpty, renderStatus]);
 
   const mermaidOutline = useMemo(() => {
     if (mermaidSource.trim().length === 0) {
@@ -1168,7 +1176,7 @@ export function DiagramsWorkbenchClient() {
                     ) : null}
                     {snapshots.map((snapshot) => (
                       <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                        {formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot)}
+                        {formatSnapshotPickerLabel(snapshot)}
                       </option>
                     ))}
                   </>
@@ -1221,7 +1229,7 @@ export function DiagramsWorkbenchClient() {
                     ) : null}
                     {snapshots.map((snapshot) => (
                       <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                        {formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot)}
+                        {formatSnapshotPickerLabel(snapshot)}
                       </option>
                     ))}
                   </>
@@ -1412,12 +1420,6 @@ export function DiagramsWorkbenchClient() {
           aria-label="Diagram render status"
         >
           <StatusTag kind={renderStatusPresentation.kind} label={renderStatusPresentation.label} />
-          {metrics != null ? (
-            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {metrics.nodeCount} nodes · {metrics.edgeCount} edges · {metrics.subgraphCount} subgraphs
-            </span>
-          ) : null}
-          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{selectedModeLabel}</span>
         </div>
       ) : null}
 
@@ -1485,7 +1487,6 @@ export function DiagramsWorkbenchClient() {
             {pngBrowserFallbackNote}
           </p>
         ) : null}
-        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="infra-diagrams-export" />
       </section>
 
       {selectedSnapshotId.length > 0 ? (

@@ -1,3 +1,6 @@
+import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
+
 /**
  * Locale string for an ISO-8601 instant, or em dash when missing / not parseable (avoids “Invalid Date” in UI).
  * Uses fixed `en-US` + `UTC` so server and client render the same text (hydration-safe for client components).
@@ -92,6 +95,73 @@ export function formatInstantForBuyerGovernance(iso: string | null | undefined):
       hour12: true,
     }) + " ET"
   );
+}
+
+function resolvePreferredIanaTimeZoneId(ianaTimeZoneId: string | null | undefined): string {
+  if (ianaTimeZoneId === null || ianaTimeZoneId === undefined) {
+    return DEFAULT_IANA_TIME_ZONE_ID;
+  }
+
+  const trimmed = ianaTimeZoneId.trim();
+
+  if (trimmed.length === 0) {
+    return DEFAULT_IANA_TIME_ZONE_ID;
+  }
+
+  return trimmed;
+}
+
+/** Minute-precision wall clock plus short zone (EDT/EST), never seconds. */
+function formatInstantClockInTimeZone(instant: Date, timeZoneId: string): string {
+  return instant.toLocaleString("en-US", {
+    timeZone: timeZoneId,
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZoneName: "short",
+  });
+}
+
+/**
+ * Operator capture/clock labels in the user's IANA preference (product default: US Eastern).
+ * Minute precision only — snapshot freshness does not need seconds. `timeZoneName: "short"`
+ * picks EDT vs EST from the instant. Explicit `timeZone` keeps SSR and client text aligned (TB-1678).
+ */
+export function formatInstantInPreferredTimeZone(
+  iso: string | null | undefined,
+  ianaTimeZoneId: string | null | undefined = DEFAULT_IANA_TIME_ZONE_ID,
+): string {
+  if (iso === null || iso === undefined) {
+    return " — ";
+  }
+
+  const trimmed = iso.trim();
+
+  if (trimmed.length === 0) {
+    return " — ";
+  }
+
+  const ms = parseIsoUtcMs(trimmed);
+
+  if (!Number.isFinite(ms)) {
+    return trimmed;
+  }
+
+  const instant = new Date(ms);
+  const timeZoneId = resolvePreferredIanaTimeZoneId(ianaTimeZoneId);
+
+  try {
+    return formatInstantClockInTimeZone(instant, timeZoneId);
+  } catch {
+    if (timeZoneId === DEFAULT_IANA_TIME_ZONE_ID) {
+      return trimmed;
+    }
+
+    return formatInstantClockInTimeZone(instant, DEFAULT_IANA_TIME_ZONE_ID);
+  }
 }
 
 /**

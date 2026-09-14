@@ -1,7 +1,7 @@
-/** Light-mode inventory/architecture node fill — option E (pale honey) on a white canvas. */
+/** Light-mode inventory/architecture node fill — rich honey on a white canvas. */
 export const ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE = {
-  fill: "#E6CF8A",
-  border: "#7A6535",
+  fill: "#D4A84B",
+  border: "#6B5424",
 } as const;
 
 /** Horizontal gap between dagre-ranked nodes (Mermaid flowchart.nodeSpacing). */
@@ -13,8 +13,8 @@ export const ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING = 20;
 /** Padding around the whole flowchart plate (Mermaid flowchart.padding). */
 export const ARCHITECTURE_DIAGRAM_MERMAID_PADDING = 6;
 
-/** Max label width before Mermaid wraps long VNet names (flowchart.wrappingWidth). */
-export const ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH = 240;
+/** Uniform node box width for inventory/architecture Mermaid canvases (flowchart.wrappingWidth). */
+export const ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH = 400;
 
 /** Shared Mermaid init for operator architecture and inventory diagrams. */
 export function createArchitectureDiagramMermaidConfig(dark: boolean): {
@@ -54,7 +54,7 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
     },
     themeVariables: {
       fontSize: "15px",
-      // Transparent SVG plate — node fill comes from pale honey on the white viewport canvas.
+      // Transparent SVG plate — node fill comes from honey on the white viewport canvas.
       background: "transparent",
       primaryColor: dark ? "#334155" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill,
       mainBkg: dark ? "#334155" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill,

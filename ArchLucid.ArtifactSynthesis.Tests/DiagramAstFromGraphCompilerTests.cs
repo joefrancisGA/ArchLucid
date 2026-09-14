@@ -146,12 +146,33 @@ public sealed class DiagramAstFromGraphCompilerTests
         ast.Nodes.Should().HaveCount(3);
         ast.Subgraphs.Should().HaveCount(3);
         ast.Subgraphs.Should().OnlyContain(subgraph => subgraph.Label.StartsWith("Region ", StringComparison.Ordinal));
-        ast.Edges.Should().ContainSingle(edge => !edge.IsLayoutOnly && edge.Label == "peered");
+        ast.Edges.Should().ContainSingle(edge => !edge.IsLayoutOnly && edge.Label == "peering");
         ast.Nodes.Should().Contain(node => node.Label.Contains("2 subnets", StringComparison.Ordinal));
-        mermaid.Should().Contain("-->|\"peered\"|");
+        mermaid.Should().Contain("-->|\"peering\"|");
         mermaid.Should().Contain("Region eastus");
         mermaid.Should().Contain("Region westus");
         mermaid.Should().Contain("Region northeurope");
+    }
+
+    [Fact]
+    public void Compile_executive_blank_vnet_edge_types_still_annotate_peering()
+    {
+        GraphSnapshot graph = DiagramSparseComponentPackerTests.BuildExecutiveOwnerShapePeeringGraph();
+
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            edge.EdgeType = string.Empty;
+            edge.Label = null;
+            edge.InferenceSource = null;
+        }
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+        string mermaid = renderer.Render(ast);
+
+        DiagramEdgeVisibility.VisibleEdges(ast.Edges).Should().HaveCount(6);
+        DiagramEdgeVisibility.VisibleEdges(ast.Edges).Should().OnlyContain(edge => edge.Label == "peering");
+        mermaid.Should().Contain("-->|\"peering\"|");
+        mermaid.Should().NotContain("--> ");
     }
 
     [Fact]

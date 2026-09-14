@@ -331,8 +331,8 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         result.Value.Mermaid.Should().Contain("core-vnet");
         result.Value.Mermaid.Should().Contain("edge-nsg");
         result.Value.Mermaid.Should().Contain("peer-vnet");
-        result.Value.Mermaid.Should().Contain("CONNECTS_TO");
-        result.Value.Mermaid.Should().Contain("PEERS_WITH");
+        result.Value.Mermaid.Should().Contain("connects");
+        result.Value.Mermaid.Should().Contain("peering");
         result.Value.Mermaid.Should().Contain("app-vm");
         result.Value.Mermaid.Should().Contain(@"""in""");
     }
@@ -372,7 +372,46 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
 
         ast.Nodes.Should().Contain(node => node.Label == "app-vm");
         ast.Edges.Should().Contain(edge => edge.Label == "in");
-        ast.Edges.Should().Contain(edge => edge.Label == GraphEdgeTypes.ConnectsTo);
+        ast.Edges.Should().Contain(edge => edge.Label == "connects");
+    }
+
+    [Fact]
+    public async Task Executive_mode_blank_relationship_type_still_labels_vnet_peering()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildRelationshipFirstNetworkGoldenSnapshot();
+        List<AzureInventoryResourceRelationshipReadModel> relationships = snapshot.Relationships
+            .Select(relationship =>
+                relationship.RelationshipType == GraphEdgeTypes.PeersWith
+                    ? new AzureInventoryResourceRelationshipReadModel
+                    {
+                        FromAzureResourceId = relationship.FromAzureResourceId,
+                        ToAzureResourceId = relationship.ToAzureResourceId,
+                        RelationshipType = string.Empty,
+                        ProvenanceKind = relationship.ProvenanceKind,
+                        InferenceSource = null,
+                    }
+                    : relationship)
+            .ToList();
+
+        AzureInventorySnapshotDetailReadModel blankPeeringSnapshot = new()
+        {
+            Header = snapshot.Header,
+            Resources = snapshot.Resources,
+            Relationships = relationships,
+        };
+
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = blankPeeringSnapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(CreateScope(), SnapshotId, "executive", null, null, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.Mermaid.Should().Contain("-->|\"peering\"|");
+        result.Value.Mermaid.Should().NotContain("--> ");
     }
 
     [Fact]
