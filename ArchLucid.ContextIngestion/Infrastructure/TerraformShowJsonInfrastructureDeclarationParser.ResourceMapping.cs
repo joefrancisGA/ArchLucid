@@ -94,7 +94,10 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             ["terraformType"] = canonicalTerraformType
         };
 
-        if ((TryGetPropertyIgnoreCase(res, "provider_name", out JsonElement prov) || TryGetPropertyIgnoreCase(res, "providerName", out prov)) && prov.ValueKind == JsonValueKind.String)
+        if ((TryGetPropertyIgnoreCase(res, "provider_name", out JsonElement prov)
+                || TryGetPropertyIgnoreCase(res, "providerName", out prov)
+                || TryGetPropertyIgnoreCase(res, "provider", out prov))
+            && prov.ValueKind == JsonValueKind.String)
         {
             string? p = prov.GetString();
 
