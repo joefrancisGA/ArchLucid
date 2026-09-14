@@ -99,6 +99,16 @@ Inspector URLs are **intentional**. Entry leaks are closed by IP-002–007. Do n
 
 Ratchet: `archlucid-ui/src/lib/inhabit-post-ir-inspector-skip-guard.test.ts`.
 
+## IP-012 — Nested review-detail stays inspector (skip)
+
+| Surface | Module | Leak open | Owner |
+| --- | --- | --- | --- |
+| Nested review-detail job inspector | ADR 0098 / `inhabit-post-ir-leak-inventories.ts` | N/A (skip) | IP-012 |
+
+Inspector URLs are **intentional**. Entry leaks are closed by IP-002–007. Do not redirect the full review workspace to findings, collapse tabs behind **More**, or architecture-scope peer `/governance/findings`. In-flight `?reviewTab=activity` and explicit “View review job” stay.
+
+Ratchet: `archlucid-ui/src/lib/inhabit-post-ir-inspector-skip-guard.test.ts`.
+
 ## Intentional skips (not IP work)
 
 | Skip | Why |
