@@ -700,6 +700,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || HasCompactMonthSuffix(trimmed)
             || HasCompactMonSuffix(trimmed)
             || HasCompactMnSuffix(trimmed)
+            || HasCompactMSuffix(trimmed)
             || HasCompactMosSuffix(trimmed)
             || HasCompactMonthWordSuffix(trimmed)
             || HasCompactMonthsWordSuffix(trimmed)
@@ -1175,6 +1176,20 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return trimmed.EndsWith("minutes", StringComparison.OrdinalIgnoreCase)
             && char.IsDigit(trimmed[^8]);
+    }
+
+
+    private static bool HasCompactMSuffix(string trimmed)
+    {
+        if (trimmed.Length < 3)
+            return false;
+
+        char suffix = trimmed[^1];
+
+        if (suffix is not 'm' and not 'M')
+            return false;
+
+        return char.IsDigit(trimmed[^2]);
     }
 
     private static bool HasCompactMosSuffix(string trimmed)
