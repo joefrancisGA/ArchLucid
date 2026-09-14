@@ -244,10 +244,14 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_ERROR_TITLE =
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL = "Current snapshot" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_LABEL = "Inventory file" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_PLACEHOLDER = "Select an inventory…" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE = "Inventory snapshots" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_BODY =
-  "Select a snapshot to export advisory Terraform or compare drift against a prior capture." as const;
+  "Choose an inventory file to export advisory Terraform or compare drift against a later capture." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ARIA_LABEL = "Inventory snapshots" as const;
 

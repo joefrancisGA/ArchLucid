@@ -164,17 +164,30 @@ describe("DriftWorkbenchClient", () => {
     );
   });
 
-  it("renders snapshot table and export button after selecting a snapshot", async () => {
+  it("does not select an inventory file on landing and shows picker placeholder", async () => {
+    searchParams = new URLSearchParams();
+    render(<DriftWorkbenchClient />);
+
+    const snapshotPicker = await screen.findByTestId("infra-drift-snapshot-picker");
+    expect(snapshotPicker).toHaveValue("");
+    expect(within(snapshotPicker).getByRole("option", { name: "Select an inventory…" })).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-drift-export-terraform")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-drift-diff-picker")).not.toBeInTheDocument();
+  });
+
+  it("renders snapshot table and export button after selecting an inventory file", async () => {
     searchParams = new URLSearchParams();
     render(<DriftWorkbenchClient />);
 
     expect(await screen.findByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
-    expect(screen.queryByTestId("infra-drift-export-terraform")).not.toBeInTheDocument();
-
-    fireEvent.click(await screen.findByTestId("infra-drift-snapshot-row-11111111-1111-1111-1111-111111111111"));
+    const snapshotPicker = await screen.findByTestId("infra-drift-snapshot-picker");
+    fireEvent.change(snapshotPicker, {
+      target: { value: "11111111-1111-1111-1111-111111111111" },
+    });
 
     expect(await screen.findByTestId("infra-drift-export-terraform")).not.toBeDisabled();
     expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Prod");
+    expect(snapshotPicker).toHaveValue("11111111-1111-1111-1111-111111111111");
   });
 
   it("does not load drift changes until a diff is selected", async () => {

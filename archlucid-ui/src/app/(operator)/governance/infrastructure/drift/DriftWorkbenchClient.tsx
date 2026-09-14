@@ -117,6 +117,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_DISABLED_NO_SNAPSHOT,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_PLACEHOLDER,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_RECEIPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_LAYER_GUIDANCE_SUMMARY,
@@ -318,6 +320,11 @@ export function DriftWorkbenchClient() {
 
     return sortDriftSnapshots(filtered, snapshotTableFilterState.sortBy, snapshotTableFilterState.sortDir);
   }, [snapshots, snapshotTableFilterState]);
+
+  const snapshotPickerOptions = useMemo(
+    () => sortDriftSnapshots(snapshots, "captured", "desc"),
+    [snapshots],
+  );
 
   const visibleChanges = useMemo(() => {
     const filtered = filterDriftChanges(changes, tableFilterState, selectedDiff);
@@ -777,6 +784,20 @@ export function DriftWorkbenchClient() {
     [pushDriftUrl],
   );
 
+  const applySnapshotClear = useCallback(() => {
+    userClearedDiffRef.current = true;
+    setSelectedSnapshotId("");
+    setAnchorSnapshotId("");
+    setSelectedDiffId("");
+    setSelectedChangeId(null);
+    pushDriftUrl({
+      snapshotId: "",
+      diffId: "",
+      changeId: "",
+      tableFilters: { changesPage: 1 },
+    });
+  }, [pushDriftUrl]);
+
   const applyDiffSelect = useCallback(
     (nextDiffId: string) => {
       userClearedDiffRef.current = false;
@@ -800,14 +821,28 @@ export function DriftWorkbenchClient() {
         return;
       }
 
-      if (selectedSnapshot != null && !infraEvidenceSnapshotsShareSubscription(selectedSnapshot, nextSnapshot)) {
-        requestSubscriptionConfirmation({ kind: "snapshot", snapshotId: nextSnapshotId }, selectedSnapshot, nextSnapshot);
+      const subscriptionAnchor = anchorSnapshot ?? selectedSnapshot;
+
+      if (subscriptionAnchor != null && !infraEvidenceSnapshotsShareSubscription(subscriptionAnchor, nextSnapshot)) {
+        requestSubscriptionConfirmation({ kind: "snapshot", snapshotId: nextSnapshotId }, subscriptionAnchor, nextSnapshot);
         return;
       }
 
       applySnapshotSelect(nextSnapshotId);
     },
-    [applySnapshotSelect, requestSubscriptionConfirmation, selectedSnapshot, selectedSnapshotId, snapshots],
+    [anchorSnapshot, applySnapshotSelect, requestSubscriptionConfirmation, selectedSnapshot, selectedSnapshotId, snapshots],
+  );
+
+  const handleSnapshotPickerChange = useCallback(
+    (nextSnapshotId: string) => {
+      if (nextSnapshotId.length === 0) {
+        applySnapshotClear();
+        return;
+      }
+
+      handleSnapshotSelect(nextSnapshotId);
+    },
+    [applySnapshotClear, handleSnapshotSelect],
   );
 
   const handleDiffSelect = useCallback(
@@ -1073,6 +1108,31 @@ export function DriftWorkbenchClient() {
             <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_BODY}
             </p>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="infra-drift-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_LABEL}</Label>
+            <select
+              id="infra-drift-snapshot-picker"
+              className={cnField}
+              data-testid="infra-drift-snapshot-picker"
+              disabled={loadingSnapshots || snapshotPickerOptions.length === 0}
+              value={selectedSnapshotId}
+              onChange={(event) => {
+                handleSnapshotPickerChange(event.target.value);
+              }}
+            >
+              <option value="">{GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_PLACEHOLDER}</option>
+              {loadingSnapshots ? <option value="" disabled>Loading inventory files…</option> : null}
+              {!loadingSnapshots && snapshotPickerOptions.length === 0 ? (
+                <option value="" disabled>No inventory files yet</option>
+              ) : null}
+              {snapshotPickerOptions.map((snapshot) => (
+                <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                  {formatInfraEvidenceSnapshotLabel(snapshot)}
+                </option>
+              ))}
+            </select>
           </div>
 
           <DriftSnapshotsTable
