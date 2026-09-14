@@ -6,7 +6,10 @@ export function formatInfraEvidenceSnapshotCapturedLabel(capturedUtc: string | n
     return "unknown time";
   }
 
-  return new Date(capturedUtc).toLocaleString();
+  return new Date(capturedUtc).toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 }
 
 export function formatInfraEvidenceSubscriptionLabel(

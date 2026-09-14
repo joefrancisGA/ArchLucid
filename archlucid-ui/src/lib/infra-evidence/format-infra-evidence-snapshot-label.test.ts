@@ -70,6 +70,13 @@ describe("formatInfraEvidenceSnapshotCapturedLabel", () => {
     expect(formatInfraEvidenceSnapshotCapturedLabel(null)).toBe("unknown time");
     expect(formatInfraEvidenceSnapshotCapturedLabel("  ")).toBe("unknown time");
   });
+
+  it("formats capture time without seconds", () => {
+    const formatted = formatInfraEvidenceSnapshotCapturedLabel("2026-09-10T13:45:35.000Z");
+
+    expect(formatted).not.toMatch(/:35/);
+    expect(formatted).toMatch(/1:45/);
+  });
 });
 
 describe("formatInfraEvidenceDiffLabel", () => {

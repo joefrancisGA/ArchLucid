@@ -26,6 +26,7 @@ import {
   downloadInfraEvidenceTerraformAdvisoryZip,
   fetchInfraEvidenceDiffChanges,
   fetchInfraEvidenceDiffsForSnapshot,
+  fetchInfraEvidenceSnapshotInventoryRows,
   fetchInfraEvidenceSnapshots,
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -98,6 +99,10 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_SCOPED_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_SCOPED_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_ROW_CHANGE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_ACTION,
@@ -123,6 +128,7 @@ import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governanc
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
+import { formatAbsoluteUpdatedAtTitle } from "@/lib/relative-time";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   formatInfraEvidenceDiffLabel,
@@ -268,6 +274,7 @@ export function DriftWorkbenchClient() {
     () => diffs.find((diff) => diff.diffId === selectedDiffId) ?? null,
     [diffs, selectedDiffId],
   );
+  const isViewingSnapshotInventory = selectedSnapshotId.length > 0 && selectedDiffId.length === 0;
 
   const visibleChanges = useMemo(() => {
     const filtered = filterDriftChanges(changes, tableFilterState, selectedDiff);
@@ -291,12 +298,12 @@ export function DriftWorkbenchClient() {
   );
 
   const deepLinkedChangeMissing = useMemo(() => {
-    if (urlChangeId.length === 0 || loadingChanges || selectedDiffId.length === 0) {
+    if (urlChangeId.length === 0 || loadingChanges || isViewingSnapshotInventory) {
       return false;
     }
 
     return !visibleChanges.some((row) => row.changeId === urlChangeId);
-  }, [loadingChanges, selectedDiffId.length, urlChangeId, visibleChanges]);
+  }, [isViewingSnapshotInventory, loadingChanges, urlChangeId, visibleChanges]);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
   const hasStaleAuditUrlParams = useMemo(
@@ -471,7 +478,7 @@ export function DriftWorkbenchClient() {
   }, [selectedSnapshotId, urlDiffId]);
 
   useEffect(() => {
-    if (selectedDiffId.length === 0) {
+    if (selectedSnapshotId.length === 0) {
       setChanges([]);
       setChangesTotalCount(0);
       setChangesHasMore(false);
@@ -486,9 +493,18 @@ export function DriftWorkbenchClient() {
       setLoadError(null);
 
       try {
-        const response = await fetchInfraEvidenceDiffChanges(selectedDiffId, tableFilterState.changesPage, CHANGES_PAGE_SIZE, {
-          cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
-        });
+        const response = isViewingSnapshotInventory
+          ? await fetchInfraEvidenceSnapshotInventoryRows(
+              selectedSnapshotId,
+              tableFilterState.changesPage,
+              CHANGES_PAGE_SIZE,
+              {
+                cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
+              },
+            )
+          : await fetchInfraEvidenceDiffChanges(selectedDiffId, tableFilterState.changesPage, CHANGES_PAGE_SIZE, {
+              cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
+            });
 
         if (!cancelled) {
           const items = response.items ?? [];
@@ -498,7 +514,7 @@ export function DriftWorkbenchClient() {
           setChangesTotalCount(response.totalCount ?? items.length);
           setChangesHasMore(response.hasMore === true);
 
-          if (urlChangeId.length > 0) {
+          if (!isViewingSnapshotInventory && urlChangeId.length > 0) {
             setSelectedChangeId(urlChangeId);
           } else {
             setSelectedChangeId(null);
@@ -523,7 +539,14 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [selectedDiffId, tableFilterState.changesPage, urlChangeId, urlCloudResourceId]);
+  }, [
+    isViewingSnapshotInventory,
+    selectedDiffId,
+    selectedSnapshotId,
+    tableFilterState.changesPage,
+    urlChangeId,
+    urlCloudResourceId,
+  ]);
 
   useEffect(() => {
     if (urlChangeId.length === 0 || loadingChanges) {
@@ -668,14 +691,18 @@ export function DriftWorkbenchClient() {
       );
     }
 
-    if (selectedDiffId.length === 0) {
+    if (isViewingSnapshotInventory) {
       return (
         <EnterpriseTableRow>
           <EnterpriseTableCell colSpan={DRIFT_CHANGES_TABLE_COLUMN_COUNT}>
             <EnterpriseCompactEmptyState
-              title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE}
-              description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_BODY}
-              testId="infra-drift-changes-empty-unselected"
+              title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_TITLE}
+              description={
+                urlCloudResourceId.length > 0
+                  ? GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_SCOPED_BODY
+                  : GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_BODY
+              }
+              testId="infra-drift-changes-empty-inventory"
             />
           </EnterpriseTableCell>
         </EnterpriseTableRow>
@@ -933,7 +960,7 @@ export function DriftWorkbenchClient() {
                     {GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_RECEIPT_TITLE}
                   </p>
                   <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {new Date(exportReceipt.exportedAtUtc).toLocaleString()}
+                    {formatAbsoluteUpdatedAtTitle(exportReceipt.exportedAtUtc)}
                   </p>
                 </div>
               ) : null}
@@ -1064,10 +1091,16 @@ export function DriftWorkbenchClient() {
                   >
                     <DriftChangeResourceCells azureResourceId={row.azureResourceId} />
                     <EnterpriseTableCell>
-                      <StatusTag
-                        kind={resolveInfraEvidenceChangeTypeStatusKind(row.changeType)}
-                        label={formatInfraEvidenceChangeTypeLabel(row.changeType)}
-                      />
+                      {isViewingSnapshotInventory ? (
+                        <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                          {GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_ROW_CHANGE_LABEL}
+                        </span>
+                      ) : (
+                        <StatusTag
+                          kind={resolveInfraEvidenceChangeTypeStatusKind(row.changeType)}
+                          label={formatInfraEvidenceChangeTypeLabel(row.changeType)}
+                        />
+                      )}
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>{row.property ?? "—"}</EnterpriseTableCell>
                     <EnterpriseTableCell>
