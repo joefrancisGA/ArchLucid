@@ -11113,6 +11113,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-costing
 
+2026-09-14 seed hunt #2850 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weeeeek` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWeeeeekTests`.
+
 2026-09-14 seed hunt #2815 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved bounded `10 weekes` week UOM parity gap; regression `AzureRetailPricesSkuMatchersBoundedWeekesTests`.
 
 2026-09-14 seed hunt #2810 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekes` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWeekesTests`.
@@ -11585,6 +11587,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: context-ingestion
+
+2026-09-14 seed hunt #2849 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json camelCase `childModules` traversal gap; regression `ParseAsync_camel_case_child_modules_extracts_nested_module_resources`.
 
 2026-09-14 seed hunt #2814 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case container port `host_ip` projection gap; regression `ParseAsync_snake_case_container_port_host_ip_projects_host_ip_exposure`.
 
