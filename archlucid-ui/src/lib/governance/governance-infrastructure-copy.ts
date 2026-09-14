@@ -281,6 +281,11 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_LABEL = "Include 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_HELPER =
   "Show resources that exist in both snapshots with no recorded property or relationship changes." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_RISKY_ONLY_LABEL = "Show risky changes only" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_RISKY_ONLY_HELPER =
+  "Hide drift rows classified as none or unknown risk." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CROSS_SUBSCRIPTION_DIFF_DIALOG_TITLE =
   "Different subscription selected" as const;
 

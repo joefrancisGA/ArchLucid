@@ -637,6 +637,52 @@ describe("DriftWorkbenchClient", () => {
     expect(mockFetchChanges).not.toHaveBeenCalled();
   });
 
+  it("hides none and unknown risk rows when risky-only is enabled in the URL", async () => {
+    mockFetchChanges.mockImplementationOnce(async () => ({
+      items: [
+        {
+          changeId: "change-none",
+          diffId: "diff-1",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-none",
+          changeType: "ResourceModified",
+          property: "tags",
+          oldValue: "a",
+          newValue: "b",
+          riskClassification: null,
+          evidenceReference: "snapshot-diff",
+        },
+        {
+          changeId: "change-elevated",
+          diffId: "diff-1",
+          cloudResourceId: "33333333-3333-3333-3333-333333333333",
+          azureResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+          changeType: "NetworkExposureChanged",
+          property: "publicNetworkAccess",
+          oldValue: "Disabled",
+          newValue: "Enabled",
+          riskClassification: "elevated",
+          evidenceReference: "snapshot-diff",
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1&riskyOnly=1",
+    );
+    render(<DriftWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-drift-change-row-change-elevated")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("infra-drift-change-row-change-none")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-risky-only")).toBeChecked();
+  });
+
   it("requests unchanged resources when include-unchanged is enabled in the URL", async () => {
     searchParams = new URLSearchParams(
       "snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1&includeUnchanged=1",

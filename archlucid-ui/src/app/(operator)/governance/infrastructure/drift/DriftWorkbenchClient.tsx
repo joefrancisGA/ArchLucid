@@ -107,6 +107,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_HELPER,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_RISKY_ONLY_HELPER,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_RISKY_ONLY_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_BODY,
@@ -1301,26 +1303,55 @@ export function DriftWorkbenchClient() {
             </div>
 
             {selectedDiffId.length > 0 ? (
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="infra-drift-include-unchanged"
-                    data-testid="infra-drift-include-unchanged"
-                    checked={tableFilterState.includeUnchanged}
-                    onCheckedChange={(checked) => {
-                      handleTableFiltersChange({
-                        includeUnchanged: checked === true,
-                        changesPage: 1,
-                      });
-                    }}
-                  />
-                  <Label htmlFor="infra-drift-include-unchanged" className="cursor-pointer font-normal">
-                    {GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_LABEL}
-                  </Label>
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="infra-drift-include-unchanged"
+                      data-testid="infra-drift-include-unchanged"
+                      checked={tableFilterState.includeUnchanged}
+                      onCheckedChange={(checked) => {
+                        handleTableFiltersChange({
+                          includeUnchanged: checked === true,
+                          changesPage: 1,
+                        });
+                      }}
+                    />
+                    <Label htmlFor="infra-drift-include-unchanged" className="cursor-pointer font-normal">
+                      {GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_LABEL}
+                    </Label>
+                  </div>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_HELPER}
+                  </p>
                 </div>
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_HELPER}
-                </p>
+
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="infra-drift-risky-only"
+                      data-testid="infra-drift-risky-only"
+                      checked={tableFilterState.riskyOnly}
+                      onCheckedChange={(checked) => {
+                        const riskyOnly = checked === true;
+                        const riskFilter = tableFilterState.riskFilter.trim().toLowerCase();
+                        const clearsRiskFilter = riskyOnly && (riskFilter === "none" || riskFilter === "unknown");
+
+                        handleTableFiltersChange({
+                          riskyOnly,
+                          riskFilter: clearsRiskFilter ? "" : tableFilterState.riskFilter,
+                          changesPage: 1,
+                        });
+                      }}
+                    />
+                    <Label htmlFor="infra-drift-risky-only" className="cursor-pointer font-normal">
+                      {GOVERNANCE_INFRASTRUCTURE_DRIFT_RISKY_ONLY_LABEL}
+                    </Label>
+                  </div>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {GOVERNANCE_INFRASTRUCTURE_DRIFT_RISKY_ONLY_HELPER}
+                  </p>
+                </div>
               </div>
             ) : null}
 
