@@ -232,6 +232,11 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && hostUsers.ValueKind is JsonValueKind.True)
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostUsers", "true");
 
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "enableServiceLinks", out JsonElement enableServiceLinksTrue)
+            && enableServiceLinksTrue.ValueKind is JsonValueKind.True)
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "enableServiceLinks", "true");
+
         if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "enableServiceLinks", out JsonElement enableServiceLinks)
             && enableServiceLinks.ValueKind is JsonValueKind.False)
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "enableServiceLinks", "false");
