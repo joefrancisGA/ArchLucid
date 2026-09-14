@@ -45,7 +45,7 @@
 
 ## Operator onboarding
 
-Pin [`FIRST_PILOT_TRIAGE_CARD.md`](../runbooks/FIRST_PILOT_TRIAGE_CARD.md) in your support channel before the first invite wave. Full drill catalog: [`FIRST_PILOT_SUPPORT_TRIAGE.md`](../runbooks/FIRST_PILOT_SUPPORT_TRIAGE.md).
+Pin [`FIRST_PILOT_TRIAGE_CARD.md`](../runbooks/FIRST_PILOT_TRIAGE_CARD.md) in your support channel before the first invite wave. Full drill catalog: [`FIRST_PILOT_SUPPORT_TRIAGE.md`](../runbooks/FIRST_PILOT_SUPPORT_TRIAGE.md). After-hours incident comms: [`PRIVATE_BETA_INCIDENT_COMMS_15MIN.md`](../runbooks/PRIVATE_BETA_INCIDENT_COMMS_15MIN.md). Legal/trust gaps: [`PRIVATE_BETA_LEGAL_PACK_GAP_LIST.md`](PRIVATE_BETA_LEGAL_PACK_GAP_LIST.md).
 
 ## Related
 
