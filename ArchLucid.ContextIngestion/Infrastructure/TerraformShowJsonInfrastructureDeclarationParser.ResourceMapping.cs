@@ -22,8 +22,10 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
     {
         canonicalAddress = string.Empty;
 
-        if (!TryGetPropertyIgnoreCase(res, "address", out JsonElement addressElement) ||
-            addressElement.ValueKind != JsonValueKind.String)
+        if ((!TryGetPropertyIgnoreCase(res, "address", out JsonElement addressElement)
+                && !TryGetPropertyIgnoreCase(res, "resourceAddress", out addressElement)
+                && !TryGetPropertyIgnoreCase(res, "resource_address", out addressElement))
+            || addressElement.ValueKind != JsonValueKind.String)
             return false;
 
         string? address = addressElement.GetString();
