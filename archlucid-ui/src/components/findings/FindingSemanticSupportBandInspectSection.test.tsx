@@ -1,8 +1,15 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FindingSemanticSupportBandInspectSection } from "@/components/findings/FindingSemanticSupportBandInspectSection";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
+const executionModeMock = vi.hoisted(() => ({
+  mode: "Real" as "Real" | "Simulator",
+}));
+
+vi.mock("@/hooks/use-agent-execution-mode", () => ({
+  useAgentExecutionMode: () => ({ mode: executionModeMock.mode, isLoading: false }),
+}));
 
 const decisionGradeFinding = {
   findingId: "f-1",
@@ -19,6 +26,10 @@ const decisionGradeFinding = {
 };
 
 describe("FindingSemanticSupportBandInspectSection (AS-070)", () => {
+  beforeEach(() => {
+    executionModeMock.mode = "Real";
+  });
+
   it("shows claim vs restatement honesty lines when trail-backed restatement exists", () => {
     render(
       <FindingSemanticSupportBandInspectSection
@@ -45,5 +56,19 @@ describe("FindingSemanticSupportBandInspectSection (AS-070)", () => {
 
     expect(chip).toBeInTheDocument();
     expect(within(chip).getByText(/Citations do not support this claim/i)).toBeInTheDocument();
+  });
+
+  it("IP-008: remaps Supported to Practice honesty on Simulator", () => {
+    executionModeMock.mode = "Simulator";
+
+    render(
+      <FindingSemanticSupportBandInspectSection
+        finding={{ ...decisionGradeFinding, semanticSupportBand: "Supported" }}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-semantic-support-band-tag-f-1")).toHaveTextContent(
+      "Practice — not record support",
+    );
   });
 });

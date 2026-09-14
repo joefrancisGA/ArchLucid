@@ -16,10 +16,8 @@ import {
   reviewPackageOwnerLabel,
   type ReviewPackageOwnerResolutionContext,
 } from "@/lib/review-package-validation-picker";
-import {
-  architectureIdentityPath,
-  resolveArchitectureReviewHref,
-} from "@/lib/architecture/architecture-routes";
+import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
+import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
 import {
   WORKING_UNLINKED_REVIEW_INBOX_LABEL,
   isUnlinkedArchitectureReviewJob,
@@ -103,7 +101,13 @@ function resolveReviewsHubReviewHref(
     return primaryAction.href;
   }
 
-  return resolveArchitectureReviewHref(run.runId, architectureId);
+  return resolveWorkingInhabitedFindingsLandingHref({
+    runId: run.runId,
+    architectureId,
+    requestId: run.requestId,
+    draftRegistryEntries: ownerContext.draftRegistryEntries,
+    workingMode: true,
+  });
 }
 
 function resolveReviewsHubArchitectureDisplayName(

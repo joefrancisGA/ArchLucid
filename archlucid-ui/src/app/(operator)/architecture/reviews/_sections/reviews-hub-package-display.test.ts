@@ -104,7 +104,9 @@ describe("toReviewsHubReviewRowDisplay", () => {
       { isWorkingMode: true },
     );
 
-    expect(row.reviewHref).toBe("/architecture/architectures/architecture-identity-001/reviews/run-001");
+    expect(row.reviewHref).toBe(
+      "/architecture/architectures/architecture-identity-001/findings?runId=run-001",
+    );
     expect(row.architectureDeskHref).toBe("/architecture/architectures/architecture-identity-001");
     expect(row.reviewHref).not.toMatch(/^\/architecture\/reviews\/[^/]+$/);
   });

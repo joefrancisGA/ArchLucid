@@ -112,6 +112,7 @@ function resolveDisplayedDoThisNextSentence(
 export type ReviewPackageDoThisNextStripProps = {
   readonly next: ReviewPackageDoThisNext;
   readonly runId: string;
+  readonly parentArchitectureId?: string | null;
   readonly retryCount?: number | null;
   readonly hasGoldenManifest: boolean;
   readonly commitBlockedReason: string | null | undefined;
@@ -400,6 +401,7 @@ export function ReviewPackageDoThisNextStrip(
   const {
     next,
     runId,
+    parentArchitectureId = null,
     retryCount = null,
     hasGoldenManifest,
     commitBlockedReason,
@@ -426,6 +428,7 @@ export function ReviewPackageDoThisNextStrip(
     next.kind === "finalize-package" ? (
       <CommitRunButton
         runId={runId}
+        parentArchitectureId={parentArchitectureId}
         disabled={hasGoldenManifest}
         commitBlockedReason={commitBlockedReason}
         commitBlockedBlocks={commitBlockedBlocks}

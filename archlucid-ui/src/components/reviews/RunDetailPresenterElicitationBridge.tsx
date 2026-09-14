@@ -53,7 +53,8 @@ export function RunDetailPresenterElicitationBridge(
 
   const showElicitation = isWorkingMode && (presenterMode || roomElicitationMode);
   const showPresenterSurface = presenterMode && isWorkingMode && resolvedParentArchitectureId.length === 0;
-  const showInlineRoomPanel = showElicitation && !showPresenterSurface;
+  const showInlineRoomPanel =
+    showElicitation && !showPresenterSurface && resolvedParentArchitectureId.length === 0;
   const primaryQuestionKey = elicitation.primaryQuestion?.questionKey ?? "";
 
   useEffect(() => {
@@ -66,6 +67,17 @@ export function RunDetailPresenterElicitationBridge(
       { scroll: false },
     );
   }, [isWorkingMode, presenterMode, resolvedParentArchitectureId, router, workspaceProps.runId]);
+
+  useEffect(() => {
+    if (!isWorkingMode || !roomElicitationMode || resolvedParentArchitectureId.length === 0) {
+      return;
+    }
+
+    router.replace(
+      inhabitedFindingsRoomElicitationHref(resolvedParentArchitectureId, workspaceProps.runId),
+      { scroll: false },
+    );
+  }, [isWorkingMode, roomElicitationMode, resolvedParentArchitectureId, router, workspaceProps.runId]);
 
   useEffect(() => {
     if (!showElicitation) {

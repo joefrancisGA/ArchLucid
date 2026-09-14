@@ -1,4 +1,8 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
@@ -45,6 +49,7 @@ type Props = { readonly presentation: FindingDetailPresentation };
 
 /** Finding detail inspect body. */
 export function FindingDetailInspectBody({ presentation }: Props) {
+  const { mode: structuralExecutionMode } = useAgentExecutionMode();
   const {
     model,
     showBuyerPolishedBody,
@@ -156,6 +161,7 @@ export function FindingDetailInspectBody({ presentation }: Props) {
                   <FindingSemanticSupportBandChip
                     finding={mapInspectPayloadToQuickDecisionFinding(inspectPayload)}
                     showReason
+                    structuralExecutionMode={structuralExecutionMode}
                   />
                   ) : null}
                 </div>
