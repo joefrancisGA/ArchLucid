@@ -1350,6 +1350,16 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "stdinOnce", "true");
             }
 
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "terminationMessagePath", out JsonElement terminationMessagePathElement)
+                && terminationMessagePathElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(terminationMessagePathElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "terminationMessagePath",
+                    terminationMessagePathElement.GetString()!);
+            }
+
             if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
                 || securityContext.ValueKind is not JsonValueKind.Object)
                 return;
