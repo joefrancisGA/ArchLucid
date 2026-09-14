@@ -1452,7 +1452,16 @@ internal static class KubernetesManifestCanonicalObjectMapper
                             properties,
                             "containerPort",
                             containerPort.ToString(System.Globalization.CultureInfo.InvariantCulture));
-                        break;
+                    }
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(port, "hostPort", out JsonElement hostPortElement)
+                        && hostPortElement.ValueKind is JsonValueKind.Number
+                        && hostPortElement.TryGetInt32(out int hostPort))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                            properties,
+                            "hostPort",
+                            hostPort.ToString(System.Globalization.CultureInfo.InvariantCulture));
                     }
                 }
             }
