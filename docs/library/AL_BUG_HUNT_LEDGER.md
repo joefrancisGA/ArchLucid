@@ -1,5 +1,7 @@
 ## Zone: topology-proposal-merge
 
+2026-09-14 seed hunt #2903 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_sql` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_sql_node_has_compute_category_but_synthetic_datastore_id_used`.
+
 2026-09-14 seed hunt #2898 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `servicebus` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_servicebus_node_has_compute_category_but_synthetic_datastore_id_used`.
 
 2026-09-14 seed hunt #2881 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `monitor_smart_detector_alert_rule` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_monitor_smart_detector_alert_rule_node_has_compute_category_but_synthetic_datastore_id_used`.
@@ -268,11 +270,11 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 202
-- **bugs-found:** 168
+- **hunts:** 203
+- **bugs-found:** 169
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-14 — hunt #2898: servicebus Compute-category ds- alias gap
+- **last-bug:** 2026-09-14 — hunt #2903: azurerm_sql Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11171,6 +11173,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-costing
 
+2026-09-14 seed hunt #2900 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / weekkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWeekkkkkkkTests`.
+
 2026-09-14 seed hunt #2865 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWeekkkkTests`.
 
 2026-09-14 seed hunt #2860 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / weeeeek` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWeeeeekTests`.
@@ -11366,12 +11370,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 122
-- **bugs-found:** 95
-- **consecutive-dry-hunts:** 0
+- **hunts:** 123
+- **bugs-found:** 96
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-14 — hunt #2733: spaced-slash `10 / wek` week UOM parity gap
+- **last-bug:** 2026-09-14 — hunt #2900: spaced-slash `10 / weekkkkkkk` week UOM parity gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11664,6 +11667,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-09-14 seed hunt #2899 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json camelCase `resourceAddress` index-address gap; regression `ParseAsync_camel_case_resource_address_uses_explicit_address_when_name_collides`.
+
 2026-09-14 seed hunt #2864 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json nested `childModules` with camelCase `moduleAddress` prefix gap; regression `ParseAsync_nested_camel_case_child_modules_and_module_address_prefixes_resource_names`.
 
 2026-09-14 seed hunt #2859 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json snake_case `module_address` prefix gap; regression `ParseAsync_snake_case_module_address_prefixes_nested_module_resource_names`.
@@ -11876,11 +11881,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 227
-- **bugs-found:** 260
+- **hunts:** 228
+- **bugs-found:** 261
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-14 — hunt #2799: snake_case container port host_port projection gap
+- **last-bug:** 2026-09-14 — hunt #2899: terraform-show-json camelCase resourceAddress index-address gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
