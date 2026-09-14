@@ -1343,6 +1343,13 @@ internal static class KubernetesManifestCanonicalObjectMapper
                     workingDirElement.GetString()!);
             }
 
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "stdinOnce", out JsonElement stdinOnceElement)
+                && stdinOnceElement.ValueKind is JsonValueKind.True)
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "stdinOnce", "true");
+            }
+
             if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
                 || securityContext.ValueKind is not JsonValueKind.Object)
                 return;
