@@ -558,6 +558,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSpacedSlashWeekkkkToken(trimmed)
             || ContainsSpacedSlashWeekkkkkkToken(trimmed)
             || ContainsSpacedSlashWeekkkkkkkToken(trimmed)
+            || ContainsSpacedSlashWeekkkkkkkkToken(trimmed)
             || ContainsSpacedSlashWeekkkkkToken(trimmed)
             || ContainsSlashWToken(trimmed)
             || ContainsBoundedToken(trimmed, " w")
@@ -582,6 +583,8 @@ public sealed partial class AzureRetailPricesCatalogClient
             || HasCompactWeekkkkSuffix(trimmed)
             || HasCompactWeekkkkkkSuffix(trimmed)
             || HasCompactWeekkkkkkkSuffix(trimmed)
+            || HasCompactWeekkkkkkkkSuffix(trimmed)
+            || HasCompactWeekkkkkkkkkSuffix(trimmed)
             || HasCompactWeekkkkkSuffix(trimmed)
             || HasCompactWeelSuffix(trimmed)
             || HasCompactWeelsSuffix(trimmed)
@@ -728,6 +731,28 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return false;
 
             int afterToken = index + 11;
+
+            if (afterToken >= trimmed.Length || !char.IsLetter(trimmed[afterToken]))
+                return true;
+
+            index = afterToken;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSpacedSlashWeekkkkkkkkToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf(" / weekkkkkkkk", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterToken = index + 14;
 
             if (afterToken >= trimmed.Length || !char.IsLetter(trimmed[afterToken]))
                 return true;
@@ -1428,6 +1453,24 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return trimmed.EndsWith("weekkkkk", StringComparison.OrdinalIgnoreCase)
             && char.IsDigit(trimmed[^9]);
+    }
+
+    private static bool HasCompactWeekkkkkkkkkSuffix(string trimmed)
+    {
+        if (trimmed.Length < 14)
+            return false;
+
+        return trimmed.EndsWith("weekkkkkkkkk", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^13]);
+    }
+
+    private static bool HasCompactWeekkkkkkkkSuffix(string trimmed)
+    {
+        if (trimmed.Length < 13)
+            return false;
+
+        return trimmed.EndsWith("weekkkkkkkk", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^12]);
     }
 
     private static bool HasCompactWeekkkkkkkSuffix(string trimmed)
