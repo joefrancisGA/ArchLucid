@@ -43,6 +43,10 @@
 | Finalized | Commit + manifest id |
 | Exported | Audit CSV or sponsor package |
 
+## Operator onboarding
+
+Pin [`FIRST_PILOT_TRIAGE_CARD.md`](../runbooks/FIRST_PILOT_TRIAGE_CARD.md) in your support channel before the first invite wave. Full drill catalog: [`FIRST_PILOT_SUPPORT_TRIAGE.md`](../runbooks/FIRST_PILOT_SUPPORT_TRIAGE.md).
+
 ## Related
 
 - Access-path proofs: [`private_beta_access_prompt_07152026.md`](../assessments/private_beta_access_prompt_07152026.md)
