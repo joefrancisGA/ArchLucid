@@ -156,6 +156,73 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
   });
 
+  it("restores anchor snapshot and empty changes when diff selection is cleared", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DriftWorkbenchClient />);
+
+    const diffPicker = await screen.findByTestId("infra-drift-diff-picker");
+    fireEvent.change(diffPicker, { target: { value: "diff-1" } });
+    fireEvent.click(await screen.findByTestId("infra-drift-cross-subscription-confirm"));
+
+    await waitFor(() => {
+      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, { cloudResourceId: null });
+    });
+    expect(screen.getByTestId("infra-drift-change-row-change-1")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("infra-drift-snapshot-row-33333333-3333-3333-3333-333333333333"));
+    expect(await screen.findByTestId("infra-drift-cross-subscription-dialog")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("infra-drift-cross-subscription-cancel"));
+
+    fireEvent.change(diffPicker, { target: { value: "" } });
+
+    await waitFor(() => {
+      expect(diffPicker).toHaveValue("");
+    });
+    expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Prod");
+    expect(screen.getByTestId("infra-drift-snapshot-selected-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-snapshot-row-33333333-3333-3333-3333-333333333333")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-drift-change-row-change-1")).not.toBeInTheDocument();
+  });
+
+  it("does not re-select a diff after the user clears while diffs are still loading", async () => {
+    let resolveDiffs: ((value: unknown) => void) | undefined;
+    mockFetchDiffs.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveDiffs = resolve;
+        }),
+    );
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1",
+    );
+    render(<DriftWorkbenchClient />);
+
+    const diffPicker = await screen.findByTestId("infra-drift-diff-picker");
+    fireEvent.change(diffPicker, { target: { value: "" } });
+
+    await waitFor(() => {
+      expect(diffPicker).toHaveValue("");
+    });
+
+    resolveDiffs?.([
+      {
+        diffId: "diff-1",
+        snapshotAId: "11111111-1111-1111-1111-111111111111",
+        snapshotBId: "33333333-3333-3333-3333-333333333333",
+        totalChanges: 1,
+        createdUtc: "2026-09-01T12:00:00Z",
+      },
+    ]);
+
+    await waitFor(() => {
+      expect(mockFetchDiffs).toHaveBeenCalled();
+    });
+    expect(diffPicker).toHaveValue("");
+    expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
+  });
+
   it("shows resource scope banner when cloudResourceId is in the URL", async () => {
     searchParams = new URLSearchParams(
       "snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222&diffId=diff-1",

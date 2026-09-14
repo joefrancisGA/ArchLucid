@@ -253,6 +253,8 @@ export function DriftWorkbenchClient() {
   }, [driftSnapshotIdentifiersOpenParam]);
 
   const changeDrawerRef = useRef<HTMLElement | null>(null);
+  const snapshotsSectionRef = useRef<HTMLElement | null>(null);
+  const userClearedDiffRef = useRef(false);
   const urlSnapshotId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM));
   const urlCloudResourceId = parseInfraEvidenceWorkbenchQueryValue(
     searchParams.get(DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM),
@@ -273,6 +275,7 @@ export function DriftWorkbenchClient() {
   const [changesTotalCount, setChangesTotalCount] = useState(0);
   const [changesHasMore, setChangesHasMore] = useState(false);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>("");
+  const [anchorSnapshotId, setAnchorSnapshotId] = useState<string>("");
   const [selectedDiffId, setSelectedDiffId] = useState<string>("");
   const [selectedChangeId, setSelectedChangeId] = useState<string | null>(null);
   const [loadingSnapshots, setLoadingSnapshots] = useState(true);
@@ -458,6 +461,7 @@ export function DriftWorkbenchClient() {
     }
 
     setSelectedSnapshotId(urlSnapshotId);
+    setAnchorSnapshotId(urlSnapshotId);
   }, [urlSnapshotId]);
 
   useEffect(() => {
@@ -478,18 +482,11 @@ export function DriftWorkbenchClient() {
 
         if (!cancelled) {
           setDiffs(rows);
-          const preferredDiffId =
-            urlDiffId.length > 0 && rows.some((row) => row.diffId === urlDiffId)
-              ? urlDiffId
-              : "";
-
-          setSelectedDiffId(preferredDiffId);
         }
       } catch (error: unknown) {
         if (!cancelled) {
           setLoadError(formatInfraEvidenceApiError(error));
           setDiffs([]);
-          setSelectedDiffId("");
         }
       } finally {
         if (!cancelled) {
@@ -503,7 +500,27 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [selectedSnapshotId, urlDiffId]);
+  }, [selectedSnapshotId]);
+
+  useEffect(() => {
+    if (selectedSnapshotId.length === 0) {
+      return;
+    }
+
+    if (urlDiffId.length === 0) {
+      userClearedDiffRef.current = false;
+      setSelectedDiffId("");
+      return;
+    }
+
+    if (userClearedDiffRef.current) {
+      return;
+    }
+
+    if (diffs.some((row) => row.diffId === urlDiffId)) {
+      setSelectedDiffId(urlDiffId);
+    }
+  }, [diffs, selectedSnapshotId, urlDiffId]);
 
   useEffect(() => {
     if (selectedDiffId.length === 0) {
@@ -718,6 +735,7 @@ export function DriftWorkbenchClient() {
   const applySnapshotSelect = useCallback(
     (nextSnapshotId: string) => {
       setSelectedSnapshotId(nextSnapshotId);
+      setAnchorSnapshotId(nextSnapshotId);
       setSelectedDiffId("");
       setSelectedChangeId(null);
       pushDriftUrl({
@@ -732,6 +750,7 @@ export function DriftWorkbenchClient() {
 
   const applyDiffSelect = useCallback(
     (nextDiffId: string) => {
+      userClearedDiffRef.current = false;
       setSelectedDiffId(nextDiffId);
       setSelectedChangeId(null);
       pushDriftUrl({ diffId: nextDiffId, changeId: "", tableFilters: { changesPage: 1 } });
@@ -765,9 +784,27 @@ export function DriftWorkbenchClient() {
   const handleDiffSelect = useCallback(
     (nextDiffId: string) => {
       if (nextDiffId.length === 0) {
+        const restoreSnapshotId =
+          anchorSnapshotId.length > 0 ? anchorSnapshotId : selectedSnapshotId;
+
+        userClearedDiffRef.current = true;
         setSelectedDiffId("");
         setSelectedChangeId(null);
-        pushDriftUrl({ diffId: "", changeId: "", tableFilters: { changesPage: 1 } });
+
+        if (restoreSnapshotId.length > 0 && restoreSnapshotId !== selectedSnapshotId) {
+          setSelectedSnapshotId(restoreSnapshotId);
+        }
+
+        pushDriftUrl({
+          snapshotId: restoreSnapshotId.length > 0 ? restoreSnapshotId : null,
+          diffId: "",
+          changeId: "",
+          tableFilters: { changesPage: 1 },
+        });
+
+        window.requestAnimationFrame(() => {
+          snapshotsSectionRef.current?.scrollIntoView({ block: "nearest" });
+        });
         return;
       }
 
@@ -792,6 +829,7 @@ export function DriftWorkbenchClient() {
       applyDiffSelect(nextDiffId);
     },
     [
+      anchorSnapshotId,
       applyDiffSelect,
       diffs,
       pushDriftUrl,
@@ -996,7 +1034,11 @@ export function DriftWorkbenchClient() {
           {GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD}
         </p>
 
-        <section className={cn("flex flex-col gap-3", cnCard)} aria-label={GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE}>
+        <section
+          ref={snapshotsSectionRef}
+          className={cn("flex flex-col gap-3", cnCard)}
+          aria-label={GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE}
+        >
           <div>
             <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE}</h2>
             <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
