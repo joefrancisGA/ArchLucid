@@ -579,6 +579,14 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-sort-subscription")).toBeInTheDocument();
   });
 
+  it("renders contextual help trigger with the page title beside the help icon", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DriftWorkbenchClient />);
+
+    expect(await screen.findByTestId("page-contextual-help-button")).toHaveTextContent("Drift & snapshots");
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveAccessibleName("Help: Drift & snapshots");
+  });
+
   it("renders drift guidance under the page headline without advanced-operations chrome", async () => {
     evalChrome.enabled = false;
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
