@@ -17,6 +17,15 @@ vi.mock("@/hooks/use-tenant-branding-presentation-query", () => ({
   useTenantBrandingPresentationQuery: () => ({ data: null }),
 }));
 
+vi.mock("@/lib/use-iana-time-zone-preference", () => ({
+  useIanaTimeZonePreference: () => ({
+    ianaTimeZoneId: "America/New_York",
+    mounted: true,
+    accountSyncState: "idle",
+    setAndPersist: vi.fn(),
+  }),
+}));
+
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   fetchInfraEvidenceSnapshots: vi.fn(async () => ({
     items: [

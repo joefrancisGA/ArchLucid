@@ -9,7 +9,7 @@ import {
 } from "@/lib/architecture/architecture-diagram-mermaid-config";
 
 describe("createArchitectureDiagramMermaidConfig", () => {
-  it("uses SVG labels with dark text on pale honey nodes in light mode", () => {
+  it("uses SVG labels with dark text on honey nodes in light mode", () => {
     const config = createArchitectureDiagramMermaidConfig(false);
 
     expect(config.flowchart.htmlLabels).toBe(false);
@@ -18,8 +18,8 @@ describe("createArchitectureDiagramMermaidConfig", () => {
     expect(config.flowchart.rankSpacing).toBe(20);
     expect(config.suppressErrorRendering).toBe(true);
     expect(config.startOnLoad).toBe(false);
-    expect(config.themeVariables.primaryColor).toBe("#E6CF8A");
-    expect(config.themeVariables.primaryBorderColor).toBe("#7A6535");
+    expect(config.themeVariables.primaryColor).toBe("#D4A84B");
+    expect(config.themeVariables.primaryBorderColor).toBe("#6B5424");
     expect(config.themeVariables.background).toBe("transparent");
     expect(config.themeVariables.primaryTextColor).toBe("#0f172a");
   });

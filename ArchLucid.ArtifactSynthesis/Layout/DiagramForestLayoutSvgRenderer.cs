@@ -14,7 +14,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         double X,
         double Y,
         double Width,
-        double Height);
+        double Height,
+        DiagramForestNodeMetrics Metrics);
 
     public DiagramForestLayoutResult Render(DiagramAst ast, DiagramForestLayoutOptions? options = null)
     {
@@ -32,13 +33,17 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             return DiagramForestLayoutResult.Failed("Diagram AST contained no renderable nodes.");
         }
 
+        DiagramForestCanvasLabelContext labelContext = DiagramForestCanvasLabelContext.Create(
+            renderableNodes,
+            resolvedOptions);
+
         IReadOnlyList<DiagramEdge> visibleEdges = DiagramEdgeVisibility.VisibleEdges(ast.Edges).ToList();
         List<List<DiagramNode>> components = DiagramComponentBuilder.BuildConnectedComponents(renderableNodes, ast.Edges);
         List<IReadOnlyList<DiagramNode>> orderedComponents = DiagramComponentRowPlanner.OrderComponents(components);
         int columnCount = DiagramComponentRowPlanner.ResolveColumnCount(orderedComponents.Count);
         List<List<IReadOnlyList<DiagramNode>>> rows = DiagramComponentRowPlanner.ChunkRows(orderedComponents, columnCount);
 
-        List<ComponentLayout> componentLayouts = BuildComponentLayouts(rows, visibleEdges, resolvedOptions);
+        List<ComponentLayout> componentLayouts = BuildComponentLayouts(rows, visibleEdges, resolvedOptions, labelContext);
 
         if (componentLayouts.Count == 0)
         {
@@ -76,7 +81,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     private static List<ComponentLayout> BuildComponentLayouts(
         IReadOnlyList<List<IReadOnlyList<DiagramNode>>> rows,
         IReadOnlyList<DiagramEdge> visibleEdges,
-        DiagramForestLayoutOptions options)
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
     {
         List<ComponentLayout> layouts = [];
 
@@ -87,9 +93,13 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             for (int columnIndex = 0; columnIndex < row.Count; columnIndex++)
             {
                 IReadOnlyList<DiagramNode> component = row[columnIndex];
-                List<NodePlacement> relativePlacements = LayoutComponentInterior(component, visibleEdges, options);
+                List<NodePlacement> relativePlacements = LayoutComponentInterior(
+                    component,
+                    visibleEdges,
+                    options,
+                    labelContext);
                 double width = relativePlacements.Count == 0
-                    ? options.MinNodeWidth
+                    ? options.UniformNodeWidth
                     : relativePlacements.Max(placement => placement.X + placement.Width);
                 double height = relativePlacements.Count == 0
                     ? options.NodeHeight
@@ -110,20 +120,22 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     private static List<NodePlacement> LayoutComponentInterior(
         IReadOnlyList<DiagramNode> component,
         IReadOnlyList<DiagramEdge> visibleEdges,
-        DiagramForestLayoutOptions options)
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
     {
         if (DiagramLeftToRightLayerPlanner.ShouldLayoutLeftToRight(component))
         {
-            return LayoutLeftToRight(component, visibleEdges, options);
+            return LayoutLeftToRight(component, visibleEdges, options, labelContext);
         }
 
-        return LayoutTopDown(component, visibleEdges, options);
+        return LayoutTopDown(component, visibleEdges, options, labelContext);
     }
 
     private static List<NodePlacement> LayoutTopDown(
         IReadOnlyList<DiagramNode> component,
         IReadOnlyList<DiagramEdge> visibleEdges,
-        DiagramForestLayoutOptions options)
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
     {
         List<DiagramNode> orderedNodes = OrderNodesAlongFlow(component, visibleEdges);
         List<NodePlacement> placements = [];
@@ -131,12 +143,12 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         foreach (DiagramNode node in orderedNodes)
         {
-            DiagramForestNodeMetrics metrics = DiagramForestNodeMetricsCalculator.Measure(node, options);
-            placements.Add(new NodePlacement(node, 0, nodeY, metrics.Width, metrics.Height));
+            DiagramForestNodeMetrics metrics = DiagramForestNodeMetricsCalculator.Measure(node, options, labelContext);
+            placements.Add(new NodePlacement(node, 0, nodeY, metrics.Width, metrics.Height, metrics));
             nodeY += metrics.Height + options.NodeVerticalGap;
         }
 
-        double maxWidth = placements.Count == 0 ? options.MinNodeWidth : placements.Max(placement => placement.Width);
+        double maxWidth = placements.Count == 0 ? options.UniformNodeWidth : placements.Max(placement => placement.Width);
 
         return placements
             .Select(placement => placement with { X = (maxWidth - placement.Width) / 2.0 })
@@ -146,7 +158,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     private static List<NodePlacement> LayoutLeftToRight(
         IReadOnlyList<DiagramNode> component,
         IReadOnlyList<DiagramEdge> visibleEdges,
-        DiagramForestLayoutOptions options)
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
     {
         IReadOnlyList<IReadOnlyList<DiagramNode>> layers =
             DiagramLeftToRightLayerPlanner.AssignLayers(component, visibleEdges);
@@ -156,15 +169,17 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         foreach (IReadOnlyList<DiagramNode> layer in layers)
         {
             List<(DiagramNode Node, DiagramForestNodeMetrics Metrics)> sized = layer
-                .Select(node => (Node: node, Metrics: DiagramForestNodeMetricsCalculator.Measure(node, options)))
+                .Select(node => (
+                    Node: node,
+                    Metrics: DiagramForestNodeMetricsCalculator.Measure(node, options, labelContext)))
                 .ToList();
-            double columnWidth = sized.Count == 0 ? options.MinNodeWidth : sized.Max(item => item.Metrics.Width);
+            double columnWidth = sized.Count == 0 ? options.UniformNodeWidth : sized.Max(item => item.Metrics.Width);
             double nodeY = 0;
 
             foreach ((DiagramNode node, DiagramForestNodeMetrics metrics) in sized)
             {
                 double nodeX = columnX + ((columnWidth - metrics.Width) / 2.0);
-                placements.Add(new NodePlacement(node, nodeX, nodeY, metrics.Width, metrics.Height));
+                placements.Add(new NodePlacement(node, nodeX, nodeY, metrics.Width, metrics.Height, metrics));
                 nodeY += metrics.Height + options.NodeVerticalGap;
             }
 
@@ -251,7 +266,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     CultureInfo.InvariantCulture,
                     $"{minX:0.###} {minY:0.###} {viewBoxWidth:0.###} {viewBoxHeight:0.###}")));
 
-        XElement edgeLayer = new(svgNamespace + "g", new XAttribute("class", "edge"));
+        XElement edgeLayer = new(svgNamespace + "g", new XAttribute("class", "edges"));
 
         foreach (DiagramEdge edge in visibleEdges)
         {
@@ -263,14 +278,13 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
             (double fromX, double fromY, double toX, double toY) = ResolveEdgeEndpoints(fromPlacement, toPlacement);
 
-            edgeLayer.Add(new XElement(
-                svgNamespace + "line",
-                new XAttribute("x1", FormatCoordinate(fromX)),
-                new XAttribute("y1", FormatCoordinate(fromY)),
-                new XAttribute("x2", FormatCoordinate(toX)),
-                new XAttribute("y2", FormatCoordinate(toY)),
-                new XAttribute("stroke", "#64748b"),
-                new XAttribute("stroke-width", "1.5")));
+            edgeLayer.Add(DiagramForestEdgeLabelSvgEmitter.EmitEdgeGroup(
+                svgNamespace,
+                edge,
+                fromX,
+                fromY,
+                toX,
+                toY));
         }
 
         root.Add(edgeLayer);
@@ -279,15 +293,12 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                      .ThenBy(candidate => candidate.Node.NodeId, StringComparer.Ordinal))
         {
             string safeId = MermaidIdSanitizer.Sanitize(placement.Node.NodeId);
-            DiagramForestNodeMetrics metrics = DiagramForestNodeMetricsCalculator.Measure(
-                placement.Node,
-                options);
             XElement nodeGroup = DiagramForestNodeSvgEmitter.Emit(
                 svgNamespace,
                 safeId,
                 placement.Width,
                 placement.Height,
-                metrics,
+                placement.Metrics,
                 options);
             nodeGroup.Add(new XAttribute(
                 "transform",

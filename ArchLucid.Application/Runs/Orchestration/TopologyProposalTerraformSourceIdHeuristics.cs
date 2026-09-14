@@ -240,7 +240,27 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("extended_location", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("network_security_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("virtual_network", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("subnet", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("subnet", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("public_ip", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_interface", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("application_security_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("route_table", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("ip_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("local_network_gateway", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_profile", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("private_link_service", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("firewall_policy", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_manager", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("point_to_site", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("management_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("resource_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("user_assigned_identity", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("disk_encryption_set", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("azuread", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("active_directory", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dedicated_host", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("proximity_placement_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("capacity_reservation_group", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -393,7 +413,25 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("vpn_gateway", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("network_security_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("virtual_network", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("subnet", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("subnet", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("public_ip", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_interface", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("application_security_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("route_table", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("ip_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("local_network_gateway", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_profile", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("private_link_service", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("firewall_policy", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_manager", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("point_to_site", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("management_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("resource_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("user_assigned_identity", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("disk_encryption_set", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dedicated_host", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("proximity_placement_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("capacity_reservation_group", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>

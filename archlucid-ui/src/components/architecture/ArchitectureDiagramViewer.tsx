@@ -242,6 +242,7 @@ function useDiagramZoomState(pathname: string) {
   const zoomPercentInputValue = zoomPercentDraft ?? String(zoomPercent);
   const atMinZoom = zoom <= MIN_ARCHITECTURE_DIAGRAM_ZOOM + 0.001;
   const atMaxZoom = zoom >= MAX_ARCHITECTURE_DIAGRAM_ZOOM - 0.001;
+  const atDefaultZoom = Math.abs(zoom - 1) <= 0.001;
 
   return {
     zoom,
@@ -249,6 +250,7 @@ function useDiagramZoomState(pathname: string) {
     zoomPercentInputValue,
     atMinZoom,
     atMaxZoom,
+    atDefaultZoom,
     setZoomPercentDraft,
     setZoomClamped,
     setZoom,
@@ -276,6 +278,7 @@ function renderDiagramViewportControls(
       maxZoomPercent={MAX_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT}
       atMinZoom={zoom.atMinZoom}
       atMaxZoom={zoom.atMaxZoom}
+      fitInViewDisabled={zoom.atDefaultZoom}
       onZoomPercentDraftChange={zoom.setZoomPercentDraft}
       onZoomPercentFocus={() => zoom.setZoomPercentDraft(String(zoom.zoomPercent))}
       onCommitZoomPercent={zoom.commitZoomPercent}
@@ -301,7 +304,7 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:leading-snug [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100',
   '[&_svg_.cluster_rect]:fill-white dark:[&_svg_.cluster_rect]:fill-neutral-950/80',
   '[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]',
-  // Fallback ink when Mermaid CSS is stripped (light = pale honey on white canvas).
+  // Fallback ink when Mermaid CSS is stripped (light = honey on white canvas).
   '[&_svg_.node_rect]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_.node_rect]:fill-slate-700',
   '[&_svg_.node_rect]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_.node_rect]:stroke-slate-200',
   '[&_svg_.node_rect]:stroke-[1.5px]',
