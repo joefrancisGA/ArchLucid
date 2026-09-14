@@ -110,6 +110,7 @@ For commands expected **>15s**, emit `STILL EXECUTING... HH:mm:ss` every 8s (see
 
 | Milestone | Doc / command |
 | --- | --- |
+| What to ask Cursor before private beta (ArchLucid-specific + generic launch) | **`docs/assessments/PRIVATE_BETA_CURSOR_AGENT_WORKLIST.md`** — prescription from assessment posture; use `/al-beta` for live trunk ranking |
 | Invite-wave JwtBearer Playwright on `master` push | **`docs/runbooks/PRIVATE_BETA_TRUNK_SMOKE.md`** — triage `Operator UI: private-beta access-path (JwtBearer)` |
 | Full regression matrix (Vitest, Playwright, ZAP, …) | `bash scripts/ci/dispatch_full_ci_matrix.sh master` (or **Actions → CI → Run workflow** on `master`) after push corset + private-beta are green |
 | Gate 1 — observed staging first review | **`docs/runbooks/GATE_1_SHIP_GATE_EVIDENCE.md`** — `archlucid pilot ship-gate-evidence --run-id <guid>` |

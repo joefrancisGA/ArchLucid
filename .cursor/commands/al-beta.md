@@ -19,6 +19,7 @@ Authoritative references:
 | Topic | Doc |
 | --- | --- |
 | Access-path assessment | `docs/assessments/private_beta_access_prompt_07152026.md` |
+| Cursor agent worklist (ArchLucid-specific + generic launch) | `docs/assessments/PRIVATE_BETA_CURSOR_AGENT_WORKLIST.md` |
 | JwtBearer / scope binding | `docs/library/LIVE_E2E_JWT_SETUP.md` |
 | Push corset + beta jobs | `docs/library/TEST_EXECUTION_MODEL.md` |
 | Live ruleset intent | `.github/BRANCH_PROTECTION.md`, `.github/rulesets/golden-cohort-gate-required-check.json` |
