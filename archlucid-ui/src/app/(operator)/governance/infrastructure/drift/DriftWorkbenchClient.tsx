@@ -16,7 +16,6 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   EnterpriseTable,
@@ -139,6 +138,7 @@ import { cn } from "@/lib/utils";
 
 import { DriftBreadcrumb } from "./DriftBreadcrumb";
 import { DriftChangeDetail } from "./DriftChangeDetail";
+import { DriftChangeRiskCell } from "./DriftChangeRiskCell";
 import { DriftChangeResourceCells } from "./DriftChangeResourceCell";
 import { DriftClaimOrientationStrip } from "./DriftClaimOrientationStrip";
 import { DriftSnapshotIdentifiers } from "./DriftSnapshotIdentifiers";
@@ -285,10 +285,10 @@ export function DriftWorkbenchClient() {
   );
 
   const visibleChanges = useMemo(() => {
-    const filtered = filterDriftChanges(changes, tableFilterState);
+    const filtered = filterDriftChanges(changes, tableFilterState, selectedDiff);
 
     return sortDriftChanges(filtered, tableFilterState.sortBy, tableFilterState.sortDir);
-  }, [changes, tableFilterState]);
+  }, [changes, selectedDiff, tableFilterState]);
 
   const selectedChange = useMemo(
     () => visibleChanges.find((row) => row.changeId === selectedChangeId) ?? null,
@@ -1112,11 +1112,7 @@ export function DriftWorkbenchClient() {
                 </EnterpriseTableCell>
                 <EnterpriseTableCell>{row.property ?? "—"}</EnterpriseTableCell>
                 <EnterpriseTableCell>
-                  {row.riskClassification != null ? (
-                    <SeverityTag severity={row.riskClassification} />
-                  ) : (
-                    "—"
-                  )}
+                  <DriftChangeRiskCell change={row} />
                 </EnterpriseTableCell>
               </EnterpriseTableRow>
             ))}

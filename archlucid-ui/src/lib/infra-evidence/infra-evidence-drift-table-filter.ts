@@ -1,10 +1,15 @@
-import type { InfraEvidenceDiffChange } from "@/lib/infra-evidence/infra-evidence-drift-types";
+import type { InfraEvidenceDiffChange, InfraEvidenceDiffSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
   formatInfraEvidenceChangeTypeLabel,
+  isInfraEvidenceResourceRemovedChange,
   normalizeInfraEvidenceChangeTypeKey,
 } from "@/lib/infra-evidence/infra-evidence-drift-display";
 import { formatAzureResourceDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
-import { normalizeFindingSeverity } from "@/lib/design-tokens";
+import {
+  formatInfraEvidenceDriftRiskLabel,
+  isComparingTwoInventorySnapshots,
+  resolveInfraEvidenceDriftRiskKey,
+} from "@/lib/infra-evidence/infra-evidence-drift-risk-display";
 
 export const DRIFT_TABLE_RISK_FILTER_PARAM = "risk";
 export const DRIFT_TABLE_CHANGE_TYPE_FILTER_PARAM = "changeType";
@@ -182,7 +187,10 @@ export function sortDriftChanges(
         break;
 
       case "risk":
-        result = compareStrings(left.riskClassification, right.riskClassification);
+        result = compareStrings(
+          formatInfraEvidenceDriftRiskLabel(resolveInfraEvidenceDriftRiskKey(left.riskClassification)),
+          formatInfraEvidenceDriftRiskLabel(resolveInfraEvidenceDriftRiskKey(right.riskClassification)),
+        );
         break;
 
       default: {
@@ -201,14 +209,20 @@ export function sortDriftChanges(
 export function filterDriftChanges(
   rows: readonly InfraEvidenceDiffChange[],
   state: Pick<DriftTableFilterState, "riskFilter" | "changeTypeFilter" | "resourceFilter">,
+  selectedDiff: InfraEvidenceDiffSummary | null = null,
 ): InfraEvidenceDiffChange[] {
   const resourceNeedle = state.resourceFilter.trim().toLowerCase();
   const riskFilter = state.riskFilter.trim().toLowerCase();
   const changeTypeFilter = state.changeTypeFilter.trim();
+  const comparingTwoInventories = isComparingTwoInventorySnapshots(selectedDiff);
 
   return rows.filter((row) => {
+    if (isInfraEvidenceResourceRemovedChange(row.changeType) && !comparingTwoInventories) {
+      return false;
+    }
+
     if (riskFilter.length > 0) {
-      const rowRisk = normalizeFindingSeverity(row.riskClassification);
+      const rowRisk = resolveInfraEvidenceDriftRiskKey(row.riskClassification);
 
       if (rowRisk !== riskFilter) {
         return false;

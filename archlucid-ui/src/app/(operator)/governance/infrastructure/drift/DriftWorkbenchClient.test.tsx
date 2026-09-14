@@ -233,6 +233,71 @@ describe("DriftWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-drift-change-row-change-1")).toBeInTheDocument();
   });
 
+  it("renders risk as text labels instead of severity chips", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
+    render(<DriftWorkbenchClient />);
+
+    const row = await screen.findByTestId("infra-drift-change-row-change-1");
+
+    expect(row.querySelector('[data-testid="infra-drift-risk-label"]')).toHaveTextContent("Medium");
+    expect(row.querySelector('[data-severity-tag]')).not.toBeInTheDocument();
+  });
+
+  it("hides resource-removed rows when the selected diff does not compare two inventories", async () => {
+    mockFetchDiffs.mockResolvedValueOnce([
+      {
+        diffId: "diff-same",
+        snapshotAId: "11111111-1111-1111-1111-111111111111",
+        snapshotBId: "11111111-1111-1111-1111-111111111111",
+        totalChanges: 2,
+        createdUtc: "2026-09-01T12:00:00Z",
+      },
+    ]);
+    mockFetchChanges.mockResolvedValueOnce({
+      items: [
+        {
+          changeId: "change-removed",
+          diffId: "diff-same",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/removed-vm",
+          changeType: "ResourceRemoved",
+          property: null,
+          oldValue: null,
+          newValue: null,
+          riskClassification: null,
+          evidenceReference: "snapshot-diff",
+        },
+        {
+          changeId: "change-modified",
+          diffId: "diff-same",
+          cloudResourceId: "33333333-3333-3333-3333-333333333333",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/active-vm",
+          changeType: "ResourceModified",
+          property: "sku",
+          oldValue: "Basic",
+          newValue: "Standard",
+          riskClassification: "none",
+          evidenceReference: "snapshot-diff",
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-same");
+    render(<DriftWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-drift-change-row-change-modified")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("infra-drift-change-row-change-removed")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-changes-body").querySelectorAll("tr")).toHaveLength(1);
+  });
+
   it("renders one row per drift change when multiple changes are returned (IE-DT-02)", async () => {
     mockFetchChanges.mockResolvedValueOnce({
       items: [
@@ -268,7 +333,7 @@ describe("DriftWorkbenchClient", () => {
           cloudResourceId: "44444444-4444-4444-4444-444444444444",
           azureResourceId:
             "/subscriptions/sub/resourceGroups/rg-c/providers/Microsoft.Compute/virtualMachines/app-01",
-          changeType: "Removed",
+          changeType: "ResourceRemoved",
           property: "size",
           oldValue: "Standard_D2s_v3",
           newValue: null,
