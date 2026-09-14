@@ -3,7 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useWorkingFindingInspectHrefOptions } from "@/hooks/use-working-finding-inspect-href-options";
 import {
   defaultRiskExceptionExpiresAtUtc,
   listRiskExceptions,
@@ -95,6 +95,7 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
   const urlRenewId = parseRiskExceptionRenewIdFromSearch(searchParams.get("renewId"));
   const urlRevokeId = parseRiskExceptionRevokeIdFromSearch(searchParams.get("revokeId"));
   const scopedRunFilterActive = scopedRunId.length > 0;
+  const inspectHrefOptions = useWorkingFindingInspectHrefOptions();
   const canMutate = useOperateCapability();
   const mutationDisabledHintId = "risk-exceptions-mutate-disabled-hint";
   const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
@@ -242,8 +243,8 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
     [scopedRecords, scopedRunFilterActive],
   );
   const continueLastException = useMemo(
-    () => (scopedRunFilterActive ? resolveContinueLastRiskException(scopedRecords) : null),
-    [scopedRecords, scopedRunFilterActive],
+    () => (scopedRunFilterActive ? resolveContinueLastRiskException(scopedRecords, inspectHrefOptions) : null),
+    [inspectHrefOptions, scopedRecords, scopedRunFilterActive],
   );
   const riskExceptionsRenewChecklistSteps = resolveRiskExceptionsRenewSteps({
     reviewPicked: scopedRunFilterActive,

@@ -19,6 +19,7 @@ import { resolveContinueLastAskThread } from "@/lib/ask/resolve-continue-last-as
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 import { trySeedDemoAskConversation } from "./ask-page-demo-seed";
 import { useWorkingInsightsArchitectureBind } from "@/hooks/use-working-insights-architecture-bind";
+import { useWorkingFindingInspectHrefOptions } from "@/hooks/use-working-finding-inspect-href-options";
 
 import { useAskPageStream } from "./use-ask-page-stream";
 import { useAskPageUrlSync } from "./use-ask-page-url-sync";
@@ -231,6 +232,13 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     [buyerPolishedShell, runId],
   );
 
+  const architectureBind = useWorkingInsightsArchitectureBind({
+    tool: "ask",
+    urlRunId: urlSync.urlRunIdRaw,
+    pinnedArchitectureId: options.pinnedArchitectureId,
+  });
+  const inspectHrefOptions = useWorkingFindingInspectHrefOptions(options.pinnedArchitectureId);
+
   const askCitationActionFollowUps = useMemo(() => {
     const trailing = messages.length > 0 ? messages[messages.length - 1] : null;
     const fromMetadata =
@@ -253,9 +261,11 @@ export function useAskPage(options: UseAskPageOptions = {}) {
           ? lastAskReferencedArtifacts
           : (fromMetadata?.referencedArtifacts ?? []),
       groundingLinks: askAssistantGroundingLinks,
+      inspectHrefOptions,
     });
   }, [
     askAssistantGroundingLinks,
+    inspectHrefOptions,
     lastAskReferencedArtifacts,
     lastAskReferencedDecisions,
     lastAskReferencedFindings,
@@ -264,11 +274,6 @@ export function useAskPage(options: UseAskPageOptions = {}) {
   ]);
 
   const showThreadHistoryPanel = threads.length > 0;
-  const architectureBind = useWorkingInsightsArchitectureBind({
-    tool: "ask",
-    urlRunId: urlSync.urlRunIdRaw,
-    pinnedArchitectureId: options.pinnedArchitectureId,
-  });
 
   return {
     buyerPolishedShell,

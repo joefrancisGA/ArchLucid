@@ -71,6 +71,21 @@ Canonical leak truth: `archlucid-ui/src/lib/inhabit-leak-inventories.ts` (remain
 
 Inventory: `INHABIT_POST_DIAGNOSIS_QUEUE_AUXILIARY_ROWS` (`WA-001`). Guard: `inhabit-post-diagnosis-queue-aux-guard.test.ts`.
 
+## Shipped follow-up (WA-002)
+
+### Specialist Working finding hrefs — Ask, alerts, exceptions, compare
+
+**Livelihood class:** ADR 0100 / R13. Daily specialist tools that open a finding now reuse `resolveWorkingFindingInspectHrefOptions` so Working + known architecture stays on nested `focusedFinding`. Evidence-trace remains the inspector drill-down.
+
+| Surface | Module | Status |
+|---------|--------|--------|
+| Ask citation Open finding / disposition | `ask-citation-action-follow-ups.ts` | **Shipped** |
+| Alerts inbox primary finding | `alert-finding-navigation.ts` | **Shipped** |
+| Risk-exception continue last | `resolve-continue-last-risk-exception.ts` | **Shipped** |
+| Compare lifecycle Open finding inspect | `compare-finding-lifecycle-inspect-href.ts` | **Shipped** |
+
+Inventory: `INHABIT_POST_DIAGNOSIS_SPECIALIST_HREF_ROWS` (`WA-002`).
+
 ## Intentional skips (do not “fix”)
 
 | Skip | Why |
@@ -107,6 +122,6 @@ Post-IR guard Vitest (sample): `inhabit-post-ir-leak-inventories.test.ts`, `revi
 ## Recommendation
 
 1. Treat post-IR livelihood leaks **IP-002–IP-011** as **closed**. Do **not** re-run IH-001–080, IR-001–018, or IP-001–015 product bodies.
-2. **WA-001 shipped** — inhabited queue auxiliary CTAs closed; see inventory rows above.
+2. **WA-001 and WA-002 shipped** — inhabited queue auxiliary CTAs and specialist finding hrefs closed.
 3. **Do not** paste wave 35 or claim inhabit is incomplete because the job inspector still exists — ADR 0100 requires it for in-flight analysis and explicit job inspection.
 4. Next fresh diagnosis should start from this file and [`INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md`](INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md), not reopen closed inventory classes.

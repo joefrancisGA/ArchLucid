@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import type { GovernanceFindingInspectHrefOptions } from "@/components/governance/findings/governance-findings-navigation";
 import {
   buildCompareFindingLifecycleStatusSentence,
   type CompareFindingLifecycleRecord,
 } from "@/lib/compare-finding-lifecycle";
-import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
+import { buildCompareFindingLifecycleInspectHref } from "@/lib/compare-finding-lifecycle-inspect-href";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -13,29 +14,8 @@ export type CompareFindingLifecycleRecordsTableProps = {
   readonly records: readonly CompareFindingLifecycleRecord[];
   readonly priorRunId: string;
   readonly laterRunId: string;
+  readonly inspectHrefOptions?: GovernanceFindingInspectHrefOptions;
 };
-
-function buildFindingInspectHref(
-  record: CompareFindingLifecycleRecord,
-  priorRunId: string,
-  laterRunId: string,
-): string | null {
-  if (record.currentFindingId !== null) {
-    const href = getFindingDetailHref(laterRunId, record.currentFindingId);
-    const params = new URLSearchParams({ priorRunId });
-
-    return `${href}?${params.toString()}`;
-  }
-
-  if (record.priorFindingId !== null) {
-    const href = getFindingDetailHref(priorRunId, record.priorFindingId);
-    const params = new URLSearchParams({ laterRunId });
-
-    return `${href}?${params.toString()}`;
-  }
-
-  return null;
-}
 
 function recordRowKey(record: CompareFindingLifecycleRecord, index: number): string {
   return [
@@ -51,7 +31,7 @@ function recordRowKey(record: CompareFindingLifecycleRecord, index: number): str
 export function CompareFindingLifecycleRecordsTable(
   props: CompareFindingLifecycleRecordsTableProps,
 ): ReactElement | null {
-  const { records, priorRunId, laterRunId } = props;
+  const { records, priorRunId, laterRunId, inspectHrefOptions } = props;
 
   if (records.length === 0) {
     return null;
@@ -63,7 +43,12 @@ export function CompareFindingLifecycleRecordsTable(
 
       <ul className={cn("m-0 mt-3 grid gap-2", OPERATOR_TYPOGRAPHY.body)}>
         {records.map((record, index) => {
-          const inspectHref = buildFindingInspectHref(record, priorRunId, laterRunId);
+          const inspectHref = buildCompareFindingLifecycleInspectHref({
+            record,
+            priorRunId,
+            laterRunId,
+            inspectHrefOptions,
+          });
           const label = record.message.length > 0 ? record.message : record.category;
           const statusSentence = buildCompareFindingLifecycleStatusSentence(record);
 

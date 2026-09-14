@@ -48,6 +48,22 @@ describe("buildAskCitationActionFollowUps", () => {
     expect(chips[2]?.label.toLowerCase()).toContain("disposition");
   });
 
+  it("WA-002: Open finding and disposition stay on nested focusedFinding when architecture is known", () => {
+    const chips = buildAskCitationActionFollowUps({
+      runId: "run-a",
+      referencedFindings: ["finding-123"],
+      inspectHrefOptions: { architectureId: "arch-1", isWorkingMode: true },
+    });
+
+    expect(chips[0]?.href).toBe(
+      "/architecture/architectures/arch-1/findings?runId=run-a&focusedFinding=finding-123",
+    );
+    expect(chips[1]?.href).toBe("/architecture/reviews/run-a/findings/finding-123/evidence-trace");
+    expect(chips[2]?.href).toBe(
+      "/architecture/architectures/arch-1/findings?runId=run-a&focusedFinding=finding-123",
+    );
+  });
+
   it("builds chips from CitationReference Finding payloads", () => {
     const citations: CitationReference[] = [
       {

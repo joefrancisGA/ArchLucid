@@ -1,3 +1,4 @@
+import type { GovernanceFindingInspectHrefOptions } from "@/components/governance/findings/governance-findings-navigation";
 import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
 import type { AlertRecord } from "@/types/alerts";
 
@@ -41,6 +42,8 @@ function compareTriageAlerts(left: AlertRecord, right: AlertRecord): number {
 /** Highest-severity open alert, oldest first within the same severity band. */
 export function resolveAlertsInboxTriageFirstAlert(
   alerts: readonly AlertRecord[],
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
+  findingsQueueRunId?: string | null,
 ): AlertsInboxTriageFirstAlertTarget | null {
   const openAlerts = alerts.filter(
     (alert) => alert.isArchived !== true && alert.status.trim().toLowerCase() === "open",
@@ -61,6 +64,6 @@ export function resolveAlertsInboxTriageFirstAlert(
     alertId: first.alertId,
     title: first.title,
     severity: first.severity,
-    openHref: alertPrimaryFindingDetailHref(first),
+    openHref: alertPrimaryFindingDetailHref(first, findingsQueueRunId, inspectHrefOptions),
   };
 }
