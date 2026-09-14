@@ -281,7 +281,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("automation_runbook", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("synapse_sql_pool", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("virtual_desktop_workspace", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("virtual_desktop_host_pool", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("virtual_desktop_host_pool", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_desktop_application_group", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -473,7 +474,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("automation_runbook", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("synapse_sql_pool", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("virtual_desktop_workspace", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("virtual_desktop_host_pool", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("virtual_desktop_host_pool", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_desktop_application_group", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
