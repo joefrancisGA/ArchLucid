@@ -1,5 +1,7 @@
 ## Zone: topology-proposal-merge
 
+2026-09-14 seed hunt #2831 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `automation_dsc_configuration` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_automation_dsc_configuration_node_has_compute_category_but_synthetic_datastore_id_used`.
+
 2026-09-14 seed hunt #2813 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `automation_source_control` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_automation_source_control_node_has_compute_category_but_synthetic_datastore_id_used`.
 
 2026-09-14 seed hunt #2808 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `automation_webhook` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_automation_webhook_node_has_compute_category_but_synthetic_datastore_id_used`.
@@ -236,11 +238,11 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 190
-- **bugs-found:** 156
+- **hunts:** 191
+- **bugs-found:** 157
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-14 — hunt #2798: automation_connection Compute-category ds- alias gap
+- **last-bug:** 2026-09-14 — hunt #2831: automation_dsc_configuration Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
