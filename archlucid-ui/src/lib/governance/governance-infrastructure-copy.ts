@@ -223,6 +223,12 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION =
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PARTITIONED_BODY =
   "This snapshot is too large for a single diagram in the selected mode. Pick a focused view — Executive is the default — or choose Pick a Resource Group." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_LABEL =
+  "Show trivial components" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE =
+  "Always excluded from diagrams" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureDrift;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID = "infra-drift-primary-content" as const;

@@ -55,4 +55,10 @@ public sealed class InfraEvidenceMermaidRenderResponse
         get;
         set;
     }
+
+    public InfraEvidenceMermaidCollapseReport? CollapseReport
+    {
+        get;
+        set;
+    }
 }
