@@ -87,7 +87,10 @@ import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLin
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { driftWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-drift-filter-url";
@@ -714,14 +717,13 @@ export function DriftWorkbenchClient() {
       <OperatorPageHeader
         navHref={GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}
         title={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE}
-        subtitle={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD}
         claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE : undefined}
         claimDisciplineTestId="infra-drift-claim-discipline"
         titleTestId="infra-drift-page-title"
         breadcrumb={<DriftBreadcrumb />}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <PageContextualHelpButton />
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
             <CopyScopedOperatorLinkButton testId="infra-drift-copy-scoped-link" />
           </div>
         }
@@ -828,6 +830,13 @@ export function DriftWorkbenchClient() {
             {scopeFreshnessLine}
           </p>
         ) : null}
+
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="infra-drift-page-lead"
+        >
+          {GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD}
+        </p>
 
         <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Drift workbench controls">
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
