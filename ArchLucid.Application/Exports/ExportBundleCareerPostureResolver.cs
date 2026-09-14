@@ -116,19 +116,33 @@ public static class ExportBundleCareerPostureResolver
 
     private static bool TryGetJsonBooleanProperty(JsonElement root, string camelCaseName, string snakeCaseName)
     {
-        if (root.TryGetProperty(camelCaseName, out JsonElement camelCaseElement)
-            && TryParseJsonBoolean(camelCaseElement))
+        if (TryGetJsonBooleanPropertyExact(root, camelCaseName)
+            || TryGetJsonBooleanPropertyExact(root, snakeCaseName))
         {
             return true;
         }
 
-        if (root.TryGetProperty(snakeCaseName, out JsonElement snakeCaseElement)
-            && TryParseJsonBoolean(snakeCaseElement))
+        foreach (JsonProperty property in root.EnumerateObject())
         {
-            return true;
+            if (!string.Equals(property.Name, camelCaseName, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(property.Name, snakeCaseName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (TryParseJsonBoolean(property.Value))
+                return true;
         }
 
         return false;
+    }
+
+    private static bool TryGetJsonBooleanPropertyExact(JsonElement root, string propertyName)
+    {
+        if (!root.TryGetProperty(propertyName, out JsonElement element))
+            return false;
+
+        return TryParseJsonBoolean(element);
     }
 
     private static bool TryParseJsonBoolean(JsonElement element)
@@ -218,13 +232,21 @@ public static class ExportBundleCareerPostureResolver
         string snakeCaseName,
         out JsonElement value)
     {
-        if (root.TryGetProperty(camelCaseName, out value))
+        if (root.TryGetProperty(camelCaseName, out value)
+            || root.TryGetProperty(snakeCaseName, out value))
         {
             return true;
         }
 
-        if (root.TryGetProperty(snakeCaseName, out value))
+        foreach (JsonProperty property in root.EnumerateObject())
         {
+            if (!string.Equals(property.Name, camelCaseName, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(property.Name, snakeCaseName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            value = property.Value;
             return true;
         }
 
