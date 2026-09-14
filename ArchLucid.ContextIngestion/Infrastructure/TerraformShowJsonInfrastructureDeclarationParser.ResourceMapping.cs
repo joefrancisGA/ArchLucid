@@ -168,10 +168,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 canonicalTerraformType,
                 canonicalLabel);
 
-            if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement)
-                && indexElement.ValueKind == JsonValueKind.Number)
+            if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement))
             {
-                canonicalAddress = $"{canonicalAddress}[{indexElement.GetInt32()}]";
+                if (indexElement.ValueKind == JsonValueKind.Number)
+                    canonicalAddress = $"{canonicalAddress}[{indexElement.GetInt32()}]";
+                else if (indexElement.ValueKind == JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(indexElement.GetString()))
+                    canonicalAddress = $"{canonicalAddress}[{indexElement.GetString()!.Trim()}]";
             }
         }
 
