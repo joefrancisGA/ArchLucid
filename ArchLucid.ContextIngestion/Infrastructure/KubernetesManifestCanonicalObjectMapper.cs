@@ -232,6 +232,11 @@ internal static class KubernetesManifestCanonicalObjectMapper
             && hostUsers.ValueKind is JsonValueKind.True)
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "hostUsers", "true");
 
+
+        if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "enableServiceLinks", out JsonElement enableServiceLinksTrue)
+            && enableServiceLinksTrue.ValueKind is JsonValueKind.True)
+            CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "enableServiceLinks", "true");
+
         if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "enableServiceLinks", out JsonElement enableServiceLinks)
             && enableServiceLinks.ValueKind is JsonValueKind.False)
             CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "enableServiceLinks", "false");
@@ -1320,6 +1325,17 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         void InspectContainer(JsonElement container)
         {
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "name", out JsonElement containerNameElement)
+                && containerNameElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(containerNameElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "containerName",
+                    containerNameElement.GetString()!);
+            }
+
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "stdin", out JsonElement stdinElement)
                 && stdinElement.ValueKind is JsonValueKind.True)
             {
@@ -1380,6 +1396,131 @@ internal static class KubernetesManifestCanonicalObjectMapper
                     properties,
                     "imagePullPolicy",
                     imagePullPolicyElement.GetString()!);
+            }
+
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "command", out JsonElement commandElement)
+                && commandElement.ValueKind is JsonValueKind.Array)
+            {
+                List<string> commandValues = [];
+                foreach (JsonElement commandPart in commandElement.EnumerateArray())
+                {
+                    if (commandPart.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(commandPart.GetString()))
+                    {
+                        commandValues.Add(commandPart.GetString()!);
+                    }
+                }
+
+                if (commandValues.Count > 0)
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "command",
+                        string.Join(',', commandValues));
+                }
+            }
+
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "args", out JsonElement argsElement)
+                && argsElement.ValueKind is JsonValueKind.Array)
+            {
+                List<string> argValues = [];
+                foreach (JsonElement argPart in argsElement.EnumerateArray())
+                {
+                    if (argPart.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(argPart.GetString()))
+                    {
+                        argValues.Add(argPart.GetString()!);
+                    }
+                }
+
+                if (argValues.Count > 0)
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "args",
+                        string.Join(',', argValues));
+                }
+            }
+
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "image", out JsonElement imageElement)
+                && imageElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(imageElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "containerImage",
+                    imageElement.GetString()!);
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "ports", out JsonElement portsElement)
+                && portsElement.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement port in portsElement.EnumerateArray())
+                {
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(port, "containerPort", out JsonElement containerPortElement)
+                        && containerPortElement.ValueKind is JsonValueKind.Number
+                        && containerPortElement.TryGetInt32(out int containerPort))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                            properties,
+                            "containerPort",
+                            containerPort.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    }
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(port, "hostPort", out JsonElement hostPortElement)
+                        && hostPortElement.ValueKind is JsonValueKind.Number
+                        && hostPortElement.TryGetInt32(out int hostPort))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                            properties,
+                            "hostPort",
+                            hostPort.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    }
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(port, "protocol", out JsonElement protocolElement)
+                        && protocolElement.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(protocolElement.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                            properties,
+                            "portProtocol",
+                            protocolElement.GetString()!);
+                    }
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(port, "name", out JsonElement portNameElement)
+                        && portNameElement.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(portNameElement.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                            properties,
+                            "portName",
+                            portNameElement.GetString()!);
+                    }
+
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(port, "appProtocol", out JsonElement appProtocolElement)
+                        && appProtocolElement.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(appProtocolElement.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                            properties,
+                            "portAppProtocol",
+                            appProtocolElement.GetString()!);
+                    }
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(port, "hostIp", out JsonElement hostIpElement)
+                        && hostIpElement.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(hostIpElement.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                            properties,
+                            "portHostIp",
+                            hostIpElement.GetString()!);
+                    }
+                }
             }
 
             if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
