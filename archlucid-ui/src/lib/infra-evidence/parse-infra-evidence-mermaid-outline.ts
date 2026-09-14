@@ -247,6 +247,45 @@ export function resolveInfraEvidenceOutlineSeedNodeId(node: InfraEvidenceMermaid
   return node.id;
 }
 
+export function isInfraEvidenceVirtualNetworkResourceType(resourceType: string | null | undefined): boolean {
+  if (resourceType == null) {
+    return false;
+  }
+
+  const trimmed = resourceType.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  const lower = trimmed.toLowerCase();
+
+  return lower.includes("/virtualnetworks") && !lower.includes("/subnets");
+}
+
+export function resolveInfraEvidenceOutlineEdgeLabel(
+  edge: InfraEvidenceMermaidOutlineEdge,
+  nodes: readonly InfraEvidenceMermaidOutlineNode[],
+): string {
+  const explicit = edge.label?.trim() ?? "";
+
+  if (explicit.length > 0) {
+    return explicit;
+  }
+
+  const fromNode = nodes.find((node) => node.id === edge.from);
+  const toNode = nodes.find((node) => node.id === edge.to);
+
+  if (
+    isInfraEvidenceVirtualNetworkResourceType(fromNode?.resourceType)
+    && isInfraEvidenceVirtualNetworkResourceType(toNode?.resourceType)
+  ) {
+    return "peering";
+  }
+
+  return "";
+}
+
 export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceMermaidOutline {
   const nodeMap = new Map<string, InfraEvidenceMermaidOutlineNode>();
   const edges: InfraEvidenceMermaidOutlineEdge[] = [];

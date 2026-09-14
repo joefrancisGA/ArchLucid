@@ -59,7 +59,7 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 continue;
             }
 
-            string label = TruncateLabel(MermaidDiagramRenderer.EscapeLabel(edge.Label));
+            string label = TruncateLabel(MermaidDiagramRenderer.EscapeLabel(edge.Label ?? string.Empty));
             string edgeKey = $"{fromId}|{toId}|{label}";
 
             if (!seenEdges.Add(edgeKey))
@@ -78,6 +78,9 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 FromNodeId = fromId,
                 ToNodeId = toId,
                 Label = label,
+                // Layout-only ~~~ links must stay invisible after repair; dropping this
+                // flag turns packing edges into unlabeled visible arrows.
+                IsLayoutOnly = edge.IsLayoutOnly,
             });
         }
 

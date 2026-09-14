@@ -138,7 +138,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 continue;
             }
 
-            string edgeKey = $"{fromNodeId}|{toNodeId}|{relationship.RelationshipType}";
+            string edgeType = ResolveRelationshipEdgeType(relationship);
+            string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
 
             if (!edgeKeys.Add(edgeKey))
             {
@@ -150,8 +151,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 EdgeId = $"edge-{edgeKey}",
                 FromNodeId = fromNodeId,
                 ToNodeId = toNodeId,
-                EdgeType = relationship.RelationshipType,
-                Label = relationship.RelationshipType,
+                EdgeType = edgeType,
+                Label = edgeType,
                 Weight = ResolveEdgeWeight(relationship.InferenceSource),
                 InferenceSource = relationship.InferenceSource,
             });
@@ -223,6 +224,23 @@ public sealed class AzureInventorySnapshotGraphResolver(
     private static string ReadRelationshipArmId(string? armId)
     {
         return armId ?? string.Empty;
+    }
+
+    private static string ResolveRelationshipEdgeType(AzureInventoryResourceRelationshipReadModel relationship)
+    {
+        ArgumentNullException.ThrowIfNull(relationship);
+
+        if (!string.IsNullOrWhiteSpace(relationship.RelationshipType))
+        {
+            return relationship.RelationshipType.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(relationship.InferenceSource))
+        {
+            return relationship.InferenceSource.Trim();
+        }
+
+        return string.Empty;
     }
 
     private static double ResolveEdgeWeight(string? inferenceSource)
