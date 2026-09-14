@@ -548,11 +548,16 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashWeeksToken(trimmed)
             || ContainsSlashWksToken(trimmed)
             || ContainsSlashWkToken(trimmed)
+            || ContainsSpacedSlashWToken(trimmed)
             || ContainsSlashWToken(trimmed)
+            || ContainsBoundedToken(trimmed, " w")
             || ContainsBoundedToken(trimmed, " wk")
             || ContainsBoundedToken(trimmed, " wks")
             || HasCompactWeekSuffix(trimmed)
             || HasCompactWkSuffix(trimmed)
+            || HasCompactWekSuffix(trimmed)
+            || HasCompactWksSuffix(trimmed)
+            || HasCompactWeksSuffix(trimmed)
             || HasCompactWeekWordSuffix(trimmed)
             || HasCompactWeeksWordSuffix(trimmed)
             || string.Equals(trimmed, "week", StringComparison.OrdinalIgnoreCase)
@@ -656,6 +661,29 @@ public sealed partial class AzureRetailPricesCatalogClient
         return false;
     }
 
+
+    private static bool ContainsSpacedSlashWToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf(" / w", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterToken = index + 4;
+
+            if (afterToken >= trimmed.Length || !char.IsLetter(trimmed[afterToken]))
+                return true;
+
+            index = afterToken;
+        }
+
+        return false;
+    }
+
     private static bool ContainsSlashWToken(string trimmed)
     {
         int index = 0;
@@ -693,6 +721,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashMnToken(trimmed)
             || ContainsSlashMonthToken(trimmed)
             || ContainsSlashMToken(trimmed)
+            || ContainsBoundedToken(trimmed, " m")
             || ContainsBoundedToken(trimmed, " mo")
             || ContainsBoundedToken(trimmed, " mon")
             || ContainsBoundedToken(trimmed, " mn")
@@ -700,6 +729,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || HasCompactMonthSuffix(trimmed)
             || HasCompactMonSuffix(trimmed)
             || HasCompactMnSuffix(trimmed)
+            || HasCompactMSuffix(trimmed)
             || HasCompactMosSuffix(trimmed)
             || HasCompactMonthWordSuffix(trimmed)
             || HasCompactMonthsWordSuffix(trimmed)
@@ -1064,6 +1094,36 @@ public sealed partial class AzureRetailPricesCatalogClient
             && char.IsDigit(trimmed[^4]);
     }
 
+
+
+    private static bool HasCompactWekSuffix(string trimmed)
+    {
+        if (trimmed.Length < 5)
+            return false;
+
+        return trimmed.EndsWith("wek", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^4]);
+    }
+
+    private static bool HasCompactWksSuffix(string trimmed)
+    {
+        if (trimmed.Length < 5)
+            return false;
+
+        return trimmed.EndsWith("wks", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^4]);
+    }
+
+
+    private static bool HasCompactWeksSuffix(string trimmed)
+    {
+        if (trimmed.Length < 6)
+            return false;
+
+        return trimmed.EndsWith("weks", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^5]);
+    }
+
     private static bool HasCompactMonthSuffix(string trimmed)
     {
         if (trimmed.Length < 3)
@@ -1175,6 +1235,20 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return trimmed.EndsWith("minutes", StringComparison.OrdinalIgnoreCase)
             && char.IsDigit(trimmed[^8]);
+    }
+
+
+    private static bool HasCompactMSuffix(string trimmed)
+    {
+        if (trimmed.Length < 3)
+            return false;
+
+        char suffix = trimmed[^1];
+
+        if (suffix is not 'm' and not 'M')
+            return false;
+
+        return char.IsDigit(trimmed[^2]);
     }
 
     private static bool HasCompactMosSuffix(string trimmed)
