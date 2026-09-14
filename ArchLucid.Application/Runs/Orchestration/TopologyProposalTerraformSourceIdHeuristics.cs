@@ -301,7 +301,10 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("automation_dsc_nodeconfiguration", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("policy_exemption", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("policy_remediation", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("automation_hybrid_runbook_worker_group", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("automation_hybrid_runbook_worker_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_software_update_configuration", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("blueprint_definition", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("synapse_spark_pool", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -513,7 +516,10 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("automation_dsc_nodeconfiguration", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("policy_exemption", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("policy_remediation", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("automation_hybrid_runbook_worker_group", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("automation_hybrid_runbook_worker_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_software_update_configuration", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("blueprint_definition", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("synapse_spark_pool", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
