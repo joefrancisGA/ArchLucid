@@ -7,6 +7,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE,
@@ -201,6 +202,7 @@ describe("DiagramsWorkbenchClient", () => {
     const icon = await screen.findByTestId("page-heading-icon");
     const title = screen.getByTestId("infra-diagrams-page-title");
 
+    expect(title).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE);
     expect(icon.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -212,6 +214,7 @@ describe("DiagramsWorkbenchClient", () => {
     const icon = await screen.findByTestId("page-heading-icon");
     const title = screen.getByTestId("infra-diagrams-page-title");
 
+    expect(title).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE);
     expect(icon.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
