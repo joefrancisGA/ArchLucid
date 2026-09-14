@@ -154,11 +154,15 @@ export function DriftChangesTableHeaderCell(props: DriftChangesTableHeaderCellPr
 
   return (
     <EnterpriseTableHeaderCell sortDirection={props.sortDirection}>
-      <div className="flex min-w-0 items-center gap-1">
+      {/* inline-flex (not flex-1) keeps the filter icon beside this column label instead of the cell's far edge. */}
+      <div
+        className="inline-flex max-w-full items-center gap-0.5"
+        data-testid={`infra-drift-header-cluster-${props.column}`}
+      >
         <button
           type="button"
           className={cn(
-            "inline-flex min-w-0 flex-1 items-center gap-1 text-left font-inherit hover:text-al-text-primary",
+            "inline-flex min-w-0 items-center gap-1 text-left font-inherit hover:text-al-text-primary",
             isActiveSort ? "text-al-text-primary" : "text-al-text-secondary",
             OPERATOR_TYPOGRAPHY.body,
           )}
