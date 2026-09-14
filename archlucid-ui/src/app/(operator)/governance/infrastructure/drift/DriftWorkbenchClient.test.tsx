@@ -390,11 +390,8 @@ describe("DriftWorkbenchClient", () => {
       "11111111-1111-1111-1111-111111111111",
     );
     expect(screen.getByTestId("infra-drift-snapshot-identifiers")).toBeInTheDocument();
-    expect(await screen.findByTestId("infra-drift-scope-freshness")).toHaveTextContent("Prod");
-    expect(screen.getByTestId("infra-drift-scope-freshness")).not.toHaveTextContent(
-      "11111111-1111-1111-1111-111111111111",
-    );
-    expect(screen.getByTestId("infra-drift-scope-freshness")).not.toHaveTextContent("diff-1");
+    expect(screen.queryByTestId("infra-drift-scope-freshness")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-subscription")).toBeInTheDocument();
   });
 
   it("collapses advanced-operations guidance behind a summary", async () => {

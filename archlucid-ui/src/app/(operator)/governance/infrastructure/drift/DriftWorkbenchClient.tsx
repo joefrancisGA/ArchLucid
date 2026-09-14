@@ -39,6 +39,16 @@ import {
   resolveInfraEvidenceChangeTypeStatusKind,
 } from "@/lib/infra-evidence/infra-evidence-drift-display";
 import {
+  clearDriftSnapshotsTableFilters,
+  filterDriftSnapshots,
+  hasActiveDriftSnapshotsTableFilters,
+  parseDriftSnapshotsTableFilterState,
+  sortDriftSnapshots,
+  toggleDriftSnapshotsTableSort,
+  type DriftSnapshotsTableFilterState,
+  type DriftSnapshotsTableSortKey,
+} from "@/lib/infra-evidence/infra-evidence-drift-snapshots-table-filter";
+import {
   clearDriftTableFilters,
   filterDriftChanges,
   hasActiveDriftTableFilters,
@@ -111,7 +121,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_FRESHNESS_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL,
@@ -126,7 +135,6 @@ import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   formatInfraEvidenceDiffLabel,
-  formatInfraEvidenceScopeFreshnessLine,
   formatInfraEvidenceSnapshotLabel,
 } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import { cn } from "@/lib/utils";
@@ -241,6 +249,10 @@ export function DriftWorkbenchClient() {
   const urlChangeId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_CHANGE_ID_PARAM));
   const urlDiffId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_DIFF_ID_PARAM));
   const tableFilterState = useMemo(() => parseDriftTableFilterState(searchParams), [searchParams]);
+  const snapshotTableFilterState = useMemo(
+    () => parseDriftSnapshotsTableFilterState(searchParams),
+    [searchParams],
+  );
 
   const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
   const [snapshotsTotalCount, setSnapshotsTotalCount] = useState(0);
@@ -269,11 +281,22 @@ export function DriftWorkbenchClient() {
     [diffs, selectedDiffId],
   );
 
+  const visibleSnapshots = useMemo(() => {
+    const filtered = filterDriftSnapshots(snapshots, snapshotTableFilterState);
+
+    return sortDriftSnapshots(filtered, snapshotTableFilterState.sortBy, snapshotTableFilterState.sortDir);
+  }, [snapshots, snapshotTableFilterState]);
+
   const visibleChanges = useMemo(() => {
     const filtered = filterDriftChanges(changes, tableFilterState, selectedDiff);
 
     return sortDriftChanges(filtered, tableFilterState.sortBy, tableFilterState.sortDir);
   }, [changes, selectedDiff, tableFilterState]);
+
+  const hasActiveSnapshotTableFilters = useMemo(
+    () => hasActiveDriftSnapshotsTableFilters(snapshotTableFilterState),
+    [snapshotTableFilterState],
+  );
 
   const hasActiveTableFilters = useMemo(
     () => hasActiveDriftTableFilters(tableFilterState),
@@ -283,11 +306,6 @@ export function DriftWorkbenchClient() {
   const selectedChange = useMemo(
     () => visibleChanges.find((row) => row.changeId === selectedChangeId) ?? null,
     [selectedChangeId, visibleChanges],
-  );
-
-  const scopeFreshnessLine = useMemo(
-    () => formatInfraEvidenceScopeFreshnessLine({ snapshot: selectedSnapshot, selectedDiff }),
-    [selectedDiff, selectedSnapshot],
   );
 
   const deepLinkedChangeMissing = useMemo(() => {
@@ -323,6 +341,7 @@ export function DriftWorkbenchClient() {
       readonly diffId?: string | null;
       readonly changeId?: string | null;
       readonly tableFilters?: Partial<typeof tableFilterState>;
+      readonly snapshotTableFilters?: Partial<typeof snapshotTableFilterState>;
     }) => {
       router.replace(driftWorkbenchHrefFromSearch(searchParams, patch), { scroll: false });
     },
@@ -335,6 +354,7 @@ export function DriftWorkbenchClient() {
       readonly diffId?: string | null;
       readonly changeId?: string | null;
       readonly tableFilters?: Partial<typeof tableFilterState>;
+      readonly snapshotTableFilters?: Partial<typeof snapshotTableFilterState>;
     }) => {
       router.push(driftWorkbenchHrefFromSearch(searchParams, patch), { scroll: false });
     },
@@ -644,6 +664,24 @@ export function DriftWorkbenchClient() {
     });
   };
 
+  const handleSnapshotSortColumn = (column: DriftSnapshotsTableSortKey) => {
+    pushDriftUrl({
+      snapshotTableFilters: toggleDriftSnapshotsTableSort(snapshotTableFilterState, column),
+    });
+  };
+
+  const handleSnapshotTableFiltersChange = (patch: Partial<DriftSnapshotsTableFilterState>) => {
+    pushDriftUrl({
+      snapshotTableFilters: patch,
+    });
+  };
+
+  const handleClearSnapshotTableFilters = () => {
+    pushDriftUrl({
+      snapshotTableFilters: clearDriftSnapshotsTableFilters(snapshotTableFilterState),
+    });
+  };
+
   const handleSnapshotSelect = useCallback(
     (nextSnapshotId: string) => {
       setSelectedSnapshotId(nextSnapshotId);
@@ -819,16 +857,6 @@ export function DriftWorkbenchClient() {
           />
         ) : null}
 
-        {scopeFreshnessLine != null ? (
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="infra-drift-scope-freshness"
-          >
-            <span className="font-medium text-al-text-primary">{GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_FRESHNESS_LABEL}:</span>{" "}
-            {scopeFreshnessLine}
-          </p>
-        ) : null}
-
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="infra-drift-page-lead"
@@ -845,10 +873,15 @@ export function DriftWorkbenchClient() {
           </div>
 
           <DriftSnapshotsTable
-            snapshots={snapshots}
+            snapshots={visibleSnapshots}
             selectedSnapshotId={selectedSnapshotId}
             loading={loadingSnapshots}
+            tableFilterState={snapshotTableFilterState}
+            hasActiveFilters={hasActiveSnapshotTableFilters}
             onSelectSnapshot={handleSnapshotSelect}
+            onSortColumn={handleSnapshotSortColumn}
+            onTableFiltersChange={handleSnapshotTableFiltersChange}
+            onClearFilters={handleClearSnapshotTableFilters}
           />
 
           {snapshotsShowingLine != null ? (
