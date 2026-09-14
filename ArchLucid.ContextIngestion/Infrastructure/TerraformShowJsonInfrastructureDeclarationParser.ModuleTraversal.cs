@@ -20,8 +20,9 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 TryAddResource(res, moduleAddress, declaration, results, labelTotals, labelSeen);
         }
 
-        if (!TryGetPropertyIgnoreCase(module, "child_modules", out JsonElement children) ||
-            children.ValueKind != JsonValueKind.Array)
+        if ((!TryGetPropertyIgnoreCase(module, "child_modules", out JsonElement children)
+                && !TryGetPropertyIgnoreCase(module, "childModules", out children))
+            || children.ValueKind != JsonValueKind.Array)
             return;
 
         foreach (JsonElement child in children.EnumerateArray())
@@ -69,8 +70,9 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
-        if (!TryGetPropertyIgnoreCase(module, "child_modules", out JsonElement children) ||
-            children.ValueKind != JsonValueKind.Array)
+        if ((!TryGetPropertyIgnoreCase(module, "child_modules", out JsonElement children)
+                && !TryGetPropertyIgnoreCase(module, "childModules", out children))
+            || children.ValueKind != JsonValueKind.Array)
             return;
 
         foreach (JsonElement child in children.EnumerateArray())
