@@ -772,6 +772,7 @@ export function InfrastructureAskClient() {
         <Button
           type="button"
           variant="primary"
+          className={CTA_WIDTH.content}
           data-testid="infra-ask-submit"
           disabled={submitting || question.trim().length === 0}
           onClick={() => void ask(question)}
