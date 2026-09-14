@@ -513,7 +513,9 @@ describe("DriftWorkbenchClient", () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
     render(<DriftWorkbenchClient />);
 
-    expect(await screen.findByRole("table", { name: "Inventory drift changes" })).toBeInTheDocument();
+    const diffTable = await screen.findByRole("table", { name: "Inventory drift changes" });
+    const inventoryTable = screen.getByRole("table", { name: "Inventory snapshots" });
+
     expect(screen.getByTestId("infra-drift-sort-resource")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-resourceGroup")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-resourceType")).toBeInTheDocument();
@@ -521,6 +523,12 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-sort-property")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-risk")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-resource-filter-trigger")).toBeInTheDocument();
+    expect(within(diffTable).getByTestId("infra-drift-change-type-filter-trigger")).toBeInTheDocument();
+    expect(within(diffTable).getByTestId("infra-drift-property-filter-trigger")).toBeInTheDocument();
+    expect(within(diffTable).getByTestId("infra-drift-risk-filter-trigger")).toBeInTheDocument();
+    expect(within(inventoryTable).queryByTestId("infra-drift-change-type-filter-trigger")).not.toBeInTheDocument();
+    expect(within(inventoryTable).queryByTestId("infra-drift-property-filter-trigger")).not.toBeInTheDocument();
+    expect(within(inventoryTable).queryByTestId("infra-drift-risk-filter-trigger")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-changes-body")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-drift-change-row-change-1")).toBeInTheDocument();
   });
