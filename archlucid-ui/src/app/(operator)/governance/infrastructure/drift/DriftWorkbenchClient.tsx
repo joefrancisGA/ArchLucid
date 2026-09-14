@@ -983,12 +983,12 @@ export function DriftWorkbenchClient() {
               </p>
             </div>
 
-            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
-              <div className="grid gap-2">
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="grid min-w-[16rem] max-w-xl gap-2">
                 <Label htmlFor="infra-drift-diff-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL}</Label>
                 <select
                   id="infra-drift-diff-picker"
-                  className={cnField}
+                  className={cn(cnField, "w-full")}
                   data-testid="infra-drift-diff-picker"
                   disabled={loadingDiffs || diffs.length === 0}
                   value={selectedDiffId}
