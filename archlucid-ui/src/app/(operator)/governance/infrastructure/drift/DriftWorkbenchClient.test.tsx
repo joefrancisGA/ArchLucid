@@ -99,13 +99,29 @@ describe("DriftWorkbenchClient", () => {
     downloadInfraEvidenceTerraformAdvisoryZipMock.mockResolvedValue(undefined);
   });
 
-  it("renders snapshot picker and export button", async () => {
+  it("renders snapshot table and export button after selecting a snapshot", async () => {
+    searchParams = new URLSearchParams();
+    render(<DriftWorkbenchClient />);
+
+    expect(await screen.findByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-drift-export-terraform")).not.toBeInTheDocument();
+
+    fireEvent.click(await screen.findByTestId("infra-drift-snapshot-row-11111111-1111-1111-1111-111111111111"));
+
+    expect(await screen.findByTestId("infra-drift-export-terraform")).not.toBeDisabled();
+    expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Prod");
+  });
+
+  it("does not load drift changes until a diff is selected", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DriftWorkbenchClient />);
 
-    expect(await screen.findByTestId("infra-drift-snapshot-picker")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-export-terraform")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-export-terraform")).not.toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-drift-diff-picker")).toBeInTheDocument();
+    });
+
+    expect(mockFetchChanges).not.toHaveBeenCalled();
+    expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
   });
 
   it("shows resource scope banner when cloudResourceId is in the URL", async () => {
@@ -163,7 +179,10 @@ describe("DriftWorkbenchClient", () => {
     render(<DriftWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-drift-change-drawer")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-change-row-change-1")).toHaveAttribute("aria-selected", "true");
+    const changeRow = screen.getByTestId("infra-drift-change-row-change-1");
+    const detailRow = screen.getByTestId("infra-drift-change-detail-row-change-1");
+    expect(changeRow).toHaveAttribute("aria-selected", "true");
+    expect(changeRow.nextElementSibling).toBe(detailRow);
     expect(screen.getByTestId("infra-drift-change-drawer")).toHaveTextContent("gw");
     expect(screen.getByTestId("infra-drift-change-identifiers")).toBeInTheDocument();
   });
@@ -214,8 +233,8 @@ describe("DriftWorkbenchClient", () => {
     expect(row).toHaveTextContent("rg");
     expect(row).toHaveTextContent("publicIPAddresses");
     expect(row).not.toHaveTextContent("/subscriptions/");
-    expect(screen.getByRole("button", { name: "Resource group" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Resource type" })).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-resourceGroup")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-resourceType")).toBeInTheDocument();
   });
 
   it("renders a discrete drift change table with sortable headers (IE-DT-02)", async () => {
@@ -223,14 +242,80 @@ describe("DriftWorkbenchClient", () => {
     render(<DriftWorkbenchClient />);
 
     expect(await screen.findByRole("table", { name: "Inventory drift changes" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Resource" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Resource group" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Resource type" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Change" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Property" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Risk" })).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-resource")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-resourceGroup")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-resourceType")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-change")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-property")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-risk")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-resource-filter-trigger")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-changes-body")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-drift-change-row-change-1")).toBeInTheDocument();
+  });
+
+  it("renders risk as text labels instead of severity chips", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
+    render(<DriftWorkbenchClient />);
+
+    const row = await screen.findByTestId("infra-drift-change-row-change-1");
+
+    expect(row.querySelector('[data-testid="infra-drift-risk-label"]')).toHaveTextContent("Medium");
+    expect(row.querySelector('[data-severity-tag]')).not.toBeInTheDocument();
+  });
+
+  it("hides resource-removed rows when the selected diff does not compare two inventories", async () => {
+    mockFetchDiffs.mockResolvedValueOnce([
+      {
+        diffId: "diff-same",
+        snapshotAId: "11111111-1111-1111-1111-111111111111",
+        snapshotBId: "11111111-1111-1111-1111-111111111111",
+        totalChanges: 2,
+        createdUtc: "2026-09-01T12:00:00Z",
+      },
+    ]);
+    mockFetchChanges.mockResolvedValueOnce({
+      items: [
+        {
+          changeId: "change-removed",
+          diffId: "diff-same",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/removed-vm",
+          changeType: "ResourceRemoved",
+          property: null,
+          oldValue: null,
+          newValue: null,
+          riskClassification: null,
+          evidenceReference: "snapshot-diff",
+        },
+        {
+          changeId: "change-modified",
+          diffId: "diff-same",
+          cloudResourceId: "33333333-3333-3333-3333-333333333333",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/active-vm",
+          changeType: "ResourceModified",
+          property: "sku",
+          oldValue: "Basic",
+          newValue: "Standard",
+          riskClassification: "none",
+          evidenceReference: "snapshot-diff",
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-same");
+    render(<DriftWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-drift-change-row-change-modified")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("infra-drift-change-row-change-removed")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-changes-body").querySelectorAll("tr")).toHaveLength(1);
   });
 
   it("renders one row per drift change when multiple changes are returned (IE-DT-02)", async () => {
@@ -268,7 +353,7 @@ describe("DriftWorkbenchClient", () => {
           cloudResourceId: "44444444-4444-4444-4444-444444444444",
           azureResourceId:
             "/subscriptions/sub/resourceGroups/rg-c/providers/Microsoft.Compute/virtualMachines/app-01",
-          changeType: "Removed",
+          changeType: "ResourceRemoved",
           property: "size",
           oldValue: "Standard_D2s_v3",
           newValue: null,
@@ -299,9 +384,9 @@ describe("DriftWorkbenchClient", () => {
     render(<DriftWorkbenchClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("infra-drift-snapshot-picker")).toHaveTextContent("Prod");
+      expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Prod");
     });
-    expect(screen.getByTestId("infra-drift-snapshot-picker")).not.toHaveTextContent(
+    expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).not.toHaveTextContent(
       "11111111-1111-1111-1111-111111111111",
     );
     expect(screen.getByTestId("infra-drift-snapshot-identifiers")).toBeInTheDocument();

@@ -53,12 +53,14 @@ export const INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS: readonly { value: 
 
 export const INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS: readonly { value: string; label: string }[] = [
   { value: "", label: "All risk levels" },
+  { value: "none", label: "None" },
+  { value: "unknown", label: "Unknown" },
+  { value: "elevated", label: "Elevated" },
   { value: "critical", label: "Critical" },
   { value: "high", label: "High" },
   { value: "medium", label: "Medium" },
   { value: "low", label: "Low" },
   { value: "info", label: "Info" },
-  { value: "unknown", label: "Unclassified" },
 ];
 
 export function normalizeInfraEvidenceChangeTypeKey(changeType: string | number | null | undefined): string {
@@ -93,6 +95,10 @@ export function formatInfraEvidenceChangeTypeLabel(changeType: string | number |
   const key = normalizeInfraEvidenceChangeTypeKey(changeType);
 
   return CHANGE_TYPE_LABELS[key] ?? key;
+}
+
+export function isInfraEvidenceResourceRemovedChange(changeType: string | number | null | undefined): boolean {
+  return normalizeInfraEvidenceChangeTypeKey(changeType) === "ResourceRemoved";
 }
 
 export function resolveInfraEvidenceChangeTypeStatusKind(

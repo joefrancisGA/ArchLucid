@@ -4,6 +4,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { CTA_WIDTH } from "@/lib/design-tokens-marketing";
 import { buildShareableOperatorUrl, copyShareableOperatorLink } from "@/lib/shareable-operator-link";
 import { showError, showSuccess } from "@/lib/toast";
 
@@ -47,6 +48,7 @@ export function CopyScopedOperatorLinkButton(props: CopyScopedOperatorLinkButton
         type="button"
         variant="outline"
         size="sm"
+        className={CTA_WIDTH.content}
         disabled={busy}
         data-testid={testId}
         onClick={() => void onCopy()}

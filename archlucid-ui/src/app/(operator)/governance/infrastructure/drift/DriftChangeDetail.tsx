@@ -20,7 +20,9 @@ export function DriftChangeDetail(props: {
   readonly hubHref: string | null;
   readonly changeIdentifiersOpen: boolean;
   readonly onChangeIdentifiersToggle: (open: boolean) => void;
+  readonly variant?: "standalone" | "inline";
 }): React.JSX.Element {
+  const variant = props.variant ?? "standalone";
   const resourceDisplay = formatAzureResourceDisplay(props.selectedChange.azureResourceId);
   const azureResourceId = props.selectedChange.azureResourceId?.trim() ?? "";
   const cloudResourceId = props.selectedChange.cloudResourceId?.trim() ?? "";
@@ -29,7 +31,12 @@ export function DriftChangeDetail(props: {
     <section
       ref={props.changeDrawerRef}
       tabIndex={-1}
-      className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+      className={cn(
+        "p-4",
+        variant === "inline"
+          ? "rounded-none border-0 bg-transparent"
+          : "rounded-md border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950",
+      )}
       aria-label="Selected change details"
       data-testid="infra-drift-change-drawer"
     >
