@@ -21,6 +21,7 @@ export const DRIFT_TABLE_SORT_BY_PARAM = "sortBy";
 export const DRIFT_TABLE_SORT_DIR_PARAM = "sortDir";
 export const DRIFT_TABLE_CHANGES_PAGE_PARAM = "changesPage";
 export const DRIFT_SNAPSHOTS_PAGE_PARAM = "snapshotsPage";
+export const DRIFT_TABLE_INCLUDE_UNCHANGED_PARAM = "includeUnchanged";
 
 export type DriftTableSortKey =
   | "resource"
@@ -42,6 +43,7 @@ export type DriftTableFilterState = {
   readonly sortDir: DriftTableSortDir;
   readonly changesPage: number;
   readonly snapshotsPage: number;
+  readonly includeUnchanged: boolean;
 };
 
 export const DEFAULT_DRIFT_TABLE_FILTER_STATE: DriftTableFilterState = {
@@ -55,6 +57,7 @@ export const DEFAULT_DRIFT_TABLE_FILTER_STATE: DriftTableFilterState = {
   sortDir: "asc",
   changesPage: 1,
   snapshotsPage: 1,
+  includeUnchanged: false,
 };
 
 const SORT_KEYS: readonly DriftTableSortKey[] = [
@@ -86,6 +89,12 @@ export function parseDriftTablePositiveInt(raw: string | null | undefined, fallb
   return parsed;
 }
 
+export function parseDriftTableIncludeUnchanged(raw: string | null | undefined): boolean {
+  const normalized = raw?.trim().toLowerCase() ?? "";
+
+  return normalized === "1" || normalized === "true" || normalized === "yes";
+}
+
 export function parseDriftTableFilterState(searchParams: URLSearchParams): DriftTableFilterState {
   return {
     riskFilter: searchParams.get(DRIFT_TABLE_RISK_FILTER_PARAM)?.trim() ?? "",
@@ -98,6 +107,7 @@ export function parseDriftTableFilterState(searchParams: URLSearchParams): Drift
     sortDir: parseDriftTableSortDir(searchParams.get(DRIFT_TABLE_SORT_DIR_PARAM)),
     changesPage: parseDriftTablePositiveInt(searchParams.get(DRIFT_TABLE_CHANGES_PAGE_PARAM)),
     snapshotsPage: parseDriftTablePositiveInt(searchParams.get(DRIFT_SNAPSHOTS_PAGE_PARAM)),
+    includeUnchanged: parseDriftTableIncludeUnchanged(searchParams.get(DRIFT_TABLE_INCLUDE_UNCHANGED_PARAM)),
   };
 }
 
@@ -116,6 +126,7 @@ export function buildDriftTableFilterPatch(
     sortDir: patch.sortDir ?? current.sortDir,
     changesPage: patch.changesPage ?? current.changesPage,
     snapshotsPage: patch.snapshotsPage ?? current.snapshotsPage,
+    includeUnchanged: patch.includeUnchanged ?? current.includeUnchanged,
   };
 }
 
@@ -160,6 +171,10 @@ export function driftTableFilterSearchParams(state: DriftTableFilterState): URLS
 
   if (state.snapshotsPage > 1) {
     params.set(DRIFT_SNAPSHOTS_PAGE_PARAM, String(state.snapshotsPage));
+  }
+
+  if (state.includeUnchanged) {
+    params.set(DRIFT_TABLE_INCLUDE_UNCHANGED_PARAM, "1");
   }
 
   return params;

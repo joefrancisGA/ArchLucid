@@ -6933,7 +6933,8 @@
           "SkuChanged",
           "DependencyChanged",
           "PolicyAssignmentChanged",
-          "Unknown"
+          "Unknown",
+          "ResourceUnchanged"
         ],
         "type": "string"
       },
@@ -158723,6 +158724,14 @@
             "schema": {
               "format": "uuid",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "includeUnchanged",
+            "schema": {
+              "default": false,
+              "type": "boolean"
             }
           },
           {

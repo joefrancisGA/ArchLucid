@@ -2032,7 +2032,7 @@ export interface components {
             snapshotBId?: string;
         };
         /** @enum {string} */
-        AzureInventoryChangeType: "ResourceAdded" | "ResourceRemoved" | "ResourceModified" | "RelationshipAdded" | "RelationshipRemoved" | "IdentityChanged" | "PermissionChanged" | "NetworkExposureChanged" | "SecurityControlChanged" | "LoggingChanged" | "EncryptionChanged" | "TagChanged" | "RegionChanged" | "SkuChanged" | "DependencyChanged" | "PolicyAssignmentChanged" | "Unknown";
+        AzureInventoryChangeType: "ResourceAdded" | "ResourceRemoved" | "ResourceModified" | "RelationshipAdded" | "RelationshipRemoved" | "IdentityChanged" | "PermissionChanged" | "NetworkExposureChanged" | "SecurityControlChanged" | "LoggingChanged" | "EncryptionChanged" | "TagChanged" | "RegionChanged" | "SkuChanged" | "DependencyChanged" | "PolicyAssignmentChanged" | "Unknown" | "ResourceUnchanged";
         AzureInventoryClassifiedChangeRecord: {
             change?: components["schemas"]["AzureInventoryChangeRecord"];
             classification?: components["schemas"]["AzureInventoryDriftClassification"];

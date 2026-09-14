@@ -14,6 +14,7 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -104,6 +105,8 @@ import {
   formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDescription,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_HELPER,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_BODY,
@@ -576,6 +579,7 @@ export function DriftWorkbenchClient() {
       try {
         const response = await fetchInfraEvidenceDiffChanges(selectedDiffId, tableFilterState.changesPage, CHANGES_PAGE_SIZE, {
           cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
+          includeUnchanged: tableFilterState.includeUnchanged,
         });
 
         if (!cancelled) {
@@ -611,7 +615,7 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [selectedDiffId, tableFilterState.changesPage, urlChangeId, urlCloudResourceId]);
+  }, [selectedDiffId, tableFilterState.changesPage, tableFilterState.includeUnchanged, urlChangeId, urlCloudResourceId]);
 
   useEffect(() => {
     if (urlChangeId.length === 0 || loadingChanges) {
@@ -1295,6 +1299,30 @@ export function DriftWorkbenchClient() {
                 </Button>
               ) : null}
             </div>
+
+            {selectedDiffId.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="infra-drift-include-unchanged"
+                    data-testid="infra-drift-include-unchanged"
+                    checked={tableFilterState.includeUnchanged}
+                    onCheckedChange={(checked) => {
+                      handleTableFiltersChange({
+                        includeUnchanged: checked === true,
+                        changesPage: 1,
+                      });
+                    }}
+                  />
+                  <Label htmlFor="infra-drift-include-unchanged" className="cursor-pointer font-normal">
+                    {GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_LABEL}
+                  </Label>
+                </div>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_HELPER}
+                </p>
+              </div>
+            ) : null}
 
             <p className={cn("m-0 flex flex-wrap items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               <span>Row shortcuts:</span>

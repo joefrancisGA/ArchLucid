@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import type { InfraEvidenceDiffChange, InfraEvidenceDiffSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
+  driftTableFilterSearchParams,
   filterDriftChanges,
+  parseDriftTableFilterState,
+  parseDriftTableIncludeUnchanged,
   parseDriftTableSortKey,
   sortDriftChanges,
   toggleDriftTableSort,
@@ -198,6 +201,16 @@ describe("infra-evidence-drift-table-filter", () => {
     ).toEqual([rows[0]]);
   });
 
+  it("parses and serializes includeUnchanged table filter state", () => {
+    expect(parseDriftTableIncludeUnchanged("1")).toBe(true);
+    expect(parseDriftTableIncludeUnchanged("true")).toBe(true);
+    expect(parseDriftTableIncludeUnchanged("")).toBe(false);
+
+    const parsed = parseDriftTableFilterState(new URLSearchParams("includeUnchanged=1"));
+    expect(parsed.includeUnchanged).toBe(true);
+    expect(driftTableFilterSearchParams(parsed).get("includeUnchanged")).toBe("1");
+  });
+
   it("toggles sort direction when the same column is selected again", () => {
     const next = toggleDriftTableSort(
       {
@@ -211,6 +224,7 @@ describe("infra-evidence-drift-table-filter", () => {
         sortDir: "asc",
         changesPage: 2,
         snapshotsPage: 1,
+        includeUnchanged: false,
       },
       "resourceGroup",
     );

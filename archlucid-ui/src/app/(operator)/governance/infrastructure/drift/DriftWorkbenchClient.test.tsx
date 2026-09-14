@@ -211,7 +211,10 @@ describe("DriftWorkbenchClient", () => {
     fireEvent.click(await screen.findByTestId("infra-drift-cross-subscription-confirm"));
 
     await waitFor(() => {
-      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, { cloudResourceId: null });
+      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, {
+        cloudResourceId: null,
+        includeUnchanged: false,
+      });
     });
     expect(screen.getByTestId("infra-drift-change-row-change-1")).toBeInTheDocument();
 
@@ -369,6 +372,7 @@ describe("DriftWorkbenchClient", () => {
     await waitFor(() => {
       expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, {
         cloudResourceId: "22222222-2222-2222-2222-222222222222",
+        includeUnchanged: false,
       });
     });
   });
@@ -631,6 +635,22 @@ describe("DriftWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-drift-cross-subscription-dialog")).toBeInTheDocument();
     expect(diffPicker).toHaveValue("");
     expect(mockFetchChanges).not.toHaveBeenCalled();
+  });
+
+  it("requests unchanged resources when include-unchanged is enabled in the URL", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1&includeUnchanged=1",
+    );
+    render(<DriftWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, {
+        cloudResourceId: null,
+        includeUnchanged: true,
+      });
+    });
+
+    expect(screen.getByTestId("infra-drift-include-unchanged")).toBeChecked();
   });
 
   it("shows an inline error instead of a toast when Terraform export fails", async () => {
