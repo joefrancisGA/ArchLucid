@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import type { InfraEvidenceDiffChange, InfraEvidenceDiffSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
+  driftTableFilterSearchParams,
   filterDriftChanges,
+  parseDriftTableFilterState,
+  parseDriftTableIncludeUnchanged,
   parseDriftTableSortKey,
   sortDriftChanges,
   toggleDriftTableSort,
@@ -227,6 +230,55 @@ describe("infra-evidence-drift-table-filter", () => {
     ).toEqual([rows[0]]);
   });
 
+  it("parses and serializes includeUnchanged table filter state", () => {
+    expect(parseDriftTableIncludeUnchanged("1")).toBe(true);
+    expect(parseDriftTableIncludeUnchanged("true")).toBe(true);
+    expect(parseDriftTableIncludeUnchanged("")).toBe(false);
+
+    const parsed = parseDriftTableFilterState(new URLSearchParams("includeUnchanged=1"));
+    expect(parsed.includeUnchanged).toBe(true);
+    expect(driftTableFilterSearchParams(parsed).get("includeUnchanged")).toBe("1");
+  });
+
+  it("filters drift rows to risky changes only when riskyOnly is enabled", () => {
+    const rows = [
+      buildChange("none", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-none", {
+        changeType: "ResourceModified",
+        riskClassification: null,
+      }),
+      buildChange("unknown", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-unknown", {
+        changeType: "ResourceModified",
+        riskClassification: "unknown",
+      }),
+      buildChange("elevated", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-elevated", {
+        changeType: "ResourceModified",
+        riskClassification: "elevated",
+      }),
+    ];
+    const twoSnapshotDiff = buildDiff(
+      "11111111-1111-1111-1111-111111111111",
+      "22222222-2222-2222-2222-222222222222",
+    );
+
+    const baseFilters = {
+      changeTypeFilter: "",
+      resourceFilter: "",
+      resourceGroupFilter: "",
+      resourceTypeFilter: "",
+      propertyFilter: "",
+      riskFilter: "",
+      riskyOnly: true,
+    };
+
+    expect(filterDriftChanges(rows, baseFilters, twoSnapshotDiff)).toEqual([rows[2]]);
+  });
+
+  it("parses and serializes riskyOnly table filter state", () => {
+    const parsed = parseDriftTableFilterState(new URLSearchParams("riskyOnly=1"));
+    expect(parsed.riskyOnly).toBe(true);
+    expect(driftTableFilterSearchParams(parsed).get("riskyOnly")).toBe("1");
+  });
+
   it("toggles sort direction when the same column is selected again", () => {
     const next = toggleDriftTableSort(
       {
@@ -240,6 +292,7 @@ describe("infra-evidence-drift-table-filter", () => {
         sortDir: "asc",
         changesPage: 2,
         snapshotsPage: 1,
+        includeUnchanged: false,
       },
       "resourceGroup",
     );

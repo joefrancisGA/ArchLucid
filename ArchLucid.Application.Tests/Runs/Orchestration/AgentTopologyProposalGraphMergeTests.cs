@@ -3193,6 +3193,54 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_automation_schedule_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "as-1", label: "nightly", sourceId: "azurerm_automation_schedule.nightly"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-nightly")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "as-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_automation_connection_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "ac-1", label: "aws", sourceId: "azurerm_automation_connection.aws"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-aws")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ac-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_automation_credential_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "acred-1", label: "aws", sourceId: "azurerm_automation_credential.aws"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-aws")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "acred-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_automation_account_node_has_compute_category_but_synthetic_datastore_id_used()
     {
         GraphSnapshot graph = Graph(

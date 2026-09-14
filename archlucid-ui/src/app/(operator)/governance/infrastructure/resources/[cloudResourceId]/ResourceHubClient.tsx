@@ -35,6 +35,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_ARM_RESOURCE_PATH_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLOUD_RESOURCE_ID_LABEL,
@@ -923,7 +924,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       runId,
                     )}
                   >
-                    Open inventory diagrams
+                    {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION}
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-diagram-reconcile-work">
@@ -1200,7 +1201,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   )}
                   data-testid="infra-resource-hub-diagrams-workbench"
                 >
-                  Open inventory diagrams
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION}
                 </Link>
               </Button>
               <Button asChild variant="outline" size="sm">

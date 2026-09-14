@@ -47,6 +47,10 @@ export type RunSummaryWireExtensions = {
   legacyRunStatus?: string | null;
   /** List/detail merge: last-modified timestamp when the API returns it for recency ordering. */
   lastModifiedUtc?: string | null;
+  /** Detail merge: typed-engine success count when critical-page bundle projects pipeline coverage. */
+  enginesSucceeded?: number | null;
+  /** Detail merge: typed-engine attempt count when critical-page bundle projects pipeline coverage. */
+  enginesAttempted?: number | null;
 };
 
 /**

@@ -71,11 +71,11 @@ describe("formatInfraEvidenceSnapshotCapturedLabel", () => {
     expect(formatInfraEvidenceSnapshotCapturedLabel("  ")).toBe("unknown time");
   });
 
-  it("formats capture time without seconds", () => {
-    const formatted = formatInfraEvidenceSnapshotCapturedLabel("2026-09-10T13:45:35.000Z");
+  it("formats capture time at minute precision without seconds", () => {
+    const label = formatInfraEvidenceSnapshotCapturedLabel("2026-09-08T22:44:27Z", "America/New_York");
 
-    expect(formatted).not.toMatch(/:35/);
-    expect(formatted).toMatch(/1:45/);
+    expect(label).toBe("9/8/2026, 6:44 PM EDT");
+    expect(label).not.toMatch(/:\d{2}:\d{2}/u);
   });
 });
 

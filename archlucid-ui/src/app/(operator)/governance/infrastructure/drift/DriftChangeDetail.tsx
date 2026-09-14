@@ -13,8 +13,11 @@ import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-eviden
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGE_ID_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGE_IDENTIFIERS_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_UNAVAILABLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_RESOURCE_GROUP_DETAIL_HEADING,
 } from "@/lib/governance/governance-infrastructure-copy";
+import { formatInfraEvidenceDriftChangedByLabel } from "@/lib/infra-evidence/infra-evidence-drift-change-attribution";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -90,6 +93,7 @@ export function DriftChangeDetail(props: {
   const azureResourceId = primaryChange.azureResourceId?.trim() ?? "";
   const cloudResourceId = primaryChange.cloudResourceId?.trim() ?? "";
   const hasMultipleChanges = props.selectedChanges.length > 1;
+  const changedByLabel = formatInfraEvidenceDriftChangedByLabel(primaryChange);
 
   return (
     <section
@@ -144,6 +148,14 @@ export function DriftChangeDetail(props: {
                   </Link>
                 ) : (
                   primaryChange.evidenceReference ?? "—"
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt className="font-medium">{GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_LABEL}</dt>
+              <dd className="text-xs" data-testid="infra-drift-change-changed-by">
+                {changedByLabel ?? (
+                  <span className="text-al-text-secondary">{GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_UNAVAILABLE}</span>
                 )}
               </dd>
             </div>

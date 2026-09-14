@@ -105,6 +105,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RUN_SNAPSHOT_REQUIRED_ERROR,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SCOPE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SKIP_LINK_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
@@ -788,7 +789,7 @@ export function DiagramReconcileWorkbenchClient() {
                   undefined,
                   mergeInfrastructureAskAuditScope(auditScope),
                 ),
-                label: "Open inventory diagrams",
+                label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
               },
             ]}
           />

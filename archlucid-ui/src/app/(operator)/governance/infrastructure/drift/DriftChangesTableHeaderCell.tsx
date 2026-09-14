@@ -8,7 +8,7 @@ import { EnterpriseTableHeaderCell } from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import type { DriftTableSortDir, DriftTableSortKey } from "@/lib/infra-evidence/infra-evidence-drift-table-filter";
+import type { DriftTableSortDir } from "@/lib/infra-evidence/infra-evidence-drift-table-filter";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -39,9 +39,9 @@ export type DriftChangesTableHeaderFilterConfig =
     };
 
 export type DriftChangesTableHeaderCellProps = {
-  readonly column: DriftTableSortKey;
+  readonly column: string;
   readonly label: string;
-  readonly sortBy: DriftTableSortKey;
+  readonly sortBy: string;
   readonly sortDir: DriftTableSortDir;
   readonly sortDirection: "ascending" | "descending" | "none";
   readonly onSort: () => void;

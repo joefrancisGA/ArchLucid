@@ -47,8 +47,10 @@ export const GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID = "infra-ask-prima
 
 export const GOVERNANCE_INFRASTRUCTURE_ASK_SKIP_LINK_LABEL = "Skip to Ask prompt" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_ASK_OPERATOR_EYEBROW = "Advanced operations" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD =
-  "Ask grounded questions about inventory evidence with citation-backed answers and honest insufficient-evidence outcomes." as const;
+  "Grounded Q&A over structured inventory rows with citation-backed answers. Use canned prompts or your own question when citations and insufficient-evidence outcomes are acceptable." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE =
   "Answers cite structured inventory rows only — not sealed review records or official assurance materials." as const;
@@ -142,6 +144,8 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL = "Scoped to resourc
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE = "Inventory diagrams unavailable" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION = "Open diagrams" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE =
   "Could not download diagram PNG" as const;
 
@@ -223,6 +227,12 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION =
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PARTITIONED_BODY =
   "This snapshot is too large for a single diagram in the selected mode. Pick a focused view — Executive is the default — or choose Pick a Resource Group." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_LABEL =
+  "Show trivial components" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE =
+  "Always excluded from diagrams" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureDrift;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID = "infra-drift-primary-content" as const;
@@ -244,10 +254,14 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_ERROR_TITLE =
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL = "Current snapshot" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_LABEL = "Inventory file" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_PLACEHOLDER = "Select an inventory…" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE = "Inventory snapshots" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_BODY =
-  "Select a snapshot to export advisory Terraform or compare drift against a prior capture." as const;
+  "Choose an inventory file to export advisory Terraform or compare drift against a later capture." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ARIA_LABEL = "Inventory snapshots" as const;
 
@@ -272,6 +286,30 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_BODY =
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL = "Diff vs other snapshot" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_LABEL = "Include unchanged resources" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_INCLUDE_UNCHANGED_HELPER =
+  "Show resources that exist in both snapshots with no recorded property or relationship changes." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_RISKY_ONLY_LABEL = "Show risky changes only" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_RISKY_ONLY_HELPER =
+  "Hide drift rows classified as none or unknown risk." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CROSS_SUBSCRIPTION_DIFF_DIALOG_TITLE =
+  "Different subscription selected" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CROSS_SUBSCRIPTION_DIFF_DIALOG_CANCEL = "Keep current selection" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CROSS_SUBSCRIPTION_DIFF_DIALOG_CONFIRM = "Continue anyway" as const;
+
+export function formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDescription(
+  anchorSubscriptionLabel: string,
+  nextSubscriptionLabel: string,
+): string {
+  return `You selected ${nextSubscriptionLabel}, which differs from the first snapshot subscription (${anchorSubscriptionLabel}). Drift diffs are normally compared within one Azure subscription. Do you still want to continue?`;
+}
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_TITLE = "No inventory snapshots yet" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY =
@@ -283,6 +321,12 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_TITLE = "No diffs for t
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY =
   "Drift diffs appear after a second snapshot is captured for the same subscription." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_TITLE =
+  "No later inventory captures to compare" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_BODY =
+  "Diff options only include inventory files captured after the snapshot you selected." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE = "No drift rows in this diff" as const;
 
@@ -328,6 +372,11 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_DISABLED_NO_SNAPSHOT =
   "Select a snapshot before exporting advisory Terraform." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGE_ID_LABEL = "Change id" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_LABEL = "Changed by" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_UNAVAILABLE =
+  "Attribution is unavailable for this capture. Recompute the diff after a fresh inventory snapshot to populate ARM systemData." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_ID_LABEL = "Snapshot id" as const;
 

@@ -45,6 +45,17 @@ export function applyDiagramViewPlanToSearch(
     };
   }
 
+  let mermaidView = "";
+  let seedNodeId = "";
+
+  if (plan.mermaidMode === "resourceGroup" && plan.resourceGroupName != null) {
+    mermaidView = plan.resourceGroupName.trim();
+  }
+
+  if (plan.mermaidMode === "dependencyNeighborhood" && (plan.seedNodeId?.trim().length ?? 0) > 0) {
+    seedNodeId = plan.seedNodeId!.trim();
+  }
+
   const patch: {
     readonly mermaidMode?: string;
     readonly mermaidView?: string;
@@ -53,25 +64,11 @@ export function applyDiagramViewPlanToSearch(
     readonly cloudResourceId?: string;
   } = {
     mermaidMode: plan.mermaidMode,
-    mermaidView: "",
-    seedNodeId: "",
+    mermaidView,
+    seedNodeId,
+    ...((plan.snapshotId?.trim().length ?? 0) > 0 ? { snapshotId: plan.snapshotId!.trim() } : {}),
+    ...((plan.cloudResourceId?.trim().length ?? 0) > 0 ? { cloudResourceId: plan.cloudResourceId!.trim() } : {}),
   };
-
-  if ((plan.snapshotId?.trim().length ?? 0) > 0) {
-    patch.snapshotId = plan.snapshotId!.trim();
-  }
-
-  if ((plan.cloudResourceId?.trim().length ?? 0) > 0) {
-    patch.cloudResourceId = plan.cloudResourceId!.trim();
-  }
-
-  if (plan.mermaidMode === "resourceGroup" && plan.resourceGroupName != null) {
-    patch.mermaidView = plan.resourceGroupName.trim();
-  }
-
-  if (plan.mermaidMode === "dependencyNeighborhood" && (plan.seedNodeId?.trim().length ?? 0) > 0) {
-    patch.seedNodeId = plan.seedNodeId!.trim();
-  }
 
   return {
     href: infraDiagramsFilterHrefFromSearch(currentSearch, patch),

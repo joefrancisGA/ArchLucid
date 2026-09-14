@@ -92,7 +92,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             ["terraformType"] = canonicalTerraformType
         };
 
-        if (TryGetPropertyIgnoreCase(res, "provider_name", out JsonElement prov) && prov.ValueKind == JsonValueKind.String)
+        if ((TryGetPropertyIgnoreCase(res, "provider_name", out JsonElement prov) || TryGetPropertyIgnoreCase(res, "providerName", out prov)) && prov.ValueKind == JsonValueKind.String)
         {
             string? p = prov.GetString();
 
@@ -129,11 +129,11 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties[$"tf.{key}"] = valueText.Length > 512 ? valueText[..512] : valueText;
             }
 
-            if (TryGetPropertyIgnoreCase(res, "sensitive_values", out JsonElement sensitive) && sensitive.ValueKind == JsonValueKind.Object)
+            if ((TryGetPropertyIgnoreCase(res, "sensitive_values", out JsonElement sensitive) || TryGetPropertyIgnoreCase(res, "sensitiveValues", out sensitive)) && sensitive.ValueKind == JsonValueKind.Object)
                 RedactTopLevelSensitiveTfValues(sensitive, properties);
         }
 
-        if (TryGetPropertyIgnoreCase(res, "depends_on", out JsonElement depOn) && depOn.ValueKind == JsonValueKind.Array)
+        if ((TryGetPropertyIgnoreCase(res, "depends_on", out JsonElement depOn) || TryGetPropertyIgnoreCase(res, "dependsOn", out depOn)) && depOn.ValueKind == JsonValueKind.Array)
         {
             List<string> refs = [];
 
