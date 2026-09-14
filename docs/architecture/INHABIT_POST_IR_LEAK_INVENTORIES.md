@@ -4,7 +4,7 @@
 
 **Last reviewed:** 2026-09-13 · **ADR:** [0100](adrs/0100-working-inhabit-architecture-findings-document.md)
 
-These tables record **secondary** Working inhabit leaks on the job inspector and related chrome. Source of truth: `archlucid-ui/src/lib/inhabit-post-ir-leak-inventories.ts`. Diagnosis: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md). Remain close: [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md).
+These tables record **secondary** Working inhabit leaks on the job inspector and related chrome. Source of truth: `archlucid-ui/src/lib/inhabit-post-ir-leak-inventories.ts`. Diagnosis: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md). Remain close: [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md).
 
 `leakOpen: Yes` means the livelihood leak is **still open**. Product IPs (**IP-002**–**IP-011**) flip rows to **No** via **IP-013**.
 

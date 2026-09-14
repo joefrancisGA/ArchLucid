@@ -2,7 +2,7 @@
 
 # Inhabit post-IR acceptance — 2026-09-13
 
-**Wave:** post-IR pack after remain **IR-001–IR-018** close. **ADR:** [0100](adrs/0100-working-inhabit-architecture-findings-document.md) (Accepted). **Index:** [`.cursor/prompts/inhabit-post-00-index.md`](../../.cursor/prompts/inhabit-post-00-index.md). **Leak truth:** [`INHABIT_POST_IR_LEAK_INVENTORIES.md`](INHABIT_POST_IR_LEAK_INVENTORIES.md) / `archlucid-ui/src/lib/inhabit-post-ir-leak-inventories.ts`. **Diagnosis:** [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md).
+**Wave:** post-IR pack after remain **IR-001–IR-018** close. **ADR:** [0100](adrs/0100-working-inhabit-architecture-findings-document.md) (Accepted). **Index:** [`.cursor/prompts/inhabit-post-00-index.md`](../../.cursor/prompts/inhabit-post-00-index.md). **Leak truth:** [`INHABIT_POST_IR_LEAK_INVENTORIES.md`](INHABIT_POST_IR_LEAK_INVENTORIES.md) / `archlucid-ui/src/lib/inhabit-post-ir-leak-inventories.ts`. **Diagnosis:** [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md).
 
 ## Executive summary
 
@@ -90,4 +90,4 @@ Focused Vitest: `inhabit-post-ir-leak-inventories.test.ts`, `inhabit-post-prompt
 
 1. Post-IR livelihood leaks named in IP-002–IP-011 are **closed**.
 2. Do **not** paste a wave-35 inhabit pack to “finish inhabit.”
-3. Fresh diagnosis should start from this acceptance, not reopen closed IR/IH inventory booleans.
+3. Fresh diagnosis after this close: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md). Do not reopen closed IR/IH/IP inventory booleans.
