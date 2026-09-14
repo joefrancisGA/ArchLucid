@@ -260,7 +260,17 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("active_directory", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("dedicated_host", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("proximity_placement_group", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("capacity_reservation_group", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("capacity_reservation_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("availability_set", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("shared_image_gallery", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("image_version", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("ssh_public_key", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("gallery_application", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("community_gallery", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("restore_point_collection", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("snapshot", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("gallery_image", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("marketplace_agreement", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -431,7 +441,17 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("disk_encryption_set", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("dedicated_host", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("proximity_placement_group", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("capacity_reservation_group", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("capacity_reservation_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("availability_set", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("shared_image_gallery", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("image_version", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("ssh_public_key", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("gallery_application", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("community_gallery", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("restore_point_collection", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("snapshot", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("gallery_image", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("marketplace_agreement", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>

@@ -1074,8 +1074,136 @@ internal static class KubernetesManifestCanonicalObjectMapper
                         "seLinuxRole",
                         seLinuxRoleElement.GetString()!);
                 }
+
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(seLinuxOptionsElement, "type", out JsonElement seLinuxTypeElement)
+                    && seLinuxTypeElement.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(seLinuxTypeElement.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "seLinuxType",
+                        seLinuxTypeElement.GetString()!);
+                }
             }
 
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "seccompProfile", out JsonElement seccompProfileElement)
+                && seccompProfileElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(seccompProfileElement, "type", out JsonElement seccompTypeElement)
+                && seccompTypeElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(seccompTypeElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "seccompProfileType",
+                    seccompTypeElement.GetString()!);
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "seccompProfile", out JsonElement seccompProfileForLocalhostElement)
+                && seccompProfileForLocalhostElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(seccompProfileForLocalhostElement, "localhostProfile", out JsonElement seccompLocalhostElement)
+                && seccompLocalhostElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(seccompLocalhostElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "seccompProfileLocalhostProfile",
+                    seccompLocalhostElement.GetString()!);
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "windowsOptions", out JsonElement windowsOptionsElement)
+                && windowsOptionsElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(windowsOptionsElement, "hostProcess", out JsonElement hostProcessElement)
+                && hostProcessElement.ValueKind is JsonValueKind.True)
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "windowsOptionsHostProcess", "true");
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "windowsOptions", out JsonElement windowsOptionsForRunAsUserNameElement)
+                && windowsOptionsForRunAsUserNameElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(windowsOptionsForRunAsUserNameElement, "runAsUserName", out JsonElement runAsUserNameElement)
+                && runAsUserNameElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(runAsUserNameElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "windowsOptionsRunAsUserName",
+                    runAsUserNameElement.GetString()!);
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "windowsOptions", out JsonElement windowsOptionsForGmsaNameElement)
+                && windowsOptionsForGmsaNameElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(windowsOptionsForGmsaNameElement, "gmsaCredentialSpecName", out JsonElement gmsaCredentialSpecNameElement)
+                && gmsaCredentialSpecNameElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(gmsaCredentialSpecNameElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "windowsOptionsGmsaCredentialSpecName",
+                    gmsaCredentialSpecNameElement.GetString()!);
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "windowsOptions", out JsonElement windowsOptionsForGmsaSpecElement)
+                && windowsOptionsForGmsaSpecElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(windowsOptionsForGmsaSpecElement, "gmsaCredentialSpec", out JsonElement gmsaCredentialSpecElement)
+                && gmsaCredentialSpecElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(gmsaCredentialSpecElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "windowsOptionsGmsaCredentialSpec",
+                    gmsaCredentialSpecElement.GetString()!);
+            }
+
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "appArmorProfile", out JsonElement appArmorProfileElement)
+                && appArmorProfileElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(appArmorProfileElement, "type", out JsonElement appArmorTypeElement)
+                && appArmorTypeElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(appArmorTypeElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "appArmorProfileType",
+                    appArmorTypeElement.GetString()!);
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "appArmorProfile", out JsonElement appArmorProfileForLocalhostElement)
+                && appArmorProfileForLocalhostElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(appArmorProfileForLocalhostElement, "localhostProfile", out JsonElement appArmorLocalhostElement)
+                && appArmorLocalhostElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(appArmorLocalhostElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "appArmorProfileLocalhostProfile",
+                    appArmorLocalhostElement.GetString()!);
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "capabilities", out JsonElement capabilitiesElement)
+                && capabilitiesElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(capabilitiesElement, "add", out JsonElement capabilitiesAddElement)
+                && capabilitiesAddElement.ValueKind is JsonValueKind.Array)
+            {
+                List<string> capabilityAddValues = [];
+
+                foreach (JsonElement capability in capabilitiesAddElement.EnumerateArray())
+                {
+                    if (capability.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(capability.GetString()))
+                    {
+                        capabilityAddValues.Add(capability.GetString()!);
+                    }
+                }
+
+                if (capabilityAddValues.Count > 0)
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "capabilitiesAdd",
+                        string.Join(',', capabilityAddValues));
+                }
+            }
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "supplementalGroups", out JsonElement supplementalGroupsElement)
                 && supplementalGroupsElement.ValueKind is JsonValueKind.Array)
             {
