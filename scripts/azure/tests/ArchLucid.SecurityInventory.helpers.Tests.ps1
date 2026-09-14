@@ -9,6 +9,13 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         . $script:helperPath
     }
 
+    It 'treats private DNS virtual network links as never-show inventory types' {
+        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType 'Microsoft.Network/privateDnsZones/virtualNetworkLinks' |
+            Should -Be $true
+        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType 'Microsoft.Network/virtualNetworks' |
+            Should -Be $false
+    }
+
     It 'builds network association rows from enriched inventory resources' {
         $inventory = @(
             [ordered]@{

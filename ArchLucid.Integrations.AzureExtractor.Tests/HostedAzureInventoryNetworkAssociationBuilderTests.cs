@@ -95,6 +95,94 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
     }
 
     [Fact]
+    public void Build_emits_private_dns_vnet_link_association()
+    {
+        HostedAzureArmResourceRecord link = new(
+            ResourceType: "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            ResourceId:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1",
+            Name: "link1",
+            Location: "global",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["privateDnsZoneId"] =
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1",
+                ["virtualNetwork.id"] =
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1",
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([link]);
+
+        Assert.Single(associations);
+        Assert.Equal("privateDnsVnetLink", associations[0].AssociationType);
+        Assert.Contains("privateDnsZones/zone1", associations[0].FromResourceId, StringComparison.Ordinal);
+        Assert.Contains("virtualNetworks/vnet1", associations[0].ToResourceId, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BuildZip_omits_virtual_network_links_from_resources_json_but_keeps_associations()
+    {
+        HostedAzureArmResourceRecord storage = new(
+            ResourceType: "Microsoft.Storage/storageAccounts",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+            Name: "sa1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>());
+
+        HostedAzureArmResourceRecord link = new(
+            ResourceType: "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            ResourceId:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1",
+            Name: "link1",
+            Location: "global",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["privateDnsZoneId"] =
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1",
+                ["virtualNetwork.id"] =
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1",
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([storage, link]);
+
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            [storage, link],
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            networkAssociations: associations.ToList());
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream resourcesStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.Resources)!.Open();
+        using JsonDocument resourcesDocument = JsonDocument.Parse(resourcesStream);
+
+        Assert.Equal(1, resourcesDocument.RootElement.GetArrayLength());
+        Assert.Equal(
+            "Microsoft.Storage/storageAccounts",
+            resourcesDocument.RootElement[0].GetProperty("resourceType").GetString());
+
+        using Stream manifestStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.Manifest)!.Open();
+        using JsonDocument manifestDocument = JsonDocument.Parse(manifestStream);
+
+        Assert.Equal(1, manifestDocument.RootElement.GetProperty("resourceCount").GetInt32());
+
+        using Stream networkStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.NetworkAssociations)!.Open();
+        using JsonDocument networkDocument = JsonDocument.Parse(networkStream);
+
+        Assert.Equal("privateDnsVnetLink", networkDocument.RootElement[0].GetProperty("associationType").GetString());
+    }
+
+    [Fact]
     public void BuildZip_writes_role_assignments_and_network_associations_entries()
     {
         HostedAzureArmRoleAssignmentRecord roleAssignment = new(

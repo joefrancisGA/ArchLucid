@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -322,6 +323,7 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                                   AND (@NamePrefix IS NULL OR DisplayName LIKE @NamePrefix + '%' OR ExternalResourceIdNormalized LIKE '%' + @NamePrefix + '%')
                                   AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
                                   AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
+                                  AND (ResourceType IS NULL OR ResourceType NOT LIKE '%/virtualNetworkLinks')
                                   {workQueueFilter};
                                 """;
 
@@ -341,6 +343,7 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                                  AND (@NamePrefix IS NULL OR DisplayName LIKE @NamePrefix + '%' OR ExternalResourceIdNormalized LIKE '%' + @NamePrefix + '%')
                                  AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
                                  AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
+                                 AND (ResourceType IS NULL OR ResourceType NOT LIKE '%/virtualNetworkLinks')
                                  {workQueueFilter}
                                ORDER BY LastSeenUtc DESC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;

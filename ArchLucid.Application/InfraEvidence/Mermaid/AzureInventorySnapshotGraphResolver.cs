@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Inventory;
@@ -63,6 +64,11 @@ public sealed class AzureInventorySnapshotGraphResolver(
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources
                      .OrderBy(candidate => ReadAzureResourceId(candidate), StringComparer.Ordinal))
         {
+            if (AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(ReadResourceType(resource)))
+            {
+                continue;
+            }
+
             string nodeId = ResolveNodeId(resource);
             string azureResourceId = ReadAzureResourceId(resource);
 

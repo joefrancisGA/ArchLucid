@@ -16,6 +16,8 @@ public static class DiagramPeelAlwaysDisposeArmTypes
         "Microsoft.HybridCompute/machines/extensions",
         "Microsoft.Maintenance/maintenanceConfigurations",
         "Microsoft.Maintenance/configurationAssignments",
+        "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+        "Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks",
     ];
 
     private static readonly string[] LastSegments =
@@ -26,6 +28,7 @@ public static class DiagramPeelAlwaysDisposeArmTypes
         "dnszones",
         "privatednszones",
         "dnsresolvers",
+        "virtualnetworklinks",
         "maintenanceconfigurations",
         "configurationassignments",
     ];

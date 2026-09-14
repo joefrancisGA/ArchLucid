@@ -428,6 +428,10 @@ try
     # SECURITY BOUNDARY: Explicitly filter out Key Vault secrets to ensure we strictly grab structural ARM metadata and NEVER request data plane or secret contents.
     $resources = @($resources) | Where-Object { $_.resourceType -ne "Microsoft.KeyVault/vaults/secrets" }
 
+    # Companion rows (network associations) may still be derived from never-show attachment types before they are omitted from resources.json.
+    $inventoryForAssociationDerivation = @($resources)
+    $resources = @($resources) | Where-Object { -not (Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType $_.resourceType) }
+
     $manifest = [ordered]@{
         schemaVersion = $schemaVersion
         scriptVersion = $scriptVersion
@@ -611,7 +615,7 @@ try
             -ResourceGroupScope $ResourceGroupScope `
             -ManagementGroupId $ManagementGroupId)
 
-        [object[]]$networkAssociationRows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources @($resources))
+        [object[]]$networkAssociationRows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources @($inventoryForAssociationDerivation))
 
         if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
         {

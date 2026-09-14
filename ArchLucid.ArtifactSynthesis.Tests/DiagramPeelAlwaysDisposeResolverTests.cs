@@ -22,6 +22,7 @@ public sealed class DiagramPeelAlwaysDisposeResolverTests
                 CreateNode("dns-1", "Microsoft.Network/dnszones"),
                 CreateNode("mw-1", "Microsoft.Maintenance/maintenanceConfigurations"),
                 CreateNode("odd-ext", "Microsoft.Example/widgets/extensions"),
+                CreateNode("dns-link", "Microsoft.Network/privateDnsZones/virtualNetworkLinks"),
                 CreateNode("vm-1", "Microsoft.Compute/virtualMachines"),
             ],
         };
@@ -31,6 +32,7 @@ public sealed class DiagramPeelAlwaysDisposeResolverTests
         types.Should().Contain("Microsoft.Portal/dashboards");
         types.Should().Contain("Microsoft.Compute/virtualMachines/extensions");
         types.Should().Contain("Microsoft.Network/dnszones");
+        types.Should().Contain("Microsoft.Network/privateDnsZones/virtualNetworkLinks");
         types.Should().Contain("Microsoft.Maintenance/maintenanceConfigurations");
         types.Should().Contain("Microsoft.Example/widgets/extensions");
         types.Should().NotContain("Microsoft.Compute/virtualMachines");
