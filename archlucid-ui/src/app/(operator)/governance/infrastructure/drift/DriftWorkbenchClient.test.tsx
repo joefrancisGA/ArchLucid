@@ -99,13 +99,29 @@ describe("DriftWorkbenchClient", () => {
     downloadInfraEvidenceTerraformAdvisoryZipMock.mockResolvedValue(undefined);
   });
 
-  it("renders snapshot picker and export button", async () => {
+  it("renders snapshot table and export button after selecting a snapshot", async () => {
+    searchParams = new URLSearchParams();
+    render(<DriftWorkbenchClient />);
+
+    expect(await screen.findByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-drift-export-terraform")).not.toBeInTheDocument();
+
+    fireEvent.click(await screen.findByTestId("infra-drift-snapshot-row-11111111-1111-1111-1111-111111111111"));
+
+    expect(await screen.findByTestId("infra-drift-export-terraform")).not.toBeDisabled();
+    expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Prod");
+  });
+
+  it("does not load drift changes until a diff is selected", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DriftWorkbenchClient />);
 
-    expect(await screen.findByTestId("infra-drift-snapshot-picker")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-export-terraform")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-export-terraform")).not.toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-drift-diff-picker")).toBeInTheDocument();
+    });
+
+    expect(mockFetchChanges).not.toHaveBeenCalled();
+    expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
   });
 
   it("shows resource scope banner when cloudResourceId is in the URL", async () => {
@@ -365,9 +381,9 @@ describe("DriftWorkbenchClient", () => {
     render(<DriftWorkbenchClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("infra-drift-snapshot-picker")).toHaveTextContent("Prod");
+      expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Prod");
     });
-    expect(screen.getByTestId("infra-drift-snapshot-picker")).not.toHaveTextContent(
+    expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).not.toHaveTextContent(
       "11111111-1111-1111-1111-111111111111",
     );
     expect(screen.getByTestId("infra-drift-snapshot-identifiers")).toBeInTheDocument();

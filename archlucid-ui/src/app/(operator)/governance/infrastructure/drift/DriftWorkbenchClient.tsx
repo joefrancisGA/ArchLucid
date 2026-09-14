@@ -93,6 +93,8 @@ import { driftWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidenc
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_SCOPED_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE,
@@ -113,6 +115,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
@@ -134,6 +138,7 @@ import { DriftChangeResourceCells } from "./DriftChangeResourceCell";
 import { DriftChangesTableHead } from "./DriftChangesTableHead";
 import { DriftClaimOrientationStrip } from "./DriftClaimOrientationStrip";
 import { DriftSnapshotIdentifiers } from "./DriftSnapshotIdentifiers";
+import { DriftSnapshotsTable } from "./DriftSnapshotsTable";
 
 const cnCard =
   "rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950";
@@ -390,14 +395,7 @@ export function DriftWorkbenchClient() {
           setSnapshotsTotalCount(response.totalCount ?? items.length);
           setSnapshotsHasMore(response.hasMore === true);
 
-          if (items.length > 0) {
-            const preferredSnapshotId =
-              urlSnapshotId.length > 0 && items.some((item) => item.snapshotId === urlSnapshotId)
-                ? urlSnapshotId
-                : items[0].snapshotId;
-
-            setSelectedSnapshotId((current) => (current.length > 0 ? current : preferredSnapshotId));
-          } else if (tableFilterState.snapshotsPage === 1) {
+          if (items.length === 0 && tableFilterState.snapshotsPage === 1) {
             setSelectedSnapshotId("");
           }
         }
@@ -448,7 +446,7 @@ export function DriftWorkbenchClient() {
           const preferredDiffId =
             urlDiffId.length > 0 && rows.some((row) => row.diffId === urlDiffId)
               ? urlDiffId
-              : rows[0]?.diffId ?? "";
+              : "";
 
           setSelectedDiffId(preferredDiffId);
         }
@@ -646,6 +644,21 @@ export function DriftWorkbenchClient() {
     });
   };
 
+  const handleSnapshotSelect = useCallback(
+    (nextSnapshotId: string) => {
+      setSelectedSnapshotId(nextSnapshotId);
+      setSelectedDiffId("");
+      setSelectedChangeId(null);
+      pushDriftUrl({
+        snapshotId: nextSnapshotId,
+        diffId: "",
+        changeId: "",
+        tableFilters: { changesPage: 1 },
+      });
+    },
+    [pushDriftUrl],
+  );
+
   const renderChangesEmptyState = () => {
     if (loadingChanges) {
       return (
@@ -823,109 +836,152 @@ export function DriftWorkbenchClient() {
           {GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD}
         </p>
 
-        <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Drift workbench controls">
-          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
-            <div className="grid gap-2">
-              <Label htmlFor="infra-drift-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL}</Label>
-              <select
-                id="infra-drift-snapshot-picker"
-                className={cnField}
-                data-testid="infra-drift-snapshot-picker"
-                disabled={loadingSnapshots || (snapshots.length === 0 && !loadingSnapshots)}
-                value={selectedSnapshotId}
-                onChange={(event) => {
-                  const nextSnapshotId = event.target.value;
-                  setSelectedSnapshotId(nextSnapshotId);
-                  pushDriftUrl({ snapshotId: nextSnapshotId, diffId: "", changeId: "", tableFilters: { changesPage: 1 } });
-                }}
-              >
-                {loadingSnapshots ? <option value="">Loading snapshots…</option> : null}
-                {!loadingSnapshots && snapshots.length === 0 ? <option value="">No snapshots in scope</option> : null}
-                {snapshots.map((snapshot) => (
-                  <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                    {formatInfraEvidenceSnapshotLabel(snapshot)}
-                  </option>
-                ))}
-              </select>
-              {snapshotsShowingLine != null ? (
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-snapshots-showing-line">
-                  {snapshotsShowingLine}
-                </p>
-              ) : null}
-              {snapshotsHasMore ? (
+        <section className={cn("flex flex-col gap-3", cnCard)} aria-label={GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE}>
+          <div>
+            <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE}</h2>
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_BODY}
+            </p>
+          </div>
+
+          <DriftSnapshotsTable
+            snapshots={snapshots}
+            selectedSnapshotId={selectedSnapshotId}
+            loading={loadingSnapshots}
+            onSelectSnapshot={handleSnapshotSelect}
+          />
+
+          {snapshotsShowingLine != null ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-snapshots-showing-line">
+              {snapshotsShowingLine}
+            </p>
+          ) : null}
+
+          {snapshotsHasMore ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              data-testid="infra-drift-load-more-snapshots"
+              disabled={loadingSnapshots}
+              onClick={() => {
+                pushDriftUrl({
+                  tableFilters: { snapshotsPage: tableFilterState.snapshotsPage + 1 },
+                });
+              }}
+            >
+              {loadingSnapshots ? "Loading…" : "Load more snapshots"}
+            </Button>
+          ) : null}
+
+          {selectedSnapshotId.length > 0 ? (
+            <div className="flex flex-col gap-3 border-t border-neutral-200 pt-3 dark:border-neutral-800">
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-selected-snapshot-summary">
+                <span className="font-medium text-al-text-primary">{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL}:</span>{" "}
+                {selectedSnapshot != null ? formatInfraEvidenceSnapshotLabel(selectedSnapshot) : selectedSnapshotId}
+              </p>
+
+              <div className="flex flex-wrap items-start gap-3">
                 <Button
                   type="button"
-                  size="sm"
                   variant="outline"
-                  data-testid="infra-drift-load-more-snapshots"
-                  disabled={loadingSnapshots}
-                  onClick={() => {
-                    pushDriftUrl({
-                      tableFilters: { snapshotsPage: tableFilterState.snapshotsPage + 1 },
-                    });
+                  size="sm"
+                  data-testid="infra-drift-export-terraform"
+                  disabled={exportBusy || exportDisabledReason != null}
+                  title={exportDisabledReason ?? undefined}
+                  aria-describedby={
+                    exportDisabledReason != null
+                      ? "infra-drift-export-disabled-reason"
+                      : exportError != null
+                        ? "infra-drift-export-error"
+                        : undefined
+                  }
+                  onClick={() => void runExport()}
+                >
+                  {exportBusy ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                      Exporting…
+                    </span>
+                  ) : (
+                    "Export advisory Terraform"
+                  )}
+                </Button>
+                {exportDisabledReason != null ? (
+                  <p id="infra-drift-export-disabled-reason" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    {exportDisabledReason}
+                  </p>
+                ) : null}
+              </div>
+
+              <SponsorExportSendHonestyStrip testIdPrefix="infra-drift-export-terraform" />
+
+              <DriftSnapshotIdentifiers
+                snapshotId={selectedSnapshotId}
+                diffId={selectedDiffId}
+                open={driftSnapshotIdentifiersOpen}
+                onToggle={setDriftSnapshotIdentifiersOpen}
+              />
+
+              {exportReceipt != null ? (
+                <div
+                  className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40"
+                  data-testid="infra-drift-export-receipt"
+                  role="status"
+                >
+                  <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                    {GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_RECEIPT_TITLE}
+                  </p>
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {new Date(exportReceipt.exportedAtUtc).toLocaleString()}
+                  </p>
+                </div>
+              ) : null}
+
+              {exportError != null ? (
+                <OperatorMutationInlineError message={exportError} testId="infra-drift-export-error" />
+              ) : null}
+            </div>
+          ) : null}
+        </section>
+
+        {selectedSnapshotId.length > 0 ? (
+          <section className={cn("flex flex-col gap-3", cnCard)} aria-label={GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_TITLE}>
+            <div>
+              <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                {GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_TITLE}
+              </h2>
+              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_BODY}
+              </p>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+              <div className="grid gap-2">
+                <Label htmlFor="infra-drift-diff-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL}</Label>
+                <select
+                  id="infra-drift-diff-picker"
+                  className={cnField}
+                  data-testid="infra-drift-diff-picker"
+                  disabled={loadingDiffs || diffs.length === 0}
+                  value={selectedDiffId}
+                  onChange={(event) => {
+                    const nextDiffId = event.target.value;
+                    setSelectedDiffId(nextDiffId);
+                    pushDriftUrl({ diffId: nextDiffId, changeId: "", tableFilters: { changesPage: 1 } });
                   }}
                 >
-                  {loadingSnapshots ? "Loading…" : "Load more snapshots"}
-                </Button>
-              ) : null}
-            </div>
+                  <option value="">Select a diff…</option>
+                  {loadingDiffs ? <option value="" disabled>Loading diffs…</option> : null}
+                  {!loadingDiffs && diffs.length === 0 ? <option value="" disabled>No diffs for this snapshot</option> : null}
+                  {diffs.map((diff) => (
+                    <option key={diff.diffId} value={diff.diffId}>
+                      {formatInfraEvidenceDiffLabel(diff, selectedSnapshotId, snapshots)}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="infra-drift-diff-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL}</Label>
-              <select
-                id="infra-drift-diff-picker"
-                className={cnField}
-                data-testid="infra-drift-diff-picker"
-                disabled={loadingDiffs || diffs.length === 0}
-                value={selectedDiffId}
-                onChange={(event) => {
-                  const nextDiffId = event.target.value;
-                  setSelectedDiffId(nextDiffId);
-                  pushDriftUrl({ diffId: nextDiffId, changeId: "", tableFilters: { changesPage: 1 } });
-                }}
-              >
-                {loadingDiffs ? <option value="">Loading diffs…</option> : null}
-                {!loadingDiffs && diffs.length === 0 ? <option value="">No diffs for this snapshot</option> : null}
-                {diffs.map((diff) => (
-                  <option key={diff.diffId} value={diff.diffId}>
-                    {formatInfraEvidenceDiffLabel(diff, selectedSnapshotId, snapshots)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex min-w-[14rem] flex-col gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                data-testid="infra-drift-export-terraform"
-                disabled={exportBusy || exportDisabledReason != null}
-                title={exportDisabledReason ?? undefined}
-                aria-describedby={
-                  exportDisabledReason != null
-                    ? "infra-drift-export-disabled-reason"
-                    : exportError != null
-                      ? "infra-drift-export-error"
-                      : undefined
-                }
-                onClick={() => void runExport()}
-              >
-                {exportBusy ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                    Exporting…
-                  </span>
-                ) : (
-                  "Export advisory Terraform"
-                )}
-              </Button>
-              {exportDisabledReason != null ? (
-                <p id="infra-drift-export-disabled-reason" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                  {exportDisabledReason}
-                </p>
-              ) : null}
-              <SponsorExportSendHonestyStrip testIdPrefix="infra-drift-export-terraform" />
               {selectedDiffId.length > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-drift-open-ask">
                   <Link
@@ -942,43 +998,15 @@ export function DriftWorkbenchClient() {
                 </Button>
               ) : null}
             </div>
-          </div>
 
-          {selectedSnapshotId.length > 0 ? (
-            <DriftSnapshotIdentifiers
-              snapshotId={selectedSnapshotId}
-              diffId={selectedDiffId}
-              open={driftSnapshotIdentifiersOpen}
-              onToggle={setDriftSnapshotIdentifiersOpen}
-            />
-          ) : null}
-
-          {exportReceipt != null ? (
-            <div
-              className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40"
-              data-testid="infra-drift-export-receipt"
-              role="status"
-            >
-              <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                {GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_RECEIPT_TITLE}
-              </p>
-              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {new Date(exportReceipt.exportedAtUtc).toLocaleString()}
-              </p>
-            </div>
-          ) : null}
-
-          {exportError != null ? (
-            <OperatorMutationInlineError message={exportError} testId="infra-drift-export-error" />
-          ) : null}
-
-          <p className={cn("m-0 flex flex-wrap items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            <span>Row shortcuts:</span>
-            <KeyboardShortcutBadge shortcut="↑" />
-            <KeyboardShortcutBadge shortcut="↓" />
-            <KeyboardShortcutBadge shortcut="Esc" />
-          </p>
-        </section>
+            <p className={cn("m-0 flex flex-wrap items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <span>Row shortcuts:</span>
+              <KeyboardShortcutBadge shortcut="↑" />
+              <KeyboardShortcutBadge shortcut="↓" />
+              <KeyboardShortcutBadge shortcut="Esc" />
+            </p>
+          </section>
+        ) : null}
 
         {!loadingSnapshots && snapshots.length === 0 ? (
           <EnterpriseCompactEmptyState
@@ -1001,6 +1029,8 @@ export function DriftWorkbenchClient() {
           />
         ) : null}
 
+        {selectedSnapshotId.length > 0 ? (
+        <>
         <EnterpriseTable ariaLabel="Inventory drift changes">
           <DriftChangesTableHead
             tableFilterState={tableFilterState}
@@ -1085,6 +1115,8 @@ export function DriftWorkbenchClient() {
                 : null
             }
           />
+        ) : null}
+        </>
         ) : null}
 
         <DriftClaimOrientationStrip />

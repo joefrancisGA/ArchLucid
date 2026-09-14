@@ -244,6 +244,32 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_ERROR_TITLE =
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL = "Current snapshot" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE = "Inventory snapshots" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_BODY =
+  "Select a snapshot to export advisory Terraform or compare drift against a prior capture." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ARIA_LABEL = "Inventory snapshots" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SUBSCRIPTION_COLUMN_LABEL = "Subscription" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_CAPTURED_COLUMN_LABEL = "Captured" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_RESOURCES_COLUMN_LABEL = "Resources" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_RELATIONSHIPS_COLUMN_LABEL = "Relationships" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECT_ACTION_LABEL = "Select" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECTED_LABEL = "Selected" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_LOADING_LABEL = "Loading snapshots…" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_TITLE = "Analyze drift" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DRIFT_ANALYSIS_SECTION_BODY =
+  "Choose a diff against another capture to inspect property-level drift rows." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL = "Diff vs other snapshot" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_TITLE = "No inventory snapshots yet" as const;
@@ -261,7 +287,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY =
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE = "No drift rows in this diff" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_BODY =
-  "Select a snapshot and diff to view property-level changes." as const;
+  "Select a diff above to view property-level changes for the chosen snapshot." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_SCOPED_BODY =
   "No drift rows match the scoped cloud resource for this diff." as const;

@@ -104,7 +104,7 @@ describe("DriftWorkbenchClient buyer-polished chrome", () => {
     expect(screen.getByTestId("governance-infrastructure-drift-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
-    expect(await screen.findByTestId("infra-drift-snapshot-picker")).toBeInTheDocument();
+    expect(await screen.findByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
     expect(await screen.findByTestId("infra-drift-export-terraform")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-copy-scoped-link")).toBeInTheDocument();
   });
