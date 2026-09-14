@@ -11552,6 +11552,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-14 seed hunt #2822 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case container `name` projection gap; regression `ParseAsync_snake_case_container_name_projects_container_name_exposure`.
+
 2026-09-14 seed hunt #2817 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case container port `app_protocol` projection gap; regression `ParseAsync_snake_case_container_port_app_protocol_projects_port_app_protocol_exposure`.
 
 2026-09-14 seed hunt #2799 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case container port `host_port` projection gap; regression `ParseAsync_snake_case_container_host_port_projects_host_port_exposure`.
@@ -11722,8 +11724,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 213
-- **bugs-found:** 254
+- **hunts:** 214
+- **bugs-found:** 255
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
 - **last-bug:** 2026-09-14 — hunt #2799: snake_case container port host_port projection gap
