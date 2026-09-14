@@ -272,6 +272,9 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-snapshot-id-readout")).toHaveTextContent(
       "11111111-1111-1111-1111-111111111111",
     );
+    expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-density-coach")).not.toBeInTheDocument();
+    expect(screen.queryByText(/This view is too large to read/i)).not.toBeInTheDocument();
   });
 
   it("does not show too-large chrome in executive mode", async () => {
