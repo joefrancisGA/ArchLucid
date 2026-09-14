@@ -251,7 +251,7 @@ describe("DiagramsWorkbenchClient", () => {
   });
 
   it("renders snapshot picker and partitioned fallback cards", async () => {
-    searchParams = new URLSearchParams();
+    searchParams = new URLSearchParams("mermaidMode=full");
     render(<DiagramsWorkbenchClient />);
 
     expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD)).toBeInTheDocument();
@@ -272,6 +272,18 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-snapshot-id-readout")).toHaveTextContent(
       "11111111-1111-1111-1111-111111111111",
     );
+  });
+
+  it("does not show too-large chrome in executive mode", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive");
+    render(<DiagramsWorkbenchClient />);
+
+    await screen.findByTestId("infra-diagrams-snapshot-picker");
+
+    expect(screen.queryByTestId("infra-diagrams-fallback-cards")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-density-coach")).not.toBeInTheDocument();
+    expect(screen.queryByText(/too large for a single diagram/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/This view is too large to read/i)).not.toBeInTheDocument();
   });
 
   it("shows render status strip only when render fails", async () => {

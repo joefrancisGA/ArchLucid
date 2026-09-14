@@ -66,31 +66,30 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
             graph,
             cancellationToken);
 
-        if (compiled.PeeledArmTypes.Count == 0
+        MermaidDiagramRenderResult merged = compiled.PeeledArmTypes.Count == 0
             && compiled.AlwaysDisposedArmTypes.Count == 0
             && !compiled.UsedResourceGroupMap
-            && !compiled.UsedBackboneKeep)
-        {
-            return result;
-        }
+            && !compiled.UsedBackboneKeep
+            ? result
+            : new MermaidDiagramRenderResult
+            {
+                Status = result.Status,
+                PrimaryMermaid = result.PrimaryMermaid,
+                Metrics = result.Metrics,
+                FallbackArtifacts = result.FallbackArtifacts,
+                IndexMarkdown = result.IndexMarkdown,
+                CollapseReport = MergePeelCollapseReport(
+                    result.CollapseReport,
+                    compiled.PeeledArmTypes,
+                    catalog.CatalogVersion,
+                    compiled.UsedResourceGroupMap,
+                    compiled.UsedBackboneKeep,
+                    compiled.AlwaysDisposedArmTypes),
+                ValidationErrors = result.ValidationErrors,
+                RepairedAst = result.RepairedAst,
+            };
 
-        return new MermaidDiagramRenderResult
-        {
-            Status = result.Status,
-            PrimaryMermaid = result.PrimaryMermaid,
-            Metrics = result.Metrics,
-            FallbackArtifacts = result.FallbackArtifacts,
-            IndexMarkdown = result.IndexMarkdown,
-            CollapseReport = MergePeelCollapseReport(
-                result.CollapseReport,
-                compiled.PeeledArmTypes,
-                catalog.CatalogVersion,
-                compiled.UsedResourceGroupMap,
-                compiled.UsedBackboneKeep,
-                compiled.AlwaysDisposedArmTypes),
-            ValidationErrors = result.ValidationErrors,
-            RepairedAst = result.RepairedAst,
-        };
+        return MermaidDiagramExecutiveRenderCoercion.Coerce(mode, merged);
     }
 
     public MermaidDiagramRenderArtifact BuildFallbackArtifact(
@@ -121,11 +120,11 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
             this.deterministicRepairer,
             this.structuralValidator);
 
-        MermaidDiagramRenderStatus status = !compiled.StructurallyValid
-            ? MermaidDiagramRenderStatus.Failed
-            : compiled.Metrics.ExceedsReadableThresholds(thresholds)
-                ? MermaidDiagramRenderStatus.Partitioned
-                : MermaidDiagramRenderStatus.Succeeded;
+        MermaidDiagramRenderStatus status = MermaidDiagramExecutiveRenderCoercion.ResolveFallbackArtifactStatus(
+            mode,
+            compiled.StructurallyValid,
+            compiled.Metrics,
+            thresholds);
 
         return new MermaidDiagramRenderArtifact
         {
