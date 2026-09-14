@@ -1,5 +1,7 @@
 ## Zone: topology-proposal-merge
 
+2026-09-14 seed hunt #2848 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `automation_hybrid_runbook_worker_group` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_automation_hybrid_runbook_worker_group_node_has_compute_category_but_synthetic_datastore_id_used`.
+
 2026-09-14 seed hunt #2831 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `automation_dsc_configuration` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_automation_dsc_configuration_node_has_compute_category_but_synthetic_datastore_id_used`.
 
 2026-09-14 seed hunt #2813 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `automation_source_control` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_automation_source_control_node_has_compute_category_but_synthetic_datastore_id_used`.
