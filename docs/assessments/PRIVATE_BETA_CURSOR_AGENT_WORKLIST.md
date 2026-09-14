@@ -218,6 +218,14 @@ Do not start SOC 2 CPA or a pen-test program.
 | Topic | Doc |
 | --- | --- |
 | Private-beta CI triage | [`PRIVATE_BETA_TRUNK_SMOKE.md`](../runbooks/PRIVATE_BETA_TRUNK_SMOKE.md) |
+| Founder 30-min pack A/B demo | [`FOUNDER_30_MIN_PACK_AB_DEMO_SCRIPT.md`](../go-to-market/FOUNDER_30_MIN_PACK_AB_DEMO_SCRIPT.md) |
+| Invitee welcome kit | [`PRIVATE_BETA_INVITEE_WELCOME_KIT.md`](../go-to-market/PRIVATE_BETA_INVITEE_WELCOME_KIT.md) |
+| Kill-switch / spend inventory | [`PRIVATE_BETA_KILL_SWITCH_AND_SPEND_INVENTORY.md`](../runbooks/PRIVATE_BETA_KILL_SWITCH_AND_SPEND_INVENTORY.md) |
+| One-page triage card | [`FIRST_PILOT_TRIAGE_CARD.md`](../runbooks/FIRST_PILOT_TRIAGE_CARD.md) |
+| Access-path verdict (2026-09-14) | [`PRIVATE_BETA_ACCESS_PATH_VERDICT_20260914.md`](PRIVATE_BETA_ACCESS_PATH_VERDICT_20260914.md) |
+| Claim audit (2026-09-14) | [`PRIVATE_BETA_CLAIM_AUDIT_20260914.md`](PRIVATE_BETA_CLAIM_AUDIT_20260914.md) |
+| Gate 1 on Linux | [`RELEASE_SMOKE.md`](../library/RELEASE_SMOKE.md) § Linux / Cloud Agent |
+| G-REAL-08 RC attach | [`scripts/ci/attach_g_real_08_rc_evidence.sh`](../../scripts/ci/attach_g_real_08_rc_evidence.sh) |
 | Frozen-branch smoke | [`PRIVATE_BETA_FROZEN_BRANCH.md`](../runbooks/PRIVATE_BETA_FROZEN_BRANCH.md) |
 | Gate 1 evidence | [`GATE_1_SHIP_GATE_EVIDENCE.md`](../runbooks/GATE_1_SHIP_GATE_EVIDENCE.md) |
 | Three Real proof runs | [`THREE_REAL_MODE_PROOF_RUNS.md`](../runbooks/THREE_REAL_MODE_PROOF_RUNS.md) |
