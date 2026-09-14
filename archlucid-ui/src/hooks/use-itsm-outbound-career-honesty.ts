@@ -39,7 +39,7 @@ export function useItsmOutboundCareerHonesty(
 
   return resolveItsmOutboundCareerHonesty({
     workingDesk: true,
-    isSample: input.isSample === true || isSampleRun === true,
+    isSample: isSampleRun === true,
     structuralExecutionMode,
     effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
       stampedDoor,

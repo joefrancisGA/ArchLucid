@@ -7,6 +7,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE,
@@ -201,6 +202,7 @@ describe("DiagramsWorkbenchClient", () => {
     const icon = await screen.findByTestId("page-heading-icon");
     const title = screen.getByTestId("infra-diagrams-page-title");
 
+    expect(title).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE);
     expect(icon.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -212,6 +214,7 @@ describe("DiagramsWorkbenchClient", () => {
     const icon = await screen.findByTestId("page-heading-icon");
     const title = screen.getByTestId("infra-diagrams-page-title");
 
+    expect(title).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE);
     expect(icon.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -248,7 +251,7 @@ describe("DiagramsWorkbenchClient", () => {
   });
 
   it("renders snapshot picker and partitioned fallback cards", async () => {
-    searchParams = new URLSearchParams();
+    searchParams = new URLSearchParams("mermaidMode=full");
     render(<DiagramsWorkbenchClient />);
 
     expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD)).toBeInTheDocument();
@@ -269,6 +272,18 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-snapshot-id-readout")).toHaveTextContent(
       "11111111-1111-1111-1111-111111111111",
     );
+  });
+
+  it("does not show too-large chrome in executive mode", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive");
+    render(<DiagramsWorkbenchClient />);
+
+    await screen.findByTestId("infra-diagrams-snapshot-picker");
+
+    expect(screen.queryByTestId("infra-diagrams-fallback-cards")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-density-coach")).not.toBeInTheDocument();
+    expect(screen.queryByText(/too large for a single diagram/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/This view is too large to read/i)).not.toBeInTheDocument();
   });
 
   it("shows render status strip only when render fails", async () => {

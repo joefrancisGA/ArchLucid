@@ -32,6 +32,7 @@ public sealed partial class InfraEvidenceDiffsController(
     public async Task<IActionResult> ListChangesForDiff(
         Guid diffId,
         [FromQuery] Guid? cloudResourceId,
+        [FromQuery] bool includeUnchanged = false,
         [FromQuery] int page = PaginationDefaults.DefaultPage,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken cancellationToken = default)
@@ -46,6 +47,7 @@ public sealed partial class InfraEvidenceDiffsController(
                 page,
                 pageSize,
                 cloudResourceId,
+                includeUnchanged,
                 cancellationToken);
 
             if (response is null)

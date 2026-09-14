@@ -9,7 +9,6 @@ import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLin
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -87,6 +86,7 @@ import {
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_ASK_CONTEXT_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_ASK_OPERATOR_EYEBROW,
   GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID,
@@ -95,6 +95,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_ACTION,
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_BODY,
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
 } from "@/lib/governance/governance-infrastructure-copy";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
@@ -541,6 +542,7 @@ export function InfrastructureAskClient() {
 
       <OperatorPageHeader
         navHref={GOVERNANCE_INFRASTRUCTURE_ASK_PATH}
+        eyebrow={buyerPolishedShell ? undefined : GOVERNANCE_INFRASTRUCTURE_ASK_OPERATOR_EYEBROW}
         title={GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD}
         claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE : undefined}
@@ -556,8 +558,6 @@ export function InfrastructureAskClient() {
           </div>
         }
       />
-
-      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-ask" /> : null}
 
       <main
         id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID : undefined}
@@ -688,7 +688,7 @@ export function InfrastructureAskClient() {
               href={inventoryDiagramsBackLinkHref}
               data-testid="infra-ask-inventory-diagrams-back-link"
             >
-              Open inventory diagrams
+              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION}
             </Link>
           ) : null}
           {diagramReconcileBackLinkHref != null ? (
@@ -772,6 +772,7 @@ export function InfrastructureAskClient() {
         <Button
           type="button"
           variant="primary"
+          className={CTA_WIDTH.content}
           data-testid="infra-ask-submit"
           disabled={submitting || question.trim().length === 0}
           onClick={() => void ask(question)}

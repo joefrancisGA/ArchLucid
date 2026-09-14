@@ -134,6 +134,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
@@ -149,6 +150,9 @@ describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
     expect(screen.getByRole("link", { name: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
       `#${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID}`,
+    );
+    expect(screen.getByTestId("infra-diagrams-page-title")).toHaveTextContent(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
     );
     expect(screen.getByTestId("governance-infrastructure-diagrams-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();

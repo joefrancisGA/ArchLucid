@@ -1499,10 +1499,16 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
         Dictionary<string, object?> properties = BuildProperties(item, resourceType!);
 
+        HostedAzureArmSystemDataPropertyCapture.Capture(item, properties);
+
         if (item.TryGetProperty("properties", out JsonElement propertiesElement)
             && propertiesElement.ValueKind == JsonValueKind.Object)
         {
             HostedAzureInventoryResourcePropertyExpander.Expand(resourceType!, propertiesElement, properties);
+            HostedAzureArmSystemDataPropertyCapture.CaptureVirtualMachineComputerName(
+                resourceType!,
+                propertiesElement,
+                properties);
         }
 
         return new HostedAzureArmResourceRecord(
