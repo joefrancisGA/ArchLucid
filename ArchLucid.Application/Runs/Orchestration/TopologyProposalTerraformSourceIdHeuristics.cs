@@ -313,7 +313,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("monitor_smart_detector_alert_rule", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_autoscale_setting", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("management_lock", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("role_definition", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("role_definition", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("keyvault", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -537,7 +538,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("monitor_smart_detector_alert_rule", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_autoscale_setting", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("management_lock", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("role_definition", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("role_definition", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("keyvault", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
