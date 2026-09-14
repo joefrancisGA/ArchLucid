@@ -1,7 +1,7 @@
 > **Scope:** Copy-paste Composer prompts that close **post-IR inspector leftovers** after inhabit remain **IR-001–IR-018**. Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **ADR:** [0100](adrs/0100-working-inhabit-architecture-findings-document.md) (Accepted)
 > **Paste-ready files:** [`.cursor/prompts/inhabit-post-00-index.md`](../../.cursor/prompts/inhabit-post-00-index.md) (**IP-001–IP-015**)
-> **Diagnosis:** [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md)
+> **Diagnosis:** [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md) (post-IP close). Pre-close trace: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md)
 > **Not wave 35.** Do not paste an 80-prompt pack. Do not re-run IH / IR product bodies.
 
 # Inhabit post-IR Composer prompts (IP-001–IP-015)

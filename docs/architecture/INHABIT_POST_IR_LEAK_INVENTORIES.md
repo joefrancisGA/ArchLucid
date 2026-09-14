@@ -4,7 +4,7 @@
 
 **Last reviewed:** 2026-09-13 · **ADR:** [0100](adrs/0100-working-inhabit-architecture-findings-document.md)
 
-These tables record **secondary** Working inhabit leaks on the job inspector and related chrome. Source of truth: `archlucid-ui/src/lib/inhabit-post-ir-leak-inventories.ts`. Diagnosis: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md). Remain close: [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md).
+These tables record **secondary** Working inhabit leaks on the job inspector and related chrome. Source of truth: `archlucid-ui/src/lib/inhabit-post-ir-leak-inventories.ts`. Diagnosis: [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md). Remain close: [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md).
 
 `leakOpen: Yes` means the livelihood leak is **still open**. Product IPs (**IP-002**–**IP-011**) flip rows to **No** via **IP-013**.
 
@@ -88,16 +88,6 @@ Inhabited findings-document finalize with `parentArchitectureId` stays closed (*
 | Governance findings queue run-scope banner | `GovernanceFindingsQueueScopeSection.tsx` | No | IP-011 |
 
 Run-scope banner is gated on `suppressPipelineChrome`. Nested findings server-prefetches the existing `critical-page-bundle` when `runId` is present and passes `initialTrailBundle` for first-paint transparency trail + infeasible package.
-
-## IP-012 — Nested review-detail stays inspector (skip)
-
-| Surface | Module | Leak open | Owner |
-| --- | --- | --- | --- |
-| Nested review-detail job inspector | ADR 0098 / `inhabit-post-ir-leak-inventories.ts` | N/A (skip) | IP-012 |
-
-Inspector URLs are **intentional**. Entry leaks are closed by IP-002–007. Do not redirect the full review workspace to findings, collapse tabs behind **More**, or architecture-scope peer `/governance/findings`. In-flight `?reviewTab=activity` and explicit “View review job” stay.
-
-Ratchet: `archlucid-ui/src/lib/inhabit-post-ir-inspector-skip-guard.test.ts`.
 
 ## IP-012 — Nested review-detail stays inspector (skip)
 
