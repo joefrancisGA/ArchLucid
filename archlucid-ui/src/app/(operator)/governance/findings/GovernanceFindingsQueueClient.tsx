@@ -178,6 +178,8 @@ export default function GovernanceFindingsQueueClient({
     findingsSearchQuery,
     hideGenericLowDensity,
     isWorkingMode,
+    pathname,
+    scopedArchitectureId,
     scopeRecord,
   });
   usePrefetchItsmFindingCorrelations(synopsis.findingIds);

@@ -18,6 +18,7 @@ import {
   INHABIT_POST_IR_ROOM_ON_REVIEW_DETAIL_ROWS,
   INHABIT_POST_IR_SECONDARY_RERUN_ROWS,
   INHABIT_POST_IR_WORKING_SHARE_ROWS,
+  INHABIT_POST_DIAGNOSIS_QUEUE_AUXILIARY_ROWS,
 } from "@/lib/inhabit-post-ir-leak-inventories";
 
 const REPO_ROOT = join(process.cwd(), "..");
@@ -80,6 +81,7 @@ describe("inhabit post-IR leak inventories (IP-001)", () => {
 
     expect(openRows).toHaveLength(0);
     expect(INHABIT_POST_IR_INHABITED_CHROME_ROWS.every((row) => !row.leakOpen)).toBe(true);
+    expect(INHABIT_POST_DIAGNOSIS_QUEUE_AUXILIARY_ROWS.every((row) => !row.leakOpen)).toBe(true);
   });
 
   it("IP-001: covers every product owner prompt IP-002 through IP-011", () => {
@@ -103,7 +105,8 @@ describe("inhabit post-IR leak inventories (IP-001)", () => {
     expect(doc).toContain("IP-012");
     expect(doc).toContain("inhabit-post-ir-leak-inventories.ts");
     expect(doc).toContain("INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md");
-    expect(doc).toContain("WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md");
+    expect(doc).toContain("WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md");
+    expect(doc).toContain("WA-001");
     expect(doc).toContain("IR-015");
     expect(doc).toContain("ReviewRoomHeaderButton.tsx");
     expect(doc).toContain("use-review-completion-notification.ts");

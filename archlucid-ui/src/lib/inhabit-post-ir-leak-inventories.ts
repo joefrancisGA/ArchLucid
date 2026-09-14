@@ -189,6 +189,34 @@ export const INHABIT_POST_IR_INHABITED_CHROME_ROWS: readonly InhabitPostIrLeakRo
   },
 ];
 
+/** WA-001 — Post-diagnosis inhabited queue auxiliary CTA leaks (2026-09-14). */
+export const INHABIT_POST_DIAGNOSIS_QUEUE_AUXILIARY_ROWS: readonly InhabitPostIrLeakRow[] = [
+  {
+    surface: "Continue last viewed finding strip",
+    relativePath: "lib/resolve-continue-last-governance-finding.ts",
+    leakOpen: false,
+    ownerPrompt: "WA-001",
+  },
+  {
+    surface: "First finding triage strip",
+    relativePath: "app/(operator)/governance/findings/governance-findings-queue-presentation.ts",
+    leakOpen: false,
+    ownerPrompt: "WA-001",
+  },
+  {
+    surface: "Assigned-to-me oldest finding strip",
+    relativePath: "app/(operator)/governance/findings/governance-findings-queue-presentation.ts",
+    leakOpen: false,
+    ownerPrompt: "WA-001",
+  },
+  {
+    surface: "Canonical secondary strip on findings register",
+    relativePath: "lib/canonical-object-home-registry.ts",
+    leakOpen: false,
+    ownerPrompt: "WA-001",
+  },
+];
+
 /**
  * IP-012 — Nested review-detail stays a job inspector (ADR 0098).
  * No product rows. Entry leaks are closed by IP-002–007; do not redirect the full inspector
@@ -199,7 +227,7 @@ export const INHABIT_POST_IR_INSPECTOR_SKIP_OWNER = "IP-012" as const;
 export const INHABIT_POST_IR_INSPECTOR_SKIP_NOTE =
   "Inspector URLs (/architecture/reviews/{runId} and nested architecture review routes) are intentional. Full review workspace tabs stay visible; in-flight activity and explicit View review job links remain." as const;
 
-/** All post-IR secondary inspector leak rows (IP-002–IP-011). */
+/** All post-IR secondary inspector leak rows (IP-002–IP-011) plus diagnosis follow-up WA-001. */
 export const INHABIT_POST_IR_ALL_LEAK_ROWS: readonly InhabitPostIrLeakRow[] = [
   ...INHABIT_POST_IR_REVIEWS_HUB_LANDING_ROWS,
   ...INHABIT_POST_IR_GLOBAL_SEARCH_LANDING_ROWS,
@@ -211,4 +239,5 @@ export const INHABIT_POST_IR_ALL_LEAK_ROWS: readonly InhabitPostIrLeakRow[] = [
   ...INHABIT_POST_IR_SECONDARY_RERUN_ROWS,
   ...INHABIT_POST_IR_INSPECTOR_FINALIZE_ROWS,
   ...INHABIT_POST_IR_INHABITED_CHROME_ROWS,
+  ...INHABIT_POST_DIAGNOSIS_QUEUE_AUXILIARY_ROWS,
 ];

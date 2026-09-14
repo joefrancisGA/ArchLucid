@@ -1,3 +1,4 @@
+import type { GovernanceFindingInspectHrefOptions } from "@/components/governance/findings/governance-findings-navigation";
 import { parseArchitectureNestedToolArchitectureId } from "@/lib/architecture/architecture-routes";
 import { deriveWorkingInstrumentReviewHeaderPresentation } from "@/lib/run-detail-workspace-derive/review-presentation";
 
@@ -54,6 +55,29 @@ export function resolveIsInhabitedFindingsDocument(input: InhabitedFindingsDocum
   }
 
   return resolveInhabitedFindingsArchitectureId(input.pathname, input.scopedArchitectureId) !== null;
+}
+
+/** WA-001 — shared inspect options for inhabited nested findings queue surfaces. */
+export function resolveInhabitedFindingsInspectHrefOptions(
+  input: Pick<InhabitedFindingsDocumentInput, "workingMode" | "pathname" | "scopedArchitectureId">,
+): GovernanceFindingInspectHrefOptions | undefined {
+  if (!input.workingMode) {
+    return undefined;
+  }
+
+  const architectureId = resolveInhabitedFindingsArchitectureId(
+    input.pathname,
+    input.scopedArchitectureId,
+  );
+
+  if (architectureId === null) {
+    return undefined;
+  }
+
+  return {
+    architectureId,
+    isWorkingMode: true,
+  };
 }
 
 function resolveArchitectureH1Title(architectureDisplayName: string | null | undefined): string {

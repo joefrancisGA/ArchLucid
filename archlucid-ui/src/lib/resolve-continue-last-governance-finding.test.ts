@@ -46,4 +46,16 @@ describe("resolveContinueLastGovernanceFinding", () => {
     expect(match?.findingId).toBe("finding-old");
     expect(match?.href).toBe("/architecture/reviews/run-1/findings/finding-old");
   });
+
+  it("uses nested focusedFinding when inhabited inspect options are wired", () => {
+    const match = resolveContinueLastGovernanceFinding(
+      [row({ findingId: "finding-old", title: "Oldest", agingDays: 12 })],
+      null,
+      { architectureId: "arch-1", isWorkingMode: true },
+    );
+
+    expect(match?.href).toBe(
+      "/architecture/architectures/arch-1/findings?runId=run-1&focusedFinding=finding-old",
+    );
+  });
 });
