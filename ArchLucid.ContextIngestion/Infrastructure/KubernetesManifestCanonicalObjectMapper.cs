@@ -1320,6 +1320,12 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         void InspectContainer(JsonElement container)
         {
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "stdin", out JsonElement stdinElement)
+                && stdinElement.ValueKind is JsonValueKind.True)
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "stdin", "true");
+            }
+
             if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
                 || securityContext.ValueKind is not JsonValueKind.Object)
                 return;
