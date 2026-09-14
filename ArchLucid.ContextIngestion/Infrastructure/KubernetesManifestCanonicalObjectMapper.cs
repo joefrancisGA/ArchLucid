@@ -1130,6 +1130,18 @@ internal static class KubernetesManifestCanonicalObjectMapper
                     "windowsOptionsRunAsUserName",
                     runAsUserNameElement.GetString()!);
             }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "windowsOptions", out JsonElement windowsOptionsForGmsaNameElement)
+                && windowsOptionsForGmsaNameElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(windowsOptionsForGmsaNameElement, "gmsaCredentialSpecName", out JsonElement gmsaCredentialSpecNameElement)
+                && gmsaCredentialSpecNameElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(gmsaCredentialSpecNameElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "windowsOptionsGmsaCredentialSpecName",
+                    gmsaCredentialSpecNameElement.GetString()!);
+            }
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "supplementalGroups", out JsonElement supplementalGroupsElement)
                 && supplementalGroupsElement.ValueKind is JsonValueKind.Array)
             {
