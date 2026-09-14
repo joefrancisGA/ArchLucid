@@ -23,10 +23,15 @@ import {
   resolveInhabitedFindingsDocumentPresentation,
   type InhabitedFindingsDocumentInput,
 } from "@/lib/inhabit/inhabit-findings-document-presentation";
-import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
+import {
+  resolveInhabitedFindingsTrailBundleSnapshot,
+  type InhabitedFindingsTrailBundleSnapshot,
+} from "@/lib/inhabit/inhabited-findings-trail-bundle";
 import { cn } from "@/lib/utils";
 
-export type InhabitedFindingsDocumentChromeProps = InhabitedFindingsDocumentInput;
+export type InhabitedFindingsDocumentChromeProps = InhabitedFindingsDocumentInput & {
+  readonly initialTrailBundle?: InhabitedFindingsTrailBundleSnapshot | null;
+};
 
 /** IH-016–019 / IH-018 / IH-023 — document chrome on Working nested findings. */
 export function InhabitedFindingsDocumentChrome(
@@ -49,21 +54,33 @@ export function InhabitedFindingsDocumentChrome(
     presentation !== null && resolvedArchitectureId !== null,
   );
 
+  const serverTrailSnapshot =
+    props.initialTrailBundle !== undefined && props.initialTrailBundle?.runId === scopedRunId
+      ? props.initialTrailBundle
+      : null;
+
   const trailQuery = useQuery({
     queryKey: ["inhabited-findings-transparency-trail", scopedRunId],
     enabled: presentation !== null && scopedRunId.length > 0,
     staleTime: 60_000,
+    initialData:
+      serverTrailSnapshot !== null
+        ? {
+            trail: serverTrailSnapshot.trail,
+            feasibilityVerdict: serverTrailSnapshot.feasibilityVerdict,
+            enginesSucceeded: serverTrailSnapshot.enginesSucceeded,
+            runCompleted: serverTrailSnapshot.runCompleted,
+          }
+        : undefined,
     queryFn: async () => {
       const bundle = await fetchRunDetailCriticalPageBundle(scopedRunId);
-
-      const feasibilityVerdict = bundle.data.manifestSummary?.feasibilityVerdict ?? null;
-      const progressSummary = bundle.data.progressSummary;
+      const snapshot = resolveInhabitedFindingsTrailBundleSnapshot(scopedRunId, bundle.data);
 
       return {
-        trail: feasibilityVerdict?.transparencyTrail ?? null,
-        feasibilityVerdict,
-        enginesSucceeded: progressSummary?.enginesSucceeded ?? null,
-        runCompleted: analysisStagesCompleteOnSummary(progressSummary),
+        trail: snapshot.trail,
+        feasibilityVerdict: snapshot.feasibilityVerdict,
+        enginesSucceeded: snapshot.enginesSucceeded,
+        runCompleted: snapshot.runCompleted,
       };
     },
   });

@@ -24,7 +24,6 @@ import { GovernanceFindingsQueueQuietEnginesHint } from "@/app/(operator)/govern
 import { InhabitedFindingsDocumentChrome } from "@/components/governance/InhabitedFindingsDocumentChrome";
 import { usePathname } from "next/navigation";
 import { resolveInhabitedFindingsDocumentPresentation } from "@/lib/inhabit/inhabit-findings-document-presentation";
-
 export function GovernanceFindingsQueueScopeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element {
@@ -49,6 +48,7 @@ export function GovernanceFindingsQueueScopeSection(
           architectureDisplayName={props.architectureDisplayName}
           scopedRunId={props.scopedRunId}
           scopedRunTitle={props.scopedRunContextTitle}
+          initialTrailBundle={props.inhabitedFindingsInitialTrailBundle}
         />
       ) : null}
       {props.secondaryViewPresentation !== null ? (

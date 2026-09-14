@@ -9,6 +9,8 @@ import {
   INHABIT_POST_IR_GLOBAL_SEARCH_LANDING_ROWS,
   INHABIT_POST_IR_INHABITED_CHROME_ROWS,
   INHABIT_POST_IR_INSPECTOR_FINALIZE_ROWS,
+  INHABIT_POST_IR_INSPECTOR_SKIP_NOTE,
+  INHABIT_POST_IR_INSPECTOR_SKIP_OWNER,
   INHABIT_POST_IR_INSPECT_SUPPORT_BAND_ROWS,
   INHABIT_POST_IR_LEAK_INVENTORIES_DOC_PATH,
   INHABIT_POST_IR_QUICK_DECISION_ROWS,
@@ -73,15 +75,11 @@ describe("inhabit post-IR leak inventories (IP-001)", () => {
     expect(INHABIT_POST_IR_INSPECTOR_FINALIZE_ROWS.every((row) => !row.leakOpen)).toBe(true);
   });
 
-  it("IP-001: remaining product rows stay open until their IP ships", () => {
-    const openOwnerPrompts = new Set(
-      INHABIT_POST_IR_ALL_LEAK_ROWS.filter((row) => row.leakOpen).map((row) => row.ownerPrompt),
-    );
+  it("IP-001: all post-IR product rows stay closed after IP-011 first-paint ships", () => {
+    const openRows = INHABIT_POST_IR_ALL_LEAK_ROWS.filter((row) => row.leakOpen);
 
-    expect(openOwnerPrompts.has("IP-002")).toBe(false);
-    expect(openOwnerPrompts.has("IP-006")).toBe(false);
-    expect(openOwnerPrompts.has("IP-010")).toBe(false);
-    expect(openOwnerPrompts.has("IP-011")).toBe(true);
+    expect(openRows).toHaveLength(0);
+    expect(INHABIT_POST_IR_INHABITED_CHROME_ROWS.every((row) => !row.leakOpen)).toBe(true);
   });
 
   it("IP-001: covers every product owner prompt IP-002 through IP-011", () => {
@@ -92,12 +90,19 @@ describe("inhabit post-IR leak inventories (IP-001)", () => {
     }
   });
 
+  it("IP-012: documents inspector skip without product rows", () => {
+    expect(INHABIT_POST_IR_INSPECTOR_SKIP_OWNER).toBe("IP-012");
+    expect(INHABIT_POST_IR_INSPECTOR_SKIP_NOTE).toMatch(/inspector/i);
+  });
+
   it("IP-001: markdown inventory matches TypeScript module", () => {
     const doc = readFileSync(join(REPO_ROOT, INHABIT_POST_IR_LEAK_INVENTORIES_DOC_PATH), "utf8");
 
     expect(doc).toContain("IP-002");
     expect(doc).toContain("IP-011");
+    expect(doc).toContain("IP-012");
     expect(doc).toContain("inhabit-post-ir-leak-inventories.ts");
+    expect(doc).toContain("INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md");
     expect(doc).toContain("WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md");
     expect(doc).toContain("IR-015");
     expect(doc).toContain("ReviewRoomHeaderButton.tsx");

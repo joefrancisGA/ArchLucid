@@ -80,21 +80,31 @@ Primary start-honesty surfaces remain closed (**IH-025**).
 
 Inhabited findings-document finalize with `parentArchitectureId` stays closed (**IH-022**).
 
-## IP-011 — Inhabited first-paint trail and run-scope banner
+## IP-011 — Inhabited first-paint trail and run-scope banner (closed)
 
 | Surface | Module | Leak open | Owner |
 | --- | --- | --- | --- |
-| Inhabited findings document chrome (reasoned-no first paint) | `InhabitedFindingsDocumentChrome.tsx` | Yes | IP-011 |
+| Inhabited findings document chrome (reasoned-no first paint) | `InhabitedFindingsDocumentChrome.tsx` | No | IP-011 |
 | Governance findings queue run-scope banner | `GovernanceFindingsQueueScopeSection.tsx` | No | IP-011 |
 
-Run-scope banner is gated on `suppressPipelineChrome` when inhabited nested findings are mounted. First-paint infeasible + transparency trail still waits on client `useQuery` in `InhabitedFindingsDocumentChrome` — no cheap server bundle exists without inventing a progress API.
+Run-scope banner is gated on `suppressPipelineChrome`. Nested findings server-prefetches the existing `critical-page-bundle` when `runId` is present and passes `initialTrailBundle` for first-paint transparency trail + infeasible package.
+
+## IP-012 — Nested review-detail stays inspector (skip)
+
+| Surface | Module | Leak open | Owner |
+| --- | --- | --- | --- |
+| Nested review-detail job inspector | ADR 0098 / `inhabit-post-ir-leak-inventories.ts` | N/A (skip) | IP-012 |
+
+Inspector URLs are **intentional**. Entry leaks are closed by IP-002–007. Do not redirect the full review workspace to findings, collapse tabs behind **More**, or architecture-scope peer `/governance/findings`. In-flight `?reviewTab=activity` and explicit “View review job” stay.
+
+Ratchet: `archlucid-ui/src/lib/inhabit-post-ir-inspector-skip-guard.test.ts`.
 
 ## Intentional skips (not IP work)
 
 | Skip | Why |
 | --- | --- |
 | Peer `/governance/findings` as architecture Home | **IR-015** — run-scoped peer queue |
-| Nested review-detail as **inspector** | ADR 0098 — full tab strip stays |
+| Nested review-detail as **inspector** | **IP-012** / ADR 0098 — full tab strip stays |
 | G-REAL-06 / host Mode Real | Honesty, not a default-day lie |
 | Draft-diff Compare | ADR 0092 / IH-077 |
 
@@ -103,4 +113,4 @@ Run-scope banner is gated on `suppressPipelineChrome` when inhabited nested find
 - `archlucid-ui/src/lib/inhabit-post-ir-leak-inventories.ts`
 - `archlucid-ui/src/lib/inhabit-post-ir-leak-inventories.test.ts`
 - Flip rows: **IP-013** after each product IP ships
-- Close audit: **IP-015** after **IP-001–IP-014**
+- Close audit: [`INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md`](INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md) (**IP-015**)
