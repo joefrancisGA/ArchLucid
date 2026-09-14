@@ -10,16 +10,16 @@
 
 **Yes — the product is still a working-architect tool.** Wave 34, remain **IR-001–IR-018**, and post-IR **IP-001–IP-015** made Working an **inhabited findings afternoon** on the open architecture. The architect resumes Monday morning on nested findings, not a first-session evaluator.
 
-A fresh trace (not inventory booleans alone) confirms the five livelihood clusters named in the pre-close diagnosis are **shipped**. One **auxiliary** cluster remains: nested-findings **queue resume strips** that still build peer review-inspector hrefs even when the architect is already on the inhabited document.
+A fresh trace (not inventory booleans alone) confirms the five livelihood clusters named in the pre-close diagnosis are **shipped**. The **WA-001** follow-up closed the one auxiliary cluster this diagnosis named: nested-findings **queue resume strips** now build nested `focusedFinding` hrefs when architecture is known.
 
 | Metric | Count |
 |--------|------:|
 | **Closed (do not re-run)** | Wave 34 + IR-001–IR-018 + IP-001–IP-015 product rows |
 | **Post-IR inventory `leakOpen: true`** | **0** |
-| **Named leftover clusters (this diagnosis)** | **1** (inhabited queue auxiliary CTAs) |
+| **Named leftover clusters (this diagnosis)** | **0** (WA-001 auxiliary CTAs shipped) |
 | **Intentional skips** | IP-012 inspector, IR-015 peer queue, first-review guide, explicit “View review job”, unlinked reviews |
 
-**Headline:** Inhabit is the **default Working work surface** for resume, share, search, Room, finalize, and first-paint reasoned **no**. Remaining livelihood risk is **narrow** — auxiliary strips on the afternoon document that can still exile a click to the job inspector.
+**Headline:** Inhabit is the **default Working work surface** for resume, share, search, Room, finalize, first-paint reasoned **no**, and in-page queue auxiliary CTAs. No named inhabit livelihood clusters remain open after WA-001.
 
 ## Method
 
@@ -56,24 +56,20 @@ Canonical leak truth: `archlucid-ui/src/lib/inhabit-leak-inventories.ts` (remain
 | Inspector finalize → desk | `ReviewPackageDoThisNextStrip.tsx` | **Closed** |
 | First-paint trail + banner | `findings/page.tsx`, `InhabitedFindingsDocumentChrome.tsx`, `GovernanceFindingsQueueScopeSection.tsx` | **Closed** |
 
-## Remaining livelihood failure
+## Shipped follow-up (WA-001)
 
-### 1. Inhabited queue auxiliary CTAs — peer inspector hrefs on the afternoon document
+### Inhabited queue auxiliary CTAs — nested focusedFinding on the afternoon document
 
-**Livelihood class:** ADR 0100 / R13. The architect is already on nested findings; auxiliary resume strips should deepen **this system's findings**, not open the **job inspector** in a new route.
+**Livelihood class:** ADR 0100 / R13. Auxiliary resume strips on nested findings now deepen **this system's findings** via `resolveGovernanceQueueAuxiliaryFindingHref` + `resolveInhabitedFindingsInspectHrefOptions`.
 
-| Surface | Evidence | Why livelihood |
-|---------|----------|----------------|
-| Continue last viewed | `resolve-continue-last-governance-finding.ts` → `toTarget` calls `getFindingDetailHref` | CTA on inhabited queue opens `/architecture/reviews/{runId}/findings/{id}` |
-| First finding triage strip | `governance-findings-queue-presentation.ts` → `resolveFirstFindingTriageTarget` | Same `getFindingDetailHref` pattern |
-| Assigned-to-me oldest finding | `resolveAssignedToMeOldestFindingTarget` | `governanceFindingInspectHref` without `architectureId` / `isWorkingMode` → evidence-trace peer route |
-| Canonical secondary strip (register synopsis) | `canonical-object-home-registry.ts` → `canonicalObjectHomeHref("finding")` | Always `getFindingDetailHref`; used by `secondaryViewFromGovernanceQueueRow` on queue synopsis |
+| Surface | Module | Status |
+|---------|--------|--------|
+| Continue last viewed | `resolve-continue-last-governance-finding.ts` | **Shipped** |
+| First finding triage strip | `governance-findings-queue-presentation.ts` | **Shipped** |
+| Assigned-to-me oldest finding | `governance-findings-queue-presentation.ts` | **Shipped** (peer queue still uses evidence-trace inspect when not inhabited) |
+| Canonical secondary strip | `canonical-object-home-registry.ts` | **Shipped** |
 
-**Not leaking (same surfaces):** Primary finding row navigation in `GovernanceFindingsList` already uses `governanceFindingInspectHref` with architecture context when wired. List click is closed; **auxiliary strips** are not.
-
-**Fix shape (when picked up):** Thread `architectureId` + `isWorkingMode: true` into triage target resolvers (same helper as IP-005 / IR-004: `governanceFindingInspectHref` with `focusedFinding`). Add inventory rows only if shipped — do not reopen IP-002–IP-011 booleans.
-
-**Rank:** Lower than the shipped IP-002–IP-006 cluster. The architect is not exiled on **entry**; only optional in-page resume strips can mis-route a click.
+Inventory: `INHABIT_POST_DIAGNOSIS_QUEUE_AUXILIARY_ROWS` (`WA-001`). Guard: `inhabit-post-diagnosis-queue-aux-guard.test.ts`.
 
 ## Intentional skips (do not “fix”)
 
@@ -111,6 +107,6 @@ Post-IR guard Vitest (sample): `inhabit-post-ir-leak-inventories.test.ts`, `revi
 ## Recommendation
 
 1. Treat post-IR livelihood leaks **IP-002–IP-011** as **closed**. Do **not** re-run IH-001–080, IR-001–018, or IP-001–015 product bodies.
-2. **Optional follow-up** (one cluster): wire inhabited queue auxiliary strips through `governanceFindingInspectHref` with `architectureId` + `isWorkingMode: true`. Add new inventory rows only when shipping (e.g. a numbered post-post-IR prompt), not by flipping closed IP booleans.
+2. **WA-001 shipped** — inhabited queue auxiliary CTAs closed; see inventory rows above.
 3. **Do not** paste wave 35 or claim inhabit is incomplete because the job inspector still exists — ADR 0100 requires it for in-flight analysis and explicit job inspection.
 4. Next fresh diagnosis should start from this file and [`INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md`](INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md), not reopen closed inventory classes.

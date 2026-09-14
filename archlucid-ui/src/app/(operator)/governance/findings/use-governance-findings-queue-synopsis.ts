@@ -19,6 +19,7 @@ import {
   resolveGovernanceFindingsSponsorHandoffHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
+import { resolveInhabitedFindingsInspectHrefOptions } from "@/lib/inhabit/inhabit-findings-document-presentation";
 import { DEFAULT_FINDING_JOB_VIEW, resolveEffectiveFindingJobView } from "@/lib/findings/finding-job-view";
 import {
   resolveFindingsQueueTriageEmphasizedStepId,
@@ -53,6 +54,8 @@ export type UseGovernanceFindingsQueueSynopsisInput = {
   readonly findingsSearchQuery: string;
   readonly hideGenericLowDensity: boolean;
   readonly isWorkingMode: boolean;
+  readonly pathname: string | null;
+  readonly scopedArchitectureId: string | null;
   readonly scopeRecord: OperatorScopeRecord | null;
 };
 
@@ -72,9 +75,20 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
     findingsSearchQuery,
     hideGenericLowDensity,
     isWorkingMode,
+    pathname,
+    scopedArchitectureId,
     scopeRecord,
   } = input;
 
+  const inhabitedFindingsInspectHrefOptions = useMemo(
+    () =>
+      resolveInhabitedFindingsInspectHrefOptions({
+        workingMode: isWorkingMode,
+        pathname,
+        scopedArchitectureId,
+      }),
+    [isWorkingMode, pathname, scopedArchitectureId],
+  );
   const scopedRunFilterActive = scopedRunId !== null && scopedRunId.trim().length > 0;
   const workspaceScopeTeaching =
     !isAssignedToMe && !scopedRunFilterActive
@@ -133,23 +147,33 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
   const findingIds = useMemo(() => extractGovernanceFindingIds(displayedRows), [displayedRows]);
   const filterNoMatchPreset = resolveGovernanceFindingsFilterNoMatchPreset(isAssignedToMe);
   const secondaryViewPresentation =
-    displayedRows.length > 0 ? secondaryViewFromGovernanceQueueRow(displayedRows[0]) : null;
+    displayedRows.length > 0
+      ? secondaryViewFromGovernanceQueueRow(displayedRows[0], inhabitedFindingsInspectHrefOptions)
+      : null;
   const firstFindingTriageTarget = useMemo(
     () =>
       resolveFirstFindingTriageTarget(
         displayedRows,
         isAssignedToMe,
         scopedRunFilterActive ? scopedRunId : null,
+        inhabitedFindingsInspectHrefOptions,
       ),
-    [displayedRows, isAssignedToMe, scopedRunFilterActive, scopedRunId],
+    [
+      displayedRows,
+      inhabitedFindingsInspectHrefOptions,
+      isAssignedToMe,
+      scopedRunFilterActive,
+      scopedRunId,
+    ],
   );
   const continueLastFinding = useMemo(
     () =>
       resolveContinueLastFindingTarget(
         displayedRows,
         scopedRunFilterActive ? scopedRunId : null,
+        inhabitedFindingsInspectHrefOptions,
       ),
-    [displayedRows, scopedRunFilterActive, scopedRunId],
+    [displayedRows, inhabitedFindingsInspectHrefOptions, scopedRunFilterActive, scopedRunId],
   );
   const dispositionRecorded = useMemo(
     () =>
@@ -178,8 +202,9 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
     [continueLastFinding, dispositionRecorded, scopedRunFilterActive],
   );
   const assignedToMeOldestFindingTarget = useMemo(
-    () => resolveAssignedToMeOldestFindingTarget(rows, isAssignedToMe),
-    [isAssignedToMe, rows],
+    () =>
+      resolveAssignedToMeOldestFindingTarget(rows, isAssignedToMe, inhabitedFindingsInspectHrefOptions),
+    [inhabitedFindingsInspectHrefOptions, isAssignedToMe, rows],
   );
   const sponsorSynopsisPackageTitle = deriveSponsorSynopsisPackageTitle(displayedRows, scopedRunId);
   const sponsorSynopsisCounts = useMemo(

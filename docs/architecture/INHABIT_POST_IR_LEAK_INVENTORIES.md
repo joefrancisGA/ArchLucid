@@ -99,6 +99,19 @@ Inspector URLs are **intentional**. Entry leaks are closed by IP-002–007. Do n
 
 Ratchet: `archlucid-ui/src/lib/inhabit-post-ir-inspector-skip-guard.test.ts`.
 
+## WA-001 — Inhabited queue auxiliary CTAs (closed)
+
+Diagnosis follow-up from [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md`](WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md). Auxiliary resume strips on nested findings use `resolveGovernanceQueueAuxiliaryFindingHref` with `resolveInhabitedFindingsInspectHrefOptions`.
+
+| Surface | Module | Leak open | Owner |
+| --- | --- | --- | --- |
+| Continue last viewed finding strip | `resolve-continue-last-governance-finding.ts` | No | WA-001 |
+| First finding triage strip | `governance-findings-queue-presentation.ts` | No | WA-001 |
+| Assigned-to-me oldest finding strip | `governance-findings-queue-presentation.ts` | No | WA-001 |
+| Canonical secondary strip on findings register | `canonical-object-home-registry.ts` | No | WA-001 |
+
+Ratchet: `archlucid-ui/src/lib/inhabit/inhabit-post-diagnosis-queue-aux-guard.test.ts`.
+
 ## Intentional skips (not IP work)
 
 | Skip | Why |

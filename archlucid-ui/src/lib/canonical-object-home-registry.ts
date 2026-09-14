@@ -1,3 +1,7 @@
+import {
+  type GovernanceFindingInspectHrefOptions,
+  resolveGovernanceQueueAuxiliaryFindingHref,
+} from "@/components/governance/findings/governance-findings-navigation";
 import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { DECISION_REGISTER_CANONICAL_PATH } from "@/lib/decision-register-evidence-copy";
 import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
@@ -21,6 +25,7 @@ export type CanonicalObjectHomeParams = {
   readonly findingId?: string;
   readonly manifestId?: string;
   readonly approvalRequestId?: string;
+  readonly inspectHrefOptions?: GovernanceFindingInspectHrefOptions;
 };
 
 export type CanonicalObjectSecondaryViewPresentation = {
@@ -92,6 +97,12 @@ export function canonicalObjectHomeHref(
         throw new Error("finding canonical home requires runId and findingId");
       }
 
+      if (params.inspectHrefOptions !== undefined) {
+        return resolveGovernanceQueueAuxiliaryFindingHref(runId, findingId, {
+          inspectHrefOptions: params.inspectHrefOptions,
+        });
+      }
+
       return getFindingDetailHref(runId, findingId);
     }
     case "decision":
@@ -151,6 +162,7 @@ export function buildCanonicalObjectSecondaryView(
 /** Maps a governance queue row to its secondary-view presentation on the findings register. */
 export function secondaryViewFromGovernanceQueueRow(
   row: { readonly recordKind: "finding" | "decision"; readonly runId: string; readonly findingId: string },
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
 ): CanonicalObjectSecondaryViewPresentation {
   if (row.recordKind === "decision") {
     return buildCanonicalObjectSecondaryView("decision", "governanceFindingsRegister", {});
@@ -159,6 +171,7 @@ export function secondaryViewFromGovernanceQueueRow(
   return buildCanonicalObjectSecondaryView("finding", "governanceFindingsRegister", {
     runId: row.runId,
     findingId: row.findingId,
+    inspectHrefOptions,
   });
 }
 

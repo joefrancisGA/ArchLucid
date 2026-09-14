@@ -2,7 +2,10 @@ import type { KeyboardEvent } from "react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
-import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import {
+  getFindingDetailHref,
+  getFindingEvidenceTraceHref,
+} from "@/lib/findings/finding-evidence-navigation";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 
@@ -35,6 +38,36 @@ export function governanceFindingInspectHref(
   }
 
   return getFindingEvidenceTraceHref(runId, findingId, options?.findingsQueueRunId);
+}
+
+export type GovernanceQueueAuxiliaryFindingHrefInput = {
+  readonly inspectHrefOptions?: GovernanceFindingInspectHrefOptions;
+  readonly findingsQueueRunId?: string | null;
+  /** Peer assigned-to-me strips use evidence-trace inspect; continue-last/triage use finding detail. */
+  readonly usePeerInspectRoute?: boolean;
+};
+
+/** WA-001 — queue auxiliary strips stay on nested focusedFinding when architecture is known. */
+export function resolveGovernanceQueueAuxiliaryFindingHref(
+  runId: string,
+  findingId: string,
+  input?: GovernanceQueueAuxiliaryFindingHrefInput,
+): string {
+  const inspectHrefOptions = input?.inspectHrefOptions;
+  const architectureId = inspectHrefOptions?.architectureId?.trim() ?? "";
+  const isWorkingMode = inspectHrefOptions?.isWorkingMode === true;
+
+  if (isWorkingMode && architectureId.length > 0) {
+    return governanceFindingInspectHref(runId, findingId, inspectHrefOptions);
+  }
+
+  if (input?.usePeerInspectRoute === true) {
+    return governanceFindingInspectHref(runId, findingId, {
+      findingsQueueRunId: input.findingsQueueRunId,
+    });
+  }
+
+  return getFindingDetailHref(runId, findingId, input?.findingsQueueRunId);
 }
 
 export function governanceFindingManifestRecordHref(runId: string, manifestId: string): string {

@@ -41,8 +41,10 @@ import {
   resolveSystemNotJobGovernanceFindingsPageSubtitle,
 } from "@/lib/system-not-job-findings-are-verbs-on-the-system";
 import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
-import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
-import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
+import {
+  type GovernanceFindingInspectHrefOptions,
+  resolveGovernanceQueueAuxiliaryFindingHref,
+} from "@/components/governance/findings/governance-findings-navigation";
 import { resolveContinueLastGovernanceFinding } from "@/lib/resolve-continue-last-governance-finding";
 import {
   governanceFindingsQueueActiveFilterChips,
@@ -131,6 +133,7 @@ export function resolveFirstFindingTriageTarget(
   displayedRows: readonly GovernanceFindingQueueRow[],
   isAssignedToMe: boolean,
   findingsQueueRunId?: string | null,
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
 ): FirstFindingTriageTarget | null {
   if (isAssignedToMe) {
     return null;
@@ -145,15 +148,19 @@ export function resolveFirstFindingTriageTarget(
   return {
     findingId: row.findingId,
     findingTitle: row.title,
-    href: getFindingDetailHref(row.runId, row.findingId, findingsQueueRunId),
+    href: resolveGovernanceQueueAuxiliaryFindingHref(row.runId, row.findingId, {
+      inspectHrefOptions,
+      findingsQueueRunId,
+    }),
   };
 }
 
 export function resolveContinueLastFindingTarget(
   displayedRows: readonly GovernanceFindingQueueRow[],
   findingsQueueRunId?: string | null,
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
 ) {
-  return resolveContinueLastGovernanceFinding(displayedRows, findingsQueueRunId);
+  return resolveContinueLastGovernanceFinding(displayedRows, findingsQueueRunId, inspectHrefOptions);
 }
 
 export type AssignedToMeOldestFindingTarget = {
@@ -164,6 +171,7 @@ export type AssignedToMeOldestFindingTarget = {
 export function resolveAssignedToMeOldestFindingTarget(
   rows: readonly GovernanceFindingQueueRow[],
   isAssignedToMe: boolean,
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
 ): AssignedToMeOldestFindingTarget | null {
   if (!isAssignedToMe) {
     return null;
@@ -177,7 +185,10 @@ export function resolveAssignedToMeOldestFindingTarget(
 
   return {
     target,
-    href: governanceFindingInspectHref(target.runId, target.findingId),
+    href: resolveGovernanceQueueAuxiliaryFindingHref(target.runId, target.findingId, {
+      inspectHrefOptions,
+      usePeerInspectRoute: true,
+    }),
   };
 }
 

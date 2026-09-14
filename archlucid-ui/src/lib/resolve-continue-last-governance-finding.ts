@@ -1,6 +1,9 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import {
+  type GovernanceFindingInspectHrefOptions,
+  resolveGovernanceQueueAuxiliaryFindingHref,
+} from "@/components/governance/findings/governance-findings-navigation";
 import { asReadonlyArray } from "@/lib/continue-last-list-guard";
-import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 
 const REVIEW_FINDING_HREF_PATTERN = /^\/architecture\/reviews\/([^/]+)\/findings\/([^/]+)/i;
@@ -55,11 +58,15 @@ function readRecentFindingKey(): { readonly runId: string; readonly findingId: s
 function toTarget(
   row: GovernanceFindingQueueRow,
   findingsQueueRunId?: string | null,
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
 ): GovernanceFindingsContinueLastTarget {
   return {
     findingId: row.findingId,
     title: row.title,
-    href: getFindingDetailHref(row.runId, row.findingId, findingsQueueRunId),
+    href: resolveGovernanceQueueAuxiliaryFindingHref(row.runId, row.findingId, {
+      inspectHrefOptions,
+      findingsQueueRunId,
+    }),
   };
 }
 
@@ -67,6 +74,7 @@ function toTarget(
 export function resolveContinueLastGovernanceFinding(
   rows: unknown,
   findingsQueueRunId?: string | null,
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
 ): GovernanceFindingsContinueLastTarget | null {
   const normalizedRows = asReadonlyArray<GovernanceFindingQueueRow>(rows);
 
@@ -88,13 +96,13 @@ export function resolveContinueLastGovernanceFinding(
     );
 
     if (recentMatch !== undefined) {
-      return toTarget(recentMatch, findingsQueueRunId);
+      return toTarget(recentMatch, findingsQueueRunId, inspectHrefOptions);
     }
 
     const findingIdMatch = findingRows.find((row) => row.findingId === recentKey.findingId);
 
     if (findingIdMatch !== undefined) {
-      return toTarget(findingIdMatch, findingsQueueRunId);
+      return toTarget(findingIdMatch, findingsQueueRunId, inspectHrefOptions);
     }
   }
 
@@ -102,5 +110,5 @@ export function resolveContinueLastGovernanceFinding(
     .slice()
     .sort((left, right) => (right.agingDays ?? -1) - (left.agingDays ?? -1))[0];
 
-  return oldestOpen === undefined ? null : toTarget(oldestOpen, findingsQueueRunId);
+  return oldestOpen === undefined ? null : toTarget(oldestOpen, findingsQueueRunId, inspectHrefOptions);
 }
