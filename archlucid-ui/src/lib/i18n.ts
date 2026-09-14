@@ -149,7 +149,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   infrastructureOverview: "Infrastructure overview",
   infrastructureDrift: "Drift & snapshots",
   infrastructureTerraform: "Terraform mapping",
-  infrastructureDiagrams: "Inventory diagrams",
+  infrastructureDiagrams: "Diagrams",
   infrastructureDiagramReconcile: "Diagram reconciliation",
   infrastructureResources: "Resource explorer",
   infrastructureAsk: "Ask",

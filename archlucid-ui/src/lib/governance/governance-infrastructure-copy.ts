@@ -138,11 +138,13 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID = "infra-diag
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL = "Skip to diagram viewer" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
-  "Render inventory diagrams from snapshot evidence. Full subscription keeps virtual machines, databases, and other backbone resources when the full leaf graph is too large. Attachment and platform resources may be hidden. Pick a Resource Group to see every resource in one group." as const;
+  "Render diagrams from snapshot evidence. Full subscription keeps virtual machines, databases, and other backbone resources when the full leaf graph is too large. Attachment and platform resources may be hidden. Pick a Resource Group to see every resource in one group." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL = "Scoped to resource" as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE = "Inventory diagrams unavailable" as const;
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE = "Diagrams unavailable" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION = "Open diagrams" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE =
   "Could not download diagram PNG" as const;
@@ -454,7 +456,7 @@ export const INFRASTRUCTURE_WORKBENCH_ROWS: readonly InfrastructureWorkbenchRow[
   {
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
-    summary: "Render inventory diagrams, a resource group map for large subscriptions, and server PNG export.",
+    summary: "Render diagrams, a resource group map for large subscriptions, and server PNG export.",
   },
   {
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,

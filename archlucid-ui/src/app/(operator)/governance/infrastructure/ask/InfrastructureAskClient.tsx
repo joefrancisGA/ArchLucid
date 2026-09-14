@@ -95,6 +95,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_ACTION,
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_BODY,
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
 } from "@/lib/governance/governance-infrastructure-copy";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
@@ -687,7 +688,7 @@ export function InfrastructureAskClient() {
               href={inventoryDiagramsBackLinkHref}
               data-testid="infra-ask-inventory-diagrams-back-link"
             >
-              Open inventory diagrams
+              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION}
             </Link>
           ) : null}
           {diagramReconcileBackLinkHref != null ? (
