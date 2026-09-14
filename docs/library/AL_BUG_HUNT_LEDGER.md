@@ -4472,6 +4472,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** tenant-data-export
 
+2026-09-14 seed hunt #2824 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
 2026-09-14 seed hunt #2819 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved PascalCase `StructuralExecutionMode` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_allows_career_when_structural_execution_mode_pascal_case_real`.
 
 2026-09-14 seed hunt #2801 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved PascalCase `IsDemoTenant` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_demo_tenant_when_is_demo_tenant_pascal_case_true`.
@@ -4618,7 +4620,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 103
+- **hunts:** 104
 - **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
