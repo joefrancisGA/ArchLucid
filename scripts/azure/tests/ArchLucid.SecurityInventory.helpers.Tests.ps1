@@ -9,10 +9,24 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         . $script:helperPath
     }
 
-    It 'treats private DNS virtual network links as never-show inventory types' {
-        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType 'Microsoft.Network/privateDnsZones/virtualNetworkLinks' |
-            Should -Be $true
+    It 'treats omitted inventory types as never-show' {
+        @(
+            'Microsoft.Network/privateDnsZones/virtualNetworkLinks'
+            'Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks'
+            'Microsoft.Portal/dashboards'
+            'Microsoft.Network/dnszones'
+            'Microsoft.Network/privateDnsZones'
+            'Microsoft.Compute/virtualMachines/extensions'
+            'Microsoft.Maintenance/maintenanceConfigurations'
+            'Microsoft.Example/widgets/extensions'
+        ) | ForEach-Object {
+            Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType $_ |
+                Should -Be $true -Because "type $_ should be omitted"
+        }
+
         Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType 'Microsoft.Network/virtualNetworks' |
+            Should -Be $false
+        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType 'Microsoft.Compute/virtualMachines' |
             Should -Be $false
     }
 

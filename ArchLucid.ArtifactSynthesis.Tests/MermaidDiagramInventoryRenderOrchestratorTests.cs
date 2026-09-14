@@ -4,6 +4,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.InfraEvidence.DiagramPeel;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -192,7 +193,7 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
         result.PrimaryMermaid.Should().NotContain("dns-1");
         result.PrimaryMermaid.Should().NotContain("mw-1");
         result.CollapseReport!.Entries.Should().Contain(entry =>
-            entry.Kind == DiagramPeelAlwaysDisposeArmTypes.CollapseKind
+            entry.Kind == AzureInventoryNeverShowArmTypes.DiagramCollapseKind
             && entry.Reason.Contains("Microsoft.Portal/dashboards", StringComparison.Ordinal));
     }
 
