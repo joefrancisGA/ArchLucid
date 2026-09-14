@@ -4,7 +4,7 @@
 >
 > **Prior close:** [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md) · Wave 34: [`INHABIT_ACCEPTANCE_2026-09-13.md`](INHABIT_ACCEPTANCE_2026-09-13.md) · Inventories: [`INHABIT_LEAK_INVENTORIES.md`](INHABIT_LEAK_INVENTORIES.md)
 >
-> **Post-IR close:** [`INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md`](INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md) — IP-002–IP-010 shipped; IP-011 partial (first-paint row open); IP-012 skip documented.
+> **Post-IR close:** [`INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md`](INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md) — IP-002–IP-011 shipped; IP-012 skip documented.
 
 **Status (historical diagnosis):** This file named post-IR leftovers before the **IP-002–IP-011** pack shipped. For current truth, use [`INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md`](INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md) and [`INHABIT_POST_IR_LEAK_INVENTORIES.md`](INHABIT_POST_IR_LEAK_INVENTORIES.md). **Wave 35 is not started.** **G-REAL-06 is not shipped.**
 

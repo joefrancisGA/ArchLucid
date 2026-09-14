@@ -178,7 +178,7 @@ export const INHABIT_POST_IR_INHABITED_CHROME_ROWS: readonly InhabitPostIrLeakRo
   {
     surface: "Inhabited findings document chrome (reasoned-no first paint)",
     relativePath: "components/governance/InhabitedFindingsDocumentChrome.tsx",
-    leakOpen: true,
+    leakOpen: false,
     ownerPrompt: "IP-011",
   },
   {

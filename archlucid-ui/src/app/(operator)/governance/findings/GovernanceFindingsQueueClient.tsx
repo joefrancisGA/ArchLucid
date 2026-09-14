@@ -45,6 +45,7 @@ import { buildGovernanceFindingsArchitectureRunIdSet } from "@/lib/governance/go
 import { useGovernanceFindingsHideGenericState } from "@/hooks/use-governance-findings-hide-generic-state";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import type { InhabitedFindingsTrailBundleSnapshot } from "@/lib/inhabit/inhabited-findings-trail-bundle";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
@@ -52,6 +53,7 @@ export type { GovernanceFindingsQueueMode };
 
 export type GovernanceFindingsQueueClientProps = {
   readonly mode?: GovernanceFindingsQueueMode;
+  readonly inhabitedFindingsInitialTrailBundle?: InhabitedFindingsTrailBundleSnapshot | null;
 };
 
 /**
@@ -59,6 +61,7 @@ export type GovernanceFindingsQueueClientProps = {
  */
 export default function GovernanceFindingsQueueClient({
   mode = "tenant",
+  inhabitedFindingsInitialTrailBundle = null,
 }: GovernanceFindingsQueueClientProps) {
   const router = useRouter();
   const { productLine } = useProductLine();
@@ -356,6 +359,7 @@ export default function GovernanceFindingsQueueClient({
         assignedToMeCheckedAt={assignedToMeCheckedAt}
         assignedToMeFetchBasis={assignedToMeFetchBasis}
         currentJobId={currentJobId}
+        inhabitedFindingsInitialTrailBundle={inhabitedFindingsInitialTrailBundle}
       />
     </OperatorPageContainer>
   );

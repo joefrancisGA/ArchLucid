@@ -26,6 +26,7 @@ import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-fi
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import type { GovernanceAssignedToMeFetchBasis } from "@/lib/governance/governance-assigned-to-me-fetch-basis";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { InhabitedFindingsTrailBundleSnapshot } from "@/lib/inhabit/inhabited-findings-trail-bundle";
 import { cn } from "@/lib/utils";
 
 export type GovernanceFindingsQueueAssignedToMeShellProps = {
@@ -113,6 +114,7 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly assignedToMeCheckedAt: Date | null;
   readonly assignedToMeFetchBasis: GovernanceAssignedToMeFetchBasis | null;
   readonly currentJobId: GovernanceJobId;
+  readonly inhabitedFindingsInitialTrailBundle?: InhabitedFindingsTrailBundleSnapshot | null;
 };
 
 export function GovernanceFindingsQueueAssignedToMeShell(

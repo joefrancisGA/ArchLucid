@@ -6,7 +6,7 @@
 
 ## Executive summary
 
-**IP-002–IP-010 product rows are shipped.** **IP-011** is **partially shipped** (run-scope banner closed; first-paint infeasible + transparency trail gap documented as remaining). **IP-012** documents an intentional skip (nested review-detail stays inspector). **IP-013** inventories and markdown match TypeScript. **IP-014** prompt-file ratchet is green. **Wave 35 is not started.** **G-REAL-06 is not shipped.**
+**IP-002–IP-011 product rows are shipped.** **IP-012** documents an intentional skip (nested review-detail stays inspector). **IP-013** inventories and markdown match TypeScript. **IP-014** prompt-file ratchet is green. **Wave 35 is not started.** **G-REAL-06 is not shipped.**
 
 | Cluster | Prompts | Status |
 | --- | --- | --- |
@@ -15,7 +15,7 @@
 | Room / projector | IP-007 | **Shipped** |
 | Inspect false confidence | IP-008–IP-009 | **Shipped** |
 | Inspector finalize → desk | IP-010 | **Shipped** |
-| Inhabited banner / first-paint | IP-011 | **Partial** (banner closed; first-paint row open) |
+| Inhabited banner / first-paint | IP-011 | **Shipped** |
 | Skip inspector stays inspector | IP-012 | **Skip** (documented) |
 | Inventory ratchet | IP-013 | **Shipped** |
 | Prompt inventory Vitest | IP-014 | **Shipped** |
@@ -35,12 +35,12 @@
 | **009** | Secondary re-run mounts `WorkingExecuteStartHonestyNotices` |
 | **010** | Inspector finalize passes `parentArchitectureId` through Do-this-next strip |
 
-## Partial (IP-011)
+## Product shipped (IP-011)
 
-| Surface | Status |
+| Surface | Summary |
 | --- | --- |
-| Run-scope “Open review” banner on inhabited nested findings | **Closed** — gated on `suppressPipelineChrome` |
-| Inhabited findings first-paint infeasible + transparency trail | **Open** — `InhabitedFindingsDocumentChrome` client `useQuery`; no cheap server bundle without inventing progress API |
+| Run-scope banner | Gated on `suppressPipelineChrome` — no “Open review” escape hatch on inhabited nested findings |
+| First-paint trail + infeasible | Nested findings page server-prefetches `critical-page-bundle` into `initialTrailBundle` |
 
 ## Intentional skip (IP-012)
 
@@ -88,7 +88,6 @@ Focused Vitest: `inhabit-post-ir-leak-inventories.test.ts`, `inhabit-post-prompt
 
 ## Recommendation
 
-1. Post-IR livelihood leaks named in IP-002–IP-010 are **closed**.
-2. **IP-011 first-paint** is the only remaining open inventory row — pick up only if a cheap server bundle appears; do not invent `GET /v1/runs/{runId}/progress`.
-3. Do **not** paste a wave-35 inhabit pack to “finish inhabit.”
-4. Fresh diagnosis should start from this acceptance, not reopen closed IR/IH inventory booleans.
+1. Post-IR livelihood leaks named in IP-002–IP-011 are **closed**.
+2. Do **not** paste a wave-35 inhabit pack to “finish inhabit.”
+3. Fresh diagnosis should start from this acceptance, not reopen closed IR/IH inventory booleans.

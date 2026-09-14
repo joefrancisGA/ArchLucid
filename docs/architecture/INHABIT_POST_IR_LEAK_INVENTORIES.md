@@ -80,14 +80,14 @@ Primary start-honesty surfaces remain closed (**IH-025**).
 
 Inhabited findings-document finalize with `parentArchitectureId` stays closed (**IH-022**).
 
-## IP-011 — Inhabited first-paint trail and run-scope banner
+## IP-011 — Inhabited first-paint trail and run-scope banner (closed)
 
 | Surface | Module | Leak open | Owner |
 | --- | --- | --- | --- |
-| Inhabited findings document chrome (reasoned-no first paint) | `InhabitedFindingsDocumentChrome.tsx` | Yes | IP-011 |
+| Inhabited findings document chrome (reasoned-no first paint) | `InhabitedFindingsDocumentChrome.tsx` | No | IP-011 |
 | Governance findings queue run-scope banner | `GovernanceFindingsQueueScopeSection.tsx` | No | IP-011 |
 
-Run-scope banner is gated on `suppressPipelineChrome` when inhabited nested findings are mounted. First-paint infeasible + transparency trail still waits on client `useQuery` in `InhabitedFindingsDocumentChrome` — no cheap server bundle exists without inventing a progress API.
+Run-scope banner is gated on `suppressPipelineChrome`. Nested findings server-prefetches the existing `critical-page-bundle` when `runId` is present and passes `initialTrailBundle` for first-paint transparency trail + infeasible package.
 
 ## IP-012 — Nested review-detail stays inspector (skip)
 
