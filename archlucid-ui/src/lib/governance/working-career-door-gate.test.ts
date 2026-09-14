@@ -5,12 +5,17 @@ import {
   resolveWorkingCareerDoorGate,
   WORKING_CAREER_DOOR_PLATFORM_SETTINGS_HREF,
 } from "@/lib/governance/working-career-door-gate";
+import { MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH } from "@/lib/model-governance-settings-evidence-copy";
 import {
   WORKING_CAREER_DOOR_HOST_SIMULATOR_BLOCKED_DETAIL,
   WORKING_CAREER_DOOR_LIVE_AI_NOT_READY_BLOCKED_DETAIL,
 } from "@/lib/governance/working-career-door-gate-copy";
 
 describe("working-career-door-gate", () => {
+  it("links platform settings to AI models administration", () => {
+    expect(WORKING_CAREER_DOOR_PLATFORM_SETTINGS_HREF).toBe(MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH);
+  });
+
   it("does not block Rehearsal door selection", () => {
     const gate = resolveWorkingCareerDoorGate({
       selectedDoor: "rehearsal",
