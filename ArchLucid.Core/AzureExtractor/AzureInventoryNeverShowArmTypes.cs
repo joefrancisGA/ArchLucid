@@ -12,6 +12,8 @@ public static class AzureInventoryNeverShowArmTypes
     public static readonly string[] CatalogArmTypes =
     [
         "Microsoft.Portal/dashboards",
+        "Microsoft.OperationalInsights/workspaces",
+        "Microsoft.OperationsManagement/solutions",
         "Microsoft.Network/dnszones",
         "Microsoft.Network/privateDnsZones",
         "Microsoft.Network/dnsResolvers",
@@ -27,6 +29,8 @@ public static class AzureInventoryNeverShowArmTypes
     private static readonly string[] LastSegments =
     [
         "dashboards",
+        "workspaces",
+        "solutions",
         "extensions",
         "dnssettings",
         "dnszones",
@@ -36,6 +40,8 @@ public static class AzureInventoryNeverShowArmTypes
         "maintenanceconfigurations",
         "configurationassignments",
     ];
+
+    public static readonly string[] ResourceTypeLastSegmentSuffixes = LastSegments;
 
     public static bool ShouldOmitFromInventory(string? armType)
     {

@@ -14,6 +14,8 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             'Microsoft.Network/privateDnsZones/virtualNetworkLinks'
             'Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks'
             'Microsoft.Portal/dashboards'
+            'Microsoft.OperationalInsights/workspaces'
+            'Microsoft.OperationsManagement/solutions'
             'Microsoft.Network/dnszones'
             'Microsoft.Network/privateDnsZones'
             'Microsoft.Compute/virtualMachines/extensions'

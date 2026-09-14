@@ -27,10 +27,6 @@ public sealed class AzureInventorySnapshotMaterializerTests
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };
         Guid snapshotId = Guid.NewGuid();
         Guid packageId = Guid.NewGuid();
-        string childArmId =
-            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
-        string normalizedChildArmId = ArmResourceIdNormalizer.Normalize(childArmId);
-        string parentArmId = normalizedChildArmId[..normalizedChildArmId.LastIndexOf('/')];
 
         AzureInventorySnapshotMaterializeWriteRequest? captured = null;
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = CreateSnapshotRepository(
@@ -70,12 +66,10 @@ public sealed class AzureInventorySnapshotMaterializerTests
 
         result.Succeeded.Should().BeTrue();
         captured.Should().NotBeNull();
-        captured!.Relationships.Should().ContainSingle(r =>
-            r.FromAzureResourceId == parentArmId
-            && r.ToAzureResourceId == normalizedChildArmId
-            && r.RelationshipType == GraphEdgeTypes.Contains
-            && r.ProvenanceKind == ProvenanceKind.ObservedFact
-            && r.InferenceSource == GraphEdgeInferenceSources.InventoryExplicitParentChild);
+        captured!.Relationships.Should().BeEmpty(
+            "parent-child edges are omitted when the parent ARM id is not itself a visible inventory row");
+        captured.RelationshipCount.Should().Be(0);
+        result.RelationshipCount.Should().Be(0);
     }
 
     [Fact]
@@ -185,12 +179,6 @@ public sealed class AzureInventorySnapshotMaterializerTests
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };
         Guid snapshotId = Guid.NewGuid();
         Guid packageId = Guid.NewGuid();
-        string targetId =
-            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
-        string workspaceId =
-            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1";
-        string normalizedTargetId = ArmResourceIdNormalizer.Normalize(targetId);
-        string normalizedWorkspaceId = ArmResourceIdNormalizer.Normalize(workspaceId);
 
         AzureInventorySnapshotMaterializeWriteRequest? captured = null;
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = CreateSnapshotRepository(
@@ -201,7 +189,16 @@ public sealed class AzureInventorySnapshotMaterializerTests
         Mock<ICloudResourceIdentityDirectory> identityDirectory = CreateIdentityDirectory(scope, snapshotId);
 
         byte[] zipBytes = BuildZipWithDiagnostics(
-            "[]",
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "properties": {}
+              }
+            ]
+            """,
             """
             [
               {
@@ -229,12 +226,12 @@ public sealed class AzureInventorySnapshotMaterializerTests
 
         result.Succeeded.Should().BeTrue();
         captured.Should().NotBeNull();
-        captured!.Relationships.Should().Contain(r =>
-            r.FromAzureResourceId == normalizedTargetId
-            && r.ToAzureResourceId == normalizedWorkspaceId
-            && r.RelationshipType == GraphEdgeTypes.ConnectsTo
-            && r.ProvenanceKind == ProvenanceKind.ObservedFact
-            && r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticTarget);
+        captured!.Resources.Should().ContainSingle(resource =>
+            resource.ResourceType == "Microsoft.Storage/storageAccounts");
+        captured.Relationships.Should().BeEmpty(
+            "diagnostic edges to omitted Log Analytics workspaces are not attested");
+        captured.RelationshipCount.Should().Be(0);
+        result.RelationshipCount.Should().Be(0);
     }
 
     private static Mock<IAzureInventorySnapshotRepository> CreateSnapshotRepository(
