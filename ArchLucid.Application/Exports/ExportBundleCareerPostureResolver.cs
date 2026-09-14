@@ -232,13 +232,21 @@ public static class ExportBundleCareerPostureResolver
         string snakeCaseName,
         out JsonElement value)
     {
-        if (root.TryGetProperty(camelCaseName, out value))
+        if (root.TryGetProperty(camelCaseName, out value)
+            || root.TryGetProperty(snakeCaseName, out value))
         {
             return true;
         }
 
-        if (root.TryGetProperty(snakeCaseName, out value))
+        foreach (JsonProperty property in root.EnumerateObject())
         {
+            if (!string.Equals(property.Name, camelCaseName, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(property.Name, snakeCaseName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            value = property.Value;
             return true;
         }
 
