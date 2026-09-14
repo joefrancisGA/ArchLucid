@@ -1428,6 +1428,17 @@ internal static class KubernetesManifestCanonicalObjectMapper
                 }
             }
 
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "image", out JsonElement imageElement)
+                && imageElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(imageElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "containerImage",
+                    imageElement.GetString()!);
+            }
+
             if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
                 || securityContext.ValueKind is not JsonValueKind.Object)
                 return;
