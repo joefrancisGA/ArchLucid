@@ -305,7 +305,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("automation_software_update_configuration", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("blueprint_definition", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("synapse_spark_pool", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("monitor_private_link_scope", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("monitor_private_link_scope", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_activity_log_alert", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -521,7 +522,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("automation_software_update_configuration", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("blueprint_definition", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("synapse_spark_pool", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("monitor_private_link_scope", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("monitor_private_link_scope", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_activity_log_alert", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
