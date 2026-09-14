@@ -11476,6 +11476,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-14 seed hunt #2777 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case container `image_pull_policy` projection gap; regression `ParseAsync_snake_case_container_image_pull_policy_projects_image_pull_policy_exposure`.
+
 2026-09-14 seed hunt #2772 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case container `termination_message_policy` projection gap; regression `ParseAsync_snake_case_container_termination_message_policy_projects_termination_message_policy_exposure`.
 
 2026-09-14 seed hunt #2767 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case container `termination_message_path` projection gap; regression `ParseAsync_snake_case_container_termination_message_path_projects_termination_message_path_exposure`.
@@ -11632,8 +11634,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 203
-- **bugs-found:** 244
+- **hunts:** 204
+- **bugs-found:** 245
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
 - **last-bug:** 2026-09-14 — hunt #2732: snake_case pod security_context.capabilities.drop projection gap
