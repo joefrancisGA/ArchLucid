@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.Contracts.InfraEvidence.DiagramPeel;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 
 namespace ArchLucid.ArtifactSynthesis.Mermaid;
 
@@ -16,7 +17,7 @@ internal static class DiagramPeelAlwaysDisposeResolver
             .Select(entry => entry.ArmResourceType)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        foreach (string catalogType in DiagramPeelAlwaysDisposeArmTypes.CatalogArmTypes)
+        foreach (string catalogType in AzureInventoryNeverShowArmTypes.CatalogArmTypes)
         {
             types.Add(catalogType);
         }
@@ -28,7 +29,7 @@ internal static class DiagramPeelAlwaysDisposeResolver
 
         foreach (string armType in graphTypes)
         {
-            if (DiagramPeelAlwaysDisposeArmTypes.MatchesSuffix(armType))
+            if (AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(armType))
             {
                 types.Add(armType);
             }

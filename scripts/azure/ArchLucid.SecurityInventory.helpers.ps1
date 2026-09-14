@@ -535,9 +535,55 @@ function Test-ArchLucidAzureInventoryNeverShowResourceType
         return $false
     }
 
-    if ($ResourceType -like '*virtualNetworkLinks*')
+    $catalogTypes = @(
+        'Microsoft.Portal/dashboards'
+        'Microsoft.Network/dnszones'
+        'Microsoft.Network/privateDnsZones'
+        'Microsoft.Network/dnsResolvers'
+        'Microsoft.Compute/virtualMachines/extensions'
+        'Microsoft.Compute/virtualMachineScaleSets/extensions'
+        'Microsoft.HybridCompute/machines/extensions'
+        'Microsoft.Maintenance/maintenanceConfigurations'
+        'Microsoft.Maintenance/configurationAssignments'
+        'Microsoft.Network/privateDnsZones/virtualNetworkLinks'
+        'Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks'
+    )
+
+    foreach ($catalogType in $catalogTypes)
     {
-        return $true
+        if ($ResourceType.Equals($catalogType, [StringComparison]::OrdinalIgnoreCase))
+        {
+            return $true
+        }
+    }
+
+    [string[]]$segments = @($ResourceType -split '/' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+
+    if ($segments.Count -eq 0)
+    {
+        return $false
+    }
+
+    [string]$lastSegment = $segments[$segments.Count - 1]
+
+    $lastSegments = @(
+        'dashboards'
+        'extensions'
+        'dnssettings'
+        'dnszones'
+        'privatednszones'
+        'dnsresolvers'
+        'virtualnetworklinks'
+        'maintenanceconfigurations'
+        'configurationassignments'
+    )
+
+    foreach ($segment in $lastSegments)
+    {
+        if ($lastSegment.Equals($segment, [StringComparison]::OrdinalIgnoreCase))
+        {
+            return $true
+        }
     }
 
     return $false
