@@ -15,6 +15,7 @@ import {
   alertsTriageSuppressButtonLabelReaderInbox,
 } from "@/lib/enterprise-controls-context-copy";
 import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
+import type { GovernanceFindingInspectHrefOptions } from "@/components/governance/findings/governance-findings-navigation";
 import {
   ALERTS_INBOX_TRIAGE_OVERFLOW_ALERT_ID_PARAM,
   alertsInboxTriageOverflowDisclosureHrefFromSearch,
@@ -41,6 +42,7 @@ export type AlertsInboxAlertCardProps = {
   readonly onPendingAction: (alertId: string, action: AlertActionKind) => void;
   readonly onArchiveAlert: (alertId: string) => void;
   readonly onOpenRoutingDelivery: (alertId: string, findingDetailHref: string | null) => void;
+  readonly inspectHrefOptions?: GovernanceFindingInspectHrefOptions;
 };
 
 export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
@@ -72,7 +74,7 @@ export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
       parseAlertsInboxTriageOverflowAlertIdFromSearch(alertsInboxTriageOverflowAlertIdParam),
     );
   }, [alertsInboxTriageOverflowAlertIdParam]);
-  const findingDetailHref = alertPrimaryFindingDetailHref(props.alert);
+  const findingDetailHref = alertPrimaryFindingDetailHref(props.alert, null, props.inspectHrefOptions);
   const reviewPackageHref =
     props.alert.runId !== null && props.alert.runId !== undefined && props.alert.runId.trim().length > 0
       ? getCanonicalReviewWorkspaceHref(props.alert.runId)

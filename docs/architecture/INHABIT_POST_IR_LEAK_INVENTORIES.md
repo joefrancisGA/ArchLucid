@@ -112,6 +112,17 @@ Diagnosis follow-up from [`WORKING_ARCHITECT_DIAGNOSIS_2026-09-14.md`](WORKING_A
 
 Ratchet: `archlucid-ui/src/lib/inhabit/inhabit-post-diagnosis-queue-aux-guard.test.ts`.
 
+## WA-002 — Specialist Working finding hrefs (closed)
+
+Ask, alerts, risk-exception continue-last, and compare lifecycle use `resolveWorkingFindingInspectHrefOptions` so Open finding stays on nested `focusedFinding` when architecture is known. Evidence-trace chips stay inspector drill-down.
+
+| Surface | Module | Leak open | Owner |
+| --- | --- | --- | --- |
+| Ask citation Open finding chip | `ask-citation-action-follow-ups.ts` | No | WA-002 |
+| Alerts inbox primary finding deep-link | `alert-finding-navigation.ts` | No | WA-002 |
+| Risk-exception continue last viewed | `resolve-continue-last-risk-exception.ts` | No | WA-002 |
+| Compare finding lifecycle inspect href | `compare-finding-lifecycle-inspect-href.ts` | No | WA-002 |
+
 ## Intentional skips (not IP work)
 
 | Skip | Why |

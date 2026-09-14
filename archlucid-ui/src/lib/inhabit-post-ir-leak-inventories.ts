@@ -217,6 +217,34 @@ export const INHABIT_POST_DIAGNOSIS_QUEUE_AUXILIARY_ROWS: readonly InhabitPostIr
   },
 ];
 
+/** WA-002 — Specialist Working surfaces still opened peer finding-detail inspector hrefs. */
+export const INHABIT_POST_DIAGNOSIS_SPECIALIST_HREF_ROWS: readonly InhabitPostIrLeakRow[] = [
+  {
+    surface: "Ask citation Open finding chip",
+    relativePath: "lib/ask-citation-action-follow-ups.ts",
+    leakOpen: false,
+    ownerPrompt: "WA-002",
+  },
+  {
+    surface: "Alerts inbox primary finding deep-link",
+    relativePath: "lib/alert-finding-navigation.ts",
+    leakOpen: false,
+    ownerPrompt: "WA-002",
+  },
+  {
+    surface: "Risk-exception continue last viewed",
+    relativePath: "lib/resolve-continue-last-risk-exception.ts",
+    leakOpen: false,
+    ownerPrompt: "WA-002",
+  },
+  {
+    surface: "Compare finding lifecycle inspect href",
+    relativePath: "lib/compare-finding-lifecycle-inspect-href.ts",
+    leakOpen: false,
+    ownerPrompt: "WA-002",
+  },
+];
+
 /**
  * IP-012 — Nested review-detail stays a job inspector (ADR 0098).
  * No product rows. Entry leaks are closed by IP-002–007; do not redirect the full inspector
@@ -227,7 +255,7 @@ export const INHABIT_POST_IR_INSPECTOR_SKIP_OWNER = "IP-012" as const;
 export const INHABIT_POST_IR_INSPECTOR_SKIP_NOTE =
   "Inspector URLs (/architecture/reviews/{runId} and nested architecture review routes) are intentional. Full review workspace tabs stay visible; in-flight activity and explicit View review job links remain." as const;
 
-/** All post-IR secondary inspector leak rows (IP-002–IP-011) plus diagnosis follow-up WA-001. */
+/** All post-IR secondary inspector leak rows (IP-002–IP-011) plus diagnosis follow-ups WA-001 and WA-002. */
 export const INHABIT_POST_IR_ALL_LEAK_ROWS: readonly InhabitPostIrLeakRow[] = [
   ...INHABIT_POST_IR_REVIEWS_HUB_LANDING_ROWS,
   ...INHABIT_POST_IR_GLOBAL_SEARCH_LANDING_ROWS,
@@ -240,4 +268,5 @@ export const INHABIT_POST_IR_ALL_LEAK_ROWS: readonly InhabitPostIrLeakRow[] = [
   ...INHABIT_POST_IR_INSPECTOR_FINALIZE_ROWS,
   ...INHABIT_POST_IR_INHABITED_CHROME_ROWS,
   ...INHABIT_POST_DIAGNOSIS_QUEUE_AUXILIARY_ROWS,
+  ...INHABIT_POST_DIAGNOSIS_SPECIALIST_HREF_ROWS,
 ];

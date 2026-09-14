@@ -1,6 +1,9 @@
 import type { RiskExceptionRecord } from "@/lib/api/governance-stickiness-api";
+import {
+  type GovernanceFindingInspectHrefOptions,
+  resolveGovernanceQueueAuxiliaryFindingHref,
+} from "@/components/governance/findings/governance-findings-navigation";
 import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
-import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 
 export const RISK_EXCEPTION_LAST_VIEWED_STORAGE_KEY = "archlucid_risk_exception_continue_last_v1";
@@ -70,20 +73,27 @@ export function writeRiskExceptionLastViewedId(riskExceptionId: string): void {
   }
 }
 
-function toTarget(record: RiskExceptionRecord): RiskExceptionsContinueLastTarget {
+function toTarget(
+  record: RiskExceptionRecord,
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
+): RiskExceptionsContinueLastTarget {
   const runId = record.runId?.trim() ?? "";
 
   return {
     riskExceptionId: record.riskExceptionId,
     findingId: record.findingId,
     rationale: record.rationale,
-    href: runId.length > 0 ? getFindingDetailHref(runId, record.findingId) : null,
+    href:
+      runId.length > 0
+        ? resolveGovernanceQueueAuxiliaryFindingHref(runId, record.findingId, { inspectHrefOptions })
+        : null,
   };
 }
 
 /** Resolves the exception to pin as Continue last viewed. */
 export function resolveContinueLastRiskException(
   records: unknown,
+  inspectHrefOptions?: GovernanceFindingInspectHrefOptions,
 ): RiskExceptionsContinueLastTarget | null {
   const normalizedRecords = asNonemptyReadonlyArray<RiskExceptionRecord>(records);
 
@@ -97,17 +107,17 @@ export function resolveContinueLastRiskException(
     const idMatch = normalizedRecords.find((record) => record.riskExceptionId === storedKey);
 
     if (idMatch !== undefined) {
-      return toTarget(idMatch);
+      return toTarget(idMatch, inspectHrefOptions);
     }
 
     const findingMatch = normalizedRecords.find((record) => record.findingId === storedKey);
 
     if (findingMatch !== undefined) {
-      return toTarget(findingMatch);
+      return toTarget(findingMatch, inspectHrefOptions);
     }
   }
 
   const mostRecent = normalizedRecords.slice().sort((left, right) => right.riskExceptionId.localeCompare(left.riskExceptionId))[0];
 
-  return mostRecent === undefined ? null : toTarget(mostRecent);
+  return mostRecent === undefined ? null : toTarget(mostRecent, inspectHrefOptions);
 }
