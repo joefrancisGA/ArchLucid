@@ -133,7 +133,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 RedactTopLevelSensitiveTfValues(sensitive, properties);
         }
 
-        if (TryGetPropertyIgnoreCase(res, "depends_on", out JsonElement depOn) && depOn.ValueKind == JsonValueKind.Array)
+        if ((TryGetPropertyIgnoreCase(res, "depends_on", out JsonElement depOn) || TryGetPropertyIgnoreCase(res, "dependsOn", out depOn)) && depOn.ValueKind == JsonValueKind.Array)
         {
             List<string> refs = [];
 
