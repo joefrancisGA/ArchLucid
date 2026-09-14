@@ -51,6 +51,42 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
     }
 
     [Fact]
+    public void BuildFallbackArtifact_executive_eleven_disconnected_vnets_succeeds()
+    {
+        GraphSnapshot graph = BuildExecutiveSparseVnetGraph(vnetCount: 11);
+
+        MermaidDiagramRenderArtifact artifact = orchestrator.BuildFallbackArtifact(
+            graph,
+            DiagramMode.Executive,
+            "executive",
+            "Executive (executive)",
+            new MermaidDiagramReadabilityThresholds { MaxNodes = 400 },
+            null);
+
+        artifact.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
+        artifact.Metrics.Should().NotBeNull();
+        artifact.Metrics!.NodeCount.Should().Be(11);
+        artifact.Metrics.EdgeCount.Should().Be(0);
+        artifact.Mermaid.Should().Contain("~~~");
+    }
+
+    [Fact]
+    public async Task RenderFromGraphAsync_executive_eleven_disconnected_vnets_succeeds()
+    {
+        GraphSnapshot graph = BuildExecutiveSparseVnetGraph(vnetCount: 11);
+
+        MermaidDiagramRenderResult result = await orchestrator.RenderFromGraphAsync(
+            graph,
+            DiagramMode.Executive,
+            null,
+            new MermaidDiagramReadabilityThresholds { MaxNodes = 400 });
+
+        result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
+        result.Metrics.NodeCount.Should().Be(11);
+        result.PrimaryMermaid.Should().Contain("~~~");
+    }
+
+    [Fact]
     public void BuildFallbackArtifact_peels_network_mode_for_partitioned_graph()
     {
         GraphSnapshot graph = BuildNetworkHeavyGraph(vnetCount: 12, nicPerVnet: 34);
@@ -351,6 +387,31 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
         {
             Nodes = nodes,
             Edges = edges,
+        };
+    }
+
+    private static GraphSnapshot BuildExecutiveSparseVnetGraph(int vnetCount)
+    {
+        List<GraphNode> nodes = [];
+
+        for (int index = 0; index < vnetCount; index++)
+        {
+            string nodeId = $"vnet-{index}";
+            string resourceGroup = $"network-rg-{index}";
+            string armId =
+                $"/subscriptions/sub/resourceGroups/{resourceGroup}/providers/Microsoft.Network/virtualNetworks/vnet-eastus-{index}";
+
+            nodes.Add(CreateTopologyNode(
+                nodeId,
+                $"vnet-eastus-{index}",
+                "Microsoft.Network/virtualNetworks",
+                armId,
+                resourceGroup));
+        }
+
+        return new GraphSnapshot
+        {
+            Nodes = nodes,
         };
     }
 
