@@ -297,7 +297,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("storage_management_policy", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("federated_identity_credential", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("policy_definition", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("policy_set_definition", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("policy_set_definition", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_dsc_nodeconfiguration", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -505,7 +506,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("storage_management_policy", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("federated_identity_credential", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("policy_definition", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("policy_set_definition", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("policy_set_definition", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_dsc_nodeconfiguration", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
