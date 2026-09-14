@@ -86,6 +86,7 @@ import {
   resolveInfraDiagramsFallbackArtifacts,
   resolveInfraDiagramsResourceGroupFallbackArtifacts,
   resolveInfraDiagramsThematicFallbackArtifacts,
+  isInfraDiagramsExecutiveMode,
   shouldPaintInfraDiagramsCanvas,
   shouldShowInfraDiagramsPartitionedViews,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-partitioned-view";
@@ -342,12 +343,19 @@ export function DiagramsWorkbenchClient() {
       selectedMode !== "dependencyNeighborhood"
       && !isInfraDiagramsResourceGroupMode(selectedMode)
       && shouldShowInfraDiagramsPartitionedViews({
+        selectedMode,
         selectedViewKey,
         previewStatus: activeModePreview?.status ?? "",
         renderStatus: renderResult?.status ?? "",
         fallbackArtifactCount: thematicFallbackArtifacts.length,
       }),
-    [activeModePreview?.status, renderResult?.status, selectedMode, selectedViewKey, thematicFallbackArtifacts.length],
+    [
+      activeModePreview?.status,
+      renderResult?.status,
+      selectedMode,
+      selectedViewKey,
+      thematicFallbackArtifacts.length,
+    ],
   );
 
   const showResourceGroupCards =
@@ -491,7 +499,7 @@ export function DiagramsWorkbenchClient() {
 
     return resolveInfraEvidenceMermaidRenderStatusPresentation({
       status: renderStatus,
-      mermaidEmpty: diagramContentEmpty && renderStatus === "Succeeded",
+      mermaidEmpty: diagramContentEmpty,
     });
   }, [diagramContentEmpty, renderStatus]);
 
@@ -512,6 +520,13 @@ export function DiagramsWorkbenchClient() {
   }, [mermaidOutline]);
 
   const showDensityCoach = useMemo(() => {
+    if (isInfraDiagramsExecutiveMode(selectedMode)) {
+      return (
+        (diagramContentEmpty && renderResult?.status === "Succeeded")
+        || renderResult?.status === "Failed"
+      );
+    }
+
     const overPeelBudget =
       metrics != null
       && metrics.nodeCount >= INFRA_EVIDENCE_MERMAID_CLIENT_READABILITY_THRESHOLDS.maxNodes

@@ -8,6 +8,7 @@ import { formatAzureResourceDisplay } from "@/lib/infra-evidence/format-azure-re
 import {
   formatInfraEvidenceDriftRiskLabel,
   isComparingTwoInventorySnapshots,
+  isInfraEvidenceDriftRiskyChange,
   resolveInfraEvidenceDriftRiskKey,
 } from "@/lib/infra-evidence/infra-evidence-drift-risk-display";
 
@@ -21,6 +22,8 @@ export const DRIFT_TABLE_SORT_BY_PARAM = "sortBy";
 export const DRIFT_TABLE_SORT_DIR_PARAM = "sortDir";
 export const DRIFT_TABLE_CHANGES_PAGE_PARAM = "changesPage";
 export const DRIFT_SNAPSHOTS_PAGE_PARAM = "snapshotsPage";
+export const DRIFT_TABLE_INCLUDE_UNCHANGED_PARAM = "includeUnchanged";
+export const DRIFT_TABLE_RISKY_ONLY_PARAM = "riskyOnly";
 
 export type DriftTableSortKey =
   | "resource"
@@ -42,6 +45,8 @@ export type DriftTableFilterState = {
   readonly sortDir: DriftTableSortDir;
   readonly changesPage: number;
   readonly snapshotsPage: number;
+  readonly includeUnchanged: boolean;
+  readonly riskyOnly: boolean;
 };
 
 export const DEFAULT_DRIFT_TABLE_FILTER_STATE: DriftTableFilterState = {
@@ -55,6 +60,8 @@ export const DEFAULT_DRIFT_TABLE_FILTER_STATE: DriftTableFilterState = {
   sortDir: "asc",
   changesPage: 1,
   snapshotsPage: 1,
+  includeUnchanged: false,
+  riskyOnly: false,
 };
 
 const SORT_KEYS: readonly DriftTableSortKey[] = [
@@ -86,6 +93,20 @@ export function parseDriftTablePositiveInt(raw: string | null | undefined, fallb
   return parsed;
 }
 
+export function parseDriftTableBooleanFlag(raw: string | null | undefined): boolean {
+  const normalized = raw?.trim().toLowerCase() ?? "";
+
+  return normalized === "1" || normalized === "true" || normalized === "yes";
+}
+
+export function parseDriftTableIncludeUnchanged(raw: string | null | undefined): boolean {
+  return parseDriftTableBooleanFlag(raw);
+}
+
+export function parseDriftTableRiskyOnly(raw: string | null | undefined): boolean {
+  return parseDriftTableBooleanFlag(raw);
+}
+
 export function parseDriftTableFilterState(searchParams: URLSearchParams): DriftTableFilterState {
   return {
     riskFilter: searchParams.get(DRIFT_TABLE_RISK_FILTER_PARAM)?.trim() ?? "",
@@ -98,6 +119,8 @@ export function parseDriftTableFilterState(searchParams: URLSearchParams): Drift
     sortDir: parseDriftTableSortDir(searchParams.get(DRIFT_TABLE_SORT_DIR_PARAM)),
     changesPage: parseDriftTablePositiveInt(searchParams.get(DRIFT_TABLE_CHANGES_PAGE_PARAM)),
     snapshotsPage: parseDriftTablePositiveInt(searchParams.get(DRIFT_SNAPSHOTS_PAGE_PARAM)),
+    includeUnchanged: parseDriftTableIncludeUnchanged(searchParams.get(DRIFT_TABLE_INCLUDE_UNCHANGED_PARAM)),
+    riskyOnly: parseDriftTableRiskyOnly(searchParams.get(DRIFT_TABLE_RISKY_ONLY_PARAM)),
   };
 }
 
@@ -116,6 +139,8 @@ export function buildDriftTableFilterPatch(
     sortDir: patch.sortDir ?? current.sortDir,
     changesPage: patch.changesPage ?? current.changesPage,
     snapshotsPage: patch.snapshotsPage ?? current.snapshotsPage,
+    includeUnchanged: patch.includeUnchanged ?? current.includeUnchanged,
+    riskyOnly: patch.riskyOnly ?? current.riskyOnly,
   };
 }
 
@@ -162,6 +187,14 @@ export function driftTableFilterSearchParams(state: DriftTableFilterState): URLS
     params.set(DRIFT_SNAPSHOTS_PAGE_PARAM, String(state.snapshotsPage));
   }
 
+  if (state.includeUnchanged) {
+    params.set(DRIFT_TABLE_INCLUDE_UNCHANGED_PARAM, "1");
+  }
+
+  if (state.riskyOnly) {
+    params.set(DRIFT_TABLE_RISKY_ONLY_PARAM, "1");
+  }
+
   return params;
 }
 
@@ -197,10 +230,12 @@ export function hasActiveDriftTableFilters(
     | "resourceGroupFilter"
     | "resourceTypeFilter"
     | "propertyFilter"
+    | "riskyOnly"
   >,
 ): boolean {
   return (
-    state.riskFilter.trim().length > 0
+    state.riskyOnly
+    || state.riskFilter.trim().length > 0
     || state.changeTypeFilter.trim().length > 0
     || state.resourceFilter.trim().length > 0
     || state.resourceGroupFilter.trim().length > 0
@@ -220,6 +255,7 @@ export function clearDriftTableFilters(
     resourceGroupFilter: "",
     resourceTypeFilter: "",
     propertyFilter: "",
+    riskyOnly: false,
     changesPage: 1,
   };
 }
@@ -298,6 +334,7 @@ export function filterDriftChanges(
     | "resourceGroupFilter"
     | "resourceTypeFilter"
     | "propertyFilter"
+    | "riskyOnly"
   >,
   selectedDiff: InfraEvidenceDiffSummary | null = null,
 ): InfraEvidenceDiffChange[] {
@@ -311,6 +348,10 @@ export function filterDriftChanges(
 
   return rows.filter((row) => {
     if (isInfraEvidenceResourceRemovedChange(row.changeType) && !comparingTwoInventories) {
+      return false;
+    }
+
+    if (state.riskyOnly && !isInfraEvidenceDriftRiskyChange(row.riskClassification)) {
       return false;
     }
 

@@ -49,7 +49,14 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
         InfraEvidenceDriftWorkbenchQueryService service = CreateService(diffRepository: diffRepository.Object);
 
         PagedResponse<AzureInventoryChangeRecord>? response =
-            await service.ListChangesForDiffAsync(Scope, DiffId, 1, 50, cloudResourceId: null, CancellationToken.None);
+            await service.ListChangesForDiffAsync(
+                Scope,
+                DiffId,
+                1,
+                50,
+                cloudResourceId: null,
+                includeUnchanged: false,
+                CancellationToken.None);
 
         response.Should().NotBeNull();
         diffRepository.Verify(
@@ -61,6 +68,109 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
                 null,
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task ListChangesForDiffAsync_with_includeUnchanged_merges_unchanged_resources()
+    {
+        Guid snapshotAId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid snapshotBId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        string unchangedArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        string changedArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+
+        AzureInventoryDiffSummaryRecord diff = new()
+        {
+            DiffId = DiffId,
+            SnapshotAId = snapshotAId,
+            SnapshotBId = snapshotBId,
+        };
+
+        AzureInventoryChangeRecord changed = new()
+        {
+            ChangeId = Guid.NewGuid(),
+            DiffId = DiffId,
+            SnapshotAId = snapshotAId,
+            SnapshotBId = snapshotBId,
+            AzureResourceId = changedArmId,
+            ChangeType = AzureInventoryChangeType.ResourceModified,
+            Property = "sku",
+        };
+
+        AzureInventorySnapshotDetailReadModel snapshotDetail = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = snapshotAId,
+                TenantId = Scope.TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotAId,
+                    TenantId = Scope.TenantId,
+                    AzureResourceId = unchangedArmId,
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotAId,
+                    TenantId = Scope.TenantId,
+                    AzureResourceId = changedArmId,
+                    ResourceType = "Microsoft.Compute/virtualMachines",
+                },
+            ],
+        };
+
+        Mock<IAzureInventoryDiffRepository> diffRepository = new();
+        diffRepository
+            .Setup(repo => repo.TryGetByDiffIdAsync(Scope, DiffId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(diff);
+        diffRepository
+            .Setup(repo => repo.ListChangesByDiffIdAsync(Scope, DiffId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([changed]);
+
+        Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
+        snapshotRepository
+            .Setup(repo => repo.TryGetSnapshotDetailAsync(Scope, snapshotAId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshotDetail);
+        snapshotRepository
+            .Setup(repo => repo.TryGetSnapshotDetailAsync(Scope, snapshotBId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshotDetail);
+
+        InfraEvidenceDriftWorkbenchQueryService service = CreateService(
+            snapshotRepository: snapshotRepository.Object,
+            diffRepository: diffRepository.Object);
+
+        PagedResponse<AzureInventoryChangeRecord>? response =
+            await service.ListChangesForDiffAsync(
+                Scope,
+                DiffId,
+                1,
+                50,
+                cloudResourceId: null,
+                includeUnchanged: true,
+                CancellationToken.None);
+
+        response.Should().NotBeNull();
+        response!.Items.Should().HaveCount(2);
+        response.Items.Should().Contain(item => item.ChangeType == AzureInventoryChangeType.ResourceUnchanged);
+        response.Items.Should().Contain(item => item.ChangeType == AzureInventoryChangeType.ResourceModified);
+        diffRepository.Verify(
+            repo => repo.ListChangesByDiffIdPagedAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -96,7 +206,14 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
         InfraEvidenceDriftWorkbenchQueryService service = CreateService(diffRepository: diffRepository.Object);
 
         PagedResponse<AzureInventoryChangeRecord>? response =
-            await service.ListChangesForDiffAsync(Scope, DiffId, 1, 50, CloudResourceId, CancellationToken.None);
+            await service.ListChangesForDiffAsync(
+                Scope,
+                DiffId,
+                1,
+                50,
+                CloudResourceId,
+                includeUnchanged: false,
+                CancellationToken.None);
 
         response.Should().NotBeNull();
         response!.Items.Should().ContainSingle();

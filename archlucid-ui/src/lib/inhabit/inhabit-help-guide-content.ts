@@ -1,3 +1,4 @@
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   WORKING_CAREER_DOOR_LABEL,
@@ -20,13 +21,13 @@ export const INHABIT_THE_ARCHITECTURE_HELP_PAGE_SUBTITLE =
 export const INHABIT_THE_ARCHITECTURE_HELP_OVERVIEW =
   "On Working, when an architecture is open, you inhabit that system for the afternoon. Nested findings are the document you disposition — not a pipeline step and not Monday’s reviews inbox. Nested review-detail stays a job inspector when you need manifest, timeline, or package context." as const;
 
-export const INHABIT_THE_ARCHITECTURE_HELP_GUIDE_HEADINGS = [
-  { id: "what-is-this-desk", label: "What is this desk?" },
-  { id: "two-controls-only", label: "Two controls only" },
-  { id: "record-simulator-incomplete", label: "Record on Simulator host" },
-  { id: "record-vs-practice", label: "Record vs Practice" },
-  { id: "sketch-is-practice", label: "Sketch is Practice" },
-] as const;
+export const INHABIT_THE_ARCHITECTURE_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
+  { level: 2, id: "what-is-this-desk", title: "What is this desk?" },
+  { level: 2, id: "two-controls-only", title: "Two controls only" },
+  { level: 2, id: "record-simulator-incomplete", title: "Record on Simulator host" },
+  { level: 2, id: "record-vs-practice", title: "Record vs Practice" },
+  { level: 2, id: "sketch-is-practice", title: "Sketch is Practice" },
+];
 
 /** IH-028 — workspace density + Record/Practice; host Mode is honesty only. */
 export const INHABIT_THE_ARCHITECTURE_HELP_TWO_CONTROLS_BODY =

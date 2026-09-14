@@ -85689,6 +85689,7 @@ export interface paths {
             parameters: {
                 query?: {
                     cloudResourceId?: string;
+                    includeUnchanged?: boolean;
                     page?: number;
                     pageSize?: number;
                 };

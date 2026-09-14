@@ -6,7 +6,9 @@ import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD,
@@ -99,7 +101,7 @@ const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CONTEXTUAL_HELP = {
 } as const;
 
 const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CONTEXTUAL_HELP = {
-  whatIsThisPage: `Inventory diagrams — ${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}`,
+  whatIsThisPage: `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE} — ${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}`,
   whatToDoNext:
     "Select a snapshot and a diagram mode. To inspect one resource and its neighbors, choose Focus neighborhood on a Nodes row, then export PNG when procurement needs a shareable image.",
   whyEmpty: "Diagram renders appear after inventory snapshots exist for your scope.",
@@ -128,7 +130,7 @@ const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CONTEXTUAL_HELP = {
   whereToConfigurePrerequisite:
     "Connect Azure or upload inventory, and ingest a diagram with authority, before reconciliation runs.",
   whatToDoNextAction: {
-    label: "Open inventory diagrams",
+    label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   },
   whereToConfigureAction: {
@@ -138,7 +140,7 @@ const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CONTEXTUAL_HELP = {
   taskSteps: [
     "Pick a snapshot and ingested diagram — correspondence is deterministic, not a sealed review record.",
     "Review explainable rows; AI rationale appears only on Possible or Unknown matches.",
-    "Return to inventory diagrams or a resource hub when scope needs narrowing.",
+    "Return to diagrams or a resource hub when scope needs narrowing.",
   ],
 } as const;
 

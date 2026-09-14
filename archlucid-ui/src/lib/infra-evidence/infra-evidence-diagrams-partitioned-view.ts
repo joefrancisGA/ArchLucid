@@ -1,3 +1,4 @@
+import { INFRA_DIAGRAMS_DEFAULT_MODE } from "@/lib/infra-evidence/infra-evidence-diagrams-filter-url";
 import type { InfraEvidenceMermaidFallbackArtifactSummary } from "@/lib/infra-evidence/infra-evidence-mermaid-types";
 import {
   isInfraDiagramsFullMachineFallbackKey,
@@ -8,11 +9,18 @@ import {
 export const INFRA_DIAGRAMS_PARTITIONED_STATUS = "Partitioned";
 
 export type InfraDiagramsPartitionedViewInput = {
+  readonly selectedMode: string;
   readonly selectedViewKey: string;
   readonly previewStatus: string;
   readonly renderStatus: string;
   readonly fallbackArtifactCount: number;
 };
+
+export function isInfraDiagramsExecutiveMode(mode: string | null | undefined): boolean {
+  const normalized = (mode ?? "").trim().toLowerCase();
+
+  return normalized.length === 0 || normalized === INFRA_DIAGRAMS_DEFAULT_MODE;
+}
 
 export type InfraDiagramsEffectiveFallbackKeyInput = {
   readonly showPartitionedViews: boolean;
@@ -39,6 +47,10 @@ export type InfraDiagramsPaintCanvasInput = InfraDiagramsPaintMermaidSourceInput
 export function shouldShowInfraDiagramsPartitionedViews(
   input: InfraDiagramsPartitionedViewInput,
 ): boolean {
+  if (isInfraDiagramsExecutiveMode(input.selectedMode)) {
+    return false;
+  }
+
   if (input.fallbackArtifactCount <= 0) {
     return false;
   }
