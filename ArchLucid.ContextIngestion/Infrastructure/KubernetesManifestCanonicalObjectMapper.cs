@@ -1167,6 +1167,18 @@ internal static class KubernetesManifestCanonicalObjectMapper
                     "appArmorProfileType",
                     appArmorTypeElement.GetString()!);
             }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "appArmorProfile", out JsonElement appArmorProfileForLocalhostElement)
+                && appArmorProfileForLocalhostElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(appArmorProfileForLocalhostElement, "localhostProfile", out JsonElement appArmorLocalhostElement)
+                && appArmorLocalhostElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(appArmorLocalhostElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "appArmorProfileLocalhostProfile",
+                    appArmorLocalhostElement.GetString()!);
+            }
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "supplementalGroups", out JsonElement supplementalGroupsElement)
                 && supplementalGroupsElement.ValueKind is JsonValueKind.Array)
             {
