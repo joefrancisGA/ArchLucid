@@ -293,7 +293,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("virtual_desktop_application_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("virtual_desktop_scaling_plan", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("consumption_budget_subscription", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("storage_management_policy", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("storage_management_policy", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("federated_identity_credential", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -497,7 +498,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("virtual_desktop_application_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("virtual_desktop_scaling_plan", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("consumption_budget_subscription", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("storage_management_policy", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("storage_management_policy", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("federated_identity_credential", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>

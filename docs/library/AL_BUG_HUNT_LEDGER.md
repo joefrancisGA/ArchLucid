@@ -122,6 +122,8 @@
 2026-09-13 seed hunt #2370 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_dynatrace_monitor.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_dynatrace_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 - **id:** topology-proposal-merge
 
+2026-09-14 seed hunt #2816 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `federated_identity_credential` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_federated_identity_credential_node_has_compute_category_but_synthetic_datastore_id_used`.
+
 2026-09-14 seed hunt #2796 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved graph merge parity gap for `automation_schedule` ds- alias; regression `WithMergedTopologyProposals_materializes_edge_when_automation_schedule_node_has_compute_category_but_synthetic_datastore_id_used`.
 
 2026-09-14 seed hunt #2791 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `storage_management_policy` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_storage_management_policy_node_has_compute_category_but_synthetic_datastore_id_used`.
@@ -230,8 +232,8 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 187
-- **bugs-found:** 153
+- **hunts:** 188
+- **bugs-found:** 154
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
 - **last-bug:** 2026-09-14 — hunt #2798: automation_connection Compute-category ds- alias gap
