@@ -132,6 +132,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("api_center", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("application_insights", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("managed_disk", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("disk_access", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("stream_analytics", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("iothub", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("powerbi", StringComparison.OrdinalIgnoreCase)
@@ -191,6 +192,9 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("service_plan", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("spring_cloud", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("servicebus_namespace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("servicebus_queue", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("servicebus_topic", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("servicebus_subscription", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("container_registry", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("service_fabric", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("kubernetes_cluster", StringComparison.OrdinalIgnoreCase)
@@ -261,6 +265,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("dedicated_host", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("proximity_placement_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("capacity_reservation_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("backup_policy_vm", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("role_assignment", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("availability_set", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("shared_image_gallery", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("image_version", StringComparison.OrdinalIgnoreCase)
@@ -270,7 +276,14 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("restore_point_collection", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("snapshot", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("gallery_image", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("marketplace_agreement", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("marketplace_agreement", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_watcher", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_runbook", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("synapse_sql_pool", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_desktop_workspace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_desktop_host_pool", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_desktop_application_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_desktop_scaling_plan", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -294,6 +307,9 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("service_plan", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("spring_cloud", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("servicebus_namespace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("servicebus_queue", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("servicebus_topic", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("servicebus_subscription", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("container_registry", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("service_fabric", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("application_gateway", StringComparison.OrdinalIgnoreCase)
@@ -345,6 +361,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("powerbi", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("purview", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("managed_disk", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("disk_access", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("recovery_services", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("netapp", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("eventgrid", StringComparison.OrdinalIgnoreCase)
@@ -442,6 +459,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("dedicated_host", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("proximity_placement_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("capacity_reservation_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("backup_policy_vm", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("role_assignment", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("availability_set", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("shared_image_gallery", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("image_version", StringComparison.OrdinalIgnoreCase)
@@ -451,7 +470,14 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("restore_point_collection", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("snapshot", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("gallery_image", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("marketplace_agreement", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("marketplace_agreement", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("network_watcher", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_runbook", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("synapse_sql_pool", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_desktop_workspace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_desktop_host_pool", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_desktop_application_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("virtual_desktop_scaling_plan", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>

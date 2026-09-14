@@ -1084,6 +1084,16 @@ internal static class KubernetesManifestCanonicalObjectMapper
                         "seLinuxType",
                         seLinuxTypeElement.GetString()!);
                 }
+
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(seLinuxOptionsElement, "mount", out JsonElement seLinuxMountElement)
+                    && seLinuxMountElement.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(seLinuxMountElement.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "seLinuxMount",
+                        seLinuxMountElement.GetString()!);
+                }
             }
 
 
@@ -1109,6 +1119,18 @@ internal static class KubernetesManifestCanonicalObjectMapper
                     properties,
                     "seccompProfileLocalhostProfile",
                     seccompLocalhostElement.GetString()!);
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "seccompProfile", out JsonElement seccompProfileForDefaultActionElement)
+                && seccompProfileForDefaultActionElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(seccompProfileForDefaultActionElement, "defaultAction", out JsonElement seccompDefaultActionElement)
+                && seccompDefaultActionElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(seccompDefaultActionElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "seccompProfileDefaultAction",
+                    seccompDefaultActionElement.GetString()!);
             }
 
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "windowsOptions", out JsonElement windowsOptionsElement)
@@ -1204,6 +1226,64 @@ internal static class KubernetesManifestCanonicalObjectMapper
                         string.Join(',', capabilityAddValues));
                 }
             }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "capabilities", out JsonElement capabilitiesDropParentElement)
+                && capabilitiesDropParentElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(capabilitiesDropParentElement, "drop", out JsonElement capabilitiesDropElement)
+                && capabilitiesDropElement.ValueKind is JsonValueKind.Array)
+            {
+                List<string> capabilityDropValues = [];
+
+                foreach (JsonElement capability in capabilitiesDropElement.EnumerateArray())
+                {
+                    if (capability.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(capability.GetString()))
+                    {
+                        capabilityDropValues.Add(capability.GetString()!);
+                    }
+                }
+
+                if (capabilityDropValues.Count > 0)
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "capabilitiesDrop",
+                        string.Join(',', capabilityDropValues));
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "sysctls", out JsonElement sysctlsElement)
+                && sysctlsElement.ValueKind is JsonValueKind.Array)
+            {
+                List<string> sysctlValues = [];
+
+                foreach (JsonElement sysctl in sysctlsElement.EnumerateArray())
+                {
+                    if (sysctl.ValueKind is not JsonValueKind.Object)
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(sysctl, "name", out JsonElement sysctlNameElement)
+                        || sysctlNameElement.ValueKind is not JsonValueKind.String
+                        || string.IsNullOrWhiteSpace(sysctlNameElement.GetString()))
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(sysctl, "value", out JsonElement sysctlValueElement)
+                        || sysctlValueElement.ValueKind is not JsonValueKind.String
+                        || string.IsNullOrWhiteSpace(sysctlValueElement.GetString()))
+                        continue;
+
+                    sysctlValues.Add($"{sysctlNameElement.GetString()}={sysctlValueElement.GetString()}");
+                }
+
+                if (sysctlValues.Count > 0)
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "sysctls",
+                        string.Join(',', sysctlValues));
+                }
+            }
+
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "supplementalGroups", out JsonElement supplementalGroupsElement)
                 && supplementalGroupsElement.ValueKind is JsonValueKind.Array)
             {
@@ -1240,6 +1320,68 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         void InspectContainer(JsonElement container)
         {
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "stdin", out JsonElement stdinElement)
+                && stdinElement.ValueKind is JsonValueKind.True)
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "stdin", "true");
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "tty", out JsonElement ttyElement)
+                && ttyElement.ValueKind is JsonValueKind.True)
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "tty", "true");
+            }
+
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "workingDir", out JsonElement workingDirElement)
+                && workingDirElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(workingDirElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "workingDir",
+                    workingDirElement.GetString()!);
+            }
+
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "stdinOnce", out JsonElement stdinOnceElement)
+                && stdinOnceElement.ValueKind is JsonValueKind.True)
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "stdinOnce", "true");
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "terminationMessagePath", out JsonElement terminationMessagePathElement)
+                && terminationMessagePathElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(terminationMessagePathElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "terminationMessagePath",
+                    terminationMessagePathElement.GetString()!);
+            }
+
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "terminationMessagePolicy", out JsonElement terminationMessagePolicyElement)
+                && terminationMessagePolicyElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(terminationMessagePolicyElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "terminationMessagePolicy",
+                    terminationMessagePolicyElement.GetString()!);
+            }
+
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "imagePullPolicy", out JsonElement imagePullPolicyElement)
+                && imagePullPolicyElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(imagePullPolicyElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "imagePullPolicy",
+                    imagePullPolicyElement.GetString()!);
+            }
+
             if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(container, "securityContext", out JsonElement securityContext)
                 || securityContext.ValueKind is not JsonValueKind.Object)
                 return;
