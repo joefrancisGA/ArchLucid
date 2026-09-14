@@ -24,7 +24,7 @@ const outline: InfraEvidenceMermaidOutline = {
 };
 
 describe("InfraEvidenceDiagramOutline", () => {
-  it("omits the unused Edges Label column and keeps node labels", () => {
+  it("shows edge relationship labels in the Edges table", () => {
     render(<InfraEvidenceDiagramOutline outline={outline} />);
 
     const root = screen.getByTestId("infra-diagrams-mermaid-outline");
@@ -37,10 +37,10 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(edgesTable).not.toBeNull();
     expect(nodesTable).not.toBeNull();
 
-    expect(within(edgesTable as HTMLTableElement).queryByRole("columnheader", { name: "Label" })).toBeNull();
+    expect(within(edgesTable as HTMLTableElement).getByRole("columnheader", { name: "Relationship" })).toBeTruthy();
     expect(within(edgesTable as HTMLTableElement).getByRole("columnheader", { name: "From" })).toBeTruthy();
     expect(within(edgesTable as HTMLTableElement).getByRole("columnheader", { name: "To" })).toBeTruthy();
-    expect(within(edgesTable as HTMLTableElement).queryByText("—")).toBeNull();
+    expect(within(edgesTable as HTMLTableElement).getByText("—")).toBeTruthy();
 
     expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Label, ascending" })).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Resource type" })).toBeTruthy();
