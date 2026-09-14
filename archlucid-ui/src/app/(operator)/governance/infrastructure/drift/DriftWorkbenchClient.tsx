@@ -171,6 +171,8 @@ const cnCard =
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
 
+const cnPickerField = cn(cnField, "w-full max-w-md");
+
 const DRIFT_CHANGES_TABLE_COLUMN_COUNT = 6;
 const SNAPSHOTS_PAGE_SIZE = 50;
 const CHANGES_PAGE_SIZE = 100;
@@ -1116,11 +1118,11 @@ export function DriftWorkbenchClient() {
             </p>
           </div>
 
-          <div className="grid gap-2">
+          <div className="grid max-w-md gap-2">
             <Label htmlFor="infra-drift-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_LABEL}</Label>
             <select
               id="infra-drift-snapshot-picker"
-              className={cnField}
+              className={cnPickerField}
               data-testid="infra-drift-snapshot-picker"
               disabled={loadingSnapshots || snapshotPickerOptions.length === 0}
               value={selectedSnapshotId}
@@ -1258,12 +1260,12 @@ export function DriftWorkbenchClient() {
               </p>
             </div>
 
-            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
-              <div className="grid gap-2">
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="grid max-w-md min-w-0 gap-2">
                 <Label htmlFor="infra-drift-diff-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL}</Label>
                 <select
                   id="infra-drift-diff-picker"
-                  className={cnField}
+                  className={cnPickerField}
                   data-testid="infra-drift-diff-picker"
                   disabled={loadingDiffs || visibleDiffs.length === 0}
                   value={selectedDiffId}
