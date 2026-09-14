@@ -221,6 +221,8 @@ Do not start SOC 2 CPA or a pen-test program.
 | Founder 30-min pack A/B demo | [`FOUNDER_30_MIN_PACK_AB_DEMO_SCRIPT.md`](../go-to-market/FOUNDER_30_MIN_PACK_AB_DEMO_SCRIPT.md) |
 | Invitee welcome kit | [`PRIVATE_BETA_INVITEE_WELCOME_KIT.md`](../go-to-market/PRIVATE_BETA_INVITEE_WELCOME_KIT.md) |
 | Kill-switch / spend inventory | [`PRIVATE_BETA_KILL_SWITCH_AND_SPEND_INVENTORY.md`](../runbooks/PRIVATE_BETA_KILL_SWITCH_AND_SPEND_INVENTORY.md) |
+| After-hours incident comms (15 min) | [`PRIVATE_BETA_INCIDENT_COMMS_15MIN.md`](../runbooks/PRIVATE_BETA_INCIDENT_COMMS_15MIN.md) |
+| Legal/trust pack gap list | [`PRIVATE_BETA_LEGAL_PACK_GAP_LIST.md`](../go-to-market/PRIVATE_BETA_LEGAL_PACK_GAP_LIST.md) |
 | One-page triage card | [`FIRST_PILOT_TRIAGE_CARD.md`](../runbooks/FIRST_PILOT_TRIAGE_CARD.md) |
 | Access-path verdict (2026-09-14) | [`PRIVATE_BETA_ACCESS_PATH_VERDICT_20260914.md`](PRIVATE_BETA_ACCESS_PATH_VERDICT_20260914.md) |
 | Claim audit (2026-09-14) | [`PRIVATE_BETA_CLAIM_AUDIT_20260914.md`](PRIVATE_BETA_CLAIM_AUDIT_20260914.md) |

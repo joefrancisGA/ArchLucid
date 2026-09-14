@@ -2,7 +2,7 @@
 
 # Private-beta access-path assessment — 2026-09-14
 
-**Verdict: PARTIALLY PROVEN (harness + specs; first trunk JwtBearer CI witness still pending)**
+**Verdict: PARTIALLY PROVEN (harness + specs; trunk push corset green; first JwtBearer CI witness pending completion)**
 
 **Auth mode focus:** JwtBearer (CI mint + session injection). Full Entra OIDC browser redirect not witnessed in this pass.
 
@@ -21,15 +21,15 @@
 
 ---
 
-## Trunk CI (updated 2026-09-14 ~22:35 UTC)
+## Trunk CI (updated 2026-09-14 ~22:45 UTC)
 
 | Check | Status | Notes |
 | --- | --- | --- |
-| `Operator UI: typecheck (blocking)` | **shipped** | #3254 — green on `#3255` push (run `34904181565`) |
-| `CI: beta-readiness wiring guards` | **shipped** | #3255 AO-38 fix — green on run `34904181565` |
-| `Operator UI: jwt-bearer production build` | **shipped** | Green on run `34904181565` |
-| `.NET: push corset` | **fix pending** | Failed run `34904181565` (integration payload + extractor ZIP count); fix in progress |
-| `Operator UI: private-beta access-path (JwtBearer)` | **in-progress** | Run `34904181412` on `#3255` merge; **0 historical green** on recent `master` |
+| `Operator UI: typecheck (blocking)` | **green** | Run `34904897218` on `#3256` merge |
+| `CI: beta-readiness wiring guards` | **green** | Same run |
+| `Operator UI: jwt-bearer production build` | **green** | Same run |
+| `.NET: push corset` | **green** | #3256 — career posture payload + extractor ZIP count fix; run `34904897218` |
+| `Operator UI: private-beta access-path (JwtBearer)` | **in-progress** | Run `34904897194` on `#3256` merge — refresh when complete |
 
 ---
 
@@ -49,7 +49,7 @@
 
 ## P0 operational (not access-path logic)
 
-1. Land push-corset fix + witness **`private-beta-access-on-push` green** on `master`.
+1. Witness **`private-beta-access-on-push` green** on `master` (run `34904897194` or later).
 2. Owner: run `scripts/release-smoke.ps1` / `./scripts/release-smoke.sh` for Gate 1 UNKNOWN.
 3. Owner: first Real proof toward **G-REAL-06**.
 
