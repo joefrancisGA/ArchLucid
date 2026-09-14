@@ -129,4 +129,48 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
 
         return PagedResponseBuilder.FromDatabasePage(items, totalCount, page, pageSize);
     }
+
+    public async Task<PagedResponse<AzureInventoryChangeRecord>?> ListInventoryRowsForSnapshotAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        int page,
+        int pageSize,
+        Guid? cloudResourceId = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (snapshotId == Guid.Empty)
+        {
+            return null;
+        }
+
+        await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
+            scope,
+            snapshotId,
+            _reconciliationRepository,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
+
+        (IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)? resourcesPage =
+            await _snapshotRepository.ListResourcesBySnapshotIdPagedAsync(
+                scope,
+                snapshotId,
+                page,
+                pageSize,
+                cloudResourceId,
+                cancellationToken);
+
+        if (resourcesPage is null)
+        {
+            return null;
+        }
+
+        List<AzureInventoryChangeRecord> items = resourcesPage.Value.Items
+            .Select(resource => AzureInventorySnapshotInventoryRowMapper.MapResource(snapshotId, resource))
+            .ToList();
+
+        return PagedResponseBuilder.FromDatabasePage(items, resourcesPage.Value.TotalCount, page, pageSize);
+    }
 }
