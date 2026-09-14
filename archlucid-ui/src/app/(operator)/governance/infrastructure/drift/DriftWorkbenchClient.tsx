@@ -7,7 +7,6 @@ import { Loader2 } from "lucide-react";
 
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
-import { LayerHeader } from "@/components/LayerHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
@@ -126,9 +125,9 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_PICKER_PLACEHOLDER,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_RECEIPT_TITLE,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_LAYER_GUIDANCE_SUMMARY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_LOAD_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_LABEL,
@@ -995,6 +994,12 @@ export function DriftWorkbenchClient() {
       <OperatorPageHeader
         navHref={GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}
         title={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE}
+        subtitle={
+          buyerPolishedShell
+            ? GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD
+            : GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE
+        }
+        subtitleTestId="infra-drift-page-lead"
         claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE : undefined}
         claimDisciplineTestId="infra-drift-claim-discipline"
         titleTestId="infra-drift-page-title"
@@ -1006,14 +1011,6 @@ export function DriftWorkbenchClient() {
           </div>
         }
       />
-
-      {!buyerPolishedShell ? (
-        <LayerHeader
-          pageKey="infrastructure-drift"
-          density="compact"
-          collapsibleGuidance={GOVERNANCE_INFRASTRUCTURE_DRIFT_LAYER_GUIDANCE_SUMMARY}
-        />
-      ) : null}
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID}
@@ -1099,12 +1096,14 @@ export function DriftWorkbenchClient() {
           />
         ) : null}
 
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="infra-drift-page-lead"
-        >
-          {GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD}
-        </p>
+        {buyerPolishedShell ? null : (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="infra-drift-page-secondary-lead"
+          >
+            {GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD}
+          </p>
+        )}
 
         <section
           ref={snapshotsSectionRef}
