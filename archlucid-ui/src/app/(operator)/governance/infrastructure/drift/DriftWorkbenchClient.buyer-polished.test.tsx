@@ -49,6 +49,13 @@ vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
     pageSize: 100,
     hasMore: false,
   })),
+  fetchInfraEvidenceSnapshotInventoryRows: vi.fn(async () => ({
+    items: [],
+    totalCount: 0,
+    page: 1,
+    pageSize: 100,
+    hasMore: false,
+  })),
   downloadInfraEvidenceTerraformAdvisoryZip: vi.fn(async () => undefined),
   formatInfraEvidenceApiError: (error: unknown) => String(error),
 }));

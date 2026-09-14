@@ -46,6 +46,27 @@ const mockFetchChanges = vi.fn(async () => ({
   hasMore: false,
 }));
 
+const mockFetchSnapshotInventoryRows = vi.fn(async () => ({
+  items: [
+    {
+      changeId: "inventory-row-1",
+      diffId: "",
+      cloudResourceId: "22222222-2222-2222-2222-222222222222",
+      azureResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+      changeType: "Unknown",
+      property: null,
+      oldValue: null,
+      newValue: "Microsoft.Network/publicIPAddresses",
+      riskClassification: null,
+      evidenceReference: "snapshot-inventory",
+    },
+  ],
+  totalCount: 1,
+  page: 1,
+  pageSize: 100,
+  hasMore: false,
+}));
+
 const { downloadInfraEvidenceTerraformAdvisoryZipMock, mockSnapshotItems } = vi.hoisted(() => ({
   downloadInfraEvidenceTerraformAdvisoryZipMock: vi.fn(async () => undefined),
   mockSnapshotItems: [
@@ -80,6 +101,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   })),
   fetchInfraEvidenceDiffsForSnapshot: (...args: unknown[]) => mockFetchDiffs(...args),
   fetchInfraEvidenceDiffChanges: (...args: unknown[]) => mockFetchChanges(...args),
+  fetchInfraEvidenceSnapshotInventoryRows: (...args: unknown[]) => mockFetchSnapshotInventoryRows(...args),
   downloadInfraEvidenceTerraformAdvisoryZip: downloadInfraEvidenceTerraformAdvisoryZipMock,
   formatInfraEvidenceApiError: (error: unknown) => String(error),
 }));
@@ -142,6 +164,27 @@ describe("DriftWorkbenchClient", () => {
     mockFetchDiffs.mockImplementation(async () => defaultMockDiffs());
     mockFetchChanges.mockReset();
     mockFetchChanges.mockImplementation(async () => defaultMockChanges());
+    mockFetchSnapshotInventoryRows.mockReset();
+    mockFetchSnapshotInventoryRows.mockImplementation(async () => ({
+      items: [
+        {
+          changeId: "inventory-row-1",
+          diffId: "",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+          changeType: "Unknown",
+          property: null,
+          oldValue: null,
+          newValue: "Microsoft.Network/publicIPAddresses",
+          riskClassification: null,
+          evidenceReference: "snapshot-inventory",
+        },
+      ],
+      totalCount: 1,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    }));
     downloadInfraEvidenceTerraformAdvisoryZipMock.mockReset();
     downloadInfraEvidenceTerraformAdvisoryZipMock.mockResolvedValue(undefined);
     mockSnapshotItems.splice(
@@ -194,16 +237,23 @@ describe("DriftWorkbenchClient", () => {
     expect(snapshotPicker).toHaveValue("11111111-1111-1111-1111-111111111111");
   });
 
-  it("does not load drift changes until a diff is selected", async () => {
+  it("loads snapshot inventory rows when no diff is selected", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DriftWorkbenchClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("infra-drift-diff-picker")).toBeInTheDocument();
+      expect(mockFetchSnapshotInventoryRows).toHaveBeenCalledWith(
+        "11111111-1111-1111-1111-111111111111",
+        1,
+        100,
+        { cloudResourceId: null },
+      );
     });
 
     expect(mockFetchChanges).not.toHaveBeenCalled();
-    expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-drift-change-row-inventory-row-1")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-change-row-inventory-row-1")).toHaveTextContent("Present");
+    expect(screen.queryByTestId("infra-drift-changes-empty-unselected")).not.toBeInTheDocument();
   });
 
   it("restores anchor snapshot and empty changes when diff selection is cleared", async () => {
