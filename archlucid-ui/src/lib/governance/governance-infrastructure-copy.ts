@@ -239,6 +239,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID = "infra-drift-p
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL = "Skip to drift comparison" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE =
+  "Compare inventory snapshots and classify drift. Pick current and baseline snapshots before exporting advisory Terraform." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD =
   "Compare inventory snapshots, inspect semantic drift rows, and export advisory Terraform reconstructed from snapshot evidence." as const;
 
@@ -383,8 +386,6 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_ID_LABEL = "Snapshot id" a
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_ID_LABEL = "Diff id" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGE_IDENTIFIERS_TITLE = "Technical identifiers" as const;
-
-export const GOVERNANCE_INFRASTRUCTURE_DRIFT_LAYER_GUIDANCE_SUMMARY = "How drift compare works" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureRemediation;
 

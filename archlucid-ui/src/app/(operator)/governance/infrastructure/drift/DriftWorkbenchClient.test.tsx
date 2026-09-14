@@ -707,13 +707,20 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-sort-subscription")).toBeInTheDocument();
   });
 
-  it("collapses advanced-operations guidance behind a summary", async () => {
+  it("renders drift guidance under the page headline without advanced-operations chrome", async () => {
     evalChrome.enabled = false;
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DriftWorkbenchClient />);
 
-    expect(await screen.findByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
-    expect(screen.getByText("How drift compare works")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-drift-page-lead")).toHaveTextContent(
+      "Compare inventory snapshots and classify drift.",
+    );
+    expect(screen.getByTestId("infra-drift-page-lead")).toHaveTextContent(
+      "Pick current and baseline snapshots before exporting advisory Terraform.",
+    );
+    expect(screen.getByTestId("infra-drift-page-secondary-lead")).toBeInTheDocument();
+    expect(screen.queryByTestId("layer-header-collapsible-guidance")).not.toBeInTheDocument();
+    expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
   });
 
   it("prompts before selecting a snapshot from a different subscription", async () => {
