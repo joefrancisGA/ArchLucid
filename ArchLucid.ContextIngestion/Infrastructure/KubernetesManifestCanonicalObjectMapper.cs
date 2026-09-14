@@ -600,6 +600,259 @@ internal static class KubernetesManifestCanonicalObjectMapper
                     }
                 }
             }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "options", out JsonElement dnsOptionsDebug)
+                && dnsOptionsDebug.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement dnsOption in dnsOptionsDebug.EnumerateArray())
+                {
+                    if (dnsOption.ValueKind is not JsonValueKind.Object)
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "name", out JsonElement optionName)
+                        || optionName.ValueKind is not JsonValueKind.String
+                        || !string.Equals(optionName.GetString(), "debug", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "value", out JsonElement optionValue)
+                        && optionValue.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(optionValue.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsOptionDebug", optionValue.GetString()!);
+                        break;
+                    }
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "options", out JsonElement dnsOptionsInet6)
+                && dnsOptionsInet6.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement dnsOption in dnsOptionsInet6.EnumerateArray())
+                {
+                    if (dnsOption.ValueKind is not JsonValueKind.Object)
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "name", out JsonElement optionName)
+                        || optionName.ValueKind is not JsonValueKind.String
+                        || !string.Equals(optionName.GetString(), "inet6", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "value", out JsonElement optionValue)
+                        && optionValue.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(optionValue.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsOptionInet6", optionValue.GetString()!);
+                        break;
+                    }
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "options", out JsonElement dnsOptionsIp6Dotint)
+                && dnsOptionsIp6Dotint.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement dnsOption in dnsOptionsIp6Dotint.EnumerateArray())
+                {
+                    if (dnsOption.ValueKind is not JsonValueKind.Object)
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "name", out JsonElement optionName)
+                        || optionName.ValueKind is not JsonValueKind.String
+                        || !string.Equals(optionName.GetString(), "ip6-dotint", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "value", out JsonElement optionValue)
+                        && optionValue.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(optionValue.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsOptionIp6Dotint", optionValue.GetString()!);
+                        break;
+                    }
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "options", out JsonElement dnsOptionsIp6Bytestring)
+                && dnsOptionsIp6Bytestring.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement dnsOption in dnsOptionsIp6Bytestring.EnumerateArray())
+                {
+                    if (dnsOption.ValueKind is not JsonValueKind.Object)
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "name", out JsonElement optionName)
+                        || optionName.ValueKind is not JsonValueKind.String
+                        || !string.Equals(optionName.GetString(), "ip6-bytestring", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "value", out JsonElement optionValue)
+                        && optionValue.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(optionValue.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsOptionIp6Bytestring", optionValue.GetString()!);
+                        break;
+                    }
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "options", out JsonElement dnsOptionsNoAaaa)
+                && dnsOptionsNoAaaa.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement dnsOption in dnsOptionsNoAaaa.EnumerateArray())
+                {
+                    if (dnsOption.ValueKind is not JsonValueKind.Object)
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "name", out JsonElement optionName)
+                        || optionName.ValueKind is not JsonValueKind.String
+                        || !string.Equals(optionName.GetString(), "no-aaaa", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "value", out JsonElement optionValue)
+                        && optionValue.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(optionValue.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsOptionNoAaaa", optionValue.GetString()!);
+                        break;
+                    }
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "options", out JsonElement dnsOptionsIp6Nobind)
+                && dnsOptionsIp6Nobind.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement dnsOption in dnsOptionsIp6Nobind.EnumerateArray())
+                {
+                    if (dnsOption.ValueKind is not JsonValueKind.Object)
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "name", out JsonElement optionName)
+                        || optionName.ValueKind is not JsonValueKind.String
+                        || !string.Equals(optionName.GetString(), "ip6-nobind", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "value", out JsonElement optionValue)
+                        && optionValue.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(optionValue.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsOptionIp6Nobind", optionValue.GetString()!);
+                        break;
+                    }
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "options", out JsonElement dnsOptionsNoReload)
+                && dnsOptionsNoReload.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement dnsOption in dnsOptionsNoReload.EnumerateArray())
+                {
+                    if (dnsOption.ValueKind is not JsonValueKind.Object)
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "name", out JsonElement optionName)
+                        || optionName.ValueKind is not JsonValueKind.String
+                        || !string.Equals(optionName.GetString(), "no-reload", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "value", out JsonElement optionValue)
+                        && optionValue.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(optionValue.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsOptionNoReload", optionValue.GetString()!);
+                        break;
+                    }
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "options", out JsonElement dnsOptionsNoglue)
+                && dnsOptionsNoglue.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement dnsOption in dnsOptionsNoglue.EnumerateArray())
+                {
+                    if (dnsOption.ValueKind is not JsonValueKind.Object)
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "name", out JsonElement optionName)
+                        || optionName.ValueKind is not JsonValueKind.String
+                        || !string.Equals(optionName.GetString(), "noglue", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "value", out JsonElement optionValue)
+                        && optionValue.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(optionValue.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsOptionNoglue", optionValue.GetString()!);
+                        break;
+                    }
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "options", out JsonElement dnsOptionsNoCheckNames)
+                && dnsOptionsNoCheckNames.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement dnsOption in dnsOptionsNoCheckNames.EnumerateArray())
+                {
+                    if (dnsOption.ValueKind is not JsonValueKind.Object)
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "name", out JsonElement optionName)
+                        || optionName.ValueKind is not JsonValueKind.String
+                        || !string.Equals(optionName.GetString(), "no-check-names", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "value", out JsonElement optionValue)
+                        && optionValue.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(optionValue.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsOptionNoCheckNames", optionValue.GetString()!);
+                        break;
+                    }
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "options", out JsonElement dnsOptionsLocalise)
+                && dnsOptionsLocalise.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement dnsOption in dnsOptionsLocalise.EnumerateArray())
+                {
+                    if (dnsOption.ValueKind is not JsonValueKind.Object)
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "name", out JsonElement optionName)
+                        || optionName.ValueKind is not JsonValueKind.String
+                        || !string.Equals(optionName.GetString(), "localise", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "value", out JsonElement optionValue)
+                        && optionValue.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(optionValue.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsOptionLocalise", optionValue.GetString()!);
+                        break;
+                    }
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsConfig, "options", out JsonElement dnsOptionsIp6Arpa)
+                && dnsOptionsIp6Arpa.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement dnsOption in dnsOptionsIp6Arpa.EnumerateArray())
+                {
+                    if (dnsOption.ValueKind is not JsonValueKind.Object)
+                        continue;
+
+                    if (!CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "name", out JsonElement optionName)
+                        || optionName.ValueKind is not JsonValueKind.String
+                        || !string.Equals(optionName.GetString(), "ip6-arpa", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(dnsOption, "value", out JsonElement optionValue)
+                        && optionValue.ValueKind is JsonValueKind.String
+                        && !string.IsNullOrWhiteSpace(optionValue.GetString()))
+                    {
+                        CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "dnsOptionIp6Arpa", optionValue.GetString()!);
+                        break;
+                    }
+                }
+            }
         }
 
         if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(podSpec, "hostAliases", out JsonElement hostAliases)
@@ -751,6 +1004,100 @@ internal static class KubernetesManifestCanonicalObjectMapper
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "allowPrivilegeEscalation", out JsonElement escalationElement)
                 && escalationElement.ValueKind is JsonValueKind.True)
                 allowPrivilegeEscalation = true;
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "readOnlyRootFilesystem", out JsonElement readOnlyRootFilesystemElement)
+                && readOnlyRootFilesystemElement.ValueKind is JsonValueKind.True)
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "readOnlyRootFilesystem", "true");
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "runAsUser", out JsonElement runAsUserElement)
+                && runAsUserElement.ValueKind is JsonValueKind.Number
+                && runAsUserElement.TryGetInt64(out long runAsUserValue))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "runAsUser", runAsUserValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "runAsGroup", out JsonElement runAsGroupElement)
+                && runAsGroupElement.ValueKind is JsonValueKind.Number
+                && runAsGroupElement.TryGetInt64(out long runAsGroupValue))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "runAsGroup", runAsGroupValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "fsGroup", out JsonElement fsGroupElement)
+                && fsGroupElement.ValueKind is JsonValueKind.Number
+                && fsGroupElement.TryGetInt64(out long fsGroupValue))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "fsGroup", fsGroupValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "fsGroupChangePolicy", out JsonElement fsGroupChangePolicyElement)
+                && fsGroupChangePolicyElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(fsGroupChangePolicyElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "fsGroupChangePolicy",
+                    fsGroupChangePolicyElement.GetString()!);
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "seLinuxOptions", out JsonElement seLinuxOptionsElement)
+                && seLinuxOptionsElement.ValueKind is JsonValueKind.Object)
+            {
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(seLinuxOptionsElement, "level", out JsonElement seLinuxLevelElement)
+                    && seLinuxLevelElement.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(seLinuxLevelElement.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "seLinuxLevel",
+                        seLinuxLevelElement.GetString()!);
+                }
+
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(seLinuxOptionsElement, "user", out JsonElement seLinuxUserElement)
+                    && seLinuxUserElement.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(seLinuxUserElement.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "seLinuxUser",
+                        seLinuxUserElement.GetString()!);
+                }
+
+                if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(seLinuxOptionsElement, "role", out JsonElement seLinuxRoleElement)
+                    && seLinuxRoleElement.ValueKind is JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(seLinuxRoleElement.GetString()))
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "seLinuxRole",
+                        seLinuxRoleElement.GetString()!);
+                }
+            }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "supplementalGroups", out JsonElement supplementalGroupsElement)
+                && supplementalGroupsElement.ValueKind is JsonValueKind.Array)
+            {
+                List<string> supplementalGroupValues = [];
+
+                foreach (JsonElement supplementalGroup in supplementalGroupsElement.EnumerateArray())
+                {
+                    if (supplementalGroup.ValueKind is JsonValueKind.Number
+                        && supplementalGroup.TryGetInt64(out long supplementalGroupValue))
+                    {
+                        supplementalGroupValues.Add(supplementalGroupValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    }
+                }
+
+                if (supplementalGroupValues.Count > 0)
+                {
+                    CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                        properties,
+                        "supplementalGroups",
+                        string.Join(',', supplementalGroupValues));
+                }
+            }
 
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "runAsNonRoot", out JsonElement runAsNonRootElement))
             {

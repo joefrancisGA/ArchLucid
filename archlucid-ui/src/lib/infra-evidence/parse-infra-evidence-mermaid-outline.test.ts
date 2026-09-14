@@ -120,7 +120,7 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         '    vnet2["vnet-westus"]',
         '    vnet3["vnet-north"]',
         "    vnet1 ~~~ vnet2",
-        "    vnet1 -->|peered| vnet3",
+        "    vnet1 -->|peering| vnet3",
       ].join("\n"),
     );
 
@@ -128,7 +128,7 @@ describe("parseInfraEvidenceMermaidOutline", () => {
       {
         from: "vnet1",
         to: "vnet3",
-        label: "peered",
+        label: "peering",
       },
     ]);
   });
