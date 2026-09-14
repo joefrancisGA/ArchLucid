@@ -3149,3 +3149,4 @@
 {"at":"2026-09-14T19:30:02.7636715Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-14T19:31:11.473797Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-14T19:31:15.2633773Z","zoneId":"tenant-data-export","outcome":"seed-only"}
+{"at":"2026-09-14T19:31:19.3006094Z","zoneId":"persistence-identity","outcome":"seed-only"}
