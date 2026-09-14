@@ -81,8 +81,10 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 
     private static string ResolveModuleAddress(JsonElement module)
     {
-        if (!TryGetPropertyIgnoreCase(module, "address", out JsonElement addressElement) ||
-            addressElement.ValueKind != JsonValueKind.String)
+        if ((!TryGetPropertyIgnoreCase(module, "address", out JsonElement addressElement)
+                && !TryGetPropertyIgnoreCase(module, "moduleAddress", out addressElement)
+                && !TryGetPropertyIgnoreCase(module, "module_address", out addressElement))
+            || addressElement.ValueKind != JsonValueKind.String)
             return string.Empty;
 
         string? address = addressElement.GetString();
