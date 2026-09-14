@@ -36,6 +36,8 @@ const mockFetchChanges = vi.fn(async () => ({
       newValue: "Standard",
       riskClassification: "Medium",
       evidenceReference: "snapshot-diff",
+      changedByDisplayName: "operator@contoso.com",
+      changedByKind: "human",
     },
   ],
   totalCount: 1,
@@ -123,6 +125,8 @@ const defaultMockChanges = () => ({
       newValue: "Standard",
       riskClassification: "Medium",
       evidenceReference: "snapshot-diff",
+      changedByDisplayName: "operator@contoso.com",
+      changedByKind: "human",
     },
   ],
   totalCount: 1,
@@ -401,6 +405,7 @@ describe("DriftWorkbenchClient", () => {
     expect(changeRow).toHaveAttribute("aria-selected", "true");
     expect(changeRow.nextElementSibling).toBe(detailRow);
     expect(screen.getByTestId("infra-drift-change-drawer")).toHaveTextContent("gw");
+    expect(screen.getByTestId("infra-drift-change-changed-by")).toHaveTextContent("operator@contoso.com");
     expect(screen.getByTestId("infra-drift-change-identifiers")).toBeInTheDocument();
   });
 

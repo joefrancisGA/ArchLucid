@@ -2013,6 +2013,8 @@ export interface components {
             /** Format: uuid */
             changeId?: string;
             changeType?: components["schemas"]["AzureInventoryChangeType"];
+            changedByDisplayName?: null | string;
+            changedByKind?: null | string;
             /** Format: uuid */
             cloudResourceId?: null | string;
             /** Format: double */

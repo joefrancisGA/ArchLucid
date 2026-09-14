@@ -349,6 +349,11 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_DISABLED_NO_SNAPSHOT =
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGE_ID_LABEL = "Change id" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_LABEL = "Changed by" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_UNAVAILABLE =
+  "Attribution is unavailable for this capture. Recompute the diff after a fresh inventory snapshot to populate ARM systemData." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_ID_LABEL = "Snapshot id" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_ID_LABEL = "Diff id" as const;

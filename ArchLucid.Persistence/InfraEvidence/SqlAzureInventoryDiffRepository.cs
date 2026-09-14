@@ -175,14 +175,16 @@ public sealed class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connec
                                                 ChangeId, DiffId, TenantId, SnapshotAId, SnapshotBId,
                                                 CloudResourceId, AzureResourceId, ChangeType, Property,
                                                 OldValue, NewValue, RiskClassification, ArchitectureSignificance,
-                                                SecuritySignificance, Confidence, EvidenceReference, ProvenanceKind
+                                                SecuritySignificance, Confidence, EvidenceReference, ProvenanceKind,
+                                                ChangedByDisplayName, ChangedByKind
                                             )
                                             VALUES
                                             (
                                                 @ChangeId, @DiffId, @TenantId, @SnapshotAId, @SnapshotBId,
                                                 @CloudResourceId, @AzureResourceId, @ChangeType, @Property,
                                                 @OldValue, @NewValue, @RiskClassification, @ArchitectureSignificance,
-                                                @SecuritySignificance, @Confidence, @EvidenceReference, @ProvenanceKind
+                                                @SecuritySignificance, @Confidence, @EvidenceReference, @ProvenanceKind,
+                                                @ChangedByDisplayName, @ChangedByKind
                                             );
                                             """;
 
@@ -210,6 +212,8 @@ public sealed class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connec
                                 change.Confidence,
                                 change.EvidenceReference,
                                 ProvenanceKind = (int)change.ProvenanceKind,
+                                change.ChangedByDisplayName,
+                                change.ChangedByKind,
                             },
                             transaction: tx,
                             commandTimeout: DapperCommandTimeoutSeconds.Report,
@@ -260,7 +264,7 @@ public sealed class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connec
                            SELECT ChangeId, DiffId, SnapshotAId, SnapshotBId, CloudResourceId, AzureResourceId,
                                   ChangeType, Property, OldValue, NewValue, RiskClassification,
                                   ArchitectureSignificance, SecuritySignificance, Confidence, EvidenceReference,
-                                  ProvenanceKind
+                                  ProvenanceKind, ChangedByDisplayName, ChangedByKind
                            FROM dbo.AzureInventoryChanges
                            WHERE TenantId = @TenantId AND DiffId = @DiffId
                            ORDER BY AzureResourceId, ChangeType, Property;
@@ -293,6 +297,8 @@ public sealed class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connec
                 Confidence = r.Confidence,
                 EvidenceReference = r.EvidenceReference,
                 ProvenanceKind = (ProvenanceKind)r.ProvenanceKind,
+                ChangedByDisplayName = r.ChangedByDisplayName,
+                ChangedByKind = r.ChangedByKind,
             })
             .ToList();
     }
@@ -360,7 +366,7 @@ public sealed class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connec
                                SELECT ChangeId, DiffId, SnapshotAId, SnapshotBId, CloudResourceId, AzureResourceId,
                                       ChangeType, Property, OldValue, NewValue, RiskClassification,
                                       ArchitectureSignificance, SecuritySignificance, Confidence, EvidenceReference,
-                                      ProvenanceKind
+                                      ProvenanceKind, ChangedByDisplayName, ChangedByKind
                                FROM dbo.AzureInventoryChanges
                                WHERE TenantId = @TenantId AND DiffId = @DiffId{resourceFilter}
                                ORDER BY AzureResourceId, ChangeType, Property
@@ -415,6 +421,8 @@ public sealed class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connec
                 Confidence = r.Confidence,
                 EvidenceReference = r.EvidenceReference,
                 ProvenanceKind = (ProvenanceKind)r.ProvenanceKind,
+                ChangedByDisplayName = r.ChangedByDisplayName,
+                ChangedByKind = r.ChangedByKind,
             })
             .ToList();
 
@@ -514,6 +522,18 @@ public sealed class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connec
         }
 
         public int ProvenanceKind
+        {
+            get;
+            init;
+        }
+
+        public string? ChangedByDisplayName
+        {
+            get;
+            init;
+        }
+
+        public string? ChangedByKind
         {
             get;
             init;
