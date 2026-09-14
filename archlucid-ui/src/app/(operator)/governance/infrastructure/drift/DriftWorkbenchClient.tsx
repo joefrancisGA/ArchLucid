@@ -27,6 +27,7 @@ import {
   downloadInfraEvidenceTerraformAdvisoryZip,
   fetchInfraEvidenceDiffChanges,
   fetchInfraEvidenceDiffsForSnapshot,
+  fetchInfraEvidenceSnapshotInventoryRows,
   fetchInfraEvidenceSnapshots,
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -39,6 +40,15 @@ import {
   formatInfraEvidenceChangeTypeLabel,
   resolveInfraEvidenceChangeTypeStatusKind,
 } from "@/lib/infra-evidence/infra-evidence-drift-display";
+import {
+  buildDriftResourceChangeGroup,
+  findDriftResourceChangeGroupByChangeId,
+  groupDriftChangesByResource,
+  resolveDriftResourceGroupKey,
+  sortDriftResourceChangeGroups,
+  summarizeDriftResourceGroupChangeTypes,
+  summarizeDriftResourceGroupProperties,
+} from "@/lib/infra-evidence/group-drift-changes-by-resource";
 import {
   clearDriftSnapshotsTableFilters,
   filterDriftSnapshots,
@@ -54,7 +64,6 @@ import {
   filterDriftChanges,
   hasActiveDriftTableFilters,
   parseDriftTableFilterState,
-  sortDriftChanges,
   toggleDriftTableSort,
   type DriftTableFilterState,
   type DriftTableSortKey,
@@ -72,11 +81,6 @@ import {
   infraDriftResourceIdDisclosureHrefFromSearch,
   parseInfraDriftResourceIdDisclosureOpenFromSearch,
 } from "@/lib/infra-evidence/infra-drift-resource-id-disclosure-url";
-import {
-  INFRA_DRIFT_SNAPSHOT_IDENTIFIERS_OPEN_PARAM,
-  infraDriftSnapshotIdentifiersDisclosureHrefFromSearch,
-  parseInfraDriftSnapshotIdentifiersOpenFromSearch,
-} from "@/lib/infra-evidence/infra-drift-snapshot-identifiers-disclosure-url";
 import {
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
@@ -114,6 +118,10 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_SCOPED_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_SCOPED_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_ROW_CHANGE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_BODY,
@@ -142,6 +150,7 @@ import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governanc
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
+import { formatAbsoluteUpdatedAtTitle } from "@/lib/relative-time";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   formatInfraEvidenceDiffLabel,
@@ -188,17 +197,12 @@ export function DriftWorkbenchClient() {
   const searchParams = useSearchParams();
   const driftResourceIdOpenParam = searchParams.get(INFRA_DRIFT_RESOURCE_ID_DISCLOSURE_OPEN_PARAM);
   const driftChangeIdentifiersOpenParam = searchParams.get(INFRA_DRIFT_CHANGE_IDENTIFIERS_OPEN_PARAM);
-  const driftSnapshotIdentifiersOpenParam = searchParams.get(INFRA_DRIFT_SNAPSHOT_IDENTIFIERS_OPEN_PARAM);
   const [driftResourceIdOpen, setDriftResourceIdOpenState] = useState(() =>
     parseInfraDriftResourceIdDisclosureOpenFromSearch(driftResourceIdOpenParam),
   );
   const [driftChangeIdentifiersOpen, setDriftChangeIdentifiersOpenState] = useState(() =>
     parseInfraDriftChangeIdentifiersOpenFromSearch(driftChangeIdentifiersOpenParam),
   );
-  const [driftSnapshotIdentifiersOpen, setDriftSnapshotIdentifiersOpenState] = useState(() =>
-    parseInfraDriftSnapshotIdentifiersOpenFromSearch(driftSnapshotIdentifiersOpenParam),
-  );
-
   const syncDriftResourceIdOpenToUrl = useCallback(
     (open: boolean) => {
       router.replace(infraDriftResourceIdDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
@@ -233,23 +237,6 @@ export function DriftWorkbenchClient() {
     [syncDriftChangeIdentifiersOpenToUrl],
   );
 
-  const syncDriftSnapshotIdentifiersOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(infraDriftSnapshotIdentifiersDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setDriftSnapshotIdentifiersOpen = useCallback(
-    (open: boolean) => {
-      setDriftSnapshotIdentifiersOpenState(open);
-      syncDriftSnapshotIdentifiersOpenToUrl(open);
-    },
-    [syncDriftSnapshotIdentifiersOpenToUrl],
-  );
-
   useEffect(() => {
     setDriftResourceIdOpenState(parseInfraDriftResourceIdDisclosureOpenFromSearch(driftResourceIdOpenParam));
   }, [driftResourceIdOpenParam]);
@@ -257,12 +244,6 @@ export function DriftWorkbenchClient() {
   useEffect(() => {
     setDriftChangeIdentifiersOpenState(parseInfraDriftChangeIdentifiersOpenFromSearch(driftChangeIdentifiersOpenParam));
   }, [driftChangeIdentifiersOpenParam]);
-
-  useEffect(() => {
-    setDriftSnapshotIdentifiersOpenState(
-      parseInfraDriftSnapshotIdentifiersOpenFromSearch(driftSnapshotIdentifiersOpenParam),
-    );
-  }, [driftSnapshotIdentifiersOpenParam]);
 
   const changeDrawerRef = useRef<HTMLElement | null>(null);
   const snapshotsSectionRef = useRef<HTMLElement | null>(null);
@@ -332,12 +313,20 @@ export function DriftWorkbenchClient() {
     () => sortDriftSnapshots(snapshots, "captured", "desc"),
     [snapshots],
   );
+  const isViewingSnapshotInventory = selectedSnapshotId.length > 0 && selectedDiffId.length === 0;
 
-  const visibleChanges = useMemo(() => {
-    const filtered = filterDriftChanges(changes, tableFilterState, selectedDiff);
+  const visibleChanges = useMemo(
+    () => filterDriftChanges(changes, tableFilterState, selectedDiff),
+    [changes, selectedDiff, tableFilterState],
+  );
 
-    return sortDriftChanges(filtered, tableFilterState.sortBy, tableFilterState.sortDir);
-  }, [changes, selectedDiff, tableFilterState]);
+  const visibleResourceGroups = useMemo(() => {
+    const groups = isViewingSnapshotInventory
+      ? visibleChanges.map((change) => buildDriftResourceChangeGroup(resolveDriftResourceGroupKey(change), [change]))
+      : groupDriftChangesByResource(visibleChanges);
+
+    return sortDriftResourceChangeGroups(groups, tableFilterState.sortBy, tableFilterState.sortDir);
+  }, [isViewingSnapshotInventory, tableFilterState.sortBy, tableFilterState.sortDir, visibleChanges]);
 
   const hasActiveSnapshotTableFilters = useMemo(
     () => hasActiveDriftSnapshotsTableFilters(snapshotTableFilterState),
@@ -349,18 +338,18 @@ export function DriftWorkbenchClient() {
     [tableFilterState],
   );
 
-  const selectedChange = useMemo(
-    () => visibleChanges.find((row) => row.changeId === selectedChangeId) ?? null,
-    [selectedChangeId, visibleChanges],
+  const selectedResourceGroup = useMemo(
+    () => findDriftResourceChangeGroupByChangeId(visibleResourceGroups, selectedChangeId ?? ""),
+    [selectedChangeId, visibleResourceGroups],
   );
 
   const deepLinkedChangeMissing = useMemo(() => {
-    if (urlChangeId.length === 0 || loadingChanges || selectedDiffId.length === 0) {
+    if (urlChangeId.length === 0 || loadingChanges || isViewingSnapshotInventory) {
       return false;
     }
 
     return !visibleChanges.some((row) => row.changeId === urlChangeId);
-  }, [loadingChanges, selectedDiffId.length, urlChangeId, visibleChanges]);
+  }, [isViewingSnapshotInventory, loadingChanges, urlChangeId, visibleChanges]);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
   const hasStaleAuditUrlParams = useMemo(
@@ -438,10 +427,13 @@ export function DriftWorkbenchClient() {
       return;
     }
 
+    const selectedGroup = findDriftResourceChangeGroupByChangeId(visibleResourceGroups, urlChangeId);
+    const rowChangeId = selectedGroup?.representativeChange.changeId ?? urlChangeId;
+
     document
-      .querySelector(`[data-testid="infra-drift-change-row-${urlChangeId}"]`)
+      .querySelector(`[data-testid="infra-drift-change-row-${rowChangeId}"]`)
       ?.scrollIntoView({ block: "nearest" });
-  }, [selectedChangeId, urlChangeId, visibleChanges.length]);
+  }, [selectedChangeId, urlChangeId, visibleResourceGroups]);
 
   useEffect(() => {
     let cancelled = false;
@@ -566,7 +558,7 @@ export function DriftWorkbenchClient() {
   }, [loadingDiffs, replaceDriftUrl, selectedDiffId, visibleDiffs]);
 
   useEffect(() => {
-    if (selectedDiffId.length === 0) {
+    if (selectedSnapshotId.length === 0) {
       setChanges([]);
       setChangesTotalCount(0);
       setChangesHasMore(false);
@@ -581,10 +573,19 @@ export function DriftWorkbenchClient() {
       setLoadError(null);
 
       try {
-        const response = await fetchInfraEvidenceDiffChanges(selectedDiffId, tableFilterState.changesPage, CHANGES_PAGE_SIZE, {
-          cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
-          includeUnchanged: tableFilterState.includeUnchanged,
-        });
+        const response = isViewingSnapshotInventory
+          ? await fetchInfraEvidenceSnapshotInventoryRows(
+              selectedSnapshotId,
+              tableFilterState.changesPage,
+              CHANGES_PAGE_SIZE,
+              {
+                cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
+              },
+            )
+          : await fetchInfraEvidenceDiffChanges(selectedDiffId, tableFilterState.changesPage, CHANGES_PAGE_SIZE, {
+              cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
+              includeUnchanged: tableFilterState.includeUnchanged,
+            });
 
         if (!cancelled) {
           const items = response.items ?? [];
@@ -594,7 +595,7 @@ export function DriftWorkbenchClient() {
           setChangesTotalCount(response.totalCount ?? items.length);
           setChangesHasMore(response.hasMore === true);
 
-          if (urlChangeId.length > 0) {
+          if (!isViewingSnapshotInventory && urlChangeId.length > 0) {
             setSelectedChangeId(urlChangeId);
           } else {
             setSelectedChangeId(null);
@@ -619,23 +620,31 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [selectedDiffId, tableFilterState.changesPage, tableFilterState.includeUnchanged, urlChangeId, urlCloudResourceId]);
+  }, [
+    isViewingSnapshotInventory,
+    selectedDiffId,
+    selectedSnapshotId,
+    tableFilterState.changesPage,
+    tableFilterState.includeUnchanged,
+    urlChangeId,
+    urlCloudResourceId,
+  ]);
 
   useEffect(() => {
     if (urlChangeId.length === 0 || loadingChanges) {
       return;
     }
 
-    if (visibleChanges.some((row) => row.changeId === urlChangeId)) {
+    if (findDriftResourceChangeGroupByChangeId(visibleResourceGroups, urlChangeId) != null) {
       window.requestAnimationFrame(() => {
         changeDrawerRef.current?.focus();
       });
     }
-  }, [loadingChanges, urlChangeId, visibleChanges]);
+  }, [loadingChanges, urlChangeId, visibleResourceGroups]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (visibleChanges.length === 0) {
+      if (visibleResourceGroups.length === 0) {
         return;
       }
 
@@ -663,14 +672,16 @@ export function DriftWorkbenchClient() {
 
       const currentIndex = selectedChangeId == null
         ? -1
-        : visibleChanges.findIndex((row) => row.changeId === selectedChangeId);
+        : visibleResourceGroups.findIndex((group) =>
+            group.changes.some((change) => change.changeId === selectedChangeId),
+          );
       const nextIndex = event.key === "ArrowDown"
-        ? Math.min(currentIndex + 1, visibleChanges.length - 1)
+        ? Math.min(currentIndex + 1, visibleResourceGroups.length - 1)
         : Math.max(currentIndex - 1, 0);
-      const nextRow = visibleChanges[nextIndex];
+      const nextGroup = visibleResourceGroups[nextIndex];
 
-      if (nextRow != null) {
-        activateChange(nextRow.changeId, "push");
+      if (nextGroup != null) {
+        activateChange(nextGroup.representativeChange.changeId, "push");
       }
     };
 
@@ -679,7 +690,7 @@ export function DriftWorkbenchClient() {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [activateChange, clearSelectedChange, selectedChangeId, visibleChanges]);
+  }, [activateChange, clearSelectedChange, selectedChangeId, visibleResourceGroups]);
 
   const runExport = useCallback(async () => {
     if (selectedSnapshotId.length === 0) {
@@ -708,14 +719,19 @@ export function DriftWorkbenchClient() {
   }, [selectedSnapshotId]);
 
   const selectionAnnouncement = useMemo(() => {
-    if (selectedChange == null) {
+    if (selectedResourceGroup == null) {
       return null;
     }
 
+    if (selectedResourceGroup.changes.length > 1) {
+      return `Showing ${selectedResourceGroup.changes.length} drift changes for this resource.`;
+    }
+
+    const selectedChange = selectedResourceGroup.representativeChange;
     const propertyLabel = selectedChange.property ?? formatInfraEvidenceChangeTypeLabel(selectedChange.changeType);
 
     return `Showing drift change ${propertyLabel}.`;
-  }, [selectedChange]);
+  }, [selectedResourceGroup]);
 
   const snapshotsShowingLine = formatInventoryShowingLine(snapshots.length, snapshotsTotalCount, snapshotsHasMore);
   const changesShowingLine = formatInventoryShowingLine(changes.length, changesTotalCount, changesHasMore);
@@ -948,14 +964,18 @@ export function DriftWorkbenchClient() {
       );
     }
 
-    if (selectedDiffId.length === 0) {
+    if (isViewingSnapshotInventory) {
       return (
         <EnterpriseTableRow>
           <EnterpriseTableCell colSpan={DRIFT_CHANGES_TABLE_COLUMN_COUNT}>
             <EnterpriseCompactEmptyState
-              title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE}
-              description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_BODY}
-              testId="infra-drift-changes-empty-unselected"
+              title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_TITLE}
+              description={
+                urlCloudResourceId.length > 0
+                  ? GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_SCOPED_BODY
+                  : GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_BODY
+              }
+              testId="infra-drift-changes-empty-inventory"
             />
           </EnterpriseTableCell>
         </EnterpriseTableRow>
@@ -1220,12 +1240,7 @@ export function DriftWorkbenchClient() {
 
               <SponsorExportSendHonestyStrip testIdPrefix="infra-drift-export-terraform" />
 
-              <DriftSnapshotIdentifiers
-                snapshotId={selectedSnapshotId}
-                diffId={selectedDiffId}
-                open={driftSnapshotIdentifiersOpen}
-                onToggle={setDriftSnapshotIdentifiersOpen}
-              />
+              <DriftSnapshotIdentifiers snapshotId={selectedSnapshotId} diffId={selectedDiffId} />
 
               {exportReceipt != null ? (
                 <div
@@ -1237,7 +1252,7 @@ export function DriftWorkbenchClient() {
                     {GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_RECEIPT_TITLE}
                   </p>
                   <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {new Date(exportReceipt.exportedAtUtc).toLocaleString()}
+                    {formatAbsoluteUpdatedAtTitle(exportReceipt.exportedAtUtc)}
                   </p>
                 </div>
               ) : null}
@@ -1261,11 +1276,11 @@ export function DriftWorkbenchClient() {
             </div>
 
             <div className="flex flex-wrap items-end gap-3">
-              <div className="grid max-w-md min-w-0 gap-2">
+              <div className="grid min-w-[16rem] max-w-xl gap-2">
                 <Label htmlFor="infra-drift-diff-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL}</Label>
                 <select
                   id="infra-drift-diff-picker"
-                  className={cnPickerField}
+                  className={cn(cnField, "w-full")}
                   data-testid="infra-drift-diff-picker"
                   disabled={loadingDiffs || visibleDiffs.length === 0}
                   value={selectedDiffId}
@@ -1406,55 +1421,66 @@ export function DriftWorkbenchClient() {
             onClearFilters={handleClearTableFilters}
           />
           <EnterpriseTableBody data-testid="infra-drift-changes-body">
-            {visibleChanges.length === 0 ? renderChangesEmptyState() : null}
-            {visibleChanges.map((row) => {
-              const isSelected = selectedChangeId === row.changeId;
+            {visibleResourceGroups.length === 0 ? renderChangesEmptyState() : null}
+            {visibleResourceGroups.map((group) => {
+              const rowChange = group.representativeChange;
+              const isSelected = group.changes.some((change) => change.changeId === selectedChangeId);
 
               return (
-                <Fragment key={row.changeId}>
+                <Fragment key={group.groupKey}>
                   <EnterpriseTableRow
-                    data-testid={`infra-drift-change-row-${row.changeId}`}
+                    data-testid={`infra-drift-change-row-${rowChange.changeId}`}
                     selected={isSelected}
                     tabIndex={0}
                     aria-selected={isSelected}
                     aria-expanded={isSelected}
                     onClick={() => {
-                      activateChange(row.changeId, "push");
+                      activateChange(rowChange.changeId, "push");
                     }}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
-                        activateChange(row.changeId, "push");
+                        activateChange(rowChange.changeId, "push");
                       }
                     }}
                   >
-                    <DriftChangeResourceCells azureResourceId={row.azureResourceId} />
+                    <DriftChangeResourceCells azureResourceId={rowChange.azureResourceId} />
                     <EnterpriseTableCell>
-                      <StatusTag
-                        kind={resolveInfraEvidenceChangeTypeStatusKind(row.changeType)}
-                        label={formatInfraEvidenceChangeTypeLabel(row.changeType)}
-                      />
+                      {isViewingSnapshotInventory ? (
+                        <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                          {GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_ROW_CHANGE_LABEL}
+                        </span>
+                      ) : (
+                        <StatusTag
+                          kind={resolveInfraEvidenceChangeTypeStatusKind(rowChange.changeType)}
+                          label={summarizeDriftResourceGroupChangeTypes(group)}
+                        />
+                      )}
                     </EnterpriseTableCell>
-                    <EnterpriseTableCell>{row.property ?? "—"}</EnterpriseTableCell>
                     <EnterpriseTableCell>
-                      <DriftChangeRiskCell change={row} />
+                      {isViewingSnapshotInventory
+                        ? (rowChange.property ?? "—")
+                        : summarizeDriftResourceGroupProperties(group)}
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell>
+                      <DriftChangeRiskCell change={rowChange} />
                     </EnterpriseTableCell>
                   </EnterpriseTableRow>
-                  {isSelected && selectedChange != null ? (
-                    <EnterpriseTableRow data-testid={`infra-drift-change-detail-row-${row.changeId}`}>
+                  {isSelected && selectedResourceGroup != null ? (
+                    <EnterpriseTableRow data-testid={`infra-drift-change-detail-row-${rowChange.changeId}`}>
                       <EnterpriseTableCell
                         colSpan={DRIFT_CHANGES_TABLE_COLUMN_COUNT}
                         className="bg-neutral-50 p-0 dark:bg-neutral-900/40"
                       >
                         <DriftChangeDetail
-                          selectedChange={selectedChange}
+                          selectedChanges={selectedResourceGroup.changes}
                           changeDrawerRef={changeDrawerRef}
                           changeIdentifiersOpen={driftChangeIdentifiersOpen}
                           onChangeIdentifiersToggle={setDriftChangeIdentifiersOpen}
                           variant="inline"
                           hubHref={
-                            selectedChange.cloudResourceId != null
-                              ? resourceHubFilterHrefFromSearch(selectedChange.cloudResourceId, "", {
+                            rowChange.cloudResourceId != null
+                              ? resourceHubFilterHrefFromSearch(rowChange.cloudResourceId, "", {
                                   tab: "drift",
                                   ...workbenchHubScopePatch,
                                 })
