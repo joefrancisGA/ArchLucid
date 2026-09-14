@@ -4458,6 +4458,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** tenant-data-export
 
+2026-09-14 seed hunt #2801 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved PascalCase `IsDemoTenant` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_demo_tenant_when_is_demo_tenant_pascal_case_true`.
+
 2026-09-14 seed hunt #2794 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
 2026-09-14 seed hunt #2789 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
@@ -4600,8 +4602,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 99
-- **bugs-found:** 41
+- **hunts:** 100
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-13 — hunt #2589: string `"yes"` for `is_sample_run` ignored on CLI career export gate
@@ -11057,6 +11059,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-costing
 
+2026-09-14 seed hunt #2800 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10wel` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWelTests`.
+
 2026-09-14 seed hunt #2793 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10wels` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWelsTests`.
 
 2026-09-14 seed hunt #2788 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weels` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWeelsTests`.
@@ -11210,8 +11214,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 106
-- **bugs-found:** 79
+- **hunts:** 107
+- **bugs-found:** 80
 - **consecutive-dry-hunts:** 0
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14

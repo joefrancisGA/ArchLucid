@@ -555,6 +555,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " w")
             || ContainsBoundedToken(trimmed, " wk")
             || ContainsBoundedToken(trimmed, " wks")
+            || ContainsBoundedToken(trimmed, " wel")
             || ContainsBoundedToken(trimmed, " wek")
             || ContainsBoundedToken(trimmed, " weks")
             || ContainsBoundedToken(trimmed, " weel")
@@ -562,6 +563,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " wels")
             || HasCompactWeekSuffix(trimmed)
             || HasCompactWkSuffix(trimmed)
+            || HasCompactWelSuffix(trimmed)
             || HasCompactWekSuffix(trimmed)
             || HasCompactWksSuffix(trimmed)
             || HasCompactWeksSuffix(trimmed)
@@ -1149,6 +1151,15 @@ public sealed partial class AzureRetailPricesCatalogClient
     }
 
 
+
+    private static bool HasCompactWelSuffix(string trimmed)
+    {
+        if (trimmed.Length < 5)
+            return false;
+
+        return trimmed.EndsWith("wel", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^4]);
+    }
 
     private static bool HasCompactWekSuffix(string trimmed)
     {
