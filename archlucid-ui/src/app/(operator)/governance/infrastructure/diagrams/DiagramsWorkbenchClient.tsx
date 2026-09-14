@@ -491,7 +491,7 @@ export function DiagramsWorkbenchClient() {
 
     return resolveInfraEvidenceMermaidRenderStatusPresentation({
       status: renderStatus,
-      mermaidEmpty: diagramContentEmpty && renderStatus === "Succeeded",
+      mermaidEmpty: diagramContentEmpty,
     });
   }, [diagramContentEmpty, renderStatus]);
 

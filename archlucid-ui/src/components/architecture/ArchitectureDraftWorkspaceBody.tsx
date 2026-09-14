@@ -242,6 +242,8 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
   }
 
   if (shouldRenderSpawnLockedHandoffLayout({ handoffEditorLocked, linkedReviewId })) {
+    const resolvedLinkedReviewId = linkedReviewId!.trim();
+
     return (
       <div className="space-y-4" data-testid="architecture-draft-workspace">
         <WorkingNestedDraftIdentityAnchors
@@ -253,7 +255,7 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
           draftId={draftId}
           parentArchitectureId={props.parentArchitectureId}
           workspaceHeading={workspaceHeading}
-          linkedReviewId={linkedReviewId}
+          linkedReviewId={resolvedLinkedReviewId}
           linkedReviewTitle={linkedReviewTitle}
           fields={fields}
         />
