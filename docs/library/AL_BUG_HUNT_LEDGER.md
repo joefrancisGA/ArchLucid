@@ -1,5 +1,7 @@
 ## Zone: topology-proposal-merge
 
+2026-09-14 seed hunt #2808 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `automation_webhook` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_automation_webhook_node_has_compute_category_but_synthetic_datastore_id_used`.
+
 2026-09-14 seed hunt #2803 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `automation_credential` Compute-category node omitted `ds-` synthetic alias; regressions for merge gate and graph merge parity.
 
 2026-09-14 seed hunt #2798 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `automation_connection` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_automation_connection_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
@@ -226,8 +228,8 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 185
-- **bugs-found:** 151
+- **hunts:** 186
+- **bugs-found:** 152
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
 - **last-bug:** 2026-09-14 — hunt #2798: automation_connection Compute-category ds- alias gap
