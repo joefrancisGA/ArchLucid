@@ -174,6 +174,51 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
     }
 
     [Fact]
+    public async Task ListInventoryRowsForSnapshotAsync_maps_resources_to_inventory_rows()
+    {
+        Guid snapshotId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        Guid resourceRowId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        Guid cloudResourceId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+
+        Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
+        snapshotRepository
+            .Setup(repo => repo.ListResourcesBySnapshotIdPagedAsync(
+                Scope,
+                snapshotId,
+                1,
+                50,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((
+                new[]
+                {
+                    new AzureInventoryResourceRecord
+                    {
+                        ResourceRowId = resourceRowId,
+                        SnapshotId = snapshotId,
+                        TenantId = Scope.TenantId,
+                        CloudResourceId = cloudResourceId,
+                        AzureResourceId =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+                        ResourceType = "Microsoft.Network/publicIPAddresses",
+                    },
+                },
+                1));
+
+        InfraEvidenceDriftWorkbenchQueryService service = CreateService(snapshotRepository: snapshotRepository.Object);
+
+        PagedResponse<AzureInventoryChangeRecord>? response =
+            await service.ListInventoryRowsForSnapshotAsync(Scope, snapshotId, 1, 50, cloudResourceId: null, CancellationToken.None);
+
+        response.Should().NotBeNull();
+        response!.Items.Should().ContainSingle();
+        response.Items[0].ChangeId.Should().Be(resourceRowId);
+        response.Items[0].CloudResourceId.Should().Be(cloudResourceId);
+        response.Items[0].SnapshotAId.Should().Be(snapshotId);
+        response.Items[0].SnapshotBId.Should().Be(snapshotId);
+    }
+
+    [Fact]
     public async Task ListChangesForDiffAsync_with_cloudResourceId_passes_scope_to_repository()
     {
         AzureInventoryDiffSummaryRecord diff = new() { DiffId = DiffId, SnapshotAId = Guid.NewGuid(), SnapshotBId = Guid.NewGuid() };
