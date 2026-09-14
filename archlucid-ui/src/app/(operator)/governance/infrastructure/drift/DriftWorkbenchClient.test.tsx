@@ -348,7 +348,75 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-changes-body").querySelectorAll("tr")).toHaveLength(1);
   });
 
-  it("renders one row per drift change when multiple changes are returned (IE-DT-02)", async () => {
+  it("groups multiple property changes for the same resource into one row", async () => {
+    mockFetchChanges.mockResolvedValueOnce({
+      items: [
+        {
+          changeId: "change-sku",
+          diffId: "diff-1",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-a/providers/Microsoft.Network/publicIPAddresses/gw-a",
+          changeType: "Modified",
+          property: "sku",
+          oldValue: "Basic",
+          newValue: "Standard",
+          riskClassification: "Medium",
+          evidenceReference: "snapshot-diff",
+        },
+        {
+          changeId: "change-tags",
+          diffId: "diff-1",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-a/providers/Microsoft.Network/publicIPAddresses/gw-a",
+          changeType: "Modified",
+          property: "tags",
+          oldValue: null,
+          newValue: "env=prod",
+          riskClassification: "Low",
+          evidenceReference: "snapshot-diff",
+        },
+        {
+          changeId: "change-other",
+          diffId: "diff-1",
+          cloudResourceId: "33333333-3333-3333-3333-333333333333",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-b/providers/Microsoft.Storage/storageAccounts/logs",
+          changeType: "Added",
+          property: "tags",
+          oldValue: null,
+          newValue: "env=prod",
+          riskClassification: null,
+          evidenceReference: "snapshot-diff",
+        },
+      ],
+      totalCount: 3,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
+    render(<DriftWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-drift-change-row-change-sku")).toBeInTheDocument();
+      expect(screen.getByTestId("infra-drift-change-row-change-other")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("infra-drift-change-row-change-tags")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-change-row-change-sku")).toHaveTextContent("2 properties");
+    expect(screen.getByTestId("infra-drift-changes-body").querySelectorAll("tr")).toHaveLength(2);
+
+    fireEvent.click(screen.getByTestId("infra-drift-change-row-change-sku"));
+
+    expect(await screen.findByTestId("infra-drift-change-drawer")).toHaveTextContent("2 property changes on this resource");
+    expect(screen.getByTestId("infra-drift-change-property-detail-change-sku")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-change-property-detail-change-tags")).toBeInTheDocument();
+  });
+
+  it("renders one row per resource when multiple changes are returned (IE-DT-02)", async () => {
     mockFetchChanges.mockResolvedValueOnce({
       items: [
         {

@@ -299,6 +299,10 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_SCOPED_BODY =
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_ROW_CHANGE_LABEL = "Present" as const;
 
+export function GOVERNANCE_INFRASTRUCTURE_DRIFT_RESOURCE_GROUP_DETAIL_HEADING(changeCount: number): string {
+  return `${changeCount} property changes on this resource`;
+}
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_SCOPED_BODY =
   "No drift rows match the scoped cloud resource for this diff." as const;
 
