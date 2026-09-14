@@ -189,6 +189,16 @@ export const INHABIT_POST_IR_INHABITED_CHROME_ROWS: readonly InhabitPostIrLeakRo
   },
 ];
 
+/**
+ * IP-012 — Nested review-detail stays a job inspector (ADR 0098).
+ * No product rows. Entry leaks are closed by IP-002–007; do not redirect the full inspector
+ * workspace to findings or architecture-scope peer `/governance/findings`.
+ */
+export const INHABIT_POST_IR_INSPECTOR_SKIP_OWNER = "IP-012" as const;
+
+export const INHABIT_POST_IR_INSPECTOR_SKIP_NOTE =
+  "Inspector URLs (/architecture/reviews/{runId} and nested architecture review routes) are intentional. Full review workspace tabs stay visible; in-flight activity and explicit View review job links remain." as const;
+
 /** All post-IR secondary inspector leak rows (IP-002–IP-011). */
 export const INHABIT_POST_IR_ALL_LEAK_ROWS: readonly InhabitPostIrLeakRow[] = [
   ...INHABIT_POST_IR_REVIEWS_HUB_LANDING_ROWS,

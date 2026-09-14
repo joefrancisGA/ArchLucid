@@ -9,6 +9,8 @@ import {
   INHABIT_POST_IR_GLOBAL_SEARCH_LANDING_ROWS,
   INHABIT_POST_IR_INHABITED_CHROME_ROWS,
   INHABIT_POST_IR_INSPECTOR_FINALIZE_ROWS,
+  INHABIT_POST_IR_INSPECTOR_SKIP_NOTE,
+  INHABIT_POST_IR_INSPECTOR_SKIP_OWNER,
   INHABIT_POST_IR_INSPECT_SUPPORT_BAND_ROWS,
   INHABIT_POST_IR_LEAK_INVENTORIES_DOC_PATH,
   INHABIT_POST_IR_QUICK_DECISION_ROWS,
@@ -91,12 +93,19 @@ describe("inhabit post-IR leak inventories (IP-001)", () => {
     }
   });
 
+  it("IP-012: documents inspector skip without product rows", () => {
+    expect(INHABIT_POST_IR_INSPECTOR_SKIP_OWNER).toBe("IP-012");
+    expect(INHABIT_POST_IR_INSPECTOR_SKIP_NOTE).toMatch(/inspector/i);
+  });
+
   it("IP-001: markdown inventory matches TypeScript module", () => {
     const doc = readFileSync(join(REPO_ROOT, INHABIT_POST_IR_LEAK_INVENTORIES_DOC_PATH), "utf8");
 
     expect(doc).toContain("IP-002");
     expect(doc).toContain("IP-011");
+    expect(doc).toContain("IP-012");
     expect(doc).toContain("inhabit-post-ir-leak-inventories.ts");
+    expect(doc).toContain("INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md");
     expect(doc).toContain("WORKING_ARCHITECT_DIAGNOSIS_2026-09-13_POST_IR.md");
     expect(doc).toContain("IR-015");
     expect(doc).toContain("ReviewRoomHeaderButton.tsx");

@@ -3,8 +3,10 @@
 > **Origin:** ArchLucid is a **working-architect tool** — all-day use; livelihoods may depend on the sealed record (`docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` R4 / R13). ADR **0100** (Accepted): after spawn, Working inhabits the architecture; the afternoon document is architecture-nested findings.
 >
 > **Prior close:** [`INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md`](INHABIT_REMAIN_ACCEPTANCE_2026-09-13.md) · Wave 34: [`INHABIT_ACCEPTANCE_2026-09-13.md`](INHABIT_ACCEPTANCE_2026-09-13.md) · Inventories: [`INHABIT_LEAK_INVENTORIES.md`](INHABIT_LEAK_INVENTORIES.md)
+>
+> **Post-IR close:** [`INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md`](INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md) — IP-002–IP-010 shipped; IP-011 partial (first-paint row open); IP-012 skip documented.
 
-**Status:** Inventoried remain leftovers are **closed**. A code trace of live Working surfaces still finds **secondary landings and inspector chrome** that send a known-architecture Working day back to the **job**, not the findings document. **Wave 35 is not started.** **G-REAL-06 is not shipped.**
+**Status (historical diagnosis):** This file named post-IR leftovers before the **IP-002–IP-011** pack shipped. For current truth, use [`INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md`](INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md) and [`INHABIT_POST_IR_LEAK_INVENTORIES.md`](INHABIT_POST_IR_LEAK_INVENTORIES.md). **Wave 35 is not started.** **G-REAL-06 is not shipped.**
 
 # Working-architect diagnosis — after IR close (2026-09-13)
 
@@ -137,7 +139,7 @@ Canonical findings-document finalize stays closed.
 ## Recommendation
 
 1. **Do not** paste wave 35 or re-run IH-001–080 / IR-001–018 product bodies.
-2. Named leftover pack (not 80 prompts): [`.cursor/prompts/inhabit-post-00-index.md`](../../.cursor/prompts/inhabit-post-00-index.md) (**IP-001–IP-015**). Spine: [`INHABIT_POST_IR_COMPOSER_PROMPTS.md`](INHABIT_POST_IR_COMPOSER_PROMPTS.md).
-3. Keep `inhabit-leak-inventories.ts` as the ratchet for **closed** remain rows. New leftovers belong in the post-IR inventory (**IP-001**), not flipped-back IR booleans.
+2. Post-IR pack close: [`INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md`](INHABIT_POST_IR_ACCEPTANCE_2026-09-13.md). Prompt index: [`.cursor/prompts/inhabit-post-00-index.md`](../../.cursor/prompts/inhabit-post-00-index.md) (**IP-001–IP-015**).
+3. Keep `inhabit-leak-inventories.ts` as the ratchet for **closed** remain rows. Post-IR truth: `inhabit-post-ir-leak-inventories.ts` — do not flip closed IR/IH booleans back.
 
-Canonical leak truth for remain-closed rows remains `archlucid-ui/src/lib/inhabit-leak-inventories.ts`. This file names **post-IR** leftovers only.
+Canonical leak truth for remain-closed rows remains `archlucid-ui/src/lib/inhabit-leak-inventories.ts`. Post-IR inventory: `archlucid-ui/src/lib/inhabit-post-ir-leak-inventories.ts`.
