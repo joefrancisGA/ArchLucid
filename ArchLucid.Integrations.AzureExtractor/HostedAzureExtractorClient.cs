@@ -118,6 +118,8 @@ public sealed class HostedAzureExtractorClient(
             .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
             .ConfigureAwait(false);
 
+        List<HostedAzureArmResourceRecord> inventoryResources = FilterInventoryResources(resources);
+
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
@@ -135,7 +137,7 @@ public sealed class HostedAzureExtractorClient(
 
         byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
             subscriptionId,
-            resources,
+            inventoryResources,
             request.IncludeCost,
             collectionTimestampUtc,
             subscriptionName,
@@ -156,7 +158,7 @@ public sealed class HostedAzureExtractorClient(
         {
             ZipBytes = zipBytes,
             OriginalFileName = fileName,
-            ResourceCount = resources.Count
+            ResourceCount = inventoryResources.Count
         };
     }
 
@@ -264,6 +266,8 @@ public sealed class HostedAzureExtractorClient(
             .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
             .ConfigureAwait(false);
 
+        List<HostedAzureArmResourceRecord> inventoryResources = FilterInventoryResources(resources);
+
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
@@ -281,7 +285,7 @@ public sealed class HostedAzureExtractorClient(
 
         byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
             subscriptionId: null,
-            resources,
+            inventoryResources,
             request.IncludeCost,
             collectionTimestampUtc,
             subscriptionName: null,
@@ -302,8 +306,16 @@ public sealed class HostedAzureExtractorClient(
         {
             ZipBytes = zipBytes,
             OriginalFileName = fileName,
-            ResourceCount = resources.Count
+            ResourceCount = inventoryResources.Count
         };
+    }
+
+    private static List<HostedAzureArmResourceRecord> FilterInventoryResources(
+        IReadOnlyList<HostedAzureArmResourceRecord> resources)
+    {
+        return resources
+            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(resource.ResourceType))
+            .ToList();
     }
 
     private async Task<IReadOnlyList<AzureInventoryEntraGroupMembershipRow>> TryReadEntraGroupMembershipsAsync(

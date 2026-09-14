@@ -524,6 +524,25 @@ function Get-ArchLucidInventoryPropertyEntries([object] $Properties)
     return @($Properties.psobject.Properties)
 }
 
+function Test-ArchLucidAzureInventoryNeverShowResourceType
+{
+    param(
+        [string] $ResourceType
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ResourceType))
+    {
+        return $false
+    }
+
+    if ($ResourceType -like '*virtualNetworkLinks*')
+    {
+        return $true
+    }
+
+    return $false
+}
+
 function Get-ArchLucidAzureNetworkAssociationCompanionRows
 {
     param(

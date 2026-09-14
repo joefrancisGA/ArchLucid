@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -145,7 +146,8 @@ public sealed class InMemoryCloudResourceIdentityDirectory : ICloudResourceIdent
         IEnumerable<CloudResourceIdentityRecord> query = _byCloudResourceId.Values.Where(record =>
             record.TenantId == scope.TenantId
             && record.WorkspaceId == scope.WorkspaceId
-            && record.ProjectId == scope.ProjectId);
+            && record.ProjectId == scope.ProjectId
+            && !AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(record.ResourceType));
 
         if (trimmedPrefix is not null)
         {

@@ -32,6 +32,12 @@ public static class DiagramPeelCatalogDefaultSeed
             AlwaysDispose("Microsoft.Portal/dashboards", "Always dispose — portal dashboard"),
             AlwaysDispose("Microsoft.Network/dnszones", "Always dispose — DNS zone"),
             AlwaysDispose("Microsoft.Network/privateDnsZones", "Always dispose — private DNS zone"),
+            AlwaysDispose(
+                "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                "Always dispose — private DNS virtual network link"),
+            AlwaysDispose(
+                "Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks",
+                "Always dispose — DNS forwarding ruleset virtual network link"),
             AlwaysDispose("Microsoft.Network/dnsResolvers", "Always dispose — DNS resolver"),
             AlwaysDispose("Microsoft.Compute/virtualMachines/extensions", "Always dispose — VM extension"),
             AlwaysDispose("Microsoft.Compute/virtualMachineScaleSets/extensions", "Always dispose — VMSS extension"),

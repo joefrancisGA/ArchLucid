@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph.Diagram;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -22,6 +23,11 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources
                      .OrderBy(candidate => candidate.AzureResourceId, StringComparer.Ordinal))
         {
+            if (AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(resource.ResourceType))
+            {
+                continue;
+            }
+
             string nodeId = ResolveNodeId(resource);
             nodeIdByArmId[resource.AzureResourceId] = nodeId;
 

@@ -67,6 +67,11 @@ public sealed class AzureInventorySnapshotMaterializer(
 
             foreach (AzureExtractorExtendedResourceRow row in inventory.Resources)
             {
+                if (AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(row.ResourceType))
+                {
+                    continue;
+                }
+
                 string normalizedArmId = ArmResourceIdNormalizer.Normalize(row.AzureResourceId);
                 CloudResourceIdentityRecord identity = await cloudResourceIdentityDirectory.UpsertOnSnapshotAsync(
                     scope,

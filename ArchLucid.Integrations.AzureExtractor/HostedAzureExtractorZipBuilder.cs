@@ -79,6 +79,7 @@ public static class HostedAzureExtractorZipBuilder
         }
 
         object[] resourceRows = resources
+            .Where(static r => !AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(r.ResourceType))
             .Select(static r => new
             {
                 resourceType = r.ResourceType,
@@ -90,6 +91,8 @@ public static class HostedAzureExtractorZipBuilder
                 properties = r.Properties
             })
             .ToArray<object>();
+
+        manifest["resourceCount"] = resourceRows.Length;
 
         Dictionary<string, object?> policyCompliance = new(StringComparer.Ordinal)
         {
