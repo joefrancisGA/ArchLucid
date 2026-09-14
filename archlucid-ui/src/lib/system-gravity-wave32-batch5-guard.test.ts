@@ -32,9 +32,9 @@ describe("system-gravity wave 32 batch 5 ratchets (ADR 0098)", () => {
     expect(existsSync(join(REPO_ROOT, SYSTEM_GRAVITY_OUT_OF_WAVE_RESIDUALS_DOC_PATH))).toBe(true);
   });
 
-  it("SG-086: copy-link keeps nested architecture URL when parent is known", () => {
-    expect(workingShareHref({ architectureId, reviewId: runId }).href).toContain(
-      `/architecture/architectures/${architectureId}/reviews/${runId}`,
+  it("SG-086: copy-link keeps nested findings URL when parent is known", () => {
+    expect(workingShareHref({ architectureId, reviewId: runId }).href).toBe(
+      `/architecture/architectures/${architectureId}/findings?runId=${runId}`,
     );
   });
 
@@ -45,7 +45,7 @@ describe("system-gravity wave 32 batch 5 ratchets (ADR 0098)", () => {
     );
 
     expect(notificationSource).toContain("resolveReviewCompletionHref");
-    expect(notificationSource).toContain("resolveWorkingRunReviewLocator");
+    expect(notificationSource).toContain("useWorkspaceMode");
     expect(notificationSource).toContain("parseArchitectureNestedRoute");
   });
 
@@ -65,11 +65,11 @@ describe("system-gravity wave 32 batch 5 ratchets (ADR 0098)", () => {
     });
   });
 
-  it("SG-089: global search navigation uses nested review locator", () => {
+  it("SG-089: global search navigation uses inhabited findings landing", () => {
     const searchBarSource = readFileSync(join(UI_ROOT, "components/use-global-search-bar.ts"), "utf8");
     const panelSource = readFileSync(join(UI_ROOT, "components/GlobalSearchGlobalResultsPanel.tsx"), "utf8");
 
-    expect(searchBarSource).toContain("resolveWorkingRunReviewLocator");
+    expect(searchBarSource).toContain("resolveGlobalSearchRunHref");
     expect(panelSource).toContain("run.architectureId");
     expect(
       resolveWorkingRunReviewLocator({ runId, architectureId }).href,

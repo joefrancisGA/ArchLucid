@@ -311,6 +311,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
               runId={props.runId}
               reviewCompleted={!reviewPipelineIncomplete}
               manifestVersion={props.signedReviewRecordId}
+              parentArchitectureId={props.parentArchitectureId}
             />
             <ReviewPresenterHeaderButton
               runId={props.runId}

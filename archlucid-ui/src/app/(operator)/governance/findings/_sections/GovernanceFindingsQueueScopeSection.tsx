@@ -59,7 +59,7 @@ export function GovernanceFindingsQueueScopeSection(
         />
       ) : null}
 
-      {props.scopedRunId ? (
+      {props.scopedRunId && !suppressPipelineChrome ? (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="governance-findings-run-scope-banner"

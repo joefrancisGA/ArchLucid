@@ -46,7 +46,7 @@ public sealed class DiagramComponentRowPlannerTests
         List<DiagramNode> only = [Node("a", 0), Node("b", 1)];
         List<DiagramEdge> edges =
         [
-            new DiagramEdge { FromNodeId = "a", ToNodeId = "b", Label = "peered" },
+            new DiagramEdge { FromNodeId = "a", ToNodeId = "b", Label = "peering" },
         ];
 
         DiagramComponentRowPlanner.BuildAlignmentLinks([only], edges).Should().BeEmpty();
@@ -109,7 +109,7 @@ public sealed class DiagramComponentRowPlannerTests
         {
             FromNodeId = fromId,
             ToNodeId = toId,
-            Label = "peered",
+            Label = "peering",
         };
     }
 

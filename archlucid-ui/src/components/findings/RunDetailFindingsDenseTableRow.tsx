@@ -17,7 +17,7 @@ import {
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
+import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import { buildQuickDecisionFindingEvidenceLinks } from "@/lib/quick-decision-finding-links";
@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 
 export type RunDetailFindingsDenseTableRowProps = {
   readonly runId: string;
+  readonly architectureId?: string | null;
   readonly finding: QuickDecisionFinding;
   readonly showDensityScore: boolean;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
@@ -43,7 +44,10 @@ export type RunDetailFindingsDenseTableRowProps = {
 export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTableRowProps): ReactElement {
   const { runId, finding, showDensityScore, isFocused, style, onOpenRow } = props;
   const { isWorkingMode } = useWorkspaceMode();
-  const href = getFindingDetailHref(runId, finding.findingId);
+  const href = resolveQuickDecisionFindingInspectHref(runId, finding.findingId, {
+    architectureId: props.architectureId,
+    isWorkingMode,
+  });
   const showDecisionGradeHonesty =
     isWorkingMode && finding.classification === FINDING_CLASSIFICATION_DECISION_GRADE;
   const badgeLabel = severityBadgeLabel(finding.severityValue);

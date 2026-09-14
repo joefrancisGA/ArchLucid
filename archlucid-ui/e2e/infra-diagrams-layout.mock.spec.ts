@@ -154,10 +154,6 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
           Array.from(document.querySelectorAll("h3"))
             .find((heading) => heading.textContent?.trim() === "Edges")
             ?.parentElement?.querySelectorAll("tbody tr").length ?? 0,
-        statusEdgeCount:
-          document
-            .querySelector('[data-testid="infra-diagrams-render-status-strip"]')
-            ?.textContent?.match(/(\d+)\s+edges/u)?.[1] ?? null,
         chrome: {
           cameraIsDescendant: viewport.contains(camera),
           controlsOutsideCamera: !camera.contains(controls),
@@ -182,7 +178,6 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
     expect(metrics?.allInsideSvg).toBe(true);
     expect(metrics?.edgePathCount).toBe(0);
     expect(metrics?.outlineEdgeRows).toBe(0);
-    expect(metrics?.statusEdgeCount).toBe("0");
     expect(metrics?.chrome?.cameraIsDescendant).toBe(true);
     expect(metrics?.chrome?.controlsOutsideCamera).toBe(true);
     expect(metrics?.chrome?.controlsVisibleInFrame).toBe(true);

@@ -41,6 +41,7 @@ import type { PixelDiagramNotVerifiableSource } from "@/lib/architecture-spine/r
 import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
+  readonly parentArchitectureId?: string | null;
   readonly hasGoldenManifest: boolean;
   readonly commitBlockedReason: string | null | undefined;
   readonly serverFinalizeReadinessBlocks?: readonly FinalizeReadinessBlock[];
@@ -331,6 +332,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
       <ReviewPackageDoThisNextStrip
         next={next}
         runId={props.runId}
+        parentArchitectureId={props.parentArchitectureId ?? null}
         retryCount={props.pipelineDiagnosticContext?.retryCount ?? props.pipelineSummary?.retryCount ?? null}
         hasGoldenManifest={props.hasGoldenManifest}
         commitBlockedReason={effectiveCommitBlockedReason}

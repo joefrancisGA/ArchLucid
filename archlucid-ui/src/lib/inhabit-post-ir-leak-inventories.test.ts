@@ -58,9 +58,19 @@ describe("inhabit post-IR leak inventories (IP-001)", () => {
     expect(INHABIT_POST_IR_INHABITED_CHROME_ROWS.every((row) => row.ownerPrompt === "IP-011")).toBe(true);
   });
 
-  it("IP-002/IP-003: closed hub and search rows stay flipped off", () => {
+  it("IP-002–IP-006: closed dual-place rows stay flipped off", () => {
     expect(INHABIT_POST_IR_REVIEWS_HUB_LANDING_ROWS.every((row) => !row.leakOpen)).toBe(true);
     expect(INHABIT_POST_IR_GLOBAL_SEARCH_LANDING_ROWS.every((row) => !row.leakOpen)).toBe(true);
+    expect(INHABIT_POST_IR_WORKING_SHARE_ROWS.every((row) => !row.leakOpen)).toBe(true);
+    expect(INHABIT_POST_IR_QUICK_DECISION_ROWS.every((row) => !row.leakOpen)).toBe(true);
+    expect(INHABIT_POST_IR_COMPLETION_TOAST_ROWS.every((row) => !row.leakOpen)).toBe(true);
+  });
+
+  it("IP-002–IP-010: closed product rows stay flipped off", () => {
+    expect(INHABIT_POST_IR_ROOM_ON_REVIEW_DETAIL_ROWS.every((row) => !row.leakOpen)).toBe(true);
+    expect(INHABIT_POST_IR_INSPECT_SUPPORT_BAND_ROWS.every((row) => !row.leakOpen)).toBe(true);
+    expect(INHABIT_POST_IR_SECONDARY_RERUN_ROWS.every((row) => !row.leakOpen)).toBe(true);
+    expect(INHABIT_POST_IR_INSPECTOR_FINALIZE_ROWS.every((row) => !row.leakOpen)).toBe(true);
   });
 
   it("IP-001: remaining product rows stay open until their IP ships", () => {
@@ -69,8 +79,9 @@ describe("inhabit post-IR leak inventories (IP-001)", () => {
     );
 
     expect(openOwnerPrompts.has("IP-002")).toBe(false);
-    expect(openOwnerPrompts.has("IP-003")).toBe(false);
-    expect(openOwnerPrompts.has("IP-004")).toBe(true);
+    expect(openOwnerPrompts.has("IP-006")).toBe(false);
+    expect(openOwnerPrompts.has("IP-010")).toBe(false);
+    expect(openOwnerPrompts.has("IP-011")).toBe(true);
   });
 
   it("IP-001: covers every product owner prompt IP-002 through IP-011", () => {
@@ -92,7 +103,7 @@ describe("inhabit post-IR leak inventories (IP-001)", () => {
     expect(doc).toContain("ReviewRoomHeaderButton.tsx");
     expect(doc).toContain("use-review-completion-notification.ts");
     expect(doc).toContain("| No | IP-002 |");
-    expect(doc).toContain("| No | IP-003 |");
+    expect(doc).toContain("| No | IP-006 |");
   });
 
   it("IP-001: keeps inventory module paths present on disk", () => {
