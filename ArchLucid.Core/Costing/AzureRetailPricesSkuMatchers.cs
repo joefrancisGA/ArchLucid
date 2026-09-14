@@ -567,6 +567,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || HasCompactWeksSuffix(trimmed)
             || HasCompactWeelSuffix(trimmed)
             || HasCompactWeelsSuffix(trimmed)
+            || HasCompactWelsSuffix(trimmed)
             || HasCompactWeekWordSuffix(trimmed)
             || HasCompactWeeksWordSuffix(trimmed)
             || string.Equals(trimmed, "week", StringComparison.OrdinalIgnoreCase)
@@ -1183,6 +1184,15 @@ public sealed partial class AzureRetailPricesCatalogClient
             return false;
 
         return trimmed.EndsWith("weel", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^5]);
+    }
+
+    private static bool HasCompactWelsSuffix(string trimmed)
+    {
+        if (trimmed.Length < 6)
+            return false;
+
+        return trimmed.EndsWith("wels", StringComparison.OrdinalIgnoreCase)
             && char.IsDigit(trimmed[^5]);
     }
 
