@@ -47,8 +47,10 @@ export const GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID = "infra-ask-prima
 
 export const GOVERNANCE_INFRASTRUCTURE_ASK_SKIP_LINK_LABEL = "Skip to Ask prompt" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_ASK_OPERATOR_EYEBROW = "Advanced operations" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD =
-  "Ask grounded questions about inventory evidence with citation-backed answers and honest insufficient-evidence outcomes." as const;
+  "Grounded Q&A over structured inventory rows with citation-backed answers. Use canned prompts or your own question when citations and insufficient-evidence outcomes are acceptable." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE =
   "Answers cite structured inventory rows only — not sealed review records or official assurance materials." as const;
