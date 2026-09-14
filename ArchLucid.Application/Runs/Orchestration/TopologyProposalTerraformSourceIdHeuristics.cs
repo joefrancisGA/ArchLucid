@@ -264,7 +264,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("availability_set", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("shared_image_gallery", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("image_version", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("ssh_public_key", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("ssh_public_key", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("gallery_application", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -439,7 +440,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("availability_set", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("shared_image_gallery", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("image_version", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("ssh_public_key", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("ssh_public_key", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("gallery_application", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
