@@ -14,16 +14,12 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
   EnterpriseTableCell,
-  EnterpriseTableHead,
-  EnterpriseTableHeadRow,
-  EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import {
@@ -40,15 +36,16 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
   formatInfraEvidenceChangeTypeLabel,
-  INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS,
-  INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS,
   resolveInfraEvidenceChangeTypeStatusKind,
 } from "@/lib/infra-evidence/infra-evidence-drift-display";
 import {
+  clearDriftTableFilters,
   filterDriftChanges,
+  hasActiveDriftTableFilters,
   parseDriftTableFilterState,
   sortDriftChanges,
   toggleDriftTableSort,
+  type DriftTableFilterState,
   type DriftTableSortKey,
 } from "@/lib/infra-evidence/infra-evidence-drift-table-filter";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
@@ -116,12 +113,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_CHANGE_TYPE_FILTER_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_FILTER_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RISK_FILTER_LABEL,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
@@ -140,6 +131,7 @@ import { DriftBreadcrumb } from "./DriftBreadcrumb";
 import { DriftChangeDetail } from "./DriftChangeDetail";
 import { DriftChangeRiskCell } from "./DriftChangeRiskCell";
 import { DriftChangeResourceCells } from "./DriftChangeResourceCell";
+import { DriftChangesTableHead } from "./DriftChangesTableHead";
 import { DriftClaimOrientationStrip } from "./DriftClaimOrientationStrip";
 import { DriftSnapshotIdentifiers } from "./DriftSnapshotIdentifiers";
 
@@ -152,18 +144,6 @@ const cnField =
 const DRIFT_CHANGES_TABLE_COLUMN_COUNT = 6;
 const SNAPSHOTS_PAGE_SIZE = 50;
 const CHANGES_PAGE_SIZE = 100;
-
-function sortDirectionForColumn(
-  sortBy: DriftTableSortKey,
-  column: DriftTableSortKey,
-  sortDir: "asc" | "desc",
-): "ascending" | "descending" | "none" {
-  if (sortBy !== column) {
-    return "none";
-  }
-
-  return sortDir === "asc" ? "ascending" : "descending";
-}
 
 export function DriftWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
@@ -289,6 +269,11 @@ export function DriftWorkbenchClient() {
 
     return sortDriftChanges(filtered, tableFilterState.sortBy, tableFilterState.sortDir);
   }, [changes, selectedDiff, tableFilterState]);
+
+  const hasActiveTableFilters = useMemo(
+    () => hasActiveDriftTableFilters(tableFilterState),
+    [tableFilterState],
+  );
 
   const selectedChange = useMemo(
     () => visibleChanges.find((row) => row.changeId === selectedChangeId) ?? null,
@@ -649,17 +634,17 @@ export function DriftWorkbenchClient() {
     });
   };
 
-  const renderSortableHeader = (column: DriftTableSortKey, label: string) => (
-    <EnterpriseTableHeaderCell sortDirection={sortDirectionForColumn(tableFilterState.sortBy, column, tableFilterState.sortDir)}>
-      <button
-        type="button"
-        className="inline-flex items-center gap-1 text-left"
-        onClick={() => handleSortColumn(column)}
-      >
-        {label}
-      </button>
-    </EnterpriseTableHeaderCell>
-  );
+  const handleTableFiltersChange = (patch: Partial<DriftTableFilterState>) => {
+    pushDriftUrl({
+      tableFilters: patch,
+    });
+  };
+
+  const handleClearTableFilters = () => {
+    pushDriftUrl({
+      tableFilters: clearDriftTableFilters(tableFilterState),
+    });
+  };
 
   const renderChangesEmptyState = () => {
     if (loadingChanges) {
@@ -987,63 +972,6 @@ export function DriftWorkbenchClient() {
             <OperatorMutationInlineError message={exportError} testId="infra-drift-export-error" />
           ) : null}
 
-          <div className="grid gap-3 border-t border-neutral-200 pt-3 dark:border-neutral-800 md:grid-cols-3" aria-label="Drift table filters">
-            <label className="grid gap-1">
-              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RISK_FILTER_LABEL}</span>
-              <select
-                className={cnField}
-                data-testid="infra-drift-risk-filter"
-                value={tableFilterState.riskFilter}
-                onChange={(event) => {
-                  pushDriftUrl({
-                    tableFilters: { riskFilter: event.target.value, changesPage: 1 },
-                  });
-                }}
-              >
-                {INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS.map((option) => (
-                  <option key={option.value || "all"} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-1">
-              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
-                {GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_CHANGE_TYPE_FILTER_LABEL}
-              </span>
-              <select
-                className={cnField}
-                data-testid="infra-drift-change-type-filter"
-                value={tableFilterState.changeTypeFilter}
-                onChange={(event) => {
-                  pushDriftUrl({
-                    tableFilters: { changeTypeFilter: event.target.value, changesPage: 1 },
-                  });
-                }}
-              >
-                {INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS.map((option) => (
-                  <option key={option.value || "all"} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-1">
-              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
-                {GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_FILTER_LABEL}
-              </span>
-              <Input
-                className={cnField}
-                data-testid="infra-drift-resource-filter"
-                value={tableFilterState.resourceFilter}
-                onChange={(event) => {
-                  pushDriftUrl({
-                    tableFilters: { resourceFilter: event.target.value, changesPage: 1 },
-                  });
-                }}
-              />
-            </label>
-          </div>
           <p className={cn("m-0 flex flex-wrap items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             <span>Row shortcuts:</span>
             <KeyboardShortcutBadge shortcut="↑" />
@@ -1074,16 +1002,13 @@ export function DriftWorkbenchClient() {
         ) : null}
 
         <EnterpriseTable ariaLabel="Inventory drift changes">
-          <EnterpriseTableHead>
-            <EnterpriseTableHeadRow>
-              {renderSortableHeader("resource", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL)}
-              {renderSortableHeader("resourceGroup", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL)}
-              {renderSortableHeader("resourceType", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL)}
-              {renderSortableHeader("change", "Change")}
-              {renderSortableHeader("property", "Property")}
-              {renderSortableHeader("risk", "Risk")}
-            </EnterpriseTableHeadRow>
-          </EnterpriseTableHead>
+          <DriftChangesTableHead
+            tableFilterState={tableFilterState}
+            hasActiveFilters={hasActiveTableFilters}
+            onSortColumn={handleSortColumn}
+            onTableFiltersChange={handleTableFiltersChange}
+            onClearFilters={handleClearTableFilters}
+          />
           <EnterpriseTableBody data-testid="infra-drift-changes-body">
             {visibleChanges.length === 0 ? renderChangesEmptyState() : null}
             {visibleChanges.map((row) => (

@@ -214,8 +214,8 @@ describe("DriftWorkbenchClient", () => {
     expect(row).toHaveTextContent("rg");
     expect(row).toHaveTextContent("publicIPAddresses");
     expect(row).not.toHaveTextContent("/subscriptions/");
-    expect(screen.getByRole("button", { name: "Resource group" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Resource type" })).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-resourceGroup")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-resourceType")).toBeInTheDocument();
   });
 
   it("renders a discrete drift change table with sortable headers (IE-DT-02)", async () => {
@@ -223,12 +223,13 @@ describe("DriftWorkbenchClient", () => {
     render(<DriftWorkbenchClient />);
 
     expect(await screen.findByRole("table", { name: "Inventory drift changes" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Resource" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Resource group" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Resource type" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Change" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Property" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Risk" })).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-resource")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-resourceGroup")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-resourceType")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-change")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-property")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-sort-risk")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-resource-filter-trigger")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-changes-body")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-drift-change-row-change-1")).toBeInTheDocument();
   });

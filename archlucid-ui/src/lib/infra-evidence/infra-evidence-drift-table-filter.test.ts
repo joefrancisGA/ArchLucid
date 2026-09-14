@@ -106,10 +106,19 @@ describe("infra-evidence-drift-table-filter", () => {
       "22222222-2222-2222-2222-222222222222",
     );
 
-    expect(filterDriftChanges(rows, { riskFilter: "", changeTypeFilter: "", resourceFilter: "" }, sameSnapshotDiff)).toEqual([
+    const emptyFilters = {
+      riskFilter: "",
+      changeTypeFilter: "",
+      resourceFilter: "",
+      resourceGroupFilter: "",
+      resourceTypeFilter: "",
+      propertyFilter: "",
+    };
+
+    expect(filterDriftChanges(rows, emptyFilters, sameSnapshotDiff)).toEqual([
       rows[1],
     ]);
-    expect(filterDriftChanges(rows, { riskFilter: "", changeTypeFilter: "", resourceFilter: "" }, twoSnapshotDiff)).toEqual(rows);
+    expect(filterDriftChanges(rows, emptyFilters, twoSnapshotDiff)).toEqual(rows);
   });
 
   it("filters drift rows by none and unknown risk keys", () => {
@@ -132,9 +141,61 @@ describe("infra-evidence-drift-table-filter", () => {
       "22222222-2222-2222-2222-222222222222",
     );
 
-    expect(filterDriftChanges(rows, { riskFilter: "none", changeTypeFilter: "", resourceFilter: "" }, twoSnapshotDiff)).toEqual([rows[0]]);
-    expect(filterDriftChanges(rows, { riskFilter: "unknown", changeTypeFilter: "", resourceFilter: "" }, twoSnapshotDiff)).toEqual([rows[1]]);
-    expect(filterDriftChanges(rows, { riskFilter: "elevated", changeTypeFilter: "", resourceFilter: "" }, twoSnapshotDiff)).toEqual([rows[2]]);
+    const baseFilters = {
+      changeTypeFilter: "",
+      resourceFilter: "",
+      resourceGroupFilter: "",
+      resourceTypeFilter: "",
+      propertyFilter: "",
+    };
+
+    expect(filterDriftChanges(rows, { ...baseFilters, riskFilter: "none" }, twoSnapshotDiff)).toEqual([rows[0]]);
+    expect(filterDriftChanges(rows, { ...baseFilters, riskFilter: "unknown" }, twoSnapshotDiff)).toEqual([rows[1]]);
+    expect(filterDriftChanges(rows, { ...baseFilters, riskFilter: "elevated" }, twoSnapshotDiff)).toEqual([rows[2]]);
+  });
+
+  it("filters drift rows by resource group, resource type, and property", () => {
+    const rows = [
+      buildChange("a", "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gw-a", {
+        changeType: "ResourceModified",
+        property: "sku",
+      }),
+      buildChange("b", "/subscriptions/sub/resourceGroups/rg-app/providers/Microsoft.Compute/virtualMachines/vm-b", {
+        changeType: "ResourceModified",
+        property: "tags",
+      }),
+    ];
+
+    expect(
+      filterDriftChanges(rows, {
+        riskFilter: "",
+        changeTypeFilter: "",
+        resourceFilter: "",
+        resourceGroupFilter: "rg-net",
+        resourceTypeFilter: "",
+        propertyFilter: "",
+      }),
+    ).toEqual([rows[0]]);
+    expect(
+      filterDriftChanges(rows, {
+        riskFilter: "",
+        changeTypeFilter: "",
+        resourceFilter: "",
+        resourceGroupFilter: "",
+        resourceTypeFilter: "microsoft.compute",
+        propertyFilter: "",
+      }),
+    ).toEqual([rows[1]]);
+    expect(
+      filterDriftChanges(rows, {
+        riskFilter: "",
+        changeTypeFilter: "",
+        resourceFilter: "",
+        resourceGroupFilter: "",
+        resourceTypeFilter: "",
+        propertyFilter: "sku",
+      }),
+    ).toEqual([rows[0]]);
   });
 
   it("toggles sort direction when the same column is selected again", () => {
@@ -143,6 +204,9 @@ describe("infra-evidence-drift-table-filter", () => {
         riskFilter: "",
         changeTypeFilter: "",
         resourceFilter: "",
+        resourceGroupFilter: "",
+        resourceTypeFilter: "",
+        propertyFilter: "",
         sortBy: "resourceGroup",
         sortDir: "asc",
         changesPage: 2,
