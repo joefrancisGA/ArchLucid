@@ -138,11 +138,11 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID = "infra-diag
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL = "Skip to diagram viewer" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
-  "Render diagrams from snapshot evidence. Full subscription keeps virtual machines, databases, and other backbone resources when the full leaf graph is too large. Attachment and platform resources may be hidden. Pick a Resource Group to see every resource in one group." as const;
+  "Render inventory diagrams from snapshot evidence. Full subscription keeps virtual machines, databases, and other backbone resources when the full leaf graph is too large. Attachment and platform resources may be hidden. Pick a Resource Group to see every resource in one group." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL = "Scoped to resource" as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE = "Diagrams unavailable" as const;
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE = "Inventory diagrams unavailable" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION = "Open diagrams" as const;
 
@@ -226,6 +226,12 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION =
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PARTITIONED_BODY =
   "This snapshot is too large for a single diagram in the selected mode. Pick a focused view — Executive is the default — or choose Pick a Resource Group." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_LABEL =
+  "Show trivial components" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE =
+  "Always excluded from diagrams" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureDrift;
 
@@ -456,7 +462,7 @@ export const INFRASTRUCTURE_WORKBENCH_ROWS: readonly InfrastructureWorkbenchRow[
   {
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
-    summary: "Render diagrams, a resource group map for large subscriptions, and server PNG export.",
+    summary: "Render inventory diagrams, a resource group map for large subscriptions, and server PNG export.",
   },
   {
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,

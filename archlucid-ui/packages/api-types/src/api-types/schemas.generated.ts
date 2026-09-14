@@ -5513,6 +5513,16 @@ export interface components {
             topicKind?: string;
             viewPlan?: null | components["schemas"]["DiagramViewPlan"];
         };
+        InfraEvidenceMermaidCollapseEntry: {
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            kind?: string;
+            nodeId?: null | string;
+            reason?: string;
+        };
+        InfraEvidenceMermaidCollapseReport: {
+            entries?: components["schemas"]["InfraEvidenceMermaidCollapseEntry"][];
+        };
         InfraEvidenceMermaidComplexityMetrics: {
             /** Format: int32 */
             crossSubgraphEdgeCount?: number;
@@ -5554,6 +5564,7 @@ export interface components {
             snapshotId?: string;
         };
         InfraEvidenceMermaidRenderResponse: {
+            collapseReport?: null | components["schemas"]["InfraEvidenceMermaidCollapseReport"];
             fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
             fallbackKey?: null | string;
             layoutEngine?: null | string;

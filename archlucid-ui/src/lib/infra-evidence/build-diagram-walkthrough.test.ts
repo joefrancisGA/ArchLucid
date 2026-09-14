@@ -21,7 +21,32 @@ describe("buildDiagramWalkthrough", () => {
 
     expect(summary).toContain("11");
     expect(summary).toContain("6");
+    expect(summary).toContain("1 connected component");
     expect(summary).not.toMatch(/\/subscriptions\//u);
+  });
+
+  it("excludes trivial singleton components from the walkthrough count by default", () => {
+    const summary = buildDiagramWalkthrough({
+      nodes: [
+        { id: "a", label: "A", resourceType: null, resourceGroup: null },
+        { id: "b", label: "B", resourceType: null, resourceGroup: null },
+        { id: "c", label: "C", resourceType: null, resourceGroup: null },
+      ],
+      edges: [{ from: "a", to: "b", label: null }],
+    });
+
+    expect(summary).toContain("1 connected component");
+    expect(buildDiagramWalkthrough(
+      {
+        nodes: [
+          { id: "a", label: "A", resourceType: null, resourceGroup: null },
+          { id: "b", label: "B", resourceType: null, resourceGroup: null },
+          { id: "c", label: "C", resourceType: null, resourceGroup: null },
+        ],
+        edges: [{ from: "a", to: "b", label: null }],
+      },
+      { showTrivialComponents: true },
+    )).toContain("2 connected components");
   });
 });
 

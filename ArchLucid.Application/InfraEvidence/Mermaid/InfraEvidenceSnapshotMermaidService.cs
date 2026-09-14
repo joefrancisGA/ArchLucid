@@ -594,7 +594,32 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             FallbackArtifacts = fallbackArtifacts,
             LayoutSvg = resolvedLayout.LayoutSvg,
             LayoutEngine = resolvedLayout.LayoutEngine,
+            CollapseReport = MapCollapseReport(renderResult.CollapseReport),
         };
+    }
+
+    private static InfraEvidenceMermaidCollapseReport? MapCollapseReport(
+        MermaidDiagramCollapseReport? collapseReport)
+    {
+        if (collapseReport is null || collapseReport.Entries.Count == 0)
+        {
+            return null;
+        }
+
+        List<InfraEvidenceMermaidCollapseEntry> entries = [];
+
+        foreach (MermaidDiagramCollapseEntry entry in collapseReport.Entries)
+        {
+            entries.Add(new InfraEvidenceMermaidCollapseEntry
+            {
+                Kind = entry.Kind,
+                CloudResourceId = entry.CloudResourceId,
+                NodeId = entry.NodeId,
+                Reason = entry.Reason,
+            });
+        }
+
+        return new InfraEvidenceMermaidCollapseReport { Entries = entries };
     }
 
     private static List<InfraEvidenceMermaidFallbackArtifactSummary> MapFallbackSummaries(
