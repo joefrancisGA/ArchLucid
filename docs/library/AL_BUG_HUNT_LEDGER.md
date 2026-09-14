@@ -11061,6 +11061,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-costing
 
+2026-09-14 seed hunt #2805 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / wel` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWelTests`.
+
 - **id:** core-costing
 
 2026-09-14 seed hunt #2800 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10wel` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWelTests`.
@@ -11218,8 +11220,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 107
-- **bugs-found:** 80
+- **hunts:** 108
+- **bugs-found:** 81
 - **consecutive-dry-hunts:** 0
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14

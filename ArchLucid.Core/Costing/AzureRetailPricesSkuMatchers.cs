@@ -549,6 +549,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashWksToken(trimmed)
             || ContainsSlashWkToken(trimmed)
             || ContainsSpacedSlashWToken(trimmed)
+            || ContainsSpacedSlashWelToken(trimmed)
             || ContainsSpacedSlashWekToken(trimmed)
             || ContainsSpacedSlashWeksToken(trimmed)
             || ContainsSlashWToken(trimmed)
@@ -569,6 +570,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || HasCompactWeksSuffix(trimmed)
             || HasCompactWeelSuffix(trimmed)
             || HasCompactWeelsSuffix(trimmed)
+            || HasCompactWeekesSuffix(trimmed)
             || HasCompactWelsSuffix(trimmed)
             || HasCompactWeekWordSuffix(trimmed)
             || HasCompactWeeksWordSuffix(trimmed)
@@ -691,6 +693,28 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return true;
 
             index = afterToken;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSpacedSlashWelToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf(" / wel", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterWel = index + 6;
+
+            if (afterWel >= trimmed.Length || !char.IsLetter(trimmed[afterWel]))
+                return true;
+
+            index = afterWel;
         }
 
         return false;
@@ -1214,6 +1238,15 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         return trimmed.EndsWith("weels", StringComparison.OrdinalIgnoreCase)
             && char.IsDigit(trimmed[^6]);
+    }
+
+    private static bool HasCompactWeekesSuffix(string trimmed)
+    {
+        if (trimmed.Length < 8)
+            return false;
+
+        return trimmed.EndsWith("weekes", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^7]);
     }
 
     private static bool HasCompactMonthSuffix(string trimmed)
