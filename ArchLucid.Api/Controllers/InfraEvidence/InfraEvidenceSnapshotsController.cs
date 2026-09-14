@@ -58,6 +58,44 @@ public sealed partial class InfraEvidenceSnapshotsController(
         }
     }
 
+    [HttpGet("{snapshotId:guid}/inventory-rows")]
+    [ProducesResponseType(typeof(PagedResponse<AzureInventoryChangeRecord>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ListInventoryRowsForSnapshot(
+        Guid snapshotId,
+        [FromQuery] Guid? cloudResourceId,
+        [FromQuery] int page = PaginationDefaults.DefaultPage,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        try
+        {
+            PagedResponse<AzureInventoryChangeRecord>? response = await driftWorkbenchQueryService.ListInventoryRowsForSnapshotAsync(
+                scope,
+                snapshotId,
+                page,
+                pageSize,
+                cloudResourceId,
+                cancellationToken);
+
+            if (response is null)
+            {
+                return this.NotFoundProblem(
+                    $"Snapshot '{snapshotId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return MapSnapshotSealedManifestConflict(ex);
+        }
+    }
+
     [HttpGet("{snapshotId:guid}/diffs")]
     [ProducesResponseType(typeof(IReadOnlyList<AzureInventoryDiffSummaryRecord>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
