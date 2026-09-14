@@ -316,7 +316,15 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("role_definition", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("keyvault", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("redis", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("storage", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("storage", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("search", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("eventhub", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("kusto", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("synapse", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("signalr", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("documentdb", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("maps", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("fluid", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -543,7 +551,15 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("role_definition", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("keyvault", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("redis", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("storage", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("storage", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("search", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("eventhub", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("kusto", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("synapse", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("signalr", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("documentdb", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("maps", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("fluid", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
