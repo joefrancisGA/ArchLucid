@@ -39,9 +39,15 @@ public static class AzureInventoryDiffComparer
                 newValue: added.Value.ResourceType));
         }
 
-        foreach (KeyValuePair<string, AzureInventoryResourceRecord> removed in resourcesA)
+        List<KeyValuePair<string, AzureInventoryResourceRecord>> removedResources = resourcesA
+            .Where(pair => !resourcesB.ContainsKey(pair.Key))
+            .ToList();
+
+        HashSet<string> nestedRemovedResourceIds = CollectNestedRemovedResourceIds(removedResources);
+
+        foreach (KeyValuePair<string, AzureInventoryResourceRecord> removed in removedResources)
         {
-            if (resourcesB.ContainsKey(removed.Key))
+            if (nestedRemovedResourceIds.Contains(removed.Key))
                 continue;
 
             changes.Add(CreateChange(
@@ -296,6 +302,33 @@ public static class AzureInventoryDiffComparer
                 assignment.RoleDefinitionId,
                 newValue: null));
         }
+    }
+
+    private static HashSet<string> CollectNestedRemovedResourceIds(
+        IReadOnlyList<KeyValuePair<string, AzureInventoryResourceRecord>> removedResources)
+    {
+        HashSet<string> nestedRemovedResourceIds = new(StringComparer.OrdinalIgnoreCase);
+
+        for (int candidateIndex = 0; candidateIndex < removedResources.Count; candidateIndex++)
+        {
+            string candidateId = removedResources[candidateIndex].Key;
+
+            for (int ancestorIndex = 0; ancestorIndex < removedResources.Count; ancestorIndex++)
+            {
+                if (candidateIndex == ancestorIndex)
+                    continue;
+
+                string ancestorId = removedResources[ancestorIndex].Key;
+
+                if (!ArmResourceIdNormalizer.IsDescendantOf(candidateId, ancestorId))
+                    continue;
+
+                nestedRemovedResourceIds.Add(candidateId);
+                break;
+            }
+        }
+
+        return nestedRemovedResourceIds;
     }
 
     private static AzureInventoryChangeRecord CreateChange(

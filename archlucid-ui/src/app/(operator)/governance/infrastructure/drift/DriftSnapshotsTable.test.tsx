@@ -39,6 +39,12 @@ describe("DriftSnapshotsTable", () => {
     expect(screen.getByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-subscription")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-snapshot-subscription-filter-trigger")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-drift-change-type-filter-trigger")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-drift-property-filter-trigger")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-drift-risk-filter-trigger")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Filter Change")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Filter Property")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Filter Risk")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-snapshot-row-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "aria-selected",
       "true",

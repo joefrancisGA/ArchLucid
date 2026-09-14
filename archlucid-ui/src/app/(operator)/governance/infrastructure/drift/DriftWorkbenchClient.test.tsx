@@ -522,7 +522,9 @@ describe("DriftWorkbenchClient", () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
     render(<DriftWorkbenchClient />);
 
-    expect(await screen.findByRole("table", { name: "Inventory drift changes" })).toBeInTheDocument();
+    const diffTable = await screen.findByRole("table", { name: "Inventory drift changes" });
+    const inventoryTable = screen.getByRole("table", { name: "Inventory snapshots" });
+
     expect(screen.getByTestId("infra-drift-sort-resource")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-resourceGroup")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-resourceType")).toBeInTheDocument();
@@ -530,6 +532,12 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-sort-property")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-risk")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-resource-filter-trigger")).toBeInTheDocument();
+    expect(within(diffTable).getByTestId("infra-drift-change-type-filter-trigger")).toBeInTheDocument();
+    expect(within(diffTable).getByTestId("infra-drift-property-filter-trigger")).toBeInTheDocument();
+    expect(within(diffTable).getByTestId("infra-drift-risk-filter-trigger")).toBeInTheDocument();
+    expect(within(inventoryTable).queryByTestId("infra-drift-change-type-filter-trigger")).not.toBeInTheDocument();
+    expect(within(inventoryTable).queryByTestId("infra-drift-property-filter-trigger")).not.toBeInTheDocument();
+    expect(within(inventoryTable).queryByTestId("infra-drift-risk-filter-trigger")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-changes-body")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-drift-change-row-change-1")).toBeInTheDocument();
   });
@@ -562,7 +570,75 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-diff-picker")).toBeDisabled();
   });
 
-  it("renders one row per drift change when multiple changes are returned (IE-DT-02)", async () => {
+  it("groups multiple property changes for the same resource into one row", async () => {
+    mockFetchChanges.mockResolvedValueOnce({
+      items: [
+        {
+          changeId: "change-sku",
+          diffId: "diff-1",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-a/providers/Microsoft.Network/publicIPAddresses/gw-a",
+          changeType: "Modified",
+          property: "sku",
+          oldValue: "Basic",
+          newValue: "Standard",
+          riskClassification: "Medium",
+          evidenceReference: "snapshot-diff",
+        },
+        {
+          changeId: "change-tags",
+          diffId: "diff-1",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-a/providers/Microsoft.Network/publicIPAddresses/gw-a",
+          changeType: "Modified",
+          property: "tags",
+          oldValue: null,
+          newValue: "env=prod",
+          riskClassification: "Low",
+          evidenceReference: "snapshot-diff",
+        },
+        {
+          changeId: "change-other",
+          diffId: "diff-1",
+          cloudResourceId: "33333333-3333-3333-3333-333333333333",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-b/providers/Microsoft.Storage/storageAccounts/logs",
+          changeType: "Added",
+          property: "tags",
+          oldValue: null,
+          newValue: "env=prod",
+          riskClassification: null,
+          evidenceReference: "snapshot-diff",
+        },
+      ],
+      totalCount: 3,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
+    render(<DriftWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-drift-change-row-change-sku")).toBeInTheDocument();
+      expect(screen.getByTestId("infra-drift-change-row-change-other")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("infra-drift-change-row-change-tags")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-change-row-change-sku")).toHaveTextContent("2 properties");
+    expect(screen.getByTestId("infra-drift-changes-body").querySelectorAll("tr")).toHaveLength(2);
+
+    fireEvent.click(screen.getByTestId("infra-drift-change-row-change-sku"));
+
+    expect(await screen.findByTestId("infra-drift-change-drawer")).toHaveTextContent("2 property changes on this resource");
+    expect(screen.getByTestId("infra-drift-change-property-detail-change-sku")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-change-property-detail-change-tags")).toBeInTheDocument();
+  });
+
+  it("renders one row per resource when multiple changes are returned (IE-DT-02)", async () => {
     mockFetchChanges.mockResolvedValueOnce({
       items: [
         {
@@ -623,7 +699,7 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-changes-body").querySelectorAll("tr")).toHaveLength(3);
   });
 
-  it("keeps snapshot ids behind disclosure and uses human snapshot labels", async () => {
+  it("shows snapshot ids inline and uses human snapshot labels", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
     render(<DriftWorkbenchClient />);
 
@@ -634,17 +710,26 @@ describe("DriftWorkbenchClient", () => {
       "11111111-1111-1111-1111-111111111111",
     );
     expect(screen.getByTestId("infra-drift-snapshot-identifiers")).toBeInTheDocument();
+    expect(screen.getByText("Snapshot id")).toBeInTheDocument();
+    expect(screen.getByText("11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-scope-freshness")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-subscription")).toBeInTheDocument();
   });
 
-  it("collapses advanced-operations guidance behind a summary", async () => {
+  it("renders drift guidance under the page headline without advanced-operations chrome", async () => {
     evalChrome.enabled = false;
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DriftWorkbenchClient />);
 
-    expect(await screen.findByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
-    expect(screen.getByText("How drift compare works")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-drift-page-lead")).toHaveTextContent(
+      "Compare inventory snapshots and classify drift.",
+    );
+    expect(screen.getByTestId("infra-drift-page-lead")).toHaveTextContent(
+      "Pick current and baseline snapshots before exporting advisory Terraform.",
+    );
+    expect(screen.getByTestId("infra-drift-page-secondary-lead")).toBeInTheDocument();
+    expect(screen.queryByTestId("layer-header-collapsible-guidance")).not.toBeInTheDocument();
+    expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
   });
 
   it("prompts before selecting a snapshot from a different subscription", async () => {

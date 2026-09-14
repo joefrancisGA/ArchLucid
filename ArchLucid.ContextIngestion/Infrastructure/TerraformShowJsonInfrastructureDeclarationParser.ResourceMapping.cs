@@ -22,8 +22,10 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
     {
         canonicalAddress = string.Empty;
 
-        if (!TryGetPropertyIgnoreCase(res, "address", out JsonElement addressElement) ||
-            addressElement.ValueKind != JsonValueKind.String)
+        if ((!TryGetPropertyIgnoreCase(res, "address", out JsonElement addressElement)
+                && !TryGetPropertyIgnoreCase(res, "resourceAddress", out addressElement)
+                && !TryGetPropertyIgnoreCase(res, "resource_address", out addressElement))
+            || addressElement.ValueKind != JsonValueKind.String)
             return false;
 
         string? address = addressElement.GetString();
@@ -92,7 +94,10 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             ["terraformType"] = canonicalTerraformType
         };
 
-        if ((TryGetPropertyIgnoreCase(res, "provider_name", out JsonElement prov) || TryGetPropertyIgnoreCase(res, "providerName", out prov)) && prov.ValueKind == JsonValueKind.String)
+        if ((TryGetPropertyIgnoreCase(res, "provider_name", out JsonElement prov)
+                || TryGetPropertyIgnoreCase(res, "providerName", out prov)
+                || TryGetPropertyIgnoreCase(res, "provider", out prov))
+            && prov.ValueKind == JsonValueKind.String)
         {
             string? p = prov.GetString();
 
@@ -165,6 +170,15 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 moduleAddress,
                 canonicalTerraformType,
                 canonicalLabel);
+
+            if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement))
+            {
+                if (indexElement.ValueKind == JsonValueKind.Number)
+                    canonicalAddress = $"{canonicalAddress}[{indexElement.GetInt32()}]";
+                else if (indexElement.ValueKind == JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(indexElement.GetString()))
+                    canonicalAddress = $"{canonicalAddress}[{indexElement.GetString()!.Trim()}]";
+            }
         }
 
         string resourceIdentity = BuildTerraformResourceIdentity(

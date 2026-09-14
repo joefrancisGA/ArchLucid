@@ -191,6 +191,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("logic_app", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("service_plan", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("spring_cloud", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("azurerm_sql", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("servicebus", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("servicebus_namespace", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("servicebus_queue", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("servicebus_topic", StringComparison.OrdinalIgnoreCase)
@@ -307,7 +309,22 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("synapse_spark_pool", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_private_link_scope", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_activity_log_alert", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("synapse_firewall_rule", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("synapse_firewall_rule", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_smart_detector_alert_rule", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_autoscale_setting", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("management_lock", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("role_definition", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("keyvault", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("redis", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("storage", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("search", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("eventhub", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("kusto", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("synapse", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("signalr", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("documentdb", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("maps", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("fluid", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -330,6 +347,8 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("logic_app", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("service_plan", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("spring_cloud", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("azurerm_sql", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("servicebus", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("servicebus_namespace", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("servicebus_queue", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("servicebus_topic", StringComparison.OrdinalIgnoreCase)
@@ -525,7 +544,22 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("synapse_spark_pool", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_private_link_scope", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_activity_log_alert", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("synapse_firewall_rule", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("synapse_firewall_rule", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_smart_detector_alert_rule", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_autoscale_setting", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("management_lock", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("role_definition", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("keyvault", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("redis", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("storage", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("search", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("eventhub", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("kusto", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("synapse", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("signalr", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("documentdb", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("maps", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("fluid", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>

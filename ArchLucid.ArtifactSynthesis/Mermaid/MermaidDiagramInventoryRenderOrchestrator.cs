@@ -2,6 +2,7 @@ using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.InfraEvidence.DiagramPeel;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 
 namespace ArchLucid.ArtifactSynthesis.Mermaid;
 
@@ -157,7 +158,7 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
         {
             entries.Add(new MermaidDiagramCollapseEntry
             {
-                Kind = DiagramPeelAlwaysDisposeArmTypes.CollapseKind,
+                Kind = AzureInventoryNeverShowArmTypes.DiagramCollapseKind,
                 Reason = $"Always dispose — never shown on inventory diagrams: {armType}",
             });
         }

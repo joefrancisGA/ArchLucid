@@ -30,6 +30,8 @@ public static class DiagramPeelCatalogDefaultSeed
             Entry("Microsoft.Network/applicationGateways/frontendIPConfigurations", 20, "Child resource — AppGw frontend"),
             Entry("Microsoft.Storage/storageAccounts/blobServices", 20, "Child resource — storage sub-service"),
             AlwaysDispose("Microsoft.Portal/dashboards", "Always dispose — portal dashboard"),
+            AlwaysDispose("Microsoft.OperationalInsights/workspaces", "Always dispose — Log Analytics workspace"),
+            AlwaysDispose("Microsoft.OperationsManagement/solutions", "Always dispose — monitoring solution"),
             AlwaysDispose("Microsoft.Network/dnszones", "Always dispose — DNS zone"),
             AlwaysDispose("Microsoft.Network/privateDnsZones", "Always dispose — private DNS zone"),
             AlwaysDispose(
