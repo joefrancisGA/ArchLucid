@@ -284,6 +284,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("automation_credential", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("automation_webhook", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("automation_source_control", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_dsc_configuration", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("automation_job_schedule", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("automation_module", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("automation_variable", StringComparison.OrdinalIgnoreCase)
@@ -296,7 +297,17 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("storage_management_policy", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("federated_identity_credential", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("policy_definition", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("policy_set_definition", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("policy_set_definition", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_dsc_nodeconfiguration", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("policy_exemption", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("policy_remediation", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_hybrid_runbook_worker_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_software_update_configuration", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("blueprint_definition", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("synapse_spark_pool", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_private_link_scope", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_activity_log_alert", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("synapse_firewall_rule", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -491,6 +502,7 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("automation_credential", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("automation_webhook", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("automation_source_control", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_dsc_configuration", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("automation_job_schedule", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("automation_module", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("automation_variable", StringComparison.OrdinalIgnoreCase)
@@ -503,7 +515,17 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("storage_management_policy", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("federated_identity_credential", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("policy_definition", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("policy_set_definition", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("policy_set_definition", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_dsc_nodeconfiguration", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("policy_exemption", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("policy_remediation", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_hybrid_runbook_worker_group", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("automation_software_update_configuration", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("blueprint_definition", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("synapse_spark_pool", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_private_link_scope", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("monitor_activity_log_alert", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("synapse_firewall_rule", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
