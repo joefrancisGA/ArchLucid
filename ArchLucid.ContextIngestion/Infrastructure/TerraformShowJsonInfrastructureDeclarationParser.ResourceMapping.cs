@@ -129,7 +129,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties[$"tf.{key}"] = valueText.Length > 512 ? valueText[..512] : valueText;
             }
 
-            if (TryGetPropertyIgnoreCase(res, "sensitive_values", out JsonElement sensitive) && sensitive.ValueKind == JsonValueKind.Object)
+            if ((TryGetPropertyIgnoreCase(res, "sensitive_values", out JsonElement sensitive) || TryGetPropertyIgnoreCase(res, "sensitiveValues", out sensitive)) && sensitive.ValueKind == JsonValueKind.Object)
                 RedactTopLevelSensitiveTfValues(sensitive, properties);
         }
 

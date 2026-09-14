@@ -11584,6 +11584,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-14 seed hunt #2842 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json camelCase `sensitiveValues` redaction gap; regression `ParseAsync_camel_case_sensitive_values_redacts_top_level_sensitive_tf_values`.
+
 2026-09-14 seed hunt #2837 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json camelCase `dependsOn` projection gap; regression `ParseAsync_camel_case_depends_on_projects_terraform_depends_on_exposure`.
 
 2026-09-14 seed hunt #2832 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json camelCase `providerName` projection gap; regression `ParseAsync_camel_case_provider_name_projects_provider_name_exposure`.
@@ -11762,8 +11764,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 217
-- **bugs-found:** 258
+- **hunts:** 218
+- **bugs-found:** 259
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
 - **last-bug:** 2026-09-14 — hunt #2799: snake_case container port host_port projection gap
