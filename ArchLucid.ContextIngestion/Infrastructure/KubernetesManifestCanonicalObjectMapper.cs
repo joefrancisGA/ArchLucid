@@ -1118,6 +1118,18 @@ internal static class KubernetesManifestCanonicalObjectMapper
             {
                 CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "windowsOptionsHostProcess", "true");
             }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "windowsOptions", out JsonElement windowsOptionsForRunAsUserNameElement)
+                && windowsOptionsForRunAsUserNameElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(windowsOptionsForRunAsUserNameElement, "runAsUserName", out JsonElement runAsUserNameElement)
+                && runAsUserNameElement.ValueKind is JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(runAsUserNameElement.GetString()))
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(
+                    properties,
+                    "windowsOptionsRunAsUserName",
+                    runAsUserNameElement.GetString()!);
+            }
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "supplementalGroups", out JsonElement supplementalGroupsElement)
                 && supplementalGroupsElement.ValueKind is JsonValueKind.Array)
             {
