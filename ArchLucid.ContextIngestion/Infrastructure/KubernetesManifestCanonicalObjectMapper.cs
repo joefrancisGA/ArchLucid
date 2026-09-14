@@ -1110,6 +1110,14 @@ internal static class KubernetesManifestCanonicalObjectMapper
                     "seccompProfileLocalhostProfile",
                     seccompLocalhostElement.GetString()!);
             }
+
+            if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "windowsOptions", out JsonElement windowsOptionsElement)
+                && windowsOptionsElement.ValueKind is JsonValueKind.Object
+                && CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(windowsOptionsElement, "hostProcess", out JsonElement hostProcessElement)
+                && hostProcessElement.ValueKind is JsonValueKind.True)
+            {
+                CanonicalInfrastructurePropertyBag.TryAddK8sProperty(properties, "windowsOptionsHostProcess", "true");
+            }
             if (CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCaseOrSnakeCase(securityContext, "supplementalGroups", out JsonElement supplementalGroupsElement)
                 && supplementalGroupsElement.ValueKind is JsonValueKind.Array)
             {
