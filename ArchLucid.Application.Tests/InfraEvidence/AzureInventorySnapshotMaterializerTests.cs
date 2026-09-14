@@ -179,12 +179,6 @@ public sealed class AzureInventorySnapshotMaterializerTests
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };
         Guid snapshotId = Guid.NewGuid();
         Guid packageId = Guid.NewGuid();
-        string targetId =
-            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
-        string workspaceId =
-            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1";
-        string normalizedTargetId = ArmResourceIdNormalizer.Normalize(targetId);
-        string normalizedWorkspaceId = ArmResourceIdNormalizer.Normalize(workspaceId);
 
         AzureInventorySnapshotMaterializeWriteRequest? captured = null;
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = CreateSnapshotRepository(
@@ -201,12 +195,6 @@ public sealed class AzureInventorySnapshotMaterializerTests
                 "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
                 "resourceType": "Microsoft.Storage/storageAccounts",
                 "name": "sa1",
-                "properties": {}
-              },
-              {
-                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1",
-                "resourceType": "Microsoft.OperationalInsights/workspaces",
-                "name": "log1",
                 "properties": {}
               }
             ]
@@ -238,14 +226,12 @@ public sealed class AzureInventorySnapshotMaterializerTests
 
         result.Succeeded.Should().BeTrue();
         captured.Should().NotBeNull();
-        captured!.Relationships.Should().ContainSingle(r =>
-            r.FromAzureResourceId == normalizedTargetId
-            && r.ToAzureResourceId == normalizedWorkspaceId
-            && r.RelationshipType == GraphEdgeTypes.ConnectsTo
-            && r.ProvenanceKind == ProvenanceKind.ObservedFact
-            && r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticTarget);
-        captured.RelationshipCount.Should().Be(1);
-        result.RelationshipCount.Should().Be(1);
+        captured!.Resources.Should().ContainSingle(resource =>
+            resource.ResourceType == "Microsoft.Storage/storageAccounts");
+        captured.Relationships.Should().BeEmpty(
+            "diagnostic edges to omitted Log Analytics workspaces are not attested");
+        captured.RelationshipCount.Should().Be(0);
+        result.RelationshipCount.Should().Be(0);
     }
 
     private static Mock<IAzureInventorySnapshotRepository> CreateSnapshotRepository(
