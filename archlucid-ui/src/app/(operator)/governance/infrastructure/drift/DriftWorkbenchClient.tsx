@@ -111,6 +111,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_ACTION,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_TITLE,
@@ -138,6 +140,7 @@ import {
   formatInfraEvidenceDiffLabel,
   formatInfraEvidenceSnapshotLabel,
 } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
+import { filterInfraEvidenceDiffsAfterAnchorSnapshot } from "@/lib/infra-evidence/infra-evidence-drift-diff-filter";
 import {
   infraEvidenceSnapshotsShareSubscription,
   resolveInfraEvidenceDiffOtherSnapshot,
@@ -294,9 +297,20 @@ export function DriftWorkbenchClient() {
     () => snapshots.find((snapshot) => snapshot.snapshotId === selectedSnapshotId) ?? null,
     [selectedSnapshotId, snapshots],
   );
+  const anchorSnapshot = useMemo(
+    () => snapshots.find((snapshot) => snapshot.snapshotId === anchorSnapshotId) ?? null,
+    [anchorSnapshotId, snapshots],
+  );
+  const visibleDiffs = useMemo(() => {
+    if (anchorSnapshot == null) {
+      return [];
+    }
+
+    return filterInfraEvidenceDiffsAfterAnchorSnapshot(diffs, anchorSnapshot, snapshots);
+  }, [anchorSnapshot, diffs, snapshots]);
   const selectedDiff = useMemo(
-    () => diffs.find((diff) => diff.diffId === selectedDiffId) ?? null,
-    [diffs, selectedDiffId],
+    () => visibleDiffs.find((diff) => diff.diffId === selectedDiffId) ?? null,
+    [selectedDiffId, visibleDiffs],
   );
 
   const visibleSnapshots = useMemo(() => {
@@ -517,10 +531,25 @@ export function DriftWorkbenchClient() {
       return;
     }
 
-    if (diffs.some((row) => row.diffId === urlDiffId)) {
+    if (visibleDiffs.some((row) => row.diffId === urlDiffId)) {
       setSelectedDiffId(urlDiffId);
     }
-  }, [diffs, selectedSnapshotId, urlDiffId]);
+  }, [selectedSnapshotId, urlDiffId, visibleDiffs]);
+
+  useEffect(() => {
+    if (selectedDiffId.length === 0 || loadingDiffs) {
+      return;
+    }
+
+    if (visibleDiffs.some((row) => row.diffId === selectedDiffId)) {
+      return;
+    }
+
+    userClearedDiffRef.current = true;
+    setSelectedDiffId("");
+    setSelectedChangeId(null);
+    replaceDriftUrl({ diffId: "", changeId: "", tableFilters: { changesPage: 1 } });
+  }, [loadingDiffs, replaceDriftUrl, selectedDiffId, visibleDiffs]);
 
   useEffect(() => {
     if (selectedDiffId.length === 0) {
@@ -812,32 +841,32 @@ export function DriftWorkbenchClient() {
         return;
       }
 
-      const nextDiff = diffs.find((diff) => diff.diffId === nextDiffId) ?? null;
+      const nextDiff = visibleDiffs.find((diff) => diff.diffId === nextDiffId) ?? null;
 
-      if (nextDiff == null || selectedSnapshot == null) {
+      if (nextDiff == null || anchorSnapshot == null) {
         applyDiffSelect(nextDiffId);
         return;
       }
 
-      const otherSnapshot = resolveInfraEvidenceDiffOtherSnapshot(nextDiff, selectedSnapshotId, snapshots);
+      const otherSnapshot = resolveInfraEvidenceDiffOtherSnapshot(nextDiff, anchorSnapshotId, snapshots);
 
-      if (otherSnapshot != null && !infraEvidenceSnapshotsShareSubscription(selectedSnapshot, otherSnapshot)) {
-        requestSubscriptionConfirmation({ kind: "diff", diffId: nextDiffId }, selectedSnapshot, otherSnapshot);
+      if (otherSnapshot != null && !infraEvidenceSnapshotsShareSubscription(anchorSnapshot, otherSnapshot)) {
+        requestSubscriptionConfirmation({ kind: "diff", diffId: nextDiffId }, anchorSnapshot, otherSnapshot);
         return;
       }
 
       applyDiffSelect(nextDiffId);
     },
     [
+      anchorSnapshot,
       anchorSnapshotId,
       applyDiffSelect,
-      diffs,
       pushDriftUrl,
       requestSubscriptionConfirmation,
       selectedDiffId,
-      selectedSnapshot,
       selectedSnapshotId,
       snapshots,
+      visibleDiffs,
     ],
   );
 
@@ -1170,7 +1199,7 @@ export function DriftWorkbenchClient() {
                   id="infra-drift-diff-picker"
                   className={cnField}
                   data-testid="infra-drift-diff-picker"
-                  disabled={loadingDiffs || diffs.length === 0}
+                  disabled={loadingDiffs || visibleDiffs.length === 0}
                   value={selectedDiffId}
                   onChange={(event) => {
                     handleDiffSelect(event.target.value);
@@ -1179,9 +1208,12 @@ export function DriftWorkbenchClient() {
                   <option value="">Select a diff…</option>
                   {loadingDiffs ? <option value="" disabled>Loading diffs…</option> : null}
                   {!loadingDiffs && diffs.length === 0 ? <option value="" disabled>No diffs for this snapshot</option> : null}
-                  {diffs.map((diff) => (
+                  {!loadingDiffs && diffs.length > 0 && visibleDiffs.length === 0 ? (
+                    <option value="" disabled>No later inventory captures to compare</option>
+                  ) : null}
+                  {visibleDiffs.map((diff) => (
                     <option key={diff.diffId} value={diff.diffId}>
-                      {formatInfraEvidenceDiffLabel(diff, selectedSnapshotId, snapshots)}
+                      {formatInfraEvidenceDiffLabel(diff, anchorSnapshotId, snapshots)}
                     </option>
                   ))}
                 </select>
@@ -1231,6 +1263,14 @@ export function DriftWorkbenchClient() {
             title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_TITLE}
             description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY}
             testId="infra-drift-diffs-empty-resolved"
+          />
+        ) : null}
+
+        {!loadingDiffs && selectedSnapshotId.length > 0 && diffs.length > 0 && visibleDiffs.length === 0 ? (
+          <EnterpriseCompactEmptyState
+            title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_TITLE}
+            description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_BODY}
+            testId="infra-drift-diffs-empty-later-than-anchor"
           />
         ) : null}
 

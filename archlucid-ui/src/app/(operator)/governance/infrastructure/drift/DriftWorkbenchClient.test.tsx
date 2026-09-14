@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { DriftWorkbenchClient } from "@/app/(operator)/governance/infrastructure/drift/DriftWorkbenchClient";
@@ -60,7 +60,7 @@ const { downloadInfraEvidenceTerraformAdvisoryZipMock, mockSnapshotItems } = vi.
       snapshotId: "33333333-3333-3333-3333-333333333333",
       subscriptionId: "sub-2",
       subscriptionName: "Dev",
-      capturedUtc: "2026-08-15T12:00:00Z",
+      capturedUtc: "2026-09-15T12:00:00Z",
       captureStatus: 1,
       resourceCount: 18,
       relationshipCount: 4,
@@ -100,11 +100,44 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => evalChrome.enabled,
 }));
 
+const defaultMockDiffs = () => [
+  {
+    diffId: "diff-1",
+    snapshotAId: "11111111-1111-1111-1111-111111111111",
+    snapshotBId: "33333333-3333-3333-3333-333333333333",
+    totalChanges: 1,
+    createdUtc: "2026-09-16T12:00:00Z",
+  },
+];
+
+const defaultMockChanges = () => ({
+  items: [
+    {
+      changeId: "change-1",
+      diffId: "diff-1",
+      cloudResourceId: "22222222-2222-2222-2222-222222222222",
+      azureResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+      changeType: "Modified",
+      property: "sku",
+      oldValue: "Basic",
+      newValue: "Standard",
+      riskClassification: "Medium",
+      evidenceReference: "snapshot-diff",
+    },
+  ],
+  totalCount: 1,
+  page: 1,
+  pageSize: 100,
+  hasMore: false,
+});
+
 describe("DriftWorkbenchClient", () => {
   beforeEach(() => {
     evalChrome.enabled = true;
-    mockFetchDiffs.mockClear();
-    mockFetchChanges.mockClear();
+    mockFetchDiffs.mockReset();
+    mockFetchDiffs.mockImplementation(async () => defaultMockDiffs());
+    mockFetchChanges.mockReset();
+    mockFetchChanges.mockImplementation(async () => defaultMockChanges());
     downloadInfraEvidenceTerraformAdvisoryZipMock.mockReset();
     downloadInfraEvidenceTerraformAdvisoryZipMock.mockResolvedValue(undefined);
     mockSnapshotItems.splice(
@@ -123,7 +156,7 @@ describe("DriftWorkbenchClient", () => {
         snapshotId: "33333333-3333-3333-3333-333333333333",
         subscriptionId: "sub-2",
         subscriptionName: "Dev",
-        capturedUtc: "2026-08-15T12:00:00Z",
+        capturedUtc: "2026-09-15T12:00:00Z",
         captureStatus: 1,
         resourceCount: 18,
         relationshipCount: 4,
@@ -183,6 +216,74 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-snapshot-row-33333333-3333-3333-3333-333333333333")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-change-row-change-1")).not.toBeInTheDocument();
+  });
+
+  it("only lists diffs whose comparison snapshot was captured after the anchor inventory", async () => {
+    mockFetchDiffs.mockResolvedValueOnce([
+      {
+        diffId: "diff-later",
+        snapshotAId: "11111111-1111-1111-1111-111111111111",
+        snapshotBId: "33333333-3333-3333-3333-333333333333",
+        totalChanges: 2,
+        createdUtc: "2026-09-16T12:00:00Z",
+      },
+      {
+        diffId: "diff-earlier",
+        snapshotAId: "11111111-1111-1111-1111-111111111111",
+        snapshotBId: "22222222-2222-2222-2222-222222222222",
+        totalChanges: 1,
+        createdUtc: "2026-08-01T12:00:00Z",
+      },
+    ]);
+    mockSnapshotItems.push({
+      snapshotId: "22222222-2222-2222-2222-222222222222",
+      subscriptionId: "sub-1",
+      subscriptionName: "Prod older",
+      capturedUtc: "2026-08-01T12:00:00Z",
+      captureStatus: 1,
+      resourceCount: 30,
+      relationshipCount: 8,
+    });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DriftWorkbenchClient />);
+
+    const diffPicker = await screen.findByTestId("infra-drift-diff-picker");
+    await waitFor(() => {
+      expect(within(diffPicker).getByRole("option", { name: /2 changes vs/i })).toBeInTheDocument();
+    });
+
+    expect(within(diffPicker).queryByRole("option", { name: /1 changes vs/i })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-drift-diffs-empty-later-than-anchor")).not.toBeInTheDocument();
+  });
+
+  it("shows later-than-anchor empty state when only older diffs exist", async () => {
+    mockFetchDiffs.mockResolvedValueOnce([
+      {
+        diffId: "diff-earlier",
+        snapshotAId: "11111111-1111-1111-1111-111111111111",
+        snapshotBId: "22222222-2222-2222-2222-222222222222",
+        totalChanges: 1,
+        createdUtc: "2026-08-01T12:00:00Z",
+      },
+    ]);
+    mockSnapshotItems.push({
+      snapshotId: "22222222-2222-2222-2222-222222222222",
+      subscriptionId: "sub-1",
+      subscriptionName: "Prod older",
+      capturedUtc: "2026-08-01T12:00:00Z",
+      captureStatus: 1,
+      resourceCount: 30,
+      relationshipCount: 8,
+    });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DriftWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-drift-diffs-empty-later-than-anchor")).toHaveTextContent(
+      "No later inventory captures to compare",
+    );
+    expect(screen.getByTestId("infra-drift-diff-picker")).toBeDisabled();
   });
 
   it("does not re-select a diff after the user clears while diffs are still loading", async () => {
@@ -362,8 +463,8 @@ describe("DriftWorkbenchClient", () => {
     expect(row.querySelector('[data-severity-tag]')).not.toBeInTheDocument();
   });
 
-  it("hides resource-removed rows when the selected diff does not compare two inventories", async () => {
-    mockFetchDiffs.mockResolvedValueOnce([
+  it("excludes same-snapshot diffs from the picker because they are not later captures", async () => {
+    mockFetchDiffs.mockImplementationOnce(async () => [
       {
         diffId: "diff-same",
         snapshotAId: "11111111-1111-1111-1111-111111111111",
@@ -372,49 +473,12 @@ describe("DriftWorkbenchClient", () => {
         createdUtc: "2026-09-01T12:00:00Z",
       },
     ]);
-    mockFetchChanges.mockResolvedValueOnce({
-      items: [
-        {
-          changeId: "change-removed",
-          diffId: "diff-same",
-          cloudResourceId: "22222222-2222-2222-2222-222222222222",
-          azureResourceId:
-            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/removed-vm",
-          changeType: "ResourceRemoved",
-          property: null,
-          oldValue: null,
-          newValue: null,
-          riskClassification: null,
-          evidenceReference: "snapshot-diff",
-        },
-        {
-          changeId: "change-modified",
-          diffId: "diff-same",
-          cloudResourceId: "33333333-3333-3333-3333-333333333333",
-          azureResourceId:
-            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/active-vm",
-          changeType: "ResourceModified",
-          property: "sku",
-          oldValue: "Basic",
-          newValue: "Standard",
-          riskClassification: "none",
-          evidenceReference: "snapshot-diff",
-        },
-      ],
-      totalCount: 2,
-      page: 1,
-      pageSize: 100,
-      hasMore: false,
-    });
 
-    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-same");
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DriftWorkbenchClient />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId("infra-drift-change-row-change-modified")).toBeInTheDocument();
-    });
-    expect(screen.queryByTestId("infra-drift-change-row-change-removed")).not.toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-changes-body").querySelectorAll("tr")).toHaveLength(1);
+    expect(await screen.findByTestId("infra-drift-diffs-empty-later-than-anchor")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-diff-picker")).toBeDisabled();
   });
 
   it("renders one row per drift change when multiple changes are returned (IE-DT-02)", async () => {
