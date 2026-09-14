@@ -10,6 +10,7 @@ import {
   isComparingTwoInventorySnapshots,
   resolveInfraEvidenceDriftRiskKey,
 } from "@/lib/infra-evidence/infra-evidence-drift-risk-display";
+import { suppressNestedResourceRemovedChanges } from "@/lib/infra-evidence/suppress-nested-resource-removed-changes";
 
 export const DRIFT_TABLE_RISK_FILTER_PARAM = "risk";
 export const DRIFT_TABLE_CHANGE_TYPE_FILTER_PARAM = "changeType";
@@ -308,8 +309,11 @@ export function filterDriftChanges(
   const riskFilter = state.riskFilter.trim().toLowerCase();
   const changeTypeFilter = state.changeTypeFilter.trim();
   const comparingTwoInventories = isComparingTwoInventorySnapshots(selectedDiff);
+  const visibleRows = comparingTwoInventories
+    ? suppressNestedResourceRemovedChanges(rows)
+    : rows;
 
-  return rows.filter((row) => {
+  return visibleRows.filter((row) => {
     if (isInfraEvidenceResourceRemovedChange(row.changeType) && !comparingTwoInventories) {
       return false;
     }

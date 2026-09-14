@@ -121,6 +121,35 @@ describe("infra-evidence-drift-table-filter", () => {
     expect(filterDriftChanges(rows, emptyFilters, twoSnapshotDiff)).toEqual(rows);
   });
 
+  it("suppresses nested resource-removed rows when comparing two inventories", () => {
+    const parentArmId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+    const childArmId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1/extensions/ext";
+    const rows = [
+      buildChange("parent", parentArmId, {
+        changeType: "ResourceRemoved",
+      }),
+      buildChange("child", childArmId, {
+        changeType: "ResourceRemoved",
+      }),
+    ];
+    const twoSnapshotDiff = buildDiff(
+      "11111111-1111-1111-1111-111111111111",
+      "22222222-2222-2222-2222-222222222222",
+    );
+    const emptyFilters = {
+      riskFilter: "",
+      changeTypeFilter: "",
+      resourceFilter: "",
+      resourceGroupFilter: "",
+      resourceTypeFilter: "",
+      propertyFilter: "",
+    };
+
+    expect(filterDriftChanges(rows, emptyFilters, twoSnapshotDiff)).toEqual([rows[0]]);
+  });
+
   it("filters drift rows by none and unknown risk keys", () => {
     const rows = [
       buildChange("none", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-none", {

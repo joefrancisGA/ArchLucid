@@ -16,4 +16,21 @@ public static class ArmResourceIdNormalizer
 
         return trimmed.ToString().ToLowerInvariant();
     }
+
+    /// <summary>
+    /// Returns whether <paramref name="descendantId"/> is a nested ARM child of <paramref name="ancestorId"/>.
+    /// </summary>
+    public static bool IsDescendantOf(string? descendantId, string? ancestorId)
+    {
+        string descendant = Normalize(descendantId);
+        string ancestor = Normalize(ancestorId);
+
+        if (descendant.Length == 0 || ancestor.Length == 0)
+            return false;
+
+        if (descendant.Length <= ancestor.Length)
+            return false;
+
+        return descendant.StartsWith(ancestor + "/", StringComparison.Ordinal);
+    }
 }
