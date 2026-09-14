@@ -1,5 +1,11 @@
 ## Zone: topology-proposal-merge
 
+2026-09-14 seed hunt #2863 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `synapse_spark_pool` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_synapse_spark_pool_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-14 seed hunt #2858 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `blueprint_definition` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_blueprint_definition_node_has_compute_category_but_synthetic_datastore_id_used`.
+
+2026-09-14 seed hunt #2853 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `automation_software_update_configuration` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_automation_software_update_configuration_node_has_compute_category_but_synthetic_datastore_id_used`.
+
 2026-09-14 seed hunt #2848 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `automation_hybrid_runbook_worker_group` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_automation_hybrid_runbook_worker_group_node_has_compute_category_but_synthetic_datastore_id_used`.
 
 2026-09-14 seed hunt #2831 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `automation_dsc_configuration` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_automation_dsc_configuration_node_has_compute_category_but_synthetic_datastore_id_used`.
@@ -4478,6 +4484,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: tenant-data-export
 
+2026-09-14 seed hunt #2861 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-14 seed hunt #2856 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
+
+2026-09-14 seed hunt #2851 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved uppercase `TRUE` string ignored on CLI proof-packet `isSampleRun` gate; regression `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_camel_case_string_true_uppercase`.
+
 2026-09-14 seed hunt #2811 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
 2026-09-14 seed hunt #2806 (seed→hit): reseeded tenant-data-export with `-Hint tenant-data-export`; proved PascalCase `IsSampleRun` ignored on CLI proof-packet career gate; regression `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_pascal_case_true`.
@@ -5460,6 +5472,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: persistence-identity
+
+2026-09-14 seed hunt #2862 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-14 seed hunt #2857 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
+
+2026-09-14 seed hunt #2852 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
 2026-09-14 seed hunt #2812 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
@@ -11113,6 +11131,12 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-costing
 
+2026-09-14 seed hunt #2865 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWeekkkkTests`.
+
+2026-09-14 seed hunt #2860 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / weeeeek` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWeeeeekTests`.
+
+2026-09-14 seed hunt #2855 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWeekkkTests`.
+
 2026-09-14 seed hunt #2850 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weeeeek` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWeeeeekTests`.
 
 2026-09-14 seed hunt #2815 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved bounded `10 weekes` week UOM parity gap; regression `AzureRetailPricesSkuMatchersBoundedWeekesTests`.
@@ -11587,6 +11611,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: context-ingestion
+
+2026-09-14 seed hunt #2864 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json nested `childModules` with camelCase `moduleAddress` prefix gap; regression `ParseAsync_nested_camel_case_child_modules_and_module_address_prefixes_resource_names`.
+
+2026-09-14 seed hunt #2859 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json snake_case `module_address` prefix gap; regression `ParseAsync_snake_case_module_address_prefixes_nested_module_resource_names`.
+
+2026-09-14 seed hunt #2854 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json camelCase `moduleAddress` prefix gap; regression `ParseAsync_camel_case_module_address_prefixes_nested_module_resource_names`.
 
 2026-09-14 seed hunt #2849 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json camelCase `childModules` traversal gap; regression `ParseAsync_camel_case_child_modules_extracts_nested_module_resources`.
 
