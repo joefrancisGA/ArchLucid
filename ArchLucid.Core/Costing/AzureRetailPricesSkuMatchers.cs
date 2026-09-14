@@ -694,6 +694,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSlashMnToken(trimmed)
             || ContainsSlashMonthToken(trimmed)
             || ContainsSlashMToken(trimmed)
+            || ContainsBoundedToken(trimmed, " m")
             || ContainsBoundedToken(trimmed, " mo")
             || ContainsBoundedToken(trimmed, " mon")
             || ContainsBoundedToken(trimmed, " mn")
