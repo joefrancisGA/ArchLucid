@@ -3042,3 +3042,4 @@
 {"at":"2026-09-14T00:39:10.0231483Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-14T00:50:59.939084Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-14T00:51:03.4716592Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-09-14T00:51:06.9687650Z","zoneId":"core-costing","outcome":"hit"}
