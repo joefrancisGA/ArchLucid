@@ -6933,7 +6933,8 @@
           "SkuChanged",
           "DependencyChanged",
           "PolicyAssignmentChanged",
-          "Unknown"
+          "Unknown",
+          "ResourceUnchanged"
         ],
         "type": "string"
       },
