@@ -1,4 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -31,10 +32,31 @@ public sealed class DiagramEdgeLabelHumanizerTests
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(edgeType, edgeType).Should().Be(expected);
     }
 
+    [Theory]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.VnetPeering, "peering")]
+    [InlineData(GraphEdgeInferenceSources.InventoryVnetPeering, "peering")]
+    [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, "connects")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "connects")]
+    public void HumanizeLabel_maps_inventory_association_and_inference_aliases(string alias, string expected)
+    {
+        DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, alias).Should().Be(expected);
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_uses_inference_source_when_label_and_type_are_blank()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                string.Empty,
+                GraphEdgeInferenceSources.InventoryVnetPeering)
+            .Should()
+            .Be("peering");
+    }
+
     [Fact]
     public void HumanizeLabel_preserves_custom_non_canonical_labels()
     {
-        DiagramEdgeLabelHumanizer.HumanizeLabel("inventory-nic-subnet").Should().Be("inventory-nic-subnet");
         DiagramEdgeLabelHumanizer.HumanizeLabel("reads").Should().Be("reads");
     }
 }

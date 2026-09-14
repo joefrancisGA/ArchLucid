@@ -1,4 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
@@ -8,6 +9,9 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// </summary>
 internal static class DiagramEdgeLabelHumanizer
 {
+    private static readonly IReadOnlyDictionary<string, string> InventoryAliasToGraphEdgeType =
+        BuildInventoryAliasToGraphEdgeType();
+
     public static void ApplyToVisibleEdges(DiagramAst ast)
     {
         ArgumentNullException.ThrowIfNull(ast);
@@ -23,11 +27,23 @@ internal static class DiagramEdgeLabelHumanizer
         }
     }
 
-    public static string ResolveDisplayLabel(string? storedLabel, string edgeType)
+    public static string ResolveDisplayLabel(string? storedLabel, string? edgeType, string? inferenceSource = null)
     {
-        string candidate = string.IsNullOrWhiteSpace(storedLabel) ? edgeType : storedLabel.Trim();
+        string fromStored = HumanizeLabel(storedLabel);
 
-        return HumanizeLabel(candidate);
+        if (!string.IsNullOrWhiteSpace(fromStored))
+        {
+            return fromStored;
+        }
+
+        string fromType = HumanizeLabel(edgeType);
+
+        if (!string.IsNullOrWhiteSpace(fromType))
+        {
+            return fromType;
+        }
+
+        return HumanizeLabel(inferenceSource);
     }
 
     public static string HumanizeLabel(string? label)
@@ -42,6 +58,12 @@ internal static class DiagramEdgeLabelHumanizer
         if (TryHumanizeGraphEdgeType(trimmed, out string humanized))
         {
             return humanized;
+        }
+
+        if (InventoryAliasToGraphEdgeType.TryGetValue(trimmed, out string? graphEdgeType)
+            && TryHumanizeGraphEdgeType(graphEdgeType, out string aliased))
+        {
+            return aliased;
         }
 
         return trimmed;
@@ -165,5 +187,18 @@ internal static class DiagramEdgeLabelHumanizer
         humanized = string.Empty;
 
         return false;
+    }
+
+    private static Dictionary<string, string> BuildInventoryAliasToGraphEdgeType()
+    {
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (AzureInventoryRelationshipAssociationTypeDefinition definition in AzureInventoryRelationshipAssociationTypes.All)
+        {
+            aliases[definition.AssociationType] = definition.DefaultGraphEdgeType;
+            aliases[definition.DefaultInferenceSource] = definition.DefaultGraphEdgeType;
+        }
+
+        return aliases;
     }
 }

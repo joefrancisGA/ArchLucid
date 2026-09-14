@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   parseInfraEvidenceMermaidOutline,
+  resolveInfraEvidenceOutlineEdgeLabel,
   resolveInfraEvidenceOutlineNodeLabel,
   resolveInfraEvidenceOutlineSeedNodeId,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
@@ -131,6 +132,28 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         label: "peering",
       },
     ]);
+  });
+
+  it("derives peering when a VNet-to-VNet arrow has no mermaid label", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        "    %% al-type=Microsoft.Network/virtualNetworks al-rg=rg-east",
+        '    vnet1["vnet-eastus"]',
+        "    %% al-type=Microsoft.Network/virtualNetworks al-rg=rg-west",
+        '    vnet2["vnet-westus"]',
+        "    vnet1 --> vnet2",
+      ].join("\n"),
+    );
+
+    expect(outline.edges).toEqual([
+      {
+        from: "vnet1",
+        to: "vnet2",
+        label: null,
+      },
+    ]);
+    expect(resolveInfraEvidenceOutlineEdgeLabel(outline.edges[0]!, outline.nodes)).toBe("peering");
   });
 
   it("falls back to RG subgraph labels when metadata comments are absent", () => {

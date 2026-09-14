@@ -155,6 +155,27 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_executive_blank_vnet_edge_types_still_annotate_peering()
+    {
+        GraphSnapshot graph = DiagramSparseComponentPackerTests.BuildExecutiveOwnerShapePeeringGraph();
+
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            edge.EdgeType = string.Empty;
+            edge.Label = null;
+            edge.InferenceSource = null;
+        }
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+        string mermaid = renderer.Render(ast);
+
+        DiagramEdgeVisibility.VisibleEdges(ast.Edges).Should().HaveCount(6);
+        DiagramEdgeVisibility.VisibleEdges(ast.Edges).Should().OnlyContain(edge => edge.Label == "peering");
+        mermaid.Should().Contain("-->|\"peering\"|");
+        mermaid.Should().NotContain("--> ");
+    }
+
+    [Fact]
     public void Compile_executive_mode_flattens_sparse_swimlanes_when_many_resource_groups_each_hold_one_node()
     {
         GraphSnapshot graph = BuildExecutiveSparseVnetGraph(resourceGroupCount: 12);
