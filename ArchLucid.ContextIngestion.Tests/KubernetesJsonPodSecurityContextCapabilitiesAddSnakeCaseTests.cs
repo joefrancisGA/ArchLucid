@@ -40,6 +40,6 @@ public sealed class KubernetesJsonPodSecurityContextCapabilitiesAddSnakeCaseTest
         IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
 
         CanonicalObject deployment = result.Should().ContainSingle().Subject;
-        deployment.Properties["k8s.capabilitiesadd"].Should().Be("NET_ADMIN");
+        deployment.Properties["k8s.capabilitiesadd"].Should().Be("net_admin");
     }
 }

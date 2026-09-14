@@ -40,6 +40,6 @@ public sealed class KubernetesJsonPodSecurityContextAppArmorProfileTypeSnakeCase
         IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
 
         CanonicalObject deployment = result.Should().ContainSingle().Subject;
-        deployment.Properties["k8s.apparmorprofiletype"].Should().Be("RuntimeDefault");
+        deployment.Properties["k8s.apparmorprofiletype"].Should().Be("runtimedefault");
     }
 }
