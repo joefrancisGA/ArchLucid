@@ -179,7 +179,10 @@ describe("DriftWorkbenchClient", () => {
     render(<DriftWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-drift-change-drawer")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-change-row-change-1")).toHaveAttribute("aria-selected", "true");
+    const changeRow = screen.getByTestId("infra-drift-change-row-change-1");
+    const detailRow = screen.getByTestId("infra-drift-change-detail-row-change-1");
+    expect(changeRow).toHaveAttribute("aria-selected", "true");
+    expect(changeRow.nextElementSibling).toBe(detailRow);
     expect(screen.getByTestId("infra-drift-change-drawer")).toHaveTextContent("gw");
     expect(screen.getByTestId("infra-drift-change-identifiers")).toBeInTheDocument();
   });

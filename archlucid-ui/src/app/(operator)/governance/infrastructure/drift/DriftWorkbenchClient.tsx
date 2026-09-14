@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
@@ -1041,36 +1041,66 @@ export function DriftWorkbenchClient() {
           />
           <EnterpriseTableBody data-testid="infra-drift-changes-body">
             {visibleChanges.length === 0 ? renderChangesEmptyState() : null}
-            {visibleChanges.map((row) => (
-              <EnterpriseTableRow
-                key={row.changeId}
-                data-testid={`infra-drift-change-row-${row.changeId}`}
-                selected={selectedChangeId === row.changeId}
-                tabIndex={0}
-                aria-selected={selectedChangeId === row.changeId}
-                onClick={() => {
-                  activateChange(row.changeId, "push");
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    activateChange(row.changeId, "push");
-                  }
-                }}
-              >
-                <DriftChangeResourceCells azureResourceId={row.azureResourceId} />
-                <EnterpriseTableCell>
-                  <StatusTag
-                    kind={resolveInfraEvidenceChangeTypeStatusKind(row.changeType)}
-                    label={formatInfraEvidenceChangeTypeLabel(row.changeType)}
-                  />
-                </EnterpriseTableCell>
-                <EnterpriseTableCell>{row.property ?? "—"}</EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  <DriftChangeRiskCell change={row} />
-                </EnterpriseTableCell>
-              </EnterpriseTableRow>
-            ))}
+            {visibleChanges.map((row) => {
+              const isSelected = selectedChangeId === row.changeId;
+
+              return (
+                <Fragment key={row.changeId}>
+                  <EnterpriseTableRow
+                    data-testid={`infra-drift-change-row-${row.changeId}`}
+                    selected={isSelected}
+                    tabIndex={0}
+                    aria-selected={isSelected}
+                    aria-expanded={isSelected}
+                    onClick={() => {
+                      activateChange(row.changeId, "push");
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        activateChange(row.changeId, "push");
+                      }
+                    }}
+                  >
+                    <DriftChangeResourceCells azureResourceId={row.azureResourceId} />
+                    <EnterpriseTableCell>
+                      <StatusTag
+                        kind={resolveInfraEvidenceChangeTypeStatusKind(row.changeType)}
+                        label={formatInfraEvidenceChangeTypeLabel(row.changeType)}
+                      />
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell>{row.property ?? "—"}</EnterpriseTableCell>
+                    <EnterpriseTableCell>
+                      <DriftChangeRiskCell change={row} />
+                    </EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                  {isSelected && selectedChange != null ? (
+                    <EnterpriseTableRow data-testid={`infra-drift-change-detail-row-${row.changeId}`}>
+                      <EnterpriseTableCell
+                        colSpan={DRIFT_CHANGES_TABLE_COLUMN_COUNT}
+                        className="bg-neutral-50 p-0 dark:bg-neutral-900/40"
+                      >
+                        <DriftChangeDetail
+                          selectedChange={selectedChange}
+                          changeDrawerRef={changeDrawerRef}
+                          changeIdentifiersOpen={driftChangeIdentifiersOpen}
+                          onChangeIdentifiersToggle={setDriftChangeIdentifiersOpen}
+                          variant="inline"
+                          hubHref={
+                            selectedChange.cloudResourceId != null
+                              ? resourceHubFilterHrefFromSearch(selectedChange.cloudResourceId, "", {
+                                  tab: "drift",
+                                  ...workbenchHubScopePatch,
+                                })
+                              : null
+                          }
+                        />
+                      </EnterpriseTableCell>
+                    </EnterpriseTableRow>
+                  ) : null}
+                </Fragment>
+              );
+            })}
           </EnterpriseTableBody>
         </EnterpriseTable>
 
@@ -1100,22 +1130,6 @@ export function DriftWorkbenchClient() {
           </div>
         ) : null}
 
-        {selectedChange != null ? (
-          <DriftChangeDetail
-            selectedChange={selectedChange}
-            changeDrawerRef={changeDrawerRef}
-            changeIdentifiersOpen={driftChangeIdentifiersOpen}
-            onChangeIdentifiersToggle={setDriftChangeIdentifiersOpen}
-            hubHref={
-              selectedChange.cloudResourceId != null
-                ? resourceHubFilterHrefFromSearch(selectedChange.cloudResourceId, "", {
-                    tab: "drift",
-                    ...workbenchHubScopePatch,
-                  })
-                : null
-            }
-          />
-        ) : null}
         </>
         ) : null}
 
