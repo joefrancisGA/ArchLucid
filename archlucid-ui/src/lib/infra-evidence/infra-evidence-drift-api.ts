@@ -53,12 +53,16 @@ export async function fetchInfraEvidenceDiffChanges(
   diffId: string,
   page = 1,
   pageSize = 50,
-  options: { readonly cloudResourceId?: string | null } = {},
+  options: { readonly cloudResourceId?: string | null; readonly includeUnchanged?: boolean } = {},
 ): Promise<InfraEvidencePagedResponse<InfraEvidenceDiffChange>> {
   const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
 
   if (options.cloudResourceId != null && options.cloudResourceId.trim().length > 0) {
     params.set("cloudResourceId", options.cloudResourceId.trim());
+  }
+
+  if (options.includeUnchanged === true) {
+    params.set("includeUnchanged", "true");
   }
 
   return proxyJsonGet<InfraEvidencePagedResponse<InfraEvidenceDiffChange>>(
