@@ -119,7 +119,7 @@ public sealed class GraphvizFdpLayoutRendererTests
             ],
             Edges =
             [
-                new DiagramEdge { FromNodeId = "left", ToNodeId = "right", Label = "peered" },
+                new DiagramEdge { FromNodeId = "left", ToNodeId = "right", Label = "peering" },
             ],
         };
     }

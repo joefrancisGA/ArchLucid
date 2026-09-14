@@ -37,6 +37,15 @@ vi.mock("@/hooks/use-tenant-branding-presentation-query", () => ({
   useTenantBrandingPresentationQuery: () => ({ data: null }),
 }));
 
+vi.mock("@/lib/use-iana-time-zone-preference", () => ({
+  useIanaTimeZonePreference: () => ({
+    ianaTimeZoneId: "America/New_York",
+    mounted: true,
+    accountSyncState: "idle",
+    setAndPersist: vi.fn(),
+  }),
+}));
+
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   fetchInfraEvidenceSnapshots: fetchInfraEvidenceSnapshotsMock,
   formatInfraEvidenceApiError: (error: unknown) => String(error),
@@ -234,6 +243,8 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(scopeContext).toHaveTextContent(`Snapshot ${snapshotLabel}`);
     expect(scopeContext).not.toHaveTextContent("11111111-1111-1111-1111-111111111111");
+    expect(scopeContext).toHaveTextContent("EDT");
+    expect(scopeContext.textContent ?? "").not.toMatch(/\d{1,2}:\d{2}:\d{2}/);
   });
 
   it("renders snapshot picker and partitioned fallback cards", async () => {
@@ -254,10 +265,31 @@ describe("DiagramsWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/ask?snapshotId=11111111-1111-1111-1111-111111111111&tab=diagram",
     );
-    expect(await screen.findByTestId("infra-diagrams-render-status-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-render-status-strip")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-snapshot-id-readout")).toHaveTextContent(
       "11111111-1111-1111-1111-111111111111",
     );
+  });
+
+  it("shows render status strip only when render fails", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Failed",
+      mermaid: null,
+      metrics: null,
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams();
+    render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      const strip = screen.getByTestId("infra-diagrams-render-status-strip");
+      expect(strip).toHaveTextContent("Render failed");
+      expect(strip).not.toHaveTextContent("subgraphs");
+    });
   });
 
   it("shows resource scope banner and scoped Ask link when cloudResourceId is in the URL", async () => {

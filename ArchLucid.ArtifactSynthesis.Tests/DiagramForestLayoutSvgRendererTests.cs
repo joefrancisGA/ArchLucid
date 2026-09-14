@@ -17,6 +17,26 @@ public sealed class DiagramForestLayoutSvgRendererTests
     private readonly DiagramForestLayoutSvgRenderer renderer = new();
 
     [Fact]
+    public void Render_owner_shape_executive_vnets_use_uniform_node_width()
+    {
+        GraphSnapshot graph = DiagramSparseComponentPackerTests.BuildExecutiveOwnerShapePeeringGraph();
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+        XDocument document = XDocument.Parse(result.Svg!);
+        XElement root = document.Root!;
+
+        List<string> rectWidths = root.Descendants()
+            .Where(element => string.Equals(element.Name.LocalName, "rect", StringComparison.Ordinal))
+            .Select(element => element.Attribute("width")?.Value ?? string.Empty)
+            .Where(width => width.Length > 0)
+            .ToList();
+
+        rectWidths.Should().HaveCount(11);
+        rectWidths.Distinct().Should().ContainSingle().Which.Should().Be("400");
+    }
+
+    [Fact]
     public void Render_owner_shape_executive_vnets_places_eleven_nodes_with_tight_viewbox()
     {
         GraphSnapshot graph = DiagramSparseComponentPackerTests.BuildExecutiveOwnerShapePeeringGraph();
@@ -46,6 +66,16 @@ public sealed class DiagramForestLayoutSvgRendererTests
             .Count(element => string.Equals(element.Name.LocalName, "line", StringComparison.Ordinal));
         edgeCount.Should().Be(6);
 
+        root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge-label", StringComparison.Ordinal))
+            .SelectMany(group => group.Elements())
+            .Count(element => string.Equals(element.Name.LocalName, "text", StringComparison.Ordinal)
+                && string.Equals(element.Value, "peering", StringComparison.Ordinal))
+            .Should()
+            .Be(6);
+
         string[] viewBoxParts = (root.Attribute("viewBox")?.Value ?? string.Empty)
             .Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         viewBoxParts.Should().HaveCount(4);
@@ -53,7 +83,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
         double viewBoxWidth = double.Parse(viewBoxParts[2], CultureInfo.InvariantCulture);
         double viewBoxHeight = double.Parse(viewBoxParts[3], CultureInfo.InvariantCulture);
 
-        viewBoxWidth.Should().BeLessThan(900);
+        viewBoxWidth.Should().BeLessThan(1600);
         viewBoxHeight.Should().BeLessThan(800);
     }
 
