@@ -6845,6 +6845,18 @@
           "changeType": {
             "$ref": "#/components/schemas/AzureInventoryChangeType"
           },
+          "changedByDisplayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "changedByKind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "cloudResourceId": {
             "format": "uuid",
             "type": [
