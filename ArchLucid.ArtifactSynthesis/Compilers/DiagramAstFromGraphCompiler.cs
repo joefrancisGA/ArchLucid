@@ -81,7 +81,10 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             {
                 FromNodeId = fromId,
                 ToNodeId = toId,
-                Label = DiagramEdgeLabelHumanizer.ResolveDisplayLabel(edge.Label, edge.EdgeType),
+                Label = DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                    edge.Label,
+                    edge.EdgeType,
+                    edge.InferenceSource),
             });
         }
 
@@ -98,6 +101,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
         DiagramSparseComponentPacker.Pack(ast);
         DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
+        DiagramConnectionTypeAnnotator.Annotate(ast);
 
         return ast;
     }

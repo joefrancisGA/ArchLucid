@@ -20,6 +20,7 @@ import {
 import { InfraEvidenceDiagramOutlineNodeLabel } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
 import {
   resolveInfraEvidenceOutlineNodeLabel,
+  resolveInfraEvidenceOutlineEdgeLabel,
   type InfraEvidenceMermaidOutline,
   type InfraEvidenceMermaidOutlineNode,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
@@ -192,7 +193,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                         resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from)
                       )}
                     </td>
-                    <td className="px-3 py-2">{formatOutlineCell(edge.label)}</td>
+                    <td className="px-3 py-2">{formatOutlineCell(resolveInfraEvidenceOutlineEdgeLabel(edge, outline.nodes))}</td>
                     <td className="px-3 py-2">
                       {toNode != null ? (
                         <InfraEvidenceDiagramOutlineNodeLabel node={toNode} />

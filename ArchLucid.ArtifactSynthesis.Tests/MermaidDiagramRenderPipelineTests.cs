@@ -78,6 +78,32 @@ public sealed class MermaidDiagramRenderPipelineTests
     }
 
     [Fact]
+    public void Repair_preserves_layout_only_edges_as_invisible_links()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "layout-only",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "a", Label = "A", NodeType = "Service" },
+                new DiagramNode { NodeId = "b", Label = "B", NodeType = "Service" },
+            ],
+            Edges =
+            [
+                new DiagramEdge { FromNodeId = "a", ToNodeId = "b", Label = string.Empty, IsLayoutOnly = true },
+            ],
+        };
+
+        MermaidDiagramDeterministicRepairer repairer = new();
+        DiagramAst repaired = repairer.Repair(ast, out _);
+        string mermaid = new MermaidDiagramRenderer().Render(repaired);
+
+        repaired.Edges.Should().ContainSingle(edge => edge.IsLayoutOnly);
+        mermaid.Should().Contain("~~~");
+        mermaid.Should().NotContain("-->");
+    }
+
+    [Fact]
     public async Task RenderAsync_over_threshold_graph_returns_partitioned_not_succeeded()
     {
         DiagramAst ast = BuildLargeAst(nodeCount: 500);

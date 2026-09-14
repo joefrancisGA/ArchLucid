@@ -54,6 +54,35 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(edgesTable as HTMLTableElement).getByText("n_missing")).toBeTruthy();
   });
 
+  it("shows peering for unlabeled VNet-to-VNet edges", () => {
+    const peeringOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_a",
+          label: "vnet-eastus",
+          resourceType: "Microsoft.Network/virtualNetworks",
+          resourceGroup: "rg-east",
+        },
+        {
+          id: "n_b",
+          label: "vnet-westus",
+          resourceType: "Microsoft.Network/virtualNetworks",
+          resourceGroup: "rg-west",
+        },
+      ],
+      edges: [{ from: "n_a", to: "n_b", label: null }],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={peeringOutline} />);
+
+    const edgesHeading = screen.getByRole("heading", { name: "Edges" });
+    const edgesTable = edgesHeading.parentElement?.querySelector("table");
+
+    expect(edgesTable).not.toBeNull();
+    expect(within(edgesTable as HTMLTableElement).getByText("peering")).toBeTruthy();
+    expect(within(edgesTable as HTMLTableElement).queryByText("—")).toBeNull();
+  });
+
   it("focuses a neighborhood from a Nodes row", () => {
     const onFocusNeighborhood = vi.fn();
 

@@ -25,6 +25,7 @@ public sealed class DiagramAstGraphvizDotEmitterTests
 
         CountNodeLabelStatements(dot).Should().Be(11);
         CountOccurrences(dot, "->").Should().Be(6);
+        CountOccurrences(dot, "label=\"peering\"").Should().Be(6);
         dot.Should().NotContain("alpack_");
         dot.Should().NotContain("~~~");
         dot.Should().Contain("digraph Inventory");
