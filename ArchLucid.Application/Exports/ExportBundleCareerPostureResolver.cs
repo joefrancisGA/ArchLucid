@@ -151,6 +151,18 @@ public static class ExportBundleCareerPostureResolver
 
             if (string.Equals(text, "0", StringComparison.Ordinal))
                 return false;
+
+            if (string.Equals(text, "yes", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(text, "y", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(text, "on", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(text, "t", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (string.Equals(text, "no", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(text, "n", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(text, "off", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(text, "f", StringComparison.OrdinalIgnoreCase))
+                return false;
         }
 
         if (element.ValueKind is JsonValueKind.Number
