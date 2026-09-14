@@ -11731,6 +11731,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-14 seed hunt #2927 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json numeric `index` without `resourceAddress` omitted bracket suffix; regression `ParseAsync_numeric_index_without_resource_address_appends_index_suffix_to_name`.
+
 2026-09-14 seed hunt #2922 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-14 seed hunt #2917 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -11931,11 +11933,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 233
-- **bugs-found:** 261
+- **hunts:** 234
+- **bugs-found:** 262
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-14 — hunt #2899: terraform-show-json camelCase resourceAddress index-address gap
+- **last-bug:** 2026-09-14 — hunt #2927: terraform-show-json numeric index without resourceAddress gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

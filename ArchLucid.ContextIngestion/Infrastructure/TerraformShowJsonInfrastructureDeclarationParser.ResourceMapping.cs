@@ -167,6 +167,12 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 moduleAddress,
                 canonicalTerraformType,
                 canonicalLabel);
+
+            if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement)
+                && indexElement.ValueKind == JsonValueKind.Number)
+            {
+                canonicalAddress = $"{canonicalAddress}[{indexElement.GetInt32()}]";
+            }
         }
 
         string resourceIdentity = BuildTerraformResourceIdentity(
