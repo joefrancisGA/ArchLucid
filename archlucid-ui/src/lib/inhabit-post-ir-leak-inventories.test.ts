@@ -81,6 +81,7 @@ describe("inhabit post-IR leak inventories (IP-001)", () => {
     );
 
     expect(openOwnerPrompts.has("IP-002")).toBe(false);
+    expect(openOwnerPrompts.has("IP-006")).toBe(false);
     expect(openOwnerPrompts.has("IP-010")).toBe(false);
     expect(openOwnerPrompts.has("IP-011")).toBe(true);
   });
