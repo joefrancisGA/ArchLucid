@@ -682,7 +682,7 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-changes-body").querySelectorAll("tr")).toHaveLength(3);
   });
 
-  it("keeps snapshot ids behind disclosure and uses human snapshot labels", async () => {
+  it("shows snapshot ids inline and uses human snapshot labels", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
     render(<DriftWorkbenchClient />);
 
@@ -693,6 +693,8 @@ describe("DriftWorkbenchClient", () => {
       "11111111-1111-1111-1111-111111111111",
     );
     expect(screen.getByTestId("infra-drift-snapshot-identifiers")).toBeInTheDocument();
+    expect(screen.getByText("Snapshot id")).toBeInTheDocument();
+    expect(screen.getByText("11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-scope-freshness")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-subscription")).toBeInTheDocument();
   });

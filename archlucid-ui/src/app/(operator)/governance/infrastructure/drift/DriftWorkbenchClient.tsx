@@ -82,11 +82,6 @@ import {
   parseInfraDriftResourceIdDisclosureOpenFromSearch,
 } from "@/lib/infra-evidence/infra-drift-resource-id-disclosure-url";
 import {
-  INFRA_DRIFT_SNAPSHOT_IDENTIFIERS_OPEN_PARAM,
-  infraDriftSnapshotIdentifiersDisclosureHrefFromSearch,
-  parseInfraDriftSnapshotIdentifiersOpenFromSearch,
-} from "@/lib/infra-evidence/infra-drift-snapshot-identifiers-disclosure-url";
-import {
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   hasStaleInfraEvidenceAuditUrlParams,
@@ -202,17 +197,12 @@ export function DriftWorkbenchClient() {
   const searchParams = useSearchParams();
   const driftResourceIdOpenParam = searchParams.get(INFRA_DRIFT_RESOURCE_ID_DISCLOSURE_OPEN_PARAM);
   const driftChangeIdentifiersOpenParam = searchParams.get(INFRA_DRIFT_CHANGE_IDENTIFIERS_OPEN_PARAM);
-  const driftSnapshotIdentifiersOpenParam = searchParams.get(INFRA_DRIFT_SNAPSHOT_IDENTIFIERS_OPEN_PARAM);
   const [driftResourceIdOpen, setDriftResourceIdOpenState] = useState(() =>
     parseInfraDriftResourceIdDisclosureOpenFromSearch(driftResourceIdOpenParam),
   );
   const [driftChangeIdentifiersOpen, setDriftChangeIdentifiersOpenState] = useState(() =>
     parseInfraDriftChangeIdentifiersOpenFromSearch(driftChangeIdentifiersOpenParam),
   );
-  const [driftSnapshotIdentifiersOpen, setDriftSnapshotIdentifiersOpenState] = useState(() =>
-    parseInfraDriftSnapshotIdentifiersOpenFromSearch(driftSnapshotIdentifiersOpenParam),
-  );
-
   const syncDriftResourceIdOpenToUrl = useCallback(
     (open: boolean) => {
       router.replace(infraDriftResourceIdDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
@@ -247,23 +237,6 @@ export function DriftWorkbenchClient() {
     [syncDriftChangeIdentifiersOpenToUrl],
   );
 
-  const syncDriftSnapshotIdentifiersOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(infraDriftSnapshotIdentifiersDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setDriftSnapshotIdentifiersOpen = useCallback(
-    (open: boolean) => {
-      setDriftSnapshotIdentifiersOpenState(open);
-      syncDriftSnapshotIdentifiersOpenToUrl(open);
-    },
-    [syncDriftSnapshotIdentifiersOpenToUrl],
-  );
-
   useEffect(() => {
     setDriftResourceIdOpenState(parseInfraDriftResourceIdDisclosureOpenFromSearch(driftResourceIdOpenParam));
   }, [driftResourceIdOpenParam]);
@@ -271,12 +244,6 @@ export function DriftWorkbenchClient() {
   useEffect(() => {
     setDriftChangeIdentifiersOpenState(parseInfraDriftChangeIdentifiersOpenFromSearch(driftChangeIdentifiersOpenParam));
   }, [driftChangeIdentifiersOpenParam]);
-
-  useEffect(() => {
-    setDriftSnapshotIdentifiersOpenState(
-      parseInfraDriftSnapshotIdentifiersOpenFromSearch(driftSnapshotIdentifiersOpenParam),
-    );
-  }, [driftSnapshotIdentifiersOpenParam]);
 
   const changeDrawerRef = useRef<HTMLElement | null>(null);
   const snapshotsSectionRef = useRef<HTMLElement | null>(null);
@@ -1273,12 +1240,7 @@ export function DriftWorkbenchClient() {
 
               <SponsorExportSendHonestyStrip testIdPrefix="infra-drift-export-terraform" />
 
-              <DriftSnapshotIdentifiers
-                snapshotId={selectedSnapshotId}
-                diffId={selectedDiffId}
-                open={driftSnapshotIdentifiersOpen}
-                onToggle={setDriftSnapshotIdentifiersOpen}
-              />
+              <DriftSnapshotIdentifiers snapshotId={selectedSnapshotId} diffId={selectedDiffId} />
 
               {exportReceipt != null ? (
                 <div
