@@ -39,6 +39,42 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             Should -Be $true
     }
 
+    It 'omits private-link-only network interfaces from never-show filtering' {
+        $inventory = @(
+            [ordered]@{
+                resourceType = 'Microsoft.Network/privateEndpoints'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1'
+                properties = @{
+                    'networkInterfaces[0]' = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/pe-nic'
+                }
+            },
+            [ordered]@{
+                resourceType = 'Microsoft.Network/networkInterfaces'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/pe-nic'
+                properties = @{
+                    'privateEndpoint.id' = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1'
+                }
+            },
+            [ordered]@{
+                resourceType = 'Microsoft.Network/networkInterfaces'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/vm-nic'
+                properties = @{}
+            }
+        )
+
+        [string[]]$omittedNicArmIds = @(Get-ArchLucidAzurePrivateLinkOnlyNicArmIds -InventoryResources $inventory)
+
+        $omittedNicArmIds.Count | Should -Be 1
+        Test-ArchLucidAzureInventoryNeverShowResource `
+            -Resource $inventory[1] `
+            -PrivateLinkOnlyNicArmIds $omittedNicArmIds |
+            Should -Be $true
+        Test-ArchLucidAzureInventoryNeverShowResource `
+            -Resource $inventory[2] `
+            -PrivateLinkOnlyNicArmIds $omittedNicArmIds |
+            Should -Be $false
+    }
+
     It 'builds network association rows from enriched inventory resources' {
         $inventory = @(
             [ordered]@{

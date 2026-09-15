@@ -95,6 +95,84 @@ public sealed class AzureInventoryVisibleSnapshotProjectionTests
     }
 
     [Fact]
+    public void Apply_filters_private_link_only_network_interfaces()
+    {
+        const string peNicArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/pe-nic";
+        const string vmNicArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/vm-nic";
+        const string privateEndpointArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1";
+
+        AzureInventoryResourceRecord vmNic = CreateResource(
+            "vm-nic",
+            "Microsoft.Network/networkInterfaces",
+            vmNicArmId);
+        AzureInventoryResourceRecord peNic = CreateResource(
+            "pe-nic",
+            "Microsoft.Network/networkInterfaces",
+            peNicArmId);
+        AzureInventoryResourceRecord privateEndpoint = CreateResource(
+            "pe1",
+            "Microsoft.Network/privateEndpoints",
+            privateEndpointArmId);
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = Guid.NewGuid(),
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid(),
+                PackageId = Guid.NewGuid(),
+                ResourceCount = 3,
+                RelationshipCount = 2,
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+                CaptureMethod = AzureInventoryCaptureMethod.HostedReader,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            Resources = [vmNic, peNic, privateEndpoint],
+            Properties =
+            [
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = peNic.ResourceRowId,
+                    PropertyKey = "privateEndpoint.id",
+                    PropertyValue = privateEndpointArmId,
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = privateEndpointArmId,
+                    ToAzureResourceId = peNicArmId,
+                    RelationshipType = "CONNECTS_TO",
+                    InferenceSource = "inventory-pe-nic",
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                },
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1",
+                    ToAzureResourceId = vmNicArmId,
+                    RelationshipType = "CONNECTS_TO",
+                    InferenceSource = "inventory-vm-nic",
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                },
+            ],
+        };
+
+        AzureInventorySnapshotDetailReadModel normalized = AzureInventoryVisibleSnapshotProjection.Apply(snapshot);
+
+        normalized.Resources.Select(resource => resource.AzureResourceId).Should().BeEquivalentTo(
+            [vmNicArmId, privateEndpointArmId]);
+        normalized.Header.ResourceCount.Should().Be(2);
+    }
+
+    [Fact]
     public void FilterVisibleRelationships_keeps_principal_edges_to_visible_resources()
     {
         const string visibleArmId =

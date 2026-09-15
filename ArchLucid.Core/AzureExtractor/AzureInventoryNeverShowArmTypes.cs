@@ -88,8 +88,21 @@ public static class AzureInventoryNeverShowArmTypes
         return LastSegments.Contains(lastTypeSegment, StringComparer.OrdinalIgnoreCase);
     }
 
-    public static bool ShouldOmitResource(string? resourceType, string? azureResourceId)
+    public static bool ShouldOmitResource(
+        string? resourceType,
+        string? azureResourceId,
+        IReadOnlySet<string>? privateLinkOnlyNicArmIds = null)
     {
-        return ShouldOmitFromInventory(resourceType) || ShouldOmitAzureResourceId(azureResourceId);
+        if (ShouldOmitFromInventory(resourceType) || ShouldOmitAzureResourceId(azureResourceId))
+        {
+            return true;
+        }
+
+        if (!AzureInventoryPrivateLinkOnlyNicCatalog.IsNetworkInterface(resourceType, azureResourceId))
+        {
+            return false;
+        }
+
+        return AzureInventoryPrivateLinkOnlyNicCatalog.ShouldOmitNicArmId(azureResourceId, privateLinkOnlyNicArmIds);
     }
 }

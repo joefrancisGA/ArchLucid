@@ -156,6 +156,19 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             }
         }
 
+        if (propertiesElement.TryGetProperty("privateEndpoint", out JsonElement privateEndpointElement)
+            && privateEndpointElement.ValueKind is JsonValueKind.Object
+            && privateEndpointElement.TryGetProperty("id", out JsonElement privateEndpointIdElement)
+            && privateEndpointIdElement.ValueKind is JsonValueKind.String)
+        {
+            string? privateEndpointId = privateEndpointIdElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(privateEndpointId))
+            {
+                properties["privateEndpoint.id"] = privateEndpointId.Trim();
+            }
+        }
+
         if (!propertiesElement.TryGetProperty("ipConfigurations", out JsonElement ipConfigurations)
             || ipConfigurations.ValueKind is not JsonValueKind.Array)
         {

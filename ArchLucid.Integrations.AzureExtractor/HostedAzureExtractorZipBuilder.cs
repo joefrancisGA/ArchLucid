@@ -78,8 +78,14 @@ public static class HostedAzureExtractorZipBuilder
             manifest["actualCostSummary"] = null;
         }
 
+        HashSet<string> privateLinkOnlyNicArmIds =
+            HostedAzureInventoryPrivateLinkOnlyNicCatalog.BuildOmittedNicArmIds(resources);
+
         object[] resourceRows = resources
-            .Where(static r => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(r.ResourceType, r.ResourceId))
+            .Where(r => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                r.ResourceType,
+                r.ResourceId,
+                privateLinkOnlyNicArmIds))
             .Select(static r => new
             {
                 resourceType = r.ResourceType,
