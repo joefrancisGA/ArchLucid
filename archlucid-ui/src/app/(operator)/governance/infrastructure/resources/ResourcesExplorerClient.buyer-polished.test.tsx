@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 let searchParams = new URLSearchParams("");
@@ -95,7 +95,13 @@ describe("ResourcesExplorerClient buyer-polished chrome", () => {
     await waitFor(() => {
       expect(screen.getByTestId("infra-resource-row-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
     });
-    expect(screen.getByTestId("infra-resource-row-arm-id-disclosure-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("infra-resource-row-arm-id-disclosure-11111111-1111-1111-1111-111111111111"),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("infra-resource-row-11111111-1111-1111-1111-111111111111"));
+    expect(screen.getByTestId("infra-resource-row-arm-id-disclosure-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "resource id: /subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+    );
     expect(screen.queryByTestId("infra-resource-explorer-snapshot-id")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-resource-type-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
       "Network/publicIPAddresses",

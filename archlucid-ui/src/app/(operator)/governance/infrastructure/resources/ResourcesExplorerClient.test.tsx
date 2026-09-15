@@ -104,6 +104,13 @@ describe("ResourcesExplorerClient", () => {
     expect(screen.getByTestId("infra-resource-last-seen-11111111-1111-1111-1111-111111111111")).not.toHaveTextContent(
       /AM|PM|2026/,
     );
+    expect(
+      screen.queryByTestId("infra-resource-row-arm-id-disclosure-11111111-1111-1111-1111-111111111111"),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("infra-resource-row-11111111-1111-1111-1111-111111111111"));
+    expect(screen.getByTestId("infra-resource-row-arm-id-disclosure-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "resource id: /subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+    );
   });
 
   it("renders work queue chips and applies open-findings filter", async () => {
