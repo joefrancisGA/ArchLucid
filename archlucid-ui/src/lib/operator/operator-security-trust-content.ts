@@ -6,6 +6,7 @@ import {
   type ProductDocumentationEntry,
 } from "@/lib/product-documentation-registry";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveSecureNowEvidenceHref } from "@/lib/product-line/securenow-evidence-navigation";
 import {
   operatorSecurityTrustNdaRequestHref,
   operatorSecurityTrustSubprocessorsWhatItIs,
@@ -30,6 +31,15 @@ export const OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_ITEM: OperatorSecurity
   label: "Trust Center",
   href: "/trust",
 };
+
+export function operatorSecurityTrustPrimaryTrustCenterItem(
+  productLineId: ProductLineId,
+): OperatorSecurityTrustLinkItem {
+  return {
+    label: productLineId === "security" ? "Assurance status" : "Trust Center",
+    href: resolveSecureNowEvidenceHref(productLineId, OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_ITEM.href),
+  };
+}
 
 /** Procurement-facing materials available without NDA (excludes Trust Center primary CTA and Security policies duplicate). */
 export function operatorSecurityTrustMaterialItems(

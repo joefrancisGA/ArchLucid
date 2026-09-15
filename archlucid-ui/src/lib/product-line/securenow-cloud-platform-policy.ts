@@ -16,7 +16,10 @@ export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "accelerator-chooser",
   "billing-and-plans",
   "architecture-desk",
+  "architecture-draft-editing",
+  "architecture-sharing",
   "career-rehearsal-doors",
+  "slack-integration",
 ];
 
 /** Help topic slugs shown only in the SecureNow Security shell. */
