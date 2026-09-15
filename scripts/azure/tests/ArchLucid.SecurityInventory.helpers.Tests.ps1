@@ -16,6 +16,7 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             'Microsoft.Portal/dashboards'
             'Microsoft.OperationalInsights/workspaces'
             'Microsoft.OperationsManagement/solutions'
+            'Microsoft.AlertsManagement/smartDetectorAlertRules'
             'Microsoft.Network/dnszones'
             'Microsoft.Network/privateDnsZones'
             'Microsoft.Compute/virtualMachines/extensions'
@@ -32,6 +33,8 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType 'Microsoft.Compute/virtualMachines' |
             Should -Be $false
         Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security' |
+            Should -Be $true
+        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.AlertsManagement/smartDetectorAlertRules/Failure Anomalies - my-app' |
             Should -Be $true
         Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1' |
             Should -Be $true
