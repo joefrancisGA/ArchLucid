@@ -15,7 +15,6 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -43,14 +42,15 @@ import {
   INFRA_DIAGRAMS_MERMAID_VIEW_PARAM,
   INFRA_DIAGRAMS_MODE_OPTIONS,
   INFRA_DIAGRAMS_SEED_NODE_ID_PARAM,
+  INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM,
   INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM,
   INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM,
   infraDiagramsFilterHrefFromSearch,
   parseInfraDiagramsCloudResourceIdFromSearch,
+  parseInfraDiagramsIncludeNeverShowFromSearch,
   parseInfraDiagramsMermaidModeFromSearch,
   parseInfraDiagramsMermaidViewFromSearch,
   parseInfraDiagramsSeedNodeIdFromSearch,
-  parseInfraDiagramsShowTrivialComponentsFromSearch,
   parseInfraDiagramsSnapshotIdFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-filter-url";
 import {
@@ -59,7 +59,6 @@ import {
   INFRA_EVIDENCE_MERMAID_TOO_LARGE_FOR_BROWSER_MESSAGE,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-client-guard";
 import { buildDiagramWalkthrough } from "@/lib/infra-evidence/build-diagram-walkthrough";
-import { filterDiagramOutlineForTrivialComponents } from "@/lib/infra-evidence/diagram-outline-connected-components";
 import { resolveAlwaysExcludedMermaidCollapseEntries } from "@/lib/infra-evidence/infra-evidence-mermaid-collapse-report";
 import { resolveDiagramCameraFocusNodeIds } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type {
@@ -156,7 +155,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
@@ -233,7 +232,8 @@ export function DiagramsWorkbenchClient() {
   const urlMermaidMode = parseInfraDiagramsMermaidModeFromSearch(searchParams.get(INFRA_DIAGRAMS_MERMAID_MODE_PARAM));
   const urlMermaidView = parseInfraDiagramsMermaidViewFromSearch(searchParams.get(INFRA_DIAGRAMS_MERMAID_VIEW_PARAM));
   const urlSeedNodeId = parseInfraDiagramsSeedNodeIdFromSearch(searchParams.get(INFRA_DIAGRAMS_SEED_NODE_ID_PARAM));
-  const showTrivialComponents = parseInfraDiagramsShowTrivialComponentsFromSearch(
+  const includeNeverShow = parseInfraDiagramsIncludeNeverShowFromSearch(
+    searchParams.get(INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM),
     searchParams.get(INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM),
   );
   const diagramsResourceIdOpenParam = searchParams.get(INFRA_DIAGRAMS_RESOURCE_ID_DISCLOSURE_OPEN_PARAM);
@@ -527,29 +527,25 @@ export function DiagramsWorkbenchClient() {
       return null;
     }
 
-    return buildDiagramWalkthrough(mermaidOutline, { showTrivialComponents });
-  }, [mermaidOutline, showTrivialComponents]);
-
-  const visibleMermaidOutline = useMemo(() => {
-    if (mermaidOutline == null) {
-      return null;
-    }
-
-    return filterDiagramOutlineForTrivialComponents(mermaidOutline, { showTrivialComponents });
-  }, [mermaidOutline, showTrivialComponents]);
+    return buildDiagramWalkthrough(mermaidOutline);
+  }, [mermaidOutline]);
 
   const alwaysExcludedCollapseEntries = useMemo(() => {
-    if (!showTrivialComponents) {
+    if (includeNeverShow) {
       return [];
     }
 
     return resolveAlwaysExcludedMermaidCollapseEntries(renderResult?.collapseReport);
-  }, [renderResult?.collapseReport, showTrivialComponents]);
+  }, [includeNeverShow, renderResult?.collapseReport]);
 
-  const handleShowTrivialComponentsChange = useCallback(
-    (checked: boolean) => {
+  const handleIncludeNeverShowChange = useCallback(
+    (nextIncludeNeverShow: boolean) => {
       router.replace(
-        infraDiagramsFilterHrefFromSearch(searchParams.toString(), { showTrivialComponents: checked }, pathname),
+        infraDiagramsFilterHrefFromSearch(
+          searchParams.toString(),
+          { includeNeverShow: nextIncludeNeverShow },
+          pathname,
+        ),
         { scroll: false },
       );
     },
@@ -678,14 +674,17 @@ export function DiagramsWorkbenchClient() {
   const renderQuery = useMemo((): InfraEvidenceMermaidRenderQuery | null => {
     if (isInfraDiagramsResourceGroupMode(selectedMode)) {
       if (selectedResourceGroupName.length === 0) {
-        return { mode: "resourceGroup" };
+        return { mode: "resourceGroup", includeNeverShow };
       }
 
-      return { mode: buildInfraDiagramsResourceGroupModeToken(selectedResourceGroupName) };
+      return {
+        mode: buildInfraDiagramsResourceGroupModeToken(selectedResourceGroupName),
+        includeNeverShow,
+      };
     }
 
     if (effectiveFallbackKey.length > 0) {
-      return { fallbackKey: effectiveFallbackKey };
+      return { fallbackKey: effectiveFallbackKey, includeNeverShow };
     }
 
     if (selectedMode === "dependencyNeighborhood") {
@@ -698,14 +697,16 @@ export function DiagramsWorkbenchClient() {
       return {
         mode: selectedMode,
         seedNodeId: trimmedSeed,
+        includeNeverShow,
       };
     }
 
     return {
       mode: selectedMode,
       seedNodeId: null,
+      includeNeverShow,
     };
-  }, [appliedSeedNodeId, effectiveFallbackKey, selectedMode, selectedResourceGroupName]);
+  }, [appliedSeedNodeId, effectiveFallbackKey, includeNeverShow, selectedMode, selectedResourceGroupName]);
 
   const retryLoad = useCallback(() => {
     setLoadError(null);
@@ -1004,6 +1005,7 @@ export function DiagramsWorkbenchClient() {
           selectedMode === "dependencyNeighborhood" && appliedSeedNodeId.trim().length > 0
             ? appliedSeedNodeId.trim()
             : null,
+        includeNeverShow,
       };
 
       if (tooLargeForBrowser) {
@@ -1040,6 +1042,7 @@ export function DiagramsWorkbenchClient() {
     exportableSvgMarkup,
     mermaidSource,
     appliedSeedNodeId,
+    includeNeverShow,
     selectedMode,
     selectedSnapshotId,
     tooLargeForBrowser,
@@ -1596,9 +1599,9 @@ export function DiagramsWorkbenchClient() {
               </Button>
             </div>
           </div>
-          {visibleMermaidOutline != null ? (
+          {mermaidOutline != null ? (
             <InfraEvidenceDiagramOutline
-              outline={visibleMermaidOutline}
+              outline={mermaidOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
             />
           ) : null}
@@ -1645,23 +1648,26 @@ export function DiagramsWorkbenchClient() {
               >
                 {diagramWalkthrough}
               </p>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="infra-diagrams-show-trivial-components"
-                  checked={showTrivialComponents}
-                  data-testid="infra-diagrams-show-trivial-components"
-                  onCheckedChange={(checked) => {
-                    handleShowTrivialComponentsChange(checked === true);
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={includeNeverShow ? "secondary" : "outline"}
+                  aria-pressed={includeNeverShow}
+                  aria-busy={loadingRender}
+                  data-testid="infra-diagrams-include-never-show"
+                  disabled={selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
+                  onClick={() => {
+                    handleIncludeNeverShowChange(!includeNeverShow);
                   }}
-                />
-                <Label
-                  htmlFor="infra-diagrams-show-trivial-components"
-                  className={cn("m-0 cursor-pointer font-normal", OPERATOR_TYPOGRAPHY.body)}
                 >
-                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_LABEL}
-                </Label>
+                  {loadingRender ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                  ) : null}
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
+                </Button>
               </div>
-              {alwaysExcludedCollapseEntries.length > 0 ? (
+              {!includeNeverShow && alwaysExcludedCollapseEntries.length > 0 ? (
                 <div
                   className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
                   data-testid="infra-diagrams-always-excluded-panel"
@@ -1693,9 +1699,9 @@ export function DiagramsWorkbenchClient() {
             onRetry={handleRenderRetry}
             onExportableSvgMarkupChange={setExportableSvgMarkup}
           />
-          {visibleMermaidOutline != null ? (
+          {mermaidOutline != null ? (
             <InfraEvidenceDiagramOutline
-              outline={visibleMermaidOutline}
+              outline={mermaidOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
             />
           ) : null}
