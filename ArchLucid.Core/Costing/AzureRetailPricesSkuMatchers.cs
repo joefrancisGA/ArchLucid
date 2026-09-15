@@ -620,6 +620,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || HasCompactWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkSuffix(trimmed)
             || HasCompactWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkSuffix(trimmed)
             || HasCompactWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkSuffix(trimmed)
+            || HasCompactWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkSuffix(trimmed)
             || HasCompactWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkSuffix(trimmed)
             || HasCompactWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkSuffix(trimmed)
             || HasCompactWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkSuffix(trimmed)
@@ -2298,6 +2299,14 @@ public sealed partial class AzureRetailPricesCatalogClient
             return false;
         return trimmed.EndsWith("weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk", StringComparison.OrdinalIgnoreCase)
             && char.IsDigit(trimmed[^43]);
+    }
+
+        private static bool HasCompactWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkSuffix(string trimmed)
+    {
+        if (trimmed.Length < 45)
+            return false;
+        return trimmed.EndsWith("weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk", StringComparison.OrdinalIgnoreCase)
+            && char.IsDigit(trimmed[^44]);
     }
 
     private static bool HasCompactWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkSuffix(string trimmed)

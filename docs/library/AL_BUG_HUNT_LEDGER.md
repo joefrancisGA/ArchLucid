@@ -11581,6 +11581,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-costing
 
+2026-09-15 seed hunt #3223 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
+
 2026-09-15 seed hunt #3218 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
 
 2026-09-15 seed hunt #3213 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
@@ -11882,11 +11884,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 188
-- **bugs-found:** 161
+- **hunts:** 189
+- **bugs-found:** 162
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-15 — hunt #3218: spaced-slash `10 / weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap
+- **last-bug:** 2026-09-15 — hunt #3223: compact `10weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
