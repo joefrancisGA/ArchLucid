@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -42,6 +43,12 @@ public static class AzureInventoryDiffUnchangedBuilder
             }
 
             AzureInventoryResourceRecord resourceA = pair.Value;
+
+            if (AzureInventoryNeverShowArmTypes.ShouldOmitResource(resourceA.ResourceType, pair.Key)
+                || AzureInventoryNeverShowArmTypes.ShouldOmitResource(resourceB.ResourceType, pair.Key))
+            {
+                continue;
+            }
 
             unchanged.Add(new AzureInventoryChangeRecord
             {

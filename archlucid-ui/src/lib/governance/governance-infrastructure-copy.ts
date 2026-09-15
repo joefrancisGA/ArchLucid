@@ -239,6 +239,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID = "infra-drift-p
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL = "Skip to drift comparison" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE =
+  "Compare inventory snapshots and classify drift. Pick current and baseline snapshots before exporting advisory Terraform." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD =
   "Compare inventory snapshots, inspect semantic drift rows, and export advisory Terraform reconstructed from snapshot evidence." as const;
 
@@ -333,6 +336,18 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE = "No drift row
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_BODY =
   "Select a diff above to view property-level changes for the chosen snapshot." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_TITLE = "No inventory rows in this snapshot" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_BODY =
+  "This snapshot has no captured resources to display." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_SCOPED_BODY =
+  "No inventory rows match the scoped cloud resource for this snapshot." as const;
+
+export function GOVERNANCE_INFRASTRUCTURE_DRIFT_RESOURCE_GROUP_DETAIL_HEADING(changeCount: number): string {
+  return `${changeCount} property changes on this resource`;
+}
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_SCOPED_BODY =
   "No drift rows match the scoped cloud resource for this diff." as const;
 
@@ -349,6 +364,10 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL = "Reso
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL = "Resource group" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL = "Resource type" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_TABLE_ARIA_LABEL = "Snapshot inventory resources" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGES_TABLE_ARIA_LABEL = "Inventory drift changes" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_SOURCE_SNAPSHOT_LABEL = "Source snapshot" as const;
 
@@ -368,13 +387,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_ID_LABEL = "Snapshot id" a
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_ID_LABEL = "Diff id" as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DRIFT_IDENTIFIERS_TITLE = "Snapshot identifiers" as const;
-
-export const GOVERNANCE_INFRASTRUCTURE_DRIFT_IDENTIFIERS_SUMMARY = "Copy snapshot and diff ids" as const;
-
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGE_IDENTIFIERS_TITLE = "Technical identifiers" as const;
-
-export const GOVERNANCE_INFRASTRUCTURE_DRIFT_LAYER_GUIDANCE_SUMMARY = "How drift compare works" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureRemediation;
 

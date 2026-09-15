@@ -32,16 +32,28 @@ function sortDirectionForColumn(
   return sortDir === "asc" ? "ascending" : "descending";
 }
 
+export const DRIFT_INVENTORY_TABLE_COLUMN_COUNT = 3;
+export const DRIFT_CHANGES_TABLE_COLUMN_COUNT = 6;
+
 export type DriftChangesTableHeadProps = {
   readonly tableFilterState: DriftTableFilterState;
   readonly hasActiveFilters: boolean;
+  readonly showDiffColumns: boolean;
   readonly onSortColumn: (column: DriftTableSortKey) => void;
   readonly onTableFiltersChange: (patch: Partial<DriftTableFilterState>) => void;
   readonly onClearFilters: () => void;
 };
 
 export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.JSX.Element {
-  const { tableFilterState, hasActiveFilters, onSortColumn, onTableFiltersChange, onClearFilters } = props;
+  const {
+    tableFilterState,
+    hasActiveFilters,
+    showDiffColumns,
+    onSortColumn,
+    onTableFiltersChange,
+    onClearFilters,
+  } = props;
+  const columnCount = showDiffColumns ? DRIFT_CHANGES_TABLE_COLUMN_COUNT : DRIFT_INVENTORY_TABLE_COLUMN_COUNT;
 
   const renderHeader = (
     column: DriftTableSortKey,
@@ -103,46 +115,50 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
             onTableFiltersChange({ resourceTypeFilter: "", ...resetPagePatch });
           },
         })}
-        {renderHeader("change", "Change", {
-          kind: "select",
-          value: tableFilterState.changeTypeFilter,
-          options: INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS,
-          filterTestId: "infra-drift-change-type-filter",
-          onChange: (value) => {
-            onTableFiltersChange({ changeTypeFilter: value, ...resetPagePatch });
-          },
-          onClear: () => {
-            onTableFiltersChange({ changeTypeFilter: "", ...resetPagePatch });
-          },
-        })}
-        {renderHeader("property", "Property", {
-          kind: "text",
-          value: tableFilterState.propertyFilter,
-          placeholder: "sku",
-          filterTestId: "infra-drift-property-filter",
-          onApply: (value) => {
-            onTableFiltersChange({ propertyFilter: value, ...resetPagePatch });
-          },
-          onClear: () => {
-            onTableFiltersChange({ propertyFilter: "", ...resetPagePatch });
-          },
-        })}
-        {renderHeader("risk", "Risk", {
-          kind: "select",
-          value: tableFilterState.riskFilter,
-          options: INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS,
-          filterTestId: "infra-drift-risk-filter",
-          onChange: (value) => {
-            onTableFiltersChange({ riskFilter: value, ...resetPagePatch });
-          },
-          onClear: () => {
-            onTableFiltersChange({ riskFilter: "", ...resetPagePatch });
-          },
-        })}
+        {showDiffColumns ? (
+          <>
+            {renderHeader("change", "Change", {
+              kind: "select",
+              value: tableFilterState.changeTypeFilter,
+              options: INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS,
+              filterTestId: "infra-drift-change-type-filter",
+              onChange: (value) => {
+                onTableFiltersChange({ changeTypeFilter: value, ...resetPagePatch });
+              },
+              onClear: () => {
+                onTableFiltersChange({ changeTypeFilter: "", ...resetPagePatch });
+              },
+            })}
+            {renderHeader("property", "Property", {
+              kind: "text",
+              value: tableFilterState.propertyFilter,
+              placeholder: "sku",
+              filterTestId: "infra-drift-property-filter",
+              onApply: (value) => {
+                onTableFiltersChange({ propertyFilter: value, ...resetPagePatch });
+              },
+              onClear: () => {
+                onTableFiltersChange({ propertyFilter: "", ...resetPagePatch });
+              },
+            })}
+            {renderHeader("risk", "Risk", {
+              kind: "select",
+              value: tableFilterState.riskFilter,
+              options: INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS,
+              filterTestId: "infra-drift-risk-filter",
+              onChange: (value) => {
+                onTableFiltersChange({ riskFilter: value, ...resetPagePatch });
+              },
+              onClear: () => {
+                onTableFiltersChange({ riskFilter: "", ...resetPagePatch });
+              },
+            })}
+          </>
+        ) : null}
       </EnterpriseTableHeadRow>
       {hasActiveFilters ? (
         <tr data-testid="infra-drift-active-filters-row">
-          <th colSpan={6} className="border-b border-neutral-200 bg-neutral-50 px-3 py-2 text-left dark:border-neutral-800 dark:bg-neutral-900/40">
+          <th colSpan={columnCount} className="border-b border-neutral-200 bg-neutral-50 px-3 py-2 text-left dark:border-neutral-800 dark:bg-neutral-900/40">
             <div className="flex flex-wrap items-center gap-2">
               <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Column filters active

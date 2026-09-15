@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import type { InfraEvidenceDiffChange, InfraEvidenceDiffSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
+  DEFAULT_DRIFT_CHANGES_PAGE_SIZE,
   driftTableFilterSearchParams,
   filterDriftChanges,
+  parseDriftTableChangesPageSize,
   parseDriftTableFilterState,
   parseDriftTableIncludeUnchanged,
   parseDriftTableSortKey,
@@ -122,6 +124,35 @@ describe("infra-evidence-drift-table-filter", () => {
       rows[1],
     ]);
     expect(filterDriftChanges(rows, emptyFilters, twoSnapshotDiff)).toEqual(rows);
+  });
+
+  it("suppresses nested resource-removed rows when comparing two inventories", () => {
+    const parentArmId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+    const childArmId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1/extensions/ext";
+    const rows = [
+      buildChange("parent", parentArmId, {
+        changeType: "ResourceRemoved",
+      }),
+      buildChange("child", childArmId, {
+        changeType: "ResourceRemoved",
+      }),
+    ];
+    const twoSnapshotDiff = buildDiff(
+      "11111111-1111-1111-1111-111111111111",
+      "22222222-2222-2222-2222-222222222222",
+    );
+    const emptyFilters = {
+      riskFilter: "",
+      changeTypeFilter: "",
+      resourceFilter: "",
+      resourceGroupFilter: "",
+      resourceTypeFilter: "",
+      propertyFilter: "",
+    };
+
+    expect(filterDriftChanges(rows, emptyFilters, twoSnapshotDiff)).toEqual([rows[0]]);
   });
 
   it("filters drift rows by none and unknown risk keys", () => {
@@ -262,8 +293,10 @@ describe("infra-evidence-drift-table-filter", () => {
         sortBy: "resourceGroup",
         sortDir: "asc",
         changesPage: 2,
+        changesPageSize: 50,
         snapshotsPage: 1,
         includeUnchanged: false,
+        riskyOnly: false,
       },
       "resourceGroup",
     );
@@ -271,5 +304,18 @@ describe("infra-evidence-drift-table-filter", () => {
     expect(next.sortBy).toBe("resourceGroup");
     expect(next.sortDir).toBe("desc");
     expect(next.changesPage).toBe(1);
+  });
+
+  it("parses and serializes allowed changes page sizes", () => {
+    expect(parseDriftTableChangesPageSize("20")).toBe(20);
+    expect(parseDriftTableChangesPageSize("50")).toBe(50);
+    expect(parseDriftTableChangesPageSize("100")).toBe(100);
+    expect(parseDriftTableChangesPageSize("7")).toBe(DEFAULT_DRIFT_CHANGES_PAGE_SIZE);
+
+    const parsed = parseDriftTableFilterState(new URLSearchParams("changesPage=3&changesPageSize=20"));
+    expect(parsed.changesPage).toBe(3);
+    expect(parsed.changesPageSize).toBe(20);
+    expect(driftTableFilterSearchParams(parsed).get("changesPageSize")).toBe("20");
+    expect(driftTableFilterSearchParams({ ...parsed, changesPageSize: 50 }).get("changesPageSize")).toBeNull();
   });
 });

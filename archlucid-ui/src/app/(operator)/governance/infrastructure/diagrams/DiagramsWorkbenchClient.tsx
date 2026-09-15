@@ -85,6 +85,7 @@ import {
   resolveDependencyNeighborhoodSeedBlockedReason,
   type DependencyNeighborhoodSeedBlockedReason,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-dependency-seed";
+import { shouldShowInfraDiagramsDensityCoach } from "@/lib/infra-evidence/infra-evidence-diagrams-density-coach";
 import {
   resolveInfraDiagramsDefaultFallbackKey,
   resolveInfraDiagramsEffectiveFallbackKey,
@@ -555,34 +556,29 @@ export function DiagramsWorkbenchClient() {
     [pathname, router, searchParams],
   );
 
-  const showDensityCoach = useMemo(() => {
-    if (isInfraDiagramsExecutiveMode(selectedMode)) {
-      return (
-        (diagramContentEmpty && renderResult?.status === "Succeeded")
-        || renderResult?.status === "Failed"
-      );
-    }
-
-    const overPeelBudget =
-      metrics != null
-      && metrics.nodeCount >= INFRA_EVIDENCE_MERMAID_CLIENT_READABILITY_THRESHOLDS.maxNodes
-      && selectedMode !== "executive";
-
-    return (
-      showFallbackCards
-      || tooLargeForBrowser
-      || (diagramContentEmpty && renderResult?.status === "Succeeded")
-      || renderResult?.status === "Failed"
-      || overPeelBudget
-    );
-  }, [
-    diagramContentEmpty,
-    metrics,
-    renderResult?.status,
-    selectedMode,
-    showFallbackCards,
-    tooLargeForBrowser,
-  ]);
+  const showDensityCoach = useMemo(
+    () =>
+      shouldShowInfraDiagramsDensityCoach({
+        showFallbackCards,
+        tooLargeForBrowser,
+        diagramContentEmpty,
+        renderStatus: renderResult?.status ?? "",
+        paintDiagramCanvas,
+        selectedMode,
+        nodeCount: metrics?.nodeCount ?? null,
+        maxNodes: INFRA_EVIDENCE_MERMAID_CLIENT_READABILITY_THRESHOLDS.maxNodes,
+        isExecutiveMode: isInfraDiagramsExecutiveMode(selectedMode),
+      }),
+    [
+      diagramContentEmpty,
+      metrics?.nodeCount,
+      paintDiagramCanvas,
+      renderResult?.status,
+      selectedMode,
+      showFallbackCards,
+      tooLargeForBrowser,
+    ],
+  );
 
   const cameraFocusNodeIds = useMemo(
     () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, mermaidOutline),

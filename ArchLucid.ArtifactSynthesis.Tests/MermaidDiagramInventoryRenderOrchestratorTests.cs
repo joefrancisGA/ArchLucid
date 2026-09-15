@@ -4,6 +4,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.InfraEvidence.DiagramPeel;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -48,6 +49,42 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
         result.CollapseReport!.Entries.Should().NotContain(entry => entry.Kind == "PeelBudgetArmType");
         result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
         result.Metrics.NodeCount.Should().BeLessThanOrEqualTo(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes);
+    }
+
+    [Fact]
+    public void BuildFallbackArtifact_executive_eleven_disconnected_vnets_succeeds()
+    {
+        GraphSnapshot graph = BuildExecutiveSparseVnetGraph(vnetCount: 11);
+
+        MermaidDiagramRenderArtifact artifact = orchestrator.BuildFallbackArtifact(
+            graph,
+            DiagramMode.Executive,
+            "executive",
+            "Executive (executive)",
+            new MermaidDiagramReadabilityThresholds { MaxNodes = 400 },
+            null);
+
+        artifact.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
+        artifact.Metrics.Should().NotBeNull();
+        artifact.Metrics!.NodeCount.Should().Be(11);
+        artifact.Metrics.EdgeCount.Should().Be(0);
+        artifact.Mermaid.Should().Contain("~~~");
+    }
+
+    [Fact]
+    public async Task RenderFromGraphAsync_executive_eleven_disconnected_vnets_succeeds()
+    {
+        GraphSnapshot graph = BuildExecutiveSparseVnetGraph(vnetCount: 11);
+
+        MermaidDiagramRenderResult result = await orchestrator.RenderFromGraphAsync(
+            graph,
+            DiagramMode.Executive,
+            null,
+            new MermaidDiagramReadabilityThresholds { MaxNodes = 400 });
+
+        result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
+        result.Metrics.NodeCount.Should().Be(11);
+        result.PrimaryMermaid.Should().Contain("~~~");
     }
 
     [Fact]
@@ -156,7 +193,7 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
         result.PrimaryMermaid.Should().NotContain("dns-1");
         result.PrimaryMermaid.Should().NotContain("mw-1");
         result.CollapseReport!.Entries.Should().Contain(entry =>
-            entry.Kind == DiagramPeelAlwaysDisposeArmTypes.CollapseKind
+            entry.Kind == AzureInventoryNeverShowArmTypes.DiagramCollapseKind
             && entry.Reason.Contains("Microsoft.Portal/dashboards", StringComparison.Ordinal));
     }
 
@@ -351,6 +388,31 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
         {
             Nodes = nodes,
             Edges = edges,
+        };
+    }
+
+    private static GraphSnapshot BuildExecutiveSparseVnetGraph(int vnetCount)
+    {
+        List<GraphNode> nodes = [];
+
+        for (int index = 0; index < vnetCount; index++)
+        {
+            string nodeId = $"vnet-{index}";
+            string resourceGroup = $"network-rg-{index}";
+            string armId =
+                $"/subscriptions/sub/resourceGroups/{resourceGroup}/providers/Microsoft.Network/virtualNetworks/vnet-eastus-{index}";
+
+            nodes.Add(CreateTopologyNode(
+                nodeId,
+                $"vnet-eastus-{index}",
+                "Microsoft.Network/virtualNetworks",
+                armId,
+                resourceGroup));
+        }
+
+        return new GraphSnapshot
+        {
+            Nodes = nodes,
         };
     }
 

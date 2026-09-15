@@ -49,6 +49,42 @@ public sealed class AzureInventoryDiffUnchangedBuilderTests
         unchanged[0].ChangeId.Should().Be(repeat[0].ChangeId);
     }
 
+    [Fact]
+    public void BuildUnchangedResourceChanges_omits_never_show_solutions_and_virtual_network_links()
+    {
+        Guid diffId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid snapshotAId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid snapshotBId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string visibleArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        string solutionArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security";
+        string linkArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1";
+
+        AzureInventorySnapshotDetailReadModel snapshotA = BuildSnapshotWithResources(
+            snapshotAId,
+            (visibleArmId, "Microsoft.Storage/storageAccounts"),
+            (solutionArmId, string.Empty),
+            (linkArmId, "Microsoft.Network/privateDnsZones/virtualNetworkLinks"));
+        AzureInventorySnapshotDetailReadModel snapshotB = BuildSnapshotWithResources(
+            snapshotBId,
+            (visibleArmId, "Microsoft.Storage/storageAccounts"),
+            (solutionArmId, string.Empty),
+            (linkArmId, "Microsoft.Network/privateDnsZones/virtualNetworkLinks"));
+
+        List<AzureInventoryChangeRecord> unchanged = AzureInventoryDiffUnchangedBuilder.BuildUnchangedResourceChanges(
+            snapshotA,
+            snapshotB,
+            diffId,
+            snapshotAId,
+            snapshotBId,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+
+        unchanged.Should().ContainSingle();
+        unchanged[0].AzureResourceId.Should().Be(visibleArmId);
+    }
+
     private static AzureInventorySnapshotDetailReadModel BuildSnapshot(
         Guid snapshotId,
         string unchangedArmId,
@@ -84,6 +120,33 @@ public sealed class AzureInventoryDiffUnchangedBuilderTests
                     Region = "eastus",
                 },
             ],
+        };
+    }
+
+    private static AzureInventorySnapshotDetailReadModel BuildSnapshotWithResources(
+        Guid snapshotId,
+        params (string AzureResourceId, string ResourceType)[] resources)
+    {
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = snapshotId,
+                TenantId = Guid.NewGuid(),
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = resources
+                .Select(resource => new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    TenantId = Guid.NewGuid(),
+                    AzureResourceId = resource.AzureResourceId,
+                    ResourceType = resource.ResourceType,
+                    Region = "eastus",
+                })
+                .ToList(),
         };
     }
 }

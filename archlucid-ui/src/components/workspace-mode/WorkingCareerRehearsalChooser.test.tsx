@@ -30,7 +30,7 @@ const gateMock = vi.hoisted(() => ({
   isCareerExecuteBlocked: false,
   blockReason: null as string | null,
   blockedDetail: null as string | null,
-  platformSettingsHref: "/administration/connection-status",
+  platformSettingsHref: "/administration/model-governance",
 }));
 
 const evaluateGateMock = vi.hoisted(() =>
@@ -38,7 +38,7 @@ const evaluateGateMock = vi.hoisted(() =>
     isCareerExecuteBlocked: door === "career" && gateMock.isCareerExecuteBlocked,
     blockReason: door === "career" ? gateMock.blockReason : null,
     blockedDetail: door === "career" ? gateMock.blockedDetail : null,
-    platformSettingsHref: "/administration/connection-status",
+    platformSettingsHref: "/administration/model-governance",
   })),
 );
 

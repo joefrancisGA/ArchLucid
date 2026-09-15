@@ -1,4 +1,5 @@
 using ArchLucid.Application.InfraEvidence.Mermaid;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
@@ -119,59 +120,107 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
             _manifestHashService,
             cancellationToken);
 
-        if (!includeUnchanged)
-        {
-            (IReadOnlyList<AzureInventoryChangeRecord> items, int totalCount) =
-                await _diffRepository.ListChangesByDiffIdPagedAsync(
-                    scope,
-                    diffId,
-                    page,
-                    pageSize,
-                    cloudResourceId,
-                    cancellationToken);
-
-            return PagedResponseBuilder.FromDatabasePage(items, totalCount, page, pageSize);
-        }
-
-        AzureInventorySnapshotDetailReadModel? snapshotA =
-            await _snapshotRepository.TryGetSnapshotDetailAsync(scope, diff.SnapshotAId, cancellationToken);
-
-        AzureInventorySnapshotDetailReadModel? snapshotB =
-            await _snapshotRepository.TryGetSnapshotDetailAsync(scope, diff.SnapshotBId, cancellationToken);
-
-        if (snapshotA is null || snapshotB is null)
-            return null;
-
         IReadOnlyList<AzureInventoryChangeRecord> existingChanges =
             await _diffRepository.ListChangesByDiffIdAsync(scope, diffId, cancellationToken);
 
-        HashSet<string> changedAzureResourceIds = existingChanges
-            .Select(change => change.AzureResourceId)
-            .Where(azureResourceId => !string.IsNullOrWhiteSpace(azureResourceId))
-            .Select(azureResourceId => azureResourceId!)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        IEnumerable<AzureInventoryChangeRecord> visibleChanges = existingChanges.Where(IsVisibleChange);
 
-        List<AzureInventoryChangeRecord> unchangedChanges = AzureInventoryDiffUnchangedBuilder.BuildUnchangedResourceChanges(
-            snapshotA,
-            snapshotB,
-            diffId,
-            diff.SnapshotAId,
-            diff.SnapshotBId,
-            changedAzureResourceIds);
+        if (includeUnchanged)
+        {
+            AzureInventorySnapshotDetailReadModel? snapshotA =
+                await _snapshotRepository.TryGetSnapshotDetailAsync(scope, diff.SnapshotAId, cancellationToken);
 
-        IEnumerable<AzureInventoryChangeRecord> mergedChanges = existingChanges.Concat(unchangedChanges);
+            AzureInventorySnapshotDetailReadModel? snapshotB =
+                await _snapshotRepository.TryGetSnapshotDetailAsync(scope, diff.SnapshotBId, cancellationToken);
+
+            if (snapshotA is null || snapshotB is null)
+            {
+                return null;
+            }
+
+            HashSet<string> changedAzureResourceIds = existingChanges
+                .Select(change => change.AzureResourceId)
+                .Where(azureResourceId => !string.IsNullOrWhiteSpace(azureResourceId))
+                .Select(azureResourceId => azureResourceId!)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            List<AzureInventoryChangeRecord> unchangedChanges =
+                AzureInventoryDiffUnchangedBuilder.BuildUnchangedResourceChanges(
+                    snapshotA,
+                    snapshotB,
+                    diffId,
+                    diff.SnapshotAId,
+                    diff.SnapshotBId,
+                    changedAzureResourceIds);
+
+            visibleChanges = visibleChanges.Concat(unchangedChanges);
+        }
 
         if (cloudResourceId is Guid resourceId && resourceId != Guid.Empty)
         {
-            mergedChanges = mergedChanges.Where(change => change.CloudResourceId == resourceId);
+            visibleChanges = visibleChanges.Where(change => change.CloudResourceId == resourceId);
         }
 
-        List<AzureInventoryChangeRecord> orderedChanges = mergedChanges
+        List<AzureInventoryChangeRecord> orderedChanges = visibleChanges
             .OrderBy(change => change.AzureResourceId, StringComparer.Ordinal)
             .ThenBy(change => change.ChangeType)
             .ThenBy(change => change.Property, StringComparer.Ordinal)
             .ToList();
 
         return PagedResponseBuilder.Build(orderedChanges, page, pageSize);
+    }
+
+    public async Task<PagedResponse<AzureInventoryChangeRecord>?> ListInventoryRowsForSnapshotAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        int page,
+        int pageSize,
+        Guid? cloudResourceId = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (snapshotId == Guid.Empty)
+        {
+            return null;
+        }
+
+        await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
+            scope,
+            snapshotId,
+            _reconciliationRepository,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
+
+        AzureInventorySnapshotDetailReadModel? snapshot =
+            await _snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+
+        if (snapshot is null)
+        {
+            return null;
+        }
+
+        IEnumerable<AzureInventoryResourceRecord> visibleResources = snapshot.Resources
+            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                resource.ResourceType,
+                resource.AzureResourceId));
+
+        if (cloudResourceId is Guid resourceId && resourceId != Guid.Empty)
+        {
+            visibleResources = visibleResources.Where(resource => resource.CloudResourceId == resourceId);
+        }
+
+        List<AzureInventoryChangeRecord> items = visibleResources
+            .OrderBy(resource => resource.AzureResourceId, StringComparer.Ordinal)
+            .Select(resource => AzureInventorySnapshotInventoryRowMapper.MapResource(snapshotId, resource))
+            .ToList();
+
+        return PagedResponseBuilder.Build(items, page, pageSize);
+    }
+
+    private static bool IsVisibleChange(AzureInventoryChangeRecord change)
+    {
+        return !AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(change.AzureResourceId);
     }
 }

@@ -46,6 +46,27 @@ const mockFetchChanges = vi.fn(async () => ({
   hasMore: false,
 }));
 
+const mockFetchSnapshotInventoryRows = vi.fn(async () => ({
+  items: [
+    {
+      changeId: "inventory-row-1",
+      diffId: "",
+      cloudResourceId: "22222222-2222-2222-2222-222222222222",
+      azureResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+      changeType: "Unknown",
+      property: null,
+      oldValue: null,
+      newValue: "Microsoft.Network/publicIPAddresses",
+      riskClassification: null,
+      evidenceReference: "snapshot-inventory",
+    },
+  ],
+  totalCount: 1,
+  page: 1,
+  pageSize: 100,
+  hasMore: false,
+}));
+
 const { downloadInfraEvidenceTerraformAdvisoryZipMock, mockSnapshotItems } = vi.hoisted(() => ({
   downloadInfraEvidenceTerraformAdvisoryZipMock: vi.fn(async () => undefined),
   mockSnapshotItems: [
@@ -80,6 +101,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   })),
   fetchInfraEvidenceDiffsForSnapshot: (...args: unknown[]) => mockFetchDiffs(...args),
   fetchInfraEvidenceDiffChanges: (...args: unknown[]) => mockFetchChanges(...args),
+  fetchInfraEvidenceSnapshotInventoryRows: (...args: unknown[]) => mockFetchSnapshotInventoryRows(...args),
   downloadInfraEvidenceTerraformAdvisoryZip: downloadInfraEvidenceTerraformAdvisoryZipMock,
   formatInfraEvidenceApiError: (error: unknown) => String(error),
 }));
@@ -142,6 +164,27 @@ describe("DriftWorkbenchClient", () => {
     mockFetchDiffs.mockImplementation(async () => defaultMockDiffs());
     mockFetchChanges.mockReset();
     mockFetchChanges.mockImplementation(async () => defaultMockChanges());
+    mockFetchSnapshotInventoryRows.mockReset();
+    mockFetchSnapshotInventoryRows.mockImplementation(async () => ({
+      items: [
+        {
+          changeId: "inventory-row-1",
+          diffId: "",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+          changeType: "Unknown",
+          property: null,
+          oldValue: null,
+          newValue: "Microsoft.Network/publicIPAddresses",
+          riskClassification: null,
+          evidenceReference: "snapshot-inventory",
+        },
+      ],
+      totalCount: 1,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    }));
     downloadInfraEvidenceTerraformAdvisoryZipMock.mockReset();
     downloadInfraEvidenceTerraformAdvisoryZipMock.mockResolvedValue(undefined);
     mockSnapshotItems.splice(
@@ -194,19 +237,29 @@ describe("DriftWorkbenchClient", () => {
     expect(snapshotPicker).toHaveValue("11111111-1111-1111-1111-111111111111");
   });
 
-  it("does not load drift changes until a diff is selected", async () => {
+  it("loads snapshot inventory rows when no diff is selected", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DriftWorkbenchClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("infra-drift-diff-picker")).toBeInTheDocument();
+      expect(mockFetchSnapshotInventoryRows).toHaveBeenCalledWith(
+        "11111111-1111-1111-1111-111111111111",
+        1,
+        50,
+        { cloudResourceId: null },
+      );
     });
 
     expect(mockFetchChanges).not.toHaveBeenCalled();
-    expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-drift-change-row-inventory-row-1")).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Snapshot inventory resources" })).toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "Change" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "Property" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "Risk" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-drift-changes-empty-unselected")).not.toBeInTheDocument();
   });
 
-  it("restores anchor snapshot and empty changes when diff selection is cleared", async () => {
+  it("restores anchor snapshot and inventory rows when diff selection is cleared", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DriftWorkbenchClient />);
 
@@ -215,7 +268,7 @@ describe("DriftWorkbenchClient", () => {
     fireEvent.click(await screen.findByTestId("infra-drift-cross-subscription-confirm"));
 
     await waitFor(() => {
-      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, {
+      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 50, {
         cloudResourceId: null,
         includeUnchanged: false,
       });
@@ -234,7 +287,10 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Prod");
     expect(screen.getByTestId("infra-drift-snapshot-selected-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-snapshot-row-33333333-3333-3333-3333-333333333333")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockFetchSnapshotInventoryRows).toHaveBeenCalled();
+    });
+    expect(await screen.findByTestId("infra-drift-change-row-inventory-row-1")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-change-row-change-1")).not.toBeInTheDocument();
   });
 
@@ -341,7 +397,10 @@ describe("DriftWorkbenchClient", () => {
       expect(mockFetchDiffs).toHaveBeenCalled();
     });
     expect(diffPicker).toHaveValue("");
-    expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockFetchSnapshotInventoryRows).toHaveBeenCalled();
+    });
+    expect(await screen.findByTestId("infra-drift-change-row-inventory-row-1")).toBeInTheDocument();
   });
 
   it("shows resource scope banner when cloudResourceId is in the URL", async () => {
@@ -374,7 +433,7 @@ describe("DriftWorkbenchClient", () => {
       "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=diagram&snapshotId=11111111-1111-1111-1111-111111111111",
     );
     await waitFor(() => {
-      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, {
+      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 50, {
         cloudResourceId: "22222222-2222-2222-2222-222222222222",
         includeUnchanged: false,
       });
@@ -463,7 +522,9 @@ describe("DriftWorkbenchClient", () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
     render(<DriftWorkbenchClient />);
 
-    expect(await screen.findByRole("table", { name: "Inventory drift changes" })).toBeInTheDocument();
+    const diffTable = await screen.findByRole("table", { name: "Inventory drift changes" });
+    const inventoryTable = screen.getByRole("table", { name: "Inventory snapshots" });
+
     expect(screen.getByTestId("infra-drift-sort-resource")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-resourceGroup")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-resourceType")).toBeInTheDocument();
@@ -471,6 +532,12 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-sort-property")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-risk")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-resource-filter-trigger")).toBeInTheDocument();
+    expect(within(diffTable).getByTestId("infra-drift-change-type-filter-trigger")).toBeInTheDocument();
+    expect(within(diffTable).getByTestId("infra-drift-property-filter-trigger")).toBeInTheDocument();
+    expect(within(diffTable).getByTestId("infra-drift-risk-filter-trigger")).toBeInTheDocument();
+    expect(within(inventoryTable).queryByTestId("infra-drift-change-type-filter-trigger")).not.toBeInTheDocument();
+    expect(within(inventoryTable).queryByTestId("infra-drift-property-filter-trigger")).not.toBeInTheDocument();
+    expect(within(inventoryTable).queryByTestId("infra-drift-risk-filter-trigger")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-changes-body")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-drift-change-row-change-1")).toBeInTheDocument();
   });
@@ -503,7 +570,75 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-diff-picker")).toBeDisabled();
   });
 
-  it("renders one row per drift change when multiple changes are returned (IE-DT-02)", async () => {
+  it("groups multiple property changes for the same resource into one row", async () => {
+    mockFetchChanges.mockResolvedValueOnce({
+      items: [
+        {
+          changeId: "change-sku",
+          diffId: "diff-1",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-a/providers/Microsoft.Network/publicIPAddresses/gw-a",
+          changeType: "Modified",
+          property: "sku",
+          oldValue: "Basic",
+          newValue: "Standard",
+          riskClassification: "Medium",
+          evidenceReference: "snapshot-diff",
+        },
+        {
+          changeId: "change-tags",
+          diffId: "diff-1",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-a/providers/Microsoft.Network/publicIPAddresses/gw-a",
+          changeType: "Modified",
+          property: "tags",
+          oldValue: null,
+          newValue: "env=prod",
+          riskClassification: "Low",
+          evidenceReference: "snapshot-diff",
+        },
+        {
+          changeId: "change-other",
+          diffId: "diff-1",
+          cloudResourceId: "33333333-3333-3333-3333-333333333333",
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-b/providers/Microsoft.Storage/storageAccounts/logs",
+          changeType: "Added",
+          property: "tags",
+          oldValue: null,
+          newValue: "env=prod",
+          riskClassification: null,
+          evidenceReference: "snapshot-diff",
+        },
+      ],
+      totalCount: 3,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    });
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
+    render(<DriftWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-drift-change-row-change-sku")).toBeInTheDocument();
+      expect(screen.getByTestId("infra-drift-change-row-change-other")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("infra-drift-change-row-change-tags")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-change-row-change-sku")).toHaveTextContent("2 properties");
+    expect(screen.getByTestId("infra-drift-changes-body").querySelectorAll("tr")).toHaveLength(2);
+
+    fireEvent.click(screen.getByTestId("infra-drift-change-row-change-sku"));
+
+    expect(await screen.findByTestId("infra-drift-change-drawer")).toHaveTextContent("2 property changes on this resource");
+    expect(screen.getByTestId("infra-drift-change-property-detail-change-sku")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-change-property-detail-change-tags")).toBeInTheDocument();
+  });
+
+  it("renders one row per resource when multiple changes are returned (IE-DT-02)", async () => {
     mockFetchChanges.mockResolvedValueOnce({
       items: [
         {
@@ -564,7 +699,7 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-changes-body").querySelectorAll("tr")).toHaveLength(3);
   });
 
-  it("keeps snapshot ids behind disclosure and uses human snapshot labels", async () => {
+  it("shows snapshot ids inline and uses human snapshot labels", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
     render(<DriftWorkbenchClient />);
 
@@ -575,17 +710,34 @@ describe("DriftWorkbenchClient", () => {
       "11111111-1111-1111-1111-111111111111",
     );
     expect(screen.getByTestId("infra-drift-snapshot-identifiers")).toBeInTheDocument();
+    expect(screen.getByText("Snapshot id")).toBeInTheDocument();
+    expect(screen.getByText("11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-scope-freshness")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-subscription")).toBeInTheDocument();
   });
 
-  it("collapses advanced-operations guidance behind a summary", async () => {
+  it("renders contextual help trigger with the page title beside the help icon", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DriftWorkbenchClient />);
+
+    expect(await screen.findByTestId("page-contextual-help-button")).toHaveTextContent("Drift & snapshots");
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveAccessibleName("Help: Drift & snapshots");
+  });
+
+  it("renders drift guidance under the page headline without advanced-operations chrome", async () => {
     evalChrome.enabled = false;
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DriftWorkbenchClient />);
 
-    expect(await screen.findByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
-    expect(screen.getByText("How drift compare works")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-drift-page-lead")).toHaveTextContent(
+      "Compare inventory snapshots and classify drift.",
+    );
+    expect(screen.getByTestId("infra-drift-page-lead")).toHaveTextContent(
+      "Pick current and baseline snapshots before exporting advisory Terraform.",
+    );
+    expect(screen.getByTestId("infra-drift-page-secondary-lead")).toBeInTheDocument();
+    expect(screen.queryByTestId("layer-header-collapsible-guidance")).not.toBeInTheDocument();
+    expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
   });
 
   it("prompts before selecting a snapshot from a different subscription", async () => {
@@ -695,13 +847,56 @@ describe("DriftWorkbenchClient", () => {
     render(<DriftWorkbenchClient />);
 
     await waitFor(() => {
-      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, {
+      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 50, {
         cloudResourceId: null,
         includeUnchanged: true,
       });
     });
 
     expect(screen.getByTestId("infra-drift-include-unchanged")).toBeChecked();
+  });
+
+  it("pages inventory rows instead of loading more, using the URL page size", async () => {
+    mockFetchSnapshotInventoryRows.mockResolvedValue({
+      items: [
+        {
+          changeId: "inventory-row-1",
+          diffId: "",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+          changeType: "Unknown",
+          property: null,
+          oldValue: null,
+          newValue: "Microsoft.Network/publicIPAddresses",
+          riskClassification: null,
+          evidenceReference: "snapshot-inventory",
+        },
+      ],
+      totalCount: 621,
+      page: 2,
+      pageSize: 20,
+      hasMore: true,
+    });
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&changesPage=2&changesPageSize=20",
+    );
+    render(<DriftWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(mockFetchSnapshotInventoryRows).toHaveBeenCalledWith(
+        "11111111-1111-1111-1111-111111111111",
+        2,
+        20,
+        { cloudResourceId: null },
+      );
+    });
+
+    expect(await screen.findByTestId("infra-drift-changes-pagination")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-changes-showing-line")).toHaveTextContent("Showing 21–40 of 621");
+    expect(screen.getByTestId("infra-drift-changes-page-select")).toHaveValue("2");
+    expect(screen.getByTestId("infra-drift-changes-page-size")).toHaveValue("20");
+    expect(screen.queryByTestId("infra-drift-load-more-changes")).not.toBeInTheDocument();
   });
 
   it("shows an inline error instead of a toast when Terraform export fails", async () => {

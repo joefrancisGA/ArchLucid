@@ -95,6 +95,31 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
     }
 
     [Fact]
+    public void Build_emits_private_endpoint_to_nic_association()
+    {
+        HostedAzureArmResourceRecord privateEndpoint = new(
+            ResourceType: "Microsoft.Network/privateEndpoints",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1",
+            Name: "pe1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["networkInterfaces[0]"] =
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/pe-nic",
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([privateEndpoint]);
+
+        Assert.Single(associations);
+        Assert.Equal("peToNic", associations[0].AssociationType);
+        Assert.Contains("privateEndpoints/pe1", associations[0].FromResourceId, StringComparison.Ordinal);
+        Assert.Contains("networkInterfaces/pe-nic", associations[0].ToResourceId, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Build_emits_private_dns_vnet_link_association()
     {
         HostedAzureArmResourceRecord link = new(

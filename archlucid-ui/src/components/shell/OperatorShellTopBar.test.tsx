@@ -125,13 +125,13 @@ vi.mock("@/hooks/use-working-career-door-gate", () => ({
     isCareerExecuteBlocked: false,
     blockReason: null,
     blockedDetail: null,
-    platformSettingsHref: "/administration/connection-status",
+    platformSettingsHref: "/administration/model-governance",
   }),
   useEvaluateWorkingCareerDoorGate: () => () => ({
     isCareerExecuteBlocked: false,
     blockReason: null,
     blockedDetail: null,
-    platformSettingsHref: "/administration/connection-status",
+    platformSettingsHref: "/administration/model-governance",
   }),
 }));
 

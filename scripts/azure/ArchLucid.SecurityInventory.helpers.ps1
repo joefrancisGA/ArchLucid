@@ -104,6 +104,13 @@ function Add-ArchLucidSecurityInventoryResourceProperties
             {
                 $Properties["networkSecurityGroup.id"] = $nsgId
             }
+
+            [string]$privateEndpointId = "$( $AzResource.Properties.privateEndpoint.id )".Trim()
+
+            if (-not ([string]::IsNullOrWhiteSpace($privateEndpointId)))
+            {
+                $Properties["privateEndpoint.id"] = $privateEndpointId
+            }
         }
         catch
         {
@@ -196,6 +203,29 @@ function Add-ArchLucidSecurityInventoryResourceProperties
             if (-not ([string]::IsNullOrWhiteSpace($subnetId)))
             {
                 $Properties["subnet.id"] = $subnetId
+            }
+
+            [int]$nicIndex = 0
+
+            foreach ($networkInterface in @($AzResource.Properties.networkInterfaces))
+            {
+                [string]$nicId = "$( $networkInterface.id )".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($nicId)))
+                {
+                    $Properties["networkInterfaces[$nicIndex]"] = $nicId
+                    $nicIndex++
+                }
+            }
+
+            if ($nicIndex -gt 0)
+            {
+                $Properties["networkInterfaces"] = (
+                    @($Properties.Keys |
+                        Where-Object { $_ -like 'networkInterfaces[*]' } |
+                        Sort-Object |
+                        ForEach-Object { $Properties[$_] }) -join '|'
+                )
             }
         }
         catch
@@ -535,9 +565,199 @@ function Test-ArchLucidAzureInventoryNeverShowResourceType
         return $false
     }
 
-    if ($ResourceType -like '*virtualNetworkLinks*')
+    $catalogTypes = @(
+        'Microsoft.Portal/dashboards'
+        'Microsoft.OperationalInsights/workspaces'
+        'Microsoft.OperationsManagement/solutions'
+        'Microsoft.Network/dnszones'
+        'Microsoft.Network/privateDnsZones'
+        'Microsoft.Network/dnsResolvers'
+        'Microsoft.Compute/virtualMachines/extensions'
+        'Microsoft.Compute/virtualMachineScaleSets/extensions'
+        'Microsoft.Compute/sshPublicKeys'
+        'Microsoft.HybridCompute/machines/extensions'
+        'Microsoft.Maintenance/maintenanceConfigurations'
+        'Microsoft.Maintenance/configurationAssignments'
+        'Microsoft.Network/privateDnsZones/virtualNetworkLinks'
+        'Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks'
+    )
+
+    foreach ($catalogType in $catalogTypes)
+    {
+        if ($ResourceType.Equals($catalogType, [StringComparison]::OrdinalIgnoreCase))
+        {
+            return $true
+        }
+    }
+
+    [string[]]$segments = @($ResourceType -split '/' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+
+    if ($segments.Count -eq 0)
+    {
+        return $false
+    }
+
+    [string]$lastSegment = $segments[$segments.Count - 1]
+
+    $lastSegments = @(
+        'dashboards'
+        'workspaces'
+        'solutions'
+        'extensions'
+        'sshpublickeys'
+        'dnssettings'
+        'dnszones'
+        'privatednszones'
+        'dnsresolvers'
+        'virtualnetworklinks'
+        'maintenanceconfigurations'
+        'configurationassignments'
+    )
+
+    foreach ($segment in $lastSegments)
+    {
+        if ($lastSegment.Equals($segment, [StringComparison]::OrdinalIgnoreCase))
+        {
+            return $true
+        }
+    }
+
+    # ARM ids are .../{type}/{name}; Type uses the segment immediately before the name.
+    if ($segments.Count -ge 2)
+    {
+        [string]$lastTypeSegment = $segments[$segments.Count - 2]
+
+        foreach ($segment in $lastSegments)
+        {
+            if ($lastTypeSegment.Equals($segment, [StringComparison]::OrdinalIgnoreCase))
+            {
+                return $true
+            }
+        }
+    }
+
+    return $false
+}
+
+function Get-ArchLucidAzurePrivateLinkOnlyNicArmIds
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources,
+
+        [object[]] $NetworkAssociations = @()
+    )
+
+    $vmAttachedNicArmIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $privateEndpointNicArmIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
+        if ([string]::IsNullOrWhiteSpace($resourceType)) { continue }
+
+        if ($resourceType -like "*networkInterfaces*")
+        {
+            foreach ($property in @(Get-ArchLucidInventoryPropertyEntries $resource.properties))
+            {
+                if (-not ($property.Name -like '*privateEndpoint*')) { continue }
+                if ([string]::IsNullOrWhiteSpace("$( $property.Value )".Trim())) { continue }
+
+                [void]$privateEndpointNicArmIds.Add($resourceId)
+            }
+        }
+
+        if ($resourceType -like "*virtualMachines*")
+        {
+            foreach ($property in @(Get-ArchLucidInventoryPropertyEntries $resource.properties))
+            {
+                if (-not ($property.Name -like 'networkProfile.networkInterfaces[*]')) { continue }
+
+                [string]$nicId = "$( $property.Value )".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($nicId)))
+                {
+                    [void]$vmAttachedNicArmIds.Add($nicId)
+                }
+            }
+        }
+
+        if ($resourceType -like "*privateEndpoints*")
+        {
+            foreach ($property in @(Get-ArchLucidInventoryPropertyEntries $resource.properties))
+            {
+                if (-not ($property.Name -like 'networkInterfaces*')) { continue }
+
+                [string]$nicId = "$( $property.Value )".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($nicId)))
+                {
+                    [void]$privateEndpointNicArmIds.Add($nicId)
+                }
+            }
+        }
+    }
+
+    foreach ($association in @($NetworkAssociations))
+    {
+        if ($null -eq $association) { continue }
+
+        [string]$associationType = "$( $association.associationType )".Trim()
+        [string]$toResourceId = "$( $association.toResourceId )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($toResourceId)) { continue }
+
+        if ($associationType -eq 'vmToNic')
+        {
+            [void]$vmAttachedNicArmIds.Add($toResourceId)
+            continue
+        }
+
+        if ($associationType -eq 'peToNic')
+        {
+            [void]$privateEndpointNicArmIds.Add($toResourceId)
+        }
+    }
+
+    foreach ($vmNicArmId in @($vmAttachedNicArmIds))
+    {
+        [void]$privateEndpointNicArmIds.Remove($vmNicArmId)
+    }
+
+    return @($privateEndpointNicArmIds)
+}
+
+function Test-ArchLucidAzureInventoryNeverShowResource
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object] $Resource,
+
+        [string[]] $PrivateLinkOnlyNicArmIds = @()
+    )
+
+    [string]$resourceType = "$( $Resource.resourceType )".Trim()
+    [string]$resourceId = "$( $Resource.resourceId )".Trim()
+
+    if (Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType $resourceType)
     {
         return $true
+    }
+
+    if ($resourceType -like "*networkInterfaces*" -and -not ([string]::IsNullOrWhiteSpace($resourceId)))
+    {
+        foreach ($omittedNicArmId in @($PrivateLinkOnlyNicArmIds))
+        {
+            if ($resourceId.Equals($omittedNicArmId, [StringComparison]::OrdinalIgnoreCase))
+            {
+                return $true
+            }
+        }
     }
 
     return $false
@@ -685,6 +905,23 @@ function Get-ArchLucidAzureNetworkAssociationCompanionRows
                     -FromResourceId $resourceId `
                     -ToResourceId $subnetId `
                     -AssociationType "peToSubnet"
+            }
+
+            foreach ($property in @(Get-ArchLucidInventoryPropertyEntries $resource.properties))
+            {
+                if (-not ($property.Name -like 'networkInterfaces*')) { continue }
+
+                [string]$nicId = "$( $property.Value )".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($nicId)))
+                {
+                    Add-ArchLucidNetworkAssociationRow `
+                        -Rows $rows `
+                        -Seen $seen `
+                        -FromResourceId $resourceId `
+                        -ToResourceId $nicId `
+                        -AssociationType "peToNic"
+                }
             }
         }
 
