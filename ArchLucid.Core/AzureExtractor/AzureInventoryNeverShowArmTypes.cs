@@ -14,6 +14,8 @@ public static class AzureInventoryNeverShowArmTypes
         "Microsoft.Portal/dashboards",
         "Microsoft.OperationalInsights/workspaces",
         "Microsoft.Insights/activityLogAlerts",
+        "Microsoft.Insights/metricAlerts",
+        "Microsoft.Insights/workbooks",
         "Microsoft.Insights/scheduledQueryRules",
         // Application Insights Failure Anomalies (FailureAnomaliesDetector) and other smart detectors.
         "Microsoft.AlertsManagement/smartDetectorAlertRules",
@@ -43,6 +45,8 @@ public static class AzureInventoryNeverShowArmTypes
         "dashboards",
         "workspaces",
         "activitylogalerts",
+        "metricalerts",
+        "workbooks",
         "scheduledqueryrules",
         "smartdetectoralertrules",
         "solutions",

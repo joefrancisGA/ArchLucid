@@ -16,6 +16,8 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             'Microsoft.Portal/dashboards'
             'Microsoft.OperationalInsights/workspaces'
             'Microsoft.Insights/activityLogAlerts'
+            'Microsoft.Insights/metricAlerts'
+            'Microsoft.Insights/workbooks'
             'Microsoft.Insights/scheduledQueryRules'
             'Microsoft.AlertsManagement/smartDetectorAlertRules'
             'Microsoft.OperationsManagement/solutions'
