@@ -107,6 +107,18 @@ public sealed class AzureInventorySnapshotMaterializeWriteRequest
         init;
     }
 
+    public string? SubscriptionId
+    {
+        get;
+        init;
+    }
+
+    public string? SubscriptionName
+    {
+        get;
+        init;
+    }
+
     public IReadOnlyList<AzureInventoryResourceRecord> Resources
     {
         get;
