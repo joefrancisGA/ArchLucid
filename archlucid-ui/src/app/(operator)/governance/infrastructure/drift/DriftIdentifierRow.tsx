@@ -8,14 +8,14 @@ export function DriftIdentifierRow(props: {
   readonly copyAriaLabel: string;
 }): React.JSX.Element {
   return (
-    <div className="flex items-start gap-2">
-      <div className="min-w-0 flex-1">
-        <div className="font-medium">{props.label}</div>
+    <div className="grid gap-1">
+      <div className="font-medium">{props.label}</div>
+      <div className="flex items-start gap-2">
         <p className={cn("m-0 break-all font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {props.value}
         </p>
+        <CopyIdButton value={props.value} aria-label={props.copyAriaLabel} />
       </div>
-      <CopyIdButton value={props.value} aria-label={props.copyAriaLabel} />
     </div>
   );
 }

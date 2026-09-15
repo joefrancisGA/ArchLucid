@@ -6,7 +6,21 @@ public static class DiagramAstFromGraphCompilerConstants
     /// <summary>Inferred/heuristic edges below this weight are dropped to avoid fully-connected noise.</summary>
     public const double MinimumEdgeWeight = 0.75d;
 
+    /// <summary>Cap on VNet / subscription / RG summary nodes in Executive mode.</summary>
     public const int ExecutiveMaxResourceNodes = 12;
+
+    /// <summary>
+    /// Per-tier cap on always-show resources (VMs, databases, storage, data factories) in Executive mode.
+    /// Overflow collapses into one <c>+N more …</c> node per tier so a 500-resource tenant still fits one page.
+    /// </summary>
+    public const int ExecutiveAlwaysShowTierMaxNodes = 16;
+
+    /// <summary>
+    /// Upper bound on Executive node count: summary nodes plus every tier at budget plus one rollup node each.
+    /// Used by render coercion so a dense-but-valid Executive diagram is not reported as partitioned.
+    /// </summary>
+    public static int ExecutiveMaxTotalNodes =>
+        ExecutiveMaxResourceNodes + (ExecutiveAlwaysShowTiers.All.Count * (ExecutiveAlwaysShowTierMaxNodes + 1));
 
     public const int DependencyNeighborhoodDefaultDepth = 2;
 

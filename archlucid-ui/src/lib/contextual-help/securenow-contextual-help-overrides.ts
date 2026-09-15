@@ -1,7 +1,10 @@
 import type { PageContextualHelpEntry } from "@/lib/contextual-help/types";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH, GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import { SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
-import { GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { CLOUD_CONNECTIONS_CANONICAL_PATH } from "@/lib/cloud-connections-evidence-copy";
 import { CLOUD_CONNECTIONS_HELP_PATH } from "@/lib/cloud-connections-help-guide-content";
 import { ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH } from "@/lib/enterprise-onboarding-help-evidence-copy";
@@ -312,7 +315,7 @@ const SECURENOW_EXTRACT_UPLOAD: PageContextualHelpEntry = {
     "Uploading packages needs workspace Admin or Execute authority; Azure connectors are optional for ZIP-only intake.",
   whatToDoNextAction: {
     label: "Open resource explorer",
-    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    href: SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
   },
   whereToConfigureAction: {
     label: "Open policy packs",

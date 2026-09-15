@@ -71,8 +71,10 @@ public sealed class AzureInventoryDiffService(
                 return await PersistEmptyDiffAsync(scope, snapshotAId, snapshotBId, snapshotA.Header.SubscriptionId, cancellationToken);
             }
 
-            List<AzureInventoryChangeRecord> changes =
-                AzureInventoryDiffComparer.Compare(snapshotA, snapshotB, snapshotAId, snapshotBId);
+            List<AzureInventoryChangeRecord> changes = AzureInventoryChangeAttributionResolver.Enrich(
+                AzureInventoryDiffComparer.Compare(snapshotA, snapshotB, snapshotAId, snapshotBId),
+                snapshotA,
+                snapshotB);
 
             Guid diffId = Guid.NewGuid();
             AzureInventoryDiffSummaryRecord summary = BuildSummary(diffId, changes, snapshotAId, snapshotBId, snapshotA.Header.SubscriptionId);

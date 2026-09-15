@@ -17,17 +17,14 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
+        snapshot = AzureInventoryVisibleSnapshotProjection.Apply(snapshot);
+
         Dictionary<string, string> nodeIdByArmId = new(StringComparer.OrdinalIgnoreCase);
         List<GraphNode> nodes = [];
 
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources
                      .OrderBy(candidate => candidate.AzureResourceId, StringComparer.Ordinal))
         {
-            if (AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(resource.ResourceType))
-            {
-                continue;
-            }
-
             string nodeId = ResolveNodeId(resource);
             nodeIdByArmId[resource.AzureResourceId] = nodeId;
 

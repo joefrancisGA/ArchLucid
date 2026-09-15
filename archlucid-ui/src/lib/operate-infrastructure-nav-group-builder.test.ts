@@ -12,12 +12,12 @@ describe("OperateInfrastructureNavGroupBuilder", () => {
     expect(group.label).toBe("Infrastructure");
     expect(group.links.map((link) => link.href)).toEqual([
       "/governance/infrastructure",
+      "/governance/infrastructure/resources",
       "/governance/infrastructure/extract-upload",
       "/governance/infrastructure/drift",
       "/governance/infrastructure/terraform",
       "/governance/infrastructure/diagrams",
       "/governance/infrastructure/diagram-reconcile",
-      "/governance/infrastructure/resources",
       "/governance/infrastructure/ask",
       "/governance/infrastructure/remediation",
     ]);

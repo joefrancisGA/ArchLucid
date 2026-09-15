@@ -29,7 +29,8 @@ internal static class InventoryDiagramPeelBudgetApplier
         IDiagramRenderer diagramRenderer,
         IMermaidDiagramComplexityAnalyzer complexityAnalyzer,
         IMermaidDiagramDeterministicRepairer deterministicRepairer,
-        IMermaidDiagramStructuralValidator structuralValidator)
+        IMermaidDiagramStructuralValidator structuralValidator,
+        bool includeNeverShowArmTypes = false)
     {
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(thresholds);
@@ -40,15 +41,21 @@ internal static class InventoryDiagramPeelBudgetApplier
         ArgumentNullException.ThrowIfNull(deterministicRepairer);
         ArgumentNullException.ThrowIfNull(structuralValidator);
 
-        IReadOnlySet<string> alwaysDisposeTypes = DiagramPeelAlwaysDisposeResolver.Resolve(catalog, graph);
-        GraphSnapshot workingGraph = InventoryDiagramGraphPeelFilter.Filter(graph, alwaysDisposeTypes);
-        List<string> alwaysDisposedArmTypes = graph.Nodes
-            .Where(DiagramAstGraphNodeClassifier.IsTopologyResource)
-            .Select(DiagramAstGraphNodeClassifier.ReadArmType)
-            .Where(armType => alwaysDisposeTypes.Contains(armType))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(armType => armType, StringComparer.Ordinal)
-            .ToList();
+        IReadOnlySet<string> alwaysDisposeTypes = includeNeverShowArmTypes
+            ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            : DiagramPeelAlwaysDisposeResolver.Resolve(catalog, graph);
+        GraphSnapshot workingGraph = includeNeverShowArmTypes
+            ? graph
+            : InventoryDiagramGraphPeelFilter.Filter(graph, alwaysDisposeTypes);
+        List<string> alwaysDisposedArmTypes = includeNeverShowArmTypes
+            ? []
+            : graph.Nodes
+                .Where(DiagramAstGraphNodeClassifier.IsTopologyResource)
+                .Select(DiagramAstGraphNodeClassifier.ReadArmType)
+                .Where(armType => alwaysDisposeTypes.Contains(armType))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(armType => armType, StringComparer.Ordinal)
+                .ToList();
 
         PeelCompileResult initial = CompileOnce(
             workingGraph,
@@ -198,6 +205,7 @@ internal static class InventoryDiagramPeelBudgetApplier
             SelectedNodeIds = compileOptions?.SelectedNodeIds,
             NeighborhoodSeedNodeId = compileOptions?.NeighborhoodSeedNodeId,
             NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
+            HiddenExecutiveTierKeys = compileOptions?.HiddenExecutiveTierKeys,
             CollapseToResourceGroupMap = true,
         };
     }
@@ -210,6 +218,7 @@ internal static class InventoryDiagramPeelBudgetApplier
             SelectedNodeIds = compileOptions?.SelectedNodeIds,
             NeighborhoodSeedNodeId = compileOptions?.NeighborhoodSeedNodeId,
             NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
+            HiddenExecutiveTierKeys = compileOptions?.HiddenExecutiveTierKeys,
             CollapseToBackboneKeep = true,
         };
     }

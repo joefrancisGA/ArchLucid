@@ -7,6 +7,8 @@ namespace ArchLucid.KnowledgeGraph.Inventory;
 public static class AzureInventoryTopologyCategory
 {
     private const string MicrosoftNetworkProviderPrefix = "Microsoft.Network/";
+    private const string DataFactoryProviderPrefix = "Microsoft.DataFactory/";
+    private const string SynapseProviderPrefix = "Microsoft.Synapse/";
 
     public static string Resolve(string? resourceType)
     {
@@ -34,7 +36,8 @@ public static class AzureInventoryTopologyCategory
 
         if (resourceType.Contains("/sql", StringComparison.OrdinalIgnoreCase)
             || resourceType.Contains("/documentdb", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("/dbfor", StringComparison.OrdinalIgnoreCase))
+            || resourceType.Contains("/dbfor", StringComparison.OrdinalIgnoreCase)
+            || IsDataIntegrationArmType(resourceType))
         {
             return GraphTopologyCategories.Data;
         }
@@ -51,6 +54,21 @@ public static class AzureInventoryTopologyCategory
     public static bool IsMicrosoftNetworkProviderType(string resourceType)
     {
         return resourceType.Contains(MicrosoftNetworkProviderPrefix, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    ///     Data Factory and Synapse move data between stores, so they belong on the Data diagram
+    ///     with the databases they feed rather than defaulting to the compute bucket.
+    /// </summary>
+    public static bool IsDataIntegrationArmType(string? resourceType)
+    {
+        if (string.IsNullOrWhiteSpace(resourceType))
+        {
+            return false;
+        }
+
+        return resourceType.StartsWith(DataFactoryProviderPrefix, StringComparison.OrdinalIgnoreCase)
+            || resourceType.StartsWith(SynapseProviderPrefix, StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsSubnetArmType(string armType)
@@ -71,7 +89,8 @@ public static class AzureInventoryTopologyCategory
             return false;
         }
 
-        return armType.Contains("/virtualNetworks", StringComparison.OrdinalIgnoreCase)
-            && !IsSubnetArmType(armType);
+        // Child types (subnets, peerings) also contain "/virtualNetworks"; Executive mode
+        // must keep only the VNet itself so peering objects do not render as extra VNets.
+        return armType.EndsWith("/virtualNetworks", StringComparison.OrdinalIgnoreCase);
     }
 }

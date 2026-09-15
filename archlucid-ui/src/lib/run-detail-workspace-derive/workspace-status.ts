@@ -20,6 +20,7 @@ import {
   resolveExecutionFailedWorkspaceStatusLabel,
   resolveQualityRejectedWorkspaceStatusLabel,
 } from "@/lib/execution-vs-quality-outcome-copy";
+import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import { resolveHonestyWorkingCareerRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door-stamp";
 import {
   resolveWorkingPipelineCompleteReviewLabel,
@@ -36,6 +37,17 @@ import type {
   DeriveRunDetailWorkspaceStatusInput,
   RunDetailWorkspaceStatus
 } from "./types";
+
+function liveWorkingCareerRehearsalDoor(
+  value: string | null | undefined,
+): WorkingCareerRehearsalDoorId | null {
+  if (value === "career" || value === "rehearsal") {
+    return value;
+  }
+
+  return null;
+}
+
 function resolveReviewCompleteWorkspaceStatus(
   input: DeriveRunDetailWorkspaceStatusInput,
   suffix: string | null,
@@ -46,7 +58,7 @@ function resolveReviewCompleteWorkspaceStatus(
     structuralExecutionMode: run.structuralExecutionMode,
     effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
       stampedDoor: run.workingCareerRehearsalDoor,
-      liveDoor: input.effectiveWorkingCareerRehearsalDoor,
+      liveDoor: liveWorkingCareerRehearsalDoor(input.effectiveWorkingCareerRehearsalDoor),
     }),
   });
   const honestyKind = resolveWorkingPipelineCompleteStatusTagKind({
@@ -54,7 +66,7 @@ function resolveReviewCompleteWorkspaceStatus(
     structuralExecutionMode: run.structuralExecutionMode,
     effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
       stampedDoor: run.workingCareerRehearsalDoor,
-      liveDoor: input.effectiveWorkingCareerRehearsalDoor,
+      liveDoor: liveWorkingCareerRehearsalDoor(input.effectiveWorkingCareerRehearsalDoor),
     }),
   });
   const baseLabel = honestyLabel ?? "Review complete";

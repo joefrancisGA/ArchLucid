@@ -20,9 +20,23 @@ public sealed class AzureInventoryTopologyCategoryTests
     [InlineData("Microsoft.Network/networkSecurityGroups", GraphTopologyCategories.Network)]
     [InlineData("Microsoft.Compute/virtualMachines", GraphTopologyCategories.Compute)]
     [InlineData("Microsoft.Storage/storageAccounts", GraphTopologyCategories.Storage)]
+    [InlineData("Microsoft.DataFactory/factories", GraphTopologyCategories.Data)]
+    [InlineData("Microsoft.Synapse/workspaces", GraphTopologyCategories.Data)]
     public void Resolve_maps_arm_types_to_topology_categories(string resourceType, string expectedCategory)
     {
         AzureInventoryTopologyCategory.Resolve(resourceType).Should().Be(expectedCategory);
+    }
+
+    [Theory]
+    [InlineData("Microsoft.DataFactory/factories", true)]
+    [InlineData("microsoft.datafactory/factories/pipelines", true)]
+    [InlineData("Microsoft.Synapse/workspaces", true)]
+    [InlineData("Microsoft.Sql/servers", false)]
+    [InlineData(null, false)]
+    [InlineData("", false)]
+    public void IsDataIntegrationArmType_detects_data_factory_and_synapse(string? armType, bool expected)
+    {
+        AzureInventoryTopologyCategory.IsDataIntegrationArmType(armType).Should().Be(expected);
     }
 
     [Fact]
@@ -45,6 +59,7 @@ public sealed class AzureInventoryTopologyCategoryTests
     [Theory]
     [InlineData("Microsoft.Network/virtualNetworks", true)]
     [InlineData("Microsoft.Network/virtualNetworks/subnets", false)]
+    [InlineData("Microsoft.Network/virtualNetworks/virtualNetworkPeerings", false)]
     public void IsVirtualNetworkArmType_detects_vnet_resource_types(string armType, bool expected)
     {
         AzureInventoryTopologyCategory.IsVirtualNetworkArmType(armType).Should().Be(expected);

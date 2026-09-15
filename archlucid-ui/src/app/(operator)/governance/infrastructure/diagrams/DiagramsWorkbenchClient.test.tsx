@@ -7,6 +7,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE,
@@ -201,6 +202,7 @@ describe("DiagramsWorkbenchClient", () => {
     const icon = await screen.findByTestId("page-heading-icon");
     const title = screen.getByTestId("infra-diagrams-page-title");
 
+    expect(title).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE);
     expect(icon.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -212,6 +214,7 @@ describe("DiagramsWorkbenchClient", () => {
     const icon = await screen.findByTestId("page-heading-icon");
     const title = screen.getByTestId("infra-diagrams-page-title");
 
+    expect(title).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE);
     expect(icon.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -248,7 +251,7 @@ describe("DiagramsWorkbenchClient", () => {
   });
 
   it("renders snapshot picker and partitioned fallback cards", async () => {
-    searchParams = new URLSearchParams();
+    searchParams = new URLSearchParams("mermaidMode=full");
     render(<DiagramsWorkbenchClient />);
 
     expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD)).toBeInTheDocument();
@@ -269,6 +272,21 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-snapshot-id-readout")).toHaveTextContent(
       "11111111-1111-1111-1111-111111111111",
     );
+    expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-density-coach")).not.toBeInTheDocument();
+    expect(screen.queryByText(/This view is too large to read/i)).not.toBeInTheDocument();
+  });
+
+  it("does not show too-large chrome in executive mode", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive");
+    render(<DiagramsWorkbenchClient />);
+
+    await screen.findByTestId("infra-diagrams-snapshot-picker");
+
+    expect(screen.queryByTestId("infra-diagrams-fallback-cards")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-density-coach")).not.toBeInTheDocument();
+    expect(screen.queryByText(/too large for a single diagram/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/This view is too large to read/i)).not.toBeInTheDocument();
   });
 
   it("shows render status strip only when render fails", async () => {
@@ -998,5 +1016,139 @@ describe("DiagramsWorkbenchClient", () => {
       GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION,
     );
     expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+  });
+
+  it("keeps singleton components in the walkthrough and outline by default", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: [
+        "flowchart TD",
+        '    n_a["vnet-a"]',
+        '    n_b["vnet-b"]',
+        '    n_c["vnet-c"]',
+        "    n_a --> n_b",
+      ].join("\n"),
+      metrics: {
+        nodeCount: 3,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 180,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+      collapseReport: {
+        entries: [
+          {
+            kind: "AlwaysDisposeArmType",
+            cloudResourceId: null,
+            nodeId: null,
+            reason: "Always dispose — never shown on inventory diagrams: Microsoft.Network/dnszones",
+          },
+        ],
+      },
+    }));
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive");
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-walkthrough")).toHaveTextContent("2 connected components");
+    expect(screen.getByTestId("infra-diagrams-include-never-show")).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByTestId("infra-diagrams-always-excluded-panel")).toHaveTextContent("dnszones");
+    expect(screen.getByText("vnet-c")).toBeInTheDocument();
+  });
+
+  it("shows always-excluded disclosure when the toggle is off and recompiles when on", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: [
+        "flowchart TD",
+        '    n_a["vnet-a"]',
+        '    n_b["vnet-b"]',
+        '    n_c["vnet-c"]',
+        "    n_a --> n_b",
+      ].join("\n"),
+      metrics: {
+        nodeCount: 3,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 180,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+      collapseReport: query.includeNeverShow
+        ? null
+        : {
+            entries: [
+              {
+                kind: "AlwaysDisposeArmType",
+                cloudResourceId: null,
+                nodeId: null,
+                reason: "Always dispose — never shown on inventory diagrams: Microsoft.Network/dnszones",
+              },
+            ],
+          },
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive&includeNeverShow=1",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    await screen.findByTestId("infra-diagrams-walkthrough");
+    expect(screen.getByTestId("infra-diagrams-include-never-show")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.queryByTestId("infra-diagrams-always-excluded-panel")).not.toBeInTheDocument();
+    expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+      "11111111-1111-1111-1111-111111111111",
+      expect.objectContaining({ includeNeverShow: true }),
+    );
+  });
+
+  it("shows Executive always-show tier checkboxes and passes hidden tiers to the render API", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: 'flowchart TD\n    n_a["vnet-a"]',
+      metrics: {
+        nodeCount: 1,
+        edgeCount: 0,
+        subgraphCount: 0,
+        maxDegree: 0,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 80,
+        layoutEstimate: 40,
+      },
+      fallbackArtifacts: [],
+      collapseReport: null,
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive&hideTiers=storage",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    const storageTier = await screen.findByTestId("infra-diagrams-executive-tier-storage");
+    expect(storageTier).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-executive-tier-workloads")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-executive-tier-databases")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-executive-tier-integration")).toBeInTheDocument();
+    expect(storageTier.querySelector('input[type="checkbox"]')).not.toBeChecked();
+    expect(screen.getByTestId("infra-diagrams-executive-tier-workloads").querySelector('input[type="checkbox"]')).toBeChecked();
+
+    expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+      "11111111-1111-1111-1111-111111111111",
+      expect.objectContaining({ hiddenExecutiveTierKeys: ["storage"] }),
+    );
   });
 });
