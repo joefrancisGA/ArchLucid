@@ -16,9 +16,11 @@ import {
   GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+  SECURENOW_REMEDIATION_INSTANCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } from "@/lib/governance/governance-approval-help-evidence-copy";
@@ -84,6 +86,10 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
     topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile },
   },
   {
+    prefix: SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureResources },
+  },
+  {
     prefix: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
     topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureResources },
   },
@@ -93,6 +99,10 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureRemediation },
+  },
+  {
+    prefix: SECURENOW_REMEDIATION_INSTANCES_PATH,
     topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureRemediation },
   },
   {

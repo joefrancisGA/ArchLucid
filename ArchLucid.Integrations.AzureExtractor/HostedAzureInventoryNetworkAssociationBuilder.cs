@@ -24,6 +24,7 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
             AddPublicIpAssociation(resource, rows, keys);
             AddPrivateEndpointAssociations(resource, rows, keys);
             AddVirtualNetworkAssociations(resource, rows, keys);
+            AddVirtualNetworkPeeringChildAssociations(resource, rows, keys);
             AddApplicationGatewayAssociations(resource, rows, keys);
             AddLoadBalancerAssociations(resource, rows, keys);
             AddPrivateDnsLinkAssociations(resource, rows, keys);
@@ -152,12 +153,21 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
         List<HostedAzureArmNetworkAssociationRecord> rows,
         HashSet<string> keys)
     {
-        if (!resource.ResourceType.Contains("virtualNetworks", StringComparison.OrdinalIgnoreCase)
+        if (!AzureInventoryVnetPeeringParser.IsVirtualNetworkResourceType(resource.ResourceType)
             || resource.ResourceType.Contains("virtualNetworkLinks", StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
 
+        AddVirtualNetworkSubnetAssociations(resource, rows, keys);
+        AddVirtualNetworkNestedPeeringAssociations(resource, rows, keys);
+    }
+
+    private static void AddVirtualNetworkSubnetAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
         string? subnetsJson = TryReadProperty(resource.Properties, "subnets");
 
         if (string.IsNullOrWhiteSpace(subnetsJson))
@@ -205,45 +215,70 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
         }
         catch (JsonException)
         {
-            return;
         }
+    }
 
-        string? peeringsJson = TryReadProperty(resource.Properties, "virtualNetworkPeerings");
+    private static void AddVirtualNetworkNestedPeeringAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        string? peeringsJson = TryReadProperty(
+            resource.Properties,
+            AzureInventoryVnetPeeringParser.PeeringsPropertyKey);
 
-        if (string.IsNullOrWhiteSpace(peeringsJson))
+        foreach (string remoteVnetId in AzureInventoryVnetPeeringParser.EnumerateRemoteVnetIds(peeringsJson))
+        {
+            AddRow(
+                rows,
+                keys,
+                resource.ResourceId,
+                remoteVnetId,
+                AzureInventoryRelationshipAssociationTypes.VnetPeering);
+        }
+    }
+
+    private static void AddVirtualNetworkPeeringChildAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        if (!AzureInventoryVnetPeeringParser.IsPeeringResourceType(resource.ResourceType)
+            && !AzureInventoryVnetPeeringParser.IsPeeringResourceId(resource.ResourceId))
         {
             return;
         }
 
-        try
+        string? localVnetId = AzureInventoryVnetPeeringParser.TryGetParentVirtualNetworkArmId(resource.ResourceId);
+
+        if (string.IsNullOrWhiteSpace(localVnetId))
         {
-            using JsonDocument document = JsonDocument.Parse(peeringsJson);
+            return;
+        }
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+        Dictionary<string, string?> propertyValues = new(StringComparer.OrdinalIgnoreCase);
+
+        if (resource.Properties is not null)
+        {
+            foreach (KeyValuePair<string, object?> property in resource.Properties)
             {
-                return;
-            }
-
-            foreach (JsonElement peering in document.RootElement.EnumerateArray())
-            {
-                string? remoteVnetId = TryReadPeeringRemoteVnetId(peering);
-
-                if (string.IsNullOrWhiteSpace(remoteVnetId))
-                {
-                    continue;
-                }
-
-                AddRow(
-                    rows,
-                    keys,
-                    resource.ResourceId,
-                    remoteVnetId,
-                    AzureInventoryRelationshipAssociationTypes.VnetPeering);
+                propertyValues[property.Key] = property.Value?.ToString();
             }
         }
-        catch (JsonException)
+
+        string? remoteVnetId = AzureInventoryVnetPeeringParser.TryReadRemoteVnetIdFromProperties(propertyValues);
+
+        if (string.IsNullOrWhiteSpace(remoteVnetId))
         {
+            return;
         }
+
+        AddRow(
+            rows,
+            keys,
+            localVnetId,
+            remoteVnetId,
+            AzureInventoryRelationshipAssociationTypes.VnetPeering);
     }
 
     private static void AddApplicationGatewayAssociations(
@@ -518,21 +553,6 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
         }
 
         return null;
-    }
-
-    private static string? TryReadPeeringRemoteVnetId(JsonElement peering)
-    {
-        if (!peering.TryGetProperty("properties", out JsonElement properties)
-            || properties.ValueKind is not JsonValueKind.Object
-            || !properties.TryGetProperty("remoteVirtualNetwork", out JsonElement remote)
-            || remote.ValueKind is not JsonValueKind.Object
-            || !remote.TryGetProperty("id", out JsonElement idElement)
-            || idElement.ValueKind is not JsonValueKind.String)
-        {
-            return null;
-        }
-
-        return idElement.GetString();
     }
 
     private static void AddRow(

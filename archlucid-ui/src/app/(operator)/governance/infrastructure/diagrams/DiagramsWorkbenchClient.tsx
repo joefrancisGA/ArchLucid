@@ -42,9 +42,12 @@ import {
   INFRA_DIAGRAMS_MERMAID_VIEW_PARAM,
   INFRA_DIAGRAMS_MODE_OPTIONS,
   INFRA_DIAGRAMS_SEED_NODE_ID_PARAM,
+  INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM,
+  INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM,
   INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM,
   infraDiagramsFilterHrefFromSearch,
   parseInfraDiagramsCloudResourceIdFromSearch,
+  parseInfraDiagramsIncludeNeverShowFromSearch,
   parseInfraDiagramsMermaidModeFromSearch,
   parseInfraDiagramsMermaidViewFromSearch,
   parseInfraDiagramsSeedNodeIdFromSearch,
@@ -56,6 +59,7 @@ import {
   INFRA_EVIDENCE_MERMAID_TOO_LARGE_FOR_BROWSER_MESSAGE,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-client-guard";
 import { buildDiagramWalkthrough } from "@/lib/infra-evidence/build-diagram-walkthrough";
+import { resolveAlwaysExcludedMermaidCollapseEntries } from "@/lib/infra-evidence/infra-evidence-mermaid-collapse-report";
 import { resolveDiagramCameraFocusNodeIds } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type {
   InfraEvidenceMermaidFallbackArtifactSummary,
@@ -80,12 +84,14 @@ import {
   resolveDependencyNeighborhoodSeedBlockedReason,
   type DependencyNeighborhoodSeedBlockedReason,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-dependency-seed";
+import { shouldShowInfraDiagramsDensityCoach } from "@/lib/infra-evidence/infra-evidence-diagrams-density-coach";
 import {
   resolveInfraDiagramsDefaultFallbackKey,
   resolveInfraDiagramsEffectiveFallbackKey,
   resolveInfraDiagramsFallbackArtifacts,
   resolveInfraDiagramsResourceGroupFallbackArtifacts,
   resolveInfraDiagramsThematicFallbackArtifacts,
+  isInfraDiagramsExecutiveMode,
   shouldPaintInfraDiagramsCanvas,
   shouldShowInfraDiagramsPartitionedViews,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-partitioned-view";
@@ -111,7 +117,6 @@ import {
 import { buildResourceHubDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
-import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
@@ -149,6 +154,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -224,6 +231,10 @@ export function DiagramsWorkbenchClient() {
   const urlMermaidMode = parseInfraDiagramsMermaidModeFromSearch(searchParams.get(INFRA_DIAGRAMS_MERMAID_MODE_PARAM));
   const urlMermaidView = parseInfraDiagramsMermaidViewFromSearch(searchParams.get(INFRA_DIAGRAMS_MERMAID_VIEW_PARAM));
   const urlSeedNodeId = parseInfraDiagramsSeedNodeIdFromSearch(searchParams.get(INFRA_DIAGRAMS_SEED_NODE_ID_PARAM));
+  const includeNeverShow = parseInfraDiagramsIncludeNeverShowFromSearch(
+    searchParams.get(INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM),
+    searchParams.get(INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM),
+  );
   const diagramsResourceIdOpenParam = searchParams.get(INFRA_DIAGRAMS_RESOURCE_ID_DISCLOSURE_OPEN_PARAM);
   const [diagramsResourceIdOpen, setDiagramsResourceIdOpenState] = useState(() =>
     parseInfraDiagramsResourceIdDisclosureOpenFromSearch(diagramsResourceIdOpenParam),
@@ -342,12 +353,19 @@ export function DiagramsWorkbenchClient() {
       selectedMode !== "dependencyNeighborhood"
       && !isInfraDiagramsResourceGroupMode(selectedMode)
       && shouldShowInfraDiagramsPartitionedViews({
+        selectedMode,
         selectedViewKey,
         previewStatus: activeModePreview?.status ?? "",
         renderStatus: renderResult?.status ?? "",
         fallbackArtifactCount: thematicFallbackArtifacts.length,
       }),
-    [activeModePreview?.status, renderResult?.status, selectedMode, selectedViewKey, thematicFallbackArtifacts.length],
+    [
+      activeModePreview?.status,
+      renderResult?.status,
+      selectedMode,
+      selectedViewKey,
+      thematicFallbackArtifacts.length,
+    ],
   );
 
   const showResourceGroupCards =
@@ -491,7 +509,7 @@ export function DiagramsWorkbenchClient() {
 
     return resolveInfraEvidenceMermaidRenderStatusPresentation({
       status: renderStatus,
-      mermaidEmpty: diagramContentEmpty && renderStatus === "Succeeded",
+      mermaidEmpty: diagramContentEmpty,
     });
   }, [diagramContentEmpty, renderStatus]);
 
@@ -511,27 +529,51 @@ export function DiagramsWorkbenchClient() {
     return buildDiagramWalkthrough(mermaidOutline);
   }, [mermaidOutline]);
 
-  const showDensityCoach = useMemo(() => {
-    const overPeelBudget =
-      metrics != null
-      && metrics.nodeCount >= INFRA_EVIDENCE_MERMAID_CLIENT_READABILITY_THRESHOLDS.maxNodes
-      && selectedMode !== "executive";
+  const alwaysExcludedCollapseEntries = useMemo(() => {
+    if (includeNeverShow) {
+      return [];
+    }
 
-    return (
-      showFallbackCards
-      || tooLargeForBrowser
-      || (diagramContentEmpty && renderResult?.status === "Succeeded")
-      || renderResult?.status === "Failed"
-      || overPeelBudget
-    );
-  }, [
-    diagramContentEmpty,
-    metrics,
-    renderResult?.status,
-    selectedMode,
-    showFallbackCards,
-    tooLargeForBrowser,
-  ]);
+    return resolveAlwaysExcludedMermaidCollapseEntries(renderResult?.collapseReport);
+  }, [includeNeverShow, renderResult?.collapseReport]);
+
+  const handleIncludeNeverShowChange = useCallback(
+    (nextIncludeNeverShow: boolean) => {
+      router.replace(
+        infraDiagramsFilterHrefFromSearch(
+          searchParams.toString(),
+          { includeNeverShow: nextIncludeNeverShow },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const showDensityCoach = useMemo(
+    () =>
+      shouldShowInfraDiagramsDensityCoach({
+        showFallbackCards,
+        tooLargeForBrowser,
+        diagramContentEmpty,
+        renderStatus: renderResult?.status ?? "",
+        paintDiagramCanvas,
+        selectedMode,
+        nodeCount: metrics?.nodeCount ?? null,
+        maxNodes: INFRA_EVIDENCE_MERMAID_CLIENT_READABILITY_THRESHOLDS.maxNodes,
+        isExecutiveMode: isInfraDiagramsExecutiveMode(selectedMode),
+      }),
+    [
+      diagramContentEmpty,
+      metrics?.nodeCount,
+      paintDiagramCanvas,
+      renderResult?.status,
+      selectedMode,
+      showFallbackCards,
+      tooLargeForBrowser,
+    ],
+  );
 
   const cameraFocusNodeIds = useMemo(
     () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, mermaidOutline),
@@ -631,14 +673,17 @@ export function DiagramsWorkbenchClient() {
   const renderQuery = useMemo((): InfraEvidenceMermaidRenderQuery | null => {
     if (isInfraDiagramsResourceGroupMode(selectedMode)) {
       if (selectedResourceGroupName.length === 0) {
-        return { mode: "resourceGroup" };
+        return { mode: "resourceGroup", includeNeverShow };
       }
 
-      return { mode: buildInfraDiagramsResourceGroupModeToken(selectedResourceGroupName) };
+      return {
+        mode: buildInfraDiagramsResourceGroupModeToken(selectedResourceGroupName),
+        includeNeverShow,
+      };
     }
 
     if (effectiveFallbackKey.length > 0) {
-      return { fallbackKey: effectiveFallbackKey };
+      return { fallbackKey: effectiveFallbackKey, includeNeverShow };
     }
 
     if (selectedMode === "dependencyNeighborhood") {
@@ -651,14 +696,16 @@ export function DiagramsWorkbenchClient() {
       return {
         mode: selectedMode,
         seedNodeId: trimmedSeed,
+        includeNeverShow,
       };
     }
 
     return {
       mode: selectedMode,
       seedNodeId: null,
+      includeNeverShow,
     };
-  }, [appliedSeedNodeId, effectiveFallbackKey, selectedMode, selectedResourceGroupName]);
+  }, [appliedSeedNodeId, effectiveFallbackKey, includeNeverShow, selectedMode, selectedResourceGroupName]);
 
   const retryLoad = useCallback(() => {
     setLoadError(null);
@@ -957,6 +1004,7 @@ export function DiagramsWorkbenchClient() {
           selectedMode === "dependencyNeighborhood" && appliedSeedNodeId.trim().length > 0
             ? appliedSeedNodeId.trim()
             : null,
+        includeNeverShow,
       };
 
       if (tooLargeForBrowser) {
@@ -993,6 +1041,7 @@ export function DiagramsWorkbenchClient() {
     exportableSvgMarkup,
     mermaidSource,
     appliedSeedNodeId,
+    includeNeverShow,
     selectedMode,
     selectedSnapshotId,
     tooLargeForBrowser,
@@ -1031,14 +1080,7 @@ export function DiagramsWorkbenchClient() {
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}
         titleTestId="infra-diagrams-page-title"
         breadcrumb={buyerPolishedShell ? <DiagramsBreadcrumb /> : undefined}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <PageContextualHelpButton />
-            {!buyerPolishedShell ? (
-              <CopyScopedOperatorLinkButton testId="infra-diagrams-copy-scoped-link" />
-            ) : null}
-          </div>
-        }
+        actions={<PageContextualHelpButton />}
       />
 
       <main
@@ -1046,12 +1088,6 @@ export function DiagramsWorkbenchClient() {
         className={cn("flex w-full flex-col gap-4 scroll-mt-24")}
         data-testid="infra-diagrams-primary-content"
       >
-      {buyerPolishedShell ? (
-        <div className="flex justify-end">
-          <CopyScopedOperatorLinkButton testId="infra-diagrams-copy-scoped-link" />
-        </div>
-      ) : null}
-
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-diagrams-selection-announcer" />
 
       {deepLinkedSnapshotMissing ? (
@@ -1152,7 +1188,10 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       <section
-        className={cn("grid gap-4 md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]", cnCard)}
+        className={cn(
+          "grid items-start gap-x-4 gap-y-2 md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]",
+          cnCard,
+        )}
         aria-label="Snapshot and mode selection"
       >
         {buyerPolishedShell ? (
@@ -1182,14 +1221,6 @@ export function DiagramsWorkbenchClient() {
                   </>
                 )}
               </select>
-              {selectedSnapshot != null ? (
-                <div className="flex items-start gap-2" data-testid="infra-diagrams-snapshot-id-readout">
-                  <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {selectedSnapshot.snapshotId}
-                  </span>
-                  <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
-                </div>
-              ) : null}
             </div>
             <div className="grid min-w-0 gap-2">
               <Label htmlFor="infra-diagrams-mode-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL}</Label>
@@ -1208,12 +1239,26 @@ export function DiagramsWorkbenchClient() {
                 ))}
               </select>
             </div>
+            {selectedSnapshot != null ? (
+              <div
+                className="col-start-1 flex items-start gap-2"
+                data-testid="infra-diagrams-snapshot-id-readout"
+              >
+                <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {selectedSnapshot.snapshotId}
+                </span>
+                <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
+              </div>
+            ) : null}
           </>
         ) : (
           <>
-            <label className="flex min-w-0 flex-col gap-1">
-              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>Snapshot</span>
+            <div className="flex min-w-0 flex-col gap-1">
+              <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-snapshot-picker">
+                Snapshot
+              </label>
               <select
+                id="infra-diagrams-snapshot-picker"
                 className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-snapshot-picker"
                 disabled={loadingSnapshots || snapshots.length === 0}
@@ -1235,18 +1280,13 @@ export function DiagramsWorkbenchClient() {
                   </>
                 )}
               </select>
-              {selectedSnapshot != null ? (
-                <div className="mt-1 flex items-start gap-2" data-testid="infra-diagrams-snapshot-id-readout">
-                  <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {selectedSnapshot.snapshotId}
-                  </span>
-                  <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
-                </div>
-              ) : null}
-            </label>
-            <label className="flex min-w-0 flex-col gap-1">
-              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>Diagram mode</span>
+            </div>
+            <div className="flex min-w-0 flex-col gap-1">
+              <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-mode-picker">
+                Diagram mode
+              </label>
               <select
+                id="infra-diagrams-mode-picker"
                 className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-mode-picker"
                 disabled={loadingPreview || selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
@@ -1259,7 +1299,18 @@ export function DiagramsWorkbenchClient() {
                   </option>
                 ))}
               </select>
-            </label>
+            </div>
+            {selectedSnapshot != null ? (
+              <div
+                className="col-start-1 flex items-start gap-2"
+                data-testid="infra-diagrams-snapshot-id-readout"
+              >
+                <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {selectedSnapshot.snapshotId}
+                </span>
+                <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
+              </div>
+            ) : null}
           </>
         )}
       </section>
@@ -1590,13 +1641,49 @@ export function DiagramsWorkbenchClient() {
             </p>
           ) : null}
           {diagramWalkthrough != null ? (
-            <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-              role="status"
-              data-testid="infra-diagrams-walkthrough"
-            >
-              {diagramWalkthrough}
-            </p>
+            <div className="flex flex-col gap-2">
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                role="status"
+                data-testid="infra-diagrams-walkthrough"
+              >
+                {diagramWalkthrough}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={includeNeverShow ? "secondary" : "outline"}
+                  aria-pressed={includeNeverShow}
+                  aria-busy={loadingRender}
+                  data-testid="infra-diagrams-include-never-show"
+                  disabled={selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
+                  onClick={() => {
+                    handleIncludeNeverShowChange(!includeNeverShow);
+                  }}
+                >
+                  {loadingRender ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                  ) : null}
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
+                </Button>
+              </div>
+              {!includeNeverShow && alwaysExcludedCollapseEntries.length > 0 ? (
+                <div
+                  className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+                  data-testid="infra-diagrams-always-excluded-panel"
+                >
+                  <h3 className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                    {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE}
+                  </h3>
+                  <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.helper)}>
+                    {alwaysExcludedCollapseEntries.map((entry, index) => (
+                      <li key={`${entry.kind}-${entry.reason}-${index}`}>{entry.reason}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
           ) : null}
           <ArchitectureDiagramViewer
             mermaidSource={mermaidSource}

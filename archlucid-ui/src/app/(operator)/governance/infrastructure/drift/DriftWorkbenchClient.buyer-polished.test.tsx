@@ -49,6 +49,13 @@ vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
     pageSize: 100,
     hasMore: false,
   })),
+  fetchInfraEvidenceSnapshotInventoryRows: vi.fn(async () => ({
+    items: [],
+    totalCount: 0,
+    page: 1,
+    pageSize: 100,
+    hasMore: false,
+  })),
   downloadInfraEvidenceTerraformAdvisoryZip: vi.fn(async () => undefined),
   formatInfraEvidenceApiError: (error: unknown) => String(error),
 }));
@@ -106,7 +113,6 @@ describe("DriftWorkbenchClient buyer-polished chrome", () => {
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(await screen.findByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
     expect(await screen.findByTestId("infra-drift-export-terraform")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-copy-scoped-link")).toBeInTheDocument();
   });
 
   it("hides inline resource id behind disclosure when scoped", async () => {

@@ -43,7 +43,7 @@ import {
   SLACK_INTEGRATION_HELP_BUYER_OVERVIEW,
   SLACK_INTEGRATION_HELP_FIRST_VIEWPORT_TEST_ID,
   SLACK_INTEGRATION_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  SLACK_INTEGRATION_HELP_PAGE_LEAD,
+  slackIntegrationHelpPageLead,
   SLACK_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER,
   SLACK_INTEGRATION_HELP_PRIMARY_CONTENT_ID,
   SLACK_INTEGRATION_HELP_SKIP_LINK_LABEL,
@@ -51,6 +51,7 @@ import {
   SLACK_INTEGRATION_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/slack-integration-help-page-copy";
 import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evidence-copy";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 
 type HelpSlackIntegrationGuideViewProps = {
@@ -179,7 +180,7 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
           >
             <div className="space-y-4" data-testid="help-slack-integration-buyer-intro">
               <p className={readingBodyClass} data-testid="help-slack-integration-intro">
-                {SLACK_INTEGRATION_HELP_PAGE_LEAD}
+                {slackIntegrationHelpPageLead(resolveProductLineIdFromEnv())}
               </p>
             </div>
             <SlackIntegrationStartHerePanel buyerPolishedShell={buyerPolishedShell} />

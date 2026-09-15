@@ -313,8 +313,14 @@ public sealed class HostedAzureExtractorClient(
     private static List<HostedAzureArmResourceRecord> FilterInventoryResources(
         IReadOnlyList<HostedAzureArmResourceRecord> resources)
     {
+        HashSet<string> privateLinkOnlyNicArmIds =
+            HostedAzureInventoryPrivateLinkOnlyNicCatalog.BuildOmittedNicArmIds(resources);
+
         return resources
-            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(resource.ResourceType))
+            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                resource.ResourceType,
+                resource.ResourceId,
+                privateLinkOnlyNicArmIds))
             .ToList();
     }
 

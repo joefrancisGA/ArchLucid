@@ -40,7 +40,6 @@ export function WorkingCareerDoorBlockedDialog(
           <AlertDialogDescription>{blockedDetail}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end">
-          <AlertDialogCancel>Close</AlertDialogCancel>
           <Button
             type="button"
             variant="secondary"
@@ -53,8 +52,16 @@ export function WorkingCareerDoorBlockedDialog(
             {WORKING_CAREER_DOOR_SWITCH_TO_REHEARSAL_ACTION}
           </Button>
           <Button type="button" variant="outline" asChild data-testid="working-career-door-platform-settings">
-            <Link href={props.gate.platformSettingsHref}>{WORKING_CAREER_DOOR_OPEN_PLATFORM_SETTINGS_ACTION}</Link>
+            <Link
+              href={props.gate.platformSettingsHref}
+              onClick={() => {
+                props.onOpenChange(false);
+              }}
+            >
+              {WORKING_CAREER_DOOR_OPEN_PLATFORM_SETTINGS_ACTION}
+            </Link>
           </Button>
+          <AlertDialogCancel>Close</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

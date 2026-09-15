@@ -5,11 +5,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -87,6 +85,7 @@ import {
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_ASK_CONTEXT_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_ASK_OPERATOR_EYEBROW,
   GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID,
@@ -95,6 +94,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_ACTION,
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_BODY,
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
 } from "@/lib/governance/governance-infrastructure-copy";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
@@ -541,6 +541,7 @@ export function InfrastructureAskClient() {
 
       <OperatorPageHeader
         navHref={GOVERNANCE_INFRASTRUCTURE_ASK_PATH}
+        eyebrow={buyerPolishedShell ? undefined : GOVERNANCE_INFRASTRUCTURE_ASK_OPERATOR_EYEBROW}
         title={GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD}
         claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE : undefined}
@@ -548,28 +549,15 @@ export function InfrastructureAskClient() {
         titleTestId="infra-ask-page-title"
         breadcrumb={buyerPolishedShell ? <InfrastructureAskBreadcrumb /> : undefined}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <PageContextualHelpButton />
-            {!buyerPolishedShell && auditScope == null ? (
-              <CopyScopedOperatorLinkButton testId="infra-ask-copy-scoped-link" />
-            ) : null}
-          </div>
+          <PageContextualHelpButton />
         }
       />
-
-      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-ask" /> : null}
 
       <main
         id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID : undefined}
         className={cn("flex w-full flex-col gap-4", buyerPolishedShell ? "scroll-mt-24" : undefined)}
         data-testid="infra-ask-primary-content"
       >
-      {buyerPolishedShell && auditScope == null ? (
-        <div className="flex justify-end">
-          <CopyScopedOperatorLinkButton testId="infra-ask-copy-scoped-link" />
-        </div>
-      ) : null}
-
       {cloudResourceId.length > 0 && (
         auditScope != null
         || resourceHub?.auditLineageLink.available === false
@@ -587,7 +575,6 @@ export function InfrastructureAskClient() {
           onAuditControlChange={onAuditControlChange}
           provenanceTestId="infra-ask-audit-provenance"
           unavailableTestId="infra-ask-audit-unavailable"
-          showCopyLink
         />
       ) : null}
 
@@ -688,7 +675,7 @@ export function InfrastructureAskClient() {
               href={inventoryDiagramsBackLinkHref}
               data-testid="infra-ask-inventory-diagrams-back-link"
             >
-              Open inventory diagrams
+              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION}
             </Link>
           ) : null}
           {diagramReconcileBackLinkHref != null ? (
@@ -772,6 +759,7 @@ export function InfrastructureAskClient() {
         <Button
           type="button"
           variant="primary"
+          className={CTA_WIDTH.content}
           data-testid="infra-ask-submit"
           disabled={submitting || question.trim().length === 0}
           onClick={() => void ask(question)}

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { formatAzureResourceDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
+import {
+  formatAzureResourceDisplay,
+  formatAzureResourceTypeForDisplay,
+} from "@/lib/infra-evidence/format-azure-resource-display";
 
 describe("formatAzureResourceDisplay", () => {
   it("returns an empty placeholder when the id is missing", () => {
@@ -27,10 +30,24 @@ describe("formatAzureResourceDisplay", () => {
       ),
     ).toEqual({
       name: "vm-app-02",
-      resourceType: "virtualMachines",
+      resourceType: "Compute/virtualMachines",
       resourceGroup: "rg-archlucid-demo-cus",
       primaryLabel: "vm-app-02",
-      secondaryLabel: "virtualMachines · rg-archlucid-demo-cus",
+      secondaryLabel: "Compute/virtualMachines · rg-archlucid-demo-cus",
+    });
+  });
+
+  it("shows the provider-qualified type without the Microsoft prefix", () => {
+    expect(
+      formatAzureResourceDisplay(
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.PowerPlatform/enterprisePolicies/policy-1",
+      ),
+    ).toEqual({
+      name: "policy-1",
+      resourceType: "PowerPlatform/enterprisePolicies",
+      resourceGroup: "rg",
+      primaryLabel: "policy-1",
+      secondaryLabel: "PowerPlatform/enterprisePolicies · rg",
     });
   });
 
@@ -41,10 +58,10 @@ describe("formatAzureResourceDisplay", () => {
       ),
     ).toEqual({
       name: "subnet-app",
-      resourceType: "subnets",
+      resourceType: "Network/virtualNetworks/subnets",
       resourceGroup: "rg-net",
       primaryLabel: "subnet-app",
-      secondaryLabel: "subnets · rg-net",
+      secondaryLabel: "Network/virtualNetworks/subnets · rg-net",
     });
   });
 
@@ -56,5 +73,27 @@ describe("formatAzureResourceDisplay", () => {
       primaryLabel: "gateway-public-ip",
       secondaryLabel: null,
     });
+  });
+});
+
+describe("formatAzureResourceTypeForDisplay", () => {
+  it("strips the Microsoft provider prefix from an ARM type", () => {
+    expect(formatAzureResourceTypeForDisplay("Microsoft.Network/publicIPAddresses")).toBe(
+      "Network/publicIPAddresses",
+    );
+    expect(formatAzureResourceTypeForDisplay("microsoft.compute/virtualMachines")).toBe(
+      "compute/virtualMachines",
+    );
+  });
+
+  it("leaves non-Microsoft types unchanged", () => {
+    expect(formatAzureResourceTypeForDisplay("Oracle.Database/autonomousDatabases")).toBe(
+      "Oracle.Database/autonomousDatabases",
+    );
+  });
+
+  it("returns an em dash when the type is missing", () => {
+    expect(formatAzureResourceTypeForDisplay(null)).toBe("—");
+    expect(formatAzureResourceTypeForDisplay("  ")).toBe("—");
   });
 });

@@ -2013,6 +2013,8 @@ export interface components {
             /** Format: uuid */
             changeId?: string;
             changeType?: components["schemas"]["AzureInventoryChangeType"];
+            changedByDisplayName?: null | string;
+            changedByKind?: null | string;
             /** Format: uuid */
             cloudResourceId?: null | string;
             /** Format: double */
@@ -2032,7 +2034,7 @@ export interface components {
             snapshotBId?: string;
         };
         /** @enum {string} */
-        AzureInventoryChangeType: "ResourceAdded" | "ResourceRemoved" | "ResourceModified" | "RelationshipAdded" | "RelationshipRemoved" | "IdentityChanged" | "PermissionChanged" | "NetworkExposureChanged" | "SecurityControlChanged" | "LoggingChanged" | "EncryptionChanged" | "TagChanged" | "RegionChanged" | "SkuChanged" | "DependencyChanged" | "PolicyAssignmentChanged" | "Unknown";
+        AzureInventoryChangeType: "ResourceAdded" | "ResourceRemoved" | "ResourceModified" | "RelationshipAdded" | "RelationshipRemoved" | "IdentityChanged" | "PermissionChanged" | "NetworkExposureChanged" | "SecurityControlChanged" | "LoggingChanged" | "EncryptionChanged" | "TagChanged" | "RegionChanged" | "SkuChanged" | "DependencyChanged" | "PolicyAssignmentChanged" | "Unknown" | "ResourceUnchanged";
         AzureInventoryClassifiedChangeRecord: {
             change?: components["schemas"]["AzureInventoryChangeRecord"];
             classification?: components["schemas"]["AzureInventoryDriftClassification"];
@@ -5511,6 +5513,16 @@ export interface components {
             topicKind?: string;
             viewPlan?: null | components["schemas"]["DiagramViewPlan"];
         };
+        InfraEvidenceMermaidCollapseEntry: {
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            kind?: string;
+            nodeId?: null | string;
+            reason?: string;
+        };
+        InfraEvidenceMermaidCollapseReport: {
+            entries?: components["schemas"]["InfraEvidenceMermaidCollapseEntry"][];
+        };
         InfraEvidenceMermaidComplexityMetrics: {
             /** Format: int32 */
             crossSubgraphEdgeCount?: number;
@@ -5552,6 +5564,7 @@ export interface components {
             snapshotId?: string;
         };
         InfraEvidenceMermaidRenderResponse: {
+            collapseReport?: null | components["schemas"]["InfraEvidenceMermaidCollapseReport"];
             fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
             fallbackKey?: null | string;
             layoutEngine?: null | string;

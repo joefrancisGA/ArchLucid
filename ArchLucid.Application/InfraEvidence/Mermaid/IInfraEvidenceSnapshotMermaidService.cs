@@ -8,6 +8,7 @@ public interface IInfraEvidenceSnapshotMermaidService
     Task<InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse>> TryGetPreviewAsync(
         ScopeContext scope,
         Guid snapshotId,
+        bool includeNeverShowArmTypes = false,
         CancellationToken cancellationToken = default);
 
     Task<InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse>> TryGetMermaidAsync(
@@ -16,6 +17,7 @@ public interface IInfraEvidenceSnapshotMermaidService
         string? mode,
         string? fallbackKey,
         string? seedNodeId,
+        bool includeNeverShowArmTypes = false,
         CancellationToken cancellationToken = default);
 
     Task<InfraEvidenceMermaidServiceResult<byte[]>> TryExportPngAsync(
@@ -24,6 +26,7 @@ public interface IInfraEvidenceSnapshotMermaidService
         string? mode,
         string? fallbackKey,
         string? seedNodeId,
+        bool includeNeverShowArmTypes = false,
         CancellationToken cancellationToken = default);
 }
 

@@ -47,6 +47,7 @@ import {
   formatItsmAtlassianOAuthCallbackUtcTimestamp,
   itsmAtlassianOAuthCallbackSupportLinkLabel,
   resolveItsmAtlassianOAuthCallbackWorkspaceLabel,
+  shouldOfferItsmOAuthSupportMailto,
   type ItsmAtlassianOAuthCallbackFailureKind,
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-support";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
@@ -81,6 +82,26 @@ function resolvePageTitle(phase: CallbackPhase): string {
   }
 
   return ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_TITLE;
+}
+
+function ItsmAtlassianOAuthSupportMailtoLink(props: {
+  readonly href: string | null;
+}): React.ReactElement | null {
+  // Convenience mailto after a failed OAuth callback; not an authorization decision.
+  // codeql[js/user-controlled-bypass]
+  if (props.href === null) {
+    return null;
+  }
+
+  return (
+    <Link
+      href={props.href}
+      className={OPERATOR_LINK.nav}
+      data-testid="itsm-oauth-callback-contact-support"
+    >
+      {itsmAtlassianOAuthCallbackSupportLinkLabel()}
+    </Link>
+  );
 }
 
 export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
@@ -216,15 +237,19 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
 
   const connectorStateLine = resolveConnectorStateLine(failureKind);
   const pageTitle = resolvePageTitle(phase);
-  const supportMailtoHref =
-    phase === "failure" && supportTimestampUtc !== null && supportReferenceId !== null
-      ? buildItsmAtlassianOAuthCallbackSupportMailtoHref({
-          correlationId: supportReferenceId,
-          timestampUtc: supportTimestampUtc,
-          workspaceLabel,
-          failureMessage: message,
-        })
-      : null;
+  const offerSupportMailto = shouldOfferItsmOAuthSupportMailto(
+    phase,
+    supportTimestampUtc,
+    supportReferenceId,
+  );
+  const supportMailtoHref = offerSupportMailto
+    ? buildItsmAtlassianOAuthCallbackSupportMailtoHref({
+        correlationId: supportReferenceId ?? "",
+        timestampUtc: supportTimestampUtc ?? "",
+        workspaceLabel,
+        failureMessage: message,
+      })
+    : null;
 
   return (
     <OperatorPageContainer
@@ -321,15 +346,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
                       <Button asChild variant="primary" data-testid="itsm-oauth-callback-retry">
                         <Link href={INTEGRATIONS_JIRA_PATH}>{ITSM_ATLASSIAN_OAUTH_CALLBACK_RETRY_LABEL}</Link>
                       </Button>
-                      {supportMailtoHref !== null ? (
-                        <Link
-                          href={supportMailtoHref}
-                          className={OPERATOR_LINK.nav}
-                          data-testid="itsm-oauth-callback-contact-support"
-                        >
-                          {itsmAtlassianOAuthCallbackSupportLinkLabel()}
-                        </Link>
-                      ) : null}
+                      <ItsmAtlassianOAuthSupportMailtoLink href={supportMailtoHref} />
                     </div>
 
                     <details

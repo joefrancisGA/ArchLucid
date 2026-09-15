@@ -80,7 +80,6 @@ import {
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { buildResourceHubDiagramsWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
-import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
@@ -105,6 +104,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RUN_SNAPSHOT_REQUIRED_ERROR,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SCOPE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SKIP_LINK_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
@@ -668,14 +668,7 @@ export function DiagramReconcileWorkbenchClient() {
         claimDisciplineTestId="infra-diagram-reconcile-claim-discipline"
         titleTestId="infra-diagram-reconcile-page-title"
         breadcrumb={buyerPolishedShell ? <DiagramReconcileBreadcrumb /> : undefined}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <PageContextualHelpButton />
-            {!buyerPolishedShell ? (
-              <CopyScopedOperatorLinkButton testId="infra-diagram-reconcile-copy-scoped-link" />
-            ) : null}
-          </div>
-        }
+        actions={<PageContextualHelpButton />}
       />
 
       {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-diagram-reconcile" /> : null}
@@ -688,12 +681,6 @@ export function DiagramReconcileWorkbenchClient() {
         )}
         data-testid="infra-diagram-reconcile-primary-content"
       >
-      {buyerPolishedShell ? (
-        <div className="flex justify-end">
-          <CopyScopedOperatorLinkButton testId="infra-diagram-reconcile-copy-scoped-link" />
-        </div>
-      ) : null}
-
       {!buyerPolishedShell ? (
         <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Reconcile an ingested architecture diagram against an Azure inventory snapshot. Correspondence rows are
@@ -788,7 +775,7 @@ export function DiagramReconcileWorkbenchClient() {
                   undefined,
                   mergeInfrastructureAskAuditScope(auditScope),
                 ),
-                label: "Open inventory diagrams",
+                label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
               },
             ]}
           />

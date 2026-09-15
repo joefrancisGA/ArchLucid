@@ -381,6 +381,7 @@ function Get-DefectClassFromHypothesis {
             'null-deref',
             'off-by-one',
             'authz-scope',
+            'week-uom-synonym',
             'other'
         )
 

@@ -50,6 +50,12 @@ public sealed class DiagramPeelAlwaysDisposeResolverTests
         entries.Should().Contain(entry =>
             string.Equals(entry.ArmResourceType, "Microsoft.Compute/virtualMachines/extensions", StringComparison.Ordinal)
             && entry.AlwaysDispose);
+        entries.Should().Contain(entry =>
+            string.Equals(
+                entry.ArmResourceType,
+                "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                StringComparison.Ordinal)
+            && entry.AlwaysDispose);
         entries.Should().NotContain(entry =>
             string.Equals(entry.ArmResourceType, "Microsoft.Compute/virtualMachines/extensions", StringComparison.Ordinal)
             && entry.PeelRank == 20);
