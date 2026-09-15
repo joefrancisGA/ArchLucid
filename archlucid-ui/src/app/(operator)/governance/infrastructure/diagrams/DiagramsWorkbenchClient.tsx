@@ -77,7 +77,7 @@ import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-ev
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
 import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra-evidence/infra-evidence-mermaid-render-status-presentation";
 import { isInfraEvidenceMermaidDiagramEmpty } from "@/lib/infra-evidence/infra-evidence-mermaid-empty-content";
-import { resolveInfraEvidenceDiagramOutlineResourceName } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
+import { resolveInfraEvidenceDiagramOutlineResourceName } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-outline-resource-name";
 import {
   normalizeInfraEvidenceLayoutSvgForDisplay,
   normalizeInfraEvidenceMermaidSourceForDisplay,
