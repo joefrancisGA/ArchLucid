@@ -208,4 +208,38 @@ describe("ResourcesExplorerClient", () => {
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=open-remediation&tab=remediation",
     );
   });
+
+  it("shows None in the work column when a resource has no open work", async () => {
+    vi.mocked(fetchCloudResourceExplorerPage).mockResolvedValueOnce({
+      items: [
+        {
+          cloudResourceId: "11111111-1111-1111-1111-111111111111",
+          externalResourceId:
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+          displayName: "gateway-pip",
+          resourceType: "Microsoft.Network/publicIPAddresses",
+          resourceGroup: "rg-net",
+          region: "eastus",
+          lastSeenUtc: "2026-09-01T12:00:00Z",
+          workCounts: {
+            openOperationalFindingsCount: 0,
+            openRemediationInstancesCount: 0,
+            inventoryDriftChangeCount: 0,
+          },
+        },
+      ],
+      totalCount: 1,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+    searchParams = new URLSearchParams("");
+    listOperatorSavedViews.mockResolvedValue([]);
+    render(<ResourcesExplorerClient />);
+
+    const workCell = await screen.findByTestId("infra-resource-work-counts-11111111-1111-1111-1111-111111111111");
+
+    expect(workCell).toHaveTextContent("None");
+    expect(workCell).not.toHaveTextContent("—");
+  });
 });

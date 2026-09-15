@@ -77,6 +77,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_SKIP_LINK_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -509,7 +510,7 @@ export function ResourcesExplorerClient() {
               </EnterpriseTableCell>
               <EnterpriseTableCell data-testid={`infra-resource-work-counts-${row.cloudResourceId}`}>
                 {workCountBadges.length === 0 ? (
-                  <span className="text-sm text-al-text-secondary">—</span>
+                  <span className="text-sm text-al-text-secondary">{GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL}</span>
                 ) : (
                   <div className="flex flex-wrap gap-1">
                     {workCountBadges.map((badge) => (

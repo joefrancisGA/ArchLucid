@@ -435,6 +435,8 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL = "Resource
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL = "Resource group" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL = "None" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_REDIRECT_LABEL = "Opening resource evidence hub…" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PAGE_TITLE = "Resource evidence hub" as const;
