@@ -19,6 +19,11 @@ public static class DiagramGraphvizHtmlNodeLabel
             parts.Add($"({Escape(caption.TypeCaption)})");
         }
 
+        if (!string.IsNullOrWhiteSpace(caption.ResourceGroupCaption))
+        {
+            parts.Add(Escape(caption.ResourceGroupCaption));
+        }
+
         return $"<{string.Join("<BR/>", parts)}>";
     }
 
