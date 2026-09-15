@@ -292,7 +292,12 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement))
             {
                 if (indexElement.ValueKind == JsonValueKind.Number)
-                    canonicalAddress = $"{canonicalAddress}[{indexElement.GetInt32()}]";
+                {
+                    if (indexElement.TryGetInt32(out int intIndex))
+                        canonicalAddress = $"{canonicalAddress}[{intIndex}]";
+                    else if (indexElement.TryGetInt64(out long longIndex))
+                        canonicalAddress = $"{canonicalAddress}[{longIndex}]";
+                }
                 else if (indexElement.ValueKind == JsonValueKind.String
                     && !string.IsNullOrWhiteSpace(indexElement.GetString()))
                     canonicalAddress = $"{canonicalAddress}[{indexElement.GetString()!.Trim()}]";
