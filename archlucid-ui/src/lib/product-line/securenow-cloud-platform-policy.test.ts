@@ -16,6 +16,7 @@ import {
   isHelpTopicExcludedForProductLine,
   isSecureNowDemoChromeExcluded,
   isSecureNowTrainingChromeExcluded,
+  isSecureNowWorkspaceFooterTrustLinkExcluded,
   secureNowCloudConnectionsHelpSubtitle,
   secureNowCloudConnectionsHubContextualLead,
   secureNowCloudConnectionsSummary,
@@ -68,6 +69,11 @@ describe("securenow-cloud-platform-policy", () => {
   it("excludes ArchLucid demo and sample chrome from SecureNow", () => {
     expect(isSecureNowDemoChromeExcluded("security")).toBe(true);
     expect(isSecureNowDemoChromeExcluded("architecture")).toBe(false);
+  });
+
+  it("excludes the workspace footer Security and trust link from SecureNow", () => {
+    expect(isSecureNowWorkspaceFooterTrustLinkExcluded("security")).toBe(true);
+    expect(isSecureNowWorkspaceFooterTrustLinkExcluded("architecture")).toBe(false);
   });
 
   it("blocks AWS and GCP integration routes in the Security shell", () => {
