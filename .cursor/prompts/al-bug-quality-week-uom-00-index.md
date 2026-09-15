@@ -5,7 +5,7 @@
 
 # `/al-bug` quality — Wave 7 (`weekk+` UOM treadmill)
 
-**Status:** **prompts only** (2026-09-15). Do **not** implement from this file.
+**Status:** **shipped in code** (2026-09-15). Do **not** re-implement from this file.
 
 Owner: stop new compact/spaced-slash `week`+extra-`k` matcher hunts. Delete the farmed methods and tests. Ban reintroduction in CI. **Do not** start another core-costing `weekk+` hunt batch. Topology-proposal-merge hunts may continue **now** on their own branches; do not mix new topology hits into the matcher-deletion PR (48/49).
 
