@@ -68,4 +68,13 @@ public class DiagramNode
         get;
         set;
     }
+
+    /// <summary>
+    ///     Synthetic Executive rollup ("+N more …") kept in Mermaid for the Nodes outline, but omitted from painted canvases.
+    /// </summary>
+    public bool IsExecutiveOverflow
+    {
+        get;
+        set;
+    }
 }

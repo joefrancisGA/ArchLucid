@@ -50,6 +50,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         string indentText = new(' ', indent * 4);
 
         foreach (DiagramNode node in ast.Nodes
+                     .Where(DiagramExecutiveOverflowCanvasExclusion.IsCanvasRenderableNode)
                      .OrderBy(candidate => candidate.OrderKey)
                      .ThenBy(candidate => candidate.NodeId, StringComparer.Ordinal))
         {
@@ -68,6 +69,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             StringComparer.Ordinal);
 
         List<DiagramNode> rootNodes = ast.Nodes
+            .Where(DiagramExecutiveOverflowCanvasExclusion.IsCanvasRenderableNode)
             .Where(node => string.IsNullOrWhiteSpace(node.SubgraphId)
                 || !subgraphById.ContainsKey(node.SubgraphId))
             .OrderBy(node => node.OrderKey)
@@ -112,6 +114,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         builder.AppendLine($"{indentText}    label={clusterLabel};");
 
         foreach (DiagramNode node in ast.Nodes
+                     .Where(DiagramExecutiveOverflowCanvasExclusion.IsCanvasRenderableNode)
                      .Where(node => string.Equals(node.SubgraphId, subgraph.SubgraphId, StringComparison.Ordinal))
                      .OrderBy(node => node.OrderKey)
                      .ThenBy(node => node.NodeId, StringComparer.Ordinal))
@@ -141,7 +144,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
 
     private static void EmitVisibleEdges(DiagramAst ast, StringBuilder builder)
     {
-        foreach (DiagramEdge edge in DiagramEdgeVisibility.VisibleEdges(ast.Edges))
+        foreach (DiagramEdge edge in DiagramExecutiveOverflowCanvasExclusion.CanvasVisibleEdges(ast.Nodes, ast.Edges))
         {
             string fromId = GraphvizIdEscaper.QuoteIdentifier(MermaidIdSanitizer.Sanitize(edge.FromNodeId));
             string toId = GraphvizIdEscaper.QuoteIdentifier(MermaidIdSanitizer.Sanitize(edge.ToNodeId));

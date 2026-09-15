@@ -24,6 +24,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         DiagramForestLayoutOptions resolvedOptions = options ?? new DiagramForestLayoutOptions();
         List<DiagramNode> renderableNodes = ast.Nodes
             .Where(node => !IsPackingSubgraphMember(ast, node))
+            .Where(DiagramExecutiveOverflowCanvasExclusion.IsCanvasRenderableNode)
             .OrderBy(node => node.OrderKey)
             .ThenBy(node => node.NodeId, StringComparer.Ordinal)
             .ToList();
@@ -37,7 +38,9 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             renderableNodes,
             resolvedOptions);
 
-        IReadOnlyList<DiagramEdge> visibleEdges = DiagramEdgeVisibility.VisibleEdges(ast.Edges).ToList();
+        IReadOnlyList<DiagramEdge> visibleEdges = DiagramExecutiveOverflowCanvasExclusion
+            .CanvasVisibleEdges(ast.Nodes, ast.Edges)
+            .ToList();
         List<List<DiagramNode>> components = DiagramComponentBuilder.BuildConnectedComponents(renderableNodes, ast.Edges);
         List<IReadOnlyList<DiagramNode>> orderedComponents = DiagramComponentRowPlanner.OrderComponents(components);
         int columnCount = DiagramComponentRowPlanner.ResolveColumnCount(orderedComponents.Count);

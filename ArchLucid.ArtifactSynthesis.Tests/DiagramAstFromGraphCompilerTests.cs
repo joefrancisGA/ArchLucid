@@ -1,4 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
+using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
@@ -128,8 +129,13 @@ public sealed class DiagramAstFromGraphCompilerTests
         overflow.SeedNodeId.Should().BeNull();
         overflow.ArmResourceType.Should().BeNull();
         overflow.CloudResourceId.Should().BeNull();
+        overflow.IsExecutiveOverflow.Should().BeTrue();
         mermaid.Should().Contain("+5 more compute workloads");
         mermaid.Should().NotContain("al-seed=executive-overflow");
+
+        DiagramForestLayoutResult forestLayout = new DiagramForestLayoutSvgRenderer().Render(ast);
+        forestLayout.Succeeded.Should().BeTrue();
+        forestLayout.Svg.Should().NotContain("+5 more compute workloads");
     }
 
     [Fact]

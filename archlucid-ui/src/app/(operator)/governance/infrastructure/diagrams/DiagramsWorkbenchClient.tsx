@@ -82,6 +82,7 @@ import {
   normalizeInfraEvidenceLayoutSvgForDisplay,
   normalizeInfraEvidenceMermaidSourceForDisplay,
 } from "@/lib/infra-evidence/normalize-infra-evidence-mermaid-display";
+import { stripExecutiveOverflowNodesFromInfraEvidenceMermaid } from "@/lib/infra-evidence/strip-infra-evidence-executive-overflow-from-mermaid";
 import {
   parseInfraEvidenceMermaidOutline,
   resolveInfraEvidenceOutlineSeedNodeId,
@@ -489,7 +490,10 @@ export function DiagramsWorkbenchClient() {
 
   const mermaidSource = renderResult?.mermaid ?? "";
   const displayMermaidSource = useMemo(
-    () => normalizeInfraEvidenceMermaidSourceForDisplay(mermaidSource),
+    () =>
+      normalizeInfraEvidenceMermaidSourceForDisplay(
+        stripExecutiveOverflowNodesFromInfraEvidenceMermaid(mermaidSource),
+      ),
     [mermaidSource],
   );
   const displayLayoutSvg = useMemo(
