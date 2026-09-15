@@ -61,4 +61,10 @@ public sealed class InfraEvidenceMermaidRenderResponse
         get;
         set;
     }
+
+    public InfraEvidenceMermaidIdentityDiagramHints? IdentityDiagramHints
+    {
+        get;
+        set;
+    }
 }

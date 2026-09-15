@@ -87,8 +87,8 @@ import {
   resolveDependencyNeighborhoodSeedBlockedReason,
   type DependencyNeighborhoodSeedBlockedReason,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-dependency-seed";
+import { resolveInfraDiagramsDensityCoachPresentation } from "@/lib/infra-evidence/infra-evidence-diagrams-density-coach-presentation";
 import { INFRA_DIAGRAMS_EXECUTIVE_TIERS } from "@/lib/infra-evidence/infra-evidence-diagrams-executive-tiers";
-import { shouldShowInfraDiagramsDensityCoach } from "@/lib/infra-evidence/infra-evidence-diagrams-density-coach";
 import {
   resolveInfraDiagramsDefaultFallbackKey,
   resolveInfraDiagramsEffectiveFallbackKey,
@@ -587,9 +587,9 @@ export function DiagramsWorkbenchClient() {
     [hiddenExecutiveTierKeys, pathname, router, searchParams],
   );
 
-  const showDensityCoach = useMemo(
+  const densityCoachPresentation = useMemo(
     () =>
-      shouldShowInfraDiagramsDensityCoach({
+      resolveInfraDiagramsDensityCoachPresentation({
         showFallbackCards,
         tooLargeForBrowser,
         diagramContentEmpty,
@@ -599,11 +599,14 @@ export function DiagramsWorkbenchClient() {
         nodeCount: metrics?.nodeCount ?? null,
         maxNodes: INFRA_EVIDENCE_MERMAID_CLIENT_READABILITY_THRESHOLDS.maxNodes,
         isExecutiveMode: isInfraDiagramsExecutiveMode(selectedMode),
+        inventoryFilteredIdentityArmTypes:
+          renderResult?.identityDiagramHints?.inventoryFilteredIdentityArmTypes ?? [],
       }),
     [
       diagramContentEmpty,
       metrics?.nodeCount,
       paintDiagramCanvas,
+      renderResult?.identityDiagramHints,
       renderResult?.status,
       selectedMode,
       showFallbackCards,
@@ -1568,15 +1571,16 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
-      {showDensityCoach ? (
+      {densityCoachPresentation != null ? (
         <section
           className={cn("grid gap-3", cnCard)}
           aria-label="Diagram density coach"
           data-testid="infra-diagrams-density-coach"
+          data-coach-variant={densityCoachPresentation.variant}
         >
-          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>This view is too large to read.</h2>
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{densityCoachPresentation.title}</h2>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Pick a smaller existing workbench mode instead of zooming into an unreadable plate.
+            {densityCoachPresentation.body}
           </p>
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant="primary" data-testid="infra-diagrams-density-coach-executive" onClick={() => handleModeChange("executive")}>

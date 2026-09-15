@@ -105,6 +105,17 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     }
 
     [Fact]
+    public void ShouldOmitResource_retainIdentityDiagramArmTypes_keeps_managed_identity_resources()
+    {
+        AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                "Microsoft.ManagedIdentity/userAssignedIdentities",
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/app",
+                retainIdentityDiagramArmTypes: true)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public void ShouldOmitResource_uses_arm_id_when_resource_type_is_missing()
     {
         AzureInventoryNeverShowArmTypes.ShouldOmitResource(

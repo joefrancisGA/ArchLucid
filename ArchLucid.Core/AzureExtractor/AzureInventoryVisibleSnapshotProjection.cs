@@ -38,13 +38,15 @@ public static class AzureInventoryVisibleSnapshotProjection
 
     public static List<AzureInventoryResourceRecord> FilterVisibleResources(
         IEnumerable<AzureInventoryResourceRecord> resources,
-        IReadOnlySet<string>? privateLinkOnlyNicArmIds = null)
+        IReadOnlySet<string>? privateLinkOnlyNicArmIds = null,
+        bool retainIdentityDiagramArmTypes = false)
     {
         return resources
             .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
                 resource.ResourceType,
                 resource.AzureResourceId,
-                privateLinkOnlyNicArmIds))
+                privateLinkOnlyNicArmIds,
+                retainIdentityDiagramArmTypes))
             .ToList();
     }
 
@@ -96,7 +98,9 @@ public static class AzureInventoryVisibleSnapshotProjection
         return visible;
     }
 
-    public static AzureInventorySnapshotDetailReadModel Apply(AzureInventorySnapshotDetailReadModel snapshot)
+    public static AzureInventorySnapshotDetailReadModel Apply(
+        AzureInventorySnapshotDetailReadModel snapshot,
+        bool retainIdentityDiagramArmTypes = false)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
@@ -106,7 +110,8 @@ public static class AzureInventoryVisibleSnapshotProjection
             snapshot.Properties);
         List<AzureInventoryResourceRecord> visibleResources = FilterVisibleResources(
             snapshot.Resources,
-            privateLinkOnlyNicArmIds);
+            privateLinkOnlyNicArmIds,
+            retainIdentityDiagramArmTypes);
         HashSet<string> visibleArmIds = BuildVisibleArmIdSet(visibleResources);
         List<AzureInventoryResourceRelationshipReadModel> visibleRelationships =
             FilterVisibleRelationships(snapshot.Relationships, visibleArmIds);
