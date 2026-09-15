@@ -324,7 +324,16 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("signalr", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("documentdb", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("maps", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("fluid", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("fluid", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("webpubsub", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("relay", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("lab", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("stack", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("batch", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("advisor", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("sentinel", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("voice", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("chaos", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -559,7 +568,16 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("signalr", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("documentdb", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("maps", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("fluid", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("fluid", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("webpubsub", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("relay", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("lab", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("stack", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("batch", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("advisor", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("sentinel", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("voice", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("chaos", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
