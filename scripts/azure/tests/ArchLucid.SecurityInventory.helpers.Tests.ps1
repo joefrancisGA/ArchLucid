@@ -15,14 +15,17 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             'Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks'
             'Microsoft.Portal/dashboards'
             'Microsoft.OperationalInsights/workspaces'
+            'Microsoft.Insights/activityLogAlerts'
+            'Microsoft.Insights/scheduledQueryRules'
             'Microsoft.OperationsManagement/solutions'
-            'Microsoft.AlertsManagement/smartDetectorAlertRules'
-            'Microsoft.Insights/metricAlerts'
             'Microsoft.Network/dnszones'
             'Microsoft.Network/privateDnsZones'
             'Microsoft.Network/firewallPolicies'
+            'Microsoft.Network/networkIntentPolicies'
             'Microsoft.ManagedIdentity/userAssignedIdentities'
+            'Microsoft.Automation/automationAccounts'
             'Microsoft.Automation/automationAccounts/runbooks'
+            'Microsoft.Compute/virtualMachines/extensions/versions'
             'Microsoft.Compute/virtualMachines/extensions'
             'Microsoft.Compute/sshPublicKeys'
             'Microsoft.Maintenance/maintenanceConfigurations'
@@ -37,10 +40,6 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType 'Microsoft.Compute/virtualMachines' |
             Should -Be $false
         Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security' |
-            Should -Be $true
-        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.AlertsManagement/smartDetectorAlertRules/Failure Anomalies - my-app' |
-            Should -Be $true
-        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/metricAlerts/cpu-high-alert' |
             Should -Be $true
         Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1' |
             Should -Be $true
