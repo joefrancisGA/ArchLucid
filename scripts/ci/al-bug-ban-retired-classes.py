@@ -12,6 +12,10 @@ today — the identifier itself is the ban.
 strictmode-script: Pester 3 ``Should Be`` (not ``Should -Be``) under scripts/tests.
 
 Do not add English-phrase signals to al-bug-audit-proven-rows.py.
+
+week-uom-synonym: bans new HasCompactWeekk+Suffix / ContainsSpacedSlashWeekk+Token
+methods and per-length AzureRetailPricesSkuMatchers*Weekkk*Tests.cs files.
+HasCompactWeekSuffix and topology matchers are not banned.
 """
 
 from __future__ import annotations
