@@ -133,9 +133,9 @@ export function useSoftNavigationLoading(options: UseSoftNavigationLoadingOption
         onTimeout?.();
       }, timeoutMs);
 
-      if (mode !== "refresh") {
-        void router.prefetch(href);
-      }
+      // Do not call router.prefetch() immediately before push/replace — Next.js 16 segment-cache
+      // navigation can abort the in-flight RSC fetch and surface dev-only "Failed to fetch" noise.
+      // Viewport <Link prefetch> and the push itself load the route payload.
 
       startTransition(() => {
         try {

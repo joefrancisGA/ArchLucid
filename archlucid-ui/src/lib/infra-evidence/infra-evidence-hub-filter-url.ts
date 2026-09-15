@@ -1,8 +1,12 @@
 import {
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
-  governanceInfrastructureResourceHubPath,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  infrastructureResourceHubPathForProductLine,
+  infrastructureResourcesPathForProductLine,
+} from "@/lib/product-line/securenow-infrastructure-resources-route";
+import { resolveProductLineId } from "@/lib/product-line/resolve-product-line-id";
 import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { resolveResourceHubTabFromExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
@@ -328,7 +332,7 @@ export function resourceExplorerFilterHrefFromSearch(
     readonly workQueue?: CloudResourceExplorerWorkQueue;
     readonly snapshotId?: string;
   },
-  pathname: string = GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  pathname: string = infrastructureResourcesPathForProductLine(resolveProductLineId()),
 ): string {
   const params = new URLSearchParams(currentSearch);
 
@@ -409,7 +413,7 @@ export function resourceHubFilterHrefFromSearch(
   },
 ): string {
   const params = new URLSearchParams(currentSearch);
-  const pathname = governanceInfrastructureResourceHubPath(cloudResourceId);
+  const pathname = infrastructureResourceHubPathForProductLine(resolveProductLineId(), cloudResourceId);
 
   if (patch.tab !== undefined) {
     if (patch.tab === "overview") {

@@ -55,4 +55,16 @@ public sealed class InfraEvidenceMermaidRenderResponse
         get;
         set;
     }
+
+    public InfraEvidenceMermaidCollapseReport? CollapseReport
+    {
+        get;
+        set;
+    }
+
+    public InfraEvidenceMermaidIdentityDiagramHints? IdentityDiagramHints
+    {
+        get;
+        set;
+    }
 }

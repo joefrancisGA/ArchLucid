@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
@@ -276,7 +277,7 @@ public sealed class OperationalSecurityFindingIngestService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            logger.LogWarning(
+            logger.LogWarningWithExceptionAndTwoSanitizedUserStrings(
                 ex,
                 "Operational security finding ingest failed for SourceSystem={SourceSystem} SourceFindingId={SourceFindingId}.",
                 item.SourceSystem,

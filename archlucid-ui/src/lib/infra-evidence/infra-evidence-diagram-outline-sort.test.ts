@@ -45,4 +45,13 @@ describe("infra-evidence-diagram-outline-sort", () => {
 
     expect(sorted.map((node) => node.resourceGroup)).toEqual(["rg-b", "rg-a"]);
   });
+
+  it("sorts nodes by friendly resource type name", () => {
+    const sorted = sortInfraEvidenceDiagramOutlineNodes(nodes, "resourceType", "asc");
+
+    expect(sorted.map((node) => node.resourceType)).toEqual([
+      "Microsoft.Storage/storageAccounts",
+      "Microsoft.Network/virtualNetworks",
+    ]);
+  });
 });

@@ -93,10 +93,13 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
  * (settings hub leaves, OAuth returns).
  */
 export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLineAssignment>> = {
+  "/why-archlucid": "architecture",
   "/security/assigned-to-me": "security",
   "/security/remediation-factory": "security",
+  "/security/remediation-instances": "security",
   "/security/remediation-patterns": "security",
   "/infrastructure/diagrams": "security",
+  "/infrastructure/resources": "security",
   "/administration/auth-domains": "both",
   "/administration/identity/sso-wizard": "both",
   "/integrations/itsm/oauth/callback": "both",
@@ -115,6 +118,7 @@ export const PRODUCT_LINE_NESTED_PREFIXES: readonly string[] = [
   "/governance/standards-and-rules",
   "/security",
   "/infrastructure",
+  "/infrastructure/resources",
   "/integrations/cloud-connections",
   "/integrations/jira",
   "/integrations/azure-boards",
@@ -138,7 +142,6 @@ export const PRODUCT_LINE_ALWAYS_ALLOWED_PREFIXES: readonly string[] = [
   "/account",
   "/auth",
   "/403",
-  "/why-archlucid",
 ];
 
 export { INTERNAL_PRODUCT_LINE_PATH } from "@/lib/internal-ops-route-paths";

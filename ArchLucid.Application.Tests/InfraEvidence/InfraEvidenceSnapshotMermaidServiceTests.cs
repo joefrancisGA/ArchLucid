@@ -34,6 +34,32 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     private static readonly Guid SnapshotId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
 
     [Fact]
+    public async Task Graph_resolver_retainIdentityDiagramArmTypes_includes_managed_identity_resources()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildIdentityOnlyNeverShowSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        AzureInventorySnapshotGraphResolver resolver = new(repository);
+        ScopeContext scope = CreateScope();
+
+        AzureInventorySnapshotGraphResolveResult defaultGraph =
+            await resolver.TryResolveGraphAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
+
+        defaultGraph.Graph!.Nodes.Should().HaveCount(1);
+
+        AzureInventorySnapshotGraphResolveResult identityGraph =
+            await resolver.TryResolveGraphAsync(
+                scope,
+                SnapshotId,
+                retainIdentityDiagramArmTypes: true,
+                cancellationToken: CancellationToken.None);
+
+        identityGraph.Graph!.Nodes.Should().HaveCount(3);
+        identityGraph.Graph.Nodes.Should().OnlyContain(node =>
+            node.Properties["arm.type"].Contains("ManagedIdentity", StringComparison.OrdinalIgnoreCase)
+            || node.Properties["arm.type"].Contains("virtualMachines", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task Graph_resolver_builds_nodes_from_synthetic_snapshot_detail()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
@@ -42,7 +68,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         AzureInventorySnapshotGraphResolveResult result =
-            await resolver.TryResolveGraphAsync(scope, SnapshotId, CancellationToken.None);
+            await resolver.TryResolveGraphAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Graph.Should().NotBeNull();
@@ -95,7 +121,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -153,7 +179,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
-            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+            await service.TryGetPreviewAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -195,14 +221,14 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> executiveResult =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, cancellationToken: CancellationToken.None);
 
         executiveResult.Succeeded.Should().BeTrue();
         executiveResult.Value.Should().NotBeNull();
         executiveResult.Value!.Mode.Should().Be("executive");
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> previewResult =
-            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+            await service.TryGetPreviewAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
 
         previewResult.Succeeded.Should().BeTrue();
         previewResult.Value.Should().NotBeNull();
@@ -220,7 +246,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
-            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+            await service.TryGetPreviewAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -247,7 +273,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         AzureInventorySnapshotGraphResolveResult graphResult =
-            await resolver.TryResolveGraphAsync(scope, SnapshotId, CancellationToken.None);
+            await resolver.TryResolveGraphAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
 
         graphResult.Succeeded.Should().BeTrue();
         graphResult.Graph.Should().NotBeNull();
@@ -265,7 +291,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "network", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "network", null, null, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -290,7 +316,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
-            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+            await service.TryGetPreviewAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
 
@@ -316,7 +342,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "network", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "network", null, null, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -346,7 +372,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         AzureInventorySnapshotGraphResolveResult graphResult =
-            await resolver.TryResolveGraphAsync(scope, SnapshotId, CancellationToken.None);
+            await resolver.TryResolveGraphAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
 
         graphResult.Succeeded.Should().BeTrue();
         graphResult.Graph!.Edges.Should().Contain(edge =>
@@ -362,7 +388,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         AzureInventorySnapshotGraphResolver resolver = new(repository);
 
         AzureInventorySnapshotGraphResolveResult graphResult = await resolver
-            .TryResolveGraphAsync(CreateScope(), SnapshotId, CancellationToken.None);
+            .TryResolveGraphAsync(CreateScope(), SnapshotId, cancellationToken: CancellationToken.None);
 
         graphResult.Succeeded.Should().BeTrue();
 
@@ -406,7 +432,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             new MermaidDiagramReadabilityThresholds());
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(CreateScope(), SnapshotId, "executive", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(CreateScope(), SnapshotId, "executive", null, null, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -444,10 +470,41 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value!.Mermaid.Should().NotContain("effective-only-nsg");
+    }
+
+    [Fact]
+    public async Task Executive_mode_always_shows_storage_accounts_until_the_storage_tier_is_hidden()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildMixedNetworkAndStorageSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> shown =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, cancellationToken: CancellationToken.None);
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> hidden =
+            await service.TryGetMermaidAsync(
+                scope,
+                SnapshotId,
+                "executive",
+                null,
+                null,
+                includeNeverShowArmTypes: false,
+                hiddenExecutiveTierKeys: "storage,bogus",
+                cancellationToken: CancellationToken.None);
+
+        shown.Succeeded.Should().BeTrue();
+        shown.Value!.Mermaid.Should().Contain("core-vnet");
+        shown.Value.Mermaid.Should().Contain("logsstorage");
+        hidden.Succeeded.Should().BeTrue();
+        hidden.Value!.Mermaid.Should().Contain("core-vnet");
+        hidden.Value.Mermaid.Should().NotContain("logsstorage");
     }
 
     [Fact]
@@ -461,7 +518,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "network", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "network", null, null, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value!.Mermaid.Should().Contain("core-vnet");
@@ -479,7 +536,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -491,6 +548,10 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         result.Value.Mermaid.Should().Contain("flowchart TD");
         result.Value.Mermaid.Should().Contain("mi-eastus-0");
         result.Value.Mermaid.Should().Contain("mi-eastus-2");
+        result.Value.IdentityDiagramHints.Should().NotBeNull();
+        result.Value.IdentityDiagramHints!.InventoryFilteredIdentityArmTypes.Should().ContainSingle();
+        result.Value.IdentityDiagramHints.InventoryFilteredIdentityArmTypes[0].ArmResourceType
+            .Should().Be("Microsoft.ManagedIdentity/userAssignedIdentities");
     }
 
     [Fact]
@@ -504,7 +565,11 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
-            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+            await service.TryGetPreviewAsync(
+                scope,
+                SnapshotId,
+                includeNeverShowArmTypes: true,
+                cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
 
@@ -530,7 +595,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, includeNeverShowArmTypes: true, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value!.Metrics!.NodeCount.Should().Be(12);
@@ -550,11 +615,31 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value!.Mermaid.Should().Contain("app-identity");
         result.Value.Mermaid.Should().NotContain("logs-storage");
+    }
+
+    [Fact]
+    public async Task Identity_mode_includes_never_show_managed_identity_without_includeNeverShow_flag()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildIdentityOnlyNeverShowSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, cancellationToken: CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded.ToString());
+        result.Value.Metrics!.NodeCount.Should().Be(2);
+        result.Value.Mermaid.Should().Contain("mi-prod-a");
+        result.Value.Mermaid.Should().Contain("mi-prod-b");
     }
 
     [Fact]
@@ -568,7 +653,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
-            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+            await service.TryGetPreviewAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -598,7 +683,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "full", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "full", null, null, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value!.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded.ToString());
@@ -620,7 +705,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> picker =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "resourceGroup", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "resourceGroup", null, null, cancellationToken: CancellationToken.None);
 
         picker.Succeeded.Should().BeTrue();
         picker.Value!.Mode.Should().Be("resourceGroup");
@@ -635,7 +720,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
                 "resourceGroup:rg-1",
                 null,
                 null,
-                CancellationToken.None);
+                cancellationToken: CancellationToken.None);
 
         selected.Succeeded.Should().BeTrue();
         selected.Value!.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded.ToString());
@@ -934,6 +1019,59 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         };
     }
 
+    private static AzureInventorySnapshotDetailReadModel BuildIdentityOnlyNeverShowSnapshot()
+    {
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    CloudResourceId = Guid.Parse("11111111-2222-3333-4444-000000000020"),
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg-a/providers/Microsoft.ManagedIdentity/userAssignedIdentities/mi-prod-a",
+                    ResourceType = "Microsoft.ManagedIdentity/userAssignedIdentities",
+                    ResourceGroup = "rg-a",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    CloudResourceId = Guid.Parse("11111111-2222-3333-4444-000000000021"),
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg-b/providers/Microsoft.ManagedIdentity/userAssignedIdentities/mi-prod-b",
+                    ResourceType = "Microsoft.ManagedIdentity/userAssignedIdentities",
+                    ResourceGroup = "rg-b",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    CloudResourceId = Guid.Parse("11111111-2222-3333-4444-000000000022"),
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg-c/providers/Microsoft.Compute/virtualMachines/vm-1",
+                    ResourceType = "Microsoft.Compute/virtualMachines",
+                    ResourceGroup = "rg-c",
+                    SubscriptionId = "sub",
+                },
+            ],
+        };
+    }
+
     private static AzureInventorySnapshotDetailReadModel BuildIdentitySnapshot(int resourceCount)
     {
         List<AzureInventoryResourceRecord> resources = [];
@@ -1182,6 +1320,15 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             string? subscriptionId,
             CancellationToken cancellationToken = default)
             => Task.FromResult<(IReadOnlyList<AzureInventorySnapshotRecord>, int)>(([], 0));
+
+        public Task<(IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)?> ListResourcesBySnapshotIdPagedAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            int page,
+            int pageSize,
+            Guid? cloudResourceId = null,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord>, int)?>(null);
     }
 
     private sealed class NullDiagramImageRenderer : ArchLucid.Core.Diagrams.IDiagramImageRenderer
@@ -1261,7 +1408,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value!.LayoutEngine.Should().Be("inventory-forest");
@@ -1291,7 +1438,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value!.LayoutEngine.Should().Be("graphviz-fdp");

@@ -49,8 +49,8 @@ export async function fetchInfraEvidenceDiffsForSnapshot(
   return proxyJsonGet<InfraEvidenceDiffSummary[]>(`${SNAPSHOTS_PATH}/${snapshotId}/diffs`);
 }
 
-export async function fetchInfraEvidenceDiffChanges(
-  diffId: string,
+export async function fetchInfraEvidenceSnapshotInventoryRows(
+  snapshotId: string,
   page = 1,
   pageSize = 50,
   options: { readonly cloudResourceId?: string | null } = {},
@@ -59,6 +59,27 @@ export async function fetchInfraEvidenceDiffChanges(
 
   if (options.cloudResourceId != null && options.cloudResourceId.trim().length > 0) {
     params.set("cloudResourceId", options.cloudResourceId.trim());
+  }
+
+  return proxyJsonGet<InfraEvidencePagedResponse<InfraEvidenceDiffChange>>(
+    `${SNAPSHOTS_PATH}/${snapshotId}/inventory-rows?${params.toString()}`,
+  );
+}
+
+export async function fetchInfraEvidenceDiffChanges(
+  diffId: string,
+  page = 1,
+  pageSize = 50,
+  options: { readonly cloudResourceId?: string | null; readonly includeUnchanged?: boolean } = {},
+): Promise<InfraEvidencePagedResponse<InfraEvidenceDiffChange>> {
+  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+
+  if (options.cloudResourceId != null && options.cloudResourceId.trim().length > 0) {
+    params.set("cloudResourceId", options.cloudResourceId.trim());
+  }
+
+  if (options.includeUnchanged === true) {
+    params.set("includeUnchanged", "true");
   }
 
   return proxyJsonGet<InfraEvidencePagedResponse<InfraEvidenceDiffChange>>(

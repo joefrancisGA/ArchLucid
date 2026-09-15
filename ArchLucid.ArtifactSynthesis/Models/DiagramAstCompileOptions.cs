@@ -43,4 +43,14 @@ public sealed class DiagramAstCompileOptions
         get;
         init;
     }
+
+    /// <summary>
+    /// Executive always-show tier keys (<see cref="Compilers.ExecutiveAlwaysShowTiers" />) the viewer unchecked
+    /// for this render. Null or empty shows every tier.
+    /// </summary>
+    public IReadOnlyList<string>? HiddenExecutiveTierKeys
+    {
+        get;
+        init;
+    }
 }

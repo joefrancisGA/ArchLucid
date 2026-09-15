@@ -116,6 +116,17 @@ describe("useSoftNavigationLoading", () => {
     expect(result.current.error).toBe("Navigation timed out.");
   });
 
+  it("does not prefetch immediately before push (avoids segment-cache fetch abort races)", async () => {
+    const { result } = renderHook(() => useSoftNavigationLoading());
+
+    act(() => {
+      expect(result.current.navigate("/architecture/reviews")).toBe(true);
+    });
+
+    expect(push).toHaveBeenCalledWith("/architecture/reviews");
+    expect(prefetch).not.toHaveBeenCalled();
+  });
+
   it("supports RSC refresh without a href prefetch", async () => {
     const { result } = renderHook(() => useSoftNavigationLoading());
 

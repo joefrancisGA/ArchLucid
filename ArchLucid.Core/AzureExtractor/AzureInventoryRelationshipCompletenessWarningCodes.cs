@@ -9,6 +9,8 @@ public static class AzureInventoryRelationshipCompletenessWarningCodes
 
     public const string ArgNicSubnetMissing = "arg-nic-subnet-missing";
 
+    public const string ArgVnetPeeringMissing = "arg-vnet-peering-missing";
+
     public const string HostedNicListFailed = "hosted-nic-list-failed";
 
     public const string ArmFallbackThinProperties = "arm-fallback-thin-properties";

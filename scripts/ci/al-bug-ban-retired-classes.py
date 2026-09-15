@@ -30,6 +30,18 @@ TRY_PARSE_BOOL_DEF = re.compile(
 )
 EMBEDDED_FRAGMENT = re.compile(r"\bIsEmbeddedSensitiveFragment\b")
 PESTER3_SHOULD_BE = re.compile(r"\bShould Be\b")
+WEEK_K_METHOD = re.compile(
+    r"^\s*private static bool (?:HasCompactWeekk+Suffix|ContainsSpacedSlashWeekk+Token)\s*\(",
+    re.MULTILINE,
+)
+WEEK_K_TEST_FILE = re.compile(
+    r"^ArchLucid\.Core\.Tests/Costing/AzureRetailPricesSkuMatchers"
+    r"(?!WeekMeterTests\.cs$)"
+    r".*Weekk.*Tests\.cs$",
+)
+WEEK_K_TEST_ALLOWLIST = {
+    "ArchLucid.Core.Tests/Costing/AzureRetailPricesSkuMatchersWeekMeterTests.cs",
+}
 
 PRODUCTION_CS_ROOTS = (
     "ArchLucid.Core",
@@ -100,6 +112,29 @@ def find_fail_open_redaction_violations(root: Path, allowlist: set[str]) -> list
     return errors
 
 
+def find_week_uom_synonym_violations(root: Path) -> list[str]:
+    errors: list[str] = []
+    for path in iter_cs_files(root):
+        text = path.read_text(encoding="utf-8")
+        if not WEEK_K_METHOD.search(text):
+            continue
+        errors.append(
+            f"week-uom-synonym: per-k week matcher methods in {rel(root, path)}",
+        )
+
+    tests_dir = root / "ArchLucid.Core.Tests/Costing"
+    if tests_dir.is_dir():
+        for path in tests_dir.glob("AzureRetailPricesSkuMatchers*Tests.cs"):
+            relative = rel(root, path)
+            if relative in WEEK_K_TEST_ALLOWLIST:
+                continue
+            if WEEK_K_TEST_FILE.match(relative):
+                errors.append(
+                    f"week-uom-synonym: per-variant week test file {relative}",
+                )
+    return errors
+
+
 def find_pester3_violations(root: Path) -> list[str]:
     errors: list[str] = []
     tests_dir = root / "scripts" / "tests"
@@ -121,6 +156,7 @@ def scan(root: Path, allowlist: set[str]) -> list[str]:
     errors.extend(find_boolean_coercion_violations(root, allowlist))
     errors.extend(find_fail_open_redaction_violations(root, allowlist))
     errors.extend(find_pester3_violations(root))
+    errors.extend(find_week_uom_synonym_violations(root))
     return errors
 
 

@@ -22,4 +22,27 @@ public sealed class ArmResourceIdNormalizerTests
         ArmResourceIdNormalizer.Normalize(null).Should().BeEmpty();
         ArmResourceIdNormalizer.Normalize("   ").Should().BeEmpty();
     }
+
+    [Fact]
+    public void IsDescendantOf_detects_nested_arm_child_resources()
+    {
+        const string parent =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+        const string child =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1/extensions/ext";
+
+        ArmResourceIdNormalizer.IsDescendantOf(child, parent).Should().BeTrue();
+        ArmResourceIdNormalizer.IsDescendantOf(parent, child).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDescendantOf_does_not_treat_similar_sibling_names_as_nested()
+    {
+        const string siblingA =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string siblingB =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa10";
+
+        ArmResourceIdNormalizer.IsDescendantOf(siblingB, siblingA).Should().BeFalse();
+    }
 }
