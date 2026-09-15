@@ -15,6 +15,8 @@ public static class AzureInventoryNeverShowArmTypes
         "Microsoft.OperationalInsights/workspaces",
         "Microsoft.Insights/activityLogAlerts",
         "Microsoft.Insights/scheduledQueryRules",
+        // Application Insights Failure Anomalies (FailureAnomaliesDetector) and other smart detectors.
+        "Microsoft.AlertsManagement/smartDetectorAlertRules",
         "Microsoft.OperationsManagement/solutions",
         "Microsoft.Network/dnszones",
         "Microsoft.Network/privateDnsZones",
@@ -42,6 +44,7 @@ public static class AzureInventoryNeverShowArmTypes
         "workspaces",
         "activitylogalerts",
         "scheduledqueryrules",
+        "smartdetectoralertrules",
         "solutions",
         "extensions",
         "sshpublickeys",

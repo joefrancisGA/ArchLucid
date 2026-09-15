@@ -17,6 +17,7 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             'Microsoft.OperationalInsights/workspaces'
             'Microsoft.Insights/activityLogAlerts'
             'Microsoft.Insights/scheduledQueryRules'
+            'Microsoft.AlertsManagement/smartDetectorAlertRules'
             'Microsoft.OperationsManagement/solutions'
             'Microsoft.Network/dnszones'
             'Microsoft.Network/privateDnsZones'
