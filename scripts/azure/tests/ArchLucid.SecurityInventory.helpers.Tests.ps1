@@ -19,6 +19,7 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             'Microsoft.Network/dnszones'
             'Microsoft.Network/privateDnsZones'
             'Microsoft.Network/firewallPolicies'
+            'Microsoft.ManagedIdentity/userAssignedIdentities'
             'Microsoft.Compute/virtualMachines/extensions'
             'Microsoft.Compute/sshPublicKeys'
             'Microsoft.Maintenance/maintenanceConfigurations'
