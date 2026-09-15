@@ -30,6 +30,9 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     [InlineData("Microsoft.ManagedIdentity/userAssignedIdentities")]
     [InlineData("microsoft.managedidentity/userassignedidentities")]
     [InlineData("userassignedidentities")]
+    [InlineData("Microsoft.Automation/automationAccounts")]
+    [InlineData("microsoft.automation/automationaccounts")]
+    [InlineData("automationaccounts")]
     [InlineData("Microsoft.Automation/automationAccounts/runbooks")]
     [InlineData("microsoft.automation/automationaccounts/runbooks")]
     [InlineData("runbooks")]
@@ -70,6 +73,7 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/firewallPolicies/fwp1")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkIntentPolicies/nip1")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uai1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Automation/automationAccounts/aa1")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Automation/automationAccounts/aa1/runbooks/rb1")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1/extensions/ext1/versions/1.0")]
     public void ShouldOmitAzureResourceId_returns_true_for_never_show_arm_ids(string azureResourceId)
