@@ -40,6 +40,28 @@ function stripMicrosoftProviderPrefix(namespace: string): string {
   return namespace;
 }
 
+/**
+ * Table type column: drop the Azure `Microsoft.` provider prefix so
+ * `Microsoft.Network/publicIPAddresses` reads as `Network/publicIPAddresses`.
+ */
+export function formatAzureResourceTypeForDisplay(resourceType: string | null | undefined): string {
+  if (resourceType == null) {
+    return "—";
+  }
+
+  const trimmed = resourceType.trim();
+
+  if (trimmed.length === 0) {
+    return "—";
+  }
+
+  const slashIndex = trimmed.indexOf("/");
+  const namespace = slashIndex >= 0 ? trimmed.slice(0, slashIndex) : trimmed;
+  const remainder = slashIndex >= 0 ? trimmed.slice(slashIndex) : "";
+
+  return `${stripMicrosoftProviderPrefix(namespace)}${remainder}`;
+}
+
 function resourceTypeFromSegments(segments: readonly string[]): string | null {
   const providersIndex = segments.findIndex((segment) => segment.toLowerCase() === "providers");
 

@@ -90,6 +90,20 @@ describe("ResourcesExplorerClient", () => {
     );
     expect(screen.queryByTestId("infra-resource-explorer-overview-11111111-1111-1111-1111-111111111111")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-resource-explorer-hub-tab-11111111-1111-1111-1111-111111111111")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-explorer-snapshot-id")).not.toBeInTheDocument();
+    expect(screen.queryByText("Snapshot context (links only)")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-type-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "Network/publicIPAddresses",
+    );
+    expect(screen.getByTestId("infra-resource-type-11111111-1111-1111-1111-111111111111")).not.toHaveTextContent(
+      "Microsoft.",
+    );
+    expect(screen.getByTestId("infra-resource-last-seen-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "9/1/26, 08:00",
+    );
+    expect(screen.getByTestId("infra-resource-last-seen-11111111-1111-1111-1111-111111111111")).not.toHaveTextContent(
+      /AM|PM|2026/,
+    );
   });
 
   it("renders work queue chips and applies open-findings filter", async () => {
