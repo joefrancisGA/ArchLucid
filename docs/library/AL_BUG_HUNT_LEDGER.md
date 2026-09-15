@@ -12387,6 +12387,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-15 seed hunt #3337 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `eachValue` for_each suffix gap; regression `ParseAsync_each_value_appends_for_each_suffix_to_name`.
+
 2026-09-15 seed hunt #3332 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-15 seed hunt #3327 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -12751,11 +12753,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 316
-- **bugs-found:** 278
+- **hunts:** 317
+- **bugs-found:** 279
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-15 — hunt #3312: terraform-show-json providerConfigKey property gap
+- **last-bug:** 2026-09-15 — hunt #3337: terraform-show-json eachValue for_each suffix gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
