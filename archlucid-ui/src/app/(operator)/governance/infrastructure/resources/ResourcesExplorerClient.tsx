@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -474,32 +473,34 @@ export function ResourcesExplorerClient() {
           ) : null}
           {rows.map((row) => {
             const workCountBadges = buildCloudResourceExplorerWorkCountBadges(row.workCounts);
+            const isResourceIdDisclosed = infraResourceRowArmIdKey === row.cloudResourceId;
 
             return (
-            <EnterpriseTableRow key={row.cloudResourceId} data-testid={`infra-resource-row-${row.cloudResourceId}`}>
+            <EnterpriseTableRow
+              key={row.cloudResourceId}
+              data-testid={`infra-resource-row-${row.cloudResourceId}`}
+              selected={isResourceIdDisclosed}
+              onClick={() => setInfraResourceRowArmIdKey(isResourceIdDisclosed ? null : row.cloudResourceId)}
+            >
               <EnterpriseTableCell>
                 <Link
                   className="font-medium text-al-link hover:underline"
                   href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue, urlSnapshotId)}
                   data-testid={`infra-resource-explorer-hub-${row.cloudResourceId}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                  }}
                 >
                   {formatCloudResourceDisplayName(row)}
                 </Link>
-                {buyerPolishedShell ? (
-                  <CollapsibleSection
-                    title="Resource id"
-                    sectionTestId={`infra-resource-row-arm-id-disclosure-${row.cloudResourceId}`}
-                    summaryLine="External ARM resource path"
-                    open={infraResourceRowArmIdKey === row.cloudResourceId}
-                    onToggle={(open) => setInfraResourceRowArmIdKey(open ? row.cloudResourceId : null)}
+                {isResourceIdDisclosed ? (
+                  <p
+                    className={cn("m-0 truncate font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid={`infra-resource-row-arm-id-disclosure-${row.cloudResourceId}`}
                   >
-                    <p className={cn("m-0 truncate font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                      {row.externalResourceId}
-                    </p>
-                  </CollapsibleSection>
-                ) : (
-                  <div className="truncate font-mono text-xs text-al-text-secondary">{row.externalResourceId}</div>
-                )}
+                    resource id: {row.externalResourceId}
+                  </p>
+                ) : null}
               </EnterpriseTableCell>
               <EnterpriseTableCell data-testid={`infra-resource-work-counts-${row.cloudResourceId}`}>
                 {workCountBadges.length === 0 ? (
@@ -513,6 +514,9 @@ export function ResourcesExplorerClient() {
                         title={badge.label}
                         href={buildResourceExplorerWorkCountHref(row.cloudResourceId, badge.kind, urlWorkQueue, urlSnapshotId)}
                         data-testid={`infra-resource-work-count-${row.cloudResourceId}-${badge.kind}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                        }}
                       >
                         {badge.kind === "findings" ? "F" : badge.kind === "remediation" ? "R" : "D"}:{badge.count}
                       </Link>
@@ -528,7 +532,11 @@ export function ResourcesExplorerClient() {
               <EnterpriseTableCell data-testid={`infra-resource-last-seen-${row.cloudResourceId}`}>
                 {row.lastSeenUtc.length > 0 ? formatInstantCompactMilitary(row.lastSeenUtc) : "—"}
               </EnterpriseTableCell>
-              <EnterpriseTableCell>
+              <EnterpriseTableCell
+                onClick={(event) => {
+                  event.stopPropagation();
+                }}
+              >
                 <div className="flex flex-wrap gap-2">
                   {urlWorkQueue !== "all" ? (
                     <Button asChild size="sm" variant="outline">
