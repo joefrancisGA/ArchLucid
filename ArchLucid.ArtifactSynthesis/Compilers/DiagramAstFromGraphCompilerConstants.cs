@@ -6,8 +6,6 @@ public static class DiagramAstFromGraphCompilerConstants
     /// <summary>Inferred/heuristic edges below this weight are dropped to avoid fully-connected noise.</summary>
     public const double MinimumEdgeWeight = 0.75d;
 
-    public const int ExecutiveMaxResourceNodes = 12;
-
     public const int DependencyNeighborhoodDefaultDepth = 2;
 
     /// <summary>Target ~2:1 aspect when wrapping unrelated peers into a grid (<c>sqrt(n × factor)</c>).</summary>

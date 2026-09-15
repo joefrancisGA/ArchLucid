@@ -2,6 +2,7 @@ using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -54,7 +55,36 @@ public sealed class DiagramAstFromGraphCompilerTests
 
         executive.Nodes.Count.Should().BeLessThan(full.Nodes.Count);
         full.Nodes.Should().HaveCount(50);
-        executive.Nodes.Count.Should().BeLessThanOrEqualTo(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes);
+        executive.Nodes.Should().OnlyContain(node =>
+            node.ArmResourceType != null
+            && node.ArmResourceType.EndsWith("/virtualNetworks", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Compile_executive_mode_keeps_every_vnet_including_beyond_former_twelve_cap()
+    {
+        GraphSnapshot graph = BuildExecutiveSparseVnetGraph(resourceGroupCount: 13);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+
+        ast.Nodes.Should().HaveCount(13);
+    }
+
+    [Fact]
+    public void Compile_executive_mode_synthesizes_peering_from_vnet_property_json()
+    {
+        GraphSnapshot graph = BuildExecutiveVnetOnlyGraph();
+        GraphNode left = graph.Nodes[0];
+        GraphNode right = graph.Nodes[1];
+        string rightArmId = DiagramAstGraphNodeClassifier.ReadArmId(right);
+        left.Properties[AzureInventoryVnetPeeringParser.PeeringsPropertyKey] =
+            "[{\"properties\":{\"remoteVirtualNetwork\":{\"id\":\"" + rightArmId + "\"}}}]";
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+        string mermaid = renderer.Render(ast);
+
+        ast.Edges.Should().Contain(edge => !edge.IsLayoutOnly && edge.Label == "peering");
+        mermaid.Should().Contain("-->|\"peering\"|");
     }
 
     [Fact]

@@ -74,9 +74,12 @@ public static class AzureInventorySecurityEdgeMaterializer
                 warnings);
         }
 
+        AddObservedVnetPeeringsFromResourceProperties(resources, relationships, relationshipKeys);
+
         AzureInventoryNetworkAssociationEdgeMapper.AddRelationshipCompletenessWarnings(
             resources,
             networkAssociations,
+            relationships,
             warnings);
 
         AddPolicyAssignmentEdges(policyAssignments, relationships, relationshipKeys);
@@ -254,6 +257,72 @@ public static class AzureInventorySecurityEdgeMaterializer
             ProvenanceKind.ObservedFact,
             ObservedFactConfidence,
             GraphEdgeInferenceSources.InventoryNicSubnet);
+    }
+
+    private static void AddObservedVnetPeeringsFromResourceProperties(
+        IReadOnlyList<AzureExtractorExtendedResourceRow> resources,
+        List<AzureInventoryResourceRelationshipWrite> relationships,
+        HashSet<string> relationshipKeys)
+    {
+        ArgumentNullException.ThrowIfNull(resources);
+        ArgumentNullException.ThrowIfNull(relationships);
+        ArgumentNullException.ThrowIfNull(relationshipKeys);
+
+        foreach (AzureExtractorExtendedResourceRow resource in resources)
+        {
+            if (AzureInventoryVnetPeeringParser.IsPeeringResourceType(resource.ResourceType)
+                || AzureInventoryVnetPeeringParser.IsPeeringResourceId(resource.AzureResourceId))
+            {
+                string? parentVnetId = AzureInventoryVnetPeeringParser.TryGetParentVirtualNetworkArmId(
+                    resource.AzureResourceId);
+                string? remoteVnetId = AzureInventoryVnetPeeringParser.TryReadRemoteVnetIdFromProperties(
+                    resource.Properties.ToDictionary(
+                        pair => pair.Key,
+                        pair => (string?)pair.Value,
+                        StringComparer.OrdinalIgnoreCase));
+
+                if (string.IsNullOrWhiteSpace(parentVnetId) || string.IsNullOrWhiteSpace(remoteVnetId))
+                {
+                    continue;
+                }
+
+                AddRelationship(
+                    relationships,
+                    relationshipKeys,
+                    parentVnetId,
+                    remoteVnetId,
+                    GraphEdgeTypes.PeersWith,
+                    ProvenanceKind.ObservedFact,
+                    ObservedFactConfidence,
+                    GraphEdgeInferenceSources.InventoryVnetPeering);
+                continue;
+            }
+
+            if (!AzureInventoryVnetPeeringParser.IsVirtualNetworkResourceType(resource.ResourceType))
+            {
+                continue;
+            }
+
+            if (!resource.Properties.TryGetValue(
+                    AzureInventoryVnetPeeringParser.PeeringsPropertyKey,
+                    out string? peeringsJson))
+            {
+                continue;
+            }
+
+            foreach (string remoteVnetId in AzureInventoryVnetPeeringParser.EnumerateRemoteVnetIds(peeringsJson))
+            {
+                AddRelationship(
+                    relationships,
+                    relationshipKeys,
+                    resource.AzureResourceId,
+                    remoteVnetId,
+                    GraphEdgeTypes.PeersWith,
+                    ProvenanceKind.ObservedFact,
+                    ObservedFactConfidence,
+                    GraphEdgeInferenceSources.InventoryVnetPeering);
+            }
+        }
     }
 
     private static void AddRoleAssignmentEdges(

@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
@@ -8,18 +9,22 @@ namespace ArchLucid.Application.InfraEvidence.Mermaid;
 
 /// <summary>
 ///     Restores VNet peering edges for snapshots that stored peering JSON or child rows
-///     but never materialized <c>PEERS_WITH</c> relationships.
+///     but never materialized <c>PEERS_WITH</c> relationships. Missing remotes become stub VNets.
 /// </summary>
 internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
 {
     public static void AddMissingPeeringEdges(
         AzureInventorySnapshotDetailReadModel snapshot,
-        IReadOnlyDictionary<string, string> nodeIdByArmId,
+        Dictionary<string, string> nodeIdByArmId,
+        List<GraphNode> nodes,
+        HashSet<string> seenNodeIds,
         List<GraphEdge> edges,
         HashSet<string> edgeKeys)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodeIdByArmId);
+        ArgumentNullException.ThrowIfNull(nodes);
+        ArgumentNullException.ThrowIfNull(seenNodeIds);
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
 
@@ -38,6 +43,8 @@ internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
                     resource,
                     propertiesByRowId,
                     nodeIdByArmId,
+                    nodes,
+                    seenNodeIds,
                     edges,
                     edgeKeys,
                     peeringPairKeys);
@@ -53,6 +60,8 @@ internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
                 resource,
                 propertiesByRowId,
                 nodeIdByArmId,
+                nodes,
+                seenNodeIds,
                 edges,
                 edgeKeys,
                 peeringPairKeys);
@@ -62,7 +71,9 @@ internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
     private static void TryAddNestedPeeringEdges(
         AzureInventoryResourceRecord resource,
         IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId,
-        IReadOnlyDictionary<string, string> nodeIdByArmId,
+        Dictionary<string, string> nodeIdByArmId,
+        List<GraphNode> nodes,
+        HashSet<string> seenNodeIds,
         List<GraphEdge> edges,
         HashSet<string> edgeKeys,
         HashSet<string> peeringPairKeys)
@@ -92,6 +103,8 @@ internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
                 resource.AzureResourceId,
                 remoteVnetId,
                 nodeIdByArmId,
+                nodes,
+                seenNodeIds,
                 edges,
                 edgeKeys,
                 peeringPairKeys);
@@ -101,7 +114,9 @@ internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
     private static void TryAddChildPeeringEdge(
         AzureInventoryResourceRecord resource,
         IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId,
-        IReadOnlyDictionary<string, string> nodeIdByArmId,
+        Dictionary<string, string> nodeIdByArmId,
+        List<GraphNode> nodes,
+        HashSet<string> seenNodeIds,
         List<GraphEdge> edges,
         HashSet<string> edgeKeys,
         HashSet<string> peeringPairKeys)
@@ -136,6 +151,8 @@ internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
             localVnetId,
             remoteVnetId,
             nodeIdByArmId,
+            nodes,
+            seenNodeIds,
             edges,
             edgeKeys,
             peeringPairKeys);
@@ -144,7 +161,9 @@ internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
     private static void TryAddPeeringEdge(
         string? fromAzureResourceId,
         string? toAzureResourceId,
-        IReadOnlyDictionary<string, string> nodeIdByArmId,
+        Dictionary<string, string> nodeIdByArmId,
+        List<GraphNode> nodes,
+        HashSet<string> seenNodeIds,
         List<GraphEdge> edges,
         HashSet<string> edgeKeys,
         HashSet<string> peeringPairKeys)
@@ -159,8 +178,17 @@ internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
             return;
         }
 
-        if (!nodeIdByArmId.TryGetValue(fromArmId, out string? fromNodeId)
-            || !nodeIdByArmId.TryGetValue(toArmId, out string? toNodeId))
+        if (!nodeIdByArmId.TryGetValue(fromArmId, out string? fromNodeId))
+        {
+            fromNodeId = EnsureNode(fromArmId, nodeIdByArmId, nodes, seenNodeIds);
+        }
+
+        if (!nodeIdByArmId.TryGetValue(toArmId, out string? toNodeId))
+        {
+            toNodeId = EnsureNode(toArmId, nodeIdByArmId, nodes, seenNodeIds);
+        }
+
+        if (string.IsNullOrWhiteSpace(fromNodeId) || string.IsNullOrWhiteSpace(toNodeId))
         {
             return;
         }
@@ -190,6 +218,32 @@ internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
             Weight = 1.0d,
             InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering,
         });
+    }
+
+    private static string? EnsureNode(
+        string normalizedArmId,
+        Dictionary<string, string> nodeIdByArmId,
+        List<GraphNode> nodes,
+        HashSet<string> seenNodeIds)
+    {
+        if (nodeIdByArmId.TryGetValue(normalizedArmId, out string? existingNodeId))
+        {
+            return existingNodeId;
+        }
+
+        GraphNode stub = ExecutiveVnetPeeringStubNodeFactory.Create(normalizedArmId);
+
+        if (!seenNodeIds.Add(stub.NodeId))
+        {
+            nodeIdByArmId[normalizedArmId] = stub.NodeId;
+
+            return stub.NodeId;
+        }
+
+        nodes.Add(stub);
+        nodeIdByArmId[normalizedArmId] = stub.NodeId;
+
+        return stub.NodeId;
     }
 
     private static HashSet<string> BuildExistingPeeringPairKeys(IReadOnlyList<GraphEdge> edges)

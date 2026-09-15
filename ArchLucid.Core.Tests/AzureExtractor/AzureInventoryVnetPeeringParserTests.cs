@@ -76,4 +76,21 @@ public sealed class AzureInventoryVnetPeeringParserTests
 
         AzureInventoryVnetPeeringParser.EnumerateRemoteVnetIds(json).Should().BeEmpty();
     }
+
+    [Fact]
+    public void HasPeeringCollectionEvidence_is_true_for_nested_remote_ids()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryVnetPeeringParser.PeeringsPropertyKey] = """
+                [{"properties":{"remoteVirtualNetwork":{"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b"}}}]
+                """,
+        };
+
+        AzureInventoryVnetPeeringParser.HasPeeringCollectionEvidence(
+                "Microsoft.Network/virtualNetworks",
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a",
+                properties)
+            .Should().BeTrue();
+    }
 }

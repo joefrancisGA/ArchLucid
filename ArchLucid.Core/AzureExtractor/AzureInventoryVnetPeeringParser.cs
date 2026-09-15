@@ -133,7 +133,31 @@ public static class AzureInventoryVnetPeeringParser
         return TryReadRemoteVnetIdFromObject(peering);
     }
 
-    public static string? TryReadRemoteVnetIdFromProperties(IReadOnlyDictionary<string, string?> properties)
+    public static bool HasPeeringCollectionEvidence(
+        string? resourceType,
+        string? azureResourceId,
+        IReadOnlyDictionary<string, string>? properties)
+    {
+        if (IsPeeringResourceType(resourceType) || IsPeeringResourceId(azureResourceId))
+        {
+            return true;
+        }
+
+        if (properties is null)
+        {
+            return false;
+        }
+
+        if (!properties.TryGetValue(PeeringsPropertyKey, out string? peeringsJson)
+            || string.IsNullOrWhiteSpace(peeringsJson))
+        {
+            return false;
+        }
+
+        return HasRemoteVnetIds(peeringsJson);
+    }
+
+    public static string? TryReadRemoteVnetIdFromProperties(IReadOnlyDictionary<string, string?>? properties)
     {
         if (properties is null)
         {

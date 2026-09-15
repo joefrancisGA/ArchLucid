@@ -307,6 +307,78 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
     }
 
     [Fact]
+    public void Materialize_vnet_property_peerings_emit_peers_with_without_association_rows()
+    {
+        const string localVnet =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a";
+        const string remoteVnet =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [
+                    new AzureExtractorExtendedResourceRow
+                    {
+                        AzureResourceId = localVnet,
+                        ResourceType = "Microsoft.Network/virtualNetworks",
+                        Name = "vnet-a",
+                        Properties = new Dictionary<string, string>
+                        {
+                            [AzureInventoryVnetPeeringParser.PeeringsPropertyKey] =
+                                "[{\"properties\":{\"remoteVirtualNetwork\":{\"id\":\"" + remoteVnet + "\"}}}]",
+                        },
+                    },
+                ],
+                [],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().ContainSingle(r =>
+            r.RelationshipType == GraphEdgeTypes.PeersWith
+            && r.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(localVnet)
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(remoteVnet));
+        result.CompletenessWarnings.Should().NotContain(
+            AzureInventoryRelationshipCompletenessWarningCodes.ArgVnetPeeringMissing);
+    }
+
+    [Fact]
+    public void Materialize_peering_child_without_remote_id_adds_completeness_warning()
+    {
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [
+                    new AzureExtractorExtendedResourceRow
+                    {
+                        AzureResourceId =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a/virtualNetworkPeerings/peer-to-b",
+                        ResourceType = "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                        Name = "peer-to-b",
+                    },
+                ],
+                [],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().BeEmpty();
+        result.CompletenessWarnings.Should().Contain(
+            AzureInventoryRelationshipCompletenessWarningCodes.ArgVnetPeeringMissing);
+    }
+
+    [Fact]
     public void Materialize_unknown_association_type_adds_warning_and_skips_edge()
     {
         AzureInventorySecurityEdgeMaterializeResult result =

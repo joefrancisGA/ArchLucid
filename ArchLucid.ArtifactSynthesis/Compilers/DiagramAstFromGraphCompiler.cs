@@ -22,6 +22,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             .ToList();
 
         topologyNodes = ApplyModeNodeFilter(graph, topologyNodes, mode, options);
+        topologyNodes = ExecutiveVnetPeeringEndpointIncluder.Include(graph, topologyNodes, mode);
 
         HashSet<string> includedNodeIds = topologyNodes
             .Select(node => node.NodeId)
@@ -94,6 +95,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         {
             DiagramExecutiveRegionPlanner.ApplyRegionSubgraphs(ast, topologyNodes);
             ExecutiveVnetSummaryBuilder.ApplyExecutiveVnetLabels(ast, graph, topologyNodes);
+            ExecutiveVnetPeeringEdgeBuilder.Apply(ast, graph, topologyNodes, nodeIdMap);
         }
 
         DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode, options);
@@ -173,14 +175,10 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         if (summaryNodes.Count == 0)
         {
-            summaryNodes = nodes
-                .Take(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes)
-                .ToList();
+            return nodes.ToList();
         }
 
-        return summaryNodes
-            .Take(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes)
-            .ToList();
+        return summaryNodes;
     }
 
     private static List<GraphNode> IncludeInventoryConnectedVirtualMachines(

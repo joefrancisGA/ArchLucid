@@ -154,6 +154,36 @@ function Add-ArchLucidArgNetworkAssociationRowsFromVNetRecord
     }
 }
 
+function Get-ArchLucidArgNetworkAssociationQuerySpecs
+{
+    param(
+        [string] $ResourceGroupScope = ""
+    )
+
+    [string]$rgFilter = ""
+
+    if (-not ([string]::IsNullOrWhiteSpace("$ResourceGroupScope")))
+    {
+        [string]$rg = "$ResourceGroupScope".Trim()
+        $rgFilter = "| where resourceGroup =~ '$rg'"
+    }
+
+    return @(
+        [pscustomobject]@{
+            Kind = 'virtualMachine'
+            Query = "Resources | where type =~ 'microsoft.compute/virtualmachines' $rgFilter | project id, type, networkInterfaces = properties.networkProfile.networkInterfaces"
+        }
+        [pscustomobject]@{
+            Kind = 'networkInterface'
+            Query = "Resources | where type =~ 'microsoft.network/networkinterfaces' $rgFilter | project id, type, ipConfigurations = properties.ipConfigurations, networkSecurityGroupId = properties.networkSecurityGroup.id"
+        }
+        [pscustomobject]@{
+            Kind = 'virtualNetwork'
+            Query = "Resources | where type =~ 'microsoft.network/virtualnetworks' $rgFilter | project id, type, subnets = properties.subnets, peerings = properties.virtualNetworkPeerings"
+        }
+    )
+}
+
 function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
 {
     param(
@@ -173,60 +203,43 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
     [System.Collections.ArrayList]$rows = [System.Collections.ArrayList]::new()
     [hashtable]$seen = @{}
 
-    [string]$rgFilter = ""
-
-    if (-not ([string]::IsNullOrWhiteSpace("$ResourceGroupScope")))
-    {
-        [string]$rg = "$ResourceGroupScope".Trim()
-        $rgFilter = "| where resourceGroup =~ '$rg'"
-    }
-
-    [string[]]$queries = @(
-        "Resources | where type =~ 'microsoft.compute/virtualmachines' $rgFilter | project id, networkInterfaces = properties.networkProfile.networkInterfaces",
-        "Resources | where type =~ 'microsoft.network/networkinterfaces' $rgFilter | project id, ipConfigurations = properties.ipConfigurations, networkSecurityGroupId = properties.networkSecurityGroup.id",
-        "Resources | where type =~ 'microsoft.network/virtualnetworks' $rgFilter | project id, subnets = properties.subnets, peerings = properties.virtualNetworkPeerings"
-    )
-
-    foreach ($query in $queries)
+    foreach ($spec in @(Get-ArchLucidArgNetworkAssociationQuerySpecs -ResourceGroupScope $ResourceGroupScope))
     {
         try
         {
-            [object]$page = Search-AzGraph -Query $query -Subscription $SubscriptionId -First 1000
+            [object]$page = Search-AzGraph -Query $spec.Query -Subscription $SubscriptionId -First 1000
 
             foreach ($row in @(Get-ArchLucidResourceGraphPageDataArray $page))
             {
                 [string]$resourceId = "$( $row.id )".Trim()
-                [string]$resourceType = "$( $row.type )".Trim()
 
                 if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
 
-                if ($resourceType -like '*virtualmachines*')
+                switch ("$($spec.Kind)")
                 {
-                    Add-ArchLucidArgNetworkAssociationRowsFromVmRecord `
-                        -Rows $rows `
-                        -Seen $seen `
-                        -VmResourceId $resourceId `
-                        -NetworkInterfacesJson $row.networkInterfaces
-                }
-
-                if ($resourceType -like '*networkinterfaces*')
-                {
-                    Add-ArchLucidArgNetworkAssociationRowsFromNicRecord `
-                        -Rows $rows `
-                        -Seen $seen `
-                        -NicResourceId $resourceId `
-                        -IpConfigurationsJson $row.ipConfigurations `
-                        -NetworkSecurityGroupId "$( $row.networkSecurityGroupId )".Trim()
-                }
-
-                if ($resourceType -like '*virtualnetworks*')
-                {
-                    Add-ArchLucidArgNetworkAssociationRowsFromVNetRecord `
-                        -Rows $rows `
-                        -Seen $seen `
-                        -VNetResourceId $resourceId `
-                        -SubnetsJson $row.subnets `
-                        -PeeringsJson $row.peerings
+                    'virtualMachine' {
+                        Add-ArchLucidArgNetworkAssociationRowsFromVmRecord `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -VmResourceId $resourceId `
+                            -NetworkInterfacesJson $row.networkInterfaces
+                    }
+                    'networkInterface' {
+                        Add-ArchLucidArgNetworkAssociationRowsFromNicRecord `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -NicResourceId $resourceId `
+                            -IpConfigurationsJson $row.ipConfigurations `
+                            -NetworkSecurityGroupId "$( $row.networkSecurityGroupId )".Trim()
+                    }
+                    'virtualNetwork' {
+                        Add-ArchLucidArgNetworkAssociationRowsFromVNetRecord `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -VNetResourceId $resourceId `
+                            -SubnetsJson $row.subnets `
+                            -PeeringsJson $row.peerings
+                    }
                 }
             }
         }
