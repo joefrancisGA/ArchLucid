@@ -3,6 +3,8 @@
 import type { ReactElement } from "react";
 
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useWorkingCareerRehearsalDoor } from "@/hooks/use-working-career-rehearsal-door";
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isSecureNowDemoChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
@@ -10,6 +12,8 @@ import {
   demoVsLiveChromeForFlags,
   type DemoVsLiveChromeFlags,
 } from "@/lib/demo-vs-live-chrome";
+import { PUBLIC_DEMO_RECORD_MODE_CHROME_REMINDER } from "@/lib/governance/working-career-rehearsal-door-copy";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 
 export type DemoVsLiveChromeBannerProps = DemoVsLiveChromeFlags & {
   readonly className?: string;
@@ -19,6 +23,8 @@ export type DemoVsLiveChromeBannerProps = DemoVsLiveChromeFlags & {
 /** Unmistakable non-live banner (+ optional watermark) for static-demo / simulator chrome (TB-2218). */
 export function DemoVsLiveChromeBanner(props: DemoVsLiveChromeBannerProps): ReactElement | null {
   const { productLine } = useProductLine();
+  const { mode, mounted: workspaceMounted } = useWorkspaceMode();
+  const { door, mounted: doorMounted } = useWorkingCareerRehearsalDoor();
 
   if (isSecureNowDemoChromeExcluded(productLine)) {
     return null;
@@ -34,6 +40,9 @@ export function DemoVsLiveChromeBanner(props: DemoVsLiveChromeBannerProps): Reac
     return null;
   }
 
+  const showRecordModeReminder =
+    workspaceMounted && doorMounted && isWorkingWorkspaceMode(mode) && door === "career";
+
   return (
     <div className={cn("space-y-1", props.className)} data-testid={copy.testId}>
       <div
@@ -48,6 +57,14 @@ export function DemoVsLiveChromeBanner(props: DemoVsLiveChromeBannerProps): Reac
       >
         <p className="m-0 font-bold tracking-wide">{copy.bannerTitle}</p>
         <p className={cn("m-0 mt-1 leading-snug", OPERATOR_TYPOGRAPHY.helper)}>{copy.bannerBody}</p>
+        {showRecordModeReminder ? (
+          <p
+            className={cn("m-0 mt-2 leading-snug font-medium", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="demo-vs-live-record-mode-reminder"
+          >
+            {PUBLIC_DEMO_RECORD_MODE_CHROME_REMINDER}
+          </p>
+        ) : null}
       </div>
       {props.showWatermark === true ? (
         <p
