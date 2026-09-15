@@ -30,6 +30,16 @@ TRY_PARSE_BOOL_DEF = re.compile(
 )
 EMBEDDED_FRAGMENT = re.compile(r"\bIsEmbeddedSensitiveFragment\b")
 PESTER3_SHOULD_BE = re.compile(r"\bShould Be\b")
+# uom-synonym-treadmill: per-length week+extra-k helpers instead of one generalized matcher.
+WEEK_EXTRA_K_COMPACT_SUFFIX = re.compile(
+    r"\bHasCompactWeekk+k+Suffix\s*\(",
+)
+WEEK_EXTRA_K_SPACED_TOKEN = re.compile(
+    r"\bContainsSpacedSlashWeekk+k+Token\s*\(",
+)
+WEEK_EXTRA_K_TEST_FILE = re.compile(
+    r"AzureRetailPricesSkuMatchers(?:Compact|SpacedSlash)?Weekk{2,}k*Tests\.cs$",
+)
 
 PRODUCTION_CS_ROOTS = (
     "ArchLucid.Core",
@@ -100,6 +110,32 @@ def find_fail_open_redaction_violations(root: Path, allowlist: set[str]) -> list
     return errors
 
 
+def find_uom_week_extra_k_violations(root: Path) -> list[str]:
+    errors: list[str] = []
+    matchers = root / "ArchLucid.Core/Costing/AzureRetailPricesSkuMatchers.cs"
+    if matchers.is_file():
+        text = matchers.read_text(encoding="utf-8")
+        if WEEK_EXTRA_K_COMPACT_SUFFIX.search(text):
+            errors.append(
+                "uom-synonym-treadmill: per-length HasCompactWeekk*Suffix in "
+                f"{rel(root, matchers)} — use HasCompactWeekWithExtraKSuffix"
+            )
+        if WEEK_EXTRA_K_SPACED_TOKEN.search(text):
+            errors.append(
+                "uom-synonym-treadmill: per-length ContainsSpacedSlashWeekk*Token in "
+                f"{rel(root, matchers)} — use ContainsSpacedSlashWeekWithExtraKToken"
+            )
+
+    tests_dir = root / "ArchLucid.Core.Tests/Costing"
+    if tests_dir.is_dir():
+        for path in tests_dir.glob("AzureRetailPricesSkuMatchers*Tests.cs"):
+            if WEEK_EXTRA_K_TEST_FILE.search(path.name):
+                errors.append(
+                    f"uom-synonym-treadmill: per-length week UOM test file {rel(root, path)}"
+                )
+    return errors
+
+
 def find_pester3_violations(root: Path) -> list[str]:
     errors: list[str] = []
     tests_dir = root / "scripts" / "tests"
@@ -121,6 +157,7 @@ def scan(root: Path, allowlist: set[str]) -> list[str]:
     errors.extend(find_boolean_coercion_violations(root, allowlist))
     errors.extend(find_fail_open_redaction_violations(root, allowlist))
     errors.extend(find_pester3_violations(root))
+    errors.extend(find_uom_week_extra_k_violations(root))
     return errors
 
 

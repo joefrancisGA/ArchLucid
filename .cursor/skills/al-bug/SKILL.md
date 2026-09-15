@@ -48,6 +48,8 @@ Use the JSON `paths`, `openHypotheses`, `huntReadyHypotheses`, `candidateHypothe
 
 **Fix bar:** close a class of inputs; do not ship a one-string allowlist/phrase-list append as the whole fix. Guard code (redaction, validation, authz, schema readers): conservative failure is usually `(valid-no-repro)` unless reachability cites a real caller or attacker input.
 
+**UOM synonym treadmill (`[class:uom-synonym]`):** `AzureRetailPricesSkuMatchers` week/hour/day gaps must be fixed with generalized matchers + parameterized tests — never per-length `Weekkk…` helpers or one-file-per-input regressions (`scripts/ci/al-bug-ban-retired-classes.py`).
+
 Ledger tags: `(candidate)`, `(hunt-ready)`, `(proven)`, `(invalid)`, `(valid-no-repro)`. Bare `[x]` counts as proven — do not tick misses that way.
 
 Topology orchestration remains a **high-yield zone** (`topology-proposal-merge`) after it has been sampled, not a global default. Hunt the rest of the catalog when those zones are still untried. Typical defect shapes there:

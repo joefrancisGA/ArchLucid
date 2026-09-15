@@ -73,6 +73,22 @@ def test_embedded_fragment_detected() -> None:
     assert bans.EMBEDDED_FRAGMENT.search(text) is not None
 
 
+def test_week_extra_k_compact_suffix_banned() -> None:
+    text = "private static bool HasCompactWeekkkkkSuffix(string trimmed)"
+    assert bans.WEEK_EXTRA_K_COMPACT_SUFFIX.search(text) is not None
+    ok = "private static bool HasCompactWeekWithExtraKSuffix(string trimmed)"
+    assert bans.WEEK_EXTRA_K_COMPACT_SUFFIX.search(ok) is None
+
+
+def test_week_extra_k_test_file_banned() -> None:
+    assert bans.WEEK_EXTRA_K_TEST_FILE.search(
+        "AzureRetailPricesSkuMatchersCompactWeekkkkkTests.cs"
+    ) is not None
+    assert bans.WEEK_EXTRA_K_TEST_FILE.search(
+        "AzureRetailPricesSkuMatchersWeekExtraKVariantsTests.cs"
+    ) is None
+
+
 if __name__ == "__main__":
     failures = 0
     for name, fn in sorted(globals().items()):
