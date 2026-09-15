@@ -261,6 +261,51 @@ public sealed class DiagramForestLayoutSvgRendererTests
     }
 
     [Fact]
+    public void Render_private_endpoint_target_shows_lock_without_edge_label()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "private-endpoint",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "pe-1",
+                    Label = "pe-sql",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Network/privateEndpoints",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "sql-1",
+                    Label = "mysql-bam-hi-dev",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.DBforMySQL/flexibleServers",
+                    HasPrivateEndpointAccess = true,
+                    OrderKey = 1,
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "pe-1",
+                    ToNodeId = "sql-1",
+                    Label = string.Empty,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue();
+        result.Svg.Should().Contain("class=\"private-endpoint-lock\"");
+        result.Svg.Should().Contain("Private endpoint access");
+        result.Svg.Should().NotContain("class=\"edge-label\"");
+    }
+
+    [Fact]
     public void Render_empty_ast_fails_soft()
     {
         DiagramForestLayoutResult result = renderer.Render(new DiagramAst { Title = "empty" });

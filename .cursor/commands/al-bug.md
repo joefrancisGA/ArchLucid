@@ -186,11 +186,13 @@ Ban as hunt-ready (keep as `(candidate)` or retire as `(invalid)`) any row that 
 
 Also ban hunt-ready rows whose **input** is a constructed string with no reachability citation (for example `beefAccessKey` with no ARM, config, OpenAPI, or UI path that could emit it). A concrete value that merely exercises a branch is not enough.
 
+**Week UOM letter-run example (not hunt-ready):** Azure Retail Prices `unitOfMeasure` values are short quantity+unit tokens (`1 Week`, `1/Week`, `1 wk`). Any input whose week token is `week` plus **one or more extra `k` characters** (`10weekk`, `10weekkk…`, `10 / weekkk…`) or extra-vowel farms beyond the finite keep-list (`10weeeeek`) has **no reachability citation** — classify `(invalid)` in cheap-disproof, not `(proven)`. See `docs/library/AZURE_WEEK_UOM_KEEP_LIST.md`.
+
 Prefer mechanisms that have paid off in this catalog: dual-path disagreement (gate vs merge, parent SQL vs child join, watchdog vs visibility), alias/identity mismatch, parameterized-test holes, recent churn with no new test.
 
 **Guard failure direction:** for redaction, validation, authz, and schema readers, the conservative failure mode (over-redact, reject malformed, deny) is usually `(valid-no-repro)` unless reachability shows a real caller or attacker-controlled input. Fail-open / leak / accept malformed as success is hunt-eligible. Severity must name user-visible harm (secret in summary, cross-tenant 200, committed bad manifest). “Test disagreed with an allowlist” is not medium/high. High impact requires that named harm — see `docs/library/AL_BUG_SEVERITY_CALIBRATION_AUDIT.md` when present.
 
-Optional `[class:…]` tag on hunt-ready/proven rows (closed enum in ledger Scoring). When picker JSON `saturatedClasses` contains your row's class, **do not** ship another sibling synonym — consolidate to a shared helper (ABQ-01/04/15) or close `(invalid)` / `(valid-no-repro)`. Retired classes are CI-banned: do not add a sibling `TryParseBooleanString` body or `IsEmbeddedSensitiveFragment` copy; extend `JsonBooleanStringReader` or the token redactor (`scripts/ci/al-bug-retired-class-allowlist.txt`). **Week UOM (`[class:week-uom-synonym]`):** do not add another `AzureRetailPricesSkuMatchers*Weekkk*Tests.cs` or `HasCompactWeekkk…Suffix` / `ContainsSpacedSlashWeekkk…Token` copy — extend `HasCompactWeeWithKRepeatSuffix` / `ContainsSpacedSlashWeekWithExtraKToken` and add rows to `AzureRetailPricesSkuMatchersWeekMeterTests` only.
+Optional `[class:…]` tag on hunt-ready/proven rows (closed enum in ledger Scoring). When picker JSON `saturatedClasses` contains your row's class, **do not** ship another sibling synonym — consolidate to a shared helper (ABQ-01/04/15) or close `(invalid)` / `(valid-no-repro)`. Retired classes are CI-banned: do not add a sibling `TryParseBooleanString` body or `IsEmbeddedSensitiveFragment` copy; extend `JsonBooleanStringReader` or the token redactor (`scripts/ci/al-bug-retired-class-allowlist.txt`). **Week UOM (`[class:week-uom-synonym]`):** do not add `HasCompactWeekk+Suffix`, `ContainsSpacedSlashWeekk+Token`, or per-length `*Weekkk*Tests.cs` files — CI bans reintroduction (`scripts/ci/al-bug-ban-retired-classes.py`). Keep-list week tokens only (`docs/library/AZURE_WEEK_UOM_KEEP_LIST.md`).
 
 ### 1.1c Cheap disproof (before a repro)
 
@@ -200,7 +202,7 @@ For each hunt-ready row, spend about a minute on:
 2. **Already tested?** An existing test name already states the claim → `(valid-no-repro)` and cite the test.
 3. **Prerequisite present?** No `useQuery` / session / child join → `(invalid)` for cache/join claims.
 4. **Churn?** If the claim is the already-fixed TB/PD and `codeChangedSince` is 0, expect `(valid-no-repro)`.
-5. **Reachable?** No citation for where the input originates (ARM/config/OpenAPI/UI/trust boundary) → `(invalid)` or leave `(candidate)`.
+5. **Reachable?** No citation for where the input originates (ARM/config/OpenAPI/UI/trust boundary) → `(invalid)` or leave `(candidate)`. Core-costing: if the only failing input is a `week`+extra-`k` or extra-vowel UOM literal, classify `(invalid)` — do not ship a hit.
 
 Only **plausible-untested** hunt-ready rows consume a failing-repro attempt.
 
@@ -257,7 +259,7 @@ Exit code **2** → stop; tell the user which paths are blocked.
 
 2. Implement the **smallest** fix that makes the repro pass.
 3. The fix must close a **class** of inputs, not one instance. Forbidden as the entire fix: appending one string to a keyword/phrase/allowlist so a single new theory case passes. If the mechanism is substring or phrase matching, change the mechanism (see ABQ tokenizer/redaction patterns) or close the row `(valid-no-repro)` — do not ship an instance-list diff.
-   - **UOM synonym treadmill (`[class:uom-synonym]`):** when `AzureRetailPricesSkuMatchers` misses a week/hour/day variant, add or extend a **generalized** helper (for example `week` + zero-or-more `k`) and one parameterized regression test — never a new `HasCompactWeekkk…Suffix` / `ContainsSpacedSlashWeekkk…Token` method or a one-input test file per length. CI bans this via `scripts/ci/al-bug-ban-retired-classes.py`.
+   - **UOM synonym treadmill (`[class:uom-synonym]`):** real Azure week/hour/day tokens only. **Forbidden** as the entire fix: adding `HasCompactWeekk+Suffix` / `ContainsSpacedSlashWeekk+Token` or a one-input `*Weekkk*Tests.cs` file so one constructed `10weekkk…` theory case passes. Week letter-runs are not catalog parity — close `(invalid)`. Hour/day/month may still use generalized helpers + `AzureRetailPricesSkuMatchersWeekMeterTests` (or sibling parameterized tests). CI: `scripts/ci/al-bug-ban-retired-classes.py`.
 4. If picker JSON lists `escalatedFiles` containing the implicated production file, **do not ship** another allowlist/phrase-list patch to that file. Record the hunt as `dry`/`invalid` and cite ABQ-01–04 or a design fix instead.
 5. Keep the regression test in the permanent test file (delete temporary repro-only files).
 6. The shipped test must **fail** if the production hunk alone is reverted (revert-to-fail honesty). Owners may batch-check with `python3 scripts/agent/al-bug-verify-proven-revert.py`. New unguarded `(proven)` rows fail the ABQ-34/36 ratchet vs `scripts/ci/al-bug-unguarded-proven-baseline.json` (`--fail-on-new-unguarded`); new `no-test-cited` / `could-not-run` rows fail ABQ-45 vs `scripts/ci/al-bug-uncheckable-proven-baseline.json`. `could-not-run` is not a pass. Do not mass-retick historical rows.
@@ -272,6 +274,8 @@ Exit code **2** → stop; tell the user which paths are blocked.
 ---
 
 ## Phase 3 — Ship to `bugsmash`
+
+**Ship-script hygiene:** untracked `scripts/agent/ship-hunts-*.py` batch helpers must not grow `CORE_COMPACT` / `CORE_SPACED` `weekk+` maps. Topology `TOPOLOGY` maps remain allowed. Do not commit ship scripts solely to delete those maps.
 
 Target branch is **`bugsmash`** unless the user named another branch in the same message.
 

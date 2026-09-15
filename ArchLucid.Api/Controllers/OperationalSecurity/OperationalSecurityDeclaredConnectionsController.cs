@@ -2,6 +2,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;

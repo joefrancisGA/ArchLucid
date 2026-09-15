@@ -48,7 +48,7 @@ Use the JSON `paths`, `openHypotheses`, `huntReadyHypotheses`, `candidateHypothe
 
 **Fix bar:** close a class of inputs; do not ship a one-string allowlist/phrase-list append as the whole fix. Guard code (redaction, validation, authz, schema readers): conservative failure is usually `(valid-no-repro)` unless reachability cites a real caller or attacker input.
 
-**UOM synonym treadmill (`[class:uom-synonym]`):** `AzureRetailPricesSkuMatchers` week/hour/day gaps must be fixed with generalized matchers + parameterized tests — never per-length `Weekkk…` helpers or one-file-per-input regressions (`scripts/ci/al-bug-ban-retired-classes.py`).
+**Week UOM letter-run ban:** `week`+extra-`k` inputs (`10weekkk…`, `10 / weekkk…`) and extra-vowel farms (`10weeeeek`) are **not hunt-ready** — Azure Retail Prices never emits them. Do not add `HasCompactWeekk+Suffix` / `ContainsSpacedSlashWeekk+Token` or `*Weekkk*Tests.cs` files; CI bans via `scripts/ci/al-bug-ban-retired-classes.py`. Keep-list: `docs/library/AZURE_WEEK_UOM_KEEP_LIST.md`. Topology hunts may continue on other branches.
 
 Ledger tags: `(candidate)`, `(hunt-ready)`, `(proven)`, `(invalid)`, `(valid-no-repro)`. Bare `[x]` counts as proven — do not tick misses that way.
 
