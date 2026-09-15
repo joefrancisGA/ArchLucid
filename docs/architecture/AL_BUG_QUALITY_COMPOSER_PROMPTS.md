@@ -1,19 +1,33 @@
 > **Scope:** Copy-paste Composer prompts that stop `/al-bug` from manufacturing synthetic defects (especially redaction, schema-version coercion, and English-negation phrase lists) and restore a hunt catalog that covers recent product surface. Internal engineering only — not buyer-facing copy.
-> **Paste-ready files:** [`.cursor/prompts/al-bug-quality-00-index.md`](../../.cursor/prompts/al-bug-quality-00-index.md) (**ABQ-01–35 shipped**; **ABQ-36–45 ready to run**)
+> **Paste-ready files:** [`.cursor/prompts/al-bug-quality-00-index.md`](../../.cursor/prompts/al-bug-quality-00-index.md) (**ABQ-01–45 shipped**; **ABQ-46–50 week-UOM cleanup — prompts only**) · wave 7 index [`.cursor/prompts/al-bug-quality-week-uom-00-index.md`](../../.cursor/prompts/al-bug-quality-week-uom-00-index.md)
 > **Workflow:** [`.cursor/commands/al-bug.md`](../../.cursor/commands/al-bug.md) · ledger [`../library/AL_BUG_HUNT_LEDGER.md`](../library/AL_BUG_HUNT_LEDGER.md)
 > **Do not fork:** GTM cohorts **M-90 / M-44 / M-91 / M-92**; closed assurance **TB-135 / TB-136**; `/al-defect` PD intake; a full `bugsmash` revert
 
-# `/al-bug` quality — Composer prompts (ABQ-01–ABQ-45)
+# `/al-bug` quality — Composer prompts (ABQ-01–ABQ-50)
 
-**Created:** 2026-09-06 · **Status:** **01–35 shipped** (#1969) · **36–45 ready to run** · **Audience:** Cursor Composer implementing hunt-quality leftovers after wave 5.
+**Created:** 2026-09-06 · **Status:** **01–45 shipped** · **46–50 prompts only** (2026-09-15 week-UOM letter-run cleanup) · **Audience:** Cursor Composer; do not implement 46–50 from this document’s tables.
 
-Wave 1 tables below are **historical** (ABQ-01–10). Paste **ABQ-36–45** from `.cursor/prompts/al-bug-quality-NN-*.md`. Do not re-implement 01–35. Do not implement from this document’s tables.
+Wave 1 tables below are **historical** (ABQ-01–10). Paste **ABQ-46–50** from `.cursor/prompts/al-bug-quality-NN-*.md` (or `al-bug-quality-week-uom-00-index.md`). Do not re-implement 01–45. Do not implement from this document’s tables.
 
 Verified damage on `master` (scratch probe of current redactors, 2026-09-06): `adminPassword`, `storageAccountAccessKey`, `sshPrivateKey`, `sqlAdminPassword`, and `ArchLucid:OpenAiApiKey` were **not** redacted, while fictional treadmill keys such as `beefAccessKey` **were**. `IsEmbeddedSensitiveFragment` skips any sensitive fragment preceded by a letter, which describes nearly every real camelCase ARM / config key.
 
 Paste **one** `.cursor/prompts/al-bug-quality-NN-*.md` file per Composer session. Do not implement from this document’s tables.
 
-## Wave 6 — ready to run (ABQ-36–45)
+## Wave 7 — prompts only (ABQ-46–50) — run before the next hunt batch
+
+Owner 2026-09-15: stop shipping synthetic `weekk+` Azure Retail Prices UOM hunts. Cleanup existing matchers/tests, then CI-ban reintroduction. **Topology-proposal-merge hunts may resume after 48/49.** Do not mix new topology hits into the deletion PR. Do not run `/al-bug` to implement this wave.
+
+| ID | Prompt file | Leftover / flaw |
+|----|-------------|-----------------|
+| **46** | `al-bug-quality-46-stop-weekk-uom-farming.md` | Docs: not hunt-ready; no new `HasCompactWeekk+` methods |
+| **47** | `al-bug-quality-47-week-uom-keep-list.md` | Inventory keep vs delete → `AZURE_WEEK_UOM_KEEP_LIST.md` |
+| **48** | `al-bug-quality-48-delete-weekk-matchers.md` | Delete farmed methods in `AzureRetailPricesSkuMatchers.cs` |
+| **49** | `al-bug-quality-49-delete-weekk-tests.md` | Delete farmed `*Weekk+Tests.cs` files |
+| **50** | `al-bug-quality-50-ban-weekk-uom.md` | CI ban; topology tokens remain legal |
+
+Recommended order: **46** (can land immediately), **47**, then **48+49** (one PR preferred), then **50**.
+
+## Wave 6 — historical (ABQ-36–45 shipped)
 
 | ID | Prompt file | Leftover / flaw |
 |----|-------------|-----------------|
