@@ -23,10 +23,12 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
   };
 });
 
+import { OPERATOR_SHORT_HELPER_MEASURE_CLASS } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_ACTION,
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BODY,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { InfrastructureOverviewClient } from "./InfrastructureOverviewClient";
@@ -40,7 +42,17 @@ describe("InfrastructureOverviewClient buyer-polished chrome", () => {
       `#${GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.getByTestId("governance-infrastructure-overview-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByTestId("governance-infrastructure-start-here-panel")).toBeInTheDocument();
+    const startHerePanel = screen.getByTestId("governance-infrastructure-start-here-panel");
+    const startHereBody = screen.getByText(GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BODY);
+
+    expect(startHerePanel).toBeInTheDocument();
+    expect(startHerePanel.className).not.toContain("max-w-2xl");
+    expect(startHerePanel.className).not.toContain("max-w-prose");
+    expect(startHerePanel.className).not.toContain("max-w-3xl");
+    expect(startHereBody).toHaveClass(OPERATOR_SHORT_HELPER_MEASURE_CLASS);
+    expect(startHereBody.className).not.toContain("max-w-2xl");
+    expect(startHereBody.className).not.toContain("max-w-prose");
+    expect(startHereBody.className).not.toContain("max-w-3xl");
     expect(screen.getByTestId("governance-infrastructure-overview-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("governance-infrastructure-start-here-link")).toHaveAttribute(
