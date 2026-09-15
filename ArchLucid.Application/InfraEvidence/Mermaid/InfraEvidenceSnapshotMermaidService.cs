@@ -132,6 +132,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? fallbackKey,
         string? seedNodeId,
         bool includeNeverShowArmTypes = false,
+        string? hiddenExecutiveTierKeys = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -163,7 +164,11 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 cancellationToken);
         }
 
-        if (!InfraEvidenceMermaidModeParser.TryParse(mode, seedNodeId, out InfraEvidenceMermaidModeParseResult parsedMode))
+        if (!InfraEvidenceMermaidModeParser.TryParse(
+                mode,
+                seedNodeId,
+                hiddenExecutiveTierKeys,
+                out InfraEvidenceMermaidModeParseResult parsedMode))
         {
             return BadRequest<InfraEvidenceMermaidRenderResponse>(parsedMode.ErrorMessage ?? "Invalid mode.");
         }
@@ -198,6 +203,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? fallbackKey,
         string? seedNodeId,
         bool includeNeverShowArmTypes = false,
+        string? hiddenExecutiveTierKeys = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -210,6 +216,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 fallbackKey,
                 seedNodeId,
                 includeNeverShowArmTypes,
+                hiddenExecutiveTierKeys,
                 cancellationToken);
 
         if (!mermaidResult.Succeeded || mermaidResult.Value is null)
@@ -241,6 +248,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             fallbackKey,
             seedNodeId,
             includeNeverShowArmTypes,
+            hiddenExecutiveTierKeys,
             mermaidResult.Value,
             brandedMermaid,
             cancellationToken);
@@ -465,6 +473,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? fallbackKey,
         string? seedNodeId,
         bool includeNeverShowArmTypes,
+        string? hiddenExecutiveTierKeys,
         InfraEvidenceMermaidRenderResponse renderResponse,
         string brandedMermaid,
         CancellationToken cancellationToken)
@@ -479,6 +488,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 fallbackKey,
                 seedNodeId,
                 includeNeverShowArmTypes,
+                hiddenExecutiveTierKeys,
                 cancellationToken);
 
             if (renderResult?.RepairedAst is not null)
@@ -503,6 +513,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string? fallbackKey,
         string? seedNodeId,
         bool includeNeverShowArmTypes,
+        string? hiddenExecutiveTierKeys,
         CancellationToken cancellationToken)
     {
         AzureInventorySnapshotGraphResolveResult graphResult =
@@ -518,7 +529,11 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             return null;
         }
 
-        if (!InfraEvidenceMermaidModeParser.TryParse(mode, seedNodeId, out InfraEvidenceMermaidModeParseResult parsedMode))
+        if (!InfraEvidenceMermaidModeParser.TryParse(
+                mode,
+                seedNodeId,
+                hiddenExecutiveTierKeys,
+                out InfraEvidenceMermaidModeParseResult parsedMode))
         {
             return null;
         }

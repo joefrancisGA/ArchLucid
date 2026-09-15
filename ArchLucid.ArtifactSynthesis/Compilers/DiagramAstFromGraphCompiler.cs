@@ -55,18 +55,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             string mermaidNodeId = MermaidIdSanitizer.Sanitize(node.NodeId);
             nodeIdMap[node.NodeId] = mermaidNodeId;
 
-            ast.Nodes.Add(new DiagramNode
-            {
-                NodeId = mermaidNodeId,
-                Label = node.Label,
-                NodeType = node.NodeType,
-                SubgraphId = subgraphPlanner.ResolveSubgraphId(node, subgraphs),
-                OrderKey = order++,
-                CloudResourceId = DiagramAstGraphNodeClassifier.ReadCloudResourceId(node),
-                SeedNodeId = node.NodeId,
-                ArmResourceType = DiagramAstGraphNodeClassifier.ReadArmType(node),
-                ArmResourceGroup = DiagramAstGraphNodeClassifier.ReadResourceGroup(node),
-            });
+            ast.Nodes.Add(BuildDiagramNode(node, mermaidNodeId, subgraphs, order++));
         }
 
         foreach (GraphEdge edge in includedEdges)
@@ -106,6 +95,30 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         return ast;
     }
 
+    private DiagramNode BuildDiagramNode(
+        GraphNode node,
+        string mermaidNodeId,
+        IReadOnlyList<DiagramSubgraph> subgraphs,
+        int orderKey)
+    {
+        // Rollup nodes ("+N more databases") are not real resources: no seed, so the outline
+        // does not offer Focus neighborhood on them, and no ARM metadata to humanize.
+        bool isOverflow = DiagramExecutiveAlwaysShowSelector.IsOverflowNode(node);
+
+        return new DiagramNode
+        {
+            NodeId = mermaidNodeId,
+            Label = node.Label,
+            NodeType = node.NodeType,
+            SubgraphId = subgraphPlanner.ResolveSubgraphId(node, subgraphs),
+            OrderKey = orderKey,
+            CloudResourceId = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadCloudResourceId(node),
+            SeedNodeId = isOverflow ? null : node.NodeId,
+            ArmResourceType = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadArmType(node),
+            ArmResourceGroup = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadResourceGroup(node),
+        };
+    }
+
     private static string BuildTitle(DiagramMode mode, DiagramAstCompileOptions options)
     {
         if (mode == DiagramMode.ResourceGroup && !string.IsNullOrWhiteSpace(options.ResourceGroupName))
@@ -135,7 +148,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         switch (mode)
         {
             case DiagramMode.Executive:
-                return IncludeInventoryConnectedVirtualMachines(graph, ApplyExecutiveFilter(nodes));
+                return ApplyExecutiveFilter(nodes, options);
             case DiagramMode.Architecture:
                 return FilterByCategories(
                     nodes,
@@ -165,21 +178,29 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         }
     }
 
-    private static List<GraphNode> ApplyExecutiveFilter(List<GraphNode> nodes)
+    /// <summary>
+    /// Executive = VNet / subscription / RG summary nodes (capped) followed by the always-show tiers (IDL-06).
+    /// Tier order is preserved so the flat grid reads workloads → databases → storage → data factories.
+    /// </summary>
+    private static List<GraphNode> ApplyExecutiveFilter(List<GraphNode> nodes, DiagramAstCompileOptions options)
     {
         List<GraphNode> summaryNodes = nodes
             .Where(DiagramAstGraphNodeClassifier.IsExecutiveSummaryNode)
+            .Take(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes)
             .ToList();
 
-        if (summaryNodes.Count == 0)
+        List<GraphNode> alwaysShowNodes = DiagramExecutiveAlwaysShowSelector.Select(nodes, options.HiddenExecutiveTierKeys);
+
+        if (summaryNodes.Count == 0 && alwaysShowNodes.Count == 0)
         {
-            summaryNodes = nodes
+            // Snapshot has neither VNets nor tiered resources — show something rather than an empty canvas.
+            return nodes
                 .Take(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes)
                 .ToList();
         }
 
         return summaryNodes
-            .Take(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes)
+            .Concat(alwaysShowNodes)
             .ToList();
     }
 

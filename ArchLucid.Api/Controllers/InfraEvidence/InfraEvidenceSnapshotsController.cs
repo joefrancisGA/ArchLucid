@@ -210,6 +210,7 @@ public sealed partial class InfraEvidenceSnapshotsController(
         [FromQuery] string? fallbackKey,
         [FromQuery] string? seedNodeId,
         [FromQuery] bool includeNeverShow = false,
+        [FromQuery] string? hideTiers = null,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -224,6 +225,7 @@ public sealed partial class InfraEvidenceSnapshotsController(
                     fallbackKey,
                     seedNodeId,
                     includeNeverShow,
+                    hideTiers,
                     cancellationToken);
 
             if (result.IsNotFound)
@@ -267,6 +269,7 @@ public sealed partial class InfraEvidenceSnapshotsController(
         [FromQuery] string? fallbackKey,
         [FromQuery] string? seedNodeId,
         [FromQuery] bool includeNeverShow = false,
+        [FromQuery] string? hideTiers = null,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -280,6 +283,7 @@ public sealed partial class InfraEvidenceSnapshotsController(
                 fallbackKey,
                 seedNodeId,
                 includeNeverShow,
+                hideTiers,
                 cancellationToken);
 
             if (result.IsNotFound)
