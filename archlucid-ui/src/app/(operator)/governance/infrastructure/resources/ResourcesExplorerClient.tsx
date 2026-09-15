@@ -49,8 +49,8 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_RESOURCE_ROW_ARM_ID_DISCLOSURE_KEY_PARAM,
-  infraResourceRowArmIdDisclosureHrefFromSearch,
   parseInfraResourceRowArmIdDisclosureKeyFromSearch,
+  writeInfraResourceRowArmIdDisclosureKeyToUrl,
 } from "@/lib/infra-evidence/infra-resource-row-arm-id-disclosure-url";
 import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
 import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
@@ -137,15 +137,9 @@ export function ResourcesExplorerClient() {
     parseInfraResourceRowArmIdDisclosureKeyFromSearch(infraResourceRowArmIdKeyParam),
   );
 
-  const syncInfraResourceRowArmIdKeyToUrl = useCallback(
-    (cloudResourceId: string | null) => {
-      router.replace(
-        infraResourceRowArmIdDisclosureHrefFromSearch(searchParams.toString(), cloudResourceId, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
+  const syncInfraResourceRowArmIdKeyToUrl = useCallback((cloudResourceId: string | null) => {
+    writeInfraResourceRowArmIdDisclosureKeyToUrl(cloudResourceId);
+  }, []);
 
   const setInfraResourceRowArmIdKey = useCallback(
     (cloudResourceId: string | null) => {
