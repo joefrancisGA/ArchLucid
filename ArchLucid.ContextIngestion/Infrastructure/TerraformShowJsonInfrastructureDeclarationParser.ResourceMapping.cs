@@ -303,7 +303,8 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 canonicalTerraformType,
                 canonicalLabel);
 
-            if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement))
+            if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement)
+                || TryGetPropertyIgnoreCase(res, "count", out indexElement))
             {
                 if (indexElement.ValueKind == JsonValueKind.Number)
                 {
