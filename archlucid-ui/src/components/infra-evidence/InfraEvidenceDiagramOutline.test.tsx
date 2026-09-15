@@ -55,6 +55,41 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(edgesTable as HTMLTableElement).getByText("n_missing")).toBeTruthy();
   });
 
+  it("appends the To resource type when From and To share a name", () => {
+    const privateEndpointOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_pe",
+          label: "cosmos-sql-account (Private endpoint)",
+          resourceType: "Microsoft.Network/privateEndpoints",
+          resourceGroup: "rg-network",
+        },
+        {
+          id: "n_cosmos",
+          label: "cosmos-sql-account (Cosmos DB)",
+          resourceType: "Microsoft.DocumentDB/databaseAccounts",
+          resourceGroup: "rg-data",
+        },
+      ],
+      edges: [{ from: "n_pe", to: "n_cosmos", label: "connects" }],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={privateEndpointOutline} />);
+
+    const edgesHeading = screen.getByRole("heading", { name: "Edges" });
+    const edgesTable = edgesHeading.parentElement?.querySelector("table");
+
+    expect(edgesTable).not.toBeNull();
+
+    const cells = within(edgesTable as HTMLTableElement).getAllByRole("cell");
+
+    expect(cells.map((cell) => cell.textContent)).toEqual([
+      "cosmos-sql-account",
+      "connects",
+      "cosmos-sql-account (Cosmos DB)",
+    ]);
+  });
+
   it("shows peering for unlabeled VNet-to-VNet edges", () => {
     const peeringOutline: InfraEvidenceMermaidOutline = {
       nodes: [

@@ -10,6 +10,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
+import { resolveInfraEvidenceOutlineEdgeToDisplay } from "@/lib/infra-evidence/format-infra-evidence-outline-edge-to-label";
 import { InfraEvidenceDiagramOutlineNodeLabel } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
 import {
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_DIR,
@@ -193,6 +194,12 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
               {edgeRows.map((edge, index) => {
                 const fromNode = outline.nodes.find((node) => node.id === edge.from);
                 const toNode = outline.nodes.find((node) => node.id === edge.to);
+                const toDisplay = resolveInfraEvidenceOutlineEdgeToDisplay({
+                  fromNode,
+                  toNode,
+                  fromFallback: resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from),
+                  toFallback: resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.to),
+                });
 
                 return (
                   <tr
@@ -207,13 +214,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                       )}
                     </td>
                     <td className="px-3 py-2">{formatOutlineCell(resolveInfraEvidenceOutlineEdgeLabel(edge, outline.nodes))}</td>
-                    <td className="px-3 py-2">
-                      {toNode != null ? (
-                        <InfraEvidenceDiagramOutlineNodeLabel node={toNode} />
-                      ) : (
-                        resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.to)
-                      )}
-                    </td>
+                    <td className="px-3 py-2">{toDisplay}</td>
                   </tr>
                 );
               })}
