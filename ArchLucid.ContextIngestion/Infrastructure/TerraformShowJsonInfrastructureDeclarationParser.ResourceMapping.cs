@@ -249,6 +249,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.imported"] = imported.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "create_before_destroy", out JsonElement createBeforeDestroy)
+                || TryGetPropertyIgnoreCase(res, "createBeforeDestroy", out createBeforeDestroy))
+            && (createBeforeDestroy.ValueKind == JsonValueKind.True || createBeforeDestroy.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.create_before_destroy"] = createBeforeDestroy.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
