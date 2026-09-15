@@ -5,4 +5,5 @@ public sealed record DiagramForestNodeMetrics(
     double Height,
     IReadOnlyList<string> NameLines,
     DiagramNodeHumanCaption Caption,
-    DiagramInventoryPictogramKind PictogramKind);
+    DiagramInventoryPictogramKind PictogramKind,
+    bool HasPrivateEndpointAccess);

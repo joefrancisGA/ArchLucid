@@ -18,11 +18,15 @@ public static class DiagramForestNodeSvgEmitter
         ArgumentNullException.ThrowIfNull(metrics);
         ArgumentNullException.ThrowIfNull(options);
 
+        string accessibilityTitle = metrics.HasPrivateEndpointAccess
+            ? $"{metrics.Caption.AccessibilityTitle} — Private endpoint access"
+            : metrics.Caption.AccessibilityTitle;
+
         XElement group = new(
             svgNamespace + "g",
             new XAttribute("class", "node"),
             new XAttribute("id", $"node-{nodeId}"));
-        group.Add(new XElement(svgNamespace + "title", Escape(metrics.Caption.AccessibilityTitle)));
+        group.Add(new XElement(svgNamespace + "title", Escape(accessibilityTitle)));
         group.Add(new XElement(
             svgNamespace + "rect",
             new XAttribute("width", Format(width)),
@@ -38,6 +42,16 @@ public static class DiagramForestNodeSvgEmitter
                 options.PictogramSize,
                 pictogramX,
                 options.NodePaddingY));
+
+        if (metrics.HasPrivateEndpointAccess)
+        {
+            group.Add(
+                DiagramForestPrivateEndpointLockSvgEmitter.Emit(
+                    svgNamespace,
+                    width,
+                    options.NodePaddingX,
+                    options.NodePaddingY));
+        }
 
         double textY = options.NodePaddingY + options.PictogramSize + options.IconToLabelGap + (options.LineHeight * 0.75);
         XElement text = new(

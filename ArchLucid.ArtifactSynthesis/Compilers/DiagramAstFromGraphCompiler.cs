@@ -93,6 +93,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         DiagramSparseComponentPacker.Pack(ast);
         DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
         DiagramConnectionTypeAnnotator.Annotate(ast);
+        DiagramPrivateEndpointTargetAnnotator.Apply(ast, topologyNodes, includedEdges, nodeIdMap);
 
         return ast;
     }
