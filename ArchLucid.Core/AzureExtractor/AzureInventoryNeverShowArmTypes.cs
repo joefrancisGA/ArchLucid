@@ -13,6 +13,7 @@ public static class AzureInventoryNeverShowArmTypes
     [
         "Microsoft.Portal/dashboards",
         "Microsoft.OperationalInsights/workspaces",
+        "Microsoft.Insights/activityLogAlerts",
         "Microsoft.OperationsManagement/solutions",
         "Microsoft.Network/dnszones",
         "Microsoft.Network/privateDnsZones",
@@ -36,6 +37,7 @@ public static class AzureInventoryNeverShowArmTypes
     [
         "dashboards",
         "workspaces",
+        "activitylogalerts",
         "solutions",
         "extensions",
         "sshpublickeys",

@@ -568,6 +568,7 @@ function Test-ArchLucidAzureInventoryNeverShowResourceType
     $catalogTypes = @(
         'Microsoft.Portal/dashboards'
         'Microsoft.OperationalInsights/workspaces'
+        'Microsoft.Insights/activityLogAlerts'
         'Microsoft.OperationsManagement/solutions'
         'Microsoft.Network/dnszones'
         'Microsoft.Network/privateDnsZones'
@@ -607,6 +608,7 @@ function Test-ArchLucidAzureInventoryNeverShowResourceType
     $lastSegments = @(
         'dashboards'
         'workspaces'
+        'activitylogalerts'
         'solutions'
         'extensions'
         'sshpublickeys'
