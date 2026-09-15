@@ -1,8 +1,7 @@
-import {
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
-  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
-  governanceInfrastructureResourceHubPath,
-} from "@/lib/governance/governance-infrastructure-route-paths";
+import { infrastructureDriftPathForProductLine } from "@/lib/product-line/securenow-infrastructure-routes";
+import { infrastructureResourceHubPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
+import { resolveProductLineId } from "@/lib/product-line/resolve-product-line-id";
+import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
 import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
@@ -81,8 +80,9 @@ export function buildDriftWorkbenchHref(context: InfraEvidenceWorkbenchContext =
   }
 
   const query = params.toString();
+  const driftPath = infrastructureDriftPathForProductLine(resolveProductLineId());
 
-  return query.length === 0 ? GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH : `${GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}?${query}`;
+  return query.length === 0 ? driftPath : `${driftPath}?${query}`;
 }
 
 export function buildRemediationWorkbenchHref(context: InfraEvidenceWorkbenchContext = {}): string {
@@ -125,10 +125,9 @@ export function buildRemediationWorkbenchHref(context: InfraEvidenceWorkbenchCon
   }
 
   const query = params.toString();
+  const remediationPath = remediationInstancesPathForProductLine(resolveProductLineId());
 
-  return query.length === 0
-    ? GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH
-    : `${GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH}?${query}`;
+  return query.length === 0 ? remediationPath : `${remediationPath}?${query}`;
 }
 
 export function buildResourceHubWorkbenchHref(context: {
@@ -178,6 +177,6 @@ export function buildResourceScopedWorkbenchHref(
     case "drift":
       return buildDriftWorkbenchHref({ cloudResourceId, snapshotId, ...auditContext });
     default:
-      return governanceInfrastructureResourceHubPath(cloudResourceId);
+      return infrastructureResourceHubPathForProductLine(resolveProductLineId(), cloudResourceId);
   }
 }

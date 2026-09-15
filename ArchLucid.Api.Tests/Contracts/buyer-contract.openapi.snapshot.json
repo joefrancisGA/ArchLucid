@@ -6845,6 +6845,18 @@
           "changeType": {
             "$ref": "#/components/schemas/AzureInventoryChangeType"
           },
+          "changedByDisplayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "changedByKind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "cloudResourceId": {
             "format": "uuid",
             "type": [
@@ -6933,7 +6945,8 @@
           "SkuChanged",
           "DependencyChanged",
           "PolicyAssignmentChanged",
-          "Unknown"
+          "Unknown",
+          "ResourceUnchanged"
         ],
         "type": "string"
       },
@@ -19071,6 +19084,41 @@
         },
         "type": "object"
       },
+      "InfraEvidenceMermaidCollapseEntry": {
+        "properties": {
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "nodeId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceMermaidCollapseReport": {
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/InfraEvidenceMermaidCollapseEntry"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "InfraEvidenceMermaidComplexityMetrics": {
         "properties": {
           "crossSubgraphEdgeCount": {
@@ -19174,6 +19222,16 @@
       },
       "InfraEvidenceMermaidRenderResponse": {
         "properties": {
+          "collapseReport": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InfraEvidenceMermaidCollapseReport"
+              }
+            ]
+          },
           "fallbackArtifacts": {
             "items": {
               "$ref": "#/components/schemas/InfraEvidenceMermaidFallbackArtifactSummary"

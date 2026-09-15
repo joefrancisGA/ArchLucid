@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.AzureExtractor;
+
 namespace ArchLucid.Integrations.AzureExtractor;
 
 /// <summary>
@@ -47,10 +49,18 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             AddJsonArrayProperty(propertiesElement, properties, "securityRules");
         }
 
-        if (resourceType.Contains("virtualNetworks", StringComparison.OrdinalIgnoreCase))
+        if (resourceType.EndsWith("/virtualNetworks", StringComparison.OrdinalIgnoreCase))
         {
             AddJsonArrayProperty(propertiesElement, properties, "subnets");
-            AddJsonArrayProperty(propertiesElement, properties, "virtualNetworkPeerings");
+            AddJsonArrayProperty(
+                propertiesElement,
+                properties,
+                AzureInventoryVnetPeeringParser.PeeringsPropertyKey);
+        }
+
+        if (AzureInventoryVnetPeeringParser.IsPeeringResourceType(resourceType))
+        {
+            AddRemoteVirtualNetworkIdProperty(propertiesElement, properties);
         }
 
         if (resourceType.Contains("applicationGateways", StringComparison.OrdinalIgnoreCase))
@@ -79,6 +89,20 @@ internal static class HostedAzureInventoryResourcePropertyExpander
         }
 
         return properties;
+    }
+
+    private static void AddRemoteVirtualNetworkIdProperty(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        string? remoteVnetId = AzureInventoryVnetPeeringParser.TryReadRemoteVnetId(propertiesElement);
+
+        if (string.IsNullOrWhiteSpace(remoteVnetId))
+        {
+            return;
+        }
+
+        properties[AzureInventoryVnetPeeringParser.RemoteVirtualNetworkIdPropertyKey] = remoteVnetId;
     }
 
     private static void AddJsonArrayProperty(
@@ -153,6 +177,19 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             if (!string.IsNullOrWhiteSpace(nsgId))
             {
                 properties["networkSecurityGroup.id"] = nsgId.Trim();
+            }
+        }
+
+        if (propertiesElement.TryGetProperty("privateEndpoint", out JsonElement privateEndpointElement)
+            && privateEndpointElement.ValueKind is JsonValueKind.Object
+            && privateEndpointElement.TryGetProperty("id", out JsonElement privateEndpointIdElement)
+            && privateEndpointIdElement.ValueKind is JsonValueKind.String)
+        {
+            string? privateEndpointId = privateEndpointIdElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(privateEndpointId))
+            {
+                properties["privateEndpoint.id"] = privateEndpointId.Trim();
             }
         }
 

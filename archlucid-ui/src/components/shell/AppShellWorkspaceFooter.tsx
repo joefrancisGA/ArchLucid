@@ -1,10 +1,12 @@
 "use client";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
   OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
 } from "@/lib/design-tokens";
+import { isSecureNowWorkspaceFooterTrustLinkExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { cn } from "@/lib/utils";
 
 import {
@@ -19,6 +21,9 @@ type AppShellWorkspaceFooterProps = {
 
 /** Workspace trust/health footer loaded outside the shell first-paint path (TB-696). */
 export function AppShellWorkspaceFooter({ hideWorkspaceHealthFooter }: AppShellWorkspaceFooterProps) {
+  const { productLine } = useProductLine();
+  const showWorkspaceFooterTrustLink = !isSecureNowWorkspaceFooterTrustLinkExcluded(productLine);
+
   if (isBuyerPolishedOperatorShellEnv()) {
     // Governance and other dense operator surfaces already carry trust links in help/header chrome.
     if (hideWorkspaceHealthFooter) {
@@ -38,7 +43,9 @@ export function AppShellWorkspaceFooter({ hideWorkspaceHealthFooter }: AppShellW
           )}
         >
           <DeploymentBuildFingerprintStripDeferred variant="compact" />
-          <TrustCenterShellLinkDeferred variant="footer" className="ml-auto" />
+          {showWorkspaceFooterTrustLink ? (
+            <TrustCenterShellLinkDeferred variant="footer" className="ml-auto" />
+          ) : null}
         </div>
       </footer>
     );

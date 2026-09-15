@@ -12,20 +12,139 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     [Theory]
     [InlineData("Microsoft.Network/privateDnsZones/virtualNetworkLinks")]
     [InlineData("Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks")]
+    [InlineData("Microsoft.Network/virtualNetworks/virtualNetworkPeerings")]
+    [InlineData("microsoft.network/virtualnetworks/virtualnetworkpeerings")]
+    [InlineData("virtualnetworkpeerings")]
     [InlineData("microsoft.network/privatednszones/virtualnetworklinks")]
-    public void ShouldOmitFromInventory_returns_true_for_virtual_network_link_types(string resourceType)
+    [InlineData("Microsoft.Portal/dashboards")]
+    [InlineData("Microsoft.OperationalInsights/workspaces")]
+    [InlineData("Microsoft.Insights/activityLogAlerts")]
+    [InlineData("microsoft.insights/activitylogalerts")]
+    [InlineData("activitylogalerts")]
+    [InlineData("Microsoft.Insights/metricAlerts")]
+    [InlineData("microsoft.insights/metricalerts")]
+    [InlineData("metricalerts")]
+    [InlineData("Microsoft.Insights/workbooks")]
+    [InlineData("microsoft.insights/workbooks")]
+    [InlineData("workbooks")]
+    [InlineData("Microsoft.AlertsManagement/smartDetectorAlertRules")]
+    [InlineData("microsoft.alertsmanagement/smartdetectoralertrules")]
+    [InlineData("smartdetectoralertrules")]
+    [InlineData("Microsoft.Insights/scheduledQueryRules")]
+    [InlineData("microsoft.insights/scheduledqueryrules")]
+    [InlineData("scheduledqueryrules")]
+    [InlineData("Microsoft.OperationsManagement/solutions")]
+    [InlineData("microsoft.operationsmanagement/solutions")]
+    [InlineData("solutions")]
+    [InlineData("Microsoft.Network/dnszones")]
+    [InlineData("Microsoft.Network/privateDnsZones")]
+    [InlineData("Microsoft.Network/dnsResolvers")]
+    [InlineData("Microsoft.Network/firewallPolicies")]
+    [InlineData("microsoft.network/firewallpolicies")]
+    [InlineData("firewallpolicies")]
+    [InlineData("Microsoft.Network/networkIntentPolicies")]
+    [InlineData("microsoft.network/networkintentpolicies")]
+    [InlineData("networkintentpolicies")]
+    [InlineData("Microsoft.ManagedIdentity/userAssignedIdentities")]
+    [InlineData("microsoft.managedidentity/userassignedidentities")]
+    [InlineData("userassignedidentities")]
+    [InlineData("Microsoft.Automation/automationAccounts")]
+    [InlineData("microsoft.automation/automationaccounts")]
+    [InlineData("automationaccounts")]
+    [InlineData("Microsoft.Automation/automationAccounts/runbooks")]
+    [InlineData("microsoft.automation/automationaccounts/runbooks")]
+    [InlineData("runbooks")]
+    [InlineData("Microsoft.Compute/virtualMachines/extensions/versions")]
+    [InlineData("Microsoft.Automation/automationAccounts/runbooks/versions")]
+    [InlineData("versions")]
+    [InlineData("Microsoft.Compute/virtualMachines/extensions")]
+    [InlineData("Microsoft.Compute/virtualMachineScaleSets/extensions")]
+    [InlineData("Microsoft.Compute/disks")]
+    [InlineData("microsoft.compute/disks")]
+    [InlineData("disks")]
+    [InlineData("Microsoft.Compute/sshPublicKeys")]
+    [InlineData("microsoft.compute/sshpublickeys")]
+    [InlineData("sshpublickeys")]
+    [InlineData("Microsoft.HybridCompute/machines/extensions")]
+    [InlineData("Microsoft.Maintenance/maintenanceConfigurations")]
+    [InlineData("Microsoft.Maintenance/configurationAssignments")]
+    [InlineData("Microsoft.Example/widgets/extensions")]
+    public void ShouldOmitFromInventory_returns_true_for_omitted_types(string resourceType)
     {
         AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(resourceType).Should().BeTrue();
     }
 
     [Theory]
-    [InlineData("Microsoft.Network/privateDnsZones")]
     [InlineData("Microsoft.Network/virtualNetworks")]
+    [InlineData("Microsoft.Compute/virtualMachines")]
     [InlineData("Microsoft.Storage/storageAccounts")]
     [InlineData(null)]
     [InlineData("")]
     public void ShouldOmitFromInventory_returns_false_for_visible_inventory_types(string? resourceType)
     {
         AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(resourceType).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a/virtualNetworkPeerings/peer-to-b")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Containers")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/activityLogAlerts/alert1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/metricAlerts/cpu-alert")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/workbooks/wb1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.AlertsManagement/smartDetectorAlertRules/rule1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/scheduledQueryRules/rule1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/disks/disk1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.AlertsManagement/smartDetectorAlertRules/failure-anomalies")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/sshPublicKeys/vm-ssh-key")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/firewallPolicies/fwp1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkIntentPolicies/nip1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uai1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Automation/automationAccounts/aa1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Automation/automationAccounts/aa1/runbooks/rb1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1/extensions/ext1/versions/1.0")]
+    public void ShouldOmitAzureResourceId_returns_true_for_never_show_arm_ids(string azureResourceId)
+    {
+        AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(azureResourceId).Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1")]
+    [InlineData(null)]
+    [InlineData("")]
+    public void ShouldOmitAzureResourceId_returns_false_for_visible_arm_ids(string? azureResourceId)
+    {
+        AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(azureResourceId).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ShouldOmitResource_retainIdentityDiagramArmTypes_keeps_managed_identity_resources()
+    {
+        AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                "Microsoft.ManagedIdentity/userAssignedIdentities",
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/app",
+                retainIdentityDiagramArmTypes: true)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void ShouldOmitResource_uses_arm_id_when_resource_type_is_missing()
+    {
+        AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                null,
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security")
+            .Should()
+            .BeTrue();
+
+        AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                string.Empty,
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1")
+            .Should()
+            .BeTrue();
     }
 }

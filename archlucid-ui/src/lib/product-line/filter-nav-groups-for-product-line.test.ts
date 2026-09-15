@@ -3,7 +3,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config.types";
-import { GOVERNANCE_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { SECURENOW_COMPLIANCE_NAV_GROUP_LABEL } from "@/lib/product-line/securenow-compliance-home-copy";
@@ -76,23 +81,42 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     const integrationLinks = rows.find((row) => row.group.id === SECURENOW_INTEGRATION_NAV_GROUP_ID)?.visibleLinks ?? [];
 
     expect(complianceLinks.map((link) => link.href)).toEqual([
-      "/governance/policy-packs",
-      "/governance/standards-and-rules",
-      "/governance/findings",
-      "/governance/audit-evidence",
+      "/compliance/policy-packs",
+      "/compliance/standards-and-rules",
+      "/compliance/findings",
+      "/compliance/audit-evidence",
     ]);
     expect(infrastructureLinks.some((link) => link.href === "/")).toBe(false);
     expect(infrastructureLinks.some((link) => link.href === GOVERNANCE_INFRASTRUCTURE_PATH)).toBe(false);
+    expect(infrastructureLinks[0]?.href).toBe("/infrastructure/resources");
     expect(infrastructureLinks.some((link) => link.label === OPERATOR_NAV_LINK_LABELS.infrastructureAsk)).toBe(true);
-    expect(infrastructureLinks.some((link) => link.href === "/infrastructure/diagrams")).toBe(true);
+    expect(infrastructureLinks.some((link) => link.href === SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH)).toBe(true);
     expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/diagrams")).toBe(false);
-    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/extract-upload")).toBe(true);
+
+    const diagramsIndex = infrastructureLinks.findIndex((link) => link.href === SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH);
+    const diagramReconcileIndex = infrastructureLinks.findIndex(
+      (link) => link.href === "/infrastructure/diagram-reconcile",
+    );
+    const terraformIndex = infrastructureLinks.findIndex(
+      (link) => link.href === "/infrastructure/terraform",
+    );
+
+    expect(diagramsIndex).toBeGreaterThanOrEqual(0);
+    expect(diagramReconcileIndex).toBeGreaterThan(diagramsIndex);
+    expect(terraformIndex).toBeGreaterThan(diagramReconcileIndex);
+    expect(infrastructureLinks.some((link) => link.href === "/infrastructure/extract-upload")).toBe(true);
+    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/extract-upload")).toBe(false);
+    expect(infrastructureLinks.some((link) => link.href === "/infrastructure/drift")).toBe(true);
+    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/drift")).toBe(false);
     expect(securityLinks.map((link) => link.href)).toEqual([
       "/",
       "/security/assigned-to-me",
       "/security/remediation-factory",
       "/security/remediation-patterns",
+      "/security/remediation-instances",
     ]);
+    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/remediation")).toBe(false);
+    expect(infrastructureLinks.some((link) => link.href === "/security/remediation-instances")).toBe(false);
     expect(integrationLinks.map((link) => link.href)).toEqual([
       "/integrations/cloud-connections",
       "/integrations/jira",

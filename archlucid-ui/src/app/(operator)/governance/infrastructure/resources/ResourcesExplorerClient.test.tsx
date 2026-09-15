@@ -90,6 +90,20 @@ describe("ResourcesExplorerClient", () => {
     );
     expect(screen.queryByTestId("infra-resource-explorer-overview-11111111-1111-1111-1111-111111111111")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-resource-explorer-hub-tab-11111111-1111-1111-1111-111111111111")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-explorer-snapshot-id")).not.toBeInTheDocument();
+    expect(screen.queryByText("Snapshot context (links only)")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-type-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "Network/publicIPAddresses",
+    );
+    expect(screen.getByTestId("infra-resource-type-11111111-1111-1111-1111-111111111111")).not.toHaveTextContent(
+      "Microsoft.",
+    );
+    expect(screen.getByTestId("infra-resource-last-seen-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "9/1/26, 08:00",
+    );
+    expect(screen.getByTestId("infra-resource-last-seen-11111111-1111-1111-1111-111111111111")).not.toHaveTextContent(
+      /AM|PM|2026/,
+    );
   });
 
   it("renders work queue chips and applies open-findings filter", async () => {
@@ -193,5 +207,66 @@ describe("ResourcesExplorerClient", () => {
       "href",
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=open-remediation&tab=remediation",
     );
+  });
+
+  it("shows None in the work column when a resource has no open work", async () => {
+    vi.mocked(fetchCloudResourceExplorerPage).mockResolvedValueOnce({
+      items: [
+        {
+          cloudResourceId: "11111111-1111-1111-1111-111111111111",
+          externalResourceId:
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+          displayName: "gateway-pip",
+          resourceType: "Microsoft.Network/publicIPAddresses",
+          resourceGroup: "rg-net",
+          region: "eastus",
+          lastSeenUtc: "2026-09-01T12:00:00Z",
+          workCounts: {
+            openOperationalFindingsCount: 0,
+            openRemediationInstancesCount: 0,
+            inventoryDriftChangeCount: 0,
+          },
+        },
+      ],
+      totalCount: 1,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+    searchParams = new URLSearchParams("");
+    listOperatorSavedViews.mockResolvedValue([]);
+    render(<ResourcesExplorerClient />);
+
+    const workCell = await screen.findByTestId("infra-resource-work-counts-11111111-1111-1111-1111-111111111111");
+
+    expect(workCell).toHaveTextContent("None");
+    expect(workCell).not.toHaveTextContent("—");
+  });
+
+  it("displays mixed-case resource names in lowercase", async () => {
+    fetchCloudResourceExplorerPage.mockResolvedValueOnce({
+      items: [
+        {
+          cloudResourceId: "11111111-1111-1111-1111-111111111111",
+          externalResourceId:
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+          displayName: "Gateway-PIP",
+          resourceType: "Microsoft.Network/publicIPAddresses",
+          resourceGroup: "rg-net",
+          region: "eastus",
+          lastSeenUtc: "2026-09-01T12:00:00Z",
+          workCounts: null,
+        },
+      ],
+      totalCount: 1,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+    searchParams = new URLSearchParams("");
+    render(<ResourcesExplorerClient />);
+
+    expect(await screen.findByRole("link", { name: "gateway-pip" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Gateway-PIP" })).not.toBeInTheDocument();
   });
 });

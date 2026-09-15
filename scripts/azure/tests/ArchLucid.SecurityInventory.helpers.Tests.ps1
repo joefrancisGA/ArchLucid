@@ -9,10 +9,83 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         . $script:helperPath
     }
 
-    It 'treats private DNS virtual network links as never-show inventory types' {
-        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType 'Microsoft.Network/privateDnsZones/virtualNetworkLinks' |
-            Should -Be $true
+    It 'treats omitted inventory types as never-show' {
+        @(
+            'Microsoft.Network/privateDnsZones/virtualNetworkLinks'
+            'Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks'
+            'Microsoft.Portal/dashboards'
+            'Microsoft.OperationalInsights/workspaces'
+            'Microsoft.Insights/activityLogAlerts'
+            'Microsoft.Insights/metricAlerts'
+            'Microsoft.Insights/workbooks'
+            'Microsoft.Insights/scheduledQueryRules'
+            'Microsoft.AlertsManagement/smartDetectorAlertRules'
+            'Microsoft.OperationsManagement/solutions'
+            'Microsoft.Network/dnszones'
+            'Microsoft.Network/privateDnsZones'
+            'Microsoft.Network/firewallPolicies'
+            'Microsoft.Network/networkIntentPolicies'
+            'Microsoft.ManagedIdentity/userAssignedIdentities'
+            'Microsoft.Automation/automationAccounts'
+            'Microsoft.Automation/automationAccounts/runbooks'
+            'Microsoft.Compute/virtualMachines/extensions/versions'
+            'Microsoft.Compute/virtualMachines/extensions'
+            'Microsoft.Compute/disks'
+            'Microsoft.Compute/sshPublicKeys'
+            'Microsoft.Maintenance/maintenanceConfigurations'
+            'Microsoft.Example/widgets/extensions'
+        ) | ForEach-Object {
+            Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType $_ |
+                Should -Be $true -Because "type $_ should be omitted"
+        }
+
         Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType 'Microsoft.Network/virtualNetworks' |
+            Should -Be $false
+        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType 'Microsoft.Compute/virtualMachines' |
+            Should -Be $false
+        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security' |
+            Should -Be $true
+        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1' |
+            Should -Be $true
+        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/disks/disk1' |
+            Should -Be $true
+        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/sshPublicKeys/vm-ssh-key' |
+            Should -Be $true
+    }
+
+    It 'omits private-link-only network interfaces from never-show filtering' {
+        $inventory = @(
+            [ordered]@{
+                resourceType = 'Microsoft.Network/privateEndpoints'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1'
+                properties = @{
+                    'networkInterfaces[0]' = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/pe-nic'
+                }
+            },
+            [ordered]@{
+                resourceType = 'Microsoft.Network/networkInterfaces'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/pe-nic'
+                properties = @{
+                    'privateEndpoint.id' = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1'
+                }
+            },
+            [ordered]@{
+                resourceType = 'Microsoft.Network/networkInterfaces'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/vm-nic'
+                properties = @{}
+            }
+        )
+
+        [string[]]$omittedNicArmIds = @(Get-ArchLucidAzurePrivateLinkOnlyNicArmIds -InventoryResources $inventory)
+
+        $omittedNicArmIds.Count | Should -Be 1
+        Test-ArchLucidAzureInventoryNeverShowResource `
+            -Resource $inventory[1] `
+            -PrivateLinkOnlyNicArmIds $omittedNicArmIds |
+            Should -Be $true
+        Test-ArchLucidAzureInventoryNeverShowResource `
+            -Resource $inventory[2] `
+            -PrivateLinkOnlyNicArmIds $omittedNicArmIds |
             Should -Be $false
     }
 

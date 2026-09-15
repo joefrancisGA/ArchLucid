@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";
@@ -73,6 +74,7 @@ type Props = {
 export function GovernanceResolutionPageView(props: Props) {
   const m = props.model;
   const rows = useGovernanceResolutionRows(m);
+  const standardsPath = usePathname() ?? GOVERNANCE_STANDARDS_AND_RULES_PATH;
 
   const scopedRunBanner = rows.scopedRunFilterActive ? (
     <p
@@ -82,7 +84,7 @@ export function GovernanceResolutionPageView(props: Props) {
       {"Resolving standards and rules for review "}
       <span className="font-mono text-al-text-primary">{rows.scopedRunId}</span>
       {" · "}
-      <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={GOVERNANCE_STANDARDS_AND_RULES_PATH}>
+      <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={standardsPath}>
         Clear review scope
       </Link>
       {" · "}
@@ -272,7 +274,7 @@ export function GovernanceResolutionPageView(props: Props) {
         <LayerHeader pageKey="governance-resolution" density="compact" className="mb-3" />
 
         <OperatorPageHeader
-          navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
+          navHref={standardsPath}
           title={STANDARDS_RULES_PAGE_TITLE}
           titleTestId="standards-rules-page-title"
           subtitle={GOVERNANCE_STANDARDS_RULES_PAGE_SUBTITLE_BUYER}
@@ -298,7 +300,7 @@ export function GovernanceResolutionPageView(props: Props) {
       <LayerHeader pageKey="governance-resolution" density="compact"
 />
       <OperatorPageHeader
-        navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
+        navHref={standardsPath}
         title={OPERATOR_NAV_LINK_LABELS.governanceResolution}
         subtitle={m.canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
         breadcrumb={<GovernanceStandardsRulesBreadcrumb />}

@@ -26,7 +26,12 @@ public sealed class DiagramForestLayoutSvgRendererTests
         XDocument document = XDocument.Parse(result.Svg!);
         XElement root = document.Root!;
 
+        // Only node boxes count: edge-label backgrounds are also <rect> elements sized to their text.
         List<string> rectWidths = root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "node", StringComparison.Ordinal))
+            .SelectMany(group => group.Elements())
             .Where(element => string.Equals(element.Name.LocalName, "rect", StringComparison.Ordinal))
             .Select(element => element.Attribute("width")?.Value ?? string.Empty)
             .Where(width => width.Length > 0)

@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
@@ -31,10 +30,10 @@ import {
   EnterpriseTabsTrigger,
 } from "@/components/ui/enterprise-tabs";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import {
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
-} from "@/lib/governance/governance-infrastructure-route-paths";
-import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_ARM_RESOURCE_PATH_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLOUD_RESOURCE_ID_LABEL,
@@ -68,6 +67,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
 import { sanitizeResourceHubQueryForTab } from "@/lib/infra-evidence/infra-evidence-hub-tab-query";
 import { formatInfraEvidenceHubApiError } from "@/lib/infra-evidence/infra-evidence-hub-api";
+import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import {
   createRemediationInstance,
   formatInfraEvidenceRemediationApiError,
@@ -321,6 +321,8 @@ function buildHubDiagramCorrespondenceAskHref(
 export function ResourceHubClient(props: ResourceHubClientProps) {
   const { cloudResourceId } = props;
   const buyerPolishedShell = useProductionEvalChrome();
+  const { productLine } = useProductLine();
+  const resourcesPath = infrastructureResourcesPathForProductLine(productLine);
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
@@ -412,8 +414,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     }
 
     const configName = hub.currentConfiguration?.azureResourceId.split("/").pop();
+    const rawTitle = configName ?? hub.externalResourceId.split("/").pop() ?? cloudResourceId;
 
-    return configName ?? hub.externalResourceId.split("/").pop() ?? cloudResourceId;
+    return normalizeSecureNowResourceNameForDisplay(rawTitle);
   }, [cloudResourceId, hub]);
 
   const resolvedAuditLineage = useMemo(() => {
@@ -683,7 +686,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
       {buyerPolishedShell ? (
         <OperatorPageHeader
-          navHref={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}
+          navHref={resourcesPath}
           title={resourceTitle}
           subtitle={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PAGE_LEAD}
           claimDiscipline={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLAIM_DISCIPLINE}
@@ -697,7 +700,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 className="text-sm text-al-link hover:underline"
                 href={workQueue !== "all"
                   ? resourceExplorerFilterHrefFromSearch("", { workQueue })
-                  : GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}
+                  : resourcesPath}
                 data-testid={workQueue !== "all" ? "infra-resource-hub-explorer-work-queue-back-link" : undefined}
               >
                 {workQueue !== "all" ? `Back to explorer (${workQueueLabel})` : "Back to explorer"}
@@ -727,14 +730,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              {workbenchLinkAuditContext == null ? (
-                <CopyScopedOperatorLinkButton testId="infra-resource-hub-copy-scoped-link" />
-              ) : null}
               <Link
                 className="text-sm text-al-link hover:underline"
                 href={workQueue !== "all"
                   ? resourceExplorerFilterHrefFromSearch("", { workQueue })
-                  : GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}
+                  : resourcesPath}
                 data-testid={workQueue !== "all" ? "infra-resource-hub-explorer-work-queue-back-link" : undefined}
               >
                 {workQueue !== "all" ? `Back to explorer (${workQueueLabel})` : "Back to explorer"}
@@ -743,14 +743,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </div>
         </>
       ) : null}
-      {buyerPolishedShell ? (
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          {workbenchLinkAuditContext == null ? (
-            <CopyScopedOperatorLinkButton testId="infra-resource-hub-copy-scoped-link" />
-          ) : null}
-        </div>
-      ) : null}
-
       {buyerPolishedShell ? (
         <section className={cnCard} aria-label="Resource identifiers">
           <CollapsibleSection
@@ -795,7 +787,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           auditControlOptions={auditControlOptions}
           onAuditControlChange={switchActiveAuditControl}
           testId="infra-resource-hub-audit-scope-bar"
-          showCopyLink
         />
       ) : null}
 
@@ -923,7 +914,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       runId,
                     )}
                   >
-                    Open inventory diagrams
+                    {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION}
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-diagram-reconcile-work">
@@ -1200,7 +1191,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   )}
                   data-testid="infra-resource-hub-diagrams-workbench"
                 >
-                  Open inventory diagrams
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION}
                 </Link>
               </Button>
               <Button asChild variant="outline" size="sm">

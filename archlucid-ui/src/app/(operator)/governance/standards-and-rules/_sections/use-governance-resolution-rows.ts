@@ -122,9 +122,9 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
       const params = new URLSearchParams(searchParams.toString());
       params.set("runId", trimmed);
 
-      router.replace(`${GOVERNANCE_STANDARDS_AND_RULES_PATH}?${params.toString()}`, { scroll: false });
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     },
-    [router, searchParams],
+    [pathname, router, searchParams],
   );
 
   const allRuleRows = useMemo(

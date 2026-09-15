@@ -331,6 +331,15 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
             string? subscriptionId,
             CancellationToken cancellationToken = default)
             => Task.FromResult<(IReadOnlyList<AzureInventorySnapshotRecord>, int)>(([], 0));
+
+        public Task<(IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)?> ListResourcesBySnapshotIdPagedAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            int page,
+            int pageSize,
+            Guid? cloudResourceId = null,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord>, int)?>(null);
     }
 
     internal sealed class InMemoryAuditEvidenceRequirementRepository : IAuditEvidenceRequirementRepository

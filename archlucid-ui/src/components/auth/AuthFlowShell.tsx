@@ -10,7 +10,7 @@ import {
   AUTHENTICATION_SIGN_IN_INBOUND_HELP_HREF,
   AUTHENTICATION_SIGN_IN_INBOUND_HELP_LINK_LABEL,
 } from "@/lib/authentication-sign-in-inbound-copy";
-import { SIGN_IN_PAGE_COPY } from "@/lib/auth/sign-in-page-copy";
+import { signInReturnDestinationHint } from "@/lib/auth/sign-in-page-copy";
 import {
   productLineAuthWelcomeAriaLabel,
   productLineDisplayName,
@@ -68,7 +68,7 @@ export function AuthFlowShell({
             className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="auth-flow-return-destination-hint"
           >
-            {SIGN_IN_PAGE_COPY.returnDestinationHint}
+            {signInReturnDestinationHint(productLine)}
           </p>
         ) : null}
 

@@ -1,3 +1,5 @@
+import { PRODUCT_LINE_DISPLAY_NAME } from "@/lib/product-line/product-line-display-name";
+
 export const ARCHITECTURE_SHARING_HELP_PAGE_TITLE = "Architecture sharing inside your tenant" as const;
 
 export const ARCHITECTURE_SHARING_HELP_PAGE_SUBTITLE =
@@ -34,7 +36,7 @@ export const ARCHITECTURE_SHARING_HELP_GRANDFATHER_COPY =
   "Existing architectures stay workspace-visible until someone turns on restrict-to-shares. Surprise hiding is treated as a production incident — the default remains open." as const;
 
 export const ARCHITECTURE_SHARING_HELP_NOT_IN_PRODUCT_COPY =
-  "ArchLucid does not offer live presence avatars on the review desk, finding-comment chat, or cross-tenant sharing in this wave. Ask your workspace admin for ITSM or chat integrations outside the product boundary." as const;
+  `${PRODUCT_LINE_DISPLAY_NAME.architecture} does not offer live presence avatars on the review desk, finding-comment chat, or cross-tenant sharing in this wave. Ask your workspace admin for ITSM or chat integrations outside the product boundary.` as const;
 
 export const ARCHITECTURE_SHARING_HELP_PRIMARY_CONTENT_ID = "architecture-sharing-help-primary-content" as const;
 

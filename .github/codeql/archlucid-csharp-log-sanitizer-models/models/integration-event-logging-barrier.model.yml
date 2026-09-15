@@ -16,6 +16,10 @@ extensions:
       - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerHostLeaderElectionExtensions", "LogWarningHostLeaderLeaseRenewalFailedStopping", "(Microsoft.Extensions.Logging.ILogger,System.String,System.String)", "summary", "manual"]
       - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerTrialBootstrapExtensions", "LogInformationTrialBootstrapEmailVerificationBlocked", "(Microsoft.Extensions.Logging.ILogger,System.Guid,System.String)", "summary", "manual"]
       - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerSupportProblemReportExtensions", "LogInformationProblemReportAckWouldSend", "(Microsoft.Extensions.Logging.ILogger,System.Guid,System.String,System.String)", "summary", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerEmailDispatchExtensions", "LogErrorTemplatedEmailSendFailed", "(Microsoft.Extensions.Logging.ILogger,System.Exception,System.Guid,System.String,System.String)", "summary", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerEmailDispatchExtensions", "LogErrorRecurrenceEmailSendFailed", "(Microsoft.Extensions.Logging.ILogger,System.Exception,System.Guid,System.Guid,System.String)", "summary", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerWarningExtensions", "LogWarningWithExceptionAndTwoSanitizedUserStrings", "(Microsoft.Extensions.Logging.ILogger,System.Exception,System.String,System.String,System.String)", "summary", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerInformationExtensions", "LogInformationFindingInsightSignalRecorded", "(Microsoft.Extensions.Logging.ILogger,System.String,System.Guid,System.String,System.Boolean)", "summary", "manual"]
       - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerDebugExtensions", "LogDebugAwsPricingProbeFailed", "(Microsoft.Extensions.Logging.ILogger,System.Exception,System.String,System.String)", "summary", "manual"]
   # Canonical com.archlucid.* integration event type literals are not private data.
   - addsTo:
