@@ -20,6 +20,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
     public async Task<AzureInventorySnapshotGraphResolveResult> TryResolveGraphAsync(
         ScopeContext scope,
         Guid snapshotId,
+        bool includeNeverShowArmTypes = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -45,7 +46,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
             };
         }
 
-        GraphSnapshot graph = BuildGraph(snapshot);
+        GraphSnapshot graph = BuildGraph(snapshot, includeNeverShowArmTypes);
 
         return new AzureInventorySnapshotGraphResolveResult
         {
@@ -54,9 +55,14 @@ public sealed class AzureInventorySnapshotGraphResolver(
         };
     }
 
-    private static GraphSnapshot BuildGraph(AzureInventorySnapshotDetailReadModel snapshot)
+    private static GraphSnapshot BuildGraph(
+        AzureInventorySnapshotDetailReadModel snapshot,
+        bool includeNeverShowArmTypes)
     {
-        snapshot = AzureInventoryVisibleSnapshotProjection.Apply(snapshot);
+        if (!includeNeverShowArmTypes)
+        {
+            snapshot = AzureInventoryVisibleSnapshotProjection.Apply(snapshot);
+        }
 
         Dictionary<string, string> nodeIdByArmId = new(StringComparer.OrdinalIgnoreCase);
         List<GraphNode> nodes = [];

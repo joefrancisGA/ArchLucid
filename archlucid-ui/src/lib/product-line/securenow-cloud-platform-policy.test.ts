@@ -16,6 +16,7 @@ import {
   isHelpTopicExcludedForProductLine,
   isSecureNowDemoChromeExcluded,
   isSecureNowTrainingChromeExcluded,
+  isSecureNowWorkspaceFooterTrustLinkExcluded,
   secureNowCloudConnectionsHelpSubtitle,
   secureNowCloudConnectionsHubContextualLead,
   secureNowCloudConnectionsSummary,
@@ -49,6 +50,9 @@ describe("securenow-cloud-platform-policy", () => {
     expect(isHelpTopicExcludedForProductLine("choose-your-next-step", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("accelerator-chooser", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("career-rehearsal-doors", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("architecture-draft-editing", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("architecture-sharing", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("slack-integration", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("findings", "security")).toBe(false);
     expect(isHelpTopicExcludedForProductLine("security-evidence-paths", "security")).toBe(false);
     expect(isHelpTopicExcludedForProductLine("security-evidence-paths", "architecture")).toBe(true);
@@ -68,6 +72,11 @@ describe("securenow-cloud-platform-policy", () => {
   it("excludes ArchLucid demo and sample chrome from SecureNow", () => {
     expect(isSecureNowDemoChromeExcluded("security")).toBe(true);
     expect(isSecureNowDemoChromeExcluded("architecture")).toBe(false);
+  });
+
+  it("excludes the workspace footer Security and trust link from SecureNow", () => {
+    expect(isSecureNowWorkspaceFooterTrustLinkExcluded("security")).toBe(true);
+    expect(isSecureNowWorkspaceFooterTrustLinkExcluded("architecture")).toBe(false);
   });
 
   it("blocks AWS and GCP integration routes in the Security shell", () => {

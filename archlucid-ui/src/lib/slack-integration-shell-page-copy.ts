@@ -1,3 +1,6 @@
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
 export const SLACK_INTEGRATION_PRIMARY_CONTENT_ID = "slack-integration-primary-content" as const;
 
 export const SLACK_INTEGRATION_FIRST_VIEWPORT_TEST_ID = "slack-integration-first-viewport" as const;
@@ -14,8 +17,12 @@ export const SLACK_INTEGRATION_ORIENTATION_BOTTOM_TEST_ID = "slack-integration-o
 export const SLACK_INTEGRATION_PAGE_SUBTITLE_BUYER =
   "Add Slack incoming-webhook destinations, verify delivery with a test notification, and manage which alert events post to your channels." as const;
 
-export const SLACK_INTEGRATION_PAGE_LEAD =
-  "Send ArchLucid alerts to the Slack channels your teams already monitor through incoming-webhook destinations." as const;
+export function slackIntegrationPageLead(productLineId: ProductLineId): string {
+  return `Send ${productLineDisplayName(productLineId)} alerts to the Slack channels your teams already monitor through incoming-webhook destinations.`;
+}
+
+/** Architecture default for tests and legacy imports. */
+export const SLACK_INTEGRATION_PAGE_LEAD = slackIntegrationPageLead("architecture");
 
 export const SLACK_INTEGRATION_BUYER_OVERVIEW =
   "Add destinations and run a test notification below, then enable the alert events you want routed to Slack before treating delivery as configured." as const;

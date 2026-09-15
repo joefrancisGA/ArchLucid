@@ -25,6 +25,7 @@ import {
   mapEmailOtpFailureToCustomerMessage,
   SIGN_IN_PAGE_COPY,
 } from "@/lib/auth/sign-in-page-copy";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { resolveSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { signInHasReturnDestination } from "@/lib/auth/sign-in-return-destination";
 import { assertOidcSignInConfig } from "@/lib/oidc/config";
@@ -45,6 +46,7 @@ export type UseSignInFlowStateProps = {
 };
 
 export function useSignInFlowState({ returnUrl, invitationTokenFromQuery }: UseSignInFlowStateProps) {
+  const { productLine } = useProductLine();
   const router = useRouter();
   const pathname = usePathname() ?? "/auth/signin";
   const searchParams = useSearchParams();
@@ -247,9 +249,9 @@ export function useSignInFlowState({ returnUrl, invitationTokenFromQuery }: UseS
         submitLockRef.current = false;
 
         if (step === "code") {
-          setCodeError(mapEmailOtpFailureToCustomerMessage("unknown"));
+          setCodeError(mapEmailOtpFailureToCustomerMessage("unknown", productLine));
         } else {
-          setEmailError(mapEmailOtpFailureToCustomerMessage("unknown"));
+          setEmailError(mapEmailOtpFailureToCustomerMessage("unknown", productLine));
         }
 
         return;
@@ -277,9 +279,9 @@ export function useSignInFlowState({ returnUrl, invitationTokenFromQuery }: UseS
         recordEmailOtpAuthAnalytics("email_otp_failure", { failureCategory: result.category });
 
         if (step === "code") {
-          setCodeError(mapEmailOtpFailureToCustomerMessage(result.category));
+          setCodeError(mapEmailOtpFailureToCustomerMessage(result.category, productLine));
         } else {
-          setEmailError(mapEmailOtpFailureToCustomerMessage(result.category));
+          setEmailError(mapEmailOtpFailureToCustomerMessage(result.category, productLine));
         }
 
         return;
@@ -305,7 +307,7 @@ export function useSignInFlowState({ returnUrl, invitationTokenFromQuery }: UseS
     }
 
     if (challengeId === null || challengeId.length === 0) {
-      setCodeError(mapEmailOtpFailureToCustomerMessage("unknown"));
+      setCodeError(mapEmailOtpFailureToCustomerMessage("unknown", productLine));
 
       return;
     }
@@ -319,7 +321,7 @@ export function useSignInFlowState({ returnUrl, invitationTokenFromQuery }: UseS
 
     if (result.kind === "failure") {
       recordEmailOtpAuthAnalytics("email_otp_failure", { failureCategory: result.category });
-      setCodeError(mapEmailOtpFailureToCustomerMessage(result.category));
+      setCodeError(mapEmailOtpFailureToCustomerMessage(result.category, productLine));
       setCodePending(false);
       submitLockRef.current = false;
 

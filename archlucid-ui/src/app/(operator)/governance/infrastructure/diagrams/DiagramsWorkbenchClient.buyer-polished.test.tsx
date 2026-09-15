@@ -166,7 +166,11 @@ describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
     expect(snapshotLabel).toHaveClass("font-semibold");
     expect(modeLabel).toHaveClass("font-semibold");
 
-    expect(screen.getByLabelText("Snapshot and mode selection")).toHaveClass("md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]");
+    expect(screen.getByLabelText("Snapshot and mode selection")).toHaveClass(
+      "items-start",
+      "md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]",
+    );
+    expect(screen.getByTestId("infra-diagrams-snapshot-id-readout")).toHaveClass("col-start-1");
   });
 
   it("hides inline resource id behind disclosure when scoped", async () => {

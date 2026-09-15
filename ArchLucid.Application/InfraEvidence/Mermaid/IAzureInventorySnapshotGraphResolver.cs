@@ -8,6 +8,7 @@ public interface IAzureInventorySnapshotGraphResolver
     Task<AzureInventorySnapshotGraphResolveResult> TryResolveGraphAsync(
         ScopeContext scope,
         Guid snapshotId,
+        bool includeNeverShowArmTypes = false,
         CancellationToken cancellationToken = default);
 }
 
