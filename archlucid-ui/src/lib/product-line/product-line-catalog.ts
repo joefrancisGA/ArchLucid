@@ -95,6 +95,7 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
 export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLineAssignment>> = {
   "/security/assigned-to-me": "security",
   "/security/remediation-factory": "security",
+  "/security/remediation-instances": "security",
   "/security/remediation-patterns": "security",
   "/infrastructure/diagrams": "security",
   "/infrastructure/resources": "security",

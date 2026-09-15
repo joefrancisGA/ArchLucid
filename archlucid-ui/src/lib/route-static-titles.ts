@@ -24,6 +24,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_REMEDIATION_INSTANCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
@@ -75,6 +76,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH]: OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
   "/security/assigned-to-me": OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
   "/security/remediation-factory": OPERATOR_NAV_LINK_LABELS.remediationFactory,
+  "/security/remediation-instances": OPERATOR_NAV_LINK_LABELS.infrastructureRemediation,
   "/security/remediation-patterns": OPERATOR_NAV_LINK_LABELS.remediationPatterns,
   [GOVERNANCE_EXCEPTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.riskExceptions,
   "/governance/decision-register": OPERATOR_NAV_LINK_LABELS.decisionRegister,

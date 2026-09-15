@@ -25,6 +25,9 @@ export const GOVERNANCE_INFRASTRUCTURE_ASK_PATH = "/governance/infrastructure/as
 
 export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH = "/governance/infrastructure/remediation";
 
+/** SecureNow Security shell — remediation instances workbench (Security URL namespace). */
+export const SECURENOW_REMEDIATION_INSTANCES_PATH = "/security/remediation-instances" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH = "/governance/infrastructure/terraform";
 
 export const GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH =
