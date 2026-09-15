@@ -1,10 +1,10 @@
 import {
-  GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
-  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_INFRASTRUCTURE_ASK_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+  SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -24,12 +24,12 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
     recommendedFirst: true,
   },
   {
-    href: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+    href: SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDrift,
     summary: "Compare inventory snapshots, classify drift, and export advisory Terraform.",
   },
   {
-    href: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+    href: SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform,
     summary: "Review advisory Terraform mapping reconstructed from inventory evidence.",
   },
@@ -39,12 +39,12 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
     summary: "Render diagrams, a resource group map for large subscriptions, and server PNG export.",
   },
   {
-    href: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+    href: SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile,
     summary: "Reconcile uploaded diagrams against inventory snapshots with explainable correspondence rows.",
   },
   {
-    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    href: SECURENOW_INFRASTRUCTURE_ASK_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureAsk,
     summary: "Ask grounded questions about inventory evidence with citation-backed answers.",
   },

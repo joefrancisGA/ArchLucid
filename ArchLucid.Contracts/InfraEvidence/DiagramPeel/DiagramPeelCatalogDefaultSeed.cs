@@ -36,6 +36,7 @@ public static class DiagramPeelCatalogDefaultSeed
                 "Microsoft.AlertsManagement/smartDetectorAlertRules",
                 "Always dispose — smart detector alert rule"),
             AlwaysDispose("Microsoft.Insights/metricAlerts", "Always dispose — metric alert"),
+            AlwaysDispose("Microsoft.Insights/workbooks", "Always dispose — monitoring workbook"),
             AlwaysDispose("Microsoft.Network/dnszones", "Always dispose — DNS zone"),
             AlwaysDispose("Microsoft.Network/privateDnsZones", "Always dispose — private DNS zone"),
             AlwaysDispose(

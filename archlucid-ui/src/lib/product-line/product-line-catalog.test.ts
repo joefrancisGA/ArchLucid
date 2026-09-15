@@ -52,7 +52,8 @@ describe("product-line catalog", () => {
 
     expect(hrefs).toContain("/");
     expect(hrefs).not.toContain("/governance/infrastructure");
-    expect(hrefs).toContain("/governance/infrastructure/drift");
+    expect(hrefs).toContain("/infrastructure/drift");
+    expect(hrefs).not.toContain("/governance/infrastructure/drift");
     expect(hrefs).toContain("/infrastructure/diagrams");
     expect(hrefs).not.toContain("/governance/infrastructure/diagrams");
     expect(hrefs).toContain("/infrastructure/resources");
@@ -66,7 +67,8 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/security/remediation-factory");
     expect(hrefs).not.toContain("/governance/remediation-factory");
     expect(hrefs).toContain("/administration/users");
-    expect(hrefs).toContain("/governance/infrastructure/extract-upload");
+    expect(hrefs).toContain("/infrastructure/extract-upload");
+    expect(hrefs).not.toContain("/governance/infrastructure/extract-upload");
     expect(hrefs).not.toContain("/administration/extract-upload");
     expect(hrefs).not.toContain("/administration/billing");
     expect(hrefs).not.toContain("/integrations/azure-boards");
@@ -76,9 +78,14 @@ describe("product-line catalog", () => {
     expect(hrefs).not.toContain("/architecture/architectures");
     expect(hrefs).not.toContain("/insights/evidence-graph");
     expect(hrefs).not.toContain("/governance/approval-queue");
-    expect(hrefs).toContain("/governance/policy-packs");
-    expect(hrefs).toContain("/governance/standards-and-rules");
-    expect(hrefs).toContain("/governance/findings");
+    expect(hrefs).toContain("/compliance/policy-packs");
+    expect(hrefs).toContain("/compliance/standards-and-rules");
+    expect(hrefs).toContain("/compliance/findings");
+    expect(hrefs).toContain("/compliance/audit-evidence");
+    expect(hrefs).not.toContain("/governance/policy-packs");
+    expect(hrefs).not.toContain("/governance/standards-and-rules");
+    expect(hrefs).not.toContain("/governance/findings");
+    expect(hrefs).not.toContain("/governance/audit-evidence");
     expect(hrefs).toContain("/security/assigned-to-me");
     expect(hrefs).toContain("/security/remediation-factory");
     expect(hrefs).toContain("/security/remediation-patterns");
@@ -150,6 +157,8 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/administration/identity/sso-wizard", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/administration/extract-upload", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/governance/infrastructure/extract-upload", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/infrastructure/extract-upload", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/infrastructure/extract-upload", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/governance/infrastructure/extract-upload", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/extract-upload", "architecture")).toBe(true);
     expect(isPathAllowedForProductLine("/governance/findings/assigned-to-me", "security")).toBe(true);
@@ -164,6 +173,17 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/infrastructure/resources", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/infrastructure/resources/res-1", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/infrastructure/resources", "architecture")).toBe(false);
+    expect(isPathAllowedForProductLine("/infrastructure/drift", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/infrastructure/drift", "architecture")).toBe(false);
+    expect(isPathAllowedForProductLine("/infrastructure/ask", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/infrastructure/terraform", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/compliance/policy-packs", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/compliance/policy-packs/pack-1", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/compliance/findings", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/compliance/standards-and-rules", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/compliance/audit-evidence", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/compliance/policy-packs", "architecture")).toBe(false);
+    expect(isPathAllowedForProductLine("/compliance/findings", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/billing", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/branding", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/branding", "architecture")).toBe(true);
