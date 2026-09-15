@@ -196,6 +196,71 @@ public sealed class DiagramForestLayoutSvgRendererTests
     }
 
     [Fact]
+    public void Render_prints_muted_resource_group_lines_for_distinct_groups()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "resource-groups",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "vm-1",
+                    Label = "vm-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    ArmResourceGroup = "rg-app-prod",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "db-1",
+                    Label = "sqldb-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Sql/servers/databases",
+                    ArmResourceGroup = "rg-data-prod",
+                    OrderKey = 1,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+        result.Succeeded.Should().BeTrue();
+        result.Svg.Should().Contain("rg-app-prod");
+        result.Svg.Should().Contain("rg-data-prod");
+        result.Svg.Should().Contain("font-weight=\"400\"");
+        result.Svg.Should().Contain("fill=\"#64748b\"");
+        result.Svg.Should().Contain("<title>vm-app (Virtual machine) · rg-app-prod</title>");
+        result.Svg.Should().Contain("<title>sqldb-app (SQL database) · rg-data-prod</title>");
+    }
+
+    [Fact]
+    public void Render_omits_resource_group_line_when_arm_resource_group_is_missing()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "no-group",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "vm-1",
+                    Label = "vm-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    OrderKey = 0,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue();
+        result.Svg.Should().NotContain("fill=\"#64748b\"");
+        result.Svg.Should().Contain("<title>vm-app (Virtual machine)</title>");
+    }
+
+    [Fact]
     public void Render_private_endpoint_target_shows_lock_without_edge_label()
     {
         DiagramAst ast = new()

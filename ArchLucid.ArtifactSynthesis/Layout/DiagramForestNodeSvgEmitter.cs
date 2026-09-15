@@ -87,6 +87,38 @@ public static class DiagramForestNodeSvgEmitter
 
         group.Add(text);
 
+        if (metrics.ResourceGroupLines.Count > 0)
+        {
+            double resourceGroupTextY = textY + (metrics.NameLines.Count * options.LineHeight);
+            XElement resourceGroupText = new(
+                svgNamespace + "text",
+                new XAttribute("x", Format(width / 2.0)),
+                new XAttribute("y", Format(resourceGroupTextY)),
+                new XAttribute("text-anchor", "middle"),
+                new XAttribute("font-size", "11"),
+                new XAttribute("font-weight", "400"),
+                new XAttribute("font-family", "system-ui,sans-serif"),
+                new XAttribute("fill", "#64748b"));
+
+            for (int index = 0; index < metrics.ResourceGroupLines.Count; index++)
+            {
+                string line = metrics.ResourceGroupLines[index];
+                XElement tspan = new(
+                    svgNamespace + "tspan",
+                    new XAttribute("x", Format(width / 2.0)),
+                    Escape(line));
+
+                if (index > 0)
+                {
+                    tspan.Add(new XAttribute("dy", Format(options.LineHeight)));
+                }
+
+                resourceGroupText.Add(tspan);
+            }
+
+            group.Add(resourceGroupText);
+        }
+
         return group;
     }
 
