@@ -15,7 +15,7 @@ Paste **one** `.cursor/prompts/al-bug-quality-NN-*.md` file per Composer session
 
 ## Wave 7 — prompts only (ABQ-46–50) — run before the next hunt batch
 
-Owner 2026-09-15: stop shipping synthetic `weekk+` Azure Retail Prices UOM hunts. Cleanup existing matchers/tests, then CI-ban reintroduction. **Topology-proposal-merge hunts may resume after 48/49.** Do not mix new topology hits into the deletion PR. Do not run `/al-bug` to implement this wave.
+Owner 2026-09-15: stop shipping synthetic `weekk+` Azure Retail Prices UOM hunts. Cleanup existing matchers/tests, then CI-ban reintroduction. **Topology-proposal-merge hunts may continue now** on separate branches. Do not mix new topology hits into the deletion PR. Do not run `/al-bug` to implement this wave.
 
 | ID | Prompt file | Leftover / flaw |
 |----|-------------|-----------------|

@@ -4,7 +4,7 @@
 
 ## Goal
 
-Make it impossible for the next `/al-bug` or `ship-hunts-*.py` run to treat “one more `k` on `week`” as a hunt-ready core-costing hit. Owner decision 2026-09-15: **stop shipping new `weekk+` / spaced-slash ` / weekk+` matchers.** Cleanup of existing residue is ABQ-47–50. Topology-proposal-merge hunts may resume **after** ABQ-48/49 land, not in the same PR as this stop-ship.
+Make it impossible for the next `/al-bug` or `ship-hunts-*.py` run to treat “one more `k` on `week`” as a hunt-ready core-costing hit. Owner decision 2026-09-15: **stop shipping new `weekk+` / spaced-slash ` / weekk+` matchers.** Cleanup of existing residue is ABQ-47–50. Topology-proposal-merge hunts may continue **now** on other branches; do not mix them into this stop-ship PR.
 
 ## Why
 
@@ -37,7 +37,7 @@ Do **not** edit `ArchLucid.Core/Costing/AzureRetailPricesSkuMatchers.cs` in this
 
 - A reviewer can reject `10weekkkkkkk` as not hunt-ready using only the updated 1.1b text.
 - Command and skill agree. No matcher/test deletion in this PR.
-- No `/al-bug` invocation. No topology batch.
+- No `/al-bug` invocation. No topology batch **in this session** (topology may continue in a different session/branch).
 
 ## Constraints
 

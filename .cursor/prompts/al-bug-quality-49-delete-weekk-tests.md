@@ -1,6 +1,6 @@
 # ABQ-49 — Delete synthetic `weekk+` UOM tests
 
-**After or with ABQ-48.** Do not reintroduce deleted matchers to make tests green. Do not run `/al-bug`. Topology hunts stay paused until this PR is merged.
+**After or with ABQ-48.** Do not reintroduce deleted matchers to make tests green. Do not run `/al-bug`. Topology hunts may continue on **other** branches; do not mix topology hits into this deletion PR.
 
 ## Goal
 

@@ -7,7 +7,7 @@
 
 **Status:** **prompts only** (2026-09-15). Do **not** implement from this file.
 
-Owner: stop new compact/spaced-slash `week`+extra-`k` matcher hunts. Delete the farmed methods and tests. Ban reintroduction in CI. **Do not** start another 50-hunt batch until **ABQ-48 and ABQ-49** have landed. Topology-proposal-merge hunts may continue **after** that cleanup; do not mix new topology hits into the matcher-deletion PR.
+Owner: stop new compact/spaced-slash `week`+extra-`k` matcher hunts. Delete the farmed methods and tests. Ban reintroduction in CI. **Do not** start another core-costing `weekk+` hunt batch. Topology-proposal-merge hunts may continue **now** on their own branches; do not mix new topology hits into the matcher-deletion PR (48/49).
 
 **Do not treat this as a V1 assessment scorecard.** Do not add GTM **M-90 / M-44 / M-91 / M-92** or closed assurance **TB-135 / TB-136**. Do not run `/al-bug` to implement 46–50.
 
@@ -36,7 +36,7 @@ Keep finite Azure-plausible tokens: `week`/`weeks`, `wk`/`wks`, slash and spaced
 ## Won’t do
 
 - Mass-retcon ledger `(proven)` rows that cite deleted test class names.
-- Ban topology `ds-` / `azurerm_*` short tokens (owner continues those hunts later).
+- Ban topology `ds-` / `azurerm_*` short tokens (owner continues those hunts now, on separate branches).
 - Rewrite hour/day/month UOM matchers.
 - Commit untracked `scripts/agent/ship-hunts-*.py` solely to delete `CORE_COMPACT` maps.
 - Grow the ABQ-21 closed defect-class enum just for this farm (50 uses CI grep).

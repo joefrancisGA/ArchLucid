@@ -1,6 +1,6 @@
 # ABQ-50 — CI ban + ship-script hygiene for `weekk+` UOM farming
 
-**After ABQ-48/49.** Extends ABQ-32 retired-class bans. Do not hunt. Topology-proposal-merge hunts may resume **after this prompt’s ban is in CI**, still without `CORE_COMPACT`/`CORE_SPACED` `weekk+` maps.
+**After ABQ-48/49.** Extends ABQ-32 retired-class bans. Do not hunt `weekk+`. Topology-proposal-merge hunts may continue now; this ban must not restrict them. Still no `CORE_COMPACT`/`CORE_SPACED` `weekk+` maps.
 
 ## Goal
 
@@ -45,4 +45,4 @@ ABQ-46 is documentation. Without a gate, the next 50-hunt batch will copy `ship-
 - Closed defect-class enum **unchanged** (do not add `uom-letter-run` to the picker enum unless ABQ-21 owners already allow it — **prefer CI grep over enum growth**).
 - Do not reopen TB-135/TB-136. Do not pen-test.
 - Working-tree safety. Pester 5 for any new script tests.
-- After this prompt, topology hunt batches may resume; core-costing hits require a **reachable** Azure `unitOfMeasure` citation (ABQ-05 + ABQ-46).
+- After this prompt, topology hunt batches remain allowed; core-costing hits require a **reachable** Azure `unitOfMeasure` citation (ABQ-05 + ABQ-46).
