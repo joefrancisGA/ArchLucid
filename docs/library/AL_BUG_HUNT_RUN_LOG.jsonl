@@ -4036,3 +4036,4 @@
 {"at":"2026-09-15T21:06:18.616246Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-15T21:06:21.9678727Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-15T21:06:24.9763671Z","zoneId":"core-costing","outcome":"seed-only"}
+{"at":"2026-09-15T21:06:28.0675229Z","zoneId":"tenant-data-export","outcome":"seed-only"}
