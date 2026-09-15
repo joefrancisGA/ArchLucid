@@ -356,6 +356,40 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if (TryGetPropertyIgnoreCase(res, "ignore_changes", out JsonElement ignoreChanges)
+            || TryGetPropertyIgnoreCase(res, "ignoreChanges", out ignoreChanges))
+        {
+            List<string> ignoredFields = [];
+
+            if (ignoreChanges.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in ignoreChanges.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        ignoredFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (ignoreChanges.ValueKind == JsonValueKind.String)
+            {
+                string? value = ignoreChanges.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    ignoredFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (ignoredFields.Count > 0)
+            {
+                string joined = string.Join('|', ignoredFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.ignore_changes"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
