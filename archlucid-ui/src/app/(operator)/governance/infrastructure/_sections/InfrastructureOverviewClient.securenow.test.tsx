@@ -93,5 +93,6 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     expect(INFRASTRUCTURE_WORKBENCH_ROWS).toHaveLength(7);
     expect(INFRASTRUCTURE_WORKBENCH_ROWS[0]?.href).toBe("/governance/infrastructure/resources");
     expect(SECURENOW_INFRASTRUCTURE_HOME_ROWS[0]?.href).toBe("/infrastructure/resources");
+    expect(SECURENOW_INFRASTRUCTURE_HOME_ROWS[1]?.href).toBe("/infrastructure/declared-connections");
   });
 });
