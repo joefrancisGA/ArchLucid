@@ -24,7 +24,9 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 
         if ((!TryGetPropertyIgnoreCase(res, "address", out JsonElement addressElement)
                 && !TryGetPropertyIgnoreCase(res, "resourceAddress", out addressElement)
-                && !TryGetPropertyIgnoreCase(res, "resource_address", out addressElement))
+                && !TryGetPropertyIgnoreCase(res, "resource_address", out addressElement)
+                && !TryGetPropertyIgnoreCase(res, "terraformAddress", out addressElement)
+                && !TryGetPropertyIgnoreCase(res, "terraform_address", out addressElement))
             || addressElement.ValueKind != JsonValueKind.String)
             return false;
 
@@ -138,16 +140,27 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 RedactTopLevelSensitiveTfValues(sensitive, properties);
         }
 
-        if ((TryGetPropertyIgnoreCase(res, "depends_on", out JsonElement depOn) || TryGetPropertyIgnoreCase(res, "dependsOn", out depOn)) && depOn.ValueKind == JsonValueKind.Array)
+        if (TryGetPropertyIgnoreCase(res, "depends_on", out JsonElement depOn)
+            || TryGetPropertyIgnoreCase(res, "dependsOn", out depOn))
         {
             List<string> refs = [];
 
-            foreach (JsonElement dep in depOn.EnumerateArray())
+            if (depOn.ValueKind == JsonValueKind.Array)
             {
-                if (dep.ValueKind != JsonValueKind.String)
-                    continue;
+                foreach (JsonElement dep in depOn.EnumerateArray())
+                {
+                    if (dep.ValueKind != JsonValueKind.String)
+                        continue;
 
-                string? r = dep.GetString();
+                    string? r = dep.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(r))
+                        refs.Add(r.Trim().ToLowerInvariant());
+                }
+            }
+            else if (depOn.ValueKind == JsonValueKind.String)
+            {
+                string? r = depOn.GetString();
 
                 if (!string.IsNullOrWhiteSpace(r))
                     refs.Add(r.Trim().ToLowerInvariant());
