@@ -366,6 +366,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 string joined = string.Join('|', refs.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
 
                 properties["terraformDependsOn"] = joined.Length > 2000 ? joined[..2000] : joined;
+                properties["tf.depends_on"] = joined.Length > 2000 ? joined[..2000] : joined;
             }
         }
 

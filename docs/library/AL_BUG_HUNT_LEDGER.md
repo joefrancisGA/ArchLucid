@@ -12859,6 +12859,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-15 seed hunt #3632 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `dependsOn` `tf.depends_on` property gap; regression `ParseAsync_depends_on_maps_tf_depends_on_property`.
+
 2026-09-15 seed hunt #3627 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-15 seed hunt #3622 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -13341,11 +13343,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 375
-- **bugs-found:** 290
+- **hunts:** 376
+- **bugs-found:** 291
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-15 — hunt #3607: terraform-show-json deletionProtection property gap
+- **last-bug:** 2026-09-15 — hunt #3632: terraform-show-json dependsOn tf.depends_on property gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
