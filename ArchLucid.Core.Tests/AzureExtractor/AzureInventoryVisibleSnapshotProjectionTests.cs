@@ -135,6 +135,7 @@ public sealed class AzureInventoryVisibleSnapshotProjectionTests
 
         predicate.Should().Contain("%/solutions/%");
         predicate.Should().Contain("%/virtualnetworklinks/%");
+        predicate.Should().Contain("%/sshpublickeys/%");
     }
 
     [Fact]

@@ -19,6 +19,7 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             'Microsoft.Network/dnszones'
             'Microsoft.Network/privateDnsZones'
             'Microsoft.Compute/virtualMachines/extensions'
+            'Microsoft.Compute/sshPublicKeys'
             'Microsoft.Maintenance/maintenanceConfigurations'
             'Microsoft.Example/widgets/extensions'
         ) | ForEach-Object {
@@ -33,6 +34,8 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security' |
             Should -Be $true
         Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1' |
+            Should -Be $true
+        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/sshPublicKeys/vm-ssh-key' |
             Should -Be $true
     }
 

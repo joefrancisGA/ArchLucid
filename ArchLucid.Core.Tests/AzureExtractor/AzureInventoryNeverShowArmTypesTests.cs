@@ -23,6 +23,9 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     [InlineData("Microsoft.Network/dnsResolvers")]
     [InlineData("Microsoft.Compute/virtualMachines/extensions")]
     [InlineData("Microsoft.Compute/virtualMachineScaleSets/extensions")]
+    [InlineData("Microsoft.Compute/sshPublicKeys")]
+    [InlineData("microsoft.compute/sshpublickeys")]
+    [InlineData("sshpublickeys")]
     [InlineData("Microsoft.HybridCompute/machines/extensions")]
     [InlineData("Microsoft.Maintenance/maintenanceConfigurations")]
     [InlineData("Microsoft.Maintenance/configurationAssignments")]
@@ -48,6 +51,7 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Containers")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/sshPublicKeys/vm-ssh-key")]
     public void ShouldOmitAzureResourceId_returns_true_for_never_show_arm_ids(string azureResourceId)
     {
         AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(azureResourceId).Should().BeTrue();
