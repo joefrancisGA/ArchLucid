@@ -51,6 +51,7 @@ public sealed class DiagramForestCanvasLabelContext
             Height: height,
             NameLines: nameLines,
             Caption: caption,
-            PictogramKind: DiagramInventoryPictogramKindResolver.Resolve(node.ArmResourceType));
+            PictogramKind: DiagramInventoryPictogramKindResolver.Resolve(node.ArmResourceType),
+            HasPrivateEndpointAccess: node.HasPrivateEndpointAccess);
     }
 }

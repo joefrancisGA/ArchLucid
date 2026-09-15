@@ -59,4 +59,13 @@ public class DiagramNode
         get;
         set;
     }
+
+    /// <summary>
+    ///     True when inventory shows a private endpoint reaching this resource (lock badge on forest canvases).
+    /// </summary>
+    public bool HasPrivateEndpointAccess
+    {
+        get;
+        set;
+    }
 }
