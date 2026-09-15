@@ -130,6 +130,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     const adminLinks = rows.find((row) => row.group.id === "operator-admin")?.visibleLinks ?? [];
 
     expect(adminLinks.map((link) => link.href)).not.toContain("/administration/extract-upload");
+    expect(adminLinks.map((link) => link.href)).not.toContain("/administration/support");
   });
 
   it("merges Internal destinations under Administration instead of a separate Internal group", () => {
