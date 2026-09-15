@@ -49,6 +49,9 @@ describe("securenow-cloud-platform-policy", () => {
     expect(isHelpTopicExcludedForProductLine("choose-your-next-step", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("accelerator-chooser", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("career-rehearsal-doors", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("architecture-draft-editing", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("architecture-sharing", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("slack-integration", "security")).toBe(true);
     expect(isHelpTopicExcludedForProductLine("findings", "security")).toBe(false);
     expect(isHelpTopicExcludedForProductLine("security-evidence-paths", "security")).toBe(false);
     expect(isHelpTopicExcludedForProductLine("security-evidence-paths", "architecture")).toBe(true);

@@ -8,11 +8,12 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  SESSION_EXPIRED_PASSWORDLESS_EXPLANATION,
-  SESSION_EXPIRED_SECONDARY_EXIT_LABEL,
   SESSION_EXPIRED_SECONDARY_EXIT_PATH,
   SESSION_EXPIRED_SIGN_OUT_DISCLOSURE_LABEL,
+  sessionExpiredPasswordlessExplanation,
+  sessionExpiredSecondaryExitLabel,
 } from "@/lib/auth/session-expired-page-copy";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import {
   formatSessionExpiredReturnHint,
   resolveReturnDestinationLabel,
@@ -69,6 +70,7 @@ export function SessionExpiredView({
   sessionClearedAt,
   showReturnHome = true,
 }: SessionExpiredViewProps) {
+  const { productLine } = useLocalizedProductCopy();
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -97,7 +99,7 @@ export function SessionExpiredView({
       parseSessionExpiredSignOutDetailsOpenFromSearch(sessionExpiredSignOutDetailsParam),
     );
   }, [sessionExpiredSignOutDetailsParam]);
-  const copy = getSessionMessageCopy(reason);
+  const copy = getSessionMessageCopy(reason, productLine);
   const returnDestinationLabel = resolveReturnDestinationLabel(returnUrl);
   const continueDeskLabel =
     returnDestinationLabel !== null && copy.showsReturnDestinationHint
@@ -140,7 +142,7 @@ export function SessionExpiredView({
         </details>
       )}
       <p className={cn("mt-4 text-[15px] leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        {SESSION_EXPIRED_PASSWORDLESS_EXPLANATION}
+        {sessionExpiredPasswordlessExplanation(productLine)}
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
         <Button variant="primary" onClick={onSignIn} data-testid="session-expired-sign-in">
@@ -152,7 +154,7 @@ export function SessionExpiredView({
             href={appSiteHref(SESSION_EXPIRED_SECONDARY_EXIT_PATH)}
             data-testid="session-expired-return-home"
           >
-            {SESSION_EXPIRED_SECONDARY_EXIT_LABEL}
+            {sessionExpiredSecondaryExitLabel(productLine)}
           </Link>
         ) : null}
         <Link
