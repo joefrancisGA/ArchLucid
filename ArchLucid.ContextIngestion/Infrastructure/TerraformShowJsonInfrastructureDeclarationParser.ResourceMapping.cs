@@ -7,6 +7,87 @@ namespace ArchLucid.ContextIngestion.Infrastructure;
 
 public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 {
+
+
+    private static string ResolveCallerModuleAddress(JsonElement res, string moduleAddress)
+    {
+        if ((TryGetPropertyIgnoreCase(res, "caller_module_address", out JsonElement callerModule)
+                || TryGetPropertyIgnoreCase(res, "callerModuleAddress", out callerModule))
+            && callerModule.ValueKind == JsonValueKind.String)
+        {
+            string? caller = callerModule.GetString();
+
+            if (!string.IsNullOrWhiteSpace(caller))
+                return caller.Trim().ToLowerInvariant();
+        }
+
+        return moduleAddress;
+    }
+
+
+    private static bool IsDeposedTerraformResource(JsonElement res)
+    {
+        if (!TryGetPropertyIgnoreCase(res, "deposed", out JsonElement deposed))
+            return false;
+
+        if (deposed.ValueKind == JsonValueKind.Null)
+            return false;
+
+        if (deposed.ValueKind == JsonValueKind.String)
+            return !string.IsNullOrWhiteSpace(deposed.GetString());
+
+        return true;
+    }
+
+    private static bool TryResolveTerraformResourceLabel(JsonElement res, out string name)
+    {
+        name = string.Empty;
+
+        if (TryGetPropertyIgnoreCase(res, "name", out JsonElement nameEl) && nameEl.ValueKind == JsonValueKind.String)
+        {
+            string? directName = nameEl.GetString();
+
+            if (!string.IsNullOrWhiteSpace(directName))
+            {
+                name = directName.Trim();
+                return true;
+            }
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "resource_name", out JsonElement resourceNameEl)
+                || TryGetPropertyIgnoreCase(res, "resourceName", out resourceNameEl))
+            && resourceNameEl.ValueKind == JsonValueKind.String)
+        {
+            string? aliasName = resourceNameEl.GetString();
+
+            if (!string.IsNullOrWhiteSpace(aliasName))
+            {
+                name = aliasName.Trim();
+                return true;
+            }
+        }
+
+        if (!TryGetResourceAddress(res, out string canonicalAddress))
+            return false;
+
+        int lastDot = canonicalAddress.LastIndexOf('.');
+
+        if (lastDot < 0 || lastDot >= canonicalAddress.Length - 1)
+            return false;
+
+        string label = canonicalAddress[(lastDot + 1)..];
+        int bracket = label.IndexOf('[');
+
+        if (bracket > 0)
+            label = label[..bracket];
+
+        if (string.IsNullOrWhiteSpace(label))
+            return false;
+
+        name = label;
+        return true;
+    }
+
     private static string BuildTerraformLabelKey(string moduleAddress, string terraformType, string label)
     {
         string canonicalTerraformType = terraformType.Trim().ToLowerInvariant();
@@ -72,6 +153,9 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
         IReadOnlyDictionary<string, int> labelTotals,
         Dictionary<string, int> labelSeen)
     {
+        if (IsDeposedTerraformResource(res))
+            return;
+
         if (!TryGetPropertyIgnoreCase(res, "type", out JsonElement typeEl) || typeEl.ValueKind != JsonValueKind.String)
             return;
 
@@ -80,12 +164,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
         if (string.IsNullOrWhiteSpace(tfType))
             return;
 
-        if (!TryGetPropertyIgnoreCase(res, "name", out JsonElement nameEl) || nameEl.ValueKind != JsonValueKind.String)
-            return;
-
-        string name = (nameEl.GetString() ?? string.Empty).Trim();
-
-        if (string.IsNullOrWhiteSpace(name))
+        if (!TryResolveTerraformResourceLabel(res, out string name))
             return;
 
         string objectType = ResolveObjectTypeFromTerraformType(tfType);
@@ -113,6 +192,12 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 
             if (!string.IsNullOrWhiteSpace(m))
                 properties["mode"] = m.ToLowerInvariant();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "tainted", out JsonElement tainted)
+            && (tainted.ValueKind == JsonValueKind.True || tainted.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.tainted"] = tainted.GetBoolean() ? "true" : "false";
         }
 
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
@@ -175,12 +260,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
         }
 
         string canonicalLabel = name.ToLowerInvariant();
+        string effectiveModuleAddress = ResolveCallerModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
 
         if (!hasExplicitResourceAddress)
         {
             canonicalAddress = BuildTerraformResourceAddress(
-                moduleAddress,
+                effectiveModuleAddress,
                 canonicalTerraformType,
                 canonicalLabel);
 
@@ -192,10 +278,17 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                     && !string.IsNullOrWhiteSpace(indexElement.GetString()))
                     canonicalAddress = $"{canonicalAddress}[{indexElement.GetString()!.Trim()}]";
             }
+            else if ((TryGetPropertyIgnoreCase(res, "index_key", out JsonElement indexKeyElement)
+                    || TryGetPropertyIgnoreCase(res, "indexKey", out indexKeyElement))
+                && indexKeyElement.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(indexKeyElement.GetString()))
+            {
+                canonicalAddress = $"{canonicalAddress}[{indexKeyElement.GetString()!.Trim()}]";
+            }
         }
 
         string resourceIdentity = BuildTerraformResourceIdentity(
-            moduleAddress,
+            effectiveModuleAddress,
             canonicalTerraformType,
             canonicalLabel,
             canonicalAddress,
@@ -203,7 +296,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 
         if (!hasExplicitResourceAddress)
         {
-            string labelKey = BuildTerraformLabelKey(moduleAddress, canonicalTerraformType, canonicalLabel);
+            string labelKey = BuildTerraformLabelKey(effectiveModuleAddress, canonicalTerraformType, canonicalLabel);
 
             if (labelTotals.TryGetValue(labelKey, out int total) && total > 1)
             {
