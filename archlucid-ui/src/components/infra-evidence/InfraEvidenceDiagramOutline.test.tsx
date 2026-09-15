@@ -43,11 +43,12 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(edgesTable as HTMLTableElement).getByText("—")).toBeTruthy();
 
     expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Label, ascending" })).toBeTruthy();
+    expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Resource type" })).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Resource group" })).toBeTruthy();
     expect(within(nodesTable as HTMLTableElement).queryByRole("columnheader", { name: "Id" })).toBeNull();
-    expect(within(nodesTable as HTMLTableElement).queryByRole("columnheader", { name: "Resource type" })).toBeNull();
     expect(within(nodesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
-    expect(within(nodesTable as HTMLTableElement).getByText("(Virtual Network)")).toBeTruthy();
+    expect(within(nodesTable as HTMLTableElement).getByText("Virtual Network")).toBeTruthy();
+    expect(within(nodesTable as HTMLTableElement).queryByText("(Virtual Network)")).toBeNull();
     expect(within(nodesTable as HTMLTableElement).queryByText("Microsoft.Network/virtualNetworks")).toBeNull();
     expect(within(nodesTable as HTMLTableElement).getByText("rg-network")).toBeTruthy();
     expect(within(edgesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
@@ -109,6 +110,9 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(nodesTable).not.toBeNull();
 
     const labelHeader = within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Label, ascending" });
+    const resourceTypeHeader = within(nodesTable as HTMLTableElement).getByRole("button", {
+      name: "Sort by Resource type",
+    });
     const resourceGroupHeader = within(nodesTable as HTMLTableElement).getByRole("button", {
       name: "Sort by Resource group",
     });
@@ -125,6 +129,16 @@ describe("InfraEvidenceDiagramOutline", () => {
 
     expect(within(nodesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("app-storage");
     expect(labelHeader).toHaveAttribute("aria-label", "Sort by Label, ascending");
+
+    fireEvent.click(resourceTypeHeader);
+
+    expect(within(nodesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("app-storage");
+    expect(resourceTypeHeader).toHaveAttribute("aria-label", "Sort by Resource type, ascending");
+
+    fireEvent.click(resourceTypeHeader);
+
+    expect(within(nodesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("core-vnet");
+    expect(resourceTypeHeader).toHaveAttribute("aria-label", "Sort by Resource type, descending");
 
     fireEvent.click(resourceGroupHeader);
 

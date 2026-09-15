@@ -9,6 +9,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT,
 } from "@/lib/governance/governance-infrastructure-copy";
+import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
+import { InfraEvidenceDiagramOutlineNodeLabel } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
 import {
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_DIR,
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_KEY,
@@ -17,7 +19,6 @@ import {
   toggleInfraEvidenceDiagramOutlineNodeSort,
   type InfraEvidenceDiagramOutlineNodeSortKey,
 } from "@/lib/infra-evidence/infra-evidence-diagram-outline-sort";
-import { InfraEvidenceDiagramOutlineNodeLabel } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
 import {
   resolveInfraEvidenceOutlineNodeLabel,
   resolveInfraEvidenceOutlineEdgeLabel,
@@ -36,6 +37,10 @@ function formatOutlineCell(value: string | null): string {
   }
 
   return value;
+}
+
+function formatOutlineResourceType(resourceType: string | null): string {
+  return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType));
 }
 
 function InfraEvidenceDiagramOutlineSortableHeader(props: {
@@ -120,6 +125,13 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   onSort={handleNodeSort}
                 />
                 <InfraEvidenceDiagramOutlineSortableHeader
+                  column="resourceType"
+                  label="Resource type"
+                  sortKey={nodeSortKey}
+                  sortDir={nodeSortDir}
+                  onSort={handleNodeSort}
+                />
+                <InfraEvidenceDiagramOutlineSortableHeader
                   column="resourceGroup"
                   label="Resource group"
                   sortKey={nodeSortKey}
@@ -139,6 +151,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   <td className="px-3 py-2">
                     <InfraEvidenceDiagramOutlineNodeLabel node={node} />
                   </td>
+                  <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
                   <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceGroup)}</td>
                   {showNeighborhoodActions ? (
                     <td className="px-3 py-2">

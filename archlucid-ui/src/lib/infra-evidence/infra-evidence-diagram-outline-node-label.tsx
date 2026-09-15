@@ -1,7 +1,4 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import type { InfraEvidenceMermaidOutlineNode } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
-import { cn } from "@/lib/utils";
 
 function resolveInfraEvidenceDiagramOutlineResourceName(node: InfraEvidenceMermaidOutlineNode): string {
   const label = node.label.trim();
@@ -10,6 +7,8 @@ function resolveInfraEvidenceDiagramOutlineResourceName(node: InfraEvidenceMerma
     return node.id;
   }
 
+  // Mermaid labels sometimes already include a trailing "(type)" suffix. Strip it
+  // when metadata carries the ARM type so the Nodes type column is the single source.
   if (node.resourceType != null && node.resourceType.trim().length > 0 && /\s\([^)]+\)\s*$/u.test(label)) {
     const stripped = label.replace(/\s\([^)]+\)\s*$/u, "").trim();
 
@@ -24,15 +23,5 @@ function resolveInfraEvidenceDiagramOutlineResourceName(node: InfraEvidenceMerma
 export function InfraEvidenceDiagramOutlineNodeLabel(props: {
   readonly node: InfraEvidenceMermaidOutlineNode;
 }): React.JSX.Element {
-  const resourceName = resolveInfraEvidenceDiagramOutlineResourceName(props.node);
-  const typeCaption = formatDiagramArmTypeFriendlyName(props.node.resourceType);
-
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span>{resourceName}</span>
-      {typeCaption != null ? (
-        <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>({typeCaption})</span>
-      ) : null}
-    </div>
-  );
+  return <>{resolveInfraEvidenceDiagramOutlineResourceName(props.node)}</>;
 }
