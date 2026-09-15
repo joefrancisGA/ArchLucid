@@ -9,7 +9,7 @@
      Wave 6 (ABQ-36–45): leftover honesty (blocking ratchet, dead ingest, catalog
      without host) plus seed-only/seeder Goodhart. Prompts only until implemented.
      Wave 7 (ABQ-46–50): stop + delete synthetic Azure week UOM `weekk+` letter-run
-     farming (owner 2026-09-15). Prompts only until implemented.
+     farming (owner 2026-09-15). Shipped in code (#3336).
      Do not implement from this index. -->
 
 # `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-50)
@@ -69,13 +69,13 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | **Seeder paste flood** | Three 15-caps concatenate; no cross-dedup | ABQ-43 *(shipped)* |
 | **Ghost zone paths** | Ledger prefixes survive file rename | ABQ-44 *(shipped)* |
 | **Uncheckable proven** | `no-test-cited` / `could-not-run` bypass the unguarded ratchet | ABQ-45 *(shipped)* |
-| **UOM letter-run treadmill** | `10week` + extra `k`s farmed as core-costing hits; Azure never emits them | ABQ-46–50 *(prompts only)* |
+| **UOM letter-run treadmill** | `10week` + extra `k`s farmed as core-costing hits; Azure never emits them | ABQ-46–50 *(shipped)* |
 
 ## Run order
 
-**01–45 are done** (do not paste those files to re-do the work).
+**01–50 are done** (do not paste those files to re-do the work).
 
-**46–50 are next** (week UOM cleanup). Do not hunt `weekk+`. Topology hunts may continue now; do not mix them into 48/49. See `al-bug-quality-week-uom-00-index.md`.
+**46–50 shipped** (week UOM cleanup #3336). Do not hunt `weekk+`. Topology hunts may continue on separate branches. See `al-bug-quality-week-uom-00-index.md`.
 
 | # | Prompt file | Flaw it mitigates |
 |---|----------------|-------------------|
