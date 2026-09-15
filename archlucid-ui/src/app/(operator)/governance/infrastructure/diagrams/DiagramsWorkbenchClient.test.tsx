@@ -1018,42 +1018,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
   });
 
-  it("excludes trivial singleton components from the walkthrough by default", async () => {
-    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
-      snapshotId: "11111111-1111-1111-1111-111111111111",
-      mode: query.mode ?? "executive",
-      fallbackKey: query.fallbackKey ?? null,
-      status: "Succeeded",
-      mermaid: [
-        "flowchart TD",
-        '    n_a["vnet-a"]',
-        '    n_b["vnet-b"]',
-        '    n_c["vnet-c"]',
-        "    n_a --> n_b",
-      ].join("\n"),
-      metrics: {
-        nodeCount: 3,
-        edgeCount: 1,
-        subgraphCount: 0,
-        maxDegree: 1,
-        crossSubgraphEdgeCount: 0,
-        textSizeBytes: 180,
-        layoutEstimate: 80,
-      },
-      fallbackArtifacts: [],
-      collapseReport: null,
-    }));
-
-    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive");
-    render(<DiagramsWorkbenchClient />);
-
-    expect(await screen.findByTestId("infra-diagrams-walkthrough")).toHaveTextContent("1 connected component");
-    expect(screen.getByTestId("infra-diagrams-show-trivial-components")).not.toBeChecked();
-    expect(screen.queryByTestId("infra-diagrams-always-excluded-panel")).not.toBeInTheDocument();
-    expect(screen.queryByText("vnet-c")).not.toBeInTheDocument();
-  });
-
-  it("shows trivial components and always-excluded resources when the checkbox is enabled", async () => {
+  it("keeps singleton components in the walkthrough and outline by default", async () => {
     fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
       snapshotId: "11111111-1111-1111-1111-111111111111",
       mode: query.mode ?? "executive",
@@ -1088,14 +1053,63 @@ describe("DiagramsWorkbenchClient", () => {
       },
     }));
 
-    searchParams = new URLSearchParams(
-      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive&showTrivialComponents=1",
-    );
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive");
     render(<DiagramsWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-diagrams-walkthrough")).toHaveTextContent("2 connected components");
-    expect(screen.getByTestId("infra-diagrams-show-trivial-components")).toBeChecked();
+    expect(screen.getByTestId("infra-diagrams-include-never-show")).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByTestId("infra-diagrams-always-excluded-panel")).toHaveTextContent("dnszones");
     expect(screen.getByText("vnet-c")).toBeInTheDocument();
+  });
+
+  it("shows always-excluded disclosure when the toggle is off and recompiles when on", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: [
+        "flowchart TD",
+        '    n_a["vnet-a"]',
+        '    n_b["vnet-b"]',
+        '    n_c["vnet-c"]',
+        "    n_a --> n_b",
+      ].join("\n"),
+      metrics: {
+        nodeCount: 3,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 180,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+      collapseReport: query.includeNeverShow
+        ? null
+        : {
+            entries: [
+              {
+                kind: "AlwaysDisposeArmType",
+                cloudResourceId: null,
+                nodeId: null,
+                reason: "Always dispose — never shown on inventory diagrams: Microsoft.Network/dnszones",
+              },
+            ],
+          },
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive&includeNeverShow=1",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    await screen.findByTestId("infra-diagrams-walkthrough");
+    expect(screen.getByTestId("infra-diagrams-include-never-show")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.queryByTestId("infra-diagrams-always-excluded-panel")).not.toBeInTheDocument();
+    expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+      "11111111-1111-1111-1111-111111111111",
+      expect.objectContaining({ includeNeverShow: true }),
+    );
   });
 });

@@ -1,9 +1,7 @@
-import {
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
-  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
-} from "@/lib/governance/governance-infrastructure-route-paths";
+import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { infrastructureResourceHubPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { resolveProductLineId } from "@/lib/product-line/resolve-product-line-id";
+import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
 import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
@@ -126,10 +124,9 @@ export function buildRemediationWorkbenchHref(context: InfraEvidenceWorkbenchCon
   }
 
   const query = params.toString();
+  const remediationPath = remediationInstancesPathForProductLine(resolveProductLineId());
 
-  return query.length === 0
-    ? GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH
-    : `${GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH}?${query}`;
+  return query.length === 0 ? remediationPath : `${remediationPath}?${query}`;
 }
 
 export function buildResourceHubWorkbenchHref(context: {

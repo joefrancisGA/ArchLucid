@@ -1,3 +1,6 @@
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
 /** Leaf title copy for admin-diagnostics help — no registry imports (avoids circular init). */
 export const ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE = "Platform health" as const;
 
@@ -20,8 +23,12 @@ export const ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE_BUYER =
 export const ADMIN_DIAGNOSTICS_HELP_START_HERE_HELPER =
   "Without Admin access, start with Troubleshooting or Report a problem in Where to go next below." as const;
 
-export const ADMIN_DIAGNOSTICS_HELP_PAGE_LEAD =
-  "This guide explains where to check platform health and workspace readiness in ArchLucid. It is orientation help — not a live health report or an audit export from your tenant." as const;
+export function adminDiagnosticsHelpPageLead(productLineId: ProductLineId): string {
+  return `This guide explains where to check platform health and workspace readiness in ${productLineDisplayName(productLineId)}. It is orientation help — not a live health report or an audit export from your tenant.`;
+}
+
+/** Architecture default for tests and legacy imports. */
+export const ADMIN_DIAGNOSTICS_HELP_PAGE_LEAD = adminDiagnosticsHelpPageLead("architecture");
 
 export const ADMIN_DIAGNOSTICS_HELP_BUYER_OVERVIEW =
   "Use this guide when a workspace symptom points to platform health rather than a single architecture review — the signal table below explains what each probe means before you open System health." as const;

@@ -45,6 +45,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                             ContentHashSha256 = @ContentHashSha256,
                                             CaptureMethod = @CaptureMethod,
                                             CollectorVersion = @CollectorVersion,
+                                            SubscriptionId = COALESCE(SubscriptionId, @SubscriptionId),
+                                            SubscriptionName = COALESCE(SubscriptionName, @SubscriptionName),
                                             UpdatedUtc = @UpdatedUtc
                                         WHERE TenantId = @TenantId
                                             AND SnapshotId = @SnapshotId;
@@ -66,6 +68,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                         writeRequest.ContentHashSha256,
                         CaptureMethod = (int)writeRequest.CaptureMethod,
                         writeRequest.CollectorVersion,
+                        writeRequest.SubscriptionId,
+                        writeRequest.SubscriptionName,
                         UpdatedUtc = utcNow,
                     },
                     transaction: tx,

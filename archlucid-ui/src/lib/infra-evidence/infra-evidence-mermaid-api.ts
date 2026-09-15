@@ -30,6 +30,7 @@ export type InfraEvidenceMermaidRenderQuery = {
   readonly mode?: string | null;
   readonly fallbackKey?: string | null;
   readonly seedNodeId?: string | null;
+  readonly includeNeverShow?: boolean | null;
 };
 
 export type InfraEvidenceMermaidPngDownloadOptions = {
@@ -55,6 +56,10 @@ function buildMermaidQuery(params: InfraEvidenceMermaidRenderQuery): string {
 
   if (params.seedNodeId != null && params.seedNodeId.trim().length > 0) {
     search.set("seedNodeId", params.seedNodeId.trim());
+  }
+
+  if (params.includeNeverShow === true) {
+    search.set("includeNeverShow", "true");
   }
 
   const query = search.toString();

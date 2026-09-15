@@ -16,6 +16,7 @@ public interface IInfraEvidenceSnapshotMermaidService
         string? mode,
         string? fallbackKey,
         string? seedNodeId,
+        bool includeNeverShowArmTypes = false,
         CancellationToken cancellationToken = default);
 
     Task<InfraEvidenceMermaidServiceResult<byte[]>> TryExportPngAsync(
@@ -24,6 +25,7 @@ public interface IInfraEvidenceSnapshotMermaidService
         string? mode,
         string? fallbackKey,
         string? seedNodeId,
+        bool includeNeverShowArmTypes = false,
         CancellationToken cancellationToken = default);
 }
 

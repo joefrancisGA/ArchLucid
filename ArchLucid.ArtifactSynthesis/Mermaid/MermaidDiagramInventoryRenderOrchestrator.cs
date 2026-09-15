@@ -39,6 +39,7 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
         DiagramMode mode,
         DiagramAstCompileOptions? compileOptions,
         MermaidDiagramReadabilityThresholds thresholds,
+        bool includeNeverShowArmTypes = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(graph);
@@ -56,7 +57,8 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
             this.diagramRenderer,
             this.complexityAnalyzer,
             this.deterministicRepairer,
-            this.structuralValidator);
+            this.structuralValidator,
+            includeNeverShowArmTypes);
 
         MermaidDiagramRenderResult result = await this.renderPipeline.RenderAsync(
             new MermaidDiagramRenderRequest
@@ -68,7 +70,7 @@ public sealed class MermaidDiagramInventoryRenderOrchestrator : IMermaidDiagramI
             cancellationToken);
 
         MermaidDiagramRenderResult merged = compiled.PeeledArmTypes.Count == 0
-            && compiled.AlwaysDisposedArmTypes.Count == 0
+            && (compiled.AlwaysDisposedArmTypes.Count == 0 || includeNeverShowArmTypes)
             && !compiled.UsedResourceGroupMap
             && !compiled.UsedBackboneKeep
             ? result

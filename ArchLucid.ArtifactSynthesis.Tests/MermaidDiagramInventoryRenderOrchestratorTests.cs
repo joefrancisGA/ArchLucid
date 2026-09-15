@@ -197,6 +197,34 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
             && entry.Reason.Contains("Microsoft.Portal/dashboards", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task RenderFromGraphAsync_includes_always_disposed_types_when_requested()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                CreateTopology("vm-1", "Microsoft.Compute/virtualMachines"),
+                CreateTopology("dash-1", "Microsoft.Portal/dashboards"),
+                CreateTopology("dns-1", "Microsoft.Network/dnszones"),
+            ],
+        };
+
+        MermaidDiagramRenderResult result = await orchestrator.RenderFromGraphAsync(
+            graph,
+            DiagramMode.Executive,
+            null,
+            new MermaidDiagramReadabilityThresholds { MaxNodes = 400 },
+            includeNeverShowArmTypes: true);
+
+        result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
+        result.PrimaryMermaid.Should().Contain("vm-1");
+        result.PrimaryMermaid.Should().Contain("dash-1");
+        result.PrimaryMermaid.Should().Contain("dns-1");
+        result.CollapseReport!.Entries.Should().NotContain(entry =>
+            entry.Kind == AzureInventoryNeverShowArmTypes.DiagramCollapseKind);
+    }
+
     private static GraphNode CreateTopology(string nodeId, string armType)
     {
         GraphNode node = new()

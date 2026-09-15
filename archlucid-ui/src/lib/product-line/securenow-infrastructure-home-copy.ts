@@ -2,7 +2,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
-  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
@@ -14,7 +13,7 @@ import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-h
 export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING = "Infrastructure" as const;
 
 export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_LEAD =
-  "Explore Azure inventory snapshots, diagrams, resource evidence hubs, grounded Ask, and remediation instances." as const;
+  "Explore Azure inventory snapshots, diagrams, resource evidence hubs, and grounded Ask." as const;
 
 /** SecureNow home — infrastructure evidence workbench destinations. */
 export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [
@@ -48,10 +47,5 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
     href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureAsk,
     summary: "Ask grounded questions about inventory evidence with citation-backed answers.",
-  },
-  {
-    href: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.infrastructureRemediation,
-    summary: "Track remediation instances and waves with advisory-only execute honesty.",
   },
 ];

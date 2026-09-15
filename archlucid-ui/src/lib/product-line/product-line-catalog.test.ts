@@ -82,9 +82,11 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/security/assigned-to-me");
     expect(hrefs).toContain("/security/remediation-factory");
     expect(hrefs).toContain("/security/remediation-patterns");
+    expect(hrefs).toContain("/security/remediation-instances");
     expect(hrefs).not.toContain("/governance/findings/assigned-to-me");
     expect(hrefs).not.toContain("/governance/remediation-factory");
     expect(hrefs).not.toContain("/governance/remediation-patterns");
+    expect(hrefs).not.toContain("/governance/infrastructure/remediation");
     expect(hrefs).not.toContain("/administration/ai-usage");
     expect(hrefs).not.toContain("/administration/workspace-settings/recycle-bin");
     expect(hrefs).not.toContain("/administration/branding");
@@ -153,8 +155,10 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/governance/findings/assigned-to-me", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/security/assigned-to-me", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/security/remediation-factory", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/security/remediation-instances", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/security/assigned-to-me", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/security/remediation-factory", "architecture")).toBe(false);
+    expect(isPathAllowedForProductLine("/security/remediation-instances", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/infrastructure/diagrams", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/infrastructure/diagrams", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/infrastructure/resources", "security")).toBe(true);
