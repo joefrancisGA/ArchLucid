@@ -14,6 +14,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH =
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH = "/governance/infrastructure/resources";
 
+/** SecureNow shell — resource explorer and evidence hubs (Infrastructure URL namespace). */
+export const SECURENOW_INFRASTRUCTURE_RESOURCES_PATH = "/infrastructure/resources" as const;
+
 export function governanceInfrastructureResourceHubPath(cloudResourceId: string): string {
   return `${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}/${cloudResourceId.trim()}`;
 }
@@ -21,6 +24,9 @@ export function governanceInfrastructureResourceHubPath(cloudResourceId: string)
 export const GOVERNANCE_INFRASTRUCTURE_ASK_PATH = "/governance/infrastructure/ask";
 
 export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH = "/governance/infrastructure/remediation";
+
+/** SecureNow Security shell — remediation instances workbench (Security URL namespace). */
+export const SECURENOW_REMEDIATION_INSTANCES_PATH = "/security/remediation-instances" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH = "/governance/infrastructure/terraform";
 

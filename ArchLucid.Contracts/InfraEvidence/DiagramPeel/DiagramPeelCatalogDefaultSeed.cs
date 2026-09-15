@@ -3,7 +3,7 @@ namespace ArchLucid.Contracts.InfraEvidence.DiagramPeel;
 /// <summary>Default peel catalog when SQL is unavailable or the table is empty (IE-17).</summary>
 public static class DiagramPeelCatalogDefaultSeed
 {
-    public const int DefaultCatalogVersion = 3;
+    public const int DefaultCatalogVersion = 4;
 
     public static DiagramPeelCatalogSnapshot BuildSnapshot()
     {
@@ -30,6 +30,13 @@ public static class DiagramPeelCatalogDefaultSeed
             Entry("Microsoft.Network/applicationGateways/frontendIPConfigurations", 20, "Child resource — AppGw frontend"),
             Entry("Microsoft.Storage/storageAccounts/blobServices", 20, "Child resource — storage sub-service"),
             AlwaysDispose("Microsoft.Portal/dashboards", "Always dispose — portal dashboard"),
+            AlwaysDispose("Microsoft.OperationalInsights/workspaces", "Always dispose — Log Analytics workspace"),
+            AlwaysDispose("Microsoft.OperationsManagement/solutions", "Always dispose — monitoring solution"),
+            AlwaysDispose(
+                "Microsoft.AlertsManagement/smartDetectorAlertRules",
+                "Always dispose — smart detector alert rule"),
+            AlwaysDispose("Microsoft.Insights/metricAlerts", "Always dispose — metric alert"),
+            AlwaysDispose("Microsoft.Insights/workbooks", "Always dispose — monitoring workbook"),
             AlwaysDispose("Microsoft.Network/dnszones", "Always dispose — DNS zone"),
             AlwaysDispose("Microsoft.Network/privateDnsZones", "Always dispose — private DNS zone"),
             AlwaysDispose(
@@ -38,6 +45,9 @@ public static class DiagramPeelCatalogDefaultSeed
             AlwaysDispose(
                 "Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks",
                 "Always dispose — DNS forwarding ruleset virtual network link"),
+            AlwaysDispose(
+                "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                "Always dispose — VNet peering child"),
             AlwaysDispose("Microsoft.Network/dnsResolvers", "Always dispose — DNS resolver"),
             AlwaysDispose("Microsoft.Compute/virtualMachines/extensions", "Always dispose — VM extension"),
             AlwaysDispose("Microsoft.Compute/virtualMachineScaleSets/extensions", "Always dispose — VMSS extension"),
@@ -60,6 +70,8 @@ public static class DiagramPeelCatalogDefaultSeed
             Backbone("Microsoft.DBforMySQL/servers"),
             Backbone("Microsoft.DocumentDB/databaseAccounts"),
             Backbone("Microsoft.Cache/Redis"),
+            Backbone("Microsoft.DataFactory/factories"),
+            Backbone("Microsoft.Synapse/workspaces"),
             Backbone("Microsoft.Compute/virtualMachineScaleSets"),
             Backbone("Microsoft.ContainerService/managedClusters"),
             Backbone("Microsoft.Web/serverFarms"),

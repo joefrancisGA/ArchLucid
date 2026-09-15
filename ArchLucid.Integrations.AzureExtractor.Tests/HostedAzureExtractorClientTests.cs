@@ -113,6 +113,14 @@ public sealed class HostedAzureExtractorClientTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        armClient
+            .Setup(c => c.ListVirtualNetworkPeeringsAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         HostedAzureExtractorClient sut = new(
             credentialFactory.Object,
             armClient.Object,
@@ -269,6 +277,14 @@ public sealed class HostedAzureExtractorClientTests
 
         armClient
             .Setup(c => c.ListPrivateDnsZoneVirtualNetworkLinksAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        armClient
+            .Setup(c => c.ListVirtualNetworkPeeringsAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),

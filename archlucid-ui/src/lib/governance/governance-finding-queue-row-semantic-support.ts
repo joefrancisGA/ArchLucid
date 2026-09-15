@@ -25,7 +25,7 @@ export function governanceQueueRowToSemanticSupportChipFinding(
     recommendation: row.recommended,
     severityValue: 0,
     findingOrder: 0,
-    aiReasoning: { finding: {}, reasoningTrace: null },
+    aiReasoning: { wireJson: "{}", reasoningTrace: "" },
     isMuted: false,
     muteReason: null,
     enforcementTier: "Advisory",

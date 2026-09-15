@@ -20,4 +20,5 @@ public enum AzureInventoryChangeType
     DependencyChanged = 14,
     PolicyAssignmentChanged = 15,
     Unknown = 16,
+    ResourceUnchanged = 17,
 }

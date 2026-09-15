@@ -30,6 +30,38 @@ function segmentAfterToken(segments: readonly string[], token: string): string |
   return value;
 }
 
+function stripMicrosoftProviderPrefix(namespace: string): string {
+  const prefix = "microsoft.";
+
+  if (namespace.toLowerCase().startsWith(prefix)) {
+    return namespace.slice("Microsoft.".length);
+  }
+
+  return namespace;
+}
+
+/**
+ * Table type column: drop the Azure `Microsoft.` provider prefix so
+ * `Microsoft.Network/publicIPAddresses` reads as `Network/publicIPAddresses`.
+ */
+export function formatAzureResourceTypeForDisplay(resourceType: string | null | undefined): string {
+  if (resourceType == null) {
+    return "—";
+  }
+
+  const trimmed = resourceType.trim();
+
+  if (trimmed.length === 0) {
+    return "—";
+  }
+
+  const slashIndex = trimmed.indexOf("/");
+  const namespace = slashIndex >= 0 ? trimmed.slice(0, slashIndex) : trimmed;
+  const remainder = slashIndex >= 0 ? trimmed.slice(slashIndex) : "";
+
+  return `${stripMicrosoftProviderPrefix(namespace)}${remainder}`;
+}
+
 function resourceTypeFromSegments(segments: readonly string[]): string | null {
   const providersIndex = segments.findIndex((segment) => segment.toLowerCase() === "providers");
 
@@ -37,14 +69,29 @@ function resourceTypeFromSegments(segments: readonly string[]): string | null {
     return null;
   }
 
-  // ARM ids end with .../{type}/{name}; the type segment is the one before the name.
-  const typeSegment = segments[segments.length - 2];
+  const namespaceSegment = segments[providersIndex + 1];
 
-  if (typeSegment == null || typeSegment.length === 0) {
+  if (namespaceSegment == null || namespaceSegment.length === 0) {
     return null;
   }
 
-  return typeSegment;
+  const typeSegments: string[] = [];
+
+  for (let index = providersIndex + 2; index <= segments.length - 2; index += 2) {
+    const typeSegment = segments[index];
+
+    if (typeSegment == null || typeSegment.length === 0) {
+      return null;
+    }
+
+    typeSegments.push(typeSegment);
+  }
+
+  if (typeSegments.length === 0) {
+    return null;
+  }
+
+  return `${stripMicrosoftProviderPrefix(namespaceSegment)}/${typeSegments.join("/")}`;
 }
 
 function joinSecondaryLabel(resourceType: string | null, resourceGroup: string | null): string | null {

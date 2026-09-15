@@ -55,6 +55,29 @@ public static partial class SanitizedLoggerWarningExtensions
     }
 
     /// <summary>
+    ///     Logs a warning with an exception and two placeholders filled from externally influenced strings after sanitization.
+    /// </summary>
+    public static void LogWarningWithExceptionAndTwoSanitizedUserStrings(
+        this ILogger logger,
+        Exception exception,
+        string messageTemplate,
+        string? userDerivedFirst,
+        string? userDerivedSecond)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(exception);
+
+        string safeFirst = LogSanitizer.Sanitize(userDerivedFirst);
+        string safeSecond = LogSanitizer.Sanitize(userDerivedSecond);
+
+        logger.LogWarning(
+            exception,
+            messageTemplate,
+            safeFirst,
+            safeSecond); // codeql[cs/log-forging]: user-derived values sanitized immediately above (params boxing).
+    }
+
+    /// <summary>
     ///     Logs a warning whose template has three placeholders filled from externally influenced strings after sanitization.
     /// </summary>
     public static void LogWarningWithThreeSanitizedUserStrings(

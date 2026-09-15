@@ -96,5 +96,12 @@ describe("ResourcesExplorerClient buyer-polished chrome", () => {
       expect(screen.getByTestId("infra-resource-row-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
     });
     expect(screen.getByTestId("infra-resource-row-arm-id-disclosure-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-explorer-snapshot-id")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-type-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "Network/publicIPAddresses",
+    );
+    expect(screen.getByTestId("infra-resource-last-seen-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "9/1/26, 08:00",
+    );
   });
 });

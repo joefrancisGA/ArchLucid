@@ -41,11 +41,12 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TABLE_COLUMNS,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TABLE_SECTION_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TABLE_SECTION_TITLE,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TILE_ITEMS,
+  governanceInfrastructureDriftHelpTileItems,
   governanceInfrastructureDriftHelpPageSubtitle,
 } from "@/lib/governance/governance-infrastructure-drift-help-guide-content";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 
 type HelpGovernanceInfrastructureDriftGuideViewProps = {
@@ -149,6 +150,7 @@ export function HelpGovernanceInfrastructureDriftGuideView(
   props: HelpGovernanceInfrastructureDriftGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
+  const productLineId = resolveProductLineIdFromEnv();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-governance-infrastructure-drift",
@@ -227,7 +229,7 @@ export function HelpGovernanceInfrastructureDriftGuideView(
           >
             <HelpSectionHeading id="what-drift-workbench-shows">What the drift workbench shows</HelpSectionHeading>
             <DriftHelpTileGrid
-              items={GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TILE_ITEMS}
+              items={governanceInfrastructureDriftHelpTileItems(productLineId)}
               testId="help-governance-infrastructure-drift-tile-items"
             />
           </section>

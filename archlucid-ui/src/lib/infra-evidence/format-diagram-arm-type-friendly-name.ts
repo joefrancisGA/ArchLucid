@@ -7,6 +7,7 @@ const KNOWN_ARM_TYPE_FRIENDLY_NAMES: Readonly<Record<string, string>> = {
   "Microsoft.Network/networkSecurityGroups": "Network security group",
   "Microsoft.Network/publicIPAddresses": "Public IP",
   "Microsoft.Network/loadBalancers": "Load balancer",
+  "Microsoft.Network/privateEndpoints": "Private endpoint",
   "Microsoft.Sql/servers": "SQL server",
   "Microsoft.Sql/servers/databases": "SQL database",
   "Microsoft.Sql/managedInstances": "SQL managed instance",
@@ -21,6 +22,8 @@ const KNOWN_ARM_TYPE_FRIENDLY_NAMES: Readonly<Record<string, string>> = {
   "Microsoft.DBforPostgreSQL/servers": "PostgreSQL",
   "Microsoft.DBforMySQL/flexibleServers": "MySQL",
   "Microsoft.DBforMySQL/servers": "MySQL",
+  "Microsoft.DataFactory/factories": "Data factory",
+  "Microsoft.Synapse/workspaces": "Synapse workspace",
 };
 
 function splitCamelCase(lastSegment: string): string {
