@@ -19,4 +19,6 @@ public enum AzureInventoryRelationshipArmKind
     AppService = 11,
     StorageAccount = 12,
     BackendPoolMember = 13,
+    DataFactory = 14,
+    LinkedServiceTarget = 15,
 }

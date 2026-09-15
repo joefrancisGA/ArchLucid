@@ -60,6 +60,10 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryAppServiceSubnet = "inventory-appservice-subnet";
 
+    public const string InventoryAdfLinkedService = "inventory-adf-linked-service";
+
+    public const string InventoryAdfLinkedServiceInferred = "inventory-adf-linked-service-inferred";
+
     public const string InventoryLayoutVmVnet = "inventory-layout-vm-vnet";
 
     public const string InventoryEffectiveNsg = "inventory-effective-nsg";

@@ -100,4 +100,12 @@ public interface IHostedAzureArmReadClient
         string accessToken,
         string nicResourceId,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     GET linked services for one Data Factory (ADF platform wiring).
+    /// </summary>
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryLinkedServicesAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
 }

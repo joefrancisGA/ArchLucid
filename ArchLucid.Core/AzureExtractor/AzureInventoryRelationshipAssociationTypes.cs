@@ -40,6 +40,10 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string AppServiceToSubnet = "appServiceToSubnet";
 
+    public const string AdfLinkedService = "adfLinkedService";
+
+    public const string AdfLinkedServiceInferred = "adfLinkedServiceInferred";
+
     private static readonly AzureInventoryRelationshipAssociationTypeDefinition[] Catalog =
     [
         Observed(NicToSubnet, AzureInventoryRelationshipArmKind.NetworkInterface, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-nic-subnet"),
@@ -58,6 +62,8 @@ public static class AzureInventoryRelationshipAssociationTypes
         Observed(LbToBackend, AzureInventoryRelationshipArmKind.LoadBalancer, AzureInventoryRelationshipArmKind.NetworkInterface, "CONNECTS_TO", "inventory-lb-backend"),
         Observed(PrivateDnsVnetLink, AzureInventoryRelationshipArmKind.PrivateDnsZone, AzureInventoryRelationshipArmKind.VirtualNetwork, "CONNECTS_TO", "inventory-private-dns-vnet"),
         Observed(AppServiceToSubnet, AzureInventoryRelationshipArmKind.AppService, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-appservice-subnet"),
+        Observed(AdfLinkedService, AzureInventoryRelationshipArmKind.DataFactory, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-adf-linked-service"),
+        Inferred(AdfLinkedServiceInferred, AzureInventoryRelationshipArmKind.DataFactory, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-adf-linked-service-inferred", ProvenanceKind.DeterministicInference),
     ];
 
     private static readonly Dictionary<string, AzureInventoryRelationshipAssociationTypeDefinition> Lookup =
