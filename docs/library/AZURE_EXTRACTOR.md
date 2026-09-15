@@ -52,6 +52,21 @@ Audit: `Integration.HostedAzureExtractorConfigured` on configure.
 - Cost Management and Policy Insights surfaces that require POST are **not** collected on the hosted path; Tier 1 PowerShell remains the full-fidelity collector.
 - No write or destructive ARM operations.
 
+### Azure Data Factory linked services (optional companion)
+
+Both Tier 1 and Tier 2 collectors may emit **`adf-linked-services.json`**: sanitized metadata from the read-only ARM endpoint `GET …/Microsoft.DataFactory/factories/{factory}/linkedservices?api-version=2018-06-01`.
+
+| Collected | Never collected |
+|-----------|-----------------|
+| Factory and linked-service ARM ids | Connection strings, passwords, keys, tokens |
+| Connector type (`AzureBlobStorage`, `AzureSqlDatabase`, …) | Raw `typeProperties` blobs |
+| Target ARM resource id when explicit | `SecureString` / `encryptedCredential` values |
+| Sanitized hostname (`*.blob.core.windows.net`, …) | Runtime traffic claims |
+
+Materialized snapshot relationships use association types **`adfLinkedService`** (observed ARM target) and **`adfLinkedServiceInferred`** (unique hostname match). Diagram labels: **Connected to** / **Likely connected to**. Pipeline direction (`READS_FROM` / `WRITES_TO`) is not in this MVP.
+
+See [`docs/architecture/AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md).
+
 ### Automated continuous pull (V1.x — ArchLucid-hosted)
 
 **V1 GA** ships Tier 1 upload, **on-demand** hosted collection (`POST /v1/admin/azure-extractor/hosted/run`), and **leader-elected background polling** (`AzureExtractorAutoPullHostedService` → `AzureExtractorAutoPullOrchestrator` → `HostedAzureExtractorRunService` → ingest pipeline). Polling is **off by default** (`AzureExtractor:AutoPull:Enabled=false`); hosted collection also requires `HostedAzureExtractor:Enabled=true`. See [V1_DEFERRED.md §6p](V1_DEFERRED.md) for V1.x hardening notes.
