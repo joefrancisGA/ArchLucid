@@ -8,6 +8,12 @@ import {
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+} from "@/lib/governance/governance-route-paths";
+import {
   CLOUD_CONNECTIONS_PATH,
   INTEGRATIONS_JIRA_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
@@ -66,6 +72,14 @@ describe("resolveNavLinkForPathname", () => {
     expect(resolveNavLinkForPathname(SECURENOW_INFRASTRUCTURE_RESOURCES_PATH)?.href).toBe(
       GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
     );
+  });
+
+  it("maps SecureNow compliance aliases to the governance nav identity", () => {
+    expect(resolveNavLinkForPathname(SECURENOW_POLICY_PACKS_PATH)?.href).toBe(GOVERNANCE_POLICY_PACKS_PATH);
+    expect(resolveNavLinkForPathname(`${SECURENOW_POLICY_PACKS_PATH}/pack-1`)?.href).toBe(
+      GOVERNANCE_POLICY_PACKS_PATH,
+    );
+    expect(resolveNavLinkForPathname(SECURENOW_FINDINGS_PATH)?.href).toBe(GOVERNANCE_FINDINGS_PATH);
   });
 
   it("does not duplicate route identity for the same href", () => {

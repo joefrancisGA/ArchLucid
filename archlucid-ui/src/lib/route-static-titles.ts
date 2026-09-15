@@ -1,16 +1,20 @@
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import {
   SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
-import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH, SECURENOW_AUDIT_EVIDENCE_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
@@ -73,6 +77,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH]: OPERATOR_NAV_LINK_LABELS.needsAttentionInbox,
   [WORKSPACE_HEALTH_PATH]: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
   "/governance/findings": OPERATOR_NAV_LINK_LABELS.findings,
+  [SECURENOW_FINDINGS_PATH]: OPERATOR_NAV_LINK_LABELS.findings,
   [GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH]: OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
   "/security/assigned-to-me": OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
   "/security/remediation-factory": OPERATOR_NAV_LINK_LABELS.remediationFactory,
@@ -82,7 +87,11 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/governance/decision-register": OPERATOR_NAV_LINK_LABELS.decisionRegister,
   [SIGNED_RECORDS_LIST_PATH]: OPERATOR_NAV_LINK_LABELS.sealedReviewRecords,
   "/governance/policy-packs": OPERATOR_NAV_LINK_LABELS.policyPacks,
+  [SECURENOW_POLICY_PACKS_PATH]: OPERATOR_NAV_LINK_LABELS.policyPacks,
   [GOVERNANCE_STANDARDS_AND_RULES_PATH]: OPERATOR_NAV_LINK_LABELS.governanceResolution,
+  [SECURENOW_STANDARDS_AND_RULES_PATH]: OPERATOR_NAV_LINK_LABELS.governanceResolution,
+  [AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH]: OPERATOR_NAV_LINK_LABELS.auditEvidenceLineage,
+  [SECURENOW_AUDIT_EVIDENCE_PATH]: OPERATOR_NAV_LINK_LABELS.auditEvidenceLineage,
   "/governance/audit": AUDIT_TRAIL_PAGE_TITLE,
   "/governance/alerts": OPERATOR_NAV_LINK_LABELS.alerts,
   "/governance/alert-rules": ALERTS_CONFIGURATION_PAGE_TITLE,

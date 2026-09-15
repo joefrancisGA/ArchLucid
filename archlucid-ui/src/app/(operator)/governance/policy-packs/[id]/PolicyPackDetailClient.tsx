@@ -2,16 +2,20 @@
 
 import Link from "next/link";
 import { useCallback, useMemo, type ReactElement } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { usePolicyPackDetailPageQuery } from "@/hooks/use-policy-pack-detail-page-query";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import {
   buildPolicyPacksHrefWithReviewId,
   POLICY_PACKS_REVIEW_ID_QUERY_PARAM,
 } from "@/lib/policy-packs-review-handoff";
 import { policyPackDetailHref } from "@/lib/policy/policy-packs-deep-link";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import {
+  findingsPathForProductLine,
+  policyPacksHubPathFromPathname,
+} from "@/lib/product-line/securenow-compliance-routes";
 import { resolvePolicyPackDetailKind } from "@/lib/policy/policy-pack-detail-resolver";
 import { cn } from "@/lib/utils";
 import type { PolicyPack, PolicyPackContentDocument, PolicyPackWorkspaceSelectionItem } from "@/types/policy-packs";
@@ -37,9 +41,10 @@ type PolicyPackDetailChromeProps = {
 };
 
 function PolicyPackDetailScopedChrome(props: PolicyPackDetailChromeProps): ReactElement {
+  const hubPath = policyPacksHubPathFromPathname(usePathname());
   const scopedReviewId = props.scopedReviewId.trim();
   const scopedReviewFilterActive = scopedReviewId.length > 0;
-  const clearScopeHref = policyPackDetailHref(props.policyPackId, null);
+  const clearScopeHref = policyPackDetailHref(props.policyPackId, null, hubPath);
 
   return (
     <PolicyPackDetailEvidenceChrome>
@@ -62,7 +67,7 @@ function PolicyPackDetailScopedChrome(props: PolicyPackDetailChromeProps): React
             Open review
           </Link>
           {" · "}
-          <Link className={OPERATOR_LINK.inline} href={buildPolicyPacksHrefWithReviewId(scopedReviewId)}>
+          <Link className={OPERATOR_LINK.inline} href={buildPolicyPacksHrefWithReviewId(scopedReviewId, hubPath)}>
             Open policy packs hub
           </Link>
         </p>
@@ -96,6 +101,9 @@ function resolveWorkspaceEnablement(
 export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): React.JSX.Element {
   const { policyPackId } = props;
   const searchParams = useSearchParams();
+  const { productLine } = useProductLine();
+  const packsHubHref = policyPacksHubPathFromPathname(usePathname());
+  const findingsHref = findingsPathForProductLine(productLine);
   const scopedReviewId = (searchParams.get(POLICY_PACKS_REVIEW_ID_QUERY_PARAM) ?? "").trim();
   const detailQuery = usePolicyPackDetailPageQuery(policyPackId);
 
@@ -127,7 +135,7 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
   }
 
   if (kind === "healthcare-claims") {
-    return wrapDetail(<HealthcareClaimsPolicyPackDetail policyPackId={policyPackId} />);
+    return wrapDetail(<HealthcareClaimsPolicyPackDetail policyPackId={policyPackId} packsHubHref={packsHubHref} />);
   }
 
   if (kind === "responsible-ai") {
@@ -138,6 +146,8 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
         packContent={packContent}
         isEnabled={isEnabled}
         isGloballyActive={isGloballyActive}
+        packsHubHref={packsHubHref}
+        findingsHref={findingsHref}
       />,
     );
   }
@@ -155,6 +165,7 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
         isEnabled={isEnabled}
         isGloballyActive={isGloballyActive}
         scopedReviewId={scopedReviewId}
+        packsHubHref={packsHubHref}
       />,
     );
   }

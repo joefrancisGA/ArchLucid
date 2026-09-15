@@ -1,12 +1,15 @@
 /** SecureNow Security shell learn-more overrides — longer prefixes win over architecture defaults. */
 
-import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
+import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH, SECURENOW_AUDIT_EVIDENCE_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
   SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
   SECURENOW_REMEDIATION_FACTORY_PATH,
   SECURENOW_REMEDIATION_PATTERNS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
@@ -27,6 +30,8 @@ import { GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } from "@/lib/governance/governanc
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { FINDINGS_HELP_TOPIC_LABEL } from "@/lib/findings/findings-help-evidence-copy";
 import { EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/extract-upload-settings-evidence-copy";
+import { POLICY_PACKS_HUB_HELP_TOPIC_LABEL } from "@/lib/policy/policy-packs-hub-evidence-copy";
+import { STANDARDS_RULES_HELP_TOPIC_LABEL } from "@/lib/standards-rules-page";
 
 import type { PageHelpTopic, PageHelpTopicRow } from "./page-help-topic-rows-operator";
 
@@ -62,8 +67,24 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
     topic: { slug: "remediation-patterns", label: OPERATOR_NAV_LINK_LABELS.remediationPatterns },
   },
   {
+    prefix: SECURENOW_AUDIT_EVIDENCE_PATH,
+    topic: { slug: "audit-evidence-lineage", label: OPERATOR_NAV_LINK_LABELS.auditEvidenceLineage },
+  },
+  {
     prefix: AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
     topic: { slug: "audit-evidence-lineage", label: OPERATOR_NAV_LINK_LABELS.auditEvidenceLineage },
+  },
+  {
+    prefix: SECURENOW_POLICY_PACKS_PATH,
+    topic: { slug: "policy-packs", label: POLICY_PACKS_HUB_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: SECURENOW_STANDARDS_AND_RULES_PATH,
+    topic: { slug: "standards-and-rules", label: STANDARDS_RULES_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: SECURENOW_FINDINGS_PATH,
+    topic: { slug: "findings", label: FINDINGS_HELP_TOPIC_LABEL },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,

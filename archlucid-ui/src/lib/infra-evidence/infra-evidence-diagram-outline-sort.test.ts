@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  sortInfraEvidenceDiagramOutlineEdges,
   sortInfraEvidenceDiagramOutlineNodes,
+  toggleInfraEvidenceDiagramOutlineEdgeSort,
   toggleInfraEvidenceDiagramOutlineNodeSort,
 } from "@/lib/infra-evidence/infra-evidence-diagram-outline-sort";
-import type { InfraEvidenceMermaidOutlineNode } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+import type {
+  InfraEvidenceMermaidOutlineEdge,
+  InfraEvidenceMermaidOutlineNode,
+} from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
 const nodes: readonly InfraEvidenceMermaidOutlineNode[] = [
   {
@@ -19,6 +24,11 @@ const nodes: readonly InfraEvidenceMermaidOutlineNode[] = [
     resourceType: "Microsoft.Network/virtualNetworks",
     resourceGroup: "rg-a",
   },
+];
+
+const edges: readonly InfraEvidenceMermaidOutlineEdge[] = [
+  { from: "n_b", to: "n_a", label: "privateEndpoint" },
+  { from: "n_a", to: "n_b", label: null },
 ];
 
 describe("infra-evidence-diagram-outline-sort", () => {
@@ -53,5 +63,29 @@ describe("infra-evidence-diagram-outline-sort", () => {
       "Microsoft.Storage/storageAccounts",
       "Microsoft.Network/virtualNetworks",
     ]);
+  });
+
+  it("toggles edge sort direction and resets to ascending on a new column", () => {
+    expect(toggleInfraEvidenceDiagramOutlineEdgeSort("from", "asc", "from")).toEqual({
+      sortKey: "from",
+      sortDir: "desc",
+    });
+
+    expect(toggleInfraEvidenceDiagramOutlineEdgeSort("from", "desc", "relationship")).toEqual({
+      sortKey: "relationship",
+      sortDir: "asc",
+    });
+  });
+
+  it("sorts edges by resolved relationship labels", () => {
+    const sorted = sortInfraEvidenceDiagramOutlineEdges(edges, nodes, "relationship", "asc");
+
+    expect(sorted.map((edge) => edge.label)).toEqual([null, "privateEndpoint"]);
+  });
+
+  it("sorts edges by resolved from node labels", () => {
+    const sorted = sortInfraEvidenceDiagramOutlineEdges(edges, nodes, "from", "desc");
+
+    expect(sorted.map((edge) => edge.from)).toEqual(["n_b", "n_a"]);
   });
 });
