@@ -24,7 +24,9 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 
         if ((!TryGetPropertyIgnoreCase(res, "address", out JsonElement addressElement)
                 && !TryGetPropertyIgnoreCase(res, "resourceAddress", out addressElement)
-                && !TryGetPropertyIgnoreCase(res, "resource_address", out addressElement))
+                && !TryGetPropertyIgnoreCase(res, "resource_address", out addressElement)
+                && !TryGetPropertyIgnoreCase(res, "terraformAddress", out addressElement)
+                && !TryGetPropertyIgnoreCase(res, "terraform_address", out addressElement))
             || addressElement.ValueKind != JsonValueKind.String)
             return false;
 
