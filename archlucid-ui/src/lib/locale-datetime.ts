@@ -3,41 +3,15 @@ import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 
 /**
  * Locale string for an ISO-8601 instant, or em dash when missing / not parseable (avoids “Invalid Date” in UI).
- * Uses fixed `en-US` + `UTC` so server and client render the same text (hydration-safe for client components).
+ * Uses fixed `en-US` + product default IANA zone so server and client render the same text (hydration-safe).
  */
 export function formatInstantForLocale(iso: string | null | undefined): string {
-  if (iso === null || iso === undefined) {
-    return " — ";
-  }
-
-  const trimmed = iso.trim();
-
-  if (trimmed.length === 0) {
-    return " — ";
-  }
-
-  const ms = Date.parse(trimmed);
-
-  if (!Number.isFinite(ms)) {
-    return " — ";
-  }
-
-  return (
-    new Date(ms).toLocaleString("en-US", {
-      timeZone: "UTC",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    }) + " UTC"
-  );
+  return formatInstantInPreferredTimeZone(iso);
 }
 
 /**
- * Conversation list rows: date-only in UTC without a trailing “UTC” timezone label (reads cleaner than
- * long timestamps for saved threads while staying SSR/hydration-safe).
+ * Conversation list rows: date-only in the product default zone (reads cleaner than long timestamps
+ * for saved threads while staying SSR/hydration-safe).
  */
 export function formatConversationListDate(iso: string | null | undefined): string {
   if (iso === null || iso === undefined) {
@@ -57,7 +31,7 @@ export function formatConversationListDate(iso: string | null | undefined): stri
   }
 
   return new Date(ms).toLocaleDateString("en-US", {
-    timeZone: "UTC",
+    timeZone: DEFAULT_IANA_TIME_ZONE_ID,
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -175,12 +149,12 @@ export function formatConversationListDatePolished(iso: string | null | undefine
   return "Example evidence answer";
 }
 
-/** Browser IANA zone id from `Intl`, or `UTC` when unavailable. */
+/** Browser IANA zone id from `Intl`, or the product default when unavailable. */
 export function getBrowserIanaTimeZoneId(): string {
   try {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
   } catch {
-    return "UTC";
+    return DEFAULT_IANA_TIME_ZONE_ID;
   }
 }
 
