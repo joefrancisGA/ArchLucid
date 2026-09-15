@@ -57,12 +57,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 if (string.IsNullOrWhiteSpace(tfType))
                     continue;
 
-                if (!TryGetPropertyIgnoreCase(res, "name", out JsonElement nameEl) || nameEl.ValueKind != JsonValueKind.String)
-                    continue;
-
-                string name = (nameEl.GetString() ?? string.Empty).Trim();
-
-                if (string.IsNullOrWhiteSpace(name))
+                if (!TryResolveTerraformResourceLabel(res, out string name))
                     continue;
 
                 string labelKey = BuildTerraformLabelKey(moduleAddress, tfType, name);
