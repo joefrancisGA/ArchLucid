@@ -71,7 +71,8 @@ public static class AzureInventoryTopologyCategory
             return false;
         }
 
-        return armType.Contains("/virtualNetworks", StringComparison.OrdinalIgnoreCase)
-            && !IsSubnetArmType(armType);
+        // Child types (subnets, peerings) also contain "/virtualNetworks"; Executive mode
+        // must keep only the VNet itself so peering objects do not render as extra VNets.
+        return armType.EndsWith("/virtualNetworks", StringComparison.OrdinalIgnoreCase);
     }
 }

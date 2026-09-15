@@ -256,4 +256,76 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
 
         Assert.Equal("nicToSubnet", networkDocument.RootElement[0].GetProperty("associationType").GetString());
     }
+
+    [Fact]
+    public void Build_emits_vnet_peering_when_subnets_json_is_missing()
+    {
+        HostedAzureArmResourceRecord vnet = new(
+            ResourceType: "Microsoft.Network/virtualNetworks",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a",
+            Name: "vnet-a",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["virtualNetworkPeerings"] = """
+                    [{"name":"peer-to-b","properties":{"remoteVirtualNetwork":{"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b"}}}]
+                    """,
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([vnet]);
+
+        Assert.Contains(
+            associations,
+            row => row.AssociationType == AzureInventoryRelationshipAssociationTypes.VnetPeering
+                   && row.FromResourceId == vnet.ResourceId
+                   && row.ToResourceId.Contains("virtualNetworks/vnet-b", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Build_emits_vnet_peering_from_peering_child_resource()
+    {
+        HostedAzureArmResourceRecord peering = new(
+            ResourceType: "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            ResourceId:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a/virtualNetworkPeerings/peer-to-b",
+            Name: "peer-to-b",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["remoteVirtualNetwork.id"] =
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b",
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([peering]);
+
+        Assert.Single(associations);
+        Assert.Equal(AzureInventoryRelationshipAssociationTypes.VnetPeering, associations[0].AssociationType);
+        Assert.Contains("virtualNetworks/vnet-a", associations[0].FromResourceId, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("virtualNetworks/vnet-b", associations[0].ToResourceId, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Build_skips_peering_child_without_remote_vnet_id()
+    {
+        HostedAzureArmResourceRecord peering = new(
+            ResourceType: "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            ResourceId:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a/virtualNetworkPeerings/peer-to-b",
+            Name: "peer-to-b",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>());
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([peering]);
+
+        Assert.Empty(associations);
+    }
 }
