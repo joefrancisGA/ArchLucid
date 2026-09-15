@@ -344,7 +344,8 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                     || TryGetPropertyIgnoreCase(res, "each_key", out eachElement)
                     || TryGetPropertyIgnoreCase(res, "eachKey", out eachElement)
                     || TryGetPropertyIgnoreCase(res, "each_value", out eachElement)
-                    || TryGetPropertyIgnoreCase(res, "eachValue", out eachElement))
+                    || TryGetPropertyIgnoreCase(res, "eachValue", out eachElement)
+                    || TryGetPropertyIgnoreCase(res, "for_each", out eachElement))
                 && eachElement.ValueKind == JsonValueKind.String
                 && !string.IsNullOrWhiteSpace(eachElement.GetString()))
             {
