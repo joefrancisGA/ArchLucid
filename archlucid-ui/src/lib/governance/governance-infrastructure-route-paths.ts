@@ -14,6 +14,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH =
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH = "/governance/infrastructure/resources";
 
+/** SecureNow shell — resource explorer and evidence hubs (Infrastructure URL namespace). */
+export const SECURENOW_INFRASTRUCTURE_RESOURCES_PATH = "/infrastructure/resources" as const;
+
 export function governanceInfrastructureResourceHubPath(cloudResourceId: string): string {
   return `${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}/${cloudResourceId.trim()}`;
 }

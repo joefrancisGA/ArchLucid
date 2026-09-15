@@ -1,8 +1,9 @@
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
-  governanceInfrastructureResourceHubPath,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import { infrastructureResourceHubPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
+import { resolveProductLineId } from "@/lib/product-line/resolve-product-line-id";
 import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
@@ -178,6 +179,6 @@ export function buildResourceScopedWorkbenchHref(
     case "drift":
       return buildDriftWorkbenchHref({ cloudResourceId, snapshotId, ...auditContext });
     default:
-      return governanceInfrastructureResourceHubPath(cloudResourceId);
+      return infrastructureResourceHubPathForProductLine(resolveProductLineId(), cloudResourceId);
   }
 }

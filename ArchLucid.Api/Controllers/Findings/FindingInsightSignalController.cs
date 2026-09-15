@@ -7,6 +7,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -170,9 +171,8 @@ public sealed partial class FindingInsightSignalController(
                 cancellationToken);
         }
 
-        _logger.LogInformation(
-            "Finding insight signal {Kind} recorded for run {RunId} finding {FindingId} created={Created}.",
-            request.Kind,
+        _logger.LogInformationFindingInsightSignalRecorded(
+            request.Kind.ToString(),
             runId,
             trimmedFindingId,
             result.Created);
