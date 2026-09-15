@@ -2,8 +2,10 @@
 
 import type { ReactElement } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isSecureNowDemoChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   demoVsLiveChromeForFlags,
   type DemoVsLiveChromeFlags,
@@ -16,6 +18,12 @@ export type DemoVsLiveChromeBannerProps = DemoVsLiveChromeFlags & {
 
 /** Unmistakable non-live banner (+ optional watermark) for static-demo / simulator chrome (TB-2218). */
 export function DemoVsLiveChromeBanner(props: DemoVsLiveChromeBannerProps): ReactElement | null {
+  const { productLine } = useProductLine();
+
+  if (isSecureNowDemoChromeExcluded(productLine)) {
+    return null;
+  }
+
   const copy = demoVsLiveChromeForFlags({
     usedStaticDemoRun: props.usedStaticDemoRun,
     isSimulator: props.isSimulator,

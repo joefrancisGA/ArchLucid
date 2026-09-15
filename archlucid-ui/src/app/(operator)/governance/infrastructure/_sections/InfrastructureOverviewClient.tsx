@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO,
   SECURENOW_HOME_GROUPED_SECTIONS_INTRO,
@@ -97,7 +97,7 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
         {buyerPolishedShell ? (
           <section
             aria-labelledby="governance-infrastructure-start-here-heading"
-            className="max-w-2xl rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+            className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
             data-testid="governance-infrastructure-start-here-panel"
           >
             <div className="flex flex-wrap items-center gap-2">
@@ -109,7 +109,13 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
               </h2>
               <StatusTag kind="ready" label={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BADGE} />
             </div>
-            <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <p
+              className={cn(
+                "m-0 mt-2 text-al-text-secondary",
+                OPERATOR_SHORT_HELPER_MEASURE_CLASS,
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+            >
               {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BODY}
             </p>
             <div className="mt-3">
@@ -153,7 +159,6 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
                 <EnterpriseTableRow>
                   <EnterpriseTableHeaderCell>Workbench</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
-                  {buyerPolishedShell ? <EnterpriseTableHeaderCell>Open</EnterpriseTableHeaderCell> : null}
                 </EnterpriseTableRow>
               </EnterpriseTableHead>
               <EnterpriseTableBody>
@@ -174,13 +179,6 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
                       </div>
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>{row.summary}</EnterpriseTableCell>
-                    {buyerPolishedShell ? (
-                      <EnterpriseTableCell>
-                        <Link className={OPERATOR_LINK.inline} href={row.href}>
-                          Open
-                        </Link>
-                      </EnterpriseTableCell>
-                    ) : null}
                   </EnterpriseTableRow>
                 ))}
               </EnterpriseTableBody>

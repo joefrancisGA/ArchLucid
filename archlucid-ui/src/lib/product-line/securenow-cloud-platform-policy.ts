@@ -48,9 +48,14 @@ export function isSecureNowProductLine(productLineId: ProductLineId): boolean {
   return productLineId === "security";
 }
 
-/** SecureNow is a production security shell — ArchLucid training, simulator, and Career/Rehearsal chrome do not apply. */
+/** SecureNow is a production security shell — ArchLucid training, simulator, demo/sample, and Career/Rehearsal chrome do not apply. */
 export function isSecureNowTrainingChromeExcluded(productLineId: ProductLineId): boolean {
   return isSecureNowProductLine(productLineId);
+}
+
+/** Demo/sample/live-data disclaimers are ArchLucid evaluation chrome — not SecureNow. */
+export function isSecureNowDemoChromeExcluded(productLineId: ProductLineId): boolean {
+  return isSecureNowTrainingChromeExcluded(productLineId);
 }
 
 export function isCloudProviderSupportedForProductLine(

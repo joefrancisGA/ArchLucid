@@ -3,15 +3,23 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { isSecureNowDemoChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { formatTrialAiBudgetRemainingCopy } from "@/lib/llm-monthly-budget-status";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 
-/** Demo workspace banner — sample data with limited AI actions. */
+/** Public demo workspace banner — sample data with limited AI actions (ArchLucid evaluation shell only). */
 export function PublicDemoAiUsageBanner() {
+  const { productLine } = useProductLine();
+
+  if (isSecureNowDemoChromeExcluded(productLine)) {
+    return null;
+  }
+
   const demoMode = isNextPublicDemoMode();
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const { data: status } = useLlmMonthlyBudgetStatusQuery({
