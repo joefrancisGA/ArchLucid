@@ -431,7 +431,7 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD =
   "Browse cloud resources, apply work-queue filters, and open evidence hubs for drift, findings, remediation, and Ask." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE =
-  "The resource list reflects inventory capture scope — snapshot context on links preserves hub scope but does not filter the explorer list." as const;
+  "The resource list reflects inventory capture scope — not sealed review records or official assurance materials." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE = "Resource explorer unavailable" as const;
 
@@ -441,10 +441,7 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL = "Resource
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL = "Resource group" as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SNAPSHOT_CONTEXT_LABEL = "Snapshot context (links only)" as const;
-
-export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SNAPSHOT_CONTEXT_HELPER =
-  "Preserves snapshot scope on hub and workbench links. The resource list is not filtered by snapshot." as const;
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL = "None" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_REDIRECT_LABEL = "Opening resource evidence hub…" as const;
 

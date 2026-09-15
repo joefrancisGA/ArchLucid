@@ -219,6 +219,30 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.tainted"] = tainted.GetBoolean() ? "true" : "false";
         }
 
+        if (TryGetPropertyIgnoreCase(res, "schema_version", out JsonElement schemaVersion)
+            || TryGetPropertyIgnoreCase(res, "schemaVersion", out schemaVersion))
+        {
+            if (schemaVersion.ValueKind == JsonValueKind.Number)
+                properties["tf.schema_version"] = schemaVersion.GetRawText();
+            else if (schemaVersion.ValueKind == JsonValueKind.String)
+            {
+                string? schemaVersionText = schemaVersion.GetString();
+
+                if (!string.IsNullOrWhiteSpace(schemaVersionText))
+                    properties["tf.schema_version"] = schemaVersionText.Trim();
+            }
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "provider_config_key", out JsonElement providerConfigKey)
+                || TryGetPropertyIgnoreCase(res, "providerConfigKey", out providerConfigKey))
+            && providerConfigKey.ValueKind == JsonValueKind.String)
+        {
+            string? providerConfigKeyText = providerConfigKey.GetString();
+
+            if (!string.IsNullOrWhiteSpace(providerConfigKeyText))
+                properties["tf.provider_config_key"] = providerConfigKeyText.Trim().ToLowerInvariant();
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
@@ -289,7 +313,8 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 canonicalTerraformType,
                 canonicalLabel);
 
-            if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement))
+            if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement)
+                || TryGetPropertyIgnoreCase(res, "count", out indexElement))
             {
                 if (indexElement.ValueKind == JsonValueKind.Number)
                 {
@@ -308,6 +333,14 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 && !string.IsNullOrWhiteSpace(indexKeyElement.GetString()))
             {
                 canonicalAddress = $"{canonicalAddress}[{indexKeyElement.GetString()!.Trim()}]";
+            }
+            else if ((TryGetPropertyIgnoreCase(res, "each", out JsonElement eachElement)
+                    || TryGetPropertyIgnoreCase(res, "each_key", out eachElement)
+                    || TryGetPropertyIgnoreCase(res, "eachKey", out eachElement))
+                && eachElement.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(eachElement.GetString()))
+            {
+                canonicalAddress = $"{canonicalAddress}[{eachElement.GetString()!.Trim()}]";
             }
         }
 

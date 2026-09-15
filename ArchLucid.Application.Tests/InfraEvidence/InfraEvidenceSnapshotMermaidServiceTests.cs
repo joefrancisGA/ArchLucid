@@ -153,7 +153,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
-            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+            await service.TryGetPreviewAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -202,7 +202,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         executiveResult.Value!.Mode.Should().Be("executive");
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> previewResult =
-            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+            await service.TryGetPreviewAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
 
         previewResult.Succeeded.Should().BeTrue();
         previewResult.Value.Should().NotBeNull();
@@ -220,7 +220,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
-            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+            await service.TryGetPreviewAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -290,7 +290,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
-            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+            await service.TryGetPreviewAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
 
@@ -510,7 +510,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, cancellationToken: CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, includeNeverShowArmTypes: true, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -535,7 +535,11 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
-            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+            await service.TryGetPreviewAsync(
+                scope,
+                SnapshotId,
+                includeNeverShowArmTypes: true,
+                cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
 
@@ -561,7 +565,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, cancellationToken: CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, includeNeverShowArmTypes: true, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value!.Metrics!.NodeCount.Should().Be(12);
@@ -581,7 +585,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
-            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, cancellationToken: CancellationToken.None);
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, includeNeverShowArmTypes: true, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value!.Mermaid.Should().Contain("app-identity");
@@ -599,7 +603,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ScopeContext scope = CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
-            await service.TryGetPreviewAsync(scope, SnapshotId, CancellationToken.None);
+            await service.TryGetPreviewAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().NotBeNull();

@@ -137,6 +137,9 @@ describe("WorkingCareerRehearsalChooser", () => {
       "aria-pressed",
       "true",
     );
+    expect(screen.getByTestId("working-career-rehearsal-active-door-tag")).toHaveTextContent(
+      WORKING_REHEARSAL_DOOR_LABEL,
+    );
   });
 
   it("hides in Guided mode", () => {
@@ -149,6 +152,24 @@ describe("WorkingCareerRehearsalChooser", () => {
     );
 
     expect(screen.queryByTestId("working-career-rehearsal-chooser")).not.toBeInTheDocument();
+  });
+
+  it("shows the Record active-door tag when Career is selected", () => {
+    doorMock.door = "career";
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <WorkingCareerRehearsalChooser />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("working-career-rehearsal-active-door-tag")).toHaveTextContent(
+      WORKING_CAREER_DOOR_LABEL,
+    );
+    expect(screen.getByTestId("working-career-rehearsal-door-career")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
   });
 
   it("calls setDoor when Career is available", () => {

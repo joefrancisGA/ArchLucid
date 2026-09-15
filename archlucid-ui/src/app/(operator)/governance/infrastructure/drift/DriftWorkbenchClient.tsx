@@ -94,7 +94,6 @@ import {
   DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM,
   parseInfraEvidenceWorkbenchQueryValue,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
-import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
@@ -1053,12 +1052,7 @@ export function DriftWorkbenchClient() {
         claimDisciplineTestId="infra-drift-claim-discipline"
         titleTestId="infra-drift-page-title"
         breadcrumb={<DriftBreadcrumb />}
-        actions={
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <PageContextualHelpButton />
-            <CopyScopedOperatorLinkButton testId="infra-drift-copy-scoped-link" />
-          </div>
-        }
+        actions={<PageContextualHelpButton />}
       />
 
       <main

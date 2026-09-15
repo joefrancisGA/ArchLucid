@@ -369,7 +369,25 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("eh", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("def", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("lac", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("mma", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("mma", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("pip", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("wvd", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("ni", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("pls", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("od", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("gc", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cs", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("utm", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("mrg", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("lb", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("nat", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("vpn", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dns", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("fn", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("stg", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cp", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("vm", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("asp", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -649,7 +667,25 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("eh", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("def", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("lac", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("mma", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("mma", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("pip", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("wvd", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("ni", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("pls", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("od", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("gc", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cs", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("utm", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("mrg", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("lb", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("nat", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("vpn", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dns", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("fn", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("stg", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cp", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("vm", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("asp", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>

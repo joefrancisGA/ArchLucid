@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { formatAzureResourceDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
+import {
+  formatAzureResourceDisplay,
+  formatAzureResourceTypeForDisplay,
+} from "@/lib/infra-evidence/format-azure-resource-display";
 
 describe("formatAzureResourceDisplay", () => {
   it("returns an empty placeholder when the id is missing", () => {
@@ -70,5 +73,27 @@ describe("formatAzureResourceDisplay", () => {
       primaryLabel: "gateway-public-ip",
       secondaryLabel: null,
     });
+  });
+});
+
+describe("formatAzureResourceTypeForDisplay", () => {
+  it("strips the Microsoft provider prefix from an ARM type", () => {
+    expect(formatAzureResourceTypeForDisplay("Microsoft.Network/publicIPAddresses")).toBe(
+      "Network/publicIPAddresses",
+    );
+    expect(formatAzureResourceTypeForDisplay("microsoft.compute/virtualMachines")).toBe(
+      "compute/virtualMachines",
+    );
+  });
+
+  it("leaves non-Microsoft types unchanged", () => {
+    expect(formatAzureResourceTypeForDisplay("Oracle.Database/autonomousDatabases")).toBe(
+      "Oracle.Database/autonomousDatabases",
+    );
+  });
+
+  it("returns an em dash when the type is missing", () => {
+    expect(formatAzureResourceTypeForDisplay(null)).toBe("—");
+    expect(formatAzureResourceTypeForDisplay("  ")).toBe("—");
   });
 });

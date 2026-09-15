@@ -79,6 +79,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
     public async Task<InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse>> TryGetPreviewAsync(
         ScopeContext scope,
         Guid snapshotId,
+        bool includeNeverShowArmTypes = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -92,7 +93,11 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             cancellationToken);
 
         AzureInventorySnapshotGraphResolveResult graphResult =
-            await _graphResolver.TryResolveGraphAsync(scope, snapshotId, cancellationToken: cancellationToken);
+            await _graphResolver.TryResolveGraphAsync(
+                scope,
+                snapshotId,
+                includeNeverShowArmTypes,
+                cancellationToken);
 
         if (!graphResult.Succeeded || graphResult.Graph is null)
         {
@@ -109,6 +114,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 modeKey,
                 diagramMode,
                 null,
+                includeNeverShowArmTypes,
                 cancellationToken);
 
             modePreviews.Add(modePreview);
@@ -329,6 +335,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         string modeKey,
         DiagramMode diagramMode,
         DiagramAstCompileOptions? compileOptions,
+        bool includeNeverShowArmTypes,
         CancellationToken cancellationToken)
     {
         try
@@ -337,7 +344,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 graph,
                 diagramMode,
                 compileOptions,
-                includeNeverShowArmTypes: false,
+                includeNeverShowArmTypes,
                 cancellationToken);
 
             return MapModePreview(modeKey, renderResult);

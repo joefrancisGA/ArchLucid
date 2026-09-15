@@ -59,6 +59,7 @@ public sealed class AzureInventoryTopologyCategoryTests
     [Theory]
     [InlineData("Microsoft.Network/virtualNetworks", true)]
     [InlineData("Microsoft.Network/virtualNetworks/subnets", false)]
+    [InlineData("Microsoft.Network/virtualNetworks/virtualNetworkPeerings", false)]
     public void IsVirtualNetworkArmType_detects_vnet_resource_types(string armType, bool expected)
     {
         AzureInventoryTopologyCategory.IsVirtualNetworkArmType(armType).Should().Be(expected);

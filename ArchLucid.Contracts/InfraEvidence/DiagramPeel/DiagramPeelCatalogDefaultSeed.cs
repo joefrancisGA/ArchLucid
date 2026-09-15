@@ -44,6 +44,9 @@ public static class DiagramPeelCatalogDefaultSeed
             AlwaysDispose(
                 "Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks",
                 "Always dispose — DNS forwarding ruleset virtual network link"),
+            AlwaysDispose(
+                "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                "Always dispose — VNet peering child"),
             AlwaysDispose("Microsoft.Network/dnsResolvers", "Always dispose — DNS resolver"),
             AlwaysDispose("Microsoft.Compute/virtualMachines/extensions", "Always dispose — VM extension"),
             AlwaysDispose("Microsoft.Compute/virtualMachineScaleSets/extensions", "Always dispose — VMSS extension"),

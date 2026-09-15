@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
@@ -729,9 +728,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              {workbenchLinkAuditContext == null ? (
-                <CopyScopedOperatorLinkButton testId="infra-resource-hub-copy-scoped-link" />
-              ) : null}
               <Link
                 className="text-sm text-al-link hover:underline"
                 href={workQueue !== "all"
@@ -745,14 +741,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </div>
         </>
       ) : null}
-      {buyerPolishedShell ? (
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          {workbenchLinkAuditContext == null ? (
-            <CopyScopedOperatorLinkButton testId="infra-resource-hub-copy-scoped-link" />
-          ) : null}
-        </div>
-      ) : null}
-
       {buyerPolishedShell ? (
         <section className={cnCard} aria-label="Resource identifiers">
           <CollapsibleSection
@@ -797,7 +785,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           auditControlOptions={auditControlOptions}
           onAuditControlChange={switchActiveAuditControl}
           testId="infra-resource-hub-audit-scope-bar"
-          showCopyLink
         />
       ) : null}
 

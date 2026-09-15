@@ -8,6 +8,7 @@ public interface IInfraEvidenceSnapshotMermaidService
     Task<InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse>> TryGetPreviewAsync(
         ScopeContext scope,
         Guid snapshotId,
+        bool includeNeverShowArmTypes = false,
         CancellationToken cancellationToken = default);
 
     /// <param name="hiddenExecutiveTierKeys">
