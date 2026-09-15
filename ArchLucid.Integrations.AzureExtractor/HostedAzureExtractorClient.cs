@@ -118,6 +118,10 @@ public sealed class HostedAzureExtractorClient(
             .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
             .ConfigureAwait(false);
 
+        IReadOnlyList<AzureInventoryAdfLinkedServiceRow> adfLinkedServices = await HostedAzureInventoryAdfLinkedServiceCollector
+            .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
+            .ConfigureAwait(false);
+
         List<HostedAzureArmResourceRecord> inventoryResources = FilterInventoryResources(resources);
 
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
@@ -149,7 +153,8 @@ public sealed class HostedAzureExtractorClient(
             policyAssignments,
             diagnosticSettings,
             defenderSummaries,
-            effectiveNetworkControls.Rows);
+            effectiveNetworkControls.Rows,
+            adfLinkedServices);
 
         string fileName =
             $"archlucid-hosted-azure-{subscriptionId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -266,6 +271,10 @@ public sealed class HostedAzureExtractorClient(
             .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
             .ConfigureAwait(false);
 
+        IReadOnlyList<AzureInventoryAdfLinkedServiceRow> adfLinkedServices = await HostedAzureInventoryAdfLinkedServiceCollector
+            .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
+            .ConfigureAwait(false);
+
         List<HostedAzureArmResourceRecord> inventoryResources = FilterInventoryResources(resources);
 
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
@@ -297,7 +306,8 @@ public sealed class HostedAzureExtractorClient(
             policyAssignments,
             diagnosticSettings,
             defenderSummaries,
-            effectiveNetworkControls.Rows);
+            effectiveNetworkControls.Rows,
+            adfLinkedServices);
 
         string fileName =
             $"archlucid-hosted-azure-mg-{managementGroupId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";

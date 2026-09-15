@@ -27,7 +27,9 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships,
         bool entraGroupMembershipsFilePresent,
         IReadOnlyList<AzureInventoryEffectiveNetworkControlRow> effectiveNetworkControls,
-        bool effectiveNetworkControlsFilePresent)
+        bool effectiveNetworkControlsFilePresent,
+        IReadOnlyList<AzureInventoryAdfLinkedServiceRow>? adfLinkedServices = null,
+        bool adfLinkedServicesFilePresent = false)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
@@ -37,6 +39,8 @@ public static class AzureInventorySecurityEdgeMaterializer
         ArgumentNullException.ThrowIfNull(federatedCredentials);
         ArgumentNullException.ThrowIfNull(entraGroupMemberships);
         ArgumentNullException.ThrowIfNull(effectiveNetworkControls);
+
+        IReadOnlyList<AzureInventoryAdfLinkedServiceRow> adfRows = adfLinkedServices ?? [];
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
@@ -50,6 +54,11 @@ public static class AzureInventorySecurityEdgeMaterializer
         if (!entraGroupMembershipsFilePresent)
         {
             warnings.Add(SecurityEvidenceEntraGroupAdapterWarnings.MissingFile);
+        }
+
+        if (!adfLinkedServicesFilePresent)
+        {
+            warnings.Add(AzureInventoryAdfLinkedServiceCompletenessWarningCodes.MissingFile);
         }
 
         foreach (AzureExtractorExtendedResourceRow resource in resources)
@@ -84,6 +93,13 @@ public static class AzureInventorySecurityEdgeMaterializer
 
         AddPolicyAssignmentEdges(policyAssignments, relationships, relationshipKeys);
         AddDiagnosticEdges(diagnosticSettings, relationships, relationshipKeys);
+
+        AzureInventoryAdfLinkedServiceEdgeMapper.MapLinkedServices(
+            resources,
+            adfRows,
+            relationships,
+            relationshipKeys,
+            warnings);
 
         if (effectiveNetworkControlsFilePresent)
         {

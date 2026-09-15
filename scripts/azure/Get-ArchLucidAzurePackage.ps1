@@ -653,6 +653,7 @@ try
         [object[]]$defenderSummaryRows = @(Get-ArchLucidAzureDefenderSummaryCompanionRows `
             -SubscriptionId $SubscriptionId `
             -ManagementGroupId $ManagementGroupId)
+        [object[]]$adfLinkedServiceRows = @(Get-ArchLucidAzureAdfLinkedServiceCompanionRows -InventoryResources @($resources))
 
         Write-Utf8NoBom (Join-Path $staging "role-assignments.json") ($roleAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "network-associations.json") ($networkAssociationRows | ConvertTo-Json -Depth 12 -Compress:$false)
@@ -661,6 +662,7 @@ try
         Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") ($policyAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") ($diagnosticSettingRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "defender-summary.json") ($defenderSummaryRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") ($adfLinkedServiceRows | ConvertTo-Json -Depth 12 -Compress:$false)
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `
@@ -675,6 +677,7 @@ try
                 policyAssignmentCount = $policyAssignmentRows.Count
                 diagnosticSettingCount = $diagnosticSettingRows.Count
                 defenderSummaryCount = $defenderSummaryRows.Count
+                adfLinkedServiceCount = $adfLinkedServiceRows.Count
             }
     }
     catch
@@ -692,6 +695,7 @@ try
         Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "defender-summary.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") "[]"
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `

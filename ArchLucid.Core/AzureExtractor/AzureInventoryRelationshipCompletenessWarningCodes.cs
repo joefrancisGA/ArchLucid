@@ -20,4 +20,8 @@ public static class AzureInventoryRelationshipCompletenessWarningCodes
     public const string AssociationTypeUnmappedPrefix = "association-type-unmapped:";
 
     public const string EffectiveControlsCapped = "effective-controls-capped";
+
+    public const string AdfLinkedServicesMissing = "adf-linked-services-missing";
+
+    public const string AdfFactoryHasNoLinkedServices = "adf-factory-has-no-linked-services";
 }
