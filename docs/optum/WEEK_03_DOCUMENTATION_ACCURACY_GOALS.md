@@ -10,6 +10,8 @@
 
 **Depends on:** Week 1 inventory snapshots and week 2 inventory-generated diagrams (see [README.md](README.md)).
 
+**Paths:** Primary — diagram import vs inventory (below). **Fallback** — [estate truth baseline](#fallback-week-3--estate-truth-baseline-if-diagram-import-is-blocked) when diagram format, access, or ownership cannot be agreed this week.
+
 ---
 
 ## Headline proposal
@@ -168,6 +170,8 @@ The reconcile workbench already supports `ingestOperationalSecurityFindings`. `F
 
 ## Success criteria for week 3 (sponsor-visible)
 
+**Primary path (diagram import agreed):**
+
 - [ ] At least one Optum diagram ingested (structured format) against a current inventory snapshot **without** a sealed architecture review
 - [ ] Scorecard with headline match / gap counts and explicit denominator
 - [ ] Exportable difference report (CSV minimum; document export preferred)
@@ -175,6 +179,114 @@ The reconcile workbench already supports `ingestOperationalSecurityFindings`. `F
 - [ ] Optional: one edge-level gap row (if item 3 ships)
 - [ ] Optional: overlay on diagram canvas (if item 5 ships)
 - [ ] Honest framing: advisory documentation accuracy, not compliance attestation or live apply
+
+**Fallback path (diagram import blocked):** see [success criteria under fallback](#fallback-success-criteria-sponsor-visible).
+
+---
+
+## Fallback: week 3 — estate truth baseline (if diagram import is blocked)
+
+Use when Optum cannot agree on diagram source files, format, or access this week. **Do not** skip straight to the remediation factory or ARC-AMPE compliance factory — management still expects **records accuracy before security conclusions**. Pivot the definition of accuracy from **their drawings vs reality** to **reality vs itself over time**, plus **gaps in what Azure already knows**.
+
+### Reframe for management
+
+> We cannot reconcile against your Visio or PowerPoint until we agree on source files and access. This week we will (1) pin an inventory baseline, (2) show what changed since capture, and (3) produce an **undocumented / unattributed resource report** from live inventory — the same gap class diagram reconcile would find, without needing your files yet.
+
+Inventory-generated PNG diagrams from week 2 remain the **interim as-maintained record** until their files arrive.
+
+### Fallback work priority
+
+Ship in this order.
+
+#### 1. Inventory baseline + drift report with export — **P0 (best fallback)**
+
+| | |
+| --- | --- |
+| **Why** | Fully built today. No customer diagram agreement. Directly supports “we don’t have good architecture records.” |
+| **Deliverables** | Pin baseline snapshot per subscription (`AzureInventoryBaselines`); second capture; drift workbench walkthrough; exportable drift report (narrative + change rows) |
+| **Surfaces** | `/governance/infrastructure/drift`, `InfraEvidenceDiffsController`, `AzureInventoryDiffNarrativeService` |
+| **Sponsor line** | “Here is what changed in Azure since we started — without anyone updating a diagram.” |
+| **Engineering focus** | Export polish; subscription-level summary counts; classification filters (security-relevant / potentially dangerous); human-readable subscription names on reports |
+
+#### 2. Documentation gap report from inventory only — **P0**
+
+| | |
+| --- | --- |
+| **Why** | Same underlying problem (records don’t describe the estate) when import is blocked. |
+| **Deliverables** | Resources missing owner / application / cost-center tags; orphan or unattached resources; public exposure and logging regression rows from `AzureInventoryDriftClassifier` |
+| **Sponsor line** | “These N resources exist in Azure but are not attributable in your metadata — the documentation debt diagram reconcile would quantify once we have files.” |
+| **Engineering focus** | Aggregated export by resource group and type (not one row per resource); headline counts |
+
+#### 3. Harden week 2 for their subscriptions — **P1**
+
+| | |
+| --- | --- |
+| **Why** | Weeks 1–2 are what management challenged; make them undeniable before new concepts. |
+| **Deliverables** | Correct diagram modes for subscription size; PNG packs per subscription or RG; coverage statement (subscriptions captured, resource counts, `CapturedUtc`, `AzureInventoryNeverShowArmTypes` exclusions) |
+| **Surfaces** | `/infrastructure/diagrams`, `InfraEvidenceSnapshotMermaidService` |
+| **Sponsor line** | “This is the authoritative diagram from Azure — your files are the next layer we compare to this.” |
+| **Engineering focus** | Diagram workbench UX; export bundling; freshness / re-pull before readouts |
+
+#### 4. Security findings from inventory alone — **P2 (careful framing)**
+
+| | |
+| --- | --- |
+| **Why** | Starts remediation factory without diagram import — but looks like skipping “records first” if led with this. |
+| **Deliverables** | Defender summaries, public endpoints, privilege paths from SecureNow engines; demo one row ingested to remediation queue |
+| **Surfaces** | Remediation factory, `FourRealityDriftEngine` (diagram reconciliation optional) |
+| **Sponsor line** | “Configuration-path findings from observed inventory — advisory, verify on next snapshot, not compliance attestation.” |
+| **Constraint** | Do **not** lead the week-3 readout with this if diagram import was the stated blocker. |
+
+#### 5. Operationalize week 1 — **parallel, not a substitute**
+
+| | |
+| --- | --- |
+| **Why** | Strengthens foundation while diagram-format politics resolve. |
+| **Deliverables** | Hosted auto-pull on schedule (`AzureExtractorAutoPullHostedService`); multi-subscription coverage view; second snapshot cadence so drift is real next week |
+| **Surfaces** | Extract & upload, tenant hosted extractor configuration |
+
+### Fallback: explicitly out of scope this week
+
+| Avoid | Reason |
+| --- | --- |
+| ARC-AMPE compliance conclusions | Needs credible estate baseline; premature without records story |
+| Vision / OCR on PNG or PPT | High risk with skeptics; extraction becomes the debate |
+| Large diagram-matcher work without sample files | Cannot validate against Optum naming |
+| Terraform apply or “fix Azure” narrative | `SA-22` hold; honesty constraints |
+
+### Unblock diagram import in parallel (non-engineering)
+
+While building fallback items 1–2, seek a **minimum intake agreement**:
+
+1. **One** subscription, **one** diagram, **one** format — `.vsdx` or draw.io preferred
+2. Named owner who can export **source** (not PDF or PPT screenshots)
+3. Written OK that results are **advisory documentation accuracy**, not audit evidence
+
+If they will not agree even to that, week 3 is **baseline + drift + documentation gap report** only.
+
+### Fallback headline (sponsor-visible)
+
+**“Estate truth baseline”** — three numbers and one export:
+
+1. Resources inventoried (denominator and exclusions stated explicitly)
+2. Changes since baseline (drift)
+3. Unattributed / undocumented resources (metadata gaps)
+
+Plus: inventory-generated PNG diagrams as interim as-maintained record.
+
+### Fallback success criteria (sponsor-visible)
+
+- [ ] Baseline snapshot pinned per in-scope subscription
+- [ ] Second capture completed; drift diff persisted and reviewable in drift workbench
+- [ ] Exportable drift report (change rows + narrative)
+- [ ] Documentation gap summary with headline counts (tags, orphans, exposure regressions) aggregated by RG/type
+- [ ] Coverage statement: subscriptions, resource counts, `CapturedUtc`, known exclusions
+- [ ] Inventory-generated PNG pack delivered for at least one subscription
+- [ ] Honest framing: estate truth and metadata gaps — not diagram accuracy score until files arrive
+
+### When diagram import reopens
+
+Resume the [primary week-3 goals](#proposed-week-3-feature-goals) in order: snapshot-scoped reconcile, then operator-confirmed mappings. Baseline and drift work from the fallback week becomes the **reality** side of the comparison instead of starting cold.
 
 ---
 
@@ -187,5 +299,9 @@ The reconcile workbench already supports `ingestOperationalSecurityFindings`. `F
 | Edge reconciliation | IE-19 extension or IE-20 family |
 | Scorecard + export | IE-UX + `ArchLucid.ArtifactSynthesis` export |
 | Canvas overlay | DAU-08 (`.cursor/prompts/diagram-ai-usability-08-reconcile-overlay.md`) |
+| **Fallback:** drift report export | Drift workbench + `InfraEvidenceDiffsController` / narrative export |
+| **Fallback:** documentation gap report | Inventory metadata + orphan classifiers; aggregated export |
+| **Fallback:** diagram PNG packs | `InfraEvidenceSnapshotMermaidService` export bundling |
+| **Fallback:** hosted auto-pull | `AzureExtractorAutoPullHostedService` + tenant WIF config |
 
 No GTM rows exist for Optum or SecureNow weekly cadence as of 2026-09-15; this folder is the engagement record until a backlog row is opened.
