@@ -25,6 +25,8 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             'Microsoft.Network/privateDnsZones'
             'Microsoft.Network/firewallPolicies'
             'Microsoft.Network/networkIntentPolicies'
+            'Microsoft.Network/networkWatchers'
+            'Microsoft.Network/networkWatchers/flowLogs'
             'Microsoft.ManagedIdentity/userAssignedIdentities'
             'Microsoft.Automation/automationAccounts'
             'Microsoft.Automation/automationAccounts/runbooks'

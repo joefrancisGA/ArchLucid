@@ -13,6 +13,12 @@ describe("azure-inventory-never-show-arm-types", () => {
     expect(shouldOmitAzureInventoryNeverShowArmType("Microsoft.AlertsManagement/smartDetectorAlertRules")).toBe(true);
   });
 
+  it("omits network watchers and flow logs", () => {
+    expect(shouldOmitAzureInventoryNeverShowArmType("Microsoft.Network/networkWatchers")).toBe(true);
+    expect(shouldOmitAzureInventoryNeverShowArmType("Microsoft.Network/networkWatchers/flowLogs")).toBe(true);
+    expect(shouldOmitAzureInventoryNeverShowArmType("flowlogs")).toBe(true);
+  });
+
   it("keeps backbone inventory types", () => {
     expect(shouldOmitAzureInventoryNeverShowArmType("Microsoft.Network/virtualNetworks")).toBe(false);
     expect(shouldOmitAzureInventoryNeverShowArmType("Microsoft.Compute/virtualMachines")).toBe(false);

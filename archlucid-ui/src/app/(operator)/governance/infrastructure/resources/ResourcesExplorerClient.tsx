@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -70,7 +69,7 @@ import { buildCloudResourceExplorerWorkCountBadges } from "@/lib/infra-evidence/
 import type { CloudResourceSummary, ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD,
@@ -85,7 +84,7 @@ import {
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { ResourcesExplorerBreadcrumb } from "./ResourcesExplorerBreadcrumb";
@@ -96,6 +95,10 @@ const cnCard =
 
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
+
+function clampResourceExplorerTopFilterDraft(raw: string): string {
+  return raw.slice(0, GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH);
+}
 
 function resolveExplorerAskHubTab(
   workQueue: CloudResourceExplorerWorkQueue,
@@ -125,6 +128,7 @@ export function ResourcesExplorerClient() {
   const urlWorkQueue = parseResourceExplorerWorkQueueFromSearch(
     searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM),
   );
+  const workQueueExplicitlySet = searchParams.has(RESOURCE_EXPLORER_WORK_QUEUE_PARAM);
   const urlSnapshotId = parseResourceHubQueryValueFromSearch(
     searchParams.get(RESOURCE_EXPLORER_SNAPSHOT_ID_PARAM),
   );
@@ -306,8 +310,6 @@ export function ResourcesExplorerClient() {
         navHref={resourcesPath}
         title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD}
-        claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE : undefined}
-        claimDisciplineTestId="infra-resource-explorer-claim-discipline"
         titleTestId="infra-resource-explorer-page-title"
         breadcrumb={buyerPolishedShell ? <ResourcesExplorerBreadcrumb /> : undefined}
         actions={
@@ -344,7 +346,7 @@ export function ResourcesExplorerClient() {
               key={option.id}
               type="button"
               size="sm"
-              variant={urlWorkQueue === option.id ? "default" : "outline"}
+              variant={workQueueExplicitlySet && urlWorkQueue === option.id ? "default" : "outline"}
               data-testid={`infra-resource-explorer-work-queue-${option.id}`}
               onClick={() => applyWorkQueue(option.id)}
             >
@@ -352,73 +354,88 @@ export function ResourcesExplorerClient() {
             </Button>
           ))}
         </div>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-          {CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS.find((option) => option.id === urlWorkQueue)?.summary}
-        </p>
+        {workQueueExplicitlySet ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            {CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS.find((option) => option.id === urlWorkQueue)?.summary}
+          </p>
+        ) : null}
         <div className="grid gap-3 md:grid-cols-3">
           {buyerPolishedShell ? (
             <>
               <div className="grid gap-2 text-sm">
-                <Label htmlFor="infra-resource-explorer-name-prefix">{GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL}</Label>
+                <Label
+                  htmlFor="infra-resource-explorer-name-prefix"
+                  className={OPERATOR_FORM_FIELD_LABEL_CLASS}
+                >
+                  {GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL}
+                </Label>
                 <Input
                   id="infra-resource-explorer-name-prefix"
                   data-testid="infra-resource-explorer-name-prefix"
                   value={namePrefix}
-                  onChange={(event) => setNamePrefix(event.target.value)}
-                  placeholder="gateway"
+                  maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
+                  onChange={(event) => setNamePrefix(clampResourceExplorerTopFilterDraft(event.target.value))}
                 />
               </div>
               <div className="grid gap-2 text-sm">
-                <Label htmlFor="infra-resource-explorer-resource-type">{GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL}</Label>
+                <Label
+                  htmlFor="infra-resource-explorer-resource-type"
+                  className={OPERATOR_FORM_FIELD_LABEL_CLASS}
+                >
+                  {GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL}
+                </Label>
                 <Input
                   id="infra-resource-explorer-resource-type"
                   data-testid="infra-resource-explorer-resource-type"
                   value={resourceType}
-                  onChange={(event) => setResourceType(event.target.value)}
-                  placeholder="Microsoft.Network/publicIPAddresses"
+                  maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
+                  onChange={(event) => setResourceType(clampResourceExplorerTopFilterDraft(event.target.value))}
                 />
               </div>
               <div className="grid gap-2 text-sm">
-                <Label htmlFor="infra-resource-explorer-resource-group">{GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL}</Label>
+                <Label
+                  htmlFor="infra-resource-explorer-resource-group"
+                  className={OPERATOR_FORM_FIELD_LABEL_CLASS}
+                >
+                  {GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL}
+                </Label>
                 <Input
                   id="infra-resource-explorer-resource-group"
                   data-testid="infra-resource-explorer-resource-group"
                   value={resourceGroup}
                   onChange={(event) => setResourceGroup(event.target.value)}
-                  placeholder="rg-network"
                 />
               </div>
             </>
           ) : (
             <>
               <label className="grid gap-1 text-sm">
-                <span className="font-medium">Name prefix</span>
+                <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL}</span>
                 <input
                   className={cnField}
                   data-testid="infra-resource-explorer-name-prefix"
                   value={namePrefix}
-                  onChange={(event) => setNamePrefix(event.target.value)}
-                  placeholder="gateway"
+                  maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
+                  onChange={(event) => setNamePrefix(clampResourceExplorerTopFilterDraft(event.target.value))}
                 />
               </label>
               <label className="grid gap-1 text-sm">
-                <span className="font-medium">Resource type</span>
+                <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL}</span>
                 <input
                   className={cnField}
                   data-testid="infra-resource-explorer-resource-type"
                   value={resourceType}
-                  onChange={(event) => setResourceType(event.target.value)}
-                  placeholder="Microsoft.Network/publicIPAddresses"
+                  maxLength={GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH}
+                  onChange={(event) => setResourceType(clampResourceExplorerTopFilterDraft(event.target.value))}
                 />
               </label>
               <label className="grid gap-1 text-sm">
-                <span className="font-medium">Resource group</span>
+                <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL}</span>
                 <input
                   className={cnField}
                   data-testid="infra-resource-explorer-resource-group"
                   value={resourceGroup}
                   onChange={(event) => setResourceGroup(event.target.value)}
-                  placeholder="rg-network"
                 />
               </label>
             </>
@@ -474,32 +491,34 @@ export function ResourcesExplorerClient() {
           ) : null}
           {rows.map((row) => {
             const workCountBadges = buildCloudResourceExplorerWorkCountBadges(row.workCounts);
+            const isResourceIdDisclosed = infraResourceRowArmIdKey === row.cloudResourceId;
 
             return (
-            <EnterpriseTableRow key={row.cloudResourceId} data-testid={`infra-resource-row-${row.cloudResourceId}`}>
+            <EnterpriseTableRow
+              key={row.cloudResourceId}
+              data-testid={`infra-resource-row-${row.cloudResourceId}`}
+              selected={isResourceIdDisclosed}
+              onClick={() => setInfraResourceRowArmIdKey(isResourceIdDisclosed ? null : row.cloudResourceId)}
+            >
               <EnterpriseTableCell>
                 <Link
                   className="font-medium text-al-link hover:underline"
                   href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue, urlSnapshotId)}
                   data-testid={`infra-resource-explorer-hub-${row.cloudResourceId}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                  }}
                 >
                   {formatCloudResourceDisplayName(row)}
                 </Link>
-                {buyerPolishedShell ? (
-                  <CollapsibleSection
-                    title="Resource id"
-                    sectionTestId={`infra-resource-row-arm-id-disclosure-${row.cloudResourceId}`}
-                    summaryLine="External ARM resource path"
-                    open={infraResourceRowArmIdKey === row.cloudResourceId}
-                    onToggle={(open) => setInfraResourceRowArmIdKey(open ? row.cloudResourceId : null)}
+                {isResourceIdDisclosed ? (
+                  <p
+                    className={cn("m-0 truncate font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid={`infra-resource-row-arm-id-disclosure-${row.cloudResourceId}`}
                   >
-                    <p className={cn("m-0 truncate font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                      {row.externalResourceId}
-                    </p>
-                  </CollapsibleSection>
-                ) : (
-                  <div className="truncate font-mono text-xs text-al-text-secondary">{row.externalResourceId}</div>
-                )}
+                    resource id: {row.externalResourceId}
+                  </p>
+                ) : null}
               </EnterpriseTableCell>
               <EnterpriseTableCell data-testid={`infra-resource-work-counts-${row.cloudResourceId}`}>
                 {workCountBadges.length === 0 ? (
@@ -513,6 +532,9 @@ export function ResourcesExplorerClient() {
                         title={badge.label}
                         href={buildResourceExplorerWorkCountHref(row.cloudResourceId, badge.kind, urlWorkQueue, urlSnapshotId)}
                         data-testid={`infra-resource-work-count-${row.cloudResourceId}-${badge.kind}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                        }}
                       >
                         {badge.kind === "findings" ? "F" : badge.kind === "remediation" ? "R" : "D"}:{badge.count}
                       </Link>
@@ -528,7 +550,11 @@ export function ResourcesExplorerClient() {
               <EnterpriseTableCell data-testid={`infra-resource-last-seen-${row.cloudResourceId}`}>
                 {row.lastSeenUtc.length > 0 ? formatInstantCompactMilitary(row.lastSeenUtc) : "—"}
               </EnterpriseTableCell>
-              <EnterpriseTableCell>
+              <EnterpriseTableCell
+                onClick={(event) => {
+                  event.stopPropagation();
+                }}
+              >
                 <div className="flex flex-wrap gap-2">
                   {urlWorkQueue !== "all" ? (
                     <Button asChild size="sm" variant="outline">
