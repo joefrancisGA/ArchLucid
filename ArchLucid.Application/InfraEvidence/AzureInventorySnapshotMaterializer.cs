@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
@@ -45,6 +46,11 @@ public sealed class AzureInventorySnapshotMaterializer(
             }
 
             using MemoryStream zipStream = new(packageBytes, writable: false);
+            zipStream.Position = 0;
+            (AzureExtractorNormalizedManifest? manifest, _) =
+                AzureExtractorManifestReader.TryReadNormalizedFromZip(zipStream);
+
+            zipStream.Position = 0;
             AzureExtractorPackageInventoryReadResult inventory =
                 AzureExtractorPackageInventoryReader.TryReadFromZip(zipStream);
 
@@ -221,6 +227,19 @@ public sealed class AzureInventorySnapshotMaterializer(
                 ? AzureInventoryCaptureStatus.Partial
                 : AzureInventoryCaptureStatus.Succeeded;
 
+            string? subscriptionId = null;
+            string? subscriptionName = null;
+
+            if (manifest is not null)
+            {
+                (subscriptionId, subscriptionName) = AzureInventorySnapshotSubscriptionIdentity.Resolve(
+                    header.SubscriptionId,
+                    header.SubscriptionName,
+                    manifest.SubscriptionId,
+                    manifest.SubscriptionName,
+                    siblingSubscriptionName: null);
+            }
+
             await snapshotRepository.MaterializeSnapshotAsync(
                 scope,
                 snapshotId,
@@ -235,6 +254,8 @@ public sealed class AzureInventorySnapshotMaterializer(
                     ContentHashSha256 = contentHash,
                     CaptureMethod = captureMethod,
                     CollectorVersion = collectorVersion,
+                    SubscriptionId = subscriptionId,
+                    SubscriptionName = subscriptionName,
                     Resources = resources,
                     Properties = properties,
                     Relationships = visibleRelationships,

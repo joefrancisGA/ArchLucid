@@ -58,6 +58,11 @@ export function isSecureNowDemoChromeExcluded(productLineId: ProductLineId): boo
   return isSecureNowTrainingChromeExcluded(productLineId);
 }
 
+/** SecureNow is a production security shell — workspace footer Security & Trust link is ArchLucid buyer chrome. */
+export function isSecureNowWorkspaceFooterTrustLinkExcluded(productLineId: ProductLineId): boolean {
+  return isSecureNowProductLine(productLineId);
+}
+
 export function isCloudProviderSupportedForProductLine(
   provider: CloudProviderId,
   productLineId: ProductLineId,

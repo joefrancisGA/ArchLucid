@@ -95,8 +95,10 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
 export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLineAssignment>> = {
   "/security/assigned-to-me": "security",
   "/security/remediation-factory": "security",
+  "/security/remediation-instances": "security",
   "/security/remediation-patterns": "security",
   "/infrastructure/diagrams": "security",
+  "/infrastructure/resources": "security",
   "/administration/auth-domains": "both",
   "/administration/identity/sso-wizard": "both",
   "/integrations/itsm/oauth/callback": "both",
@@ -115,6 +117,7 @@ export const PRODUCT_LINE_NESTED_PREFIXES: readonly string[] = [
   "/governance/standards-and-rules",
   "/security",
   "/infrastructure",
+  "/infrastructure/resources",
   "/integrations/cloud-connections",
   "/integrations/jira",
   "/integrations/azure-boards",

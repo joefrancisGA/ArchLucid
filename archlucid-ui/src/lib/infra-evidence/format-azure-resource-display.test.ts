@@ -27,10 +27,24 @@ describe("formatAzureResourceDisplay", () => {
       ),
     ).toEqual({
       name: "vm-app-02",
-      resourceType: "virtualMachines",
+      resourceType: "Compute/virtualMachines",
       resourceGroup: "rg-archlucid-demo-cus",
       primaryLabel: "vm-app-02",
-      secondaryLabel: "virtualMachines · rg-archlucid-demo-cus",
+      secondaryLabel: "Compute/virtualMachines · rg-archlucid-demo-cus",
+    });
+  });
+
+  it("shows the provider-qualified type without the Microsoft prefix", () => {
+    expect(
+      formatAzureResourceDisplay(
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.PowerPlatform/enterprisePolicies/policy-1",
+      ),
+    ).toEqual({
+      name: "policy-1",
+      resourceType: "PowerPlatform/enterprisePolicies",
+      resourceGroup: "rg",
+      primaryLabel: "policy-1",
+      secondaryLabel: "PowerPlatform/enterprisePolicies · rg",
     });
   });
 
@@ -41,10 +55,10 @@ describe("formatAzureResourceDisplay", () => {
       ),
     ).toEqual({
       name: "subnet-app",
-      resourceType: "subnets",
+      resourceType: "Network/virtualNetworks/subnets",
       resourceGroup: "rg-net",
       primaryLabel: "subnet-app",
-      secondaryLabel: "subnets · rg-net",
+      secondaryLabel: "Network/virtualNetworks/subnets · rg-net",
     });
   });
 

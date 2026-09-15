@@ -32,6 +32,10 @@ public static class DiagramPeelCatalogDefaultSeed
             AlwaysDispose("Microsoft.Portal/dashboards", "Always dispose — portal dashboard"),
             AlwaysDispose("Microsoft.OperationalInsights/workspaces", "Always dispose — Log Analytics workspace"),
             AlwaysDispose("Microsoft.OperationsManagement/solutions", "Always dispose — monitoring solution"),
+            AlwaysDispose(
+                "Microsoft.AlertsManagement/smartDetectorAlertRules",
+                "Always dispose — smart detector alert rule"),
+            AlwaysDispose("Microsoft.Insights/metricAlerts", "Always dispose — metric alert"),
             AlwaysDispose("Microsoft.Network/dnszones", "Always dispose — DNS zone"),
             AlwaysDispose("Microsoft.Network/privateDnsZones", "Always dispose — private DNS zone"),
             AlwaysDispose(
