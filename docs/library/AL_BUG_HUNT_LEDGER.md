@@ -12163,6 +12163,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-15 seed hunt #3197 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
 2026-09-15 seed hunt #3192 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-15 seed hunt #3187 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `module` field module-address prefix gap; regression `ParseAsync_module_field_prefixes_resource_name`.
@@ -12471,7 +12473,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 288
+- **hunts:** 289
 - **bugs-found:** 273
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
