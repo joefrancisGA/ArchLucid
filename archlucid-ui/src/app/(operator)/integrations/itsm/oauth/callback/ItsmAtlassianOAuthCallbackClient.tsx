@@ -84,6 +84,26 @@ function resolvePageTitle(phase: CallbackPhase): string {
   return ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_TITLE;
 }
 
+function ItsmAtlassianOAuthSupportMailtoLink(props: {
+  readonly href: string | null;
+}): React.ReactElement | null {
+  // Convenience mailto after a failed OAuth callback; not an authorization decision.
+  // codeql[js/user-controlled-bypass]
+  if (props.href === null) {
+    return null;
+  }
+
+  return (
+    <Link
+      href={props.href}
+      className={OPERATOR_LINK.nav}
+      data-testid="itsm-oauth-callback-contact-support"
+    >
+      {itsmAtlassianOAuthCallbackSupportLinkLabel()}
+    </Link>
+  );
+}
+
 export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
@@ -230,9 +250,6 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
         failureMessage: message,
       })
     : null;
-  // Support mailto is a convenience link after a failed OAuth callback, not an auth bypass.
-  // codeql[js/user-controlled-bypass]
-  const showSupportMailto = offerSupportMailto && supportMailtoHref !== null;
 
   return (
     <OperatorPageContainer
@@ -329,15 +346,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
                       <Button asChild variant="primary" data-testid="itsm-oauth-callback-retry">
                         <Link href={INTEGRATIONS_JIRA_PATH}>{ITSM_ATLASSIAN_OAUTH_CALLBACK_RETRY_LABEL}</Link>
                       </Button>
-                      {showSupportMailto ? (
-                        <Link
-                          href={supportMailtoHref}
-                          className={OPERATOR_LINK.nav}
-                          data-testid="itsm-oauth-callback-contact-support"
-                        >
-                          {itsmAtlassianOAuthCallbackSupportLinkLabel()}
-                        </Link>
-                      ) : null}
+                      <ItsmAtlassianOAuthSupportMailtoLink href={supportMailtoHref} />
                     </div>
 
                     <details

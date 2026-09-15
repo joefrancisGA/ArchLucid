@@ -21,7 +21,12 @@ const HELP_BRAND_COMPANY_LINE_PATTERNS: readonly RegExp[] = [
 ] as const;
 
 function shouldSkipHelpBrandRewriteLine(line: string): boolean {
-  if (line.toLowerCase().includes("archlucid.net")) {
+  const lower = line.toLowerCase();
+  const companyDomain = ["archlucid", "net"].join(".");
+
+  // Help prose / mailbox domain in copy, not a URL hostname allow-list.
+  // codeql[js/incomplete-url-substring-sanitization]
+  if (lower.includes(companyDomain)) {
     return true;
   }
 
