@@ -1202,7 +1202,10 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       <section
-        className={cn("grid gap-4 md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]", cnCard)}
+        className={cn(
+          "grid items-start gap-x-4 gap-y-2 md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]",
+          cnCard,
+        )}
         aria-label="Snapshot and mode selection"
       >
         {buyerPolishedShell ? (
@@ -1232,14 +1235,6 @@ export function DiagramsWorkbenchClient() {
                   </>
                 )}
               </select>
-              {selectedSnapshot != null ? (
-                <div className="flex items-start gap-2" data-testid="infra-diagrams-snapshot-id-readout">
-                  <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {selectedSnapshot.snapshotId}
-                  </span>
-                  <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
-                </div>
-              ) : null}
             </div>
             <div className="grid min-w-0 gap-2">
               <Label htmlFor="infra-diagrams-mode-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL}</Label>
@@ -1258,12 +1253,26 @@ export function DiagramsWorkbenchClient() {
                 ))}
               </select>
             </div>
+            {selectedSnapshot != null ? (
+              <div
+                className="col-start-1 flex items-start gap-2"
+                data-testid="infra-diagrams-snapshot-id-readout"
+              >
+                <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {selectedSnapshot.snapshotId}
+                </span>
+                <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
+              </div>
+            ) : null}
           </>
         ) : (
           <>
-            <label className="flex min-w-0 flex-col gap-1">
-              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>Snapshot</span>
+            <div className="flex min-w-0 flex-col gap-1">
+              <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-snapshot-picker">
+                Snapshot
+              </label>
               <select
+                id="infra-diagrams-snapshot-picker"
                 className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-snapshot-picker"
                 disabled={loadingSnapshots || snapshots.length === 0}
@@ -1285,18 +1294,13 @@ export function DiagramsWorkbenchClient() {
                   </>
                 )}
               </select>
-              {selectedSnapshot != null ? (
-                <div className="mt-1 flex items-start gap-2" data-testid="infra-diagrams-snapshot-id-readout">
-                  <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {selectedSnapshot.snapshotId}
-                  </span>
-                  <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
-                </div>
-              ) : null}
-            </label>
-            <label className="flex min-w-0 flex-col gap-1">
-              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>Diagram mode</span>
+            </div>
+            <div className="flex min-w-0 flex-col gap-1">
+              <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-mode-picker">
+                Diagram mode
+              </label>
               <select
+                id="infra-diagrams-mode-picker"
                 className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-mode-picker"
                 disabled={loadingPreview || selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
@@ -1309,7 +1313,18 @@ export function DiagramsWorkbenchClient() {
                   </option>
                 ))}
               </select>
-            </label>
+            </div>
+            {selectedSnapshot != null ? (
+              <div
+                className="col-start-1 flex items-start gap-2"
+                data-testid="infra-diagrams-snapshot-id-readout"
+              >
+                <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {selectedSnapshot.snapshotId}
+                </span>
+                <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
+              </div>
+            ) : null}
           </>
         )}
       </section>
