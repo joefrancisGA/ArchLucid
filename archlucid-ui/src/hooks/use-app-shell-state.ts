@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type SetStateAction } from "react";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import type { HelpTabId } from "@/components/HelpPanel";
@@ -34,6 +34,8 @@ export function useAppShellState() {
   const [helpDocSearchOpen, setHelpDocSearchOpenState] = useState(() =>
     parseHelpDocSearchOpenFromSearch(helpSearchOpenParam),
   );
+  const helpDocSearchOpenRef = useRef(helpDocSearchOpen);
+  helpDocSearchOpenRef.current = helpDocSearchOpen;
 
   const syncHelpPanelOpenToUrl = useCallback(
     (open: boolean, tab: HelpTabId = helpGuidesInitialTab) => {
@@ -65,12 +67,9 @@ export function useAppShellState() {
 
   const setHelpDocSearchOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setHelpDocSearchOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncHelpDocSearchOpenToUrl(next, next ? "" : "");
-
-        return next;
-      });
+      const next = typeof value === "function" ? value(helpDocSearchOpenRef.current) : value;
+      setHelpDocSearchOpenState(next);
+      syncHelpDocSearchOpenToUrl(next, next ? "" : "");
     },
     [syncHelpDocSearchOpenToUrl],
   );
