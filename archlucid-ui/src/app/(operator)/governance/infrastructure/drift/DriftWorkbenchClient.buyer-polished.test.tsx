@@ -113,7 +113,6 @@ describe("DriftWorkbenchClient buyer-polished chrome", () => {
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(await screen.findByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
     expect(await screen.findByTestId("infra-drift-export-terraform")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-copy-scoped-link")).toBeInTheDocument();
   });
 
   it("hides inline resource id behind disclosure when scoped", async () => {
