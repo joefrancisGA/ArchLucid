@@ -76,6 +76,11 @@ import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-ev
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
 import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra-evidence/infra-evidence-mermaid-render-status-presentation";
 import { isInfraEvidenceMermaidDiagramEmpty } from "@/lib/infra-evidence/infra-evidence-mermaid-empty-content";
+import { resolveInfraEvidenceDiagramOutlineResourceName } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
+import {
+  normalizeInfraEvidenceLayoutSvgForDisplay,
+  normalizeInfraEvidenceMermaidSourceForDisplay,
+} from "@/lib/infra-evidence/normalize-infra-evidence-mermaid-display";
 import {
   parseInfraEvidenceMermaidOutline,
   resolveInfraEvidenceOutlineSeedNodeId,
@@ -482,6 +487,14 @@ export function DiagramsWorkbenchClient() {
   ]);
 
   const mermaidSource = renderResult?.mermaid ?? "";
+  const displayMermaidSource = useMemo(
+    () => normalizeInfraEvidenceMermaidSourceForDisplay(mermaidSource),
+    [mermaidSource],
+  );
+  const displayLayoutSvg = useMemo(
+    () => normalizeInfraEvidenceLayoutSvgForDisplay(renderResult?.layoutSvg ?? ""),
+    [renderResult?.layoutSvg],
+  );
   const metrics = renderResult?.metrics ?? null;
   const dependencyNeighborhoodAwaitingSeed = dependencyNeighborhoodRequiresAppliedSeed(
     selectedMode,
@@ -1411,7 +1424,7 @@ export function DiagramsWorkbenchClient() {
 
                     return (
                       <option key={`${node.id}:${seedValue}`} value={seedValue}>
-                        {node.label}
+                        {resolveInfraEvidenceDiagramOutlineResourceName(node)}
                       </option>
                     );
                   })}
@@ -1784,8 +1797,8 @@ export function DiagramsWorkbenchClient() {
             </div>
           ) : null}
           <ArchitectureDiagramViewer
-            mermaidSource={mermaidSource}
-            layoutSvg={renderResult?.layoutSvg ?? null}
+            mermaidSource={displayMermaidSource}
+            layoutSvg={displayLayoutSvg.length > 0 ? displayLayoutSvg : null}
             textAlternative={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId} in ${selectedModeLabel} mode.`}
             viewportAriaLabel={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId}`}
             fullscreenTitle={`Inventory diagram · ${selectedModeLabel}`}

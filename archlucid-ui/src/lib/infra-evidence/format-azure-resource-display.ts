@@ -6,11 +6,45 @@ export type AzureResourceDisplay = {
   readonly secondaryLabel: string | null;
 };
 
+export type CloudResourceDisplayNameInput = {
+  readonly displayName?: string | null;
+  readonly externalResourceId: string;
+};
+
+const EMPTY_RESOURCE_NAME_PLACEHOLDER = "—";
+
+/**
+ * SecureNow lists and diagrams show Azure resource names in lowercase for scanability.
+ * Storage keeps the cloud provider casing; normalization is display-only.
+ */
+export function normalizeSecureNowResourceNameForDisplay(resourceName: string): string {
+  const trimmed = resourceName.trim();
+
+  if (trimmed.length === 0 || trimmed === EMPTY_RESOURCE_NAME_PLACEHOLDER) {
+    return trimmed.length > 0 ? trimmed : EMPTY_RESOURCE_NAME_PLACEHOLDER;
+  }
+
+  return trimmed.toLowerCase();
+}
+
+export function formatCloudResourceDisplayName(input: CloudResourceDisplayNameInput): string {
+  const displayName = input.displayName?.trim() ?? "";
+
+  if (displayName.length > 0) {
+    return normalizeSecureNowResourceNameForDisplay(displayName);
+  }
+
+  const segments = input.externalResourceId.split("/");
+  const fallbackName = segments[segments.length - 1] ?? input.externalResourceId;
+
+  return normalizeSecureNowResourceNameForDisplay(fallbackName);
+}
+
 const EMPTY_DISPLAY: AzureResourceDisplay = {
-  name: "—",
+  name: EMPTY_RESOURCE_NAME_PLACEHOLDER,
   resourceType: null,
   resourceGroup: null,
-  primaryLabel: "—",
+  primaryLabel: EMPTY_RESOURCE_NAME_PLACEHOLDER,
   secondaryLabel: null,
 };
 
@@ -119,11 +153,13 @@ export function formatAzureResourceDisplay(azureResourceId: string | null | unde
   const resourceGroup = segmentAfterToken(segments, "resourcegroups");
   const resourceType = resourceTypeFromSegments(segments);
 
+  const displayName = normalizeSecureNowResourceNameForDisplay(name);
+
   return {
-    name,
+    name: displayName,
     resourceType,
     resourceGroup,
-    primaryLabel: name,
+    primaryLabel: displayName,
     secondaryLabel: joinSecondaryLabel(resourceType, resourceGroup),
   };
 }

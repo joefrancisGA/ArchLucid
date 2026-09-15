@@ -1,6 +1,7 @@
+import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import type { InfraEvidenceMermaidOutlineNode } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
-function resolveInfraEvidenceDiagramOutlineResourceName(node: InfraEvidenceMermaidOutlineNode): string {
+export function resolveInfraEvidenceDiagramOutlineResourceName(node: InfraEvidenceMermaidOutlineNode): string {
   const label = node.label.trim();
 
   if (label.length === 0) {
@@ -13,11 +14,11 @@ function resolveInfraEvidenceDiagramOutlineResourceName(node: InfraEvidenceMerma
     const stripped = label.replace(/\s\([^)]+\)\s*$/u, "").trim();
 
     if (stripped.length > 0) {
-      return stripped;
+      return normalizeSecureNowResourceNameForDisplay(stripped);
     }
   }
 
-  return label;
+  return normalizeSecureNowResourceNameForDisplay(label);
 }
 
 export function InfraEvidenceDiagramOutlineNodeLabel(props: {

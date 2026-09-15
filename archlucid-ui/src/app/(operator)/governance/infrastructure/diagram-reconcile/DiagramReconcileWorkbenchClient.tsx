@@ -38,6 +38,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   buildDiagramReconcileOperationalFindingRequestItem,
   formatDiagramReconcileExplanation,
+  formatDiagramReconcileResourceLabelForDisplay,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-explanation";
 import {
   buildDiagramReconcileRemediationHref,
@@ -642,7 +643,7 @@ export function DiagramReconcileWorkbenchClient() {
       return `Showing diagram correspondence ${selectedCorrespondenceId}.`;
     }
 
-    return `Showing diagram correspondence ${selectedRow.diagramNodeLabel ?? selectedCorrespondenceId}.`;
+    return `Showing diagram correspondence ${formatDiagramReconcileResourceLabelForDisplay(selectedRow)}.`;
   }, [filteredRows, selectedCorrespondenceId]);
 
   return (
@@ -1016,7 +1017,7 @@ export function DiagramReconcileWorkbenchClient() {
                     <EnterpriseTableCell>{row.matchKind}</EnterpriseTableCell>
                     <EnterpriseTableCell>{row.confidenceBand}</EnterpriseTableCell>
                     <EnterpriseTableCell>
-                      <div>{row.diagramNodeLabel ?? "—"}</div>
+                      <div>{formatDiagramReconcileResourceLabelForDisplay(row)}</div>
                       {row.matchKind === "Conflict" && row.azureResourceId != null ? (
                         <div className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                           Inventory: {row.azureResourceId}

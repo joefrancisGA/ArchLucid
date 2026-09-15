@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   formatAzureResourceDisplay,
   formatAzureResourceTypeForDisplay,
+  formatCloudResourceDisplayName,
+  normalizeSecureNowResourceNameForDisplay,
 } from "@/lib/infra-evidence/format-azure-resource-display";
 
 describe("formatAzureResourceDisplay", () => {
@@ -73,6 +75,37 @@ describe("formatAzureResourceDisplay", () => {
       primaryLabel: "gateway-public-ip",
       secondaryLabel: null,
     });
+  });
+});
+
+describe("normalizeSecureNowResourceNameForDisplay", () => {
+  it("lowercases mixed-case Azure resource names", () => {
+    expect(normalizeSecureNowResourceNameForDisplay("Gateway-PIP")).toBe("gateway-pip");
+    expect(normalizeSecureNowResourceNameForDisplay("  VNet-AEP-HI-TEST  ")).toBe("vnet-aep-hi-test");
+  });
+
+  it("preserves the empty placeholder", () => {
+    expect(normalizeSecureNowResourceNameForDisplay("—")).toBe("—");
+  });
+});
+
+describe("formatCloudResourceDisplayName", () => {
+  it("prefers displayName and lowercases it", () => {
+    expect(
+      formatCloudResourceDisplayName({
+        displayName: "Gateway-PIP",
+        externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gateway",
+      }),
+    ).toBe("gateway-pip");
+  });
+
+  it("falls back to the ARM name segment", () => {
+    expect(
+      formatCloudResourceDisplayName({
+        displayName: null,
+        externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/Gateway",
+      }),
+    ).toBe("gateway");
   });
 });
 
