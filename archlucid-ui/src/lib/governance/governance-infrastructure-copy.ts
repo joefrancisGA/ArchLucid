@@ -1,5 +1,6 @@
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
@@ -22,7 +23,7 @@ export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO_WORKBENCHES =
   "Azure inventory evidence workbenches for snapshots, diagrams, diagram reconciliation, resource hubs, grounded Ask, and remediation instances." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO_DESTINATIONS =
-  "All six destinations are available from this hub." as const;
+  "All seven destinations are available from this hub." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO =
   `${GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO_WORKBENCHES} ${GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO_DESTINATIONS}` as const;
@@ -477,6 +478,14 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_ARM_RESOURCE_PATH_LABEL = "A
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL = "Terraform address" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE = "Declared connections";
+
+export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_LEAD =
+  "Record dependencies and connectivity that Azure inventory alone cannot prove — for example connection strings in application config that are not ingested.";
+
+export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_CLAIM_DISCIPLINE =
+  "Declared connections are HumanAssertion edges with required expiry. They may strengthen path and diagram reasoning; they are not observed ARM facts.";
+
 export type InfrastructureWorkbenchRow = {
   readonly href: string;
   readonly label: string;
@@ -491,6 +500,12 @@ export const INFRASTRUCTURE_WORKBENCH_ROWS: readonly InfrastructureWorkbenchRow[
     label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
     summary: "Explore cloud resources and open the evidence hub for a single resource.",
     recommendedFirst: true,
+  },
+  {
+    href: GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
+    label: GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE,
+    summary:
+      "Declare ConnectsTo or DependsOn edges between resources when config files or tribal knowledge are not ingested.",
   },
   {
     href: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,

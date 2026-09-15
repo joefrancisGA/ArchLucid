@@ -48,6 +48,13 @@ export const SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH = "/infrastructure/terrafor
 export const GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH =
   "/governance/infrastructure/extract-upload";
 
+export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH =
+  "/governance/infrastructure/declared-connections";
+
+/** SecureNow shell — declared human connections workbench (Infrastructure URL namespace). */
+export const SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH =
+  "/infrastructure/declared-connections" as const;
+
 /** SecureNow shell — extract and upload intake (Infrastructure URL namespace). */
 export const SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH = "/infrastructure/extract-upload" as const;
 
