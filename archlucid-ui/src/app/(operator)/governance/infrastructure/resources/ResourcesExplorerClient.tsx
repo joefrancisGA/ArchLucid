@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
@@ -84,8 +84,17 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
+import {
+  RESOURCES_EXPLORER_DEFAULT_SORT_ASC,
+  RESOURCES_EXPLORER_DEFAULT_SORT_KEY,
+  resourcesExplorerTableSortDirection,
+  sortResourceExplorerRows,
+  type ResourcesExplorerTableSortKey,
+} from "@/lib/infra-evidence/resources-explorer-table-sort";
+
 import { ResourcesExplorerBreadcrumb } from "./ResourcesExplorerBreadcrumb";
 import { ResourcesExplorerClaimOrientationStrip } from "./ResourcesExplorerClaimOrientationStrip";
+import { ResourcesExplorerSortHeaderCell } from "./ResourcesExplorerSortHeaderCell";
 
 const cnCard =
   "rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950";
@@ -156,6 +165,8 @@ export function ResourcesExplorerClient() {
   const [rows, setRows] = useState<CloudResourceSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<ResourcesExplorerTableSortKey>(RESOURCES_EXPLORER_DEFAULT_SORT_KEY);
+  const [sortAsc, setSortAsc] = useState(RESOURCES_EXPLORER_DEFAULT_SORT_ASC);
 
   useEffect(() => {
     if (urlCloudResourceId.length === 0) {
@@ -199,6 +210,22 @@ export function ResourcesExplorerClient() {
 
     void loadResources();
   }, [loadResources, urlCloudResourceId]);
+
+  const sortedRows = useMemo(
+    () => sortResourceExplorerRows(rows, sortKey, sortAsc),
+    [rows, sortAsc, sortKey],
+  );
+
+  const onSort = (nextSortKey: ResourcesExplorerTableSortKey) => {
+    if (sortKey === nextSortKey) {
+      setSortAsc((current) => !current);
+
+      return;
+    }
+
+    setSortKey(nextSortKey);
+    setSortAsc(true);
+  };
 
   const applyFilters = () => {
     const nextHref = resourceExplorerFilterHrefFromSearch(searchParams.toString(), {
@@ -427,12 +454,54 @@ export function ResourcesExplorerClient() {
       <EnterpriseTable ariaLabel="Cloud resources">
         <EnterpriseTableHead>
           <EnterpriseTableRow>
-            <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Work</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Type</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Resource group</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Region</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Last seen</EnterpriseTableHeaderCell>
+            <ResourcesExplorerSortHeaderCell
+              label="Name"
+              sortKey="name"
+              activeSortKey={sortKey}
+              sortAsc={sortAsc}
+              sortDirection={resourcesExplorerTableSortDirection("name", sortKey, sortAsc)}
+              onSort={onSort}
+            />
+            <ResourcesExplorerSortHeaderCell
+              label="Work"
+              sortKey="work"
+              activeSortKey={sortKey}
+              sortAsc={sortAsc}
+              sortDirection={resourcesExplorerTableSortDirection("work", sortKey, sortAsc)}
+              onSort={onSort}
+            />
+            <ResourcesExplorerSortHeaderCell
+              label="Type"
+              sortKey="type"
+              activeSortKey={sortKey}
+              sortAsc={sortAsc}
+              sortDirection={resourcesExplorerTableSortDirection("type", sortKey, sortAsc)}
+              onSort={onSort}
+            />
+            <ResourcesExplorerSortHeaderCell
+              label="Resource group"
+              sortKey="resourceGroup"
+              activeSortKey={sortKey}
+              sortAsc={sortAsc}
+              sortDirection={resourcesExplorerTableSortDirection("resourceGroup", sortKey, sortAsc)}
+              onSort={onSort}
+            />
+            <ResourcesExplorerSortHeaderCell
+              label="Region"
+              sortKey="region"
+              activeSortKey={sortKey}
+              sortAsc={sortAsc}
+              sortDirection={resourcesExplorerTableSortDirection("region", sortKey, sortAsc)}
+              onSort={onSort}
+            />
+            <ResourcesExplorerSortHeaderCell
+              label="Last seen"
+              sortKey="lastSeen"
+              activeSortKey={sortKey}
+              sortAsc={sortAsc}
+              sortDirection={resourcesExplorerTableSortDirection("lastSeen", sortKey, sortAsc)}
+              onSort={onSort}
+            />
             <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
         </EnterpriseTableHead>
@@ -447,7 +516,7 @@ export function ResourcesExplorerClient() {
               <EnterpriseTableCell colSpan={7}>No cloud resources match the current filters.</EnterpriseTableCell>
             </EnterpriseTableRow>
           ) : null}
-          {rows.map((row) => {
+          {sortedRows.map((row) => {
             const workCountBadges = buildCloudResourceExplorerWorkCountBadges(row.workCounts);
             const isResourceIdDisclosed = infraResourceRowArmIdKey === row.cloudResourceId;
 

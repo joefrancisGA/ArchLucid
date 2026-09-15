@@ -2,6 +2,11 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ResourcesExplorerClient } from "@/app/(operator)/governance/infrastructure/resources/ResourcesExplorerClient";
+import {
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL,
+} from "@/lib/governance/governance-infrastructure-copy";
 import { fetchCloudResourceExplorerPage } from "@/lib/infra-evidence/infra-evidence-hub-api";
 
 const replace = vi.fn();
@@ -275,5 +280,82 @@ describe("ResourcesExplorerClient", () => {
 
     expect(await screen.findByRole("link", { name: "gateway-pip" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Gateway-PIP" })).not.toBeInTheDocument();
+  });
+
+  it("renders title-case filter labels and a non-editable apply button", async () => {
+    searchParams = new URLSearchParams("");
+    listOperatorSavedViews.mockResolvedValue([]);
+    render(<ResourcesExplorerClient />);
+
+    expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL)).toBeInTheDocument();
+    expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL)).toBeInTheDocument();
+    expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL)).toBeInTheDocument();
+    expect(GOVERNANCE_INFRASTRUCTURE_RESOURCES_NAME_PREFIX_LABEL).toBe("Name Prefix");
+    expect(GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL).toBe("Resource Type");
+    expect(GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL).toBe("Resource Group");
+
+    const applyButton = screen.getByTestId("infra-resource-explorer-apply");
+    expect(applyButton).toHaveClass("select-none");
+    expect(applyButton).toHaveClass("cursor-pointer");
+  });
+
+  it("sorts resources by name on initial load and toggles sort from column headers", async () => {
+    vi.mocked(fetchCloudResourceExplorerPage).mockResolvedValueOnce({
+      items: [
+        {
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          externalResourceId:
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/zebra",
+          displayName: "zebra",
+          resourceType: "Microsoft.Network/publicIPAddresses",
+          resourceGroup: "rg-net",
+          region: "eastus",
+          lastSeenUtc: "2026-09-01T12:00:00Z",
+          workCounts: null,
+        },
+        {
+          cloudResourceId: "11111111-1111-1111-1111-111111111111",
+          externalResourceId:
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/alpha",
+          displayName: "alpha",
+          resourceType: "Microsoft.Network/publicIPAddresses",
+          resourceGroup: "rg-net",
+          region: "eastus",
+          lastSeenUtc: "2026-09-01T12:00:00Z",
+          workCounts: null,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+    searchParams = new URLSearchParams("");
+    listOperatorSavedViews.mockResolvedValue([]);
+    render(<ResourcesExplorerClient />);
+
+    await screen.findByTestId("infra-resource-row-11111111-1111-1111-1111-111111111111");
+
+    const rowIds = screen
+      .getAllByTestId(/^infra-resource-row-/)
+      .map((row) => row.getAttribute("data-testid")?.replace("infra-resource-row-", ""));
+
+    expect(rowIds).toEqual([
+      "11111111-1111-1111-1111-111111111111",
+      "22222222-2222-2222-2222-222222222222",
+    ]);
+
+    const nameHeader = screen.getByRole("button", { name: "Sort by Name, ascending" });
+    fireEvent.click(nameHeader);
+
+    const reversedRowIds = screen
+      .getAllByTestId(/^infra-resource-row-/)
+      .map((row) => row.getAttribute("data-testid")?.replace("infra-resource-row-", ""));
+
+    expect(reversedRowIds).toEqual([
+      "22222222-2222-2222-2222-222222222222",
+      "11111111-1111-1111-1111-111111111111",
+    ]);
+    expect(screen.getByRole("button", { name: "Sort by Name, descending" })).toBeInTheDocument();
   });
 });
