@@ -1,8 +1,8 @@
 import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
 import { readGovernanceFindingsReturnHref } from "@/lib/governance/governance-findings-return-state";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export type ResolveGovernanceFindingsQueueHeaderNavHrefInput = {
   readonly isAssignedToMe: boolean;
@@ -55,5 +55,5 @@ export function resolveGovernanceFindingsQueueHeaderNavHref(
     }
   }
 
-  return GOVERNANCE_FINDINGS_PATH;
+  return findingsPathForProductLine(input.productLineId ?? "architecture");
 }

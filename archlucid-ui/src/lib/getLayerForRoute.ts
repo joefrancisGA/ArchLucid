@@ -49,6 +49,7 @@ const NAV_GROUP_TO_LAYER: Readonly<Record<string, LayerId>> = {
   "operate-analysis": "operate-analysis",
   "operate-integrations": "operate-analysis",
   "operate-governance": "operate-governance",
+  "operate-compliance": "operate-governance",
   "operator-admin": "operator-admin",
   "operator-system-admin": "operator-admin",
 };
@@ -111,6 +112,12 @@ export function getLayerForRoute(pathname: string): LayerId {
   // Nested governance pages (approval-requests, dashboard children) share the operate-governance layer
   // even when they are not exact left-nav hrefs.
   if (normalized === "/governance" || normalized.startsWith("/governance/")) {
+    return "operate-governance";
+  }
+
+  // SecureNow Compliance aliases (`/compliance/policy-packs`, findings, audit-evidence).
+  // Do not match marketing `/compliance-journey` (no trailing slash after `/compliance`).
+  if (normalized === "/compliance" || normalized.startsWith("/compliance/")) {
     return "operate-governance";
   }
 

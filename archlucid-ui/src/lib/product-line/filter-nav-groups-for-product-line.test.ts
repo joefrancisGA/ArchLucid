@@ -81,10 +81,10 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     const integrationLinks = rows.find((row) => row.group.id === SECURENOW_INTEGRATION_NAV_GROUP_ID)?.visibleLinks ?? [];
 
     expect(complianceLinks.map((link) => link.href)).toEqual([
-      "/governance/policy-packs",
-      "/governance/standards-and-rules",
-      "/governance/findings",
-      "/governance/audit-evidence",
+      "/compliance/policy-packs",
+      "/compliance/standards-and-rules",
+      "/compliance/findings",
+      "/compliance/audit-evidence",
     ]);
     expect(infrastructureLinks.some((link) => link.href === "/")).toBe(false);
     expect(infrastructureLinks.some((link) => link.href === GOVERNANCE_INFRASTRUCTURE_PATH)).toBe(false);
