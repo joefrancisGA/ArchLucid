@@ -21,6 +21,15 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     [InlineData("Microsoft.Insights/activityLogAlerts")]
     [InlineData("microsoft.insights/activitylogalerts")]
     [InlineData("activitylogalerts")]
+    [InlineData("Microsoft.Insights/metricAlerts")]
+    [InlineData("microsoft.insights/metricalerts")]
+    [InlineData("metricalerts")]
+    [InlineData("Microsoft.Insights/workbooks")]
+    [InlineData("microsoft.insights/workbooks")]
+    [InlineData("workbooks")]
+    [InlineData("Microsoft.AlertsManagement/smartDetectorAlertRules")]
+    [InlineData("microsoft.alertsmanagement/smartdetectoralertrules")]
+    [InlineData("smartdetectoralertrules")]
     [InlineData("Microsoft.Insights/scheduledQueryRules")]
     [InlineData("microsoft.insights/scheduledqueryrules")]
     [InlineData("scheduledqueryrules")]
@@ -80,6 +89,9 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Containers")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/activityLogAlerts/alert1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/metricAlerts/cpu-alert")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/workbooks/wb1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.AlertsManagement/smartDetectorAlertRules/rule1")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/scheduledQueryRules/rule1")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/sshPublicKeys/vm-ssh-key")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/firewallPolicies/fwp1")]
@@ -102,6 +114,17 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     public void ShouldOmitAzureResourceId_returns_false_for_visible_arm_ids(string? azureResourceId)
     {
         AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(azureResourceId).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ShouldOmitResource_retainIdentityDiagramArmTypes_keeps_managed_identity_resources()
+    {
+        AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                "Microsoft.ManagedIdentity/userAssignedIdentities",
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/app",
+                retainIdentityDiagramArmTypes: true)
+            .Should()
+            .BeFalse();
     }
 
     [Fact]

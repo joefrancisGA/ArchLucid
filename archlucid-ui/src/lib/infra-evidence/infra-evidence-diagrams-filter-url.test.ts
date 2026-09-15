@@ -94,4 +94,19 @@ describe("infra-evidence-diagrams-filter-url", () => {
       "/governance/infrastructure/diagrams?snapshotId=snap-1&mermaidMode=dependencyNeighborhood&seedNodeId=%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg%2Fproviders%2FMicrosoft.Network%2FpublicIPAddresses%2Fgw",
     );
   });
+
+  it("round-trips hidden Executive tier keys in filter href patches", () => {
+    expect(
+      infraDiagramsFilterHrefFromSearch("", {
+        snapshotId: "snap-1",
+        hiddenExecutiveTierKeys: ["storage", "integration"],
+      }),
+    ).toBe("/governance/infrastructure/diagrams?snapshotId=snap-1&hideTiers=integration%2Cstorage");
+
+    expect(
+      infraDiagramsFilterHrefFromSearch("snapshotId=snap-1&hideTiers=storage", {
+        hiddenExecutiveTierKeys: [],
+      }),
+    ).toBe("/governance/infrastructure/diagrams?snapshotId=snap-1");
+  });
 });

@@ -43,7 +43,7 @@ internal static class InventoryDiagramPeelBudgetApplier
 
         IReadOnlySet<string> alwaysDisposeTypes = includeNeverShowArmTypes
             ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            : DiagramPeelAlwaysDisposeResolver.Resolve(catalog, graph);
+            : DiagramPeelAlwaysDisposeResolver.Resolve(catalog, graph, mode);
         GraphSnapshot workingGraph = includeNeverShowArmTypes
             ? graph
             : InventoryDiagramGraphPeelFilter.Filter(graph, alwaysDisposeTypes);
@@ -205,6 +205,7 @@ internal static class InventoryDiagramPeelBudgetApplier
             SelectedNodeIds = compileOptions?.SelectedNodeIds,
             NeighborhoodSeedNodeId = compileOptions?.NeighborhoodSeedNodeId,
             NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
+            HiddenExecutiveTierKeys = compileOptions?.HiddenExecutiveTierKeys,
             CollapseToResourceGroupMap = true,
         };
     }
@@ -217,6 +218,7 @@ internal static class InventoryDiagramPeelBudgetApplier
             SelectedNodeIds = compileOptions?.SelectedNodeIds,
             NeighborhoodSeedNodeId = compileOptions?.NeighborhoodSeedNodeId,
             NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
+            HiddenExecutiveTierKeys = compileOptions?.HiddenExecutiveTierKeys,
             CollapseToBackboneKeep = true,
         };
     }

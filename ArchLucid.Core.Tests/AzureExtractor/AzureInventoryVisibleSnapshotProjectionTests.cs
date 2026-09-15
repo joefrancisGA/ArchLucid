@@ -207,6 +207,37 @@ public sealed class AzureInventoryVisibleSnapshotProjectionTests
     }
 
     [Fact]
+    public void FilterVisibleRelationships_keeps_vnet_peering_when_remote_is_missing()
+    {
+        const string localVnet =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/spoke";
+        const string remoteVnet =
+            "/subscriptions/other/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/hub";
+        HashSet<string> visibleArmIds = new(StringComparer.OrdinalIgnoreCase)
+        {
+            localVnet,
+        };
+
+        List<AzureInventoryResourceRelationshipWrite> visible =
+            AzureInventoryVisibleSnapshotProjection.FilterVisibleRelationships(
+                [
+                    new AzureInventoryResourceRelationshipWrite
+                    {
+                        FromAzureResourceId = localVnet,
+                        ToAzureResourceId = remoteVnet,
+                        RelationshipType = "PEERS_WITH",
+                        InferenceSource = "inventory-vnet-peering",
+                        ProvenanceKind = ProvenanceKind.ObservedFact,
+                    },
+                ],
+                visibleArmIds);
+
+        visible.Should().ContainSingle(relationship =>
+            relationship.RelationshipType == "PEERS_WITH"
+            && relationship.ToAzureResourceId == remoteVnet);
+    }
+
+    [Fact]
     public void BuildSqlAzureResourceIdVisiblePredicate_excludes_solutions_and_virtual_network_links()
     {
         string predicate = AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("AzureResourceId");

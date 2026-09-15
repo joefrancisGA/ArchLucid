@@ -15,6 +15,7 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -43,10 +44,12 @@ import {
   INFRA_DIAGRAMS_MODE_OPTIONS,
   INFRA_DIAGRAMS_SEED_NODE_ID_PARAM,
   INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM,
+  INFRA_DIAGRAMS_HIDE_EXECUTIVE_TIERS_PARAM,
   INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM,
   INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM,
   infraDiagramsFilterHrefFromSearch,
   parseInfraDiagramsCloudResourceIdFromSearch,
+  parseInfraDiagramsHiddenExecutiveTierKeysFromSearchParam,
   parseInfraDiagramsIncludeNeverShowFromSearch,
   parseInfraDiagramsMermaidModeFromSearch,
   parseInfraDiagramsMermaidViewFromSearch,
@@ -59,6 +62,7 @@ import {
   INFRA_EVIDENCE_MERMAID_TOO_LARGE_FOR_BROWSER_MESSAGE,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-client-guard";
 import { buildDiagramWalkthrough } from "@/lib/infra-evidence/build-diagram-walkthrough";
+import { filterInfraEvidenceMermaidOutline } from "@/lib/infra-evidence/azure-inventory-never-show-arm-types";
 import { resolveAlwaysExcludedMermaidCollapseEntries } from "@/lib/infra-evidence/infra-evidence-mermaid-collapse-report";
 import { resolveDiagramCameraFocusNodeIds } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type {
@@ -84,7 +88,8 @@ import {
   resolveDependencyNeighborhoodSeedBlockedReason,
   type DependencyNeighborhoodSeedBlockedReason,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-dependency-seed";
-import { shouldShowInfraDiagramsDensityCoach } from "@/lib/infra-evidence/infra-evidence-diagrams-density-coach";
+import { resolveInfraDiagramsDensityCoachPresentation } from "@/lib/infra-evidence/infra-evidence-diagrams-density-coach-presentation";
+import { INFRA_DIAGRAMS_EXECUTIVE_TIERS } from "@/lib/infra-evidence/infra-evidence-diagrams-executive-tiers";
 import {
   resolveInfraDiagramsDefaultFallbackKey,
   resolveInfraDiagramsEffectiveFallbackKey,
@@ -156,6 +161,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_BODY,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -234,6 +241,13 @@ export function DiagramsWorkbenchClient() {
   const includeNeverShow = parseInfraDiagramsIncludeNeverShowFromSearch(
     searchParams.get(INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM),
     searchParams.get(INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM),
+  );
+  const hiddenExecutiveTierKeys = useMemo(
+    () =>
+      parseInfraDiagramsHiddenExecutiveTierKeysFromSearchParam(
+        searchParams.get(INFRA_DIAGRAMS_HIDE_EXECUTIVE_TIERS_PARAM),
+      ),
+    [searchParams],
   );
   const diagramsResourceIdOpenParam = searchParams.get(INFRA_DIAGRAMS_RESOURCE_ID_DISCLOSURE_OPEN_PARAM);
   const [diagramsResourceIdOpen, setDiagramsResourceIdOpenState] = useState(() =>
@@ -521,13 +535,29 @@ export function DiagramsWorkbenchClient() {
     return parseInfraEvidenceMermaidOutline(mermaidSource);
   }, [mermaidSource]);
 
-  const diagramWalkthrough = useMemo(() => {
+  const visibleMermaidOutline = useMemo(() => {
     if (mermaidOutline == null) {
       return null;
     }
 
-    return buildDiagramWalkthrough(mermaidOutline);
-  }, [mermaidOutline]);
+    return filterInfraEvidenceMermaidOutline(mermaidOutline, includeNeverShow);
+  }, [includeNeverShow, mermaidOutline]);
+
+  const visibleSeedCatalogOutline = useMemo(() => {
+    if (seedCatalogOutline == null) {
+      return null;
+    }
+
+    return filterInfraEvidenceMermaidOutline(seedCatalogOutline, includeNeverShow);
+  }, [includeNeverShow, seedCatalogOutline]);
+
+  const diagramWalkthrough = useMemo(() => {
+    if (visibleMermaidOutline == null) {
+      return null;
+    }
+
+    return buildDiagramWalkthrough(visibleMermaidOutline);
+  }, [visibleMermaidOutline]);
 
   const alwaysExcludedCollapseEntries = useMemo(() => {
     if (includeNeverShow) {
@@ -551,9 +581,32 @@ export function DiagramsWorkbenchClient() {
     [pathname, router, searchParams],
   );
 
-  const showDensityCoach = useMemo(
+  const handleExecutiveTierVisibilityChange = useCallback(
+    (tierKey: string, visible: boolean) => {
+      const normalizedKey = tierKey.trim().toLowerCase();
+      const hiddenSet = new Set(hiddenExecutiveTierKeys);
+
+      if (visible) {
+        hiddenSet.delete(normalizedKey);
+      } else {
+        hiddenSet.add(normalizedKey);
+      }
+
+      router.replace(
+        infraDiagramsFilterHrefFromSearch(
+          searchParams.toString(),
+          { hiddenExecutiveTierKeys: [...hiddenSet] },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [hiddenExecutiveTierKeys, pathname, router, searchParams],
+  );
+
+  const densityCoachPresentation = useMemo(
     () =>
-      shouldShowInfraDiagramsDensityCoach({
+      resolveInfraDiagramsDensityCoachPresentation({
         showFallbackCards,
         tooLargeForBrowser,
         diagramContentEmpty,
@@ -563,11 +616,14 @@ export function DiagramsWorkbenchClient() {
         nodeCount: metrics?.nodeCount ?? null,
         maxNodes: INFRA_EVIDENCE_MERMAID_CLIENT_READABILITY_THRESHOLDS.maxNodes,
         isExecutiveMode: isInfraDiagramsExecutiveMode(selectedMode),
+        inventoryFilteredIdentityArmTypes:
+          renderResult?.identityDiagramHints?.inventoryFilteredIdentityArmTypes ?? [],
       }),
     [
       diagramContentEmpty,
       metrics?.nodeCount,
       paintDiagramCanvas,
+      renderResult?.identityDiagramHints,
       renderResult?.status,
       selectedMode,
       showFallbackCards,
@@ -576,8 +632,8 @@ export function DiagramsWorkbenchClient() {
   );
 
   const cameraFocusNodeIds = useMemo(
-    () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, mermaidOutline),
-    [appliedSeedNodeId, mermaidOutline],
+    () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, visibleMermaidOutline),
+    [appliedSeedNodeId, visibleMermaidOutline],
   );
 
   const [cameraFocusNonce, setCameraFocusNonce] = useState(0);
@@ -596,12 +652,12 @@ export function DiagramsWorkbenchClient() {
   }, [selectedSnapshotId]);
 
   useEffect(() => {
-    if (mermaidOutline == null || mermaidOutline.nodes.length === 0) {
+    if (visibleMermaidOutline == null || visibleMermaidOutline.nodes.length === 0) {
       return;
     }
 
-    setSeedCandidateNodes([...mermaidOutline.nodes]);
-  }, [mermaidOutline]);
+    setSeedCandidateNodes([...visibleMermaidOutline.nodes]);
+  }, [visibleMermaidOutline]);
 
   useEffect(() => {
     if (
@@ -631,7 +687,9 @@ export function DiagramsWorkbenchClient() {
         }
 
         setSeedCatalogOutline(catalogOutline);
-        setSeedCandidateNodes([...catalogOutline.nodes]);
+        setSeedCandidateNodes([
+          ...filterInfraEvidenceMermaidOutline(catalogOutline, includeNeverShow).nodes,
+        ]);
       } catch {
         // Seed picker still supports paste; catalog is a convenience for VNet selection.
       } finally {
@@ -652,6 +710,7 @@ export function DiagramsWorkbenchClient() {
     seedCatalogOutline,
     selectedMode,
     selectedSnapshotId,
+    includeNeverShow,
   ]);
 
   const diagramScopeContextLine = useMemo(() => {
@@ -671,19 +730,25 @@ export function DiagramsWorkbenchClient() {
   }, [selectedModeLabel, selectedSnapshotDisplayLabel, urlCloudResourceId]);
 
   const renderQuery = useMemo((): InfraEvidenceMermaidRenderQuery | null => {
+    const executiveTierQuery =
+      isInfraDiagramsExecutiveMode(selectedMode) && hiddenExecutiveTierKeys.length > 0
+        ? { hiddenExecutiveTierKeys }
+        : {};
+
     if (isInfraDiagramsResourceGroupMode(selectedMode)) {
       if (selectedResourceGroupName.length === 0) {
-        return { mode: "resourceGroup", includeNeverShow };
+        return { mode: "resourceGroup", includeNeverShow, ...executiveTierQuery };
       }
 
       return {
         mode: buildInfraDiagramsResourceGroupModeToken(selectedResourceGroupName),
         includeNeverShow,
+        ...executiveTierQuery,
       };
     }
 
     if (effectiveFallbackKey.length > 0) {
-      return { fallbackKey: effectiveFallbackKey, includeNeverShow };
+      return { fallbackKey: effectiveFallbackKey, includeNeverShow, ...executiveTierQuery };
     }
 
     if (selectedMode === "dependencyNeighborhood") {
@@ -697,6 +762,7 @@ export function DiagramsWorkbenchClient() {
         mode: selectedMode,
         seedNodeId: trimmedSeed,
         includeNeverShow,
+        ...executiveTierQuery,
       };
     }
 
@@ -704,8 +770,16 @@ export function DiagramsWorkbenchClient() {
       mode: selectedMode,
       seedNodeId: null,
       includeNeverShow,
+      ...executiveTierQuery,
     };
-  }, [appliedSeedNodeId, effectiveFallbackKey, includeNeverShow, selectedMode, selectedResourceGroupName]);
+  }, [
+    appliedSeedNodeId,
+    effectiveFallbackKey,
+    hiddenExecutiveTierKeys,
+    includeNeverShow,
+    selectedMode,
+    selectedResourceGroupName,
+  ]);
 
   const retryLoad = useCallback(() => {
     setLoadError(null);
@@ -1005,6 +1079,10 @@ export function DiagramsWorkbenchClient() {
             ? appliedSeedNodeId.trim()
             : null,
         includeNeverShow,
+        hiddenExecutiveTierKeys:
+          isInfraDiagramsExecutiveMode(selectedMode) && hiddenExecutiveTierKeys.length > 0
+            ? hiddenExecutiveTierKeys
+            : null,
       };
 
       if (tooLargeForBrowser) {
@@ -1041,6 +1119,7 @@ export function DiagramsWorkbenchClient() {
     exportableSvgMarkup,
     mermaidSource,
     appliedSeedNodeId,
+    hiddenExecutiveTierKeys,
     includeNeverShow,
     selectedMode,
     selectedSnapshotId,
@@ -1404,6 +1483,44 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
+      {isInfraDiagramsExecutiveMode(selectedMode) ? (
+        <section
+          className={cn("flex flex-col gap-3", cnCard)}
+          aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE}
+          data-testid="infra-diagrams-executive-always-show"
+        >
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE}
+          </h2>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_BODY}
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {INFRA_DIAGRAMS_EXECUTIVE_TIERS.map((tier) => {
+              const visible = !hiddenExecutiveTierKeys.includes(tier.key);
+
+              return (
+                <label
+                  key={tier.key}
+                  className="flex min-w-0 items-center gap-2"
+                  data-testid={`infra-diagrams-executive-tier-${tier.key}`}
+                >
+                  <Checkbox
+                    checked={visible}
+                    disabled={selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing || loadingRender}
+                    aria-label={tier.label}
+                    onCheckedChange={(checked) => {
+                      handleExecutiveTierVisibilityChange(tier.key, checked === true);
+                    }}
+                  />
+                  <span className={OPERATOR_TYPOGRAPHY.body}>{tier.label}</span>
+                </label>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
+
       {renderInFlight ? (
         <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400" aria-live="polite">
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -1474,15 +1591,16 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
-      {showDensityCoach ? (
+      {densityCoachPresentation != null ? (
         <section
           className={cn("grid gap-3", cnCard)}
           aria-label="Diagram density coach"
           data-testid="infra-diagrams-density-coach"
+          data-coach-variant={densityCoachPresentation.variant}
         >
-          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>This view is too large to read.</h2>
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{densityCoachPresentation.title}</h2>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Pick a smaller existing workbench mode instead of zooming into an unreadable plate.
+            {densityCoachPresentation.body}
           </p>
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant="primary" data-testid="infra-diagrams-density-coach-executive" onClick={() => handleModeChange("executive")}>
@@ -1569,9 +1687,9 @@ export function DiagramsWorkbenchClient() {
               <span className={OPERATOR_TYPOGRAPHY.body}>Loading starting resources…</span>
             </div>
           ) : null}
-          {seedCatalogOutline != null && seedCatalogOutline.nodes.length > 0 ? (
+          {visibleSeedCatalogOutline != null && visibleSeedCatalogOutline.nodes.length > 0 ? (
             <InfraEvidenceDiagramOutline
-              outline={seedCatalogOutline}
+              outline={visibleSeedCatalogOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
             />
           ) : (
@@ -1600,9 +1718,9 @@ export function DiagramsWorkbenchClient() {
               </Button>
             </div>
           </div>
-          {mermaidOutline != null ? (
+          {visibleMermaidOutline != null ? (
             <InfraEvidenceDiagramOutline
-              outline={mermaidOutline}
+              outline={visibleMermaidOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
             />
           ) : null}
@@ -1700,9 +1818,9 @@ export function DiagramsWorkbenchClient() {
             onRetry={handleRenderRetry}
             onExportableSvgMarkupChange={setExportableSvgMarkup}
           />
-          {mermaidOutline != null ? (
+          {visibleMermaidOutline != null ? (
             <InfraEvidenceDiagramOutline
-              outline={mermaidOutline}
+              outline={visibleMermaidOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
             />
           ) : null}

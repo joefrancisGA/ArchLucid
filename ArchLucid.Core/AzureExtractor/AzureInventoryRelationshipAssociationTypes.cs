@@ -96,6 +96,25 @@ public static class AzureInventoryRelationshipAssociationTypes
         return true;
     }
 
+    public static bool IsVnetPeeringRelationship(string? relationshipType, string? inferenceSource)
+    {
+        if (!TryGet(VnetPeering, out AzureInventoryRelationshipAssociationTypeDefinition? definition)
+            || definition is null)
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(relationshipType)
+            && (relationshipType.Equals(definition.AssociationType, StringComparison.OrdinalIgnoreCase)
+                || relationshipType.Equals(definition.DefaultGraphEdgeType, StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        return !string.IsNullOrWhiteSpace(inferenceSource)
+            && inferenceSource.Equals(definition.DefaultInferenceSource, StringComparison.OrdinalIgnoreCase);
+    }
+
     private static AzureInventoryRelationshipAssociationTypeDefinition Observed(
         string associationType,
         AzureInventoryRelationshipArmKind fromArmKind,

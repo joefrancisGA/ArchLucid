@@ -14,7 +14,10 @@ public static class AzureInventoryNeverShowArmTypes
         "Microsoft.Portal/dashboards",
         "Microsoft.OperationalInsights/workspaces",
         "Microsoft.Insights/activityLogAlerts",
+        "Microsoft.Insights/metricAlerts",
+        "Microsoft.Insights/workbooks",
         "Microsoft.Insights/scheduledQueryRules",
+        "Microsoft.AlertsManagement/smartDetectorAlertRules",
         "Microsoft.OperationsManagement/solutions",
         "Microsoft.Network/dnszones",
         "Microsoft.Network/privateDnsZones",
@@ -41,7 +44,10 @@ public static class AzureInventoryNeverShowArmTypes
         "dashboards",
         "workspaces",
         "activitylogalerts",
+        "metricalerts",
+        "workbooks",
         "scheduledqueryrules",
+        "smartdetectoralertrules",
         "solutions",
         "extensions",
         "sshpublickeys",
@@ -109,8 +115,14 @@ public static class AzureInventoryNeverShowArmTypes
     public static bool ShouldOmitResource(
         string? resourceType,
         string? azureResourceId,
-        IReadOnlySet<string>? privateLinkOnlyNicArmIds = null)
+        IReadOnlySet<string>? privateLinkOnlyNicArmIds = null,
+        bool retainIdentityDiagramArmTypes = false)
     {
+        if (retainIdentityDiagramArmTypes && IsIdentityArmResourceType(resourceType))
+        {
+            return false;
+        }
+
         if (ShouldOmitFromInventory(resourceType) || ShouldOmitAzureResourceId(azureResourceId))
         {
             return true;
@@ -122,5 +134,16 @@ public static class AzureInventoryNeverShowArmTypes
         }
 
         return AzureInventoryPrivateLinkOnlyNicCatalog.ShouldOmitNicArmId(azureResourceId, privateLinkOnlyNicArmIds);
+    }
+
+    internal static bool IsIdentityArmResourceType(string? resourceType)
+    {
+        if (string.IsNullOrWhiteSpace(resourceType))
+        {
+            return false;
+        }
+
+        return resourceType.Contains("managedidentity", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Contains("authorization", StringComparison.OrdinalIgnoreCase);
     }
 }

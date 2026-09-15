@@ -1,3 +1,4 @@
+import { formatInfraDiagramsHiddenExecutiveTierKeysForSearch } from "@/lib/infra-evidence/infra-evidence-diagrams-executive-tiers";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -31,6 +32,7 @@ export type InfraEvidenceMermaidRenderQuery = {
   readonly fallbackKey?: string | null;
   readonly seedNodeId?: string | null;
   readonly includeNeverShow?: boolean | null;
+  readonly hiddenExecutiveTierKeys?: readonly string[] | null;
 };
 
 export type InfraEvidenceMermaidPngDownloadOptions = {
@@ -60,6 +62,14 @@ function buildMermaidQuery(params: InfraEvidenceMermaidRenderQuery): string {
 
   if (params.includeNeverShow === true) {
     search.set("includeNeverShow", "true");
+  }
+
+  if (params.hiddenExecutiveTierKeys != null && params.hiddenExecutiveTierKeys.length > 0) {
+    const hideTiers = formatInfraDiagramsHiddenExecutiveTierKeysForSearch(params.hiddenExecutiveTierKeys);
+
+    if (hideTiers.length > 0) {
+      search.set("hideTiers", hideTiers);
+    }
   }
 
   const query = search.toString();

@@ -30,16 +30,18 @@ TRY_PARSE_BOOL_DEF = re.compile(
 )
 EMBEDDED_FRAGMENT = re.compile(r"\bIsEmbeddedSensitiveFragment\b")
 PESTER3_SHOULD_BE = re.compile(r"\bShould Be\b")
-# uom-synonym-treadmill: per-length week+extra-k helpers instead of one generalized matcher.
-WEEK_EXTRA_K_COMPACT_SUFFIX = re.compile(
-    r"\bHasCompactWeekk+k+Suffix\s*\(",
+WEEK_K_METHOD = re.compile(
+    r"^\s*private static bool (?:HasCompactWeekk+Suffix|ContainsSpacedSlashWeekk+Token)\s*\(",
+    re.MULTILINE,
 )
-WEEK_EXTRA_K_SPACED_TOKEN = re.compile(
-    r"\bContainsSpacedSlashWeekk+k+Token\s*\(",
+WEEK_K_TEST_FILE = re.compile(
+    r"^ArchLucid\.Core\.Tests/Costing/AzureRetailPricesSkuMatchers"
+    r"(?!WeekMeterTests\.cs$)"
+    r".*Weekk.*Tests\.cs$",
 )
-WEEK_EXTRA_K_TEST_FILE = re.compile(
-    r"AzureRetailPricesSkuMatchers(?:Compact|SpacedSlash)?Weekk{2,}k*Tests\.cs$",
-)
+WEEK_K_TEST_ALLOWLIST = {
+    "ArchLucid.Core.Tests/Costing/AzureRetailPricesSkuMatchersWeekMeterTests.cs",
+}
 
 PRODUCTION_CS_ROOTS = (
     "ArchLucid.Core",
@@ -110,28 +112,25 @@ def find_fail_open_redaction_violations(root: Path, allowlist: set[str]) -> list
     return errors
 
 
-def find_uom_week_extra_k_violations(root: Path) -> list[str]:
+def find_week_uom_synonym_violations(root: Path) -> list[str]:
     errors: list[str] = []
-    matchers = root / "ArchLucid.Core/Costing/AzureRetailPricesSkuMatchers.cs"
-    if matchers.is_file():
-        text = matchers.read_text(encoding="utf-8")
-        if WEEK_EXTRA_K_COMPACT_SUFFIX.search(text):
-            errors.append(
-                "uom-synonym-treadmill: per-length HasCompactWeekk*Suffix in "
-                f"{rel(root, matchers)} — use HasCompactWeekWithExtraKSuffix"
-            )
-        if WEEK_EXTRA_K_SPACED_TOKEN.search(text):
-            errors.append(
-                "uom-synonym-treadmill: per-length ContainsSpacedSlashWeekk*Token in "
-                f"{rel(root, matchers)} — use ContainsSpacedSlashWeekWithExtraKToken"
-            )
+    for path in iter_cs_files(root):
+        text = path.read_text(encoding="utf-8")
+        if not WEEK_K_METHOD.search(text):
+            continue
+        errors.append(
+            f"week-uom-synonym: per-k week matcher methods in {rel(root, path)}",
+        )
 
     tests_dir = root / "ArchLucid.Core.Tests/Costing"
     if tests_dir.is_dir():
         for path in tests_dir.glob("AzureRetailPricesSkuMatchers*Tests.cs"):
-            if WEEK_EXTRA_K_TEST_FILE.search(path.name):
+            relative = rel(root, path)
+            if relative in WEEK_K_TEST_ALLOWLIST:
+                continue
+            if WEEK_K_TEST_FILE.match(relative):
                 errors.append(
-                    f"uom-synonym-treadmill: per-length week UOM test file {rel(root, path)}"
+                    f"week-uom-synonym: per-variant week test file {relative}",
                 )
     return errors
 
@@ -157,7 +156,7 @@ def scan(root: Path, allowlist: set[str]) -> list[str]:
     errors.extend(find_boolean_coercion_violations(root, allowlist))
     errors.extend(find_fail_open_redaction_violations(root, allowlist))
     errors.extend(find_pester3_violations(root))
-    errors.extend(find_uom_week_extra_k_violations(root))
+    errors.extend(find_week_uom_synonym_violations(root))
     return errors
 
 

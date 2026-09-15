@@ -207,6 +207,18 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE =
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY =
   "This snapshot has no topology nodes for the selected diagram mode. Try Executive, Full subscription, or Pick a Resource Group, or open the resource explorer." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_TOO_LARGE_TITLE =
+  "This view is too large to read." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_TOO_LARGE_BODY =
+  "Pick a smaller existing workbench mode instead of zooming into an unreadable plate." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_TITLE =
+  "No identity resources in this snapshot." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_BODY =
+  "Identity mode shows managed identities and authorization resources. This snapshot has none after inventory filters are lifted for this view. Try Executive, Full subscription, or Pick a Resource Group." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE = "Resource groups" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_BODY =
@@ -236,6 +248,12 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_LABEL =
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE =
   "Always excluded from diagrams" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE =
+  "Always show on Executive diagrams" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_BODY =
+  "Uncheck a tier to hide those resources from the Executive view. Virtual networks always remain visible." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureDrift;
 
