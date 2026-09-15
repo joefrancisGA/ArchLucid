@@ -39,6 +39,6 @@ describe("system-gravity help route (SG-107)", () => {
     expect(corpus).toMatch(/inspector/i);
     expect(corpus).toMatch(/Record/i);
     expect(corpus).toMatch(/Practice/i);
-    expect(corpus).not.toMatch(/github\.com/i);
+    expect(corpus.toLowerCase()).not.toContain("github.com");
   });
 });

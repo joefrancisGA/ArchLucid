@@ -3,9 +3,9 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -19,7 +19,7 @@ export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_LEAD =
 /** SecureNow home — infrastructure evidence workbench destinations. */
 export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [
   {
-    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    href: SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
     summary: "Explore cloud resources and open the evidence hub for a single resource.",
     recommendedFirst: true,

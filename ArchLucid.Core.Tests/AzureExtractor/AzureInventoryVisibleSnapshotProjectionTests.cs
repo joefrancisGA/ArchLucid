@@ -212,6 +212,8 @@ public sealed class AzureInventoryVisibleSnapshotProjectionTests
         string predicate = AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("AzureResourceId");
 
         predicate.Should().Contain("%/solutions/%");
+        predicate.Should().Contain("%/smartdetectoralertrules/%");
+        predicate.Should().Contain("%/metricalerts/%");
         predicate.Should().Contain("%/virtualnetworklinks/%");
         predicate.Should().Contain("%/sshpublickeys/%");
     }
@@ -224,6 +226,8 @@ public sealed class AzureInventoryVisibleSnapshotProjectionTests
         predicate.Should().Contain("r.ResourceType IS NULL");
         predicate.Should().Contain("r.ResourceType = N''");
         predicate.Should().Contain("r.ResourceType <> N'Microsoft.OperationsManagement/solutions'");
+        predicate.Should().Contain("r.ResourceType <> N'Microsoft.AlertsManagement/smartDetectorAlertRules'");
+        predicate.Should().Contain("r.ResourceType <> N'Microsoft.Insights/metricAlerts'");
     }
 
     [Fact]

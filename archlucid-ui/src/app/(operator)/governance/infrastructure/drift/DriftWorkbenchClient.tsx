@@ -63,6 +63,7 @@ import {
   filterDriftChanges,
   hasActiveDriftTableFilters,
   parseDriftTableFilterState,
+  sortDriftChanges,
   toggleDriftTableSort,
   type DriftTableFilterState,
   type DriftTableSortKey,
