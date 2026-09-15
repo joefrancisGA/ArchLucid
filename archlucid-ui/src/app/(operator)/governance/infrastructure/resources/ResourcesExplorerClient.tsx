@@ -24,7 +24,6 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { governanceInfrastructureResourceHubPath } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   fetchCloudResourceExplorerPage,
   formatInfraEvidenceHubApiError,
@@ -79,7 +78,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_SNAPSHOT_CONTEXT_HELPER,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_SNAPSHOT_CONTEXT_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
-import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -111,6 +111,8 @@ function resolveExplorerAskHubTab(
 
 export function ResourcesExplorerClient() {
   const buyerPolishedShell = useProductionEvalChrome();
+  const { productLine } = useProductLine();
+  const resourcesPath = infrastructureResourcesPathForProductLine(productLine);
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
@@ -255,14 +257,14 @@ export function ResourcesExplorerClient() {
       resourceGroup,
       workQueue,
       snapshotId,
-    });
+    }, resourcesPath);
     router.replace(nextHref);
   };
 
   const applyWorkQueue = (nextWorkQueue: CloudResourceExplorerWorkQueue) => {
     const nextHref = resourceExplorerFilterHrefFromSearch(searchParams.toString(), {
       workQueue: nextWorkQueue,
-    });
+    }, resourcesPath);
     router.replace(nextHref);
   };
 
@@ -273,7 +275,7 @@ export function ResourcesExplorerClient() {
     readonly workQueue: CloudResourceExplorerWorkQueue;
     readonly snapshotId?: string;
   }) => {
-    const nextHref = resourceExplorerFilterHrefFromSearch(searchParams.toString(), filters);
+    const nextHref = resourceExplorerFilterHrefFromSearch(searchParams.toString(), filters, resourcesPath);
     router.replace(nextHref);
   };
 
@@ -285,7 +287,7 @@ export function ResourcesExplorerClient() {
         data-testid="infra-resource-explorer-workbench"
       >
         <OperatorPageHeader
-          navHref={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}
+          navHref={resourcesPath}
           title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE}
           subtitle={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD}
           titleTestId="infra-resource-explorer-page-title"
@@ -317,7 +319,7 @@ export function ResourcesExplorerClient() {
       ) : null}
 
       <OperatorPageHeader
-        navHref={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}
+        navHref={resourcesPath}
         title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD}
         claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE : undefined}

@@ -31,9 +31,8 @@ import {
   EnterpriseTabsTrigger,
 } from "@/components/ui/enterprise-tabs";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import {
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
-} from "@/lib/governance/governance-infrastructure-route-paths";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_ARM_RESOURCE_PATH_LABEL,
@@ -322,6 +321,8 @@ function buildHubDiagramCorrespondenceAskHref(
 export function ResourceHubClient(props: ResourceHubClientProps) {
   const { cloudResourceId } = props;
   const buyerPolishedShell = useProductionEvalChrome();
+  const { productLine } = useProductLine();
+  const resourcesPath = infrastructureResourcesPathForProductLine(productLine);
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
@@ -684,7 +685,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
       {buyerPolishedShell ? (
         <OperatorPageHeader
-          navHref={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}
+          navHref={resourcesPath}
           title={resourceTitle}
           subtitle={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PAGE_LEAD}
           claimDiscipline={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLAIM_DISCIPLINE}
@@ -698,7 +699,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 className="text-sm text-al-link hover:underline"
                 href={workQueue !== "all"
                   ? resourceExplorerFilterHrefFromSearch("", { workQueue })
-                  : GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}
+                  : resourcesPath}
                 data-testid={workQueue !== "all" ? "infra-resource-hub-explorer-work-queue-back-link" : undefined}
               >
                 {workQueue !== "all" ? `Back to explorer (${workQueueLabel})` : "Back to explorer"}
@@ -735,7 +736,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 className="text-sm text-al-link hover:underline"
                 href={workQueue !== "all"
                   ? resourceExplorerFilterHrefFromSearch("", { workQueue })
-                  : GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}
+                  : resourcesPath}
                 data-testid={workQueue !== "all" ? "infra-resource-hub-explorer-work-queue-back-link" : undefined}
               >
                 {workQueue !== "all" ? `Back to explorer (${workQueueLabel})` : "Back to explorer"}

@@ -24,8 +24,8 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 });
 
 import {
-  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { INFRASTRUCTURE_WORKBENCH_ROWS } from "@/lib/governance/governance-infrastructure-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -63,13 +63,13 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
       "href",
       GOVERNANCE_POLICY_PACKS_PATH,
     );
-    expect(screen.getByTestId("securenow-infrastructure-home-link-/governance/infrastructure/resources")).toHaveAttribute(
+    expect(screen.getByTestId("securenow-infrastructure-home-link-/infrastructure/resources")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources",
+      "/infrastructure/resources",
     );
     expect(
-      screen.getByTestId(`securenow-security-home-link-${GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH}`),
-    ).toHaveAttribute("href", GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH);
+      screen.getByTestId(`securenow-security-home-link-${SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH}`),
+    ).toHaveAttribute("href", SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH);
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/cloud-connections")).not.toBeInTheDocument();
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/jira")).not.toBeInTheDocument();
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/servicenow")).not.toBeInTheDocument();
