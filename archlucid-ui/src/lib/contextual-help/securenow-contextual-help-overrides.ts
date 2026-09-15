@@ -11,6 +11,7 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { CLOUD_CONNECTIONS_CANONICAL_PATH } from "@/lib/cloud-connections-evidence-copy";
@@ -365,6 +366,7 @@ const SECURENOW_CONTEXTUAL_HELP_OVERRIDES: readonly SecureNowOverride[] = [
   { prefix: IDENTITY_PROVIDERS_SETTINGS_CANONICAL_PATH, entry: SECURENOW_IDENTITY_PROVIDERS },
   { prefix: "/help/getting-started", entry: SECURENOW_GETTING_STARTED_HELP },
   { prefix: "/help/troubleshooting", entry: SECURENOW_TROUBLESHOOTING_HELP },
+  { prefix: SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, entry: SECURENOW_EXTRACT_UPLOAD },
   { prefix: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, entry: SECURENOW_EXTRACT_UPLOAD },
 ];
 

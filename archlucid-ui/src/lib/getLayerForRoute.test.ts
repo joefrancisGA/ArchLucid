@@ -48,6 +48,8 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/compliance/standards-and-rules")).toBe("operate-governance");
     expect(getLayerForRoute("/compliance/audit-evidence")).toBe("operate-governance");
     expect(getLayerForRoute("/compliance-journey")).toBe("pilot");
+    expect(getLayerForRoute("/infrastructure/drift")).toBe("operate-governance");
+    expect(getLayerForRoute("/infrastructure/extract-upload")).toBe("operate-governance");
   });
 
   it("prefers the longer nav path when multiple prefixes could match (reviews/new over reviews)", () => {

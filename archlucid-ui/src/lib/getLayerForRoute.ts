@@ -127,6 +127,11 @@ export function getLayerForRoute(pathname: string): LayerId {
     return "operate-governance";
   }
 
+  // SecureNow Infrastructure aliases (`/infrastructure/drift`, resources, extract-upload, …).
+  if (normalized === "/infrastructure" || normalized.startsWith("/infrastructure/")) {
+    return "operate-governance";
+  }
+
   for (const m of NAV_PATH_MATCHES) {
     if (pathMatchesPathname(normalized, m.path)) {
       return m.groupId;
