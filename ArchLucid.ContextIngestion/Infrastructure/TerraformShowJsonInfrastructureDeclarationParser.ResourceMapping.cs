@@ -263,6 +263,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.prevent_destroy"] = preventDestroy.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "deletion_protection", out JsonElement deletionProtection)
+                || TryGetPropertyIgnoreCase(res, "deletionProtection", out deletionProtection))
+            && (deletionProtection.ValueKind == JsonValueKind.True || deletionProtection.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.deletion_protection"] = deletionProtection.GetBoolean() ? "true" : "false";
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "timeout_create", out JsonElement timeoutCreate)
                 || TryGetPropertyIgnoreCase(res, "timeoutCreate", out timeoutCreate))
             && timeoutCreate.ValueKind == JsonValueKind.String)
