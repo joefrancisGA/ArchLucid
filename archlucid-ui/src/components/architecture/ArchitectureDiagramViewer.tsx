@@ -444,8 +444,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       return null;
     }
 
-    return sanitizeArchitectureDiagramSvg(svgMarkup);
-  }, [svgMarkup]);
+    return sanitizeArchitectureDiagramSvg(svgMarkup, { dark });
+  }, [dark, svgMarkup]);
 
   useEffect(() => {
     props.onExportableSvgMarkupChange?.(sanitizedSvg);

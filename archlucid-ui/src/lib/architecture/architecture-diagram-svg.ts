@@ -1,6 +1,14 @@
 import DOMPurify from "dompurify";
 
-import { ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH } from "@/lib/architecture/architecture-diagram-mermaid-config";
+import {
+  ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE,
+  ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE,
+  ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH,
+} from "@/lib/architecture/architecture-diagram-mermaid-config";
+
+export type ArchitectureDiagramSvgPaletteOptions = {
+  readonly dark?: boolean;
+};
 import {
   ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX,
   architectureDiagramLabelLineHeightPx,
@@ -41,34 +49,45 @@ function paintUnfilledSvgText(svg: Element): void {
   }
 }
 
-function paintUnfilledMermaidShapes(svg: Element): void {
-  const nodeShapes = svg.querySelectorAll("g.node rect, g.node polygon, g.node circle, g.cluster rect");
+function resolveArchitectureDiagramNodePalette(dark: boolean): {
+  fill: string;
+  border: string;
+  text: string;
+} {
+  if (dark) {
+    return ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE;
+  }
+
+  return ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE;
+}
+
+/** Bakes node, edge, and label colors into the SVG so raster export does not depend on page CSS. */
+function paintArchitectureDiagramNodePalette(svg: Element, dark: boolean): void {
+  const palette = resolveArchitectureDiagramNodePalette(dark);
+  const nodeShapes = svg.querySelectorAll("g.node rect, g.node polygon, g.node circle");
 
   for (const shape of nodeShapes) {
-    if (paintAttributeMissingOrNone(shape.getAttribute("stroke"))) {
-      shape.setAttribute("stroke", "currentColor");
+    shape.setAttribute("fill", palette.fill);
+    shape.setAttribute("stroke", palette.border);
+    shape.setAttribute("stroke-width", "1.5");
+    shape.removeAttribute("fill-opacity");
+  }
 
-      if (paintAttributeMissingOrNone(shape.getAttribute("stroke-width"))) {
-        shape.setAttribute("stroke-width", "1.5");
-      }
-    }
+  const labels = svg.querySelectorAll("g.node text, g.node .nodeLabel");
 
-    if (shape.getAttribute("fill") === "none") {
-      shape.setAttribute("fill", "currentColor");
-      shape.setAttribute("fill-opacity", "0.12");
+  for (const label of labels) {
+    label.setAttribute("fill", palette.text);
+
+    for (const tspan of label.querySelectorAll("tspan")) {
+      tspan.setAttribute("fill", palette.text);
     }
   }
 
   const edgePaths = svg.querySelectorAll("g.edgePaths path, g.edgePath path, path.flowchart-link");
 
   for (const path of edgePaths) {
-    if (paintAttributeMissingOrNone(path.getAttribute("stroke"))) {
-      path.setAttribute("stroke", "currentColor");
-    }
-
-    if (paintAttributeMissingOrNone(path.getAttribute("fill"))) {
-      path.setAttribute("fill", "none");
-    }
+    path.setAttribute("stroke", palette.border);
+    path.setAttribute("fill", "none");
   }
 }
 
@@ -302,7 +321,11 @@ function wrapExistingNodeSvgLabels(svg: Element, document: Document): void {
  * Mermaid 11 still emits HTML labels inside foreignObject even when htmlLabels is false.
  * SVG-only DOMPurify then drops those nodes and leaves empty grey boxes.
  */
-export function replaceMermaidForeignObjectLabelsWithSvgText(svgMarkup: string): string {
+export function replaceMermaidForeignObjectLabelsWithSvgText(
+  svgMarkup: string,
+  options: ArchitectureDiagramSvgPaletteOptions = {},
+): string {
+  const dark = options.dark ?? false;
   if (typeof DOMParser === "undefined" || typeof XMLSerializer === "undefined") {
     return svgMarkup;
   }
@@ -327,15 +350,18 @@ export function replaceMermaidForeignObjectLabelsWithSvgText(svgMarkup: string):
 
   wrapExistingNodeSvgLabels(svg, parsed);
   paintUnfilledSvgText(svg);
-  paintUnfilledMermaidShapes(svg);
+  paintArchitectureDiagramNodePalette(svg, dark);
   svg.setAttribute("overflow", "visible");
 
   return new XMLSerializer().serializeToString(svg);
 }
 
 /** Keeps node names visible while still stripping script and leftover foreignObject. */
-export function sanitizeArchitectureDiagramSvg(svgMarkup: string): string {
-  const withVisibleLabels = replaceMermaidForeignObjectLabelsWithSvgText(svgMarkup);
+export function sanitizeArchitectureDiagramSvg(
+  svgMarkup: string,
+  options: ArchitectureDiagramSvgPaletteOptions = {},
+): string {
+  const withVisibleLabels = replaceMermaidForeignObjectLabelsWithSvgText(svgMarkup, options);
 
   return DOMPurify.sanitize(withVisibleLabels, {
     USE_PROFILES: { svg: true, svgFilters: true },

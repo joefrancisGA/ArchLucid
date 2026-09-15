@@ -3,6 +3,7 @@ using System.Text;
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.Core.Diagrams;
 
 namespace ArchLucid.ArtifactSynthesis.Graphviz;
 
@@ -22,7 +23,11 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
 
         builder.AppendLine($"digraph {resolvedOptions.DigraphName} {{");
         builder.AppendLine($"    graph [layout={resolvedOptions.LayoutEngine}, overlap=false, sep=\"+36,28\", K=1.8, pack=true, packmode=graph, splines=true, outputorder=edgesfirst];");
-        builder.AppendLine("    node [shape=box, style=filled, fontname=\"DejaVu Sans\"];");
+        builder.AppendLine(
+            "    node [shape=box, style=filled, fontname=\"DejaVu Sans\", "
+            + $"fillcolor=\"{ArchitectureDiagramMermaidPalette.LightNodeFill}\", "
+            + $"color=\"{ArchitectureDiagramMermaidPalette.LightNodeBorder}\", "
+            + $"fontcolor=\"{ArchitectureDiagramMermaidPalette.LightNodeText}\"];");
 
         if (renderableSubgraphs.Count == 0)
         {

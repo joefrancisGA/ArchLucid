@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Security;
 using System.Xml.Linq;
 
+using ArchLucid.Core.Diagrams;
+
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
 public static class DiagramForestNodeSvgEmitter
@@ -27,7 +29,10 @@ public static class DiagramForestNodeSvgEmitter
             svgNamespace + "rect",
             new XAttribute("width", Format(width)),
             new XAttribute("height", Format(height)),
-            new XAttribute("fill", "none"),
+            new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeFill),
+            new XAttribute("stroke", ArchitectureDiagramMermaidPalette.LightNodeBorder),
+            new XAttribute("stroke-width", "1.5"),
+            new XAttribute("rx", "4"),
             new XAttribute("pointer-events", "all")));
 
         double pictogramX = (width - options.PictogramSize) / 2.0;
