@@ -21,6 +21,7 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             'Microsoft.Network/firewallPolicies'
             'Microsoft.ManagedIdentity/userAssignedIdentities'
             'Microsoft.Automation/automationAccounts/runbooks'
+            'Microsoft.Compute/virtualMachines/extensions/versions'
             'Microsoft.Compute/virtualMachines/extensions'
             'Microsoft.Compute/sshPublicKeys'
             'Microsoft.Maintenance/maintenanceConfigurations'

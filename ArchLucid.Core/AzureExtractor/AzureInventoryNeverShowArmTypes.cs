@@ -44,6 +44,7 @@ public static class AzureInventoryNeverShowArmTypes
         "firewallpolicies",
         "userassignedidentities",
         "runbooks",
+        "versions",
         "virtualnetworklinks",
         "maintenanceconfigurations",
         "configurationassignments",

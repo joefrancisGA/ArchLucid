@@ -615,6 +615,7 @@ function Test-ArchLucidAzureInventoryNeverShowResourceType
         'firewallpolicies'
         'userassignedidentities'
         'runbooks'
+        'versions'
         'virtualnetworklinks'
         'maintenanceconfigurations'
         'configurationassignments'
