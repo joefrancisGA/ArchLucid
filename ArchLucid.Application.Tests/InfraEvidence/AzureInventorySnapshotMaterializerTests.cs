@@ -303,19 +303,25 @@ public sealed class AzureInventorySnapshotMaterializerTests
     private static Mock<IAzureInventorySnapshotRepository> CreateSnapshotRepository(
         ScopeContext scope,
         Guid snapshotId,
-        Action<AzureInventorySnapshotMaterializeWriteRequest> onMaterialize)
+        Action<AzureInventorySnapshotMaterializeWriteRequest> onMaterialize,
+        Func<AzureInventorySnapshotRecord, AzureInventorySnapshotRecord>? customizeHeader = null)
     {
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
 
+        AzureInventorySnapshotRecord header = new()
+        {
+            SnapshotId = snapshotId,
+            TenantId = scope.TenantId,
+            SubscriptionId = "sub",
+            CaptureStatus = AzureInventoryCaptureStatus.Pending,
+        };
+
+        if (customizeHeader is not null)
+            header = customizeHeader(header);
+
         snapshotRepository
             .Setup(r => r.TryGetBySnapshotIdAsync(scope, snapshotId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AzureInventorySnapshotRecord
-            {
-                SnapshotId = snapshotId,
-                TenantId = scope.TenantId,
-                SubscriptionId = "sub",
-                CaptureStatus = AzureInventoryCaptureStatus.Pending,
-            });
+            .ReturnsAsync(header);
 
         snapshotRepository
             .Setup(r => r.MaterializeSnapshotAsync(
@@ -371,12 +377,88 @@ public sealed class AzureInventorySnapshotMaterializerTests
         return identityDirectory;
     }
 
-    private static byte[] BuildZip(string resourcesJson)
+    [Fact]
+    public async Task TryMaterializePackageAsync_backfills_subscription_identity_from_manifest()
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        Guid snapshotId = Guid.NewGuid();
+        Guid packageId = Guid.NewGuid();
+
+        AzureInventorySnapshotMaterializeWriteRequest? captured = null;
+        Mock<IAzureInventorySnapshotRepository> snapshotRepository = CreateSnapshotRepository(
+            scope,
+            snapshotId,
+            request => captured = request,
+            _ => new AzureInventorySnapshotRecord
+            {
+                SnapshotId = snapshotId,
+                TenantId = scope.TenantId,
+                CaptureStatus = AzureInventoryCaptureStatus.Pending,
+            });
+
+        Mock<ICloudResourceIdentityDirectory> identityDirectory = CreateIdentityDirectory(scope, snapshotId);
+
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "location": "eastus",
+                "properties": {}
+              }
+            ]
+            """,
+            subscriptionId: "8aa56f3b-18bc-43ca-ad45-bad9e811d33b",
+            subscriptionName: "Contoso Production");
+
+        AzureInventorySnapshotMaterializer sut = new(
+            snapshotRepository.Object,
+            identityDirectory.Object,
+            CreateNoOpPostMaterializeCoordinator(),
+            NullLogger<AzureInventorySnapshotMaterializer>.Instance);
+
+        AzureInventorySnapshotMaterializeResult result = await sut.TryMaterializePackageAsync(
+            scope,
+            snapshotId,
+            packageId,
+            zipBytes,
+            AzureInventoryCaptureMethod.CustomerScript,
+            "0.4.0",
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        captured.Should().NotBeNull();
+        captured!.SubscriptionId.Should().Be("8aa56f3b-18bc-43ca-ad45-bad9e811d33b");
+        captured.SubscriptionName.Should().Be("Contoso Production");
+    }
+
+    private static byte[] BuildZip(
+        string resourcesJson,
+        string subscriptionId = "sub",
+        string? subscriptionName = null)
     {
         using MemoryStream ms = new();
 
         using (ZipArchive archive = new(ms, ZipArchiveMode.Create, leaveOpen: true))
         {
+            ZipArchiveEntry manifestEntry = archive.CreateEntry("manifest.json");
+            using (StreamWriter manifestWriter = new(manifestEntry.Open(), Encoding.UTF8))
+            {
+                manifestWriter.Write(
+                    $$"""
+                    {
+                      "schemaVersion": 2,
+                      "scriptVersion": "test",
+                      "collectionTimestamp": "2026-01-01T00:00:00Z",
+                      "subscriptionId": "{{subscriptionId}}",
+                      "subscriptionName": {{(subscriptionName is null ? "null" : $"\"{subscriptionName}\"")}},
+                      "scope": "/subscriptions/{{subscriptionId}}"
+                    }
+                    """);
+            }
+
             ZipArchiveEntry entry = archive.CreateEntry(AzureExtractorPackageZipEntryNames.Resources);
             using StreamWriter writer = new(entry.Open(), Encoding.UTF8);
             writer.Write(resourcesJson);
