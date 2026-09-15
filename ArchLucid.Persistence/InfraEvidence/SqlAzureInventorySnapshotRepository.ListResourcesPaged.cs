@@ -1,3 +1,4 @@
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Configuration;
@@ -9,6 +10,12 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public sealed partial class SqlAzureInventorySnapshotRepository
 {
+    private static readonly string PagedVisibleResourceTypePredicate =
+        AzureInventoryVisibleSnapshotProjection.BuildSqlResourceTypeVisiblePredicate("ResourceType");
+
+    private static readonly string PagedVisibleAzureResourceIdPredicate =
+        AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("AzureResourceId");
+
     public async Task<(IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)?> ListResourcesBySnapshotIdPagedAsync(
         ScopeContext scope,
         Guid snapshotId,
@@ -31,11 +38,19 @@ public sealed partial class SqlAzureInventorySnapshotRepository
         int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
         bool filterByCloudResource = cloudResourceId is Guid resourceId && resourceId != Guid.Empty;
         string resourceFilter = filterByCloudResource ? " AND CloudResourceId = @CloudResourceId" : string.Empty;
+        string neverShowFilter = $"""
+                                   AND (
+                                       ResourceType IS NULL
+                                       OR ResourceType = N''
+                                       OR ({PagedVisibleResourceTypePredicate})
+                                   )
+                                   AND {PagedVisibleAzureResourceIdPredicate}
+                                   """;
 
         string countSql = $"""
                            SELECT COUNT(1)
                            FROM dbo.AzureInventoryResources
-                           WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId{resourceFilter};
+                           WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId{resourceFilter}{neverShowFilter};
                            """;
 
         string listSql = $"""
@@ -43,7 +58,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                  ResourceType, Region, ResourceGroup, SubscriptionId, ParentResourceId,
                                  SourceEvidenceReference
                           FROM dbo.AzureInventoryResources
-                          WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId{resourceFilter}
+                          WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId{resourceFilter}{neverShowFilter}
                           ORDER BY AzureResourceId
                           OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                           """;

@@ -79,7 +79,7 @@ public static class HostedAzureExtractorZipBuilder
         }
 
         object[] resourceRows = resources
-            .Where(static r => !AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(r.ResourceType))
+            .Where(static r => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(r.ResourceType, r.ResourceId))
             .Select(static r => new
             {
                 resourceType = r.ResourceType,

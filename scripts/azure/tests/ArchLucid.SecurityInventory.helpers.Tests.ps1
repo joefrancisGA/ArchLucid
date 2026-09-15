@@ -30,6 +30,10 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             Should -Be $false
         Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType 'Microsoft.Compute/virtualMachines' |
             Should -Be $false
+        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security' |
+            Should -Be $true
+        Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1' |
+            Should -Be $true
     }
 
     It 'builds network association rows from enriched inventory resources' {

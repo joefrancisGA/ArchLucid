@@ -40,7 +40,9 @@ public static class AzureInventoryVisibleSnapshotProjection
         IEnumerable<AzureInventoryResourceRecord> resources)
     {
         return resources
-            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(resource.ResourceType))
+            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                resource.ResourceType,
+                resource.AzureResourceId))
             .ToList();
     }
 
@@ -130,6 +132,19 @@ public static class AzureInventoryVisibleSnapshotProjection
         foreach (string lastSegment in AzureInventoryNeverShowArmTypes.ResourceTypeLastSegmentSuffixes)
         {
             clauses.Add($"{resourceTypeColumn} NOT LIKE N'%/{EscapeSqlLiteral(lastSegment)}'");
+            clauses.Add($"LOWER({resourceTypeColumn}) <> N'{EscapeSqlLiteral(lastSegment)}'");
+        }
+
+        return string.Join(" AND ", clauses);
+    }
+
+    public static string BuildSqlAzureResourceIdVisiblePredicate(string azureResourceIdColumn)
+    {
+        List<string> clauses = [];
+
+        foreach (string lastSegment in AzureInventoryNeverShowArmTypes.ResourceTypeLastSegmentSuffixes)
+        {
+            clauses.Add($"{azureResourceIdColumn} NOT LIKE N'%/{EscapeSqlLiteral(lastSegment)}/%'");
         }
 
         return string.Join(" AND ", clauses);

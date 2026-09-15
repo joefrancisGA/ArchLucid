@@ -1,3 +1,4 @@
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -17,11 +18,8 @@ public static class AzureInventoryDiffComparer
 
         List<AzureInventoryChangeRecord> changes = [];
 
-        Dictionary<string, AzureInventoryResourceRecord> resourcesA =
-            snapshotA.Resources.ToDictionary(r => r.AzureResourceId, StringComparer.OrdinalIgnoreCase);
-
-        Dictionary<string, AzureInventoryResourceRecord> resourcesB =
-            snapshotB.Resources.ToDictionary(r => r.AzureResourceId, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, AzureInventoryResourceRecord> resourcesA = VisibleResources(snapshotA.Resources);
+        Dictionary<string, AzureInventoryResourceRecord> resourcesB = VisibleResources(snapshotB.Resources);
 
         foreach (KeyValuePair<string, AzureInventoryResourceRecord> added in resourcesB)
         {
@@ -206,6 +204,11 @@ public static class AzureInventoryDiffComparer
             if (relationship is null)
                 continue;
 
+            if (ShouldOmitRelationship(relationship))
+            {
+                continue;
+            }
+
             AzureInventoryChangeType changeType =
                 AzureInventoryDiffHeuristics.IsPrivateEndpointRelationship(
                     relationship.FromAzureResourceId,
@@ -239,6 +242,11 @@ public static class AzureInventoryDiffComparer
             if (relationship is null)
                 continue;
 
+            if (ShouldOmitRelationship(relationship))
+            {
+                continue;
+            }
+
             changes.Add(CreateChange(
                 snapshotAId,
                 snapshotBId,
@@ -269,6 +277,11 @@ public static class AzureInventoryDiffComparer
             if (assignment is null)
                 continue;
 
+            if (AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(assignment.Scope))
+            {
+                continue;
+            }
+
             AzureInventoryChangeType changeType = AzureInventoryDiffHeuristics.IsElevatedRoleAssignment(assignment.RoleDefinitionId)
                 ? AzureInventoryChangeType.PermissionChanged
                 : AzureInventoryChangeType.PermissionChanged;
@@ -291,6 +304,11 @@ public static class AzureInventoryDiffComparer
 
             if (assignment is null)
                 continue;
+
+            if (AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(assignment.Scope))
+            {
+                continue;
+            }
 
             changes.Add(CreateChange(
                 snapshotAId,
@@ -366,4 +384,20 @@ public static class AzureInventoryDiffComparer
 
     private static string FormatRoleAssignment(AzureInventoryRoleAssignmentReadModel assignment) =>
         $"{assignment.Scope}|{assignment.PrincipalId}|{assignment.RoleDefinitionId}";
+
+    private static Dictionary<string, AzureInventoryResourceRecord> VisibleResources(
+        IReadOnlyList<AzureInventoryResourceRecord> resources)
+    {
+        return resources
+            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                resource.ResourceType,
+                resource.AzureResourceId))
+            .ToDictionary(resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static bool ShouldOmitRelationship(AzureInventoryResourceRelationshipReadModel relationship)
+    {
+        return AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(relationship.FromAzureResourceId)
+               || AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(relationship.ToAzureResourceId);
+    }
 }

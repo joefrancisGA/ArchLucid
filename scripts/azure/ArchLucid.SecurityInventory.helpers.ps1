@@ -590,6 +590,20 @@ function Test-ArchLucidAzureInventoryNeverShowResourceType
         }
     }
 
+    # ARM ids are .../{type}/{name}; Type uses the segment immediately before the name.
+    if ($segments.Count -ge 2)
+    {
+        [string]$lastTypeSegment = $segments[$segments.Count - 2]
+
+        foreach ($segment in $lastSegments)
+        {
+            if ($lastTypeSegment.Equals($segment, [StringComparison]::OrdinalIgnoreCase))
+            {
+                return $true
+            }
+        }
+    }
+
     return $false
 }
 

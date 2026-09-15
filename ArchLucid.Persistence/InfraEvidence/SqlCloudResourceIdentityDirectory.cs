@@ -17,6 +17,9 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
     private static readonly string VisibleExplorerResourceTypePredicate =
         AzureInventoryVisibleSnapshotProjection.BuildSqlResourceTypeVisiblePredicate("ResourceType");
 
+    private static readonly string VisibleExplorerAzureResourceIdPredicate =
+        AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("ExternalResourceIdNormalized");
+
     public async Task<CloudResourceIdentityRecord> UpsertOnSnapshotAsync(
         ScopeContext scope,
         CloudProvider provider,
@@ -327,6 +330,7 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                                   AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
                                   AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
                                   AND (ResourceType IS NULL OR ({VisibleExplorerResourceTypePredicate}))
+                                  AND {VisibleExplorerAzureResourceIdPredicate}
                                   {workQueueFilter};
                                 """;
 
@@ -347,6 +351,7 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                                  AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
                                  AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
                                  AND (ResourceType IS NULL OR ({VisibleExplorerResourceTypePredicate}))
+                                 AND {VisibleExplorerAzureResourceIdPredicate}
                                  {workQueueFilter}
                                ORDER BY LastSeenUtc DESC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;

@@ -2,8 +2,8 @@ namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
 ///     ARM resource types omitted from inventory lists, resource counts, topology node materialization,
-///     and inventory diagram rendering. Collectors may still read these rows to derive companion
-///     association edges before filtering them out.
+///     inventory diagram rendering, and drift comparison. Collectors may still read these rows to derive
+///     companion association edges before filtering them out.
 /// </summary>
 public static class AzureInventoryNeverShowArmTypes
 {
@@ -60,5 +60,34 @@ public static class AzureInventoryNeverShowArmTypes
             .LastOrDefault() ?? string.Empty;
 
         return LastSegments.Contains(lastSegment, StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    ///     ARM ids are <c>.../{type}/{name}</c>. Drift Type uses the segment immediately before the name,
+    ///     so omit checks must use that type last-segment when ResourceType is missing or not ARM-shaped.
+    /// </summary>
+    public static bool ShouldOmitAzureResourceId(string? azureResourceId)
+    {
+        if (string.IsNullOrWhiteSpace(azureResourceId))
+        {
+            return false;
+        }
+
+        string[] segments = azureResourceId.Split(
+            '/',
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (segments.Length < 2)
+        {
+            return false;
+        }
+
+        string lastTypeSegment = segments[^2];
+        return LastSegments.Contains(lastTypeSegment, StringComparer.OrdinalIgnoreCase);
+    }
+
+    public static bool ShouldOmitResource(string? resourceType, string? azureResourceId)
+    {
+        return ShouldOmitFromInventory(resourceType) || ShouldOmitAzureResourceId(azureResourceId);
     }
 }

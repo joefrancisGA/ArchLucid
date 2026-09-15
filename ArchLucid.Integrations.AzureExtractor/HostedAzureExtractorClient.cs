@@ -314,7 +314,7 @@ public sealed class HostedAzureExtractorClient(
         IReadOnlyList<HostedAzureArmResourceRecord> resources)
     {
         return resources
-            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(resource.ResourceType))
+            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(resource.ResourceType, resource.ResourceId))
             .ToList();
     }
 

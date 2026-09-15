@@ -68,7 +68,7 @@ public sealed class AzureInventorySnapshotMaterializer(
 
             foreach (AzureExtractorExtendedResourceRow row in inventory.Resources)
             {
-                if (AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(row.ResourceType))
+                if (AzureInventoryNeverShowArmTypes.ShouldOmitResource(row.ResourceType, row.AzureResourceId))
                 {
                     continue;
                 }

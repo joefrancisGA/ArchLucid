@@ -13,11 +13,20 @@ public sealed partial class SqlAzureInventorySnapshotRepository
     private static readonly string VisibleResourceTypePredicate =
         AzureInventoryVisibleSnapshotProjection.BuildSqlResourceTypeVisiblePredicate("r.ResourceType");
 
+    private static readonly string VisibleAzureResourceIdPredicate =
+        AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("r.AzureResourceId");
+
     private static readonly string VisibleFromResourceTypePredicate =
         AzureInventoryVisibleSnapshotProjection.BuildSqlResourceTypeVisiblePredicate("fromResource.ResourceType");
 
+    private static readonly string VisibleFromAzureResourceIdPredicate =
+        AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("fromResource.AzureResourceId");
+
     private static readonly string VisibleToResourceTypePredicate =
         AzureInventoryVisibleSnapshotProjection.BuildSqlResourceTypeVisiblePredicate("toResource.ResourceType");
+
+    private static readonly string VisibleToAzureResourceIdPredicate =
+        AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("toResource.AzureResourceId");
 
     public async Task<(IReadOnlyList<AzureInventorySnapshotRecord> Items, int TotalCount)> ListSnapshotsAsync(
         ScopeContext scope,
@@ -51,6 +60,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                        WHERE r.TenantId = s.TenantId
                                          AND r.SnapshotId = s.SnapshotId
                                          AND {VisibleResourceTypePredicate}
+                                         AND {VisibleAzureResourceIdPredicate}
                                    ) AS ResourceCount,
                                    (
                                        SELECT COUNT(1)
@@ -66,6 +76,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                                    AND fromResource.SnapshotId = rel.SnapshotId
                                                    AND fromResource.AzureResourceId = rel.FromAzureResourceId
                                                    AND {VisibleFromResourceTypePredicate}
+                                                   AND {VisibleFromAzureResourceIdPredicate}
                                              )
                                          )
                                          AND (
@@ -77,6 +88,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                                    AND toResource.SnapshotId = rel.SnapshotId
                                                    AND toResource.AzureResourceId = rel.ToAzureResourceId
                                                    AND {VisibleToResourceTypePredicate}
+                                                   AND {VisibleToAzureResourceIdPredicate}
                                              )
                                          )
                                    ) AS RelationshipCount,
