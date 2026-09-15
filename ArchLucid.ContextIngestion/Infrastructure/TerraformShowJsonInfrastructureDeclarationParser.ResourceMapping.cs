@@ -24,6 +24,21 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
         return moduleAddress;
     }
 
+
+    private static bool IsDeposedTerraformResource(JsonElement res)
+    {
+        if (!TryGetPropertyIgnoreCase(res, "deposed", out JsonElement deposed))
+            return false;
+
+        if (deposed.ValueKind == JsonValueKind.Null)
+            return false;
+
+        if (deposed.ValueKind == JsonValueKind.String)
+            return !string.IsNullOrWhiteSpace(deposed.GetString());
+
+        return true;
+    }
+
     private static bool TryResolveTerraformResourceLabel(JsonElement res, out string name)
     {
         name = string.Empty;
@@ -138,6 +153,9 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
         IReadOnlyDictionary<string, int> labelTotals,
         Dictionary<string, int> labelSeen)
     {
+        if (IsDeposedTerraformResource(res))
+            return;
+
         if (!TryGetPropertyIgnoreCase(res, "type", out JsonElement typeEl) || typeEl.ValueKind != JsonValueKind.String)
             return;
 
