@@ -4,11 +4,11 @@ import {
   GitCompareArrows,
   GitMerge,
   LayoutDashboard,
-  Link2,
   MessageCircleQuestion,
   Network,
   SquareStack,
   Upload,
+  Waypoints,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
@@ -60,7 +60,7 @@ export class OperateInfrastructureNavGroupBuilder extends NavGroupBuilderBase {
           href: "/governance/infrastructure/declared-connections" as typeof GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
           label: OPERATOR_NAV_LINK_LABELS.infrastructureDeclaredConnections,
           title: "Declare ConnectsTo or DependsOn edges between resources not visible in Azure inventory",
-          icon: Link2,
+          icon: Waypoints,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },
