@@ -2,9 +2,12 @@ import { Home } from "lucide-react";
 
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
   SECURENOW_REMEDIATION_INSTANCES_PATH,
@@ -146,6 +149,34 @@ function excludeRemediationInstancesFromInfrastructureLinks(links: readonly NavL
   return links.filter((link) => link.href !== GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH);
 }
 
+/** SecureNow Infrastructure sidebar — diagrams before advisory Terraform mapping. */
+const SECURENOW_INFRASTRUCTURE_NAV_ORDER_AFTER_DRIFT: readonly string[] = [
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+];
+
+function reorderSecureNowInfrastructureNavLinks(links: readonly NavLinkItem[]): NavLinkItem[] {
+  const driftIndex = links.findIndex((link) => link.href === GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH);
+
+  if (driftIndex < 0) {
+    return [...links];
+  }
+
+  const beforeDrift = links.slice(0, driftIndex + 1);
+  const afterDrift = links.slice(driftIndex + 1);
+  const prioritized = SECURENOW_INFRASTRUCTURE_NAV_ORDER_AFTER_DRIFT.flatMap((href) => {
+    const link = afterDrift.find((candidate) => candidate.href === href);
+
+    return link !== undefined ? [link] : [];
+  });
+  const remaining = afterDrift.filter(
+    (link) => !SECURENOW_INFRASTRUCTURE_NAV_ORDER_AFTER_DRIFT.includes(link.href),
+  );
+
+  return [...beforeDrift, ...prioritized, ...remaining];
+}
+
 function remapSecureNowInfrastructureNavLink(link: NavLinkItem): NavLinkItem {
   const remappedHref = SECURENOW_INFRASTRUCTURE_NAV_HREF_BY_GOVERNANCE_HREF[link.href];
 
@@ -234,8 +265,8 @@ export function reshapeNavGroupsForSecureNow(
     );
   }
 
-  const infrastructureLinks = excludeRemediationInstancesFromInfrastructureLinks(
-    infrastructureRow.visibleLinks,
+  const infrastructureLinks = reorderSecureNowInfrastructureNavLinks(
+    excludeRemediationInstancesFromInfrastructureLinks(infrastructureRow.visibleLinks),
   ).map(remapSecureNowInfrastructureNavLink);
 
   reshaped.push({
@@ -244,9 +275,9 @@ export function reshapeNavGroupsForSecureNow(
       ...infrastructureRow.group,
       caption:
         "Explore Azure inventory snapshots, diagrams, resource evidence, and grounded Ask.",
-      links: excludeRemediationInstancesFromInfrastructureLinks(infrastructureRow.group.links).map(
-        remapSecureNowInfrastructureNavLink,
-      ),
+      links: reorderSecureNowInfrastructureNavLinks(
+        excludeRemediationInstancesFromInfrastructureLinks(infrastructureRow.group.links),
+      ).map(remapSecureNowInfrastructureNavLink),
     },
     visibleLinks: infrastructureLinks,
   });
