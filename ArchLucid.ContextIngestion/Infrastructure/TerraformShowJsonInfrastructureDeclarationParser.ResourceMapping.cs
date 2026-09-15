@@ -224,6 +224,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                     && !string.IsNullOrWhiteSpace(indexElement.GetString()))
                     canonicalAddress = $"{canonicalAddress}[{indexElement.GetString()!.Trim()}]";
             }
+            else if ((TryGetPropertyIgnoreCase(res, "index_key", out JsonElement indexKeyElement)
+                    || TryGetPropertyIgnoreCase(res, "indexKey", out indexKeyElement))
+                && indexKeyElement.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(indexKeyElement.GetString()))
+            {
+                canonicalAddress = $"{canonicalAddress}[{indexKeyElement.GetString()!.Trim()}]";
+            }
         }
 
         string resourceIdentity = BuildTerraformResourceIdentity(
