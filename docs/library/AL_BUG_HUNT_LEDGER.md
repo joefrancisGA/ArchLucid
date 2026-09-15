@@ -144,6 +144,8 @@
 2026-09-13 seed hunt #2370 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_dynatrace_monitor.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_dynatrace_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 - **id:** topology-proposal-merge
 
+2026-09-15 seed hunt #3706 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_zza` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_zza_node_has_compute_category_but_synthetic_datastore_id_used`.
+
 2026-09-15 seed hunt #3701 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_zyy` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_zyy_node_has_compute_category_but_synthetic_datastore_id_used`.
 
 2026-09-15 seed hunt #3696 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_zxx` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_zxx_node_has_compute_category_but_synthetic_datastore_id_used`.
@@ -590,11 +592,11 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 366
-- **bugs-found:** 318
+- **hunts:** 367
+- **bugs-found:** 319
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-15 — hunt #3701: azurerm_zyy Compute-category ds- alias gap
+- **last-bug:** 2026-09-15 — hunt #3706: azurerm_zza Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
