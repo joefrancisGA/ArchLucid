@@ -14,7 +14,7 @@
 
 # `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-50)
 
-**Status:** **ABQ-01–50 shipped in code** (wave 7 week-UOM cleanup #3333). Do **not** re-implement 01–50 from their files. Do **not** ship more `weekk+` UOM hunts. Topology-proposal-merge hunts may continue on separate branches.
+**Status:** **ABQ-01–50 shipped in code** (wave 7 week-UOM cleanup #3336). Do **not** re-implement 01–50 from their files. Do **not** ship more `weekk+` UOM hunts. Topology-proposal-merge hunts may continue on separate branches.
 
 `/al-bug` finds a real defect with a failing repro, ships a minimal fix to `bugsmash`, and updates `docs/library/AL_BUG_HUNT_LEDGER.md`. By 2026-09-06 the loop was manufacturing bugs: 1,236 logged hunts, 1,182 hits, mega-zone `archlucid-core` reporting thousands of “bugs,” and redactors that redact `beefAccessKey` while leaking `adminPassword`.
 
