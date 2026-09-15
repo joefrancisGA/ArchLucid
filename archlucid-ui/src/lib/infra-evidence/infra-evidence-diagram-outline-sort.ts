@@ -1,3 +1,4 @@
+import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import type { InfraEvidenceMermaidOutlineNode } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
 export type InfraEvidenceDiagramOutlineNodeSortKey = "label" | "resourceType" | "resourceGroup";
@@ -10,6 +11,10 @@ export const DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_DIR: InfraEvidence
 
 function compareStrings(left: string | null | undefined, right: string | null | undefined): number {
   return (left ?? "").localeCompare(right ?? "", undefined, { sensitivity: "base" });
+}
+
+function resourceTypeSortValue(resourceType: string | null | undefined): string {
+  return formatDiagramArmTypeFriendlyName(resourceType) ?? resourceType ?? "";
 }
 
 export function toggleInfraEvidenceDiagramOutlineNodeSort(
@@ -62,12 +67,22 @@ export function sortInfraEvidenceDiagramOutlineNodes(
         break;
 
       case "resourceType":
-        result = compareStrings(left.resourceType, right.resourceType);
+        result = compareStrings(resourceTypeSortValue(left.resourceType), resourceTypeSortValue(right.resourceType));
+
+        if (result === 0) {
+          result = compareStrings(left.resourceType, right.resourceType);
+        }
+
         break;
 
       case "resourceGroup":
         result = compareStrings(left.resourceGroup, right.resourceGroup);
         break;
+
+      default: {
+        const exhaustive: never = sortKey;
+        throw new Error(`Unhandled diagram outline sort key: ${String(exhaustive)}`);
+      }
     }
 
     if (result === 0) {

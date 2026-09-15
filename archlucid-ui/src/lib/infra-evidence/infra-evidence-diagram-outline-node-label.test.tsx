@@ -16,11 +16,12 @@ function node(overrides: Partial<InfraEvidenceMermaidOutlineNode> = {}): InfraEv
 }
 
 describe("InfraEvidenceDiagramOutlineNodeLabel", () => {
-  it("stacks a title-cased type caption under the resource name", () => {
+  it("renders the resource name without a stacked type caption", () => {
     render(<InfraEvidenceDiagramOutlineNodeLabel node={node()} />);
 
     expect(screen.getByText("core-vnet")).toBeTruthy();
-    expect(screen.getByText("(Virtual Network)")).toBeTruthy();
+    expect(screen.queryByText("(Virtual Network)")).toBeNull();
+    expect(screen.queryByText("Virtual Network")).toBeNull();
   });
 
   it("strips an inline parenthetical from the mermaid label when metadata is present", () => {
@@ -31,7 +32,6 @@ describe("InfraEvidenceDiagramOutlineNodeLabel", () => {
     );
 
     expect(screen.getByText("core-vnet")).toBeTruthy();
-    expect(screen.getByText("(Virtual Network)")).toBeTruthy();
     expect(screen.queryByText("core-vnet (Virtual network)")).toBeNull();
   });
 });

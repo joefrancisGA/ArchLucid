@@ -100,15 +100,12 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
             className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
             data-testid="governance-infrastructure-start-here-panel"
           >
-            <div className="flex flex-wrap items-center gap-2">
-              <h2
-                id="governance-infrastructure-start-here-heading"
-                className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
-              >
-                {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_TITLE}
-              </h2>
-              <StatusTag kind="ready" label={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BADGE} />
-            </div>
+            <h2
+              id="governance-infrastructure-start-here-heading"
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
+            >
+              {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_TITLE}
+            </h2>
             <p
               className={cn(
                 "m-0 mt-2 text-al-text-secondary",

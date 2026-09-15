@@ -12,6 +12,9 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     [Theory]
     [InlineData("Microsoft.Network/privateDnsZones/virtualNetworkLinks")]
     [InlineData("Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks")]
+    [InlineData("Microsoft.Network/virtualNetworks/virtualNetworkPeerings")]
+    [InlineData("microsoft.network/virtualnetworks/virtualnetworkpeerings")]
+    [InlineData("virtualnetworkpeerings")]
     [InlineData("microsoft.network/privatednszones/virtualnetworklinks")]
     [InlineData("Microsoft.Portal/dashboards")]
     [InlineData("Microsoft.OperationalInsights/workspaces")]
@@ -72,6 +75,7 @@ public sealed class AzureInventoryNeverShowArmTypesTests
 
     [Theory]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a/virtualNetworkPeerings/peer-to-b")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Containers")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1")]

@@ -117,7 +117,6 @@ import {
 import { buildResourceHubDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
-import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
@@ -1081,14 +1080,7 @@ export function DiagramsWorkbenchClient() {
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}
         titleTestId="infra-diagrams-page-title"
         breadcrumb={buyerPolishedShell ? <DiagramsBreadcrumb /> : undefined}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <PageContextualHelpButton />
-            {!buyerPolishedShell ? (
-              <CopyScopedOperatorLinkButton testId="infra-diagrams-copy-scoped-link" />
-            ) : null}
-          </div>
-        }
+        actions={<PageContextualHelpButton />}
       />
 
       <main
@@ -1096,12 +1088,6 @@ export function DiagramsWorkbenchClient() {
         className={cn("flex w-full flex-col gap-4 scroll-mt-24")}
         data-testid="infra-diagrams-primary-content"
       >
-      {buyerPolishedShell ? (
-        <div className="flex justify-end">
-          <CopyScopedOperatorLinkButton testId="infra-diagrams-copy-scoped-link" />
-        </div>
-      ) : null}
-
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-diagrams-selection-announcer" />
 
       {deepLinkedSnapshotMissing ? (

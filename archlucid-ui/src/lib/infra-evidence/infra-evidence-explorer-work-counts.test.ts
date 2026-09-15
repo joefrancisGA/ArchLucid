@@ -14,4 +14,15 @@ describe("buildCloudResourceExplorerWorkCountBadges", () => {
     expect(badges[0]?.count).toBe(2);
     expect(badges[1]?.count).toBe(4);
   });
+
+  it("returns no badges when every work count is zero or missing", () => {
+    expect(
+      buildCloudResourceExplorerWorkCountBadges({
+        openOperationalFindingsCount: 0,
+        openRemediationInstancesCount: 0,
+        inventoryDriftChangeCount: 0,
+      }),
+    ).toEqual([]);
+    expect(buildCloudResourceExplorerWorkCountBadges(null)).toEqual([]);
+  });
 });
