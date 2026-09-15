@@ -93,6 +93,7 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/workbooks/wb1")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.AlertsManagement/smartDetectorAlertRules/rule1")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/scheduledQueryRules/rule1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.AlertsManagement/smartDetectorAlertRules/failure-anomalies")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/sshPublicKeys/vm-ssh-key")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/firewallPolicies/fwp1")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkIntentPolicies/nip1")]
