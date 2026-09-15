@@ -20,6 +20,9 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     [InlineData("Microsoft.AlertsManagement/smartDetectorAlertRules")]
     [InlineData("microsoft.alertsmanagement/smartdetectoralertrules")]
     [InlineData("smartdetectoralertrules")]
+    [InlineData("Microsoft.Insights/metricAlerts")]
+    [InlineData("microsoft.insights/metricalerts")]
+    [InlineData("metricalerts")]
     [InlineData("solutions")]
     [InlineData("Microsoft.Network/dnszones")]
     [InlineData("Microsoft.Network/privateDnsZones")]
@@ -54,6 +57,7 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Containers")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.AlertsManagement/smartDetectorAlertRules/Failure Anomalies - my-app")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/metricAlerts/cpu-high-alert")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/sshPublicKeys/vm-ssh-key")]
     public void ShouldOmitAzureResourceId_returns_true_for_never_show_arm_ids(string azureResourceId)
