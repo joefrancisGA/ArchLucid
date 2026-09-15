@@ -159,7 +159,6 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
                 <EnterpriseTableRow>
                   <EnterpriseTableHeaderCell>Workbench</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
-                  {buyerPolishedShell ? <EnterpriseTableHeaderCell>Open</EnterpriseTableHeaderCell> : null}
                 </EnterpriseTableRow>
               </EnterpriseTableHead>
               <EnterpriseTableBody>
@@ -180,13 +179,6 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
                       </div>
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>{row.summary}</EnterpriseTableCell>
-                    {buyerPolishedShell ? (
-                      <EnterpriseTableCell>
-                        <Link className={OPERATOR_LINK.inline} href={row.href}>
-                          Open
-                        </Link>
-                      </EnterpriseTableCell>
-                    ) : null}
                   </EnterpriseTableRow>
                 ))}
               </EnterpriseTableBody>
