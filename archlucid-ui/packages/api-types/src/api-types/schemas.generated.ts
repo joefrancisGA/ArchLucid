@@ -9923,6 +9923,55 @@ export interface components {
         SecurityAssetAssertionRevokeApiRequest: {
             revokedByActorKey?: string;
         };
+        SecurityDeclaredConnectionCreateApiRequest: {
+            approvedByActorKey?: string;
+            evidenceReference?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            /** Format: uuid */
+            fromCloudResourceId?: string;
+            rationale?: string;
+            relationshipType?: string;
+            requestedByActorKey?: string;
+            /** Format: uuid */
+            toCloudResourceId?: string;
+        };
+        SecurityDeclaredConnectionCreateApiResponse: {
+            /** Format: uuid */
+            connectionId?: string;
+        };
+        SecurityDeclaredConnectionExpirySweepApiResponse: {
+            /** Format: int32 */
+            expiredCount?: number;
+        };
+        SecurityDeclaredConnectionRenewApiRequest: {
+            approvedByActorKey?: string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            renewedByActorKey?: string;
+        };
+        SecurityDeclaredConnectionResponse: {
+            /** Format: uuid */
+            connectionId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            evidenceReference?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            /** Format: uuid */
+            fromCloudResourceId?: string;
+            provenanceKind?: string;
+            rationale?: string;
+            relationshipType?: string;
+            status?: string;
+            /** Format: uuid */
+            toCloudResourceId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        SecurityDeclaredConnectionRevokeApiRequest: {
+            revokedByActorKey?: string;
+        };
         SecurityDelta: {
             baseStatus?: null | string;
             controlName?: string;
