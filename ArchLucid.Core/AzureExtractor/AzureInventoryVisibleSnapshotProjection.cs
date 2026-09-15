@@ -37,10 +37,14 @@ public static class AzureInventoryVisibleSnapshotProjection
     }
 
     public static List<AzureInventoryResourceRecord> FilterVisibleResources(
-        IEnumerable<AzureInventoryResourceRecord> resources)
+        IEnumerable<AzureInventoryResourceRecord> resources,
+        IReadOnlySet<string>? privateLinkOnlyNicArmIds = null)
     {
         return resources
-            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(resource.ResourceType))
+            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                resource.ResourceType,
+                resource.AzureResourceId,
+                privateLinkOnlyNicArmIds))
             .ToList();
     }
 
@@ -88,7 +92,13 @@ public static class AzureInventoryVisibleSnapshotProjection
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        List<AzureInventoryResourceRecord> visibleResources = FilterVisibleResources(snapshot.Resources);
+        HashSet<string> privateLinkOnlyNicArmIds = AzureInventoryPrivateLinkOnlyNicCatalog.BuildOmittedNicArmIdsFromSnapshot(
+            snapshot.Resources,
+            snapshot.Relationships,
+            snapshot.Properties);
+        List<AzureInventoryResourceRecord> visibleResources = FilterVisibleResources(
+            snapshot.Resources,
+            privateLinkOnlyNicArmIds);
         HashSet<string> visibleArmIds = BuildVisibleArmIdSet(visibleResources);
         List<AzureInventoryResourceRelationshipReadModel> visibleRelationships =
             FilterVisibleRelationships(snapshot.Relationships, visibleArmIds);
@@ -130,9 +140,28 @@ public static class AzureInventoryVisibleSnapshotProjection
         foreach (string lastSegment in AzureInventoryNeverShowArmTypes.ResourceTypeLastSegmentSuffixes)
         {
             clauses.Add($"{resourceTypeColumn} NOT LIKE N'%/{EscapeSqlLiteral(lastSegment)}'");
+            clauses.Add($"LOWER({resourceTypeColumn}) <> N'{EscapeSqlLiteral(lastSegment)}'");
         }
 
-        return string.Join(" AND ", clauses);
+        string omitChecks = string.Join(" AND ", clauses);
+
+        // SQL `<>` / NOT LIKE on NULL is UNKNOWN, so a bare AND of omit-checks would drop
+        // rows with a missing ResourceType. C# ShouldOmitFromInventory treats blank type as visible.
+        return WrapSqlNullableColumnAsVisible(resourceTypeColumn, omitChecks);
+    }
+
+    public static string BuildSqlAzureResourceIdVisiblePredicate(string azureResourceIdColumn)
+    {
+        List<string> clauses = [];
+
+        foreach (string lastSegment in AzureInventoryNeverShowArmTypes.ResourceTypeLastSegmentSuffixes)
+        {
+            clauses.Add($"{azureResourceIdColumn} NOT LIKE N'%/{EscapeSqlLiteral(lastSegment)}/%'");
+        }
+
+        string omitChecks = string.Join(" AND ", clauses);
+
+        return WrapSqlNullableColumnAsVisible(azureResourceIdColumn, omitChecks);
     }
 
     private static AzureInventorySnapshotRecord CloneHeader(
@@ -171,6 +200,15 @@ public static class AzureInventoryVisibleSnapshotProjection
     {
         return !string.IsNullOrWhiteSpace(value)
                && value.Trim().StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    ///     Treats NULL or blank column values as visible. SQL three-valued logic would otherwise
+    ///     exclude those rows from snapshot resource counts while C# omit checks keep them.
+    /// </summary>
+    private static string WrapSqlNullableColumnAsVisible(string column, string omitChecks)
+    {
+        return $"({column} IS NULL OR {column} = N'' OR ({omitChecks}))";
     }
 
     private static string EscapeSqlLiteral(string value)

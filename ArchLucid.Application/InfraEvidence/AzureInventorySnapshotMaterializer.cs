@@ -65,10 +65,16 @@ public sealed class AzureInventorySnapshotMaterializer(
             List<AzureInventoryRoleAssignmentWrite> roleAssignments = [];
             List<AzureInventoryDiagnosticConfigurationWrite> diagnostics = [];
             List<AzureExtractorExtendedResourceRow> visibleInventoryRows = [];
+            HashSet<string> privateLinkOnlyNicArmIds = AzureInventoryPrivateLinkOnlyNicCatalog.BuildOmittedNicArmIds(
+                inventory.Resources,
+                inventory.NetworkAssociations);
 
             foreach (AzureExtractorExtendedResourceRow row in inventory.Resources)
             {
-                if (AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(row.ResourceType))
+                if (AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                        row.ResourceType,
+                        row.AzureResourceId,
+                        privateLinkOnlyNicArmIds))
                 {
                     continue;
                 }

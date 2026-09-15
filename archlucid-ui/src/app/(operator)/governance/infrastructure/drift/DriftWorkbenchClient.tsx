@@ -166,6 +166,7 @@ import { DriftCrossSubscriptionDiffConfirmDialog } from "./DriftCrossSubscriptio
 import { DriftChangeDetail } from "./DriftChangeDetail";
 import { DriftChangeRiskCell } from "./DriftChangeRiskCell";
 import { DriftChangeResourceCells } from "./DriftChangeResourceCell";
+import { DriftChangesPagination } from "./DriftChangesPagination";
 import {
   DRIFT_CHANGES_TABLE_COLUMN_COUNT,
   DRIFT_INVENTORY_TABLE_COLUMN_COUNT,
@@ -184,7 +185,6 @@ const cnField =
 const cnPickerField = cn(cnField, "w-full max-w-md");
 
 const SNAPSHOTS_PAGE_SIZE = 50;
-const CHANGES_PAGE_SIZE = 100;
 
 type PendingDriftSubscriptionConfirmation =
   | { readonly kind: "snapshot"; readonly snapshotId: string }
@@ -266,7 +266,6 @@ export function DriftWorkbenchClient() {
   const [diffs, setDiffs] = useState<InfraEvidenceDiffSummary[]>([]);
   const [changes, setChanges] = useState<InfraEvidenceDiffChange[]>([]);
   const [changesTotalCount, setChangesTotalCount] = useState(0);
-  const [changesHasMore, setChangesHasMore] = useState(false);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>("");
   const [anchorSnapshotId, setAnchorSnapshotId] = useState<string>("");
   const [selectedDiffId, setSelectedDiffId] = useState<string>("");
@@ -594,7 +593,6 @@ export function DriftWorkbenchClient() {
     if (selectedSnapshotId.length === 0) {
       setChanges([]);
       setChangesTotalCount(0);
-      setChangesHasMore(false);
       setSelectedChangeId(null);
       return;
     }
@@ -610,23 +608,20 @@ export function DriftWorkbenchClient() {
           ? await fetchInfraEvidenceSnapshotInventoryRows(
               selectedSnapshotId,
               tableFilterState.changesPage,
-              CHANGES_PAGE_SIZE,
+              tableFilterState.changesPageSize,
               {
                 cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
               },
             )
-          : await fetchInfraEvidenceDiffChanges(selectedDiffId, tableFilterState.changesPage, CHANGES_PAGE_SIZE, {
+          : await fetchInfraEvidenceDiffChanges(selectedDiffId, tableFilterState.changesPage, tableFilterState.changesPageSize, {
               cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
               includeUnchanged: tableFilterState.includeUnchanged,
             });
 
         if (!cancelled) {
           const items = response.items ?? [];
-          setChanges((current) =>
-            tableFilterState.changesPage > 1 ? [...current, ...items] : items,
-          );
+          setChanges(items);
           setChangesTotalCount(response.totalCount ?? items.length);
-          setChangesHasMore(response.hasMore === true);
 
           if (!isViewingSnapshotInventory && urlChangeId.length > 0) {
             setSelectedChangeId(urlChangeId);
@@ -639,7 +634,6 @@ export function DriftWorkbenchClient() {
           setLoadError(formatInfraEvidenceApiError(error));
           setChanges([]);
           setChangesTotalCount(0);
-          setChangesHasMore(false);
         }
       } finally {
         if (!cancelled) {
@@ -658,6 +652,7 @@ export function DriftWorkbenchClient() {
     selectedDiffId,
     selectedSnapshotId,
     tableFilterState.changesPage,
+    tableFilterState.changesPageSize,
     tableFilterState.includeUnchanged,
     urlChangeId,
     urlCloudResourceId,
@@ -767,7 +762,6 @@ export function DriftWorkbenchClient() {
   }, [selectedResourceGroup]);
 
   const snapshotsShowingLine = formatInventoryShowingLine(snapshots.length, snapshotsTotalCount, snapshotsHasMore);
-  const changesShowingLine = formatInventoryShowingLine(changes.length, changesTotalCount, changesHasMore);
   const exportDisabledReason =
     selectedSnapshotId.length === 0 ? GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_DISABLED_NO_SNAPSHOT : null;
 
@@ -1540,31 +1534,22 @@ export function DriftWorkbenchClient() {
           </EnterpriseTableBody>
         </EnterpriseTable>
 
-        {changesShowingLine != null || changesHasMore ? (
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            {changesShowingLine != null ? (
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-changes-showing-line">
-                {changesShowingLine}
-              </p>
-            ) : <span />}
-            {changesHasMore ? (
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                data-testid="infra-drift-load-more-changes"
-                disabled={loadingChanges}
-                onClick={() => {
-                  pushDriftUrl({
-                    tableFilters: { changesPage: tableFilterState.changesPage + 1 },
-                  });
-                }}
-              >
-                {loadingChanges ? "Loading…" : "Load more changes"}
-              </Button>
-            ) : null}
-          </div>
-        ) : null}
+        <DriftChangesPagination
+          page={tableFilterState.changesPage}
+          pageSize={tableFilterState.changesPageSize}
+          totalCount={changesTotalCount}
+          disabled={loadingChanges}
+          onPageChange={(page) => {
+            pushDriftUrl({
+              tableFilters: { changesPage: page },
+            });
+          }}
+          onPageSizeChange={(pageSize) => {
+            pushDriftUrl({
+              tableFilters: { changesPage: 1, changesPageSize: pageSize },
+            });
+          }}
+        />
 
         </>
         ) : null}

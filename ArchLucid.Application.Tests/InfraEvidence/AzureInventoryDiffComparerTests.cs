@@ -66,6 +66,44 @@ public sealed class AzureInventoryDiffComparerTests
     }
 
     [Fact]
+    public void Compare_omits_never_show_solutions_and_virtual_network_links()
+    {
+        Guid snapshotAId = Guid.NewGuid();
+        Guid snapshotBId = Guid.NewGuid();
+        Guid resourceRowId = Guid.NewGuid();
+        string solutionArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security";
+        string linkArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1";
+
+        AzureInventorySnapshotDetailReadModel snapshotA = BuildSnapshot(
+            snapshotAId,
+            resourceRowId,
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+            region: "eastus",
+            tagKey: "env",
+            tagValue: "prod");
+
+        AzureInventorySnapshotDetailReadModel snapshotB = BuildSnapshot(
+            snapshotBId,
+            resourceRowId,
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+            region: "eastus",
+            tagKey: "env",
+            tagValue: "prod",
+            extraResourceArmId: solutionArmId,
+            secondExtraResourceArmId: linkArmId);
+
+        List<AzureInventoryChangeRecord> changes =
+            AzureInventoryDiffComparer.Compare(snapshotA, snapshotB, snapshotAId, snapshotBId);
+
+        changes.Should().NotContain(change =>
+            change.AzureResourceId != null
+            && (change.AzureResourceId.Contains("/solutions/", StringComparison.OrdinalIgnoreCase)
+                || change.AzureResourceId.Contains("/virtualNetworkLinks/", StringComparison.OrdinalIgnoreCase)));
+    }
+
+    [Fact]
     public void Compare_suppresses_nested_resource_removed_changes_when_parent_was_removed()
     {
         Guid snapshotAId = Guid.NewGuid();
@@ -149,7 +187,7 @@ public sealed class AzureInventoryDiffComparerTests
                 SnapshotId = snapshotId,
                 TenantId = Guid.NewGuid(),
                 AzureResourceId = extraResourceArmId,
-                ResourceType = "Microsoft.Compute/virtualMachines/extensions",
+                ResourceType = "Microsoft.Compute/virtualMachines",
                 Region = region,
             });
         }

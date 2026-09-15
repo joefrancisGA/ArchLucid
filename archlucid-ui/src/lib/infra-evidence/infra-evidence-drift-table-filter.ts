@@ -22,9 +22,13 @@ export const DRIFT_TABLE_PROPERTY_FILTER_PARAM = "property";
 export const DRIFT_TABLE_SORT_BY_PARAM = "sortBy";
 export const DRIFT_TABLE_SORT_DIR_PARAM = "sortDir";
 export const DRIFT_TABLE_CHANGES_PAGE_PARAM = "changesPage";
+export const DRIFT_TABLE_CHANGES_PAGE_SIZE_PARAM = "changesPageSize";
 export const DRIFT_SNAPSHOTS_PAGE_PARAM = "snapshotsPage";
 export const DRIFT_TABLE_INCLUDE_UNCHANGED_PARAM = "includeUnchanged";
 export const DRIFT_TABLE_RISKY_ONLY_PARAM = "riskyOnly";
+export const DRIFT_CHANGES_PAGE_SIZE_OPTIONS = [20, 50, 100] as const;
+export type DriftChangesPageSize = (typeof DRIFT_CHANGES_PAGE_SIZE_OPTIONS)[number];
+export const DEFAULT_DRIFT_CHANGES_PAGE_SIZE: DriftChangesPageSize = 50;
 
 export type DriftTableSortKey =
   | "resource"
@@ -45,6 +49,7 @@ export type DriftTableFilterState = {
   readonly sortBy: DriftTableSortKey;
   readonly sortDir: DriftTableSortDir;
   readonly changesPage: number;
+  readonly changesPageSize: DriftChangesPageSize;
   readonly snapshotsPage: number;
   readonly includeUnchanged: boolean;
   readonly riskyOnly: boolean;
@@ -60,6 +65,7 @@ export const DEFAULT_DRIFT_TABLE_FILTER_STATE: DriftTableFilterState = {
   sortBy: "resource",
   sortDir: "asc",
   changesPage: 1,
+  changesPageSize: DEFAULT_DRIFT_CHANGES_PAGE_SIZE,
   snapshotsPage: 1,
   includeUnchanged: false,
   riskyOnly: false,
@@ -94,6 +100,18 @@ export function parseDriftTablePositiveInt(raw: string | null | undefined, fallb
   return parsed;
 }
 
+export function parseDriftTableChangesPageSize(raw: string | null | undefined): DriftChangesPageSize {
+  const parsed = Number.parseInt(raw?.trim() ?? "", 10);
+
+  for (const option of DRIFT_CHANGES_PAGE_SIZE_OPTIONS) {
+    if (parsed === option) {
+      return option;
+    }
+  }
+
+  return DEFAULT_DRIFT_CHANGES_PAGE_SIZE;
+}
+
 export function parseDriftTableBooleanFlag(raw: string | null | undefined): boolean {
   const normalized = raw?.trim().toLowerCase() ?? "";
 
@@ -119,6 +137,7 @@ export function parseDriftTableFilterState(searchParams: URLSearchParams): Drift
     sortBy: parseDriftTableSortKey(searchParams.get(DRIFT_TABLE_SORT_BY_PARAM)),
     sortDir: parseDriftTableSortDir(searchParams.get(DRIFT_TABLE_SORT_DIR_PARAM)),
     changesPage: parseDriftTablePositiveInt(searchParams.get(DRIFT_TABLE_CHANGES_PAGE_PARAM)),
+    changesPageSize: parseDriftTableChangesPageSize(searchParams.get(DRIFT_TABLE_CHANGES_PAGE_SIZE_PARAM)),
     snapshotsPage: parseDriftTablePositiveInt(searchParams.get(DRIFT_SNAPSHOTS_PAGE_PARAM)),
     includeUnchanged: parseDriftTableIncludeUnchanged(searchParams.get(DRIFT_TABLE_INCLUDE_UNCHANGED_PARAM)),
     riskyOnly: parseDriftTableRiskyOnly(searchParams.get(DRIFT_TABLE_RISKY_ONLY_PARAM)),
@@ -139,6 +158,7 @@ export function buildDriftTableFilterPatch(
     sortBy: patch.sortBy ?? current.sortBy,
     sortDir: patch.sortDir ?? current.sortDir,
     changesPage: patch.changesPage ?? current.changesPage,
+    changesPageSize: patch.changesPageSize ?? current.changesPageSize,
     snapshotsPage: patch.snapshotsPage ?? current.snapshotsPage,
     includeUnchanged: patch.includeUnchanged ?? current.includeUnchanged,
     riskyOnly: patch.riskyOnly ?? current.riskyOnly,
@@ -182,6 +202,10 @@ export function driftTableFilterSearchParams(state: DriftTableFilterState): URLS
 
   if (state.changesPage > 1) {
     params.set(DRIFT_TABLE_CHANGES_PAGE_PARAM, String(state.changesPage));
+  }
+
+  if (state.changesPageSize !== DEFAULT_DRIFT_CHANGES_PAGE_SIZE) {
+    params.set(DRIFT_TABLE_CHANGES_PAGE_SIZE_PARAM, String(state.changesPageSize));
   }
 
   if (state.snapshotsPage > 1) {

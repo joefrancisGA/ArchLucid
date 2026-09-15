@@ -22,6 +22,14 @@ public sealed class AzureInventoryVisibleSnapshotProjectionTests
             "omitted",
             "Microsoft.Network/dnszones",
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/dnszones/dns1");
+        AzureInventoryResourceRecord omittedSolutionByArmId = CreateResource(
+            "omitted-solution",
+            string.Empty,
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security");
+        AzureInventoryResourceRecord omittedLinkByArmId = CreateResource(
+            "omitted-link",
+            string.Empty,
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1");
 
         AzureInventorySnapshotDetailReadModel snapshot = new()
         {
@@ -32,14 +40,14 @@ public sealed class AzureInventoryVisibleSnapshotProjectionTests
                 WorkspaceId = Guid.NewGuid(),
                 ProjectId = Guid.NewGuid(),
                 PackageId = Guid.NewGuid(),
-                ResourceCount = 2,
+                ResourceCount = 4,
                 RelationshipCount = 2,
                 CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
                 CaptureMethod = AzureInventoryCaptureMethod.HostedReader,
                 CreatedUtc = DateTime.UtcNow,
                 UpdatedUtc = DateTime.UtcNow,
             },
-            Resources = [visibleResource, omittedResource],
+            Resources = [visibleResource, omittedResource, omittedSolutionByArmId, omittedLinkByArmId],
             Properties =
             [
                 new AzureInventoryResourcePropertyReadModel
@@ -76,11 +84,92 @@ public sealed class AzureInventoryVisibleSnapshotProjectionTests
 
         normalized.Resources.Should().ContainSingle(resource =>
             resource.AzureResourceId == visibleResource.AzureResourceId);
+        normalized.Resources.Should().NotContain(resource =>
+            resource.AzureResourceId.Contains("/solutions/", StringComparison.OrdinalIgnoreCase)
+            || resource.AzureResourceId.Contains("/virtualNetworkLinks/", StringComparison.OrdinalIgnoreCase));
         normalized.Properties.Should().ContainSingle(property => property.PropertyKey == "keep");
         normalized.Relationships.Should().ContainSingle(relationship =>
             relationship.RelationshipType == "self");
         normalized.Header.ResourceCount.Should().Be(1);
         normalized.Header.RelationshipCount.Should().Be(1);
+    }
+
+    [Fact]
+    public void Apply_filters_private_link_only_network_interfaces()
+    {
+        const string peNicArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/pe-nic";
+        const string vmNicArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/vm-nic";
+        const string privateEndpointArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1";
+
+        AzureInventoryResourceRecord vmNic = CreateResource(
+            "vm-nic",
+            "Microsoft.Network/networkInterfaces",
+            vmNicArmId);
+        AzureInventoryResourceRecord peNic = CreateResource(
+            "pe-nic",
+            "Microsoft.Network/networkInterfaces",
+            peNicArmId);
+        AzureInventoryResourceRecord privateEndpoint = CreateResource(
+            "pe1",
+            "Microsoft.Network/privateEndpoints",
+            privateEndpointArmId);
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = Guid.NewGuid(),
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid(),
+                PackageId = Guid.NewGuid(),
+                ResourceCount = 3,
+                RelationshipCount = 2,
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+                CaptureMethod = AzureInventoryCaptureMethod.HostedReader,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            Resources = [vmNic, peNic, privateEndpoint],
+            Properties =
+            [
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = peNic.ResourceRowId,
+                    PropertyKey = "privateEndpoint.id",
+                    PropertyValue = privateEndpointArmId,
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = privateEndpointArmId,
+                    ToAzureResourceId = peNicArmId,
+                    RelationshipType = "CONNECTS_TO",
+                    InferenceSource = "inventory-pe-nic",
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                },
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1",
+                    ToAzureResourceId = vmNicArmId,
+                    RelationshipType = "CONNECTS_TO",
+                    InferenceSource = "inventory-vm-nic",
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                },
+            ],
+        };
+
+        AzureInventorySnapshotDetailReadModel normalized = AzureInventoryVisibleSnapshotProjection.Apply(snapshot);
+
+        normalized.Resources.Select(resource => resource.AzureResourceId).Should().BeEquivalentTo(
+            [vmNicArmId, privateEndpointArmId]);
+        normalized.Header.ResourceCount.Should().Be(2);
     }
 
     [Fact]
@@ -115,6 +204,36 @@ public sealed class AzureInventoryVisibleSnapshotProjectionTests
                 visibleArmIds);
 
         visible.Should().ContainSingle(relationship => relationship.RelationshipType == "hasRole");
+    }
+
+    [Fact]
+    public void BuildSqlAzureResourceIdVisiblePredicate_excludes_solutions_and_virtual_network_links()
+    {
+        string predicate = AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("AzureResourceId");
+
+        predicate.Should().Contain("%/solutions/%");
+        predicate.Should().Contain("%/virtualnetworklinks/%");
+        predicate.Should().Contain("%/sshpublickeys/%");
+    }
+
+    [Fact]
+    public void BuildSqlResourceTypeVisiblePredicate_keeps_null_or_blank_resource_type()
+    {
+        string predicate = AzureInventoryVisibleSnapshotProjection.BuildSqlResourceTypeVisiblePredicate("r.ResourceType");
+
+        predicate.Should().Contain("r.ResourceType IS NULL");
+        predicate.Should().Contain("r.ResourceType = N''");
+        predicate.Should().Contain("r.ResourceType <> N'Microsoft.OperationsManagement/solutions'");
+    }
+
+    [Fact]
+    public void BuildSqlAzureResourceIdVisiblePredicate_keeps_null_or_blank_arm_id()
+    {
+        string predicate = AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("r.AzureResourceId");
+
+        predicate.Should().Contain("r.AzureResourceId IS NULL");
+        predicate.Should().Contain("r.AzureResourceId = N''");
+        predicate.Should().Contain("%/solutions/%");
     }
 
     private static AzureInventoryResourceRecord CreateResource(

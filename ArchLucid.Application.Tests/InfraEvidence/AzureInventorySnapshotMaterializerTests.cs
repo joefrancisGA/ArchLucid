@@ -174,6 +174,72 @@ public sealed class AzureInventorySnapshotMaterializerTests
     }
 
     [Fact]
+    public async Task TryMaterializePackageAsync_omits_never_show_solutions_and_virtual_network_links()
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        Guid snapshotId = Guid.NewGuid();
+        Guid packageId = Guid.NewGuid();
+
+        AzureInventorySnapshotMaterializeWriteRequest? captured = null;
+        Mock<IAzureInventorySnapshotRepository> snapshotRepository = CreateSnapshotRepository(
+            scope,
+            snapshotId,
+            request => captured = request);
+
+        Mock<ICloudResourceIdentityDirectory> identityDirectory = CreateIdentityDirectory(scope, snapshotId);
+
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "location": "eastus",
+                "properties": {}
+              },
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security",
+                "resourceType": "Microsoft.OperationsManagement/solutions",
+                "name": "Security",
+                "location": "eastus",
+                "properties": {}
+              },
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1",
+                "resourceType": "",
+                "name": "link1",
+                "location": "eastus",
+                "properties": {}
+              }
+            ]
+            """);
+
+        AzureInventorySnapshotMaterializer sut = new(
+            snapshotRepository.Object,
+            identityDirectory.Object,
+            CreateNoOpPostMaterializeCoordinator(),
+            NullLogger<AzureInventorySnapshotMaterializer>.Instance);
+
+        AzureInventorySnapshotMaterializeResult result = await sut.TryMaterializePackageAsync(
+            scope,
+            snapshotId,
+            packageId,
+            zipBytes,
+            AzureInventoryCaptureMethod.CustomerScript,
+            "0.4.0",
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        captured.Should().NotBeNull();
+        captured!.Resources.Should().ContainSingle(resource =>
+            resource.ResourceType == "Microsoft.Storage/storageAccounts");
+        captured.Resources.Should().NotContain(resource =>
+            resource.AzureResourceId.Contains("/solutions/", StringComparison.OrdinalIgnoreCase)
+            || resource.AzureResourceId.Contains("/virtualNetworkLinks/", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task TryMaterializePackageAsync_writes_logsTo_relationship_from_diagnostic_settings()
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };

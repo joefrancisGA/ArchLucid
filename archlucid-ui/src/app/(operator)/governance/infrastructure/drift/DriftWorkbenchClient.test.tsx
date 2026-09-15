@@ -245,7 +245,7 @@ describe("DriftWorkbenchClient", () => {
       expect(mockFetchSnapshotInventoryRows).toHaveBeenCalledWith(
         "11111111-1111-1111-1111-111111111111",
         1,
-        100,
+        50,
         { cloudResourceId: null },
       );
     });
@@ -259,7 +259,7 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-drift-changes-empty-unselected")).not.toBeInTheDocument();
   });
 
-  it("restores anchor snapshot and empty changes when diff selection is cleared", async () => {
+  it("restores anchor snapshot and inventory rows when diff selection is cleared", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DriftWorkbenchClient />);
 
@@ -268,7 +268,7 @@ describe("DriftWorkbenchClient", () => {
     fireEvent.click(await screen.findByTestId("infra-drift-cross-subscription-confirm"));
 
     await waitFor(() => {
-      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, {
+      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 50, {
         cloudResourceId: null,
         includeUnchanged: false,
       });
@@ -290,7 +290,7 @@ describe("DriftWorkbenchClient", () => {
     await waitFor(() => {
       expect(mockFetchSnapshotInventoryRows).toHaveBeenCalled();
     });
-    expect(screen.getByTestId("infra-drift-change-row-inventory-row-1")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-drift-change-row-inventory-row-1")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-change-row-change-1")).not.toBeInTheDocument();
   });
 
@@ -400,7 +400,7 @@ describe("DriftWorkbenchClient", () => {
     await waitFor(() => {
       expect(mockFetchSnapshotInventoryRows).toHaveBeenCalled();
     });
-    expect(screen.getByTestId("infra-drift-change-row-inventory-row-1")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-drift-change-row-inventory-row-1")).toBeInTheDocument();
   });
 
   it("shows resource scope banner when cloudResourceId is in the URL", async () => {
@@ -433,7 +433,7 @@ describe("DriftWorkbenchClient", () => {
       "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=diagram&snapshotId=11111111-1111-1111-1111-111111111111",
     );
     await waitFor(() => {
-      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, {
+      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 50, {
         cloudResourceId: "22222222-2222-2222-2222-222222222222",
         includeUnchanged: false,
       });
@@ -847,13 +847,56 @@ describe("DriftWorkbenchClient", () => {
     render(<DriftWorkbenchClient />);
 
     await waitFor(() => {
-      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, {
+      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 50, {
         cloudResourceId: null,
         includeUnchanged: true,
       });
     });
 
     expect(screen.getByTestId("infra-drift-include-unchanged")).toBeChecked();
+  });
+
+  it("pages inventory rows instead of loading more, using the URL page size", async () => {
+    mockFetchSnapshotInventoryRows.mockResolvedValue({
+      items: [
+        {
+          changeId: "inventory-row-1",
+          diffId: "",
+          cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          azureResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+          changeType: "Unknown",
+          property: null,
+          oldValue: null,
+          newValue: "Microsoft.Network/publicIPAddresses",
+          riskClassification: null,
+          evidenceReference: "snapshot-inventory",
+        },
+      ],
+      totalCount: 621,
+      page: 2,
+      pageSize: 20,
+      hasMore: true,
+    });
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&changesPage=2&changesPageSize=20",
+    );
+    render(<DriftWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(mockFetchSnapshotInventoryRows).toHaveBeenCalledWith(
+        "11111111-1111-1111-1111-111111111111",
+        2,
+        20,
+        { cloudResourceId: null },
+      );
+    });
+
+    expect(await screen.findByTestId("infra-drift-changes-pagination")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-drift-changes-showing-line")).toHaveTextContent("Showing 21–40 of 621");
+    expect(screen.getByTestId("infra-drift-changes-page-select")).toHaveValue("2");
+    expect(screen.getByTestId("infra-drift-changes-page-size")).toHaveValue("20");
+    expect(screen.queryByTestId("infra-drift-load-more-changes")).not.toBeInTheDocument();
   });
 
   it("shows an inline error instead of a toast when Terraform export fails", async () => {
