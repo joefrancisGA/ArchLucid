@@ -2,7 +2,13 @@
 
 export const GOVERNANCE_INFRASTRUCTURE_PATH = "/governance/infrastructure";
 
+/** SecureNow shell — infrastructure overview hub (Infrastructure URL namespace). */
+export const SECURENOW_INFRASTRUCTURE_PATH = "/infrastructure" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH = "/governance/infrastructure/drift";
+
+/** SecureNow shell — drift workbench (Infrastructure URL namespace). */
+export const SECURENOW_INFRASTRUCTURE_DRIFT_PATH = "/infrastructure/drift" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH = "/governance/infrastructure/diagrams";
 
@@ -11,6 +17,9 @@ export const SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH = "/infrastructure/diagrams"
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH =
   "/governance/infrastructure/diagram-reconcile";
+
+/** SecureNow shell — diagram reconcile workbench (Infrastructure URL namespace). */
+export const SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH = "/infrastructure/diagram-reconcile" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH = "/governance/infrastructure/resources";
 
@@ -23,6 +32,9 @@ export function governanceInfrastructureResourceHubPath(cloudResourceId: string)
 
 export const GOVERNANCE_INFRASTRUCTURE_ASK_PATH = "/governance/infrastructure/ask";
 
+/** SecureNow shell — grounded Ask workbench (Infrastructure URL namespace). */
+export const SECURENOW_INFRASTRUCTURE_ASK_PATH = "/infrastructure/ask" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH = "/governance/infrastructure/remediation";
 
 /** SecureNow Security shell — remediation instances workbench (Security URL namespace). */
@@ -30,11 +42,25 @@ export const SECURENOW_REMEDIATION_INSTANCES_PATH = "/security/remediation-insta
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH = "/governance/infrastructure/terraform";
 
+/** SecureNow shell — advisory Terraform mapping workbench (Infrastructure URL namespace). */
+export const SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH = "/infrastructure/terraform" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH =
   "/governance/infrastructure/extract-upload";
 
 export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH =
   "/governance/infrastructure/declared-connections";
+
+/** SecureNow shell — declared human connections workbench (Infrastructure URL namespace). */
+export const SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH =
+  "/infrastructure/declared-connections" as const;
+
+/** SecureNow shell — extract and upload intake (Infrastructure URL namespace). */
+export const SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH = "/infrastructure/extract-upload" as const;
+
+function pathMatchesInfrastructureNamespace(bare: string, basePath: string): boolean {
+  return bare === basePath || bare.startsWith(`${basePath}/`);
+}
 
 export function isGovernanceInfrastructureRoutePath(pathname: string | null | undefined): boolean {
   if (pathname === null || pathname === undefined) {
@@ -43,7 +69,8 @@ export function isGovernanceInfrastructureRoutePath(pathname: string | null | un
 
   const bare = pathname.split("?", 1)[0] ?? pathname;
 
-  return bare === GOVERNANCE_INFRASTRUCTURE_PATH || bare.startsWith(`${GOVERNANCE_INFRASTRUCTURE_PATH}/`);
+  return pathMatchesInfrastructureNamespace(bare, GOVERNANCE_INFRASTRUCTURE_PATH)
+    || pathMatchesInfrastructureNamespace(bare, SECURENOW_INFRASTRUCTURE_PATH);
 }
 
 export function isGovernanceInfrastructureAskRoutePath(pathname: string | null | undefined): boolean {
@@ -53,5 +80,6 @@ export function isGovernanceInfrastructureAskRoutePath(pathname: string | null |
 
   const bare = pathname.split("?", 1)[0] ?? pathname;
 
-  return bare === GOVERNANCE_INFRASTRUCTURE_ASK_PATH || bare.startsWith(`${GOVERNANCE_INFRASTRUCTURE_ASK_PATH}/`);
+  return pathMatchesInfrastructureNamespace(bare, GOVERNANCE_INFRASTRUCTURE_ASK_PATH)
+    || pathMatchesInfrastructureNamespace(bare, SECURENOW_INFRASTRUCTURE_ASK_PATH);
 }

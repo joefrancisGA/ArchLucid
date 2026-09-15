@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE,
+} from "@/lib/architecture/architecture-diagram-mermaid-config";
+import {
   replaceMermaidForeignObjectLabelsWithSvgText,
   sanitizeArchitectureDiagramSvg,
 } from "@/lib/architecture/architecture-diagram-svg";
@@ -51,7 +54,7 @@ describe("architecture-diagram-svg", () => {
     expect(converted).toContain('fill="currentColor"');
   });
 
-  it("paints node boxes and edge paths that have no stroke so the graph is not invisible", () => {
+  it("paints node boxes and edge paths with the honey export palette", () => {
     const svg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80">',
       '  <g class="node"><rect width="80" height="32" x="10" y="10" fill="none"/></g>',
@@ -61,10 +64,25 @@ describe("architecture-diagram-svg", () => {
 
     const converted = replaceMermaidForeignObjectLabelsWithSvgText(svg);
 
-    expect(converted).toContain('stroke="currentColor"');
+    expect(converted).toContain(`fill="${ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill}"`);
+    expect(converted).toContain(`stroke="${ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.border}"`);
     expect(converted).toContain('stroke-width="1.5"');
-    expect(converted).toContain('fill-opacity="0.12"');
+    expect(converted).not.toContain('fill-opacity="0.12"');
     expect(converted).toMatch(/<path[^>]*fill="none"/);
+  });
+
+  it("replaces neutral mermaid gray node fills with honey before raster export", () => {
+    const svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80">',
+      '  <g class="node"><rect width="80" height="32" x="10" y="10" fill="#ececec" stroke="#999"/></g>',
+      "</svg>",
+    ].join("");
+
+    const converted = sanitizeArchitectureDiagramSvg(svg);
+
+    expect(converted).toContain(`fill="${ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill}"`);
+    expect(converted).toContain(`stroke="${ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.border}"`);
+    expect(converted).not.toContain('fill="#ececec"');
   });
 
   it("wraps long foreignObject names into tspans that fit the node rect", () => {

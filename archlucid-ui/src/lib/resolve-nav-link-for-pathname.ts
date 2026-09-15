@@ -1,20 +1,48 @@
 import type { LucideIcon } from "lucide-react";
 
+import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH, SECURENOW_AUDIT_EVIDENCE_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
+  GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_INFRASTRUCTURE_ASK_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+  SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
   SECURENOW_REMEDIATION_INSTANCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { flattenNavLinks } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config.types";
 
 /** SecureNow routes that reuse governance nav-config identity (icon + longest-prefix match). */
 const SECURENOW_NAV_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
+  [SECURENOW_POLICY_PACKS_PATH]: GOVERNANCE_POLICY_PACKS_PATH,
+  [SECURENOW_STANDARDS_AND_RULES_PATH]: GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  [SECURENOW_FINDINGS_PATH]: GOVERNANCE_FINDINGS_PATH,
+  [SECURENOW_AUDIT_EVIDENCE_PATH]: AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
+  [SECURENOW_INFRASTRUCTURE_DRIFT_PATH]: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  [SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH]: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
   [SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH]: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  [SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH]: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   [SECURENOW_INFRASTRUCTURE_RESOURCES_PATH]: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  [SECURENOW_INFRASTRUCTURE_ASK_PATH]: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  [SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH]: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   [SECURENOW_REMEDIATION_INSTANCES_PATH]: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
 };
 
@@ -27,7 +55,31 @@ function hrefToPathname(href: string): string {
 }
 
 function normalizeNavLookupPathname(pathname: string): string {
-  return SECURENOW_NAV_LOOKUP_ALIASES[pathname] ?? pathname;
+  const exact = SECURENOW_NAV_LOOKUP_ALIASES[pathname];
+
+  if (exact !== undefined) {
+    return exact;
+  }
+
+  let bestAlias: string | undefined;
+  let bestCanonical: string | undefined;
+
+  for (const [alias, canonical] of Object.entries(SECURENOW_NAV_LOOKUP_ALIASES)) {
+    if (!pathname.startsWith(`${alias}/`)) {
+      continue;
+    }
+
+    if (bestAlias === undefined || alias.length > bestAlias.length) {
+      bestAlias = alias;
+      bestCanonical = canonical;
+    }
+  }
+
+  if (bestAlias === undefined || bestCanonical === undefined) {
+    return pathname;
+  }
+
+  return `${bestCanonical}${pathname.slice(bestAlias.length)}`;
 }
 
 function pathMatchesNavHref(pathname: string, linkHref: string | undefined): boolean {

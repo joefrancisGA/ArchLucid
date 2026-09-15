@@ -1,3 +1,5 @@
+import { formatCloudResourceDisplayName } from "@/lib/infra-evidence/format-azure-resource-display";
+
 export type InfraEvidenceRecentScopeLabelInput = {
   readonly surface: "ask" | "hub" | "explorer";
   readonly cloudResourceId?: string | null;
@@ -49,17 +51,13 @@ function formatAuditControlSegment(
 
 function resolveResourceLabel(input: InfraEvidenceRecentScopeLabelInput): string | null {
   const displayName = input.resourceDisplayName?.trim() ?? "";
-
-  if (displayName.length > 0) {
-    return displayName;
-  }
-
   const externalResourceId = input.externalResourceId?.trim() ?? "";
 
-  if (externalResourceId.length > 0) {
-    const segments = externalResourceId.split("/");
-
-    return segments[segments.length - 1] ?? externalResourceId;
+  if (displayName.length > 0 || externalResourceId.length > 0) {
+    return formatCloudResourceDisplayName({
+      displayName,
+      externalResourceId,
+    });
   }
 
   return shortIdentifier(input.cloudResourceId);

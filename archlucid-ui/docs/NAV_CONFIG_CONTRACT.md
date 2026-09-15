@@ -69,7 +69,7 @@ One Next.js app and one API host. `NEXT_PUBLIC_ARCHLUCID_PRODUCT=architecture|se
 | `architecture` (default for unlisted hrefs) | Architecture shell only |
 | `security` | Security shell only |
 
-**Security spine today:** the `operate-security` group (assigned-to-me, remediation factory, remediation patterns, **remediation instances** at `/security/remediation-instances`), the `operate-infrastructure` group (`/governance/infrastructure/*` minus remediation instances, including **Extract & upload** at `/governance/infrastructure/extract-upload`), ARC-AMPE compliance posture (`policy-packs`, `standards-and-rules`, `findings`, `audit-evidence`), Integrations (inventory + outbound bridges), shared Administration (users, identity, trust, health, support — not extract-upload, AI usage / model governance / baseline / recycle bin / billing), and Internal diagnostics (health, configuration, tenants — not trial funnel / pricing / replay / learning).
+**Security spine today:** the `operate-security` group (assigned-to-me, remediation factory, remediation patterns, **remediation instances** at `/security/remediation-instances`), the `operate-infrastructure` group (`/infrastructure/*` minus remediation instances, including **Extract & upload** at `/infrastructure/extract-upload`; Architecture keeps `/governance/infrastructure/*`), ARC-AMPE compliance posture at `/compliance/policy-packs`, `/compliance/standards-and-rules`, `/compliance/findings`, and `/compliance/audit-evidence` (Architecture keeps `/governance/*` for the same pages), Integrations (inventory + outbound bridges), shared Administration (users, identity, trust, health, support — not extract-upload, AI usage / model governance / baseline / recycle bin / billing), and Internal diagnostics (health, configuration, tenants — not trial funnel / pricing / replay / learning).
 
 The Security shell **skips** the committed-architecture-review nav gate and role-density collapse so Infrastructure is not hidden behind a first sealed review. Shuffle destinations from **Internal → Product line** (`/internal/product-line`, localStorage overlay). Product shell selection lives on that Internal page, not the home body.
 
@@ -94,7 +94,7 @@ Operator sidebar groups imply a URL prefix in the address bar. **78** nav hrefs 
 | `pilot` | *(none — heterogeneous top-level review paths)* | Prefix enforcement skipped; review paths live at `/`, `/architecture/*`. |
 | `operate-analysis` | *(none)* | Prefix enforcement skipped: `/insights/ask-review-questions`, `/insights/compare-two-reviews`, `/insights/impact-preview`, … |
 | `operate-governance` | `/governance` | Approval-loop nav hrefs under `/governance/*` (TB-405). |
-| `operate-infrastructure` | `/governance` | Infrastructure evidence workbenches under `/governance/infrastructure/*` (IE-UX-00). |
+| `operate-infrastructure` | `/governance` | Infrastructure evidence workbenches under `/governance/infrastructure/*` (Architecture) or `/infrastructure/*` (SecureNow; IE-UX-00). |
 | `operate-policy` | `/governance` | Policy/setup nav hrefs under `/governance/*` (TB-405). |
 | `operate-integrations` | `/integrations` | All Integrations nav hrefs under `/integrations/*` (TB-407). |
 | `operator-admin` | `/administration` | All Administration nav hrefs under `/administration/*` (TB-406). |

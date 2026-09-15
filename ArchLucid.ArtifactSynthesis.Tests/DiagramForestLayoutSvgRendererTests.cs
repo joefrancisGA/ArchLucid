@@ -5,6 +5,7 @@ using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Diagrams;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -39,6 +40,19 @@ public sealed class DiagramForestLayoutSvgRendererTests
 
         rectWidths.Should().HaveCount(11);
         rectWidths.Distinct().Should().ContainSingle().Which.Should().Be("400");
+
+        List<string> rectFills = root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "node", StringComparison.Ordinal))
+            .SelectMany(group => group.Elements())
+            .Where(element => string.Equals(element.Name.LocalName, "rect", StringComparison.Ordinal))
+            .Select(element => element.Attribute("fill")?.Value ?? string.Empty)
+            .Where(fill => fill.Length > 0)
+            .ToList();
+
+        rectFills.Should().HaveCount(11);
+        rectFills.Should().OnlyContain(fill => fill == ArchitectureDiagramMermaidPalette.LightNodeFill);
     }
 
     [Fact]

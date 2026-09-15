@@ -30,7 +30,7 @@ Optum management challenged delivery to prove BI/automation value in two steps: 
 | --- | --- | --- |
 | **1** | Azure inventory captured and materialized as point-in-time snapshots | Extract & upload, hosted auto-pull, resource explorer |
 | **2** | Diagrams generated from inventory (Mermaid modes, PNG export, large-subscription collapse) | `/infrastructure/diagrams`, `/governance/infrastructure/diagrams` |
-| **3** | **Documentation accuracy pass** — import their diagrams, reconcile vs snapshot, scorecard + exportable difference report | See [WEEK_03_DOCUMENTATION_ACCURACY_GOALS.md](WEEK_03_DOCUMENTATION_ACCURACY_GOALS.md) |
+| **3** | **Documentation accuracy pass** — primary: import diagrams, reconcile vs snapshot, scorecard + export; **fallback:** estate truth baseline (baseline + drift + metadata gap report) if diagram import blocked | See [WEEK_03_DOCUMENTATION_ACCURACY_GOALS.md](WEEK_03_DOCUMENTATION_ACCURACY_GOALS.md) |
 | **4+** | Transition into remediation factory using reconciliation findings; ARC-AMPE compliance posture | Remediation factory, audit evidence lineage |
 
 ---

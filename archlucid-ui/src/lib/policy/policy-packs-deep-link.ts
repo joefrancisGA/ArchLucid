@@ -42,14 +42,18 @@ export function policyPacksEditHref(policyPackId: string): string {
 }
 
 /** First-class policy pack detail route with optional review scope. */
-export function policyPackDetailHref(policyPackId: string, reviewId?: string | null): string {
+export function policyPackDetailHref(
+  policyPackId: string,
+  reviewId?: string | null,
+  hubPath: string = GOVERNANCE_POLICY_PACKS_PATH,
+): string {
   const id = policyPackId.trim();
 
   if (id.length === 0) {
-    return GOVERNANCE_POLICY_PACKS_PATH;
+    return hubPath;
   }
 
-  const path = `${GOVERNANCE_POLICY_PACKS_PATH}/${encodeURIComponent(id)}`;
+  const path = `${hubPath}/${encodeURIComponent(id)}`;
   const review = reviewId?.trim() ?? "";
 
   if (review.length === 0) {

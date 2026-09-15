@@ -10,13 +10,20 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
+import { resolveInfraEvidenceOutlineEdgeToDisplay } from "@/lib/infra-evidence/format-infra-evidence-outline-edge-to-label";
 import { InfraEvidenceDiagramOutlineNodeLabel } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
 import {
+  DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_DIR,
+  DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_KEY,
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_DIR,
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_KEY,
+  sortDirectionForInfraEvidenceDiagramOutlineEdgeColumn,
   sortDirectionForInfraEvidenceDiagramOutlineNodeColumn,
+  sortInfraEvidenceDiagramOutlineEdges,
   sortInfraEvidenceDiagramOutlineNodes,
+  toggleInfraEvidenceDiagramOutlineEdgeSort,
   toggleInfraEvidenceDiagramOutlineNodeSort,
+  type InfraEvidenceDiagramOutlineEdgeSortKey,
   type InfraEvidenceDiagramOutlineNodeSortKey,
 } from "@/lib/infra-evidence/infra-evidence-diagram-outline-sort";
 import {
@@ -43,12 +50,17 @@ function formatOutlineResourceType(resourceType: string | null): string {
   return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType));
 }
 
-function InfraEvidenceDiagramOutlineSortableHeader(props: {
-  readonly column: InfraEvidenceDiagramOutlineNodeSortKey;
+function InfraEvidenceDiagramOutlineSortableHeader<TColumn extends string>(props: {
+  readonly column: TColumn;
   readonly label: string;
-  readonly sortKey: InfraEvidenceDiagramOutlineNodeSortKey;
+  readonly sortKey: TColumn;
   readonly sortDir: "asc" | "desc";
-  readonly onSort: (column: InfraEvidenceDiagramOutlineNodeSortKey) => void;
+  readonly onSort: (column: TColumn) => void;
+  readonly resolveAriaSort: (
+    sortKey: TColumn,
+    column: TColumn,
+    sortDir: "asc" | "desc",
+  ) => "ascending" | "descending" | "none";
 }): React.JSX.Element {
   const isActive = props.sortKey === props.column;
   const directionLabel = props.sortDir === "asc" ? "ascending" : "descending";
@@ -57,7 +69,7 @@ function InfraEvidenceDiagramOutlineSortableHeader(props: {
     <th
       className="px-3 py-2 font-medium"
       scope="col"
-      aria-sort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn(props.sortKey, props.column, props.sortDir)}
+      aria-sort={props.resolveAriaSort(props.sortKey, props.column, props.sortDir)}
     >
       <button
         type="button"
@@ -82,13 +94,19 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   const { outline, onFocusNeighborhood } = props;
   const [nodeSortKey, setNodeSortKey] = useState(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_KEY);
   const [nodeSortDir, setNodeSortDir] = useState<"asc" | "desc">(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_DIR);
+  const [edgeSortKey, setEdgeSortKey] = useState(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_KEY);
+  const [edgeSortDir, setEdgeSortDir] = useState<"asc" | "desc">(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_DIR);
 
   const nodeRows = useMemo(() => {
     const sortedNodes = sortInfraEvidenceDiagramOutlineNodes(outline.nodes, nodeSortKey, nodeSortDir);
 
     return sortedNodes.slice(0, 200);
   }, [nodeSortDir, nodeSortKey, outline.nodes]);
-  const edgeRows = outline.edges.slice(0, 200);
+  const edgeRows = useMemo(() => {
+    const sortedEdges = sortInfraEvidenceDiagramOutlineEdges(outline.edges, outline.nodes, edgeSortKey, edgeSortDir);
+
+    return sortedEdges.slice(0, 200);
+  }, [edgeSortDir, edgeSortKey, outline.edges, outline.nodes]);
   const showNeighborhoodActions = onFocusNeighborhood != null;
 
   const handleNodeSort = (column: InfraEvidenceDiagramOutlineNodeSortKey) => {
@@ -96,6 +114,13 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
 
     setNodeSortKey(next.sortKey);
     setNodeSortDir(next.sortDir);
+  };
+
+  const handleEdgeSort = (column: InfraEvidenceDiagramOutlineEdgeSortKey) => {
+    const next = toggleInfraEvidenceDiagramOutlineEdgeSort(edgeSortKey, edgeSortDir, column);
+
+    setEdgeSortKey(next.sortKey);
+    setEdgeSortDir(next.sortDir);
   };
 
   return (
@@ -119,10 +144,11 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
               <tr>
                 <InfraEvidenceDiagramOutlineSortableHeader
                   column="label"
-                  label="Label"
+                  label="Node Name"
                   sortKey={nodeSortKey}
                   sortDir={nodeSortDir}
                   onSort={handleNodeSort}
+                  resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
                 />
                 <InfraEvidenceDiagramOutlineSortableHeader
                   column="resourceType"
@@ -130,6 +156,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   sortKey={nodeSortKey}
                   sortDir={nodeSortDir}
                   onSort={handleNodeSort}
+                  resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
                 />
                 <InfraEvidenceDiagramOutlineSortableHeader
                   column="resourceGroup"
@@ -137,6 +164,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   sortKey={nodeSortKey}
                   sortDir={nodeSortDir}
                   onSort={handleNodeSort}
+                  resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
                 />
                 {showNeighborhoodActions ? (
                   <th className="px-3 py-2 font-medium" scope="col">
@@ -184,15 +212,42 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
           <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
             <thead className="bg-neutral-50 dark:bg-neutral-900/60">
               <tr>
-                <th className="px-3 py-2 font-medium">From</th>
-                <th className="px-3 py-2 font-medium">Relationship</th>
-                <th className="px-3 py-2 font-medium">To</th>
+                <InfraEvidenceDiagramOutlineSortableHeader
+                  column="from"
+                  label="From"
+                  sortKey={edgeSortKey}
+                  sortDir={edgeSortDir}
+                  onSort={handleEdgeSort}
+                  resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineEdgeColumn}
+                />
+                <InfraEvidenceDiagramOutlineSortableHeader
+                  column="relationship"
+                  label="Relationship"
+                  sortKey={edgeSortKey}
+                  sortDir={edgeSortDir}
+                  onSort={handleEdgeSort}
+                  resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineEdgeColumn}
+                />
+                <InfraEvidenceDiagramOutlineSortableHeader
+                  column="to"
+                  label="To"
+                  sortKey={edgeSortKey}
+                  sortDir={edgeSortDir}
+                  onSort={handleEdgeSort}
+                  resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineEdgeColumn}
+                />
               </tr>
             </thead>
             <tbody>
               {edgeRows.map((edge, index) => {
                 const fromNode = outline.nodes.find((node) => node.id === edge.from);
                 const toNode = outline.nodes.find((node) => node.id === edge.to);
+                const toDisplay = resolveInfraEvidenceOutlineEdgeToDisplay({
+                  fromNode,
+                  toNode,
+                  fromFallback: resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from),
+                  toFallback: resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.to),
+                });
 
                 return (
                   <tr
@@ -207,13 +262,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                       )}
                     </td>
                     <td className="px-3 py-2">{formatOutlineCell(resolveInfraEvidenceOutlineEdgeLabel(edge, outline.nodes))}</td>
-                    <td className="px-3 py-2">
-                      {toNode != null ? (
-                        <InfraEvidenceDiagramOutlineNodeLabel node={toNode} />
-                      ) : (
-                        resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.to)
-                      )}
-                    </td>
+                    <td className="px-3 py-2">{toDisplay}</td>
                   </tr>
                 );
               })}

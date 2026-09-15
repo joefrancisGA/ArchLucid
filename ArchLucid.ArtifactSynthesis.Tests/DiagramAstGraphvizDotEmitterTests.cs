@@ -3,6 +3,7 @@ using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Diagrams;
 
 using FluentAssertions;
 
@@ -33,6 +34,8 @@ public sealed class DiagramAstGraphvizDotEmitterTests
         dot.Should().Contain("sep=\"+36,28\"");
         dot.Should().Contain("K=1.8");
         dot.Should().Contain("pack=true");
+        dot.Should().Contain($"fillcolor=\"{ArchitectureDiagramMermaidPalette.LightNodeFill}\"");
+        dot.Should().Contain($"color=\"{ArchitectureDiagramMermaidPalette.LightNodeBorder}\"");
     }
 
     [Fact]

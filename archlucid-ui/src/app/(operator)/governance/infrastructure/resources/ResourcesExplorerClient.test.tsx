@@ -242,4 +242,31 @@ describe("ResourcesExplorerClient", () => {
     expect(workCell).toHaveTextContent("None");
     expect(workCell).not.toHaveTextContent("—");
   });
+
+  it("displays mixed-case resource names in lowercase", async () => {
+    fetchCloudResourceExplorerPage.mockResolvedValueOnce({
+      items: [
+        {
+          cloudResourceId: "11111111-1111-1111-1111-111111111111",
+          externalResourceId:
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+          displayName: "Gateway-PIP",
+          resourceType: "Microsoft.Network/publicIPAddresses",
+          resourceGroup: "rg-net",
+          region: "eastus",
+          lastSeenUtc: "2026-09-01T12:00:00Z",
+          workCounts: null,
+        },
+      ],
+      totalCount: 1,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+    searchParams = new URLSearchParams("");
+    render(<ResourcesExplorerClient />);
+
+    expect(await screen.findByRole("link", { name: "gateway-pip" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Gateway-PIP" })).not.toBeInTheDocument();
+  });
 });

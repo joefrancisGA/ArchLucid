@@ -62,6 +62,7 @@ import {
   INFRA_EVIDENCE_MERMAID_TOO_LARGE_FOR_BROWSER_MESSAGE,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-client-guard";
 import { buildDiagramWalkthrough } from "@/lib/infra-evidence/build-diagram-walkthrough";
+import { filterInfraEvidenceMermaidOutline } from "@/lib/infra-evidence/azure-inventory-never-show-arm-types";
 import { resolveAlwaysExcludedMermaidCollapseEntries } from "@/lib/infra-evidence/infra-evidence-mermaid-collapse-report";
 import { resolveDiagramCameraFocusNodeIds } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type {
@@ -76,6 +77,11 @@ import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-ev
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
 import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra-evidence/infra-evidence-mermaid-render-status-presentation";
 import { isInfraEvidenceMermaidDiagramEmpty } from "@/lib/infra-evidence/infra-evidence-mermaid-empty-content";
+import { resolveInfraEvidenceDiagramOutlineResourceName } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
+import {
+  normalizeInfraEvidenceLayoutSvgForDisplay,
+  normalizeInfraEvidenceMermaidSourceForDisplay,
+} from "@/lib/infra-evidence/normalize-infra-evidence-mermaid-display";
 import {
   parseInfraEvidenceMermaidOutline,
   resolveInfraEvidenceOutlineSeedNodeId,
@@ -482,6 +488,14 @@ export function DiagramsWorkbenchClient() {
   ]);
 
   const mermaidSource = renderResult?.mermaid ?? "";
+  const displayMermaidSource = useMemo(
+    () => normalizeInfraEvidenceMermaidSourceForDisplay(mermaidSource),
+    [mermaidSource],
+  );
+  const displayLayoutSvg = useMemo(
+    () => normalizeInfraEvidenceLayoutSvgForDisplay(renderResult?.layoutSvg ?? ""),
+    [renderResult?.layoutSvg],
+  );
   const metrics = renderResult?.metrics ?? null;
   const dependencyNeighborhoodAwaitingSeed = dependencyNeighborhoodRequiresAppliedSeed(
     selectedMode,
@@ -534,13 +548,29 @@ export function DiagramsWorkbenchClient() {
     return parseInfraEvidenceMermaidOutline(mermaidSource);
   }, [mermaidSource]);
 
-  const diagramWalkthrough = useMemo(() => {
+  const visibleMermaidOutline = useMemo(() => {
     if (mermaidOutline == null) {
       return null;
     }
 
-    return buildDiagramWalkthrough(mermaidOutline);
-  }, [mermaidOutline]);
+    return filterInfraEvidenceMermaidOutline(mermaidOutline, includeNeverShow);
+  }, [includeNeverShow, mermaidOutline]);
+
+  const visibleSeedCatalogOutline = useMemo(() => {
+    if (seedCatalogOutline == null) {
+      return null;
+    }
+
+    return filterInfraEvidenceMermaidOutline(seedCatalogOutline, includeNeverShow);
+  }, [includeNeverShow, seedCatalogOutline]);
+
+  const diagramWalkthrough = useMemo(() => {
+    if (visibleMermaidOutline == null) {
+      return null;
+    }
+
+    return buildDiagramWalkthrough(visibleMermaidOutline);
+  }, [visibleMermaidOutline]);
 
   const alwaysExcludedCollapseEntries = useMemo(() => {
     if (includeNeverShow) {
@@ -615,8 +645,8 @@ export function DiagramsWorkbenchClient() {
   );
 
   const cameraFocusNodeIds = useMemo(
-    () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, mermaidOutline),
-    [appliedSeedNodeId, mermaidOutline],
+    () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, visibleMermaidOutline),
+    [appliedSeedNodeId, visibleMermaidOutline],
   );
 
   const [cameraFocusNonce, setCameraFocusNonce] = useState(0);
@@ -635,12 +665,12 @@ export function DiagramsWorkbenchClient() {
   }, [selectedSnapshotId]);
 
   useEffect(() => {
-    if (mermaidOutline == null || mermaidOutline.nodes.length === 0) {
+    if (visibleMermaidOutline == null || visibleMermaidOutline.nodes.length === 0) {
       return;
     }
 
-    setSeedCandidateNodes([...mermaidOutline.nodes]);
-  }, [mermaidOutline]);
+    setSeedCandidateNodes([...visibleMermaidOutline.nodes]);
+  }, [visibleMermaidOutline]);
 
   useEffect(() => {
     if (
@@ -670,7 +700,9 @@ export function DiagramsWorkbenchClient() {
         }
 
         setSeedCatalogOutline(catalogOutline);
-        setSeedCandidateNodes([...catalogOutline.nodes]);
+        setSeedCandidateNodes([
+          ...filterInfraEvidenceMermaidOutline(catalogOutline, includeNeverShow).nodes,
+        ]);
       } catch {
         // Seed picker still supports paste; catalog is a convenience for VNet selection.
       } finally {
@@ -691,6 +723,7 @@ export function DiagramsWorkbenchClient() {
     seedCatalogOutline,
     selectedMode,
     selectedSnapshotId,
+    includeNeverShow,
   ]);
 
   const diagramScopeContextLine = useMemo(() => {
@@ -1411,7 +1444,7 @@ export function DiagramsWorkbenchClient() {
 
                     return (
                       <option key={`${node.id}:${seedValue}`} value={seedValue}>
-                        {node.label}
+                        {resolveInfraEvidenceDiagramOutlineResourceName(node)}
                       </option>
                     );
                   })}
@@ -1667,9 +1700,9 @@ export function DiagramsWorkbenchClient() {
               <span className={OPERATOR_TYPOGRAPHY.body}>Loading starting resources…</span>
             </div>
           ) : null}
-          {seedCatalogOutline != null && seedCatalogOutline.nodes.length > 0 ? (
+          {visibleSeedCatalogOutline != null && visibleSeedCatalogOutline.nodes.length > 0 ? (
             <InfraEvidenceDiagramOutline
-              outline={seedCatalogOutline}
+              outline={visibleSeedCatalogOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
             />
           ) : (
@@ -1698,9 +1731,9 @@ export function DiagramsWorkbenchClient() {
               </Button>
             </div>
           </div>
-          {mermaidOutline != null ? (
+          {visibleMermaidOutline != null ? (
             <InfraEvidenceDiagramOutline
-              outline={mermaidOutline}
+              outline={visibleMermaidOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
             />
           ) : null}
@@ -1784,8 +1817,8 @@ export function DiagramsWorkbenchClient() {
             </div>
           ) : null}
           <ArchitectureDiagramViewer
-            mermaidSource={mermaidSource}
-            layoutSvg={renderResult?.layoutSvg ?? null}
+            mermaidSource={displayMermaidSource}
+            layoutSvg={displayLayoutSvg.length > 0 ? displayLayoutSvg : null}
             textAlternative={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId} in ${selectedModeLabel} mode.`}
             viewportAriaLabel={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId}`}
             fullscreenTitle={`Inventory diagram · ${selectedModeLabel}`}
@@ -1798,9 +1831,9 @@ export function DiagramsWorkbenchClient() {
             onRetry={handleRenderRetry}
             onExportableSvgMarkupChange={setExportableSvgMarkup}
           />
-          {mermaidOutline != null ? (
+          {visibleMermaidOutline != null ? (
             <InfraEvidenceDiagramOutline
-              outline={mermaidOutline}
+              outline={visibleMermaidOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
             />
           ) : null}
