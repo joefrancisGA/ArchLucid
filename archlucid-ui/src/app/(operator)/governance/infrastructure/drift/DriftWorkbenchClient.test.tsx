@@ -256,7 +256,7 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-drift-changes-empty-unselected")).not.toBeInTheDocument();
   });
 
-  it("restores anchor snapshot and empty changes when diff selection is cleared", async () => {
+  it("restores anchor snapshot and inventory rows when diff selection is cleared", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DriftWorkbenchClient />);
 
@@ -284,7 +284,7 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Prod");
     expect(screen.getByTestId("infra-drift-snapshot-selected-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-snapshot-row-33333333-3333-3333-3333-333333333333")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-drift-change-row-inventory-row-1")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-change-row-change-1")).not.toBeInTheDocument();
   });
 
@@ -391,7 +391,7 @@ describe("DriftWorkbenchClient", () => {
       expect(mockFetchDiffs).toHaveBeenCalled();
     });
     expect(diffPicker).toHaveValue("");
-    expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-drift-change-row-inventory-row-1")).toBeInTheDocument();
   });
 
   it("shows resource scope banner when cloudResourceId is in the URL", async () => {
