@@ -97,10 +97,7 @@ import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLin
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
-import {
-  PageContextualHelpButton,
-  PAGE_HELP_SHORT_TRIGGER_TEXT,
-} from "@/components/usability/PageContextualHelpButton";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { driftWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-drift-filter-url";
@@ -1063,7 +1060,7 @@ export function DriftWorkbenchClient() {
         breadcrumb={<DriftBreadcrumb />}
         actions={
           <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+            <PageContextualHelpButton />
             <CopyScopedOperatorLinkButton testId="infra-drift-copy-scoped-link" />
           </div>
         }
