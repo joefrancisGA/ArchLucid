@@ -33,6 +33,9 @@ export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH = "/governance/infrastruct
 export const GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH =
   "/governance/infrastructure/extract-upload";
 
+export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH =
+  "/governance/infrastructure/declared-connections";
+
 export function isGovernanceInfrastructureRoutePath(pathname: string | null | undefined): boolean {
   if (pathname === null || pathname === undefined) {
     return false;

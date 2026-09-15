@@ -11,6 +11,7 @@ using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityExceptions;
 using ArchLucid.Application.InfraEvidence.SecurityAssetAssertions;
+using ArchLucid.Application.InfraEvidence.SecurityDeclaredConnections;
 using ArchLucid.Application.InfraEvidence.RemediationInstances;
 using ArchLucid.Application.InfraEvidence.RemediationMetrics;
 using ArchLucid.Application.InfraEvidence.RemediationPatterns;
@@ -79,6 +80,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IOperationalSecurityExceptionService, OperationalSecurityExceptionService>();
         services.AddScoped<ISecurityAssetAssertionService, SecurityAssetAssertionService>();
         services.AddScoped<ISecurityAssetAssertionResolver, SecurityAssetAssertionResolver>();
+        services.AddScoped<ISecurityDeclaredConnectionService, SecurityDeclaredConnectionService>();
         services.AddScoped<IRemediationPatternService, RemediationPatternService>();
         services.AddScoped<IRemediationPatternMatcherService, RemediationPatternMatcherService>();
         services.AddScoped<IRemediationInstanceService, RemediationInstanceService>();

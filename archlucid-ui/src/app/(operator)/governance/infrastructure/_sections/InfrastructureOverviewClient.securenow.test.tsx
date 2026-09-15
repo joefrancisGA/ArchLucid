@@ -87,10 +87,10 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
 
     const primaryContent = screen.getByTestId("governance-infrastructure-overview-primary-content");
 
-    expect(primaryContent).toHaveTextContent(/All six destinations are available from this hub/i);
+    expect(primaryContent).toHaveTextContent(/All seven destinations are available from this hub/i);
     expect(primaryContent).toHaveTextContent(/Security, compliance, and infrastructure destinations are grouped below/i);
     expect(primaryContent).not.toHaveTextContent(/Azure inventory evidence workbenches for snapshots/i);
-    expect(INFRASTRUCTURE_WORKBENCH_ROWS).toHaveLength(6);
+    expect(INFRASTRUCTURE_WORKBENCH_ROWS).toHaveLength(7);
     expect(INFRASTRUCTURE_WORKBENCH_ROWS[0]?.href).toBe("/governance/infrastructure/resources");
     expect(SECURENOW_INFRASTRUCTURE_HOME_ROWS[0]?.href).toBe("/governance/infrastructure/resources");
   });
