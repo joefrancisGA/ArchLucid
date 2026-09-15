@@ -1,6 +1,7 @@
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { pathMatchesAiUsageSettings } from "@/lib/ai-usage-nav-paths";
 import { pathMatchesCloudConnections, pathMatchesIntegrationsReadiness } from "@/lib/integrations-nav-paths";
+import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import {
   pathMatchesLegacySettingsRoles,
   pathMatchesSettingsSecurityTrust,
@@ -106,6 +107,11 @@ export function getLayerForRoute(pathname: string): LayerId {
   }
 
   if (pathMatchesAiUsageSettings(normalized)) {
+    return "operator-admin";
+  }
+
+  // Pilot feedback lives in Internal; NAV_GROUPS omits those links when system-admin nav is gated.
+  if (pathMatchesPathname(normalized, PRODUCT_LEARNING_PATH)) {
     return "operator-admin";
   }
 
