@@ -3739,3 +3739,4 @@
 {"at":"2026-09-15T16:37:23.2233601Z","zoneId":"tenant-data-export","outcome":"seed-only"}
 {"at":"2026-09-15T16:37:26.545966Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-15T16:39:02.9666155Z","zoneId":"topology-proposal-merge","outcome":"hit"}
+{"at":"2026-09-15T16:39:06.5970942Z","zoneId":"context-ingestion","outcome":"seed-only"}
