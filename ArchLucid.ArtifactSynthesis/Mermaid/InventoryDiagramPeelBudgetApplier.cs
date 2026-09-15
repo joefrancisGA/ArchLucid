@@ -43,7 +43,7 @@ internal static class InventoryDiagramPeelBudgetApplier
 
         IReadOnlySet<string> alwaysDisposeTypes = includeNeverShowArmTypes
             ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            : DiagramPeelAlwaysDisposeResolver.Resolve(catalog, graph);
+            : DiagramPeelAlwaysDisposeResolver.Resolve(catalog, graph, mode);
         GraphSnapshot workingGraph = includeNeverShowArmTypes
             ? graph
             : InventoryDiagramGraphPeelFilter.Filter(graph, alwaysDisposeTypes);

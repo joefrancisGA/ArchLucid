@@ -22,6 +22,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
         ScopeContext scope,
         Guid snapshotId,
         bool includeNeverShowArmTypes = false,
+        bool retainIdentityDiagramArmTypes = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -47,24 +48,26 @@ public sealed class AzureInventorySnapshotGraphResolver(
             };
         }
 
-        GraphSnapshot graph = BuildGraph(snapshot, includeNeverShowArmTypes);
+        GraphSnapshot graph = BuildGraph(snapshot, includeNeverShowArmTypes, retainIdentityDiagramArmTypes);
 
         return new AzureInventorySnapshotGraphResolveResult
         {
             Succeeded = true,
             Graph = graph,
+            Snapshot = snapshot,
         };
     }
 
     private static GraphSnapshot BuildGraph(
         AzureInventorySnapshotDetailReadModel snapshot,
-        bool includeNeverShowArmTypes)
+        bool includeNeverShowArmTypes,
+        bool retainIdentityDiagramArmTypes)
     {
         // Hydrate peering edges from the captured package, including NeverShow peering
         // children, then project nodes to the visible inventory for diagram compile.
         AzureInventorySnapshotDetailReadModel graphSnapshot = includeNeverShowArmTypes
             ? snapshot
-            : AzureInventoryVisibleSnapshotProjection.Apply(snapshot);
+            : AzureInventoryVisibleSnapshotProjection.Apply(snapshot, retainIdentityDiagramArmTypes);
 
         Dictionary<string, string> nodeIdByArmId = new(StringComparer.OrdinalIgnoreCase);
         List<GraphNode> nodes = [];

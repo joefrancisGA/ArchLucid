@@ -39,13 +39,23 @@ public static class AzureInventoryTopologyCategory
             return GraphTopologyCategories.Data;
         }
 
-        if (resourceType.Contains("managedidentity", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("authorization", StringComparison.OrdinalIgnoreCase))
+        if (IsIdentityArmResourceType(resourceType))
         {
             return GraphTopologyCategories.Identity;
         }
 
         return GraphTopologyCategories.Compute;
+    }
+
+    public static bool IsIdentityArmResourceType(string? resourceType)
+    {
+        if (string.IsNullOrWhiteSpace(resourceType))
+        {
+            return false;
+        }
+
+        return resourceType.Contains("managedidentity", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Contains("authorization", StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsMicrosoftNetworkProviderType(string resourceType)

@@ -43,6 +43,15 @@ export type InfraEvidenceMermaidCollapseReport = {
   entries: InfraEvidenceMermaidCollapseEntry[];
 };
 
+export type InfraEvidenceMermaidIdentityDiagramSuppressedArmType = {
+  armResourceType: string;
+  resourceCount: number;
+};
+
+export type InfraEvidenceMermaidIdentityDiagramHints = {
+  inventoryFilteredIdentityArmTypes: InfraEvidenceMermaidIdentityDiagramSuppressedArmType[];
+};
+
 export type InfraEvidenceMermaidRenderResponse = {
   snapshotId: string;
   mode: string;
@@ -54,6 +63,7 @@ export type InfraEvidenceMermaidRenderResponse = {
   metrics: InfraEvidenceMermaidComplexityMetrics | null;
   fallbackArtifacts: InfraEvidenceMermaidFallbackArtifactSummary[];
   collapseReport: InfraEvidenceMermaidCollapseReport | null;
+  identityDiagramHints?: InfraEvidenceMermaidIdentityDiagramHints | null;
 };
 
 export type InfraEvidenceMermaidRenderStatus = "Succeeded" | "Partitioned" | "Failed";
