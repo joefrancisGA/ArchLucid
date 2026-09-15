@@ -9,6 +9,25 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 {
 
 
+
+    private static string ResolveResourceModuleAddress(JsonElement res, string moduleAddress)
+    {
+        string callerModuleAddress = ResolveCallerModuleAddress(res, moduleAddress);
+
+        if ((TryGetPropertyIgnoreCase(res, "module", out JsonElement moduleElement)
+                || TryGetPropertyIgnoreCase(res, "module_address", out moduleElement)
+                || TryGetPropertyIgnoreCase(res, "moduleAddress", out moduleElement))
+            && moduleElement.ValueKind == JsonValueKind.String)
+        {
+            string? embeddedModule = moduleElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(embeddedModule))
+                return embeddedModule.Trim().ToLowerInvariant();
+        }
+
+        return callerModuleAddress;
+    }
+
     private static string ResolveCallerModuleAddress(JsonElement res, string moduleAddress)
     {
         if ((TryGetPropertyIgnoreCase(res, "caller_module_address", out JsonElement callerModule)
@@ -200,6 +219,20 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.tainted"] = tainted.GetBoolean() ? "true" : "false";
         }
 
+        if (TryGetPropertyIgnoreCase(res, "schema_version", out JsonElement schemaVersion)
+            || TryGetPropertyIgnoreCase(res, "schemaVersion", out schemaVersion))
+        {
+            if (schemaVersion.ValueKind == JsonValueKind.Number)
+                properties["tf.schema_version"] = schemaVersion.GetRawText();
+            else if (schemaVersion.ValueKind == JsonValueKind.String)
+            {
+                string? schemaVersionText = schemaVersion.GetString();
+
+                if (!string.IsNullOrWhiteSpace(schemaVersionText))
+                    properties["tf.schema_version"] = schemaVersionText.Trim();
+            }
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
@@ -260,7 +293,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
         }
 
         string canonicalLabel = name.ToLowerInvariant();
-        string effectiveModuleAddress = ResolveCallerModuleAddress(res, moduleAddress);
+        string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
 
         if (!hasExplicitResourceAddress)
@@ -273,7 +306,12 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement))
             {
                 if (indexElement.ValueKind == JsonValueKind.Number)
-                    canonicalAddress = $"{canonicalAddress}[{indexElement.GetInt32()}]";
+                {
+                    if (indexElement.TryGetInt32(out int intIndex))
+                        canonicalAddress = $"{canonicalAddress}[{intIndex}]";
+                    else if (indexElement.TryGetInt64(out long longIndex))
+                        canonicalAddress = $"{canonicalAddress}[{longIndex}]";
+                }
                 else if (indexElement.ValueKind == JsonValueKind.String
                     && !string.IsNullOrWhiteSpace(indexElement.GetString()))
                     canonicalAddress = $"{canonicalAddress}[{indexElement.GetString()!.Trim()}]";
@@ -284,6 +322,14 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 && !string.IsNullOrWhiteSpace(indexKeyElement.GetString()))
             {
                 canonicalAddress = $"{canonicalAddress}[{indexKeyElement.GetString()!.Trim()}]";
+            }
+            else if ((TryGetPropertyIgnoreCase(res, "each", out JsonElement eachElement)
+                    || TryGetPropertyIgnoreCase(res, "each_key", out eachElement)
+                    || TryGetPropertyIgnoreCase(res, "eachKey", out eachElement))
+                && eachElement.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(eachElement.GetString()))
+            {
+                canonicalAddress = $"{canonicalAddress}[{eachElement.GetString()!.Trim()}]";
             }
         }
 
