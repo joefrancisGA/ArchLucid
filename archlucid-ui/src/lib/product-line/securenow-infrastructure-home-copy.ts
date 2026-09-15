@@ -19,6 +19,12 @@ export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_LEAD =
 /** SecureNow home — infrastructure evidence workbench destinations. */
 export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [
   {
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+    summary: "Explore cloud resources and open the evidence hub for a single resource.",
+    recommendedFirst: true,
+  },
+  {
     href: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDrift,
     summary: "Compare inventory snapshots, classify drift, and export advisory Terraform.",
@@ -37,12 +43,6 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile,
     summary: "Reconcile uploaded diagrams against inventory snapshots with explainable correspondence rows.",
-  },
-  {
-    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
-    summary: "Explore cloud resources and open the evidence hub for a single resource.",
-    recommendedFirst: true,
   },
   {
     href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
