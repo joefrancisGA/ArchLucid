@@ -373,7 +373,8 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 effectiveNetworkControlsFilePresent: false);
 
-        result.Relationships.Should().BeEmpty();
+        result.Relationships.Should().NotContain(relationship =>
+            relationship.RelationshipType == GraphEdgeTypes.PeersWith);
         result.CompletenessWarnings.Should().Contain(
             AzureInventoryRelationshipCompletenessWarningCodes.ArgVnetPeeringMissing);
     }

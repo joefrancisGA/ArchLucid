@@ -289,8 +289,8 @@ public static class AzureInventorySecurityEdgeMaterializer
                 AddRelationship(
                     relationships,
                     relationshipKeys,
-                    parentVnetId,
-                    remoteVnetId,
+                    ArmResourceIdNormalizer.Normalize(parentVnetId),
+                    ArmResourceIdNormalizer.Normalize(remoteVnetId),
                     GraphEdgeTypes.PeersWith,
                     ProvenanceKind.ObservedFact,
                     ObservedFactConfidence,
@@ -303,9 +303,10 @@ public static class AzureInventorySecurityEdgeMaterializer
                 continue;
             }
 
-            if (!resource.Properties.TryGetValue(
-                    AzureInventoryVnetPeeringParser.PeeringsPropertyKey,
-                    out string? peeringsJson))
+            if (!AzureInventoryVnetPeeringParser.TryGetPeeringsJson(
+                    resource.Properties,
+                    out string? peeringsJson)
+                || string.IsNullOrWhiteSpace(peeringsJson))
             {
                 continue;
             }
@@ -315,7 +316,7 @@ public static class AzureInventorySecurityEdgeMaterializer
                 AddRelationship(
                     relationships,
                     relationshipKeys,
-                    resource.AzureResourceId,
+                    ArmResourceIdNormalizer.Normalize(resource.AzureResourceId),
                     remoteVnetId,
                     GraphEdgeTypes.PeersWith,
                     ProvenanceKind.ObservedFact,

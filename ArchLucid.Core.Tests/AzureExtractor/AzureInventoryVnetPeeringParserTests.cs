@@ -93,4 +93,17 @@ public sealed class AzureInventoryVnetPeeringParserTests
                 properties)
             .Should().BeTrue();
     }
+
+    [Fact]
+    public void TryGetPeeringsJson_matches_property_key_without_relying_on_comparer()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["VirtualNetworkPeerings"] = "[]",
+        };
+
+        AzureInventoryVnetPeeringParser.TryGetPeeringsJson(properties, out string? peeringsJson)
+            .Should().BeTrue();
+        peeringsJson.Should().Be("[]");
+    }
 }
