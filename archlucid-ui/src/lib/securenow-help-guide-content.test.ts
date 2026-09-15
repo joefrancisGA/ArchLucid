@@ -90,6 +90,12 @@ describe("SecureNow help guide content", () => {
     expect(contextualHelpForPathname("/governance/findings", { productLineId: "security" })?.whatIsThisPage).toBe(
       SECURENOW_FINDINGS_QUEUE_HUB.whatIsThisPage,
     );
+    expect(contextualHelpForPathname("/compliance/findings", { productLineId: "security" })?.whatIsThisPage).toBe(
+      SECURENOW_FINDINGS_QUEUE_HUB.whatIsThisPage,
+    );
+    expect(contextualHelpForPathname("/compliance/findings", { productLineId: "security" })?.whereToConfigureAction?.href).toBe(
+      "/compliance/policy-packs",
+    );
     expect(
       contextualHelpForPathname("/security/assigned-to-me", { productLineId: "security" })?.whatIsThisPage,
     ).toBe(SECURENOW_ASSIGNED_TO_ME_FINDINGS.whatIsThisPage);

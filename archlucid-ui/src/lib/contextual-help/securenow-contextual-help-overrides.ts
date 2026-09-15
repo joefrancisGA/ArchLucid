@@ -1,6 +1,14 @@
 import type { PageContextualHelpEntry } from "@/lib/contextual-help/types";
-import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH, GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
-import { SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
+} from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
@@ -34,7 +42,7 @@ const SECURENOW_FINDINGS_QUEUE_HUB: PageContextualHelpEntry = {
   },
   whereToConfigureAction: {
     label: "Open policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
   taskSteps: [
     "Open a finding to inspect severity, evidence, and owners.",
@@ -51,11 +59,11 @@ const SECURENOW_FINDINGS_HELP_TOPIC: PageContextualHelpEntry = {
   whereToConfigurePrerequisite: "Findings respect the workspace and project selected in the header switcher.",
   whatToDoNextAction: {
     label: "Open findings queue",
-    href: GOVERNANCE_FINDINGS_PATH,
+    href: SECURENOW_FINDINGS_PATH,
   },
   whereToConfigureAction: {
     label: "Open policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
 };
 
@@ -69,11 +77,11 @@ const SECURENOW_ASSIGNED_TO_ME_FINDINGS: PageContextualHelpEntry = {
     "When the tenant queue is also empty, assign ARC-AMPE policy packs and confirm Azure inventory is connected.",
   whatToDoNextAction: {
     label: "Open tenant findings queue",
-    href: GOVERNANCE_FINDINGS_PATH,
+    href: SECURENOW_FINDINGS_PATH,
   },
   whereToConfigureAction: {
     label: "Open policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
   taskSteps: [
     "Use continue oldest when the strip is visible.",
@@ -102,7 +110,7 @@ const SECURENOW_POLICY_PACKS_HELP: PageContextualHelpEntry = {
   whereToConfigurePrerequisite: "Pack assignment needs a role that can manage policy packs for this workspace.",
   whatToDoNextAction: {
     label: "Open Policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
 };
 
@@ -114,11 +122,11 @@ const SECURENOW_STANDARDS_RULES_HUB: PageContextualHelpEntry = {
   whereToConfigurePrerequisite: "Assign and order policy packs for the current workspace and project scope.",
   whatToDoNextAction: {
     label: "Open policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
   whereToConfigureAction: {
     label: "Open findings",
-    href: GOVERNANCE_FINDINGS_PATH,
+    href: SECURENOW_FINDINGS_PATH,
   },
   taskSteps: [
     "Open a rule row to read enforcement mode and source pack.",
@@ -135,7 +143,7 @@ const SECURENOW_STANDARDS_RULES_HELP: PageContextualHelpEntry = {
   whereToConfigurePrerequisite: "Policy packs help explains how packs are authored, versioned, and assigned across scopes.",
   whatToDoNextAction: {
     label: "Open standards and rules",
-    href: GOVERNANCE_STANDARDS_AND_RULES_PATH,
+    href: SECURENOW_STANDARDS_AND_RULES_PATH,
   },
   whereToConfigureAction: {
     label: "Read policy packs help",
@@ -319,7 +327,7 @@ const SECURENOW_EXTRACT_UPLOAD: PageContextualHelpEntry = {
   },
   whereToConfigureAction: {
     label: "Open policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
   taskSteps: [
     "Copy the quick-start extractor command and run it locally — read-only, no vendor credentials in your subscription.",
@@ -336,10 +344,13 @@ type SecureNowOverride = {
 const SECURENOW_CONTEXTUAL_HELP_OVERRIDES: readonly SecureNowOverride[] = [
   { prefix: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH, entry: SECURENOW_ASSIGNED_TO_ME_FINDINGS },
   { prefix: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, entry: SECURENOW_ASSIGNED_TO_ME_FINDINGS },
+  { prefix: SECURENOW_FINDINGS_PATH, entry: SECURENOW_FINDINGS_QUEUE_HUB },
   { prefix: GOVERNANCE_FINDINGS_PATH, entry: SECURENOW_FINDINGS_QUEUE_HUB },
   { prefix: FINDINGS_HELP_PATH, entry: SECURENOW_FINDINGS_HELP_TOPIC },
+  { prefix: SECURENOW_POLICY_PACKS_PATH, entry: SECURENOW_POLICY_PACKS_HUB },
   { prefix: GOVERNANCE_POLICY_PACKS_PATH, entry: SECURENOW_POLICY_PACKS_HUB },
   { prefix: POLICY_PACKS_HELP_CANONICAL_PATH, entry: SECURENOW_POLICY_PACKS_HELP },
+  { prefix: SECURENOW_STANDARDS_AND_RULES_PATH, entry: SECURENOW_STANDARDS_RULES_HUB },
   { prefix: GOVERNANCE_STANDARDS_AND_RULES_PATH, entry: SECURENOW_STANDARDS_RULES_HUB },
   { prefix: STANDARDS_RULES_HELP_CANONICAL_PATH, entry: SECURENOW_STANDARDS_RULES_HELP },
   { prefix: CLOUD_CONNECTIONS_CANONICAL_PATH, entry: SECURENOW_CLOUD_CONNECTIONS_HUB },

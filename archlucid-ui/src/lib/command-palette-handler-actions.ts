@@ -73,7 +73,7 @@ const reviewDetailPathPattern = /^\/architecture\/reviews\/[^/]+/;
 const nestedReviewDetailPathPattern = /^\/architecture\/architectures\/[^/]+\/reviews\/[^/]+/;
 const nestedArchitectureFindingsPathPattern =
   /^\/architecture\/architectures\/[^/]+\/findings(\/|$)/;
-const findingsQueuePathPattern = /^\/governance\/findings(\/|$)/;
+const findingsQueuePathPattern = /^\/(?:governance|compliance)\/findings(\/|$)/;
 const alertsPathPattern = /^\/governance\/alerts(\/|$)/;
 const workspaceSettingsPathPattern = /^\/administration\/workspace-settings(\/|$)/;
 
