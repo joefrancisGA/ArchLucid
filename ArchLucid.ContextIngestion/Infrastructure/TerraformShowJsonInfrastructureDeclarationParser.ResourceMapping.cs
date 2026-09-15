@@ -243,6 +243,12 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.provider_config_key"] = providerConfigKeyText.Trim().ToLowerInvariant();
         }
 
+        if (TryGetPropertyIgnoreCase(res, "imported", out JsonElement imported)
+            && (imported.ValueKind == JsonValueKind.True || imported.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.imported"] = imported.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
@@ -336,7 +342,9 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
             else if ((TryGetPropertyIgnoreCase(res, "each", out JsonElement eachElement)
                     || TryGetPropertyIgnoreCase(res, "each_key", out eachElement)
-                    || TryGetPropertyIgnoreCase(res, "eachKey", out eachElement))
+                    || TryGetPropertyIgnoreCase(res, "eachKey", out eachElement)
+                    || TryGetPropertyIgnoreCase(res, "each_value", out eachElement)
+                    || TryGetPropertyIgnoreCase(res, "eachValue", out eachElement))
                 && eachElement.ValueKind == JsonValueKind.String
                 && !string.IsNullOrWhiteSpace(eachElement.GetString()))
             {
