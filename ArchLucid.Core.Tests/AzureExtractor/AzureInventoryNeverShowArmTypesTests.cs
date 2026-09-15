@@ -27,6 +27,9 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     [InlineData("Microsoft.ManagedIdentity/userAssignedIdentities")]
     [InlineData("microsoft.managedidentity/userassignedidentities")]
     [InlineData("userassignedidentities")]
+    [InlineData("Microsoft.Automation/automationAccounts/runbooks")]
+    [InlineData("microsoft.automation/automationaccounts/runbooks")]
+    [InlineData("runbooks")]
     [InlineData("Microsoft.Compute/virtualMachines/extensions")]
     [InlineData("Microsoft.Compute/virtualMachineScaleSets/extensions")]
     [InlineData("Microsoft.Compute/sshPublicKeys")]
@@ -60,6 +63,7 @@ public sealed class AzureInventoryNeverShowArmTypesTests
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/sshPublicKeys/vm-ssh-key")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/firewallPolicies/fwp1")]
     [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uai1")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Automation/automationAccounts/aa1/runbooks/rb1")]
     public void ShouldOmitAzureResourceId_returns_true_for_never_show_arm_ids(string azureResourceId)
     {
         AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(azureResourceId).Should().BeTrue();
