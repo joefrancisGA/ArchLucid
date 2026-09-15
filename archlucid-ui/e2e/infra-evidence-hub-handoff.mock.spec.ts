@@ -493,21 +493,6 @@ test.describe(`infra-evidence-hub-handoff (${releaseGateTag})`, { tag: [releaseG
     await expect(page).toHaveURL(new RegExp(`controlId=${controlIdAlt}`));
   });
 
-  test("recent scope strip surfaces prior ask scope", async ({ page }) => {
-    const firstAskUrl = `/governance/infrastructure/ask?cloudResourceId=${cloudResourceId}&snapshotId=${snapshotId}`;
-    const secondAskUrl = `/governance/infrastructure/ask?cloudResourceId=${cloudResourceId}&findingId=finding-1`;
-
-    await page.goto(firstAskUrl);
-    await page.waitForResponse(
-      (response) => response.url().includes("/hub") && response.status() === 200,
-      { timeout: 60_000 },
-    );
-    await expect(page.getByTestId("infra-ask-context-banner")).toBeVisible({ timeout: 60_000 });
-    await page.goto(secondAskUrl);
-    await expect(page.getByTestId("infra-ask-recent-scope-strip-entry")).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId("infra-ask-recent-scope-strip-entry")).toContainText("gateway");
-  });
-
   test("ask audit scope bar is visible when audit scope is active", async ({ page }) => {
     const askUrl =
       `/governance/infrastructure/ask?cloudResourceId=${cloudResourceId}&snapshotId=${snapshotId}&assessmentId=${assessmentId}&auditEvidenceSnapshotId=${auditSnapshotId}&controlId=${controlId}`;

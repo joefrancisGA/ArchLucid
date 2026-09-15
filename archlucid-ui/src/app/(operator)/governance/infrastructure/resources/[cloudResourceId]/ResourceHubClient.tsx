@@ -105,9 +105,6 @@ import {
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { InfraEvidenceAuditScopeChip } from "@/components/infra-evidence/InfraEvidenceAuditScopeChip";
-import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
-import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
-import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
 import {
   fetchCachedInfraEvidenceResourceHub,
   invalidateInfraEvidenceResourceHubCacheForResource,
@@ -564,47 +561,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     });
   }, [hub]);
 
-  useEffect(() => {
-    if (loading || hub == null) {
-      return;
-    }
-
-    const href = searchParams.toString().length > 0
-      ? `${pathname}?${searchParams.toString()}`
-      : pathname;
-    const recentScopeLabel = formatInfraEvidenceRecentScopeLabel({
-      surface: "hub",
-      cloudResourceId,
-      resourceDisplayName: resourceTitle,
-      externalResourceId: hub.externalResourceId,
-      snapshotId: resolvedSnapshotId,
-      controlNumber: hub.auditLineageLink.controlNumber,
-      controlTitle: hub.auditLineageLink.controlTitle,
-      controlId: workbenchLinkAuditContext?.controlId ?? hub.auditLineageLink.controlId,
-      workQueueLabel: workQueue !== "all" ? workQueueLabel : null,
-    });
-
-    if (recentScopeLabel == null) {
-      return;
-    }
-
-    recordInfraEvidenceRecentScope({
-      label: recentScopeLabel,
-      href,
-    });
-  }, [
-    cloudResourceId,
-    hub,
-    loading,
-    pathname,
-    resolvedSnapshotId,
-    resourceTitle,
-    searchParams,
-    workQueue,
-    workQueueLabel,
-    workbenchLinkAuditContext,
-  ]);
-
   const openFindingsCount = useMemo(() => {
     if (hub == null) {
       return 0;
@@ -807,8 +763,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           Explorer work queue: {workQueueLabel}
         </p>
       ) : null}
-
-      <InfraEvidenceRecentScopeStrip testId="infra-resource-hub-recent-scope-strip" />
 
       {loadError != null ? (
         buyerPolishedShell ? (

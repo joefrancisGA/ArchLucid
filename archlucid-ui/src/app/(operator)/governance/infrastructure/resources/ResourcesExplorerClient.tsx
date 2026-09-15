@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -54,8 +53,6 @@ import {
   formatAzureResourceTypeForDisplay,
   formatCloudResourceDisplayName,
 } from "@/lib/infra-evidence/format-azure-resource-display";
-import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
-import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
 import { formatInstantCompactMilitary } from "@/lib/locale-datetime";
 import {
   CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS,
@@ -111,7 +108,6 @@ export function ResourcesExplorerClient() {
   const { productLine } = useProductLine();
   const resourcesPath = infrastructureResourcesPathForProductLine(productLine);
   const router = useRouter();
-  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const urlNamePrefix = parseResourceExplorerNamePrefixFromSearch(
     searchParams.get(RESOURCE_EXPLORER_NAME_PREFIX_PARAM),
@@ -204,42 +200,6 @@ export function ResourcesExplorerClient() {
     void loadResources();
   }, [loadResources, urlCloudResourceId]);
 
-  useEffect(() => {
-    if (urlCloudResourceId.length > 0) {
-      return;
-    }
-
-    const href = searchParams.toString().length > 0
-      ? `${pathname}?${searchParams.toString()}`
-      : pathname;
-    const recentScopeLabel = formatInfraEvidenceRecentScopeLabel({
-      surface: "explorer",
-      workQueueLabel: formatCloudResourceExplorerWorkQueueLabel(urlWorkQueue),
-      namePrefix: urlNamePrefix,
-      resourceType: urlResourceType,
-      resourceGroup: urlResourceGroup,
-      snapshotId: urlSnapshotId,
-    });
-
-    if (recentScopeLabel == null) {
-      return;
-    }
-
-    recordInfraEvidenceRecentScope({
-      label: recentScopeLabel,
-      href,
-    });
-  }, [
-    pathname,
-    searchParams,
-    urlCloudResourceId,
-    urlNamePrefix,
-    urlResourceGroup,
-    urlResourceType,
-    urlSnapshotId,
-    urlWorkQueue,
-  ]);
-
   const applyFilters = () => {
     const nextHref = resourceExplorerFilterHrefFromSearch(searchParams.toString(), {
       namePrefix,
@@ -329,8 +289,6 @@ export function ResourcesExplorerClient() {
         )}
         data-testid="infra-resource-explorer-primary-content"
       >
-      <InfraEvidenceRecentScopeStrip testId="infra-resource-explorer-recent-scope-strip" />
-
       <InfrastructureResourcesSavedViewsBar
         namePrefix={urlNamePrefix}
         resourceType={urlResourceType}

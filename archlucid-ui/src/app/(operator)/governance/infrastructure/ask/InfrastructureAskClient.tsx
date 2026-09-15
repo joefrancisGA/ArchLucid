@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -63,8 +62,6 @@ import {
 import { buildTerraformWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
 import { buildInfraEvidenceAuditControlOptions } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import { formatCloudResourceDisplayName } from "@/lib/infra-evidence/format-azure-resource-display";
-import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
-import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
 import {
   hasStaleInfraEvidenceAuditUrlParams,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
@@ -118,7 +115,6 @@ const cnCard =
 export function InfrastructureAskClient() {
   const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
-  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const cloudResourceId = parseResourceExplorerCloudResourceIdFromSearch(
     searchParams.get(RESOURCE_EXPLORER_CLOUD_RESOURCE_ID_PARAM),
@@ -472,58 +468,6 @@ export function InfrastructureAskClient() {
   ]);
 
   useEffect(() => {
-    if (contextSummary == null) {
-      return;
-    }
-
-    const href = searchParams.toString().length > 0
-      ? `${pathname}?${searchParams.toString()}`
-      : pathname;
-    const recentScopeLabel = formatInfraEvidenceRecentScopeLabel({
-      surface: "ask",
-      cloudResourceId,
-      resourceDisplayName: resourceHub?.externalResourceId != null
-        ? formatCloudResourceDisplayName({
-            externalResourceId: resourceHub.externalResourceId,
-          })
-        : undefined,
-      externalResourceId: resourceHub?.externalResourceId,
-      snapshotId,
-      controlNumber: resourceHub?.auditLineageLink.controlNumber,
-      controlTitle: resourceHub?.auditLineageLink.controlTitle,
-      controlId: controlId.length > 0 ? controlId : resourceHub?.auditLineageLink.controlId,
-      workQueueLabel: workQueue !== "all" ? workQueueLabel : null,
-      diffId,
-      findingId,
-      instanceId,
-      correspondenceId,
-    });
-
-    if (recentScopeLabel == null) {
-      return;
-    }
-
-    recordInfraEvidenceRecentScope({
-      label: recentScopeLabel,
-      href,
-    });
-  }, [
-    cloudResourceId,
-    contextSummary,
-    controlId,
-    correspondenceId,
-    diffId,
-    findingId,
-    instanceId,
-    pathname,
-    resourceHub,
-    searchParams,
-    snapshotId,
-    workQueue,
-    workQueueLabel,
-  ]);
-
-  useEffect(() => {
     setQuestion("");
     setHistory([]);
     setSubmitError(null);
@@ -582,8 +526,6 @@ export function InfrastructureAskClient() {
           unavailableTestId="infra-ask-audit-unavailable"
         />
       ) : null}
-
-      <InfraEvidenceRecentScopeStrip testId="infra-ask-recent-scope-strip" />
 
       {contextSummary != null ? (
         <section
