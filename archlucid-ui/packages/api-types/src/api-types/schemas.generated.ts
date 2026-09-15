@@ -5548,6 +5548,14 @@ export interface components {
             nodeCount?: number;
             status?: string;
         };
+        InfraEvidenceMermaidIdentityDiagramHints: {
+            inventoryFilteredIdentityArmTypes?: components["schemas"]["InfraEvidenceMermaidIdentityDiagramSuppressedArmType"][];
+        };
+        InfraEvidenceMermaidIdentityDiagramSuppressedArmType: {
+            armResourceType?: string;
+            /** Format: int32 */
+            resourceCount?: number;
+        };
         InfraEvidenceMermaidModePreview: {
             /** Format: int32 */
             edgeCount?: number;
@@ -5567,6 +5575,7 @@ export interface components {
             collapseReport?: null | components["schemas"]["InfraEvidenceMermaidCollapseReport"];
             fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
             fallbackKey?: null | string;
+            identityDiagramHints?: null | components["schemas"]["InfraEvidenceMermaidIdentityDiagramHints"];
             layoutEngine?: null | string;
             layoutSvg?: null | string;
             mermaid?: null | string;
