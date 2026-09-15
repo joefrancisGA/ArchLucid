@@ -11567,6 +11567,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-costing
 
+2026-09-15 owner consolidation (#3306): retired week-UOM synonym treadmill — generalized `HasCompactWeeWithKRepeatSuffix` / `ContainsSpacedSlashWeekWithExtraKToken`; consolidated regressions in `AzureRetailPricesSkuMatchersWeekMeterTests`; marked week-UOM sibling-synonym hypotheses `(invalid)`; CI bans new `*Weekkk*Tests.cs` and per-k matcher copies.
+
 2026-09-14 seed hunt #2915 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWeekkkkkkkkkTests`.
 
 2026-09-14 seed hunt #2910 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / weekkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWeekkkkkkkkTests`.
@@ -11899,10 +11901,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **hunts:** 190
 - **bugs-found:** 163
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-15 — hunt #3228: spaced-slash `10 / weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap
+- **last-hunt:** 2026-09-15
+- **last-bug:** 2026-09-15 — #3306 week-UOM synonym consolidation (generalized helpers; per-k treadmill closed)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+- **week-uom-synonym:** closed — extend `HasCompactWeeWithKRepeatSuffix` / `ContainsSpacedSlashWeekWithExtraKToken` and `AzureRetailPricesSkuMatchersWeekMeterTests` only; do not reseed per-k `weekkk…` parity rows
 
 2026-09-13 seed hunt #2387 (seed-only): reseeded core-costing with `-Hint core costing Azure UOM`; no new hunt-ready rows.
 
@@ -12025,6 +12028,10 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 2026-09-07 seed hunt #1186 (hit): seeded zone from split catalog; proved GCP billing catalog pagination gap on live pricing probe.
 
 2026-09-07 thorough hunt #1260 (hit): proved region-blind and preemptible-first GCP catalog SKU selection; 114 scoped Costing unit tests passed.
+
+- [x] (invalid) [class:week-uom-synonym] `AzureRetailPricesCatalogClient.IsWeekMeter` — compact `10week` + N extra trailing `k` characters (`10weekk`, `10weekkk`, `10weekkkkk…`) each treated as a new parity gap — **invalid 2026-09-15 (#3306):** one saturated defect class; `HasCompactWeeWithKRepeatSuffix` covers all N; add cases to `AzureRetailPricesSkuMatchersWeekMeterTests` only; CI bans new `HasCompactWeekkk…Suffix` copies.
+- [x] (invalid) [class:week-uom-synonym] `AzureRetailPricesCatalogClient.IsWeekMeter` — spaced-slash `10 / week` + optional extra trailing `k` (`10 / weekk`, `10 / weekkk`, …) each treated as a new parity gap — **invalid 2026-09-15 (#3306):** `ContainsSpacedSlashWeekWithExtraKToken` covers all variants; do not add `ContainsSpacedSlashWeekkk…Token` or per-spelling test files.
+- [x] (invalid) [class:week-uom-synonym] Next per-k-count `AzureRetailPricesSkuMatchers*Weekkk*Tests.cs` regression for Azure retail week UOM spelling variants — **invalid 2026-09-15 (#3306):** treadmill retired; consolidated member-data coverage in `AzureRetailPricesSkuMatchersWeekMeterTests`; seed hunts must not promote another sibling synonym row for this class.
 
 ---
 ## Zone: core-explanation-json
