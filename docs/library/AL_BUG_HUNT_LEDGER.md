@@ -12107,6 +12107,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-15 seed hunt #3162 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `tainted` flag omitted; regression `ParseAsync_tainted_flag_maps_tf_tainted_property`.
+
 2026-09-15 seed hunt #3157 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-15 seed hunt #3152 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -12401,11 +12403,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 281
-- **bugs-found:** 271
+- **hunts:** 282
+- **bugs-found:** 272
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-15 — hunt #3137: terraform-show-json deposed resource ingestion gap
+- **last-bug:** 2026-09-15 — hunt #3162: terraform-show-json tainted resource flag gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

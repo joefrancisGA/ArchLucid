@@ -194,6 +194,12 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["mode"] = m.ToLowerInvariant();
         }
 
+        if (TryGetPropertyIgnoreCase(res, "tainted", out JsonElement tainted)
+            && (tainted.ValueKind == JsonValueKind.True || tainted.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.tainted"] = tainted.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
