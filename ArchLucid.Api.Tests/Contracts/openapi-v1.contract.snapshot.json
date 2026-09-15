@@ -162003,6 +162003,14 @@
             }
           },
           {
+            "in": "query",
+            "name": "includeNeverShow",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
             "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
             "in": "header",
             "name": "X-ArchLucid-Product-Line",
@@ -162232,6 +162240,14 @@
             }
           },
           {
+            "in": "query",
+            "name": "includeNeverShow",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
             "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
             "in": "header",
             "name": "X-ArchLucid-Product-Line",
@@ -162397,6 +162413,14 @@
             "schema": {
               "format": "uuid",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "includeNeverShow",
+            "schema": {
+              "default": false,
+              "type": "boolean"
             }
           },
           {
