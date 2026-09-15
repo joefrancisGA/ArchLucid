@@ -263,6 +263,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.prevent_destroy"] = preventDestroy.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "timeout_create", out JsonElement timeoutCreate)
+                || TryGetPropertyIgnoreCase(res, "timeoutCreate", out timeoutCreate))
+            && timeoutCreate.ValueKind == JsonValueKind.String)
+        {
+            string? timeoutCreateText = timeoutCreate.GetString();
+
+            if (!string.IsNullOrWhiteSpace(timeoutCreateText))
+                properties["tf.timeout_create"] = timeoutCreateText.Trim();
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
@@ -353,6 +363,40 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 string joined = string.Join('|', replaceRefs.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
 
                 properties["tf.replace_triggered_by"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "ignore_changes", out JsonElement ignoreChanges)
+            || TryGetPropertyIgnoreCase(res, "ignoreChanges", out ignoreChanges))
+        {
+            List<string> ignoredFields = [];
+
+            if (ignoreChanges.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in ignoreChanges.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        ignoredFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (ignoreChanges.ValueKind == JsonValueKind.String)
+            {
+                string? value = ignoreChanges.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    ignoredFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (ignoredFields.Count > 0)
+            {
+                string joined = string.Join('|', ignoredFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.ignore_changes"] = joined.Length > 2000 ? joined[..2000] : joined;
             }
         }
 

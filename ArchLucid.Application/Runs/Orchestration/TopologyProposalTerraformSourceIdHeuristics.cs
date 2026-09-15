@@ -414,7 +414,16 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("hdi", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("img", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("jbs", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("cc", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("cc", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("swa", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dbr", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("syn", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("stp", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("run", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("env", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("map", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("geo", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("lst", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -739,7 +748,16 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("hdi", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("img", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("jbs", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("cc", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("cc", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("swa", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dbr", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("syn", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("stp", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("run", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("env", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("map", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("geo", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("lst", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
