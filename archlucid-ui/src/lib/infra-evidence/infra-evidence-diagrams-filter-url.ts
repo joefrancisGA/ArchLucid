@@ -11,6 +11,9 @@ export const INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM = "cloudResourceId";
 export const INFRA_DIAGRAMS_MERMAID_MODE_PARAM = "mermaidMode";
 export const INFRA_DIAGRAMS_MERMAID_VIEW_PARAM = "mermaidView";
 export const INFRA_DIAGRAMS_SEED_NODE_ID_PARAM = "seedNodeId";
+export const INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM = "includeNeverShow";
+
+/** @deprecated Legacy URL param; parsed as alias for {@link INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM}. */
 export const INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM = "showTrivialComponents";
 
 export const INFRA_DIAGRAMS_DEFAULT_MODE = "executive";
@@ -83,7 +86,7 @@ export function parseInfraDiagramsSeedNodeIdFromSearch(raw: string | null | unde
   return raw.trim();
 }
 
-export function parseInfraDiagramsShowTrivialComponentsFromSearch(raw: string | null | undefined): boolean {
+function parseTruthyDiagramSearchParam(raw: string | null | undefined): boolean {
   if (raw === null || raw === undefined) {
     return false;
   }
@@ -93,13 +96,29 @@ export function parseInfraDiagramsShowTrivialComponentsFromSearch(raw: string | 
   return normalized === "1" || normalized === "true" || normalized === "yes";
 }
 
+export function parseInfraDiagramsIncludeNeverShowFromSearch(
+  includeNeverShowRaw: string | null | undefined,
+  legacyShowTrivialRaw?: string | null | undefined,
+): boolean {
+  if (parseTruthyDiagramSearchParam(includeNeverShowRaw)) {
+    return true;
+  }
+
+  return parseTruthyDiagramSearchParam(legacyShowTrivialRaw);
+}
+
+/** @deprecated Use {@link parseInfraDiagramsIncludeNeverShowFromSearch}. */
+export function parseInfraDiagramsShowTrivialComponentsFromSearch(raw: string | null | undefined): boolean {
+  return parseInfraDiagramsIncludeNeverShowFromSearch(raw);
+}
+
 export type InfraDiagramsWorkbenchContext = {
   readonly snapshotId?: string | null;
   readonly cloudResourceId?: string | null;
   readonly mermaidMode?: string | null;
   readonly mermaidView?: string | null;
   readonly seedNodeId?: string | null;
-  readonly showTrivialComponents?: boolean | null;
+  readonly includeNeverShow?: boolean | null;
   readonly runId?: string | null;
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
@@ -113,7 +132,7 @@ export function buildDiagramsWorkbenchHref(context: InfraDiagramsWorkbenchContex
     mermaidMode: context.mermaidMode ?? undefined,
     mermaidView: context.mermaidView ?? undefined,
     seedNodeId: context.seedNodeId ?? undefined,
-    showTrivialComponents: context.showTrivialComponents ?? undefined,
+    includeNeverShow: context.includeNeverShow ?? undefined,
     runId: context.runId ?? undefined,
     assessmentId: context.assessmentId ?? undefined,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId ?? undefined,
@@ -129,7 +148,7 @@ export function infraDiagramsFilterHrefFromSearch(
     readonly mermaidMode?: string;
     readonly mermaidView?: string;
     readonly seedNodeId?: string;
-    readonly showTrivialComponents?: boolean;
+    readonly includeNeverShow?: boolean;
     readonly runId?: string;
     readonly assessmentId?: string;
     readonly auditEvidenceSnapshotId?: string;
@@ -189,11 +208,13 @@ export function infraDiagramsFilterHrefFromSearch(
     }
   }
 
-  if (patch.showTrivialComponents !== undefined) {
-    if (patch.showTrivialComponents) {
-      params.set(INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM, "1");
+  if (patch.includeNeverShow !== undefined) {
+    params.delete(INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM);
+
+    if (patch.includeNeverShow) {
+      params.set(INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM, "1");
     } else {
-      params.delete(INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM);
+      params.delete(INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM);
     }
   }
 
