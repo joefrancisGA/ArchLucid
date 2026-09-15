@@ -9,6 +9,25 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 {
 
 
+
+    private static string ResolveResourceModuleAddress(JsonElement res, string moduleAddress)
+    {
+        string callerModuleAddress = ResolveCallerModuleAddress(res, moduleAddress);
+
+        if ((TryGetPropertyIgnoreCase(res, "module", out JsonElement moduleElement)
+                || TryGetPropertyIgnoreCase(res, "module_address", out moduleElement)
+                || TryGetPropertyIgnoreCase(res, "moduleAddress", out moduleElement))
+            && moduleElement.ValueKind == JsonValueKind.String)
+        {
+            string? embeddedModule = moduleElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(embeddedModule))
+                return embeddedModule.Trim().ToLowerInvariant();
+        }
+
+        return callerModuleAddress;
+    }
+
     private static string ResolveCallerModuleAddress(JsonElement res, string moduleAddress)
     {
         if ((TryGetPropertyIgnoreCase(res, "caller_module_address", out JsonElement callerModule)
@@ -260,7 +279,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
         }
 
         string canonicalLabel = name.ToLowerInvariant();
-        string effectiveModuleAddress = ResolveCallerModuleAddress(res, moduleAddress);
+        string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
 
         if (!hasExplicitResourceAddress)
@@ -273,7 +292,12 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement))
             {
                 if (indexElement.ValueKind == JsonValueKind.Number)
-                    canonicalAddress = $"{canonicalAddress}[{indexElement.GetInt32()}]";
+                {
+                    if (indexElement.TryGetInt32(out int intIndex))
+                        canonicalAddress = $"{canonicalAddress}[{intIndex}]";
+                    else if (indexElement.TryGetInt64(out long longIndex))
+                        canonicalAddress = $"{canonicalAddress}[{longIndex}]";
+                }
                 else if (indexElement.ValueKind == JsonValueKind.String
                     && !string.IsNullOrWhiteSpace(indexElement.GetString()))
                     canonicalAddress = $"{canonicalAddress}[{indexElement.GetString()!.Trim()}]";
