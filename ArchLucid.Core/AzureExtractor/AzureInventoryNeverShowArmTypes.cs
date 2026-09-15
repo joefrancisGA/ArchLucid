@@ -32,6 +32,8 @@ public static class AzureInventoryNeverShowArmTypes
         "Microsoft.Maintenance/configurationAssignments",
         "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
         "Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks",
+        // Companion child used to emit PEERS_WITH; omit from inventory/diagram nodes.
+        "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
     ];
 
     private static readonly string[] LastSegments =
@@ -54,6 +56,7 @@ public static class AzureInventoryNeverShowArmTypes
         "runbooks",
         "versions",
         "virtualnetworklinks",
+        "virtualnetworkpeerings",
         "maintenanceconfigurations",
         "configurationassignments",
     ];

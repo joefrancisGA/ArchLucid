@@ -168,6 +168,7 @@ public sealed partial class InfraEvidenceSnapshotsController(
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetMermaidPreview(
         Guid snapshotId,
+        [FromQuery] bool includeNeverShow = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -175,7 +176,11 @@ public sealed partial class InfraEvidenceSnapshotsController(
         try
         {
             InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
-                await snapshotMermaidService.TryGetPreviewAsync(scope, snapshotId, cancellationToken);
+                await snapshotMermaidService.TryGetPreviewAsync(
+                    scope,
+                    snapshotId,
+                    includeNeverShow,
+                    cancellationToken);
 
             if (result.IsNotFound)
             {

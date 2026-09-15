@@ -84,6 +84,16 @@ public interface IHostedAzureArmReadClient
         CancellationToken cancellationToken);
 
     /// <summary>
+    ///     GET child peerings for one VNet. ARM VNet list often returns an empty nested
+    ///     <c>virtualNetworkPeerings</c> array even when peerings exist.
+    /// </summary>
+    Task<IReadOnlyList<HostedAzureArmResourceRecord>> ListVirtualNetworkPeeringsAsync(
+        string accessToken,
+        string subscriptionId,
+        string virtualNetworkResourceId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     ///     GET NIC effective NSG and route table (IE-RF-10). Fail-soft per control kind.
     /// </summary>
     Task<IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord>> ListEffectiveNetworkControlsForNicAsync(
