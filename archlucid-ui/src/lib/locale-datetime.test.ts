@@ -9,11 +9,9 @@ import {
 import { pilotOutcomesReportingPeriodHelper } from "@/lib/pilot-outcomes-page-copy";
 
 describe("formatInstantForLocale", () => {
-  it("returns locale string for valid ISO input", () => {
-    const s = formatInstantForLocale("2026-01-15T14:30:00.000Z");
-
-    expect(s).not.toMatch(/invalid/i);
-    expect(s.length).toBeGreaterThan(4);
+  it("returns Eastern locale string for valid ISO input", () => {
+    expect(formatInstantForLocale("2026-01-15T14:30:00.000Z")).toBe("1/15/2026, 9:30 AM EST");
+    expect(formatInstantForLocale("2026-09-10T13:45:35.000Z")).toBe("9/10/2026, 9:45 AM EDT");
   });
 
   it("returns em dash for empty or invalid input", () => {
