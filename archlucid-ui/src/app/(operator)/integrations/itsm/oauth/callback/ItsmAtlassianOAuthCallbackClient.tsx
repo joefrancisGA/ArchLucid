@@ -47,6 +47,7 @@ import {
   formatItsmAtlassianOAuthCallbackUtcTimestamp,
   itsmAtlassianOAuthCallbackSupportLinkLabel,
   resolveItsmAtlassianOAuthCallbackWorkspaceLabel,
+  shouldOfferItsmOAuthSupportMailto,
   type ItsmAtlassianOAuthCallbackFailureKind,
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-support";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
@@ -216,15 +217,22 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
 
   const connectorStateLine = resolveConnectorStateLine(failureKind);
   const pageTitle = resolvePageTitle(phase);
-  const supportMailtoHref =
-    phase === "failure" && supportTimestampUtc !== null && supportReferenceId !== null
-      ? buildItsmAtlassianOAuthCallbackSupportMailtoHref({
-          correlationId: supportReferenceId,
-          timestampUtc: supportTimestampUtc,
-          workspaceLabel,
-          failureMessage: message,
-        })
-      : null;
+  const offerSupportMailto = shouldOfferItsmOAuthSupportMailto(
+    phase,
+    supportTimestampUtc,
+    supportReferenceId,
+  );
+  const supportMailtoHref = offerSupportMailto
+    ? buildItsmAtlassianOAuthCallbackSupportMailtoHref({
+        correlationId: supportReferenceId ?? "",
+        timestampUtc: supportTimestampUtc ?? "",
+        workspaceLabel,
+        failureMessage: message,
+      })
+    : null;
+  // Support mailto is a convenience link after a failed OAuth callback, not an auth bypass.
+  // codeql[js/user-controlled-bypass]
+  const showSupportMailto = offerSupportMailto && supportMailtoHref !== null;
 
   return (
     <OperatorPageContainer
@@ -321,7 +329,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
                       <Button asChild variant="primary" data-testid="itsm-oauth-callback-retry">
                         <Link href={INTEGRATIONS_JIRA_PATH}>{ITSM_ATLASSIAN_OAUTH_CALLBACK_RETRY_LABEL}</Link>
                       </Button>
-                      {supportMailtoHref !== null ? (
+                      {showSupportMailto ? (
                         <Link
                           href={supportMailtoHref}
                           className={OPERATOR_LINK.nav}
