@@ -10,6 +10,15 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public sealed partial class SqlAzureInventorySnapshotRepository
 {
+    private static readonly string VisibleResourceTypePredicate =
+        AzureInventoryVisibleSnapshotProjection.BuildSqlResourceTypeVisiblePredicate("r.ResourceType");
+
+    private static readonly string VisibleFromResourceTypePredicate =
+        AzureInventoryVisibleSnapshotProjection.BuildSqlResourceTypeVisiblePredicate("fromResource.ResourceType");
+
+    private static readonly string VisibleToResourceTypePredicate =
+        AzureInventoryVisibleSnapshotProjection.BuildSqlResourceTypeVisiblePredicate("toResource.ResourceType");
+
     public async Task<(IReadOnlyList<AzureInventorySnapshotRecord> Items, int TotalCount)> ListSnapshotsAsync(
         ScopeContext scope,
         int page,
@@ -32,11 +41,46 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                     AND (@SubscriptionId IS NULL OR SubscriptionId = @SubscriptionId);
                                 """;
 
-        const string listSql = """
+        string listSql = $"""
                                SELECT
                                    s.SnapshotId, s.TenantId, s.WorkspaceId, s.ProjectId, s.PackageId,
                                    s.SubscriptionId, s.SubscriptionName, s.CapturedUtc, s.CaptureStatus, s.CaptureVersion,
-                                   s.ResourceCount, s.RelationshipCount, s.CaptureMethod, s.CollectorVersion,
+                                   (
+                                       SELECT COUNT(1)
+                                       FROM dbo.AzureInventoryResources r
+                                       WHERE r.TenantId = s.TenantId
+                                         AND r.SnapshotId = s.SnapshotId
+                                         AND {VisibleResourceTypePredicate}
+                                   ) AS ResourceCount,
+                                   (
+                                       SELECT COUNT(1)
+                                       FROM dbo.AzureInventoryResourceRelationships rel
+                                       WHERE rel.TenantId = s.TenantId
+                                         AND rel.SnapshotId = s.SnapshotId
+                                         AND (
+                                             rel.FromAzureResourceId NOT LIKE '/subscriptions/%'
+                                             OR EXISTS (
+                                                 SELECT 1
+                                                 FROM dbo.AzureInventoryResources fromResource
+                                                 WHERE fromResource.TenantId = rel.TenantId
+                                                   AND fromResource.SnapshotId = rel.SnapshotId
+                                                   AND fromResource.AzureResourceId = rel.FromAzureResourceId
+                                                   AND {VisibleFromResourceTypePredicate}
+                                             )
+                                         )
+                                         AND (
+                                             rel.ToAzureResourceId NOT LIKE '/subscriptions/%'
+                                             OR EXISTS (
+                                                 SELECT 1
+                                                 FROM dbo.AzureInventoryResources toResource
+                                                 WHERE toResource.TenantId = rel.TenantId
+                                                   AND toResource.SnapshotId = rel.SnapshotId
+                                                   AND toResource.AzureResourceId = rel.ToAzureResourceId
+                                                   AND {VisibleToResourceTypePredicate}
+                                             )
+                                         )
+                                   ) AS RelationshipCount,
+                                   s.CaptureMethod, s.CollectorVersion,
                                    s.RequestedBy, s.DurationMs, s.CompletenessScore, s.WarningCount, s.ErrorCount,
                                    s.ContentHashSha256, s.CreatedUtc, s.UpdatedUtc,
                                    JSON_VALUE(p.ManifestJson, '$.subscriptionName') AS ManifestSubscriptionName

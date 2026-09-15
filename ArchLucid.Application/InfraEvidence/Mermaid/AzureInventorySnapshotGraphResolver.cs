@@ -56,6 +56,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
 
     private static GraphSnapshot BuildGraph(AzureInventorySnapshotDetailReadModel snapshot)
     {
+        snapshot = AzureInventoryVisibleSnapshotProjection.Apply(snapshot);
+
         Dictionary<string, string> nodeIdByArmId = new(StringComparer.OrdinalIgnoreCase);
         List<GraphNode> nodes = [];
 
@@ -64,11 +66,6 @@ public sealed class AzureInventorySnapshotGraphResolver(
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources
                      .OrderBy(candidate => ReadAzureResourceId(candidate), StringComparer.Ordinal))
         {
-            if (AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(ReadResourceType(resource)))
-            {
-                continue;
-            }
-
             string nodeId = ResolveNodeId(resource);
             string azureResourceId = ReadAzureResourceId(resource);
 

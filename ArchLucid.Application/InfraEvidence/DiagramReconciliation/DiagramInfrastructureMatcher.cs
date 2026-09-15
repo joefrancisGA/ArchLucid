@@ -1,5 +1,6 @@
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence.DiagramReconciliation;
@@ -14,6 +15,8 @@ public static class DiagramInfrastructureMatcher
     {
         ArgumentNullException.ThrowIfNull(diagram);
         ArgumentNullException.ThrowIfNull(snapshot);
+
+        snapshot = AzureInventoryVisibleSnapshotProjection.Apply(snapshot);
 
         Dictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId = snapshot.Resources
             .ToDictionary(resource => resource.ResourceRowId);

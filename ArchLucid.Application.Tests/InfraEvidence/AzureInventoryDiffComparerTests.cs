@@ -65,6 +65,46 @@ public sealed class AzureInventoryDiffComparerTests
         changes.Should().Contain(c => c.ChangeType == AzureInventoryChangeType.SkuChanged);
     }
 
+    [Fact]
+    public void Compare_suppresses_nested_resource_removed_changes_when_parent_was_removed()
+    {
+        Guid snapshotAId = Guid.NewGuid();
+        Guid snapshotBId = Guid.NewGuid();
+        const string parentArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+        const string childArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1/extensions/ext";
+        const string siblingArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm2";
+
+        AzureInventorySnapshotDetailReadModel snapshotA = BuildSnapshot(
+            snapshotAId,
+            Guid.NewGuid(),
+            parentArmId,
+            region: "eastus",
+            tagKey: "env",
+            tagValue: "prod",
+            extraResourceArmId: childArmId,
+            secondExtraResourceArmId: siblingArmId);
+
+        AzureInventorySnapshotDetailReadModel snapshotB = BuildSnapshot(
+            snapshotBId,
+            Guid.NewGuid(),
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+            region: "eastus",
+            tagKey: "env",
+            tagValue: "prod");
+
+        List<AzureInventoryChangeRecord> changes =
+            AzureInventoryDiffComparer.Compare(snapshotA, snapshotB, snapshotAId, snapshotBId);
+
+        changes
+            .Where(c => c.ChangeType == AzureInventoryChangeType.ResourceRemoved)
+            .Select(c => c.AzureResourceId)
+            .Should()
+            .BeEquivalentTo([parentArmId, siblingArmId]);
+    }
+
     private static AzureInventorySnapshotDetailReadModel BuildSnapshot(
         Guid snapshotId,
         Guid resourceRowId,
@@ -73,7 +113,8 @@ public sealed class AzureInventoryDiffComparerTests
         string tagKey,
         string tagValue,
         string? sku = null,
-        string? extraResourceArmId = null)
+        string? extraResourceArmId = null,
+        string? secondExtraResourceArmId = null)
     {
         List<AzureInventoryResourcePropertyReadModel> properties = [];
 
@@ -108,6 +149,19 @@ public sealed class AzureInventoryDiffComparerTests
                 SnapshotId = snapshotId,
                 TenantId = Guid.NewGuid(),
                 AzureResourceId = extraResourceArmId,
+                ResourceType = "Microsoft.Compute/virtualMachines/extensions",
+                Region = region,
+            });
+        }
+
+        if (!string.IsNullOrWhiteSpace(secondExtraResourceArmId))
+        {
+            resources.Add(new AzureInventoryResourceRecord
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = snapshotId,
+                TenantId = Guid.NewGuid(),
+                AzureResourceId = secondExtraResourceArmId,
                 ResourceType = "Microsoft.Compute/virtualMachines",
                 Region = region,
             });
