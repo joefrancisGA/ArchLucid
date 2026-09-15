@@ -78,6 +78,20 @@ export function buildItsmAtlassianOAuthCallbackSupportMailtoHref(params: {
   return `mailto:${ARCHLUCID_SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
 }
 
+export function shouldOfferItsmOAuthSupportMailto(
+  phase: "loading" | "success" | "failure",
+  timestampUtc: string | null,
+  referenceId: string | null,
+): boolean {
+  if (phase !== "failure") {
+    return false;
+  }
+
+  // Support mailto is a convenience link after an already-failed callback, not an auth bypass.
+  // codeql[js/user-controlled-bypass]
+  return timestampUtc !== null && referenceId !== null;
+}
+
 export function itsmAtlassianOAuthCallbackSupportLinkLabel(): string {
   return ITSM_ATLASSIAN_OAUTH_CALLBACK_CONTACT_SUPPORT_LABEL;
 }

@@ -391,4 +391,43 @@ public sealed class SanitizedLoggerWarningExtensionsTests
         text.Should().Contain("Integration event serialization failed for com.archlucid_.test.v1");
         text.Should().NotContain("\n");
     }
+
+    [Fact]
+    public void LogWarningWithExceptionAndTwoSanitizedUserStrings_strips_control_chars()
+    {
+        Mock<ILogger> mock = new();
+        mock.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+
+        string? rendered = null;
+
+        mock.Setup(m => m.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation =>
+            {
+                Delegate formatter = (Delegate)invocation.Arguments[4];
+                object state = invocation.Arguments[2];
+                object ex = invocation.Arguments[3];
+                rendered = formatter.DynamicInvoke(state, ex) as string;
+            }));
+
+        InvalidOperationException exception = new("ingest failed");
+
+        mock.Object.LogWarningWithExceptionAndTwoSanitizedUserStrings(
+            exception,
+            "Operational security finding ingest failed for SourceSystem={SourceSystem} SourceFindingId={SourceFindingId}.",
+            "qualys\nid",
+            "find\rid-1");
+
+        rendered.Should().NotBeNull();
+        string text = rendered!;
+
+        text.Should().Contain("qualys_id");
+        text.Should().Contain("find_id-1");
+        text.Should().NotContain("\n");
+        text.Should().NotContain("\r");
+    }
 }
