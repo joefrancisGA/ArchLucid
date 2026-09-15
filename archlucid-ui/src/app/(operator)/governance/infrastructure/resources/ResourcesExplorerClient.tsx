@@ -51,8 +51,10 @@ import {
   parseInfraResourceRowArmIdDisclosureKeyFromSearch,
   writeInfraResourceRowArmIdDisclosureKeyToUrl,
 } from "@/lib/infra-evidence/infra-resource-row-arm-id-disclosure-url";
+import { formatAzureResourceTypeForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
 import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
+import { formatInstantCompactMilitary } from "@/lib/locale-datetime";
 import {
   CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS,
   formatCloudResourceExplorerWorkQueueLabel,
@@ -75,8 +77,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_SKIP_LINK_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_SNAPSHOT_CONTEXT_HELPER,
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_SNAPSHOT_CONTEXT_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -158,7 +159,6 @@ export function ResourcesExplorerClient() {
   const [namePrefix, setNamePrefix] = useState(urlNamePrefix);
   const [resourceType, setResourceType] = useState(urlResourceType);
   const [resourceGroup, setResourceGroup] = useState(urlResourceGroup);
-  const [snapshotId, setSnapshotId] = useState(urlSnapshotId);
   const [workQueue, setWorkQueue] = useState<CloudResourceExplorerWorkQueue>(urlWorkQueue);
   const [rows, setRows] = useState<CloudResourceSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -176,9 +176,8 @@ export function ResourcesExplorerClient() {
     setNamePrefix(urlNamePrefix);
     setResourceType(urlResourceType);
     setResourceGroup(urlResourceGroup);
-    setSnapshotId(urlSnapshotId);
     setWorkQueue(urlWorkQueue);
-  }, [urlNamePrefix, urlResourceGroup, urlResourceType, urlSnapshotId, urlWorkQueue]);
+  }, [urlNamePrefix, urlResourceGroup, urlResourceType, urlWorkQueue]);
 
   const loadResources = useCallback(async () => {
     setLoading(true);
@@ -250,7 +249,6 @@ export function ResourcesExplorerClient() {
       resourceType,
       resourceGroup,
       workQueue,
-      snapshotId,
     }, resourcesPath);
     router.replace(nextHref);
   };
@@ -267,7 +265,6 @@ export function ResourcesExplorerClient() {
     readonly resourceType: string;
     readonly resourceGroup: string;
     readonly workQueue: CloudResourceExplorerWorkQueue;
-    readonly snapshotId?: string;
   }) => {
     const nextHref = resourceExplorerFilterHrefFromSearch(searchParams.toString(), filters, resourcesPath);
     router.replace(nextHref);
@@ -365,7 +362,7 @@ export function ResourcesExplorerClient() {
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           {CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS.find((option) => option.id === urlWorkQueue)?.summary}
         </p>
-        <div className="grid gap-3 md:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-3">
           {buyerPolishedShell ? (
             <>
               <div className="grid gap-2 text-sm">
@@ -396,20 +393,6 @@ export function ResourcesExplorerClient() {
                   value={resourceGroup}
                   onChange={(event) => setResourceGroup(event.target.value)}
                   placeholder="rg-network"
-                />
-              </div>
-              <div className="grid gap-2 text-sm">
-                <Label htmlFor="infra-resource-explorer-snapshot-id">{GOVERNANCE_INFRASTRUCTURE_RESOURCES_SNAPSHOT_CONTEXT_LABEL}</Label>
-                <p className={cn("m-0 text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {GOVERNANCE_INFRASTRUCTURE_RESOURCES_SNAPSHOT_CONTEXT_HELPER}
-                </p>
-                <Input
-                  id="infra-resource-explorer-snapshot-id"
-                  className="font-mono text-xs"
-                  data-testid="infra-resource-explorer-snapshot-id"
-                  value={snapshotId}
-                  onChange={(event) => setSnapshotId(event.target.value)}
-                  placeholder="22222222-2222-2222-2222-222222222222"
                 />
               </div>
             </>
@@ -443,19 +426,6 @@ export function ResourcesExplorerClient() {
                   value={resourceGroup}
                   onChange={(event) => setResourceGroup(event.target.value)}
                   placeholder="rg-network"
-                />
-              </label>
-              <label className="grid gap-1 text-sm">
-                <span className="font-medium">Snapshot context (links only)</span>
-                <span className="text-xs text-al-text-secondary">
-                  Preserves snapshot scope on hub and workbench links. The resource list is not filtered by snapshot.
-                </span>
-                <input
-                  className={cn("font-mono text-xs", cnField)}
-                  data-testid="infra-resource-explorer-snapshot-id"
-                  value={snapshotId}
-                  onChange={(event) => setSnapshotId(event.target.value)}
-                  placeholder="22222222-2222-2222-2222-222222222222"
                 />
               </label>
             </>
@@ -540,7 +510,7 @@ export function ResourcesExplorerClient() {
               </EnterpriseTableCell>
               <EnterpriseTableCell data-testid={`infra-resource-work-counts-${row.cloudResourceId}`}>
                 {workCountBadges.length === 0 ? (
-                  <span className="text-sm text-al-text-secondary">—</span>
+                  <span className="text-sm text-al-text-secondary">{GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL}</span>
                 ) : (
                   <div className="flex flex-wrap gap-1">
                     {workCountBadges.map((badge) => (
@@ -557,11 +527,13 @@ export function ResourcesExplorerClient() {
                   </div>
                 )}
               </EnterpriseTableCell>
-              <EnterpriseTableCell>{row.resourceType ?? "—"}</EnterpriseTableCell>
+              <EnterpriseTableCell data-testid={`infra-resource-type-${row.cloudResourceId}`}>
+                {formatAzureResourceTypeForDisplay(row.resourceType)}
+              </EnterpriseTableCell>
               <EnterpriseTableCell>{row.resourceGroup ?? "—"}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.region ?? "—"}</EnterpriseTableCell>
-              <EnterpriseTableCell>
-                {row.lastSeenUtc.length > 0 ? new Date(row.lastSeenUtc).toLocaleString() : "—"}
+              <EnterpriseTableCell data-testid={`infra-resource-last-seen-${row.cloudResourceId}`}>
+                {row.lastSeenUtc.length > 0 ? formatInstantCompactMilitary(row.lastSeenUtc) : "—"}
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <div className="flex flex-wrap gap-2">

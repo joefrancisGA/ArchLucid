@@ -51,7 +51,7 @@ const GOVERNANCE_INFRASTRUCTURE_RESOURCES_CONTEXTUAL_HELP = {
     href: `${CLOUD_CONNECTIONS_PATH}/azure`,
   },
   taskSteps: [
-    "Apply work-queue filters — snapshot context on links preserves hub scope but does not filter the list.",
+    "Apply work-queue filters, then open a resource hub or Ask from a row.",
     "Open a resource evidence hub for drift, findings, remediation, diagram correspondence, Terraform, and audit lineage.",
     "Copy assessment, snapshot, and control IDs when audit lineage lookup needs inventory-linked evidence.",
   ],
