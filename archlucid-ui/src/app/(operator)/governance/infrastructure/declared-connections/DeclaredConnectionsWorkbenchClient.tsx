@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Textarea } from "@/components/ui/textarea";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { useToast } from "@/hooks/use-toast";
+import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_CLAIM_DISCIPLINE,
@@ -45,7 +45,6 @@ function defaultExpirationIso(): string {
 }
 
 export function DeclaredConnectionsWorkbenchClient() {
-  const { showError, showSuccess } = useToast();
   const [rows, setRows] = useState<SecurityDeclaredConnectionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -87,7 +86,7 @@ export function DeclaredConnectionsWorkbenchClient() {
     } finally {
       setLoading(false);
     }
-  }, [showError]);
+  }, []);
 
   useEffect(() => {
     void loadRows();
