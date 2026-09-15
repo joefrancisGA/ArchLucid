@@ -335,6 +335,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "generate_config", out JsonElement generateConfig)
+                || TryGetPropertyIgnoreCase(res, "generateConfig", out generateConfig))
+            && (generateConfig.ValueKind == JsonValueKind.True || generateConfig.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.generate_config"] = generateConfig.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
