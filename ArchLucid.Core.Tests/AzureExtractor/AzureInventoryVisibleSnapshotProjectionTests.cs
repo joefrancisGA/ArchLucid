@@ -137,6 +137,26 @@ public sealed class AzureInventoryVisibleSnapshotProjectionTests
         predicate.Should().Contain("%/virtualnetworklinks/%");
     }
 
+    [Fact]
+    public void BuildSqlResourceTypeVisiblePredicate_keeps_null_or_blank_resource_type()
+    {
+        string predicate = AzureInventoryVisibleSnapshotProjection.BuildSqlResourceTypeVisiblePredicate("r.ResourceType");
+
+        predicate.Should().Contain("r.ResourceType IS NULL");
+        predicate.Should().Contain("r.ResourceType = N''");
+        predicate.Should().Contain("r.ResourceType <> N'Microsoft.OperationsManagement/solutions'");
+    }
+
+    [Fact]
+    public void BuildSqlAzureResourceIdVisiblePredicate_keeps_null_or_blank_arm_id()
+    {
+        string predicate = AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("r.AzureResourceId");
+
+        predicate.Should().Contain("r.AzureResourceId IS NULL");
+        predicate.Should().Contain("r.AzureResourceId = N''");
+        predicate.Should().Contain("%/solutions/%");
+    }
+
     private static AzureInventoryResourceRecord CreateResource(
         string name,
         string resourceType,

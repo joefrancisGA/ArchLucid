@@ -329,7 +329,7 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                                   AND (@NamePrefix IS NULL OR DisplayName LIKE @NamePrefix + '%' OR ExternalResourceIdNormalized LIKE '%' + @NamePrefix + '%')
                                   AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
                                   AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
-                                  AND (ResourceType IS NULL OR ({VisibleExplorerResourceTypePredicate}))
+                                  AND {VisibleExplorerResourceTypePredicate}
                                   AND {VisibleExplorerAzureResourceIdPredicate}
                                   {workQueueFilter};
                                 """;
@@ -350,7 +350,7 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                                  AND (@NamePrefix IS NULL OR DisplayName LIKE @NamePrefix + '%' OR ExternalResourceIdNormalized LIKE '%' + @NamePrefix + '%')
                                  AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
                                  AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
-                                 AND (ResourceType IS NULL OR ({VisibleExplorerResourceTypePredicate}))
+                                 AND {VisibleExplorerResourceTypePredicate}
                                  AND {VisibleExplorerAzureResourceIdPredicate}
                                  {workQueueFilter}
                                ORDER BY LastSeenUtc DESC

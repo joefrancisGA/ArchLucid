@@ -39,11 +39,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
         bool filterByCloudResource = cloudResourceId is Guid resourceId && resourceId != Guid.Empty;
         string resourceFilter = filterByCloudResource ? " AND CloudResourceId = @CloudResourceId" : string.Empty;
         string neverShowFilter = $"""
-                                   AND (
-                                       ResourceType IS NULL
-                                       OR ResourceType = N''
-                                       OR ({PagedVisibleResourceTypePredicate})
-                                   )
+                                   AND {PagedVisibleResourceTypePredicate}
                                    AND {PagedVisibleAzureResourceIdPredicate}
                                    """;
 
