@@ -19174,6 +19174,29 @@
         },
         "type": "object"
       },
+      "InfraEvidenceMermaidIdentityDiagramHints": {
+        "properties": {
+          "inventoryFilteredIdentityArmTypes": {
+            "items": {
+              "$ref": "#/components/schemas/InfraEvidenceMermaidIdentityDiagramSuppressedArmType"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceMermaidIdentityDiagramSuppressedArmType": {
+        "properties": {
+          "armResourceType": {
+            "type": "string"
+          },
+          "resourceCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "InfraEvidenceMermaidModePreview": {
         "properties": {
           "edgeCount": {
@@ -19242,6 +19265,16 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "identityDiagramHints": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InfraEvidenceMermaidIdentityDiagramHints"
+              }
             ]
           },
           "layoutEngine": {
