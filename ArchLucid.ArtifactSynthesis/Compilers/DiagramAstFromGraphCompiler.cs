@@ -22,6 +22,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             .ToList();
 
         topologyNodes = ApplyModeNodeFilter(graph, topologyNodes, mode, options);
+        topologyNodes = ExecutiveVnetPeeringEndpointIncluder.Include(graph, topologyNodes, mode);
 
         HashSet<string> includedNodeIds = topologyNodes
             .Select(node => node.NodeId)
@@ -83,6 +84,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         {
             DiagramExecutiveRegionPlanner.ApplyRegionSubgraphs(ast, topologyNodes);
             ExecutiveVnetSummaryBuilder.ApplyExecutiveVnetLabels(ast, graph, topologyNodes);
+            ExecutiveVnetPeeringEdgeBuilder.Apply(ast, graph, topologyNodes, nodeIdMap);
         }
 
         DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode, options);
@@ -179,14 +181,13 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
     }
 
     /// <summary>
-    /// Executive = VNet / subscription / RG summary nodes (capped) followed by the always-show tiers (IDL-06).
+    /// Executive = all VNet / subscription / RG summary nodes followed by the always-show tiers (IDL-06).
     /// Tier order is preserved so the flat grid reads workloads → databases → storage → data factories.
     /// </summary>
     private static List<GraphNode> ApplyExecutiveFilter(List<GraphNode> nodes, DiagramAstCompileOptions options)
     {
         List<GraphNode> summaryNodes = nodes
             .Where(DiagramAstGraphNodeClassifier.IsExecutiveSummaryNode)
-            .Take(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes)
             .ToList();
 
         List<GraphNode> alwaysShowNodes = DiagramExecutiveAlwaysShowSelector.Select(nodes, options.HiddenExecutiveTierKeys);

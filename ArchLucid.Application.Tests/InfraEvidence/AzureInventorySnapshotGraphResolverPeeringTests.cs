@@ -143,7 +143,7 @@ public sealed class AzureInventorySnapshotGraphResolverPeeringTests
     }
 
     [Fact]
-    public async Task TryResolveGraphAsync_skips_peering_when_remote_vnet_is_not_in_snapshot()
+    public async Task TryResolveGraphAsync_stubs_peering_when_remote_vnet_is_not_in_snapshot()
     {
         Guid rowA = Guid.Parse("44444444-1111-4000-8000-000000000001");
         const string vnetA =
@@ -166,7 +166,62 @@ public sealed class AzureInventorySnapshotGraphResolverPeeringTests
         AzureInventorySnapshotGraphResolveResult result = await ResolveAsync(snapshot);
 
         result.Succeeded.Should().BeTrue();
-        result.Graph!.Edges.Should().BeEmpty();
+        result.Graph!.Nodes.Should().HaveCount(2);
+        result.Graph.Nodes.Should().Contain(node =>
+            string.Equals(node.Properties.GetValueOrDefault("arm.stub"), "remote-vnet", StringComparison.Ordinal));
+        result.Graph.Edges.Should().ContainSingle(edge => edge.EdgeType == GraphEdgeTypes.PeersWith);
+    }
+
+    [Fact]
+    public async Task Executive_mermaid_renders_owner_shape_peerings_from_vnet_properties_only()
+    {
+        (int from, int to)[] peerings =
+        [
+            (0, 5),
+            (1, 6),
+            (2, 7),
+            (3, 8),
+            (4, 9),
+            (5, 10),
+        ];
+
+        List<AzureInventoryResourceRecord> resources = [];
+        List<AzureInventoryResourcePropertyReadModel> properties = [];
+
+        for (int index = 0; index < 11; index++)
+        {
+            Guid rowId = Guid.Parse($"66666666-1111-4000-8000-{index:D12}");
+            string armId =
+                $"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-{index:D2}";
+            resources.Add(CreateVnet(rowId, armId));
+        }
+
+        foreach ((int from, int to) in peerings)
+        {
+            string remoteArmId =
+                $"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-{to:D2}";
+            properties.Add(new AzureInventoryResourcePropertyReadModel
+            {
+                ResourceRowId = resources[from].ResourceRowId,
+                PropertyKey = AzureInventoryVnetPeeringParser.PeeringsPropertyKey,
+                PropertyValue = BuildPeeringsJson(remoteArmId),
+            });
+        }
+
+        AzureInventorySnapshotDetailReadModel snapshot = CreateSnapshot(resources, properties, []);
+        AzureInventorySnapshotGraphResolveResult result = await ResolveAsync(snapshot);
+
+        result.Succeeded.Should().BeTrue();
+        result.Graph!.Edges.Where(edge => edge.EdgeType == GraphEdgeTypes.PeersWith).Should().HaveCount(6);
+
+        DiagramAst ast = new DiagramAstFromGraphCompiler().Compile(
+            result.Graph,
+            DiagramMode.Executive);
+        string mermaid = new MermaidDiagramRenderer().Render(ast);
+
+        ast.Nodes.Should().HaveCount(11);
+        ast.Edges.Count(edge => !edge.IsLayoutOnly).Should().Be(6);
+        mermaid.Should().Contain("-->|\"peering\"|");
     }
 
     [Fact]

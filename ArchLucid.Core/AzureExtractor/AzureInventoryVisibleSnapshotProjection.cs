@@ -56,8 +56,12 @@ public static class AzureInventoryVisibleSnapshotProjection
 
         foreach (AzureInventoryResourceRelationshipReadModel relationship in relationships)
         {
-            if (!IsVisibleInventoryArmResourceId(relationship.FromAzureResourceId, visibleArmIds)
-                || !IsVisibleInventoryArmResourceId(relationship.ToAzureResourceId, visibleArmIds))
+            if (!ShouldKeepRelationship(
+                    relationship.FromAzureResourceId,
+                    relationship.ToAzureResourceId,
+                    relationship.RelationshipType,
+                    relationship.InferenceSource,
+                    visibleArmIds))
             {
                 continue;
             }
@@ -76,8 +80,12 @@ public static class AzureInventoryVisibleSnapshotProjection
 
         foreach (AzureInventoryResourceRelationshipWrite relationship in relationships)
         {
-            if (!IsVisibleInventoryArmResourceId(relationship.FromAzureResourceId, visibleArmIds)
-                || !IsVisibleInventoryArmResourceId(relationship.ToAzureResourceId, visibleArmIds))
+            if (!ShouldKeepRelationship(
+                    relationship.FromAzureResourceId,
+                    relationship.ToAzureResourceId,
+                    relationship.RelationshipType,
+                    relationship.InferenceSource,
+                    visibleArmIds))
             {
                 continue;
             }
@@ -194,6 +202,31 @@ public static class AzureInventoryVisibleSnapshotProjection
             CreatedUtc = header.CreatedUtc,
             UpdatedUtc = header.UpdatedUtc,
         };
+    }
+
+    private static bool ShouldKeepRelationship(
+        string? fromAzureResourceId,
+        string? toAzureResourceId,
+        string? relationshipType,
+        string? inferenceSource,
+        IReadOnlySet<string> visibleArmIds)
+    {
+        bool fromVisible = IsVisibleInventoryArmResourceId(fromAzureResourceId, visibleArmIds);
+        bool toVisible = IsVisibleInventoryArmResourceId(toAzureResourceId, visibleArmIds);
+
+        if (fromVisible && toVisible)
+        {
+            return true;
+        }
+
+        // Remote VNets in another subscription are still real peering endpoints.
+        if (AzureInventoryRelationshipAssociationTypes.IsVnetPeeringRelationship(relationshipType, inferenceSource)
+            && (fromVisible || toVisible))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static bool LooksLikeArmResourceId(string? value)

@@ -6,7 +6,7 @@ public static class DiagramAstFromGraphCompilerConstants
     /// <summary>Inferred/heuristic edges below this weight are dropped to avoid fully-connected noise.</summary>
     public const double MinimumEdgeWeight = 0.75d;
 
-    /// <summary>Cap on VNet / subscription / RG summary nodes in Executive mode.</summary>
+    /// <summary>Fallback cap when Executive mode has no VNets and no always-show tiers.</summary>
     public const int ExecutiveMaxResourceNodes = 12;
 
     /// <summary>
@@ -16,8 +16,8 @@ public static class DiagramAstFromGraphCompilerConstants
     public const int ExecutiveAlwaysShowTierMaxNodes = 16;
 
     /// <summary>
-    /// Upper bound on Executive node count: summary nodes plus every tier at budget plus one rollup node each.
-    /// Used by render coercion so a dense-but-valid Executive diagram is not reported as partitioned.
+    /// Upper bound on Executive node count when VNets are capped at <see cref="ExecutiveMaxResourceNodes" />
+    /// plus every tier at budget plus one rollup node each. Compile tests use this; render coercion does not cap VNets.
     /// </summary>
     public static int ExecutiveMaxTotalNodes =>
         ExecutiveMaxResourceNodes + (ExecutiveAlwaysShowTiers.All.Count * (ExecutiveAlwaysShowTierMaxNodes + 1));

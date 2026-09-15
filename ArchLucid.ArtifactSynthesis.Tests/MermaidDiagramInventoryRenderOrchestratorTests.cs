@@ -48,7 +48,7 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
 
         result.CollapseReport!.Entries.Should().NotContain(entry => entry.Kind == "PeelBudgetArmType");
         result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
-        result.Metrics.NodeCount.Should().BeLessThanOrEqualTo(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes);
+        result.Metrics.NodeCount.Should().Be(500);
     }
 
     [Fact]
