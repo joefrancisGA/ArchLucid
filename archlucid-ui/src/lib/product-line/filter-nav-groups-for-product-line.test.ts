@@ -83,7 +83,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     ]);
     expect(infrastructureLinks.some((link) => link.href === "/")).toBe(false);
     expect(infrastructureLinks.some((link) => link.href === GOVERNANCE_INFRASTRUCTURE_PATH)).toBe(false);
-    expect(infrastructureLinks[0]?.href).toBe("/governance/infrastructure/resources");
+    expect(infrastructureLinks[0]?.href).toBe("/infrastructure/resources");
     expect(infrastructureLinks.some((link) => link.label === OPERATOR_NAV_LINK_LABELS.infrastructureAsk)).toBe(true);
     expect(infrastructureLinks.some((link) => link.href === "/infrastructure/diagrams")).toBe(true);
     expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/diagrams")).toBe(false);
@@ -93,7 +93,10 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       "/security/assigned-to-me",
       "/security/remediation-factory",
       "/security/remediation-patterns",
+      "/security/remediation-instances",
     ]);
+    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/remediation")).toBe(false);
+    expect(infrastructureLinks.some((link) => link.href === "/security/remediation-instances")).toBe(false);
     expect(integrationLinks.map((link) => link.href)).toEqual([
       "/integrations/cloud-connections",
       "/integrations/jira",

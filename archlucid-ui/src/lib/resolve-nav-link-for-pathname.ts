@@ -2,9 +2,11 @@ import type { LucideIcon } from "lucide-react";
 
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+  SECURENOW_REMEDIATION_INSTANCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { flattenNavLinks } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config.types";
@@ -13,6 +15,7 @@ import type { NavLinkItem } from "@/lib/nav-config.types";
 const SECURENOW_NAV_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
   [SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH]: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   [SECURENOW_INFRASTRUCTURE_RESOURCES_PATH]: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  [SECURENOW_REMEDIATION_INSTANCES_PATH]: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
 };
 
 function hrefToPathname(href: string): string {
