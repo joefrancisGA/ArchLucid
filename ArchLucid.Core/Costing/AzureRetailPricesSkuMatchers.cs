@@ -561,6 +561,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsSpacedSlashWeekkkkkkkkToken(trimmed)
             || ContainsSpacedSlashWeekkkkkToken(trimmed)
             || ContainsSpacedSlashWeekkkkkkkkkkkkkkkkkkToken(trimmed)
+            || ContainsSpacedSlashWeekkkkkkkkkkkkkkkkkkkToken(trimmed)
             || ContainsSpacedSlashWeekkkkkkkkkkkkkkkkkToken(trimmed)
             || ContainsSpacedSlashWeekkkkkkkkkkkkkkkkToken(trimmed)
             || ContainsSpacedSlashWeekkkkkkkkkkkkkkkToken(trimmed)
@@ -941,7 +942,29 @@ public sealed partial class AzureRetailPricesCatalogClient
         return false;
     }
 
-        private static bool ContainsSpacedSlashWeekkkkkkkkkkkkkkkkkkToken(string trimmed)
+            private static bool ContainsSpacedSlashWeekkkkkkkkkkkkkkkkkkkToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf(" / weekkkkkkkkkkkkkkkkkkk", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterToken = index + 25;
+
+            if (afterToken >= trimmed.Length || !char.IsLetter(trimmed[afterToken]))
+                return true;
+
+            index = afterToken;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsSpacedSlashWeekkkkkkkkkkkkkkkkkkToken(string trimmed)
     {
         int index = 0;
 
