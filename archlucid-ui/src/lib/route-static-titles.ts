@@ -1,5 +1,6 @@
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import {
   SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
