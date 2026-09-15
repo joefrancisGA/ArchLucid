@@ -3,7 +3,7 @@ namespace ArchLucid.Contracts.InfraEvidence.DiagramPeel;
 /// <summary>Default peel catalog when SQL is unavailable or the table is empty (IE-17).</summary>
 public static class DiagramPeelCatalogDefaultSeed
 {
-    public const int DefaultCatalogVersion = 3;
+    public const int DefaultCatalogVersion = 4;
 
     public static DiagramPeelCatalogSnapshot BuildSnapshot()
     {
@@ -69,6 +69,8 @@ public static class DiagramPeelCatalogDefaultSeed
             Backbone("Microsoft.DBforMySQL/servers"),
             Backbone("Microsoft.DocumentDB/databaseAccounts"),
             Backbone("Microsoft.Cache/Redis"),
+            Backbone("Microsoft.DataFactory/factories"),
+            Backbone("Microsoft.Synapse/workspaces"),
             Backbone("Microsoft.Compute/virtualMachineScaleSets"),
             Backbone("Microsoft.ContainerService/managedClusters"),
             Backbone("Microsoft.Web/serverFarms"),

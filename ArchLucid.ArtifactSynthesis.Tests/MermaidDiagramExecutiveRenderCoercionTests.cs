@@ -11,7 +11,7 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 public sealed class MermaidDiagramExecutiveRenderCoercionTests
 {
     [Fact]
-    public void Coerce_executive_partitioned_within_node_cap_returns_succeeded()
+    public void Coerce_executive_partitioned_structurally_valid_returns_succeeded()
     {
         MermaidDiagramRenderResult input = new()
         {
@@ -19,7 +19,7 @@ public sealed class MermaidDiagramExecutiveRenderCoercionTests
             PrimaryMermaid = "flowchart LR\n  A-->B",
             Metrics = new MermaidDiagramComplexityMetrics
             {
-                NodeCount = DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes,
+                NodeCount = 12,
             },
         };
 
@@ -27,6 +27,21 @@ public sealed class MermaidDiagramExecutiveRenderCoercionTests
 
         result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
         result.FallbackArtifacts.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Coerce_executive_partitioned_with_many_nodes_returns_succeeded()
+    {
+        MermaidDiagramRenderResult input = new()
+        {
+            Status = MermaidDiagramRenderStatus.Partitioned,
+            PrimaryMermaid = "flowchart LR\n  A-->B",
+            Metrics = new MermaidDiagramComplexityMetrics { NodeCount = 50 },
+        };
+
+        MermaidDiagramRenderResult result = MermaidDiagramExecutiveRenderCoercion.Coerce(DiagramMode.Executive, input);
+
+        result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
     }
 
     [Fact]

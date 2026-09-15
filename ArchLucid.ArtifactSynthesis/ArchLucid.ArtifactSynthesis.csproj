@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="ArchLucid.ArtifactSynthesis.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Application" />
   </ItemGroup>
 
   <ItemGroup>

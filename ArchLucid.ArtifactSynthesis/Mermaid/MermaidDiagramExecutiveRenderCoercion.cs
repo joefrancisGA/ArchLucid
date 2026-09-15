@@ -4,9 +4,8 @@ using ArchLucid.ArtifactSynthesis.Models;
 namespace ArchLucid.ArtifactSynthesis.Mermaid;
 
 /// <summary>
-/// Executive inventory diagrams are contractually capped at
-/// <see cref="DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes" /> resource nodes.
-/// They must not surface partitioned/too-large outcomes when structurally valid.
+/// Executive inventory diagrams must not surface partitioned/too-large outcomes when structurally valid.
+/// Node count is not capped at render coercion — all VNets, peering endpoints, and budgeted always-show tiers stay visible (IDL-06).
 /// </summary>
 internal static class MermaidDiagramExecutiveRenderCoercion
 {
@@ -30,11 +29,6 @@ internal static class MermaidDiagramExecutiveRenderCoercion
         }
 
         if (string.IsNullOrWhiteSpace(result.PrimaryMermaid))
-        {
-            return result;
-        }
-
-        if (result.Metrics.NodeCount > DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes)
         {
             return result;
         }

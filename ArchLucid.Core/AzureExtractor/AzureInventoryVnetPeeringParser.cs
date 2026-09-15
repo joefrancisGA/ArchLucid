@@ -133,7 +133,56 @@ public static class AzureInventoryVnetPeeringParser
         return TryReadRemoteVnetIdFromObject(peering);
     }
 
-    public static string? TryReadRemoteVnetIdFromProperties(IReadOnlyDictionary<string, string?> properties)
+    public static bool HasPeeringCollectionEvidence(
+        string? resourceType,
+        string? azureResourceId,
+        IReadOnlyDictionary<string, string>? properties)
+    {
+        if (IsPeeringResourceType(resourceType) || IsPeeringResourceId(azureResourceId))
+        {
+            return true;
+        }
+
+        if (!TryGetPeeringsJson(properties, out string? peeringsJson))
+        {
+            return false;
+        }
+
+        return HasRemoteVnetIds(peeringsJson);
+    }
+
+    public static bool TryGetPeeringsJson(
+        IReadOnlyDictionary<string, string>? properties,
+        out string? peeringsJson)
+    {
+        peeringsJson = null;
+
+        if (properties is null)
+        {
+            return false;
+        }
+
+        // Inventory property bags are not guaranteed to use a case-insensitive comparer.
+        foreach (KeyValuePair<string, string> pair in properties)
+        {
+            if (!string.Equals(pair.Key, PeeringsPropertyKey, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(pair.Value))
+            {
+                return false;
+            }
+
+            peeringsJson = pair.Value;
+            return true;
+        }
+
+        return false;
+    }
+
+    public static string? TryReadRemoteVnetIdFromProperties(IReadOnlyDictionary<string, string?>? properties)
     {
         if (properties is null)
         {

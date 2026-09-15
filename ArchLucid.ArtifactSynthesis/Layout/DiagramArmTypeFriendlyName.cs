@@ -29,6 +29,8 @@ public static class DiagramArmTypeFriendlyName
         ["Microsoft.DBforPostgreSQL/servers"] = "PostgreSQL",
         ["Microsoft.DBforMySQL/flexibleServers"] = "MySQL",
         ["Microsoft.DBforMySQL/servers"] = "MySQL",
+        ["Microsoft.DataFactory/factories"] = "Data factory",
+        ["Microsoft.Synapse/workspaces"] = "Synapse workspace",
     };
 
     public static string? TryFormat(string? armType)

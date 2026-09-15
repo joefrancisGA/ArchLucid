@@ -2,9 +2,32 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const productLineMock = vi.hoisted(() => ({ value: "architecture" as "architecture" | "security" }));
+const workspaceModeMock = vi.hoisted(() => ({
+  mode: "working" as "guided" | "working",
+  mounted: true,
+}));
+const doorMock = vi.hoisted(() => ({
+  door: "rehearsal" as "career" | "rehearsal",
+  mounted: true,
+}));
 
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
   useProductLine: () => ({ productLine: productLineMock.value }),
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({
+    mode: workspaceModeMock.mode,
+    mounted: workspaceModeMock.mounted,
+  }),
+}));
+
+vi.mock("@/hooks/use-working-career-rehearsal-door", () => ({
+  useWorkingCareerRehearsalDoor: () => ({
+    door: doorMock.door,
+    mounted: doorMock.mounted,
+    setDoor: vi.fn(),
+  }),
 }));
 
 import { DemoVsLiveChromeBanner } from "@/components/usability/DemoVsLiveChromeBanner";
@@ -12,6 +35,10 @@ import { DemoVsLiveChromeBanner } from "@/components/usability/DemoVsLiveChromeB
 describe("DemoVsLiveChromeBanner (TB-2218)", () => {
   beforeEach(() => {
     productLineMock.value = "architecture";
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.mounted = true;
+    doorMock.door = "rehearsal";
+    doorMock.mounted = true;
   });
 
   it("renders nothing for live mode", () => {
@@ -41,5 +68,13 @@ describe("DemoVsLiveChromeBanner (TB-2218)", () => {
     const { container } = render(<DemoVsLiveChromeBanner isStaticDemoEnv showWatermark />);
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("adds a Record-mode reminder on demo chrome when Working Record is selected", () => {
+    doorMock.door = "career";
+
+    render(<DemoVsLiveChromeBanner isStaticDemoEnv showWatermark />);
+
+    expect(screen.getByTestId("demo-vs-live-record-mode-reminder")).toHaveTextContent(/Record is for live tenant reviews/i);
   });
 });

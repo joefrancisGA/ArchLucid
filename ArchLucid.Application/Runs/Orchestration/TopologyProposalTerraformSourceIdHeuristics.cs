@@ -378,7 +378,25 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("gc", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cs", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("utm", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("mrg", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("mrg", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("lb", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("nat", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("vpn", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dns", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("fn", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("stg", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cp", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("vm", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("asp", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("sap", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("iot", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("mq", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cdn", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("log", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("rsv", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("er", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("nva", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("arm", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -667,7 +685,25 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("gc", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cs", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("utm", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("mrg", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("mrg", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("lb", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("nat", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("vpn", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dns", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("fn", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("stg", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cp", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("vm", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("asp", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("sap", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("iot", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("mq", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cdn", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("log", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("rsv", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("er", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("nva", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("arm", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>

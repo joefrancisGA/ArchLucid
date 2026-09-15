@@ -15,6 +15,7 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -43,10 +44,12 @@ import {
   INFRA_DIAGRAMS_MODE_OPTIONS,
   INFRA_DIAGRAMS_SEED_NODE_ID_PARAM,
   INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM,
+  INFRA_DIAGRAMS_HIDE_EXECUTIVE_TIERS_PARAM,
   INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM,
   INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM,
   infraDiagramsFilterHrefFromSearch,
   parseInfraDiagramsCloudResourceIdFromSearch,
+  parseInfraDiagramsHiddenExecutiveTierKeysFromSearchParam,
   parseInfraDiagramsIncludeNeverShowFromSearch,
   parseInfraDiagramsMermaidModeFromSearch,
   parseInfraDiagramsMermaidViewFromSearch,
@@ -85,6 +88,7 @@ import {
   type DependencyNeighborhoodSeedBlockedReason,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-dependency-seed";
 import { resolveInfraDiagramsDensityCoachPresentation } from "@/lib/infra-evidence/infra-evidence-diagrams-density-coach-presentation";
+import { INFRA_DIAGRAMS_EXECUTIVE_TIERS } from "@/lib/infra-evidence/infra-evidence-diagrams-executive-tiers";
 import {
   resolveInfraDiagramsDefaultFallbackKey,
   resolveInfraDiagramsEffectiveFallbackKey,
@@ -156,6 +160,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_BODY,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -234,6 +240,13 @@ export function DiagramsWorkbenchClient() {
   const includeNeverShow = parseInfraDiagramsIncludeNeverShowFromSearch(
     searchParams.get(INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM),
     searchParams.get(INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM),
+  );
+  const hiddenExecutiveTierKeys = useMemo(
+    () =>
+      parseInfraDiagramsHiddenExecutiveTierKeysFromSearchParam(
+        searchParams.get(INFRA_DIAGRAMS_HIDE_EXECUTIVE_TIERS_PARAM),
+      ),
+    [searchParams],
   );
   const diagramsResourceIdOpenParam = searchParams.get(INFRA_DIAGRAMS_RESOURCE_ID_DISCLOSURE_OPEN_PARAM);
   const [diagramsResourceIdOpen, setDiagramsResourceIdOpenState] = useState(() =>
@@ -551,6 +564,29 @@ export function DiagramsWorkbenchClient() {
     [pathname, router, searchParams],
   );
 
+  const handleExecutiveTierVisibilityChange = useCallback(
+    (tierKey: string, visible: boolean) => {
+      const normalizedKey = tierKey.trim().toLowerCase();
+      const hiddenSet = new Set(hiddenExecutiveTierKeys);
+
+      if (visible) {
+        hiddenSet.delete(normalizedKey);
+      } else {
+        hiddenSet.add(normalizedKey);
+      }
+
+      router.replace(
+        infraDiagramsFilterHrefFromSearch(
+          searchParams.toString(),
+          { hiddenExecutiveTierKeys: [...hiddenSet] },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [hiddenExecutiveTierKeys, pathname, router, searchParams],
+  );
+
   const densityCoachPresentation = useMemo(
     () =>
       resolveInfraDiagramsDensityCoachPresentation({
@@ -674,19 +710,25 @@ export function DiagramsWorkbenchClient() {
   }, [selectedModeLabel, selectedSnapshotDisplayLabel, urlCloudResourceId]);
 
   const renderQuery = useMemo((): InfraEvidenceMermaidRenderQuery | null => {
+    const executiveTierQuery =
+      isInfraDiagramsExecutiveMode(selectedMode) && hiddenExecutiveTierKeys.length > 0
+        ? { hiddenExecutiveTierKeys }
+        : {};
+
     if (isInfraDiagramsResourceGroupMode(selectedMode)) {
       if (selectedResourceGroupName.length === 0) {
-        return { mode: "resourceGroup", includeNeverShow };
+        return { mode: "resourceGroup", includeNeverShow, ...executiveTierQuery };
       }
 
       return {
         mode: buildInfraDiagramsResourceGroupModeToken(selectedResourceGroupName),
         includeNeverShow,
+        ...executiveTierQuery,
       };
     }
 
     if (effectiveFallbackKey.length > 0) {
-      return { fallbackKey: effectiveFallbackKey, includeNeverShow };
+      return { fallbackKey: effectiveFallbackKey, includeNeverShow, ...executiveTierQuery };
     }
 
     if (selectedMode === "dependencyNeighborhood") {
@@ -700,6 +742,7 @@ export function DiagramsWorkbenchClient() {
         mode: selectedMode,
         seedNodeId: trimmedSeed,
         includeNeverShow,
+        ...executiveTierQuery,
       };
     }
 
@@ -707,8 +750,16 @@ export function DiagramsWorkbenchClient() {
       mode: selectedMode,
       seedNodeId: null,
       includeNeverShow,
+      ...executiveTierQuery,
     };
-  }, [appliedSeedNodeId, effectiveFallbackKey, includeNeverShow, selectedMode, selectedResourceGroupName]);
+  }, [
+    appliedSeedNodeId,
+    effectiveFallbackKey,
+    hiddenExecutiveTierKeys,
+    includeNeverShow,
+    selectedMode,
+    selectedResourceGroupName,
+  ]);
 
   const retryLoad = useCallback(() => {
     setLoadError(null);
@@ -1008,6 +1059,10 @@ export function DiagramsWorkbenchClient() {
             ? appliedSeedNodeId.trim()
             : null,
         includeNeverShow,
+        hiddenExecutiveTierKeys:
+          isInfraDiagramsExecutiveMode(selectedMode) && hiddenExecutiveTierKeys.length > 0
+            ? hiddenExecutiveTierKeys
+            : null,
       };
 
       if (tooLargeForBrowser) {
@@ -1044,6 +1099,7 @@ export function DiagramsWorkbenchClient() {
     exportableSvgMarkup,
     mermaidSource,
     appliedSeedNodeId,
+    hiddenExecutiveTierKeys,
     includeNeverShow,
     selectedMode,
     selectedSnapshotId,
@@ -1403,6 +1459,44 @@ export function DiagramsWorkbenchClient() {
                 </Button>
               </>
             )}
+          </div>
+        </section>
+      ) : null}
+
+      {isInfraDiagramsExecutiveMode(selectedMode) ? (
+        <section
+          className={cn("flex flex-col gap-3", cnCard)}
+          aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE}
+          data-testid="infra-diagrams-executive-always-show"
+        >
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE}
+          </h2>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_BODY}
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {INFRA_DIAGRAMS_EXECUTIVE_TIERS.map((tier) => {
+              const visible = !hiddenExecutiveTierKeys.includes(tier.key);
+
+              return (
+                <label
+                  key={tier.key}
+                  className="flex min-w-0 items-center gap-2"
+                  data-testid={`infra-diagrams-executive-tier-${tier.key}`}
+                >
+                  <Checkbox
+                    checked={visible}
+                    disabled={selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing || loadingRender}
+                    aria-label={tier.label}
+                    onCheckedChange={(checked) => {
+                      handleExecutiveTierVisibilityChange(tier.key, checked === true);
+                    }}
+                  />
+                  <span className={OPERATOR_TYPOGRAPHY.body}>{tier.label}</span>
+                </label>
+              );
+            })}
           </div>
         </section>
       ) : null}

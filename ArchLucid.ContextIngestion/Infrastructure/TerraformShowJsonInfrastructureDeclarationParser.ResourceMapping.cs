@@ -233,6 +233,22 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "provider_config_key", out JsonElement providerConfigKey)
+                || TryGetPropertyIgnoreCase(res, "providerConfigKey", out providerConfigKey))
+            && providerConfigKey.ValueKind == JsonValueKind.String)
+        {
+            string? providerConfigKeyText = providerConfigKey.GetString();
+
+            if (!string.IsNullOrWhiteSpace(providerConfigKeyText))
+                properties["tf.provider_config_key"] = providerConfigKeyText.Trim().ToLowerInvariant();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "imported", out JsonElement imported)
+            && (imported.ValueKind == JsonValueKind.True || imported.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.imported"] = imported.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
@@ -303,7 +319,8 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 canonicalTerraformType,
                 canonicalLabel);
 
-            if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement))
+            if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement)
+                || TryGetPropertyIgnoreCase(res, "count", out indexElement))
             {
                 if (indexElement.ValueKind == JsonValueKind.Number)
                 {
@@ -325,7 +342,9 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
             else if ((TryGetPropertyIgnoreCase(res, "each", out JsonElement eachElement)
                     || TryGetPropertyIgnoreCase(res, "each_key", out eachElement)
-                    || TryGetPropertyIgnoreCase(res, "eachKey", out eachElement))
+                    || TryGetPropertyIgnoreCase(res, "eachKey", out eachElement)
+                    || TryGetPropertyIgnoreCase(res, "each_value", out eachElement)
+                    || TryGetPropertyIgnoreCase(res, "eachValue", out eachElement))
                 && eachElement.ValueKind == JsonValueKind.String
                 && !string.IsNullOrWhiteSpace(eachElement.GetString()))
             {

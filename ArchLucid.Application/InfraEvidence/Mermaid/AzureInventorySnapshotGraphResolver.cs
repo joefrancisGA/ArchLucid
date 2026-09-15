@@ -146,6 +146,15 @@ public sealed class AzureInventorySnapshotGraphResolver(
         {
             string fromArmId = ArmResourceIdNormalizer.Normalize(relationship.FromAzureResourceId);
             string toArmId = ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId);
+            bool isPeering = AzureInventoryRelationshipAssociationTypes.IsVnetPeeringRelationship(
+                relationship.RelationshipType,
+                relationship.InferenceSource);
+
+            if (isPeering)
+            {
+                EnsurePeeringEndpointNode(fromArmId, nodeIdByArmId, nodes, seenNodeIds);
+                EnsurePeeringEndpointNode(toArmId, nodeIdByArmId, nodes, seenNodeIds);
+            }
 
             if (!nodeIdByArmId.TryGetValue(fromArmId, out string? fromNodeId)
                 || !nodeIdByArmId.TryGetValue(toArmId, out string? toNodeId))
@@ -176,6 +185,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
         AzureInventorySnapshotVnetPeeringEdgeHydrator.AddMissingPeeringEdges(
             snapshot,
             nodeIdByArmId,
+            nodes,
+            seenNodeIds,
             edges,
             edgeKeys);
 
@@ -278,6 +289,27 @@ public sealed class AzureInventorySnapshotGraphResolver(
         }
 
         return 1.0d;
+    }
+
+    private static void EnsurePeeringEndpointNode(
+        string normalizedArmId,
+        Dictionary<string, string> nodeIdByArmId,
+        List<GraphNode> nodes,
+        HashSet<string> seenNodeIds)
+    {
+        if (string.IsNullOrWhiteSpace(normalizedArmId) || nodeIdByArmId.ContainsKey(normalizedArmId))
+        {
+            return;
+        }
+
+        GraphNode stub = ExecutiveVnetPeeringStubNodeFactory.Create(normalizedArmId);
+
+        if (seenNodeIds.Add(stub.NodeId))
+        {
+            nodes.Add(stub);
+        }
+
+        nodeIdByArmId[normalizedArmId] = stub.NodeId;
     }
 
 }

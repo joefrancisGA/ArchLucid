@@ -1112,4 +1112,43 @@ describe("DiagramsWorkbenchClient", () => {
       expect.objectContaining({ includeNeverShow: true }),
     );
   });
+
+  it("shows Executive always-show tier checkboxes and passes hidden tiers to the render API", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: 'flowchart TD\n    n_a["vnet-a"]',
+      metrics: {
+        nodeCount: 1,
+        edgeCount: 0,
+        subgraphCount: 0,
+        maxDegree: 0,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 80,
+        layoutEstimate: 40,
+      },
+      fallbackArtifacts: [],
+      collapseReport: null,
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive&hideTiers=storage",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    const storageTier = await screen.findByTestId("infra-diagrams-executive-tier-storage");
+    expect(storageTier).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-executive-tier-workloads")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-executive-tier-databases")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-executive-tier-integration")).toBeInTheDocument();
+    expect(storageTier.querySelector('input[type="checkbox"]')).not.toBeChecked();
+    expect(screen.getByTestId("infra-diagrams-executive-tier-workloads").querySelector('input[type="checkbox"]')).toBeChecked();
+
+    expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+      "11111111-1111-1111-1111-111111111111",
+      expect.objectContaining({ hiddenExecutiveTierKeys: ["storage"] }),
+    );
+  });
 });
