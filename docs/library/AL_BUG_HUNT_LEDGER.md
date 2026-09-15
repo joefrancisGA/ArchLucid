@@ -144,26 +144,6 @@
 2026-09-13 seed hunt #2370 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_dynatrace_monitor.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_dynatrace_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 - **id:** topology-proposal-merge
 
-2026-09-15 seed hunt #3276 (seed-only): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3271 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_mrg` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_mrg_node_has_compute_category_but_synthetic_datastore_id_used`.
-
-2026-09-15 seed hunt #3266 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_utm` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_utm_node_has_compute_category_but_synthetic_datastore_id_used`.
-
-2026-09-15 seed hunt #3261 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_cs` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_cs_node_has_compute_category_but_synthetic_datastore_id_used`.
-
-2026-09-15 seed hunt #3256 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_gc` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_gc_node_has_compute_category_but_synthetic_datastore_id_used`.
-
-2026-09-15 seed hunt #3251 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_od` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_od_node_has_compute_category_but_synthetic_datastore_id_used`.
-
-2026-09-15 seed hunt #3246 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_pls` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_pls_node_has_compute_category_but_synthetic_datastore_id_used`.
-
-2026-09-15 seed hunt #3241 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_ni` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_ni_node_has_compute_category_but_synthetic_datastore_id_used`.
-
-2026-09-15 seed hunt #3236 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_wvd` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_wvd_node_has_compute_category_but_synthetic_datastore_id_used`.
-
-2026-09-15 seed hunt #3231 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_pip` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_pip_node_has_compute_category_but_synthetic_datastore_id_used`.
-
 2026-09-15 seed hunt #3226 (seed-only): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; no new hunt-ready rows.
 
 2026-09-15 seed hunt #3221 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_mma` Compute-category node omitted `ds-` synthetic alias; regression `FilterValidatedProposals_keeps_relationship_when_mma_node_has_compute_category_but_synthetic_datastore_id_used`.
@@ -420,11 +400,11 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 281
-- **bugs-found:** 238
+- **hunts:** 271
+- **bugs-found:** 229
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-15 — hunt #3271: azurerm_mrg Compute-category ds- alias gap
+- **last-bug:** 2026-09-15 — hunt #3221: azurerm_mma Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4670,26 +4650,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** tenant-data-export
 
-2026-09-15 seed hunt #3279 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3274 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3269 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3264 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3259 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3254 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3249 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3244 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3239 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3234 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
-
 2026-09-15 seed hunt #3229 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
 2026-09-15 seed hunt #3224 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
@@ -4984,7 +4944,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 191
+- **hunts:** 181
 - **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
@@ -5825,26 +5785,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** persistence-identity
 
-2026-09-15 seed hunt #3280 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3275 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3270 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3265 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3260 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3255 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3250 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3245 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3240 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3235 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
-
 2026-09-15 seed hunt #3230 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
 2026-09-15 seed hunt #3225 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
@@ -6137,7 +6077,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 179
+- **hunts:** 169
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
@@ -11627,6 +11567,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-costing
 
+2026-09-15 owner consolidation (#3306): retired week-UOM synonym treadmill — generalized `HasCompactWeeWithKRepeatSuffix` / `ContainsSpacedSlashWeekWithExtraKToken`; consolidated regressions in `AzureRetailPricesSkuMatchersWeekMeterTests`; marked week-UOM sibling-synonym hypotheses `(invalid)`; CI bans new `*Weekkk*Tests.cs` and per-k matcher copies.
+
 2026-09-14 seed hunt #2915 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWeekkkkkkkkkTests`.
 
 2026-09-14 seed hunt #2910 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / weekkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWeekkkkkkkkTests`.
@@ -11650,26 +11592,6 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-14 seed hunt #2805 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / wel` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWelTests`.
 
 - **id:** core-costing
-
-2026-09-15 seed hunt #3278 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
-
-2026-09-15 seed hunt #3273 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
-
-2026-09-15 seed hunt #3268 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
-
-2026-09-15 seed hunt #3263 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
-
-2026-09-15 seed hunt #3258 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
-
-2026-09-15 seed hunt #3253 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
-
-2026-09-15 seed hunt #3248 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
-
-2026-09-15 seed hunt #3243 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
-
-2026-09-15 seed hunt #3238 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
-
-2026-09-15 seed hunt #3233 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
 
 2026-09-15 seed hunt #3228 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved spaced-slash `10 / weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersSpacedSlashWeekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTests`.
 
@@ -11976,13 +11898,14 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 200
-- **bugs-found:** 173
+- **hunts:** 190
+- **bugs-found:** 163
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-15 — hunt #3278: spaced-slash `10 / weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap
+- **last-hunt:** 2026-09-15
+- **last-bug:** 2026-09-15 — #3306 week-UOM synonym consolidation (generalized helpers; per-k treadmill closed)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+- **week-uom-synonym:** closed — extend `HasCompactWeeWithKRepeatSuffix` / `ContainsSpacedSlashWeekWithExtraKToken` and `AzureRetailPricesSkuMatchersWeekMeterTests` only; do not reseed per-k `weekkk…` parity rows
 
 2026-09-13 seed hunt #2387 (seed-only): reseeded core-costing with `-Hint core costing Azure UOM`; no new hunt-ready rows.
 
@@ -12105,6 +12028,10 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 2026-09-07 seed hunt #1186 (hit): seeded zone from split catalog; proved GCP billing catalog pagination gap on live pricing probe.
 
 2026-09-07 thorough hunt #1260 (hit): proved region-blind and preemptible-first GCP catalog SKU selection; 114 scoped Costing unit tests passed.
+
+- [x] (invalid) [class:week-uom-synonym] `AzureRetailPricesCatalogClient.IsWeekMeter` — compact `10week` + N extra trailing `k` characters (`10weekk`, `10weekkk`, `10weekkkkk…`) each treated as a new parity gap — **invalid 2026-09-15 (#3306):** one saturated defect class; `HasCompactWeeWithKRepeatSuffix` covers all N; add cases to `AzureRetailPricesSkuMatchersWeekMeterTests` only; CI bans new `HasCompactWeekkk…Suffix` copies.
+- [x] (invalid) [class:week-uom-synonym] `AzureRetailPricesCatalogClient.IsWeekMeter` — spaced-slash `10 / week` + optional extra trailing `k` (`10 / weekk`, `10 / weekkk`, …) each treated as a new parity gap — **invalid 2026-09-15 (#3306):** `ContainsSpacedSlashWeekWithExtraKToken` covers all variants; do not add `ContainsSpacedSlashWeekkk…Token` or per-spelling test files.
+- [x] (invalid) [class:week-uom-synonym] Next per-k-count `AzureRetailPricesSkuMatchers*Weekkk*Tests.cs` regression for Azure retail week UOM spelling variants — **invalid 2026-09-15 (#3306):** treadmill retired; consolidated member-data coverage in `AzureRetailPricesSkuMatchersWeekMeterTests`; seed hunts must not promote another sibling synonym row for this class.
 
 ---
 ## Zone: core-explanation-json
@@ -12296,26 +12223,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-14 seed hunt #2804 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved snake_case container port `protocol` projection gap; regression `ParseAsync_snake_case_container_port_protocol_projects_port_protocol_exposure`.
 
 - **id:** context-ingestion
-
-2026-09-15 seed hunt #3277 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3272 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3267 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3262 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `schemaVersion` property gap; regression `ParseAsync_schema_version_maps_tf_schema_version_property`.
-
-2026-09-15 seed hunt #3257 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3252 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3247 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3242 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
-
-2026-09-15 seed hunt #3237 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `eachKey` for_each suffix gap; regression `ParseAsync_each_key_appends_for_each_suffix_to_name`.
-
-2026-09-15 seed hunt #3232 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-15 seed hunt #3227 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
@@ -12639,11 +12546,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 305
-- **bugs-found:** 276
+- **hunts:** 295
+- **bugs-found:** 274
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-15 — hunt #3262: terraform-show-json schemaVersion property gap
+- **last-bug:** 2026-09-15 — hunt #3212: terraform-show-json int64 index suffix gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
