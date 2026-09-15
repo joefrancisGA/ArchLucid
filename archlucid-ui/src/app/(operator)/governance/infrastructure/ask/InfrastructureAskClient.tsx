@@ -62,6 +62,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { buildTerraformWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
 import { buildInfraEvidenceAuditControlOptions } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
+import { formatCloudResourceDisplayName } from "@/lib/infra-evidence/format-azure-resource-display";
 import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
 import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
 import {
@@ -481,7 +482,11 @@ export function InfrastructureAskClient() {
     const recentScopeLabel = formatInfraEvidenceRecentScopeLabel({
       surface: "ask",
       cloudResourceId,
-      resourceDisplayName: resourceHub?.externalResourceId?.split("/").pop(),
+      resourceDisplayName: resourceHub?.externalResourceId != null
+        ? formatCloudResourceDisplayName({
+            externalResourceId: resourceHub.externalResourceId,
+          })
+        : undefined,
       externalResourceId: resourceHub?.externalResourceId,
       snapshotId,
       controlNumber: resourceHub?.auditLineageLink.controlNumber,

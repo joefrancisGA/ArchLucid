@@ -67,6 +67,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
 import { sanitizeResourceHubQueryForTab } from "@/lib/infra-evidence/infra-evidence-hub-tab-query";
 import { formatInfraEvidenceHubApiError } from "@/lib/infra-evidence/infra-evidence-hub-api";
+import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import {
   createRemediationInstance,
   formatInfraEvidenceRemediationApiError,
@@ -413,8 +414,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     }
 
     const configName = hub.currentConfiguration?.azureResourceId.split("/").pop();
+    const rawTitle = configName ?? hub.externalResourceId.split("/").pop() ?? cloudResourceId;
 
-    return configName ?? hub.externalResourceId.split("/").pop() ?? cloudResourceId;
+    return normalizeSecureNowResourceNameForDisplay(rawTitle);
   }, [cloudResourceId, hub]);
 
   const resolvedAuditLineage = useMemo(() => {

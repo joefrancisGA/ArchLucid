@@ -1,3 +1,4 @@
+import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import { findUnquotedMermaidCommentIndex } from "@/lib/mermaid/find-unquoted-mermaid-comment-index";
 
 /** Lightweight Mermaid flowchart outline for accessible diagram peers (nodes + edges only). */
@@ -302,7 +303,7 @@ export function resolveInfraEvidenceOutlineNodeLabel(
     return nodeId;
   }
 
-  return match.label;
+  return normalizeSecureNowResourceNameForDisplay(match.label);
 }
 
 export function resolveInfraEvidenceOutlineSeedNodeId(node: InfraEvidenceMermaidOutlineNode): string {

@@ -34,4 +34,11 @@ describe("InfraEvidenceDiagramOutlineNodeLabel", () => {
     expect(screen.getByText("core-vnet")).toBeTruthy();
     expect(screen.queryByText("core-vnet (Virtual network)")).toBeNull();
   });
+
+  it("lowercases mixed-case resource names for display", () => {
+    render(<InfraEvidenceDiagramOutlineNodeLabel node={node({ label: "Core-VNet" })} />);
+
+    expect(screen.getByText("core-vnet")).toBeTruthy();
+    expect(screen.queryByText("Core-VNet")).toBeNull();
+  });
 });

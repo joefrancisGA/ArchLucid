@@ -51,7 +51,10 @@ import {
   parseInfraResourceRowArmIdDisclosureKeyFromSearch,
   writeInfraResourceRowArmIdDisclosureKeyToUrl,
 } from "@/lib/infra-evidence/infra-resource-row-arm-id-disclosure-url";
-import { formatAzureResourceTypeForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
+import {
+  formatAzureResourceTypeForDisplay,
+  formatCloudResourceDisplayName,
+} from "@/lib/infra-evidence/format-azure-resource-display";
 import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
 import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
 import { formatInstantCompactMilitary } from "@/lib/locale-datetime";
@@ -93,16 +96,6 @@ const cnCard =
 
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
-
-function formatResourceLabel(row: CloudResourceSummary): string {
-  if (row.displayName != null && row.displayName.trim().length > 0) {
-    return row.displayName.trim();
-  }
-
-  const segments = row.externalResourceId.split("/");
-
-  return segments[segments.length - 1] ?? row.externalResourceId;
-}
 
 function resolveExplorerAskHubTab(
   workQueue: CloudResourceExplorerWorkQueue,
@@ -490,7 +483,7 @@ export function ResourcesExplorerClient() {
                   href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue, urlSnapshotId)}
                   data-testid={`infra-resource-explorer-hub-${row.cloudResourceId}`}
                 >
-                  {formatResourceLabel(row)}
+                  {formatCloudResourceDisplayName(row)}
                 </Link>
                 {buyerPolishedShell ? (
                   <CollapsibleSection
