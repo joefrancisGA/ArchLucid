@@ -22,8 +22,14 @@ import {
   SECURENOW_REMEDIATION_INSTANCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_INFRASTRUCTURE_ASK_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  SECURENOW_INFRASTRUCTURE_PATH,
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+  SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } from "@/lib/governance/governance-approval-help-evidence-copy";
@@ -87,8 +93,16 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
     topic: { slug: "findings", label: FINDINGS_HELP_TOPIC_LABEL },
   },
   {
+    prefix: SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+    topic: { slug: "governance-infrastructure-drift", label: GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE },
+  },
+  {
     prefix: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
     topic: { slug: "governance-infrastructure-drift", label: GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE },
+  },
+  {
+    prefix: SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
+    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
@@ -103,6 +117,10 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
     topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams },
   },
   {
+    prefix: SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile },
+  },
+  {
     prefix: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
     topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile },
   },
@@ -113,6 +131,10 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
     topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureResources },
+  },
+  {
+    prefix: SECURENOW_INFRASTRUCTURE_ASK_PATH,
+    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureAsk },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
@@ -127,8 +149,20 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
     topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureRemediation },
   },
   {
+    prefix: SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+    topic: { slug: "cloud-connections-azure", label: EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL },
+  },
+  {
     prefix: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
     topic: { slug: "cloud-connections-azure", label: EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: SECURENOW_INFRASTRUCTURE_PATH,
+    exactMatchOnly: true,
+    topic: {
+      slug: "governance-infrastructure-overview",
+      label: OPERATOR_NAV_LINK_LABELS.infrastructureOverview,
+    },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_PATH,

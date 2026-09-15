@@ -1,4 +1,4 @@
-import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { infrastructureDriftPathForProductLine } from "@/lib/product-line/securenow-infrastructure-routes";
 import { infrastructureResourceHubPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { resolveProductLineId } from "@/lib/product-line/resolve-product-line-id";
 import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
@@ -80,8 +80,9 @@ export function buildDriftWorkbenchHref(context: InfraEvidenceWorkbenchContext =
   }
 
   const query = params.toString();
+  const driftPath = infrastructureDriftPathForProductLine(resolveProductLineId());
 
-  return query.length === 0 ? GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH : `${GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}?${query}`;
+  return query.length === 0 ? driftPath : `${driftPath}?${query}`;
 }
 
 export function buildRemediationWorkbenchHref(context: InfraEvidenceWorkbenchContext = {}): string {

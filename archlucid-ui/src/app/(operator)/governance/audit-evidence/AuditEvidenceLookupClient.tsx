@@ -38,6 +38,7 @@ import {
   AUDIT_EVIDENCE_START_FROM_INVENTORY_TITLE,
 } from "@/lib/audit-evidence-page-copy";
 import { auditEvidencePathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { cn } from "@/lib/utils";
 
 import { AuditEvidenceBreadcrumb } from "./AuditEvidenceBreadcrumb";
@@ -67,6 +68,10 @@ export function AuditEvidenceLookupClient() {
   const canOpenLineage = useMemo(
     () => trimRequired(assessmentId) && trimRequired(snapshotId) && trimRequired(controlId),
     [assessmentId, controlId, snapshotId],
+  );
+  const inventoryResourcesHref = useMemo(
+    () => infrastructureResourcesPathForProductLine(productLine),
+    [productLine],
   );
 
   function clearFieldError(field: keyof FieldErrors) {
@@ -182,7 +187,7 @@ export function AuditEvidenceLookupClient() {
           </p>
           <div className="mt-3">
             <Link
-              href="/governance/infrastructure/resources"
+              href={inventoryResourcesHref}
               className={OPERATOR_LINK.inline}
               data-testid="audit-evidence-browse-inventory-link"
             >

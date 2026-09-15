@@ -95,16 +95,19 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
 
     const diagramsIndex = infrastructureLinks.findIndex((link) => link.href === SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH);
     const diagramReconcileIndex = infrastructureLinks.findIndex(
-      (link) => link.href === GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+      (link) => link.href === "/infrastructure/diagram-reconcile",
     );
     const terraformIndex = infrastructureLinks.findIndex(
-      (link) => link.href === GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+      (link) => link.href === "/infrastructure/terraform",
     );
 
     expect(diagramsIndex).toBeGreaterThanOrEqual(0);
     expect(diagramReconcileIndex).toBeGreaterThan(diagramsIndex);
     expect(terraformIndex).toBeGreaterThan(diagramReconcileIndex);
-    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/extract-upload")).toBe(true);
+    expect(infrastructureLinks.some((link) => link.href === "/infrastructure/extract-upload")).toBe(true);
+    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/extract-upload")).toBe(false);
+    expect(infrastructureLinks.some((link) => link.href === "/infrastructure/drift")).toBe(true);
+    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/drift")).toBe(false);
     expect(securityLinks.map((link) => link.href)).toEqual([
       "/",
       "/security/assigned-to-me",

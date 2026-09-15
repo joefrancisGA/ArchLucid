@@ -24,8 +24,8 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 });
 
 import {
-  GOVERNANCE_POLICY_PACKS_PATH,
   SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { INFRASTRUCTURE_WORKBENCH_ROWS } from "@/lib/governance/governance-infrastructure-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -62,9 +62,9 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     expect(screen.getByRole("heading", { name: SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: SECURENOW_SECURITY_HOME_SECTION_HEADING })).toBeInTheDocument();
     expect(screen.getAllByText(/ARC-AMPE architecture themes/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByTestId(`securenow-compliance-home-link-${GOVERNANCE_POLICY_PACKS_PATH}`)).toHaveAttribute(
+    expect(screen.getByTestId(`securenow-compliance-home-link-${SECURENOW_POLICY_PACKS_PATH}`)).toHaveAttribute(
       "href",
-      GOVERNANCE_POLICY_PACKS_PATH,
+      SECURENOW_POLICY_PACKS_PATH,
     );
     expect(screen.getByTestId("securenow-infrastructure-home-link-/infrastructure/resources")).toHaveAttribute(
       "href",
@@ -92,6 +92,6 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     expect(primaryContent).not.toHaveTextContent(/Azure inventory evidence workbenches for snapshots/i);
     expect(INFRASTRUCTURE_WORKBENCH_ROWS).toHaveLength(6);
     expect(INFRASTRUCTURE_WORKBENCH_ROWS[0]?.href).toBe("/governance/infrastructure/resources");
-    expect(SECURENOW_INFRASTRUCTURE_HOME_ROWS[0]?.href).toBe("/governance/infrastructure/resources");
+    expect(SECURENOW_INFRASTRUCTURE_HOME_ROWS[0]?.href).toBe("/infrastructure/resources");
   });
 });

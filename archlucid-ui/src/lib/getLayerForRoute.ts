@@ -1,6 +1,7 @@
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { pathMatchesAiUsageSettings } from "@/lib/ai-usage-nav-paths";
 import { pathMatchesCloudConnections, pathMatchesIntegrationsReadiness } from "@/lib/integrations-nav-paths";
+import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import {
   pathMatchesLegacySettingsRoles,
   pathMatchesSettingsSecurityTrust,
@@ -109,6 +110,11 @@ export function getLayerForRoute(pathname: string): LayerId {
     return "operator-admin";
   }
 
+  // Pilot feedback lives in Internal; NAV_GROUPS omits those links when system-admin nav is gated.
+  if (pathMatchesPathname(normalized, PRODUCT_LEARNING_PATH)) {
+    return "operator-admin";
+  }
+
   // Nested governance pages (approval-requests, dashboard children) share the operate-governance layer
   // even when they are not exact left-nav hrefs.
   if (normalized === "/governance" || normalized.startsWith("/governance/")) {
@@ -118,6 +124,11 @@ export function getLayerForRoute(pathname: string): LayerId {
   // SecureNow Compliance aliases (`/compliance/policy-packs`, findings, audit-evidence).
   // Do not match marketing `/compliance-journey` (no trailing slash after `/compliance`).
   if (normalized === "/compliance" || normalized.startsWith("/compliance/")) {
+    return "operate-governance";
+  }
+
+  // SecureNow Infrastructure aliases (`/infrastructure/drift`, resources, extract-upload, …).
+  if (normalized === "/infrastructure" || normalized.startsWith("/infrastructure/")) {
     return "operate-governance";
   }
 
