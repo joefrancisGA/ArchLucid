@@ -7,6 +7,43 @@ namespace ArchLucid.ContextIngestion.Infrastructure;
 
 public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 {
+
+    private static bool TryResolveTerraformResourceLabel(JsonElement res, out string name)
+    {
+        name = string.Empty;
+
+        if (TryGetPropertyIgnoreCase(res, "name", out JsonElement nameEl) && nameEl.ValueKind == JsonValueKind.String)
+        {
+            string? directName = nameEl.GetString();
+
+            if (!string.IsNullOrWhiteSpace(directName))
+            {
+                name = directName.Trim();
+                return true;
+            }
+        }
+
+        if (!TryGetResourceAddress(res, out string canonicalAddress))
+            return false;
+
+        int lastDot = canonicalAddress.LastIndexOf('.');
+
+        if (lastDot < 0 || lastDot >= canonicalAddress.Length - 1)
+            return false;
+
+        string label = canonicalAddress[(lastDot + 1)..];
+        int bracket = label.IndexOf('[');
+
+        if (bracket > 0)
+            label = label[..bracket];
+
+        if (string.IsNullOrWhiteSpace(label))
+            return false;
+
+        name = label;
+        return true;
+    }
+
     private static string BuildTerraformLabelKey(string moduleAddress, string terraformType, string label)
     {
         string canonicalTerraformType = terraformType.Trim().ToLowerInvariant();
@@ -80,12 +117,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
         if (string.IsNullOrWhiteSpace(tfType))
             return;
 
-        if (!TryGetPropertyIgnoreCase(res, "name", out JsonElement nameEl) || nameEl.ValueKind != JsonValueKind.String)
-            return;
-
-        string name = (nameEl.GetString() ?? string.Empty).Trim();
-
-        if (string.IsNullOrWhiteSpace(name))
+        if (!TryResolveTerraformResourceLabel(res, out string name))
             return;
 
         string objectType = ResolveObjectTypeFromTerraformType(tfType);
@@ -191,6 +223,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 else if (indexElement.ValueKind == JsonValueKind.String
                     && !string.IsNullOrWhiteSpace(indexElement.GetString()))
                     canonicalAddress = $"{canonicalAddress}[{indexElement.GetString()!.Trim()}]";
+            }
+            else if ((TryGetPropertyIgnoreCase(res, "index_key", out JsonElement indexKeyElement)
+                    || TryGetPropertyIgnoreCase(res, "indexKey", out indexKeyElement))
+                && indexKeyElement.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(indexKeyElement.GetString()))
+            {
+                canonicalAddress = $"{canonicalAddress}[{indexKeyElement.GetString()!.Trim()}]";
             }
         }
 

@@ -512,7 +512,7 @@ describe("DriftWorkbenchClient", () => {
     const row = await screen.findByTestId("infra-drift-change-row-change-1");
     expect(row).toHaveTextContent("gw");
     expect(row).toHaveTextContent("rg");
-    expect(row).toHaveTextContent("publicIPAddresses");
+    expect(row).toHaveTextContent("Network/publicIPAddresses");
     expect(row).not.toHaveTextContent("/subscriptions/");
     expect(screen.getByTestId("infra-drift-sort-resourceGroup")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-resourceType")).toBeInTheDocument();

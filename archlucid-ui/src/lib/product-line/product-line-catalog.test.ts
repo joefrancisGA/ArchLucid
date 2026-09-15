@@ -55,6 +55,8 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/governance/infrastructure/drift");
     expect(hrefs).toContain("/infrastructure/diagrams");
     expect(hrefs).not.toContain("/governance/infrastructure/diagrams");
+    expect(hrefs).toContain("/infrastructure/resources");
+    expect(hrefs).not.toContain("/governance/infrastructure/resources");
     expect(rows[0]?.group.id).toBe("operate-security");
     expect(rows.some((row) => row.group.id === "pilot")).toBe(false);
     expect(hrefs).toContain("/integrations/cloud-connections");
@@ -155,6 +157,9 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/security/remediation-factory", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/infrastructure/diagrams", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/infrastructure/diagrams", "architecture")).toBe(false);
+    expect(isPathAllowedForProductLine("/infrastructure/resources", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/infrastructure/resources/res-1", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/infrastructure/resources", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/billing", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/branding", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/branding", "architecture")).toBe(true);

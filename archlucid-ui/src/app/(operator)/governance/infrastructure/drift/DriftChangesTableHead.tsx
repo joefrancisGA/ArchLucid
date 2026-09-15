@@ -106,7 +106,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
         {renderHeader("resourceType", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL, {
           kind: "text",
           value: tableFilterState.resourceTypeFilter,
-          placeholder: "Microsoft.Network/publicIPAddresses",
+          placeholder: "Network/publicIPAddresses",
           filterTestId: "infra-drift-resource-type-filter",
           onApply: (value) => {
             onTableFiltersChange({ resourceTypeFilter: value, ...resetPagePatch });
