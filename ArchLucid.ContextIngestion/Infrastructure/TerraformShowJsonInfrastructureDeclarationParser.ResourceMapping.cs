@@ -233,6 +233,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "provider_config_key", out JsonElement providerConfigKey)
+                || TryGetPropertyIgnoreCase(res, "providerConfigKey", out providerConfigKey))
+            && providerConfigKey.ValueKind == JsonValueKind.String)
+        {
+            string? providerConfigKeyText = providerConfigKey.GetString();
+
+            if (!string.IsNullOrWhiteSpace(providerConfigKeyText))
+                properties["tf.provider_config_key"] = providerConfigKeyText.Trim().ToLowerInvariant();
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
@@ -303,7 +313,8 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 canonicalTerraformType,
                 canonicalLabel);
 
-            if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement))
+            if (TryGetPropertyIgnoreCase(res, "index", out JsonElement indexElement)
+                || TryGetPropertyIgnoreCase(res, "count", out indexElement))
             {
                 if (indexElement.ValueKind == JsonValueKind.Number)
                 {

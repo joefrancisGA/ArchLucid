@@ -55,9 +55,10 @@ public sealed class DiagramAstFromGraphCompilerTests
 
         executive.Nodes.Count.Should().BeLessThan(full.Nodes.Count);
         full.Nodes.Should().HaveCount(50);
-        executive.Nodes.Should().OnlyContain(node =>
-            node.ArmResourceType != null
-            && node.ArmResourceType.EndsWith("/virtualNetworks", StringComparison.OrdinalIgnoreCase));
+        executive.Nodes.Count.Should().BeLessThanOrEqualTo(DiagramAstFromGraphCompilerConstants.ExecutiveMaxTotalNodes);
+        // 10 VNets + 10 VMs + 10 storage accounts + 10 SQL servers; identities are not an always-show tier.
+        executive.Nodes.Should().HaveCount(40);
+        executive.Nodes.Should().NotContain(node => node.ArmResourceType == "Microsoft.ManagedIdentity/userAssignedIdentities");
     }
 
     [Fact]
@@ -85,6 +86,75 @@ public sealed class DiagramAstFromGraphCompilerTests
 
         ast.Edges.Should().Contain(edge => !edge.IsLayoutOnly && edge.Label == "peering");
         mermaid.Should().Contain("-->|\"peering\"|");
+    }
+
+    [Fact]
+    public void Compile_executive_mode_always_shows_tiers_in_order_and_hides_unchecked_tiers()
+    {
+        GraphSnapshot graph = BuildExecutiveAlwaysShowGraph(virtualMachineCount: 2, databaseCount: 1, dataFactoryCount: 1);
+
+        DiagramAst allTiers = compiler.Compile(graph, DiagramMode.Executive);
+        DiagramAst withoutWorkloads = compiler.Compile(
+            graph,
+            DiagramMode.Executive,
+            new DiagramAstCompileOptions { HiddenExecutiveTierKeys = [ExecutiveAlwaysShowTiers.WorkloadsKey] });
+
+        allTiers.Nodes.Select(node => node.Label).Should().Equal(
+            "hub-vnet",
+            "vm-0",
+            "vm-1",
+            "sqldb-0",
+            "stcritical",
+            "adf-0");
+        allTiers.Nodes.Should().OnlyContain(node => !string.IsNullOrWhiteSpace(node.SeedNodeId));
+        withoutWorkloads.Nodes.Select(node => node.Label).Should().Equal("hub-vnet", "sqldb-0", "stcritical", "adf-0");
+    }
+
+    [Fact]
+    public void Compile_executive_mode_rolls_tier_overflow_into_one_summary_node_without_seed()
+    {
+        int vmCount = DiagramAstFromGraphCompilerConstants.ExecutiveAlwaysShowTierMaxNodes + 5;
+        GraphSnapshot graph = BuildExecutiveAlwaysShowGraph(virtualMachineCount: vmCount, databaseCount: 0, dataFactoryCount: 0);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+        string mermaid = renderer.Render(ast);
+
+        List<DiagramNode> vmNodes = ast.Nodes
+            .Where(node => node.ArmResourceType == "Microsoft.Compute/virtualMachines")
+            .ToList();
+        vmNodes.Should().HaveCount(DiagramAstFromGraphCompilerConstants.ExecutiveAlwaysShowTierMaxNodes);
+
+        DiagramNode overflow = ast.Nodes.Should().ContainSingle(node => node.Label == "+5 more compute workloads").Subject;
+        overflow.SeedNodeId.Should().BeNull();
+        overflow.ArmResourceType.Should().BeNull();
+        overflow.CloudResourceId.Should().BeNull();
+        mermaid.Should().Contain("+5 more compute workloads");
+        mermaid.Should().NotContain("al-seed=executive-overflow");
+    }
+
+    [Fact]
+    public void Compile_executive_mode_region_frames_include_always_show_resources()
+    {
+        GraphSnapshot graph = BuildExecutiveMultiRegionVnetGraph();
+        GraphNode westVm = CreateTopologyNode(
+            "vm-west",
+            "vm-westus-app",
+            "Microsoft.Compute/virtualMachines",
+            "network-rg-west",
+            "44444444-4444-4444-4444-444444444444",
+            GraphTopologyCategories.Compute);
+        westVm.Properties["arm.location"] = "westus";
+        graph.Nodes.Add(westVm);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+
+        ast.Subgraphs.Should().HaveCount(3);
+        ast.Subgraphs.Should().OnlyContain(subgraph => subgraph.Label.StartsWith("Region ", StringComparison.Ordinal));
+        DiagramNode vmNode = ast.Nodes.Should().ContainSingle(node => node.Label == "vm-westus-app").Subject;
+        string westRegionId = ast.Subgraphs.Should().ContainSingle(subgraph => subgraph.Label == "Region westus").Subject.SubgraphId;
+        vmNode.SubgraphId.Should().Be(westRegionId);
+        ast.Nodes.Should().OnlyContain(node =>
+            node.SubgraphId == null || ast.Subgraphs.Any(subgraph => subgraph.SubgraphId == node.SubgraphId));
     }
 
     [Fact]
@@ -646,6 +716,76 @@ public sealed class DiagramAstFromGraphCompilerTests
                 $"{resourceGroupPrefix}-{index}",
                 subscriptionId,
                 category));
+        }
+
+        return graph;
+    }
+
+    private static GraphSnapshot BuildExecutiveAlwaysShowGraph(int virtualMachineCount, int databaseCount, int dataFactoryCount)
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        const string subscriptionId = "55555555-5555-5555-5555-555555555555";
+
+        graph.Nodes.Add(CreateTopologyNode(
+            "vnet-hub",
+            "hub-vnet",
+            "Microsoft.Network/virtualNetworks",
+            "rg-network",
+            subscriptionId,
+            GraphTopologyCategories.Network));
+        graph.Nodes.Add(CreateTopologyNode(
+            "storage-critical",
+            "stcritical",
+            "Microsoft.Storage/storageAccounts",
+            "rg-data",
+            subscriptionId,
+            GraphTopologyCategories.Storage));
+        graph.Nodes.Add(CreateTopologyNode(
+            "nic-noise",
+            "app-nic",
+            "Microsoft.Network/networkInterfaces",
+            "rg-app",
+            subscriptionId,
+            GraphTopologyCategories.Network));
+
+        for (int index = 0; index < virtualMachineCount; index++)
+        {
+            graph.Nodes.Add(CreateTopologyNode(
+                $"vm-{index}",
+                $"vm-{index}",
+                "Microsoft.Compute/virtualMachines",
+                "rg-app",
+                subscriptionId,
+                GraphTopologyCategories.Compute));
+        }
+
+        for (int index = 0; index < databaseCount; index++)
+        {
+            graph.Nodes.Add(CreateTopologyNode(
+                $"sqldb-{index}",
+                $"sqldb-{index}",
+                "Microsoft.Sql/servers/databases",
+                "rg-data",
+                subscriptionId,
+                GraphTopologyCategories.Data));
+        }
+
+        for (int index = 0; index < dataFactoryCount; index++)
+        {
+            graph.Nodes.Add(CreateTopologyNode(
+                $"adf-{index}",
+                $"adf-{index}",
+                "Microsoft.DataFactory/factories",
+                "rg-data",
+                subscriptionId,
+                GraphTopologyCategories.Data));
         }
 
         return graph;

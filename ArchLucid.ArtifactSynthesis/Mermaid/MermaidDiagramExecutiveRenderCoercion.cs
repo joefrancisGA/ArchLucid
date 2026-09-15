@@ -5,7 +5,7 @@ namespace ArchLucid.ArtifactSynthesis.Mermaid;
 
 /// <summary>
 /// Executive inventory diagrams must not surface partitioned/too-large outcomes when structurally valid.
-/// Node count is not capped — peering endpoints and VNets stay visible.
+/// Node count is not capped at render coercion — all VNets, peering endpoints, and budgeted always-show tiers stay visible (IDL-06).
 /// </summary>
 internal static class MermaidDiagramExecutiveRenderCoercion
 {

@@ -6,6 +6,22 @@ public static class DiagramAstFromGraphCompilerConstants
     /// <summary>Inferred/heuristic edges below this weight are dropped to avoid fully-connected noise.</summary>
     public const double MinimumEdgeWeight = 0.75d;
 
+    /// <summary>Fallback cap when Executive mode has no VNets and no always-show tiers.</summary>
+    public const int ExecutiveMaxResourceNodes = 12;
+
+    /// <summary>
+    /// Per-tier cap on always-show resources (VMs, databases, storage, data factories) in Executive mode.
+    /// Overflow collapses into one <c>+N more …</c> node per tier so a 500-resource tenant still fits one page.
+    /// </summary>
+    public const int ExecutiveAlwaysShowTierMaxNodes = 16;
+
+    /// <summary>
+    /// Upper bound on Executive node count when VNets are capped at <see cref="ExecutiveMaxResourceNodes" />
+    /// plus every tier at budget plus one rollup node each. Compile tests use this; render coercion does not cap VNets.
+    /// </summary>
+    public static int ExecutiveMaxTotalNodes =>
+        ExecutiveMaxResourceNodes + (ExecutiveAlwaysShowTiers.All.Count * (ExecutiveAlwaysShowTierMaxNodes + 1));
+
     public const int DependencyNeighborhoodDefaultDepth = 2;
 
     /// <summary>Target ~2:1 aspect when wrapping unrelated peers into a grid (<c>sqrt(n × factor)</c>).</summary>

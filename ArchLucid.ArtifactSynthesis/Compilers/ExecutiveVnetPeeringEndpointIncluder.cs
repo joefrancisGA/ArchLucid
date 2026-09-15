@@ -76,9 +76,8 @@ internal static class ExecutiveVnetPeeringEndpointIncluder
             }
         }
 
-        return nodes
-            .OrderBy(DiagramAstGraphNodeClassifier.ReadArmId, StringComparer.Ordinal)
-            .ToList();
+        // Preserve mode-filter ordering (Executive summary VNets then always-show tiers); peering endpoints append at the tail.
+        return nodes;
     }
 
     private static bool IsPeeringEdge(GraphEdge edge)
