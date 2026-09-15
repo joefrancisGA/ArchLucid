@@ -11987,6 +11987,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-15 seed hunt #3087 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json camelCase `resourceName` label alias gap; regression `ParseAsync_resource_name_alias_uses_explicit_label`.
+
 2026-09-15 seed hunt #3082 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-15 seed hunt #3077 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -12251,11 +12253,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 265
-- **bugs-found:** 268
+- **hunts:** 266
+- **bugs-found:** 269
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-15 — hunt #3062: terraform-show-json index_key for_each suffix gap
+- **last-bug:** 2026-09-15 — hunt #3087: terraform-show-json resourceName label alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

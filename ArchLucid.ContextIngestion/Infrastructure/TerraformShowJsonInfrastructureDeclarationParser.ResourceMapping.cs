@@ -23,6 +23,19 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "resource_name", out JsonElement resourceNameEl)
+                || TryGetPropertyIgnoreCase(res, "resourceName", out resourceNameEl))
+            && resourceNameEl.ValueKind == JsonValueKind.String)
+        {
+            string? aliasName = resourceNameEl.GetString();
+
+            if (!string.IsNullOrWhiteSpace(aliasName))
+            {
+                name = aliasName.Trim();
+                return true;
+            }
+        }
+
         if (!TryGetResourceAddress(res, out string canonicalAddress))
             return false;
 
