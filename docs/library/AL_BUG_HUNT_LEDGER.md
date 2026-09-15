@@ -12427,6 +12427,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-15 seed hunt #3362 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `imported` flag property gap; regression `ParseAsync_imported_maps_tf_imported_property`.
+
 2026-09-15 seed hunt #3357 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-15 seed hunt #3352 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -12801,11 +12803,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 321
-- **bugs-found:** 279
+- **hunts:** 322
+- **bugs-found:** 280
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-15 — hunt #3337: terraform-show-json eachValue for_each suffix gap
+- **last-bug:** 2026-09-15 — hunt #3362: terraform-show-json imported flag property gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

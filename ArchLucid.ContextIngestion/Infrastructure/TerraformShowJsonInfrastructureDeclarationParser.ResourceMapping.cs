@@ -243,6 +243,12 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.provider_config_key"] = providerConfigKeyText.Trim().ToLowerInvariant();
         }
 
+        if (TryGetPropertyIgnoreCase(res, "imported", out JsonElement imported)
+            && (imported.ValueKind == JsonValueKind.True || imported.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.imported"] = imported.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
