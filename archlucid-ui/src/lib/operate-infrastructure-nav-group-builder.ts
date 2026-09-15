@@ -46,6 +46,15 @@ export class OperateInfrastructureNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
+          // First workbench after overview so SecureNow (overview hidden) lists Resource explorer at the top.
+          href: "/governance/infrastructure/resources" as typeof GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+          title: "Search cloud resources and open the per-resource evidence hub",
+          icon: Boxes,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
           href: "/governance/infrastructure/extract-upload" as typeof GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
           label: OPERATOR_NAV_LINK_LABELS.extractUpload,
           title: "Extract & upload — run the local inventory script and upload a ZIP",
@@ -82,14 +91,6 @@ export class OperateInfrastructureNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile,
           title: "Reconcile diagrams against inventory snapshots with explainable correspondence",
           icon: GitMerge,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/governance/infrastructure/resources" as typeof GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
-          label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
-          title: "Search cloud resources and open the per-resource evidence hub",
-          icon: Boxes,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },
