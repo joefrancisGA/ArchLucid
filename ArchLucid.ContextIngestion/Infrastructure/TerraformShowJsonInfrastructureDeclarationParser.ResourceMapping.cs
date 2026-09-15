@@ -310,6 +310,31 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.timeout_read"] = timeoutReadText.Trim();
         }
 
+        if (TryGetPropertyIgnoreCase(res, "timeouts", out JsonElement timeouts)
+            && timeouts.ValueKind == JsonValueKind.Object)
+        {
+            List<string> timeoutPairs = [];
+
+            foreach (string key in new[] { "create", "delete", "read", "update" })
+            {
+                if (!TryGetPropertyIgnoreCase(timeouts, key, out JsonElement timeoutValue)
+                    || timeoutValue.ValueKind != JsonValueKind.String)
+                    continue;
+
+                string? timeoutText = timeoutValue.GetString();
+
+                if (!string.IsNullOrWhiteSpace(timeoutText))
+                    timeoutPairs.Add($"{key}={timeoutText.Trim()}");
+            }
+
+            if (timeoutPairs.Count > 0)
+            {
+                string joined = string.Join('|', timeoutPairs);
+
+                properties["tf.timeouts"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())

@@ -12899,6 +12899,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-15 seed hunt #3657 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json nested `timeouts` object property gap; regression `ParseAsync_nested_timeouts_maps_tf_timeouts_property`.
+
 2026-09-15 seed hunt #3652 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-15 seed hunt #3647 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -13391,11 +13393,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 380
-- **bugs-found:** 291
+- **hunts:** 381
+- **bugs-found:** 292
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-15 — hunt #3632: terraform-show-json dependsOn tf.depends_on property gap
+- **last-bug:** 2026-09-15 — hunt #3657: terraform-show-json nested timeouts object property gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
