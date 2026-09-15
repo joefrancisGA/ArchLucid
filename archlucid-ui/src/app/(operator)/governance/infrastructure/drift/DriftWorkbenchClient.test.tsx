@@ -252,7 +252,10 @@ describe("DriftWorkbenchClient", () => {
 
     expect(mockFetchChanges).not.toHaveBeenCalled();
     expect(await screen.findByTestId("infra-drift-change-row-inventory-row-1")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-change-row-inventory-row-1")).toHaveTextContent("Present");
+    expect(screen.getByRole("table", { name: "Snapshot inventory resources" })).toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "Change" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "Property" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "Risk" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-changes-empty-unselected")).not.toBeInTheDocument();
   });
 
@@ -284,7 +287,10 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-selected-snapshot-summary")).toHaveTextContent("Prod");
     expect(screen.getByTestId("infra-drift-snapshot-selected-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-snapshot-row-33333333-3333-3333-3333-333333333333")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockFetchSnapshotInventoryRows).toHaveBeenCalled();
+    });
+    expect(screen.getByTestId("infra-drift-change-row-inventory-row-1")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-change-row-change-1")).not.toBeInTheDocument();
   });
 
@@ -391,7 +397,10 @@ describe("DriftWorkbenchClient", () => {
       expect(mockFetchDiffs).toHaveBeenCalled();
     });
     expect(diffPicker).toHaveValue("");
-    expect(screen.getByTestId("infra-drift-changes-empty-unselected")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockFetchSnapshotInventoryRows).toHaveBeenCalled();
+    });
+    expect(screen.getByTestId("infra-drift-change-row-inventory-row-1")).toBeInTheDocument();
   });
 
   it("shows resource scope banner when cloudResourceId is in the URL", async () => {

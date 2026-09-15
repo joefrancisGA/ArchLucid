@@ -344,8 +344,6 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_BODY =
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_SCOPED_BODY =
   "No inventory rows match the scoped cloud resource for this snapshot." as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_ROW_CHANGE_LABEL = "Present" as const;
-
 export function GOVERNANCE_INFRASTRUCTURE_DRIFT_RESOURCE_GROUP_DETAIL_HEADING(changeCount: number): string {
   return `${changeCount} property changes on this resource`;
 }
@@ -366,6 +364,10 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL = "Reso
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL = "Resource group" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL = "Resource type" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_INVENTORY_TABLE_ARIA_LABEL = "Snapshot inventory resources" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGES_TABLE_ARIA_LABEL = "Inventory drift changes" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_SOURCE_SNAPSHOT_LABEL = "Source snapshot" as const;
 
