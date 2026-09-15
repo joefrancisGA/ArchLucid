@@ -210,9 +210,11 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
             ],
         };
 
+        // Executive is a curated whitelist (VNets + always-show tiers), so the include toggle only
+        // changes what surfaces in Full subscription mode.
         MermaidDiagramRenderResult result = await orchestrator.RenderFromGraphAsync(
             graph,
-            DiagramMode.Executive,
+            DiagramMode.FullSubscription,
             null,
             new MermaidDiagramReadabilityThresholds { MaxNodes = 400 },
             includeNeverShowArmTypes: true);

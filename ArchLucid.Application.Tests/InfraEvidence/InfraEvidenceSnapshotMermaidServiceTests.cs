@@ -451,6 +451,37 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
+    public async Task Executive_mode_always_shows_storage_accounts_until_the_storage_tier_is_hidden()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildMixedNetworkAndStorageSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> shown =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, cancellationToken: CancellationToken.None);
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> hidden =
+            await service.TryGetMermaidAsync(
+                scope,
+                SnapshotId,
+                "executive",
+                null,
+                null,
+                includeNeverShowArmTypes: false,
+                hiddenExecutiveTierKeys: "storage,bogus",
+                cancellationToken: CancellationToken.None);
+
+        shown.Succeeded.Should().BeTrue();
+        shown.Value!.Mermaid.Should().Contain("core-vnet");
+        shown.Value.Mermaid.Should().Contain("logsstorage");
+        hidden.Succeeded.Should().BeTrue();
+        hidden.Value!.Mermaid.Should().Contain("core-vnet");
+        hidden.Value.Mermaid.Should().NotContain("logsstorage");
+    }
+
+    [Fact]
     public async Task Network_mode_excludes_storage_accounts_from_mermaid()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildMixedNetworkAndStorageSnapshot();

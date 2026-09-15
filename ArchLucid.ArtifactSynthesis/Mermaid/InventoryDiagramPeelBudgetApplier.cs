@@ -205,6 +205,7 @@ internal static class InventoryDiagramPeelBudgetApplier
             SelectedNodeIds = compileOptions?.SelectedNodeIds,
             NeighborhoodSeedNodeId = compileOptions?.NeighborhoodSeedNodeId,
             NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
+            HiddenExecutiveTierKeys = compileOptions?.HiddenExecutiveTierKeys,
             CollapseToResourceGroupMap = true,
         };
     }
@@ -217,6 +218,7 @@ internal static class InventoryDiagramPeelBudgetApplier
             SelectedNodeIds = compileOptions?.SelectedNodeIds,
             NeighborhoodSeedNodeId = compileOptions?.NeighborhoodSeedNodeId,
             NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
+            HiddenExecutiveTierKeys = compileOptions?.HiddenExecutiveTierKeys,
             CollapseToBackboneKeep = true,
         };
     }

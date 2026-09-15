@@ -21,6 +21,8 @@ const KNOWN_ARM_TYPE_FRIENDLY_NAMES: Readonly<Record<string, string>> = {
   "Microsoft.DBforPostgreSQL/servers": "PostgreSQL",
   "Microsoft.DBforMySQL/flexibleServers": "MySQL",
   "Microsoft.DBforMySQL/servers": "MySQL",
+  "Microsoft.DataFactory/factories": "Data factory",
+  "Microsoft.Synapse/workspaces": "Synapse workspace",
 };
 
 function splitCamelCase(lastSegment: string): string {
