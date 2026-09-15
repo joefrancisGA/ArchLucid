@@ -8,6 +8,22 @@ namespace ArchLucid.ContextIngestion.Infrastructure;
 public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 {
 
+
+    private static string ResolveCallerModuleAddress(JsonElement res, string moduleAddress)
+    {
+        if ((TryGetPropertyIgnoreCase(res, "caller_module_address", out JsonElement callerModule)
+                || TryGetPropertyIgnoreCase(res, "callerModuleAddress", out callerModule))
+            && callerModule.ValueKind == JsonValueKind.String)
+        {
+            string? caller = callerModule.GetString();
+
+            if (!string.IsNullOrWhiteSpace(caller))
+                return caller.Trim().ToLowerInvariant();
+        }
+
+        return moduleAddress;
+    }
+
     private static bool TryResolveTerraformResourceLabel(JsonElement res, out string name)
     {
         name = string.Empty;
@@ -220,12 +236,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
         }
 
         string canonicalLabel = name.ToLowerInvariant();
+        string effectiveModuleAddress = ResolveCallerModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
 
         if (!hasExplicitResourceAddress)
         {
             canonicalAddress = BuildTerraformResourceAddress(
-                moduleAddress,
+                effectiveModuleAddress,
                 canonicalTerraformType,
                 canonicalLabel);
 
@@ -247,7 +264,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
         }
 
         string resourceIdentity = BuildTerraformResourceIdentity(
-            moduleAddress,
+            effectiveModuleAddress,
             canonicalTerraformType,
             canonicalLabel,
             canonicalAddress,
@@ -255,7 +272,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 
         if (!hasExplicitResourceAddress)
         {
-            string labelKey = BuildTerraformLabelKey(moduleAddress, canonicalTerraformType, canonicalLabel);
+            string labelKey = BuildTerraformLabelKey(effectiveModuleAddress, canonicalTerraformType, canonicalLabel);
 
             if (labelTotals.TryGetValue(labelKey, out int total) && total > 1)
             {
