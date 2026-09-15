@@ -342,6 +342,12 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.generate_config"] = generateConfig.GetBoolean() ? "true" : "false";
         }
 
+        if (TryGetPropertyIgnoreCase(res, "refresh", out JsonElement refresh)
+            && (refresh.ValueKind == JsonValueKind.True || refresh.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.refresh"] = refresh.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
