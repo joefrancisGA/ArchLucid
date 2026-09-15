@@ -405,7 +405,16 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("bas", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("sig", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("wps", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("spc", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("spc", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("acl", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dms", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("emr", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("fxp", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("grs", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("hdi", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("img", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("jbs", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cc", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -721,7 +730,16 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             || normalized.Contains("bas", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("sig", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("wps", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("spc", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("spc", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("acl", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("dms", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("emr", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("fxp", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("grs", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("hdi", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("img", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("jbs", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cc", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
