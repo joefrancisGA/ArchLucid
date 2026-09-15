@@ -283,6 +283,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.timeout_delete"] = timeoutDeleteText.Trim();
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "timeout_update", out JsonElement timeoutUpdate)
+                || TryGetPropertyIgnoreCase(res, "timeoutUpdate", out timeoutUpdate))
+            && timeoutUpdate.ValueKind == JsonValueKind.String)
+        {
+            string? timeoutUpdateText = timeoutUpdate.GetString();
+
+            if (!string.IsNullOrWhiteSpace(timeoutUpdateText))
+                properties["tf.timeout_update"] = timeoutUpdateText.Trim();
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
