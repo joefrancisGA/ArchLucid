@@ -443,8 +443,7 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SKIP_LINK_LABEL = "Skip to reso
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD =
   "Browse cloud resources, apply work-queue filters, and open evidence hubs for drift, findings, remediation, and Ask." as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE =
-  "The resource list reflects inventory capture scope — not sealed review records or official assurance materials." as const;
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH = 50 as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE = "Resource explorer unavailable" as const;
 
