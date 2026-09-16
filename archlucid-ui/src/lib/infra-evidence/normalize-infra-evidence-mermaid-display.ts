@@ -97,16 +97,32 @@ export function normalizeInfraEvidenceLayoutSvgForDisplay(svg: string): string {
     return svg;
   }
 
-  const textElements = parsed.querySelectorAll("text, tspan");
+  const textElements = parsed.querySelectorAll("text");
 
-  for (const element of textElements) {
-    const current = element.textContent ?? "";
+  for (const text of textElements) {
+    const tspans = [...text.querySelectorAll("tspan")];
+
+    if (tspans.length > 0) {
+      for (const tspan of tspans) {
+        const current = tspan.textContent ?? "";
+
+        if (current.trim().length === 0) {
+          continue;
+        }
+
+        tspan.textContent = normalizeMermaidLabelText(current);
+      }
+
+      continue;
+    }
+
+    const current = text.textContent ?? "";
 
     if (current.trim().length === 0) {
       continue;
     }
 
-    element.textContent = normalizeMermaidLabelText(current);
+    text.textContent = normalizeMermaidLabelText(current);
   }
 
   const serialized = new XMLSerializer().serializeToString(parsed.documentElement);
