@@ -753,6 +753,40 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if (TryGetPropertyIgnoreCase(res, "replace_on_changes", out JsonElement replaceonchangesEl)
+            || TryGetPropertyIgnoreCase(res, "replaceOnChanges", out replaceonchangesEl))
+        {
+            List<string> replaceonchangesFields = [];
+
+            if (replaceonchangesEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in replaceonchangesEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        replaceonchangesFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (replaceonchangesEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = replaceonchangesEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    replaceonchangesFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (replaceonchangesFields.Count > 0)
+            {
+                string joined = string.Join('|', replaceonchangesFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.replace_on_changes"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
