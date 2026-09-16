@@ -459,6 +459,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.waived"] = waived.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "version", out JsonElement version)
+                || TryGetPropertyIgnoreCase(res, "version", out version))
+            && version.ValueKind == JsonValueKind.String)
+        {
+            string? versionText = version.GetString();
+
+            if (!string.IsNullOrWhiteSpace(versionText))
+                properties["tf.version"] = versionText.Trim();
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
