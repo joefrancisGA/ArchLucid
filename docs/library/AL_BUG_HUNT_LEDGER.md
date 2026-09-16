@@ -13875,6 +13875,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-16 seed hunt #4267 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
+
 2026-09-16 seed hunt #4262 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-16 seed hunt #4257 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `hidden` property gap; regression `ParseAsync_hidden_maps_tf_hidden_property`.
@@ -14611,7 +14613,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 502
+- **hunts:** 503
 - **bugs-found:** 316
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
