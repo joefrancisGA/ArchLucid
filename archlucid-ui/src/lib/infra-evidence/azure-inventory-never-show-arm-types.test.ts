@@ -33,8 +33,8 @@ describe("azure-inventory-never-show-arm-types", () => {
           { id: "n3", label: "workbook-1", resourceType: "Microsoft.Insights/workbooks", resourceGroup: "rg-ops" },
         ],
         edges: [
-          { from: "n1", to: "n2", label: null },
-          { from: "n2", to: "n3", label: null },
+          { from: "n1", to: "n2", label: null, source: "observed", declaredConnectionId: null },
+          { from: "n2", to: "n3", label: null, source: "observed", declaredConnectionId: null },
         ],
       },
       false,

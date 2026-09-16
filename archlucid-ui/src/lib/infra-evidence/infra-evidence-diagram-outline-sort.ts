@@ -2,13 +2,19 @@ import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-di
 import {
   resolveInfraEvidenceOutlineEdgeLabel,
   resolveInfraEvidenceOutlineNodeLabel,
+  type InfraEvidenceDiagramOutlineEdgeSource,
   type InfraEvidenceMermaidOutlineEdge,
   type InfraEvidenceMermaidOutlineNode,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+import {
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED,
+} from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 
 export type InfraEvidenceDiagramOutlineNodeSortKey = "label" | "resourceType" | "resourceGroup";
 
-export type InfraEvidenceDiagramOutlineEdgeSortKey = "from" | "relationship" | "to";
+export type InfraEvidenceDiagramOutlineEdgeSortKey = "from" | "relationship" | "to" | "source";
 
 export type InfraEvidenceDiagramOutlineNodeSortDir = "asc" | "desc";
 
@@ -146,6 +152,19 @@ export function sortInfraEvidenceDiagramOutlineNodes(
   return sorted;
 }
 
+function edgeSourceSortValue(source: InfraEvidenceDiagramOutlineEdgeSource): string {
+  switch (source) {
+    case "declared":
+      return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED;
+
+    case "inferred":
+      return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED;
+
+    default:
+      return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED;
+  }
+}
+
 function edgeSortValue(
   edge: InfraEvidenceMermaidOutlineEdge,
   nodes: readonly InfraEvidenceMermaidOutlineNode[],
@@ -160,6 +179,9 @@ function edgeSortValue(
 
     case "to":
       return resolveInfraEvidenceOutlineNodeLabel(nodes, edge.to);
+
+    case "source":
+      return edgeSourceSortValue(edge.source);
 
     default: {
       const exhaustive: never = sortKey;

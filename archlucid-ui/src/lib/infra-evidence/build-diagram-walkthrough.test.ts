@@ -16,6 +16,8 @@ describe("buildDiagramWalkthrough", () => {
         from: `n${index}`,
         to: `n${index + 1}`,
         label: null,
+        source: "observed" as const,
+        declaredConnectionId: null,
       })),
     });
 
@@ -32,7 +34,7 @@ describe("buildDiagramWalkthrough", () => {
         { id: "b", label: "B", resourceType: null, resourceGroup: null },
         { id: "c", label: "C", resourceType: null, resourceGroup: null },
       ],
-      edges: [{ from: "a", to: "b", label: null }],
+      edges: [{ from: "a", to: "b", label: null, source: "observed", declaredConnectionId: null }],
     });
 
     expect(summary).toContain("2 connected components");

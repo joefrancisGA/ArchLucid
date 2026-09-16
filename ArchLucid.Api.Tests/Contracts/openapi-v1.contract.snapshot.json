@@ -18045,6 +18045,12 @@
       },
       "GraphEdge": {
         "properties": {
+          "declaredConnectionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "edgeId": {
             "type": "string"
           },
@@ -18071,6 +18077,12 @@
               "type": "string"
             },
             "type": "object"
+          },
+          "provenanceKind": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "reasoningTrace": {
             "type": [

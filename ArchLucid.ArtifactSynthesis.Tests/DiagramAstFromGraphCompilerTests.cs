@@ -977,6 +977,74 @@ public sealed class DiagramAstFromGraphCompilerTests
         };
     }
 
+    [Fact]
+    public void Compile_human_assertion_edge_carries_provenance_and_declared_label()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        graph.Nodes.Add(CreateTopologyNode(
+            "app-1",
+            "app-1",
+            "Microsoft.Web/sites",
+            "rg-app",
+            "11111111-1111-1111-1111-111111111111",
+            GraphTopologyCategories.Compute));
+        graph.Nodes.Add(CreateTopologyNode(
+            "sql-1",
+            "sql-1",
+            "Microsoft.Sql/servers",
+            "rg-data",
+            "11111111-1111-1111-1111-111111111111",
+            GraphTopologyCategories.Data));
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-declared",
+            FromNodeId = "app-1",
+            ToNodeId = "sql-1",
+            EdgeType = GraphEdgeTypes.ConnectsTo,
+            Label = GraphEdgeTypes.ConnectsTo,
+            InferenceSource = GraphEdgeInferenceSources.HumanDeclaredConnection,
+            ProvenanceKind = "HumanAssertion",
+            DeclaredConnectionId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa").ToString(),
+        });
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-inventory",
+            FromNodeId = "app-1",
+            ToNodeId = "sql-1",
+            EdgeType = GraphEdgeTypes.ConnectsTo,
+            Label = GraphEdgeTypes.ConnectsTo,
+            InferenceSource = GraphEdgeInferenceSources.InventoryNicSubnet,
+            ProvenanceKind = "ObservedFact",
+        });
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+        DiagramEdge? declaredEdge = ast.Edges.FirstOrDefault(edge =>
+            edge.ProvenanceKind == "HumanAssertion");
+        DiagramEdge? observedEdge = ast.Edges.FirstOrDefault(edge =>
+            edge.ProvenanceKind == "ObservedFact");
+
+        declaredEdge.Should().NotBeNull();
+        declaredEdge!.InferenceSource.Should().Be(GraphEdgeInferenceSources.HumanDeclaredConnection);
+        declaredEdge.DeclaredConnectionId.Should().NotBeNullOrWhiteSpace();
+        declaredEdge.Label.Should().Be("declared · connects");
+
+        observedEdge.Should().NotBeNull();
+        observedEdge!.Label.Should().Be("connects");
+        observedEdge.Label.Should().NotContain("declared");
+
+        string mermaid = renderer.Render(ast);
+        mermaid.Should().Contain("-.->");
+        mermaid.Should().Contain("al-provenance=HumanAssertion");
+        mermaid.Should().Contain("al-declared-id=");
+    }
+
     private static GraphNode BuildNetworkTopologyNode(string nodeId, string armId, string armType, string label)
     {
         return new GraphNode

@@ -27,8 +27,8 @@ const nodes: readonly InfraEvidenceMermaidOutlineNode[] = [
 ];
 
 const edges: readonly InfraEvidenceMermaidOutlineEdge[] = [
-  { from: "n_b", to: "n_a", label: "privateEndpoint" },
-  { from: "n_a", to: "n_b", label: null },
+  { from: "n_b", to: "n_a", label: "privateEndpoint", source: "observed", declaredConnectionId: null },
+  { from: "n_a", to: "n_b", label: null, source: "declared", declaredConnectionId: "cccccccc-cccc-cccc-cccc-cccccccccccc" },
 ];
 
 describe("infra-evidence-diagram-outline-sort", () => {
@@ -87,5 +87,11 @@ describe("infra-evidence-diagram-outline-sort", () => {
     const sorted = sortInfraEvidenceDiagramOutlineEdges(edges, nodes, "from", "desc");
 
     expect(sorted.map((edge) => edge.from)).toEqual(["n_b", "n_a"]);
+  });
+
+  it("sorts edges by source column", () => {
+    const sorted = sortInfraEvidenceDiagramOutlineEdges(edges, nodes, "source", "asc");
+
+    expect(sorted.map((edge) => edge.source)).toEqual(["declared", "observed"]);
   });
 });

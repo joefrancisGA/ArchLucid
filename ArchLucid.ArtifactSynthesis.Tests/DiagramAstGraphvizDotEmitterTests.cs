@@ -4,6 +4,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Diagrams;
+using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
 
@@ -62,6 +63,65 @@ public sealed class DiagramAstGraphvizDotEmitterTests
         dot.Should().NotContain("node/with spaces");
         dot.Should().Contain("vnet-eastus-1");
         dot.Should().Contain("'prod'");
+    }
+
+    [Fact]
+    public void Emit_declared_edge_uses_dashed_style()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "declared-edge",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "app", Label = "app", NodeType = "app" },
+                new DiagramNode { NodeId = "sql", Label = "sql", NodeType = "sql" },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "app",
+                    ToNodeId = "sql",
+                    Label = "declared · connects",
+                    ProvenanceKind = "HumanAssertion",
+                    InferenceSource = GraphEdgeInferenceSources.HumanDeclaredConnection,
+                },
+            ],
+        };
+
+        string dot = emitter.Emit(ast);
+
+        dot.Should().Contain("style=dashed");
+        dot.Should().Contain("declared · connects");
+    }
+
+    [Fact]
+    public void Emit_ai_inferred_edge_uses_dotted_style()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "inferred-edge",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "app", Label = "app", NodeType = "app" },
+                new DiagramNode { NodeId = "sql", Label = "sql", NodeType = "sql" },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "app",
+                    ToNodeId = "sql",
+                    Label = "inferred · connects",
+                    ProvenanceKind = "AiInference",
+                },
+            ],
+        };
+
+        string dot = emitter.Emit(ast);
+
+        dot.Should().Contain("style=dotted");
+        dot.Should().Contain("inferred · connects");
     }
 
     [Fact]

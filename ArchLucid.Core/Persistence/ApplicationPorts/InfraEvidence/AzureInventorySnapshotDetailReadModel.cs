@@ -133,6 +133,12 @@ public sealed class AzureInventoryResourceRelationshipReadModel
         get;
         init;
     }
+
+    public Guid? DeclaredConnectionId
+    {
+        get;
+        init;
+    }
 }
 
 public sealed class AzureInventoryRoleAssignmentReadModel

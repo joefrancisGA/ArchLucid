@@ -52,7 +52,8 @@ public sealed class SecurityDeclaredConnectionSnapshotMergerTests
             && relationship.ToAzureResourceId == ToArm
             && relationship.RelationshipType == GraphEdgeTypes.ConnectsTo
             && relationship.ProvenanceKind == ProvenanceKind.HumanAssertion
-            && relationship.InferenceSource == GraphEdgeInferenceSources.HumanDeclaredConnection);
+            && relationship.InferenceSource == GraphEdgeInferenceSources.HumanDeclaredConnection
+            && relationship.DeclaredConnectionId == connection.ConnectionId);
     }
 
     [Fact]

@@ -32,11 +32,24 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         string label = MermaidDiagramRenderer.EscapeLabel(edge.Label).Trim().ToLowerInvariant();
         string title = label.Length == 0 ? "connector" : label;
         bool isPeering = DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge);
+        DiagramEdgeVisualKind visualKind = DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource);
 
         XElement edgeGroup = new(
             svgNamespace + "g",
             new XAttribute("class", "edge"),
             new XElement(svgNamespace + "title", title));
+
+        if (!string.IsNullOrWhiteSpace(edge.ProvenanceKind))
+        {
+            edgeGroup.Add(new XAttribute("data-provenance", edge.ProvenanceKind));
+        }
+
+        if (!string.IsNullOrWhiteSpace(edge.InferenceSource))
+        {
+            edgeGroup.Add(new XAttribute("data-inference", edge.InferenceSource));
+        }
+
+        edgeGroup.Add(new XAttribute("data-visual-kind", ToVisualKindAttribute(visualKind)));
 
         List<XAttribute> pathAttributes =
             [
@@ -51,6 +64,14 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         if (isPeering)
         {
             pathAttributes.Add(new XAttribute("stroke-dasharray", "6 4"));
+        }
+        else if (visualKind == DiagramEdgeVisualKind.Declared)
+        {
+            pathAttributes.Add(new XAttribute("stroke-dasharray", "4 3"));
+        }
+        else if (visualKind == DiagramEdgeVisualKind.AiInferred)
+        {
+            pathAttributes.Add(new XAttribute("stroke-dasharray", "1 3"));
         }
 
         if (showArrow)
@@ -172,4 +193,12 @@ internal static class DiagramForestEdgeLabelSvgEmitter
     {
         return value.ToString("0.###", CultureInfo.InvariantCulture);
     }
+
+    private static string ToVisualKindAttribute(DiagramEdgeVisualKind visualKind) =>
+        visualKind switch
+        {
+            DiagramEdgeVisualKind.Declared => "declared",
+            DiagramEdgeVisualKind.AiInferred => "ai-inferred",
+            _ => "observed",
+        };
 }
