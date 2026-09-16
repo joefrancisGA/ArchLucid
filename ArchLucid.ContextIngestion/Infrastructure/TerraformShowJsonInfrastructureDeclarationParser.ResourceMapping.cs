@@ -500,6 +500,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.nested"] = nested.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "suspended", out JsonElement suspended)
+                || TryGetPropertyIgnoreCase(res, "suspended", out suspended))
+            && (suspended.ValueKind == JsonValueKind.True || suspended.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.suspended"] = suspended.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
