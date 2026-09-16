@@ -438,9 +438,38 @@ describe('ArchitectureDiagramViewer', () => {
 
     const viewport = screen.getByTestId('architecture-diagram-viewport');
     const controls = screen.getByTestId('architecture-diagram-viewport-controls');
+    const hint = screen.getByText(ARCHITECTURE_DIAGRAM_VIEWPORT_HINT);
+    const inkClip = screen.getByTestId('architecture-diagram-ink-clip');
 
     expect(viewport).not.toContainElement(controls);
     expect(controls.compareDocumentPosition(viewport) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(hint.className.split(/\s+/u)).not.toContain('sr-only');
+    expect(inkClip.className.split(/\s+/u)).toContain('overflow-hidden');
+  });
+
+  it('keeps overlay viewport hint screen-reader only while clipping diagram ink', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+        viewportControlsLayout="overlay"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-viewport')).toBeInTheDocument();
+    });
+
+    const hint = screen.getByText(ARCHITECTURE_DIAGRAM_VIEWPORT_HINT);
+    const viewport = screen.getByTestId('architecture-diagram-viewport');
+    const controls = screen.getByTestId('architecture-diagram-viewport-controls');
+    const inkClip = screen.getByTestId('architecture-diagram-ink-clip');
+
+    expect(hint.className.split(/\s+/u)).toContain('sr-only');
+    expect(viewport).toContainElement(controls);
+    expect(inkClip.className.split(/\s+/u)).toContain('overflow-hidden');
   });
 
   it('zooms the mermaid viewport with ctrl+wheel', async () => {

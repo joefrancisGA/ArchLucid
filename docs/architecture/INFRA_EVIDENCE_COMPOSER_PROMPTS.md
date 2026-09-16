@@ -3,7 +3,7 @@
 
 # Infrastructure-evidence Composer prompts
 
-**Created:** 2026-09-04 · **Revised:** 2026-09-16 (added **IDF-01** inventory clustered-canvas overflow — existing Graphviz/Mermaid swimlane frames must enclose member nodes; **not** forest pack-by-RG. Same day: **IDP-01–IDP-04** inventory-diagram declared vs extract-derived edges — dash + `declared` label after provenance plumbing; **not** teal. Same day: **IDA-01–IDA-12** inventory-diagram aesthetics — neutral Carbon-like forest cards, category accents, elbows, RG pack+frames, legend, collapsed outline; **prompts only**). Prior 2026-09-15: **IDR-01–IDR-03** inventory-forest resource-group captions — print `ArmResourceGroup` on forest cards + Graphviz HTML PNG parity; **not** bounding boxes from IDR chats (frames are **IDA-08**). Prior 2026-09-13: **DAU-01–DAU-12** diagram AI usability — compile intent into existing view/model controls, not LLM Mermaid; **IE-DT-01–IE-DT-04** Drift & snapshots table overlapping microscopic text — `content-visibility` on `EnterpriseTable` rows; **IDG-01–IDG-05** Graphviz `fdp` from `DiagramAst` after the owner still saw a white sea and asked for Composer prompts; **IDH-01–IDH-03** inventory-diagram human layout from owner `.mmd`; **IE-DD-01–IE-DD-04** Data diagram render failed; **IDS-01–IDS-04** inventory-diagram spacing — **do not re-run**, packing subgraphs superseded by IDH/IDG; **IE-RF-01–IE-RF-12** relationship-first topology collection; **IE-ID-01–IE-ID-03** Identity diagram compiles but does not paint; **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931.
+**Created:** 2026-09-04 · **Revised:** 2026-09-16 (added **IDF-01** inventory clustered-canvas overflow — existing Graphviz/Mermaid swimlane frames must enclose member nodes; **not** forest pack-by-RG. Same day: **SN-DF-01–SN-DF-08** + hold — SecureNow Data flow / Data architecture modes from inventory + ADF declared wiring; **prompts only**. Same day: **IDP-01–IDP-04** inventory-diagram declared vs extract-derived edges — dash + `declared` label after provenance plumbing; **not** teal. Same day: **IDA-01–IDA-12** inventory-diagram aesthetics — neutral Carbon-like forest cards, category accents, elbows, RG pack+frames, legend, collapsed outline; **prompts only**). Prior 2026-09-15: **IDR-01–IDR-03** inventory-forest resource-group captions — print `ArmResourceGroup` on forest cards + Graphviz HTML PNG parity; **not** bounding boxes from IDR chats (frames are **IDA-08**). Prior 2026-09-13: **DAU-01–DAU-12** diagram AI usability — compile intent into existing view/model controls, not LLM Mermaid; **IE-DT-01–IE-DT-04** Drift & snapshots table overlapping microscopic text — `content-visibility` on `EnterpriseTable` rows; **IDG-01–IDG-05** Graphviz `fdp` from `DiagramAst` after the owner still saw a white sea and asked for Composer prompts; **IDH-01–IDH-03** inventory-diagram human layout from owner `.mmd`; **IE-DD-01–IE-DD-04** Data diagram render failed; **IDS-01–IDS-04** inventory-diagram spacing — **do not re-run**, packing subgraphs superseded by IDH/IDG; **IE-RF-01–IE-RF-12** relationship-first topology collection; **IE-ID-01–IE-ID-03** Identity diagram compiles but does not paint; **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931.
 
 **Status:** ready to run — **one prompt per chat**.
 
@@ -24,6 +24,7 @@ Canonical design: [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md
 | [`INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md) | **IE-RF-01–IE-RF-12** Relationship-first ARG projections + type-scoped ARM lists → association table → Mermaid (not ARM export / `dependsOn`) |
 | [`INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_IDENTITY_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-ID-01–IE-ID-03** Identity mode compiles (Succeeded + outline) but the canvas does not paint (sparse flatten leftover from IE-ND-03, mermaid contract, overlay collapse) |
 | [`INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_DATA_DIAGRAM_COMPOSER_PROMPTS.md) | **IE-DD-01–IE-DD-04** Data mode Render failed (38 nodes / 70 edges / 38 subgraphs): SQL/Cosmos/DBfor category slash-bug, mermaid contract, owner Failed ratchet, honest validation errors |
+| [`SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md`](SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md) | **SN-DF-01–SN-DF-08** + hold — Data flow (movement) and Data architecture (repositories) modes; ADF declared wiring; not Data-mode category leftover |
 | [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_SPACING_COMPOSER_PROMPTS.md) | **IDS-01–IDS-04** (landed — **do not re-run**) Executive spacing; packing subgraphs superseded by IDH |
 | [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_HUMAN_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_HUMAN_COMPOSER_PROMPTS.md) | **IDH-01–IDH-03** Owner Executive `.mmd` (11 VNets / 6 unlabeled arrows / 0 subgraphs) must pack as TD columns, not `alpack_*` LR pairs |
 | [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_DENSE_SPACING_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_DENSE_SPACING_COMPOSER_PROMPTS.md) | **IDT-01–IDT-04** Residual Mermaid slack — **do not start another IDT/IDS gap pass**; owner 2026-09-13 chose **IDG** |
@@ -55,6 +56,7 @@ Naive implementation would add a second Azure collector, a second finding type n
 | New coverage `IFindingEngine` | [`HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md) |
 | FIT-01–05 re-run; diagram OCR as default-on V1 claim | Archives / IE-20 gated; **DAU-11** is accept UX only |
 | LLM-authored Mermaid/DOT as the diagram of record | **DAU-01** / ADR 0101 — assist compiles into existing controls |
+| Observed traffic, Confidential/TLS badges, classic process DFDs, fake Fabric/Power BI from **SN-DF** chats | **SN-DF-HOLD** |
 | GTM M-90 / M-44 / M-91 / M-92; SOC 2 CPA; third-party pen test | Owner/GTM |
 | Desktop review tab collapse | workspace rule |
 | `Export-AzResourceGroup` / `dependsOn` as architecture arrows | **IE-RF-12** — ARG projections + type lists, not a deploy DAG |
@@ -124,6 +126,15 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | **IE-DD-02** | Data-mode mermaid contract from inventory snapshots | IE-DD-01 |
 | **IE-DD-03** | Owner Failed ratchet (flatten + emitter/validator/`IsLayoutOnly`) | IE-DD-01 (parallel with 02) |
 | **IE-DD-04** | Honest Failed UX (`validationErrors` on render + workbench) | IE-DD-03 |
+| **SN-DF-01** | External ADF linked-service source nodes | ADF Prompt 7 |
+| **SN-DF-02** | Data-flow stage catalog | SN-DF-01 |
+| **SN-DF-03** | `DiagramMode.DataFlow` compile | SN-DF-01, SN-DF-02 |
+| **SN-DF-04** | Data Flow honesty legend | SN-DF-03 |
+| **SN-DF-05** | Workbench `dataFlow` | SN-DF-03 |
+| **SN-DF-06** | `DiagramMode.DataArchitecture` + workbench | SN-DF-02, SN-DF-05 |
+| **SN-DF-07** | Data Flow mermaid contract | SN-DF-03, SN-DF-05 |
+| **SN-DF-08** | Missing companions / empty-stage honesty | SN-DF-05 |
+| **SN-DF-HOLD** | Hold — not implementation | — |
 | **IE-RF-01** | Association type catalog on `network-associations.json` | IE-02 ZIP layout |
 | **IE-RF-02** | Tier 1 ARG relationship projections | IE-RF-01 |
 | **IE-RF-03** | Hosted type-scoped ARM list GETs | IE-RF-01 (parallel with 02) |
