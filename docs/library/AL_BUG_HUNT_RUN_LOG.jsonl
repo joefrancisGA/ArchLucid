@@ -4804,3 +4804,4 @@
 {"at":"2026-09-16T18:58:51.4823138Z","zoneId":"tenant-data-export","outcome":"seed-only"}
 {"at":"2026-09-16T18:58:55.0925194Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-16T19:00:37.5380768Z","zoneId":"topology-proposal-merge","outcome":"hit"}
+{"at":"2026-09-16T19:00:42.6084996Z","zoneId":"context-ingestion","outcome":"seed-only"}
