@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE,
   ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING,
   ARCHITECTURE_DIAGRAM_MERMAID_PADDING,
   ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING,
@@ -9,7 +10,7 @@ import {
 } from "@/lib/architecture/architecture-diagram-mermaid-config";
 
 describe("createArchitectureDiagramMermaidConfig", () => {
-  it("uses SVG labels with dark text on honey nodes in light mode", () => {
+  it("uses SVG labels with dark text on neutral nodes in light mode", () => {
     const config = createArchitectureDiagramMermaidConfig(false);
 
     expect(config.flowchart.htmlLabels).toBe(false);
@@ -18,8 +19,9 @@ describe("createArchitectureDiagramMermaidConfig", () => {
     expect(config.flowchart.rankSpacing).toBe(20);
     expect(config.suppressErrorRendering).toBe(true);
     expect(config.startOnLoad).toBe(false);
-    expect(config.themeVariables.primaryColor).toBe("#D4A84B");
-    expect(config.themeVariables.primaryBorderColor).toBe("#6B5424");
+    expect(config.themeVariables.primaryColor).toBe(ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill);
+    expect(config.themeVariables.primaryBorderColor).toBe(ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.border);
+    expect(config.themeVariables.lineColor).toBe(ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.edge);
     expect(config.themeVariables.background).toBe("transparent");
     expect(config.themeVariables.primaryTextColor).toBe("#0f172a");
   });
