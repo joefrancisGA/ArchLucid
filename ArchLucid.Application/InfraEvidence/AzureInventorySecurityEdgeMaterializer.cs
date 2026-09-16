@@ -29,7 +29,11 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryEffectiveNetworkControlRow> effectiveNetworkControls,
         bool effectiveNetworkControlsFilePresent,
         IReadOnlyList<AzureInventoryAdfLinkedServiceRow>? adfLinkedServices = null,
-        bool adfLinkedServicesFilePresent = false)
+        bool adfLinkedServicesFilePresent = false,
+        IReadOnlyList<AzureInventoryAdfDatasetRow>? adfDatasets = null,
+        bool adfDatasetsFilePresent = false,
+        IReadOnlyList<AzureInventoryAdfPipelineFlowRow>? adfPipelineFlows = null,
+        bool adfPipelineFlowsFilePresent = false)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
@@ -41,6 +45,8 @@ public static class AzureInventorySecurityEdgeMaterializer
         ArgumentNullException.ThrowIfNull(effectiveNetworkControls);
 
         IReadOnlyList<AzureInventoryAdfLinkedServiceRow> adfRows = adfLinkedServices ?? [];
+        IReadOnlyList<AzureInventoryAdfDatasetRow> adfDatasetRows = adfDatasets ?? [];
+        IReadOnlyList<AzureInventoryAdfPipelineFlowRow> adfFlowRows = adfPipelineFlows ?? [];
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
@@ -59,6 +65,16 @@ public static class AzureInventorySecurityEdgeMaterializer
         if (!adfLinkedServicesFilePresent)
         {
             warnings.Add(AzureInventoryAdfLinkedServiceCompletenessWarningCodes.MissingFile);
+        }
+
+        if (!adfDatasetsFilePresent)
+        {
+            warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.AdfDatasetsMissing);
+        }
+
+        if (!adfPipelineFlowsFilePresent)
+        {
+            warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.AdfPipelineFlowsMissing);
         }
 
         foreach (AzureExtractorExtendedResourceRow resource in resources)
@@ -94,11 +110,24 @@ public static class AzureInventorySecurityEdgeMaterializer
         AddPolicyAssignmentEdges(policyAssignments, relationships, relationshipKeys);
         AddDiagnosticEdges(diagnosticSettings, relationships, relationshipKeys);
 
+        HashSet<string> directionalFactoryTargetPairs = new(StringComparer.OrdinalIgnoreCase);
+
+        AzureInventoryAdfPipelineFlowEdgeMapper.MapPipelineFlows(
+            resources,
+            adfDatasetRows,
+            adfRows,
+            adfFlowRows,
+            relationships,
+            relationshipKeys,
+            directionalFactoryTargetPairs,
+            warnings);
+
         AzureInventoryAdfLinkedServiceEdgeMapper.MapLinkedServices(
             resources,
             adfRows,
             relationships,
             relationshipKeys,
+            directionalFactoryTargetPairs,
             warnings);
 
         if (effectiveNetworkControlsFilePresent)

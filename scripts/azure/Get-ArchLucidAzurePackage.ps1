@@ -654,6 +654,8 @@ try
             -SubscriptionId $SubscriptionId `
             -ManagementGroupId $ManagementGroupId)
         [object[]]$adfLinkedServiceRows = @(Get-ArchLucidAzureAdfLinkedServiceCompanionRows -InventoryResources @($resources))
+        [object[]]$adfDatasetRows = @(Get-ArchLucidAzureAdfDatasetCompanionRows -InventoryResources @($resources))
+        [object[]]$adfPipelineFlowRows = @(Get-ArchLucidAzureAdfPipelineFlowCompanionRows -InventoryResources @($resources))
 
         Write-Utf8NoBom (Join-Path $staging "role-assignments.json") ($roleAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "network-associations.json") ($networkAssociationRows | ConvertTo-Json -Depth 12 -Compress:$false)
@@ -663,6 +665,8 @@ try
         Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") ($diagnosticSettingRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "defender-summary.json") ($defenderSummaryRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") ($adfLinkedServiceRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "adf-datasets.json") ($adfDatasetRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "adf-pipeline-flows.json") ($adfPipelineFlowRows | ConvertTo-Json -Depth 12 -Compress:$false)
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `
@@ -678,6 +682,8 @@ try
                 diagnosticSettingCount = $diagnosticSettingRows.Count
                 defenderSummaryCount = $defenderSummaryRows.Count
                 adfLinkedServiceCount = $adfLinkedServiceRows.Count
+                adfDatasetCount = $adfDatasetRows.Count
+                adfPipelineFlowCount = $adfPipelineFlowRows.Count
             }
     }
     catch
@@ -696,6 +702,8 @@ try
         Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "defender-summary.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "adf-datasets.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "adf-pipeline-flows.json") "[]"
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `

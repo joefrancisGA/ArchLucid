@@ -63,7 +63,14 @@ Both Tier 1 and Tier 2 collectors may emit **`adf-linked-services.json`**: sanit
 | Target ARM resource id when explicit | `SecureString` / `encryptedCredential` values |
 | Sanitized hostname (`*.blob.core.windows.net`, …) | Runtime traffic claims |
 
-Materialized snapshot relationships use association types **`adfLinkedService`** (observed ARM target) and **`adfLinkedServiceInferred`** (unique hostname match). Diagram labels: **Connected to** / **Likely connected to**. Pipeline direction (`READS_FROM` / `WRITES_TO`) is not in this MVP.
+Materialized snapshot relationships use association types **`adfLinkedService`** (observed ARM target) and **`adfLinkedServiceInferred`** (unique hostname match). Diagram labels: **Connected to** / **Likely connected to**.
+
+When **`adf-datasets.json`** and **`adf-pipeline-flows.json`** companions are present, declared pipeline activity inputs/outputs are joined through dataset → linked service → target to emit directional edges **`adfReadsFrom`** / **`adfWritesTo`** (DerivedFact). Diagram labels: **Reads from** / **Writes to**. Neutral **`adfLinkedService`** edges are omitted for the same factory→target pair when a directional edge exists.
+
+| Companion | ARM source |
+|-----------|------------|
+| `adf-datasets.json` | `GET …/factories/{factory}/datasets?api-version=2018-06-01` |
+| `adf-pipeline-flows.json` | Derived from `GET …/factories/{factory}/pipelines?api-version=2018-06-01` activity `inputs` / `outputs` (static references only; nested `ExecutePipeline` up to depth 3) |
 
 See [`docs/architecture/AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md).
 

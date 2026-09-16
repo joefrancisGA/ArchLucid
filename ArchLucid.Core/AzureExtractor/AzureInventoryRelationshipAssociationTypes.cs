@@ -44,6 +44,10 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string AdfLinkedServiceInferred = "adfLinkedServiceInferred";
 
+    public const string AdfReadsFrom = "adfReadsFrom";
+
+    public const string AdfWritesTo = "adfWritesTo";
+
     private static readonly AzureInventoryRelationshipAssociationTypeDefinition[] Catalog =
     [
         Observed(NicToSubnet, AzureInventoryRelationshipArmKind.NetworkInterface, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-nic-subnet"),
@@ -64,6 +68,8 @@ public static class AzureInventoryRelationshipAssociationTypes
         Observed(AppServiceToSubnet, AzureInventoryRelationshipArmKind.AppService, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-appservice-subnet"),
         Observed(AdfLinkedService, AzureInventoryRelationshipArmKind.DataFactory, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-adf-linked-service"),
         Inferred(AdfLinkedServiceInferred, AzureInventoryRelationshipArmKind.DataFactory, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-adf-linked-service-inferred", ProvenanceKind.DeterministicInference),
+        Inferred(AdfReadsFrom, AzureInventoryRelationshipArmKind.DataFactory, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CAN_READ", "inventory-adf-reads-from", ProvenanceKind.DerivedFact),
+        Inferred(AdfWritesTo, AzureInventoryRelationshipArmKind.DataFactory, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CAN_WRITE", "inventory-adf-writes-to", ProvenanceKind.DerivedFact),
     ];
 
     private static readonly Dictionary<string, AzureInventoryRelationshipAssociationTypeDefinition> Lookup =

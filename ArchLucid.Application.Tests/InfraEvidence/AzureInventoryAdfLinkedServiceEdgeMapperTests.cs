@@ -51,6 +51,7 @@ public sealed class AzureInventoryAdfLinkedServiceEdgeMapperTests
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> directionalPairs = new(StringComparer.OrdinalIgnoreCase);
         List<string> warnings = [];
 
         AzureInventoryAdfLinkedServiceEdgeMapper.MapLinkedServices(
@@ -58,6 +59,7 @@ public sealed class AzureInventoryAdfLinkedServiceEdgeMapperTests
             linkedServices,
             relationships,
             keys,
+            directionalPairs,
             warnings);
 
         relationships.Should().ContainSingle();
@@ -107,6 +109,7 @@ public sealed class AzureInventoryAdfLinkedServiceEdgeMapperTests
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> directionalPairs = new(StringComparer.OrdinalIgnoreCase);
         List<string> warnings = [];
 
         AzureInventoryAdfLinkedServiceEdgeMapper.MapLinkedServices(
@@ -114,10 +117,69 @@ public sealed class AzureInventoryAdfLinkedServiceEdgeMapperTests
             linkedServices,
             relationships,
             keys,
+            directionalPairs,
             warnings);
 
         relationships.Should().ContainSingle();
         relationships[0].ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
         relationships[0].RelationshipType.Should().Be(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred);
+    }
+
+    [Fact]
+    public void MapLinkedServices_skips_neutral_edge_when_directional_pair_exists()
+    {
+        const string factoryId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+        const string storageId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new()
+            {
+                AzureResourceId = factoryId,
+                ResourceType = "Microsoft.DataFactory/factories",
+                Name = "adf1",
+            },
+            new()
+            {
+                AzureResourceId = storageId,
+                ResourceType = "Microsoft.Storage/storageAccounts",
+                Name = "sa1",
+            },
+        ];
+
+        List<AzureInventoryAdfLinkedServiceRow> linkedServices =
+        [
+            new()
+            {
+                FactoryResourceId = factoryId,
+                LinkedServiceResourceId = $"{factoryId}/linkedservices/BlobLS",
+                LinkedServiceName = "BlobLS",
+                LinkedServiceType = "AzureBlobStorage",
+                TargetResourceId = storageId,
+                CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+            },
+        ];
+
+        List<AzureInventoryResourceRelationshipWrite> relationships = [];
+        HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> directionalPairs =
+        [
+            AzureInventoryAdfPipelineFlowEdgeMapper.BuildDirectionalPairKey(
+                ArmResourceIdNormalizer.Normalize(factoryId),
+                ArmResourceIdNormalizer.Normalize(storageId)),
+        ];
+        List<string> warnings = [];
+
+        AzureInventoryAdfLinkedServiceEdgeMapper.MapLinkedServices(
+            resources,
+            linkedServices,
+            relationships,
+            keys,
+            directionalPairs,
+            warnings);
+
+        relationships.Should().BeEmpty();
     }
 }
