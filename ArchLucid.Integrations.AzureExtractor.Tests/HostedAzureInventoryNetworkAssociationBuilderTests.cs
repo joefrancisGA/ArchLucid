@@ -328,4 +328,96 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
 
         Assert.Empty(associations);
     }
+
+    [Fact]
+    public void Build_emits_nat_gateway_to_subnet_association()
+    {
+        HostedAzureArmResourceRecord natGateway = new(
+            ResourceType: "Microsoft.Network/natGateways",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/natGateways/nat1",
+            Name: "nat1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["subnets"] =
+                    """
+                    [
+                      {
+                        "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/default"
+                      }
+                    ]
+                    """,
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([natGateway]);
+
+        Assert.Single(associations);
+        Assert.Equal(AzureInventoryRelationshipAssociationTypes.NatGatewayToSubnet, associations[0].AssociationType);
+    }
+
+    [Fact]
+    public void Build_emits_private_endpoint_dns_zone_group_association()
+    {
+        HostedAzureArmResourceRecord privateEndpoint = new(
+            ResourceType: "Microsoft.Network/privateEndpoints",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1",
+            Name: "pe1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["privateDnsZoneGroups"] =
+                    """
+                    [
+                      {
+                        "properties": {
+                          "privateDnsZoneConfigs": [
+                            {
+                              "properties": {
+                                "privateDnsZoneId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                    """,
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([privateEndpoint]);
+
+        Assert.Single(associations);
+        Assert.Equal(AzureInventoryRelationshipAssociationTypes.PeDnsZoneGroup, associations[0].AssociationType);
+    }
+
+    [Fact]
+    public void Build_emits_container_app_to_environment_association()
+    {
+        const string environmentId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.App/managedEnvironments/env1";
+
+        HostedAzureArmResourceRecord containerApp = new(
+            ResourceType: "Microsoft.App/containerApps",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.App/containerApps/app1",
+            Name: "app1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["managedEnvironmentId"] = environmentId,
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([containerApp]);
+
+        Assert.Single(associations);
+        Assert.Equal(AzureInventoryRelationshipAssociationTypes.ContainerAppToEnv, associations[0].AssociationType);
+        Assert.Equal(environmentId, associations[0].ToResourceId);
+    }
 }

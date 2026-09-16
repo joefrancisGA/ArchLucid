@@ -394,4 +394,35 @@ public sealed class HostedAzureExtractorZipBuilderTests
         using JsonDocument messagingDocument = JsonDocument.Parse(messagingReader.ReadToEnd());
         Assert.Equal("orders", messagingDocument.RootElement[0].GetProperty("childName").GetString());
     }
+
+    [Fact]
+    public void BuildZip_writes_paas_child_association_companion_entries()
+    {
+        const string serverId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1";
+
+        AzureInventoryPaasChildAssociationRow association = new()
+        {
+            ParentResourceId = serverId,
+            ChildResourceId = $"{serverId}/databases/appdb",
+            ChildName = "appdb",
+            ChildType = AzureInventoryPaasChildAssociationTypes.SqlDatabase,
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            paasChildAssociations: [association]);
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream paasStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.PaasChildAssociations)!.Open();
+        using StreamReader paasReader = new(paasStream);
+        using JsonDocument paasDocument = JsonDocument.Parse(paasReader.ReadToEnd());
+        Assert.Equal("appdb", paasDocument.RootElement[0].GetProperty("childName").GetString());
+    }
 }
