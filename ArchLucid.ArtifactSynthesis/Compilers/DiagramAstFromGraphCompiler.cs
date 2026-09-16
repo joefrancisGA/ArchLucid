@@ -88,12 +88,16 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         }
 
         DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode, options);
-        HashSet<string> privateEndpointDiagramNodeIdsToHide = DiagramPrivateEndpointTargetAnnotator.Apply(
-            ast,
-            graph.Nodes,
-            graph.Edges,
-            nodeIdMap);
-        DiagramPrivateEndpointCanvasPruner.RemoveNodes(ast, privateEndpointDiagramNodeIdsToHide);
+
+        if (mode is not DiagramMode.Network)
+        {
+            HashSet<string> privateEndpointDiagramNodeIdsToHide = DiagramPrivateEndpointTargetAnnotator.Apply(
+                ast,
+                graph.Nodes,
+                graph.Edges,
+                nodeIdMap);
+            DiagramPrivateEndpointCanvasPruner.RemoveNodes(ast, privateEndpointDiagramNodeIdsToHide);
+        }
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
         DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
@@ -168,7 +172,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             case DiagramMode.Network:
                 return IncludeInventoryConnectedVirtualMachines(
                     graph,
-                    FilterByCategories(nodes, GraphTopologyCategories.Network));
+                    NetworkDiagramNodeFilter.ExcludePrivateEndpoints(
+                        FilterByCategories(nodes, GraphTopologyCategories.Network)));
             case DiagramMode.Security:
                 return FilterSecurityNodes(nodes);
             case DiagramMode.Identity:
