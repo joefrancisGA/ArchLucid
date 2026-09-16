@@ -128,9 +128,22 @@ const defaultSnapshotsResponse = {
   hasMore: false,
 };
 
+async function openDiagramOutlineNodes(): Promise<void> {
+  const disclosure = await screen.findByTestId("infra-diagrams-outline-nodes-disclosure");
+
+  if (disclosure.getAttribute("aria-expanded") === "true") {
+    return;
+  }
+
+  fireEvent.click(disclosure);
+
+  expect(await screen.findByTestId("infra-diagrams-outline-nodes-panel")).toBeInTheDocument();
+}
+
 describe("DiagramsWorkbenchClient", () => {
   beforeEach(() => {
     pathname = "/governance/infrastructure/diagrams";
+    window.sessionStorage.clear();
     fetchInfraEvidenceSnapshotsMock.mockReset();
     fetchInfraEvidenceSnapshotsMock.mockResolvedValue(defaultSnapshotsResponse);
     downloadInfraEvidenceMermaidPngMock.mockReset();
@@ -756,6 +769,8 @@ describe("DiagramsWorkbenchClient", () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DiagramsWorkbenchClient />);
 
+    await openDiagramOutlineNodes();
+
     fireEvent.click(
       await screen.findByRole("button", { name: "Focus neighborhood from vnet-aep-hi-test-wus-001" }),
     );
@@ -832,6 +847,8 @@ describe("DiagramsWorkbenchClient", () => {
     render(<DiagramsWorkbenchClient />);
 
     expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+
+    await openDiagramOutlineNodes();
 
     fireEvent.click(
       await screen.findByRole("button", { name: "Focus neighborhood from vnet-aep-hi-test-wus-001" }),
@@ -1115,6 +1132,9 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-walkthrough")).toHaveTextContent("2 connected components");
     expect(screen.getByTestId("infra-diagrams-include-never-show")).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByTestId("infra-diagrams-always-excluded-panel")).toHaveTextContent("dnszones");
+
+    await openDiagramOutlineNodes();
+
     expect(screen.getByText("vnet-c")).toBeInTheDocument();
   });
 
