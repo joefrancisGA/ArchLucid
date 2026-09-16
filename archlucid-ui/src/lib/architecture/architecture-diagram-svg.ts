@@ -5,10 +5,7 @@ import {
   ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE,
   ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH,
 } from "@/lib/architecture/architecture-diagram-mermaid-config";
-
-export type ArchitectureDiagramSvgPaletteOptions = {
-  readonly dark?: boolean;
-};
+import { fitInventoryDiagramClusterFrames } from "@/lib/architecture/fit-inventory-diagram-cluster-frames";
 import {
   ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX,
   architectureDiagramLabelLineHeightPx,
@@ -16,6 +13,10 @@ import {
   wrapArchitectureDiagramLabelToWidth,
   wrapWidthInsideNodeRectPx,
 } from "@/lib/architecture/wrap-architecture-diagram-label";
+
+export type ArchitectureDiagramSvgPaletteOptions = {
+  readonly dark?: boolean;
+};
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -349,6 +350,7 @@ export function replaceMermaidForeignObjectLabelsWithSvgText(
   }
 
   wrapExistingNodeSvgLabels(svg, parsed);
+  fitInventoryDiagramClusterFrames(svg);
   paintUnfilledSvgText(svg);
   paintArchitectureDiagramNodePalette(svg, dark);
   svg.setAttribute("overflow", "visible");
