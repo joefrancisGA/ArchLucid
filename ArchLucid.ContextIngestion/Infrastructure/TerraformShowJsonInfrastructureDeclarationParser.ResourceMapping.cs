@@ -386,6 +386,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.retain"] = retain.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "allow_missing", out JsonElement allowMissing)
+                || TryGetPropertyIgnoreCase(res, "allowMissing", out allowMissing))
+            && (allowMissing.ValueKind == JsonValueKind.True || allowMissing.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.allow_missing"] = allowMissing.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
