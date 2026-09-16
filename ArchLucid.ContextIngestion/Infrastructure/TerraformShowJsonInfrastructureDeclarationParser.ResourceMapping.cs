@@ -355,11 +355,18 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.write_only"] = writeOnly.GetBoolean() ? "true" : "false";
         }
 
-        if ((TryGetPropertyIgnoreCase(res, "refresh_only", out JsonElement RefreshOnly)
-                || TryGetPropertyIgnoreCase(res, "refreshOnly", out RefreshOnly))
-            && (RefreshOnly.ValueKind == JsonValueKind.True || RefreshOnly.ValueKind == JsonValueKind.False))
+        if ((TryGetPropertyIgnoreCase(res, "refresh_only", out JsonElement refreshOnly)
+                || TryGetPropertyIgnoreCase(res, "refreshOnly", out refreshOnly))
+            && (refreshOnly.ValueKind == JsonValueKind.True || refreshOnly.ValueKind == JsonValueKind.False))
         {
-            properties["tf.refresh_only"] = RefreshOnly.GetBoolean() ? "true" : "false";
+            properties["tf.refresh_only"] = refreshOnly.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "recreate", out JsonElement recreate)
+                || TryGetPropertyIgnoreCase(res, "recreate", out recreate))
+            && (recreate.ValueKind == JsonValueKind.True || recreate.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.recreate"] = recreate.GetBoolean() ? "true" : "false";
         }
 
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
