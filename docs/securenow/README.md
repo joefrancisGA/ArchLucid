@@ -8,3 +8,4 @@
 | Document | Purpose |
 |----------|---------|
 | [`DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md`](DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md) | Separate **infrastructure**, **data architecture**, and **data flow** diagrams; what Azure inventory can discover automatically; first slice vs gold-standard examples |
+| [`../architecture/SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md) | Composer prompts **SN-DF-01–SN-DF-08** + hold (paste files under `.cursor/prompts/securenow-data-flow-*.md`) — **do not implement from the design note** |
