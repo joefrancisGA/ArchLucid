@@ -175,6 +175,10 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER = "Pick a Start
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT =
   "To diagram one resource and its neighbors, choose Focus neighborhood on that row." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NODES_DISCLOSURE_LABEL = "Nodes" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_EDGES_DISCLOSURE_LABEL = "Edges" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE =
   "Pick a starting resource before rendering" as const;
 

@@ -53,6 +53,7 @@ import {
   prepareMermaidSvgForResponsiveLayout,
   readMermaidViewportFitBudget,
   resetMermaidSvgViewportInkCache,
+  resolveMermaidViewportDefaultZoom,
   sanitizeMermaidRenderId,
 } from '@/lib/help/help-mermaid';
 import { renderMermaidSvgMarkup } from '@/lib/mermaid/mermaid-safe-render';
@@ -85,6 +86,8 @@ export type ArchitectureDiagramMermaidViewerProps = {
   readonly focusNodeIds?: readonly string[];
   /** Increment when focus selection changes so camera refits. */
   readonly focusNonce?: number;
+  /** Optional max-height override for the scrolling camera (inventory workbench uses a taller frame). */
+  readonly cameraMaxHeightClassName?: string;
 };
 
 export type ArchitectureDiagramStaticViewerProps = {
@@ -264,6 +267,8 @@ function useDiagramZoomState(pathname: string) {
 type DiagramViewportControlsOptions = {
   readonly layout?: 'stacked' | 'overlay';
   readonly fullscreenAction?: { readonly label: string; readonly onClick: () => void };
+  readonly defaultContainZoom?: number;
+  readonly onResetZoom?: () => void;
 };
 
 function renderDiagramViewportControls(
@@ -271,6 +276,9 @@ function renderDiagramViewportControls(
   onFitInView: () => void,
   options?: DiagramViewportControlsOptions,
 ): React.JSX.Element {
+  const defaultContainZoom = options?.defaultContainZoom ?? 1;
+  const atDefaultContainZoom = Math.abs(zoom.zoom - defaultContainZoom) <= 0.001;
+
   return (
     <ArchitectureDiagramViewportControls
       zoomPercentInputValue={zoom.zoomPercentInputValue}
@@ -278,13 +286,13 @@ function renderDiagramViewportControls(
       maxZoomPercent={MAX_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT}
       atMinZoom={zoom.atMinZoom}
       atMaxZoom={zoom.atMaxZoom}
-      fitInViewDisabled={zoom.atDefaultZoom}
+      fitInViewDisabled={atDefaultContainZoom}
       onZoomPercentDraftChange={zoom.setZoomPercentDraft}
       onZoomPercentFocus={() => zoom.setZoomPercentDraft(String(zoom.zoomPercent))}
       onCommitZoomPercent={zoom.commitZoomPercent}
       onZoomIn={zoom.zoomIn}
       onZoomOut={zoom.zoomOut}
-      onResetZoom={zoom.resetZoom}
+      onResetZoom={options?.onResetZoom ?? zoom.resetZoom}
       onFitInView={onFitInView}
       zoomInLabel={ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL}
       zoomOutLabel={ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL}
@@ -304,7 +312,7 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:leading-snug [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100',
   '[&_svg_.cluster_rect]:fill-white dark:[&_svg_.cluster_rect]:fill-neutral-950/80',
   '[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]',
-  // Fallback ink when Mermaid CSS is stripped (light = honey on white canvas).
+  // Fallback ink when Mermaid CSS is stripped (light = neutral cards on white canvas).
   '[&_svg_.node_rect]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_.node_rect]:fill-slate-700',
   '[&_svg_.node_rect]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_.node_rect]:stroke-slate-200',
   '[&_svg_.node_rect]:stroke-[1.5px]',
@@ -335,6 +343,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     viewportControlsLayout = 'overlay',
     focusNodeIds = [],
     focusNonce = 0,
+    cameraMaxHeightClassName = 'max-h-[36rem]',
   } = props;
   const router = useRouter();
   const pathname = usePathname() ?? '';
@@ -360,6 +369,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   const mermaidFitRetryTimeoutRef = useRef<number | null>(null);
   const zoom = useDiagramZoomState(pathname);
   const previousMermaidSourceRef = useRef<string | null>(null);
+  const previousLayoutSvgRef = useRef<string | null>(null);
+  const defaultContainZoomRef = useRef<number>(1);
+  const autoZoomGenerationRef = useRef<string>('');
 
   fullscreenOpenRef.current = fullscreenOpen;
 
@@ -376,6 +388,18 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     // previous empty plate must not hide the next source at 30%.
     zoom.setZoom(1);
   }, [mermaidSource, zoom.setZoom]);
+
+  useEffect(() => {
+    const trimmed = layoutSvg?.trim() ?? '';
+    const previous = previousLayoutSvgRef.current;
+    previousLayoutSvgRef.current = trimmed;
+
+    if (previous === null || previous === trimmed) {
+      return;
+    }
+
+    zoom.setZoom(1);
+  }, [layoutSvg, zoom.setZoom]);
 
   const setFullscreenOpen = useCallback(
     (value: SetStateAction<boolean>) => {
@@ -495,7 +519,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   }, [zoom.zoom]);
 
   const fitToView = useCallback(() => {
-    zoom.setZoom(1);
+    const defaultZoom = defaultContainZoomRef.current;
+    zoom.setZoom(defaultZoom);
     scrollViewportToOrigin(viewportRef.current);
     scrollViewportToOrigin(fullscreenViewportRef.current);
 
@@ -503,13 +528,13 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     const viewport = viewportRef.current;
 
     if (host !== null && viewport !== null) {
-      baseFitRef.current = applyMermaidViewportCamera(host, viewport, 1);
+      baseFitRef.current = applyMermaidViewportCamera(host, viewport, defaultZoom, focusNodeIds);
     }
 
     if (fullscreenOpenRef.current) {
       syncFullscreenViewportCamera();
     }
-  }, [syncFullscreenViewportCamera, zoom]);
+  }, [focusNodeIds, syncFullscreenViewportCamera, zoom]);
 
   useLayoutEffect(() => {
     if (sanitizedSvg === null) {
@@ -518,6 +543,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
     mermaidFitRetryCountRef.current = 0;
     baseFitRef.current = null;
+    autoZoomGenerationRef.current = '';
 
     if (mermaidFitRetryTimeoutRef.current !== null) {
       window.clearTimeout(mermaidFitRetryTimeoutRef.current);
@@ -540,13 +566,37 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       mermaidFitRetryTimeoutRef.current = window.setTimeout(() => {
         mermaidFitRetryTimeoutRef.current = null;
 
-        if (syncInlineViewportCamera()) {
+        if (applyInitialViewportZoom()) {
           scrollViewportToOrigin(viewportRef.current);
           return;
         }
 
         scheduleFitRetry();
       }, INITIAL_FIT_RETRY_DELAY_MS);
+    };
+
+    const applyInitialViewportZoom = (): boolean => {
+      if (!syncInlineViewportCamera()) {
+        return false;
+      }
+
+      const baseFit = baseFitRef.current;
+      const generationKey = sanitizedSvg ?? '';
+
+      if (baseFit === null || !baseFit.inkMeasured || autoZoomGenerationRef.current === generationKey) {
+        return true;
+      }
+
+      autoZoomGenerationRef.current = generationKey;
+      const defaultZoom = resolveMermaidViewportDefaultZoom(baseFit);
+      defaultContainZoomRef.current = defaultZoom;
+
+      if (baseFit.overflows && Math.abs(zoom.zoom - defaultZoom) > 0.001) {
+        zoom.setZoomClamped(defaultZoom);
+        syncInlineViewportCamera();
+      }
+
+      return true;
     };
 
     const clearInkCacheOnHost = (): void => {
@@ -561,13 +611,13 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     const runInitialFit = (): void => {
       clearInkCacheOnHost();
 
-      if (syncInlineViewportCamera()) {
+      if (applyInitialViewportZoom()) {
         scrollViewportToOrigin(viewportRef.current);
         return;
       }
 
       window.requestAnimationFrame(() => {
-        if (syncInlineViewportCamera()) {
+        if (applyInitialViewportZoom()) {
           scrollViewportToOrigin(viewportRef.current);
           return;
         }
@@ -660,7 +710,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
       if (event.key === '0') {
         event.preventDefault();
-        zoom.resetZoom();
+        zoom.setZoom(defaultContainZoomRef.current);
         scrollViewportToOrigin(viewportRef.current);
       }
     };
@@ -687,15 +737,22 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     [zoom],
   );
 
+  const resetToDefaultContainZoom = useCallback(() => {
+    zoom.setZoom(defaultContainZoomRef.current);
+    scrollViewportToOrigin(viewportRef.current);
+  }, [zoom]);
+
   const viewportControlOptions = useMemo(
     () => ({
       layout: viewportControlsLayout,
+      defaultContainZoom: defaultContainZoomRef.current,
+      onResetZoom: resetToDefaultContainZoom,
       fullscreenAction: {
         label: ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
         onClick: () => setFullscreenOpen(true),
       },
     }),
-    [setFullscreenOpen, viewportControlsLayout],
+    [resetToDefaultContainZoom, setFullscreenOpen, viewportControlsLayout, zoom.zoom, sanitizedSvg],
   );
 
   const viewportControls = renderDiagramViewportControls(zoom, fitToView, viewportControlOptions);
@@ -768,7 +825,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         tabIndex={0}
         onWheel={onWheel}
         controls={controlsInsideViewport ? viewportControls : null}
-        cameraMaxHeightClassName="max-h-[36rem]"
+        cameraMaxHeightClassName={cameraMaxHeightClassName}
       >
         {renderMermaidInk(svgHostRef, 'architecture-diagram-svg-host')}
       </ArchitectureDiagramMermaidViewportFrame>

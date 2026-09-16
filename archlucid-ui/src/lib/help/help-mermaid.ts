@@ -720,13 +720,20 @@ export function fitMermaidSvgElementToViewport(
     MERMAID_VIEWPORT_MAX_FIT_SCALE,
     Math.max(MERMAID_VIEWPORT_MIN_FIT_SCALE, rawScale),
   );
-  const baseWidthPx = Math.max(1, Math.round(viewWidth * fitScale));
-  const baseHeightPx = Math.max(1, Math.round(viewHeight * fitScale));
-  const overflows = baseWidthPx > availableWidth || baseHeightPx > availableHeight;
-
-  applyMermaidSvgPixelSize(svg, baseWidthPx, baseHeightPx);
+  const baseWidthPx = Math.max(1, Math.round(viewWidth));
+  const baseHeightPx = Math.max(1, Math.round(viewHeight));
+  const overflows = viewWidth > availableWidth || viewHeight > availableHeight;
 
   return { baseWidthPx, baseHeightPx, inkMeasured: true, fitScale, overflows };
+}
+
+/** Default zoom after paint: 100% when ink fits; contain scale when it overflows. */
+export function resolveMermaidViewportDefaultZoom(baseFit: MermaidViewportFitDimensions): number {
+  if (!baseFit.inkMeasured) {
+    return 1;
+  }
+
+  return baseFit.overflows ? baseFit.fitScale : 1;
 }
 
 /** Drop cached ink viewBox when mermaid markup is replaced (new innerHTML). */
@@ -876,11 +883,9 @@ export function fitInventoryDiagramSvgElementToFocusNodeIds(
     MERMAID_VIEWPORT_MAX_FIT_SCALE,
     Math.max(MERMAID_VIEWPORT_MIN_FIT_SCALE, rawScale),
   );
-  const baseWidthPx = Math.max(1, Math.round(viewWidth * fitScale));
-  const baseHeightPx = Math.max(1, Math.round(viewHeight * fitScale));
-  const overflows = baseWidthPx > availableWidth || baseHeightPx > availableHeight;
-
-  applyMermaidSvgPixelSize(svg, baseWidthPx, baseHeightPx);
+  const baseWidthPx = Math.max(1, Math.round(viewWidth));
+  const baseHeightPx = Math.max(1, Math.round(viewHeight));
+  const overflows = viewWidth > availableWidth || viewHeight > availableHeight;
 
   return { baseWidthPx, baseHeightPx, inkMeasured: true, fitScale, overflows };
 }

@@ -21,6 +21,16 @@ const LABELED_FOREIGN_OBJECT_SVG = [
   "</svg>",
 ].join("");
 
+const FOREST_PAINT_FIXTURE = [
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80">',
+  '  <g class="node">',
+  '    <rect class="node-card" width="200" height="48" fill="#ececec" stroke="#999"/>',
+  '    <rect class="node-accent" width="4" height="48" fill="#0f766e"/>',
+  '    <g class="pictogram"><circle cx="8" cy="8" r="6" fill="#0f766e"/></g>',
+  "  </g>",
+  "</svg>",
+].join("");
+
 describe("architecture-diagram-svg", () => {
   it("converts Mermaid foreignObject labels into visible SVG text", () => {
     const converted = replaceMermaidForeignObjectLabelsWithSvgText(LABELED_FOREIGN_OBJECT_SVG);
@@ -54,7 +64,7 @@ describe("architecture-diagram-svg", () => {
     expect(converted).toContain('fill="currentColor"');
   });
 
-  it("paints node boxes and edge paths with the honey export palette", () => {
+  it("paints node boxes and edge paths with the neutral export palette", () => {
     const svg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80">',
       '  <g class="node"><rect width="80" height="32" x="10" y="10" fill="none"/></g>',
@@ -69,9 +79,10 @@ describe("architecture-diagram-svg", () => {
     expect(converted).toContain('stroke-width="1.5"');
     expect(converted).not.toContain('fill-opacity="0.12"');
     expect(converted).toMatch(/<path[^>]*fill="none"/);
+    expect(converted).toContain(`stroke="${ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.edge}"`);
   });
 
-  it("replaces neutral mermaid gray node fills with honey before raster export", () => {
+  it("replaces neutral mermaid gray node fills with slate cards before raster export", () => {
     const svg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80">',
       '  <g class="node"><rect width="80" height="32" x="10" y="10" fill="#ececec" stroke="#999"/></g>',
@@ -83,6 +94,17 @@ describe("architecture-diagram-svg", () => {
     expect(converted).toContain(`fill="${ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill}"`);
     expect(converted).toContain(`stroke="${ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.border}"`);
     expect(converted).not.toContain('fill="#ececec"');
+    expect(converted).not.toContain("#D4A84B");
+  });
+
+  it("preserves pictogram and accent fills on forest-like snippets", () => {
+    const converted = sanitizeArchitectureDiagramSvg(FOREST_PAINT_FIXTURE);
+
+    expect(converted).toContain('class="node-card"');
+    expect(converted).toContain(`fill="${ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill}"`);
+    expect(converted).toContain('class="node-accent"');
+    expect(converted).toContain('fill="#0f766e"');
+    expect(converted).toMatch(/<circle[^>]*fill="#0f766e"/);
   });
 
   it("wraps long foreignObject names into tspans that fit the node rect", () => {
