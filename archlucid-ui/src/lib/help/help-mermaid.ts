@@ -91,7 +91,7 @@ export function prepareMermaidSvgForResponsiveLayout(svgMarkup: string): string 
   return new XMLSerializer().serializeToString(svg);
 }
 
-function readGraphicsElementBBox(element: SVGGraphicsElement): DOMRect | null {
+export function readGraphicsElementBBox(element: SVGGraphicsElement): DOMRect | null {
   try {
     const box = element.getBBox();
 
@@ -130,7 +130,7 @@ function unionDomRects(rects: DOMRect[]): DOMRect | null {
   return new DOMRect(minX, minY, maxX - minX, maxY - minY);
 }
 
-function mapLocalBBoxToSvgUserSpace(
+export function mapLocalBBoxToSvgUserSpace(
   element: SVGGraphicsElement,
   svg: SVGSVGElement,
   box: DOMRect,
@@ -163,6 +163,53 @@ function mapLocalBBoxToSvgUserSpace(
     point.x = x;
     point.y = y;
     const mapped = point.matrixTransform(toSvg);
+    minX = Math.min(minX, mapped.x);
+    minY = Math.min(minY, mapped.y);
+    maxX = Math.max(maxX, mapped.x);
+    maxY = Math.max(maxY, mapped.y);
+  }
+
+  if (!Number.isFinite(minX) || !Number.isFinite(minY) || maxX <= minX || maxY <= minY) {
+    return null;
+  }
+
+  return new DOMRect(minX, minY, maxX - minX, maxY - minY);
+}
+
+/** Maps an axis-aligned SVG user-space rectangle into an element's local coordinate system. */
+export function mapSvgUserSpaceRectToElementLocal(
+  element: SVGGraphicsElement,
+  svg: SVGSVGElement,
+  rect: DOMRect,
+): DOMRect | null {
+  if (typeof svg.createSVGPoint !== "function" || typeof element.getScreenCTM !== "function") {
+    return null;
+  }
+
+  const elementScreenCtm = element.getScreenCTM();
+  const svgScreenCtm = svg.getScreenCTM();
+
+  if (elementScreenCtm === null || svgScreenCtm === null) {
+    return null;
+  }
+
+  const toLocal = elementScreenCtm.inverse().multiply(svgScreenCtm);
+  const corners: Array<readonly [number, number]> = [
+    [rect.x, rect.y],
+    [rect.x + rect.width, rect.y],
+    [rect.x, rect.y + rect.height],
+    [rect.x + rect.width, rect.y + rect.height],
+  ];
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (const [x, y] of corners) {
+    const point = svg.createSVGPoint();
+    point.x = x;
+    point.y = y;
+    const mapped = point.matrixTransform(toLocal);
     minX = Math.min(minX, mapped.x);
     minY = Math.min(minY, mapped.y);
     maxX = Math.max(maxX, mapped.x);
