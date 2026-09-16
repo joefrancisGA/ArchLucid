@@ -17,7 +17,7 @@ Canonical wave doc (diagnosis + copy-below): [`docs/architecture/INFRA_EVIDENCE_
 
 **Do not** restyle architecture-review diagrams (they already use solid = asserted / dashed = inferred). **Do not** restyle the evidence-graph React Flow viewer. **Do not** use teal as an edge stroke (teal is interactive affordance, not provenance). **Do not** encode provenance in color alone.
 
-**Do not re-run IDL, IDS, IDT, IDH, IDG, IDR, IDA, IE-ND, IE-ID, or IE-DD** inside an IDP session.
+**Do not re-run IDL, IDS, IDT, IDH, IDG, IDR, IDA, IDF, IE-ND, IE-ID, or IE-DD** inside an IDP session.
 
 ## Diagnosis (locked — do not re-diagnose)
 

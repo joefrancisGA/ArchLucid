@@ -104,7 +104,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
             .Count(element => string.Equals(element.Name.LocalName, "text", StringComparison.Ordinal)
                 && string.Equals(element.Value, "peering", StringComparison.Ordinal))
             .Should()
-            .Be(0);
+            .Be(6);
 
         root.Descendants()
             .Where(element =>
@@ -114,9 +114,26 @@ public sealed class DiagramForestLayoutSvgRendererTests
             .Should()
             .OnlyContain(value => value == "6 4");
 
+        root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge-path", StringComparison.Ordinal))
+            .Select(element => element.Attribute("marker-end")?.Value ?? string.Empty)
+            .Should()
+            .OnlyContain(value => value.Contains("al-edge-arrow", StringComparison.Ordinal));
+
         result.Svg.Should().Contain("class=\"legend\"");
         result.Svg.Should().Contain("Network");
         result.Svg.Should().Contain("Peering");
+
+        root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge-path", StringComparison.Ordinal))
+            .Select(element => element.Attribute("d")?.Value ?? string.Empty)
+            .Where(pathData => pathData.Length > 0)
+            .Should()
+            .NotContain(pathData => IsDiagonalChordPath(pathData));
 
         string[] viewBoxParts = (root.Attribute("viewBox")?.Value ?? string.Empty)
             .Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
@@ -404,6 +421,15 @@ public sealed class DiagramForestLayoutSvgRendererTests
 
         result.Succeeded.Should().BeFalse();
         result.Error.Should().NotBeNullOrWhiteSpace();
+    }
+
+    private static bool IsDiagonalChordPath(string pathData)
+    {
+        bool hasLineStep = pathData.Contains(" L ", StringComparison.Ordinal);
+        bool hasHorizontalStep = pathData.Contains(" H ", StringComparison.Ordinal);
+        bool hasVerticalStep = pathData.Contains(" V ", StringComparison.Ordinal);
+
+        return hasLineStep && !hasHorizontalStep && !hasVerticalStep;
     }
 
     private static int CountRgCaptionTexts(XElement root, string resourceGroup)

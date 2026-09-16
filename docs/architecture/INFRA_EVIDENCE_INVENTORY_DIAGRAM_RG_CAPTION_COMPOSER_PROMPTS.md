@@ -147,4 +147,4 @@ dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.
 
 ## Follow-on (not this wave)
 
-Forest **RG-aware packing** + labeled frames on Full subscription is **IDA-08** ([`INFRA_EVIDENCE_INVENTORY_DIAGRAM_AESTHETICS_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_AESTHETICS_COMPOSER_PROMPTS.md)). Nested VNet/subnet frames stay held (**IDA-HOLD**). Honesty copy when subgraphs exist but forest does not paint them is still not IDR. Do not start IDA from an IDR chat.
+Forest **RG-aware packing** + labeled frames on Full subscription is **IDA-08** ([`INFRA_EVIDENCE_INVENTORY_DIAGRAM_AESTHETICS_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_AESTHETICS_COMPOSER_PROMPTS.md)). Making those frames **readable** (per-cell bounds, 2 px solid stroke, space, crop, PNG) is **IDF** ([`INFRA_EVIDENCE_INVENTORY_DIAGRAM_FRAMES_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_FRAMES_COMPOSER_PROMPTS.md)). Nested VNet/subnet frames stay held (**IDA-HOLD** / **IDF-HOLD**). Honesty copy when subgraphs exist but forest does not paint them is still not IDR. Do not start IDA or IDF from an IDR chat.

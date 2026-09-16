@@ -18,7 +18,7 @@ Keep IDA as **Carbon-like forest chrome** on the existing `DiagramAst` → inven
 |-----------|------|
 | Microsoft Azure product icons / `IMG` from a static Azure icon pack | Licensing; IDA-02 accents are the allowed color cue |
 | Nested VNet / subnet / NIC frames inside RG boxes | Recursive cluster packer; out of IDA-08 |
-| Draw RG rects on the **current** connected-component grid without packing | Overlap; that is why IDR-HOLD exists |
+| Draw RG rects on the **current** connected-component grid without packing | Overlap; that is why IDR-HOLD exists. Visibility follow-on after IDA-08 is **IDF**, not a drive-by here |
 | Undo `FlattenSparseSubgraphs` so Mermaid “shows RGs” | Empty-box regression |
 | Restore `alpack_*` | Mermaid 11 LR flip |
 | Another `nodeSpacing` / `rankSpacing` / `padding` pass | IDG hold; not the aesthetic failure |

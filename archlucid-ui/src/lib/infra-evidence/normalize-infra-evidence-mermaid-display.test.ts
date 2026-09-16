@@ -40,4 +40,19 @@ describe("normalizeInfraEvidenceLayoutSvgForDisplay", () => {
     expect(normalizeInfraEvidenceLayoutSvgForDisplay(svg)).toContain("gateway-pip");
     expect(normalizeInfraEvidenceLayoutSvgForDisplay(svg)).not.toContain("Gateway-PIP");
   });
+
+  it("lowercases tspans without flattening wrapped lines", () => {
+    const svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg">',
+      '<text><tspan>Vnet-App</tspan><tspan dy="16">-Hi</tspan></text>',
+      "</svg>",
+    ].join("");
+
+    const normalized = normalizeInfraEvidenceLayoutSvgForDisplay(svg);
+
+    expect(normalized).toContain("<tspan>vnet-app</tspan>");
+    expect(normalized).toContain('dy="16"');
+    expect(normalized).toContain('dy="16">-hi</tspan>');
+    expect(normalized.match(/<tspan[\s>]/g)?.length ?? 0).toBe(2);
+  });
 });

@@ -360,6 +360,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         HashSet<string> suppressedEdgeKeys = DiagramForestEdgeLabelCollapse.ResolveSuppressedEdgeKeys(
             renderableNodes,
             visibleEdges);
+        Dictionary<string, IReadOnlyList<DiagramNode>> componentByNodeId =
+            BuildComponentMembership(renderableNodes, visibleEdges);
+        Dictionary<string, DiagramNode> nodesById = renderableNodes.ToDictionary(
+            node => node.NodeId,
+            StringComparer.Ordinal);
         bool hasDashedPeering = visibleEdges.Any(DiagramForestEdgeLabelCollapse.IsPeeringEdge);
         bool hasPrivateEndpointAccess = placements.Any(placement => placement.Metrics.HasPrivateEndpointAccess);
         IReadOnlyList<DiagramInventoryPictogramKind> usedKinds =
@@ -382,8 +387,21 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         foreach (DiagramEdge edge in visibleEdges)
         {
-            if (!placementById.TryGetValue(edge.FromNodeId, out NodePlacement? fromPlacement)
-                || !placementById.TryGetValue(edge.ToNodeId, out NodePlacement? toPlacement))
+            string routeFromNodeId = edge.FromNodeId;
+            string routeToNodeId = edge.ToNodeId;
+
+            if (DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge)
+                && componentByNodeId.TryGetValue(edge.FromNodeId, out IReadOnlyList<DiagramNode>? component))
+            {
+                (routeFromNodeId, routeToNodeId) = DiagramForestPeeringEdgeDirector.ResolveClientToServerEndpoints(
+                    edge,
+                    component,
+                    nodesById,
+                    visibleEdges);
+            }
+
+            if (!placementById.TryGetValue(routeFromNodeId, out NodePlacement? fromPlacement)
+                || !placementById.TryGetValue(routeToNodeId, out NodePlacement? toPlacement))
             {
                 continue;
             }
@@ -392,14 +410,14 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             IReadOnlyList<DiagramForestOrthogonalEdgeRouter.Rect> obstacles =
                 DiagramForestOrthogonalEdgeRouter.BuildObstacles(
                     placementBounds,
-                    edge.FromNodeId,
-                    edge.ToNodeId);
+                    routeFromNodeId,
+                    routeToNodeId);
             DiagramForestOrthogonalEdgeRouter.RouteResult route =
                 DiagramForestOrthogonalEdgeRouter.Route(fromX, fromY, toX, toY, obstacles);
             bool suppressOnPathLabel = DiagramForestEdgeLabelCollapse.ShouldSuppressOnPathLabel(
                 edge,
                 suppressedEdgeKeys);
-            bool showArrow = !DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge);
+            bool showArrow = true;
 
             edgeLayer.Add(DiagramForestEdgeLabelSvgEmitter.EmitEdgeGroup(
                 svgNamespace,
@@ -450,6 +468,24 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 $"{minX:0.###} {minY:0.###} {viewBoxWidth:0.###} {viewBoxHeight:0.###}")));
 
         return root.ToString(SaveOptions.DisableFormatting);
+    }
+
+    private static Dictionary<string, IReadOnlyList<DiagramNode>> BuildComponentMembership(
+        IReadOnlyList<DiagramNode> nodes,
+        IReadOnlyList<DiagramEdge> visibleEdges)
+    {
+        List<List<DiagramNode>> components = DiagramComponentBuilder.BuildConnectedComponents(nodes, visibleEdges);
+        Dictionary<string, IReadOnlyList<DiagramNode>> componentByNodeId = new(StringComparer.Ordinal);
+
+        foreach (List<DiagramNode> component in components)
+        {
+            foreach (DiagramNode node in component)
+            {
+                componentByNodeId[node.NodeId] = component;
+            }
+        }
+
+        return componentByNodeId;
     }
 
     private static (double FromX, double FromY, double ToX, double ToY) ResolveEdgeEndpoints(
