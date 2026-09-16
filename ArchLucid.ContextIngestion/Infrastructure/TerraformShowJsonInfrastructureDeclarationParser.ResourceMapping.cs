@@ -483,6 +483,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.orphan"] = orphan.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "module", out JsonElement module)
+                || TryGetPropertyIgnoreCase(res, "module", out module))
+            && module.ValueKind == JsonValueKind.String)
+        {
+            string? moduleText = module.GetString();
+
+            if (!string.IsNullOrWhiteSpace(moduleText))
+                properties["tf.module"] = moduleText.Trim();
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
