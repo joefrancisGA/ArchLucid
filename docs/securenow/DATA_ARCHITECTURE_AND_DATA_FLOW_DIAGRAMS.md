@@ -298,7 +298,8 @@ If the factory both reads and writes, two arrows — not one undirected “Conne
 | ADF linked service + pipeline flow edges | `AzureInventoryAdfLinkedServiceEdgeMapper`, `AzureInventoryAdfPipelineFlowEdgeMapper` |
 | Edge labels | `DiagramEdgeLabelHumanizer` — Connected to / Likely connected to / Reads from / Writes to |
 | ZIP companions | `adf-linked-services.json`, `adf-datasets.json`, `adf-pipeline-flows.json` in [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) |
-| Data-mode prompts | IE-DD-01–04 |
+| Data-mode prompts (SQL in Data mode) | IE-DD-01–04 — **do not re-run from SN-DF chats** |
+| Data flow / architecture **implementation prompts** | [`../architecture/SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md) (**SN-DF-01–08**) |
 | App/MI/RBAC feasibility | [`AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md) |
 
 ## 9. Success criteria
