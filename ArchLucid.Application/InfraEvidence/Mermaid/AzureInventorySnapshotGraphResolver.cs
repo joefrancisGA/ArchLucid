@@ -156,30 +156,33 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 EnsurePeeringEndpointNode(toArmId, nodeIdByArmId, nodes, seenNodeIds);
             }
 
-            if (!nodeIdByArmId.TryGetValue(fromArmId, out string? fromNodeId)
-                || !nodeIdByArmId.TryGetValue(toArmId, out string? toNodeId))
+            if (!nodeIdByArmId.TryGetValue(fromArmId, out string? fromNodeId))
             {
                 continue;
             }
 
             string edgeType = ResolveRelationshipEdgeType(relationship);
-            string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
 
-            if (!edgeKeys.Add(edgeKey))
+            foreach (string toNodeId in ResolveRelatedNodeIds(nodeIdByArmId, toArmId))
             {
-                continue;
+                string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
+
+                if (!edgeKeys.Add(edgeKey))
+                {
+                    continue;
+                }
+
+                edges.Add(new GraphEdge
+                {
+                    EdgeId = $"edge-{edgeKey}",
+                    FromNodeId = fromNodeId,
+                    ToNodeId = toNodeId,
+                    EdgeType = edgeType,
+                    Label = edgeType,
+                    Weight = ResolveEdgeWeight(relationship.InferenceSource),
+                    InferenceSource = relationship.InferenceSource,
+                });
             }
-
-            edges.Add(new GraphEdge
-            {
-                EdgeId = $"edge-{edgeKey}",
-                FromNodeId = fromNodeId,
-                ToNodeId = toNodeId,
-                EdgeType = edgeType,
-                Label = edgeType,
-                Weight = ResolveEdgeWeight(relationship.InferenceSource),
-                InferenceSource = relationship.InferenceSource,
-            });
         }
 
         AzureInventorySnapshotVnetPeeringEdgeHydrator.AddMissingPeeringEdges(
@@ -187,6 +190,11 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodeIdByArmId,
             nodes,
             seenNodeIds,
+            edges,
+            edgeKeys);
+        AzureInventorySnapshotPrivateEndpointEdgeHydrator.AddMissingTargetEdges(
+            snapshot,
+            nodeIdByArmId,
             edges,
             edgeKeys);
 
@@ -289,6 +297,30 @@ public sealed class AzureInventorySnapshotGraphResolver(
         }
 
         return 1.0d;
+    }
+
+    private static IEnumerable<string> ResolveRelatedNodeIds(
+        Dictionary<string, string> nodeIdByArmId,
+        string armId)
+    {
+        HashSet<string> nodeIds = new(StringComparer.Ordinal);
+
+        if (nodeIdByArmId.TryGetValue(armId, out string? exactNodeId))
+        {
+            nodeIds.Add(exactNodeId);
+        }
+
+        string childPrefix = armId.TrimEnd('/') + "/";
+
+        foreach (KeyValuePair<string, string> pair in nodeIdByArmId)
+        {
+            if (pair.Key.StartsWith(childPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                nodeIds.Add(pair.Value);
+            }
+        }
+
+        return nodeIds;
     }
 
     private static void EnsurePeeringEndpointNode(
