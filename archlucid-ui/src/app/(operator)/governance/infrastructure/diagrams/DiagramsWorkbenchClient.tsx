@@ -10,6 +10,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
+import { InfraEvidenceDiagramLegend } from "@/components/infra-evidence/InfraEvidenceDiagramLegend";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -1838,6 +1839,10 @@ export function DiagramsWorkbenchClient() {
             onRenderFailure={handleRenderFailure}
             onRetry={handleRenderRetry}
             onExportableSvgMarkupChange={setExportableSvgMarkup}
+          />
+          <InfraEvidenceDiagramLegend
+            outline={visibleMermaidOutline}
+            mermaidSource={displayMermaidSource}
           />
           {visibleMermaidOutline != null ? (
             <InfraEvidenceDiagramOutline

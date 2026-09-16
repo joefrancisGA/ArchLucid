@@ -5,6 +5,10 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
+vi.mock("@/lib/security-declared-connection-api", () => ({
+  listSecurityDeclaredConnections: vi.fn(async () => []),
+}));
+
 const outline: InfraEvidenceMermaidOutline = {
   nodes: [
     {
@@ -20,7 +24,7 @@ const outline: InfraEvidenceMermaidOutline = {
       resourceGroup: "rg-apps",
     },
   ],
-  edges: [{ from: "n_src", to: "n_missing", label: null }],
+  edges: [{ from: "n_src", to: "n_missing", label: null, source: "observed", declaredConnectionId: null }],
 };
 
 function getNodesTable(): HTMLTableElement {
@@ -117,7 +121,7 @@ describe("InfraEvidenceDiagramOutline", () => {
           resourceGroup: "rg-data",
         },
       ],
-      edges: [{ from: "n_pe", to: "n_cosmos", label: "connects" }],
+      edges: [{ from: "n_pe", to: "n_cosmos", label: "connects", source: "observed", declaredConnectionId: null }],
     };
 
     render(
@@ -135,6 +139,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const cells = within(edgesTable).getAllByRole("cell");
 
     expect(cells.map((cell) => cell.textContent)).toEqual([
+      "Observed",
       "cosmos-sql-account",
       "connects",
       "cosmos-sql-account (Cosmos DB)",
@@ -157,7 +162,7 @@ describe("InfraEvidenceDiagramOutline", () => {
           resourceGroup: "rg-west",
         },
       ],
-      edges: [{ from: "n_a", to: "n_b", label: null }],
+      edges: [{ from: "n_a", to: "n_b", label: null, source: "observed", declaredConnectionId: null }],
     };
 
     render(
@@ -261,9 +266,9 @@ describe("InfraEvidenceDiagramOutline", () => {
         },
       ],
       edges: [
-        { from: "n_b", to: "n_c", label: "privateEndpoint" },
-        { from: "n_a", to: "n_b", label: null },
-        { from: "n_c", to: "n_a", label: "peering" },
+        { from: "n_b", to: "n_c", label: "privateEndpoint", source: "observed", declaredConnectionId: null },
+        { from: "n_a", to: "n_b", label: null, source: "observed", declaredConnectionId: null },
+        { from: "n_c", to: "n_a", label: "peering", source: "observed", declaredConnectionId: null },
       ],
     };
 

@@ -151,15 +151,40 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             string fromId = GraphvizIdEscaper.QuoteIdentifier(MermaidIdSanitizer.Sanitize(edge.FromNodeId));
             string toId = GraphvizIdEscaper.QuoteIdentifier(MermaidIdSanitizer.Sanitize(edge.ToNodeId));
             string label = MermaidDiagramRenderer.EscapeLabel(edge.Label);
+            DiagramEdgeVisualKind visualKind = DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource);
+            string styleAttribute = ResolveGraphvizEdgeStyle(visualKind);
 
             if (string.IsNullOrWhiteSpace(label))
             {
-                builder.AppendLine($"    {fromId} -> {toId};");
+                if (string.IsNullOrEmpty(styleAttribute))
+                {
+                    builder.AppendLine($"    {fromId} -> {toId};");
+                }
+                else
+                {
+                    builder.AppendLine($"    {fromId} -> {toId} [{styleAttribute}];");
+                }
+
+                continue;
             }
-            else
+
+            if (string.IsNullOrEmpty(styleAttribute))
             {
                 builder.AppendLine($"    {fromId} -> {toId} [label={GraphvizIdEscaper.QuoteLabel(label)}];");
             }
+            else
+            {
+                builder.AppendLine(
+                    $"    {fromId} -> {toId} [{styleAttribute}, label={GraphvizIdEscaper.QuoteLabel(label)}];");
+            }
         }
     }
+
+    private static string ResolveGraphvizEdgeStyle(DiagramEdgeVisualKind visualKind) =>
+        visualKind switch
+        {
+            DiagramEdgeVisualKind.Declared => "style=dashed, color=\"#64748b\"",
+            DiagramEdgeVisualKind.AiInferred => "style=dotted, color=\"#64748b\"",
+            _ => string.Empty,
+        };
 }

@@ -75,6 +75,9 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                     edge.Label,
                     edge.EdgeType,
                     edge.InferenceSource),
+                ProvenanceKind = edge.ProvenanceKind,
+                InferenceSource = edge.InferenceSource,
+                DeclaredConnectionId = edge.DeclaredConnectionId,
             });
         }
 
@@ -92,6 +95,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
         DiagramSparseComponentPacker.Pack(ast);
         DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
+        DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges(ast);
         DiagramConnectionTypeAnnotator.Annotate(ast);
         DiagramPrivateEndpointTargetAnnotator.Apply(ast, topologyNodes, includedEdges, nodeIdMap);
 
