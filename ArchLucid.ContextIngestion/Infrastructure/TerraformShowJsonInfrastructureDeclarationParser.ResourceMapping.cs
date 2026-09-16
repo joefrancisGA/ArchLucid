@@ -400,6 +400,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.destroy"] = destroy.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "upgrade", out JsonElement upgrade)
+                || TryGetPropertyIgnoreCase(res, "upgrade", out upgrade))
+            && (upgrade.ValueKind == JsonValueKind.True || upgrade.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.upgrade"] = upgrade.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
