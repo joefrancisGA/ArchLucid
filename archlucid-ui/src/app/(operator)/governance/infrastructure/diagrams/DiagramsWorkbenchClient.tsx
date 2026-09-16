@@ -648,6 +648,12 @@ export function DiagramsWorkbenchClient() {
     ],
   );
 
+  // Identity empty already explains the capture omit in the density coach.
+  const showGenericEmptyContent =
+    diagramContentEmpty
+    && renderResult?.status === "Succeeded"
+    && densityCoachPresentation?.variant !== "empty-identity";
+
   const cameraFocusNodeIds = useMemo(
     () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, visibleMermaidOutline),
     [appliedSeedNodeId, visibleMermaidOutline],
@@ -1754,7 +1760,7 @@ export function DiagramsWorkbenchClient() {
           <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
           <span className={OPERATOR_TYPOGRAPHY.body}>Loading diagram…</span>
         </div>
-      ) : diagramContentEmpty && renderResult?.status === "Succeeded" ? (
+      ) : showGenericEmptyContent ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE}
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY}

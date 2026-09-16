@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
 import { SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
@@ -535,6 +537,39 @@ describe("DiagramsWorkbenchClient", () => {
     );
     expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
     expect(screen.queryByText(/too large for a single diagram/i)).not.toBeInTheDocument();
+  });
+
+  it("explains omitted identity resources instead of generic empty content", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "identity",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "",
+      metrics: {
+        nodeCount: 0,
+        edgeCount: 0,
+        subgraphCount: 0,
+        maxDegree: 0,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 0,
+        layoutEstimate: 0,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=identity",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    const coach = await screen.findByTestId("infra-diagrams-density-coach");
+
+    expect(coach).toHaveAttribute("data-coach-variant", "empty-identity");
+    expect(coach).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_TITLE);
+    expect(coach).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_BODY);
+    expect(screen.queryByTestId("infra-diagrams-empty-content")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
   });
 
   it("shows deep-linked missing snapshot status and suppresses render strip", async () => {
