@@ -28,6 +28,8 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             + $"fillcolor=\"{ArchitectureDiagramMermaidPalette.LightNodeFill}\", "
             + $"color=\"{ArchitectureDiagramMermaidPalette.LightNodeBorder}\", "
             + $"fontcolor=\"{ArchitectureDiagramMermaidPalette.LightNodeText}\"];");
+        builder.AppendLine(
+            $"    edge [color=\"{ArchitectureDiagramMermaidPalette.LightEdgeStroke}\"];");
 
         if (renderableSubgraphs.Count == 0)
         {
@@ -112,6 +114,9 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
 
         builder.AppendLine($"{indentText}subgraph {clusterId} {{");
         builder.AppendLine($"{indentText}    label={clusterLabel};");
+        builder.AppendLine($"{indentText}    labelloc=t;");
+        builder.AppendLine($"{indentText}    labeljust=l;");
+        builder.AppendLine($"{indentText}    margin=\"18,12\";");
 
         foreach (DiagramNode node in ast.Nodes
                      .Where(DiagramExecutiveOverflowCanvasExclusion.IsCanvasRenderableNode)

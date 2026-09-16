@@ -1,5 +1,6 @@
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_RECORDED_TYPES_PREFIX,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_TOO_LARGE_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_TOO_LARGE_TITLE,
@@ -39,7 +40,7 @@ function formatInventoryFilteredIdentityArmTypes(
     (entry) => `${entry.armResourceType} (${entry.resourceCount})`,
   );
 
-  return `Inventory usually hides these identity resource types; Identity mode includes them: ${lines.join(", ")}.`;
+  return `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_RECORDED_TYPES_PREFIX} ${lines.join(", ")}.`;
 }
 
 export function resolveInfraDiagramsDensityCoachPresentation(

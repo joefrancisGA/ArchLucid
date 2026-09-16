@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_EDGES_DISCLOSURE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NODES_DISCLOSURE_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import { resolveInfraEvidenceOutlineEdgeToDisplay } from "@/lib/infra-evidence/format-infra-evidence-outline-edge-to-label";
@@ -33,9 +35,14 @@ import {
   type InfraEvidenceMermaidOutlineNode,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
+const OUTLINE_NODES_OPEN_STORAGE_KEY = "infra-diagrams-outline-nodes-open";
+const OUTLINE_EDGES_OPEN_STORAGE_KEY = "infra-diagrams-outline-edges-open";
+
 type InfraEvidenceDiagramOutlineProps = {
   readonly outline: InfraEvidenceMermaidOutline;
   readonly onFocusNeighborhood?: (node: InfraEvidenceMermaidOutlineNode) => void;
+  readonly defaultNodesOpen?: boolean;
+  readonly defaultEdgesOpen?: boolean;
 };
 
 function formatOutlineCell(value: string | null): string {
@@ -48,6 +55,36 @@ function formatOutlineCell(value: string | null): string {
 
 function formatOutlineResourceType(resourceType: string | null): string {
   return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType));
+}
+
+function readOutlineSectionOpenFromSessionStorage(storageKey: string): boolean | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const stored = window.sessionStorage.getItem(storageKey);
+
+    if (stored === null) {
+      return null;
+    }
+
+    return stored === "true";
+  } catch {
+    return null;
+  }
+}
+
+function writeOutlineSectionOpenToSessionStorage(storageKey: string, open: boolean): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.sessionStorage.setItem(storageKey, String(open));
+  } catch {
+    // Session storage may be unavailable in private mode.
+  }
 }
 
 function InfraEvidenceDiagramOutlineSortableHeader<TColumn extends string>(props: {
@@ -91,11 +128,36 @@ function InfraEvidenceDiagramOutlineSortableHeader<TColumn extends string>(props
 
 /** Structured list alternative to the Mermaid canvas (WCAG 1.1.1 peer affordance). */
 export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlineProps): React.JSX.Element {
-  const { outline, onFocusNeighborhood } = props;
+  const {
+    outline,
+    onFocusNeighborhood,
+    defaultNodesOpen = false,
+    defaultEdgesOpen = false,
+  } = props;
   const [nodeSortKey, setNodeSortKey] = useState(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_KEY);
   const [nodeSortDir, setNodeSortDir] = useState<"asc" | "desc">(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_DIR);
   const [edgeSortKey, setEdgeSortKey] = useState(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_KEY);
   const [edgeSortDir, setEdgeSortDir] = useState<"asc" | "desc">(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_DIR);
+  const [nodesOpen, setNodesOpen] = useState(defaultNodesOpen);
+  const [edgesOpen, setEdgesOpen] = useState(defaultEdgesOpen);
+
+  useEffect(() => {
+    const storedNodesOpen = readOutlineSectionOpenFromSessionStorage(OUTLINE_NODES_OPEN_STORAGE_KEY);
+
+    if (storedNodesOpen !== null) {
+      setNodesOpen(storedNodesOpen);
+    } else {
+      setNodesOpen(defaultNodesOpen);
+    }
+
+    const storedEdgesOpen = readOutlineSectionOpenFromSessionStorage(OUTLINE_EDGES_OPEN_STORAGE_KEY);
+
+    if (storedEdgesOpen !== null) {
+      setEdgesOpen(storedEdgesOpen);
+    } else {
+      setEdgesOpen(defaultEdgesOpen);
+    }
+  }, [defaultEdgesOpen, defaultNodesOpen]);
 
   const nodeRows = useMemo(() => {
     const sortedNodes = sortInfraEvidenceDiagramOutlineNodes(outline.nodes, nodeSortKey, nodeSortDir);
@@ -108,6 +170,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     return sortedEdges.slice(0, 200);
   }, [edgeSortDir, edgeSortKey, outline.edges, outline.nodes]);
   const showNeighborhoodActions = onFocusNeighborhood != null;
+  const showEdgesSection = outline.edges.length > 0;
 
   const handleNodeSort = (column: InfraEvidenceDiagramOutlineNodeSortKey) => {
     const next = toggleInfraEvidenceDiagramOutlineNodeSort(nodeSortKey, nodeSortDir, column);
@@ -123,6 +186,24 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     setEdgeSortDir(next.sortDir);
   };
 
+  const toggleNodesOpen = () => {
+    setNodesOpen((current) => {
+      const next = !current;
+      writeOutlineSectionOpenToSessionStorage(OUTLINE_NODES_OPEN_STORAGE_KEY, next);
+
+      return next;
+    });
+  };
+
+  const toggleEdgesOpen = () => {
+    setEdgesOpen((current) => {
+      const next = !current;
+      writeOutlineSectionOpenToSessionStorage(OUTLINE_EDGES_OPEN_STORAGE_KEY, next);
+
+      return next;
+    });
+  };
+
   return (
     <div
       data-testid="infra-diagrams-mermaid-outline"
@@ -130,150 +211,184 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     >
       <div className="flex flex-col gap-4 p-3">
         <div>
-          <h3 className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>Nodes</h3>
-          {showNeighborhoodActions ? (
-            <p
-              className={cn("m-0 mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="infra-diagrams-nodes-seed-hint"
-            >
-              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT}
-            </p>
-          ) : null}
-          <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
-            <thead className="bg-neutral-50 dark:bg-neutral-900/60">
-              <tr>
-                <InfraEvidenceDiagramOutlineSortableHeader
-                  column="label"
-                  label="Node Name"
-                  sortKey={nodeSortKey}
-                  sortDir={nodeSortDir}
-                  onSort={handleNodeSort}
-                  resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
-                />
-                <InfraEvidenceDiagramOutlineSortableHeader
-                  column="resourceType"
-                  label="Resource type"
-                  sortKey={nodeSortKey}
-                  sortDir={nodeSortDir}
-                  onSort={handleNodeSort}
-                  resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
-                />
-                <InfraEvidenceDiagramOutlineSortableHeader
-                  column="resourceGroup"
-                  label="Resource group"
-                  sortKey={nodeSortKey}
-                  sortDir={nodeSortDir}
-                  onSort={handleNodeSort}
-                  resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
-                />
-                {showNeighborhoodActions ? (
-                  <th className="px-3 py-2 font-medium" scope="col">
-                    Neighborhood
-                  </th>
-                ) : null}
-              </tr>
-            </thead>
-            <tbody>
-              {nodeRows.map((node) => (
-                <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
-                  <td className="px-3 py-2">
-                    <InfraEvidenceDiagramOutlineNodeLabel node={node} />
-                  </td>
-                  <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
-                  <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceGroup)}</td>
-                  {showNeighborhoodActions ? (
-                    <td className="px-3 py-2">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        data-testid={`infra-diagrams-focus-neighborhood-${node.id}`}
-                        aria-label={`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION} from ${node.label}`}
-                        onClick={() => {
-                          onFocusNeighborhood(node);
-                        }}
-                      >
-                        {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
-                      </Button>
-                    </td>
-                  ) : null}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {nodeRows.length === 0 ? (
-            <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              No nodes parsed from the Mermaid source.
-            </p>
-          ) : null}
-        </div>
-        <div>
-          <h3 className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>Edges</h3>
-          <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
-            <thead className="bg-neutral-50 dark:bg-neutral-900/60">
-              <tr>
-                <InfraEvidenceDiagramOutlineSortableHeader
-                  column="from"
-                  label="From"
-                  sortKey={edgeSortKey}
-                  sortDir={edgeSortDir}
-                  onSort={handleEdgeSort}
-                  resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineEdgeColumn}
-                />
-                <InfraEvidenceDiagramOutlineSortableHeader
-                  column="relationship"
-                  label="Relationship"
-                  sortKey={edgeSortKey}
-                  sortDir={edgeSortDir}
-                  onSort={handleEdgeSort}
-                  resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineEdgeColumn}
-                />
-                <InfraEvidenceDiagramOutlineSortableHeader
-                  column="to"
-                  label="To"
-                  sortKey={edgeSortKey}
-                  sortDir={edgeSortDir}
-                  onSort={handleEdgeSort}
-                  resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineEdgeColumn}
-                />
-              </tr>
-            </thead>
-            <tbody>
-              {edgeRows.map((edge, index) => {
-                const fromNode = outline.nodes.find((node) => node.id === edge.from);
-                const toNode = outline.nodes.find((node) => node.id === edge.to);
-                const toDisplay = resolveInfraEvidenceOutlineEdgeToDisplay({
-                  fromNode,
-                  toNode,
-                  fromFallback: resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from),
-                  toFallback: resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.to),
-                });
-
-                return (
-                  <tr
-                    key={`${edge.from}-${edge.to}-${index}`}
-                    className="border-t border-neutral-200 dark:border-neutral-800"
-                  >
-                    <td className="px-3 py-2">
-                      {fromNode != null ? (
-                        <InfraEvidenceDiagramOutlineNodeLabel node={fromNode} />
-                      ) : (
-                        resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from)
-                      )}
-                    </td>
-                    <td className="px-3 py-2">{formatOutlineCell(resolveInfraEvidenceOutlineEdgeLabel(edge, outline.nodes))}</td>
-                    <td className="px-3 py-2">{toDisplay}</td>
+          <button
+            type="button"
+            className={cn(
+              "m-0 mb-2 flex w-full items-center justify-between gap-2 border-0 bg-transparent p-0 text-left",
+              OPERATOR_TYPOGRAPHY.sectionTitle,
+            )}
+            data-testid="infra-diagrams-outline-nodes-disclosure"
+            aria-expanded={nodesOpen}
+            aria-controls="infra-diagrams-outline-nodes-panel"
+            onClick={toggleNodesOpen}
+          >
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NODES_DISCLOSURE_LABEL} ({outline.nodes.length})
+          </button>
+          {nodesOpen ? (
+            <div id="infra-diagrams-outline-nodes-panel" data-testid="infra-diagrams-outline-nodes-panel">
+              {showNeighborhoodActions ? (
+                <p
+                  className={cn("m-0 mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="infra-diagrams-nodes-seed-hint"
+                >
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT}
+                </p>
+              ) : null}
+              <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
+                <thead className="bg-neutral-50 dark:bg-neutral-900/60">
+                  <tr>
+                    <InfraEvidenceDiagramOutlineSortableHeader
+                      column="label"
+                      label="Node Name"
+                      sortKey={nodeSortKey}
+                      sortDir={nodeSortDir}
+                      onSort={handleNodeSort}
+                      resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
+                    />
+                    <InfraEvidenceDiagramOutlineSortableHeader
+                      column="resourceType"
+                      label="Resource type"
+                      sortKey={nodeSortKey}
+                      sortDir={nodeSortDir}
+                      onSort={handleNodeSort}
+                      resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
+                    />
+                    <InfraEvidenceDiagramOutlineSortableHeader
+                      column="resourceGroup"
+                      label="Resource group"
+                      sortKey={nodeSortKey}
+                      sortDir={nodeSortDir}
+                      onSort={handleNodeSort}
+                      resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
+                    />
+                    {showNeighborhoodActions ? (
+                      <th className="px-3 py-2 font-medium" scope="col">
+                        Neighborhood
+                      </th>
+                    ) : null}
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          {edgeRows.length === 0 ? (
-            <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              No edges parsed from the Mermaid source.
-            </p>
+                </thead>
+                <tbody>
+                  {nodeRows.map((node) => (
+                    <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
+                      <td className="px-3 py-2">
+                        <InfraEvidenceDiagramOutlineNodeLabel node={node} />
+                      </td>
+                      <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
+                      <td className="px-3 py-2 font-mono text-sm">{formatOutlineCell(node.resourceGroup)}</td>
+                      {showNeighborhoodActions ? (
+                        <td className="px-3 py-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            data-testid={`infra-diagrams-focus-neighborhood-${node.id}`}
+                            aria-label={`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION} from ${node.label}`}
+                            onClick={() => {
+                              onFocusNeighborhood(node);
+                            }}
+                          >
+                            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION}
+                          </Button>
+                        </td>
+                      ) : null}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {nodeRows.length === 0 ? (
+                <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  No nodes parsed from the Mermaid source.
+                </p>
+              ) : null}
+            </div>
           ) : null}
         </div>
+        {showEdgesSection ? (
+          <div>
+            <button
+              type="button"
+              className={cn(
+                "m-0 mb-2 flex w-full items-center justify-between gap-2 border-0 bg-transparent p-0 text-left",
+                OPERATOR_TYPOGRAPHY.sectionTitle,
+              )}
+              data-testid="infra-diagrams-outline-edges-disclosure"
+              aria-expanded={edgesOpen}
+              aria-controls="infra-diagrams-outline-edges-panel"
+              onClick={toggleEdgesOpen}
+            >
+              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_EDGES_DISCLOSURE_LABEL} ({outline.edges.length})
+            </button>
+            {edgesOpen ? (
+              <div id="infra-diagrams-outline-edges-panel" data-testid="infra-diagrams-outline-edges-panel">
+                <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
+                  <thead className="bg-neutral-50 dark:bg-neutral-900/60">
+                    <tr>
+                      <InfraEvidenceDiagramOutlineSortableHeader
+                        column="from"
+                        label="From"
+                        sortKey={edgeSortKey}
+                        sortDir={edgeSortDir}
+                        onSort={handleEdgeSort}
+                        resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineEdgeColumn}
+                      />
+                      <InfraEvidenceDiagramOutlineSortableHeader
+                        column="relationship"
+                        label="Relationship"
+                        sortKey={edgeSortKey}
+                        sortDir={edgeSortDir}
+                        onSort={handleEdgeSort}
+                        resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineEdgeColumn}
+                      />
+                      <InfraEvidenceDiagramOutlineSortableHeader
+                        column="to"
+                        label="To"
+                        sortKey={edgeSortKey}
+                        sortDir={edgeSortDir}
+                        onSort={handleEdgeSort}
+                        resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineEdgeColumn}
+                      />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {edgeRows.map((edge, index) => {
+                      const fromNode = outline.nodes.find((node) => node.id === edge.from);
+                      const toNode = outline.nodes.find((node) => node.id === edge.to);
+                      const toDisplay = resolveInfraEvidenceOutlineEdgeToDisplay({
+                        fromNode,
+                        toNode,
+                        fromFallback: resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from),
+                        toFallback: resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.to),
+                      });
+
+                      return (
+                        <tr
+                          key={`${edge.from}-${edge.to}-${index}`}
+                          className="border-t border-neutral-200 dark:border-neutral-800"
+                        >
+                          <td className="px-3 py-2">
+                            {fromNode != null ? (
+                              <InfraEvidenceDiagramOutlineNodeLabel node={fromNode} />
+                            ) : (
+                              resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from)
+                            )}
+                          </td>
+                          <td className="px-3 py-2">{formatOutlineCell(resolveInfraEvidenceOutlineEdgeLabel(edge, outline.nodes))}</td>
+                          <td className="px-3 py-2">{toDisplay}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                {edgeRows.length === 0 ? (
+                  <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                    No edges parsed from the Mermaid source.
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </div>
   );

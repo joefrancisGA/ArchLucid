@@ -49,4 +49,5 @@ Optum management challenged delivery to prove BI/automation value in two steps: 
 - SecureNow architect plane: [`docs/library/SECURENOW_ARCHITECT_PLANE.md`](../library/SECURENOW_ARCHITECT_PLANE.md)
 - Diagram ↔ inventory reconciliation (IE-19): [`DiagramInfrastructureMatcher`](../../ArchLucid.Application/InfraEvidence/DiagramReconciliation/DiagramInfrastructureMatcher.cs), workbench at `/governance/infrastructure/diagram-reconcile`
 - Honesty / no-apply constraints: [`docs/library/SECURENOW_ARCHITECT_HOLD.md`](../library/SECURENOW_ARCHITECT_HOLD.md)
+- Data architecture vs data flow diagrams: [`docs/securenow/DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md`](../securenow/DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md)
 - Structured diagram intake MIME allowlist: [`SupportedContextDocumentContentTypes`](../../ArchLucid.ContextIngestion/SupportedContextDocumentContentTypes.cs)

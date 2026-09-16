@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
   SECURENOW_INFRASTRUCTURE_ASK_PATH,
+  SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
   SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
   SECURENOW_INFRASTRUCTURE_PATH,
   isGovernanceInfrastructureAskRoutePath,
@@ -14,8 +16,10 @@ describe("governance infrastructure route paths", () => {
   it("matches infrastructure hub and workbench routes", () => {
     expect(isGovernanceInfrastructureRoutePath(GOVERNANCE_INFRASTRUCTURE_PATH)).toBe(true);
     expect(isGovernanceInfrastructureRoutePath("/governance/infrastructure/drift")).toBe(true);
+    expect(isGovernanceInfrastructureRoutePath(GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH)).toBe(true);
     expect(isGovernanceInfrastructureRoutePath(SECURENOW_INFRASTRUCTURE_PATH)).toBe(true);
     expect(isGovernanceInfrastructureRoutePath(SECURENOW_INFRASTRUCTURE_DRIFT_PATH)).toBe(true);
+    expect(isGovernanceInfrastructureRoutePath(SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH)).toBe(true);
     expect(isGovernanceInfrastructureRoutePath("/governance/alerts")).toBe(false);
   });
 

@@ -89,6 +89,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     expect(infrastructureLinks.some((link) => link.href === "/")).toBe(false);
     expect(infrastructureLinks.some((link) => link.href === GOVERNANCE_INFRASTRUCTURE_PATH)).toBe(false);
     expect(infrastructureLinks[0]?.href).toBe("/infrastructure/resources");
+    expect(infrastructureLinks[1]?.href).toBe("/infrastructure/declared-connections");
     expect(infrastructureLinks.some((link) => link.label === OPERATOR_NAV_LINK_LABELS.infrastructureAsk)).toBe(true);
     expect(infrastructureLinks.some((link) => link.href === SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH)).toBe(true);
     expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/diagrams")).toBe(false);
@@ -108,6 +109,8 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/extract-upload")).toBe(false);
     expect(infrastructureLinks.some((link) => link.href === "/infrastructure/drift")).toBe(true);
     expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/drift")).toBe(false);
+    expect(infrastructureLinks.some((link) => link.href === "/infrastructure/declared-connections")).toBe(true);
+    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/declared-connections")).toBe(false);
     expect(securityLinks.map((link) => link.href)).toEqual([
       "/",
       "/security/assigned-to-me",

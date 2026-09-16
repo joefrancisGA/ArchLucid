@@ -1,8 +1,10 @@
-/** Light-mode inventory/architecture node fill — rich honey on a white canvas. */
+/** Light-mode inventory/architecture node fill — neutral slate surface on a white canvas. */
 export const ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE = {
-  fill: "#D4A84B",
-  border: "#6B5424",
+  fill: "#f8fafc",
+  border: "#cbd5e1",
   text: "#0f172a",
+  caption: "#475569",
+  edge: "#94a3b8",
 } as const;
 
 /** Dark-mode inventory/architecture node fill — slate on a dark canvas. */
@@ -10,6 +12,8 @@ export const ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE = {
   fill: "#334155",
   border: "#cbd5e1",
   text: "#f8fafc",
+  caption: "#cbd5e1",
+  edge: "#94a3b8",
 } as const;
 
 /** Horizontal gap between dagre-ranked nodes (Mermaid flowchart.nodeSpacing). */
@@ -24,8 +28,8 @@ export const ARCHITECTURE_DIAGRAM_MERMAID_PADDING = 10;
 /** Reserved space above subgraph titles so resource group labels sit above the frame. */
 export const ARCHITECTURE_DIAGRAM_MERMAID_SUBGRAPH_TITLE_TOP_MARGIN = 22;
 
-/** Uniform node box width for inventory/architecture Mermaid canvases (flowchart.wrappingWidth). */
-export const ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH = 400;
+/** Max node box width for inventory/architecture Mermaid canvases (flowchart.wrappingWidth). */
+export const ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH = 280;
 
 /** Shared Mermaid init for operator architecture and inventory diagrams. */
 export function createArchitectureDiagramMermaidConfig(dark: boolean): {
@@ -49,6 +53,8 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
   };
   themeVariables: Record<string, string>;
 } {
+  const node = dark ? ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE;
+
   return {
     startOnLoad: false,
     suppressErrorRendering: true,
@@ -73,15 +79,15 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
     },
     themeVariables: {
       fontSize: "15px",
-      // Transparent SVG plate — node fill comes from honey on the white viewport canvas.
+      // Transparent SVG plate — node fill comes from the neutral palette on the viewport canvas.
       background: "transparent",
-      primaryColor: dark ? "#334155" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill,
-      mainBkg: dark ? "#334155" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill,
+      primaryColor: node.fill,
+      mainBkg: node.fill,
       clusterBkg: dark ? "transparent" : "transparent",
       clusterBorder: dark ? "#94a3b8" : "#475569",
-      primaryBorderColor: dark ? "#cbd5e1" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.border,
-      lineColor: dark ? "#cbd5e1" : ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.border,
-      primaryTextColor: dark ? "#f8fafc" : "#0f172a",
+      primaryBorderColor: node.border,
+      lineColor: node.edge,
+      primaryTextColor: node.text,
       secondaryTextColor: dark ? "#e2e8f0" : "#1e293b",
     },
   };

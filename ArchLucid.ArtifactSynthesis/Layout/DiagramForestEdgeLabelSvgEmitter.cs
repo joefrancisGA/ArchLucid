@@ -3,6 +3,7 @@ using System.Xml.Linq;
 
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.Core.Diagrams;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
@@ -11,38 +12,65 @@ internal static class DiagramForestEdgeLabelSvgEmitter
     private const double LabelFontSize = 11.0d;
     private const double LabelPaddingX = 4.0d;
     private const double LabelPaddingY = 2.0d;
-    private const double LabelOffset = 8.0d;
+    private const double LabelOffset = 10.0d;
+    private const double LabelCollisionRadius = 12.0d;
+    private const double LabelNudge = 14.0d;
 
     public static XElement EmitEdgeGroup(
         XNamespace svgNamespace,
         DiagramEdge edge,
-        double fromX,
-        double fromY,
-        double toX,
-        double toY)
+        DiagramForestOrthogonalEdgeRouter.RouteResult route,
+        bool suppressOnPathLabel,
+        bool showArrow,
+        List<(double X, double Y)> placedLabelCenters)
     {
+        ArgumentNullException.ThrowIfNull(svgNamespace);
+        ArgumentNullException.ThrowIfNull(edge);
+        ArgumentNullException.ThrowIfNull(route);
+        ArgumentNullException.ThrowIfNull(placedLabelCenters);
+
+        string label = MermaidDiagramRenderer.EscapeLabel(edge.Label).Trim().ToLowerInvariant();
+        string title = label.Length == 0 ? "connector" : label;
+        bool isPeering = DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge);
+
         XElement edgeGroup = new(
             svgNamespace + "g",
             new XAttribute("class", "edge"),
-            new XElement(
-                svgNamespace + "line",
-                new XAttribute("x1", FormatCoordinate(fromX)),
-                new XAttribute("y1", FormatCoordinate(fromY)),
-                new XAttribute("x2", FormatCoordinate(toX)),
-                new XAttribute("y2", FormatCoordinate(toY)),
-                new XAttribute("stroke", "#64748b"),
-                new XAttribute("stroke-width", "1.5")));
+            new XElement(svgNamespace + "title", title));
 
-        string label = MermaidDiagramRenderer.EscapeLabel(edge.Label).Trim();
+        List<XAttribute> pathAttributes =
+            [
+                new XAttribute("d", route.PathData),
+                new XAttribute("fill", "none"),
+                new XAttribute("stroke", ArchitectureDiagramMermaidPalette.LightEdgeStroke),
+                new XAttribute("stroke-width", "1.5"),
+                new XAttribute("stroke-linejoin", "round"),
+                new XAttribute("class", "edge-path"),
+            ];
 
-        if (label.Length == 0)
+        if (isPeering)
+        {
+            pathAttributes.Add(new XAttribute("stroke-dasharray", "6 4"));
+        }
+
+        if (showArrow)
+        {
+            pathAttributes.Add(new XAttribute(
+                "marker-end",
+                $"url(#{DiagramForestEdgeArrowMarkerSvgEmitter.MarkerId})"));
+        }
+
+        edgeGroup.Add(new XElement(svgNamespace + "path", pathAttributes));
+
+        if (suppressOnPathLabel || label.Length == 0)
         {
             return edgeGroup;
         }
 
-        (double labelX, double labelY) = ResolveLabelAnchor(fromX, fromY, toX, toY);
+        (double labelX, double labelY) = ResolveLabelAnchor(route.Segments, placedLabelCenters);
         double labelWidth = EstimateLabelWidth(label);
         double labelHeight = LabelFontSize + (LabelPaddingY * 2.0d);
+        placedLabelCenters.Add((labelX, labelY));
 
         edgeGroup.Add(new XElement(
             svgNamespace + "g",
@@ -72,22 +100,67 @@ internal static class DiagramForestEdgeLabelSvgEmitter
     }
 
     private static (double X, double Y) ResolveLabelAnchor(
-        double fromX,
-        double fromY,
-        double toX,
-        double toY)
+        IReadOnlyList<(double X1, double Y1, double X2, double Y2)> segments,
+        List<(double X, double Y)> placedLabelCenters)
     {
-        double midX = (fromX + toX) / 2.0d;
-        double midY = (fromY + toY) / 2.0d;
-        double deltaX = toX - fromX;
-        double deltaY = toY - fromY;
+        (double X1, double Y1, double X2, double Y2) longest = segments
+            .OrderByDescending(segment => SegmentLength(segment))
+            .First();
+        double midX = (longest.X1 + longest.X2) / 2.0d;
+        double midY = (longest.Y1 + longest.Y2) / 2.0d;
+        double deltaX = longest.X2 - longest.X1;
+        double deltaY = longest.Y2 - longest.Y1;
+        double offsetX = 0.0d;
+        double offsetY = 0.0d;
 
         if (Math.Abs(deltaX) >= Math.Abs(deltaY))
         {
-            return (midX, midY - LabelOffset);
+            offsetY = -LabelOffset;
+        }
+        else
+        {
+            offsetX = LabelOffset;
         }
 
-        return (midX + LabelOffset, midY);
+        for (int attempt = 0; attempt < 5; attempt++)
+        {
+            double candidateX = midX + offsetX;
+            double candidateY = midY + offsetY;
+            bool collides = placedLabelCenters.Any(center =>
+                Distance(center.X, center.Y, candidateX, candidateY) < LabelCollisionRadius);
+
+            if (!collides)
+            {
+                return (candidateX, candidateY);
+            }
+
+            if (Math.Abs(deltaX) >= Math.Abs(deltaY))
+            {
+                midX += LabelNudge * Math.Sign(deltaX == 0 ? 1 : deltaX);
+            }
+            else
+            {
+                midY += LabelNudge * Math.Sign(deltaY == 0 ? 1 : deltaY);
+            }
+        }
+
+        return (midX + offsetX, midY + offsetY);
+    }
+
+    private static double SegmentLength((double X1, double Y1, double X2, double Y2) segment)
+    {
+        double deltaX = segment.X2 - segment.X1;
+        double deltaY = segment.Y2 - segment.Y1;
+
+        return Math.Sqrt((deltaX * deltaX) + (deltaY * deltaY));
+    }
+
+    private static double Distance(double x1, double y1, double x2, double y2)
+    {
+        double deltaX = x2 - x1;
+        double deltaY = y2 - y1;
+
+        return Math.Sqrt((deltaX * deltaX) + (deltaY * deltaY));
     }
 
     private static double EstimateLabelWidth(string label)

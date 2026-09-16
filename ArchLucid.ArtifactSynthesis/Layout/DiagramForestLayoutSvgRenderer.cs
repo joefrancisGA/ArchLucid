@@ -54,7 +54,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         }
 
         List<NodePlacement> placements = PlaceNodes(componentLayouts, resolvedOptions);
-        string svg = EmitSvg(placements, visibleEdges, resolvedOptions);
+        string svg = EmitSvg(placements, visibleEdges, renderableNodes, resolvedOptions);
 
         if (string.IsNullOrWhiteSpace(svg))
         {
@@ -126,12 +126,102 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         DiagramForestLayoutOptions options,
         DiagramForestCanvasLabelContext labelContext)
     {
-        if (DiagramLeftToRightLayerPlanner.ShouldLayoutLeftToRight(component))
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells =
+            DiagramResourceGroupPacker.PartitionCells(component);
+
+        if (cells.Count == 1 && cells[0].Nodes.Count == component.Count)
         {
-            return LayoutLeftToRight(component, visibleEdges, options, labelContext);
+            return LayoutCellInterior(cells[0].Nodes, visibleEdges, options, labelContext);
         }
 
-        return LayoutTopDown(component, visibleEdges, options, labelContext);
+        List<NodePlacement> placements = [];
+        double cellX = 0.0d;
+        double rowY = 0.0d;
+        double rowHeight = 0.0d;
+
+        foreach (DiagramResourceGroupPacker.ResourceGroupCell cell in cells)
+        {
+            List<NodePlacement> cellPlacements = LayoutCellInterior(cell.Nodes, visibleEdges, options, labelContext);
+            double cellWidth = cellPlacements.Count == 0
+                ? options.UniformNodeWidth
+                : cellPlacements.Max(placement => placement.X + placement.Width);
+            double cellHeight = cellPlacements.Count == 0
+                ? options.NodeHeight
+                : cellPlacements.Max(placement => placement.Y + placement.Height);
+
+            if (cellX > 0.0d && cellX + cellWidth > options.MaxNodeWidth * 3)
+            {
+                cellX = 0.0d;
+                rowY += rowHeight + options.ComponentVerticalGap;
+                rowHeight = 0.0d;
+            }
+
+            foreach (NodePlacement relative in cellPlacements)
+            {
+                placements.Add(relative with
+                {
+                    X = cellX + relative.X,
+                    Y = rowY + relative.Y,
+                });
+            }
+
+            cellX += cellWidth + options.ComponentHorizontalGap;
+            rowHeight = Math.Max(rowHeight, cellHeight);
+        }
+
+        return placements;
+    }
+
+    private static List<NodePlacement> LayoutCellInterior(
+        IReadOnlyList<DiagramNode> cellNodes,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
+    {
+        if (DiagramHubSpokeLayerPlanner.ShouldLayoutHubSpoke(cellNodes, visibleEdges))
+        {
+            return LayoutHubSpoke(cellNodes, visibleEdges, options, labelContext);
+        }
+
+        if (DiagramLeftToRightLayerPlanner.ShouldLayoutLeftToRight(cellNodes))
+        {
+            return LayoutLeftToRight(cellNodes, visibleEdges, options, labelContext);
+        }
+
+        return LayoutTopDown(cellNodes, visibleEdges, options, labelContext);
+    }
+
+    private static List<NodePlacement> LayoutHubSpoke(
+        IReadOnlyList<DiagramNode> component,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
+    {
+        DiagramNode hub = DiagramHubSpokeLayerPlanner.ResolveHub(component, visibleEdges)
+            ?? component.OrderBy(node => node.OrderKey).ThenBy(node => node.NodeId, StringComparer.Ordinal).First();
+        IReadOnlyList<DiagramNode> spokes = DiagramHubSpokeLayerPlanner.OrderSpokes(hub, component, visibleEdges);
+        List<NodePlacement> spokePlacements = [];
+        double spokeY = 0.0d;
+        double spokeColumnWidth = 0.0d;
+
+        foreach (DiagramNode spoke in spokes)
+        {
+            DiagramForestNodeMetrics metrics = DiagramForestNodeMetricsCalculator.Measure(spoke, options, labelContext);
+            spokePlacements.Add(new NodePlacement(spoke, 0, spokeY, metrics.Width, metrics.Height, metrics));
+            spokeColumnWidth = Math.Max(spokeColumnWidth, metrics.Width);
+            spokeY += metrics.Height + options.NodeVerticalGap;
+        }
+
+        DiagramForestNodeMetrics hubMetrics = DiagramForestNodeMetricsCalculator.Measure(hub, options, labelContext);
+        double spokeStackHeight = spokeY > 0.0d ? spokeY - options.NodeVerticalGap : hubMetrics.Height;
+        double hubY = Math.Max(0.0d, (spokeStackHeight - hubMetrics.Height) / 2.0d);
+        double hubX = spokeColumnWidth + options.NodeHorizontalGap;
+        List<NodePlacement> placements = spokePlacements
+            .Select(placement => placement with { X = (spokeColumnWidth - placement.Width) / 2.0d })
+            .ToList();
+        placements.Add(new NodePlacement(hub, hubX, hubY, hubMetrics.Width, hubMetrics.Height, hubMetrics));
+
+        return placements;
     }
 
     private static List<NodePlacement> LayoutTopDown(
@@ -154,7 +244,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         double maxWidth = placements.Count == 0 ? options.UniformNodeWidth : placements.Max(placement => placement.Width);
 
         return placements
-            .Select(placement => placement with { X = (maxWidth - placement.Width) / 2.0 })
+            .Select(placement => placement with { X = (maxWidth - placement.Width) / 2.0d })
             .ToList();
     }
 
@@ -241,6 +331,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     private static string EmitSvg(
         IReadOnlyList<NodePlacement> placements,
         IReadOnlyList<DiagramEdge> visibleEdges,
+        IReadOnlyList<DiagramNode> renderableNodes,
         DiagramForestLayoutOptions options)
     {
         if (placements.Count == 0)
@@ -252,42 +343,89 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         double minY = placements.Min(placement => placement.Y) - options.Padding;
         double maxX = placements.Max(placement => placement.X + placement.Width) + options.Padding;
         double maxY = placements.Max(placement => placement.Y + placement.Height) + options.Padding;
-        double viewBoxWidth = Math.Max(1, maxX - minX);
-        double viewBoxHeight = Math.Max(1, maxY - minY);
 
         Dictionary<string, NodePlacement> placementById = placements.ToDictionary(
             placement => placement.Node.NodeId,
             StringComparer.Ordinal);
+        List<DiagramResourceGroupPacker.NodePlacementBounds> placementBounds = placements
+            .Select(placement => new DiagramResourceGroupPacker.NodePlacementBounds(
+                placement.Node,
+                placement.X,
+                placement.Y,
+                placement.Width,
+                placement.Height))
+            .ToList();
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupFrameBounds> frameBounds =
+            DiagramResourceGroupPacker.ResolveFrameBounds(placementBounds);
+        HashSet<string> suppressedEdgeKeys = DiagramForestEdgeLabelCollapse.ResolveSuppressedEdgeKeys(
+            renderableNodes,
+            visibleEdges);
+        Dictionary<string, IReadOnlyList<DiagramNode>> componentByNodeId =
+            BuildComponentMembership(renderableNodes, visibleEdges);
+        Dictionary<string, DiagramNode> nodesById = renderableNodes.ToDictionary(
+            node => node.NodeId,
+            StringComparer.Ordinal);
+        bool hasDashedPeering = visibleEdges.Any(DiagramForestEdgeLabelCollapse.IsPeeringEdge);
+        bool hasPrivateEndpointAccess = placements.Any(placement => placement.Metrics.HasPrivateEndpointAccess);
+        IReadOnlyList<DiagramInventoryPictogramKind> usedKinds =
+            DiagramForestLegendSvgEmitter.CollectUsedKinds(placements.Select(placement => placement.Metrics).ToList());
 
         XNamespace svgNamespace = "http://www.w3.org/2000/svg";
         XElement root = new(
             svgNamespace + "svg",
-            new XAttribute("xmlns", svgNamespace.NamespaceName),
-            new XAttribute(
-                "viewBox",
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"{minX:0.###} {minY:0.###} {viewBoxWidth:0.###} {viewBoxHeight:0.###}")));
+            new XAttribute("xmlns", svgNamespace.NamespaceName));
+
+        DiagramForestEdgeArrowMarkerSvgEmitter.EmitDefs(svgNamespace, root);
+
+        if (frameBounds.Count > 0)
+        {
+            root.Add(DiagramForestResourceGroupFrameSvgEmitter.EmitLayer(svgNamespace, frameBounds));
+        }
 
         XElement edgeLayer = new(svgNamespace + "g", new XAttribute("class", "edges"));
+        List<(double X, double Y)> placedLabelCenters = [];
 
         foreach (DiagramEdge edge in visibleEdges)
         {
-            if (!placementById.TryGetValue(edge.FromNodeId, out NodePlacement? fromPlacement)
-                || !placementById.TryGetValue(edge.ToNodeId, out NodePlacement? toPlacement))
+            string routeFromNodeId = edge.FromNodeId;
+            string routeToNodeId = edge.ToNodeId;
+
+            if (DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge)
+                && componentByNodeId.TryGetValue(edge.FromNodeId, out IReadOnlyList<DiagramNode>? component))
+            {
+                (routeFromNodeId, routeToNodeId) = DiagramForestPeeringEdgeDirector.ResolveClientToServerEndpoints(
+                    edge,
+                    component,
+                    nodesById,
+                    visibleEdges);
+            }
+
+            if (!placementById.TryGetValue(routeFromNodeId, out NodePlacement? fromPlacement)
+                || !placementById.TryGetValue(routeToNodeId, out NodePlacement? toPlacement))
             {
                 continue;
             }
 
             (double fromX, double fromY, double toX, double toY) = ResolveEdgeEndpoints(fromPlacement, toPlacement);
+            IReadOnlyList<DiagramForestOrthogonalEdgeRouter.Rect> obstacles =
+                DiagramForestOrthogonalEdgeRouter.BuildObstacles(
+                    placementBounds,
+                    routeFromNodeId,
+                    routeToNodeId);
+            DiagramForestOrthogonalEdgeRouter.RouteResult route =
+                DiagramForestOrthogonalEdgeRouter.Route(fromX, fromY, toX, toY, obstacles);
+            bool suppressOnPathLabel = DiagramForestEdgeLabelCollapse.ShouldSuppressOnPathLabel(
+                edge,
+                suppressedEdgeKeys);
+            bool showArrow = true;
 
             edgeLayer.Add(DiagramForestEdgeLabelSvgEmitter.EmitEdgeGroup(
                 svgNamespace,
                 edge,
-                fromX,
-                fromY,
-                toX,
-                toY));
+                route,
+                suppressOnPathLabel,
+                showArrow,
+                placedLabelCenters));
         }
 
         root.Add(edgeLayer);
@@ -311,7 +449,43 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             root.Add(nodeGroup);
         }
 
+        double legendAnchorX = minX + 16.0d;
+        double legendAnchorY = maxY + 12.0d;
+        DiagramForestLegendSvgEmitter.LegendLayout legendLayout = DiagramForestLegendSvgEmitter.Emit(
+            svgNamespace,
+            new DiagramForestLegendSvgEmitter.LegendInput(usedKinds, hasPrivateEndpointAccess, hasDashedPeering),
+            legendAnchorX,
+            legendAnchorY);
+        root.Add(legendLayout.Group);
+
+        maxY = Math.Max(maxY, legendAnchorY + legendLayout.Height + options.Padding);
+        double viewBoxWidth = Math.Max(1, maxX - minX);
+        double viewBoxHeight = Math.Max(1, maxY - minY);
+        root.Add(new XAttribute(
+            "viewBox",
+            string.Create(
+                CultureInfo.InvariantCulture,
+                $"{minX:0.###} {minY:0.###} {viewBoxWidth:0.###} {viewBoxHeight:0.###}")));
+
         return root.ToString(SaveOptions.DisableFormatting);
+    }
+
+    private static Dictionary<string, IReadOnlyList<DiagramNode>> BuildComponentMembership(
+        IReadOnlyList<DiagramNode> nodes,
+        IReadOnlyList<DiagramEdge> visibleEdges)
+    {
+        List<List<DiagramNode>> components = DiagramComponentBuilder.BuildConnectedComponents(nodes, visibleEdges);
+        Dictionary<string, IReadOnlyList<DiagramNode>> componentByNodeId = new(StringComparer.Ordinal);
+
+        foreach (List<DiagramNode> component in components)
+        {
+            foreach (DiagramNode node in component)
+            {
+                componentByNodeId[node.NodeId] = component;
+            }
+        }
+
+        return componentByNodeId;
     }
 
     private static (double FromX, double FromY, double ToX, double ToY) ResolveEdgeEndpoints(
@@ -442,11 +616,6 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         }
 
         return ordered;
-    }
-
-    private static string FormatCoordinate(double value)
-    {
-        return value.ToString("0.###", CultureInfo.InvariantCulture);
     }
 
     private sealed record ComponentLayout(

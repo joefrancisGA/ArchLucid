@@ -164,6 +164,11 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE =
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL = "Snapshot" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE = "Select a snapshot" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY =
+  "Select an inventory snapshot first. The Executive diagram then renders automatically." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL = "Diagram mode" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL = "Starting Resource" as const;
@@ -174,6 +179,10 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER = "Pick a Start
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT =
   "To diagram one resource and its neighbors, choose Focus neighborhood on that row." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NODES_DISCLOSURE_LABEL = "Nodes" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_EDGES_DISCLOSURE_LABEL = "Edges" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE =
   "Pick a starting resource before rendering" as const;
@@ -215,10 +224,15 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_TOO_LARGE_BODY =
   "Pick a smaller existing workbench mode instead of zooming into an unreadable plate." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_TITLE =
-  "No identity resources in this snapshot." as const;
+  "Identity resources were omitted from this snapshot." as const;
 
+// Hosted capture drops user-assigned identities before the snapshot is saved.
+// Identity mode cannot put those rows back, so this copy names that gap.
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_BODY =
-  "Identity mode shows managed identities and authorization resources. This snapshot has none after inventory filters are lifted for this view. Try Executive, Full subscription, or Pick a Resource Group." as const;
+  "Identity mode draws only identity resource types, such as user-assigned managed identities. The collector omits those types when it saves the snapshot, so this view has nothing to draw. An identity attached to a virtual machine or app is a property on that resource, not its own box. Role assignments are stored separately and do not appear here. Try Executive, Full subscription, or Pick a Resource Group." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_RECORDED_TYPES_PREFIX =
+  "Default inventory lists hide these identity resource types:" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE = "Resource groups" as const;
 

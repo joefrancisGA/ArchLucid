@@ -91,7 +91,7 @@ export function prepareMermaidSvgForResponsiveLayout(svgMarkup: string): string 
   return new XMLSerializer().serializeToString(svg);
 }
 
-function readGraphicsElementBBox(element: SVGGraphicsElement): DOMRect | null {
+export function readGraphicsElementBBox(element: SVGGraphicsElement): DOMRect | null {
   try {
     const box = element.getBBox();
 
@@ -130,7 +130,7 @@ function unionDomRects(rects: DOMRect[]): DOMRect | null {
   return new DOMRect(minX, minY, maxX - minX, maxY - minY);
 }
 
-function mapLocalBBoxToSvgUserSpace(
+export function mapLocalBBoxToSvgUserSpace(
   element: SVGGraphicsElement,
   svg: SVGSVGElement,
   box: DOMRect,
@@ -163,6 +163,53 @@ function mapLocalBBoxToSvgUserSpace(
     point.x = x;
     point.y = y;
     const mapped = point.matrixTransform(toSvg);
+    minX = Math.min(minX, mapped.x);
+    minY = Math.min(minY, mapped.y);
+    maxX = Math.max(maxX, mapped.x);
+    maxY = Math.max(maxY, mapped.y);
+  }
+
+  if (!Number.isFinite(minX) || !Number.isFinite(minY) || maxX <= minX || maxY <= minY) {
+    return null;
+  }
+
+  return new DOMRect(minX, minY, maxX - minX, maxY - minY);
+}
+
+/** Maps an axis-aligned SVG user-space rectangle into an element's local coordinate system. */
+export function mapSvgUserSpaceRectToElementLocal(
+  element: SVGGraphicsElement,
+  svg: SVGSVGElement,
+  rect: DOMRect,
+): DOMRect | null {
+  if (typeof svg.createSVGPoint !== "function" || typeof element.getScreenCTM !== "function") {
+    return null;
+  }
+
+  const elementScreenCtm = element.getScreenCTM();
+  const svgScreenCtm = svg.getScreenCTM();
+
+  if (elementScreenCtm === null || svgScreenCtm === null) {
+    return null;
+  }
+
+  const toLocal = elementScreenCtm.inverse().multiply(svgScreenCtm);
+  const corners: Array<readonly [number, number]> = [
+    [rect.x, rect.y],
+    [rect.x + rect.width, rect.y],
+    [rect.x, rect.y + rect.height],
+    [rect.x + rect.width, rect.y + rect.height],
+  ];
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (const [x, y] of corners) {
+    const point = svg.createSVGPoint();
+    point.x = x;
+    point.y = y;
+    const mapped = point.matrixTransform(toLocal);
     minX = Math.min(minX, mapped.x);
     minY = Math.min(minY, mapped.y);
     maxX = Math.max(maxX, mapped.x);
@@ -720,13 +767,20 @@ export function fitMermaidSvgElementToViewport(
     MERMAID_VIEWPORT_MAX_FIT_SCALE,
     Math.max(MERMAID_VIEWPORT_MIN_FIT_SCALE, rawScale),
   );
-  const baseWidthPx = Math.max(1, Math.round(viewWidth * fitScale));
-  const baseHeightPx = Math.max(1, Math.round(viewHeight * fitScale));
-  const overflows = baseWidthPx > availableWidth || baseHeightPx > availableHeight;
-
-  applyMermaidSvgPixelSize(svg, baseWidthPx, baseHeightPx);
+  const baseWidthPx = Math.max(1, Math.round(viewWidth));
+  const baseHeightPx = Math.max(1, Math.round(viewHeight));
+  const overflows = viewWidth > availableWidth || viewHeight > availableHeight;
 
   return { baseWidthPx, baseHeightPx, inkMeasured: true, fitScale, overflows };
+}
+
+/** Default zoom after paint: 100% when ink fits; contain scale when it overflows. */
+export function resolveMermaidViewportDefaultZoom(baseFit: MermaidViewportFitDimensions): number {
+  if (!baseFit.inkMeasured) {
+    return 1;
+  }
+
+  return baseFit.overflows ? baseFit.fitScale : 1;
 }
 
 /** Drop cached ink viewBox when mermaid markup is replaced (new innerHTML). */
@@ -876,11 +930,9 @@ export function fitInventoryDiagramSvgElementToFocusNodeIds(
     MERMAID_VIEWPORT_MAX_FIT_SCALE,
     Math.max(MERMAID_VIEWPORT_MIN_FIT_SCALE, rawScale),
   );
-  const baseWidthPx = Math.max(1, Math.round(viewWidth * fitScale));
-  const baseHeightPx = Math.max(1, Math.round(viewHeight * fitScale));
-  const overflows = baseWidthPx > availableWidth || baseHeightPx > availableHeight;
-
-  applyMermaidSvgPixelSize(svg, baseWidthPx, baseHeightPx);
+  const baseWidthPx = Math.max(1, Math.round(viewWidth));
+  const baseHeightPx = Math.max(1, Math.round(viewHeight));
+  const overflows = viewWidth > availableWidth || viewHeight > availableHeight;
 
   return { baseWidthPx, baseHeightPx, inkMeasured: true, fitScale, overflows };
 }

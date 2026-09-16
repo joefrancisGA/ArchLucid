@@ -144,7 +144,7 @@ import { DiagramsWorkbenchClient } from "./DiagramsWorkbenchClient";
 
 describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
   it("renders skip link, picker sections, and sources strip", async () => {
-    searchParams = new URLSearchParams();
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DiagramsWorkbenchClient />);
 
     expect(screen.getByRole("link", { name: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL })).toHaveAttribute(

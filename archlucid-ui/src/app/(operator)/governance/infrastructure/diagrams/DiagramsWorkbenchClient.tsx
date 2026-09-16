@@ -37,7 +37,6 @@ import {
   type InfraEvidenceMermaidRenderQuery,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-api";
 import {
-  INFRA_DIAGRAMS_DEFAULT_MODE,
   INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM,
   INFRA_DIAGRAMS_MERMAID_MODE_PARAM,
   INFRA_DIAGRAMS_MERMAID_VIEW_PARAM,
@@ -55,6 +54,7 @@ import {
   parseInfraDiagramsMermaidViewFromSearch,
   parseInfraDiagramsSeedNodeIdFromSearch,
   parseInfraDiagramsSnapshotIdFromSearch,
+  resolveInfraDiagramsSelectedSnapshotId,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-filter-url";
 import {
   exceedsInfraEvidenceMermaidClientGuard,
@@ -165,6 +165,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE,
@@ -437,6 +439,12 @@ export function DiagramsWorkbenchClient() {
     [selectedSnapshotId, snapshots],
   );
 
+  const awaitingSnapshotSelection =
+    !loadingSnapshots
+    && !deepLinkedSnapshotMissing
+    && selectedSnapshotId.length === 0
+    && snapshots.length > 0;
+
   const formatSnapshotPickerLabel = useCallback(
     (snapshot: InfraEvidenceSnapshotSummary): string => {
       return formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot, ianaTimeZoneId);
@@ -648,6 +656,12 @@ export function DiagramsWorkbenchClient() {
     ],
   );
 
+  // Identity empty already explains the capture omit in the density coach.
+  const showGenericEmptyContent =
+    diagramContentEmpty
+    && renderResult?.status === "Succeeded"
+    && densityCoachPresentation?.variant !== "empty-identity";
+
   const cameraFocusNodeIds = useMemo(
     () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, visibleMermaidOutline),
     [appliedSeedNodeId, visibleMermaidOutline],
@@ -825,21 +839,9 @@ export function DiagramsWorkbenchClient() {
         if (!cancelled) {
           setSnapshots(items);
 
-          const urlSnapshotAvailable =
-            urlSnapshotId.length > 0 && items.some((snapshot) => snapshot.snapshotId === urlSnapshotId);
-
-          const resolvedSnapshotId =
-            urlSnapshotId.length > 0
-              ? urlSnapshotAvailable
-                ? urlSnapshotId
-                : ""
-              : items[0]?.snapshotId ?? "";
+          const resolvedSnapshotId = resolveInfraDiagramsSelectedSnapshotId(urlSnapshotId, items);
 
           setSelectedSnapshotId(resolvedSnapshotId);
-
-          if (urlSnapshotId.length === 0 && resolvedSnapshotId.length > 0) {
-            syncUrlRef.current({ snapshotId: resolvedSnapshotId });
-          }
         }
       } catch (error: unknown) {
         if (!cancelled) {
@@ -1500,7 +1502,7 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
-      {isInfraDiagramsExecutiveMode(selectedMode) ? (
+      {isInfraDiagramsExecutiveMode(selectedMode) && selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
         <section
           className={cn("flex flex-col gap-3", cnCard)}
           aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE}
@@ -1696,7 +1698,13 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
-      {dependencyNeighborhoodAwaitingSeed ? (
+      {awaitingSnapshotSelection ? (
+        <EnterpriseCompactEmptyState
+          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE}
+          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY}
+          testId="infra-diagrams-snapshot-prompt"
+        />
+      ) : dependencyNeighborhoodAwaitingSeed ? (
         <>
           {loadingSeedCatalog ? (
             <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400" aria-live="polite">
@@ -1708,6 +1716,7 @@ export function DiagramsWorkbenchClient() {
             <InfraEvidenceDiagramOutline
               outline={visibleSeedCatalogOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
+              defaultNodesOpen={true}
             />
           ) : (
             <EnterpriseCompactEmptyState
@@ -1739,6 +1748,8 @@ export function DiagramsWorkbenchClient() {
             <InfraEvidenceDiagramOutline
               outline={visibleMermaidOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
+              defaultNodesOpen={true}
+              defaultEdgesOpen={true}
             />
           ) : null}
         </>
@@ -1751,7 +1762,7 @@ export function DiagramsWorkbenchClient() {
           <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
           <span className={OPERATOR_TYPOGRAPHY.body}>Loading diagram…</span>
         </div>
-      ) : diagramContentEmpty && renderResult?.status === "Succeeded" ? (
+      ) : showGenericEmptyContent ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE}
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY}
@@ -1829,6 +1840,7 @@ export function DiagramsWorkbenchClient() {
             scopeContextLine={diagramScopeContextLine}
             canvasStale={renderInFlight}
             viewportControlsLayout="stacked"
+            cameraMaxHeightClassName="max-h-[42rem]"
             focusNodeIds={cameraFocusNodeIds}
             focusNonce={cameraFocusNonce}
             onRenderFailure={handleRenderFailure}

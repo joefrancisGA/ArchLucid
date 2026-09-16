@@ -305,19 +305,7 @@ internal static class HostedAzureInventoryResourcePropertyExpander
 
         foreach (JsonElement connection in connections.EnumerateArray())
         {
-            if (!connection.TryGetProperty("properties", out JsonElement connectionProperties)
-                || connectionProperties.ValueKind is not JsonValueKind.Object)
-            {
-                continue;
-            }
-
-            if (!connectionProperties.TryGetProperty("privateLinkServiceId", out JsonElement targetElement)
-                || targetElement.ValueKind is not JsonValueKind.String)
-            {
-                continue;
-            }
-
-            string? targetId = targetElement.GetString();
+            string? targetId = TryReadPrivateLinkServiceId(connection);
 
             if (string.IsNullOrWhiteSpace(targetId))
             {
@@ -333,6 +321,25 @@ internal static class HostedAzureInventoryResourcePropertyExpander
 
             index++;
         }
+    }
+
+    private static string? TryReadPrivateLinkServiceId(JsonElement connection)
+    {
+        if (connection.TryGetProperty("properties", out JsonElement connectionProperties)
+            && connectionProperties.ValueKind is JsonValueKind.Object
+            && connectionProperties.TryGetProperty("privateLinkServiceId", out JsonElement nestedTarget)
+            && nestedTarget.ValueKind is JsonValueKind.String)
+        {
+            return nestedTarget.GetString();
+        }
+
+        if (connection.TryGetProperty("privateLinkServiceId", out JsonElement directTarget)
+            && directTarget.ValueKind is JsonValueKind.String)
+        {
+            return directTarget.GetString();
+        }
+
+        return null;
     }
 
     private static void AddPrivateDnsLinkProperties(

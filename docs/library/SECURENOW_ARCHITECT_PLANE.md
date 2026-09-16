@@ -211,3 +211,4 @@ Pattern: deterministic evidence → graph projection → engines → AI interpre
 - [`KNOWLEDGE_GRAPH.md`](KNOWLEDGE_GRAPH.md)
 - [`../quality/HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md)
 - [`SECURENOW_ARCHITECT_HOLD.md`](SECURENOW_ARCHITECT_HOLD.md) — **SA-22** written hold (no apply, no mega-graph, not `IFindingEngine`)
+- [`../securenow/DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md`](../securenow/DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md) — infrastructure vs data architecture vs data flow diagrams (declared wiring, not observed traffic)

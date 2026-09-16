@@ -37,6 +37,12 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeInferenceSources.InventoryVnetPeering, "peering")]
     [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, "connects")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "connects")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "Connected to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "Likely connected to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, "Reads from")]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, "Writes to")]
     public void HumanizeLabel_maps_inventory_association_and_inference_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);

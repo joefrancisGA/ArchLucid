@@ -18,7 +18,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
     private readonly DiagramForestLayoutSvgRenderer renderer = new();
 
     [Fact]
-    public void Render_owner_shape_executive_vnets_use_uniform_node_width()
+    public void Render_owner_shape_executive_vnets_use_content_sized_node_widths()
     {
         GraphSnapshot graph = DiagramSparseComponentPackerTests.BuildExecutiveOwnerShapePeeringGraph();
         DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
@@ -27,32 +27,33 @@ public sealed class DiagramForestLayoutSvgRendererTests
         XDocument document = XDocument.Parse(result.Svg!);
         XElement root = document.Root!;
 
-        // Only node boxes count: edge-label backgrounds are also <rect> elements sized to their text.
-        List<string> rectWidths = root.Descendants()
+        List<double> cardWidths = root.Descendants()
             .Where(element =>
-                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
-                && string.Equals((string?)element.Attribute("class"), "node", StringComparison.Ordinal))
-            .SelectMany(group => group.Elements())
-            .Where(element => string.Equals(element.Name.LocalName, "rect", StringComparison.Ordinal))
-            .Select(element => element.Attribute("width")?.Value ?? string.Empty)
-            .Where(width => width.Length > 0)
+                string.Equals(element.Name.LocalName, "rect", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "node-card", StringComparison.Ordinal))
+            .Select(element => double.Parse(element.Attribute("width")?.Value ?? "0", CultureInfo.InvariantCulture))
             .ToList();
 
-        rectWidths.Should().HaveCount(11);
-        rectWidths.Distinct().Should().ContainSingle().Which.Should().Be("400");
+        cardWidths.Should().HaveCount(11);
+        cardWidths.Should().OnlyContain(width => width >= 160 && width <= 280);
+        cardWidths.Any(width => width < 400).Should().BeTrue();
+        cardWidths.Max().Should().BeLessThanOrEqualTo(280);
 
         List<string> rectFills = root.Descendants()
             .Where(element =>
-                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
-                && string.Equals((string?)element.Attribute("class"), "node", StringComparison.Ordinal))
-            .SelectMany(group => group.Elements())
-            .Where(element => string.Equals(element.Name.LocalName, "rect", StringComparison.Ordinal))
+                string.Equals(element.Name.LocalName, "rect", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "node-card", StringComparison.Ordinal))
             .Select(element => element.Attribute("fill")?.Value ?? string.Empty)
-            .Where(fill => fill.Length > 0)
             .ToList();
 
-        rectFills.Should().HaveCount(11);
         rectFills.Should().OnlyContain(fill => fill == ArchitectureDiagramMermaidPalette.LightNodeFill);
+        root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "rect", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "node-accent", StringComparison.Ordinal))
+            .Select(element => element.Attribute("fill")?.Value ?? string.Empty)
+            .Should()
+            .OnlyContain(fill => fill == "#0f766e");
     }
 
     [Fact]
@@ -77,13 +78,23 @@ public sealed class DiagramForestLayoutSvgRendererTests
             && string.Equals((string?)element.Attribute("class"), "node", StringComparison.Ordinal));
         nodeCount.Should().Be(11);
 
-        int edgeCount = root.Descendants()
+        int edgePathCount = root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge", StringComparison.Ordinal))
+            .SelectMany(group => group.Elements())
+            .Count(element =>
+                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge-path", StringComparison.Ordinal));
+        edgePathCount.Should().Be(6);
+
+        int straightEdgeLineCount = root.Descendants()
             .Where(element =>
                 string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
                 && string.Equals((string?)element.Attribute("class"), "edge", StringComparison.Ordinal))
             .SelectMany(group => group.Elements())
             .Count(element => string.Equals(element.Name.LocalName, "line", StringComparison.Ordinal));
-        edgeCount.Should().Be(6);
+        straightEdgeLineCount.Should().Be(0);
 
         root.Descendants()
             .Where(element =>
@@ -95,6 +106,35 @@ public sealed class DiagramForestLayoutSvgRendererTests
             .Should()
             .Be(6);
 
+        root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge-path", StringComparison.Ordinal))
+            .Select(element => element.Attribute("stroke-dasharray")?.Value ?? string.Empty)
+            .Should()
+            .OnlyContain(value => value == "6 4");
+
+        root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge-path", StringComparison.Ordinal))
+            .Select(element => element.Attribute("marker-end")?.Value ?? string.Empty)
+            .Should()
+            .OnlyContain(value => value.Contains("al-edge-arrow", StringComparison.Ordinal));
+
+        result.Svg.Should().Contain("class=\"legend\"");
+        result.Svg.Should().Contain("Network");
+        result.Svg.Should().Contain("Peering");
+
+        root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge-path", StringComparison.Ordinal))
+            .Select(element => element.Attribute("d")?.Value ?? string.Empty)
+            .Where(pathData => pathData.Length > 0)
+            .Should()
+            .NotContain(pathData => IsDiagonalChordPath(pathData));
+
         string[] viewBoxParts = (root.Attribute("viewBox")?.Value ?? string.Empty)
             .Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         viewBoxParts.Should().HaveCount(4);
@@ -102,8 +142,8 @@ public sealed class DiagramForestLayoutSvgRendererTests
         double viewBoxWidth = double.Parse(viewBoxParts[2], CultureInfo.InvariantCulture);
         double viewBoxHeight = double.Parse(viewBoxParts[3], CultureInfo.InvariantCulture);
 
-        viewBoxWidth.Should().BeLessThan(1600);
-        viewBoxHeight.Should().BeLessThan(800);
+        viewBoxWidth.Should().BeLessThan(3200);
+        viewBoxHeight.Should().BeLessThan(900);
     }
 
     [Fact]
@@ -192,7 +232,9 @@ public sealed class DiagramForestLayoutSvgRendererTests
         result.Svg.Should().Contain("<title>vm-userprovision-hi-nonprod01 (Virtual machine)</title>");
         result.Svg.Should().Contain("<title>sqldb-app (SQL database)</title>");
         result.Svg.Should().Contain("<tspan");
-        result.Svg.Should().NotContain("fill=\"#f8fafc\"");
+        result.Svg.Should().Contain("text-anchor=\"start\"");
+        result.Svg.Should().Contain("class=\"node-card\"");
+        result.Svg.Should().Contain($"fill=\"{ArchitectureDiagramMermaidPalette.LightNodeFill}\"");
     }
 
     [Fact]
@@ -229,9 +271,63 @@ public sealed class DiagramForestLayoutSvgRendererTests
         result.Svg.Should().Contain("rg-app-prod");
         result.Svg.Should().Contain("rg-data-prod");
         result.Svg.Should().Contain("font-weight=\"400\"");
-        result.Svg.Should().Contain("fill=\"#64748b\"");
+        result.Svg.Should().Contain($"fill=\"{ArchitectureDiagramMermaidPalette.LightNodeCaption}\"");
         result.Svg.Should().Contain("<title>vm-app (Virtual machine) · rg-app-prod</title>");
         result.Svg.Should().Contain("<title>sqldb-app (SQL database) · rg-data-prod</title>");
+    }
+
+    [Fact]
+    public void Render_frames_shared_resource_groups_and_suppresses_duplicate_captions()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "rg-frame",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "vm-1",
+                    Label = "vm-app-a",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    ArmResourceGroup = "rg-app-prod",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "vm-2",
+                    Label = "vm-app-b",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    ArmResourceGroup = "rg-app-prod",
+                    OrderKey = 1,
+                },
+                new DiagramNode
+                {
+                    NodeId = "db-1",
+                    Label = "sqldb-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Sql/servers/databases",
+                    ArmResourceGroup = "rg-data-prod",
+                    OrderKey = 2,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+        XDocument document = XDocument.Parse(result.Svg!);
+        XElement root = document.Root!;
+
+        root.Descendants()
+            .Count(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "rg-frame", StringComparison.Ordinal))
+            .Should()
+            .Be(1);
+        result.Svg.Should().Contain("rg-app-prod");
+        result.Svg.Should().Contain("rg-data-prod");
+        CountRgCaptionTexts(root, "rg-app-prod").Should().Be(0);
+        CountRgCaptionTexts(root, "rg-data-prod").Should().Be(1);
     }
 
     [Fact]
@@ -254,9 +350,19 @@ public sealed class DiagramForestLayoutSvgRendererTests
         };
 
         DiagramForestLayoutResult result = renderer.Render(ast);
+        XDocument document = XDocument.Parse(result.Svg!);
 
         result.Succeeded.Should().BeTrue();
-        result.Svg.Should().NotContain("fill=\"#64748b\"");
+        document.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "node", StringComparison.Ordinal))
+            .SelectMany(node => node.Descendants())
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "text", StringComparison.Ordinal)
+                && string.Equals(element.Attribute("font-weight")?.Value, "400", StringComparison.Ordinal))
+            .Should()
+            .BeEmpty();
         result.Svg.Should().Contain("<title>vm-app (Virtual machine)</title>");
     }
 
@@ -300,9 +406,12 @@ public sealed class DiagramForestLayoutSvgRendererTests
         DiagramForestLayoutResult result = renderer.Render(ast);
 
         result.Succeeded.Should().BeTrue();
+        result.Svg.Should().Contain("class=\"private-endpoint-access\"");
         result.Svg.Should().Contain("class=\"private-endpoint-lock\"");
+        result.Svg.Should().Contain("class=\"private-endpoint-arrow\"");
         result.Svg.Should().Contain("Private endpoint access");
         result.Svg.Should().NotContain("class=\"edge-label\"");
+        ParsePrivateEndpointLockTranslateX(result.Svg).Should().BeLessThan(ParsePrivateEndpointArrowStartX(result.Svg));
     }
 
     [Fact]
@@ -312,6 +421,25 @@ public sealed class DiagramForestLayoutSvgRendererTests
 
         result.Succeeded.Should().BeFalse();
         result.Error.Should().NotBeNullOrWhiteSpace();
+    }
+
+    private static bool IsDiagonalChordPath(string pathData)
+    {
+        bool hasLineStep = pathData.Contains(" L ", StringComparison.Ordinal);
+        bool hasHorizontalStep = pathData.Contains(" H ", StringComparison.Ordinal);
+        bool hasVerticalStep = pathData.Contains(" V ", StringComparison.Ordinal);
+
+        return hasLineStep && !hasHorizontalStep && !hasVerticalStep;
+    }
+
+    private static int CountRgCaptionTexts(XElement root, string resourceGroup)
+    {
+        return root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "text", StringComparison.Ordinal)
+                && string.Equals(element.Attribute("font-weight")?.Value, "400", StringComparison.Ordinal)
+                && string.Equals(element.Value, resourceGroup, StringComparison.Ordinal))
+            .Count();
     }
 
     private static double ParseTranslateX(string? transform)
@@ -343,6 +471,38 @@ public sealed class DiagramForestLayoutSvgRendererTests
         }
 
         return double.Parse(parts[1], CultureInfo.InvariantCulture);
+    }
+
+    private static double ParsePrivateEndpointLockTranslateX(string svg)
+    {
+        XElement root = XElement.Parse(svg);
+        XElement? lockGroup = root.Descendants()
+            .FirstOrDefault(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "private-endpoint-lock", StringComparison.Ordinal));
+
+        lockGroup.Should().NotBeNull();
+
+        return ParseTranslateX(lockGroup!.Attribute("transform")?.Value);
+    }
+
+    private static double ParsePrivateEndpointArrowStartX(string svg)
+    {
+        XElement root = XElement.Parse(svg);
+        XElement? arrowPath = root.Descendants()
+            .FirstOrDefault(element =>
+                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
+                && element.Parent is not null
+                && string.Equals((string?)element.Parent.Attribute("class"), "private-endpoint-arrow", StringComparison.Ordinal));
+
+        arrowPath.Should().NotBeNull();
+
+        string? pathData = arrowPath!.Attribute("d")?.Value;
+        pathData.Should().NotBeNullOrWhiteSpace();
+
+        string[] tokens = pathData!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        return double.Parse(tokens[1], CultureInfo.InvariantCulture);
     }
 
     private static GraphSnapshot BuildChainGraph(int nodeCount)
