@@ -127,7 +127,8 @@ public static class AzureInventoryNeverShowArmTypes
         IReadOnlySet<string>? privateLinkOnlyNicArmIds = null,
         bool retainIdentityDiagramArmTypes = false)
     {
-        if (retainIdentityDiagramArmTypes && IsIdentityArmResourceType(resourceType))
+        if (retainIdentityDiagramArmTypes
+            && (IsIdentityArmResourceType(resourceType) || IsIdentityArmResourceId(azureResourceId)))
         {
             return false;
         }
@@ -154,5 +155,16 @@ public static class AzureInventoryNeverShowArmTypes
 
         return resourceType.Contains("managedidentity", StringComparison.OrdinalIgnoreCase)
             || resourceType.Contains("authorization", StringComparison.OrdinalIgnoreCase);
+    }
+
+    internal static bool IsIdentityArmResourceId(string? azureResourceId)
+    {
+        if (string.IsNullOrWhiteSpace(azureResourceId))
+        {
+            return false;
+        }
+
+        return azureResourceId.Contains("managedidentity", StringComparison.OrdinalIgnoreCase)
+            || azureResourceId.Contains("/authorization/", StringComparison.OrdinalIgnoreCase);
     }
 }

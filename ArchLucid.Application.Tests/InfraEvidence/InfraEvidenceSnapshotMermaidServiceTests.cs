@@ -1397,6 +1397,32 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
+    public async Task Identity_mode_sets_inventory_forest_layout_with_managed_identity_labels()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildIdentitySnapshot(resourceCount: 12);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds(),
+            graphvizLayoutRenderer: new NullGraphvizLayoutRenderer());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, cancellationToken: CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.Mode.Should().Be("identity");
+        result.Value.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded.ToString());
+        result.Value.LayoutEngine.Should().Be("inventory-forest");
+        result.Value.LayoutSvg.Should().NotBeNullOrWhiteSpace();
+        result.Value.LayoutSvg.Should().Contain("g class=\"node\"");
+        result.Value.LayoutSvg.Should().Contain("mi-eastus-0");
+        result.Value.LayoutSvg.Should().Contain("mi-eastus-11");
+        result.Value.Mermaid.Should().NotContain("subgraph");
+        result.Value.Mermaid.Should().Contain("mi-eastus-0");
+    }
+
+    [Fact]
     public async Task Executive_mode_sets_inventory_forest_layout_without_graphviz()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);

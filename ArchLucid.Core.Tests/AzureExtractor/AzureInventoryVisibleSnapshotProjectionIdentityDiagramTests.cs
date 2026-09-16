@@ -48,4 +48,36 @@ public sealed class AzureInventoryVisibleSnapshotProjectionIdentityDiagramTests
         projected.Resources.Should().ContainSingle(resource =>
             resource.ResourceType == "Microsoft.ManagedIdentity/userAssignedIdentities");
     }
+
+    [Fact]
+    public void Apply_retainIdentityDiagramArmTypes_keeps_managed_identity_when_resource_type_missing()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = Guid.NewGuid(),
+                TenantId = Guid.NewGuid(),
+                SubscriptionId = "sub",
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = Guid.NewGuid(),
+                    TenantId = Guid.NewGuid(),
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/app-identity",
+                    ResourceType = string.Empty,
+                },
+            ],
+        };
+
+        AzureInventorySnapshotDetailReadModel projected =
+            AzureInventoryVisibleSnapshotProjection.Apply(snapshot, retainIdentityDiagramArmTypes: true);
+
+        projected.Resources.Should().ContainSingle();
+        projected.Resources[0].AzureResourceId.Should().Contain("userAssignedIdentities");
+    }
 }

@@ -512,6 +512,21 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_identity_mode_forest_layout_renders_managed_identity_labels()
+    {
+        GraphSnapshot graph = BuildIdentitySparseManagedIdentityGraph(resourceGroupCount: 12);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Identity);
+        DiagramForestLayoutResult forestLayout = new DiagramForestLayoutSvgRenderer().Render(ast);
+
+        ast.Subgraphs.Should().BeEmpty();
+        forestLayout.Succeeded.Should().BeTrue();
+        forestLayout.Svg.Should().Contain("mi-eastus-0");
+        forestLayout.Svg.Should().Contain("mi-eastus-11");
+        forestLayout.Svg.Should().Contain("g class=\"node\"");
+    }
+
+    [Fact]
     public void Compile_identity_mode_includes_user_assigned_identities_without_pre_stamped_category()
     {
         GraphSnapshot graph = new()
