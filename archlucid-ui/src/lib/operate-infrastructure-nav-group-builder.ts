@@ -8,12 +8,14 @@ import {
   Network,
   SquareStack,
   Upload,
+  Waypoints,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
@@ -51,6 +53,14 @@ export class OperateInfrastructureNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
           title: "Search cloud resources and open the per-resource evidence hub",
           icon: Boxes,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/governance/infrastructure/declared-connections" as typeof GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.infrastructureDeclaredConnections,
+          title: "Declare ConnectsTo or DependsOn edges between resources not visible in Azure inventory",
+          icon: Waypoints,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },
