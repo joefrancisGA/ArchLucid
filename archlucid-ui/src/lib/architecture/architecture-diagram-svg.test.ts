@@ -128,6 +128,28 @@ describe("architecture-diagram-svg", () => {
     expect(converted.match(/<tspan /g)?.length ?? 0).toBeGreaterThan(1);
   });
 
+  it("bolds resource group cluster captions above the dashed frame", () => {
+    const svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200">',
+      '  <g class="cluster" id="rg-anly-edw">',
+      '    <rect class="cluster_rect" x="20" y="60" width="200" height="100"/>',
+      '    <g class="cluster-label" transform="translate(30, 150)">',
+      '      <foreignObject width="160" height="24" x="-80" y="-12">',
+      '        <div xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">RG anly-edw-ppd-hi</span></div>',
+      "      </foreignObject>",
+      "    </g>",
+      "  </g>",
+      "</svg>",
+    ].join("");
+
+    const converted = replaceMermaidForeignObjectLabelsWithSvgText(svg);
+
+    expect(converted).toContain('class="clusterLabelText"');
+    expect(converted).toContain('font-weight="700"');
+    expect(converted).toContain('text-anchor="start"');
+    expect(converted).toMatch(/y="5[0-9]"/);
+  });
+
   it("wraps native SVG node text that overruns a narrow rect", () => {
     const svg = [
       '<svg xmlns="http://www.w3.org/2000/svg">',

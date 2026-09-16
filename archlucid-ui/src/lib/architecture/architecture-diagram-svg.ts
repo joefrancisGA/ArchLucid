@@ -9,6 +9,7 @@ import {
 export type ArchitectureDiagramSvgPaletteOptions = {
   readonly dark?: boolean;
 };
+import { enhanceInventoryClusterLabels } from "@/lib/architecture/enhance-inventory-cluster-labels";
 import {
   ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX,
   architectureDiagramLabelLineHeightPx,
@@ -349,6 +350,7 @@ export function replaceMermaidForeignObjectLabelsWithSvgText(
   }
 
   wrapExistingNodeSvgLabels(svg, parsed);
+  enhanceInventoryClusterLabels(svg);
   paintUnfilledSvgText(svg);
   paintArchitectureDiagramNodePalette(svg, dark);
   svg.setAttribute("overflow", "visible");
