@@ -300,10 +300,10 @@ Future `associationType` values follow IE-RF-01 catalog rules:
 |----------|--------|
 | Network topology via ARG + type-scoped ARM lists | **In progress / partially shipped** (IE-RF-01–11) |
 | **Roadmap anchor:** MI + RBAC + PE + ARM (not Service Connector) | **Recommended** — this document |
-| Extend ARM platform wiring (diagnostics, Event Grid, ADF, Logic) | **Recommended P0** |
-| MI + RBAC authorization graph in architecture evidence | **Recommended P1** — extends SecureNow-adjacent materialization |
-| App settings hostname parse (redacted `config/list`) | **Feasible P2** — requires RBAC + trust-center update |
-| Service Connector edges | **Opportunistic P3** when linkers exist |
+| Extend ARM platform wiring (diagnostics, Event Grid, ADF, Logic) | **Recommended P0** — implementation prompts **AX-DE-01–AX-DE-18** |
+| MI + RBAC authorization graph in architecture evidence | **Recommended P1** — **AX-DE-03** (extends SecureNow-adjacent materialization) |
+| App settings hostname parse (redacted `config/list`) | **Feasible P2** — **AX-DE-18** (Tier 1 only; hosted stays GET-only) |
+| Service Connector edges | **Opportunistic P3** — **AX-DE-17** when linkers exist |
 | Config file / Kudu / secret harvest | **Not planned** near-term |
 | Complete runtime dependency graph from inventory | **Infeasible** |
 
@@ -315,7 +315,8 @@ Future `associationType` values follow IE-RF-01 catalog rules:
 |----------|-----------|
 | [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md) | Plane invariants, one collector |
 | [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) | Tier 1/2 roles, never-collected categories |
-| [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md) | IE-RF backlog |
-| [`INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md) | P0 ARM relationship collection |
+| [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md) | IE-RF + AX-DE backlog |
+| [`INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md) | P0 ARM relationship collection (network) |
+| [`AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md) | **AX-DE-01–18** implementation prompts (not this feasibility doc) |
 | [`SECURENOW_ARCHITECT_PLANE.md`](../library/SECURENOW_ARCHITECT_PLANE.md) | Privilege / path engines consuming RBAC rows |
 | [`../library/CLOUD_CONNECTIONS.md`](../library/customer-facing/CLOUD_CONNECTIONS.md) | Customer-facing Tier 1 vs Tier 2 |
