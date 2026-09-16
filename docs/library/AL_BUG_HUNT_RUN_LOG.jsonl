@@ -4425,3 +4425,4 @@
 {"at":"2026-09-16T13:47:03.30193Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-16T13:48:42.2245534Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-16T13:49:43.2733996Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-09-16T13:49:49.5760944Z","zoneId":"core-costing","outcome":"seed-only"}
