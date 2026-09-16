@@ -91,12 +91,7 @@ public static class DiagramForestEdgeLabelCollapse
             return false;
         }
 
-        if (collapsedEdgeKeys.Contains(EdgeKey(edge)))
-        {
-            return true;
-        }
-
-        return IsPeeringEdge(edge);
+        return collapsedEdgeKeys.Contains(EdgeKey(edge));
     }
 
     private static Dictionary<string, string> BuildComponentRoots(
