@@ -76,7 +76,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-rg-caption-<s
 
 ## Follow-on (do not implement from this file)
 
-RG **bounding boxes** on Full subscription require forest to pack by resource group, then draw frames. That is not IDR. Do not start it from an IDR chat. Do not treat IDR captions as “resource groups are shown on diagrams” in the bounding-box sense.
+RG **bounding boxes** on Full subscription require forest to pack by resource group, then draw frames. That is **IDA-08**, not IDR. Do not start it from an IDR chat. Do not treat IDR captions as “resource groups are shown on diagrams” in the bounding-box sense.
 
 ## After each prompt
 
