@@ -273,9 +273,10 @@ If the factory both reads and writes, two arrows — not one undirected “Conne
 
 | Slice | Diagram | Notes |
 |-------|---------|--------|
-| App → MI → SQL / storage | 3 (second flow family) + security overlay | Connection-point **P1**; copy = may access |
-| Databricks / Fabric / Power BI | 2 and 3 Transform / Analytics / Consumer | Only when the resource is in the snapshot |
-| Zone labels Raw / Curated | 3 | Inference; say so |
+| App → MI → SQL / storage | 3 (second flow family) + security overlay | Connection-point **P1**; copy = may access — **AX-DE-03** |
+| Remaining ADF / Synapse / Event Grid / Logic / messaging | 3 | Collector prompts **AX-DE-05–13** — do not collect from SN-DF chats |
+| Databricks / Fabric / Power BI | 2 and 3 Transform / Analytics / Consumer | Only when the resource is in the snapshot — **AX-DE-16** |
+| Zone labels Raw / Curated | 3 | Inference; say so — dataset location **AX-DE-08** |
 | Security overlay | Example 3 | Identity on the edge first (MI); classification only with a real source |
 | Completeness warnings in UI | Operator trust | `adf-pipeline-flows-missing`, unresolved targets |
 
@@ -301,6 +302,7 @@ If the factory both reads and writes, two arrows — not one undirected “Conne
 | Data-mode prompts (SQL in Data mode) | IE-DD-01–04 — **do not re-run from SN-DF chats** |
 | Data flow / architecture **implementation prompts** | [`../architecture/SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md) (**SN-DF-01–08**) |
 | App/MI/RBAC feasibility | [`AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md) |
+| Extractor collection to feed these pictures | [`../architecture/AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](../architecture/AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md) (**AX-DE-01–18**) — **do not implement from SN-DF chats** |
 
 ## 9. Success criteria
 

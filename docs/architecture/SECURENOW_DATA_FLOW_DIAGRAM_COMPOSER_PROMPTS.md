@@ -59,6 +59,7 @@
 - Empty Transform/Consumer is correct until Databricks/Fabric/Power BI exist in the snapshot.
 - Classification, TLS version, and classic process DFDs are out of scope (hold).
 - Do not hide PE/VNet on Network mode. Hide them on Data Flow / Data Architecture only.
+- New Azure collection (Synapse pipelines, Event Grid, remaining ADF connectors, MI+RBAC) is **AX-DE**, not this set.
 
 ---
 
