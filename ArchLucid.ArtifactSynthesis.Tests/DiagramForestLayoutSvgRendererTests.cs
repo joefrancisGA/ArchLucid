@@ -118,6 +118,16 @@ public sealed class DiagramForestLayoutSvgRendererTests
         result.Svg.Should().Contain("Network");
         result.Svg.Should().Contain("Peering");
 
+        root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge-path", StringComparison.Ordinal))
+            .Select(element => element.Attribute("d")?.Value ?? string.Empty)
+            .Where(pathData => pathData.Length > 0)
+            .Any(pathData => IsStraightForestEdgePath(pathData))
+            .Should()
+            .BeTrue();
+
         string[] viewBoxParts = (root.Attribute("viewBox")?.Value ?? string.Empty)
             .Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         viewBoxParts.Should().HaveCount(4);
@@ -401,6 +411,14 @@ public sealed class DiagramForestLayoutSvgRendererTests
 
         result.Succeeded.Should().BeFalse();
         result.Error.Should().NotBeNullOrWhiteSpace();
+    }
+
+    private static bool IsStraightForestEdgePath(string pathData)
+    {
+        bool hasHorizontalStep = pathData.Contains(" H ", StringComparison.Ordinal);
+        bool hasVerticalStep = pathData.Contains(" V ", StringComparison.Ordinal);
+
+        return !(hasHorizontalStep && hasVerticalStep);
     }
 
     private static int CountRgCaptionTexts(XElement root, string resourceGroup)
