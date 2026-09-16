@@ -224,10 +224,15 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_TOO_LARGE_BODY =
   "Pick a smaller existing workbench mode instead of zooming into an unreadable plate." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_TITLE =
-  "No identity resources in this snapshot." as const;
+  "Identity resources were omitted from this snapshot." as const;
 
+// Hosted capture drops user-assigned identities before the snapshot is saved.
+// Identity mode cannot put those rows back, so this copy names that gap.
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_BODY =
-  "Identity mode shows managed identities and authorization resources. This snapshot has none after inventory filters are lifted for this view. Try Executive, Full subscription, or Pick a Resource Group." as const;
+  "Identity mode draws only identity resource types, such as user-assigned managed identities. The collector omits those types when it saves the snapshot, so this view has nothing to draw. An identity attached to a virtual machine or app is a property on that resource, not its own box. Role assignments are stored separately and do not appear here. Try Executive, Full subscription, or Pick a Resource Group." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_RECORDED_TYPES_PREFIX =
+  "Default inventory lists hide these identity resource types:" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE = "Resource groups" as const;
 
