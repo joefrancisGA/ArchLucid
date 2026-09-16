@@ -12,6 +12,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { DiagramsWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient";
 
@@ -250,8 +252,62 @@ describe("DiagramsWorkbenchClient", () => {
     expect(scopeContext.textContent ?? "").not.toMatch(/\d{1,2}:\d{2}:\d{2}/);
   });
 
+  it("does not auto-select a snapshot or render the Executive diagram until the user chooses one", async () => {
+    searchParams = new URLSearchParams();
+    render(<DiagramsWorkbenchClient />);
+
+    const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
+
+    expect(picker).toHaveValue("");
+    expect(await screen.findByTestId("infra-diagrams-snapshot-prompt")).toHaveTextContent(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE,
+    );
+    expect(screen.getByTestId("infra-diagrams-snapshot-prompt")).toHaveTextContent(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY,
+    );
+    expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-snapshot-id-readout")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-executive-always-show")).not.toBeInTheDocument();
+    expect(fetchInfraEvidenceMermaidRenderMock).not.toHaveBeenCalled();
+  });
+
+  it("renders the Executive diagram after the user chooses a snapshot", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "flowchart LR\n  A-->B",
+      metrics: {
+        nodeCount: 2,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 120,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams();
+    render(<DiagramsWorkbenchClient />);
+
+    const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
+
+    fireEvent.change(picker, { target: { value: "11111111-1111-1111-1111-111111111111" } });
+
+    expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-snapshot-prompt")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-executive-always-show")).toBeInTheDocument();
+    expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+      "11111111-1111-1111-1111-111111111111",
+      expect.objectContaining({ mode: "executive" }),
+    );
+  });
+
   it("renders snapshot picker and partitioned fallback cards", async () => {
-    searchParams = new URLSearchParams("mermaidMode=full");
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=full");
     render(<DiagramsWorkbenchClient />);
 
     expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD)).toBeInTheDocument();
@@ -300,7 +356,7 @@ describe("DiagramsWorkbenchClient", () => {
       fallbackArtifacts: [],
     }));
 
-    searchParams = new URLSearchParams();
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DiagramsWorkbenchClient />);
 
     await waitFor(() => {

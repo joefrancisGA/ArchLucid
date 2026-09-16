@@ -57,6 +57,27 @@ export function parseInfraDiagramsSnapshotIdFromSearch(raw: string | null | unde
   return raw.trim();
 }
 
+/**
+ * Honor a deep-linked snapshot only when it is in the loaded catalog.
+ * Do not fall back to the first listed snapshot — the operator must choose one.
+ */
+export function resolveInfraDiagramsSelectedSnapshotId(
+  urlSnapshotId: string,
+  snapshots: readonly { readonly snapshotId: string }[],
+): string {
+  const trimmed = urlSnapshotId.trim();
+
+  if (trimmed.length === 0) {
+    return "";
+  }
+
+  if (!snapshots.some((snapshot) => snapshot.snapshotId === trimmed)) {
+    return "";
+  }
+
+  return trimmed;
+}
+
 export function parseInfraDiagramsCloudResourceIdFromSearch(raw: string | null | undefined): string {
   if (raw === null || raw === undefined) {
     return "";
