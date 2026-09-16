@@ -136,6 +136,72 @@ public static class AzureInventoryAdfLinkedServiceTargetResolver
             yield return $"{name.ToLowerInvariant()}.dev.azuresynapse.net";
             yield return $"{name.ToLowerInvariant()}.sql.azuresynapse.net";
         }
+
+        if (resourceType.Equals("Microsoft.DocumentDB/databaseAccounts", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(name))
+        {
+            yield return $"{name.ToLowerInvariant()}.documents.azure.com";
+            yield return $"{name.ToLowerInvariant()}.mongo.cosmos.azure.com";
+        }
+
+        if (resourceType.Equals("Microsoft.DBforPostgreSQL/servers", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(name))
+        {
+            yield return $"{name.ToLowerInvariant()}.postgres.database.azure.com";
+        }
+
+        if (resourceType.Equals("Microsoft.DBforPostgreSQL/flexibleServers", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(name))
+        {
+            yield return $"{name.ToLowerInvariant()}.postgres.database.azure.com";
+        }
+
+        if (resourceType.Equals("Microsoft.DBforMySQL/servers", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(name))
+        {
+            yield return $"{name.ToLowerInvariant()}.mysql.database.azure.com";
+        }
+
+        if (resourceType.Equals("Microsoft.DBforMySQL/flexibleServers", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(name))
+        {
+            yield return $"{name.ToLowerInvariant()}.mysql.database.azure.com";
+        }
+
+        if (resourceType.Equals("Microsoft.Cache/redis", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(name))
+        {
+            yield return $"{name.ToLowerInvariant()}.redis.cache.windows.net";
+        }
+
+        if (resourceType.Equals("Microsoft.EventHub/namespaces", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(name))
+        {
+            yield return $"{name.ToLowerInvariant()}.servicebus.windows.net";
+        }
+
+        if (resourceType.Equals("Microsoft.ServiceBus/namespaces", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(name))
+        {
+            yield return $"{name.ToLowerInvariant()}.servicebus.windows.net";
+        }
+
+        if (resourceType.Equals("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(name))
+        {
+            yield return $"{name.ToLowerInvariant()}.azurewebsites.net";
+        }
+
+        if (resourceType.Equals("Microsoft.Databricks/workspaces", StringComparison.OrdinalIgnoreCase)
+            && resource.Properties.TryGetValue("workspaceUrl", out string? workspaceUrl)
+            && !string.IsNullOrWhiteSpace(workspaceUrl))
+        {
+            if (Uri.TryCreate(workspaceUrl.Trim(), UriKind.Absolute, out Uri? parsedUri)
+                && !string.IsNullOrWhiteSpace(parsedUri.Host))
+            {
+                yield return parsedUri.Host.ToLowerInvariant();
+            }
+        }
     }
 
     private static string Normalize(string armId)

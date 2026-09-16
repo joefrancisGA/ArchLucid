@@ -21,4 +21,27 @@ public enum AzureInventoryRelationshipArmKind
     BackendPoolMember = 13,
     DataFactory = 14,
     LinkedServiceTarget = 15,
+
+    /// <summary>App Service, Function, VM, VMSS, Container App, AKS, ADF, Databricks — compute with MI.</summary>
+    Compute = 16,
+
+    /// <summary>Log Analytics workspace, storage account, or Event Hub diagnostic sink.</summary>
+    DiagnosticDestination = 17,
+
+    EventGridTopic = 18,
+    LogicApp = 19,
+    MessagingNamespace = 20,
+    DatabricksWorkspace = 21,
+    ServiceConnectorTarget = 22,
+    IntegrationRuntime = 23,
+
+    /// <summary>Synapse workspace — factory cousin for linked-service edges (AX-DE).</summary>
+    SynapseWorkspace = 24,
+    KeyVault = 25,
+    NatGateway = 26,
+    AzureFirewall = 27,
+    FrontDoor = 28,
+    ContainerApp = 29,
+    ContainerAppEnvironment = 30,
+    EventHub = 31,
 }
