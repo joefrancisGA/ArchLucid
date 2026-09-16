@@ -524,6 +524,79 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
+  it('keeps manual zoom changes on overflow diagrams instead of snapping back to contain fit', async () => {
+    replaceMock.mockClear();
+
+    const largeSvg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 2000">' +
+      '<g class="node"><rect width="3000" height="2000" fill="#eee"/><text class="nodeLabel">Forest</text></g>' +
+      '</svg>';
+
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      configurable: true,
+      get: (): number => 1180,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      configurable: true,
+      get: (): number => 576,
+    });
+    Object.defineProperty(SVGGraphicsElement.prototype, 'getBBox', {
+      configurable: true,
+      writable: true,
+      value: (): DOMRect =>
+        ({
+          x: 0,
+          y: 0,
+          width: 3000,
+          height: 2000,
+          top: 0,
+          right: 3000,
+          bottom: 2000,
+          left: 0,
+          toJSON: () => ({}),
+        }) as DOMRect,
+    });
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        layoutSvg={largeSvg}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    const zoomInput = screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL) as HTMLInputElement;
+    const initialZoom = Number(zoomInput.value);
+
+    expect(initialZoom).toBeLessThan(100);
+
+    replaceMock.mockClear();
+
+    const viewport = screen.getByTestId('architecture-diagram-viewport');
+
+    fireEvent.click(within(viewport).getByRole('button', { name: ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL }));
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalled();
+    });
+
+    const lastHref = String(replaceMock.mock.calls.at(-1)?.[0] ?? '');
+    const urlZoomMatch = lastHref.match(/diagZoom=([\d.]+)/u);
+    const urlZoomPercent = Math.round(Number.parseFloat(urlZoomMatch?.[1] ?? '0') * 100);
+
+    expect(urlZoomPercent).toBeGreaterThan(initialZoom);
+
+    await waitFor(() => {
+      expect(Number(zoomInput.value)).toBe(urlZoomPercent);
+    });
+  });
+
   it('keeps URL zoom on first mermaid mount and resets to 100 percent when the source changes', async () => {
     searchParamsMock.set('diagZoom', '0.30');
 

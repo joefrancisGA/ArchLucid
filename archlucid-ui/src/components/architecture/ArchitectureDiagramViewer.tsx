@@ -64,6 +64,7 @@ import { cn } from '@/lib/utils';
 const ZOOM_STEP = 0.1;
 const MAX_INITIAL_FIT_RETRIES = 8;
 const INITIAL_FIT_RETRY_DELAY_MS = 120;
+const EMPTY_FOCUS_NODE_IDS: readonly string[] = [];
 
 export type ArchitectureDiagramSourceKind = 'html' | 'image';
 
@@ -249,6 +250,7 @@ function useDiagramZoomState(pathname: string) {
 
   return {
     zoom,
+    zoomRef,
     zoomPercent,
     zoomPercentInputValue,
     atMinZoom,
@@ -342,7 +344,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     scopeContextLine = null,
     canvasStale = false,
     viewportControlsLayout = 'overlay',
-    focusNodeIds = [],
+    focusNodeIds = EMPTY_FOCUS_NODE_IDS,
     focusNonce = 0,
     cameraMaxHeightClassName = 'max-h-[36rem]',
   } = props;
@@ -373,6 +375,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   const previousLayoutSvgRef = useRef<string | null>(null);
   const defaultContainZoomRef = useRef<number>(1);
   const autoZoomGenerationRef = useRef<string>('');
+  const lastInitialFitSvgRef = useRef<string | null>(null);
+  const lastInitialFitFocusNonceRef = useRef<number>(focusNonce);
+  const syncInlineViewportCameraRef = useRef<() => boolean>(() => false);
 
   fullscreenOpenRef.current = fullscreenOpen;
 
@@ -479,12 +484,13 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   const syncInlineViewportCamera = useCallback((): boolean => {
     const host = svgHostRef.current;
     const viewport = viewportRef.current;
+    const zoomLevel = zoom.zoomRef.current;
 
     if (host === null || viewport === null) {
       return false;
     }
 
-    const baseFit = syncMermaidViewportCamera(host, viewport, zoom.zoom, focusNodeIds);
+    const baseFit = syncMermaidViewportCamera(host, viewport, zoomLevel, focusNodeIds);
 
     if (mermaidViewportFitNeedsRetry(baseFit)) {
       if (baseFit !== null) {
@@ -495,20 +501,23 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     }
 
     baseFitRef.current = baseFit;
-    reportMermaidViewportPaintFailure(baseFit, zoom.zoom, setRenderError, onRenderFailure);
+    reportMermaidViewportPaintFailure(baseFit, zoomLevel, setRenderError, onRenderFailure);
 
     return true;
-  }, [focusNodeIds, onRenderFailure, zoom.zoom]);
+  }, [focusNodeIds, onRenderFailure, zoom.zoomRef]);
+
+  syncInlineViewportCameraRef.current = syncInlineViewportCamera;
 
   const syncFullscreenViewportCamera = useCallback((): boolean => {
     const host = fullscreenHostRef.current;
     const viewport = fullscreenViewportRef.current;
+    const zoomLevel = zoom.zoomRef.current;
 
     if (host === null || viewport === null) {
       return false;
     }
 
-    const baseFit = syncMermaidViewportCamera(host, viewport, zoom.zoom);
+    const baseFit = syncMermaidViewportCamera(host, viewport, zoomLevel);
 
     if (mermaidViewportFitNeedsRetry(baseFit)) {
       return false;
@@ -517,7 +526,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     fullscreenBaseFitRef.current = baseFit;
 
     return true;
-  }, [zoom.zoom]);
+  }, [zoom.zoomRef]);
 
   const fitToView = useCallback(() => {
     const defaultZoom = defaultContainZoomRef.current;
@@ -542,14 +551,24 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       return;
     }
 
-    mermaidFitRetryCountRef.current = 0;
-    baseFitRef.current = null;
-    autoZoomGenerationRef.current = '';
+    const generationKey = sanitizedSvg;
+    const diagramContentChanged =
+      lastInitialFitSvgRef.current !== generationKey || lastInitialFitFocusNonceRef.current !== focusNonce;
+
+    if (diagramContentChanged) {
+      lastInitialFitSvgRef.current = generationKey;
+      lastInitialFitFocusNonceRef.current = focusNonce;
+      mermaidFitRetryCountRef.current = 0;
+      baseFitRef.current = null;
+      autoZoomGenerationRef.current = '';
+    }
 
     if (mermaidFitRetryTimeoutRef.current !== null) {
       window.clearTimeout(mermaidFitRetryTimeoutRef.current);
       mermaidFitRetryTimeoutRef.current = null;
     }
+
+    const syncCamera = (): boolean => syncInlineViewportCameraRef.current();
 
     const scheduleFitRetry = (): void => {
       mermaidFitRetryCountRef.current += 1;
@@ -557,7 +576,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       if (mermaidFitRetryCountRef.current > MAX_INITIAL_FIT_RETRIES) {
         reportMermaidViewportPaintFailure(
           baseFitRef.current,
-          zoom.zoom,
+          zoom.zoomRef.current,
           setRenderError,
           onRenderFailure,
         );
@@ -577,12 +596,11 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     };
 
     const applyInitialViewportZoom = (): boolean => {
-      if (!syncInlineViewportCamera()) {
+      if (!syncCamera()) {
         return false;
       }
 
       const baseFit = baseFitRef.current;
-      const generationKey = sanitizedSvg ?? '';
 
       if (baseFit === null || !baseFit.inkMeasured || autoZoomGenerationRef.current === generationKey) {
         return true;
@@ -592,9 +610,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       const defaultZoom = resolveMermaidViewportDefaultZoom(baseFit);
       defaultContainZoomRef.current = defaultZoom;
 
-      if (baseFit.overflows && Math.abs(zoom.zoom - defaultZoom) > 0.001) {
+      if (baseFit.overflows && Math.abs(zoom.zoomRef.current - defaultZoom) > 0.001) {
         zoom.setZoomClamped(defaultZoom);
-        syncInlineViewportCamera();
+        syncCamera();
       }
 
       return true;
@@ -610,7 +628,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     };
 
     const runInitialFit = (): void => {
-      clearInkCacheOnHost();
+      if (diagramContentChanged) {
+        clearInkCacheOnHost();
+      }
 
       if (applyInitialViewportZoom()) {
         scrollViewportToOrigin(viewportRef.current);
@@ -634,7 +654,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       viewport === null || typeof ResizeObserver === 'undefined'
         ? null
         : new ResizeObserver(() => {
-            syncInlineViewportCamera();
+            syncInlineViewportCameraRef.current();
           });
 
     if (resizeObserver !== null && viewport !== null) {
@@ -649,7 +669,15 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
       resizeObserver?.disconnect();
     };
-  }, [focusNonce, onRenderFailure, sanitizedSvg, syncInlineViewportCamera, zoom.zoom]);
+  }, [focusNonce, onRenderFailure, sanitizedSvg, zoom.setZoomClamped, zoom.zoomRef]);
+
+  useLayoutEffect(() => {
+    if (sanitizedSvg === null) {
+      return;
+    }
+
+    syncInlineViewportCamera();
+  }, [sanitizedSvg, syncInlineViewportCamera, zoom.zoom]);
 
   useLayoutEffect(() => {
     if (!fullscreenOpen || sanitizedSvg === null) {
