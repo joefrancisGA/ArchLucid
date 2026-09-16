@@ -435,6 +435,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.locked"] = locked.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "source", out JsonElement source)
+                || TryGetPropertyIgnoreCase(res, "source", out source))
+            && source.ValueKind == JsonValueKind.String)
+        {
+            string? sourceText = source.GetString();
+
+            if (!string.IsNullOrWhiteSpace(sourceText))
+                properties["tf.source"] = sourceText.Trim();
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
