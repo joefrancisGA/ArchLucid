@@ -379,6 +379,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.import_id"] = importIdText.Trim();
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "retain", out JsonElement retain)
+                || TryGetPropertyIgnoreCase(res, "retain", out retain))
+            && (retain.ValueKind == JsonValueKind.True || retain.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.retain"] = retain.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
