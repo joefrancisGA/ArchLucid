@@ -15,13 +15,15 @@ public static class AzureInventoryAdfLinkedServiceTargetResolver
         out ProvenanceKind provenanceKind,
         out string associationType)
     {
-        targetArmId = null;
-        provenanceKind = ProvenanceKind.ObservedFact;
-        associationType = AzureInventoryRelationshipAssociationTypes.AdfLinkedService;
-
         ArgumentNullException.ThrowIfNull(row);
         ArgumentNullException.ThrowIfNull(visibleArmIdByNormalizedId);
         ArgumentNullException.ThrowIfNull(hostToArmId);
+
+        targetArmId = null;
+        provenanceKind = ProvenanceKind.ObservedFact;
+        associationType = AzureInventoryPipelineStyleEdgeAssociationSelector.SelectLinkedServiceAssociationType(
+            row.FactoryResourceId,
+            inferred: false);
 
         if (!string.IsNullOrWhiteSpace(row.TargetResourceId)
             && visibleArmIdByNormalizedId.ContainsKey(Normalize(row.TargetResourceId)))
@@ -51,7 +53,9 @@ public static class AzureInventoryAdfLinkedServiceTargetResolver
 
         targetArmId = matchedArmId;
         provenanceKind = ProvenanceKind.DeterministicInference;
-        associationType = AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred;
+        associationType = AzureInventoryPipelineStyleEdgeAssociationSelector.SelectLinkedServiceAssociationType(
+            row.FactoryResourceId,
+            inferred: true);
 
         return true;
     }

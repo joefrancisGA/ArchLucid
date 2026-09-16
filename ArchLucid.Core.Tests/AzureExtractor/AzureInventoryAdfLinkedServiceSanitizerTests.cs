@@ -41,7 +41,7 @@ public sealed class AzureInventoryAdfLinkedServiceSanitizerTests
     }
 
     [Fact]
-    public void TrySanitizeFromArmResource_marks_unsupported_connector()
+    public void TrySanitizeFromArmResource_extracts_rest_service_host()
     {
         JsonElement linkedService = JsonDocument.Parse(
             """
@@ -49,6 +49,65 @@ public sealed class AzureInventoryAdfLinkedServiceSanitizerTests
               "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/linkedservices/RestLS",
               "name": "RestLS",
               "properties": { "type": "RestService", "typeProperties": { "url": "https://example.com" } }
+            }
+            """).RootElement;
+
+        AzureInventoryAdfLinkedServiceSanitizer.TrySanitizeFromArmResource(FactoryId, linkedService, out AzureInventoryAdfLinkedServiceRow? row)
+            .Should().BeTrue();
+
+        row!.TargetHost.Should().Be("example.com");
+        row.CollectionStatus.Should().Be(AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded);
+    }
+
+    [Fact]
+    public void TrySanitizeFromArmResource_extracts_cosmos_host()
+    {
+        JsonElement linkedService = JsonDocument.Parse(
+            """
+            {
+              "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/linkedservices/CosmosLS",
+              "name": "CosmosLS",
+              "properties": {
+                "type": "CosmosDb",
+                "typeProperties": { "accountEndpoint": "https://cosmos1.documents.azure.com:443/" }
+              }
+            }
+            """).RootElement;
+
+        AzureInventoryAdfLinkedServiceSanitizer.TrySanitizeFromArmResource(FactoryId, linkedService, out AzureInventoryAdfLinkedServiceRow? row)
+            .Should().BeTrue();
+
+        row!.TargetHost.Should().Be("cosmos1.documents.azure.com");
+        row.CollectionStatus.Should().Be(AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded);
+    }
+
+    [Fact]
+    public void TrySanitizeFromArmResource_marks_sap_table_without_host_as_target_unresolved()
+    {
+        JsonElement linkedService = JsonDocument.Parse(
+            """
+            {
+              "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/linkedservices/SapLS",
+              "name": "SapLS",
+              "properties": { "type": "SapTable", "typeProperties": { "systemNumber": "00" } }
+            }
+            """).RootElement;
+
+        AzureInventoryAdfLinkedServiceSanitizer.TrySanitizeFromArmResource(FactoryId, linkedService, out AzureInventoryAdfLinkedServiceRow? row)
+            .Should().BeTrue();
+
+        row!.CollectionStatus.Should().Be(AzureInventoryAdfLinkedServiceCollectionStatus.TargetUnresolved);
+    }
+
+    [Fact]
+    public void TrySanitizeFromArmResource_marks_unsupported_connector()
+    {
+        JsonElement linkedService = JsonDocument.Parse(
+            """
+            {
+              "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/linkedservices/CustomLS",
+              "name": "CustomLS",
+              "properties": { "type": "CustomConnector", "typeProperties": { } }
             }
             """).RootElement;
 

@@ -220,7 +220,19 @@ public sealed class AzureInventorySnapshotMaterializer(
                     inventory.AdfDatasets,
                     inventory.AdfDatasetsFilePresent,
                     inventory.AdfPipelineFlows,
-                    inventory.AdfPipelineFlowsFilePresent);
+                    inventory.AdfPipelineFlowsFilePresent,
+                    inventory.AdfTriggers,
+                    inventory.AdfTriggersFilePresent,
+                    inventory.AdfIntegrationRuntimes,
+                    inventory.AdfIntegrationRuntimesFilePresent,
+                    inventory.AdfDataflows,
+                    inventory.AdfDataflowsFilePresent,
+                    inventory.EventGridSubscriptions,
+                    inventory.EventGridSubscriptionsFilePresent,
+                    inventory.LogicAppConnections,
+                    inventory.LogicAppConnectionsFilePresent,
+                    inventory.MessagingAssociations,
+                    inventory.MessagingAssociationsFilePresent);
 
             HashSet<string> visibleArmIds = AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(resources);
             List<AzureInventoryResourceRelationshipWrite> visibleRelationships =

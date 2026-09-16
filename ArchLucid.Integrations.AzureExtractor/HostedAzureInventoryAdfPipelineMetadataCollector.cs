@@ -12,8 +12,6 @@ namespace ArchLucid.Integrations.AzureExtractor;
 /// </summary>
 public static class HostedAzureInventoryAdfPipelineMetadataCollector
 {
-    private const string DataFactoryResourceType = "Microsoft.DataFactory/factories";
-
     public static async Task<HostedAzureInventoryAdfPipelineMetadataCollectResult> CollectAsync(
         IHostedAzureArmReadClient armReadClient,
         string accessToken,
@@ -31,7 +29,7 @@ public static class HostedAzureInventoryAdfPipelineMetadataCollector
 
         foreach (HostedAzureArmResourceRecord resource in resources)
         {
-            if (!resource.ResourceType.Equals(DataFactoryResourceType, StringComparison.OrdinalIgnoreCase))
+            if (!AzureInventoryFactoryStyleResourceCatalog.IsFactoryStyleResourceType(resource.ResourceType))
             {
                 continue;
             }
@@ -61,12 +59,33 @@ public static class HostedAzureInventoryAdfPipelineMetadataCollector
                     }
                 }
 
+                IReadOnlyList<JsonElement> dataflowResources = await armReadClient
+                    .ListFactoryDataflowsAsync(accessToken, factoryResourceId, cancellationToken)
+                    .ConfigureAwait(false);
+
+                List<AzureInventoryAdfDataflowRow> dataflowRows = [];
+
+                foreach (JsonElement dataflowResource in dataflowResources)
+                {
+                    if (AzureInventoryAdfDataflowExtractor.TryExtractFromArmResource(
+                            factoryResourceId,
+                            dataflowResource,
+                            out AzureInventoryAdfDataflowRow? dataflowRow)
+                        && dataflowRow is not null)
+                    {
+                        dataflowRows.Add(dataflowRow);
+                    }
+                }
+
                 IReadOnlyList<JsonElement> pipelineResources = await armReadClient
                     .ListFactoryPipelinesAsync(accessToken, factoryResourceId, cancellationToken)
                     .ConfigureAwait(false);
 
                 pipelineFlows.AddRange(
-                    AzureInventoryAdfPipelineFlowExtractor.ExtractFlows(factoryResourceId, pipelineResources));
+                    AzureInventoryAdfPipelineFlowExtractor.ExtractFlows(
+                        factoryResourceId,
+                        pipelineResources,
+                        dataflowRows: dataflowRows));
             }
             catch (HttpRequestException ex)
             {

@@ -146,7 +146,9 @@ public sealed class HostedAzureExtractorZipBuilderTests
                 new HostedAzureArmDiagnosticSettingRecord(
                     "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
                     "diag-to-law",
-                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1"),
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1",
+                    null,
+                    null),
             ]);
 
         using MemoryStream stream = new(zipBytes);
@@ -221,6 +223,67 @@ public sealed class HostedAzureExtractorZipBuilderTests
     }
 
     [Fact]
+    public void BuildZip_writes_adf_extended_metadata_companion_entries()
+    {
+        const string factoryId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+
+        AzureInventoryAdfTriggerRow trigger = new()
+        {
+            FactoryResourceId = factoryId,
+            TriggerResourceId = $"{factoryId}/triggers/ScheduleTrigger",
+            TriggerName = "ScheduleTrigger",
+            TriggerType = "ScheduleTrigger",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        AzureInventoryAdfIntegrationRuntimeRow integrationRuntime = new()
+        {
+            FactoryResourceId = factoryId,
+            IntegrationRuntimeResourceId = $"{factoryId}/integrationruntimes/AutoResolveIntegrationRuntime",
+            Name = "AutoResolveIntegrationRuntime",
+            Kind = "Managed",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        AzureInventoryAdfDataflowRow dataflow = new()
+        {
+            FactoryResourceId = factoryId,
+            DataflowResourceId = $"{factoryId}/dataflows/df1",
+            DataflowName = "df1",
+            SourceLinkedServiceNames = ["BlobLS"],
+            SinkLinkedServiceNames = ["SqlLS"],
+        };
+
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            adfTriggers: [trigger],
+            adfIntegrationRuntimes: [integrationRuntime],
+            adfDataflows: [dataflow]);
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream triggerStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.AdfTriggers)!.Open();
+        using StreamReader triggerReader = new(triggerStream);
+        using JsonDocument triggerDocument = JsonDocument.Parse(triggerReader.ReadToEnd());
+        Assert.Equal("ScheduleTrigger", triggerDocument.RootElement[0].GetProperty("triggerName").GetString());
+
+        using Stream runtimeStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.AdfIntegrationRuntimes)!.Open();
+        using StreamReader runtimeReader = new(runtimeStream);
+        using JsonDocument runtimeDocument = JsonDocument.Parse(runtimeReader.ReadToEnd());
+        Assert.Equal("AutoResolveIntegrationRuntime", runtimeDocument.RootElement[0].GetProperty("name").GetString());
+
+        using Stream dataflowStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.AdfDataflows)!.Open();
+        using StreamReader dataflowReader = new(dataflowStream);
+        using JsonDocument dataflowDocument = JsonDocument.Parse(dataflowReader.ReadToEnd());
+        Assert.Equal("df1", dataflowDocument.RootElement[0].GetProperty("dataflowName").GetString());
+    }
+
+    [Fact]
     public void BuildZip_writes_adf_dataset_and_pipeline_flow_companion_entries()
     {
         AzureInventoryAdfDatasetRow dataset = new()
@@ -265,5 +328,70 @@ public sealed class HostedAzureExtractorZipBuilderTests
         using StreamReader flowReader = new(flowStream);
         using JsonDocument flowDocument = JsonDocument.Parse(flowReader.ReadToEnd());
         Assert.Equal("Read", flowDocument.RootElement[0].GetProperty("flowDirection").GetString());
+    }
+
+    [Fact]
+    public void BuildZip_writes_diagram_enrichment_companion_entries()
+    {
+        const string topicId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.EventGrid/topics/orders";
+        const string workflowId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Logic/workflows/notify";
+        const string namespaceId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ehns1";
+
+        AzureInventoryEventGridSubscriptionRow eventGridSubscription = new()
+        {
+            SourceResourceId = topicId,
+            SubscriptionName = "to-storage",
+            DestinationKind = "StorageQueue",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        AzureInventoryLogicAppConnectionRow logicAppConnection = new()
+        {
+            WorkflowResourceId = workflowId,
+            WorkflowName = "notify",
+            ConnectionName = "azureblob",
+            ConnectionResourceId =
+                "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Web/connections/azureblob",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        AzureInventoryMessagingAssociationRow messagingAssociation = new()
+        {
+            ParentResourceId = namespaceId,
+            ChildResourceId = $"{namespaceId}/eventhubs/orders",
+            ChildName = "orders",
+            ChildType = AzureInventoryMessagingAssociationTypes.EventHub,
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            eventGridSubscriptions: [eventGridSubscription],
+            logicAppConnections: [logicAppConnection],
+            messagingAssociations: [messagingAssociation]);
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream eventGridStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.EventGridSubscriptions)!.Open();
+        using StreamReader eventGridReader = new(eventGridStream);
+        using JsonDocument eventGridDocument = JsonDocument.Parse(eventGridReader.ReadToEnd());
+        Assert.Equal("to-storage", eventGridDocument.RootElement[0].GetProperty("subscriptionName").GetString());
+
+        using Stream logicAppStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.LogicAppConnections)!.Open();
+        using StreamReader logicAppReader = new(logicAppStream);
+        using JsonDocument logicAppDocument = JsonDocument.Parse(logicAppReader.ReadToEnd());
+        Assert.Equal("azureblob", logicAppDocument.RootElement[0].GetProperty("connectionName").GetString());
+
+        using Stream messagingStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.MessagingAssociations)!.Open();
+        using StreamReader messagingReader = new(messagingStream);
+        using JsonDocument messagingDocument = JsonDocument.Parse(messagingReader.ReadToEnd());
+        Assert.Equal("orders", messagingDocument.RootElement[0].GetProperty("childName").GetString());
     }
 }

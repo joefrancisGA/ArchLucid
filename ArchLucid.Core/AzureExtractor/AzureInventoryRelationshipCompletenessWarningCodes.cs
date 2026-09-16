@@ -28,4 +28,10 @@ public static class AzureInventoryRelationshipCompletenessWarningCodes
     public const string AdfPipelineFlowsMissing = "adf-pipeline-flows-missing";
 
     public const string AdfDatasetsMissing = "adf-datasets-missing";
+
+    public const string AdfTriggersMissing = "adf-triggers-missing";
+
+    public const string SynapsePipelineFlowsMissing = "synapse-pipeline-flows-missing";
+
+    public const string LogicAppStandardNotCollected = "logic-app-standard-not-collected";
 }

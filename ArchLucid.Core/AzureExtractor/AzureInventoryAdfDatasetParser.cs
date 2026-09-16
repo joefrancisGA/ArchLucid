@@ -53,6 +53,11 @@ public static class AzureInventoryAdfDatasetParser
             DatasetResourceId = datasetResourceId.Trim(),
             DatasetName = datasetName.Trim(),
             LinkedServiceName = linkedServiceName.Trim(),
+            LocationKind = TryReadBoundedString(element, "locationKind", MaxNameLength),
+            ContainerOrFilesystem = TryReadBoundedString(element, "containerOrFilesystem", MaxNameLength),
+            FolderPath = TryReadBoundedString(element, "folderPath", MaxNameLength),
+            TableName = TryReadBoundedString(element, "tableName", MaxNameLength),
+            SchemaName = TryReadBoundedString(element, "schemaName", MaxNameLength),
             CollectionStatus = collectionStatus.Trim(),
             WarningCode = TryReadBoundedString(element, "warningCode", MaxNameLength),
         };

@@ -58,7 +58,7 @@ public interface IHostedAzureArmReadClient
         string managementGroupId,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<HostedAzureArmDiagnosticSettingRecord>> ListDiagnosticSettingsAsync(
+    Task<HostedAzureDiagnosticSettingsCollectResult> ListDiagnosticSettingsAsync(
         string accessToken,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         CancellationToken cancellationToken);
@@ -121,6 +121,21 @@ public interface IHostedAzureArmReadClient
     ///     GET pipelines for one Data Factory (ADF pipeline direction wiring).
     /// </summary>
     Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryPipelinesAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryTriggersAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryIntegrationRuntimesAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryDataflowsAsync(
         string accessToken,
         string factoryResourceId,
         CancellationToken cancellationToken);

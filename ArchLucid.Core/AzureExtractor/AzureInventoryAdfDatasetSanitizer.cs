@@ -45,12 +45,24 @@ public static class AzureInventoryAdfDatasetSanitizer
             return true;
         }
 
+        (
+            string? locationKind,
+            string? containerOrFilesystem,
+            string? folderPath,
+            string? tableName,
+            string? schemaName) = AzureInventoryAdfDatasetLocationExtractor.Extract(propertiesElement);
+
         row = new AzureInventoryAdfDatasetRow
         {
             FactoryResourceId = factoryResourceId.Trim(),
             DatasetResourceId = datasetResourceId.Trim(),
             DatasetName = datasetName.Trim(),
             LinkedServiceName = linkedServiceName.Trim(),
+            LocationKind = locationKind,
+            ContainerOrFilesystem = containerOrFilesystem,
+            FolderPath = folderPath,
+            TableName = tableName,
+            SchemaName = schemaName,
             CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
         };
 

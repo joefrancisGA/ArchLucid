@@ -33,7 +33,19 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryAdfDatasetRow>? adfDatasets = null,
         bool adfDatasetsFilePresent = false,
         IReadOnlyList<AzureInventoryAdfPipelineFlowRow>? adfPipelineFlows = null,
-        bool adfPipelineFlowsFilePresent = false)
+        bool adfPipelineFlowsFilePresent = false,
+        IReadOnlyList<AzureInventoryAdfTriggerRow>? adfTriggers = null,
+        bool adfTriggersFilePresent = false,
+        IReadOnlyList<AzureInventoryAdfIntegrationRuntimeRow>? adfIntegrationRuntimes = null,
+        bool adfIntegrationRuntimesFilePresent = false,
+        IReadOnlyList<AzureInventoryAdfDataflowRow>? adfDataflows = null,
+        bool adfDataflowsFilePresent = false,
+        IReadOnlyList<AzureInventoryEventGridSubscriptionRow>? eventGridSubscriptions = null,
+        bool eventGridSubscriptionsFilePresent = false,
+        IReadOnlyList<AzureInventoryLogicAppConnectionRow>? logicAppConnections = null,
+        bool logicAppConnectionsFilePresent = false,
+        IReadOnlyList<AzureInventoryMessagingAssociationRow>? messagingAssociations = null,
+        bool messagingAssociationsFilePresent = false)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
@@ -47,6 +59,12 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryAdfLinkedServiceRow> adfRows = adfLinkedServices ?? [];
         IReadOnlyList<AzureInventoryAdfDatasetRow> adfDatasetRows = adfDatasets ?? [];
         IReadOnlyList<AzureInventoryAdfPipelineFlowRow> adfFlowRows = adfPipelineFlows ?? [];
+        IReadOnlyList<AzureInventoryAdfTriggerRow> adfTriggerRows = adfTriggers ?? [];
+        IReadOnlyList<AzureInventoryAdfIntegrationRuntimeRow> adfIntegrationRuntimeRows = adfIntegrationRuntimes ?? [];
+        IReadOnlyList<AzureInventoryAdfDataflowRow> adfDataflowRows = adfDataflows ?? [];
+        IReadOnlyList<AzureInventoryEventGridSubscriptionRow> eventGridSubscriptionRows = eventGridSubscriptions ?? [];
+        IReadOnlyList<AzureInventoryLogicAppConnectionRow> logicAppConnectionRows = logicAppConnections ?? [];
+        IReadOnlyList<AzureInventoryMessagingAssociationRow> messagingAssociationRows = messagingAssociations ?? [];
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
@@ -75,6 +93,22 @@ public static class AzureInventorySecurityEdgeMaterializer
         if (!adfPipelineFlowsFilePresent)
         {
             warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.AdfPipelineFlowsMissing);
+        }
+
+        if (!adfTriggersFilePresent
+            && resources.Any(resource =>
+                resource.ResourceType.Equals(
+                    AzureInventoryFactoryStyleResourceCatalog.DataFactoryResourceType,
+                    StringComparison.OrdinalIgnoreCase)))
+        {
+            warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.AdfTriggersMissing);
+        }
+
+        if (!adfPipelineFlowsFilePresent
+            && resources.Any(resource =>
+                AzureInventoryFactoryStyleResourceCatalog.IsSynapseWorkspaceResourceType(resource.ResourceType)))
+        {
+            warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.SynapsePipelineFlowsMissing);
         }
 
         foreach (AzureExtractorExtendedResourceRow resource in resources)
@@ -134,6 +168,36 @@ public static class AzureInventorySecurityEdgeMaterializer
             relationships,
             relationshipKeys,
             directionalFactoryTargetPairs,
+            warnings);
+
+        AzureInventoryAdfTriggerEdgeMapper.MapTriggers(
+            adfTriggerRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryAdfIntegrationRuntimeEdgeMapper.MapIntegrationRuntimes(
+            adfIntegrationRuntimeRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryEventGridSubscriptionEdgeMapper.MapSubscriptions(
+            eventGridSubscriptionRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryLogicAppConnectionEdgeMapper.MapConnections(
+            logicAppConnectionRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryMessagingAssociationEdgeMapper.MapAssociations(
+            messagingAssociationRows,
+            relationships,
+            relationshipKeys,
             warnings);
 
         if (effectiveNetworkControlsFilePresent)

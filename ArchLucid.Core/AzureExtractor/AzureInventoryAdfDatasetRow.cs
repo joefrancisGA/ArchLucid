@@ -40,4 +40,34 @@ public sealed class AzureInventoryAdfDatasetRow
         get;
         init;
     }
+
+    public string? LocationKind
+    {
+        get;
+        init;
+    }
+
+    public string? ContainerOrFilesystem
+    {
+        get;
+        init;
+    }
+
+    public string? FolderPath
+    {
+        get;
+        init;
+    }
+
+    public string? TableName
+    {
+        get;
+        init;
+    }
+
+    public string? SchemaName
+    {
+        get;
+        init;
+    }
 }

@@ -1567,7 +1567,16 @@ function Test-ArchLucidPathRelevantDiagnosticResourceType
     return $ResourceType -eq 'Microsoft.Storage/storageAccounts' `
         -or $ResourceType -eq 'Microsoft.KeyVault/vaults' `
         -or $ResourceType -eq 'Microsoft.Network/networkSecurityGroups' `
-        -or $ResourceType -eq 'Microsoft.Sql/servers'
+        -or $ResourceType -eq 'Microsoft.Sql/servers' `
+        -or $ResourceType -eq 'Microsoft.DataFactory/factories' `
+        -or $ResourceType -eq 'Microsoft.Synapse/workspaces' `
+        -or $ResourceType -eq 'Microsoft.EventHub/namespaces' `
+        -or $ResourceType -eq 'Microsoft.ServiceBus/namespaces' `
+        -or $ResourceType -eq 'Microsoft.Web/sites' `
+        -or $ResourceType -eq 'Microsoft.ContainerService/managedClusters' `
+        -or $ResourceType -eq 'Microsoft.Network/applicationGateways' `
+        -or $ResourceType -eq 'Microsoft.Network/azureFirewalls' `
+        -or $ResourceType -eq 'Microsoft.DocumentDB/databaseAccounts'
 }
 
 function Get-ArchLucidAzurePolicyAssignmentCompanionRows
@@ -1662,9 +1671,31 @@ function Get-ArchLucidAzureDiagnosticSettingCompanionRows
                     }
                 }
 
-                if ([string]::IsNullOrWhiteSpace($workspaceId)) { continue }
+                [string]$storageAccountId = ''
+                [string]$eventHubAuthorizationRuleId = ''
 
-                [string]$key = "$resourceId|$name|$workspaceId"
+                try
+                {
+                    $storageAccountId = "$( $setting.properties.storageAccountId )".Trim()
+                }
+                catch
+                {
+                }
+
+                try
+                {
+                    $eventHubAuthorizationRuleId = "$( $setting.properties.eventHubAuthorizationRuleId )".Trim()
+                }
+                catch
+                {
+                }
+
+                if ([string]::IsNullOrWhiteSpace($workspaceId) -and [string]::IsNullOrWhiteSpace($storageAccountId) -and [string]::IsNullOrWhiteSpace($eventHubAuthorizationRuleId))
+                {
+                    continue
+                }
+
+                [string]$key = "$resourceId|$name|$workspaceId|$storageAccountId|$eventHubAuthorizationRuleId"
 
                 if ($seen.ContainsKey($key))
                 {
@@ -1676,7 +1707,9 @@ function Get-ArchLucidAzureDiagnosticSettingCompanionRows
                 [void]$rows.Add([ordered]@{
                     targetResourceId = $resourceId
                     name = $name
-                    workspaceId = $workspaceId
+                    workspaceId = $(if ([string]::IsNullOrWhiteSpace($workspaceId)) { $null } else { $workspaceId })
+                    storageAccountId = $(if ([string]::IsNullOrWhiteSpace($storageAccountId)) { $null } else { $storageAccountId })
+                    eventHubAuthorizationRuleId = $(if ([string]::IsNullOrWhiteSpace($eventHubAuthorizationRuleId)) { $null } else { $eventHubAuthorizationRuleId })
                 })
             }
         }
@@ -1812,6 +1845,33 @@ function Get-ArchLucidAzureDefenderSecureScorePercent
     return $bestScore
 }
 
+function Test-ArchLucidAzureFactoryStyleResource
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $ResourceType
+    )
+
+    [string]$trimmed = $ResourceType.Trim()
+
+    return ($trimmed -eq 'Microsoft.DataFactory/factories') -or ($trimmed -eq 'Microsoft.Synapse/workspaces')
+}
+
+function Get-ArchLucidAzureFactoryStyleApiVersion
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $FactoryResourceId
+    )
+
+    if ($FactoryResourceId -match '/providers/Microsoft\.Synapse/workspaces/')
+    {
+        return '2020-12-01'
+    }
+
+    return '2018-06-01'
+}
+
 function Get-ArchLucidAzureAdfLinkedServiceCompanionRows
 {
     param(
@@ -1826,13 +1886,12 @@ function Get-ArchLucidAzureAdfLinkedServiceCompanionRows
 
     $rows = [System.Collections.ArrayList]::new()
     $supportedTypes = @(
-        'AzureBlobStorage',
-        'AzureBlobFS',
-        'AzureSqlDatabase',
-        'AzureSqlMI',
-        'AzureSynapseAnalytics',
-        'AzureDataLakeStore',
-        'AzureKeyVault'
+        'AzureBlobStorage', 'AzureBlobFS', 'AzureSqlDatabase', 'AzureSqlMI', 'AzureSynapseAnalytics',
+        'AzureDataLakeStore', 'AzureKeyVault', 'AzureCosmosDb', 'CosmosDb', 'AzurePostgreSql', 'AzureMySql',
+        'AzureTableStorage', 'AzureEventHub', 'EventHub', 'AzureServiceBus', 'ServiceBus', 'AzureDatabricks',
+        'Snowflake', 'SapTable', 'SapOpenHub', 'SapEcc', 'SapHana', 'Oracle', 'OracleServiceCloud',
+        'FtpServer', 'Sftp', 'FileServer', 'Hdfs', 'RestService', 'HttpServer', 'Web',
+        'AmazonS3', 'GoogleCloudStorage'
     )
 
     foreach ($resource in @($InventoryResources))
@@ -1842,12 +1901,13 @@ function Get-ArchLucidAzureAdfLinkedServiceCompanionRows
         [string]$resourceType = "$( $resource.resourceType )".Trim()
         [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
 
-        if (-not ($resourceType -eq 'Microsoft.DataFactory/factories')) { continue }
+        if (-not (Test-ArchLucidAzureFactoryStyleResource -ResourceType $resourceType)) { continue }
         if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
 
         try
         {
-            [string]$path = "$factoryResourceId/linkedservices?api-version=2018-06-01"
+            [string]$apiVersion = Get-ArchLucidAzureFactoryStyleApiVersion -FactoryResourceId $factoryResourceId
+            [string]$path = "$factoryResourceId/linkedservices?api-version=$apiVersion"
             $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
             $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
 
@@ -1983,6 +2043,34 @@ function New-ArchLucidAzureAdfLinkedServiceNormalizedRow
         [string]$baseUrl = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'baseUrl'
         $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value $baseUrl
     }
+    elseif ($LinkedServiceType -eq 'AzureCosmosDb' -or $LinkedServiceType -eq 'CosmosDb')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'accountEndpoint')
+    }
+    elseif ($LinkedServiceType -eq 'AzurePostgreSql' -or $LinkedServiceType -eq 'AzureMySql')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'server')
+    }
+    elseif ($LinkedServiceType -eq 'AzureEventHub' -or $LinkedServiceType -eq 'EventHub' -or $LinkedServiceType -eq 'AzureServiceBus' -or $LinkedServiceType -eq 'ServiceBus')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'fullyQualifiedNamespace')
+    }
+    elseif ($LinkedServiceType -eq 'RestService' -or $LinkedServiceType -eq 'HttpServer' -or $LinkedServiceType -eq 'Web')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'url')
+        if ([string]::IsNullOrWhiteSpace($targetHost))
+        {
+            $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'baseUrl')
+        }
+    }
+    elseif ($LinkedServiceType -eq 'SapTable' -or $LinkedServiceType -eq 'SapOpenHub' -or $LinkedServiceType -eq 'SapEcc' -or $LinkedServiceType -eq 'SapHana')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'server')
+        if ([string]::IsNullOrWhiteSpace($targetHost))
+        {
+            $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'messageServer')
+        }
+    }
 
     if ([string]::IsNullOrWhiteSpace($targetResourceId) -and [string]::IsNullOrWhiteSpace($targetHost) -and [string]::IsNullOrWhiteSpace($keyVaultResourceId))
     {
@@ -2110,12 +2198,13 @@ function Get-ArchLucidAzureAdfDatasetCompanionRows
         [string]$resourceType = "$( $resource.resourceType )".Trim()
         [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
 
-        if (-not ($resourceType -eq 'Microsoft.DataFactory/factories')) { continue }
+        if (-not (Test-ArchLucidAzureFactoryStyleResource -ResourceType $resourceType)) { continue }
         if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
 
         try
         {
-            [string]$path = "$factoryResourceId/datasets?api-version=2018-06-01"
+            [string]$apiVersion = Get-ArchLucidAzureFactoryStyleApiVersion -FactoryResourceId $factoryResourceId
+            [string]$path = "$factoryResourceId/datasets?api-version=$apiVersion"
             $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
             $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
 
@@ -2152,11 +2241,18 @@ function Get-ArchLucidAzureAdfDatasetCompanionRows
                     continue
                 }
 
+                $location = Get-ArchLucidAzureAdfDatasetLocationFields -Properties $dataset.properties
+
                 [void]$rows.Add([ordered]@{
                     factoryResourceId = $factoryResourceId
                     datasetResourceId = $datasetResourceId
                     datasetName = $datasetName
                     linkedServiceName = $linkedServiceName
+                    locationKind = $location.locationKind
+                    containerOrFilesystem = $location.containerOrFilesystem
+                    folderPath = $location.folderPath
+                    tableName = $location.tableName
+                    schemaName = $location.schemaName
                     collectionStatus = 'Succeeded'
                 })
             }
@@ -2168,6 +2264,61 @@ function Get-ArchLucidAzureAdfDatasetCompanionRows
     }
 
     return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureAdfDatasetLocationFields
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object] $Properties
+    )
+
+    [string]$locationKind = ''
+    [string]$containerOrFilesystem = ''
+    [string]$folderPath = ''
+    [string]$tableName = ''
+    [string]$schemaName = ''
+
+    try
+    {
+        $locationKind = "$( $Properties.type )".Trim()
+        $typeProperties = $Properties.typeProperties
+
+        $folderPath = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'folderPath'
+        if ([string]::IsNullOrWhiteSpace($folderPath))
+        {
+            $folderPath = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'directory'
+        }
+
+        $containerOrFilesystem = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'fileSystem'
+        if ([string]::IsNullOrWhiteSpace($containerOrFilesystem))
+        {
+            $containerOrFilesystem = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'container'
+        }
+
+        $tableName = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'tableName'
+        if ([string]::IsNullOrWhiteSpace($tableName))
+        {
+            $tableName = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'table'
+        }
+
+        $schemaName = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'schema'
+        if ([string]::IsNullOrWhiteSpace($schemaName))
+        {
+            $schemaName = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'schemaName'
+        }
+    }
+    catch
+    {
+    }
+
+    return [ordered]@{
+        locationKind = $(if ([string]::IsNullOrWhiteSpace($locationKind)) { $null } else { $locationKind })
+        containerOrFilesystem = $(if ([string]::IsNullOrWhiteSpace($containerOrFilesystem)) { $null } else { $containerOrFilesystem })
+        folderPath = $(if ([string]::IsNullOrWhiteSpace($folderPath)) { $null } else { $folderPath })
+        tableName = $(if ([string]::IsNullOrWhiteSpace($tableName)) { $null } else { $tableName })
+        schemaName = $(if ([string]::IsNullOrWhiteSpace($schemaName)) { $null } else { $schemaName })
+    }
 }
 
 function Get-ArchLucidAzureAdfPipelineFlowCompanionRows
@@ -2194,12 +2345,13 @@ function Get-ArchLucidAzureAdfPipelineFlowCompanionRows
         [string]$resourceType = "$( $resource.resourceType )".Trim()
         [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
 
-        if (-not ($resourceType -eq 'Microsoft.DataFactory/factories')) { continue }
+        if (-not (Test-ArchLucidAzureFactoryStyleResource -ResourceType $resourceType)) { continue }
         if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
 
         try
         {
-            [string]$path = "$factoryResourceId/pipelines?api-version=2018-06-01"
+            [string]$apiVersion = Get-ArchLucidAzureFactoryStyleApiVersion -FactoryResourceId $factoryResourceId
+            [string]$path = "$factoryResourceId/pipelines?api-version=$apiVersion"
             $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
             $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
             $pipelineResources = @($payload.value)
@@ -2437,4 +2589,480 @@ function Add-ArchLucidAzureAdfDatasetReferenceFlows
             collectionStatus = 'Succeeded'
         })
     }
+}
+
+function Get-ArchLucidAzureAdfTriggerCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not (Test-ArchLucidAzureFactoryStyleResource -ResourceType $resourceType)) { continue }
+        if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
+
+        try
+        {
+            [string]$apiVersion = Get-ArchLucidAzureFactoryStyleApiVersion -FactoryResourceId $factoryResourceId
+            [string]$path = "$factoryResourceId/triggers?api-version=$apiVersion"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($trigger in @($payload.value))
+            {
+                [string]$triggerResourceId = "$( $trigger.id )".Trim()
+                [string]$triggerName = "$( $trigger.name )".Trim()
+                [string]$triggerType = "$( $trigger.properties.type )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($triggerResourceId) -or [string]::IsNullOrWhiteSpace($triggerName) -or [string]::IsNullOrWhiteSpace($triggerType))
+                {
+                    continue
+                }
+
+                [void]$rows.Add([ordered]@{
+                    factoryResourceId = $factoryResourceId
+                    triggerResourceId = $triggerResourceId
+                    triggerName = $triggerName
+                    triggerType = $triggerType
+                    pipelineNames = @()
+                    collectionStatus = 'Succeeded'
+                })
+            }
+        }
+        catch
+        {
+            continue
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureAdfIntegrationRuntimeCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not (Test-ArchLucidAzureFactoryStyleResource -ResourceType $resourceType)) { continue }
+        if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
+
+        try
+        {
+            [string]$apiVersion = Get-ArchLucidAzureFactoryStyleApiVersion -FactoryResourceId $factoryResourceId
+            [string]$path = "$factoryResourceId/integrationruntimes?api-version=$apiVersion"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($integrationRuntime in @($payload.value))
+            {
+                [string]$integrationRuntimeResourceId = "$( $integrationRuntime.id )".Trim()
+                [string]$name = "$( $integrationRuntime.name )".Trim()
+                [string]$kind = "$( $integrationRuntime.properties.type )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($integrationRuntimeResourceId) -or [string]::IsNullOrWhiteSpace($name) -or [string]::IsNullOrWhiteSpace($kind))
+                {
+                    continue
+                }
+
+                [void]$rows.Add([ordered]@{
+                    factoryResourceId = $factoryResourceId
+                    integrationRuntimeResourceId = $integrationRuntimeResourceId
+                    name = $name
+                    kind = $kind
+                    collectionStatus = 'Succeeded'
+                })
+            }
+        }
+        catch
+        {
+            continue
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureAdfDataflowCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not (Test-ArchLucidAzureFactoryStyleResource -ResourceType $resourceType)) { continue }
+        if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
+
+        try
+        {
+            [string]$apiVersion = Get-ArchLucidAzureFactoryStyleApiVersion -FactoryResourceId $factoryResourceId
+            [string]$path = "$factoryResourceId/dataflows?api-version=$apiVersion"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($dataflow in @($payload.value))
+            {
+                [string]$dataflowResourceId = "$( $dataflow.id )".Trim()
+                [string]$dataflowName = "$( $dataflow.name )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($dataflowResourceId) -or [string]::IsNullOrWhiteSpace($dataflowName))
+                {
+                    continue
+                }
+
+                [void]$rows.Add([ordered]@{
+                    factoryResourceId = $factoryResourceId
+                    dataflowResourceId = $dataflowResourceId
+                    dataflowName = $dataflowName
+                    sourceLinkedServiceNames = @()
+                    sinkLinkedServiceNames = @()
+                    collectionStatus = 'Succeeded'
+                })
+            }
+        }
+        catch
+        {
+            continue
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureEventGridWebhookHost
+{
+    param(
+        [string] $EndpointUrl
+    )
+
+    if ([string]::IsNullOrWhiteSpace($EndpointUrl)) { return '' }
+
+    try
+    {
+        $uri = [Uri]$EndpointUrl.Trim()
+        return $uri.Host.ToLowerInvariant()
+    }
+    catch
+    {
+        return ''
+    }
+}
+
+function Get-ArchLucidAzureEventGridSubscriptionCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources,
+
+        [string] $SubscriptionId
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+    $seen = @{}
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$sourceResourceId = "$( $resource.resourceId )".Trim()
+
+        if ($resourceType -notin @('Microsoft.EventGrid/topics', 'Microsoft.EventGrid/domains', 'Microsoft.EventGrid/systemTopics')) { continue }
+        if ([string]::IsNullOrWhiteSpace($sourceResourceId)) { continue }
+
+        try
+        {
+            [string]$path = "$sourceResourceId/eventSubscriptions?api-version=2022-06-15"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($subscription in @($payload.value))
+            {
+                [string]$subscriptionName = "$( $subscription.name )".Trim()
+                [string]$destinationKind = "$( $subscription.properties.destination.endpointType )".Trim()
+                [string]$destinationResourceId = ''
+                [string]$destinationHost = ''
+
+                if ($destinationKind -eq 'WebHook')
+                {
+                    $destinationHost = Get-ArchLucidAzureEventGridWebhookHost -EndpointUrl "$( $subscription.properties.destination.endpointUrl )"
+                }
+                else
+                {
+                    $destinationResourceId = "$( $subscription.properties.destination.resourceId )".Trim()
+                }
+
+                [string]$key = "$sourceResourceId|$subscriptionName|$destinationResourceId|$destinationHost"
+                if ($seen.ContainsKey($key)) { continue }
+                $seen[$key] = $true
+
+                [void]$rows.Add([ordered]@{
+                    sourceResourceId = $sourceResourceId
+                    subscriptionName = $subscriptionName
+                    subscriptionResourceId = "$( $subscription.id )".Trim()
+                    destinationResourceId = $(if ([string]::IsNullOrWhiteSpace($destinationResourceId)) { $null } else { $destinationResourceId })
+                    destinationHost = $(if ([string]::IsNullOrWhiteSpace($destinationHost)) { $null } else { $destinationHost })
+                    destinationKind = $destinationKind
+                    collectionStatus = 'Succeeded'
+                })
+            }
+        }
+        catch
+        {
+            continue
+        }
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($SubscriptionId))
+    {
+        try
+        {
+            [string]$sourceResourceId = "/subscriptions/$($SubscriptionId.Trim())"
+            [string]$path = "$sourceResourceId/providers/Microsoft.EventGrid/eventSubscriptions?api-version=2022-06-15"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($subscription in @($payload.value))
+            {
+                [string]$subscriptionName = "$( $subscription.name )".Trim()
+                [string]$destinationKind = "$( $subscription.properties.destination.endpointType )".Trim()
+                [string]$destinationResourceId = "$( $subscription.properties.destination.resourceId )".Trim()
+
+                [string]$key = "$sourceResourceId|$subscriptionName|$destinationResourceId|"
+                if ($seen.ContainsKey($key)) { continue }
+                $seen[$key] = $true
+
+                [void]$rows.Add([ordered]@{
+                    sourceResourceId = $sourceResourceId
+                    subscriptionName = $subscriptionName
+                    subscriptionResourceId = "$( $subscription.id )".Trim()
+                    destinationResourceId = $(if ([string]::IsNullOrWhiteSpace($destinationResourceId)) { $null } else { $destinationResourceId })
+                    destinationKind = $destinationKind
+                    collectionStatus = 'Succeeded'
+                })
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureLogicAppConnectionCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+    $seen = @{}
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if ($resourceType -eq 'Microsoft.Logic/workflows' -and -not [string]::IsNullOrWhiteSpace($resourceId))
+        {
+            try
+            {
+                [string]$path = "$resourceId?api-version=2019-05-01"
+                $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+                $workflow = $response.Content | ConvertFrom-Json -ErrorAction Stop
+                $connections = $workflow.properties.parameters.'$connections'.value
+
+                foreach ($property in $connections.PSObject.Properties)
+                {
+                    [string]$connectionName = $property.Name
+                    [string]$connectionResourceId = "$( $property.Value.connectionId )".Trim()
+
+                    if (-not (Test-ArchLucidAzureAdfStaticReferenceName -ReferenceName $connectionName)) { continue }
+                    if ([string]::IsNullOrWhiteSpace($connectionResourceId)) { continue }
+
+                    [string]$key = "$resourceId|$connectionName|$connectionResourceId"
+                    if ($seen.ContainsKey($key)) { continue }
+                    $seen[$key] = $true
+
+                    [void]$rows.Add([ordered]@{
+                        workflowResourceId = $resourceId
+                        workflowName = "$( $workflow.name )".Trim()
+                        connectionName = $connectionName
+                        connectionResourceId = $connectionResourceId
+                        collectionStatus = 'Succeeded'
+                    })
+                }
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureMessagingAssociationCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+    $seen = @{}
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$parentResourceId = "$( $resource.resourceId )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($parentResourceId)) { continue }
+
+        if ($resourceType -eq 'Microsoft.EventHub/namespaces')
+        {
+            try
+            {
+                [string]$path = "$parentResourceId/eventhubs?api-version=2021-11-01"
+                $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+                $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+                foreach ($eventHub in @($payload.value))
+                {
+                    [string]$childResourceId = "$( $eventHub.id )".Trim()
+                    [string]$childName = "$( $eventHub.name )".Trim()
+                    [string]$captureStorageAccountId = ''
+
+                    try
+                    {
+                        $captureStorageAccountId = "$( $eventHub.properties.captureDescription.destination.storageAccountResourceId )".Trim()
+                    }
+                    catch
+                    {
+                    }
+
+                    [string]$key = "$parentResourceId|$childResourceId|eventHub"
+                    if ($seen.ContainsKey($key)) { continue }
+                    $seen[$key] = $true
+
+                    [void]$rows.Add([ordered]@{
+                        parentResourceId = $parentResourceId
+                        childResourceId = $childResourceId
+                        childName = $childName
+                        childType = 'eventHub'
+                        associationType = 'messagingChild'
+                        captureStorageAccountId = $(if ([string]::IsNullOrWhiteSpace($captureStorageAccountId)) { $null } else { $captureStorageAccountId })
+                        collectionStatus = 'Succeeded'
+                    })
+                }
+            }
+            catch
+            {
+            }
+
+            continue
+        }
+
+        if ($resourceType -eq 'Microsoft.ServiceBus/namespaces')
+        {
+            foreach ($childCollection in @('queues', 'topics'))
+            {
+                try
+                {
+                    [string]$path = "$parentResourceId/$childCollection?api-version=2021-11-01"
+                    $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+                    $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+                    foreach ($child in @($payload.value))
+                    {
+                        [string]$childResourceId = "$( $child.id )".Trim()
+                        [string]$childName = "$( $child.name )".Trim()
+                        [string]$childType = if ($childCollection -eq 'queues') { 'serviceBusQueue' } else { 'serviceBusTopic' }
+
+                        [string]$key = "$parentResourceId|$childResourceId|$childType"
+                        if ($seen.ContainsKey($key)) { continue }
+                        $seen[$key] = $true
+
+                        [void]$rows.Add([ordered]@{
+                            parentResourceId = $parentResourceId
+                            childResourceId = $childResourceId
+                            childName = $childName
+                            childType = $childType
+                            associationType = 'messagingChild'
+                            collectionStatus = 'Succeeded'
+                        })
+                    }
+                }
+                catch
+                {
+                }
+            }
+        }
+    }
+
+    return @($rows.ToArray())
 }

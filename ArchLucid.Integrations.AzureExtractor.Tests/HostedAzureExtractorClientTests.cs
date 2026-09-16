@@ -88,7 +88,7 @@ public sealed class HostedAzureExtractorClientTests
                 It.IsAny<string>(),
                 It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync(new HostedAzureDiagnosticSettingsCollectResult());
 
         armClient
             .Setup(c => c.ListSubscriptionDefenderSummariesAsync(
@@ -236,7 +236,7 @@ public sealed class HostedAzureExtractorClientTests
                 It.IsAny<string>(),
                 It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync(new HostedAzureDiagnosticSettingsCollectResult());
         armClient
             .Setup(c => c.ListSubscriptionDefenderSummariesAsync(
                 It.IsAny<string>(),

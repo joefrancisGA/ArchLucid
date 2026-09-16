@@ -32,7 +32,7 @@ internal static class AzureInventoryAdfLinkedServiceEdgeMapper
         Dictionary<string, string> hostToArmId = AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
 
         bool hasFactory = resources.Any(resource =>
-            resource.ResourceType.Equals("Microsoft.DataFactory/factories", StringComparison.OrdinalIgnoreCase));
+            AzureInventoryFactoryStyleResourceCatalog.IsFactoryStyleResourceType(resource.ResourceType));
 
         int successfulRows = 0;
 
@@ -96,11 +96,7 @@ internal static class AzureInventoryAdfLinkedServiceEdgeMapper
                 ? ObservedFactConfidence
                 : DeterministicInferenceConfidence;
 
-            string inferenceSource = associationType.Equals(
-                AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred,
-                StringComparison.OrdinalIgnoreCase)
-                ? GraphEdgeInferenceSources.InventoryAdfLinkedServiceInferred
-                : GraphEdgeInferenceSources.InventoryAdfLinkedService;
+            string inferenceSource = ResolveLinkedServiceInferenceSource(associationType);
 
             AddRelationship(
                 relationships,
@@ -119,6 +115,26 @@ internal static class AzureInventoryAdfLinkedServiceEdgeMapper
         {
             warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.AdfFactoryHasNoLinkedServices);
         }
+    }
+
+    private static string ResolveLinkedServiceInferenceSource(string associationType)
+    {
+        if (associationType.Equals(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase))
+        {
+            return GraphEdgeInferenceSources.InventoryAdfLinkedServiceInferred;
+        }
+
+        if (associationType.Equals(AzureInventoryRelationshipAssociationTypes.SynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase))
+        {
+            return GraphEdgeInferenceSources.InventorySynapseLinkedServiceInferred;
+        }
+
+        if (associationType.Equals(AzureInventoryRelationshipAssociationTypes.SynapseLinkedService, StringComparison.OrdinalIgnoreCase))
+        {
+            return GraphEdgeInferenceSources.InventorySynapseLinkedService;
+        }
+
+        return GraphEdgeInferenceSources.InventoryAdfLinkedService;
     }
 
     private static void AddRelationship(

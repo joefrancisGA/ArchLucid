@@ -12,8 +12,6 @@ namespace ArchLucid.Integrations.AzureExtractor;
 /// </summary>
 public static class HostedAzureInventoryAdfLinkedServiceCollector
 {
-    private const string DataFactoryResourceType = "Microsoft.DataFactory/factories";
-
     public static async Task<IReadOnlyList<AzureInventoryAdfLinkedServiceRow>> CollectAsync(
         IHostedAzureArmReadClient armReadClient,
         string accessToken,
@@ -30,7 +28,7 @@ public static class HostedAzureInventoryAdfLinkedServiceCollector
 
         foreach (HostedAzureArmResourceRecord resource in resources)
         {
-            if (!resource.ResourceType.Equals(DataFactoryResourceType, StringComparison.OrdinalIgnoreCase))
+            if (!AzureInventoryFactoryStyleResourceCatalog.IsFactoryStyleResourceType(resource.ResourceType))
             {
                 continue;
             }
