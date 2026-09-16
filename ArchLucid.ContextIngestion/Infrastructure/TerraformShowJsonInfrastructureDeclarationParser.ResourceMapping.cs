@@ -493,6 +493,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.module"] = moduleText.Trim();
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "nested", out JsonElement nested)
+                || TryGetPropertyIgnoreCase(res, "nested", out nested))
+            && (nested.ValueKind == JsonValueKind.True || nested.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.nested"] = nested.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
