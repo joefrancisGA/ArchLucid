@@ -3,7 +3,9 @@ using ArchLucid.Contracts.Persistence.Graph;
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-///     Network-mode inventory diagrams omit private-endpoint cards; other modes keep PE annotation behavior.
+///     Network and Full subscription diagrams omit private-endpoint cards.
+///     Full subscription still annotates PaaS targets with the lock; Network skips annotation
+///     because data-plane nodes are off-canvas.
 /// </summary>
 internal static class NetworkDiagramNodeFilter
 {

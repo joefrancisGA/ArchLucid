@@ -148,7 +148,48 @@ public sealed class DiagramPrivateEndpointTargetAnnotatorTests
         DiagramNode? subnetNode = ast.Nodes.FirstOrDefault(node => string.Equals(node.Label, "data", StringComparison.Ordinal));
         subnetNode.Should().NotBeNull();
         subnetNode!.HasPrivateEndpointAccess.Should().BeFalse();
+        ast.Nodes.Should().NotContain(node => string.Equals(node.Label, "pe-sql", StringComparison.Ordinal));
+        SvgShouldNotContainLock(ast);
+    }
+
+    [Fact]
+    public void Compile_resource_group_keeps_private_endpoint_when_only_subnet_is_attached()
+    {
+        const string peArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-sql";
+        const string subnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/data";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                BuildTopologyNode("pe-1", peArmId, "Microsoft.Network/privateEndpoints", "pe-sql"),
+                BuildTopologyNode("subnet-1", subnetArmId, "Microsoft.Network/virtualNetworks/subnets", "data"),
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "edge-pe-subnet",
+                    FromNodeId = "pe-1",
+                    ToNodeId = "subnet-1",
+                    EdgeType = AzureInventoryRelationshipAssociationTypes.PeToSubnet,
+                    Label = AzureInventoryRelationshipAssociationTypes.PeToSubnet,
+                    InferenceSource = AzureInventoryRelationshipAssociationTypes.PeToSubnet,
+                    Weight = 1.0d,
+                },
+            ],
+        };
+
+        DiagramAst ast = compiler.Compile(
+            graph,
+            DiagramMode.ResourceGroup,
+            new DiagramAstCompileOptions { ResourceGroupName = "rg" });
+
         ast.Nodes.Should().Contain(node => string.Equals(node.Label, "pe-sql", StringComparison.Ordinal));
+        ast.Nodes.Should().Contain(node => string.Equals(node.Label, "data", StringComparison.Ordinal));
+        ast.Nodes.Single(node => node.Label == "data").HasPrivateEndpointAccess.Should().BeFalse();
         SvgShouldNotContainLock(ast);
     }
 

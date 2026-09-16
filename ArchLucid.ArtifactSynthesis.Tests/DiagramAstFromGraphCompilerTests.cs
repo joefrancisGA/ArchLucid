@@ -399,6 +399,55 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_full_subscription_excludes_private_endpoint_nodes_and_keeps_access_badges()
+    {
+        const string peArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-sql";
+        const string vnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/core-vnet";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql/databases/app";
+
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                BuildNetworkTopologyNode("vnet-1", vnetArmId, "Microsoft.Network/virtualNetworks", "core-vnet"),
+                BuildNetworkTopologyNode("pe-1", peArmId, "Microsoft.Network/privateEndpoints", "pe-sql"),
+                BuildNetworkTopologyNode("sql-1", sqlArmId, "Microsoft.Sql/servers/databases", "app"),
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "edge-pe-sql",
+                    FromNodeId = "pe-1",
+                    ToNodeId = "sql-1",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                    Weight = 1.0d,
+                },
+            ],
+        };
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+
+        ast.Nodes.Should().NotContain(node => node.Label == "pe-sql");
+        ast.Nodes.Should().Contain(node => node.Label == "core-vnet");
+        ast.Nodes.Single(node => node.Label == "app").HasPrivateEndpointAccess.Should().BeTrue();
+
+        DiagramForestLayoutResult svg = new DiagramForestLayoutSvgRenderer().Render(ast);
+        svg.Svg.Should().Contain("class=\"private-endpoint-lock\"");
+        svg.Svg.Should().Contain("Private endpoint access");
+        svg.Svg.Should().NotContain(">pe-sql<");
+    }
+
+    [Fact]
     public void Compile_data_mode_flattens_sparse_swimlanes_when_many_resource_groups_each_hold_one_node()
     {
         GraphSnapshot graph = BuildDataSparseStorageGraph(resourceGroupCount: 12);
