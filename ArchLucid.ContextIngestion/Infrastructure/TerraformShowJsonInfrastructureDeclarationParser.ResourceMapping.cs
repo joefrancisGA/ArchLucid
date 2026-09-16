@@ -476,6 +476,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.declared"] = declared.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "orphan", out JsonElement orphan)
+                || TryGetPropertyIgnoreCase(res, "orphan", out orphan))
+            && (orphan.ValueKind == JsonValueKind.True || orphan.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.orphan"] = orphan.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
