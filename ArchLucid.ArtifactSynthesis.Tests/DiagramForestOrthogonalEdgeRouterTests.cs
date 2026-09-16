@@ -26,6 +26,22 @@ public sealed class DiagramForestOrthogonalEdgeRouterTests
     }
 
     [Fact]
+    public void Route_uses_an_elbow_for_unobstructed_diagonal_offset_endpoints()
+    {
+        DiagramForestOrthogonalEdgeRouter.RouteResult route = DiagramForestOrthogonalEdgeRouter.Route(
+            fromX: 0,
+            fromY: 0,
+            toX: 120,
+            toY: 80,
+            obstacles: []);
+
+        route.UsedFallback.Should().BeFalse();
+        route.Segments.Count.Should().BeGreaterThan(1);
+        route.PathData.Should().Contain(" H ");
+        route.PathData.Should().Contain(" V ");
+    }
+
+    [Fact]
     public void Route_uses_an_elbow_when_a_straight_segment_would_cross_an_obstacle()
     {
         List<DiagramForestOrthogonalEdgeRouter.Rect> obstacles =

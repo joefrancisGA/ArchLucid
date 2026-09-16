@@ -59,6 +59,11 @@ public static class DiagramForestEdgeLabelCollapse
                 continue;
             }
 
+            if (string.Equals(firstLabel, "peering", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             foreach (DiagramEdge edge in componentEdges)
             {
                 suppressed.Add(EdgeKey(edge));
@@ -80,12 +85,7 @@ public static class DiagramForestEdgeLabelCollapse
         ArgumentNullException.ThrowIfNull(edge);
         ArgumentNullException.ThrowIfNull(collapsedEdgeKeys);
 
-        if (collapsedEdgeKeys.Contains(EdgeKey(edge)))
-        {
-            return true;
-        }
-
-        return IsPeeringEdge(edge);
+        return collapsedEdgeKeys.Contains(EdgeKey(edge));
     }
 
     private static Dictionary<string, string> BuildComponentRoots(
