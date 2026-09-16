@@ -35,6 +35,12 @@ public static class AzureExtractorPackageZipEntryNames
 
     public const string AdfDataflows = "adf-dataflows.json";
 
+    public const string EventGridSubscriptions = "event-grid-subscriptions.json";
+
+    public const string LogicAppConnections = "logic-app-connections.json";
+
+    public const string MessagingAssociations = "messaging-associations.json";
+
     public static IReadOnlyCollection<string> OptionalInventoryEntryNames { get; } =
     [
         RoleAssignments,
@@ -51,5 +57,8 @@ public static class AzureExtractorPackageZipEntryNames
         AdfTriggers,
         AdfIntegrationRuntimes,
         AdfDataflows,
+        EventGridSubscriptions,
+        LogicAppConnections,
+        MessagingAssociations,
     ];
 }

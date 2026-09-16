@@ -39,7 +39,13 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryAdfIntegrationRuntimeRow>? adfIntegrationRuntimes = null,
         bool adfIntegrationRuntimesFilePresent = false,
         IReadOnlyList<AzureInventoryAdfDataflowRow>? adfDataflows = null,
-        bool adfDataflowsFilePresent = false)
+        bool adfDataflowsFilePresent = false,
+        IReadOnlyList<AzureInventoryEventGridSubscriptionRow>? eventGridSubscriptions = null,
+        bool eventGridSubscriptionsFilePresent = false,
+        IReadOnlyList<AzureInventoryLogicAppConnectionRow>? logicAppConnections = null,
+        bool logicAppConnectionsFilePresent = false,
+        IReadOnlyList<AzureInventoryMessagingAssociationRow>? messagingAssociations = null,
+        bool messagingAssociationsFilePresent = false)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
@@ -56,6 +62,9 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryAdfTriggerRow> adfTriggerRows = adfTriggers ?? [];
         IReadOnlyList<AzureInventoryAdfIntegrationRuntimeRow> adfIntegrationRuntimeRows = adfIntegrationRuntimes ?? [];
         IReadOnlyList<AzureInventoryAdfDataflowRow> adfDataflowRows = adfDataflows ?? [];
+        IReadOnlyList<AzureInventoryEventGridSubscriptionRow> eventGridSubscriptionRows = eventGridSubscriptions ?? [];
+        IReadOnlyList<AzureInventoryLogicAppConnectionRow> logicAppConnectionRows = logicAppConnections ?? [];
+        IReadOnlyList<AzureInventoryMessagingAssociationRow> messagingAssociationRows = messagingAssociations ?? [];
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
@@ -169,6 +178,24 @@ public static class AzureInventorySecurityEdgeMaterializer
 
         AzureInventoryAdfIntegrationRuntimeEdgeMapper.MapIntegrationRuntimes(
             adfIntegrationRuntimeRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryEventGridSubscriptionEdgeMapper.MapSubscriptions(
+            eventGridSubscriptionRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryLogicAppConnectionEdgeMapper.MapConnections(
+            logicAppConnectionRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryMessagingAssociationEdgeMapper.MapAssociations(
+            messagingAssociationRows,
             relationships,
             relationshipKeys,
             warnings);

@@ -659,6 +659,9 @@ try
         [object[]]$adfTriggerRows = @(Get-ArchLucidAzureAdfTriggerCompanionRows -InventoryResources @($resources))
         [object[]]$adfIntegrationRuntimeRows = @(Get-ArchLucidAzureAdfIntegrationRuntimeCompanionRows -InventoryResources @($resources))
         [object[]]$adfDataflowRows = @(Get-ArchLucidAzureAdfDataflowCompanionRows -InventoryResources @($resources))
+        [object[]]$eventGridSubscriptionRows = @(Get-ArchLucidAzureEventGridSubscriptionCompanionRows -InventoryResources @($resources) -SubscriptionId $SubscriptionId)
+        [object[]]$logicAppConnectionRows = @(Get-ArchLucidAzureLogicAppConnectionCompanionRows -InventoryResources @($resources))
+        [object[]]$messagingAssociationRows = @(Get-ArchLucidAzureMessagingAssociationCompanionRows -InventoryResources @($resources))
 
         Write-Utf8NoBom (Join-Path $staging "role-assignments.json") ($roleAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "network-associations.json") ($networkAssociationRows | ConvertTo-Json -Depth 12 -Compress:$false)
@@ -673,6 +676,9 @@ try
         Write-Utf8NoBom (Join-Path $staging "adf-triggers.json") ($adfTriggerRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "adf-integration-runtimes.json") ($adfIntegrationRuntimeRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "adf-dataflows.json") ($adfDataflowRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "event-grid-subscriptions.json") ($eventGridSubscriptionRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "logic-app-connections.json") ($logicAppConnectionRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "messaging-associations.json") ($messagingAssociationRows | ConvertTo-Json -Depth 12 -Compress:$false)
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `
@@ -693,6 +699,9 @@ try
                 adfTriggerCount = $adfTriggerRows.Count
                 adfIntegrationRuntimeCount = $adfIntegrationRuntimeRows.Count
                 adfDataflowCount = $adfDataflowRows.Count
+                eventGridSubscriptionCount = $eventGridSubscriptionRows.Count
+                logicAppConnectionCount = $logicAppConnectionRows.Count
+                messagingAssociationCount = $messagingAssociationRows.Count
             }
     }
     catch
@@ -716,6 +725,9 @@ try
         Write-Utf8NoBom (Join-Path $staging "adf-triggers.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "adf-integration-runtimes.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "adf-dataflows.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "event-grid-subscriptions.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "logic-app-connections.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "messaging-associations.json") "[]"
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `

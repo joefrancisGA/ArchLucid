@@ -41,7 +41,11 @@ public static class HostedAzureExtractorZipBuilder
         IReadOnlyList<AzureInventoryAdfPipelineFlowRow>? adfPipelineFlows = null,
         IReadOnlyList<AzureInventoryAdfTriggerRow>? adfTriggers = null,
         IReadOnlyList<AzureInventoryAdfIntegrationRuntimeRow>? adfIntegrationRuntimes = null,
-        IReadOnlyList<AzureInventoryAdfDataflowRow>? adfDataflows = null)
+        IReadOnlyList<AzureInventoryAdfDataflowRow>? adfDataflows = null,
+        IReadOnlyList<AzureInventoryEventGridSubscriptionRow>? eventGridSubscriptions = null,
+        IReadOnlyList<AzureInventoryLogicAppConnectionRow>? logicAppConnections = null,
+        IReadOnlyList<AzureInventoryMessagingAssociationRow>? messagingAssociations = null,
+        IReadOnlyList<string>? collectionWarnings = null)
     {
         bool hasSubscriptionId = !string.IsNullOrWhiteSpace(subscriptionId);
         bool hasManagementGroupId = !string.IsNullOrWhiteSpace(managementGroupId);
@@ -71,7 +75,7 @@ public static class HostedAzureExtractorZipBuilder
             ["switchesUsed"] = switchesUsed,
             ["azModuleVersion"] = "hosted-extractor",
             ["completenessScore"] = 1.0,
-            ["warnings"] = Array.Empty<string>(),
+            ["warnings"] = (collectionWarnings ?? []).ToArray(),
             ["errors"] = Array.Empty<string>(),
             ["resourceCount"] = resources.Count,
             ["captureMethod"] = "HostedReader",
@@ -185,6 +189,8 @@ public static class HostedAzureExtractorZipBuilder
                 targetResourceId = row.TargetResourceId,
                 name = row.Name,
                 workspaceId = row.WorkspaceId,
+                storageAccountId = row.StorageAccountId,
+                eventHubAuthorizationRuleId = row.EventHubAuthorizationRuleId,
             })
             .ToArray<object>();
 
@@ -298,6 +304,48 @@ public static class HostedAzureExtractorZipBuilder
             })
             .ToArray<object>();
 
+        object[] eventGridSubscriptionRows = (eventGridSubscriptions ?? [])
+            .Select(static row => new
+            {
+                sourceResourceId = row.SourceResourceId,
+                subscriptionName = row.SubscriptionName,
+                subscriptionResourceId = row.SubscriptionResourceId,
+                destinationResourceId = row.DestinationResourceId,
+                destinationHost = row.DestinationHost,
+                destinationKind = row.DestinationKind,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] logicAppConnectionRows = (logicAppConnections ?? [])
+            .Select(static row => new
+            {
+                workflowResourceId = row.WorkflowResourceId,
+                workflowName = row.WorkflowName,
+                connectionName = row.ConnectionName,
+                connectionResourceId = row.ConnectionResourceId,
+                targetResourceId = row.TargetResourceId,
+                targetHost = row.TargetHost,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] messagingAssociationRows = (messagingAssociations ?? [])
+            .Select(static row => new
+            {
+                parentResourceId = row.ParentResourceId,
+                childResourceId = row.ChildResourceId,
+                childName = row.ChildName,
+                childType = row.ChildType,
+                associationType = row.AssociationType,
+                captureStorageAccountId = row.CaptureStorageAccountId,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
         using MemoryStream zipStream = new();
 
         using (ZipArchive archive = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
@@ -360,6 +408,18 @@ public static class HostedAzureExtractorZipBuilder
                 archive,
                 AzureExtractorPackageZipEntryNames.AdfDataflows,
                 JsonSerializer.Serialize(adfDataflowRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.EventGridSubscriptions,
+                JsonSerializer.Serialize(eventGridSubscriptionRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.LogicAppConnections,
+                JsonSerializer.Serialize(logicAppConnectionRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.MessagingAssociations,
+                JsonSerializer.Serialize(messagingAssociationRows, SerializerOptions));
             AddUtf8Entry(archive, "policy-compliance.json", JsonSerializer.Serialize(policyCompliance, SerializerOptions));
             AddUtf8Entry(archive, "README.txt", readme);
         }

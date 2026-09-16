@@ -58,7 +58,7 @@ public interface IHostedAzureArmReadClient
         string managementGroupId,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<HostedAzureArmDiagnosticSettingRecord>> ListDiagnosticSettingsAsync(
+    Task<HostedAzureDiagnosticSettingsCollectResult> ListDiagnosticSettingsAsync(
         string accessToken,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         CancellationToken cancellationToken);

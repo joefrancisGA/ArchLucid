@@ -41,6 +41,12 @@ public static class AzureExtractorPackageInventoryReader
                 ReadAdfIntegrationRuntimes(archive);
             (bool adfDataflowsFilePresent, List<AzureInventoryAdfDataflowRow> adfDataflows) =
                 ReadAdfDataflows(archive);
+            (bool eventGridSubscriptionsFilePresent, List<AzureInventoryEventGridSubscriptionRow> eventGridSubscriptions) =
+                ReadEventGridSubscriptions(archive);
+            (bool logicAppConnectionsFilePresent, List<AzureInventoryLogicAppConnectionRow> logicAppConnections) =
+                ReadLogicAppConnections(archive);
+            (bool messagingAssociationsFilePresent, List<AzureInventoryMessagingAssociationRow> messagingAssociations) =
+                ReadMessagingAssociations(archive);
 
             return new AzureExtractorPackageInventoryReadResult
             {
@@ -68,6 +74,12 @@ public static class AzureExtractorPackageInventoryReader
                 AdfIntegrationRuntimesFilePresent = adfIntegrationRuntimesFilePresent,
                 AdfDataflows = adfDataflows,
                 AdfDataflowsFilePresent = adfDataflowsFilePresent,
+                EventGridSubscriptions = eventGridSubscriptions,
+                EventGridSubscriptionsFilePresent = eventGridSubscriptionsFilePresent,
+                LogicAppConnections = logicAppConnections,
+                LogicAppConnectionsFilePresent = logicAppConnectionsFilePresent,
+                MessagingAssociations = messagingAssociations,
+                MessagingAssociationsFilePresent = messagingAssociationsFilePresent,
             };
         }
         catch (JsonException ex)
@@ -564,6 +576,87 @@ public static class AzureExtractorPackageInventoryReader
         }
     }
 
+    private static (bool FilePresent, List<AzureInventoryEventGridSubscriptionRow> Rows) ReadEventGridSubscriptions(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryEventGridSubscriptionRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.EventGridSubscriptions,
+            AzureInventoryEventGridSubscriptionParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryLogicAppConnectionRow> Rows) ReadLogicAppConnections(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryLogicAppConnectionRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.LogicAppConnections,
+            AzureInventoryLogicAppConnectionParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryMessagingAssociationRow> Rows) ReadMessagingAssociations(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryMessagingAssociationRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.MessagingAssociations,
+            AzureInventoryMessagingAssociationParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<TRow> Rows) ReadCompanionRows<TRow>(
+        ZipArchive archive,
+        string entryName,
+        TryParseCompanionRow<TRow> tryParse)
+        where TRow : class
+    {
+        ZipArchiveEntry? entry = FindEntry(archive, entryName);
+
+        if (entry is null)
+        {
+            return (false, []);
+        }
+
+        using Stream stream = entry.Open();
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(stream);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                throw new JsonException($"{entryName} root must be a JSON array.");
+            }
+
+            List<TRow> rows = [];
+
+            foreach (JsonElement element in document.RootElement.EnumerateArray())
+            {
+                if (!tryParse(element, out TRow? row, out _))
+                {
+                    continue;
+                }
+
+                if (row is not null)
+                {
+                    rows.Add(row);
+                }
+            }
+
+            return (true, rows);
+        }
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException($"{entryName} is not valid JSON.");
+        }
+    }
+
+    private delegate bool TryParseCompanionRow<TRow>(JsonElement element, out TRow? row, out string? errorMessage)
+        where TRow : class;
+
     private static (bool FilePresent, List<AzureInventoryEffectiveNetworkControlRow> Rows) ReadEffectiveNetworkControls(
         ZipArchive archive)
     {
@@ -922,6 +1015,42 @@ public sealed class AzureExtractorPackageInventoryReadResult
     } = [];
 
     public bool AdfDataflowsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryEventGridSubscriptionRow> EventGridSubscriptions
+    {
+        get;
+        init;
+    } = [];
+
+    public bool EventGridSubscriptionsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryLogicAppConnectionRow> LogicAppConnections
+    {
+        get;
+        init;
+    } = [];
+
+    public bool LogicAppConnectionsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryMessagingAssociationRow> MessagingAssociations
+    {
+        get;
+        init;
+    } = [];
+
+    public bool MessagingAssociationsFilePresent
     {
         get;
         init;
