@@ -150,6 +150,9 @@ public sealed class DiagramAstGraphvizDotEmitterTests
 
         dot.Should().Contain("subgraph cluster_region_eastus");
         dot.Should().Contain("Region eastus");
+        dot.Should().Contain("labelloc=t");
+        dot.Should().Contain("labeljust=l");
+        dot.Should().Contain("margin=\"18,12\"");
         dot.Should().NotContain("alpack_");
         dot.Should().NotContain("cluster_alpack");
     }

@@ -16,12 +16,12 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         options ??= new DiagramAstCompileOptions();
 
-        List<GraphNode> topologyNodes = graph.Nodes
+        List<GraphNode> allTopologyNodes = graph.Nodes
             .Where(DiagramAstGraphNodeClassifier.IsTopologyResource)
             .OrderBy(DiagramAstGraphNodeClassifier.ReadArmId, StringComparer.Ordinal)
             .ToList();
 
-        topologyNodes = ApplyModeNodeFilter(graph, topologyNodes, mode, options);
+        List<GraphNode> topologyNodes = ApplyModeNodeFilter(graph, allTopologyNodes.ToList(), mode, options);
         topologyNodes = ExecutiveVnetPeeringEndpointIncluder.Include(graph, topologyNodes, mode);
 
         HashSet<string> includedNodeIds = topologyNodes
@@ -91,13 +91,23 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         }
 
         DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode, options);
+
+        if (mode is not DiagramMode.Network)
+        {
+            HashSet<string> privateEndpointDiagramNodeIdsToHide = DiagramPrivateEndpointTargetAnnotator.Apply(
+                ast,
+                graph.Nodes,
+                graph.Edges,
+                nodeIdMap);
+            DiagramPrivateEndpointCanvasPruner.RemoveNodes(ast, privateEndpointDiagramNodeIdsToHide);
+        }
+        DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
         DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
         DiagramSparseComponentPacker.Pack(ast);
         DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
         DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges(ast);
         DiagramConnectionTypeAnnotator.Annotate(ast);
-        DiagramPrivateEndpointTargetAnnotator.Apply(ast, topologyNodes, includedEdges, nodeIdMap);
 
         return ast;
     }
@@ -166,7 +176,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             case DiagramMode.Network:
                 return IncludeInventoryConnectedVirtualMachines(
                     graph,
-                    FilterByCategories(nodes, GraphTopologyCategories.Network));
+                    NetworkDiagramNodeFilter.ExcludePrivateEndpoints(
+                        FilterByCategories(nodes, GraphTopologyCategories.Network)));
             case DiagramMode.Security:
                 return FilterSecurityNodes(nodes);
             case DiagramMode.Identity:

@@ -60,6 +60,11 @@ public static class DiagramForestEdgeLabelCollapse
                 continue;
             }
 
+            if (string.Equals(firstLabel, "peering", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             foreach (DiagramEdge edge in componentEdges)
             {
                 suppressed.Add(EdgeKey(edge));

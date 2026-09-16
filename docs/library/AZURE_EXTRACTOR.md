@@ -72,7 +72,7 @@ When **`adf-datasets.json`** and **`adf-pipeline-flows.json`** companions are pr
 | `adf-datasets.json` | `GET …/factories/{factory}/datasets?api-version=2018-06-01` |
 | `adf-pipeline-flows.json` | Derived from `GET …/factories/{factory}/pipelines?api-version=2018-06-01` activity `inputs` / `outputs` (static references only; nested `ExecutePipeline` up to depth 3) |
 
-See [`docs/architecture/AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md).
+See [`docs/architecture/AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md). Further diagram-oriented collection (Synapse pipelines, Event Grid, Logic Apps, remaining ADF connectors, MI+RBAC **May access**, PaaS children) is a **prompt set**, not shipped: [`AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](../architecture/AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md).
 
 ### Automated continuous pull (V1.x — ArchLucid-hosted)
 

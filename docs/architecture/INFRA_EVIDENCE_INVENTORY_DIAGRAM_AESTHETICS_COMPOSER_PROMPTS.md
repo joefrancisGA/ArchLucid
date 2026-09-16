@@ -424,7 +424,7 @@ Tests: as named in the paste file (dotnet filter + vitest + MOCK_E2E_SKIP_NEXT_B
 
 ## Follow-on (not this wave)
 
-Microsoft architecture-icon licensing (owner decision). Nested VNet→subnet frames. Graphviz `cluster_` PNG parity for IDA-08 frames. DAU walkthrough stays DAU.
+Microsoft architecture-icon licensing (owner decision). Nested VNet→subnet frames stay **IDA-HOLD**. **IDA-08 frames that overlap / read as peering wires** are **IDF-01–IDF-07** ([`INFRA_EVIDENCE_INVENTORY_DIAGRAM_FRAMES_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_FRAMES_COMPOSER_PROMPTS.md)) — do not start IDF from an IDA chat. DAU walkthrough stays DAU.
 
 ## Open questions for the owner (defaults apply if unanswered)
 
