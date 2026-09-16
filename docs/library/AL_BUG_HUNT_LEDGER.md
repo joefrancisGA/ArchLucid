@@ -14139,6 +14139,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-16 seed hunt #4432 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `overrides` property gap; regression `ParseAsync_overrides_maps_tf_overrides_property`.
+
 2026-09-16 seed hunt #4427 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-16 seed hunt #4422 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -14941,11 +14943,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 535
-- **bugs-found:** 322
+- **hunts:** 536
+- **bugs-found:** 323
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-16 — hunt #4407: terraform-show-json module property gap
+- **last-bug:** 2026-09-16 — hunt #4432: terraform-show-json overrides property gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
