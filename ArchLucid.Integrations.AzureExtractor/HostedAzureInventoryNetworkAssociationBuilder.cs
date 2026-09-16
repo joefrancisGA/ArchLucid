@@ -29,6 +29,14 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
             AddLoadBalancerAssociations(resource, rows, keys);
             AddPrivateDnsLinkAssociations(resource, rows, keys);
             AddAppServiceAssociations(resource, rows, keys);
+            AddNatGatewayAssociations(resource, rows, keys);
+            AddFirewallAssociations(resource, rows, keys);
+            AddVmssAssociations(resource, rows, keys);
+            AddFrontDoorAssociations(resource, rows, keys);
+            AddContainerAppAssociations(resource, rows, keys);
+            AddManagedEnvironmentAssociations(resource, rows, keys);
+            AddManagedClusterAssociations(resource, rows, keys);
+            AddPeDnsZoneGroupAssociations(resource, rows, keys);
         }
 
         return rows;
@@ -463,6 +471,447 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
             resource.ResourceId,
             subnetId,
             AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet);
+    }
+
+    private static void AddNatGatewayAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        if (!resource.ResourceType.Contains("natGateways", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        foreach (string subnetId in ReadSubnetIdsFromJsonArray(resource.Properties, "subnets"))
+        {
+            AddRow(
+                rows,
+                keys,
+                resource.ResourceId,
+                subnetId,
+                AzureInventoryRelationshipAssociationTypes.NatGatewayToSubnet);
+        }
+    }
+
+    private static void AddFirewallAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        if (!resource.ResourceType.Contains("azureFirewalls", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        string? ipConfigurationsJson = TryReadProperty(resource.Properties, "ipConfigurations");
+
+        if (string.IsNullOrWhiteSpace(ipConfigurationsJson))
+        {
+            return;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(ipConfigurationsJson);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                return;
+            }
+
+            foreach (JsonElement ipConfiguration in document.RootElement.EnumerateArray())
+            {
+                string? subnetId = TryReadNestedArmId(ipConfiguration, "properties", "subnet", "id");
+
+                if (!string.IsNullOrWhiteSpace(subnetId))
+                {
+                    AddRow(
+                        rows,
+                        keys,
+                        resource.ResourceId,
+                        subnetId,
+                        AzureInventoryRelationshipAssociationTypes.FirewallToSubnet);
+                }
+            }
+        }
+        catch (JsonException)
+        {
+        }
+    }
+
+    private static void AddVmssAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        if (!resource.ResourceType.Contains("virtualMachineScaleSets", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        foreach (string subnetId in ReadDelimitedIds(resource.Properties, "ipConfiguration.subnet.id"))
+        {
+            AddRow(
+                rows,
+                keys,
+                resource.ResourceId,
+                subnetId,
+                AzureInventoryRelationshipAssociationTypes.NicToSubnet);
+        }
+    }
+
+    private static void AddFrontDoorAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        if (!resource.ResourceType.Contains("frontDoors", StringComparison.OrdinalIgnoreCase)
+            && !resource.ResourceType.Contains("Microsoft.Cdn/profiles", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        AddClassicFrontDoorBackendAssociations(resource, rows, keys);
+        AddAfdOriginAssociations(resource, rows, keys);
+    }
+
+    private static void AddClassicFrontDoorBackendAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        string? backendPoolsJson = TryReadProperty(resource.Properties, "backendPools");
+
+        if (string.IsNullOrWhiteSpace(backendPoolsJson))
+        {
+            return;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(backendPoolsJson);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                return;
+            }
+
+            foreach (JsonElement pool in document.RootElement.EnumerateArray())
+            {
+                if (!pool.TryGetProperty("properties", out JsonElement properties)
+                    || properties.ValueKind is not JsonValueKind.Object
+                    || !properties.TryGetProperty("backends", out JsonElement backends)
+                    || backends.ValueKind is not JsonValueKind.Array)
+                {
+                    continue;
+                }
+
+                foreach (JsonElement backend in backends.EnumerateArray())
+                {
+                    string? backendAddress = TryReadNestedArmId(backend, "address");
+
+                    if (string.IsNullOrWhiteSpace(backendAddress))
+                    {
+                        continue;
+                    }
+
+                    AddRow(
+                        rows,
+                        keys,
+                        resource.ResourceId,
+                        backendAddress,
+                        AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin);
+                }
+            }
+        }
+        catch (JsonException)
+        {
+        }
+    }
+
+    private static void AddAfdOriginAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        string? originGroupsJson = TryReadProperty(resource.Properties, "originGroups");
+
+        if (string.IsNullOrWhiteSpace(originGroupsJson))
+        {
+            return;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(originGroupsJson);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                return;
+            }
+
+            foreach (JsonElement originGroup in document.RootElement.EnumerateArray())
+            {
+                if (!originGroup.TryGetProperty("properties", out JsonElement properties)
+                    || properties.ValueKind is not JsonValueKind.Object
+                    || !properties.TryGetProperty("origins", out JsonElement origins)
+                    || origins.ValueKind is not JsonValueKind.Array)
+                {
+                    continue;
+                }
+
+                foreach (JsonElement origin in origins.EnumerateArray())
+                {
+                    string? hostName = TryReadNestedArmId(origin, "properties", "hostName");
+
+                    if (string.IsNullOrWhiteSpace(hostName))
+                    {
+                        continue;
+                    }
+
+                    AddRow(
+                        rows,
+                        keys,
+                        resource.ResourceId,
+                        hostName,
+                        AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin);
+                }
+            }
+        }
+        catch (JsonException)
+        {
+        }
+    }
+
+    private static void AddContainerAppAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        if (!resource.ResourceType.Contains("Microsoft.App/containerApps", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        string? environmentId = TryReadProperty(resource.Properties, "managedEnvironmentId");
+
+        if (string.IsNullOrWhiteSpace(environmentId))
+        {
+            return;
+        }
+
+        AddRow(
+            rows,
+            keys,
+            resource.ResourceId,
+            environmentId,
+            AzureInventoryRelationshipAssociationTypes.ContainerAppToEnv);
+    }
+
+    private static void AddManagedEnvironmentAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        if (!resource.ResourceType.Contains("managedEnvironments", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        string? subnetId = TryReadProperty(resource.Properties, "vnetConfiguration.infrastructureSubnetId");
+
+        if (string.IsNullOrWhiteSpace(subnetId))
+        {
+            return;
+        }
+
+        AddRow(
+            rows,
+            keys,
+            resource.ResourceId,
+            subnetId,
+            AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet);
+    }
+
+    private static void AddManagedClusterAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        if (!resource.ResourceType.Contains("managedClusters", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        string? agentPoolsJson = TryReadProperty(resource.Properties, "agentPoolProfiles");
+
+        if (string.IsNullOrWhiteSpace(agentPoolsJson))
+        {
+            return;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(agentPoolsJson);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                return;
+            }
+
+            foreach (JsonElement agentPool in document.RootElement.EnumerateArray())
+            {
+                string? subnetId = TryReadNestedArmId(agentPool, "vnetSubnetID", "vnetSubnetId");
+
+                if (string.IsNullOrWhiteSpace(subnetId))
+                {
+                    continue;
+                }
+
+                AddRow(
+                    rows,
+                    keys,
+                    resource.ResourceId,
+                    subnetId,
+                    AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet);
+            }
+        }
+        catch (JsonException)
+        {
+        }
+    }
+
+    private static void AddPeDnsZoneGroupAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        if (!resource.ResourceType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        string? dnsZoneGroupsJson = TryReadProperty(resource.Properties, "privateDnsZoneGroups");
+
+        if (string.IsNullOrWhiteSpace(dnsZoneGroupsJson))
+        {
+            return;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(dnsZoneGroupsJson);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                return;
+            }
+
+            foreach (JsonElement dnsZoneGroup in document.RootElement.EnumerateArray())
+            {
+                if (!dnsZoneGroup.TryGetProperty("properties", out JsonElement properties)
+                    || properties.ValueKind is not JsonValueKind.Object
+                    || !properties.TryGetProperty("privateDnsZoneConfigs", out JsonElement configs)
+                    || configs.ValueKind is not JsonValueKind.Array)
+                {
+                    continue;
+                }
+
+                foreach (JsonElement config in configs.EnumerateArray())
+                {
+                    string? zoneId = TryReadNestedArmId(config, "properties", "privateDnsZoneId");
+
+                    if (string.IsNullOrWhiteSpace(zoneId))
+                    {
+                        continue;
+                    }
+
+                    AddRow(
+                        rows,
+                        keys,
+                        resource.ResourceId,
+                        zoneId,
+                        AzureInventoryRelationshipAssociationTypes.PeDnsZoneGroup);
+                }
+            }
+        }
+        catch (JsonException)
+        {
+        }
+    }
+
+    private static IEnumerable<string> ReadSubnetIdsFromJsonArray(
+        IReadOnlyDictionary<string, object?>? properties,
+        string propertyName)
+    {
+        return ReadResourceIdsFromJsonArray(properties, propertyName, "id");
+    }
+
+    private static List<string> ReadResourceIdsFromJsonArray(
+        IReadOnlyDictionary<string, object?>? properties,
+        string propertyName,
+        string nestedIdProperty = "id")
+    {
+        List<string> resourceIds = [];
+        string? json = TryReadProperty(properties, propertyName);
+
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return resourceIds;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                return resourceIds;
+            }
+
+            foreach (JsonElement element in document.RootElement.EnumerateArray())
+            {
+                string? resourceId = TryReadNestedArmId(element, nestedIdProperty);
+
+                if (!string.IsNullOrWhiteSpace(resourceId))
+                {
+                    resourceIds.Add(resourceId);
+                }
+            }
+        }
+        catch (JsonException)
+        {
+        }
+
+        return resourceIds;
+    }
+
+    private static string? TryReadNestedArmId(JsonElement element, params string[] propertyNames)
+    {
+        JsonElement current = element;
+
+        foreach (string propertyName in propertyNames)
+        {
+            if (!current.TryGetProperty(propertyName, out JsonElement next))
+            {
+                return null;
+            }
+
+            if (propertyName.Equals(propertyNames[^1], StringComparison.Ordinal))
+            {
+                return next.ValueKind is JsonValueKind.String ? next.GetString() : null;
+            }
+
+            if (next.ValueKind is not JsonValueKind.Object)
+            {
+                return null;
+            }
+
+            current = next;
+        }
+
+        return null;
     }
 
     private static IEnumerable<string> ReadDelimitedIds(

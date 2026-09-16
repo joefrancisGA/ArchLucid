@@ -47,6 +47,8 @@ public static class AzureExtractorPackageInventoryReader
                 ReadLogicAppConnections(archive);
             (bool messagingAssociationsFilePresent, List<AzureInventoryMessagingAssociationRow> messagingAssociations) =
                 ReadMessagingAssociations(archive);
+            (bool paasChildAssociationsFilePresent, List<AzureInventoryPaasChildAssociationRow> paasChildAssociations) =
+                ReadPaasChildAssociations(archive);
 
             return new AzureExtractorPackageInventoryReadResult
             {
@@ -80,6 +82,8 @@ public static class AzureExtractorPackageInventoryReader
                 LogicAppConnectionsFilePresent = logicAppConnectionsFilePresent,
                 MessagingAssociations = messagingAssociations,
                 MessagingAssociationsFilePresent = messagingAssociationsFilePresent,
+                PaasChildAssociations = paasChildAssociations,
+                PaasChildAssociationsFilePresent = paasChildAssociationsFilePresent,
             };
         }
         catch (JsonException ex)
@@ -603,6 +607,15 @@ public static class AzureExtractorPackageInventoryReader
             AzureInventoryMessagingAssociationParser.TryParse);
     }
 
+    private static (bool FilePresent, List<AzureInventoryPaasChildAssociationRow> Rows) ReadPaasChildAssociations(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryPaasChildAssociationRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.PaasChildAssociations,
+            AzureInventoryPaasChildAssociationParser.TryParse);
+    }
+
     private static (bool FilePresent, List<TRow> Rows) ReadCompanionRows<TRow>(
         ZipArchive archive,
         string entryName,
@@ -1051,6 +1064,18 @@ public sealed class AzureExtractorPackageInventoryReadResult
     } = [];
 
     public bool MessagingAssociationsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryPaasChildAssociationRow> PaasChildAssociations
+    {
+        get;
+        init;
+    } = [];
+
+    public bool PaasChildAssociationsFilePresent
     {
         get;
         init;
