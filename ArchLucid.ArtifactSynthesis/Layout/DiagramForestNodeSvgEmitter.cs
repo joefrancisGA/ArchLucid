@@ -55,26 +55,30 @@ public static class DiagramForestNodeSvgEmitter
         double contentHeight = Math.Max(options.PictogramSize, textBlockHeight);
         double contentTop = (height - contentHeight) / 2.0;
         double pictogramY = contentTop + ((contentHeight - options.PictogramSize) / 2.0);
-        double textX = options.NodePaddingX + options.PictogramSize + options.IconToLabelGap;
+        double privateEndpointIndicatorWidth = metrics.HasPrivateEndpointAccess
+            ? DiagramForestPrivateEndpointAccessSvgEmitter.ReservedWidth
+            : 0.0d;
+        double pictogramX = options.NodePaddingX + privateEndpointIndicatorWidth;
+        double textX = pictogramX + options.PictogramSize + options.IconToLabelGap;
         double firstLineBaseline = contentTop + (options.LineHeight * 0.75);
+
+        if (metrics.HasPrivateEndpointAccess)
+        {
+            group.Add(
+                DiagramForestPrivateEndpointAccessSvgEmitter.Emit(
+                    svgNamespace,
+                    options.NodePaddingX,
+                    contentTop,
+                    contentHeight));
+        }
 
         group.Add(
             DiagramInventoryPictogramSvgEmitter.Emit(
                 svgNamespace,
                 metrics.PictogramKind,
                 options.PictogramSize,
-                options.NodePaddingX,
+                pictogramX,
                 pictogramY));
-
-        if (metrics.HasPrivateEndpointAccess)
-        {
-            group.Add(
-                DiagramForestPrivateEndpointLockSvgEmitter.Emit(
-                    svgNamespace,
-                    width,
-                    options.NodePaddingX,
-                    options.NodePaddingY));
-        }
 
         XElement text = new(
             svgNamespace + "text",

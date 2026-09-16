@@ -22,6 +22,8 @@ const VIEWPORT_FRAME_CLASSNAME =
 
 const CAMERA_CLASSNAME = 'overflow-auto p-4';
 
+const INK_CLIP_CLASSNAME = 'overflow-hidden';
+
 /**
  * Visible diagram frame with overlay chrome outside the scrolling camera.
  *
@@ -50,7 +52,9 @@ export function ArchitectureDiagramMermaidViewportFrame(
         className={cn(CAMERA_CLASSNAME, props.cameraMaxHeightClassName)}
         data-testid={props.cameraTestId}
       >
-        {props.children}
+        <div className={INK_CLIP_CLASSNAME} data-testid="architecture-diagram-ink-clip">
+          {props.children}
+        </div>
       </div>
     </div>
   );

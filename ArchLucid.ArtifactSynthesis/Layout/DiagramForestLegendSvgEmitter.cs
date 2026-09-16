@@ -89,8 +89,8 @@ public static class DiagramForestLegendSvgEmitter
 
             if (string.Equals(row, "Private endpoint access", StringComparison.Ordinal))
             {
-                group.Add(LockGlyph(svgNamespace, LeftPadding, y - 10.0d));
-                group.Add(Text(svgNamespace, LeftPadding + 18.0d, y, row, bold: false));
+                group.Add(PrivateEndpointAccessGlyph(svgNamespace, LeftPadding, y - 10.0d));
+                group.Add(Text(svgNamespace, LeftPadding + 24.0d, y, row, bold: false));
                 continue;
             }
 
@@ -192,28 +192,13 @@ public static class DiagramForestLegendSvgEmitter
             new XAttribute("pointer-events", "none"));
     }
 
-    private static XElement LockGlyph(XNamespace svgNamespace, double x, double y)
+    private static XElement PrivateEndpointAccessGlyph(XNamespace svgNamespace, double x, double y)
     {
-        XElement group = new(
-            svgNamespace + "g",
-            new XAttribute(
-                "transform",
-                string.Create(CultureInfo.InvariantCulture, $"translate({x:0.###},{y:0.###}) scale(1)")));
-        group.Add(new XElement(
-            svgNamespace + "rect",
-            new XAttribute("x", "3.5"),
-            new XAttribute("y", "6.5"),
-            new XAttribute("width", "5"),
-            new XAttribute("height", "4.5"),
-            new XAttribute("fill", "#0f766e")));
-        group.Add(new XElement(
-            svgNamespace + "path",
-            new XAttribute("d", "M4 6.5V4.8C4 3.25 5.2 2 6.75 2S9.5 3.25 9.5 4.8V6.5"),
-            new XAttribute("fill", "none"),
-            new XAttribute("stroke", "#0f766e"),
-            new XAttribute("stroke-width", "1.4"),
-            new XAttribute("stroke-linecap", "round")));
-        return group;
+        return DiagramForestPrivateEndpointAccessSvgEmitter.Emit(
+            svgNamespace,
+            x,
+            y,
+            12.0d);
     }
 
     private static XElement Text(XNamespace svgNamespace, double x, double y, string value, bool bold)
