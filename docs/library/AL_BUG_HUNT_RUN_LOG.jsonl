@@ -4529,3 +4529,4 @@
 {"at":"2026-09-16T15:34:35.5361452Z","zoneId":"tenant-data-export","outcome":"seed-only"}
 {"at":"2026-09-16T15:34:39.3245431Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-16T15:36:18.3605321Z","zoneId":"topology-proposal-merge","outcome":"hit"}
+{"at":"2026-09-16T15:36:22.1239852Z","zoneId":"context-ingestion","outcome":"seed-only"}
