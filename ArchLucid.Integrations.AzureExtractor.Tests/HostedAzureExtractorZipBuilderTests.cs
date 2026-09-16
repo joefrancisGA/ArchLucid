@@ -188,4 +188,35 @@ public sealed class HostedAzureExtractorZipBuilderTests
         using JsonDocument defenderDocument = JsonDocument.Parse(defenderReader.ReadToEnd());
         Assert.Equal(72, defenderDocument.RootElement[0].GetProperty("secureScore").GetInt32());
     }
+
+    [Fact]
+    public void BuildZip_writes_adf_linked_service_companion_entries()
+    {
+        AzureInventoryAdfLinkedServiceRow row = new()
+        {
+            FactoryResourceId =
+                "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1",
+            LinkedServiceResourceId =
+                "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/linkedservices/BlobLS",
+            LinkedServiceName = "BlobLS",
+            LinkedServiceType = "AzureBlobStorage",
+            TargetHost = "sa1.blob.core.windows.net",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            adfLinkedServices: [row]);
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream adfStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.AdfLinkedServices)!.Open();
+        using StreamReader adfReader = new(adfStream);
+        using JsonDocument adfDocument = JsonDocument.Parse(adfReader.ReadToEnd());
+        Assert.Equal("BlobLS", adfDocument.RootElement[0].GetProperty("linkedServiceName").GetString());
+    }
 }
