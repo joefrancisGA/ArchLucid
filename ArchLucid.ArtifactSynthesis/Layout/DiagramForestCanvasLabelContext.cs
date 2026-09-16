@@ -76,12 +76,24 @@ public sealed class DiagramForestCanvasLabelContext
             .Select(line => line.Length)
             .DefaultIfEmpty(0)
             .Max();
+        double privateEndpointIndicatorWidth = node.HasPrivateEndpointAccess
+            ? DiagramForestPrivateEndpointAccessSvgEmitter.ReservedWidth
+            : 0.0d;
         double textColumnWidth = Math.Max(
-            _options.MinNodeWidth - ((_options.NodePaddingX * 2) + _options.PictogramSize + _options.IconToLabelGap),
+            _options.MinNodeWidth
+                - ((_options.NodePaddingX * 2)
+                    + privateEndpointIndicatorWidth
+                    + _options.PictogramSize
+                    + _options.IconToLabelGap),
             longestLineChars * _options.CharacterWidth);
         textColumnWidth = Math.Min(textColumnMaxWidth, textColumnWidth);
         double width = Math.Clamp(
-            _options.NodePaddingX + _options.PictogramSize + _options.IconToLabelGap + textColumnWidth + _options.NodePaddingX,
+            _options.NodePaddingX
+                + privateEndpointIndicatorWidth
+                + _options.PictogramSize
+                + _options.IconToLabelGap
+                + textColumnWidth
+                + _options.NodePaddingX,
             _options.MinNodeWidth,
             _options.MaxNodeWidth);
         int textLineCount = nameLines.Count + resourceGroupLines.Count;
