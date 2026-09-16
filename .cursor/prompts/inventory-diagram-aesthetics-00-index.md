@@ -118,7 +118,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-aesthetics-<s
 
 ## Follow-on (do not implement from this file)
 
-Microsoft Azure architecture icons require a **license/product decision** (IDA-HOLD). Nested VNet → subnet frames are a later layout engine, not IDA-08. DAU walkthrough/spotlight stays DAU.
+Microsoft Azure architecture icons require a **license/product decision** (IDA-HOLD). Nested VNet → subnet frames are a later layout engine, not IDA-08. Owner 2026-09-16: IDA-08 frames exist but overlap and read as peering wires — that visibility wave is **IDF** ([`inventory-diagram-frames-00-index.md`](inventory-diagram-frames-00-index.md)). Do not start IDF from an IDA chat. DAU walkthrough/spotlight stays DAU.
 
 ## After each prompt
 
