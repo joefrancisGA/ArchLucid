@@ -12631,6 +12631,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-costing
 
+2026-09-16 seed hunt #4098 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
+
 2026-09-16 seed hunt #4093 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
 
 2026-09-16 seed hunt #4088 (seed-only): reseeded core-costing with `-Hint core-costing`; no new hunt-ready rows.
@@ -13282,7 +13284,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 363
+- **hunts:** 364
 - **bugs-found:** 223
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
