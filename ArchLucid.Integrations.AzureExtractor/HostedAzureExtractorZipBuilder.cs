@@ -35,7 +35,10 @@ public static class HostedAzureExtractorZipBuilder
         IReadOnlyList<HostedAzureArmPolicyAssignmentRecord>? policyAssignments = null,
         IReadOnlyList<HostedAzureArmDiagnosticSettingRecord>? diagnosticSettings = null,
         IReadOnlyList<HostedAzureArmDefenderSummaryRecord>? defenderSummaries = null,
-        IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord>? effectiveNetworkControls = null)
+        IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord>? effectiveNetworkControls = null,
+        IReadOnlyList<AzureInventoryAdfLinkedServiceRow>? adfLinkedServices = null,
+        IReadOnlyList<AzureInventoryAdfDatasetRow>? adfDatasets = null,
+        IReadOnlyList<AzureInventoryAdfPipelineFlowRow>? adfPipelineFlows = null)
     {
         bool hasSubscriptionId = !string.IsNullOrWhiteSpace(subscriptionId);
         bool hasManagementGroupId = !string.IsNullOrWhiteSpace(managementGroupId);
@@ -201,6 +204,49 @@ public static class HostedAzureExtractorZipBuilder
             })
             .ToArray<object>();
 
+        object[] adfLinkedServiceRows = (adfLinkedServices ?? [])
+            .Select(static row => new
+            {
+                factoryResourceId = row.FactoryResourceId,
+                linkedServiceResourceId = row.LinkedServiceResourceId,
+                linkedServiceName = row.LinkedServiceName,
+                linkedServiceType = row.LinkedServiceType,
+                targetResourceId = row.TargetResourceId,
+                targetHost = row.TargetHost,
+                keyVaultResourceId = row.KeyVaultResourceId,
+                integrationRuntimeName = row.IntegrationRuntimeName,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] adfDatasetRows = (adfDatasets ?? [])
+            .Select(static row => new
+            {
+                factoryResourceId = row.FactoryResourceId,
+                datasetResourceId = row.DatasetResourceId,
+                datasetName = row.DatasetName,
+                linkedServiceName = row.LinkedServiceName,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] adfPipelineFlowRows = (adfPipelineFlows ?? [])
+            .Select(static row => new
+            {
+                factoryResourceId = row.FactoryResourceId,
+                pipelineResourceId = row.PipelineResourceId,
+                pipelineName = row.PipelineName,
+                activityName = row.ActivityName,
+                activityType = row.ActivityType,
+                flowDirection = row.FlowDirection,
+                datasetName = row.DatasetName,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
         using MemoryStream zipStream = new();
 
         using (ZipArchive archive = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
@@ -239,6 +285,18 @@ public static class HostedAzureExtractorZipBuilder
                 archive,
                 AzureExtractorPackageZipEntryNames.EffectiveNetworkControls,
                 JsonSerializer.Serialize(effectiveNetworkControlRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.AdfLinkedServices,
+                JsonSerializer.Serialize(adfLinkedServiceRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.AdfDatasets,
+                JsonSerializer.Serialize(adfDatasetRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.AdfPipelineFlows,
+                JsonSerializer.Serialize(adfPipelineFlowRows, SerializerOptions));
             AddUtf8Entry(archive, "policy-compliance.json", JsonSerializer.Serialize(policyCompliance, SerializerOptions));
             AddUtf8Entry(archive, "README.txt", readme);
         }

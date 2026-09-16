@@ -135,7 +135,7 @@ function BuyerGoldenJourneyStepperNav(props: BuyerGoldenJourneyStepperNavProps):
                     <Link
                       href={def.href}
                       aria-label={`Step ${def.step}: ${def.label}. ${def.chipTooltip}`}
-                      prefetch
+                      prefetch={false}
                       className={cn(
                         "inline-flex min-h-7 items-center gap-1 rounded-full px-2 py-0.5 font-medium no-underline transition hover:opacity-95",
                         OPERATOR_TYPOGRAPHY.badge,
@@ -211,7 +211,7 @@ export function LayerContextStrip({
                 className={cn("shrink-0 font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-2 transition hover:text-neutral-900 focus-visible:outline focus-visible:ring-2 focus-visible:ring-offset-1 dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
                 data-testid="layer-context-back-pilot"
                 href={stripBack.href}
-                prefetch
+                prefetch={false}
               >
                 {stripBack.label}
               </Link>
@@ -278,7 +278,7 @@ export function LayerContextStrip({
             className={cn("shrink-0 font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-2 transition hover:text-neutral-900 focus-visible:outline focus-visible:ring-2 focus-visible:ring-offset-1 dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
             data-testid="layer-context-back-pilot"
             href={stripBack.href}
-            prefetch
+            prefetch={false}
           >
             {stripBack.label}
           </Link>

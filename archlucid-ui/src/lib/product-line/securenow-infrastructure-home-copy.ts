@@ -1,5 +1,6 @@
 import {
   SECURENOW_INFRASTRUCTURE_ASK_PATH,
+  SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
   SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
@@ -22,6 +23,12 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
     label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
     summary: "Explore cloud resources and open the evidence hub for a single resource.",
     recommendedFirst: true,
+  },
+  {
+    href: SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
+    label: OPERATOR_NAV_LINK_LABELS.infrastructureDeclaredConnections,
+    summary:
+      "Declare ConnectsTo or DependsOn edges between resources when config files or tribal knowledge are not ingested.",
   },
   {
     href: SECURENOW_INFRASTRUCTURE_DRIFT_PATH,

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fireEvent, render, screen, within } from "@testing-library/react";
 
@@ -23,39 +23,82 @@ const outline: InfraEvidenceMermaidOutline = {
   edges: [{ from: "n_src", to: "n_missing", label: null }],
 };
 
+function getNodesTable(): HTMLTableElement {
+  const panel = screen.getByTestId("infra-diagrams-outline-nodes-panel");
+
+  return within(panel).getByRole("table");
+}
+
+function getEdgesTable(): HTMLTableElement {
+  const panel = screen.getByTestId("infra-diagrams-outline-edges-panel");
+
+  return within(panel).getByRole("table");
+}
+
 describe("InfraEvidenceDiagramOutline", () => {
-  it("shows edge relationship labels in the Edges table", () => {
+  beforeEach(() => {
+    window.sessionStorage.clear();
+  });
+
+  it("collapses nodes and edges tables by default", () => {
     render(<InfraEvidenceDiagramOutline outline={outline} />);
 
+    expect(screen.getByTestId("infra-diagrams-mermaid-outline")).toBeTruthy();
+    expect(screen.getByTestId("infra-diagrams-outline-nodes-disclosure")).toHaveTextContent("Nodes (2)");
+    expect(screen.getByTestId("infra-diagrams-outline-edges-disclosure")).toHaveTextContent("Edges (1)");
+    expect(screen.getByTestId("infra-diagrams-outline-nodes-disclosure")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByTestId("infra-diagrams-outline-edges-disclosure")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByTestId("infra-diagrams-outline-nodes-panel")).toBeNull();
+    expect(screen.queryByTestId("infra-diagrams-outline-edges-panel")).toBeNull();
+  });
+
+  it("expands the nodes table when the disclosure is clicked", () => {
+    render(<InfraEvidenceDiagramOutline outline={outline} />);
+
+    fireEvent.click(screen.getByTestId("infra-diagrams-outline-nodes-disclosure"));
+
+    expect(screen.getByTestId("infra-diagrams-outline-nodes-disclosure")).toHaveAttribute("aria-expanded", "true");
+    expect(getNodesTable()).toBeTruthy();
+    expect(within(getNodesTable()).getByText("core-vnet")).toBeTruthy();
+  });
+
+  it("shows the nodes table immediately when defaultNodesOpen is true", () => {
+    render(<InfraEvidenceDiagramOutline outline={outline} defaultNodesOpen={true} />);
+
+    expect(screen.getByTestId("infra-diagrams-outline-nodes-disclosure")).toHaveAttribute("aria-expanded", "true");
+    expect(getNodesTable()).toBeTruthy();
+  });
+
+  it("shows edge relationship labels in the Edges table", () => {
+    render(<InfraEvidenceDiagramOutline outline={outline} defaultNodesOpen={true} defaultEdgesOpen={true} />);
+
     const root = screen.getByTestId("infra-diagrams-mermaid-outline");
-    const edgesHeading = screen.getByRole("heading", { name: "Edges" });
-    const edgesTable = edgesHeading.parentElement?.querySelector("table");
-    const nodesHeading = screen.getByRole("heading", { name: "Nodes" });
-    const nodesTable = nodesHeading.parentElement?.querySelector("table");
+    const edgesTable = getEdgesTable();
+    const nodesTable = getNodesTable();
 
     expect(root).toBeTruthy();
     expect(edgesTable).not.toBeNull();
     expect(nodesTable).not.toBeNull();
 
-    expect(within(edgesTable as HTMLTableElement).getByRole("columnheader", { name: "Relationship" })).toBeTruthy();
-    expect(within(edgesTable as HTMLTableElement).getByRole("columnheader", { name: "To" })).toBeTruthy();
-    expect(within(edgesTable as HTMLTableElement).getByRole("button", { name: "Sort by From, ascending" })).toBeTruthy();
-    expect(within(edgesTable as HTMLTableElement).getByText("—")).toBeTruthy();
+    expect(within(edgesTable).getByRole("columnheader", { name: "Relationship" })).toBeTruthy();
+    expect(within(edgesTable).getByRole("columnheader", { name: "To" })).toBeTruthy();
+    expect(within(edgesTable).getByRole("button", { name: "Sort by From, ascending" })).toBeTruthy();
+    expect(within(edgesTable).getByText("—")).toBeTruthy();
 
-    expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Node Name, ascending" })).toBeTruthy();
-    expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Resource type" })).toBeTruthy();
-    expect(within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Resource group" })).toBeTruthy();
-    expect(within(edgesTable as HTMLTableElement).getByRole("button", { name: "Sort by From, ascending" })).toBeTruthy();
-    expect(within(edgesTable as HTMLTableElement).getByRole("button", { name: "Sort by Relationship" })).toBeTruthy();
-    expect(within(edgesTable as HTMLTableElement).getByRole("button", { name: "Sort by To" })).toBeTruthy();
-    expect(within(nodesTable as HTMLTableElement).queryByRole("columnheader", { name: "Id" })).toBeNull();
-    expect(within(nodesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
-    expect(within(nodesTable as HTMLTableElement).getByText("Virtual Network")).toBeTruthy();
-    expect(within(nodesTable as HTMLTableElement).queryByText("(Virtual Network)")).toBeNull();
-    expect(within(nodesTable as HTMLTableElement).queryByText("Microsoft.Network/virtualNetworks")).toBeNull();
-    expect(within(nodesTable as HTMLTableElement).getByText("rg-network")).toBeTruthy();
-    expect(within(edgesTable as HTMLTableElement).getByText("core-vnet")).toBeTruthy();
-    expect(within(edgesTable as HTMLTableElement).getByText("n_missing")).toBeTruthy();
+    expect(within(nodesTable).getByRole("button", { name: "Sort by Node Name, ascending" })).toBeTruthy();
+    expect(within(nodesTable).getByRole("button", { name: "Sort by Resource type" })).toBeTruthy();
+    expect(within(nodesTable).getByRole("button", { name: "Sort by Resource group" })).toBeTruthy();
+    expect(within(edgesTable).getByRole("button", { name: "Sort by From, ascending" })).toBeTruthy();
+    expect(within(edgesTable).getByRole("button", { name: "Sort by Relationship" })).toBeTruthy();
+    expect(within(edgesTable).getByRole("button", { name: "Sort by To" })).toBeTruthy();
+    expect(within(nodesTable).queryByRole("columnheader", { name: "Id" })).toBeNull();
+    expect(within(nodesTable).getByText("core-vnet")).toBeTruthy();
+    expect(within(nodesTable).getByText("Virtual Network")).toBeTruthy();
+    expect(within(nodesTable).queryByText("(Virtual Network)")).toBeNull();
+    expect(within(nodesTable).queryByText("Microsoft.Network/virtualNetworks")).toBeNull();
+    expect(within(nodesTable).getByText("rg-network")).toBeTruthy();
+    expect(within(edgesTable).getByText("core-vnet")).toBeTruthy();
+    expect(within(edgesTable).getByText("n_missing")).toBeTruthy();
   });
 
   it("appends the To resource type when From and To share a name", () => {
@@ -77,14 +120,19 @@ describe("InfraEvidenceDiagramOutline", () => {
       edges: [{ from: "n_pe", to: "n_cosmos", label: "connects" }],
     };
 
-    render(<InfraEvidenceDiagramOutline outline={privateEndpointOutline} />);
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={privateEndpointOutline}
+        defaultNodesOpen={true}
+        defaultEdgesOpen={true}
+      />,
+    );
 
-    const edgesHeading = screen.getByRole("heading", { name: "Edges" });
-    const edgesTable = edgesHeading.parentElement?.querySelector("table");
+    const edgesTable = getEdgesTable();
 
     expect(edgesTable).not.toBeNull();
 
-    const cells = within(edgesTable as HTMLTableElement).getAllByRole("cell");
+    const cells = within(edgesTable).getAllByRole("cell");
 
     expect(cells.map((cell) => cell.textContent)).toEqual([
       "cosmos-sql-account",
@@ -112,20 +160,27 @@ describe("InfraEvidenceDiagramOutline", () => {
       edges: [{ from: "n_a", to: "n_b", label: null }],
     };
 
-    render(<InfraEvidenceDiagramOutline outline={peeringOutline} />);
+    render(
+      <InfraEvidenceDiagramOutline outline={peeringOutline} defaultNodesOpen={true} defaultEdgesOpen={true} />,
+    );
 
-    const edgesHeading = screen.getByRole("heading", { name: "Edges" });
-    const edgesTable = edgesHeading.parentElement?.querySelector("table");
+    const edgesTable = getEdgesTable();
 
     expect(edgesTable).not.toBeNull();
-    expect(within(edgesTable as HTMLTableElement).getByText("peering")).toBeTruthy();
-    expect(within(edgesTable as HTMLTableElement).queryByText("—")).toBeNull();
+    expect(within(edgesTable).getByText("peering")).toBeTruthy();
+    expect(within(edgesTable).queryByText("—")).toBeNull();
   });
 
   it("focuses a neighborhood from a Nodes row", () => {
     const onFocusNeighborhood = vi.fn();
 
-    render(<InfraEvidenceDiagramOutline outline={outline} onFocusNeighborhood={onFocusNeighborhood} />);
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={outline}
+        onFocusNeighborhood={onFocusNeighborhood}
+        defaultNodesOpen={true}
+      />,
+    );
 
     expect(screen.getByTestId("infra-diagrams-nodes-seed-hint")).toHaveTextContent(
       "To diagram one resource and its neighbors, choose Focus neighborhood on that row.",
@@ -140,47 +195,46 @@ describe("InfraEvidenceDiagramOutline", () => {
   });
 
   it("sorts node rows when a column heading is clicked", () => {
-    render(<InfraEvidenceDiagramOutline outline={outline} />);
+    render(<InfraEvidenceDiagramOutline outline={outline} defaultNodesOpen={true} />);
 
-    const nodesHeading = screen.getByRole("heading", { name: "Nodes" });
-    const nodesTable = nodesHeading.parentElement?.querySelector("table");
+    const nodesTable = getNodesTable();
 
     expect(nodesTable).not.toBeNull();
 
-    const nodeNameHeader = within(nodesTable as HTMLTableElement).getByRole("button", { name: "Sort by Node Name, ascending" });
-    const resourceTypeHeader = within(nodesTable as HTMLTableElement).getByRole("button", {
+    const nodeNameHeader = within(nodesTable).getByRole("button", { name: "Sort by Node Name, ascending" });
+    const resourceTypeHeader = within(nodesTable).getByRole("button", {
       name: "Sort by Resource type",
     });
-    const resourceGroupHeader = within(nodesTable as HTMLTableElement).getByRole("button", {
+    const resourceGroupHeader = within(nodesTable).getByRole("button", {
       name: "Sort by Resource group",
     });
 
-    expect(within(nodesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("app-storage");
+    expect(within(nodesTable).getAllByRole("row")[1]?.textContent).toContain("app-storage");
     expect(nodeNameHeader).toHaveAttribute("aria-label", "Sort by Node Name, ascending");
 
     fireEvent.click(nodeNameHeader);
 
-    expect(within(nodesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("core-vnet");
+    expect(within(nodesTable).getAllByRole("row")[1]?.textContent).toContain("core-vnet");
     expect(nodeNameHeader).toHaveAttribute("aria-label", "Sort by Node Name, descending");
 
     fireEvent.click(nodeNameHeader);
 
-    expect(within(nodesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("app-storage");
+    expect(within(nodesTable).getAllByRole("row")[1]?.textContent).toContain("app-storage");
     expect(nodeNameHeader).toHaveAttribute("aria-label", "Sort by Node Name, ascending");
 
     fireEvent.click(resourceTypeHeader);
 
-    expect(within(nodesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("app-storage");
+    expect(within(nodesTable).getAllByRole("row")[1]?.textContent).toContain("app-storage");
     expect(resourceTypeHeader).toHaveAttribute("aria-label", "Sort by Resource type, ascending");
 
     fireEvent.click(resourceTypeHeader);
 
-    expect(within(nodesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("core-vnet");
+    expect(within(nodesTable).getAllByRole("row")[1]?.textContent).toContain("core-vnet");
     expect(resourceTypeHeader).toHaveAttribute("aria-label", "Sort by Resource type, descending");
 
     fireEvent.click(resourceGroupHeader);
 
-    expect(within(nodesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("app-storage");
+    expect(within(nodesTable).getAllByRole("row")[1]?.textContent).toContain("app-storage");
     expect(resourceGroupHeader).toHaveAttribute("aria-label", "Sort by Resource group, ascending");
   });
 
@@ -213,34 +267,35 @@ describe("InfraEvidenceDiagramOutline", () => {
       ],
     };
 
-    render(<InfraEvidenceDiagramOutline outline={sortableOutline} />);
+    render(
+      <InfraEvidenceDiagramOutline outline={sortableOutline} defaultNodesOpen={true} defaultEdgesOpen={true} />,
+    );
 
-    const edgesHeading = screen.getByRole("heading", { name: "Edges" });
-    const edgesTable = edgesHeading.parentElement?.querySelector("table");
+    const edgesTable = getEdgesTable();
 
     expect(edgesTable).not.toBeNull();
 
-    const fromHeader = within(edgesTable as HTMLTableElement).getByRole("button", { name: "Sort by From, ascending" });
-    const relationshipHeader = within(edgesTable as HTMLTableElement).getByRole("button", {
+    const fromHeader = within(edgesTable).getByRole("button", { name: "Sort by From, ascending" });
+    const relationshipHeader = within(edgesTable).getByRole("button", {
       name: "Sort by Relationship",
     });
-    const toHeader = within(edgesTable as HTMLTableElement).getByRole("button", { name: "Sort by To" });
+    const toHeader = within(edgesTable).getByRole("button", { name: "Sort by To" });
 
-    expect(within(edgesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("alpha-node");
+    expect(within(edgesTable).getAllByRole("row")[1]?.textContent).toContain("alpha-node");
 
     fireEvent.click(fromHeader);
 
-    expect(within(edgesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("gamma-node");
+    expect(within(edgesTable).getAllByRole("row")[1]?.textContent).toContain("gamma-node");
     expect(fromHeader).toHaveAttribute("aria-label", "Sort by From, descending");
 
     fireEvent.click(relationshipHeader);
 
-    expect(within(edgesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("alpha-node");
+    expect(within(edgesTable).getAllByRole("row")[1]?.textContent).toContain("alpha-node");
     expect(relationshipHeader).toHaveAttribute("aria-label", "Sort by Relationship, ascending");
 
     fireEvent.click(toHeader);
 
-    expect(within(edgesTable as HTMLTableElement).getAllByRole("row")[1]?.textContent).toContain("alpha-node");
+    expect(within(edgesTable).getAllByRole("row")[1]?.textContent).toContain("alpha-node");
     expect(toHeader).toHaveAttribute("aria-label", "Sort by To, ascending");
   });
 });

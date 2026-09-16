@@ -7,4 +7,5 @@ public sealed record DiagramForestNodeMetrics(
     IReadOnlyList<string> ResourceGroupLines,
     DiagramNodeHumanCaption Caption,
     DiagramInventoryPictogramKind PictogramKind,
-    bool HasPrivateEndpointAccess);
+    bool HasPrivateEndpointAccess,
+    bool SuppressResourceGroupCaption = false);

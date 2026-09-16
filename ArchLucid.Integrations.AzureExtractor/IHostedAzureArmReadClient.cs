@@ -100,4 +100,28 @@ public interface IHostedAzureArmReadClient
         string accessToken,
         string nicResourceId,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     GET linked services for one Data Factory (ADF platform wiring).
+    /// </summary>
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryLinkedServicesAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     GET datasets for one Data Factory (ADF pipeline direction wiring).
+    /// </summary>
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryDatasetsAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     GET pipelines for one Data Factory (ADF pipeline direction wiring).
+    /// </summary>
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryPipelinesAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
 }

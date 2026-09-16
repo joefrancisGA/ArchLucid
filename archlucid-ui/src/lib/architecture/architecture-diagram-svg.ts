@@ -53,6 +53,7 @@ function resolveArchitectureDiagramNodePalette(dark: boolean): {
   fill: string;
   border: string;
   text: string;
+  edge: string;
 } {
   if (dark) {
     return ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE;
@@ -61,21 +62,57 @@ function resolveArchitectureDiagramNodePalette(dark: boolean): {
   return ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE;
 }
 
+function isInsidePictogram(element: Element): boolean {
+  return element.closest("g.pictogram") !== null;
+}
+
+function isForestCardBodyRect(rect: Element): boolean {
+  if (rect.classList.contains("node-accent")) {
+    return false;
+  }
+
+  if (rect.classList.contains("node-card")) {
+    return true;
+  }
+
+  if (isInsidePictogram(rect)) {
+    return false;
+  }
+
+  const parent = rect.parentElement;
+
+  return parent !== null && parent.classList.contains("node");
+}
+
 /** Bakes node, edge, and label colors into the SVG so raster export does not depend on page CSS. */
 function paintArchitectureDiagramNodePalette(svg: Element, dark: boolean): void {
+  // Forest SVG has accent bars; client-dagre Mermaid fallback is neutral cards only (no accent bar).
   const palette = resolveArchitectureDiagramNodePalette(dark);
-  const nodeShapes = svg.querySelectorAll("g.node rect, g.node polygon, g.node circle");
+  const nodeGroups = svg.querySelectorAll("g.node");
 
-  for (const shape of nodeShapes) {
-    shape.setAttribute("fill", palette.fill);
-    shape.setAttribute("stroke", palette.border);
-    shape.setAttribute("stroke-width", "1.5");
-    shape.removeAttribute("fill-opacity");
+  for (const nodeGroup of nodeGroups) {
+    const cardRects = [...nodeGroup.children].filter(
+      (child): child is Element =>
+        child instanceof Element
+        && child.tagName.toLowerCase() === "rect"
+        && isForestCardBodyRect(child),
+    );
+
+    for (const shape of cardRects) {
+      shape.setAttribute("fill", palette.fill);
+      shape.setAttribute("stroke", palette.border);
+      shape.setAttribute("stroke-width", "1.5");
+      shape.removeAttribute("fill-opacity");
+    }
   }
 
   const labels = svg.querySelectorAll("g.node text, g.node .nodeLabel");
 
   for (const label of labels) {
+    if (label.closest("g.pictogram") !== null) {
+      continue;
+    }
+
     label.setAttribute("fill", palette.text);
 
     for (const tspan of label.querySelectorAll("tspan")) {
@@ -83,10 +120,12 @@ function paintArchitectureDiagramNodePalette(svg: Element, dark: boolean): void 
     }
   }
 
-  const edgePaths = svg.querySelectorAll("g.edgePaths path, g.edgePath path, path.flowchart-link");
+  const edgePaths = svg.querySelectorAll(
+    "g.edgePaths path, g.edgePath path, path.flowchart-link, g.edge path.edge-path",
+  );
 
   for (const path of edgePaths) {
-    path.setAttribute("stroke", palette.border);
+    path.setAttribute("stroke", palette.edge);
     path.setAttribute("fill", "none");
   }
 }

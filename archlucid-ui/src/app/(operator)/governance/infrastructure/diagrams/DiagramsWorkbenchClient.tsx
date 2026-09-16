@@ -1708,6 +1708,7 @@ export function DiagramsWorkbenchClient() {
             <InfraEvidenceDiagramOutline
               outline={visibleSeedCatalogOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
+              defaultNodesOpen={true}
             />
           ) : (
             <EnterpriseCompactEmptyState
@@ -1739,6 +1740,8 @@ export function DiagramsWorkbenchClient() {
             <InfraEvidenceDiagramOutline
               outline={visibleMermaidOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
+              defaultNodesOpen={true}
+              defaultEdgesOpen={true}
             />
           ) : null}
         </>
@@ -1829,6 +1832,7 @@ export function DiagramsWorkbenchClient() {
             scopeContextLine={diagramScopeContextLine}
             canvasStale={renderInFlight}
             viewportControlsLayout="stacked"
+            cameraMaxHeightClassName="max-h-[42rem]"
             focusNodeIds={cameraFocusNodeIds}
             focusNonce={cameraFocusNonce}
             onRenderFailure={handleRenderFailure}

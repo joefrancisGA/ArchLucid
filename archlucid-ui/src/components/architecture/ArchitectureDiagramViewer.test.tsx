@@ -527,6 +527,163 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(100);
   });
 
+  it('keeps zoom at 100 percent when measured ink fits the viewport', async () => {
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      configurable: true,
+      get: (): number => 1180,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      configurable: true,
+      get: (): number => 576,
+    });
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(100);
+    });
+  });
+
+  it('defaults zoom below 100 percent when measured ink overflows the viewport', async () => {
+    const largeSvg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 2000">' +
+      '<g class="node"><rect width="3000" height="2000" fill="#eee"/><text class="nodeLabel">Forest</text></g>' +
+      '</svg>';
+
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      configurable: true,
+      get: (): number => 1180,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      configurable: true,
+      get: (): number => 576,
+    });
+    Object.defineProperty(SVGGraphicsElement.prototype, 'getBBox', {
+      configurable: true,
+      writable: true,
+      value: (): DOMRect =>
+        ({
+          x: 0,
+          y: 0,
+          width: 3000,
+          height: 2000,
+          top: 0,
+          right: 3000,
+          bottom: 2000,
+          left: 0,
+          toJSON: () => ({}),
+        }) as DOMRect,
+    });
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        layoutSvg={largeSvg}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      const zoomValue = Number(
+        (screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL) as HTMLInputElement).value,
+      );
+
+      expect(zoomValue).toBeLessThan(100);
+      expect(zoomValue).toBeGreaterThan(0);
+    });
+  });
+
+  it('clears stale URL zoom and applies contain zoom when layout SVG changes to an overflow plate', async () => {
+    searchParamsMock.set('diagZoom', '0.30');
+
+    const smallSvg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+      '<g class="node"><rect width="100" height="100" fill="#eee"/><text class="nodeLabel">Node A</text></g>' +
+      '</svg>';
+    const largeSvg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 2000">' +
+      '<g class="node"><rect width="3000" height="2000" fill="#eee"/><text class="nodeLabel">Forest</text></g>' +
+      '</svg>';
+
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      configurable: true,
+      get: (): number => 1180,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      configurable: true,
+      get: (): number => 576,
+    });
+    Object.defineProperty(SVGGraphicsElement.prototype, 'getBBox', {
+      configurable: true,
+      writable: true,
+      value: (): DOMRect =>
+        ({
+          x: 0,
+          y: 0,
+          width: 3000,
+          height: 2000,
+          top: 0,
+          right: 3000,
+          bottom: 2000,
+          left: 0,
+          toJSON: () => ({}),
+        }) as DOMRect,
+    });
+
+    const { rerender } = render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"]'}
+        layoutSvg={smallSvg}
+        textAlternative="A"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(30);
+    });
+
+    rerender(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"]'}
+        layoutSvg={largeSvg}
+        textAlternative="A"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/securenow/inventory', {
+        scroll: false,
+      });
+    });
+
+    await waitFor(() => {
+      const zoomValue = Number(
+        (screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL) as HTMLInputElement).value,
+      );
+
+      expect(zoomValue).toBeLessThan(100);
+    });
+  });
+
   it('sizes mermaid svg from measured ink after render without paint failure', async () => {
     render(
       <ArchitectureDiagramViewer
@@ -545,6 +702,8 @@ describe('ArchitectureDiagramViewer', () => {
     const svg = host.querySelector('svg');
 
     expect(host.className).toContain('mx-auto');
+    expect(host.className).toContain('[&_svg_.cluster-label_text]:font-bold');
+    expect(host.className).toContain('[&_svg_.cluster-label_.nodeLabel]:font-bold');
     expect(svg).not.toBeNull();
     expect(screen.queryByTestId('architecture-diagram-render-failure')).not.toBeInTheDocument();
     expect(Number(svg?.getAttribute('height') ?? 0)).toBeGreaterThanOrEqual(
