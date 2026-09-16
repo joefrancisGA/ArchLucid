@@ -3,7 +3,7 @@
 
 # Infrastructure-evidence Composer prompts
 
-**Created:** 2026-09-04 · **Revised:** 2026-09-15 (added **IDR-01–IDR-03** inventory-forest resource-group captions — print `ArmResourceGroup` on forest cards + Graphviz HTML PNG parity; **not** bounding boxes). Prior 2026-09-13: **DAU-01–DAU-12** diagram AI usability — compile intent into existing view/model controls, not LLM Mermaid; **IE-DT-01–IE-DT-04** Drift & snapshots table overlapping microscopic text — `content-visibility` on `EnterpriseTable` rows; **IDG-01–IDG-05** Graphviz `fdp` from `DiagramAst` after the owner still saw a white sea and asked for Composer prompts; **IDH-01–IDH-03** inventory-diagram human layout from owner `.mmd`; **IE-DD-01–IE-DD-04** Data diagram render failed; **IDS-01–IDS-04** inventory-diagram spacing — **do not re-run**, packing subgraphs superseded by IDH/IDG; **IE-RF-01–IE-RF-12** relationship-first topology collection; **IE-ID-01–IE-ID-03** Identity diagram compiles but does not paint; **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931.
+**Created:** 2026-09-04 · **Revised:** 2026-09-16 (added **IDP-01–IDP-04** inventory-diagram declared vs extract-derived edges — dash + `declared` label after provenance plumbing; **not** teal). Prior 2026-09-15: **IDR-01–IDR-03** inventory-forest resource-group captions — print `ArmResourceGroup` on forest cards + Graphviz HTML PNG parity; **not** bounding boxes. Prior 2026-09-13: **DAU-01–DAU-12** diagram AI usability — compile intent into existing view/model controls, not LLM Mermaid; **IE-DT-01–IE-DT-04** Drift & snapshots table overlapping microscopic text — `content-visibility` on `EnterpriseTable` rows; **IDG-01–IDG-05** Graphviz `fdp` from `DiagramAst` after the owner still saw a white sea and asked for Composer prompts; **IDH-01–IDH-03** inventory-diagram human layout from owner `.mmd`; **IE-DD-01–IE-DD-04** Data diagram render failed; **IDS-01–IDS-04** inventory-diagram spacing — **do not re-run**, packing subgraphs superseded by IDH/IDG; **IE-RF-01–IE-RF-12** relationship-first topology collection; **IE-ID-01–IE-ID-03** Identity diagram compiles but does not paint; **IE-ND-01–IE-ND-05** Network diagram empty despite inventory; **IE-HOTFIX** Mermaid snapshot 500 after #2931.
 
 **Status:** ready to run — **one prompt per chat**.
 
@@ -29,6 +29,7 @@ Canonical design: [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md
 | [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_DENSE_SPACING_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_DENSE_SPACING_COMPOSER_PROMPTS.md) | **IDT-01–IDT-04** Residual Mermaid slack — **do not start another IDT/IDS gap pass**; owner 2026-09-13 chose **IDG** |
 | [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_GRAPHVIZ_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_GRAPHVIZ_COMPOSER_PROMPTS.md) | **IDG-01–IDG-05** + hold — Graphviz `fdp` from `DiagramAst` for inventory canvases; Mermaid stays export/fail-soft; **no** extractor DOT |
 | [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_RG_CAPTION_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_RG_CAPTION_COMPOSER_PROMPTS.md) | **IDR-01–IDR-03** + hold — print Azure resource group on inventory-forest cards + Graphviz HTML PNG parity; **not** RG bounding boxes or pack-by-RG |
+| [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_PROVENANCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_PROVENANCE_COMPOSER_PROMPTS.md) | **IDP-01–IDP-04** + hold — carry HumanAssertion onto `DiagramEdge`, dash + `declared` label on forest/Mermaid/Graphviz, outline Source + rationale panel; **not** teal or five-color legends |
 | [`DIAGRAM_AI_USABILITY_COMPOSER_PROMPTS.md`](DIAGRAM_AI_USABILITY_COMPOSER_PROMPTS.md) | **DAU-01–DAU-12** AI usability: Ask `ViewPlan`, density coach, camera, walkthrough, path, finding spotlight, reconcile overlay, NL model patches, inferred merge, vision accept desk — **not** LLM Mermaid as source of truth |
 | [`INFRA_EVIDENCE_DRIFT_TABLE_LAYOUT_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_DRIFT_TABLE_LAYOUT_COMPOSER_PROMPTS.md) | **IE-DT-01–IE-DT-04** Drift & snapshots change table overlapping microscopic text (`content-visibility` on `EnterpriseTable` `<tr>`; prompts only until implementation chats) |
 
@@ -56,6 +57,7 @@ Naive implementation would add a second Azure collector, a second finding type n
 | Desktop review tab collapse | workspace rule |
 | `Export-AzResourceGroup` / `dependsOn` as architecture arrows | **IE-RF-12** — ARG projections + type lists, not a deploy DAG |
 | Resource-group bounding boxes or pack-by-RG from **IDR** chats | **IDR-HOLD** — captions only; frames are a later layout wave |
+| Teal / color-only / five-stroke provenance on inventory edges | **IDP-HOLD** — dash + `declared` (IDP-02); dotted `inferred` only in **IDP-04** |
 
 ## Sequencing
 
@@ -140,6 +142,11 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | **IDR-02** | Forest card muted RG line | IDR-01 |
 | **IDR-03** | Graphviz HTML RG line (PNG parity) | IDR-01 (parallel with 02) |
 | **IDR-HOLD** | No RG bounding boxes / pack-by-RG / flatten rewind | — |
+| **IDP-01** | Carry `ProvenanceKind` + `InferenceSource` onto `GraphEdge` / `DiagramEdge` | declared-connection merger on trunk |
+| **IDP-02** | Dash + `declared` label in forest, Mermaid, Graphviz + legend | IDP-01 |
+| **IDP-03** | Outline Source column + rationale/expiry panel | IDP-01 (IDP-02 preferred) |
+| **IDP-04** | Three visual kinds (dotted `inferred` for AiInference) | IDP-02; gated |
+| **IDP-HOLD** | No teal / five colors / promote-to-observed | — |
 
 Run **IE-UX-00 first** after backend batches land; then IE-UX-01–IE-UX-05 in order (or parallel only when stubs from IE-UX-00 already exist). Nav contract: [`INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md).
 
@@ -156,6 +163,8 @@ Run **IE-UX-00 first** after backend batches land; then IE-UX-01–IE-UX-05 in o
 **Inventory diagram white sea — Graphviz layout (owner 2026-09-13):** run **IDG-01**, then **IDG-02**, then **IDG-03**, then **IDG-04**, then **IDG-05**. **IDG-HOLD** is not implementation. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_GRAPHVIZ_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_GRAPHVIZ_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-graphviz-00-index.md`](../../.cursor/prompts/inventory-diagram-graphviz-00-index.md). Do **not** re-run IDL/IDS/IDT/IDH in an IDG session. Do **not** change the PowerShell extractor. Default layout engine is Graphviz **`fdp`**, not `dot`. Do **not** emit ARM `dependsOn`.
 
 **Inventory diagram Full subscription forest has no resource groups on cards (owner 2026-09-15):** run **IDR-01**, then **IDR-02**. **IDR-03** may parallel **IDR-02** after 01. **IDR-HOLD** is not implementation. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_RG_CAPTION_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_RG_CAPTION_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-rg-caption-00-index.md`](../../.cursor/prompts/inventory-diagram-rg-caption-00-index.md). Do **not** draw RG bounding boxes. Do **not** pack by resource group. Do **not** undo sparse flatten. Do **not** start IDG/IDS in an IDR session.
+
+**Inventory diagram declared connections look like extract-derived edges (owner 2026-09-16):** run **IDP-01**, then **IDP-02**. **IDP-03** after 01 (prefer after 02). **IDP-04** only when AiInference inventory edges exist **or** the owner names 04. **IDP-HOLD** is not implementation. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_PROVENANCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_PROVENANCE_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-provenance-00-index.md`](../../.cursor/prompts/inventory-diagram-provenance-00-index.md). Do **not** use teal as a provenance stroke. Do **not** restyle architecture-review diagrams or React Flow. Do **not** start IDG/IDR in an IDP session.
 
 **Drift & snapshots table overlapping microscopic text (owner 2026-09-13):** run **IE-DT-01** first, then **IE-DT-02**. **IE-DT-03** may parallel **IE-DT-02** after 01. **IE-DT-04** last. Prompts: [`INFRA_EVIDENCE_DRIFT_TABLE_LAYOUT_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_DRIFT_TABLE_LAYOUT_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/drift-table-layout-00-index.md`](../../.cursor/prompts/drift-table-layout-00-index.md). Do **not** implement from this index. Do **not** put `content-visibility` back on `<tr>`. Do **not** start IDG/IDS in an IE-DT session.
 
@@ -216,6 +225,10 @@ Attack-path / capability-to-flow engines over **live inventory** are **SA-01–S
 | IDG-03, IDG-04 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` + `archlucid-ui` Vitest named in the prompt |
 | IDG-05 | `archlucid-ui` Playwright `infra-diagrams-layout` (operator-mock) |
 | IDR-01, IDR-02, IDR-03 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
+| IDP-01 | `ArchLucid.ArtifactSynthesis.Tests` + `ArchLucid.Application.Tests` + `ArchLucid.Core.Tests` named in the prompt |
+| IDP-02 | `ArchLucid.ArtifactSynthesis.Tests` + `archlucid-ui` Vitest named in the prompt |
+| IDP-03 | `ArchLucid.Application.Tests` + `ArchLucid.ArtifactSynthesis.Tests` + `archlucid-ui` Vitest named in the prompt |
+| IDP-04 | `ArchLucid.ArtifactSynthesis.Tests` + legend Vitest named in the prompt |
 | DAU-01, DAU-12 | ADR markdown + honesty tests named in the prompt |
 | DAU-02 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` (`InfraEvidenceAsk` + ViewPlan validator) |
 | DAU-03, DAU-04, DAU-05, DAU-07, DAU-08, DAU-09, DAU-10, DAU-11 | `archlucid-ui` focused Vitest named in the prompt |
