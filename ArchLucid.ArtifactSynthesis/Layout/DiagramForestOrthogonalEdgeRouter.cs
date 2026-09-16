@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
-/// <summary>Routes forest edges as straight chords when clear, otherwise orthogonal elbows that avoid node bodies.</summary>
+/// <summary>Routes forest edges as axis-aligned straight chords when clear, otherwise orthogonal elbows that avoid node bodies.</summary>
 public static class DiagramForestOrthogonalEdgeRouter
 {
     private const double ObstacleInflation = 4.0d;
@@ -23,11 +23,15 @@ public static class DiagramForestOrthogonalEdgeRouter
         IReadOnlyList<Rect> obstacles)
     {
         List<(double X1, double Y1, double X2, double Y2)> straightSegments = [(fromX, fromY, toX, toY)];
-        RouteResult? straightResult = TryRoute(straightSegments, obstacles);
 
-        if (straightResult is not null)
+        if (IsAxisAligned(fromX, fromY, toX, toY))
         {
-            return straightResult;
+            RouteResult? straightResult = TryRoute(straightSegments, obstacles);
+
+            if (straightResult is not null)
+            {
+                return straightResult;
+            }
         }
 
         List<(double X1, double Y1, double X2, double Y2)> horizontalFirst =
@@ -91,6 +95,11 @@ public static class DiagramForestOrthogonalEdgeRouter
         }
 
         return obstacles;
+    }
+
+    private static bool IsAxisAligned(double fromX, double fromY, double toX, double toY)
+    {
+        return Math.Abs(fromY - toY) < AxisEpsilon || Math.Abs(fromX - toX) < AxisEpsilon;
     }
 
     private static RouteResult? TryRoute(
