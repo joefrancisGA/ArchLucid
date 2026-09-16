@@ -2,7 +2,7 @@
 > **Index:** [`INFRA_EVIDENCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS.md). **Contract:** [`../library/INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md).
 > **Paste files:** [`.cursor/prompts/inventory-diagram-provenance-00-index.md`](../../.cursor/prompts/inventory-diagram-provenance-00-index.md) (one numbered file per session).
 >
-> **Do not** use teal as a provenance stroke. **Do not** encode provenance in color alone. **Do not** re-run **IDL / IDS / IDT / IDH / IDG / IDR / IDA**.
+> **Do not** use teal as a provenance stroke. **Do not** encode provenance in color alone. **Do not** re-run **IDL / IDS / IDT / IDH / IDG / IDR / IDA / IDF**.
 
 # IDP-01–IDP-04 — Declared connections vs inventory edges on diagrams
 
