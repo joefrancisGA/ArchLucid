@@ -355,6 +355,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.write_only"] = writeOnly.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "refresh_only", out JsonElement RefreshOnly)
+                || TryGetPropertyIgnoreCase(res, "refreshOnly", out RefreshOnly))
+            && (RefreshOnly.ValueKind == JsonValueKind.True || RefreshOnly.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.refresh_only"] = RefreshOnly.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
