@@ -64,6 +64,10 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryAdfLinkedServiceInferred = "inventory-adf-linked-service-inferred";
 
+    public const string InventoryAdfReadsFrom = "inventory-adf-reads-from";
+
+    public const string InventoryAdfWritesTo = "inventory-adf-writes-to";
+
     public const string InventoryLayoutVmVnet = "inventory-layout-vm-vnet";
 
     public const string InventoryEffectiveNsg = "inventory-effective-nsg";

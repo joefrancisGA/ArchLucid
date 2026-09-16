@@ -18,12 +18,14 @@ internal static class AzureInventoryAdfLinkedServiceEdgeMapper
         IReadOnlyList<AzureInventoryAdfLinkedServiceRow> linkedServices,
         List<AzureInventoryResourceRelationshipWrite> relationships,
         HashSet<string> relationshipKeys,
+        HashSet<string> directionalFactoryTargetPairs,
         List<string> warnings)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(linkedServices);
         ArgumentNullException.ThrowIfNull(relationships);
         ArgumentNullException.ThrowIfNull(relationshipKeys);
+        ArgumentNullException.ThrowIfNull(directionalFactoryTargetPairs);
         ArgumentNullException.ThrowIfNull(warnings);
 
         Dictionary<string, string> visibleArmIds = AzureInventoryAdfLinkedServiceTargetResolver.BuildVisibleArmIdSet(resources);
@@ -82,6 +84,14 @@ internal static class AzureInventoryAdfLinkedServiceEdgeMapper
                 continue;
             }
 
+            string normalizedFactoryId = ArmResourceIdNormalizer.Normalize(row.FactoryResourceId);
+            string pairKey = AzureInventoryAdfPipelineFlowEdgeMapper.BuildDirectionalPairKey(normalizedFactoryId, targetArmId);
+
+            if (directionalFactoryTargetPairs.Contains(pairKey))
+            {
+                continue;
+            }
+
             decimal confidence = provenanceKind == ProvenanceKind.ObservedFact
                 ? ObservedFactConfidence
                 : DeterministicInferenceConfidence;
@@ -95,7 +105,7 @@ internal static class AzureInventoryAdfLinkedServiceEdgeMapper
             AddRelationship(
                 relationships,
                 relationshipKeys,
-                ArmResourceIdNormalizer.Normalize(row.FactoryResourceId),
+                normalizedFactoryId,
                 targetArmId,
                 associationType,
                 provenanceKind,
