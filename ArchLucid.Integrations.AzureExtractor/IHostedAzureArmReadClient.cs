@@ -124,4 +124,19 @@ public interface IHostedAzureArmReadClient
         string accessToken,
         string factoryResourceId,
         CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryTriggersAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryIntegrationRuntimesAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryDataflowsAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken);
 }

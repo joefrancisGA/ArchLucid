@@ -127,6 +127,11 @@ public sealed class HostedAzureExtractorClient(
                 .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
                 .ConfigureAwait(false);
 
+        HostedAzureInventoryAdfExtendedMetadataCollectResult adfExtendedMetadata =
+            await HostedAzureInventoryAdfExtendedMetadataCollector
+                .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
+                .ConfigureAwait(false);
+
         List<HostedAzureArmResourceRecord> inventoryResources = FilterInventoryResources(resources);
 
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
@@ -161,7 +166,10 @@ public sealed class HostedAzureExtractorClient(
             effectiveNetworkControls.Rows,
             adfLinkedServices,
             adfPipelineMetadata.Datasets,
-            adfPipelineMetadata.PipelineFlows);
+            adfPipelineMetadata.PipelineFlows,
+            adfExtendedMetadata.Triggers,
+            adfExtendedMetadata.IntegrationRuntimes,
+            adfExtendedMetadata.Dataflows);
 
         string fileName =
             $"archlucid-hosted-azure-{subscriptionId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -287,6 +295,11 @@ public sealed class HostedAzureExtractorClient(
                 .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
                 .ConfigureAwait(false);
 
+        HostedAzureInventoryAdfExtendedMetadataCollectResult adfExtendedMetadata =
+            await HostedAzureInventoryAdfExtendedMetadataCollector
+                .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
+                .ConfigureAwait(false);
+
         List<HostedAzureArmResourceRecord> inventoryResources = FilterInventoryResources(resources);
 
         if (request.IncludeCost && _logger.IsEnabled(LogLevel.Information))
@@ -321,7 +334,10 @@ public sealed class HostedAzureExtractorClient(
             effectiveNetworkControls.Rows,
             adfLinkedServices,
             adfPipelineMetadata.Datasets,
-            adfPipelineMetadata.PipelineFlows);
+            adfPipelineMetadata.PipelineFlows,
+            adfExtendedMetadata.Triggers,
+            adfExtendedMetadata.IntegrationRuntimes,
+            adfExtendedMetadata.Dataflows);
 
         string fileName =
             $"archlucid-hosted-azure-mg-{managementGroupId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";

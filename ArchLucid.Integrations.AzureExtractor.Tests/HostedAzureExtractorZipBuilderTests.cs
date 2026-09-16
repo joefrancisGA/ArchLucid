@@ -221,6 +221,67 @@ public sealed class HostedAzureExtractorZipBuilderTests
     }
 
     [Fact]
+    public void BuildZip_writes_adf_extended_metadata_companion_entries()
+    {
+        const string factoryId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+
+        AzureInventoryAdfTriggerRow trigger = new()
+        {
+            FactoryResourceId = factoryId,
+            TriggerResourceId = $"{factoryId}/triggers/ScheduleTrigger",
+            TriggerName = "ScheduleTrigger",
+            TriggerType = "ScheduleTrigger",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        AzureInventoryAdfIntegrationRuntimeRow integrationRuntime = new()
+        {
+            FactoryResourceId = factoryId,
+            IntegrationRuntimeResourceId = $"{factoryId}/integrationruntimes/AutoResolveIntegrationRuntime",
+            Name = "AutoResolveIntegrationRuntime",
+            Kind = "Managed",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        AzureInventoryAdfDataflowRow dataflow = new()
+        {
+            FactoryResourceId = factoryId,
+            DataflowResourceId = $"{factoryId}/dataflows/df1",
+            DataflowName = "df1",
+            SourceLinkedServiceNames = ["BlobLS"],
+            SinkLinkedServiceNames = ["SqlLS"],
+        };
+
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            adfTriggers: [trigger],
+            adfIntegrationRuntimes: [integrationRuntime],
+            adfDataflows: [dataflow]);
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream triggerStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.AdfTriggers)!.Open();
+        using StreamReader triggerReader = new(triggerStream);
+        using JsonDocument triggerDocument = JsonDocument.Parse(triggerReader.ReadToEnd());
+        Assert.Equal("ScheduleTrigger", triggerDocument.RootElement[0].GetProperty("triggerName").GetString());
+
+        using Stream runtimeStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.AdfIntegrationRuntimes)!.Open();
+        using StreamReader runtimeReader = new(runtimeStream);
+        using JsonDocument runtimeDocument = JsonDocument.Parse(runtimeReader.ReadToEnd());
+        Assert.Equal("AutoResolveIntegrationRuntime", runtimeDocument.RootElement[0].GetProperty("name").GetString());
+
+        using Stream dataflowStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.AdfDataflows)!.Open();
+        using StreamReader dataflowReader = new(dataflowStream);
+        using JsonDocument dataflowDocument = JsonDocument.Parse(dataflowReader.ReadToEnd());
+        Assert.Equal("df1", dataflowDocument.RootElement[0].GetProperty("dataflowName").GetString());
+    }
+
+    [Fact]
     public void BuildZip_writes_adf_dataset_and_pipeline_flow_companion_entries()
     {
         AzureInventoryAdfDatasetRow dataset = new()

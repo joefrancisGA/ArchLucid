@@ -3,39 +3,39 @@ using System.Text.Json;
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
-///     Parses normalized <c>adf-datasets.json</c> companion rows.
+///     Parses normalized <c>adf-integration-runtimes.json</c> companion rows.
 /// </summary>
-public static class AzureInventoryAdfDatasetParser
+public static class AzureInventoryAdfIntegrationRuntimeParser
 {
     private const int MaxIdentifierLength = 512;
 
     private const int MaxNameLength = 260;
 
-    public static bool TryParse(JsonElement element, out AzureInventoryAdfDatasetRow? row, out string? errorMessage)
+    public static bool TryParse(JsonElement element, out AzureInventoryAdfIntegrationRuntimeRow? row, out string? errorMessage)
     {
         row = null;
         errorMessage = null;
 
         if (element.ValueKind is not JsonValueKind.Object)
         {
-            errorMessage = "ADF dataset row must be a JSON object.";
+            errorMessage = "ADF integration runtime row must be a JSON object.";
 
             return false;
         }
 
         string? factoryResourceId = TryReadBoundedString(element, "factoryResourceId", MaxIdentifierLength);
-        string? datasetResourceId = TryReadBoundedString(element, "datasetResourceId", MaxIdentifierLength);
-        string? datasetName = TryReadBoundedString(element, "datasetName", MaxNameLength);
-        string? linkedServiceName = TryReadBoundedString(element, "linkedServiceName", MaxNameLength);
+        string? integrationRuntimeResourceId = TryReadBoundedString(element, "integrationRuntimeResourceId", MaxIdentifierLength);
+        string? name = TryReadBoundedString(element, "name", MaxNameLength);
+        string? kind = TryReadBoundedString(element, "kind", MaxNameLength);
         string? collectionStatus = TryReadBoundedString(element, "collectionStatus", MaxNameLength);
 
         if (string.IsNullOrWhiteSpace(factoryResourceId)
-            || string.IsNullOrWhiteSpace(datasetResourceId)
-            || string.IsNullOrWhiteSpace(datasetName)
-            || string.IsNullOrWhiteSpace(linkedServiceName)
+            || string.IsNullOrWhiteSpace(integrationRuntimeResourceId)
+            || string.IsNullOrWhiteSpace(name)
+            || string.IsNullOrWhiteSpace(kind)
             || string.IsNullOrWhiteSpace(collectionStatus))
         {
-            errorMessage = "factoryResourceId, datasetResourceId, datasetName, linkedServiceName, and collectionStatus are required.";
+            errorMessage = "factoryResourceId, integrationRuntimeResourceId, name, kind, and collectionStatus are required.";
 
             return false;
         }
@@ -47,17 +47,14 @@ public static class AzureInventoryAdfDatasetParser
             return false;
         }
 
-        row = new AzureInventoryAdfDatasetRow
+        row = new AzureInventoryAdfIntegrationRuntimeRow
         {
             FactoryResourceId = factoryResourceId.Trim(),
-            DatasetResourceId = datasetResourceId.Trim(),
-            DatasetName = datasetName.Trim(),
-            LinkedServiceName = linkedServiceName.Trim(),
-            LocationKind = TryReadBoundedString(element, "locationKind", MaxNameLength),
-            ContainerOrFilesystem = TryReadBoundedString(element, "containerOrFilesystem", MaxNameLength),
-            FolderPath = TryReadBoundedString(element, "folderPath", MaxNameLength),
-            TableName = TryReadBoundedString(element, "tableName", MaxNameLength),
-            SchemaName = TryReadBoundedString(element, "schemaName", MaxNameLength),
+            IntegrationRuntimeResourceId = integrationRuntimeResourceId.Trim(),
+            Name = name.Trim(),
+            Kind = kind.Trim(),
+            SubnetId = TryReadBoundedString(element, "subnetId", MaxIdentifierLength),
+            State = TryReadBoundedString(element, "state", MaxNameLength),
             CollectionStatus = collectionStatus.Trim(),
             WarningCode = TryReadBoundedString(element, "warningCode", MaxNameLength),
         };

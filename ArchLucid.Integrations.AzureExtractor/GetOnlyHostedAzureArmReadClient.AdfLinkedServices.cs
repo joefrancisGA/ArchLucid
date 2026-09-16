@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 
+using ArchLucid.Core.AzureExtractor;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Integrations.AzureExtractor;
@@ -19,8 +21,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
         string trimmedFactoryId = factoryResourceId.Trim().TrimStart('/');
         List<JsonElement> linkedServices = [];
+        string apiVersion = AzureInventoryFactoryStyleResourceCatalog.IsSynapseWorkspaceArmId(trimmedFactoryId)
+            ? "2020-12-01"
+            : AdfLinkedServicesApiVersion;
         string? nextLink =
-            $"https://management.azure.com/{trimmedFactoryId}/linkedservices?api-version={AdfLinkedServicesApiVersion}";
+            $"https://management.azure.com/{trimmedFactoryId}/linkedservices?api-version={apiVersion}";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
 

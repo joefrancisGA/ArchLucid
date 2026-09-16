@@ -59,20 +59,36 @@ internal static class AzureInventoryAdfPipelineFlowEdgeMapper
                 continue;
             }
 
-            if (!datasetByKey.TryGetValue(BuildDatasetKey(flow.FactoryResourceId, flow.DatasetName), out AzureInventoryAdfDatasetRow? dataset))
-            {
-                warnings.Add($"{AzureInventoryAdfLinkedServiceCompletenessWarningCodes.TargetUnresolvedPrefix}{flow.DatasetName}");
+            AzureInventoryAdfLinkedServiceRow? linkedService = null;
 
-                continue;
+            if (TryResolveLinkedServiceNameFromFlow(flow, out string? linkedServiceName))
+            {
+                if (!linkedServiceByKey.TryGetValue(
+                        BuildLinkedServiceKey(flow.FactoryResourceId, linkedServiceName!),
+                        out linkedService))
+                {
+                    warnings.Add($"{AzureInventoryAdfLinkedServiceCompletenessWarningCodes.TargetUnresolvedPrefix}{linkedServiceName}");
+
+                    continue;
+                }
             }
-
-            if (!linkedServiceByKey.TryGetValue(
-                    BuildLinkedServiceKey(flow.FactoryResourceId, dataset.LinkedServiceName),
-                    out AzureInventoryAdfLinkedServiceRow? linkedService))
+            else
             {
-                warnings.Add($"{AzureInventoryAdfLinkedServiceCompletenessWarningCodes.TargetUnresolvedPrefix}{dataset.LinkedServiceName}");
+                if (!datasetByKey.TryGetValue(BuildDatasetKey(flow.FactoryResourceId, flow.DatasetName), out AzureInventoryAdfDatasetRow? dataset))
+                {
+                    warnings.Add($"{AzureInventoryAdfLinkedServiceCompletenessWarningCodes.TargetUnresolvedPrefix}{flow.DatasetName}");
 
-                continue;
+                    continue;
+                }
+
+                if (!linkedServiceByKey.TryGetValue(
+                        BuildLinkedServiceKey(flow.FactoryResourceId, dataset.LinkedServiceName),
+                        out linkedService))
+                {
+                    warnings.Add($"{AzureInventoryAdfLinkedServiceCompletenessWarningCodes.TargetUnresolvedPrefix}{dataset.LinkedServiceName}");
+
+                    continue;
+                }
             }
 
             if (!AzureInventoryAdfLinkedServiceTargetResolver.TryResolveTargetArmId(
@@ -93,12 +109,10 @@ internal static class AzureInventoryAdfPipelineFlowEdgeMapper
             }
 
             string associationType = flow.FlowDirection.Equals(AzureInventoryAdfPipelineFlowDirection.Write, StringComparison.OrdinalIgnoreCase)
-                ? AzureInventoryRelationshipAssociationTypes.AdfWritesTo
-                : AzureInventoryRelationshipAssociationTypes.AdfReadsFrom;
+                ? AzureInventoryPipelineStyleEdgeAssociationSelector.SelectWritesToAssociationType(flow.FactoryResourceId)
+                : AzureInventoryPipelineStyleEdgeAssociationSelector.SelectReadsFromAssociationType(flow.FactoryResourceId);
 
-            string inferenceSource = associationType.Equals(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, StringComparison.OrdinalIgnoreCase)
-                ? GraphEdgeInferenceSources.InventoryAdfWritesTo
-                : GraphEdgeInferenceSources.InventoryAdfReadsFrom;
+            string inferenceSource = ResolvePipelineFlowInferenceSource(associationType);
 
             string normalizedFactoryId = ArmResourceIdNormalizer.Normalize(flow.FactoryResourceId);
 
@@ -114,6 +128,42 @@ internal static class AzureInventoryAdfPipelineFlowEdgeMapper
 
             directionalFactoryTargetPairs.Add(BuildDirectionalPairKey(normalizedFactoryId, targetArmId));
         }
+    }
+
+    private static string ResolvePipelineFlowInferenceSource(string associationType)
+    {
+        if (associationType.Equals(AzureInventoryRelationshipAssociationTypes.SynapseWritesTo, StringComparison.OrdinalIgnoreCase))
+        {
+            return GraphEdgeInferenceSources.InventorySynapseWritesTo;
+        }
+
+        if (associationType.Equals(AzureInventoryRelationshipAssociationTypes.SynapseReadsFrom, StringComparison.OrdinalIgnoreCase))
+        {
+            return GraphEdgeInferenceSources.InventorySynapseReadsFrom;
+        }
+
+        if (associationType.Equals(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, StringComparison.OrdinalIgnoreCase))
+        {
+            return GraphEdgeInferenceSources.InventoryAdfWritesTo;
+        }
+
+        return GraphEdgeInferenceSources.InventoryAdfReadsFrom;
+    }
+
+    private static bool TryResolveLinkedServiceNameFromFlow(
+        AzureInventoryAdfPipelineFlowRow flow,
+        out string? linkedServiceName)
+    {
+        linkedServiceName = null;
+
+        if (!flow.DatasetName.StartsWith("__linkedService:", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        linkedServiceName = flow.DatasetName["__linkedService:".Length..].Trim();
+
+        return !string.IsNullOrWhiteSpace(linkedServiceName);
     }
 
     public static string BuildDirectionalPairKey(string factoryArmId, string targetArmId)

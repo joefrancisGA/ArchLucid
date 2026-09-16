@@ -1812,6 +1812,33 @@ function Get-ArchLucidAzureDefenderSecureScorePercent
     return $bestScore
 }
 
+function Test-ArchLucidAzureFactoryStyleResource
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $ResourceType
+    )
+
+    [string]$trimmed = $ResourceType.Trim()
+
+    return ($trimmed -eq 'Microsoft.DataFactory/factories') -or ($trimmed -eq 'Microsoft.Synapse/workspaces')
+}
+
+function Get-ArchLucidAzureFactoryStyleApiVersion
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $FactoryResourceId
+    )
+
+    if ($FactoryResourceId -match '/providers/Microsoft\.Synapse/workspaces/')
+    {
+        return '2020-12-01'
+    }
+
+    return '2018-06-01'
+}
+
 function Get-ArchLucidAzureAdfLinkedServiceCompanionRows
 {
     param(
@@ -1826,13 +1853,12 @@ function Get-ArchLucidAzureAdfLinkedServiceCompanionRows
 
     $rows = [System.Collections.ArrayList]::new()
     $supportedTypes = @(
-        'AzureBlobStorage',
-        'AzureBlobFS',
-        'AzureSqlDatabase',
-        'AzureSqlMI',
-        'AzureSynapseAnalytics',
-        'AzureDataLakeStore',
-        'AzureKeyVault'
+        'AzureBlobStorage', 'AzureBlobFS', 'AzureSqlDatabase', 'AzureSqlMI', 'AzureSynapseAnalytics',
+        'AzureDataLakeStore', 'AzureKeyVault', 'AzureCosmosDb', 'CosmosDb', 'AzurePostgreSql', 'AzureMySql',
+        'AzureTableStorage', 'AzureEventHub', 'EventHub', 'AzureServiceBus', 'ServiceBus', 'AzureDatabricks',
+        'Snowflake', 'SapTable', 'SapOpenHub', 'SapEcc', 'SapHana', 'Oracle', 'OracleServiceCloud',
+        'FtpServer', 'Sftp', 'FileServer', 'Hdfs', 'RestService', 'HttpServer', 'Web',
+        'AmazonS3', 'GoogleCloudStorage'
     )
 
     foreach ($resource in @($InventoryResources))
@@ -1842,12 +1868,13 @@ function Get-ArchLucidAzureAdfLinkedServiceCompanionRows
         [string]$resourceType = "$( $resource.resourceType )".Trim()
         [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
 
-        if (-not ($resourceType -eq 'Microsoft.DataFactory/factories')) { continue }
+        if (-not (Test-ArchLucidAzureFactoryStyleResource -ResourceType $resourceType)) { continue }
         if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
 
         try
         {
-            [string]$path = "$factoryResourceId/linkedservices?api-version=2018-06-01"
+            [string]$apiVersion = Get-ArchLucidAzureFactoryStyleApiVersion -FactoryResourceId $factoryResourceId
+            [string]$path = "$factoryResourceId/linkedservices?api-version=$apiVersion"
             $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
             $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
 
@@ -1983,6 +2010,34 @@ function New-ArchLucidAzureAdfLinkedServiceNormalizedRow
         [string]$baseUrl = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'baseUrl'
         $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value $baseUrl
     }
+    elseif ($LinkedServiceType -eq 'AzureCosmosDb' -or $LinkedServiceType -eq 'CosmosDb')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'accountEndpoint')
+    }
+    elseif ($LinkedServiceType -eq 'AzurePostgreSql' -or $LinkedServiceType -eq 'AzureMySql')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'server')
+    }
+    elseif ($LinkedServiceType -eq 'AzureEventHub' -or $LinkedServiceType -eq 'EventHub' -or $LinkedServiceType -eq 'AzureServiceBus' -or $LinkedServiceType -eq 'ServiceBus')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'fullyQualifiedNamespace')
+    }
+    elseif ($LinkedServiceType -eq 'RestService' -or $LinkedServiceType -eq 'HttpServer' -or $LinkedServiceType -eq 'Web')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'url')
+        if ([string]::IsNullOrWhiteSpace($targetHost))
+        {
+            $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'baseUrl')
+        }
+    }
+    elseif ($LinkedServiceType -eq 'SapTable' -or $LinkedServiceType -eq 'SapOpenHub' -or $LinkedServiceType -eq 'SapEcc' -or $LinkedServiceType -eq 'SapHana')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'server')
+        if ([string]::IsNullOrWhiteSpace($targetHost))
+        {
+            $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'messageServer')
+        }
+    }
 
     if ([string]::IsNullOrWhiteSpace($targetResourceId) -and [string]::IsNullOrWhiteSpace($targetHost) -and [string]::IsNullOrWhiteSpace($keyVaultResourceId))
     {
@@ -2110,12 +2165,13 @@ function Get-ArchLucidAzureAdfDatasetCompanionRows
         [string]$resourceType = "$( $resource.resourceType )".Trim()
         [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
 
-        if (-not ($resourceType -eq 'Microsoft.DataFactory/factories')) { continue }
+        if (-not (Test-ArchLucidAzureFactoryStyleResource -ResourceType $resourceType)) { continue }
         if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
 
         try
         {
-            [string]$path = "$factoryResourceId/datasets?api-version=2018-06-01"
+            [string]$apiVersion = Get-ArchLucidAzureFactoryStyleApiVersion -FactoryResourceId $factoryResourceId
+            [string]$path = "$factoryResourceId/datasets?api-version=$apiVersion"
             $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
             $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
 
@@ -2152,11 +2208,18 @@ function Get-ArchLucidAzureAdfDatasetCompanionRows
                     continue
                 }
 
+                $location = Get-ArchLucidAzureAdfDatasetLocationFields -Properties $dataset.properties
+
                 [void]$rows.Add([ordered]@{
                     factoryResourceId = $factoryResourceId
                     datasetResourceId = $datasetResourceId
                     datasetName = $datasetName
                     linkedServiceName = $linkedServiceName
+                    locationKind = $location.locationKind
+                    containerOrFilesystem = $location.containerOrFilesystem
+                    folderPath = $location.folderPath
+                    tableName = $location.tableName
+                    schemaName = $location.schemaName
                     collectionStatus = 'Succeeded'
                 })
             }
@@ -2168,6 +2231,61 @@ function Get-ArchLucidAzureAdfDatasetCompanionRows
     }
 
     return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureAdfDatasetLocationFields
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object] $Properties
+    )
+
+    [string]$locationKind = ''
+    [string]$containerOrFilesystem = ''
+    [string]$folderPath = ''
+    [string]$tableName = ''
+    [string]$schemaName = ''
+
+    try
+    {
+        $locationKind = "$( $Properties.type )".Trim()
+        $typeProperties = $Properties.typeProperties
+
+        $folderPath = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'folderPath'
+        if ([string]::IsNullOrWhiteSpace($folderPath))
+        {
+            $folderPath = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'directory'
+        }
+
+        $containerOrFilesystem = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'fileSystem'
+        if ([string]::IsNullOrWhiteSpace($containerOrFilesystem))
+        {
+            $containerOrFilesystem = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'container'
+        }
+
+        $tableName = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'tableName'
+        if ([string]::IsNullOrWhiteSpace($tableName))
+        {
+            $tableName = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'table'
+        }
+
+        $schemaName = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'schema'
+        if ([string]::IsNullOrWhiteSpace($schemaName))
+        {
+            $schemaName = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'schemaName'
+        }
+    }
+    catch
+    {
+    }
+
+    return [ordered]@{
+        locationKind = $(if ([string]::IsNullOrWhiteSpace($locationKind)) { $null } else { $locationKind })
+        containerOrFilesystem = $(if ([string]::IsNullOrWhiteSpace($containerOrFilesystem)) { $null } else { $containerOrFilesystem })
+        folderPath = $(if ([string]::IsNullOrWhiteSpace($folderPath)) { $null } else { $folderPath })
+        tableName = $(if ([string]::IsNullOrWhiteSpace($tableName)) { $null } else { $tableName })
+        schemaName = $(if ([string]::IsNullOrWhiteSpace($schemaName)) { $null } else { $schemaName })
+    }
 }
 
 function Get-ArchLucidAzureAdfPipelineFlowCompanionRows
@@ -2194,12 +2312,13 @@ function Get-ArchLucidAzureAdfPipelineFlowCompanionRows
         [string]$resourceType = "$( $resource.resourceType )".Trim()
         [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
 
-        if (-not ($resourceType -eq 'Microsoft.DataFactory/factories')) { continue }
+        if (-not (Test-ArchLucidAzureFactoryStyleResource -ResourceType $resourceType)) { continue }
         if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
 
         try
         {
-            [string]$path = "$factoryResourceId/pipelines?api-version=2018-06-01"
+            [string]$apiVersion = Get-ArchLucidAzureFactoryStyleApiVersion -FactoryResourceId $factoryResourceId
+            [string]$path = "$factoryResourceId/pipelines?api-version=$apiVersion"
             $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
             $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
             $pipelineResources = @($payload.value)
@@ -2437,4 +2556,185 @@ function Add-ArchLucidAzureAdfDatasetReferenceFlows
             collectionStatus = 'Succeeded'
         })
     }
+}
+
+function Get-ArchLucidAzureAdfTriggerCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not (Test-ArchLucidAzureFactoryStyleResource -ResourceType $resourceType)) { continue }
+        if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
+
+        try
+        {
+            [string]$apiVersion = Get-ArchLucidAzureFactoryStyleApiVersion -FactoryResourceId $factoryResourceId
+            [string]$path = "$factoryResourceId/triggers?api-version=$apiVersion"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($trigger in @($payload.value))
+            {
+                [string]$triggerResourceId = "$( $trigger.id )".Trim()
+                [string]$triggerName = "$( $trigger.name )".Trim()
+                [string]$triggerType = "$( $trigger.properties.type )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($triggerResourceId) -or [string]::IsNullOrWhiteSpace($triggerName) -or [string]::IsNullOrWhiteSpace($triggerType))
+                {
+                    continue
+                }
+
+                [void]$rows.Add([ordered]@{
+                    factoryResourceId = $factoryResourceId
+                    triggerResourceId = $triggerResourceId
+                    triggerName = $triggerName
+                    triggerType = $triggerType
+                    pipelineNames = @()
+                    collectionStatus = 'Succeeded'
+                })
+            }
+        }
+        catch
+        {
+            continue
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureAdfIntegrationRuntimeCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not (Test-ArchLucidAzureFactoryStyleResource -ResourceType $resourceType)) { continue }
+        if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
+
+        try
+        {
+            [string]$apiVersion = Get-ArchLucidAzureFactoryStyleApiVersion -FactoryResourceId $factoryResourceId
+            [string]$path = "$factoryResourceId/integrationruntimes?api-version=$apiVersion"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($integrationRuntime in @($payload.value))
+            {
+                [string]$integrationRuntimeResourceId = "$( $integrationRuntime.id )".Trim()
+                [string]$name = "$( $integrationRuntime.name )".Trim()
+                [string]$kind = "$( $integrationRuntime.properties.type )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($integrationRuntimeResourceId) -or [string]::IsNullOrWhiteSpace($name) -or [string]::IsNullOrWhiteSpace($kind))
+                {
+                    continue
+                }
+
+                [void]$rows.Add([ordered]@{
+                    factoryResourceId = $factoryResourceId
+                    integrationRuntimeResourceId = $integrationRuntimeResourceId
+                    name = $name
+                    kind = $kind
+                    collectionStatus = 'Succeeded'
+                })
+            }
+        }
+        catch
+        {
+            continue
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureAdfDataflowCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not (Test-ArchLucidAzureFactoryStyleResource -ResourceType $resourceType)) { continue }
+        if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
+
+        try
+        {
+            [string]$apiVersion = Get-ArchLucidAzureFactoryStyleApiVersion -FactoryResourceId $factoryResourceId
+            [string]$path = "$factoryResourceId/dataflows?api-version=$apiVersion"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($dataflow in @($payload.value))
+            {
+                [string]$dataflowResourceId = "$( $dataflow.id )".Trim()
+                [string]$dataflowName = "$( $dataflow.name )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($dataflowResourceId) -or [string]::IsNullOrWhiteSpace($dataflowName))
+                {
+                    continue
+                }
+
+                [void]$rows.Add([ordered]@{
+                    factoryResourceId = $factoryResourceId
+                    dataflowResourceId = $dataflowResourceId
+                    dataflowName = $dataflowName
+                    sourceLinkedServiceNames = @()
+                    sinkLinkedServiceNames = @()
+                    collectionStatus = 'Succeeded'
+                })
+            }
+        }
+        catch
+        {
+            continue
+        }
+    }
+
+    return @($rows.ToArray())
 }

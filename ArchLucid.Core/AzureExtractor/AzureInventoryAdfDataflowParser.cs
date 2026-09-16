@@ -3,39 +3,37 @@ using System.Text.Json;
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
-///     Parses normalized <c>adf-datasets.json</c> companion rows.
+///     Parses normalized <c>adf-dataflows.json</c> companion rows.
 /// </summary>
-public static class AzureInventoryAdfDatasetParser
+public static class AzureInventoryAdfDataflowParser
 {
     private const int MaxIdentifierLength = 512;
 
     private const int MaxNameLength = 260;
 
-    public static bool TryParse(JsonElement element, out AzureInventoryAdfDatasetRow? row, out string? errorMessage)
+    public static bool TryParse(JsonElement element, out AzureInventoryAdfDataflowRow? row, out string? errorMessage)
     {
         row = null;
         errorMessage = null;
 
         if (element.ValueKind is not JsonValueKind.Object)
         {
-            errorMessage = "ADF dataset row must be a JSON object.";
+            errorMessage = "ADF dataflow row must be a JSON object.";
 
             return false;
         }
 
         string? factoryResourceId = TryReadBoundedString(element, "factoryResourceId", MaxIdentifierLength);
-        string? datasetResourceId = TryReadBoundedString(element, "datasetResourceId", MaxIdentifierLength);
-        string? datasetName = TryReadBoundedString(element, "datasetName", MaxNameLength);
-        string? linkedServiceName = TryReadBoundedString(element, "linkedServiceName", MaxNameLength);
+        string? dataflowResourceId = TryReadBoundedString(element, "dataflowResourceId", MaxIdentifierLength);
+        string? dataflowName = TryReadBoundedString(element, "dataflowName", MaxNameLength);
         string? collectionStatus = TryReadBoundedString(element, "collectionStatus", MaxNameLength);
 
         if (string.IsNullOrWhiteSpace(factoryResourceId)
-            || string.IsNullOrWhiteSpace(datasetResourceId)
-            || string.IsNullOrWhiteSpace(datasetName)
-            || string.IsNullOrWhiteSpace(linkedServiceName)
+            || string.IsNullOrWhiteSpace(dataflowResourceId)
+            || string.IsNullOrWhiteSpace(dataflowName)
             || string.IsNullOrWhiteSpace(collectionStatus))
         {
-            errorMessage = "factoryResourceId, datasetResourceId, datasetName, linkedServiceName, and collectionStatus are required.";
+            errorMessage = "factoryResourceId, dataflowResourceId, dataflowName, and collectionStatus are required.";
 
             return false;
         }
@@ -47,22 +45,46 @@ public static class AzureInventoryAdfDatasetParser
             return false;
         }
 
-        row = new AzureInventoryAdfDatasetRow
+        row = new AzureInventoryAdfDataflowRow
         {
             FactoryResourceId = factoryResourceId.Trim(),
-            DatasetResourceId = datasetResourceId.Trim(),
-            DatasetName = datasetName.Trim(),
-            LinkedServiceName = linkedServiceName.Trim(),
-            LocationKind = TryReadBoundedString(element, "locationKind", MaxNameLength),
-            ContainerOrFilesystem = TryReadBoundedString(element, "containerOrFilesystem", MaxNameLength),
-            FolderPath = TryReadBoundedString(element, "folderPath", MaxNameLength),
-            TableName = TryReadBoundedString(element, "tableName", MaxNameLength),
-            SchemaName = TryReadBoundedString(element, "schemaName", MaxNameLength),
+            DataflowResourceId = dataflowResourceId.Trim(),
+            DataflowName = dataflowName.Trim(),
+            SourceLinkedServiceNames = ReadStringArray(element, "sourceLinkedServiceNames"),
+            SinkLinkedServiceNames = ReadStringArray(element, "sinkLinkedServiceNames"),
             CollectionStatus = collectionStatus.Trim(),
             WarningCode = TryReadBoundedString(element, "warningCode", MaxNameLength),
         };
 
         return true;
+    }
+
+    private static IReadOnlyList<string> ReadStringArray(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out JsonElement arrayElement)
+            || arrayElement.ValueKind is not JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        List<string> values = [];
+
+        foreach (JsonElement item in arrayElement.EnumerateArray())
+        {
+            if (item.ValueKind is not JsonValueKind.String)
+            {
+                continue;
+            }
+
+            string? value = item.GetString();
+
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                values.Add(value.Trim());
+            }
+        }
+
+        return values;
     }
 
     private static string? TryReadBoundedString(JsonElement element, string propertyName, int maxLength)

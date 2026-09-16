@@ -12,7 +12,8 @@ public static class AzureInventoryAdfPipelineFlowExtractor
     public static IReadOnlyList<AzureInventoryAdfPipelineFlowRow> ExtractFlows(
         string factoryResourceId,
         IReadOnlyList<JsonElement> pipelineResources,
-        int maxNestedPipelineDepth = DefaultMaxNestedPipelineDepth)
+        int maxNestedPipelineDepth = DefaultMaxNestedPipelineDepth,
+        IReadOnlyList<AzureInventoryAdfDataflowRow>? dataflowRows = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(factoryResourceId);
         ArgumentNullException.ThrowIfNull(pipelineResources);
@@ -23,6 +24,7 @@ public static class AzureInventoryAdfPipelineFlowExtractor
         }
 
         Dictionary<string, JsonElement> pipelinesByName = BuildPipelineIndex(pipelineResources);
+        Dictionary<string, AzureInventoryAdfDataflowRow> dataflowsByName = BuildDataflowIndex(factoryResourceId, dataflowRows);
         List<AzureInventoryAdfPipelineFlowRow> flows = [];
         HashSet<string> flowKeys = new(StringComparer.OrdinalIgnoreCase);
 
@@ -39,6 +41,7 @@ public static class AzureInventoryAdfPipelineFlowExtractor
                 pipelineName!,
                 pipelineResource,
                 pipelinesByName,
+                dataflowsByName,
                 maxNestedPipelineDepth,
                 [],
                 flows,
@@ -46,6 +49,30 @@ public static class AzureInventoryAdfPipelineFlowExtractor
         }
 
         return flows;
+    }
+
+    private static Dictionary<string, AzureInventoryAdfDataflowRow> BuildDataflowIndex(
+        string factoryResourceId,
+        IReadOnlyList<AzureInventoryAdfDataflowRow>? dataflowRows)
+    {
+        Dictionary<string, AzureInventoryAdfDataflowRow> dataflowsByName = new(StringComparer.OrdinalIgnoreCase);
+
+        if (dataflowRows is null)
+        {
+            return dataflowsByName;
+        }
+
+        foreach (AzureInventoryAdfDataflowRow dataflowRow in dataflowRows)
+        {
+            if (!dataflowRow.FactoryResourceId.Equals(factoryResourceId, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            dataflowsByName[dataflowRow.DataflowName] = dataflowRow;
+        }
+
+        return dataflowsByName;
     }
 
     private static Dictionary<string, JsonElement> BuildPipelineIndex(IReadOnlyList<JsonElement> pipelineResources)
@@ -73,6 +100,7 @@ public static class AzureInventoryAdfPipelineFlowExtractor
         string pipelineName,
         JsonElement pipelineResource,
         IReadOnlyDictionary<string, JsonElement> pipelinesByName,
+        IReadOnlyDictionary<string, AzureInventoryAdfDataflowRow> dataflowsByName,
         int remainingNestedDepth,
         HashSet<string> pipelineVisitStack,
         List<AzureInventoryAdfPipelineFlowRow> flows,
@@ -109,8 +137,24 @@ public static class AzureInventoryAdfPipelineFlowExtractor
                     pipelineName,
                     activity,
                     pipelinesByName,
+                    dataflowsByName,
                     remainingNestedDepth,
                     pipelineVisitStack,
+                    flows,
+                    flowKeys);
+
+                continue;
+            }
+
+            if (activityType.Equals("ExecuteDataFlow", StringComparison.OrdinalIgnoreCase))
+            {
+                TryExpandExecuteDataFlow(
+                    factoryResourceId,
+                    pipelineResourceId,
+                    pipelineName,
+                    activityName,
+                    activity,
+                    dataflowsByName,
                     flows,
                     flowKeys);
 
@@ -149,6 +193,7 @@ public static class AzureInventoryAdfPipelineFlowExtractor
         string pipelineName,
         JsonElement executePipelineActivity,
         IReadOnlyDictionary<string, JsonElement> pipelinesByName,
+        IReadOnlyDictionary<string, AzureInventoryAdfDataflowRow> dataflowsByName,
         int remainingNestedDepth,
         HashSet<string> pipelineVisitStack,
         List<AzureInventoryAdfPipelineFlowRow> flows,
@@ -191,12 +236,101 @@ public static class AzureInventoryAdfPipelineFlowExtractor
             nestedPipelineName!.Trim(),
             nestedPipelineResource,
             pipelinesByName,
+            dataflowsByName,
             remainingNestedDepth - 1,
             pipelineVisitStack,
             flows,
             flowKeys);
 
         pipelineVisitStack.Remove(nestedPipelineName!.Trim());
+    }
+
+    private static void TryExpandExecuteDataFlow(
+        string factoryResourceId,
+        string pipelineResourceId,
+        string pipelineName,
+        string activityName,
+        JsonElement executeDataFlowActivity,
+        IReadOnlyDictionary<string, AzureInventoryAdfDataflowRow> dataflowsByName,
+        List<AzureInventoryAdfPipelineFlowRow> flows,
+        HashSet<string> flowKeys)
+    {
+        if (!executeDataFlowActivity.TryGetProperty("typeProperties", out JsonElement typePropertiesElement)
+            || typePropertiesElement.ValueKind is not JsonValueKind.Object
+            || !typePropertiesElement.TryGetProperty("dataFlow", out JsonElement dataFlowElement)
+            || dataFlowElement.ValueKind is not JsonValueKind.Object)
+        {
+            return;
+        }
+
+        string? dataflowName = TryReadString(dataFlowElement, "referenceName");
+
+        if (!AzureInventoryAdfStaticReferenceValidator.IsStaticReferenceName(dataflowName)
+            || !dataflowsByName.TryGetValue(dataflowName!.Trim(), out AzureInventoryAdfDataflowRow? dataflowRow))
+        {
+            return;
+        }
+
+        foreach (string linkedServiceName in dataflowRow.SourceLinkedServiceNames)
+        {
+            AddSyntheticLinkedServiceFlow(
+                factoryResourceId,
+                pipelineResourceId,
+                pipelineName,
+                activityName,
+                executeDataFlowActivity,
+                linkedServiceName,
+                AzureInventoryAdfPipelineFlowDirection.Read,
+                flows,
+                flowKeys);
+        }
+
+        foreach (string linkedServiceName in dataflowRow.SinkLinkedServiceNames)
+        {
+            AddSyntheticLinkedServiceFlow(
+                factoryResourceId,
+                pipelineResourceId,
+                pipelineName,
+                activityName,
+                executeDataFlowActivity,
+                linkedServiceName,
+                AzureInventoryAdfPipelineFlowDirection.Write,
+                flows,
+                flowKeys);
+        }
+    }
+
+    private static void AddSyntheticLinkedServiceFlow(
+        string factoryResourceId,
+        string pipelineResourceId,
+        string pipelineName,
+        string activityName,
+        JsonElement activity,
+        string linkedServiceName,
+        string flowDirection,
+        List<AzureInventoryAdfPipelineFlowRow> flows,
+        HashSet<string> flowKeys)
+    {
+        string activityType = TryReadString(activity, "type") ?? "ExecuteDataFlow";
+        string flowKey =
+            $"{factoryResourceId}|{pipelineResourceId}|{activityName}|{flowDirection}|ls:{linkedServiceName}";
+
+        if (!flowKeys.Add(flowKey))
+        {
+            return;
+        }
+
+        flows.Add(new AzureInventoryAdfPipelineFlowRow
+        {
+            FactoryResourceId = factoryResourceId.Trim(),
+            PipelineResourceId = pipelineResourceId.Trim(),
+            PipelineName = pipelineName.Trim(),
+            ActivityName = activityName.Trim(),
+            ActivityType = activityType.Trim(),
+            FlowDirection = flowDirection,
+            DatasetName = $"__linkedService:{linkedServiceName}",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        });
     }
 
     private static void AddDatasetReferences(

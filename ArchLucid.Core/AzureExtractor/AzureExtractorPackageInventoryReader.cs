@@ -35,6 +35,12 @@ public static class AzureExtractorPackageInventoryReader
                 ReadAdfDatasets(archive);
             (bool adfPipelineFlowsFilePresent, List<AzureInventoryAdfPipelineFlowRow> adfPipelineFlows) =
                 ReadAdfPipelineFlows(archive);
+            (bool adfTriggersFilePresent, List<AzureInventoryAdfTriggerRow> adfTriggers) =
+                ReadAdfTriggers(archive);
+            (bool adfIntegrationRuntimesFilePresent, List<AzureInventoryAdfIntegrationRuntimeRow> adfIntegrationRuntimes) =
+                ReadAdfIntegrationRuntimes(archive);
+            (bool adfDataflowsFilePresent, List<AzureInventoryAdfDataflowRow> adfDataflows) =
+                ReadAdfDataflows(archive);
 
             return new AzureExtractorPackageInventoryReadResult
             {
@@ -56,6 +62,12 @@ public static class AzureExtractorPackageInventoryReader
                 AdfDatasetsFilePresent = adfDatasetsFilePresent,
                 AdfPipelineFlows = adfPipelineFlows,
                 AdfPipelineFlowsFilePresent = adfPipelineFlowsFilePresent,
+                AdfTriggers = adfTriggers,
+                AdfTriggersFilePresent = adfTriggersFilePresent,
+                AdfIntegrationRuntimes = adfIntegrationRuntimes,
+                AdfIntegrationRuntimesFilePresent = adfIntegrationRuntimesFilePresent,
+                AdfDataflows = adfDataflows,
+                AdfDataflowsFilePresent = adfDataflowsFilePresent,
             };
         }
         catch (JsonException ex)
@@ -404,6 +416,154 @@ public static class AzureExtractorPackageInventoryReader
         }
     }
 
+    private static (bool FilePresent, List<AzureInventoryAdfTriggerRow> Rows) ReadAdfTriggers(ZipArchive archive)
+    {
+        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.AdfTriggers);
+
+        if (entry is null)
+        {
+            return (false, []);
+        }
+
+        using Stream stream = entry.Open();
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(stream);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                throw new JsonException(
+                    $"{AzureExtractorPackageZipEntryNames.AdfTriggers} root must be a JSON array.");
+            }
+
+            List<AzureInventoryAdfTriggerRow> rows = [];
+
+            foreach (JsonElement element in document.RootElement.EnumerateArray())
+            {
+                if (!AzureInventoryAdfTriggerParser.TryParse(element, out AzureInventoryAdfTriggerRow? row, out _))
+                {
+                    continue;
+                }
+
+                if (row is not null)
+                {
+                    rows.Add(row);
+                }
+            }
+
+            return (true, rows);
+        }
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException($"{AzureExtractorPackageZipEntryNames.AdfTriggers} is not valid JSON.");
+        }
+    }
+
+    private static (bool FilePresent, List<AzureInventoryAdfIntegrationRuntimeRow> Rows) ReadAdfIntegrationRuntimes(
+        ZipArchive archive)
+    {
+        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.AdfIntegrationRuntimes);
+
+        if (entry is null)
+        {
+            return (false, []);
+        }
+
+        using Stream stream = entry.Open();
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(stream);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                throw new JsonException(
+                    $"{AzureExtractorPackageZipEntryNames.AdfIntegrationRuntimes} root must be a JSON array.");
+            }
+
+            List<AzureInventoryAdfIntegrationRuntimeRow> rows = [];
+
+            foreach (JsonElement element in document.RootElement.EnumerateArray())
+            {
+                if (!AzureInventoryAdfIntegrationRuntimeParser.TryParse(
+                        element,
+                        out AzureInventoryAdfIntegrationRuntimeRow? row,
+                        out _))
+                {
+                    continue;
+                }
+
+                if (row is not null)
+                {
+                    rows.Add(row);
+                }
+            }
+
+            return (true, rows);
+        }
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException($"{AzureExtractorPackageZipEntryNames.AdfIntegrationRuntimes} is not valid JSON.");
+        }
+    }
+
+    private static (bool FilePresent, List<AzureInventoryAdfDataflowRow> Rows) ReadAdfDataflows(ZipArchive archive)
+    {
+        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.AdfDataflows);
+
+        if (entry is null)
+        {
+            return (false, []);
+        }
+
+        using Stream stream = entry.Open();
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(stream);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                throw new JsonException(
+                    $"{AzureExtractorPackageZipEntryNames.AdfDataflows} root must be a JSON array.");
+            }
+
+            List<AzureInventoryAdfDataflowRow> rows = [];
+
+            foreach (JsonElement element in document.RootElement.EnumerateArray())
+            {
+                if (!AzureInventoryAdfDataflowParser.TryParse(element, out AzureInventoryAdfDataflowRow? row, out _))
+                {
+                    continue;
+                }
+
+                if (row is not null)
+                {
+                    rows.Add(row);
+                }
+            }
+
+            return (true, rows);
+        }
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException($"{AzureExtractorPackageZipEntryNames.AdfDataflows} is not valid JSON.");
+        }
+    }
+
     private static (bool FilePresent, List<AzureInventoryEffectiveNetworkControlRow> Rows) ReadEffectiveNetworkControls(
         ZipArchive archive)
     {
@@ -726,6 +886,42 @@ public sealed class AzureExtractorPackageInventoryReadResult
     } = [];
 
     public bool AdfPipelineFlowsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryAdfTriggerRow> AdfTriggers
+    {
+        get;
+        init;
+    } = [];
+
+    public bool AdfTriggersFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryAdfIntegrationRuntimeRow> AdfIntegrationRuntimes
+    {
+        get;
+        init;
+    } = [];
+
+    public bool AdfIntegrationRuntimesFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryAdfDataflowRow> AdfDataflows
+    {
+        get;
+        init;
+    } = [];
+
+    public bool AdfDataflowsFilePresent
     {
         get;
         init;

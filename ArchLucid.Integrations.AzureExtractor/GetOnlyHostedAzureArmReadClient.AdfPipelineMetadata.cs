@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 
+using ArchLucid.Core.AzureExtractor;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Integrations.AzureExtractor;
@@ -11,6 +13,8 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
     private const string AdfPipelinesApiVersion = "2018-06-01";
 
+    private const string SynapseFactoryStyleApiVersion = "2020-12-01";
+
     public async Task<IReadOnlyList<JsonElement>> ListFactoryDatasetsAsync(
         string accessToken,
         string factoryResourceId,
@@ -20,7 +24,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             accessToken,
             factoryResourceId,
             "datasets",
-            AdfDatasetsApiVersion,
+            ResolveFactoryStyleApiVersion(factoryResourceId),
             "ADF dataset",
             cancellationToken).ConfigureAwait(false);
     }
@@ -34,9 +38,61 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             accessToken,
             factoryResourceId,
             "pipelines",
-            AdfPipelinesApiVersion,
+            ResolveFactoryStyleApiVersion(factoryResourceId),
             "ADF pipeline",
             cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<JsonElement>> ListFactoryTriggersAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken)
+    {
+        return await ListFactoryChildResourcesAsync(
+            accessToken,
+            factoryResourceId,
+            "triggers",
+            ResolveFactoryStyleApiVersion(factoryResourceId),
+            "ADF trigger",
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<JsonElement>> ListFactoryIntegrationRuntimesAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken)
+    {
+        return await ListFactoryChildResourcesAsync(
+            accessToken,
+            factoryResourceId,
+            "integrationruntimes",
+            ResolveFactoryStyleApiVersion(factoryResourceId),
+            "ADF integration runtime",
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<JsonElement>> ListFactoryDataflowsAsync(
+        string accessToken,
+        string factoryResourceId,
+        CancellationToken cancellationToken)
+    {
+        return await ListFactoryChildResourcesAsync(
+            accessToken,
+            factoryResourceId,
+            "dataflows",
+            ResolveFactoryStyleApiVersion(factoryResourceId),
+            "ADF dataflow",
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private static string ResolveFactoryStyleApiVersion(string factoryResourceId)
+    {
+        if (AzureInventoryFactoryStyleResourceCatalog.IsSynapseWorkspaceArmId(factoryResourceId))
+        {
+            return SynapseFactoryStyleApiVersion;
+        }
+
+        return AdfPipelinesApiVersion;
     }
 
     private async Task<IReadOnlyList<JsonElement>> ListFactoryChildResourcesAsync(

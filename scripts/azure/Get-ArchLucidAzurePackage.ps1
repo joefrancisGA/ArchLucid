@@ -656,6 +656,9 @@ try
         [object[]]$adfLinkedServiceRows = @(Get-ArchLucidAzureAdfLinkedServiceCompanionRows -InventoryResources @($resources))
         [object[]]$adfDatasetRows = @(Get-ArchLucidAzureAdfDatasetCompanionRows -InventoryResources @($resources))
         [object[]]$adfPipelineFlowRows = @(Get-ArchLucidAzureAdfPipelineFlowCompanionRows -InventoryResources @($resources))
+        [object[]]$adfTriggerRows = @(Get-ArchLucidAzureAdfTriggerCompanionRows -InventoryResources @($resources))
+        [object[]]$adfIntegrationRuntimeRows = @(Get-ArchLucidAzureAdfIntegrationRuntimeCompanionRows -InventoryResources @($resources))
+        [object[]]$adfDataflowRows = @(Get-ArchLucidAzureAdfDataflowCompanionRows -InventoryResources @($resources))
 
         Write-Utf8NoBom (Join-Path $staging "role-assignments.json") ($roleAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "network-associations.json") ($networkAssociationRows | ConvertTo-Json -Depth 12 -Compress:$false)
@@ -667,6 +670,9 @@ try
         Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") ($adfLinkedServiceRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "adf-datasets.json") ($adfDatasetRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "adf-pipeline-flows.json") ($adfPipelineFlowRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "adf-triggers.json") ($adfTriggerRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "adf-integration-runtimes.json") ($adfIntegrationRuntimeRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "adf-dataflows.json") ($adfDataflowRows | ConvertTo-Json -Depth 12 -Compress:$false)
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `
@@ -684,6 +690,9 @@ try
                 adfLinkedServiceCount = $adfLinkedServiceRows.Count
                 adfDatasetCount = $adfDatasetRows.Count
                 adfPipelineFlowCount = $adfPipelineFlowRows.Count
+                adfTriggerCount = $adfTriggerRows.Count
+                adfIntegrationRuntimeCount = $adfIntegrationRuntimeRows.Count
+                adfDataflowCount = $adfDataflowRows.Count
             }
     }
     catch
@@ -704,6 +713,9 @@ try
         Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "adf-datasets.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "adf-pipeline-flows.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "adf-triggers.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "adf-integration-runtimes.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "adf-dataflows.json") "[]"
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `

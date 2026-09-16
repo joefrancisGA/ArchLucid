@@ -118,6 +118,49 @@ public sealed class AzureInventoryAdfPipelineFlowExtractorTests
     }
 
     [Fact]
+    public void ExtractFlows_expands_execute_data_flow_through_linked_services()
+    {
+        AzureInventoryAdfDataflowRow dataflow = new()
+        {
+            FactoryResourceId = FactoryId,
+            DataflowResourceId =
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/dataflows/df1",
+            DataflowName = "df1",
+            SourceLinkedServiceNames = ["BlobLS"],
+            SinkLinkedServiceNames = ["SqlLS"],
+        };
+
+        JsonElement pipeline = Parse("""
+            {
+              "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/pipelines/p1",
+              "name": "p1",
+              "properties": {
+                "activities": [
+                  {
+                    "name": "Transform",
+                    "type": "ExecuteDataFlow",
+                    "typeProperties": {
+                      "dataFlow": { "referenceName": "df1", "type": "DataFlowReference" }
+                    }
+                  }
+                ]
+              }
+            }
+            """);
+
+        IReadOnlyList<AzureInventoryAdfPipelineFlowRow> flows =
+            AzureInventoryAdfPipelineFlowExtractor.ExtractFlows(FactoryId, [pipeline], dataflowRows: [dataflow]);
+
+        flows.Should().HaveCount(2);
+        flows.Should().Contain(flow =>
+            flow.FlowDirection == AzureInventoryAdfPipelineFlowDirection.Read
+            && flow.DatasetName == "__linkedService:BlobLS");
+        flows.Should().Contain(flow =>
+            flow.FlowDirection == AzureInventoryAdfPipelineFlowDirection.Write
+            && flow.DatasetName == "__linkedService:SqlLS");
+    }
+
+    [Fact]
     public void ExtractFlows_does_not_cycle_on_recursive_execute_pipeline()
     {
         JsonElement pipelineA = Parse("""
