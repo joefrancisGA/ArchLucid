@@ -17,13 +17,16 @@ export const ARCHITECTURE_DIAGRAM_MERMAID_DARK_NODE = {
 } as const;
 
 /** Horizontal gap between dagre-ranked nodes (Mermaid flowchart.nodeSpacing). */
-export const ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING = 16;
+export const ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING = 24;
 
 /** Vertical gap between dagre ranks (Mermaid flowchart.rankSpacing). */
-export const ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING = 20;
+export const ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING = 36;
 
 /** Padding around the whole flowchart plate (Mermaid flowchart.padding). */
-export const ARCHITECTURE_DIAGRAM_MERMAID_PADDING = 6;
+export const ARCHITECTURE_DIAGRAM_MERMAID_PADDING = 10;
+
+/** Reserved space above subgraph titles so resource group labels sit above the frame. */
+export const ARCHITECTURE_DIAGRAM_MERMAID_SUBGRAPH_TITLE_TOP_MARGIN = 22;
 
 /** Max node box width for inventory/architecture Mermaid canvases (flowchart.wrappingWidth). */
 export const ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH = 280;
@@ -41,6 +44,10 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
     padding: number;
     nodeSpacing: number;
     rankSpacing: number;
+    subGraphTitleMargin: {
+      top: number;
+      bottom: number;
+    };
     wrappingWidth: number;
     useMaxWidth: false;
   };
@@ -63,6 +70,10 @@ export function createArchitectureDiagramMermaidConfig(dark: boolean): {
       padding: ARCHITECTURE_DIAGRAM_MERMAID_PADDING,
       nodeSpacing: ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING,
       rankSpacing: ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING,
+      subGraphTitleMargin: {
+        top: ARCHITECTURE_DIAGRAM_MERMAID_SUBGRAPH_TITLE_TOP_MARGIN,
+        bottom: 0,
+      },
       wrappingWidth: ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH,
       useMaxWidth: false,
     },

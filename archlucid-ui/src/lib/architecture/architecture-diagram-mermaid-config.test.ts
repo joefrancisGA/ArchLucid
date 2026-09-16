@@ -5,6 +5,7 @@ import {
   ARCHITECTURE_DIAGRAM_MERMAID_NODE_SPACING,
   ARCHITECTURE_DIAGRAM_MERMAID_PADDING,
   ARCHITECTURE_DIAGRAM_MERMAID_RANK_SPACING,
+  ARCHITECTURE_DIAGRAM_MERMAID_SUBGRAPH_TITLE_TOP_MARGIN,
   ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH,
   createArchitectureDiagramMermaidConfig,
 } from "@/lib/architecture/architecture-diagram-mermaid-config";
@@ -14,9 +15,12 @@ describe("createArchitectureDiagramMermaidConfig", () => {
     const config = createArchitectureDiagramMermaidConfig(false);
 
     expect(config.flowchart.htmlLabels).toBe(false);
-    expect(config.flowchart.padding).toBe(6);
-    expect(config.flowchart.nodeSpacing).toBe(16);
-    expect(config.flowchart.rankSpacing).toBe(20);
+    expect(config.flowchart.padding).toBe(10);
+    expect(config.flowchart.nodeSpacing).toBe(24);
+    expect(config.flowchart.rankSpacing).toBe(36);
+    expect(config.flowchart.subGraphTitleMargin.top).toBe(
+      ARCHITECTURE_DIAGRAM_MERMAID_SUBGRAPH_TITLE_TOP_MARGIN,
+    );
     expect(config.suppressErrorRendering).toBe(true);
     expect(config.startOnLoad).toBe(false);
     expect(config.themeVariables.primaryColor).toBe(ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill);
