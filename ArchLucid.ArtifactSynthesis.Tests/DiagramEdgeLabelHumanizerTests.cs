@@ -65,4 +65,19 @@ public sealed class DiagramEdgeLabelHumanizerTests
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel("reads").Should().Be("reads");
     }
+
+    [Theory]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, "Sends diagnostics to")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, "Sends diagnostics to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, "May access")]
+    [InlineData(GraphEdgeTypes.MayAccess, "May access")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventGridToDestination, "Publishes to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, "Triggers")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, "Runs on")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, "Captures to")]
+    public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
+    {
+        DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, alias).Should().Be(expected);
+    }
 }

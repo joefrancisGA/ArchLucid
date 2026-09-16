@@ -88,6 +88,12 @@ public static class AzureInventorySecurityEdgeMaterializer
         }
 
         AddRoleAssignmentEdges(roleAssignments, relationships, relationshipKeys, warnings);
+        AzureInventoryAppAuthorizedAccessEdgeMapper.MapAuthorizedAccess(
+            resources,
+            roleAssignments,
+            relationships,
+            relationshipKeys,
+            warnings);
         AddFederatedCredentialEdges(federatedCredentials, relationships, relationshipKeys);
         AddEntraGroupMembershipEdges(entraGroupMemberships, relationships, relationshipKeys);
         foreach (JsonElement association in networkAssociations)
@@ -108,7 +114,7 @@ public static class AzureInventorySecurityEdgeMaterializer
             warnings);
 
         AddPolicyAssignmentEdges(policyAssignments, relationships, relationshipKeys);
-        AddDiagnosticEdges(diagnosticSettings, relationships, relationshipKeys);
+        AddDiagnosticEdges(diagnosticSettings, relationships, relationshipKeys, warnings);
 
         HashSet<string> directionalFactoryTargetPairs = new(StringComparer.OrdinalIgnoreCase);
 
@@ -557,29 +563,52 @@ public static class AzureInventorySecurityEdgeMaterializer
     private static void AddDiagnosticEdges(
         IReadOnlyList<JsonElement> diagnosticSettings,
         List<AzureInventoryResourceRelationshipWrite> relationships,
-        HashSet<string> relationshipKeys)
+        HashSet<string> relationshipKeys,
+        List<string> warnings)
     {
+        ArgumentNullException.ThrowIfNull(warnings);
+
+        if (!AzureInventoryRelationshipAssociationTypes.TryGet(
+                AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination,
+                out AzureInventoryRelationshipAssociationTypeDefinition? definition)
+            || definition is null)
+        {
+            return;
+        }
+
         foreach (JsonElement diagnostic in diagnosticSettings)
         {
             string? targetId = TryReadJsonString(diagnostic, "targetResourceId")
                                ?? TryReadJsonString(diagnostic, "resourceId");
-            string? workspaceId = TryReadJsonString(diagnostic, "workspaceId")
-                                  ?? TryReadJsonString(diagnostic, "workspaceResourceId");
+            string? name = TryReadJsonString(diagnostic, "name");
 
-            if (string.IsNullOrWhiteSpace(targetId) || string.IsNullOrWhiteSpace(workspaceId))
+            if (string.IsNullOrWhiteSpace(targetId))
             {
                 continue;
             }
 
-            AddRelationship(
-                relationships,
-                relationshipKeys,
-                ArmResourceIdNormalizer.Normalize(targetId),
-                ArmResourceIdNormalizer.Normalize(workspaceId),
-                GraphEdgeTypes.ConnectsTo,
-                ProvenanceKind.ObservedFact,
-                ObservedFactConfidence,
-                GraphEdgeInferenceSources.InventoryDiagnosticTarget);
+            string normalizedTargetId = ArmResourceIdNormalizer.Normalize(targetId);
+            bool emittedDestination = false;
+
+            foreach (string destinationArmId in AzureInventoryDiagnosticDestinationParser.EnumerateDestinationArmIds(diagnostic))
+            {
+                AddRelationship(
+                    relationships,
+                    relationshipKeys,
+                    normalizedTargetId,
+                    destinationArmId,
+                    definition.DefaultGraphEdgeType,
+                    definition.DefaultProvenanceKind,
+                    ObservedFactConfidence,
+                    definition.DefaultInferenceSource);
+
+                emittedDestination = true;
+            }
+
+            if (!emittedDestination && !string.IsNullOrWhiteSpace(name))
+            {
+                warnings.Add("diagnostic-destination-unresolved");
+            }
         }
     }
 

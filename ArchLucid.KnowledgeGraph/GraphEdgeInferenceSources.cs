@@ -35,6 +35,46 @@ public static class GraphEdgeInferenceSources
     public const string InventoryNicSubnet = "inventory-nic-subnet";
     public const string InventoryUsesIdentity = "inventory-uses-identity";
     public const string InventoryDiagnosticTarget = "inventory-diagnostic-target";
+
+    public const string InventoryDiagnosticDestination = "inventory-diagnostic-destination";
+
+    public const string InventoryEventGridDestination = "inventory-event-grid-destination";
+
+    public const string InventoryLogicAppConnection = "inventory-logic-app-connection";
+
+    public const string InventoryIdentityRoleAssignment = "inventory-identity-role-assignment";
+
+    public const string InventoryAppAuthorizedAccess = "inventory-app-authorized-access";
+
+    public const string InventoryAppKeyVaultRef = "inventory-app-key-vault-ref";
+
+    public const string InventoryHostnameInferredTarget = "inventory-hostname-inferred-target";
+
+    public const string InventoryServiceConnectorLink = "inventory-service-connector-link";
+
+    public const string InventorySynapseLinkedService = "inventory-synapse-linked-service";
+
+    public const string InventorySynapseLinkedServiceInferred = "inventory-synapse-linked-service-inferred";
+
+    public const string InventorySynapseReadsFrom = "inventory-synapse-reads-from";
+
+    public const string InventorySynapseWritesTo = "inventory-synapse-writes-to";
+
+    public const string InventoryAdfTriggerSource = "inventory-adf-trigger-source";
+
+    public const string InventoryAdfIntegrationRuntime = "inventory-adf-integration-runtime";
+
+    public const string InventoryEventHubCapture = "inventory-event-hub-capture";
+
+    public const string InventoryNatGatewaySubnet = "inventory-nat-gateway-subnet";
+
+    public const string InventoryFirewallSubnet = "inventory-firewall-subnet";
+
+    public const string InventoryFrontDoorOrigin = "inventory-front-door-origin";
+
+    public const string InventoryContainerAppEnv = "inventory-container-app-env";
+
+    public const string InventoryPeDnsZoneGroup = "inventory-pe-dns-zone-group";
     public const string InventoryPolicyAssignment = "inventory-policy-assignment";
     public const string InventoryNsgAllowRule = "inventory-nsg-allow-rule";
 
