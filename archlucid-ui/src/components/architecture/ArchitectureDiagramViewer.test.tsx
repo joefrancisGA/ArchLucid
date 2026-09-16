@@ -545,6 +545,8 @@ describe('ArchitectureDiagramViewer', () => {
     const svg = host.querySelector('svg');
 
     expect(host.className).toContain('mx-auto');
+    expect(host.className).toContain('[&_svg_.cluster-label_text]:font-bold');
+    expect(host.className).toContain('[&_svg_.cluster-label_.nodeLabel]:font-bold');
     expect(svg).not.toBeNull();
     expect(screen.queryByTestId('architecture-diagram-render-failure')).not.toBeInTheDocument();
     expect(Number(svg?.getAttribute('height') ?? 0)).toBeGreaterThanOrEqual(
