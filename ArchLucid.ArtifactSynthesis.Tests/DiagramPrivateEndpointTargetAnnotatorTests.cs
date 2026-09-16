@@ -37,7 +37,9 @@ public sealed class DiagramPrivateEndpointTargetAnnotatorTests
 
         DiagramForestLayoutResult result = renderer.Render(ast);
         result.Succeeded.Should().BeTrue();
+        result.Svg.Should().Contain("class=\"private-endpoint-access\"");
         result.Svg.Should().Contain("class=\"private-endpoint-lock\"");
+        result.Svg.Should().Contain("class=\"private-endpoint-arrow\"");
         result.Svg.Should().Contain("Private endpoint access");
         result.Svg.Should().NotContain("class=\"edge-label\"");
     }

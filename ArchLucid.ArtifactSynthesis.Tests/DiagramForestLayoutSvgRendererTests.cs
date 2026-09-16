@@ -389,9 +389,12 @@ public sealed class DiagramForestLayoutSvgRendererTests
         DiagramForestLayoutResult result = renderer.Render(ast);
 
         result.Succeeded.Should().BeTrue();
+        result.Svg.Should().Contain("class=\"private-endpoint-access\"");
         result.Svg.Should().Contain("class=\"private-endpoint-lock\"");
+        result.Svg.Should().Contain("class=\"private-endpoint-arrow\"");
         result.Svg.Should().Contain("Private endpoint access");
         result.Svg.Should().NotContain("class=\"edge-label\"");
+        ParsePrivateEndpointLockTranslateX(result.Svg).Should().BeLessThan(ParsePrivateEndpointArrowStartX(result.Svg));
     }
 
     [Fact]
@@ -442,6 +445,38 @@ public sealed class DiagramForestLayoutSvgRendererTests
         }
 
         return double.Parse(parts[1], CultureInfo.InvariantCulture);
+    }
+
+    private static double ParsePrivateEndpointLockTranslateX(string svg)
+    {
+        XElement root = XElement.Parse(svg);
+        XElement? lockGroup = root.Descendants()
+            .FirstOrDefault(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "private-endpoint-lock", StringComparison.Ordinal));
+
+        lockGroup.Should().NotBeNull();
+
+        return ParseTranslateX(lockGroup!.Attribute("transform")?.Value);
+    }
+
+    private static double ParsePrivateEndpointArrowStartX(string svg)
+    {
+        XElement root = XElement.Parse(svg);
+        XElement? arrowPath = root.Descendants()
+            .FirstOrDefault(element =>
+                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
+                && element.Parent is not null
+                && string.Equals((string?)element.Parent.Attribute("class"), "private-endpoint-arrow", StringComparison.Ordinal));
+
+        arrowPath.Should().NotBeNull();
+
+        string? pathData = arrowPath!.Attribute("d")?.Value;
+        pathData.Should().NotBeNullOrWhiteSpace();
+
+        string[] tokens = pathData!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        return double.Parse(tokens[1], CultureInfo.InvariantCulture);
     }
 
     private static GraphSnapshot BuildChainGraph(int nodeCount)
