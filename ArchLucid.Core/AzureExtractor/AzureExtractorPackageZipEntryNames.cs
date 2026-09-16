@@ -23,6 +23,12 @@ public static class AzureExtractorPackageZipEntryNames
 
     public const string EffectiveNetworkControls = "effective-network-controls.json";
 
+    public const string AdfLinkedServices = "adf-linked-services.json";
+
+    public const string AdfDatasets = "adf-datasets.json";
+
+    public const string AdfPipelineFlows = "adf-pipeline-flows.json";
+
     public static IReadOnlyCollection<string> OptionalInventoryEntryNames { get; } =
     [
         RoleAssignments,
@@ -33,5 +39,8 @@ public static class AzureExtractorPackageZipEntryNames
         EntraGroupMemberships,
         DefenderSummary,
         EffectiveNetworkControls,
+        AdfLinkedServices,
+        AdfDatasets,
+        AdfPipelineFlows,
     ];
 }

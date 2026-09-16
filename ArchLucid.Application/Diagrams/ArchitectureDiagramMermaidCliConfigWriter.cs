@@ -27,7 +27,7 @@ internal static class ArchitectureDiagramMermaidCliConfigWriter
                 ["padding"] = 6,
                 ["nodeSpacing"] = 16,
                 ["rankSpacing"] = 20,
-                ["wrappingWidth"] = 400,
+                ["wrappingWidth"] = 280,
                 ["useMaxWidth"] = false,
             },
             ["themeVariables"] = new Dictionary<string, string>
@@ -39,7 +39,7 @@ internal static class ArchitectureDiagramMermaidCliConfigWriter
                 ["clusterBkg"] = "transparent",
                 ["clusterBorder"] = "#475569",
                 ["primaryBorderColor"] = ArchitectureDiagramMermaidPalette.LightNodeBorder,
-                ["lineColor"] = ArchitectureDiagramMermaidPalette.LightNodeBorder,
+                ["lineColor"] = ArchitectureDiagramMermaidPalette.LightEdgeStroke,
                 ["primaryTextColor"] = ArchitectureDiagramMermaidPalette.LightNodeText,
                 ["secondaryTextColor"] = "#1e293b",
             },

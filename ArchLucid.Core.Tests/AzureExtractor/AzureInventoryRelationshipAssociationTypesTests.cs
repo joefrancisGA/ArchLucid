@@ -62,7 +62,7 @@ public sealed class AzureInventoryRelationshipAssociationTypesTests
     [Fact]
     public void Catalog_lists_all_types_with_inference_sources()
     {
-        AzureInventoryRelationshipAssociationTypes.All.Should().HaveCount(15);
+        AzureInventoryRelationshipAssociationTypes.All.Should().HaveCount(19);
         AzureInventoryRelationshipAssociationTypes.All.Should().OnlyContain(definition =>
             !string.IsNullOrWhiteSpace(definition.DefaultInferenceSource));
     }

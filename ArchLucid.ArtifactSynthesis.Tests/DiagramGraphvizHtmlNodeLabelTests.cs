@@ -8,7 +8,7 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 public sealed class DiagramGraphvizHtmlNodeLabelTests
 {
     [Fact]
-    public void Format_uses_html_bold_name_and_type_line()
+    public void Format_uses_html_table_with_compute_accent_for_virtual_machine()
     {
         DiagramNode node = new()
         {
@@ -19,7 +19,22 @@ public sealed class DiagramGraphvizHtmlNodeLabelTests
 
         DiagramGraphvizHtmlNodeLabel.Format(node)
             .Should()
-            .Be("<<B>vm-app</B><BR/>(Virtual machine)>");
+            .Be("<<TABLE BORDER=\"0\" CELLBORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"2\"><TR><TD WIDTH=\"8\" BGCOLOR=\"#2563eb\"></TD><TD ALIGN=\"LEFT\" BALIGN=\"LEFT\"><B>vm-app</B><BR/>(Virtual machine)</TD></TR></TABLE>>");
+    }
+
+    [Fact]
+    public void Format_uses_html_table_with_network_accent_for_vnet()
+    {
+        DiagramNode node = new()
+        {
+            NodeId = "vnet-1",
+            Label = "vnet-eastus",
+            ArmResourceType = "Microsoft.Network/virtualNetworks",
+        };
+
+        DiagramGraphvizHtmlNodeLabel.Format(node)
+            .Should()
+            .Be("<<TABLE BORDER=\"0\" CELLBORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"2\"><TR><TD WIDTH=\"8\" BGCOLOR=\"#0f766e\"></TD><TD ALIGN=\"LEFT\" BALIGN=\"LEFT\"><B>vnet-eastus</B><BR/>(Virtual network)</TD></TR></TABLE>>");
     }
 
     [Fact]
@@ -35,7 +50,8 @@ public sealed class DiagramGraphvizHtmlNodeLabelTests
 
         DiagramGraphvizHtmlNodeLabel.Format(node)
             .Should()
-            .Be("<<B>vm-app</B><BR/>(Virtual machine)<BR/>rg-app-prod>");
+            .Contain("rg-app-prod")
+            .And.Contain("BGCOLOR=\"#2563eb\"");
     }
 
     [Fact]
@@ -50,7 +66,8 @@ public sealed class DiagramGraphvizHtmlNodeLabelTests
 
         DiagramGraphvizHtmlNodeLabel.Format(node)
             .Should()
-            .Be("<<B>stlogs</B><BR/>rg-data-prod>");
+            .Contain("<B>stlogs</B><BR/>rg-data-prod")
+            .And.Contain("BGCOLOR=\"#475569\"");
     }
 
     [Fact]
@@ -66,6 +83,6 @@ public sealed class DiagramGraphvizHtmlNodeLabelTests
 
         DiagramGraphvizHtmlNodeLabel.Format(node)
             .Should()
-            .Be("<<B>vm-app</B><BR/>(Virtual machine)>");
+            .Be("<<TABLE BORDER=\"0\" CELLBORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"2\"><TR><TD WIDTH=\"8\" BGCOLOR=\"#2563eb\"></TD><TD ALIGN=\"LEFT\" BALIGN=\"LEFT\"><B>vm-app</B><BR/>(Virtual machine)</TD></TR></TABLE>>");
     }
 }

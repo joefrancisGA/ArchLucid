@@ -1811,3 +1811,630 @@ function Get-ArchLucidAzureDefenderSecureScorePercent
 
     return $bestScore
 }
+
+function Get-ArchLucidAzureAdfLinkedServiceCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+    $supportedTypes = @(
+        'AzureBlobStorage',
+        'AzureBlobFS',
+        'AzureSqlDatabase',
+        'AzureSqlMI',
+        'AzureSynapseAnalytics',
+        'AzureDataLakeStore',
+        'AzureKeyVault'
+    )
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not ($resourceType -eq 'Microsoft.DataFactory/factories')) { continue }
+        if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
+
+        try
+        {
+            [string]$path = "$factoryResourceId/linkedservices?api-version=2018-06-01"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($linkedService in @($payload.value))
+            {
+                [string]$linkedServiceResourceId = "$( $linkedService.id )".Trim()
+                [string]$linkedServiceName = "$( $linkedService.name )".Trim()
+                [string]$linkedServiceType = "$( $linkedService.properties.type )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($linkedServiceResourceId) -or [string]::IsNullOrWhiteSpace($linkedServiceName))
+                {
+                    continue
+                }
+
+                if ($supportedTypes -notcontains $linkedServiceType)
+                {
+                    [void]$rows.Add([ordered]@{
+                        factoryResourceId = $factoryResourceId
+                        linkedServiceResourceId = $linkedServiceResourceId
+                        linkedServiceName = $linkedServiceName
+                        linkedServiceType = $linkedServiceType
+                        collectionStatus = 'UnsupportedConnector'
+                        warningCode = "adf-unsupported-connector:$linkedServiceType"
+                    })
+
+                    continue
+                }
+
+                $normalized = New-ArchLucidAzureAdfLinkedServiceNormalizedRow `
+                    -FactoryResourceId $factoryResourceId `
+                    -LinkedServiceResourceId $linkedServiceResourceId `
+                    -LinkedServiceName $linkedServiceName `
+                    -LinkedServiceType $linkedServiceType `
+                    -Properties $linkedService.properties
+
+                if ($null -ne $normalized)
+                {
+                    [void]$rows.Add($normalized)
+                }
+            }
+        }
+        catch
+        {
+            [void]$rows.Add([ordered]@{
+                factoryResourceId = $factoryResourceId
+                linkedServiceResourceId = "$factoryResourceId/linkedservices/_collection_failed"
+                linkedServiceName = '_collection_failed'
+                linkedServiceType = 'CollectionFailure'
+                collectionStatus = 'Forbidden'
+                warningCode = "adf-factory-collection-failed:$factoryResourceId"
+            })
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function New-ArchLucidAzureAdfLinkedServiceNormalizedRow
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $FactoryResourceId,
+
+        [Parameter(Mandatory = $true)]
+        [string] $LinkedServiceResourceId,
+
+        [Parameter(Mandatory = $true)]
+        [string] $LinkedServiceName,
+
+        [Parameter(Mandatory = $true)]
+        [string] $LinkedServiceType,
+
+        [Parameter(Mandatory = $true)]
+        [object] $Properties
+    )
+
+    $typeProperties = $Properties.typeProperties
+    [string]$integrationRuntimeName = ''
+
+    try
+    {
+        $integrationRuntimeName = "$( $Properties.connectVia.referenceName )".Trim()
+    }
+    catch
+    {
+    }
+
+    [string]$targetResourceId = ''
+    [string]$targetHost = ''
+    [string]$keyVaultResourceId = ''
+    [string]$collectionStatus = 'Succeeded'
+    [string]$warningCode = $null
+
+    if ($LinkedServiceType -eq 'AzureBlobStorage')
+    {
+        [string]$serviceEndpoint = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'serviceEndpoint'
+
+        if ($serviceEndpoint -like '/subscriptions/*')
+        {
+            $targetResourceId = $serviceEndpoint
+        }
+        else
+        {
+            $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value $serviceEndpoint
+        }
+    }
+    elseif ($LinkedServiceType -eq 'AzureBlobFS')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'url')
+    }
+    elseif ($LinkedServiceType -eq 'AzureSqlDatabase')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'server')
+    }
+    elseif ($LinkedServiceType -eq 'AzureSqlMI')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'instanceName')
+    }
+    elseif ($LinkedServiceType -eq 'AzureSynapseAnalytics')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'endpoint')
+        if ([string]::IsNullOrWhiteSpace($targetHost))
+        {
+            $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'server')
+        }
+    }
+    elseif ($LinkedServiceType -eq 'AzureDataLakeStore')
+    {
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value (Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'dataLakeStoreUri')
+    }
+    elseif ($LinkedServiceType -eq 'AzureKeyVault')
+    {
+        [string]$baseUrl = Get-ArchLucidAzureAdfAllowedScalar -Object $typeProperties -PropertyName 'baseUrl'
+        $targetHost = Get-ArchLucidAzureAdfHostFromValue -Value $baseUrl
+    }
+
+    if ([string]::IsNullOrWhiteSpace($targetResourceId) -and [string]::IsNullOrWhiteSpace($targetHost) -and [string]::IsNullOrWhiteSpace($keyVaultResourceId))
+    {
+        $collectionStatus = 'TargetUnresolved'
+        $warningCode = "adf-target-unresolved:$LinkedServiceName"
+    }
+
+    return [ordered]@{
+        factoryResourceId = $FactoryResourceId
+        linkedServiceResourceId = $LinkedServiceResourceId
+        linkedServiceName = $LinkedServiceName
+        linkedServiceType = $LinkedServiceType
+        targetResourceId = $(if ([string]::IsNullOrWhiteSpace($targetResourceId)) { $null } else { $targetResourceId })
+        targetHost = $(if ([string]::IsNullOrWhiteSpace($targetHost)) { $null } else { $targetHost })
+        keyVaultResourceId = $(if ([string]::IsNullOrWhiteSpace($keyVaultResourceId)) { $null } else { $keyVaultResourceId })
+        integrationRuntimeName = $(if ([string]::IsNullOrWhiteSpace($integrationRuntimeName)) { $null } else { $integrationRuntimeName })
+        collectionStatus = $collectionStatus
+        warningCode = $warningCode
+    }
+}
+
+function Get-ArchLucidAzureAdfAllowedScalar
+{
+    param(
+        [object] $Object,
+        [Parameter(Mandatory = $true)]
+        [string] $PropertyName
+    )
+
+    if ($null -eq $Object) { return '' }
+
+    $blocked = @(
+        'connectionString', 'password', 'accountKey', 'secretKey', 'clientSecret',
+        'servicePrincipalKey', 'encryptedCredential', 'sasToken', 'accessKey', 'apiKey', 'token', 'key', 'credentials'
+    )
+
+    if ($blocked -contains $PropertyName) { return '' }
+
+    try
+    {
+        $value = $Object.$PropertyName
+
+        if ($null -eq $value) { return '' }
+
+        if ($value -is [System.Management.Automation.PSCustomObject] -and "$( $value.type )".Trim() -eq 'SecureString')
+        {
+            return ''
+        }
+
+        return "$( $value )".Trim()
+    }
+    catch
+    {
+        return ''
+    }
+}
+
+function Get-ArchLucidAzureAdfHostFromValue
+{
+    param(
+        [string] $Value
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Value)) { return '' }
+    if ($Value -like '/subscriptions/*') { return '' }
+
+    try
+    {
+        $uri = [Uri]$Value
+        return $uri.Host.ToLowerInvariant()
+    }
+    catch
+    {
+        [string]$trimmed = $Value.Trim().TrimEnd('.')
+        if ($trimmed.StartsWith('tcp:', [System.StringComparison]::OrdinalIgnoreCase))
+        {
+            $trimmed = $trimmed.Substring(4)
+        }
+
+        $commaIndex = $trimmed.IndexOf(',')
+        if ($commaIndex -ge 0)
+        {
+            $trimmed = $trimmed.Substring(0, $commaIndex)
+        }
+
+        return $trimmed.ToLowerInvariant()
+    }
+}
+
+function Test-ArchLucidAzureAdfStaticReferenceName
+{
+    param(
+        [Parameter(Mandatory = $false)]
+        [AllowEmptyString()]
+        [string] $ReferenceName
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ReferenceName)) { return $false }
+
+    [string]$trimmed = $ReferenceName.Trim()
+
+    if ($trimmed.Contains('@') -or $trimmed.Contains('${') -or $trimmed.StartsWith('[')) { return $false }
+
+    return $true
+}
+
+function Get-ArchLucidAzureAdfDatasetCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not ($resourceType -eq 'Microsoft.DataFactory/factories')) { continue }
+        if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
+
+        try
+        {
+            [string]$path = "$factoryResourceId/datasets?api-version=2018-06-01"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($dataset in @($payload.value))
+            {
+                [string]$datasetResourceId = "$( $dataset.id )".Trim()
+                [string]$datasetName = "$( $dataset.name )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($datasetResourceId) -or [string]::IsNullOrWhiteSpace($datasetName))
+                {
+                    continue
+                }
+
+                [string]$linkedServiceName = ''
+                try
+                {
+                    $linkedServiceName = "$( $dataset.properties.linkedServiceName.referenceName )".Trim()
+                }
+                catch
+                {
+                }
+
+                if (-not (Test-ArchLucidAzureAdfStaticReferenceName -ReferenceName $linkedServiceName))
+                {
+                    [void]$rows.Add([ordered]@{
+                        factoryResourceId = $factoryResourceId
+                        datasetResourceId = $datasetResourceId
+                        datasetName = $datasetName
+                        linkedServiceName = '_unresolved'
+                        collectionStatus = 'TargetUnresolved'
+                        warningCode = "adf-target-unresolved:$datasetName"
+                    })
+
+                    continue
+                }
+
+                [void]$rows.Add([ordered]@{
+                    factoryResourceId = $factoryResourceId
+                    datasetResourceId = $datasetResourceId
+                    datasetName = $datasetName
+                    linkedServiceName = $linkedServiceName
+                    collectionStatus = 'Succeeded'
+                })
+            }
+        }
+        catch
+        {
+            continue
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureAdfPipelineFlowCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources,
+
+        [Parameter(Mandatory = $false)]
+        [int] $MaxNestedPipelineDepth = 3
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$factoryResourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not ($resourceType -eq 'Microsoft.DataFactory/factories')) { continue }
+        if ([string]::IsNullOrWhiteSpace($factoryResourceId)) { continue }
+
+        try
+        {
+            [string]$path = "$factoryResourceId/pipelines?api-version=2018-06-01"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+            $pipelineResources = @($payload.value)
+
+            $pipelinesByName = @{}
+            foreach ($pipeline in $pipelineResources)
+            {
+                [string]$pipelineName = "$( $pipeline.name )".Trim()
+                if (-not [string]::IsNullOrWhiteSpace($pipelineName))
+                {
+                    $pipelinesByName[$pipelineName] = $pipeline
+                }
+            }
+
+            $flowKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+            foreach ($pipeline in $pipelineResources)
+            {
+                [string]$pipelineResourceId = "$( $pipeline.id )".Trim()
+                [string]$pipelineName = "$( $pipeline.name )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($pipelineResourceId) -or [string]::IsNullOrWhiteSpace($pipelineName))
+                {
+                    continue
+                }
+
+                Add-ArchLucidAzureAdfPipelineActivityFlows `
+                    -FactoryResourceId $factoryResourceId `
+                    -PipelineResourceId $pipelineResourceId `
+                    -PipelineName $pipelineName `
+                    -PipelineResource $pipeline `
+                    -PipelinesByName $pipelinesByName `
+                    -RemainingNestedDepth $MaxNestedPipelineDepth `
+                    -PipelineVisitStack @() `
+                    -Rows $rows `
+                    -FlowKeys $flowKeys
+            }
+        }
+        catch
+        {
+            continue
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Add-ArchLucidAzureAdfPipelineActivityFlows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $FactoryResourceId,
+
+        [Parameter(Mandatory = $true)]
+        [string] $PipelineResourceId,
+
+        [Parameter(Mandatory = $true)]
+        [string] $PipelineName,
+
+        [Parameter(Mandatory = $true)]
+        [object] $PipelineResource,
+
+        [Parameter(Mandatory = $true)]
+        [hashtable] $PipelinesByName,
+
+        [Parameter(Mandatory = $true)]
+        [int] $RemainingNestedDepth,
+
+        [Parameter(Mandatory = $true)]
+        [string[]] $PipelineVisitStack,
+
+        [Parameter(Mandatory = $true)]
+        [System.Collections.ArrayList] $Rows,
+
+        [Parameter(Mandatory = $true)]
+        [System.Collections.Generic.HashSet[string]] $FlowKeys
+    )
+
+    $activities = @($PipelineResource.properties.activities)
+    if ($null -eq $activities) { return }
+
+    foreach ($activity in $activities)
+    {
+        [string]$activityName = "$( $activity.name )".Trim()
+        [string]$activityType = "$( $activity.type )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($activityName) -or [string]::IsNullOrWhiteSpace($activityType))
+        {
+            continue
+        }
+
+        if ($activityType -eq 'ExecutePipeline')
+        {
+            if ($RemainingNestedDepth -le 0) { continue }
+
+            [string]$nestedPipelineName = ''
+            try
+            {
+                $nestedPipelineName = "$( $activity.typeProperties.pipeline.referenceName )".Trim()
+            }
+            catch
+            {
+            }
+
+            if (-not (Test-ArchLucidAzureAdfStaticReferenceName -ReferenceName $nestedPipelineName)) { continue }
+            if (-not $PipelinesByName.ContainsKey($nestedPipelineName)) { continue }
+
+            if ($PipelineVisitStack -contains $nestedPipelineName) { continue }
+
+            $nestedPipeline = $PipelinesByName[$nestedPipelineName]
+            [string]$nestedPipelineResourceId = "$( $nestedPipeline.id )".Trim()
+
+            if ([string]::IsNullOrWhiteSpace($nestedPipelineResourceId)) { continue }
+
+            Add-ArchLucidAzureAdfPipelineActivityFlows `
+                -FactoryResourceId $FactoryResourceId `
+                -PipelineResourceId $nestedPipelineResourceId `
+                -PipelineName $nestedPipelineName `
+                -PipelineResource $nestedPipeline `
+                -PipelinesByName $PipelinesByName `
+                -RemainingNestedDepth ($RemainingNestedDepth - 1) `
+                -PipelineVisitStack (@($PipelineVisitStack) + @($nestedPipelineName)) `
+                -Rows $Rows `
+                -FlowKeys $FlowKeys
+
+            continue
+        }
+
+        Add-ArchLucidAzureAdfDatasetReferenceFlows `
+            -FactoryResourceId $FactoryResourceId `
+            -PipelineResourceId $PipelineResourceId `
+            -PipelineName $PipelineName `
+            -ActivityName $activityName `
+            -ActivityType $activityType `
+            -Activity $activity `
+            -PropertyName 'inputs' `
+            -FlowDirection 'Read' `
+            -Rows $Rows `
+            -FlowKeys $FlowKeys
+
+        Add-ArchLucidAzureAdfDatasetReferenceFlows `
+            -FactoryResourceId $FactoryResourceId `
+            -PipelineResourceId $PipelineResourceId `
+            -PipelineName $PipelineName `
+            -ActivityName $activityName `
+            -ActivityType $activityType `
+            -Activity $activity `
+            -PropertyName 'outputs' `
+            -FlowDirection 'Write' `
+            -Rows $Rows `
+            -FlowKeys $FlowKeys
+    }
+}
+
+function Add-ArchLucidAzureAdfDatasetReferenceFlows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $FactoryResourceId,
+
+        [Parameter(Mandatory = $true)]
+        [string] $PipelineResourceId,
+
+        [Parameter(Mandatory = $true)]
+        [string] $PipelineName,
+
+        [Parameter(Mandatory = $true)]
+        [string] $ActivityName,
+
+        [Parameter(Mandatory = $true)]
+        [string] $ActivityType,
+
+        [Parameter(Mandatory = $true)]
+        [object] $Activity,
+
+        [Parameter(Mandatory = $true)]
+        [string] $PropertyName,
+
+        [Parameter(Mandatory = $true)]
+        [string] $FlowDirection,
+
+        [Parameter(Mandatory = $true)]
+        [System.Collections.ArrayList] $Rows,
+
+        [Parameter(Mandatory = $true)]
+        [System.Collections.Generic.HashSet[string]] $FlowKeys
+    )
+
+    $references = @()
+    try
+    {
+        $references = @($Activity.$PropertyName)
+    }
+    catch
+    {
+        return
+    }
+
+    foreach ($reference in $references)
+    {
+        if ($null -eq $reference) { continue }
+
+        [string]$referenceType = ''
+        try { $referenceType = "$( $reference.type )".Trim() } catch { }
+
+        if ($referenceType -like '*Expression*') { continue }
+
+        try
+        {
+            if ($null -ne $reference.parameters -and @($reference.parameters.PSObject.Properties).Count -gt 0)
+            {
+                continue
+            }
+        }
+        catch
+        {
+        }
+
+        [string]$datasetName = ''
+        try { $datasetName = "$( $reference.referenceName )".Trim() } catch { }
+
+        if (-not (Test-ArchLucidAzureAdfStaticReferenceName -ReferenceName $datasetName)) { continue }
+
+        [string]$flowKey = "$FactoryResourceId|$PipelineResourceId|$ActivityName|$FlowDirection|$datasetName"
+        if (-not $FlowKeys.Add($flowKey)) { continue }
+
+        [void]$Rows.Add([ordered]@{
+            factoryResourceId = $FactoryResourceId
+            pipelineResourceId = $PipelineResourceId
+            pipelineName = $PipelineName
+            activityName = $ActivityName
+            activityType = $ActivityType
+            flowDirection = $FlowDirection
+            datasetName = $datasetName
+            collectionStatus = 'Succeeded'
+        })
+    }
+}

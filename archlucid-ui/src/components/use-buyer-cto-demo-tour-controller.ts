@@ -270,16 +270,6 @@ export function useBuyerCtoDemoTourController() {
     };
   }, [activateTour]);
 
-  useEffect(() => {
-    if (!mounted || !active) {
-      return;
-    }
-
-    for (const step of BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS) {
-      router.prefetch(step.href);
-    }
-  }, [active, mounted, router]);
-
   const stepCount = navigation.stepCount;
   const currentStepNumber = navigation.stepIndex !== null ? navigation.stepIndex + 1 : null;
   const stepLabel =
