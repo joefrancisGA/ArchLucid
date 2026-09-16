@@ -310,15 +310,19 @@ function renderDiagramViewportControls(
 const MERMAID_SVG_HOST_CLASSNAME = cn(
   'mx-auto block w-fit max-w-full min-w-0 text-neutral-900 dark:text-neutral-100',
   '[&_svg]:block [&_svg]:overflow-visible',
-  '[&_svg_text]:fill-current [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200',
+  // Only text without baked SVG fills inherit currentColor; forest captions/legend keep their fills.
+  '[&_svg_text:not([fill])]:fill-current [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200',
   '[&_svg_.cluster-label_text]:font-bold [&_svg_.cluster-label_.nodeLabel]:font-bold',
   '[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:leading-snug [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100',
   '[&_svg_.cluster_rect]:fill-white dark:[&_svg_.cluster_rect]:fill-neutral-950/80',
   '[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]',
-  // Fallback ink when Mermaid CSS is stripped (light = neutral cards on white canvas).
-  '[&_svg_.node_rect]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_.node_rect]:fill-slate-700',
-  '[&_svg_.node_rect]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_.node_rect]:stroke-slate-200',
-  '[&_svg_.node_rect]:stroke-[1.5px]',
+  // Fallback ink when Mermaid CSS is stripped. Scope to card bodies only — never pictogram or accent rects.
+  '[&_svg_g.node>rect.node-card]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_g.node>rect.node-card]:fill-slate-700',
+  '[&_svg_g.node>rect.node-card]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_g.node>rect.node-card]:stroke-slate-200',
+  '[&_svg_g.node>rect.node-card]:stroke-[1.5px]',
+  '[&_svg_g.node>rect:not(.node-accent):not(.node-card)]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_g.node>rect:not(.node-accent):not(.node-card)]:fill-slate-700',
+  '[&_svg_g.node>rect:not(.node-accent):not(.node-card)]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_g.node>rect:not(.node-accent):not(.node-card)]:stroke-slate-200',
+  '[&_svg_g.node>rect:not(.node-accent):not(.node-card)]:stroke-[1.5px]',
   '[&_svg_.node_polygon]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_.node_polygon]:fill-slate-700',
   '[&_svg_.node_polygon]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_.node_polygon]:stroke-slate-200',
   '[&_svg_.node_polygon]:stroke-[1.5px]',

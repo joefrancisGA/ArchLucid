@@ -234,6 +234,50 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByText('Node A')).toBeInTheDocument();
   });
 
+  it('scopes host CSS to card bodies so forest accents and pictograms keep baked fills', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80">',
+      '  <g class="node">',
+      '    <rect class="node-card" width="200" height="48" fill="#f8fafc" stroke="#cbd5e1"/>',
+      '    <rect class="node-accent" width="4" height="48" fill="#d97706"/>',
+      '    <g class="pictogram" data-kind="Storage">',
+      '      <rect x="4" y="4" width="16" height="4" fill="#d97706"/>',
+      '      <rect x="4" y="10" width="16" height="4" fill="#ea580c"/>',
+      '    </g>',
+      '    <text fill="#0f172a"><tspan>staephidevws001</tspan></text>',
+      '    <text fill="#475569"><tspan>anly-aep-dev-hi</tspan></text>',
+      '  </g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"] --> b["B"]'}
+        layoutSvg={forestLayoutSvg}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-svg-host')).toBeInTheDocument();
+    });
+
+    const host = screen.getByTestId('architecture-diagram-svg-host');
+    expect(host.className).toContain('g.node>rect.node-card');
+    expect(host.className).toContain('g.node>rect:not(.node-accent):not(.node-card)');
+    expect(host.className).not.toContain('[&_svg_.node_rect]');
+    expect(host.className).toContain('text:not([fill])');
+
+    const accent = host.querySelector('rect.node-accent');
+    const pictogramRect = host.querySelector('g.pictogram rect');
+
+    expect(accent?.getAttribute('fill')).toBe('#d97706');
+    expect(pictogramRect?.getAttribute('fill')).toBe('#d97706');
+    expect(host.querySelector('text')).not.toBeNull();
+    expect(screen.getByText('anly-aep-dev-hi')).toBeInTheDocument();
+  });
+
   it('strips inline mermaid comments before calling mermaid.render', async () => {
     render(
       <ArchitectureDiagramViewer
