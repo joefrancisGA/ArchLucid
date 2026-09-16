@@ -5,6 +5,7 @@ import {
   ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE,
   ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH,
 } from "@/lib/architecture/architecture-diagram-mermaid-config";
+import { enhanceInventoryClusterLabels } from "@/lib/architecture/enhance-inventory-cluster-labels";
 import { fitInventoryDiagramClusterFrames } from "@/lib/architecture/fit-inventory-diagram-cluster-frames";
 import {
   ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX,
@@ -655,6 +656,7 @@ export function replaceMermaidForeignObjectLabelsWithSvgText(
   reserveClusterTitleBands(svg);
   wrapExistingNodeSvgLabels(svg, parsed);
   fitInventoryDiagramClusterFrames(svg);
+  enhanceInventoryClusterLabels(svg);
   paintUnfilledSvgText(svg);
   paintArchitectureDiagramNodePalette(svg, dark);
   svg.setAttribute("overflow", "visible");
