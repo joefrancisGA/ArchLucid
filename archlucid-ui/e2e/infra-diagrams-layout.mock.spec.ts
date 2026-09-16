@@ -151,9 +151,15 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
           ),
         edgePathCount: svg.querySelectorAll("g.edgePaths path").length,
         outlineEdgeRows:
-          Array.from(document.querySelectorAll("h3"))
-            .find((heading) => heading.textContent?.trim() === "Edges")
-            ?.parentElement?.querySelectorAll("tbody tr").length ?? 0,
+          document.querySelector('[data-testid="infra-diagrams-outline-edges-panel"] tbody')?.querySelectorAll("tr")
+            .length ?? 0,
+        outlineNodesPanelVisible:
+          document.querySelector('[data-testid="infra-diagrams-outline-nodes-panel"]') !== null,
+        honeyNodeFillCount: [...svg.querySelectorAll("g.node rect, g.node .node-card")].filter((rect) => {
+          const fill = rect.getAttribute("fill") ?? window.getComputedStyle(rect).fill;
+
+          return fill.toLowerCase() === "#d4a84b" || fill.toLowerCase() === "rgb(212, 168, 75)";
+        }).length,
         chrome: {
           cameraIsDescendant: viewport.contains(camera),
           controlsOutsideCamera: !camera.contains(controls),
@@ -178,6 +184,8 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
     expect(metrics?.allInsideSvg).toBe(true);
     expect(metrics?.edgePathCount).toBe(0);
     expect(metrics?.outlineEdgeRows).toBe(0);
+    expect(metrics?.outlineNodesPanelVisible).toBe(false);
+    expect(metrics?.honeyNodeFillCount).toBe(0);
     expect(metrics?.chrome?.cameraIsDescendant).toBe(true);
     expect(metrics?.chrome?.controlsOutsideCamera).toBe(true);
     expect(metrics?.chrome?.controlsVisibleInFrame).toBe(true);
@@ -367,9 +375,15 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
         cameraScrollWidth: camera.scrollWidth,
         cameraClientWidth: camera.clientWidth,
         outlineEdgeRows:
-          Array.from(document.querySelectorAll("h3"))
-            .find((heading) => heading.textContent?.trim() === "Edges")
-            ?.parentElement?.querySelectorAll("tbody tr").length ?? 0,
+          document.querySelector('[data-testid="infra-diagrams-outline-edges-panel"] tbody')?.querySelectorAll("tr")
+            .length ?? 0,
+        outlineNodesPanelVisible:
+          document.querySelector('[data-testid="infra-diagrams-outline-nodes-panel"]') !== null,
+        honeyNodeFillCount: [...svg.querySelectorAll("g.node rect, g.node .node-card")].filter((rect) => {
+          const fill = rect.getAttribute("fill") ?? window.getComputedStyle(rect).fill;
+
+          return fill.toLowerCase() === "#d4a84b" || fill.toLowerCase() === "rgb(212, 168, 75)";
+        }).length,
         peeringPairCount: peeringPairs.length,
         peeringPairs,
         containsAlpack: svg.outerHTML.includes("alpack"),
@@ -397,7 +411,9 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
       expect(metrics.viewBoxToUnionWidthRatio).toBeLessThanOrEqual(1.2);
       expect(metrics.viewBoxToUnionHeightRatio).toBeLessThanOrEqual(1.2);
       expect(metrics.cameraScrollWidth).toBeLessThanOrEqual(metrics.cameraClientWidth + 2);
-      expect(metrics.outlineEdgeRows).toBe(6);
+      expect(metrics.outlineEdgeRows).toBe(0);
+      expect(metrics.outlineNodesPanelVisible).toBe(false);
+      expect(metrics.honeyNodeFillCount).toBe(0);
       expect(metrics.minNodeHeight).toBeGreaterThanOrEqual(minNodeHeightPx);
       expect(metrics.containsAlpack).toBe(false);
       expect(metrics.peeringPairCount).toBeGreaterThanOrEqual(1);

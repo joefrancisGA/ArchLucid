@@ -28,6 +28,8 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             + $"fillcolor=\"{ArchitectureDiagramMermaidPalette.LightNodeFill}\", "
             + $"color=\"{ArchitectureDiagramMermaidPalette.LightNodeBorder}\", "
             + $"fontcolor=\"{ArchitectureDiagramMermaidPalette.LightNodeText}\"];");
+        builder.AppendLine(
+            $"    edge [color=\"{ArchitectureDiagramMermaidPalette.LightEdgeStroke}\"];");
 
         if (renderableSubgraphs.Count == 0)
         {

@@ -10,14 +10,14 @@ Keep IDR as **captions on cards**. Membership becomes readable on the existing f
 
 ## Why
 
-Owner asked for resource groups as bounding boxes, then asked for the **easiest** helpful slice. Forest packing is by connected component, not RG. Boxes on the current grid would overlap and lie. Nested subscription → RG → VNet → subnet frames are a second layout engine. Sparse flatten (Executive / Network / Data / Identity, threshold 8) exists because Mermaid empty swimlanes were unreadable. IDG already chose forest-first with Graphviz fallback — do not invert that to get clusters.
+Owner asked for resource groups as bounding boxes, then asked for the **easiest** helpful slice. Forest packing is by connected component, not RG. Boxes on the current grid would overlap and lie. Nested subscription → RG → VNet → subnet frames are a second layout engine. Sparse flatten (Executive / Network / Data / Identity, threshold 8) exists because Mermaid empty swimlanes were unreadable. IDG already chose forest-first with Graphviz fallback — do not invert that to get clusters. Pack-then-frame is **IDA-08**.
 
 ## Do not implement (ever from IDR sessions)
 
 | Temptation | Hold |
 |-----------|------|
 | Bounding rects around current node positions by `ArmResourceGroup` | Positions are not RG-clustered; frames would overlap |
-| Forest pack-by-RG + `g.subgraph` frames | Separate layout wave; not “while we are in captions” |
+| Forest pack-by-RG + `g.subgraph` frames | **IDA-08**, not an IDR chat |
 | Nested VNet/subnet cluster rects | Recursive cluster packer; out of IDR |
 | Prefer `graphviz-fdp` for Full subscription so DOT `cluster_rg` shows | Hundreds of nodes; forest exists because owner layout was already hard |
 | Undo `FlattenSparseSubgraphs` so Mermaid subgraphs “show RGs” | Empty-box regression on Executive/Network/Data/Identity |
@@ -29,7 +29,7 @@ Owner asked for resource groups as bounding boxes, then asked for the **easiest*
 
 ## If a session is already implementing a hold item
 
-Stop. Revert uncommitted hold-item code. Point at **IDR-01–IDR-03**. Do not ship overlapping boxes as a demo.
+Stop. Revert uncommitted hold-item code. Point at **IDR-01–IDR-03**. For pack-then-frame, paste **IDA-08** in a **new** IDA session. Do not ship overlapping boxes as a demo.
 
 ## Done when
 

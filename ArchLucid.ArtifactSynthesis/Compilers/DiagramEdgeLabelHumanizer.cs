@@ -71,6 +71,38 @@ internal static class DiagramEdgeLabelHumanizer
 
     private static bool TryHumanizeGraphEdgeType(string value, out string humanized)
     {
+        if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfLinkedService, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfLinkedService, StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = "Connected to";
+
+            return true;
+        }
+
+        if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = "Likely connected to";
+
+            return true;
+        }
+
+        if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfReadsFrom, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = "Reads from";
+
+            return true;
+        }
+
+        if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfWritesTo, StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = "Writes to";
+
+            return true;
+        }
+
         if (string.Equals(value, GraphEdgeTypes.PeersWith, StringComparison.OrdinalIgnoreCase))
         {
             humanized = "peering";

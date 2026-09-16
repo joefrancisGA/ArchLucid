@@ -31,22 +31,40 @@ public static class DiagramForestNodeSvgEmitter
         group.Add(new XElement(svgNamespace + "title", Escape(accessibilityTitle)));
         group.Add(new XElement(
             svgNamespace + "rect",
+            new XAttribute("class", "node-card"),
             new XAttribute("width", Format(width)),
             new XAttribute("height", Format(height)),
             new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeFill),
             new XAttribute("stroke", ArchitectureDiagramMermaidPalette.LightNodeBorder),
             new XAttribute("stroke-width", "1.5"),
-            new XAttribute("rx", "4"),
+            new XAttribute("rx", "6"),
             new XAttribute("pointer-events", "all")));
+        group.Add(new XElement(
+            svgNamespace + "rect",
+            new XAttribute("class", "node-accent"),
+            new XAttribute("x", "0"),
+            new XAttribute("y", "0"),
+            new XAttribute("width", "4"),
+            new XAttribute("height", Format(height)),
+            new XAttribute("fill", DiagramInventoryPictogramKindColors.FillFor(metrics.PictogramKind)),
+            new XAttribute("stroke", "none"),
+            new XAttribute("pointer-events", "none")));
 
-        double pictogramX = (width - options.PictogramSize) / 2.0;
+        double textBlockHeight = (metrics.NameLines.Count * options.LineHeight)
+            + (metrics.ResourceGroupLines.Count * options.LineHeight);
+        double contentHeight = Math.Max(options.PictogramSize, textBlockHeight);
+        double contentTop = (height - contentHeight) / 2.0;
+        double pictogramY = contentTop + ((contentHeight - options.PictogramSize) / 2.0);
+        double textX = options.NodePaddingX + options.PictogramSize + options.IconToLabelGap;
+        double firstLineBaseline = contentTop + (options.LineHeight * 0.75);
+
         group.Add(
             DiagramInventoryPictogramSvgEmitter.Emit(
                 svgNamespace,
                 metrics.PictogramKind,
                 options.PictogramSize,
-                pictogramX,
-                options.NodePaddingY));
+                options.NodePaddingX,
+                pictogramY));
 
         if (metrics.HasPrivateEndpointAccess)
         {
@@ -58,23 +76,22 @@ public static class DiagramForestNodeSvgEmitter
                     options.NodePaddingY));
         }
 
-        double textY = options.NodePaddingY + options.PictogramSize + options.IconToLabelGap + (options.LineHeight * 0.75);
         XElement text = new(
             svgNamespace + "text",
-            new XAttribute("x", Format(width / 2.0)),
-            new XAttribute("y", Format(textY)),
-            new XAttribute("text-anchor", "middle"),
+            new XAttribute("x", Format(textX)),
+            new XAttribute("y", Format(firstLineBaseline)),
+            new XAttribute("text-anchor", "start"),
             new XAttribute("font-size", "12"),
             new XAttribute("font-weight", "700"),
             new XAttribute("font-family", "system-ui,sans-serif"),
-            new XAttribute("fill", "#0f172a"));
+            new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeText));
 
         for (int index = 0; index < metrics.NameLines.Count; index++)
         {
             string line = metrics.NameLines[index];
             XElement tspan = new(
                 svgNamespace + "tspan",
-                new XAttribute("x", Format(width / 2.0)),
+                new XAttribute("x", Format(textX)),
                 Escape(line));
 
             if (index > 0)
@@ -89,23 +106,23 @@ public static class DiagramForestNodeSvgEmitter
 
         if (metrics.ResourceGroupLines.Count > 0)
         {
-            double resourceGroupTextY = textY + (metrics.NameLines.Count * options.LineHeight);
+            double resourceGroupTextY = firstLineBaseline + (metrics.NameLines.Count * options.LineHeight);
             XElement resourceGroupText = new(
                 svgNamespace + "text",
-                new XAttribute("x", Format(width / 2.0)),
+                new XAttribute("x", Format(textX)),
                 new XAttribute("y", Format(resourceGroupTextY)),
-                new XAttribute("text-anchor", "middle"),
+                new XAttribute("text-anchor", "start"),
                 new XAttribute("font-size", "11"),
                 new XAttribute("font-weight", "400"),
                 new XAttribute("font-family", "system-ui,sans-serif"),
-                new XAttribute("fill", "#64748b"));
+                new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption));
 
             for (int index = 0; index < metrics.ResourceGroupLines.Count; index++)
             {
                 string line = metrics.ResourceGroupLines[index];
                 XElement tspan = new(
                     svgNamespace + "tspan",
-                    new XAttribute("x", Format(width / 2.0)),
+                    new XAttribute("x", Format(textX)),
                     Escape(line));
 
                 if (index > 0)

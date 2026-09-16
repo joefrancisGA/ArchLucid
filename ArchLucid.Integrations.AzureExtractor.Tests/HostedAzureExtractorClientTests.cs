@@ -121,6 +121,13 @@ public sealed class HostedAzureExtractorClientTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        armClient
+            .Setup(c => c.ListFactoryLinkedServicesAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         HostedAzureExtractorClient sut = new(
             credentialFactory.Object,
             armClient.Object,

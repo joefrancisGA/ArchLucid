@@ -13,6 +13,7 @@ describe("OperateInfrastructureNavGroupBuilder", () => {
     expect(group.links.map((link) => link.href)).toEqual([
       "/governance/infrastructure",
       "/governance/infrastructure/resources",
+      "/governance/infrastructure/declared-connections",
       "/governance/infrastructure/extract-upload",
       "/governance/infrastructure/drift",
       "/governance/infrastructure/terraform",
