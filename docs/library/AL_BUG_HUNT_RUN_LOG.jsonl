@@ -5020,3 +5020,4 @@
 {"at":"2026-09-17T20:04:20.4591696Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-17T20:05:55.3162659Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-17T20:05:59.2393043Z","zoneId":"context-ingestion","outcome":"seed-only"}
+{"at":"2026-09-17T20:06:03.0318854Z","zoneId":"core-costing","outcome":"seed-only"}
