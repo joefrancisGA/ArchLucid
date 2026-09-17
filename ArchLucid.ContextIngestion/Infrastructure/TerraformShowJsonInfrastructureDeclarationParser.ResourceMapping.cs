@@ -1142,6 +1142,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.archived"] = archived.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "verified", out JsonElement verified)
+                || TryGetPropertyIgnoreCase(res, "verified", out verified))
+            && (verified.ValueKind == JsonValueKind.True || verified.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.verified"] = verified.GetBoolean() ? "true" : "false";
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
