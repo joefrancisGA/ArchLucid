@@ -24,7 +24,18 @@ const outline: InfraEvidenceMermaidOutline = {
       resourceGroup: "rg-apps",
     },
   ],
-  edges: [{ from: "n_src", to: "n_missing", label: null, source: "observed", declaredConnectionId: null }],
+  edges: [
+    {
+      from: "n_src",
+      to: "n_missing",
+      label: null,
+      source: "observed",
+      confidenceBand: "observed",
+      provenanceKind: null,
+      inferenceSource: null,
+      declaredConnectionId: null,
+    },
+  ],
 };
 
 function getNodesTable(): HTMLTableElement {
@@ -121,7 +132,18 @@ describe("InfraEvidenceDiagramOutline", () => {
           resourceGroup: "rg-data",
         },
       ],
-      edges: [{ from: "n_pe", to: "n_cosmos", label: "connects", source: "observed", declaredConnectionId: null }],
+      edges: [
+        {
+          from: "n_pe",
+          to: "n_cosmos",
+          label: "connects",
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+      ],
     };
 
     render(
@@ -162,7 +184,18 @@ describe("InfraEvidenceDiagramOutline", () => {
           resourceGroup: "rg-west",
         },
       ],
-      edges: [{ from: "n_a", to: "n_b", label: null, source: "observed", declaredConnectionId: null }],
+      edges: [
+        {
+          from: "n_a",
+          to: "n_b",
+          label: null,
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+      ],
     };
 
     render(
@@ -243,6 +276,53 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(resourceGroupHeader).toHaveAttribute("aria-label", "Sort by Resource group, ascending");
   });
 
+  it("shows authorization evidence for probable May access edges", () => {
+    const mayAccessOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "web_app",
+          label: "orders-api",
+          resourceType: "Microsoft.Web/sites",
+          resourceGroup: "rg-app",
+        },
+        {
+          id: "sql_db",
+          label: "orders-db",
+          resourceType: "Microsoft.Sql/servers/databases",
+          resourceGroup: "rg-data",
+        },
+      ],
+      edges: [
+        {
+          from: "web_app",
+          to: "sql_db",
+          label: "May access",
+          source: "probable",
+          confidenceBand: "probable",
+          provenanceKind: "DerivedFact",
+          inferenceSource: "inventory-app-authorized-access",
+          declaredConnectionId: null,
+        },
+      ],
+    };
+
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={mayAccessOutline}
+        defaultNodesOpen={true}
+        defaultEdgesOpen={true}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("infra-diagrams-inventory-edge-web_app-sql_db"));
+
+    const detailPanel = screen.getByTestId("infra-evidence-inventory-edge-detail-panel");
+
+    expect(detailPanel).toBeInTheDocument();
+    expect(within(detailPanel).getByText("Probable")).toBeInTheDocument();
+    expect(within(detailPanel).getByText(/Authorization from managed identity and RBAC/)).toBeInTheDocument();
+  });
+
   it("sorts edge rows when a column heading is clicked", () => {
     const sortableOutline: InfraEvidenceMermaidOutline = {
       nodes: [
@@ -266,9 +346,36 @@ describe("InfraEvidenceDiagramOutline", () => {
         },
       ],
       edges: [
-        { from: "n_b", to: "n_c", label: "privateEndpoint", source: "observed", declaredConnectionId: null },
-        { from: "n_a", to: "n_b", label: null, source: "observed", declaredConnectionId: null },
-        { from: "n_c", to: "n_a", label: "peering", source: "observed", declaredConnectionId: null },
+        {
+          from: "n_b",
+          to: "n_c",
+          label: "privateEndpoint",
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+        {
+          from: "n_a",
+          to: "n_b",
+          label: null,
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+        {
+          from: "n_c",
+          to: "n_a",
+          label: "peering",
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
       ],
     };
 

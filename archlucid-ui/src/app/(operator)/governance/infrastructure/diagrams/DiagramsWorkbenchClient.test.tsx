@@ -22,10 +22,12 @@ import { DiagramsWorkbenchClient } from "@/app/(operator)/governance/infrastruct
 const {
   fetchInfraEvidenceSnapshotsMock,
   downloadInfraEvidenceMermaidPngMock,
+  fetchInfraEvidenceMermaidPreviewMock,
   fetchInfraEvidenceMermaidRenderMock,
 } = vi.hoisted(() => ({
   fetchInfraEvidenceSnapshotsMock: vi.fn(),
   downloadInfraEvidenceMermaidPngMock: vi.fn(),
+  fetchInfraEvidenceMermaidPreviewMock: vi.fn(),
   fetchInfraEvidenceMermaidRenderMock: vi.fn(),
 }));
 
@@ -57,34 +59,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-mermaid-api", () => ({
-  fetchInfraEvidenceMermaidPreview: vi.fn(async () => ({
-    snapshotId: "11111111-1111-1111-1111-111111111111",
-    modes: [
-      {
-        mode: "executive",
-        status: "Partitioned",
-        nodeCount: 500,
-        edgeCount: 900,
-        mermaid: null,
-        fallbackArtifacts: [
-          {
-            key: "executive",
-            label: "Executive (executive)",
-            status: "Succeeded",
-            nodeCount: 120,
-            edgeCount: 180,
-          },
-          {
-            key: "network",
-            label: "Network (network)",
-            status: "Succeeded",
-            nodeCount: 90,
-            edgeCount: 140,
-          },
-        ],
-      },
-    ],
-  })),
+  fetchInfraEvidenceMermaidPreview: fetchInfraEvidenceMermaidPreviewMock,
   fetchInfraEvidenceMermaidRender: fetchInfraEvidenceMermaidRenderMock,
   downloadInfraEvidenceMermaidPng: downloadInfraEvidenceMermaidPngMock,
   formatInfraEvidenceMermaidApiError: (error: unknown) => String(error),
@@ -150,6 +125,36 @@ describe("DiagramsWorkbenchClient", () => {
     fetchInfraEvidenceSnapshotsMock.mockResolvedValue(defaultSnapshotsResponse);
     downloadInfraEvidenceMermaidPngMock.mockReset();
     downloadInfraEvidenceMermaidPngMock.mockResolvedValue({ usedBrowserFallback: false });
+    fetchInfraEvidenceMermaidPreviewMock.mockReset();
+    fetchInfraEvidenceMermaidPreviewMock.mockResolvedValue({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      modes: [
+        {
+          mode: "executive",
+          status: "Partitioned",
+          nodeCount: 500,
+          edgeCount: 900,
+          mermaid: null,
+          fallbackArtifacts: [
+            {
+              key: "executive",
+              label: "Executive (executive)",
+              status: "Succeeded",
+              nodeCount: 120,
+              edgeCount: 180,
+            },
+            {
+              key: "network",
+              label: "Network (network)",
+              status: "Succeeded",
+              nodeCount: 90,
+              edgeCount: 140,
+            },
+          ],
+        },
+      ],
+      completenessWarnings: [],
+    });
     fetchInfraEvidenceMermaidRenderMock.mockReset();
     fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
       const fallbackKey = query.fallbackKey ?? null;
@@ -1261,5 +1266,46 @@ describe("DiagramsWorkbenchClient", () => {
       "11111111-1111-1111-1111-111111111111",
       expect.objectContaining({ hiddenExecutiveTierKeys: ["storage"] }),
     );
+  });
+
+  it("shows completeness warnings banner from preview response", async () => {
+    fetchInfraEvidenceMermaidPreviewMock.mockResolvedValue({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      modes: [
+        {
+          mode: "executive",
+          status: "Succeeded",
+          nodeCount: 2,
+          edgeCount: 1,
+          mermaid: null,
+          fallbackArtifacts: [],
+        },
+      ],
+      completenessWarnings: ["app-settings-not-collected-hosted-get-only"],
+    });
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: 'flowchart TD\n  web["orders-api"] -.->|"May access"| sql["orders-db"]',
+      metrics: {
+        nodeCount: 2,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 120,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+      completenessWarnings: ["app-settings-not-collected-hosted-get-only"],
+    }));
+
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive");
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-evidence-completeness-warnings-banner")).toBeInTheDocument();
+    expect(screen.getByText(/App setting hostnames not collected on hosted pull/)).toBeInTheDocument();
   });
 });

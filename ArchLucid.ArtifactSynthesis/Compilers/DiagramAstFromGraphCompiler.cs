@@ -31,6 +31,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         if (!isSecureNowDataMode)
         {
             topologyNodes = ExecutiveVnetPeeringEndpointIncluder.Include(graph, topologyNodes, mode);
+            topologyNodes = InventoryConnectionEndpointIncluder.Include(graph, topologyNodes, mode);
         }
 
         HashSet<string> includedNodeIds = topologyNodes

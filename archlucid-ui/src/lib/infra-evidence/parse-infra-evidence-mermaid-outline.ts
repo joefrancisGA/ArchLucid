@@ -11,13 +11,23 @@ export type InfraEvidenceMermaidOutlineNode = {
   readonly seedNodeId?: string | null;
 };
 
-export type InfraEvidenceDiagramOutlineEdgeSource = "observed" | "declared" | "inferred";
+export type InfraEvidenceDiagramOutlineEdgeSource =
+  | "observed"
+  | "declared"
+  | "probable"
+  | "inferred";
+
+export type InfraEvidenceDiagramOutlineConfidenceBand =
+  InfraEvidenceDiagramOutlineEdgeSource;
 
 export type InfraEvidenceMermaidOutlineEdge = {
   readonly from: string;
   readonly to: string;
   readonly label: string | null;
   readonly source: InfraEvidenceDiagramOutlineEdgeSource;
+  readonly confidenceBand: InfraEvidenceDiagramOutlineConfidenceBand;
+  readonly provenanceKind: string | null;
+  readonly inferenceSource: string | null;
   readonly declaredConnectionId: string | null;
 };
 
@@ -152,6 +162,8 @@ type OutlineNodeMetadata = {
 
 type OutlineEdgeMetadata = {
   readonly source: InfraEvidenceDiagramOutlineEdgeSource;
+  readonly provenanceKind: string | null;
+  readonly inferenceSource: string | null;
   readonly declaredConnectionId: string | null;
 };
 
@@ -209,11 +221,40 @@ function emptyOutlineNodeMetadata(): OutlineNodeMetadata {
 }
 
 function emptyOutlineEdgeMetadata(): OutlineEdgeMetadata {
-  return { source: "observed", declaredConnectionId: null };
+  return {
+    source: "observed",
+    provenanceKind: null,
+    inferenceSource: null,
+    declaredConnectionId: null,
+  };
+}
+
+function resolveOutlineEdgeSourceFromProvenance(provenanceKind: string): InfraEvidenceDiagramOutlineEdgeSource {
+  const normalized = provenanceKind.toLowerCase();
+
+  if (normalized === "humanassertion") {
+    return "declared";
+  }
+
+  if (normalized === "aiinference") {
+    return "inferred";
+  }
+
+  if (normalized === "derivedfact") {
+    return "probable";
+  }
+
+  if (normalized === "deterministicinference") {
+    return "inferred";
+  }
+
+  return "observed";
 }
 
 function parseOutlineEdgeMetadata(comment: string): OutlineEdgeMetadata {
   let source: InfraEvidenceDiagramOutlineEdgeSource = "observed";
+  let provenanceKind: string | null = null;
+  let inferenceSource: string | null = null;
   let declaredConnectionId: string | null = null;
 
   for (const match of comment.matchAll(EDGE_OUTLINE_METADATA_TOKEN)) {
@@ -224,16 +265,17 @@ function parseOutlineEdgeMetadata(comment: string): OutlineEdgeMetadata {
       continue;
     }
 
-    if (key === "al-provenance" && value.toLowerCase() === "humanassertion") {
-      source = "declared";
+    if (key === "al-provenance") {
+      provenanceKind = value;
+      source = resolveOutlineEdgeSourceFromProvenance(value);
     }
 
-    if (key === "al-inference" && value.toLowerCase() === "human-declared-connection") {
-      source = "declared";
-    }
+    if (key === "al-inference") {
+      inferenceSource = value;
 
-    if (key === "al-provenance" && value.toLowerCase() === "aiinference") {
-      source = "inferred";
+      if (value.toLowerCase() === "human-declared-connection") {
+        source = "declared";
+      }
     }
 
     if (key === "al-declared-id") {
@@ -241,7 +283,7 @@ function parseOutlineEdgeMetadata(comment: string): OutlineEdgeMetadata {
     }
   }
 
-  return { source, declaredConnectionId };
+  return { source, provenanceKind, inferenceSource, declaredConnectionId };
 }
 
 function mergeOutlineEdgeMetadata(
@@ -250,6 +292,8 @@ function mergeOutlineEdgeMetadata(
 ): OutlineEdgeMetadata {
   return {
     source: preferred.source !== "observed" ? preferred.source : fallback.source,
+    provenanceKind: preferred.provenanceKind ?? fallback.provenanceKind,
+    inferenceSource: preferred.inferenceSource ?? fallback.inferenceSource,
     declaredConnectionId: preferred.declaredConnectionId ?? fallback.declaredConnectionId,
   };
 }
@@ -260,7 +304,7 @@ function resolveEdgeSourceFromArrow(line: string, metadata: OutlineEdgeMetadata)
   }
 
   if (line.includes("-.->")) {
-    return "declared";
+    return "probable";
   }
 
   return "observed";
@@ -283,6 +327,23 @@ export function hasInfraEvidenceDeclaredDiagramEdges(
   return source.includes("-.->") || /declared\s·/u.test(source);
 }
 
+export function hasInfraEvidenceProbableDiagramEdges(
+  outline: InfraEvidenceMermaidOutline | null,
+  mermaidSource?: string | null,
+): boolean {
+  if (outline != null && outline.edges.some((edge) => edge.source === "probable")) {
+    return true;
+  }
+
+  const source = mermaidSource?.trim() ?? "";
+
+  if (source.length === 0) {
+    return false;
+  }
+
+  return /al-provenance=DerivedFact/iu.test(source);
+}
+
 export function hasInfraEvidenceInferredDiagramEdges(
   outline: InfraEvidenceMermaidOutline | null,
   mermaidSource?: string | null,
@@ -297,7 +358,12 @@ export function hasInfraEvidenceInferredDiagramEdges(
     return false;
   }
 
-  return /al-provenance=AiInference/iu.test(source) || /inferred\s·/u.test(source);
+  return (
+    /al-provenance=AiInference/iu.test(source)
+    || /al-provenance=DeterministicInference/iu.test(source)
+    || /inferred\s·/u.test(source)
+    || /likely\s·/u.test(source)
+  );
 }
 
 function mergeOutlineNodeMetadata(
@@ -592,6 +658,9 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
           to: toNode.id,
           label: edgeLabel.length > 0 ? edgeLabel : null,
           source: edgeSource,
+          confidenceBand: edgeSource,
+          provenanceKind: edgeMetadata.provenanceKind,
+          inferenceSource: edgeMetadata.inferenceSource,
           declaredConnectionId: edgeMetadata.declaredConnectionId,
         });
       }

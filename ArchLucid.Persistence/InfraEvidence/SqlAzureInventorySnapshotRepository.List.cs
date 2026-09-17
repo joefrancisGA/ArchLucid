@@ -102,7 +102,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                          )
                                    ) AS RelationshipCount,
                                    s.CaptureMethod, s.CollectorVersion,
-                                   s.RequestedBy, s.DurationMs, s.CompletenessScore, s.WarningCount, s.ErrorCount,
+                                   s.RequestedBy, s.DurationMs, s.CompletenessScore, s.WarningCount, s.CompletenessWarningsJson, s.ErrorCount,
                                    s.ContentHashSha256, s.CreatedUtc, s.UpdatedUtc,
                                    JSON_VALUE(p.ManifestJson, '$.subscriptionName') AS ManifestSubscriptionName,
                                    sibling.SiblingSubscriptionName
@@ -212,6 +212,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             DurationMs = row.DurationMs,
             CompletenessScore = row.CompletenessScore,
             WarningCount = row.WarningCount,
+            CompletenessWarningsJson = row.CompletenessWarningsJson,
             ErrorCount = row.ErrorCount,
             ContentHashSha256 = row.ContentHashSha256,
             CreatedUtc = row.CreatedUtc,
@@ -324,6 +325,12 @@ public sealed partial class SqlAzureInventorySnapshotRepository
         }
 
         public int WarningCount
+        {
+            get;
+            init;
+        }
+
+        public string? CompletenessWarningsJson
         {
             get;
             init;

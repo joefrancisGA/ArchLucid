@@ -442,6 +442,72 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
+    public async Task Preview_and_render_surface_persisted_completeness_warnings()
+    {
+        AzureInventorySnapshotDetailReadModel baseSnapshot = BuildSnapshot(resourceCount: 2);
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = baseSnapshot.Header.SnapshotId,
+                TenantId = baseSnapshot.Header.TenantId,
+                SubscriptionId = baseSnapshot.Header.SubscriptionId,
+                CaptureStatus = baseSnapshot.Header.CaptureStatus,
+                CompletenessWarningsJson = AzureInventorySnapshotCompletenessWarningsJson.Serialize(
+                [
+                    "app-settings-not-collected-hosted-get-only",
+                    "rbac-scope-too-broad:/subscriptions/sub",
+                ]),
+            },
+            Resources = baseSnapshot.Resources,
+            Relationships = baseSnapshot.Relationships,
+        };
+
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> preview =
+            await service.TryGetPreviewAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
+
+        preview.Succeeded.Should().BeTrue();
+        preview.Value!.CompletenessWarnings.Should().Equal(
+            "app-settings-not-collected-hosted-get-only",
+            "rbac-scope-too-broad:/subscriptions/sub");
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> render =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, cancellationToken: CancellationToken.None);
+
+        render.Succeeded.Should().BeTrue();
+        render.Value!.CompletenessWarnings.Should().Equal(
+            "app-settings-not-collected-hosted-get-only",
+            "rbac-scope-too-broad:/subscriptions/sub");
+    }
+
+    [Fact]
+    public async Task Executive_mode_renders_may_access_between_web_app_and_sql_database()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildExecutiveMayAccessSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "executive", null, null, cancellationToken: CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.Mermaid.Should().NotBeNullOrWhiteSpace();
+        result.Value.Mermaid.Should().Contain("orders-api");
+        result.Value.Mermaid.Should().Contain("orders-db");
+        result.Value.Mermaid.Should().Contain("May access");
+    }
+
+    [Fact]
     public async Task Executive_mode_omits_low_weight_effective_control_edges_from_golden_fixture()
     {
         AzureInventorySnapshotDetailReadModel baseSnapshot = BuildRelationshipFirstNetworkGoldenSnapshot();
@@ -1172,6 +1238,65 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
                 resourceIndex++;
             }
         }
+
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = resources,
+            Relationships = relationships,
+        };
+    }
+
+    private static AzureInventorySnapshotDetailReadModel BuildExecutiveMayAccessSnapshot()
+    {
+        const string webAppArmId =
+            "/subscriptions/sub/resourceGroups/rg-app/providers/Microsoft.Web/sites/orders-api";
+        const string sqlDatabaseArmId =
+            "/subscriptions/sub/resourceGroups/rg-data/providers/Microsoft.Sql/servers/orders-sql/databases/orders-db";
+
+        List<AzureInventoryResourceRecord> resources =
+        [
+            new()
+            {
+                ResourceRowId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000101"),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                CloudResourceId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+                AzureResourceId = webAppArmId,
+                ResourceType = "Microsoft.Web/sites",
+                ResourceGroup = "rg-app",
+                SubscriptionId = "sub",
+            },
+            new()
+            {
+                ResourceRowId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000102"),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                CloudResourceId = Guid.Parse("66666666-6666-6666-6666-666666666666"),
+                AzureResourceId = sqlDatabaseArmId,
+                ResourceType = "Microsoft.Sql/servers/databases",
+                ResourceGroup = "rg-data",
+                SubscriptionId = "sub",
+            },
+        ];
+
+        List<AzureInventoryResourceRelationshipReadModel> relationships =
+        [
+            new()
+            {
+                FromAzureResourceId = webAppArmId,
+                ToAzureResourceId = sqlDatabaseArmId,
+                RelationshipType = GraphEdgeTypes.MayAccess,
+                ProvenanceKind = ProvenanceKind.DerivedFact,
+                InferenceSource = GraphEdgeInferenceSources.InventoryAppAuthorizedAccess,
+            },
+        ];
 
         return new AzureInventorySnapshotDetailReadModel
         {
