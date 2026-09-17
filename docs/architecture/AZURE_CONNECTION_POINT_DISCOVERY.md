@@ -300,10 +300,10 @@ Future `associationType` values follow IE-RF-01 catalog rules:
 |----------|--------|
 | Network topology via ARG + type-scoped ARM lists | **In progress / partially shipped** (IE-RF-01–11) |
 | **Roadmap anchor:** MI + RBAC + PE + ARM (not Service Connector) | **Recommended** — this document |
-| Extend ARM platform wiring (diagnostics, Event Grid, ADF, Logic) | **Recommended P0** — implementation prompts **AX-DE-01–AX-DE-18** |
-| MI + RBAC authorization graph in architecture evidence | **Recommended P1** — **AX-DE-03** (extends SecureNow-adjacent materialization) |
-| App settings hostname parse (redacted `config/list`) | **Feasible P2** — **AX-DE-18** (Tier 1 only; hosted stays GET-only) |
-| Service Connector edges | **Opportunistic P3** — **AX-DE-17** when linkers exist |
+| Extend ARM platform wiring (diagnostics, Event Grid, ADF, Logic) | **Shipped (AX-DE-01–18)** — consumption gaps: **AX-DC-02–08** |
+| MI + RBAC authorization graph in architecture evidence | **Shipped (AX-DE-03)** — canvas/workbench honesty: **AX-DC-02–06** |
+| App settings hostname parse (redacted `config/list`) | **Shipped (AX-DE-18)** — Tier 1 only; hosted GET-only; UI honesty: **AX-DC-08** |
+| Service Connector edges | **Shipped (AX-DE-17)** when linkers exist — same consumption prompts |
 | Config file / Kudu / secret harvest | **Not planned** near-term |
 | Complete runtime dependency graph from inventory | **Infeasible** |
 
@@ -317,6 +317,7 @@ Future `associationType` values follow IE-RF-01 catalog rules:
 | [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) | Tier 1/2 roles, never-collected categories |
 | [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md) | IE-RF + AX-DE backlog |
 | [`INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_RELATIONSHIP_FIRST_COMPOSER_PROMPTS.md) | P0 ARM relationship collection (network) |
-| [`AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md) | **AX-DE-01–18** implementation prompts (not this feasibility doc) |
+| [`AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md) | **AX-DE-01–18** collection prompts (**shipped** — do not re-run) |
+| [`AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_COMPOSER_PROMPTS.md`](AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_COMPOSER_PROMPTS.md) | **AX-DC-01–08** consumption prompts (canvas, strokes, warnings) |
 | [`SECURENOW_ARCHITECT_PLANE.md`](../library/SECURENOW_ARCHITECT_PLANE.md) | Privilege / path engines consuming RBAC rows |
 | [`../library/CLOUD_CONNECTIONS.md`](../library/customer-facing/CLOUD_CONNECTIONS.md) | Customer-facing Tier 1 vs Tier 2 |
