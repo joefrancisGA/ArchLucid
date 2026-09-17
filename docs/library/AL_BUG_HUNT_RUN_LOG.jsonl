@@ -5011,3 +5011,4 @@
 {"at":"2026-09-17T20:02:15.0356583Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-17T20:02:18.834648Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-17T20:02:22.4809575Z","zoneId":"core-costing","outcome":"seed-only"}
+{"at":"2026-09-17T20:02:25.8860171Z","zoneId":"tenant-data-export","outcome":"seed-only"}
