@@ -17,7 +17,15 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         ArgumentNullException.ThrowIfNull(ast);
 
         StringBuilder sb = new();
-        sb.AppendLine("flowchart TD");
+        sb.AppendLine($"flowchart {ResolveFlowchartDirection(ast)}");
+
+        foreach (string captionLine in ast.CaptionLines)
+        {
+            if (!string.IsNullOrWhiteSpace(captionLine))
+            {
+                sb.AppendLine($"    %% {captionLine}");
+            }
+        }
 
         if (InventoryDiagramResourceGroupMapBuilder.TitleMarksResourceGroupMap(ast.Title))
         {
@@ -256,5 +264,17 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             .Replace("[", "#91;", StringComparison.Ordinal)
             .Replace("]", "#93;", StringComparison.Ordinal)
             .Replace("|", "#124;", StringComparison.Ordinal);
+    }
+
+    private static string ResolveFlowchartDirection(DiagramAst ast)
+    {
+        ArgumentNullException.ThrowIfNull(ast);
+
+        if (string.Equals(ast.FlowchartDirection, "LR", StringComparison.OrdinalIgnoreCase))
+        {
+            return "LR";
+        }
+
+        return "TD";
     }
 }
