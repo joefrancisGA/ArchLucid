@@ -61,4 +61,24 @@ public sealed class InfraEvidenceMermaidModeParserTests
         parsed.Should().BeFalse();
         result.ErrorMessage.Should().Be("Mode is required.");
     }
+
+    [Fact]
+    public void TryParse_dataFlow_maps_to_data_flow_diagram_mode()
+    {
+        bool parsed = InfraEvidenceMermaidModeParser.TryParse("dataFlow", null, out InfraEvidenceMermaidModeParseResult result);
+
+        parsed.Should().BeTrue();
+        result.DiagramMode.Should().Be(DiagramMode.DataFlow);
+        result.ModeKey.Should().Be("dataFlow");
+    }
+
+    [Fact]
+    public void TryParse_dataArchitecture_maps_to_data_architecture_diagram_mode()
+    {
+        bool parsed = InfraEvidenceMermaidModeParser.TryParse("dataArchitecture", null, out InfraEvidenceMermaidModeParseResult result);
+
+        parsed.Should().BeTrue();
+        result.DiagramMode.Should().Be(DiagramMode.DataArchitecture);
+        result.ModeKey.Should().Be("dataArchitecture");
+    }
 }

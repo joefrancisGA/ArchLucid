@@ -70,12 +70,21 @@ internal static class AzureInventoryAdfLinkedServiceEdgeMapper
                     out string associationType)
                 || string.IsNullOrWhiteSpace(targetArmId))
             {
-                if (!string.IsNullOrWhiteSpace(row.WarningCode))
+                if (AzureInventoryAdfExternalSourceNodeFactory.TryResolveExternalTargetArmId(row, out string externalNodeKey))
                 {
-                    warnings.Add(row.WarningCode);
+                    targetArmId = externalNodeKey;
+                    provenanceKind = ProvenanceKind.DeterministicInference;
+                    associationType = AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred;
                 }
+                else
+                {
+                    if (!string.IsNullOrWhiteSpace(row.WarningCode))
+                    {
+                        warnings.Add(row.WarningCode);
+                    }
 
-                continue;
+                    continue;
+                }
             }
 
             if (!AzureInventoryRelationshipAssociationTypes.TryGet(associationType, out AzureInventoryRelationshipAssociationTypeDefinition? definition)

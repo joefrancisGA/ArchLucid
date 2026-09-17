@@ -100,12 +100,17 @@ internal static class AzureInventoryAdfPipelineFlowEdgeMapper
                     out _)
                 || string.IsNullOrWhiteSpace(targetArmId))
             {
-                if (!string.IsNullOrWhiteSpace(linkedService.WarningCode))
+                if (!AzureInventoryAdfExternalSourceNodeFactory.TryResolveExternalTargetArmId(linkedService, out string externalNodeKey))
                 {
-                    warnings.Add(linkedService.WarningCode);
+                    if (!string.IsNullOrWhiteSpace(linkedService.WarningCode))
+                    {
+                        warnings.Add(linkedService.WarningCode);
+                    }
+
+                    continue;
                 }
 
-                continue;
+                targetArmId = externalNodeKey;
             }
 
             string associationType = flow.FlowDirection.Equals(AzureInventoryAdfPipelineFlowDirection.Write, StringComparison.OrdinalIgnoreCase)

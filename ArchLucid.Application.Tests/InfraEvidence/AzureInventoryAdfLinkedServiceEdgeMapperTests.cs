@@ -182,4 +182,52 @@ public sealed class AzureInventoryAdfLinkedServiceEdgeMapperTests
 
         relationships.Should().BeEmpty();
     }
+
+    [Fact]
+    public void MapLinkedServices_emits_external_target_for_unresolved_sap_linked_service()
+    {
+        const string factoryId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new()
+            {
+                AzureResourceId = factoryId,
+                ResourceType = "Microsoft.DataFactory/factories",
+                Name = "adf1",
+            },
+        ];
+
+        List<AzureInventoryAdfLinkedServiceRow> linkedServices =
+        [
+            new()
+            {
+                FactoryResourceId = factoryId,
+                LinkedServiceResourceId = $"{factoryId}/linkedservices/SapLS",
+                LinkedServiceName = "SapLS",
+                LinkedServiceType = "SapTable",
+                TargetHost = "sap.example.com",
+                CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.TargetUnresolved,
+            },
+        ];
+
+        List<AzureInventoryResourceRelationshipWrite> relationships = [];
+        HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> directionalPairs = new(StringComparer.OrdinalIgnoreCase);
+        List<string> warnings = [];
+
+        AzureInventoryAdfLinkedServiceEdgeMapper.MapLinkedServices(
+            resources,
+            linkedServices,
+            relationships,
+            keys,
+            directionalPairs,
+            warnings);
+
+        relationships.Should().ContainSingle();
+        relationships[0].ToAzureResourceId.Should().Be(
+            AzureInventoryAdfExternalSourceNodeFactory.BuildNodeKey(factoryId, "SapLS"));
+        relationships[0].FromAzureResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(factoryId));
+    }
 }

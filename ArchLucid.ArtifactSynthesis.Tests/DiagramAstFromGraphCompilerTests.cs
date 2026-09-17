@@ -1063,4 +1063,142 @@ public sealed class DiagramAstFromGraphCompilerTests
             },
         };
     }
+
+    [Fact]
+    public void Compile_data_flow_mode_shows_external_source_adf_and_sql_without_vnet()
+    {
+        GraphSnapshot graph = BuildDataFlowMvpGraph(includeVnet: true);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
+        string mermaid = renderer.Render(ast);
+
+        ast.Nodes.Should().HaveCount(3);
+        ast.Edges.Should().HaveCount(2);
+        ast.FlowchartDirection.Should().Be("LR");
+        ast.CaptionLines.Should().Contain(DiagramDataFlowHonestyLegend.PrimarySentence);
+        mermaid.Should().StartWith("flowchart LR");
+        mermaid.Should().Contain("Writes to");
+        mermaid.Should().NotContain("corp-vnet");
+    }
+
+    [Fact]
+    public void Compile_network_mode_still_includes_vnet_on_data_flow_fixture()
+    {
+        GraphSnapshot graph = BuildDataFlowMvpGraph(includeVnet: true);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Network);
+
+        ast.Nodes.Should().Contain(node => node.Label == "corp-vnet");
+    }
+
+    [Fact]
+    public void Compile_data_flow_mode_on_vm_only_graph_has_no_resource_nodes()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        graph.Nodes.Add(CreateTopologyNode(
+            "vm-1",
+            "vm-1",
+            "Microsoft.Compute/virtualMachines",
+            "rg-app",
+            "sub",
+            GraphTopologyCategories.Compute));
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
+
+        ast.Nodes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Compile_data_architecture_mode_omits_movement_edges()
+    {
+        GraphSnapshot graph = BuildDataFlowMvpGraph(includeVnet: true);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataArchitecture);
+
+        ast.Nodes.Should().HaveCount(3);
+        ast.Edges.Should().BeEmpty();
+        ast.CaptionLines.Should().Contain(DiagramDataArchitectureHonestyLegend.PrimarySentence);
+    }
+
+    private static GraphSnapshot BuildDataFlowMvpGraph(bool includeVnet)
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string factoryId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        GraphNode externalSap = AzureInventoryAdfExternalSourceNodeFactory.CreateGraphNode(new AzureInventoryAdfLinkedServiceRow
+        {
+            FactoryResourceId = factoryId,
+            LinkedServiceName = "SapLS",
+            LinkedServiceType = "SapTable",
+            TargetHost = "sap.example.com",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.TargetUnresolved,
+        });
+
+        graph.Nodes.Add(externalSap);
+        graph.Nodes.Add(CreateTopologyNode(
+            "adf-1",
+            "adf1",
+            "Microsoft.DataFactory/factories",
+            "rg-data",
+            subscriptionId,
+            GraphTopologyCategories.Data));
+        graph.Nodes.Add(CreateTopologyNode(
+            "sql-1",
+            "sql1",
+            "Microsoft.Sql/servers",
+            "rg-data",
+            subscriptionId,
+            GraphTopologyCategories.Data));
+
+        if (includeVnet)
+        {
+            graph.Nodes.Add(CreateTopologyNode(
+                "vnet-1",
+                "corp-vnet",
+                "Microsoft.Network/virtualNetworks",
+                "rg-net",
+                subscriptionId,
+                GraphTopologyCategories.Network));
+        }
+
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-read",
+            FromNodeId = "adf-1",
+            ToNodeId = externalSap.NodeId,
+            EdgeType = AzureInventoryRelationshipAssociationTypes.AdfReadsFrom,
+            Label = AzureInventoryRelationshipAssociationTypes.AdfReadsFrom,
+            Weight = 1,
+            InferenceSource = GraphEdgeInferenceSources.InventoryAdfReadsFrom,
+        });
+
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-write",
+            FromNodeId = "adf-1",
+            ToNodeId = "sql-1",
+            EdgeType = AzureInventoryRelationshipAssociationTypes.AdfWritesTo,
+            Label = AzureInventoryRelationshipAssociationTypes.AdfWritesTo,
+            Weight = 1,
+            InferenceSource = GraphEdgeInferenceSources.InventoryAdfWritesTo,
+        });
+
+        return graph;
+    }
 }

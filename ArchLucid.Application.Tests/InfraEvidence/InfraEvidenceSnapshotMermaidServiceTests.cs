@@ -12,6 +12,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -1238,6 +1239,87 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         };
     }
 
+    private static AzureInventorySnapshotDetailReadModel BuildDataFlowSnapshot()
+    {
+        const string factoryId =
+            "/subscriptions/sub/resourceGroups/rg-data/providers/Microsoft.DataFactory/factories/adf1";
+        const string sqlId =
+            "/subscriptions/sub/resourceGroups/rg-data/providers/Microsoft.Sql/servers/sql1";
+        const string vnetId =
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/corp-vnet";
+        string externalTargetId = AzureInventoryAdfExternalSourceNodeFactory.BuildNodeKey(factoryId, "SapLS");
+
+        List<AzureInventoryResourceRecord> resources =
+        [
+            new()
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                CloudResourceId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-000000000001"),
+                AzureResourceId = factoryId,
+                ResourceType = "Microsoft.DataFactory/factories",
+                ResourceGroup = "rg-data",
+                SubscriptionId = "sub",
+            },
+            new()
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                CloudResourceId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-000000000002"),
+                AzureResourceId = sqlId,
+                ResourceType = "Microsoft.Sql/servers",
+                ResourceGroup = "rg-data",
+                SubscriptionId = "sub",
+            },
+            new()
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                CloudResourceId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-000000000003"),
+                AzureResourceId = vnetId,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                ResourceGroup = "rg-net",
+                SubscriptionId = "sub",
+            },
+        ];
+
+        List<AzureInventoryResourceRelationshipReadModel> relationships =
+        [
+            new()
+            {
+                FromAzureResourceId = factoryId,
+                ToAzureResourceId = externalTargetId,
+                RelationshipType = AzureInventoryRelationshipAssociationTypes.AdfReadsFrom,
+                InferenceSource = GraphEdgeInferenceSources.InventoryAdfReadsFrom,
+                ProvenanceKind = ProvenanceKind.DerivedFact,
+            },
+            new()
+            {
+                FromAzureResourceId = factoryId,
+                ToAzureResourceId = sqlId,
+                RelationshipType = AzureInventoryRelationshipAssociationTypes.AdfWritesTo,
+                InferenceSource = GraphEdgeInferenceSources.InventoryAdfWritesTo,
+                ProvenanceKind = ProvenanceKind.DerivedFact,
+            },
+        ];
+
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = resources,
+            Relationships = relationships,
+        };
+    }
+
     private static ScopeContext CreateScope()
     {
         return new ScopeContext
@@ -1394,6 +1476,32 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             thresholds);
+    }
+
+    [Fact]
+    public async Task Data_flow_mode_is_not_data_mode_and_hides_vnet_boxes()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildDataFlowSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "dataFlow", null, null, cancellationToken: CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.Mode.Should().Be("dataFlow");
+        result.Value.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded.ToString());
+        result.Value.Mermaid.Should().NotBeNullOrWhiteSpace();
+        result.Value.Mermaid.Should().Contain("flowchart LR");
+        result.Value.Mermaid.Should().Contain("adf1");
+        result.Value.Mermaid.Should().Contain("sql1");
+        result.Value.Mermaid.Should().Contain("Writes to");
+        result.Value.Mermaid.Should().Contain(DiagramDataFlowHonestyLegend.PrimarySentence);
+        result.Value.Mermaid.Should().NotContain("corp-vnet");
     }
 
     [Fact]
