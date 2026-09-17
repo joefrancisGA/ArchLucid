@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis;
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
 
@@ -84,6 +85,11 @@ public static class DiagramForestEdgeLabelCollapse
     {
         ArgumentNullException.ThrowIfNull(edge);
         ArgumentNullException.ThrowIfNull(collapsedEdgeKeys);
+
+        if (DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource) == DiagramEdgeVisualKind.Declared)
+        {
+            return false;
+        }
 
         return collapsedEdgeKeys.Contains(EdgeKey(edge));
     }

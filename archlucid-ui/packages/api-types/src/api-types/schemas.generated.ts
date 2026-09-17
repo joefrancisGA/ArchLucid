@@ -5192,6 +5192,7 @@ export interface components {
             withPolicyRuleCount?: number;
         };
         GraphEdge: {
+            declaredConnectionId?: null | string;
             edgeId?: string;
             edgeType?: string;
             fromNodeId?: string;
@@ -5200,6 +5201,7 @@ export interface components {
             properties?: {
                 [key: string]: string;
             };
+            provenanceKind?: null | string;
             reasoningTrace?: null | string;
             toNodeId?: string;
             /** Format: double */

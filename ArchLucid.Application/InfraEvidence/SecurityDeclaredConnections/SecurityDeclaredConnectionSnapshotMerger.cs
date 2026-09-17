@@ -75,6 +75,7 @@ public static class SecurityDeclaredConnectionSnapshotMerger
                 RelationshipType = relationshipType,
                 ProvenanceKind = ProvenanceKind.HumanAssertion,
                 InferenceSource = GraphEdgeInferenceSources.HumanDeclaredConnection,
+                DeclaredConnectionId = connection.ConnectionId,
             });
         }
 

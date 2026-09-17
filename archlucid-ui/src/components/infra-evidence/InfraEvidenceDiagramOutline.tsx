@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { InfraEvidenceDeclaredConnectionDetailPanel } from "@/components/infra-evidence/InfraEvidenceDeclaredConnectionDetailPanel";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -13,6 +14,12 @@ import {
 } from "@/lib/governance/governance-infrastructure-copy";
 import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import { resolveInfraEvidenceOutlineEdgeToDisplay } from "@/lib/infra-evidence/format-infra-evidence-outline-edge-to-label";
+import {
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_COLUMN,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED,
+} from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { InfraEvidenceDiagramOutlineNodeLabel } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
 import {
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_DIR,
@@ -31,9 +38,13 @@ import {
 import {
   resolveInfraEvidenceOutlineNodeLabel,
   resolveInfraEvidenceOutlineEdgeLabel,
+  type InfraEvidenceDiagramOutlineEdgeSource,
   type InfraEvidenceMermaidOutline,
+  type InfraEvidenceMermaidOutlineEdge,
   type InfraEvidenceMermaidOutlineNode,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+import { listSecurityDeclaredConnections } from "@/lib/security-declared-connection-api";
+import type { SecurityDeclaredConnectionRow } from "@/lib/security-declared-connection-types";
 
 const OUTLINE_NODES_OPEN_STORAGE_KEY = "infra-diagrams-outline-nodes-open";
 const OUTLINE_EDGES_OPEN_STORAGE_KEY = "infra-diagrams-outline-edges-open";
@@ -55,6 +66,19 @@ function formatOutlineCell(value: string | null): string {
 
 function formatOutlineResourceType(resourceType: string | null): string {
   return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType));
+}
+
+function formatOutlineEdgeSource(source: InfraEvidenceDiagramOutlineEdgeSource): string {
+  switch (source) {
+    case "declared":
+      return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED;
+
+    case "inferred":
+      return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED;
+
+    default:
+      return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED;
+  }
 }
 
 function readOutlineSectionOpenFromSessionStorage(storageKey: string): boolean | null {
@@ -140,6 +164,10 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   const [edgeSortDir, setEdgeSortDir] = useState<"asc" | "desc">(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_DIR);
   const [nodesOpen, setNodesOpen] = useState(defaultNodesOpen);
   const [edgesOpen, setEdgesOpen] = useState(defaultEdgesOpen);
+  const [selectedDeclaredEdge, setSelectedDeclaredEdge] = useState<InfraEvidenceMermaidOutlineEdge | null>(null);
+  const [declaredConnections, setDeclaredConnections] = useState<SecurityDeclaredConnectionRow[]>([]);
+  const [declaredConnectionsLoading, setDeclaredConnectionsLoading] = useState(false);
+  const [declaredConnectionsError, setDeclaredConnectionsError] = useState<string | null>(null);
 
   useEffect(() => {
     const storedNodesOpen = readOutlineSectionOpenFromSessionStorage(OUTLINE_NODES_OPEN_STORAGE_KEY);
@@ -158,6 +186,38 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       setEdgesOpen(defaultEdgesOpen);
     }
   }, [defaultEdgesOpen, defaultNodesOpen]);
+
+  useEffect(() => {
+    if (selectedDeclaredEdge == null) {
+      return;
+    }
+
+    let cancelled = false;
+    setDeclaredConnectionsLoading(true);
+    setDeclaredConnectionsError(null);
+
+    void listSecurityDeclaredConnections()
+      .then((rows) => {
+        if (!cancelled) {
+          setDeclaredConnections(rows);
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setDeclaredConnections([]);
+          setDeclaredConnectionsError(error instanceof Error ? error.message : "Failed to load declared connections.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setDeclaredConnectionsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedDeclaredEdge]);
 
   const nodeRows = useMemo(() => {
     const sortedNodes = sortInfraEvidenceDiagramOutlineNodes(outline.nodes, nodeSortKey, nodeSortDir);
@@ -321,9 +381,31 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
             </button>
             {edgesOpen ? (
               <div id="infra-diagrams-outline-edges-panel" data-testid="infra-diagrams-outline-edges-panel">
+                {selectedDeclaredEdge != null ? (
+                  <div className="mb-4">
+                    <InfraEvidenceDeclaredConnectionDetailPanel
+                      edge={selectedDeclaredEdge}
+                      nodes={outline.nodes}
+                      connections={declaredConnections}
+                      connectionsLoading={declaredConnectionsLoading}
+                      connectionsError={declaredConnectionsError}
+                      onClose={() => {
+                        setSelectedDeclaredEdge(null);
+                      }}
+                    />
+                  </div>
+                ) : null}
                 <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
                   <thead className="bg-neutral-50 dark:bg-neutral-900/60">
                     <tr>
+                      <InfraEvidenceDiagramOutlineSortableHeader
+                        column="source"
+                        label={INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_COLUMN}
+                        sortKey={edgeSortKey}
+                        sortDir={edgeSortDir}
+                        onSort={handleEdgeSort}
+                        resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineEdgeColumn}
+                      />
                       <InfraEvidenceDiagramOutlineSortableHeader
                         column="from"
                         label="From"
@@ -366,6 +448,24 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                           key={`${edge.from}-${edge.to}-${index}`}
                           className="border-t border-neutral-200 dark:border-neutral-800"
                         >
+                          <td className="px-3 py-2">
+                            {edge.source === "declared" ? (
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                data-testid={`infra-diagrams-declared-edge-${edge.from}-${edge.to}`}
+                                aria-label={`View declared connection from ${fromNode?.label ?? edge.from} to ${toNode?.label ?? edge.to}`}
+                                onClick={() => {
+                                  setSelectedDeclaredEdge(edge);
+                                }}
+                              >
+                                {formatOutlineEdgeSource(edge.source)}
+                              </Button>
+                            ) : (
+                              formatOutlineEdgeSource(edge.source)
+                            )}
+                          </td>
                           <td className="px-3 py-2">
                             {fromNode != null ? (
                               <InfraEvidenceDiagramOutlineNodeLabel node={fromNode} />

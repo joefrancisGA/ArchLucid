@@ -150,6 +150,7 @@ describe("product-line catalog", () => {
       isPathAllowedForProductLine("/governance/infrastructure/resources/res-1", "security"),
     ).toBe(true);
     expect(isPathAllowedForProductLine("/architecture/reviews/new", "security")).toBe(false);
+    expect(isPathAllowedForProductLine("/insights/evidence-graph", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/help/cloud-connections", "security")).toBe(true);
     expect(
       isPathAllowedForProductLine("/administration/workspace-settings/recycle-bin", "security"),

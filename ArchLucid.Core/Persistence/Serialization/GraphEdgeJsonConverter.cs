@@ -26,6 +26,8 @@ public sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
             Label = GraphJsonElementReaders.ReadFirstString(root, "label"),
             Weight = GraphJsonElementReaders.ReadFirstDouble(root, "weight") ?? 1d,
             InferenceSource = GraphJsonElementReaders.ReadFirstString(root, "inferenceSource"),
+            ProvenanceKind = GraphJsonElementReaders.ReadFirstString(root, "provenanceKind"),
+            DeclaredConnectionId = GraphJsonElementReaders.ReadFirstString(root, "declaredConnectionId"),
             ReasoningTrace = GraphJsonElementReaders.ReadFirstString(root, "reasoningTrace"),
             Properties = GraphJsonElementReaders.ReadProperties(root, options)
         };
@@ -47,6 +49,14 @@ public sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
             writer.WriteNull("inferenceSource");
         else
             writer.WriteString("inferenceSource", value.InferenceSource);
+        if (value.ProvenanceKind is null)
+            writer.WriteNull("provenanceKind");
+        else
+            writer.WriteString("provenanceKind", value.ProvenanceKind);
+        if (value.DeclaredConnectionId is null)
+            writer.WriteNull("declaredConnectionId");
+        else
+            writer.WriteString("declaredConnectionId", value.DeclaredConnectionId);
         if (value.ReasoningTrace is null)
             writer.WriteNull("reasoningTrace");
         else

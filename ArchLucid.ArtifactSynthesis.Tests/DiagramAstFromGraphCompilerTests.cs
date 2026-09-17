@@ -399,6 +399,55 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_full_subscription_excludes_private_endpoint_nodes_and_keeps_access_badges()
+    {
+        const string peArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-sql";
+        const string vnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/core-vnet";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql/databases/app";
+
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                BuildNetworkTopologyNode("vnet-1", vnetArmId, "Microsoft.Network/virtualNetworks", "core-vnet"),
+                BuildNetworkTopologyNode("pe-1", peArmId, "Microsoft.Network/privateEndpoints", "pe-sql"),
+                BuildNetworkTopologyNode("sql-1", sqlArmId, "Microsoft.Sql/servers/databases", "app"),
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "edge-pe-sql",
+                    FromNodeId = "pe-1",
+                    ToNodeId = "sql-1",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                    Weight = 1.0d,
+                },
+            ],
+        };
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+
+        ast.Nodes.Should().NotContain(node => node.Label == "pe-sql");
+        ast.Nodes.Should().Contain(node => node.Label == "core-vnet");
+        ast.Nodes.Single(node => node.Label == "app").HasPrivateEndpointAccess.Should().BeTrue();
+
+        DiagramForestLayoutResult svg = new DiagramForestLayoutSvgRenderer().Render(ast);
+        svg.Svg.Should().Contain("class=\"private-endpoint-lock\"");
+        svg.Svg.Should().Contain("Private endpoint access");
+        svg.Svg.Should().NotContain(">pe-sql<");
+    }
+
+    [Fact]
     public void Compile_data_mode_flattens_sparse_swimlanes_when_many_resource_groups_each_hold_one_node()
     {
         GraphSnapshot graph = BuildDataSparseStorageGraph(resourceGroupCount: 12);
@@ -926,6 +975,74 @@ public sealed class DiagramAstFromGraphCompilerTests
             SourceId = armId,
             Properties = properties,
         };
+    }
+
+    [Fact]
+    public void Compile_human_assertion_edge_carries_provenance_and_declared_label()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        graph.Nodes.Add(CreateTopologyNode(
+            "app-1",
+            "app-1",
+            "Microsoft.Web/sites",
+            "rg-app",
+            "11111111-1111-1111-1111-111111111111",
+            GraphTopologyCategories.Compute));
+        graph.Nodes.Add(CreateTopologyNode(
+            "sql-1",
+            "sql-1",
+            "Microsoft.Sql/servers",
+            "rg-data",
+            "11111111-1111-1111-1111-111111111111",
+            GraphTopologyCategories.Data));
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-declared",
+            FromNodeId = "app-1",
+            ToNodeId = "sql-1",
+            EdgeType = GraphEdgeTypes.ConnectsTo,
+            Label = GraphEdgeTypes.ConnectsTo,
+            InferenceSource = GraphEdgeInferenceSources.HumanDeclaredConnection,
+            ProvenanceKind = "HumanAssertion",
+            DeclaredConnectionId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa").ToString(),
+        });
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-inventory",
+            FromNodeId = "app-1",
+            ToNodeId = "sql-1",
+            EdgeType = GraphEdgeTypes.ConnectsTo,
+            Label = GraphEdgeTypes.ConnectsTo,
+            InferenceSource = GraphEdgeInferenceSources.InventoryNicSubnet,
+            ProvenanceKind = "ObservedFact",
+        });
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+        DiagramEdge? declaredEdge = ast.Edges.FirstOrDefault(edge =>
+            edge.ProvenanceKind == "HumanAssertion");
+        DiagramEdge? observedEdge = ast.Edges.FirstOrDefault(edge =>
+            edge.ProvenanceKind == "ObservedFact");
+
+        declaredEdge.Should().NotBeNull();
+        declaredEdge!.InferenceSource.Should().Be(GraphEdgeInferenceSources.HumanDeclaredConnection);
+        declaredEdge.DeclaredConnectionId.Should().NotBeNullOrWhiteSpace();
+        declaredEdge.Label.Should().Be("declared · connects");
+
+        observedEdge.Should().NotBeNull();
+        observedEdge!.Label.Should().Be("connects");
+        observedEdge.Label.Should().NotContain("declared");
+
+        string mermaid = renderer.Render(ast);
+        mermaid.Should().Contain("-.->");
+        mermaid.Should().Contain("al-provenance=HumanAssertion");
+        mermaid.Should().Contain("al-declared-id=");
     }
 
     private static GraphNode BuildNetworkTopologyNode(string nodeId, string armId, string armType, string label)
