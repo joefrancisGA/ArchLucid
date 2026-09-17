@@ -181,6 +181,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
                     Label = edgeType,
                     Weight = ResolveEdgeWeight(relationship.InferenceSource),
                     InferenceSource = relationship.InferenceSource,
+                    ProvenanceKind = relationship.ProvenanceKind.ToString(),
+                    DeclaredConnectionId = relationship.DeclaredConnectionId?.ToString(),
                 });
             }
         }

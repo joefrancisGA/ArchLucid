@@ -548,4 +548,42 @@ public sealed class DiagramForestLayoutSvgRendererTests
             Edges = edges,
         };
     }
+
+    [Fact]
+    public void Render_declared_edge_uses_four_three_dasharray()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "declared-edge",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "app", Label = "app", NodeType = "app" },
+                new DiagramNode { NodeId = "sql", Label = "sql", NodeType = "sql" },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "app",
+                    ToNodeId = "sql",
+                    Label = "declared · connects",
+                    ProvenanceKind = "HumanAssertion",
+                    InferenceSource = GraphEdgeInferenceSources.HumanDeclaredConnection,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+        XDocument document = XDocument.Parse(result.Svg!);
+
+        document.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge-path", StringComparison.Ordinal))
+            .Select(element => element.Attribute("stroke-dasharray")?.Value ?? string.Empty)
+            .Should()
+            .ContainSingle()
+            .Which.Should()
+            .Be("4 3");
+    }
 }

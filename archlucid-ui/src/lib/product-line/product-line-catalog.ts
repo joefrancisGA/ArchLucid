@@ -95,6 +95,8 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
  * (settings hub leaves, OAuth returns).
  */
 export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLineAssignment>> = {
+  "/architecture": "architecture",
+  "/insights": "architecture",
   "/why-archlucid": "architecture",
   "/security/assigned-to-me": "security",
   "/security/remediation-factory": "security",
@@ -123,6 +125,8 @@ export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLine
 
 /** Nested URL trees that inherit the parent catalog assignment. */
 export const PRODUCT_LINE_NESTED_PREFIXES: readonly string[] = [
+  "/architecture",
+  "/insights",
   "/governance/infrastructure",
   "/governance/audit-evidence",
   "/governance/remediation-patterns",
