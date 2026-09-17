@@ -119,6 +119,11 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             AddManagedClusterProperties(propertiesElement, properties);
         }
 
+        if (resourceType.Contains("Databricks/workspaces", StringComparison.OrdinalIgnoreCase))
+        {
+            AddDatabricksWorkspaceProperties(propertiesElement, properties);
+        }
+
         if (resourceType.Contains("userAssignedIdentities", StringComparison.OrdinalIgnoreCase))
         {
             AddManagedIdentityPrincipalProperties(propertiesElement, properties);
@@ -550,6 +555,54 @@ internal static class HostedAzureInventoryResourcePropertyExpander
         {
             properties["networkProfile"] = networkProfile.GetRawText();
         }
+    }
+
+    private static void AddDatabricksWorkspaceProperties(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        string? managedResourceGroupId = TryReadNestedString(propertiesElement, "managedResourceGroupId");
+
+        if (!string.IsNullOrWhiteSpace(managedResourceGroupId))
+        {
+            properties["managedResourceGroupId"] = managedResourceGroupId.Trim();
+        }
+
+        if (!propertiesElement.TryGetProperty("parameters", out JsonElement parametersElement)
+            || parametersElement.ValueKind is not JsonValueKind.Object)
+        {
+            return;
+        }
+
+        string? virtualNetworkId = TryReadDatabricksParameterValue(parametersElement, "customVirtualNetworkId");
+        string? privateSubnetName = TryReadDatabricksParameterValue(parametersElement, "customPrivateSubnetName");
+        string? publicSubnetName = TryReadDatabricksParameterValue(parametersElement, "customPublicSubnetName");
+
+        if (!string.IsNullOrWhiteSpace(virtualNetworkId))
+        {
+            properties["parameters.customVirtualNetworkId"] = virtualNetworkId.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(privateSubnetName))
+        {
+            properties["parameters.customPrivateSubnetName"] = privateSubnetName.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(publicSubnetName))
+        {
+            properties["parameters.customPublicSubnetName"] = publicSubnetName.Trim();
+        }
+    }
+
+    private static string? TryReadDatabricksParameterValue(JsonElement parametersElement, string parameterName)
+    {
+        if (!parametersElement.TryGetProperty(parameterName, out JsonElement parameterElement)
+            || parameterElement.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        return TryReadNestedString(parameterElement, "value");
     }
 
     private static void AddIdentityProperties(

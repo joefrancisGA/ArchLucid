@@ -47,7 +47,11 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryMessagingAssociationRow>? messagingAssociations = null,
         bool messagingAssociationsFilePresent = false,
         IReadOnlyList<AzureInventoryPaasChildAssociationRow>? paasChildAssociations = null,
-        bool paasChildAssociationsFilePresent = false)
+        bool paasChildAssociationsFilePresent = false,
+        IReadOnlyList<AzureInventoryServiceConnectorLinkRow>? serviceConnectorLinks = null,
+        bool serviceConnectorLinksFilePresent = false,
+        IReadOnlyList<AzureInventoryAppSettingHostRow>? appSettingHosts = null,
+        bool appSettingHostsFilePresent = false)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
@@ -68,6 +72,8 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryLogicAppConnectionRow> logicAppConnectionRows = logicAppConnections ?? [];
         IReadOnlyList<AzureInventoryMessagingAssociationRow> messagingAssociationRows = messagingAssociations ?? [];
         IReadOnlyList<AzureInventoryPaasChildAssociationRow> paasChildAssociationRows = paasChildAssociations ?? [];
+        IReadOnlyList<AzureInventoryServiceConnectorLinkRow> serviceConnectorLinkRows = serviceConnectorLinks ?? [];
+        IReadOnlyList<AzureInventoryAppSettingHostRow> appSettingHostRows = appSettingHosts ?? [];
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
@@ -208,6 +214,22 @@ public static class AzureInventorySecurityEdgeMaterializer
             relationships,
             relationshipKeys,
             warnings);
+
+        AzureInventoryServiceConnectorEdgeMapper.MapLinks(
+            serviceConnectorLinkRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        if (appSettingHostsFilePresent)
+        {
+            AzureInventoryAppSettingHostEdgeMapper.MapHosts(
+                resources,
+                appSettingHostRows,
+                relationships,
+                relationshipKeys,
+                warnings);
+        }
 
         if (effectiveNetworkControlsFilePresent)
         {

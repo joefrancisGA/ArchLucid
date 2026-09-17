@@ -31,6 +31,12 @@ public sealed class HostedAzureDiagramEnrichmentCollectResult
         init;
     } = [];
 
+    public IReadOnlyList<AzureInventoryServiceConnectorLinkRow> ServiceConnectorLinks
+    {
+        get;
+        init;
+    } = [];
+
     public IReadOnlyList<string> CollectionWarnings
     {
         get;

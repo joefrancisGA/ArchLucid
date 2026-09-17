@@ -41,6 +41,9 @@ param(
     [switch] $IncludeRetailPrices,
 
     [Parameter(Mandatory = $false)]
+    [switch] $IncludeAppSettingsHosts,
+
+    [Parameter(Mandatory = $false)]
     [switch] $DryRun
 )
 
@@ -408,6 +411,7 @@ $switchesUsed = @()
 if ($IncludeCost) { $switchesUsed += "IncludeCost" }
 if ($IncludeAdvisor) { $switchesUsed += "IncludeAdvisor" }
 if ($IncludeRetailPrices) { $switchesUsed += "IncludeRetailPrices" }
+if ($IncludeAppSettingsHosts) { $switchesUsed += "IncludeAppSettingsHosts" }
 
 $outputDir = Split-Path -Parent $OutputPath
 if (-not (Test-Path -LiteralPath $outputDir))

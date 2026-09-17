@@ -420,4 +420,32 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
         Assert.Equal(AzureInventoryRelationshipAssociationTypes.ContainerAppToEnv, associations[0].AssociationType);
         Assert.Equal(environmentId, associations[0].ToResourceId);
     }
+
+    [Fact]
+    public void Build_emits_databricks_workspace_to_subnet_association()
+    {
+        const string vnetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+        const string subnetId = $"{vnetId}/subnets/private-subnet";
+
+        HostedAzureArmResourceRecord workspace = new(
+            ResourceType: "Microsoft.Databricks/workspaces",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Databricks/workspaces/dbx1",
+            Name: "dbx1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["parameters.customVirtualNetworkId"] = vnetId,
+                ["parameters.customPrivateSubnetName"] = "private-subnet",
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([workspace]);
+
+        Assert.Single(associations);
+        Assert.Equal(AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet, associations[0].AssociationType);
+        Assert.Equal(subnetId, associations[0].ToResourceId);
+    }
 }

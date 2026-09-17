@@ -425,4 +425,79 @@ public sealed class HostedAzureExtractorZipBuilderTests
         using JsonDocument paasDocument = JsonDocument.Parse(paasReader.ReadToEnd());
         Assert.Equal("appdb", paasDocument.RootElement[0].GetProperty("childName").GetString());
     }
+
+    [Fact]
+    public void BuildZip_writes_service_connector_and_app_setting_companion_entries()
+    {
+        const string appId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Web/sites/app1";
+        const string sqlId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1";
+
+        AzureInventoryServiceConnectorLinkRow serviceConnectorLink = new()
+        {
+            SourceResourceId = appId,
+            LinkerName = "sql-link",
+            LinkerResourceId = $"{appId}/providers/Microsoft.ServiceLinker/linkers/sql-link",
+            TargetResourceId = sqlId,
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        AzureInventoryAppSettingHostRow appSettingHost = new()
+        {
+            SiteResourceId = appId,
+            SettingName = "SqlConnection",
+            Host = "sql1.database.windows.net",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            serviceConnectorLinks: [serviceConnectorLink],
+            appSettingHosts: [appSettingHost]);
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream connectorStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.ServiceConnectorLinks)!.Open();
+        using StreamReader connectorReader = new(connectorStream);
+        using JsonDocument connectorDocument = JsonDocument.Parse(connectorReader.ReadToEnd());
+        Assert.Equal("sql-link", connectorDocument.RootElement[0].GetProperty("linkerName").GetString());
+
+        Assert.NotNull(archive.GetEntry(AzureExtractorPackageZipEntryNames.AppSettingsHosts));
+    }
+
+    [Fact]
+    public void BuildZip_manifest_includes_app_settings_not_collected_warning_when_requested()
+    {
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            collectionWarnings:
+            [
+                AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsNotCollectedHostedGetOnly,
+            ]);
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        using Stream manifestStream = archive.GetEntry("manifest.json")!.Open();
+        using StreamReader reader = new(manifestStream);
+        using JsonDocument document = JsonDocument.Parse(reader.ReadToEnd());
+
+        string[] warnings = document.RootElement.GetProperty("warnings")
+            .EnumerateArray()
+            .Select(element => element.GetString())
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Cast<string>()
+            .ToArray();
+
+        Assert.Contains(AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsNotCollectedHostedGetOnly, warnings);
+        Assert.Null(archive.GetEntry(AzureExtractorPackageZipEntryNames.AppSettingsHosts));
+    }
 }

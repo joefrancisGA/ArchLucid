@@ -72,7 +72,14 @@ When **`adf-datasets.json`** and **`adf-pipeline-flows.json`** companions are pr
 | `adf-datasets.json` | `GET …/factories/{factory}/datasets?api-version=2018-06-01` |
 | `adf-pipeline-flows.json` | Derived from `GET …/factories/{factory}/pipelines?api-version=2018-06-01` activity `inputs` / `outputs` (static references only; nested `ExecutePipeline` up to depth 3) |
 
-See [`docs/architecture/AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md). Further diagram-oriented collection (Synapse pipelines, Event Grid, Logic Apps, remaining ADF connectors, MI+RBAC **May access**, PaaS children) is a **prompt set**, not shipped: [`AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](../architecture/AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md).
+Optional Tier 1 switch **`-IncludeAppSettingsHosts`** may emit **`app-settings-hosts.json`** via POST `config/appsettings/list` and `config/connectionstrings/list` (requires `microsoft.web/sites/config/list/action` or equivalent per site). We persist setting names, parsed hostnames, and Key Vault URI host/secret name only — never values. Hosted Tier 2 emits manifest warning `app-settings-not-collected-hosted-get-only` and does not call those APIs.
+
+| Companion | ARM source |
+|-----------|------------|
+| `service-connector-links.json` | `GET …/providers/Microsoft.ServiceLinker/linkers?api-version=2022-11-01-preview` on Web sites and Container Apps |
+| `app-settings-hosts.json` | Tier 1 only: POST `config/appsettings/list` + `config/connectionstrings/list` when `-IncludeAppSettingsHosts` |
+
+See [`docs/architecture/AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZURE_CONNECTION_POINT_DISCOVERY.md) and [`AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](../architecture/AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md) for the shipped AX-DE collection set.
 
 ### Automated continuous pull (V1.x — ArchLucid-hosted)
 
