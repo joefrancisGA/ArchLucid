@@ -524,6 +524,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.checkpoint"] = checkpoint.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "revoked", out JsonElement revoked)
+                || TryGetPropertyIgnoreCase(res, "revoked", out revoked))
+            && (revoked.ValueKind == JsonValueKind.True || revoked.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.revoked"] = revoked.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
