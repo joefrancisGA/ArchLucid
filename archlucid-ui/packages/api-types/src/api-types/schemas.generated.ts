@@ -2112,6 +2112,7 @@ export interface components {
             collectorVersion?: null | string;
             /** Format: double */
             completenessScore?: null | number | string;
+            completenessWarningsJson?: null | string;
             /** Format: byte */
             contentHashSha256?: null | string;
             /** Format: date-time */
@@ -5569,12 +5570,14 @@ export interface components {
             status?: string;
         };
         InfraEvidenceMermaidPreviewResponse: {
+            completenessWarnings?: string[];
             modes?: components["schemas"]["InfraEvidenceMermaidModePreview"][];
             /** Format: uuid */
             snapshotId?: string;
         };
         InfraEvidenceMermaidRenderResponse: {
             collapseReport?: null | components["schemas"]["InfraEvidenceMermaidCollapseReport"];
+            completenessWarnings?: string[];
             fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
             fallbackKey?: null | string;
             identityDiagramHints?: null | components["schemas"]["InfraEvidenceMermaidIdentityDiagramHints"];

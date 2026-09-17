@@ -7190,6 +7190,12 @@
               "string"
             ]
           },
+          "completenessWarningsJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "contentHashSha256": {
             "format": "byte",
             "type": [
@@ -19263,12 +19269,6 @@
       },
       "InfraEvidenceMermaidRenderResponse": {
         "properties": {
-          "completenessWarnings": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
           "collapseReport": {
             "anyOf": [
               {
@@ -19278,6 +19278,12 @@
                 "$ref": "#/components/schemas/InfraEvidenceMermaidCollapseReport"
               }
             ]
+          },
+          "completenessWarnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "fallbackArtifacts": {
             "items": {
