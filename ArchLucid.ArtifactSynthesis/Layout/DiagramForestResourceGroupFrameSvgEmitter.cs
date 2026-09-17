@@ -37,10 +37,12 @@ public static class DiagramForestResourceGroupFrameSvgEmitter
                     new XAttribute("pointer-events", "none")),
                 new XElement(
                     svgNamespace + "text",
+                    new XAttribute("class", "clusterLabelText"),
                     new XAttribute("x", Format(frame.X)),
                     new XAttribute("y", Format(frame.Y - 4)),
                     new XAttribute("text-anchor", "start"),
                     new XAttribute("font-size", "11"),
+                    new XAttribute("font-weight", "700"),
                     new XAttribute("font-family", "system-ui,sans-serif"),
                     new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption),
                     Escape(frame.GroupName))));
