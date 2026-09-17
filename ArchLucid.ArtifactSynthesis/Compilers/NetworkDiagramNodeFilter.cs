@@ -18,6 +18,15 @@ internal static class NetworkDiagramNodeFilter
             .ToList();
     }
 
+    public static List<GraphNode> ExcludeNetworkInterfaces(IReadOnlyList<GraphNode> nodes)
+    {
+        ArgumentNullException.ThrowIfNull(nodes);
+
+        return nodes
+            .Where(node => !DiagramNicOwnerResolver.IsNetworkInterfaceNode(node))
+            .ToList();
+    }
+
     private static bool IsPrivateEndpointResource(GraphNode node)
     {
         string armType = DiagramAstGraphNodeClassifier.ReadArmType(node);
