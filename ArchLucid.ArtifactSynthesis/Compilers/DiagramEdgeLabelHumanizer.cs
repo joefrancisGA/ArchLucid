@@ -206,6 +206,14 @@ internal static class DiagramEdgeLabelHumanizer
             return true;
         }
 
+        if (string.Equals(value, GraphEdgeInferenceSources.InventoryAvdSessionHostToVm, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = "AVD session host";
+
+            return true;
+        }
+
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryFirewallSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, StringComparison.OrdinalIgnoreCase))
         {

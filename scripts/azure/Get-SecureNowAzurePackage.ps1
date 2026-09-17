@@ -651,6 +651,40 @@ try
                 $networkAssociationRows += $argRow
             }
         }
+
+        [object[]]$avdSessionHostAssociationRows = @(Get-ArchLucidAzureAvdSessionHostAssociationRows -InventoryResources @($inventoryForAssociationDerivation))
+
+        foreach ($avdRow in @($avdSessionHostAssociationRows))
+        {
+            $networkAssociationRows += $avdRow
+        }
+
+        if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+        {
+            foreach ($subId in @(Get-ArchLucidManagementGroupSubscriptionIds -ManagementGroupId $ManagementGroupId))
+            {
+                [object[]]$avdArgRows = @(Get-ArchLucidAzureAvdSessionHostAssociationRowsViaResourceGraph `
+                    -SubscriptionId $subId `
+                    -ResourceGroupScope $ResourceGroupScope)
+
+                foreach ($avdArgRow in @($avdArgRows))
+                {
+                    $networkAssociationRows += $avdArgRow
+                }
+            }
+        }
+        else
+        {
+            [object[]]$avdArgRows = @(Get-ArchLucidAzureAvdSessionHostAssociationRowsViaResourceGraph `
+                -SubscriptionId $SubscriptionId `
+                -ResourceGroupScope $ResourceGroupScope)
+
+            foreach ($avdArgRow in @($avdArgRows))
+            {
+                $networkAssociationRows += $avdArgRow
+            }
+        }
+
         [object[]]$federatedCredentialRows = @(Get-ArchLucidAzureFederatedCredentialCompanionRows -InventoryResources @($resources))
         [object[]]$effectiveNetworkControlRows = @(Get-ArchLucidAzureEffectiveNetworkControlCompanionRows -InventoryResources @($resources))
         [object[]]$policyAssignmentRows = @(Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($policyData.policyAssignments))

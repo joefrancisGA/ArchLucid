@@ -250,3 +250,61 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
 
     return @($rows.ToArray())
 }
+
+function Get-ArchLucidAzureAvdSessionHostAssociationRowsViaResourceGraph
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SubscriptionId,
+
+        [string] $ResourceGroupScope = ""
+    )
+
+    if (-not (Get-Module -ListAvailable -Name Az.ResourceGraph))
+    {
+        return @()
+    }
+
+    Import-Module Az.ResourceGraph -ErrorAction Stop
+
+    [string]$rgFilter = ""
+
+    if (-not ([string]::IsNullOrWhiteSpace("$ResourceGroupScope")))
+    {
+        [string]$rg = "$ResourceGroupScope".Trim()
+        $rgFilter = "| where resourceGroup =~ '$rg'"
+    }
+
+    [string]$query = "Resources | where type =~ 'microsoft.desktopvirtualization/hostpools/sessionhosts' $rgFilter | project id, vmResourceId = properties.resourceId"
+
+    [System.Collections.ArrayList]$rows = [System.Collections.ArrayList]::new()
+    [hashtable]$seen = @{}
+
+    try
+    {
+        [object]$page = Search-AzGraph -Query $query -Subscription $SubscriptionId -First 1000
+
+        foreach ($row in @(Get-ArchLucidResourceGraphPageDataArray $page))
+        {
+            [string]$sessionHostResourceId = "$( $row.id )".Trim()
+            [string]$virtualMachineResourceId = "$( $row.vmResourceId )".Trim()
+
+            if ([string]::IsNullOrWhiteSpace($sessionHostResourceId) -or [string]::IsNullOrWhiteSpace($virtualMachineResourceId))
+            {
+                continue
+            }
+
+            Add-ArchLucidNetworkAssociationRow `
+                -Rows $rows `
+                -Seen $seen `
+                -FromResourceId $sessionHostResourceId `
+                -ToResourceId $virtualMachineResourceId `
+                -AssociationType 'avdSessionHostToVm'
+        }
+    }
+    catch
+    {
+    }
+
+    return @($rows.ToArray())
+}

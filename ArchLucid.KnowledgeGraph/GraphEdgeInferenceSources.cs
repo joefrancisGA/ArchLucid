@@ -80,6 +80,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryVmNic = "inventory-vm-nic";
 
+    public const string InventoryAvdSessionHostToVm = "inventory-avd-session-host-to-vm";
+
     public const string InventoryNicNsg = "inventory-nic-nsg";
 
     public const string InventorySubnetNsg = "inventory-subnet-nsg";

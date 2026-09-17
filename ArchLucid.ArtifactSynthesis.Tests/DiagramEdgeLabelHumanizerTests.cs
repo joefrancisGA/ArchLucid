@@ -75,6 +75,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, "Triggers")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, "Runs on")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, "Captures to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, "AVD session host")]
     public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);

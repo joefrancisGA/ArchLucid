@@ -307,6 +307,38 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
     }
 
     [Fact]
+    public void Materialize_avd_session_host_association_emits_observed_connects_to_vm()
+    {
+        const string sessionHost =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DesktopVirtualization/hostPools/pool/sessionHosts/host1";
+        const string vm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/avd01-001";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [],
+                [
+                    ParseJson($$"""{"fromResourceId":"{{sessionHost}}","toResourceId":"{{vm}}","associationType":"avdSessionHostToVm"}"""),
+                ],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().ContainSingle();
+        result.Relationships[0].RelationshipType.Should().Be(GraphEdgeTypes.ConnectsTo);
+        result.Relationships[0].ProvenanceKind.Should().Be(ProvenanceKind.ObservedFact);
+        result.Relationships[0].FromAzureResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(sessionHost));
+        result.Relationships[0].ToAzureResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(vm));
+        result.Relationships[0].InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryAvdSessionHostToVm);
+    }
+
+    [Fact]
     public void Materialize_vnet_property_peerings_emit_peers_with_without_association_rows()
     {
         const string localVnet =
