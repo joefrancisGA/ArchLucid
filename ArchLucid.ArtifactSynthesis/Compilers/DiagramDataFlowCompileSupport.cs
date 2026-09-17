@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Inventory;
+using InventoryDataFlowStageResolver = ArchLucid.KnowledgeGraph.Inventory.AzureInventoryDataFlowStageResolver;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
@@ -64,17 +65,17 @@ internal static class DiagramDataFlowCaptionBuilder
 
         bool hasIngestion = includedNodes.Any(node =>
             AzureInventoryDataFlowStageNames.EqualsStage(
-                AzureInventoryDataFlowStageResolver.Resolve(node),
+                InventoryDataFlowStageResolver.Resolve(node),
                 AzureInventoryDataFlowStageNames.Ingestion));
 
         bool hasSource = includedNodes.Any(node =>
             AzureInventoryDataFlowStageNames.EqualsStage(
-                AzureInventoryDataFlowStageResolver.Resolve(node),
+                InventoryDataFlowStageResolver.Resolve(node),
                 AzureInventoryDataFlowStageNames.Source));
 
         bool hasStorage = includedNodes.Any(node =>
             AzureInventoryDataFlowStageNames.EqualsStage(
-                AzureInventoryDataFlowStageResolver.Resolve(node),
+                InventoryDataFlowStageResolver.Resolve(node),
                 AzureInventoryDataFlowStageNames.Storage));
 
         if (hasIngestion && !hasSource && !hasStorage)
@@ -114,7 +115,7 @@ internal static class DiagramDataFlowStageSubgraphPlanner
         {
             bool hasNodes = nodes.Any(node =>
                 AzureInventoryDataFlowStageNames.EqualsStage(
-                    AzureInventoryDataFlowStageResolver.Resolve(node),
+                    InventoryDataFlowStageResolver.Resolve(node),
                     stage));
 
             if (!hasNodes)
@@ -138,7 +139,7 @@ internal static class DiagramDataFlowStageSubgraphPlanner
         ArgumentNullException.ThrowIfNull(node);
         ArgumentNullException.ThrowIfNull(subgraphs);
 
-        string? stage = AzureInventoryDataFlowStageResolver.Resolve(node);
+        string? stage = InventoryDataFlowStageResolver.Resolve(node);
 
         if (string.IsNullOrWhiteSpace(stage))
         {
@@ -215,7 +216,7 @@ internal static class DiagramDataArchitectureTypeGroupPlanner
 
     private static string? ResolveGroupId(GraphNode node)
     {
-        string? stage = AzureInventoryDataFlowStageResolver.Resolve(node);
+        string? stage = InventoryDataFlowStageResolver.Resolve(node);
 
         if (AzureInventoryDataFlowStageNames.EqualsStage(stage, AzureInventoryDataFlowStageNames.Source))
         {
