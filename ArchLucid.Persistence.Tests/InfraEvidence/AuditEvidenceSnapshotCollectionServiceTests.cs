@@ -340,6 +340,15 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
             Guid? cloudResourceId = null,
             CancellationToken cancellationToken = default)
             => Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord>, int)?>(null);
+
+        public Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult(new AzureInventorySnapshotDeleteResult
+            {
+                Outcome = AzureInventorySnapshotDeleteOutcome.NotFound,
+            });
     }
 
     internal sealed class InMemoryAuditEvidenceRequirementRepository : IAuditEvidenceRequirementRepository

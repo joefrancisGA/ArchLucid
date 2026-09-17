@@ -155,6 +155,15 @@ public sealed class SecureNowArchitectMetricsQueryServiceTests
             Guid? cloudResourceId = null,
             CancellationToken cancellationToken = default)
             => Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)?>(null);
+
+        public Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult(new AzureInventorySnapshotDeleteResult
+            {
+                Outcome = AzureInventorySnapshotDeleteOutcome.NotFound,
+            });
     }
 
     private sealed class InMemoryPathRepository : ISecurityEvidencePathRepository
