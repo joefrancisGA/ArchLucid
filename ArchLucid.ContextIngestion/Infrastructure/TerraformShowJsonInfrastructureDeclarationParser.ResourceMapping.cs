@@ -517,6 +517,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.target"] = targetText.Trim();
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "checkpoint", out JsonElement checkpoint)
+                || TryGetPropertyIgnoreCase(res, "checkpoint", out checkpoint))
+            && (checkpoint.ValueKind == JsonValueKind.True || checkpoint.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.checkpoint"] = checkpoint.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
