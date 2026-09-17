@@ -330,8 +330,19 @@ public sealed class DiagramForestLayoutSvgRendererTests
             .Be(1);
         result.Svg.Should().Contain("rg-app-prod");
         result.Svg.Should().Contain("rg-data-prod");
+        result.Svg.Should().Contain("font-weight=\"700\"");
         CountRgCaptionTexts(root, "rg-app-prod").Should().Be(0);
         CountRgCaptionTexts(root, "rg-data-prod").Should().Be(1);
+        root.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "text", StringComparison.Ordinal)
+                && element.Ancestors()
+                    .Any(ancestor =>
+                        string.Equals(ancestor.Name.LocalName, "g", StringComparison.Ordinal)
+                        && string.Equals((string?)ancestor.Attribute("class"), "rg-frame", StringComparison.Ordinal)))
+            .Select(element => element.Attribute("font-weight")?.Value)
+            .Should()
+            .OnlyContain(weight => weight == "700");
     }
 
     [Fact]

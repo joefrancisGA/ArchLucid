@@ -23,8 +23,49 @@ function readClusterRect(cluster: Element): Element | null {
   return cluster.querySelector(":scope > rect, :scope > .cluster_rect");
 }
 
-/** Bold resource-group captions and anchor them above the dashed cluster frame. */
+function boldResourceGroupLabelText(text: Element, labelX: number, labelY: number): void {
+  text.setAttribute("class", "clusterLabelText");
+  text.setAttribute("text-anchor", "start");
+  text.setAttribute("dominant-baseline", "auto");
+  text.setAttribute("font-weight", CLUSTER_LABEL_FONT_WEIGHT);
+  text.setAttribute("font-size", String(CLUSTER_LABEL_FONT_SIZE_PX));
+  text.setAttribute("x", String(labelX));
+  text.setAttribute("y", String(labelY));
+
+  const tspans = [...text.querySelectorAll("tspan")];
+
+  for (let index = 0; index < tspans.length; index += 1) {
+    const tspan = tspans[index];
+
+    if (tspan === undefined) {
+      continue;
+    }
+
+    tspan.setAttribute("x", String(labelX));
+
+    if (index === 0) {
+      tspan.setAttribute("dy", "0");
+    }
+  }
+}
+
+/** Bold resource-group captions on Mermaid clusters and inventory-forest rg-frame labels. */
 export function enhanceInventoryClusterLabels(svg: Element): void {
+  const forestFrames = svg.querySelectorAll("g.rg-frame");
+
+  for (const frame of forestFrames) {
+    const text = frame.querySelector(":scope > text");
+
+    if (text === null) {
+      continue;
+    }
+
+    const labelX = readFiniteAttribute(text, "x", 0);
+    const labelY = readFiniteAttribute(text, "y", 0);
+
+    boldResourceGroupLabelText(text, labelX, labelY);
+  }
+
   const clusters = svg.querySelectorAll("g.cluster");
 
   for (const cluster of clusters) {
@@ -51,28 +92,6 @@ export function enhanceInventoryClusterLabels(svg: Element): void {
     const labelY = rectY - CLUSTER_LABEL_ABOVE_GAP_PX;
 
     labelGroup.removeAttribute("transform");
-    text.setAttribute("class", "clusterLabelText");
-    text.setAttribute("text-anchor", "start");
-    text.setAttribute("dominant-baseline", "auto");
-    text.setAttribute("font-weight", CLUSTER_LABEL_FONT_WEIGHT);
-    text.setAttribute("font-size", String(CLUSTER_LABEL_FONT_SIZE_PX));
-    text.setAttribute("x", String(labelX));
-    text.setAttribute("y", String(labelY));
-
-    const tspans = [...text.querySelectorAll("tspan")];
-
-    for (let index = 0; index < tspans.length; index += 1) {
-      const tspan = tspans[index];
-
-      if (tspan === undefined) {
-        continue;
-      }
-
-      tspan.setAttribute("x", String(labelX));
-
-      if (index === 0) {
-        tspan.setAttribute("dy", "0");
-      }
-    }
+    boldResourceGroupLabelText(text, labelX, labelY);
   }
 }

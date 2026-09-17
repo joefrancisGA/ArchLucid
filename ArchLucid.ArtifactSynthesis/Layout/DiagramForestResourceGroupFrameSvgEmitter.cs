@@ -75,7 +75,7 @@ public static class DiagramForestResourceGroupFrameSvgEmitter
                 new XAttribute("y", Format(labelBaselineY)),
                 new XAttribute("text-anchor", "start"),
                 new XAttribute("font-size", Format(DiagramForestResourceGroupFrameStyle.LabelFontSize)),
-                new XAttribute("font-weight", "600"),
+                new XAttribute("font-weight", "700"),
                 new XAttribute("font-family", "system-ui,sans-serif"),
                 new XAttribute("fill", DiagramForestResourceGroupFrameStyle.LabelFill),
                 escapedName));

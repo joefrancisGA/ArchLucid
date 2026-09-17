@@ -4,7 +4,7 @@ using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
-using ArchLucid.KnowledgeGraph.Inventory;
+using InventoryDataFlowStageResolver = ArchLucid.KnowledgeGraph.Inventory.AzureInventoryDataFlowStageResolver;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
@@ -508,14 +508,14 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
     private static List<GraphNode> ApplyDataFlowFilter(List<GraphNode> nodes)
     {
         return nodes
-            .Where(node => AzureInventoryDataFlowStageResolver.Resolve(node) is not null)
+            .Where(node => InventoryDataFlowStageResolver.Resolve(node) is not null)
             .ToList();
     }
 
     private static List<GraphNode> ApplyDataArchitectureFilter(List<GraphNode> nodes)
     {
         return nodes
-            .Where(AzureInventoryDataFlowStageResolver.IsDataArchitectureNode)
+            .Where(InventoryDataFlowStageResolver.IsDataArchitectureNode)
             .ToList();
     }
 
