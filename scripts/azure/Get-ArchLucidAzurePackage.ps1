@@ -9,6 +9,7 @@
     - `-IncludeRetailPrices` emits `retail-prices.json` by calling the **public** HTTPS Retail Prices API (`https://prices.azure.com`) for App Service plans, SQL databases, Virtual Machines, and Storage Accounts inventoried in `resources.json`; HTTPS GET only — no RBAC beyond Reader-style ARM read access (same as other catalog probes).
     - Every run emits `policy-compliance.json` via Azure Policy Insights PolicyStates/latest/queryResults (same read plane as `Get-AzPolicyState`); pagination and throttling backoff are handled in the collector. Reader at subscription or resource-group scope is sufficient for typical tenants.
     - `-IncludeCost` merges subscription-scope **ActualCost** into **`manifest.json`** (`actualCostSummary`) via Azure CLI **`az rest`** calls to **`Microsoft.CostManagement/query`** (Cost Management Reader or equivalent RBAC plus `az` on PATH required; null + warning when access fails). Advisor (`-IncludeAdvisor`) remains backlog; see docs/library/V1_SCOPE.md §2.16 for remaining optional surfaces.
+    - `-IncludeAppSettingsHosts` emits `app-settings-hosts.json` via POST `config/appsettings/list` and `config/connectionstrings/list` (setting names + parsed hosts + Key Vault URI host/secret name only — never values).
     - Verify script integrity (code signing / checksum) per your change-management policy before executing in production subscriptions.
 #>
 #Requires -Version 7.0
