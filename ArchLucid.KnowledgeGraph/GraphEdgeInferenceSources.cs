@@ -123,4 +123,21 @@ public static class GraphEdgeInferenceSources
     public const string HumanDeclaredConnection = "human-declared-connection";
 
     public const string PimEligibilityUnknown = "pim-eligibility-unknown";
+
+    public static bool IsInventoryAdfMovementInferenceSource(string? inferenceSource)
+    {
+        if (string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            return false;
+        }
+
+        return inferenceSource.Equals(InventoryAdfReadsFrom, StringComparison.OrdinalIgnoreCase)
+            || inferenceSource.Equals(InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase)
+            || inferenceSource.Equals(InventoryAdfLinkedService, StringComparison.OrdinalIgnoreCase)
+            || inferenceSource.Equals(InventoryAdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
+            || inferenceSource.Equals(InventorySynapseReadsFrom, StringComparison.OrdinalIgnoreCase)
+            || inferenceSource.Equals(InventorySynapseWritesTo, StringComparison.OrdinalIgnoreCase)
+            || inferenceSource.Equals(InventorySynapseLinkedService, StringComparison.OrdinalIgnoreCase)
+            || inferenceSource.Equals(InventorySynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase);
+    }
 }

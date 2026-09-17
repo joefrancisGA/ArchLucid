@@ -363,4 +363,72 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].resourceId | Should -Be '/subscriptions/11111111-1111-1111-1111-111111111111'
         $rows[0].secureScore | Should -Be 85
     }
+
+    It 'rejects app setting values that contain password markers' {
+        Test-ArchLucidAzureAppSettingHostRejectedValue -Value 'Server=tcp:sql.database.windows.net;Password=secret' |
+            Should -Be $true
+
+        $parsed = Get-ArchLucidAzureAppSettingHostFromValue `
+            -SettingName 'SqlConnection' `
+            -Value 'Server=tcp:sql.database.windows.net;Password=secret'
+
+        $parsed | Should -Be $null
+    }
+
+    It 'parses sql host and key vault reference without storing secret values' {
+        $sqlParsed = Get-ArchLucidAzureAppSettingHostFromValue `
+            -SettingName 'SqlConnection' `
+            -Value 'Server=tcp:prodsql.database.windows.net,1433;Initial Catalog=db;'
+
+        $sqlParsed.parsedHost | Should -Be 'prodsql.database.windows.net'
+        ($sqlParsed | ConvertTo-Json) | Should -Not -Match 'Password='
+
+        $kvParsed = Get-ArchLucidAzureAppSettingHostFromValue `
+            -SettingName 'SqlPassword' `
+            -Value '@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/sql-password)'
+
+        $kvParsed.keyVaultHost | Should -Be 'myvault.vault.azure.net'
+        $kvParsed.secretName | Should -Be 'sql-password'
+    }
+
+    It 'collects service connector linker rows when linkers exist' {
+        function Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path
+            )
+
+            $Path | Should -Match 'ServiceLinker/linkers'
+
+            return [PSCustomObject]@{
+                StatusCode = 200
+                Content = (@{
+                    value = @(
+                        @{
+                            id = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1/providers/Microsoft.ServiceLinker/linkers/sql-link'
+                            name = 'sql-link'
+                            properties = @{
+                                targetService = @{
+                                    id = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1'
+                                }
+                            }
+                        }
+                    )
+                } | ConvertTo-Json -Depth 8)
+            }
+        }
+
+        $inventory = @(
+            [PSCustomObject]@{
+                resourceType = 'Microsoft.Web/sites'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1'
+            }
+        )
+
+        [object[]]$rows = @(Get-ArchLucidAzureServiceConnectorCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 1
+        $rows[0].linkerName | Should -Be 'sql-link'
+        $rows[0].targetResourceId | Should -Match 'Microsoft.Sql/servers/sql1'
+    }
 }

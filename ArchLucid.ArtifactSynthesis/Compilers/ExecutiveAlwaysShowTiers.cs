@@ -52,6 +52,7 @@ public static class ExecutiveAlwaysShowTiers
             [
                 "Microsoft.DataFactory/factories",
                 "Microsoft.Synapse/workspaces",
+                "Microsoft.Databricks/workspaces",
             ]),
     ];
 

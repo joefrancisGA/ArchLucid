@@ -205,7 +205,9 @@ public sealed class HostedAzureExtractorClient(
             diagramEnrichment.LogicAppConnections,
             diagramEnrichment.MessagingAssociations,
             diagramEnrichment.PaasChildAssociations,
-            collectionWarnings);
+            diagramEnrichment.ServiceConnectorLinks,
+            appSettingHosts: null,
+            collectionWarnings: collectionWarnings);
 
         string fileName =
             $"archlucid-hosted-azure-{subscriptionId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -409,7 +411,9 @@ public sealed class HostedAzureExtractorClient(
             diagramEnrichment.LogicAppConnections,
             diagramEnrichment.MessagingAssociations,
             diagramEnrichment.PaasChildAssociations,
-            collectionWarnings);
+            diagramEnrichment.ServiceConnectorLinks,
+            appSettingHosts: null,
+            collectionWarnings: collectionWarnings);
 
         string fileName =
             $"archlucid-hosted-azure-mg-{managementGroupId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";

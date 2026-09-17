@@ -150,6 +150,25 @@ describe("architecture-diagram-svg", () => {
     expect(converted.match(/<tspan /g)?.length ?? 0).toBeGreaterThan(1);
   });
 
+  it("bolds inventory-forest rg-frame labels", () => {
+    const svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200">',
+      '  <g class="rg-frames">',
+      '    <g class="rg-frame">',
+      '      <rect x="20" y="60" width="200" height="100"/>',
+      '      <text x="20" y="56" font-size="11">rg-app-prod</text>',
+      "    </g>",
+      "  </g>",
+      "</svg>",
+    ].join("");
+
+    const converted = replaceMermaidForeignObjectLabelsWithSvgText(svg);
+
+    expect(converted).toContain('class="clusterLabelText"');
+    expect(converted).toContain('font-weight="700"');
+    expect(converted).toContain("rg-app-prod");
+  });
+
   it("bolds resource group cluster captions above the dashed frame", () => {
     const svg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200">',

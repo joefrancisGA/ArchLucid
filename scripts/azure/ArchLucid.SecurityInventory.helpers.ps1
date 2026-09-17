@@ -3067,6 +3067,237 @@ function Get-ArchLucidAzureMessagingAssociationCompanionRows
     return @($rows.ToArray())
 }
 
+function Test-ArchLucidAzureAppSettingHostRejectedValue
+{
+    param(
+        [Parameter(Mandatory = $false)]
+        [string] $Value
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Value)) { return $false }
+
+    foreach ($token in @('Password=', 'SharedAccessKey=', 'AccountKey=', 'token=', 'secret=', 'key='))
+    {
+        if ($Value.IndexOf($token, [System.StringComparison]::OrdinalIgnoreCase) -ge 0)
+        {
+            return $true
+        }
+    }
+
+    return $false
+}
+
+function Get-ArchLucidAzureAppSettingHostFromValue
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SettingName,
+
+        [Parameter(Mandatory = $false)]
+        [string] $Value
+    )
+
+    if (Test-ArchLucidAzureAppSettingHostRejectedValue -Value $Value)
+    {
+        return $null
+    }
+
+    $row = [ordered]@{
+        settingName = $SettingName
+        parsedHost = $null
+        keyVaultHost = $null
+        secretName = $null
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($Value))
+    {
+        $sqlMatch = [regex]::Match($Value, 'Server\s*=\s*tcp:(?<host>[^,;]+)', 'IgnoreCase')
+
+        if ($sqlMatch.Success)
+        {
+            $row.parsedHost = $sqlMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+        }
+
+        $kvMatch = [regex]::Match(
+            $Value,
+            '@Microsoft\.KeyVault\(SecretUri\s*=\s*https?://(?<host>[^/]+)/secrets/(?<secret>[^/)]+)',
+            'IgnoreCase')
+
+        if ($kvMatch.Success)
+        {
+            $row.keyVaultHost = $kvMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+            $row.secretName = $kvMatch.Groups['secret'].Value.Trim()
+        }
+    }
+
+    if ([string]::IsNullOrWhiteSpace($row.parsedHost) -and [string]::IsNullOrWhiteSpace($row.keyVaultHost))
+    {
+        return $null
+    }
+
+    return $row
+}
+
+function Get-ArchLucidAzureAppSettingHostCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+    $seen = @{}
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$siteResourceId = "$( $resource.resourceId )".Trim()
+
+        if ($resourceType -ne 'Microsoft.Web/sites') { continue }
+        if ([string]::IsNullOrWhiteSpace($siteResourceId)) { continue }
+
+        foreach ($listPath in @('config/appsettings/list', 'config/connectionstrings/list'))
+        {
+            try
+            {
+                [string]$path = "$siteResourceId/$listPath?api-version=2022-03-01"
+                $response = Invoke-AzRestMethod -Method POST -Path $path -Payload '{}' -ErrorAction Stop
+
+                if ($response.StatusCode -eq 403 -or $response.StatusCode -eq 404)
+                {
+                    continue
+                }
+
+                if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+                {
+                    continue
+                }
+
+                $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+                foreach ($property in @($payload.properties.PSObject.Properties))
+                {
+                    [string]$settingName = "$( $property.Name )".Trim()
+                    [string]$settingValue = "$( $property.Value )".Trim()
+                    $parsed = Get-ArchLucidAzureAppSettingHostFromValue -SettingName $settingName -Value $settingValue
+
+                    if ($null -eq $parsed) { continue }
+
+                    [string]$key = "$siteResourceId|$settingName|$($parsed.parsedHost)|$($parsed.keyVaultHost)|$($parsed.secretName)"
+
+                    if ($seen.ContainsKey($key)) { continue }
+                    $seen[$key] = $true
+
+                    [void]$rows.Add([ordered]@{
+                        siteResourceId = $siteResourceId
+                        settingName = $settingName
+                        host = $parsed.parsedHost
+                        keyVaultHost = $parsed.keyVaultHost
+                        secretName = $parsed.secretName
+                        collectionStatus = 'Succeeded'
+                    })
+                }
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
+function Get-ArchLucidAzureServiceConnectorCompanionRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+    $seen = @{}
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$sourceResourceId = "$( $resource.resourceId )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($sourceResourceId)) { continue }
+
+        if ($resourceType -ne 'Microsoft.Web/sites' -and $resourceType -ne 'Microsoft.App/containerApps')
+        {
+            continue
+        }
+
+        try
+        {
+            [string]$path = "$sourceResourceId/providers/Microsoft.ServiceLinker/linkers?api-version=2022-11-01-preview"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+
+            if ($response.StatusCode -eq 404)
+            {
+                continue
+            }
+
+            if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+            {
+                continue
+            }
+
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($linker in @($payload.value))
+            {
+                [string]$linkerName = "$( $linker.name )".Trim()
+                [string]$linkerResourceId = "$( $linker.id )".Trim()
+                [string]$targetResourceId = ''
+
+                try
+                {
+                    $targetResourceId = "$( $linker.properties.targetService.id )".Trim()
+                }
+                catch
+                {
+                }
+
+                if ([string]::IsNullOrWhiteSpace($linkerName)) { continue }
+
+                [string]$key = "$sourceResourceId|$linkerName|$linkerResourceId|$targetResourceId"
+
+                if ($seen.ContainsKey($key)) { continue }
+                $seen[$key] = $true
+
+                [void]$rows.Add([ordered]@{
+                    sourceResourceId = $sourceResourceId
+                    linkerName = $linkerName
+                    linkerResourceId = $linkerResourceId
+                    targetResourceId = $targetResourceId
+                    collectionStatus = 'Succeeded'
+                })
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    return @($rows.ToArray())
+}
+
 function Get-ArchLucidAzureAvdSessionHostAssociationRows
 {
     param(

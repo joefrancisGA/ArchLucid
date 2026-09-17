@@ -9,6 +9,7 @@
     - `-IncludeRetailPrices` emits `retail-prices.json` by calling the **public** HTTPS Retail Prices API (`https://prices.azure.com`) for App Service plans, SQL databases, Virtual Machines, and Storage Accounts inventoried in `resources.json`; HTTPS GET only — no RBAC beyond Reader-style ARM read access (same as other catalog probes).
     - Every run emits `policy-compliance.json` via Azure Policy Insights PolicyStates/latest/queryResults (same read plane as `Get-AzPolicyState`); pagination and throttling backoff are handled in the collector. Reader at subscription or resource-group scope is sufficient for typical tenants.
     - `-IncludeCost` merges subscription-scope **ActualCost** into **`manifest.json`** (`actualCostSummary`) via Azure CLI **`az rest`** calls to **`Microsoft.CostManagement/query`** (Cost Management Reader or equivalent RBAC plus `az` on PATH required; null + warning when access fails). Advisor (`-IncludeAdvisor`) remains backlog; see docs/library/V1_SCOPE.md §2.16 for remaining optional surfaces.
+    - `-IncludeAppSettingsHosts` emits `app-settings-hosts.json` via POST `config/appsettings/list` and `config/connectionstrings/list` (setting names + parsed hosts + Key Vault URI host/secret name only — never values).
     - Verify script integrity (code signing / checksum) per your change-management policy before executing in production subscriptions.
 #>
 #Requires -Version 7.0
@@ -38,6 +39,9 @@ param(
 
     [Parameter(Mandatory = $false)]
     [switch] $IncludeRetailPrices,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $IncludeAppSettingsHosts,
 
     [Parameter(Mandatory = $false)]
     [switch] $DryRun
@@ -407,6 +411,7 @@ $switchesUsed = @()
 if ($IncludeCost) { $switchesUsed += "IncludeCost" }
 if ($IncludeAdvisor) { $switchesUsed += "IncludeAdvisor" }
 if ($IncludeRetailPrices) { $switchesUsed += "IncludeRetailPrices" }
+if ($IncludeAppSettingsHosts) { $switchesUsed += "IncludeAppSettingsHosts" }
 
 $outputDir = Split-Path -Parent $OutputPath
 if (-not (Test-Path -LiteralPath $outputDir))
@@ -696,6 +701,13 @@ try
         [object[]]$eventGridSubscriptionRows = @(Get-ArchLucidAzureEventGridSubscriptionCompanionRows -InventoryResources @($resources) -SubscriptionId $SubscriptionId)
         [object[]]$logicAppConnectionRows = @(Get-ArchLucidAzureLogicAppConnectionCompanionRows -InventoryResources @($resources))
         [object[]]$messagingAssociationRows = @(Get-ArchLucidAzureMessagingAssociationCompanionRows -InventoryResources @($resources))
+        [object[]]$serviceConnectorRows = @(Get-ArchLucidAzureServiceConnectorCompanionRows -InventoryResources @($resources))
+        [object[]]$appSettingHostRows = @()
+
+        if ($IncludeAppSettingsHosts)
+        {
+            $appSettingHostRows = @(Get-ArchLucidAzureAppSettingHostCompanionRows -InventoryResources @($resources))
+        }
 
         Write-Utf8NoBom (Join-Path $staging "role-assignments.json") ($roleAssignmentRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "network-associations.json") ($networkAssociationRows | ConvertTo-Json -Depth 12 -Compress:$false)
@@ -713,6 +725,12 @@ try
         Write-Utf8NoBom (Join-Path $staging "event-grid-subscriptions.json") ($eventGridSubscriptionRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "logic-app-connections.json") ($logicAppConnectionRows | ConvertTo-Json -Depth 12 -Compress:$false)
         Write-Utf8NoBom (Join-Path $staging "messaging-associations.json") ($messagingAssociationRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        Write-Utf8NoBom (Join-Path $staging "service-connector-links.json") ($serviceConnectorRows | ConvertTo-Json -Depth 12 -Compress:$false)
+
+        if ($IncludeAppSettingsHosts)
+        {
+            Write-Utf8NoBom (Join-Path $staging "app-settings-hosts.json") ($appSettingHostRows | ConvertTo-Json -Depth 12 -Compress:$false)
+        }
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `
@@ -736,6 +754,8 @@ try
                 eventGridSubscriptionCount = $eventGridSubscriptionRows.Count
                 logicAppConnectionCount = $logicAppConnectionRows.Count
                 messagingAssociationCount = $messagingAssociationRows.Count
+                serviceConnectorCount = $serviceConnectorRows.Count
+                appSettingHostCount = $appSettingHostRows.Count
             }
     }
     catch
@@ -762,6 +782,7 @@ try
         Write-Utf8NoBom (Join-Path $staging "event-grid-subscriptions.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "logic-app-connections.json") "[]"
         Write-Utf8NoBom (Join-Path $staging "messaging-associations.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "service-connector-links.json") "[]"
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `
@@ -829,6 +850,17 @@ Cost snapshot: when `-IncludeCost` was used, `manifest.json` includes `actualCos
 
     }
 
+    $appSettingsReadmeTail = ""
+
+    if ($IncludeAppSettingsHosts)
+    {
+        $appSettingsReadmeTail = @"
+
+App setting hosts: `-IncludeAppSettingsHosts` added `app-settings-hosts.json` using POST `config/appsettings/list` and `config/connectionstrings/list` (requires `microsoft.web/sites/config/list/action` or equivalent on each site). We persist setting names, parsed hostnames, and Key Vault URI host/secret name only — never setting values, passwords, or secret payloads.
+"@
+
+    }
+
     $readmeExtra = ""
 
     if (-not ([string]::IsNullOrWhiteSpace($retailReadmeTail)))
@@ -843,12 +875,18 @@ Cost snapshot: when `-IncludeCost` was used, `manifest.json` includes `actualCos
         $readmeExtra += [Environment]::NewLine + $costReadmeTail.TrimEnd() + [Environment]::NewLine
     }
 
+    if (-not ([string]::IsNullOrWhiteSpace($appSettingsReadmeTail)))
+    {
+
+        $readmeExtra += [Environment]::NewLine + $appSettingsReadmeTail.TrimEnd() + [Environment]::NewLine
+    }
+
     $readme = @"
 ArchLucid Azure extractor output (read-only inventory).
 Schema version: $schemaVersion
 Collection UTC: $collectionTimestamp
 $readmeExtra
-Each ZIP includes `policy-compliance.json` (Policy Insights latest states, Reader-scoped) and `policy.json` (Policy definitions and assignments). When not using `-IncludeRetailPrices`, no live retail catalog JSON is written. Without `-IncludeCost`, `manifest.json` does not include `actualCostSummary`. Advisor export (`-IncludeAdvisor`) remains future work — see docs/library/V1_SCOPE.md §2.16 and docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md.
+Each ZIP includes `policy-compliance.json` (Policy Insights latest states, Reader-scoped) and `policy.json` (Policy definitions and assignments). When not using `-IncludeRetailPrices`, no live retail catalog JSON is written. Without `-IncludeCost`, `manifest.json` does not include `actualCostSummary`. Without `-IncludeAppSettingsHosts`, no `app-settings-hosts.json` companion is written. Advisor export (`-IncludeAdvisor`) remains future work — see docs/library/V1_SCOPE.md §2.16 and docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md.
 Upload via POST /v1/azure-extractor/upload (ExecuteAuthority). Trust stance: docs/go-to-market/trust-center.md.
 "@
 

@@ -1,5 +1,5 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { proxyJsonGet } from "@/lib/proxy-json-client";
+import { proxyJsonDelete, proxyJsonGet } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { infraEvidenceDriftMutationBlockedReason } from "@/lib/infra-evidence/infra-evidence-drift-mutation-blocked-reason";
 import { infraEvidenceSnapshotsLoadBlockedReason } from "@/lib/infra-evidence/infra-evidence-snapshots-load-blocked-reason";
@@ -26,6 +26,16 @@ import type {
 const SNAPSHOTS_PATH = "/api/proxy/v1/infra-evidence/snapshots";
 const DIFFS_PATH = "/api/proxy/v1/infra-evidence/diffs";
 const BASELINES_PATH = "/api/proxy/v1/infra-evidence/azure-inventory/baselines";
+
+export async function deleteInfraEvidenceSnapshot(snapshotId: string): Promise<void> {
+  const trimmed = snapshotId.trim();
+
+  if (trimmed.length === 0) {
+    throw new Error("snapshotId is required.");
+  }
+
+  await proxyJsonDelete(`${SNAPSHOTS_PATH}/${encodeURIComponent(trimmed)}`);
+}
 
 export async function fetchInfraEvidenceSnapshots(
   page = 1,

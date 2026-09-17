@@ -12,6 +12,15 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -23,6 +32,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import {
+  deleteInfraEvidenceSnapshot,
   downloadInfraEvidenceTerraformAdvisoryZip,
   fetchInfraEvidenceDiffChanges,
   fetchInfraEvidenceDiffsForSnapshot,
@@ -141,6 +151,9 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_ACTION_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_TITLE,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
@@ -281,6 +294,9 @@ export function DriftWorkbenchClient() {
   const [subscriptionConfirmDescription, setSubscriptionConfirmDescription] = useState("");
   const [pendingSubscriptionConfirmation, setPendingSubscriptionConfirmation] =
     useState<PendingDriftSubscriptionConfirmation | null>(null);
+  const [pendingDeleteSnapshotId, setPendingDeleteSnapshotId] = useState<string | null>(null);
+  const [deletingSnapshotId, setDeletingSnapshotId] = useState<string | null>(null);
+  const [snapshotsReloadNonce, setSnapshotsReloadNonce] = useState(0);
 
   const selectedSnapshot = useMemo(
     () => snapshots.find((snapshot) => snapshot.snapshotId === selectedSnapshotId) ?? null,
@@ -505,7 +521,41 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [tableFilterState.snapshotsPage, urlSnapshotId]);
+  }, [tableFilterState.snapshotsPage, urlSnapshotId, snapshotsReloadNonce]);
+
+  const pendingDeleteSnapshot = useMemo(
+    () => snapshots.find((snapshot) => snapshot.snapshotId === pendingDeleteSnapshotId) ?? null,
+    [pendingDeleteSnapshotId, snapshots],
+  );
+
+  const handleConfirmDeleteSnapshot = useCallback(async () => {
+    if (pendingDeleteSnapshotId == null || pendingDeleteSnapshotId.length === 0) {
+      return;
+    }
+
+    setDeletingSnapshotId(pendingDeleteSnapshotId);
+    setLoadError(null);
+
+    try {
+      await deleteInfraEvidenceSnapshot(pendingDeleteSnapshotId);
+
+      if (selectedSnapshotId === pendingDeleteSnapshotId) {
+        setSelectedSnapshotId("");
+        pushDriftUrl({ snapshotId: "" });
+      }
+
+      if (anchorSnapshotId === pendingDeleteSnapshotId) {
+        setAnchorSnapshotId("");
+      }
+
+      setPendingDeleteSnapshotId(null);
+      setSnapshotsReloadNonce((value) => value + 1);
+    } catch (error: unknown) {
+      setLoadError(formatInfraEvidenceApiError(error));
+    } finally {
+      setDeletingSnapshotId(null);
+    }
+  }, [anchorSnapshotId, pendingDeleteSnapshotId, pushDriftUrl, selectedSnapshotId]);
 
   useEffect(() => {
     if (urlSnapshotId.length === 0) {
@@ -1195,6 +1245,10 @@ export function DriftWorkbenchClient() {
             onSortColumn={handleSnapshotSortColumn}
             onTableFiltersChange={handleSnapshotTableFiltersChange}
             onClearFilters={handleClearSnapshotTableFilters}
+            deletingSnapshotId={deletingSnapshotId}
+            onDeleteSnapshot={(snapshotId) => {
+              setPendingDeleteSnapshotId(snapshotId);
+            }}
           />
 
           {snapshotsShowingLine != null ? (
@@ -1558,6 +1612,40 @@ export function DriftWorkbenchClient() {
         onOpenChange={handleSubscriptionConfirmOpenChange}
         onConfirm={handleSubscriptionConfirm}
       />
+
+      <AlertDialog
+        open={pendingDeleteSnapshotId != null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDeleteSnapshotId(null);
+          }
+        }}
+      >
+        <AlertDialogContent data-testid="infra-drift-delete-snapshot-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_TITLE}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDeleteSnapshot != null
+                ? `${formatInfraEvidenceSnapshotLabel(pendingDeleteSnapshot)}. ${GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_BODY}`
+                : GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_BODY}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingSnapshotId != null}>Cancel</AlertDialogCancel>
+            <Button
+              type="button"
+              variant="destructive"
+              data-testid="infra-drift-delete-snapshot-confirm"
+              disabled={deletingSnapshotId != null}
+              onClick={() => {
+                void handleConfirmDeleteSnapshot();
+              }}
+            >
+              {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_ACTION_LABEL}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </OperatorPageContainer>
   );
 }

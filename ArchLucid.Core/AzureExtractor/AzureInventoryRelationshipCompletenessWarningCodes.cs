@@ -34,4 +34,8 @@ public static class AzureInventoryRelationshipCompletenessWarningCodes
     public const string SynapsePipelineFlowsMissing = "synapse-pipeline-flows-missing";
 
     public const string LogicAppStandardNotCollected = "logic-app-standard-not-collected";
+
+    public const string AppSettingsNotCollectedHostedGetOnly = "app-settings-not-collected-hosted-get-only";
+
+    public const string AppSettingsHostUnresolved = "app-settings-host-unresolved";
 }

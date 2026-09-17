@@ -96,6 +96,18 @@ public static class InfraEvidenceMermaidModeParser
             return true;
         }
 
+        if (string.Equals(normalized, "dataFlow", StringComparison.OrdinalIgnoreCase))
+        {
+            result = Success(DiagramMode.DataFlow, "dataFlow", null);
+            return true;
+        }
+
+        if (string.Equals(normalized, "dataArchitecture", StringComparison.OrdinalIgnoreCase))
+        {
+            result = Success(DiagramMode.DataArchitecture, "dataArchitecture", null);
+            return true;
+        }
+
         if (string.Equals(normalized, "full", StringComparison.OrdinalIgnoreCase))
         {
             result = Success(DiagramMode.FullSubscription, "full", null);
@@ -156,7 +168,7 @@ public static class InfraEvidenceMermaidModeParser
         {
             Succeeded = false,
             ErrorMessage =
-                "Unsupported mode. Use executive, network, identity, data, full, resourceGroup, resourceGroup:{name}, or dependencyNeighborhood.",
+                "Unsupported mode. Use executive, network, identity, data, dataFlow, dataArchitecture, full, resourceGroup, resourceGroup:{name}, or dependencyNeighborhood.",
         };
 
         return false;

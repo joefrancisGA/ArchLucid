@@ -851,6 +851,7 @@ describe('ArchitectureDiagramViewer', () => {
     expect(host.className).toContain('[&_svg_.clusterLabelText]:font-bold');
     expect(host.className).toContain('[&_svg_.cluster-label_text]:font-bold');
     expect(host.className).toContain('[&_svg_.cluster-label_.nodeLabel]:font-bold');
+    expect(host.className).toContain('[&_svg_.rg-frame_text]:font-bold');
     expect(svg).not.toBeNull();
     expect(screen.queryByTestId('architecture-diagram-render-failure')).not.toBeInTheDocument();
     expect(Number(svg?.getAttribute('height') ?? 0)).toBeGreaterThanOrEqual(

@@ -314,6 +314,7 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg_text:not([fill])]:fill-current [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200',
   '[&_svg_.clusterLabelText]:font-bold [&_svg_.clusterLabelText]:fill-neutral-800 dark:[&_svg_.clusterLabelText]:fill-neutral-100',
   '[&_svg_.cluster-label_text]:font-bold [&_svg_.cluster-label_.nodeLabel]:font-bold',
+  '[&_svg_.rg-frame_text]:font-bold [&_svg_.rg-frame_text]:fill-neutral-800 dark:[&_svg_.rg-frame_text]:fill-neutral-100',
   '[&_svg_.nodeLabel]:text-[15px] [&_svg_.nodeLabel]:leading-snug [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100',
   '[&_svg_.cluster_rect]:fill-white dark:[&_svg_.cluster_rect]:fill-neutral-950/80',
   '[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]',

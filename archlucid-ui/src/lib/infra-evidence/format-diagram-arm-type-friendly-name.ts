@@ -24,6 +24,9 @@ const KNOWN_ARM_TYPE_FRIENDLY_NAMES: Readonly<Record<string, string>> = {
   "Microsoft.DBforMySQL/servers": "MySQL",
   "Microsoft.DataFactory/factories": "Data factory",
   "Microsoft.Synapse/workspaces": "Synapse workspace",
+  "Microsoft.Databricks/workspaces": "Databricks workspace",
+  "Microsoft.PowerBIDedicated/capacities": "Power BI capacity",
+  "Microsoft.Fabric/capacities": "Fabric capacity",
 };
 
 function splitCamelCase(lastSegment: string): string {
