@@ -43,6 +43,10 @@ public static class AzureExtractorPackageZipEntryNames
 
     public const string PaasChildAssociations = "paas-child-associations.json";
 
+    public const string ServiceConnectorLinks = "service-connector-links.json";
+
+    public const string AppSettingsHosts = "app-settings-hosts.json";
+
     public static IReadOnlyCollection<string> OptionalInventoryEntryNames { get; } =
     [
         RoleAssignments,
@@ -63,5 +67,7 @@ public static class AzureExtractorPackageZipEntryNames
         LogicAppConnections,
         MessagingAssociations,
         PaasChildAssociations,
+        ServiceConnectorLinks,
+        AppSettingsHosts,
     ];
 }

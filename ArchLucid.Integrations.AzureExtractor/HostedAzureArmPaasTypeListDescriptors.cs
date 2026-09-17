@@ -14,11 +14,14 @@ internal static class HostedAzureArmPaasTypeListDescriptors
 
     internal const string ContainerServiceApiVersion = "2024-02-01";
 
+    internal const string DatabricksApiVersion = "2023-02-01";
+
     internal static readonly HostedAzureArmTypeListDescriptor[] SubscriptionLists =
     [
         new("Microsoft.Sql/servers", $"providers/Microsoft.Sql/servers?api-version={SqlApiVersion}"),
         new("Microsoft.DocumentDB/databaseAccounts", $"providers/Microsoft.DocumentDB/databaseAccounts?api-version={CosmosApiVersion}"),
         new("Microsoft.Storage/storageAccounts", $"providers/Microsoft.Storage/storageAccounts?api-version={StorageApiVersion}"),
         new("Microsoft.ContainerService/managedClusters", $"providers/Microsoft.ContainerService/managedClusters?api-version={ContainerServiceApiVersion}"),
+        new("Microsoft.Databricks/workspaces", $"providers/Microsoft.Databricks/workspaces?api-version={DatabricksApiVersion}"),
     ];
 }

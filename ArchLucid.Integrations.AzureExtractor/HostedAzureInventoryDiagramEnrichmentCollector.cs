@@ -64,12 +64,23 @@ public static class HostedAzureInventoryDiagramEnrichmentCollector
 
         collectionWarnings.AddRange(paasChildResult.CollectionWarnings);
 
+        IReadOnlyList<AzureInventoryServiceConnectorLinkRow> serviceConnectorLinks =
+            await HostedAzureInventoryServiceConnectorCollector.CollectAsync(
+                armReadClient,
+                accessToken,
+                resources,
+                logger,
+                cancellationToken).ConfigureAwait(false);
+
+        collectionWarnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsNotCollectedHostedGetOnly);
+
         return new HostedAzureDiagramEnrichmentCollectResult
         {
             EventGridSubscriptions = eventGridSubscriptions,
             LogicAppConnections = logicAppConnectionsResult.Connections,
             MessagingAssociations = messagingAssociations,
             PaasChildAssociations = paasChildResult.Associations,
+            ServiceConnectorLinks = serviceConnectorLinks,
             CollectionWarnings = collectionWarnings,
         };
     }

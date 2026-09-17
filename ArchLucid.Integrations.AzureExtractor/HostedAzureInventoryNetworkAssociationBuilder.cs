@@ -36,6 +36,7 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
             AddContainerAppAssociations(resource, rows, keys);
             AddManagedEnvironmentAssociations(resource, rows, keys);
             AddManagedClusterAssociations(resource, rows, keys);
+            AddDatabricksWorkspaceAssociations(resource, rows, keys);
             AddPeDnsZoneGroupAssociations(resource, rows, keys);
         }
 
@@ -780,6 +781,46 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
         catch (JsonException)
         {
         }
+    }
+
+    private static void AddDatabricksWorkspaceAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        if (!resource.ResourceType.Contains("Databricks/workspaces", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        string? virtualNetworkId = TryReadProperty(resource.Properties, "parameters.customVirtualNetworkId");
+        string? privateSubnetName = TryReadProperty(resource.Properties, "parameters.customPrivateSubnetName");
+        string? publicSubnetName = TryReadProperty(resource.Properties, "parameters.customPublicSubnetName");
+
+        AddDatabricksSubnetAssociation(resource, rows, keys, virtualNetworkId, privateSubnetName);
+        AddDatabricksSubnetAssociation(resource, rows, keys, virtualNetworkId, publicSubnetName);
+    }
+
+    private static void AddDatabricksSubnetAssociation(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys,
+        string? virtualNetworkId,
+        string? subnetName)
+    {
+        string? subnetId = AzureInventoryDatabricksSubnetResolver.TryResolvePrivateSubnetId(virtualNetworkId, subnetName);
+
+        if (string.IsNullOrWhiteSpace(subnetId))
+        {
+            return;
+        }
+
+        AddRow(
+            rows,
+            keys,
+            resource.ResourceId,
+            subnetId,
+            AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet);
     }
 
     private static void AddPeDnsZoneGroupAssociations(
