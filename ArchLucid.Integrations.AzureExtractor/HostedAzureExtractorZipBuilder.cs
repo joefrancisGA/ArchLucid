@@ -45,6 +45,7 @@ public static class HostedAzureExtractorZipBuilder
         IReadOnlyList<AzureInventoryEventGridSubscriptionRow>? eventGridSubscriptions = null,
         IReadOnlyList<AzureInventoryLogicAppConnectionRow>? logicAppConnections = null,
         IReadOnlyList<AzureInventoryMessagingAssociationRow>? messagingAssociations = null,
+        IReadOnlyList<AzureInventoryPaasChildAssociationRow>? paasChildAssociations = null,
         IReadOnlyList<string>? collectionWarnings = null)
     {
         bool hasSubscriptionId = !string.IsNullOrWhiteSpace(subscriptionId);
@@ -346,6 +347,19 @@ public static class HostedAzureExtractorZipBuilder
             })
             .ToArray<object>();
 
+        object[] paasChildAssociationRows = (paasChildAssociations ?? [])
+            .Select(static row => new
+            {
+                parentResourceId = row.ParentResourceId,
+                childResourceId = row.ChildResourceId,
+                childName = row.ChildName,
+                childType = row.ChildType,
+                associationType = row.AssociationType,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
         using MemoryStream zipStream = new();
 
         using (ZipArchive archive = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
@@ -420,6 +434,10 @@ public static class HostedAzureExtractorZipBuilder
                 archive,
                 AzureExtractorPackageZipEntryNames.MessagingAssociations,
                 JsonSerializer.Serialize(messagingAssociationRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.PaasChildAssociations,
+                JsonSerializer.Serialize(paasChildAssociationRows, SerializerOptions));
             AddUtf8Entry(archive, "policy-compliance.json", JsonSerializer.Serialize(policyCompliance, SerializerOptions));
             AddUtf8Entry(archive, "README.txt", readme);
         }

@@ -45,7 +45,9 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryLogicAppConnectionRow>? logicAppConnections = null,
         bool logicAppConnectionsFilePresent = false,
         IReadOnlyList<AzureInventoryMessagingAssociationRow>? messagingAssociations = null,
-        bool messagingAssociationsFilePresent = false)
+        bool messagingAssociationsFilePresent = false,
+        IReadOnlyList<AzureInventoryPaasChildAssociationRow>? paasChildAssociations = null,
+        bool paasChildAssociationsFilePresent = false)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
@@ -65,6 +67,7 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryEventGridSubscriptionRow> eventGridSubscriptionRows = eventGridSubscriptions ?? [];
         IReadOnlyList<AzureInventoryLogicAppConnectionRow> logicAppConnectionRows = logicAppConnections ?? [];
         IReadOnlyList<AzureInventoryMessagingAssociationRow> messagingAssociationRows = messagingAssociations ?? [];
+        IReadOnlyList<AzureInventoryPaasChildAssociationRow> paasChildAssociationRows = paasChildAssociations ?? [];
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
@@ -196,6 +199,12 @@ public static class AzureInventorySecurityEdgeMaterializer
 
         AzureInventoryMessagingAssociationEdgeMapper.MapAssociations(
             messagingAssociationRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryPaasChildAssociationEdgeMapper.MapAssociations(
+            paasChildAssociationRows,
             relationships,
             relationshipKeys,
             warnings);

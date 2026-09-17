@@ -41,6 +41,8 @@ public static class AzureExtractorPackageZipEntryNames
 
     public const string MessagingAssociations = "messaging-associations.json";
 
+    public const string PaasChildAssociations = "paas-child-associations.json";
+
     public static IReadOnlyCollection<string> OptionalInventoryEntryNames { get; } =
     [
         RoleAssignments,
@@ -60,5 +62,6 @@ public static class AzureExtractorPackageZipEntryNames
         EventGridSubscriptions,
         LogicAppConnections,
         MessagingAssociations,
+        PaasChildAssociations,
     ];
 }
