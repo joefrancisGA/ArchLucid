@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.ArtifactSynthesis.Compilers;
+using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Core.Diagrams;
@@ -20,6 +21,10 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             .OrderBy(subgraph => subgraph.OrderKey)
             .ThenBy(subgraph => subgraph.SubgraphId, StringComparer.Ordinal)
             .ToList();
+        IReadOnlyList<DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan> resourceGroupClusters =
+            DiagramResourceGroupGraphvizClusterPlanner.Plan(ast);
+        HashSet<string> resourceGroupClusteredNodeIds =
+            DiagramResourceGroupGraphvizClusterPlanner.ResolveClusteredNodeIds(resourceGroupClusters);
 
         builder.AppendLine($"digraph {resolvedOptions.DigraphName} {{");
         builder.AppendLine($"    graph [layout={resolvedOptions.LayoutEngine}, overlap=false, sep=\"+36,28\", K=1.8, pack=true, packmode=graph, splines=true, outputorder=edgesfirst];");
@@ -31,13 +36,18 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         builder.AppendLine(
             $"    edge [color=\"{ArchitectureDiagramMermaidPalette.LightEdgeStroke}\"];");
 
+        foreach (DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster in resourceGroupClusters)
+        {
+            EmitResourceGroupCluster(builder, cluster, indent: 1);
+        }
+
         if (renderableSubgraphs.Count == 0)
         {
-            EmitFlatNodes(ast, builder, indent: 1);
+            EmitFlatNodes(ast, builder, indent: 1, excludedNodeIds: resourceGroupClusteredNodeIds);
         }
         else
         {
-            EmitNestedGraph(ast, builder, renderableSubgraphs);
+            EmitNestedGraph(ast, builder, renderableSubgraphs, resourceGroupClusteredNodeIds);
         }
 
         EmitVisibleEdges(ast, builder);
@@ -47,12 +57,17 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         return builder.ToString();
     }
 
-    private static void EmitFlatNodes(DiagramAst ast, StringBuilder builder, int indent)
+    private static void EmitFlatNodes(
+        DiagramAst ast,
+        StringBuilder builder,
+        int indent,
+        HashSet<string> excludedNodeIds)
     {
         string indentText = new(' ', indent * 4);
 
         foreach (DiagramNode node in ast.Nodes
                      .Where(DiagramExecutiveOverflowCanvasExclusion.IsCanvasRenderableNode)
+                     .Where(node => !excludedNodeIds.Contains(node.NodeId))
                      .OrderBy(candidate => candidate.OrderKey)
                      .ThenBy(candidate => candidate.NodeId, StringComparer.Ordinal))
         {
@@ -63,7 +78,8 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
     private static void EmitNestedGraph(
         DiagramAst ast,
         StringBuilder builder,
-        IReadOnlyList<DiagramSubgraph> renderableSubgraphs)
+        IReadOnlyList<DiagramSubgraph> renderableSubgraphs,
+        HashSet<string> excludedNodeIds)
     {
         HashSet<string> renderedSubgraphs = new(StringComparer.Ordinal);
         Dictionary<string, DiagramSubgraph> subgraphById = renderableSubgraphs.ToDictionary(
@@ -72,6 +88,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
 
         List<DiagramNode> rootNodes = ast.Nodes
             .Where(DiagramExecutiveOverflowCanvasExclusion.IsCanvasRenderableNode)
+            .Where(node => !excludedNodeIds.Contains(node.NodeId))
             .Where(node => string.IsNullOrWhiteSpace(node.SubgraphId)
                 || !subgraphById.ContainsKey(node.SubgraphId))
             .OrderBy(node => node.OrderKey)
@@ -89,7 +106,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
                      .OrderBy(subgraph => subgraph.OrderKey)
                      .ThenBy(subgraph => subgraph.SubgraphId, StringComparer.Ordinal))
         {
-            EmitSubgraphTree(ast, builder, rootSubgraph, subgraphById, renderedSubgraphs, indent: 1);
+            EmitSubgraphTree(ast, builder, rootSubgraph, subgraphById, renderedSubgraphs, excludedNodeIds, indent: 1);
         }
     }
 
@@ -99,6 +116,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         DiagramSubgraph subgraph,
         Dictionary<string, DiagramSubgraph> subgraphById,
         HashSet<string> renderedSubgraphs,
+        HashSet<string> excludedNodeIds,
         int indent)
     {
         if (!renderedSubgraphs.Add(subgraph.SubgraphId))
@@ -120,6 +138,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
 
         foreach (DiagramNode node in ast.Nodes
                      .Where(DiagramExecutiveOverflowCanvasExclusion.IsCanvasRenderableNode)
+                     .Where(node => !excludedNodeIds.Contains(node.NodeId))
                      .Where(node => string.Equals(node.SubgraphId, subgraph.SubgraphId, StringComparison.Ordinal))
                      .OrderBy(node => node.OrderKey)
                      .ThenBy(node => node.NodeId, StringComparer.Ordinal))
@@ -132,7 +151,34 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
                      .OrderBy(candidate => candidate.OrderKey)
                      .ThenBy(candidate => candidate.SubgraphId, StringComparer.Ordinal))
         {
-            EmitSubgraphTree(ast, builder, child, subgraphById, renderedSubgraphs, indent + 1);
+            EmitSubgraphTree(ast, builder, child, subgraphById, renderedSubgraphs, excludedNodeIds, indent + 1);
+        }
+
+        builder.AppendLine($"{indentText}}}");
+    }
+
+    private static void EmitResourceGroupCluster(
+        StringBuilder builder,
+        DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster,
+        int indent)
+    {
+        string indentText = new(' ', indent * 4);
+        string clusterId = "cluster_" + GraphvizIdEscaper.SanitizeClusterId(cluster.ClusterId);
+        string clusterLabel = GraphvizIdEscaper.QuoteLabel(cluster.GroupName);
+
+        builder.AppendLine($"{indentText}subgraph {clusterId} {{");
+        builder.AppendLine($"{indentText}    label={clusterLabel};");
+        builder.AppendLine($"{indentText}    style=\"rounded,filled\";");
+        builder.AppendLine($"{indentText}    color=\"{ArchitectureDiagramMermaidPalette.LightResourceGroupFrameStroke}\";");
+        builder.AppendLine($"{indentText}    penwidth=2;");
+        builder.AppendLine($"{indentText}    fillcolor=\"{DiagramForestResourceGroupFrameStyle.Fill}\";");
+        builder.AppendLine($"{indentText}    fontcolor=\"{DiagramForestResourceGroupFrameStyle.LabelFill}\";");
+
+        foreach (DiagramNode node in cluster.Nodes
+                     .OrderBy(candidate => candidate.OrderKey)
+                     .ThenBy(candidate => candidate.NodeId, StringComparer.Ordinal))
+        {
+            AppendNodeStatement(builder, indentText + "    ", node);
         }
 
         builder.AppendLine($"{indentText}}}");

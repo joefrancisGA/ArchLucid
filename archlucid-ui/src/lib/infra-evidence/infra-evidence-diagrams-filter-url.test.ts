@@ -20,6 +20,8 @@ describe("infra-evidence-diagrams-filter-url", () => {
     );
     expect(parseInfraDiagramsMermaidModeFromSearch(null)).toBe(INFRA_DIAGRAMS_DEFAULT_MODE);
     expect(parseInfraDiagramsMermaidModeFromSearch("network")).toBe("network");
+    expect(parseInfraDiagramsMermaidModeFromSearch("dataFlow")).toBe("dataFlow");
+    expect(parseInfraDiagramsMermaidModeFromSearch("dataArchitecture")).toBe("dataArchitecture");
     expect(parseInfraDiagramsMermaidModeFromSearch("resourceGroup")).toBe("resourceGroup");
     expect(parseInfraDiagramsMermaidModeFromSearch("dependencyNeighborhood")).toBe("dependencyNeighborhood");
     expect(parseInfraDiagramsMermaidModeFromSearch("bogus")).toBe(INFRA_DIAGRAMS_DEFAULT_MODE);

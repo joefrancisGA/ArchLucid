@@ -47,6 +47,12 @@ public static class AzureExtractorPackageInventoryReader
                 ReadLogicAppConnections(archive);
             (bool messagingAssociationsFilePresent, List<AzureInventoryMessagingAssociationRow> messagingAssociations) =
                 ReadMessagingAssociations(archive);
+            (bool paasChildAssociationsFilePresent, List<AzureInventoryPaasChildAssociationRow> paasChildAssociations) =
+                ReadPaasChildAssociations(archive);
+            (bool serviceConnectorLinksFilePresent, List<AzureInventoryServiceConnectorLinkRow> serviceConnectorLinks) =
+                ReadServiceConnectorLinks(archive);
+            (bool appSettingHostsFilePresent, List<AzureInventoryAppSettingHostRow> appSettingHosts) =
+                ReadAppSettingHosts(archive);
 
             return new AzureExtractorPackageInventoryReadResult
             {
@@ -80,6 +86,12 @@ public static class AzureExtractorPackageInventoryReader
                 LogicAppConnectionsFilePresent = logicAppConnectionsFilePresent,
                 MessagingAssociations = messagingAssociations,
                 MessagingAssociationsFilePresent = messagingAssociationsFilePresent,
+                PaasChildAssociations = paasChildAssociations,
+                PaasChildAssociationsFilePresent = paasChildAssociationsFilePresent,
+                ServiceConnectorLinks = serviceConnectorLinks,
+                ServiceConnectorLinksFilePresent = serviceConnectorLinksFilePresent,
+                AppSettingHosts = appSettingHosts,
+                AppSettingHostsFilePresent = appSettingHostsFilePresent,
             };
         }
         catch (JsonException ex)
@@ -603,6 +615,33 @@ public static class AzureExtractorPackageInventoryReader
             AzureInventoryMessagingAssociationParser.TryParse);
     }
 
+    private static (bool FilePresent, List<AzureInventoryPaasChildAssociationRow> Rows) ReadPaasChildAssociations(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryPaasChildAssociationRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.PaasChildAssociations,
+            AzureInventoryPaasChildAssociationParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryServiceConnectorLinkRow> Rows) ReadServiceConnectorLinks(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryServiceConnectorLinkRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.ServiceConnectorLinks,
+            AzureInventoryServiceConnectorLinkParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryAppSettingHostRow> Rows) ReadAppSettingHosts(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryAppSettingHostRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.AppSettingsHosts,
+            AzureInventoryAppSettingHostParser.TryParse);
+    }
+
     private static (bool FilePresent, List<TRow> Rows) ReadCompanionRows<TRow>(
         ZipArchive archive,
         string entryName,
@@ -1051,6 +1090,42 @@ public sealed class AzureExtractorPackageInventoryReadResult
     } = [];
 
     public bool MessagingAssociationsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryPaasChildAssociationRow> PaasChildAssociations
+    {
+        get;
+        init;
+    } = [];
+
+    public bool PaasChildAssociationsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryServiceConnectorLinkRow> ServiceConnectorLinks
+    {
+        get;
+        init;
+    } = [];
+
+    public bool ServiceConnectorLinksFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryAppSettingHostRow> AppSettingHosts
+    {
+        get;
+        init;
+    } = [];
+
+    public bool AppSettingHostsFilePresent
     {
         get;
         init;

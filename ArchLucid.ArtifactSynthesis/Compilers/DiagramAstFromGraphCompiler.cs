@@ -3,6 +3,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph;
+using InventoryDataFlowStageResolver = ArchLucid.KnowledgeGraph.Inventory.AzureInventoryDataFlowStageResolver;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
@@ -16,13 +17,21 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         options ??= new DiagramAstCompileOptions();
 
+        bool isDataFlowMode = mode == DiagramMode.DataFlow;
+        bool isDataArchitectureMode = mode == DiagramMode.DataArchitecture;
+        bool isSecureNowDataMode = isDataFlowMode || isDataArchitectureMode;
+
         List<GraphNode> allTopologyNodes = graph.Nodes
             .Where(DiagramAstGraphNodeClassifier.IsTopologyResource)
             .OrderBy(DiagramAstGraphNodeClassifier.ReadArmId, StringComparer.Ordinal)
             .ToList();
 
         List<GraphNode> topologyNodes = ApplyModeNodeFilter(graph, allTopologyNodes.ToList(), mode, options);
-        topologyNodes = ExecutiveVnetPeeringEndpointIncluder.Include(graph, topologyNodes, mode);
+
+        if (!isSecureNowDataMode)
+        {
+            topologyNodes = ExecutiveVnetPeeringEndpointIncluder.Include(graph, topologyNodes, mode);
+        }
 
         HashSet<string> includedNodeIds = topologyNodes
             .Select(node => node.NodeId)
@@ -34,7 +43,24 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             .OrderBy(edge => edge.EdgeId, StringComparer.Ordinal)
             .ToList();
 
-        IReadOnlyList<DiagramSubgraph> subgraphs = subgraphPlanner.PlanSubgraphs(topologyNodes);
+        if (isDataFlowMode)
+        {
+            includedEdges = includedEdges
+                .Where(DiagramDataFlowEdgeFilter.IncludeEdge)
+                .ToList();
+        }
+        else if (isDataArchitectureMode)
+        {
+            includedEdges = includedEdges
+                .Where(IsDataArchitectureEdge)
+                .ToList();
+        }
+
+        IReadOnlyList<DiagramSubgraph> subgraphs = isDataFlowMode
+            ? DiagramDataFlowStageSubgraphPlanner.PlanSubgraphs(topologyNodes)
+            : isDataArchitectureMode
+                ? DiagramDataArchitectureTypeGroupPlanner.PlanSubgraphs(topologyNodes)
+                : subgraphPlanner.PlanSubgraphs(topologyNodes);
 
         DiagramAst ast = new()
         {
@@ -56,7 +82,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             string mermaidNodeId = MermaidIdSanitizer.Sanitize(node.NodeId);
             nodeIdMap[node.NodeId] = mermaidNodeId;
 
-            ast.Nodes.Add(BuildDiagramNode(node, mermaidNodeId, subgraphs, order++));
+            ast.Nodes.Add(BuildDiagramNode(node, mermaidNodeId, subgraphs, mode, order++));
         }
 
         foreach (GraphEdge edge in includedEdges)
@@ -92,7 +118,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode, options);
 
-        if (mode is not DiagramMode.Network)
+        if (mode is not DiagramMode.Network && !isSecureNowDataMode)
         {
             HashSet<string> privateEndpointDiagramNodeIdsToHide = DiagramPrivateEndpointTargetAnnotator.Apply(
                 ast,
@@ -108,12 +134,30 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         }
 
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
-        DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
+
+        if (!isSecureNowDataMode)
+        {
+            DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
+        }
+
         DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
         DiagramSparseComponentPacker.Pack(ast);
         DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
         DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges(ast);
         DiagramConnectionTypeAnnotator.Annotate(ast);
+
+        if (isDataFlowMode)
+        {
+            ast.FlowchartDirection = "LR";
+            ast.CaptionLines = DiagramDataFlowCaptionBuilder.BuildCaptions(topologyNodes, includedEdges).ToList();
+        }
+        else if (isDataArchitectureMode)
+        {
+            ast.CaptionLines =
+            [
+                DiagramDataArchitectureHonestyLegend.PrimarySentence,
+            ];
+        }
 
         return ast;
     }
@@ -122,18 +166,26 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         GraphNode node,
         string mermaidNodeId,
         IReadOnlyList<DiagramSubgraph> subgraphs,
+        DiagramMode mode,
         int orderKey)
     {
         // Rollup nodes ("+N more databases") are not real resources: no seed, so the outline
         // does not offer Focus neighborhood on them, and no ARM metadata to humanize.
         bool isOverflow = DiagramExecutiveAlwaysShowSelector.IsOverflowNode(node);
 
+        string? subgraphId = mode switch
+        {
+            DiagramMode.DataFlow => DiagramDataFlowStageSubgraphPlanner.ResolveSubgraphId(node, subgraphs),
+            DiagramMode.DataArchitecture => DiagramDataArchitectureTypeGroupPlanner.ResolveSubgraphId(node, subgraphs),
+            _ => subgraphPlanner.ResolveSubgraphId(node, subgraphs),
+        };
+
         return new DiagramNode
         {
             NodeId = mermaidNodeId,
             Label = node.Label,
             NodeType = node.NodeType,
-            SubgraphId = subgraphPlanner.ResolveSubgraphId(node, subgraphs),
+            SubgraphId = subgraphId,
             OrderKey = orderKey,
             CloudResourceId = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadCloudResourceId(node),
             SeedNodeId = isOverflow ? null : node.NodeId,
@@ -206,13 +258,19 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             case DiagramMode.Identity:
                 return FilterByCategories(nodes, GraphTopologyCategories.Identity);
             case DiagramMode.Data:
-                return FilterByCategories(nodes, GraphTopologyCategories.Data, GraphTopologyCategories.Storage);
+                return ExcludeExternalSourceNodes(
+                    FilterByCategories(nodes, GraphTopologyCategories.Data, GraphTopologyCategories.Storage));
+            case DiagramMode.DataFlow:
+                return ApplyDataFlowFilter(nodes);
+            case DiagramMode.DataArchitecture:
+                return ApplyDataArchitectureFilter(nodes);
             case DiagramMode.FullSubscription:
                 return ApplyNetworkInterfaceCollapse(
                     graph,
                     mode,
                     NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
-                        NetworkDiagramNodeFilter.ExcludePrivateEndpoints(nodes)));
+                        ExcludeExternalSourceNodes(
+                            NetworkDiagramNodeFilter.ExcludePrivateEndpoints(nodes))));
             case DiagramMode.ResourceGroup:
                 return FilterByResourceGroup(nodes, options.ResourceGroupName);
             case DiagramMode.SelectedResources:
@@ -484,5 +542,34 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             adjacency[parentNodeId].Add(node.NodeId);
             adjacency[node.NodeId].Add(parentNodeId);
         }
+    }
+
+    private static List<GraphNode> ApplyDataFlowFilter(List<GraphNode> nodes)
+    {
+        return nodes
+            .Where(node => InventoryDataFlowStageResolver.Resolve(node) is not null)
+            .ToList();
+    }
+
+    private static List<GraphNode> ApplyDataArchitectureFilter(List<GraphNode> nodes)
+    {
+        return nodes
+            .Where(InventoryDataFlowStageResolver.IsDataArchitectureNode)
+            .ToList();
+    }
+
+    private static List<GraphNode> ExcludeExternalSourceNodes(List<GraphNode> nodes)
+    {
+        return nodes
+            .Where(node => !DiagramAstGraphNodeClassifier.IsExternalSourceNode(node))
+            .ToList();
+    }
+
+    private static bool IsDataArchitectureEdge(GraphEdge edge)
+    {
+        ArgumentNullException.ThrowIfNull(edge);
+
+        return string.Equals(edge.EdgeType, GraphEdgeTypes.Contains, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, GraphEdgeTypes.ContainsResource, StringComparison.OrdinalIgnoreCase);
     }
 }

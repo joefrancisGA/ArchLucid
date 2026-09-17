@@ -76,7 +76,17 @@ public sealed class HostedAzureExtractorClient(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        IReadOnlyList<HostedAzureArmResourceRecord> resources = enrichResult.Resources;
+        HostedAzureArmPaasResourceEnrichResult paasEnrichResult = await HostedAzureArmPaasResourceEnricher
+            .EnrichAsync(
+                _armReadClient,
+                accessToken.Token,
+                subscriptionId,
+                enrichResult.Resources,
+                _logger,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> resources = paasEnrichResult.Resources;
 
         IReadOnlyList<HostedAzureArmRoleAssignmentRecord> standingRoleAssignments = await _armReadClient
             .ListSubscriptionRoleAssignmentsAsync(accessToken.Token, subscriptionId, cancellationToken)
@@ -188,7 +198,10 @@ public sealed class HostedAzureExtractorClient(
             diagramEnrichment.EventGridSubscriptions,
             diagramEnrichment.LogicAppConnections,
             diagramEnrichment.MessagingAssociations,
-            collectionWarnings);
+            diagramEnrichment.PaasChildAssociations,
+            diagramEnrichment.ServiceConnectorLinks,
+            appSettingHosts: null,
+            collectionWarnings: collectionWarnings);
 
         string fileName =
             $"archlucid-hosted-azure-{subscriptionId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -257,7 +270,17 @@ public sealed class HostedAzureExtractorClient(
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            resources.AddRange(enrichResult.Resources);
+            HostedAzureArmPaasResourceEnrichResult paasEnrichResult = await HostedAzureArmPaasResourceEnricher
+                .EnrichAsync(
+                    _armReadClient,
+                    accessTokenValue,
+                    subscriptionId,
+                    enrichResult.Resources,
+                    _logger,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            resources.AddRange(paasEnrichResult.Resources);
 
             standingRoleAssignments.AddRange(
                 await _armReadClient
@@ -375,7 +398,10 @@ public sealed class HostedAzureExtractorClient(
             diagramEnrichment.EventGridSubscriptions,
             diagramEnrichment.LogicAppConnections,
             diagramEnrichment.MessagingAssociations,
-            collectionWarnings);
+            diagramEnrichment.PaasChildAssociations,
+            diagramEnrichment.ServiceConnectorLinks,
+            appSettingHosts: null,
+            collectionWarnings: collectionWarnings);
 
         string fileName =
             $"archlucid-hosted-azure-mg-{managementGroupId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";

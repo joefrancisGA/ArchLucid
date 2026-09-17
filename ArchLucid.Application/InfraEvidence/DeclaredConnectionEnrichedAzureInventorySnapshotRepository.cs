@@ -1,4 +1,5 @@
 using ArchLucid.Application.InfraEvidence.SecurityDeclaredConnections;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -76,4 +77,10 @@ public sealed class DeclaredConnectionEnrichedAzureInventorySnapshotRepository(
         Guid? cloudResourceId = null,
         CancellationToken cancellationToken = default) =>
         inner.ListResourcesBySnapshotIdPagedAsync(scope, snapshotId, page, pageSize, cloudResourceId, cancellationToken);
+
+    public Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default) =>
+        inner.TryDeleteSnapshotAsync(scope, snapshotId, cancellationToken);
 }

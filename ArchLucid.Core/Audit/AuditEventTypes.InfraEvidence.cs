@@ -9,6 +9,9 @@ public static partial class AuditEventTypes
     /// <summary>Azure inventory snapshot header creation failed after package ingest.</summary>
     public const string AzureInventorySnapshotFailed = "AzureInventorySnapshot.Failed";
 
+    /// <summary>Operator deleted an Azure inventory snapshot and its derived IE-plane rows.</summary>
+    public const string AzureInventorySnapshotDeleted = "AzureInventorySnapshot.Deleted";
+
     /// <summary>Versioned audit framework catalog imported for a tenant.</summary>
     public const string AuditFrameworkImported = "AuditFramework.Imported";
 

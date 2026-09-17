@@ -1,7 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ARIA_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_DELETE_ACTION_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_LOADING_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECT_ACTION_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECTED_LABEL,
@@ -33,6 +35,8 @@ export type DriftSnapshotsTableProps = {
   readonly onSortColumn: (column: DriftSnapshotsTableFilterState["sortBy"]) => void;
   readonly onTableFiltersChange: (patch: Partial<DriftSnapshotsTableFilterState>) => void;
   readonly onClearFilters: () => void;
+  readonly onDeleteSnapshot?: (snapshotId: string) => void;
+  readonly deletingSnapshotId?: string | null;
 };
 
 function formatSubscriptionCell(snapshot: InfraEvidenceSnapshotSummary): string {
@@ -52,6 +56,8 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
     onSortColumn,
     onTableFiltersChange,
     onClearFilters,
+    onDeleteSnapshot,
+    deletingSnapshotId = null,
   } = props;
 
   if (loading && snapshots.length === 0) {
@@ -100,18 +106,35 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
               <EnterpriseTableCell>{snapshot.resourceCount}</EnterpriseTableCell>
               <EnterpriseTableCell>{snapshot.relationshipCount}</EnterpriseTableCell>
               <EnterpriseTableCell>
-                {isSelected ? (
-                  <span
-                    className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid={`infra-drift-snapshot-selected-${snapshot.snapshotId}`}
-                  >
-                    {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECTED_LABEL}
-                  </span>
-                ) : (
-                  <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECT_ACTION_LABEL}
-                  </span>
-                )}
+                <div className="flex flex-wrap items-center gap-2">
+                  {isSelected ? (
+                    <span
+                      className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid={`infra-drift-snapshot-selected-${snapshot.snapshotId}`}
+                    >
+                      {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECTED_LABEL}
+                    </span>
+                  ) : (
+                    <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECT_ACTION_LABEL}
+                    </span>
+                  )}
+                  {onDeleteSnapshot != null ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      data-testid={`infra-drift-snapshot-delete-${snapshot.snapshotId}`}
+                      disabled={deletingSnapshotId === snapshot.snapshotId}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onDeleteSnapshot(snapshot.snapshotId);
+                      }}
+                    >
+                      {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_DELETE_ACTION_LABEL}
+                    </Button>
+                  ) : null}
+                </div>
               </EnterpriseTableCell>
             </EnterpriseTableRow>
           );

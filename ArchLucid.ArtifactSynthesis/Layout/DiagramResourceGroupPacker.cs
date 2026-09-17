@@ -9,6 +9,20 @@ public static class DiagramResourceGroupPacker
         string? GroupName,
         IReadOnlyList<DiagramNode> Nodes);
 
+    public static string BuildFrameCellId(string componentKey, int cellIndex)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(componentKey);
+
+        return $"{componentKey}-c{cellIndex}";
+    }
+
+    public static bool ShouldDrawFrame(ResourceGroupCell cell)
+    {
+        ArgumentNullException.ThrowIfNull(cell);
+
+        return !string.IsNullOrWhiteSpace(cell.GroupName) && cell.Nodes.Count >= 2;
+    }
+
     public static IReadOnlyList<ResourceGroupCell> PartitionCells(IReadOnlyList<DiagramNode> nodes)
     {
         ArgumentNullException.ThrowIfNull(nodes);
@@ -76,7 +90,7 @@ public static class DiagramResourceGroupPacker
 
         foreach (ResourceGroupCell cell in PartitionCells(nodes))
         {
-            if (cell.GroupName is null || cell.Nodes.Count < 2)
+            if (!ShouldDrawFrame(cell))
             {
                 continue;
             }
@@ -95,21 +109,19 @@ public static class DiagramResourceGroupPacker
     {
         ArgumentNullException.ThrowIfNull(nodeBounds);
 
-        Dictionary<string, List<NodePlacementBounds>> grouped = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, List<NodePlacementBounds>> grouped = new(StringComparer.Ordinal);
 
         foreach (NodePlacementBounds bounds in nodeBounds)
         {
-            string? groupName = NormalizeGroupName(bounds.Node.ArmResourceGroup);
-
-            if (groupName is null)
+            if (string.IsNullOrWhiteSpace(bounds.FrameCellId))
             {
                 continue;
             }
 
-            if (!grouped.TryGetValue(groupName, out List<NodePlacementBounds>? members))
+            if (!grouped.TryGetValue(bounds.FrameCellId, out List<NodePlacementBounds>? members))
             {
                 members = [];
-                grouped[groupName] = members;
+                grouped[bounds.FrameCellId] = members;
             }
 
             members.Add(bounds);
@@ -117,9 +129,18 @@ public static class DiagramResourceGroupPacker
 
         List<ResourceGroupFrameBounds> frames = [];
 
-        foreach ((string groupName, List<NodePlacementBounds> members) in grouped)
+        foreach ((string frameCellId, List<NodePlacementBounds> members) in grouped)
         {
             if (members.Count < 2)
+            {
+                continue;
+            }
+
+            string? groupName = members
+                .Select(member => NormalizeGroupName(member.Node.ArmResourceGroup))
+                .FirstOrDefault(name => name is not null);
+
+            if (groupName is null)
             {
                 continue;
             }
@@ -128,14 +149,14 @@ public static class DiagramResourceGroupPacker
             double minY = members.Min(member => member.Y);
             double maxX = members.Max(member => member.X + member.Width);
             double maxY = members.Max(member => member.Y + member.Height);
-            const double pad = 12.0d;
 
             frames.Add(new ResourceGroupFrameBounds(
                 groupName,
-                minX - pad,
-                minY - pad,
-                (maxX - minX) + (pad * 2.0d),
-                (maxY - minY) + (pad * 2.0d)));
+                frameCellId,
+                minX - DiagramForestResourceGroupFrameStyle.Pad,
+                minY - DiagramForestResourceGroupFrameStyle.LabelBand,
+                (maxX - minX) + DiagramForestResourceGroupFrameStyle.HorizontalChrome,
+                (maxY - minY) + DiagramForestResourceGroupFrameStyle.VerticalChrome));
         }
 
         return frames;
@@ -156,10 +177,12 @@ public static class DiagramResourceGroupPacker
         double X,
         double Y,
         double Width,
-        double Height);
+        double Height,
+        string? FrameCellId = null);
 
     public sealed record ResourceGroupFrameBounds(
         string GroupName,
+        string FrameCellId,
         double X,
         double Y,
         double Width,

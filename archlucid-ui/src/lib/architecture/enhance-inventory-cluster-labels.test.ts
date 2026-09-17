@@ -30,6 +30,30 @@ describe("enhanceInventoryClusterLabels", () => {
     expect(svg.querySelector("g.cluster-label")?.getAttribute("transform")).toBeNull();
   });
 
+  it("bolds inventory-forest rg-frame labels", () => {
+    const parsed = new DOMParser().parseFromString(
+      [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200">',
+        '  <g class="rg-frames">',
+        '    <g class="rg-frame">',
+        '      <rect x="20" y="60" width="200" height="100"/>',
+        '      <text x="20" y="56" font-size="11">rg-app-prod</text>',
+        "    </g>",
+        "  </g>",
+        "</svg>",
+      ].join(""),
+      "image/svg+xml",
+    );
+
+    enhanceInventoryClusterLabels(parsed.documentElement);
+
+    const text = parsed.querySelector("g.rg-frame text.clusterLabelText");
+
+    expect(text).not.toBeNull();
+    expect(text?.getAttribute("font-weight")).toBe("700");
+    expect(text?.textContent).toBe("rg-app-prod");
+  });
+
   it("skips transparent packing clusters", () => {
     const parsed = new DOMParser().parseFromString(
       [
