@@ -295,6 +295,10 @@ public sealed class DiagramForestLayoutSvgRendererTests
                     OrderKey = 2,
                 },
             ],
+            Edges =
+            [
+                new DiagramEdge { FromNodeId = "vm-1", ToNodeId = "vm-2", Label = "connects" },
+            ],
         };
 
         DiagramForestLayoutResult result = renderer.Render(ast);

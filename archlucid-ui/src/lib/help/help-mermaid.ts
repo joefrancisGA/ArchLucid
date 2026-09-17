@@ -213,13 +213,36 @@ export function queryInventoryDiagramNodeElements(svg: SVGSVGElement): SVGGraphi
   return elements;
 }
 
+/** Inventory-forest resource-group frames (`g.rg-frame`) for viewport crop (IDF-05). */
+export function queryInventoryDiagramResourceGroupFrameElements(
+  svg: SVGSVGElement,
+): SVGGraphicsElement[] {
+  const elements: SVGGraphicsElement[] = [];
+
+  for (const element of svg.querySelectorAll("g.rg-frame")) {
+    if (element instanceof SVGGraphicsElement) {
+      elements.push(element);
+    }
+  }
+
+  return elements;
+}
+
+/** Node cards plus RG frames — excludes edge paths and legend. */
+export function queryInventoryDiagramInkElements(svg: SVGSVGElement): SVGGraphicsElement[] {
+  return [
+    ...queryInventoryDiagramNodeElements(svg),
+    ...queryInventoryDiagramResourceGroupFrameElements(svg),
+  ];
+}
+
 /**
  * Union of node boxes only — excludes edge paths whose Bézier bbox inflates the plate.
  */
 function readMappedNodeUnionBBox(svg: SVGSVGElement): { union: DOMRect; nodeCount: number } | null {
   const inkBoxes: DOMRect[] = [];
 
-  for (const element of queryInventoryDiagramNodeElements(svg)) {
+  for (const element of queryInventoryDiagramInkElements(svg)) {
     if (!(element instanceof SVGGraphicsElement)) {
       continue;
     }
@@ -243,7 +266,9 @@ function readMappedNodeUnionBBox(svg: SVGSVGElement): { union: DOMRect; nodeCoun
     return null;
   }
 
-  return { union, nodeCount: inkBoxes.length };
+  const nodeCount = queryInventoryDiagramNodeElements(svg).length;
+
+  return { union, nodeCount };
 }
 
 /**
@@ -252,7 +277,7 @@ function readMappedNodeUnionBBox(svg: SVGSVGElement): { union: DOMRect; nodeCoun
  * crops the viewBox to the origin and hides the graph until the user scrolls.
  */
 function readMappedNodeInkBBox(svg: SVGSVGElement): DOMRect | null {
-  const inkElements = queryInventoryDiagramNodeElements(svg);
+  const inkElements = queryInventoryDiagramInkElements(svg);
   const inkBoxes: DOMRect[] = [];
 
   for (const element of inkElements) {

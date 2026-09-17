@@ -20,7 +20,8 @@ public static class DiagramForestLegendSvgEmitter
     public sealed record LegendInput(
         IReadOnlyList<DiagramInventoryPictogramKind> UsedKinds,
         bool HasPrivateEndpointAccess,
-        bool HasDashedPeeringEdges);
+        bool HasDashedPeeringEdges,
+        bool HasResourceGroupFrames);
 
     public sealed record LegendLayout(
         XElement Group,
@@ -53,6 +54,11 @@ public static class DiagramForestLegendSvgEmitter
         if (input.HasDashedPeeringEdges)
         {
             rows.Add("Peering");
+        }
+
+        if (input.HasResourceGroupFrames)
+        {
+            rows.Add("Resource group");
         }
 
         double height = TopPadding + (rows.Count * RowHeight) + TopPadding;
@@ -104,6 +110,13 @@ public static class DiagramForestLegendSvgEmitter
             if (string.Equals(row, "Peering", StringComparison.Ordinal))
             {
                 group.Add(DashedLine(svgNamespace, LeftPadding, y - 4.0d));
+                group.Add(Text(svgNamespace, LeftPadding + 28.0d, y, row, bold: false));
+                continue;
+            }
+
+            if (string.Equals(row, "Resource group", StringComparison.Ordinal))
+            {
+                group.Add(ResourceGroupFrameSwatch(svgNamespace, LeftPadding, y - 9.0d));
                 group.Add(Text(svgNamespace, LeftPadding + 28.0d, y, row, bold: false));
                 continue;
             }
@@ -175,6 +188,21 @@ public static class DiagramForestLegendSvgEmitter
             new XAttribute("y2", Format(y)),
             new XAttribute("stroke", ArchitectureDiagramMermaidPalette.LightEdgeStroke),
             new XAttribute("stroke-width", "1.5"),
+            new XAttribute("pointer-events", "none"));
+    }
+
+    private static XElement ResourceGroupFrameSwatch(XNamespace svgNamespace, double x, double y)
+    {
+        return new XElement(
+            svgNamespace + "rect",
+            new XAttribute("x", Format(x)),
+            new XAttribute("y", Format(y)),
+            new XAttribute("width", "16"),
+            new XAttribute("height", "10"),
+            new XAttribute("fill", DiagramForestResourceGroupFrameStyle.Fill),
+            new XAttribute("stroke", DiagramForestResourceGroupFrameStyle.Stroke),
+            new XAttribute("stroke-width", "2"),
+            new XAttribute("rx", "2"),
             new XAttribute("pointer-events", "none"));
     }
 

@@ -15,7 +15,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         double Y,
         double Width,
         double Height,
-        DiagramForestNodeMetrics Metrics);
+        DiagramForestNodeMetrics Metrics,
+        string? FrameCellId = null);
 
     public DiagramForestLayoutResult Render(DiagramAst ast, DiagramForestLayoutOptions? options = null)
     {
@@ -96,17 +97,14 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             for (int columnIndex = 0; columnIndex < row.Count; columnIndex++)
             {
                 IReadOnlyList<DiagramNode> component = row[columnIndex];
+                string componentKey = $"{rowIndex}_{columnIndex}";
                 List<NodePlacement> relativePlacements = LayoutComponentInterior(
                     component,
+                    componentKey,
                     visibleEdges,
                     options,
                     labelContext);
-                double width = relativePlacements.Count == 0
-                    ? options.UniformNodeWidth
-                    : relativePlacements.Max(placement => placement.X + placement.Width);
-                double height = relativePlacements.Count == 0
-                    ? options.NodeHeight
-                    : relativePlacements.Max(placement => placement.Y + placement.Height);
+                (double width, double height) = ResolveCellOuterSize(relativePlacements, options);
 
                 layouts.Add(new ComponentLayout(
                     RowIndex: rowIndex,
@@ -122,6 +120,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
     private static List<NodePlacement> LayoutComponentInterior(
         IReadOnlyList<DiagramNode> component,
+        string componentKey,
         IReadOnlyList<DiagramEdge> visibleEdges,
         DiagramForestLayoutOptions options,
         DiagramForestCanvasLabelContext labelContext)
@@ -131,7 +130,13 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         if (cells.Count == 1 && cells[0].Nodes.Count == component.Count)
         {
-            return LayoutCellInterior(cells[0].Nodes, visibleEdges, options, labelContext);
+            return LayoutResourceGroupCell(
+                cells[0],
+                componentKey,
+                cellIndex: 0,
+                visibleEdges,
+                options,
+                labelContext);
         }
 
         List<NodePlacement> placements = [];
@@ -139,15 +144,17 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         double rowY = 0.0d;
         double rowHeight = 0.0d;
 
-        foreach (DiagramResourceGroupPacker.ResourceGroupCell cell in cells)
+        for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
         {
-            List<NodePlacement> cellPlacements = LayoutCellInterior(cell.Nodes, visibleEdges, options, labelContext);
-            double cellWidth = cellPlacements.Count == 0
-                ? options.UniformNodeWidth
-                : cellPlacements.Max(placement => placement.X + placement.Width);
-            double cellHeight = cellPlacements.Count == 0
-                ? options.NodeHeight
-                : cellPlacements.Max(placement => placement.Y + placement.Height);
+            DiagramResourceGroupPacker.ResourceGroupCell cell = cells[cellIndex];
+            List<NodePlacement> cellPlacements = LayoutResourceGroupCell(
+                cell,
+                componentKey,
+                cellIndex,
+                visibleEdges,
+                options,
+                labelContext);
+            (double cellWidth, double cellHeight) = ResolveCellOuterSize(cellPlacements, options);
 
             if (cellX > 0.0d && cellX + cellWidth > options.MaxNodeWidth * 3)
             {
@@ -170,6 +177,68 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         }
 
         return placements;
+    }
+
+    private static (double Width, double Height) ResolveCellOuterSize(
+        IReadOnlyList<NodePlacement> placements,
+        DiagramForestLayoutOptions options)
+    {
+        if (placements.Count == 0)
+        {
+            return (options.UniformNodeWidth, options.NodeHeight);
+        }
+
+        double width = placements.Max(placement => placement.X + placement.Width);
+        double height = placements.Max(placement => placement.Y + placement.Height);
+
+        if (placements.Any(placement => !string.IsNullOrWhiteSpace(placement.FrameCellId)))
+        {
+            width += DiagramForestResourceGroupFrameStyle.Pad;
+            height += DiagramForestResourceGroupFrameStyle.Pad;
+        }
+
+        return (width, height);
+    }
+
+    private static List<NodePlacement> LayoutResourceGroupCell(
+        DiagramResourceGroupPacker.ResourceGroupCell cell,
+        string componentKey,
+        int cellIndex,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
+    {
+        ArgumentNullException.ThrowIfNull(cell);
+
+        List<NodePlacement> interiorPlacements = LayoutCellInterior(
+            cell.Nodes,
+            visibleEdges,
+            options,
+            labelContext);
+
+        if (!DiagramResourceGroupPacker.ShouldDrawFrame(cell))
+        {
+            return interiorPlacements;
+        }
+
+        string frameCellId = DiagramResourceGroupPacker.BuildFrameCellId(componentKey, cellIndex);
+        double innerWidth = interiorPlacements.Count == 0
+            ? options.UniformNodeWidth
+            : interiorPlacements.Max(placement => placement.X + placement.Width);
+        double innerHeight = interiorPlacements.Count == 0
+            ? options.NodeHeight
+            : interiorPlacements.Max(placement => placement.Y + placement.Height);
+        double offsetX = DiagramForestResourceGroupFrameStyle.Pad;
+        double offsetY = DiagramForestResourceGroupFrameStyle.LabelBand;
+
+        return interiorPlacements
+            .Select(placement => placement with
+            {
+                X = placement.X + offsetX,
+                Y = placement.Y + offsetY,
+                FrameCellId = frameCellId,
+            })
+            .ToList();
     }
 
     private static List<NodePlacement> LayoutCellInterior(
@@ -353,7 +422,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 placement.X,
                 placement.Y,
                 placement.Width,
-                placement.Height))
+                placement.Height,
+                placement.FrameCellId))
             .ToList();
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupFrameBounds> frameBounds =
             DiagramResourceGroupPacker.ResolveFrameBounds(placementBounds);
@@ -435,7 +505,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         double legendAnchorY = maxY + 12.0d;
         DiagramForestLegendSvgEmitter.LegendLayout legendLayout = DiagramForestLegendSvgEmitter.Emit(
             svgNamespace,
-            new DiagramForestLegendSvgEmitter.LegendInput(usedKinds, hasPrivateEndpointAccess, hasDashedPeering),
+            new DiagramForestLegendSvgEmitter.LegendInput(
+                usedKinds,
+                hasPrivateEndpointAccess,
+                hasDashedPeering,
+                frameBounds.Count > 0),
             legendAnchorX,
             legendAnchorY);
         root.Add(legendLayout.Group);

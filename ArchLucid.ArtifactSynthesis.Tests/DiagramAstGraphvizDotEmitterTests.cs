@@ -116,6 +116,108 @@ public sealed class DiagramAstGraphvizDotEmitterTests
     }
 
     [Fact]
+    public void Emit_resource_group_cluster_uses_two_pixel_solid_stroke()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "rg-cluster",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "vm-1",
+                    Label = "vm-a",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    ArmResourceGroup = "rg-app",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "vm-2",
+                    Label = "vm-b",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    ArmResourceGroup = "rg-app",
+                    OrderKey = 1,
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge { FromNodeId = "vm-1", ToNodeId = "vm-2", Label = "connects" },
+            ],
+        };
+
+        string dot = emitter.Emit(ast);
+
+        dot.Should().Contain("subgraph cluster_c_0_c0");
+        dot.Should().Contain($"color=\"{ArchitectureDiagramMermaidPalette.LightResourceGroupFrameStroke}\"");
+        dot.Should().Contain("penwidth=2");
+        dot.Should().Contain("style=\"rounded,filled\"");
+        CountNodeLabelStatements(dot).Should().Be(2);
+    }
+
+    [Fact]
+    public void Emit_split_resource_group_in_two_components_emits_two_clusters()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "split-rg",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "vm-a1",
+                    Label = "vm-a1",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    ArmResourceGroup = "rg-app",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "vm-a2",
+                    Label = "vm-a2",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    ArmResourceGroup = "rg-app",
+                    OrderKey = 1,
+                },
+                new DiagramNode
+                {
+                    NodeId = "vm-b1",
+                    Label = "vm-b1",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    ArmResourceGroup = "rg-app",
+                    OrderKey = 2,
+                },
+                new DiagramNode
+                {
+                    NodeId = "vm-b2",
+                    Label = "vm-b2",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    ArmResourceGroup = "rg-app",
+                    OrderKey = 3,
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge { FromNodeId = "vm-a1", ToNodeId = "vm-a2", Label = "connects" },
+                new DiagramEdge { FromNodeId = "vm-b1", ToNodeId = "vm-b2", Label = "connects" },
+            ],
+        };
+
+        string dot = emitter.Emit(ast);
+
+        dot.Should().Contain("subgraph cluster_c_0_c0");
+        dot.Should().Contain("subgraph cluster_c_1_c0");
+        CountOccurrences(dot, "penwidth=2").Should().BeGreaterThanOrEqualTo(2);
+        CountNodeLabelStatements(dot).Should().Be(4);
+    }
+
+    [Fact]
     public void Emit_owner_shape_golden_has_six_arrows_and_eleven_labels()
     {
         GraphSnapshot graph = DiagramSparseComponentPackerTests.BuildExecutiveOwnerShapePeeringGraph();
