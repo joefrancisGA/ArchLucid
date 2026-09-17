@@ -19242,6 +19242,12 @@
       },
       "InfraEvidenceMermaidPreviewResponse": {
         "properties": {
+          "completenessWarnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "modes": {
             "items": {
               "$ref": "#/components/schemas/InfraEvidenceMermaidModePreview"
@@ -19257,6 +19263,12 @@
       },
       "InfraEvidenceMermaidRenderResponse": {
         "properties": {
+          "completenessWarnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "collapseReport": {
             "anyOf": [
               {
