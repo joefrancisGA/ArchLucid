@@ -4923,4 +4923,5 @@
 {"at":"2026-09-17T19:15:06.7399377Z","zoneId":"core-costing","outcome":"seed-only"}
 {"at":"2026-09-17T19:15:10.3534887Z","zoneId":"tenant-data-export","outcome":"seed-only"}
 {"at":"2026-09-17T19:15:13.7588143Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-17T19:16:46.8331170Z","zoneId":"topology-proposal-merge","outcome":"hit"}
+{"at":"2026-09-17T19:16:46.833117Z","zoneId":"topology-proposal-merge","outcome":"hit"}
+{"at":"2026-09-17T19:17:46.0991543Z","zoneId":"context-ingestion","outcome":"hit"}

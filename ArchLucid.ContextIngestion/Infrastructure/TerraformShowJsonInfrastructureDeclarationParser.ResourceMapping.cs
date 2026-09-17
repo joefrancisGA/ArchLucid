@@ -531,6 +531,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.revoked"] = revoked.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "schema", out JsonElement schema)
+                || TryGetPropertyIgnoreCase(res, "schema", out schema))
+            && schema.ValueKind == JsonValueKind.String)
+        {
+            string? schemaText = schema.GetString();
+
+            if (!string.IsNullOrWhiteSpace(schemaText))
+                properties["tf.schema"] = schemaText.Trim();
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())

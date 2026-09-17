@@ -14419,6 +14419,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - **id:** context-ingestion
 
+2026-09-17 seed hunt #4607 (seed→hit): reseeded context-ingestion with `-Hint context-ingestion`; proved terraform-show-json `schema` property gap; regression `ParseAsync_schema_maps_tf_schema_property`.
+
 2026-09-17 seed hunt #4602 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-17 seed hunt #4597 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
@@ -15291,11 +15293,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 570
-- **bugs-found:** 329
+- **hunts:** 571
+- **bugs-found:** 330
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-17 — hunt #4582: terraform-show-json revoked property gap
+- **last-bug:** 2026-09-17 — hunt #4607: terraform-show-json schema property gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
