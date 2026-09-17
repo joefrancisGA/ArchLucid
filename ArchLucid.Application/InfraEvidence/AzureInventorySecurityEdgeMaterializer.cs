@@ -45,7 +45,13 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryLogicAppConnectionRow>? logicAppConnections = null,
         bool logicAppConnectionsFilePresent = false,
         IReadOnlyList<AzureInventoryMessagingAssociationRow>? messagingAssociations = null,
-        bool messagingAssociationsFilePresent = false)
+        bool messagingAssociationsFilePresent = false,
+        IReadOnlyList<AzureInventoryPaasChildAssociationRow>? paasChildAssociations = null,
+        bool paasChildAssociationsFilePresent = false,
+        IReadOnlyList<AzureInventoryServiceConnectorLinkRow>? serviceConnectorLinks = null,
+        bool serviceConnectorLinksFilePresent = false,
+        IReadOnlyList<AzureInventoryAppSettingHostRow>? appSettingHosts = null,
+        bool appSettingHostsFilePresent = false)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
@@ -65,6 +71,9 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventoryEventGridSubscriptionRow> eventGridSubscriptionRows = eventGridSubscriptions ?? [];
         IReadOnlyList<AzureInventoryLogicAppConnectionRow> logicAppConnectionRows = logicAppConnections ?? [];
         IReadOnlyList<AzureInventoryMessagingAssociationRow> messagingAssociationRows = messagingAssociations ?? [];
+        IReadOnlyList<AzureInventoryPaasChildAssociationRow> paasChildAssociationRows = paasChildAssociations ?? [];
+        IReadOnlyList<AzureInventoryServiceConnectorLinkRow> serviceConnectorLinkRows = serviceConnectorLinks ?? [];
+        IReadOnlyList<AzureInventoryAppSettingHostRow> appSettingHostRows = appSettingHosts ?? [];
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
@@ -199,6 +208,28 @@ public static class AzureInventorySecurityEdgeMaterializer
             relationships,
             relationshipKeys,
             warnings);
+
+        AzureInventoryPaasChildAssociationEdgeMapper.MapAssociations(
+            paasChildAssociationRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        AzureInventoryServiceConnectorEdgeMapper.MapLinks(
+            serviceConnectorLinkRows,
+            relationships,
+            relationshipKeys,
+            warnings);
+
+        if (appSettingHostsFilePresent)
+        {
+            AzureInventoryAppSettingHostEdgeMapper.MapHosts(
+                resources,
+                appSettingHostRows,
+                relationships,
+                relationshipKeys,
+                warnings);
+        }
 
         if (effectiveNetworkControlsFilePresent)
         {

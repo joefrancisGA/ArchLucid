@@ -17,11 +17,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         ArgumentException.ThrowIfNullOrWhiteSpace(resourceType);
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
-        HostedAzureArmTypeListDescriptor? descriptor = HostedAzureArmNetworkTypeListDescriptors.SubscriptionLists
-            .FirstOrDefault(candidate =>
-                candidate.ResourceType.Equals(resourceType, StringComparison.OrdinalIgnoreCase));
-
-        if (descriptor is null)
+        if (!HostedAzureArmTypeListDescriptorRegistry.TryGet(resourceType, out HostedAzureArmTypeListDescriptor descriptor))
         {
             throw new ArgumentException(
                 $"Unsupported type-scoped list resource type '{resourceType}'.",

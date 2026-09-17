@@ -23,6 +23,7 @@ public sealed class ExecutiveAlwaysShowTiersTests
         armTypes.Should().Contain("Microsoft.Sql/servers/databases");
         armTypes.Should().Contain("Microsoft.Storage/storageAccounts");
         armTypes.Should().Contain("Microsoft.DataFactory/factories");
+        armTypes.Should().Contain("Microsoft.Databricks/workspaces");
     }
 
     [Theory]
@@ -30,6 +31,7 @@ public sealed class ExecutiveAlwaysShowTiersTests
     [InlineData("microsoft.sql/servers/databases", ExecutiveAlwaysShowTiers.DatabasesKey)]
     [InlineData("Microsoft.Storage/storageAccounts", ExecutiveAlwaysShowTiers.StorageKey)]
     [InlineData("Microsoft.DataFactory/factories", ExecutiveAlwaysShowTiers.IntegrationKey)]
+    [InlineData("Microsoft.Databricks/workspaces", ExecutiveAlwaysShowTiers.IntegrationKey)]
     public void TryResolveByArmType_is_case_insensitive(string armType, string expectedKey)
     {
         ExecutiveAlwaysShowTiers.TryResolveByArmType(armType)!.Key.Should().Be(expectedKey);

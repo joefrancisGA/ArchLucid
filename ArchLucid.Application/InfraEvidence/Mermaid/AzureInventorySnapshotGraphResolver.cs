@@ -156,6 +156,17 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 EnsurePeeringEndpointNode(toArmId, nodeIdByArmId, nodes, seenNodeIds);
             }
 
+            AzureInventorySnapshotExternalSourceNodeHydrator.EnsureExternalSourceNode(
+                fromArmId,
+                nodes,
+                seenNodeIds,
+                nodeIdByArmId);
+            AzureInventorySnapshotExternalSourceNodeHydrator.EnsureExternalSourceNode(
+                toArmId,
+                nodes,
+                seenNodeIds,
+                nodeIdByArmId);
+
             if (!nodeIdByArmId.TryGetValue(fromArmId, out string? fromNodeId))
             {
                 continue;

@@ -3,7 +3,7 @@ using ArchLucid.Core.AzureExtractor;
 namespace ArchLucid.Integrations.AzureExtractor;
 
 /// <summary>
-///     Diagram enrichment companions collected for hosted Tier 2 packages (AX-DE-10–13).
+///     Diagram enrichment companions collected for hosted Tier 2 packages (AX-DE-10–14).
 /// </summary>
 public sealed class HostedAzureDiagramEnrichmentCollectResult
 {
@@ -20,6 +20,18 @@ public sealed class HostedAzureDiagramEnrichmentCollectResult
     } = [];
 
     public IReadOnlyList<AzureInventoryMessagingAssociationRow> MessagingAssociations
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryPaasChildAssociationRow> PaasChildAssociations
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryServiceConnectorLinkRow> ServiceConnectorLinks
     {
         get;
         init;
