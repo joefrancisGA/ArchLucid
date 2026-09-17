@@ -1,3 +1,4 @@
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -57,4 +58,13 @@ public sealed class NoOpAzureInventorySnapshotRepository : IAzureInventorySnapsh
         Guid? cloudResourceId = null,
         CancellationToken cancellationToken = default)
         => Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord>, int)?>(null);
+
+    public Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult(new AzureInventorySnapshotDeleteResult
+        {
+            Outcome = AzureInventorySnapshotDeleteOutcome.NotFound,
+        });
 }

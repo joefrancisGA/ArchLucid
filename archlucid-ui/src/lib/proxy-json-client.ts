@@ -91,3 +91,8 @@ export function proxyJsonPut<T>(path: string, body: unknown, init?: ProxyJsonReq
 export function proxyJsonPost<T>(path: string, body?: unknown, init?: ProxyJsonRequestInit): Promise<T> {
   return proxyJsonFetch<T>(path, "POST", init, body === undefined ? undefined : JSON.stringify(body));
 }
+
+/** DELETE on same-origin `/api/proxy/*` with scope headers and {@link ApiLoadFailureState} failures. */
+export function proxyJsonDelete(path: string, init?: ProxyJsonRequestInit): Promise<void> {
+  return proxyJsonFetch<void>(path, "DELETE", init);
+}

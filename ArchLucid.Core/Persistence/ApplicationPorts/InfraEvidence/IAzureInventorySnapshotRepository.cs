@@ -49,6 +49,11 @@ public interface IAzureInventorySnapshotRepository
         int pageSize,
         Guid? cloudResourceId = null,
         CancellationToken cancellationToken = default);
+
+    Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class AzureInventorySnapshotMaterializeWriteRequest

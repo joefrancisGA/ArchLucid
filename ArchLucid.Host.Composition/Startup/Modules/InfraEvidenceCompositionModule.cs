@@ -43,6 +43,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IAzureInventoryDriftApprovalService, AzureInventoryDriftApprovalService>();
         services.AddScoped<IAzureInventoryDiffNarrativeService, AzureInventoryDiffNarrativeService>();
         services.AddScoped<IInfraEvidenceDriftWorkbenchQueryService, InfraEvidenceDriftWorkbenchQueryService>();
+        services.AddScoped<IAzureInventorySnapshotDeleteService, AzureInventorySnapshotDeleteService>();
         services.AddScoped<IAzureInventorySnapshotGraphResolver, AzureInventorySnapshotGraphResolver>();
         services.AddSingleton(new MermaidDiagramReadabilityThresholds());
         services.AddSingleton<IDiagramPeelCatalogProvider, RepositoryDiagramPeelCatalogProvider>();

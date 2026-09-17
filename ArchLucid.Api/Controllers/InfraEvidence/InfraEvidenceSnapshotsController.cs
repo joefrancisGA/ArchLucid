@@ -4,6 +4,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -28,8 +29,16 @@ public sealed partial class InfraEvidenceSnapshotsController(
     IInfraEvidenceDriftWorkbenchQueryService driftWorkbenchQueryService,
     IAdvisoryTerraformRepresentationService advisoryTerraformService,
     IInfraEvidenceSnapshotMermaidService snapshotMermaidService,
+    IAzureInventorySnapshotDeleteService snapshotDeleteService,
+    IAuditService auditService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
+    private readonly IAzureInventorySnapshotDeleteService _snapshotDeleteService =
+        snapshotDeleteService ?? throw new ArgumentNullException(nameof(snapshotDeleteService));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponse<AzureInventorySnapshotRecord>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
