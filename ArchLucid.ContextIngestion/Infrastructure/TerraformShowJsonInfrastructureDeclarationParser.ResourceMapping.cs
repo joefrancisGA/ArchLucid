@@ -541,6 +541,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.schema"] = schemaText.Trim();
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "annotated", out JsonElement annotated)
+                || TryGetPropertyIgnoreCase(res, "annotated", out annotated))
+            && (annotated.ValueKind == JsonValueKind.True || annotated.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.annotated"] = annotated.GetBoolean() ? "true" : "false";
+        }
+
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
