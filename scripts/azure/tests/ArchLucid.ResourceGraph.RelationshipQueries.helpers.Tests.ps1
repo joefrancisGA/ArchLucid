@@ -50,4 +50,26 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
         $rows[0].associationType | Should -Be 'vnetPeering'
         $rows[0].toResourceId | Should -Match 'virtualNetworks/hub'
     }
+
+    It 'builds an ARG query for AVD session host to VM associations' {
+        $specQuery = @(
+            Get-ArchLucidArgNetworkAssociationQuerySpecs |
+                Where-Object { $_.Kind -eq 'virtualMachine' }
+        ).Query
+
+        $specQuery | Should -Match 'microsoft.compute/virtualmachines'
+
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+
+        Add-ArchLucidNetworkAssociationRow `
+            -Rows $rows `
+            -Seen $seen `
+            -FromResourceId '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DesktopVirtualization/hostPools/pool/sessionHosts/host1' `
+            -ToResourceId '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/avd01-001' `
+            -AssociationType 'avdSessionHostToVm'
+
+        $rows.Count | Should -Be 1
+        $rows[0].associationType | Should -Be 'avdSessionHostToVm'
+    }
 }

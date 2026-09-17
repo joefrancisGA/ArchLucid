@@ -3066,3 +3066,69 @@ function Get-ArchLucidAzureMessagingAssociationCompanionRows
 
     return @($rows.ToArray())
 }
+
+function Get-ArchLucidAzureAvdSessionHostAssociationRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return @()
+    }
+
+    $rows = [System.Collections.ArrayList]::new()
+    $seen = @{}
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$hostPoolResourceId = "$( $resource.resourceId )".Trim()
+
+        if (-not ($resourceType -eq 'Microsoft.DesktopVirtualization/hostPools')) { continue }
+
+        if ([string]::IsNullOrWhiteSpace($hostPoolResourceId)) { continue }
+
+        try
+        {
+            [string]$path = "$hostPoolResourceId/sessionHosts?api-version=2024-04-03"
+            $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($sessionHost in @($payload.value))
+            {
+                [string]$sessionHostResourceId = "$( $sessionHost.id )".Trim()
+                [string]$virtualMachineResourceId = ''
+
+                try
+                {
+                    $virtualMachineResourceId = "$( $sessionHost.properties.resourceId )".Trim()
+                }
+                catch
+                {
+                }
+
+                if ([string]::IsNullOrWhiteSpace($sessionHostResourceId) -or [string]::IsNullOrWhiteSpace($virtualMachineResourceId))
+                {
+                    continue
+                }
+
+                Add-ArchLucidNetworkAssociationRow `
+                    -Rows $rows `
+                    -Seen $seen `
+                    -FromResourceId $sessionHostResourceId `
+                    -ToResourceId $virtualMachineResourceId `
+                    -AssociationType 'avdSessionHostToVm'
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    return @($rows.ToArray())
+}

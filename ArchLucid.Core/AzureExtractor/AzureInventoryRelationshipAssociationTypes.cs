@@ -88,6 +88,8 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string PeDnsZoneGroup = "peDnsZoneGroup";
 
+    public const string AvdSessionHostToVm = "avdSessionHostToVm";
+
     private static readonly AzureInventoryRelationshipAssociationTypeDefinition[] Catalog =
     [
         Observed(NicToSubnet, AzureInventoryRelationshipArmKind.NetworkInterface, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-nic-subnet"),
@@ -130,6 +132,12 @@ public static class AzureInventoryRelationshipAssociationTypes
         Observed(FrontDoorToOrigin, AzureInventoryRelationshipArmKind.FrontDoor, AzureInventoryRelationshipArmKind.BackendPoolMember, "CONNECTS_TO", "inventory-front-door-origin"),
         Observed(ContainerAppToEnv, AzureInventoryRelationshipArmKind.ContainerApp, AzureInventoryRelationshipArmKind.ContainerAppEnvironment, "CONNECTS_TO", "inventory-container-app-env"),
         Observed(PeDnsZoneGroup, AzureInventoryRelationshipArmKind.PrivateEndpoint, AzureInventoryRelationshipArmKind.PrivateDnsZone, "CONNECTS_TO", "inventory-pe-dns-zone-group"),
+        Observed(
+            AvdSessionHostToVm,
+            AzureInventoryRelationshipArmKind.VirtualDesktopSessionHost,
+            AzureInventoryRelationshipArmKind.VirtualMachine,
+            "CONNECTS_TO",
+            "inventory-avd-session-host-to-vm"),
     ];
 
     private static readonly Dictionary<string, AzureInventoryRelationshipAssociationTypeDefinition> Lookup =

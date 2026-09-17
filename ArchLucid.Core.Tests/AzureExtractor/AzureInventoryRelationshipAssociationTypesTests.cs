@@ -62,7 +62,7 @@ public sealed class AzureInventoryRelationshipAssociationTypesTests
     [Fact]
     public void Catalog_lists_all_types_with_inference_sources()
     {
-        AzureInventoryRelationshipAssociationTypes.All.Should().HaveCount(39);
+        AzureInventoryRelationshipAssociationTypes.All.Should().HaveCount(40);
         AzureInventoryRelationshipAssociationTypes.All.Should().OnlyContain(definition =>
             !string.IsNullOrWhiteSpace(definition.DefaultInferenceSource));
     }
@@ -93,6 +93,7 @@ public sealed class AzureInventoryRelationshipAssociationTypesTests
     [InlineData("appAuthorizedAccess")]
     [InlineData("synapseReadsFrom")]
     [InlineData("eventHubCapture")]
+    [InlineData("avdSessionHostToVm")]
     public void New_association_types_are_known_members(string associationType)
     {
         AzureInventoryRelationshipAssociationTypes.IsKnown(associationType).Should().BeTrue();
