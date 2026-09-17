@@ -4,7 +4,9 @@
      existing extractor family (Reader + GET-only hosted).
      Do not implement from this index. -->
 
-# Azure extractor diagram enrichment — Composer prompt set (AX-DE-01–AX-DE-18 + hold)
+# Azure extractor diagram enrichment — Composer prompt set (AX-DE-01–AX-DE-18 + hold) — **shipped; do not re-run**
+
+**Consumption follow-on:** [`azure-extractor-diagram-consumption-00-index.md`](azure-extractor-diagram-consumption-00-index.md) (**AX-DC-01–08**).
 
 ADF companions already give **declared** factory→store wiring. Network associations already give VM→NIC→subnet, private endpoints, peering, and L7 backends. Diagrams still miss Event Grid, Logic Apps, Synapse pipelines, messaging children, remaining ADF connectors, app→store **authorization**, and most PaaS child lists.
 
