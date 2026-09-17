@@ -3104,7 +3104,7 @@ function Get-ArchLucidAzureAppSettingHostFromValue
 
     $row = [ordered]@{
         settingName = $SettingName
-        host = $null
+        parsedHost = $null
         keyVaultHost = $null
         secretName = $null
     }
@@ -3115,7 +3115,7 @@ function Get-ArchLucidAzureAppSettingHostFromValue
 
         if ($sqlMatch.Success)
         {
-            $row.host = $sqlMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+            $row.parsedHost = $sqlMatch.Groups['host'].Value.Trim().ToLowerInvariant()
         }
 
         $kvMatch = [regex]::Match(
@@ -3130,8 +3130,7 @@ function Get-ArchLucidAzureAppSettingHostFromValue
         }
     }
 
-    if ([string]::IsNullOrWhiteSpace($row.host)
-        -and [string]::IsNullOrWhiteSpace($row.keyVaultHost))
+    if ([string]::IsNullOrWhiteSpace($row.parsedHost) -and [string]::IsNullOrWhiteSpace($row.keyVaultHost))
     {
         return $null
     }
@@ -3191,7 +3190,7 @@ function Get-ArchLucidAzureAppSettingHostCompanionRows
 
                     if ($null -eq $parsed) { continue }
 
-                    [string]$key = "$siteResourceId|$settingName|$($parsed.host)|$($parsed.keyVaultHost)|$($parsed.secretName)"
+                    [string]$key = "$siteResourceId|$settingName|$($parsed.parsedHost)|$($parsed.keyVaultHost)|$($parsed.secretName)"
 
                     if ($seen.ContainsKey($key)) { continue }
                     $seen[$key] = $true
@@ -3199,7 +3198,7 @@ function Get-ArchLucidAzureAppSettingHostCompanionRows
                     [void]$rows.Add([ordered]@{
                         siteResourceId = $siteResourceId
                         settingName = $settingName
-                        host = $parsed.host
+                        host = $parsed.parsedHost
                         keyVaultHost = $parsed.keyVaultHost
                         secretName = $parsed.secretName
                         collectionStatus = 'Succeeded'
