@@ -1367,6 +1367,64 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "tracked", out JsonElement tracked)
+                || TryGetPropertyIgnoreCase(res, "tracked", out tracked))
+            && (tracked.ValueKind == JsonValueKind.True || tracked.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.tracked"] = tracked.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "published", out JsonElement published)
+                || TryGetPropertyIgnoreCase(res, "published", out published))
+            && (published.ValueKind == JsonValueKind.True || published.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.published"] = published.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "caption", out JsonElement caption)
+                || TryGetPropertyIgnoreCase(res, "caption", out caption))
+            && caption.ValueKind == JsonValueKind.String)
+        {
+            string? captionText = caption.GetString();
+
+            if (!string.IsNullOrWhiteSpace(captionText))
+                properties["tf.caption"] = captionText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "dependents", out JsonElement dependentsEl)
+            || TryGetPropertyIgnoreCase(res, "dependents", out dependentsEl))
+        {
+            List<string> dependentsFields = [];
+
+            if (dependentsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in dependentsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        dependentsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (dependentsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = dependentsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    dependentsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (dependentsFields.Count > 0)
+            {
+                string joined = string.Join('|', dependentsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.dependents"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
