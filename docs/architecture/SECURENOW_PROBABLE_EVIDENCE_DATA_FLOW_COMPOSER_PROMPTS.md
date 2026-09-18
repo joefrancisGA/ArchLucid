@@ -3,6 +3,7 @@
 > **Paste files:** [`.cursor/prompts/securenow-probable-evidence-00-index.md`](../../.cursor/prompts/securenow-probable-evidence-00-index.md) (one numbered file per session).
 >
 > **Do not** re-run **AX-DE-01–18**, **AX-DC-01–08**, or **SN-DF-01–08** as greenfield. Do not store numeric confidence. Do not compose PE hops without a DNS join.
+> **Follow-on (not this set):** runtime declared / observed connections — [`SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) (**SN-RT-01–10**). Observed traffic is **SN-RT-06/07** (`ObservedRuntime`), never SN-PE **May access**.
 
 # SN-PE-01–SN-PE-07 — Evidence-based probable Data Flow families
 

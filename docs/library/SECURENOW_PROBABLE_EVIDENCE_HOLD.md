@@ -30,7 +30,7 @@ No new ZIP collector. No Azure HTTP at render.
 | ADF **Reads from** for RBAC | **May access** / **May read** / **May write** |
 | Mint `Customer` / Power BI / Fabric / Confidential / TLS 1.3 | SN-DF-HOLD |
 | Kudu, VM disk, AKS ConfigMap, source parse, secret values | AX-DE-HOLD |
-| Flow logs / App Insights as Diagram 3 arrows | Runtime plane |
+| Flow logs / App Insights as Diagram 3 arrows | **SN-RT-06/07** `ObservedRuntime` family — never SN-PE **May access** |
 | Re-run AX-DE / AX-DC / SN-DF as greenfield collection | Consume; this wave is Data Flow families |
 | `terraform apply` / ARM writes / second ZIP | Plane |
 | GTM M-90 / M-44 / M-91 / M-92; TB-135 / TB-136 | Owner/GTM |
