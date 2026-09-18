@@ -56,6 +56,24 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             Should -Be $true
     }
 
+    It 'omits SQL Server master databases from never-show filtering' {
+        $masterDatabase = [ordered]@{
+            resourceType = 'Microsoft.Sql/servers/databases'
+            resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-prod/databases/master'
+            name = 'master'
+        }
+        $appDatabase = [ordered]@{
+            resourceType = 'Microsoft.Sql/servers/databases'
+            resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-prod/databases/appdb'
+            name = 'appdb'
+        }
+
+        Test-ArchLucidAzureInventoryNeverShowResource -Resource $masterDatabase |
+            Should -Be $true
+        Test-ArchLucidAzureInventoryNeverShowResource -Resource $appDatabase |
+            Should -Be $false
+    }
+
     It 'omits private-link-only network interfaces from never-show filtering' {
         $inventory = @(
             [ordered]@{
