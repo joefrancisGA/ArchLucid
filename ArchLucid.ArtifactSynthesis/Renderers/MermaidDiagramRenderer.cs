@@ -17,7 +17,15 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         ArgumentNullException.ThrowIfNull(ast);
 
         StringBuilder sb = new();
-        sb.AppendLine("flowchart TD");
+        sb.AppendLine($"flowchart {ResolveFlowchartDirection(ast)}");
+
+        foreach (string captionLine in ast.CaptionLines)
+        {
+            if (!string.IsNullOrWhiteSpace(captionLine))
+            {
+                sb.AppendLine($"    %% {captionLine}");
+            }
+        }
 
         if (InventoryDiagramResourceGroupMapBuilder.TitleMarksResourceGroupMap(ast.Title))
         {
@@ -186,17 +194,64 @@ public class MermaidDiagramRenderer : IDiagramRenderer
                 continue;
             }
 
+            string metadataComment = BuildInventoryEdgeMetadataComment(edge);
+
+            if (!string.IsNullOrEmpty(metadataComment))
+            {
+                sb.AppendLine($"    {metadataComment}");
+            }
+
             string safeLabel = EscapeLabel(edge.Label);
+            string arrowToken = ResolveVisibleEdgeArrowToken(edge);
 
             if (string.IsNullOrWhiteSpace(safeLabel))
             {
-                sb.AppendLine($"    {fromId} --> {toId}");
+                sb.AppendLine($"    {fromId} {arrowToken} {toId}");
             }
             else
             {
-                sb.AppendLine($"    {fromId} -->|\"{safeLabel}\"| {toId}");
+                sb.AppendLine($"    {fromId} {arrowToken}|\"{safeLabel}\"| {toId}");
             }
         }
+    }
+
+    private static string ResolveVisibleEdgeArrowToken(DiagramEdge edge)
+    {
+        DiagramEdgeVisualKind visualKind = DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource);
+
+        if (visualKind == DiagramEdgeVisualKind.Declared || visualKind == DiagramEdgeVisualKind.AiInferred)
+        {
+            return "-.->";
+        }
+
+        return "-->";
+    }
+
+    private static string BuildInventoryEdgeMetadataComment(DiagramEdge edge)
+    {
+        List<string> tokens = [];
+
+        if (!string.IsNullOrWhiteSpace(edge.ProvenanceKind))
+        {
+            tokens.Add($"al-provenance={QuoteMetadataValue(edge.ProvenanceKind)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(edge.InferenceSource))
+        {
+            tokens.Add($"al-inference={QuoteMetadataValue(edge.InferenceSource)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(edge.DeclaredConnectionId))
+        {
+            tokens.Add($"al-declared-id={QuoteMetadataValue(edge.DeclaredConnectionId)}");
+        }
+
+        if (tokens.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        return $"%% {string.Join(' ', tokens)}";
     }
 
     internal static string EscapeLabel(string label)
@@ -209,5 +264,17 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             .Replace("[", "#91;", StringComparison.Ordinal)
             .Replace("]", "#93;", StringComparison.Ordinal)
             .Replace("|", "#124;", StringComparison.Ordinal);
+    }
+
+    private static string ResolveFlowchartDirection(DiagramAst ast)
+    {
+        ArgumentNullException.ThrowIfNull(ast);
+
+        if (string.Equals(ast.FlowchartDirection, "LR", StringComparison.OrdinalIgnoreCase))
+        {
+            return "LR";
+        }
+
+        return "TD";
     }
 }

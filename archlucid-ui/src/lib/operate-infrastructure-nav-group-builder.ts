@@ -8,12 +8,14 @@ import {
   Network,
   SquareStack,
   Upload,
+  Waypoints,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
@@ -46,6 +48,23 @@ export class OperateInfrastructureNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
+          // First workbench after overview so SecureNow (overview hidden) lists Resource explorer at the top.
+          href: "/governance/infrastructure/resources" as typeof GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+          title: "Search cloud resources and open the per-resource evidence hub",
+          icon: Boxes,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/governance/infrastructure/declared-connections" as typeof GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.infrastructureDeclaredConnections,
+          title: "Declare ConnectsTo or DependsOn edges between resources not visible in Azure inventory",
+          icon: Waypoints,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
           href: "/governance/infrastructure/extract-upload" as typeof GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
           label: OPERATOR_NAV_LINK_LABELS.extractUpload,
           title: "Extract & upload — run the local inventory script and upload a ZIP",
@@ -72,7 +91,7 @@ export class OperateInfrastructureNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/governance/infrastructure/diagrams" as typeof GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
           label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
-          title: "Render inventory diagrams, including a resource group map for large subscriptions",
+          title: "Render diagrams, including a resource group map for large subscriptions",
           icon: Network,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
@@ -82,14 +101,6 @@ export class OperateInfrastructureNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile,
           title: "Reconcile diagrams against inventory snapshots with explainable correspondence",
           icon: GitMerge,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/governance/infrastructure/resources" as typeof GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
-          label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
-          title: "Search cloud resources and open the per-resource evidence hub",
-          icon: Boxes,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

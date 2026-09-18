@@ -9,6 +9,8 @@ public enum DiagramMode
     Security,
     Identity,
     Data,
+    DataFlow,
+    DataArchitecture,
     FullSubscription,
     ResourceGroup,
     SelectedResources,

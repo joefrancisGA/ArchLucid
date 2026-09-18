@@ -6,7 +6,8 @@ import { useEffect, useId, useRef } from "react";
 import { TurnstileBotChallenge } from "@/components/auth/TurnstileBotChallenge";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { SIGN_IN_PAGE_COPY } from "@/lib/auth/sign-in-page-copy";
+import { SIGN_IN_PAGE_COPY, signInEmailLead } from "@/lib/auth/sign-in-page-copy";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 
 export type SignInEmailStepProps = {
   readonly email: string;
@@ -29,6 +30,7 @@ export function SignInEmailStep({
   onBack,
   onBotChallengeTokenChange,
 }: SignInEmailStepProps) {
+  const { productLine } = useLocalizedProductCopy();
   const emailId = useId();
   const errorId = useId();
   const statusId = useId();
@@ -41,7 +43,7 @@ export function SignInEmailStep({
   return (
     <div data-testid="sign-in-email-step">
       <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{SIGN_IN_PAGE_COPY.emailTitle}</h1>
-      <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SIGN_IN_PAGE_COPY.emailLead}</p>
+      <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{signInEmailLead(productLine)}</p>
       <form
         className="mt-6 space-y-4"
         onSubmit={(event) => {

@@ -32,6 +32,26 @@ export type InfraEvidenceMermaidPreviewResponse = {
   modes: InfraEvidenceMermaidModePreview[];
 };
 
+export type InfraEvidenceMermaidCollapseEntry = {
+  kind: string;
+  cloudResourceId: string | null;
+  nodeId: string | null;
+  reason: string;
+};
+
+export type InfraEvidenceMermaidCollapseReport = {
+  entries: InfraEvidenceMermaidCollapseEntry[];
+};
+
+export type InfraEvidenceMermaidIdentityDiagramSuppressedArmType = {
+  armResourceType: string;
+  resourceCount: number;
+};
+
+export type InfraEvidenceMermaidIdentityDiagramHints = {
+  inventoryFilteredIdentityArmTypes: InfraEvidenceMermaidIdentityDiagramSuppressedArmType[];
+};
+
 export type InfraEvidenceMermaidRenderResponse = {
   snapshotId: string;
   mode: string;
@@ -42,6 +62,8 @@ export type InfraEvidenceMermaidRenderResponse = {
   layoutEngine: string | null;
   metrics: InfraEvidenceMermaidComplexityMetrics | null;
   fallbackArtifacts: InfraEvidenceMermaidFallbackArtifactSummary[];
+  collapseReport: InfraEvidenceMermaidCollapseReport | null;
+  identityDiagramHints?: InfraEvidenceMermaidIdentityDiagramHints | null;
 };
 
 export type InfraEvidenceMermaidRenderStatus = "Succeeded" | "Partitioned" | "Failed";

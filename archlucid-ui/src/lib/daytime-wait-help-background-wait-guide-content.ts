@@ -9,4 +9,4 @@ export const DAYTIME_WAIT_HELP_BACKGROUND_WAIT_OVERVIEW = [
   "On Working seats, analysis does not require babysitting one browser tab.",
   DAYTIME_WAIT_WORKING_BACKGROUND_WAIT_HELPER,
   "Career Real execute uses the async operations pattern (ADR 0096) — poll operations, not a fictional run-progress URL.",
-].join(" ") as const;
+].join(" ");

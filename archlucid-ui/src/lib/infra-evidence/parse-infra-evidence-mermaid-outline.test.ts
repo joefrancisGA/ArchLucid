@@ -130,6 +130,30 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         from: "vnet1",
         to: "vnet3",
         label: "peering",
+        source: "observed",
+        declaredConnectionId: null,
+      },
+    ]);
+  });
+
+  it("parses declared edge metadata and dashed arrows", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    app["web-app"]',
+        '    sql["sql-server"]',
+        "    %% al-provenance=HumanAssertion al-inference=human-declared-connection al-declared-id=cccccccc-cccc-cccc-cccc-cccccccccccc",
+        '    app -.->|"declared · connects"| sql',
+      ].join("\n"),
+    );
+
+    expect(outline.edges).toEqual([
+      {
+        from: "app",
+        to: "sql",
+        label: "declared · connects",
+        source: "declared",
+        declaredConnectionId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
       },
     ]);
   });
@@ -151,6 +175,8 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         from: "vnet1",
         to: "vnet2",
         label: null,
+        source: "observed",
+        declaredConnectionId: null,
       },
     ]);
     expect(resolveInfraEvidenceOutlineEdgeLabel(outline.edges[0]!, outline.nodes)).toBe("peering");

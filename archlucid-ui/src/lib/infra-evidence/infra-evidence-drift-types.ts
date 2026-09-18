@@ -43,6 +43,8 @@ export type InfraEvidenceDiffChange = {
   securitySignificance: string | null;
   architectureSignificance: string | null;
   evidenceReference: string | null;
+  changedByDisplayName: string | null;
+  changedByKind: string | null;
 };
 
 export type InfraEvidenceBaselineRecord = {
