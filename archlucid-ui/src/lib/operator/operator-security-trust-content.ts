@@ -138,6 +138,15 @@ export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE = "Data retention";
 export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE =
   "Architecture review data is retained for the duration of your workspace subscription. After termination, customer data is deleted within 90 days, except where retention is required by law or documented backup cycles.";
 
+export const SECURENOW_OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE =
+  "Cloud inventory evidence, findings, and audit lineage data are retained for the duration of your workspace subscription. After termination, customer data is deleted within 90 days, except where retention is required by law or documented backup cycles.";
+
+export function resolveOperatorSecurityTrustDataRetentionNote(productLineId: ProductLineId): string {
+  return productLineId === "security"
+    ? SECURENOW_OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE
+    : OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE;
+}
+
 export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_DELETION_INSTRUCTION =
   "Contact security@archlucid.net to request workspace data deletion.";
 
