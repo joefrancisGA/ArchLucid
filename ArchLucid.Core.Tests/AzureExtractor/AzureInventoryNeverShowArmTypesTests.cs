@@ -144,6 +144,28 @@ public sealed class AzureInventoryNeverShowArmTypesTests
             .BeFalse();
     }
 
+    [Theory]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-prod/databases/master")]
+    [InlineData("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/managedInstances/mi-prod/databases/master")]
+    public void ShouldOmitResource_omits_sql_server_master_database_resources(string azureResourceId)
+    {
+        AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                "Microsoft.Sql/servers/databases",
+                azureResourceId)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void ShouldOmitResource_keeps_user_sql_databases_visible()
+    {
+        AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                "Microsoft.Sql/servers/databases",
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-prod/databases/appdb")
+            .Should()
+            .BeFalse();
+    }
+
     [Fact]
     public void ShouldOmitResource_uses_arm_id_when_resource_type_is_missing()
     {

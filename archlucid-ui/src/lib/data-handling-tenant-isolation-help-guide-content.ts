@@ -106,6 +106,9 @@ export const SECURENOW_DATA_HANDLING_HELP_PAGE_SUBTITLE =
 export const SECURENOW_DATA_HANDLING_HELP_OVERVIEW_LEAD =
   "This guide covers data flow for cloud inventory evidence and ARC-AMPE findings, three-layer tenant isolation, and what SecureNow does not claim for standard SaaS.";
 
+export const SECURENOW_DATA_HANDLING_HELP_LEAVES_STAYS_HELPER =
+  "Optional connectors, demo data, and AI provider handling are covered below — start with leaves vs stays when sponsors ask where cloud inventory evidence flows.";
+
 export const SECURENOW_DATA_HANDLING_HELP_LEAVES_STAYS_CARDS: readonly DataHandlingTenantIsolationHelpLeavesStaysCard[] =
   [
     {
@@ -153,6 +156,16 @@ export function dataHandlingTenantIsolationHelpLeavesStaysCards(
   return isSecureNowProductLine(productLineId)
     ? SECURENOW_DATA_HANDLING_HELP_LEAVES_STAYS_CARDS
     : DATA_HANDLING_TENANT_ISOLATION_HELP_LEAVES_STAYS_CARDS;
+}
+
+export function dataHandlingTenantIsolationHelpLeavesStaysHelper(
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_DATA_HANDLING_HELP_LEAVES_STAYS_HELPER;
+  }
+
+  return "Optional connectors, demo data, and AI provider handling are covered below — start with leaves vs stays when sponsors ask where review evidence flows.";
 }
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS = {

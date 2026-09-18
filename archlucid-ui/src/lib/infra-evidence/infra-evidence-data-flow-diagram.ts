@@ -8,7 +8,12 @@ export function isInfraEvidenceMermaidMetadataComment(line: string): boolean {
   return INFRA_EVIDENCE_MERMAID_METADATA_COMMENT_PATTERN.test(line);
 }
 
-export function parseInfraDiagramsDataFlowCaptionsFromMermaid(mermaidSource: string): readonly string[] {
+export type InfraDiagramsDataFlowCaptionPresentation = {
+  readonly honestyCaptions: readonly string[];
+  readonly metadataComments: readonly string[];
+};
+
+function parseInfraDiagramsDataFlowCaptionLinesFromMermaid(mermaidSource: string): readonly string[] {
   if (mermaidSource.trim().length === 0) {
     return [];
   }
@@ -18,8 +23,24 @@ export function parseInfraDiagramsDataFlowCaptionsFromMermaid(mermaidSource: str
     .map((line) => line.trim())
     .filter((line) => line.startsWith("%% "))
     .map((line) => line.slice(3).trim())
-    .filter((line) => line.length > 0)
-    .filter((line) => !isInfraEvidenceMermaidMetadataComment(line));
+    .filter((line) => line.length > 0);
+}
+
+export function parseInfraDiagramsDataFlowCaptionsFromMermaid(mermaidSource: string): readonly string[] {
+  return parseInfraDiagramsDataFlowCaptionLinesFromMermaid(mermaidSource).filter(
+    (line) => !isInfraEvidenceMermaidMetadataComment(line),
+  );
+}
+
+export function parseInfraDiagramsDataFlowCaptionPresentation(
+  mermaidSource: string,
+): InfraDiagramsDataFlowCaptionPresentation {
+  const captions = parseInfraDiagramsDataFlowCaptionLinesFromMermaid(mermaidSource);
+
+  return {
+    honestyCaptions: captions.filter((caption) => !isInfraEvidenceMermaidMetadataComment(caption)),
+    metadataComments: captions.filter((caption) => isInfraEvidenceMermaidMetadataComment(caption)),
+  };
 }
 
 export function isInfraEvidenceDataFlowMermaid(mermaidSource: string): boolean {
