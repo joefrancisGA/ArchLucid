@@ -8,7 +8,7 @@
     - **Never collected:** Key Vault secret values, connection strings, certificates/private keys, arbitrary user PII beyond resource tags.
     - `-IncludeRetailPrices` emits `retail-prices.json` by calling the **public** HTTPS Retail Prices API (`https://prices.azure.com`) for App Service plans, SQL databases, Virtual Machines, and Storage Accounts inventoried in `resources.json`; HTTPS GET only — no RBAC beyond Reader-style ARM read access (same as other catalog probes).
     - Every run emits `policy-compliance.json` via Azure Policy Insights PolicyStates/latest/queryResults (same read plane as `Get-AzPolicyState`); pagination and throttling backoff are handled in the collector. Reader at subscription or resource-group scope is sufficient for typical tenants.
-    - `-IncludeCost` merges subscription-scope **ActualCost** into **`manifest.json`** (`actualCostSummary`) via Azure CLI **`az rest`** calls to **`Microsoft.CostManagement/query`** (Cost Management Reader or equivalent RBAC plus `az` on PATH required; null + warning when access fails). Advisor (`-IncludeAdvisor`) remains backlog; see docs/library/V1_SCOPE.md §2.16 for remaining optional surfaces.
+    - `-IncludeCost` merges subscription-scope **ActualCost** into **`manifest.json`** (`actualCostSummary`) via **`Invoke-AzRestMethod`** (preferred; reuses **Connect-AzAccount**) or Azure CLI **`az rest`** fallback to **`Microsoft.CostManagement/query`** (Cost Management Reader or equivalent RBAC; null + warning when access fails). Advisor (`-IncludeAdvisor`) remains backlog; see docs/library/V1_SCOPE.md §2.16 for remaining optional surfaces.
     - `-IncludeAppSettingsHosts` emits `app-settings-hosts.json` via POST `config/appsettings/list` and `config/connectionstrings/list` (setting names + parsed hosts + Key Vault URI host/secret name only — never values).
     - Verify script integrity (code signing / checksum) per your change-management policy before executing in production subscriptions.
 #>
@@ -845,7 +845,7 @@ Retail pack: `retail-prices.json` was added for this run (USD consumption rows f
 
         $costReadmeTail = @"
 
-Cost snapshot: when `-IncludeCost` was used, `manifest.json` includes `actualCostSummary` (**ActualCost** at subscription scope via Microsoft Cost Management / `az rest`). Assign **Cost Management Reader** (or equivalent) when you need spend rows; insufficient access yields `actualCostSummary: null` and a warning instead of failing the extractor.
+Cost snapshot: when `-IncludeCost` was used, `manifest.json` includes `actualCostSummary` (**ActualCost** at subscription scope via Microsoft Cost Management / `Invoke-AzRestMethod` or `az rest`). Assign **Cost Management Reader** (or equivalent) when you need spend rows; insufficient access yields `actualCostSummary: null` and a warning instead of failing the extractor.
 "@
 
     }
