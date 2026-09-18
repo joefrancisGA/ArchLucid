@@ -572,6 +572,38 @@ function Test-ArchLucidInventoryPropertyExists
     return $Properties.PSObject.Properties.Match($PropertyName).Count -gt 0
 }
 
+function Get-ArchLucidInventoryPropertyStringValue
+{
+    param(
+        [object] $Properties,
+        [string] $PropertyName
+    )
+
+    if (-not (Test-ArchLucidInventoryPropertyExists -Properties $Properties -PropertyName $PropertyName))
+    {
+        return ""
+    }
+
+    if ($Properties -is [System.Collections.IDictionary])
+    {
+        return "$( $Properties[$PropertyName] )".Trim()
+    }
+
+    return "$( $Properties.$PropertyName )".Trim()
+}
+
+function Test-ArchLucidAzureInventoryVirtualNetworkResourceType
+{
+    param(
+        [string] $ResourceType
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ResourceType)) { return $false }
+    if ($ResourceType -like "*virtualNetworkLinks*") { return $false }
+
+    return $ResourceType -match '(?i)/virtualNetworks$'
+}
+
 function Test-ArchLucidAzureInventoryNeverShowResourceType
 {
     param(
@@ -982,9 +1014,9 @@ function Get-ArchLucidAzureNetworkAssociationCompanionRows
             }
         }
 
-        if ($resourceType -like "*virtualNetworks*" -and $resourceType -notlike "*virtualNetworkLinks*")
+        if (Test-ArchLucidAzureInventoryVirtualNetworkResourceType -ResourceType $resourceType)
         {
-            [string]$subnetsJson = "$( $resource.properties.subnets )".Trim()
+            [string]$subnetsJson = Get-ArchLucidInventoryPropertyStringValue -Properties $resource.properties -PropertyName 'subnets'
 
             if (-not ([string]::IsNullOrWhiteSpace($subnetsJson)))
             {
@@ -1371,7 +1403,7 @@ function Get-ArchLucidAzureNsgAllowRuleCompanionRows
             continue
         }
 
-        if ($resourceType -like "*virtualNetworks*")
+        if (Test-ArchLucidAzureInventoryVirtualNetworkResourceType -ResourceType $resourceType)
         {
             Add-ArchLucidSubnetResourceGroups -SubnetResourceGroups $subnetResourceGroups -Resource $resource
             continue
@@ -1498,9 +1530,7 @@ function Add-ArchLucidSubnetResourceGroups
 
     if ([string]::IsNullOrWhiteSpace($resourceGroupName)) { return }
 
-    if (-not (Test-ArchLucidInventoryPropertyExists -Properties $Resource.properties -PropertyName 'subnets')) { return }
-
-    [string]$subnetsJson = "$( $Resource.properties.subnets )".Trim()
+    [string]$subnetsJson = Get-ArchLucidInventoryPropertyStringValue -Properties $Resource.properties -PropertyName 'subnets'
 
     if ([string]::IsNullOrWhiteSpace($subnetsJson)) { return }
 
@@ -1536,9 +1566,9 @@ function Get-ArchLucidSubnetNetworkSecurityGroupId
 
         [string]$resourceType = "$( $resource.resourceType )".Trim()
 
-        if (-not ($resourceType -like "*virtualNetworks*")) { continue }
+        if (-not (Test-ArchLucidAzureInventoryVirtualNetworkResourceType -ResourceType $resourceType)) { continue }
 
-        [string]$subnetsJson = "$( $resource.properties.subnets )".Trim()
+        [string]$subnetsJson = Get-ArchLucidInventoryPropertyStringValue -Properties $resource.properties -PropertyName 'subnets'
 
         if ([string]::IsNullOrWhiteSpace($subnetsJson)) { continue }
 

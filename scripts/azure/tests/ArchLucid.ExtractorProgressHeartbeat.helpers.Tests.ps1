@@ -24,6 +24,25 @@ Describe 'ArchLucid.ExtractorProgressHeartbeat.helpers.ps1' {
         }
     }
 
+    It 'uses the configured console brand name in still-running lines' {
+        [string]$previousBrand = Get-ArchLucidExtractorConsoleBrandName
+
+        try
+        {
+            Set-ArchLucidExtractorConsoleBrandName -BrandName 'SecureNow Azure extractor'
+
+            [string]$line = Format-ArchLucidExtractorProgressHeartbeatMessage `
+                -Step 'ActualCostSummary' `
+                -Elapsed ([TimeSpan]::FromSeconds(12))
+
+            $line | Should -Be 'SecureNow Azure extractor | ActualCostSummary | Still running... 00:00:12'
+        }
+        finally
+        {
+            Set-ArchLucidExtractorConsoleBrandName -BrandName $previousBrand
+        }
+    }
+
     It 'formats a still-running line with step name and elapsed clock' {
         [string]$line = Format-ArchLucidExtractorProgressHeartbeatMessage `
             -Step 'ActualCostSummary' `

@@ -105,6 +105,8 @@ function Write-ArchLucidResourcesJsonStream([string] $Path, $Resources)
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorProgressHeartbeat.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.SecurityInventory.helpers.ps1')
 
+Set-ArchLucidExtractorConsoleBrandName -BrandName 'SecureNow Azure extractor'
+
 function Get-ArchLucidExtractorInventoryResources
 {
     param(

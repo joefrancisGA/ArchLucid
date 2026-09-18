@@ -14,7 +14,7 @@ AX-DE collection (shipped) → snapshot relationships + CompletenessWarnings
     → workbench banner + outline inspector
 ```
 
-Consumption only. **Do not** extend the ZIP in AX-DC sessions.
+Consumption only. **Do not** extend the ZIP in AX-DC sessions. **Data Flow families** (May access + Event Grid + DNS-joined PE on Diagram 3) are **SN-PE**, not AX-DC.
 
 ## Do not implement (ever from AX-DC sessions)
 

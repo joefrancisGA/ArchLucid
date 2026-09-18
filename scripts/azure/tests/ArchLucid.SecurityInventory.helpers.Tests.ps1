@@ -109,6 +109,28 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows.Count | Should -Be 0
     }
 
+    It 'skips subnet child resources and virtual networks without subnets under strict mode' {
+        $inventory = @(
+            [ordered]@{
+                resourceType = 'Microsoft.Network/virtualNetworks/subnets'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/default'
+                properties = [pscustomobject]@{ provisioningState = 'Succeeded' }
+            },
+            [ordered]@{
+                resourceType = 'Microsoft.Network/virtualNetworks'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1'
+                properties = [pscustomobject]@{ provisioningState = 'Succeeded' }
+            }
+        )
+
+        { Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources $inventory } |
+            Should -Not -Throw
+
+        [object[]]$rows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 0
+    }
+
     It 'builds network association rows from enriched inventory resources' {
         $inventory = @(
             [ordered]@{
