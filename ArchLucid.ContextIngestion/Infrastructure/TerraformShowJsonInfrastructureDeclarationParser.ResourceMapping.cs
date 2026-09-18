@@ -1391,6 +1391,40 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.caption"] = captionText.Trim();
         }
 
+        if (TryGetPropertyIgnoreCase(res, "dependents", out JsonElement dependentsEl)
+            || TryGetPropertyIgnoreCase(res, "dependents", out dependentsEl))
+        {
+            List<string> dependentsFields = [];
+
+            if (dependentsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in dependentsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        dependentsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (dependentsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = dependentsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    dependentsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (dependentsFields.Count > 0)
+            {
+                string joined = string.Join('|', dependentsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.dependents"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
