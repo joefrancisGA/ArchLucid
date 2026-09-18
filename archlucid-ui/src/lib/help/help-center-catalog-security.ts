@@ -48,7 +48,7 @@ const HELP_CENTER_SECURITY_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, He
   "data-handling": {
     title: "Data handling and tenant isolation",
     summary:
-      "How SecureNow handles review evidence, tenant scope, audit trail, and AI provider processing.",
+      "How SecureNow handles cloud inventory evidence, tenant scope, audit trail, and AI provider processing.",
   },
   "authentication-sign-in": {
     title: "Authentication and sign-in",
