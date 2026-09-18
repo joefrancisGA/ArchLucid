@@ -10,6 +10,7 @@
     - Every run emits `policy-compliance.json` via Azure Policy Insights PolicyStates/latest/queryResults (same read plane as `Get-AzPolicyState`); pagination and throttling backoff are handled in the collector. Reader at subscription or resource-group scope is sufficient for typical tenants.
     - `-IncludeCost` merges subscription-scope **ActualCost** into **`manifest.json`** (`actualCostSummary`) via Azure CLI **`az rest`** calls to **`Microsoft.CostManagement/query`** (Cost Management Reader or equivalent RBAC plus `az` on PATH required; null + warning when access fails). Advisor (`-IncludeAdvisor`) remains backlog; see docs/library/V1_SCOPE.md §2.16 for remaining optional surfaces.
     - `-IncludeAppSettingsHosts` emits `app-settings-hosts.json` via POST `config/appsettings/list` and `config/connectionstrings/list` (setting names + parsed hosts + Key Vault URI host/secret name only — never values).
+    - Console progress: a heartbeat line is written every 10 seconds while a step is in flight (override with ARCHLUCID_EXTRACTOR_PROGRESS_HEARTBEAT_SECONDS; 0 disables).
     - Verify script integrity (code signing / checksum) per your change-management policy before executing in production subscriptions.
 #>
 #Requires -Version 7.0
@@ -100,6 +101,7 @@ function Write-ArchLucidResourcesJsonStream([string] $Path, $Resources)
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ResourceGraph.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorTelemetry.helpers.ps1')
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorProgressHeartbeat.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.SecurityInventory.helpers.ps1')
 
 function Get-ArchLucidExtractorInventoryResources
@@ -348,6 +350,7 @@ if ($DryRun)
 
 $extractionStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 $telemetry = New-ArchLucidExtractorTelemetryContext
+$progressHeartbeat = Start-ArchLucidExtractorProgressHeartbeat -InitialStep 'Starting'
 
 $scopeDescriptor = if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
 {
@@ -375,6 +378,8 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
 
     try
     {
+        Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step SubscriptionContext
+
         Set-ArchLucidAzureExtractorSubscriptionContext `
             -SubscriptionId $SubscriptionId `
             -TenantId $TenantId
@@ -396,6 +401,8 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
             -Stopwatch $contextWatch `
             -Message ("Unable to access subscription '{0}'. Sign in with Connect-AzAccount -Tenant '<tenant-id>' -UseDeviceAuthentication and ensure Reader (or equivalent) RBAC at subscription scope. {1}" -f $SubscriptionId, $authFailure) `
             -Context @{ subscriptionId = $SubscriptionId }
+
+        Stop-ArchLucidExtractorProgressHeartbeat -Handle $progressHeartbeat
 
         exit 1
     }
@@ -424,6 +431,8 @@ New-Item -ItemType Directory -Path $staging | Out-Null
 
 try
 {
+    Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step Inventory
+
     $resources = Get-ArchLucidExtractorInventoryResources `
         -Telemetry $telemetry `
         -SubscriptionId $SubscriptionId `
@@ -465,6 +474,8 @@ try
 
         try
         {
+            Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step ActualCostSummary
+
             $manifest["actualCostSummary"] =
                 $(Get-ArchLucidActualCostSummary -SubscriptionId $SubscriptionId)
 
@@ -523,6 +534,8 @@ try
 
         try
         {
+            Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step PolicyCompliance
+
             $policyCompliance = New-ArchLucidPolicyComplianceDocument `
                 -SubscriptionId $SubscriptionId `
                 -ScopeDescriptor $scopeDescriptor `
@@ -571,6 +584,8 @@ try
     }
 
     try {
+        Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step PolicyDefinitions
+
         if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
         {
             $policyData.policyDefinitions = @(Get-AzPolicyDefinition -ManagementGroupName $ManagementGroupId)
@@ -619,6 +634,8 @@ try
 
     try
     {
+        Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step SecurityInventory
+
         [object[]]$roleAssignmentRows = @(Get-ArchLucidAzureRoleAssignmentCompanionRows `
             -SubscriptionId $SubscriptionId `
             -ResourceGroupScope $ResourceGroupScope `
@@ -800,6 +817,8 @@ try
 
         try
         {
+            Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step RetailPrices
+
             $retailUtc = (Get-Date).ToUniversalTime().ToString("o")
 
             $retailDoc = New-ArchLucidRetailPricesDocument `
@@ -913,6 +932,8 @@ Upload via POST /v1/azure-extractor/upload (ExecuteAuthority). Trust stance: doc
 
     try
     {
+        Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step PackageWrite
+
         if (Test-Path -LiteralPath $OutputPath) { Remove-Item -LiteralPath $OutputPath -Force }
         Compress-Archive -Path (Join-Path $staging '*') -DestinationPath $OutputPath -CompressionLevel Optimal
 
@@ -964,6 +985,7 @@ catch
 }
 finally
 {
+    Stop-ArchLucidExtractorProgressHeartbeat -Handle $progressHeartbeat
     Remove-Item -LiteralPath $staging -Recurse -Force -ErrorAction SilentlyContinue
 }
 
