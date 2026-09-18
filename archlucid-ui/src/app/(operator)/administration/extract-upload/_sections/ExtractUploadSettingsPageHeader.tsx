@@ -17,7 +17,6 @@ import {
   EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL,
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
-  EXTRACT_UPLOAD_REVIEW_BINDING_NONE,
   EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX,
   EXTRACT_UPLOAD_SETTINGS_NAV_HREF,
   EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
@@ -54,11 +53,11 @@ function inventoryStatusPresentation(
   return null;
 }
 
-function reviewBindingLabel(associateRunId: string | null): string {
+function reviewBindingLabel(associateRunId: string | null): string | null {
   const trimmed = associateRunId?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return EXTRACT_UPLOAD_REVIEW_BINDING_NONE;
+    return null;
   }
 
   return `${EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX} ${truncateExtractUploadPackageId(trimmed, 12)}`;
@@ -69,6 +68,7 @@ export function ExtractUploadSettingsPageHeader(
 ): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const inventoryStatus = inventoryStatusPresentation(props.baselineLoading, props.hasInventoryOnFile);
+  const reviewBinding = reviewBindingLabel(props.associateRunId);
 
   return (
     <OperatorPageHeader
@@ -107,9 +107,11 @@ export function ExtractUploadSettingsPageHeader(
                 {EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX}: v{props.extractorScriptVersion}
               </span>
             ) : null}
-            <span className="text-al-text-secondary" data-testid="extract-upload-header-review-binding">
-              {reviewBindingLabel(props.associateRunId)}
-            </span>
+            {reviewBinding !== null ? (
+              <span className="text-al-text-secondary" data-testid="extract-upload-header-review-binding">
+                {reviewBinding}
+              </span>
+            ) : null}
           </div>
         )
       }

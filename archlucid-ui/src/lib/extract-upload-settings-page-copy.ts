@@ -92,9 +92,6 @@ export const EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE =
 
 export const EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX = "Upload binds to review" as const;
 
-export const EXTRACT_UPLOAD_REVIEW_BINDING_NONE =
-  "No review selected — upload updates workspace inventory for the next architecture review." as const;
-
 export const EXTRACT_UPLOAD_ACCEPTED_PACKAGE_PANEL_TITLE = "Last accepted architecture package" as const;
 
 export const EXTRACT_UPLOAD_ACCEPTED_REPLACE_LABEL = "Replace inventory" as const;
