@@ -15,6 +15,7 @@ import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { SECURENOW_AUDIT_EVIDENCE_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
   GOVERNANCE_ADVISORY_SCANS_PATH,
   GOVERNANCE_ALERTS_PATH,
@@ -24,6 +25,9 @@ import {
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_SETUP_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import type { NavLinkItem } from "@/lib/nav-config.types";
@@ -86,10 +90,10 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
     GOVERNANCE_STANDARDS_AND_RULES_PATH,
   ],
   "operate-compliance": [
-    GOVERNANCE_POLICY_PACKS_PATH,
-    GOVERNANCE_STANDARDS_AND_RULES_PATH,
-    "/governance/findings",
-    "/governance/audit-evidence",
+    SECURENOW_POLICY_PACKS_PATH,
+    SECURENOW_STANDARDS_AND_RULES_PATH,
+    SECURENOW_FINDINGS_PATH,
+    SECURENOW_AUDIT_EVIDENCE_PATH,
   ],
   // Routine configuration leads; System health and Support are break-glass pages and Support is also
   // published as an inline bundle card on the settings hub, so neither needs a first-viewport slot.

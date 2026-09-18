@@ -11,6 +11,7 @@ internal static class InventoryReachabilityPathGraph
         GraphEdgeTypes.Exposes,
         GraphEdgeTypes.RoutesTo,
         GraphEdgeTypes.ConnectsTo,
+        GraphEdgeTypes.DependsOn,
         GraphEdgeTypes.Contains,
     ];
 

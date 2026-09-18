@@ -1,11 +1,16 @@
 import {
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
-  governanceInfrastructureResourceHubPath,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  infrastructureResourceHubPathForProductLine,
+  infrastructureResourcesPathForProductLine,
+} from "@/lib/product-line/securenow-infrastructure-resources-route";
+import { resolveProductLineId } from "@/lib/product-line/resolve-product-line-id";
 import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { resolveResourceHubTabFromExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH } from "@/lib/governance/governance-infrastructure-copy";
 import type { CloudResourceExplorerWorkCountKind } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 
@@ -40,12 +45,16 @@ const ALLOWED_TABS: ReadonlySet<ResourceHubTab> = new Set([
   "audit",
 ]);
 
+function clampResourceExplorerTopFilterValue(raw: string): string {
+  return raw.trim().slice(0, GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH);
+}
+
 export function parseResourceExplorerNamePrefixFromSearch(raw: string | null | undefined): string {
   if (raw === null || raw === undefined) {
     return "";
   }
 
-  return raw.trim();
+  return clampResourceExplorerTopFilterValue(raw);
 }
 
 export function parseResourceExplorerResourceTypeFromSearch(raw: string | null | undefined): string {
@@ -53,7 +62,7 @@ export function parseResourceExplorerResourceTypeFromSearch(raw: string | null |
     return "";
   }
 
-  return raw.trim();
+  return clampResourceExplorerTopFilterValue(raw);
 }
 
 export function parseResourceExplorerResourceGroupFromSearch(raw: string | null | undefined): string {
@@ -328,7 +337,7 @@ export function resourceExplorerFilterHrefFromSearch(
     readonly workQueue?: CloudResourceExplorerWorkQueue;
     readonly snapshotId?: string;
   },
-  pathname: string = GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  pathname: string = infrastructureResourcesPathForProductLine(resolveProductLineId()),
 ): string {
   const params = new URLSearchParams(currentSearch);
 
@@ -409,7 +418,7 @@ export function resourceHubFilterHrefFromSearch(
   },
 ): string {
   const params = new URLSearchParams(currentSearch);
-  const pathname = governanceInfrastructureResourceHubPath(cloudResourceId);
+  const pathname = infrastructureResourceHubPathForProductLine(resolveProductLineId(), cloudResourceId);
 
   if (patch.tab !== undefined) {
     if (patch.tab === "overview") {

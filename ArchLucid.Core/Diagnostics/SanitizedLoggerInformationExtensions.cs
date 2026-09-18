@@ -349,4 +349,22 @@ public static partial class SanitizedLoggerInformationExtensions
 
         EmitRunScopedLlmBudgetReserved(logger, reservationId, safeRunId, reserveUsd);
     }
+
+    /// <summary>
+    ///     Logs a finding insight-density signal with sanitized kind and finding id (CWE-117).
+    /// </summary>
+    public static void LogInformationFindingInsightSignalRecorded(
+        this ILogger logger,
+        string kind,
+        Guid runId,
+        string findingId,
+        bool created)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeKind = LogSanitizer.Sanitize(kind);
+        string safeFindingId = LogSanitizer.Sanitize(findingId);
+
+        EmitFindingInsightSignalRecorded(logger, safeKind, runId, safeFindingId, created);
+    }
 }

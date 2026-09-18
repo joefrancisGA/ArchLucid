@@ -23,13 +23,13 @@ import {
   FINDINGS_HELP_LIFECYCLE_STAGES,
   FINDINGS_HELP_PAGE_TITLE,
   FINDINGS_HELP_PROVENANCE_AXES,
-  FINDINGS_HELP_PROVENANCE_INTRO,
-  FINDINGS_HELP_PROVENANCE_NON_CLAIM,
   FINDINGS_HELP_PROVENANCE_ORIGINS,
   FINDINGS_HELP_PROVENANCE_TITLE,
   FINDINGS_HELP_RESPOND_INTRO,
-  FINDINGS_HELP_ROLE_GUIDANCE,
-  FINDINGS_HELP_SEMANTIC_SUPPORT_COPY,
+  findingsHelpProvenanceIntro,
+  findingsHelpProvenanceNonClaim,
+  findingsHelpRoleGuidance,
+  findingsHelpSemanticSupportCopy,
   FINDINGS_HELP_SEVERITY_INTRO,
   FINDINGS_HELP_SEVERITY_ROWS,
   findingsHelpAnatomyFields,
@@ -42,10 +42,7 @@ import {
   findingsHelpRelatedLinks,
   findingsHelpWhatIsBody,
 } from "@/lib/findings/findings-help-guide-content";
-import {
-  FINDINGS_HELP_CANONICAL_PATH,
-  FINDINGS_HELP_CLAIM_DISCIPLINE,
-} from "@/lib/findings/findings-help-evidence-copy";
+import { FINDINGS_HELP_CANONICAL_PATH, resolveFindingsHelpClaimDiscipline } from "@/lib/findings/findings-help-evidence-copy";
 import {
   FINDINGS_HELP_FIRST_VIEWPORT_TEST_ID,
   FINDINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
@@ -216,6 +213,11 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
   const governanceIntro = findingsHelpGovernanceIntro(productLineId);
   const governanceItems = findingsHelpGovernanceItems(productLineId);
   const relatedLinks = findingsHelpRelatedLinks(productLineId);
+  const claimDiscipline = resolveFindingsHelpClaimDiscipline(productLineId);
+  const provenanceIntro = findingsHelpProvenanceIntro(productLineId);
+  const semanticSupportCopy = findingsHelpSemanticSupportCopy(productLineId);
+  const provenanceNonClaim = findingsHelpProvenanceNonClaim(productLineId);
+  const roleGuidance = findingsHelpRoleGuidance(productLineId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "findings-help",
@@ -245,7 +247,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
             subtitle={pageSubtitle}
             navHref={FINDINGS_HELP_CANONICAL_PATH}
             headingLevel="h1"
-            claimDiscipline={FINDINGS_HELP_CLAIM_DISCIPLINE}
+            claimDiscipline={claimDiscipline}
             claimDisciplineTestId={FINDINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
             actions={<HelpFindingsHeaderActions />}
           />
@@ -311,10 +313,8 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
               data-testid="help-findings-provenance"
             >
               <HelpSectionHeading id="where-findings-come-from">{FINDINGS_HELP_PROVENANCE_TITLE}</HelpSectionHeading>
-              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_PROVENANCE_INTRO}</p>
-              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
-                {FINDINGS_HELP_SEMANTIC_SUPPORT_COPY}
-              </p>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{provenanceIntro}</p>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{semanticSupportCopy}</p>
               <ul className={HELP_PAGE_LAYOUT.bulletList}>
                 {FINDINGS_HELP_PROVENANCE_AXES.map((row) => (
                   <li key={row.axis}>
@@ -333,7 +333,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
                   </li>
                 ))}
               </ul>
-              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_PROVENANCE_NON_CLAIM}</p>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{provenanceNonClaim}</p>
             </section>
 
             <section
@@ -412,7 +412,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
             >
               <HelpSectionHeading id="role-guidance">What each role usually does</HelpSectionHeading>
               <div className="grid gap-3 sm:grid-cols-2" data-testid="help-findings-role-guidance">
-                {FINDINGS_HELP_ROLE_GUIDANCE.map((entry) => (
+                {roleGuidance.map((entry) => (
                   <div
                     key={entry.role}
                     className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"

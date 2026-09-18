@@ -1,7 +1,5 @@
-import DOMPurify from "dompurify";
-
 import { createArchitectureDiagramMermaidConfig } from "@/lib/architecture/architecture-diagram-mermaid-config";
-import { replaceMermaidForeignObjectLabelsWithSvgText } from "@/lib/architecture/architecture-diagram-svg";
+import { sanitizeArchitectureDiagramSvg } from "@/lib/architecture/architecture-diagram-svg";
 import { renderMermaidSvgMarkup } from "@/lib/mermaid/mermaid-safe-render";
 import { sanitizeMermaidSvgForCanvasExport } from "@/lib/infra-evidence/sanitize-mermaid-svg-for-canvas-export";
 
@@ -47,18 +45,18 @@ function readSvgExportDimensions(svgMarkup: string): { width: number; height: nu
   return { width: 1200, height: 800 };
 }
 
-function sanitizeSvgMarkupForCanvasExport(svgMarkup: string): string {
-  const withWrappedLabels = replaceMermaidForeignObjectLabelsWithSvgText(svgMarkup);
-  const purified = DOMPurify.sanitize(withWrappedLabels, {
-    USE_PROFILES: { svg: true, svgFilters: true },
-    FORBID_TAGS: ["script", "foreignObject"],
-  });
+function sanitizeSvgMarkupForCanvasExport(svgMarkup: string, dark: boolean): string {
+  const withPalette = sanitizeArchitectureDiagramSvg(svgMarkup, { dark });
 
-  return sanitizeMermaidSvgForCanvasExport(purified);
+  return sanitizeMermaidSvgForCanvasExport(withPalette);
 }
 
-async function svgMarkupToPngBlob(svgMarkup: string, backgroundColor: string): Promise<Blob> {
-  const sanitizedSvgMarkup = sanitizeSvgMarkupForCanvasExport(svgMarkup);
+async function svgMarkupToPngBlob(
+  svgMarkup: string,
+  backgroundColor: string,
+  dark: boolean,
+): Promise<Blob> {
+  const sanitizedSvgMarkup = sanitizeSvgMarkupForCanvasExport(svgMarkup, dark);
   const { width, height } = readSvgExportDimensions(sanitizedSvgMarkup);
   const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(sanitizedSvgMarkup)}`;
 
@@ -111,7 +109,7 @@ export async function exportSanitizedMermaidSvgMarkupToPngBlob(
   const dark = options.dark ?? false;
   const backgroundColor = options.backgroundColor ?? (dark ? "#0a0a0a" : "#ffffff");
 
-  return svgMarkupToPngBlob(trimmed, backgroundColor);
+  return svgMarkupToPngBlob(trimmed, backgroundColor, dark);
 }
 
 /** Renders Mermaid source in the browser and returns a PNG blob (used when server mmdc is unavailable). */
@@ -134,5 +132,5 @@ export async function exportMermaidSourceToPngBlob(
     },
   });
 
-  return svgMarkupToPngBlob(svg, backgroundColor);
+  return svgMarkupToPngBlob(svg, backgroundColor, dark);
 }

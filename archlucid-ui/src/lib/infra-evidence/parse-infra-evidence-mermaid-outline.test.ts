@@ -130,6 +130,61 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         from: "vnet1",
         to: "vnet3",
         label: "peering",
+        source: "observed",
+        confidenceBand: "observed",
+        provenanceKind: null,
+        inferenceSource: null,
+        declaredConnectionId: null,
+      },
+    ]);
+  });
+
+  it("parses probable authorization edge metadata from inventory mermaid", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    web["orders-api"]',
+        '    sql["orders-db"]',
+        "    %% al-provenance=DerivedFact al-inference=inventory-app-authorized-access",
+        '    web -.->|"May access"| sql',
+      ].join("\n"),
+    );
+
+    expect(outline.edges).toEqual([
+      {
+        from: "web",
+        to: "sql",
+        label: "May access",
+        source: "probable",
+        confidenceBand: "probable",
+        provenanceKind: "DerivedFact",
+        inferenceSource: "inventory-app-authorized-access",
+        declaredConnectionId: null,
+      },
+    ]);
+  });
+
+  it("parses declared edge metadata and dashed arrows", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    app["web-app"]',
+        '    sql["sql-server"]',
+        "    %% al-provenance=HumanAssertion al-inference=human-declared-connection al-declared-id=cccccccc-cccc-cccc-cccc-cccccccccccc",
+        '    app -.->|"declared · connects"| sql',
+      ].join("\n"),
+    );
+
+    expect(outline.edges).toEqual([
+      {
+        from: "app",
+        to: "sql",
+        label: "declared · connects",
+        source: "declared",
+        confidenceBand: "declared",
+        provenanceKind: "HumanAssertion",
+        inferenceSource: "human-declared-connection",
+        declaredConnectionId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
       },
     ]);
   });
@@ -151,6 +206,11 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         from: "vnet1",
         to: "vnet2",
         label: null,
+        source: "observed",
+        confidenceBand: "observed",
+        provenanceKind: null,
+        inferenceSource: null,
+        declaredConnectionId: null,
       },
     ]);
     expect(resolveInfraEvidenceOutlineEdgeLabel(outline.edges[0]!, outline.nodes)).toBe("peering");

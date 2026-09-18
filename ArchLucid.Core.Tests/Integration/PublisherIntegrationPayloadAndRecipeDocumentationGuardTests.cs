@@ -32,7 +32,10 @@ public sealed class PublisherIntegrationPayloadAndRecipeDocumentationGuardTests
             "projectId",
             "previousRunId",
             "description",
-            "findings"
+            "findings",
+            "structuralExecutionMode",
+            "workingCareerRehearsalDoor",
+            "careerComplete"
         ];
 
         names.Should().Equal(expected);

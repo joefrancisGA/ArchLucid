@@ -58,6 +58,15 @@ export const GETTING_STARTED_HELP_AUDIENCE_LINE =
 export const GETTING_STARTED_HELP_CLAIM_DISCIPLINE =
   "This guide orients you through the review flow — it is not a sealed-review diligence Sources package. Open Security & Trust or a finalized review before treating onboarding copy as procurement evidence.";
 
+export const SECURENOW_GETTING_STARTED_HELP_CLAIM_DISCIPLINE =
+  "This guide orients you through SecureNow cloud evidence and findings workflows — it is not a sealed diligence Sources package. Open Security & Trust or Audit evidence lineage before treating onboarding copy as procurement evidence.";
+
+export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_VOCAB_INTRO =
+  "Seven terms you will see across review, approval, and export surfaces.";
+
+export const SECURENOW_GETTING_STARTED_HELP_PLAIN_LANGUAGE_VOCAB_INTRO =
+  "Seven terms you will see across inventory, findings, and audit surfaces.";
+
 export const GETTING_STARTED_HELP_SOURCES_INTRO =
   "Use these follow-ups when getting-started orientation turns into a first review, path choice, or assurance questions.";
 
@@ -195,6 +204,38 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
     term: "Approval",
     definition:
       "Formal sign-off workflow when a review requires approver acknowledgement before release.",
+  },
+];
+
+export const SECURENOW_GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedPlainLanguageTerm[] = [
+  {
+    term: "Cloud inventory",
+    definition: "Connected Azure resources and metadata SecureNow evaluates against assigned policy packs.",
+  },
+  {
+    term: "Evidence",
+    definition: "Inventory snapshots, connector configuration, and supporting context used to justify findings.",
+  },
+  {
+    term: "Findings",
+    definition:
+      "Structured cloud security issues surfaced when policy packs evaluate inventory, each tied to severity and affected resources.",
+  },
+  {
+    term: "Policy pack",
+    definition: "Versioned ARC-AMPE standards and rules assigned to a workspace for recurring evaluation.",
+  },
+  {
+    term: "Connector",
+    definition: "Read-only cloud integration that ingests inventory evidence into your tenant boundary.",
+  },
+  {
+    term: "Audit lineage",
+    definition: "Append-only records that trace findings, dispositions, and export-ready evidence packages.",
+  },
+  {
+    term: "Remediation",
+    definition: "Tracked work to resolve or accept a finding, including owners, due dates, and disposition outcomes.",
   },
 ];
 
@@ -440,9 +481,63 @@ export const GETTING_STARTED_HELP_TECHNICAL_TERMS: readonly GettingStartedPlainL
   },
 ];
 
+export const SECURENOW_GETTING_STARTED_HELP_TECHNICAL_TERMS: readonly GettingStartedPlainLanguageTerm[] = [
+  {
+    term: "Workspace identifier",
+    definition: "API and storage key for one SecureNow tenant workspace and its assigned policy packs.",
+  },
+  {
+    term: "Inventory snapshot identifier",
+    definition: "Immutable id for a point-in-time cloud inventory capture used in findings evaluation.",
+  },
+  {
+    term: "Connector configuration",
+    definition: "Stored credentials and scope settings for read-only cloud inventory ingestion.",
+  },
+  {
+    term: "Finding identifier",
+    definition: "Stable key for one ARC-AMPE finding row in the findings queue.",
+  },
+  {
+    term: "Disposition record",
+    definition: "Recorded accept, waive, remediate, or monitor outcome attached to a finding.",
+  },
+  {
+    term: "Audit evidence package",
+    definition: "Export-ready bundle of lineage metadata for compliance and diligence review.",
+  },
+];
+
+export function resolveGettingStartedHelpClaimDiscipline(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_GETTING_STARTED_HELP_CLAIM_DISCIPLINE
+    : GETTING_STARTED_HELP_CLAIM_DISCIPLINE;
+}
+
+export function resolveGettingStartedHelpPlainLanguageVocabIntro(
+  productLineId: ProductLineId = "architecture",
+): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_GETTING_STARTED_HELP_PLAIN_LANGUAGE_VOCAB_INTRO
+    : GETTING_STARTED_HELP_PLAIN_LANGUAGE_VOCAB_INTRO;
+}
+
+export function resolveGettingStartedHelpPlainLanguageTerms(
+  productLineId: ProductLineId = "architecture",
+): readonly GettingStartedPlainLanguageTerm[] {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS
+    : GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS;
+}
+
 export function resolveGettingStartedHelpTechnicalTerms(
   workingMode: boolean,
+  productLineId: ProductLineId = "architecture",
 ): readonly GettingStartedPlainLanguageTerm[] {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_TECHNICAL_TERMS;
+  }
+
   if (!workingMode) {
     return GETTING_STARTED_HELP_TECHNICAL_TERMS;
   }

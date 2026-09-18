@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   governanceAssignedToMeBulkSelectionHrefFromSearch,
@@ -22,7 +22,7 @@ export function useGovernanceFindingsQueueBulkActions(options: {
   const pathname = usePathname() ?? (
     mode === "assigned-to-me"
       ? assignedToMeFindingsPathForProductLine(productLine)
-      : GOVERNANCE_FINDINGS_PATH
+      : findingsPathForProductLine(productLine)
   );
   const searchParams = useSearchParams();
   const urlBulkFindingsRaw = searchParams.get("bulkFindings");

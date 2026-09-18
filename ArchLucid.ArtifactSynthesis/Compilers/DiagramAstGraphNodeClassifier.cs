@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Inventory;
 
@@ -87,7 +88,27 @@ internal static class DiagramAstGraphNodeClassifier
     public static bool IsTopologyResource(GraphNode node)
     {
         return string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.Ordinal)
-            || string.Equals(node.SourceType, "azure-inventory-snapshot", StringComparison.OrdinalIgnoreCase);
+            || string.Equals(node.SourceType, "azure-inventory-snapshot", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(node.SourceType, "azure-inventory-adf-external-source", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsExternalSourceNode(GraphNode node)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+
+        if (AzureInventoryAdfExternalSourceNodeFactory.IsExternalSourceNodeId(node.NodeId))
+        {
+            return true;
+        }
+
+        return node.Properties != null
+            && node.Properties.TryGetValue(
+                AzureInventoryAdfExternalSourceNodeFactory.ExternalSourcePropertyKey,
+                out string? externalFlag)
+            && string.Equals(
+                externalFlag,
+                AzureInventoryAdfExternalSourceNodeFactory.ExternalSourcePropertyValue,
+                StringComparison.OrdinalIgnoreCase);
     }
 
     public static Guid? ReadCloudResourceId(GraphNode node)

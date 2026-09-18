@@ -41,7 +41,6 @@ import {
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
-import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
@@ -639,14 +638,7 @@ export function RemediationWorkbenchClient() {
         claimDisciplineTestId="infra-remediation-claim-discipline"
         titleTestId="infra-remediation-page-title"
         breadcrumb={buyerPolishedShell ? <RemediationBreadcrumb /> : undefined}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <PageContextualHelpButton />
-            {!buyerPolishedShell ? (
-              <CopyScopedOperatorLinkButton testId="infra-remediation-copy-scoped-link" />
-            ) : null}
-          </div>
-        }
+        actions={<PageContextualHelpButton />}
       />
 
       {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-remediation" /> : null}
@@ -659,11 +651,6 @@ export function RemediationWorkbenchClient() {
         )}
         data-testid="infra-remediation-primary-content"
       >
-      {buyerPolishedShell ? (
-        <div className="flex justify-end">
-          <CopyScopedOperatorLinkButton testId="infra-remediation-copy-scoped-link" />
-        </div>
-      ) : null}
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-remediation-selection-announcer" />
 
       {urlCloudResourceId.length > 0 ? (

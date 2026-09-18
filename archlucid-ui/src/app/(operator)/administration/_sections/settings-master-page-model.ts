@@ -4,6 +4,7 @@ import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/
 import type { ProductLineAssignment } from "@/lib/product-line/product-line-assignment";
 import { isPathAllowedForProductLine } from "@/lib/product-line/product-line-path-access";
 import { extractUploadSettingsPathForProductLine } from "@/lib/extract-upload-settings-route";
+import { SETTINGS_SUPPORT_PATH } from "@/lib/settings-admin-route-paths";
 
 import { settingsMasterAudienceForScope } from "./settings-master-audience";
 import type { SettingsMasterDestination, SettingsMasterSection, SettingsMasterTier } from "./settings-master-types";
@@ -145,6 +146,9 @@ export function buildSettingsMasterVisibleSections(
       const showSupportBundle =
         section.id === "support"
         && executePlus
+        && isPathAllowedForProductLine(SETTINGS_SUPPORT_PATH, productLine, {
+          assignmentOverrides: input.productLineAssignmentOverrides,
+        })
         && inlineCardMatchesQuery(normalizedQuery, ["support", "bundle", "diagnostics", "ticket"]);
 
       return {

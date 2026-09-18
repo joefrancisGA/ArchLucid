@@ -2,10 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   operatorSecurityTrustMaterialItems,
+  OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE,
   OPERATOR_SECURITY_TRUST_MATURITY_TAG_ROADMAP,
   OPERATOR_SECURITY_TRUST_MATURITY_TAG_UNDER_NDA,
+  resolveOperatorSecurityTrustDataRetentionNote,
   resolveOperatorSecurityTrustMaterialAvailability,
   resolveOperatorSecurityTrustMaterialReviewedLabel,
+  SECURENOW_OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE,
 } from "@/lib/operator/operator-security-trust-content";
 import { assuranceMaturityBadgeLabel } from "@/lib/security-trust-content";
 import { operatorSecurityTrustSubprocessorsWhatItIs } from "@/lib/security-trust-product-copy";
@@ -40,6 +43,15 @@ describe("operator-security-trust-content", () => {
     const hrefs = operatorSecurityTrustMaterialItems("architecture").map((item) => item.href);
     expect(new Set(hrefs).size).toBe(hrefs.length);
     expect(hrefs.some((href) => href.includes("/trust"))).toBe(false);
+  });
+
+  it("uses SecureNow data retention copy without architecture review language", () => {
+    expect(resolveOperatorSecurityTrustDataRetentionNote("security")).toBe(
+      SECURENOW_OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE,
+    );
+    expect(SECURENOW_OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE).toContain("audit lineage");
+    expect(SECURENOW_OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE).not.toContain("Architecture review");
+    expect(resolveOperatorSecurityTrustDataRetentionNote("architecture")).toBe(OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE);
   });
 
   it("clarifies SecureNow delivery in subprocessors copy on the security shell", () => {

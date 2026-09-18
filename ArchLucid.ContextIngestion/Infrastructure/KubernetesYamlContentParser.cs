@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 
@@ -69,7 +70,7 @@ internal static class KubernetesYamlContentParser
         }
         catch (Exception ex) when (ex is YamlDotNet.Core.YamlException or JsonException)
         {
-            logger?.LogWarning(
+            logger?.LogWarningWithExceptionAndTwoSanitizedUserStrings(
                 ex,
                 "Failed to parse Kubernetes YAML for '{Name}' (DeclarationId={DeclarationId}); skipping.",
                 declaration.Name,

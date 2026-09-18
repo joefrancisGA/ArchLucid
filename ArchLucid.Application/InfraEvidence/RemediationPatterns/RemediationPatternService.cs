@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
@@ -89,7 +90,10 @@ public sealed class RemediationPatternService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            logger.LogWarning(ex, "Remediation pattern draft creation failed for PatternKey={PatternKey}.", request.PatternKey);
+            logger.LogWarningWithSanitizedUserArg(
+                ex,
+                "Remediation pattern draft creation failed for PatternKey={PatternKey}.",
+                request.PatternKey);
             return Fail("Remediation pattern draft creation failed.");
         }
     }

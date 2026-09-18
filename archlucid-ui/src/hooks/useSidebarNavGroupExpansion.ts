@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -45,6 +45,12 @@ export function useSidebarNavGroupExpansion(): {
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const sidebarNavExpandedGroupsParam = searchParams.get("sidebarNavExpandedGroups");
+  const currentSearchRef = useRef(currentSearch);
+  const pathnameRef = useRef(pathname);
+
+  currentSearchRef.current = currentSearch;
+  pathnameRef.current = pathname;
+
   const [expansion, setExpansion] = useState<SidebarNavGroupExpansionState>(() =>
     readSidebarNavGroupExpansionState(),
   );
@@ -53,14 +59,14 @@ export function useSidebarNavGroupExpansion(): {
     (state: SidebarNavGroupExpansionState) => {
       router.replace(
         sidebarNavExpandedGroupsDisclosureHrefFromSearch(
-          currentSearch,
+          currentSearchRef.current,
           expandedGroupIdsFromState(state),
-          pathname,
+          pathnameRef.current,
         ),
         { scroll: false },
       );
     },
-    [currentSearch, pathname, router],
+    [router],
   );
 
   const persist = useCallback(

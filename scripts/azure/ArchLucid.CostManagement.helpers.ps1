@@ -1,8 +1,8 @@
 # ArchLucid - Azure Cost Management helpers for Get-ArchLucidAzurePackage.ps1
 #
-# Subscription-scoped **Microsoft.CostManagement/query** via **az rest** (Azure CLI core only - no PowerShell Az modules).
-# The **costmanagement** extension removed **`az costmanagement query`** starting v0.2.1; this path keeps **ActualCost**
-# payloads equivalent to **`--type ActualCost`** on the removed command.
+# Subscription-scoped **Microsoft.CostManagement/query** via **Invoke-AzRestMethod** (preferred; reuses Connect-AzAccount)
+# with **az rest** fallback when Az.Accounts is unavailable. The **costmanagement** extension removed
+# **`az costmanagement query`** starting v0.2.1; payloads stay equivalent to **`--type ActualCost`**.
 #
 
 Set-StrictMode -Version Latest
@@ -10,6 +10,109 @@ Set-StrictMode -Version Latest
 function Test-ArchLucidAzureCliRunnable {
 
     return $null -ne (Get-Command -Name az -ErrorAction SilentlyContinue)
+}
+
+function Test-ArchLucidAzRestMethodRunnable {
+
+    return $null -ne (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue)
+}
+
+function Resolve-ArchLucidArmRestRelativePath([string] $AbsoluteOrRelativeUri) {
+
+    if ([string]::IsNullOrWhiteSpace($AbsoluteOrRelativeUri)) {
+
+        return $null
+    }
+
+    [string]$trimmed = "$AbsoluteOrRelativeUri".Trim()
+
+    if ($trimmed.StartsWith('/', [System.StringComparison]::Ordinal)) {
+
+        return $trimmed
+    }
+
+    try {
+
+        return ([Uri]::new($trimmed)).PathAndQuery
+    }
+
+    catch {
+
+        return $null
+    }
+}
+
+function Invoke-ArchLucidAzPowerShellRestRetryable(
+    [Parameter(Mandatory)][ValidateSet('GET', 'POST')][string]$Method,
+    [Parameter(Mandatory)][string]$PathOrUrl,
+    [string]$Body = '') {
+
+    for ($attempt = 1; $attempt -le 12; $attempt++) {
+
+        try {
+
+            [string]$path = Resolve-ArchLucidArmRestRelativePath -AbsoluteOrRelativeUri $PathOrUrl
+
+            if ([string]::IsNullOrWhiteSpace($path)) {
+
+                throw "ArchLucid Az PowerShell REST path could not be resolved from '$PathOrUrl'."
+            }
+
+            [hashtable]$invokeParams = @{
+                Method = $Method
+                Path = $path
+                ErrorAction = 'Stop'
+            }
+
+            if (($Method -eq 'POST') -and (-not ([string]::IsNullOrWhiteSpace($Body)))) {
+
+                $invokeParams['Payload'] = $Body
+            }
+
+            $response = Invoke-AzRestMethod @invokeParams
+
+            return [ordered]@{
+                Exit = 0
+                Stdout = "$( $response.Content )".TrimEnd()
+                Stderr = ''
+            }
+        }
+
+        catch {
+
+            [int]$code = [int]::MinValue
+
+            if (Get-Command Get-AzureHttpStatusFromPipelineError -ErrorAction SilentlyContinue) {
+
+                $code = Get-AzureHttpStatusFromPipelineError $_
+            }
+
+            if (-not (Test-ArchLucidAzRestTransientHttpStatus -StatusCode $code)) {
+
+                return [ordered]@{
+                    Exit = 1
+                    Stdout = ''
+                    Stderr = $_.Exception.Message
+                }
+            }
+
+            if ($attempt -eq 12) {
+
+                return [ordered]@{
+                    Exit = 1
+                    Stdout = ''
+                    Stderr = $_.Exception.Message
+                }
+            }
+
+            [int]$sleepMs = [Math]::Min(90000, (900 + (($attempt - 1) * 2800)))
+            [int]$fuzz = Get-Random -Minimum 120 -Maximum 620
+
+            Start-Sleep -Milliseconds ($sleepMs + $fuzz)
+        }
+    }
+
+    throw 'ArchLucid Az PowerShell REST retry loop exited without returning a captured response.'
 }
 
 function New-ArchLucidCostManagementActualCostBodyJson(
@@ -360,13 +463,30 @@ function Invoke-ArchLucidActualCostPagedQuery(
 
         try {
 
-            $snippet = Invoke-ArchLucidAzureCliAzRestRetryable -TailAfterRest @($tailArgs.ToArray())
+            if (Test-ArchLucidAzRestMethodRunnable) {
 
+                $snippet = Invoke-ArchLucidAzPowerShellRestRetryable `
+                    -Method $(if ($stillPost) { 'POST' } else { 'GET' }) `
+                    -PathOrUrl "$cursor" `
+                    -Body $(if ($stillPost) { $reuseBody } else { '' })
+            }
+
+            elseif (Test-ArchLucidAzureCliRunnable) {
+
+                $snippet = Invoke-ArchLucidAzureCliAzRestRetryable -TailAfterRest @($tailArgs.ToArray())
+            }
+
+            else {
+
+                Write-Warning "ArchLucid ActualCost requires Invoke-AzRestMethod or az CLI on PATH."
+
+                return @{ Ok = $false; StderrCombined = 'Invoke-AzRestMethod and az CLI are unavailable.'; Pages = @() }
+            }
         }
 
         catch {
 
-            Write-Warning "ArchLucid ActualCost az rest invocation failed: $($_.Exception.Message)"
+            Write-Warning "ArchLucid ActualCost REST invocation failed: $($_.Exception.Message)"
 
             return @{ Ok = $false; StderrCombined = $_.Exception.Message; Pages = @() }
 
@@ -856,17 +976,11 @@ function Get-ArchLucidActualCostSummary(
 
 
 
-    if (-not (Test-ArchLucidAzureCliRunnable)) {
+    if (-not (Test-ArchLucidAzRestMethodRunnable) -and -not (Test-ArchLucidAzureCliRunnable)) {
 
-
-
-
-        Write-Warning "ArchLucid 'az' CLI not discovered on PATH; actualCostSummary cannot populate."
-
+        Write-Warning "ArchLucid ActualCost requires Invoke-AzRestMethod (Az.Accounts) or 'az' CLI on PATH; actualCostSummary cannot populate."
 
         return $null
-
-
     }
 
 

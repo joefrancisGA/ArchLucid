@@ -35,7 +35,7 @@ export type OperatorLayeredConnectivityErrorProps = OperatorConnectivityPresenta
 /** Buyer-safe connectivity failure — recovery actions first; support detail behind Technical details. */
 export function OperatorLayeredConnectivityError(props: OperatorLayeredConnectivityErrorProps) {
   const { productLine } = useProductLine();
-  const technical = resolveOperatorConnectivityTechnicalDetails(props, productLine.id);
+  const technical = resolveOperatorConnectivityTechnicalDetails(props, productLine);
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -88,9 +88,9 @@ export function OperatorLayeredConnectivityError(props: OperatorLayeredConnectiv
     <OperatorWarningCallout>
       <div data-testid="operator-connectivity-primary">
         <strong>{OPERATOR_CONNECTIVITY_ERROR_PRIMARY_HEADING}</strong>
-        <p className="mt-2">{operatorConnectivityErrorPrimaryBody(productLine.id)}</p>
+        <p className="mt-2">{operatorConnectivityErrorPrimaryBody(productLine)}</p>
         <OperatorErrorRecoveryContract
-          presentation={errorRecoveryContractForScenario("connectivity", { productLineId: productLine.id })}
+          presentation={errorRecoveryContractForScenario("connectivity", { productLineId: productLine })}
         />
         <OperatorErrorRecoveryActions helpSlug="troubleshooting" helpHashFragment="overview-workspace-empty" showSystemHealth />
         <div className="mt-3">
