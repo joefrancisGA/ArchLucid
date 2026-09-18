@@ -29,7 +29,7 @@ describe("architectureDraftDisplayName", () => {
     );
   });
 
-  it("uses a truncated free-text intent when the draft has a meaningful name", () => {
+  it("uses a truncated free-text intent when the architecture draft has a meaningful name", () => {
     const longIntent = "A".repeat(80);
 
     expect(architectureDraftDisplayName(undefined, longIntent)).toBe(`${"A".repeat(61)}…`);

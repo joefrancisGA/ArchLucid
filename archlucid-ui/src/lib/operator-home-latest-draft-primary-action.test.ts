@@ -38,7 +38,7 @@ describe("isArchitectureDraftPastDraftingOnRegistryEntry", () => {
     ).toBe(true);
   });
 
-  it("keeps editable drafting rows on the draft workspace", () => {
+  it("keeps editable drafting rows on the architecture draft workspace", () => {
     expect(isArchitectureDraftPastDraftingOnRegistryEntry(entry())).toBe(false);
   });
 });
@@ -49,7 +49,7 @@ describe("resolveOperatorHomeLatestDraftPrimaryAction", () => {
 
     expect(action).toEqual({
       href: "/architecture/architectures/draft-001",
-      ctaLabel: "Resume latest draft",
+      ctaLabel: "Resume latest architecture draft",
       kind: "resume-draft",
     });
   });
@@ -61,7 +61,7 @@ describe("resolveOperatorHomeLatestDraftPrimaryAction", () => {
 
     expect(action).toEqual({
       href: "/architecture/architectures/architecture-identity-001/drafts/draft-001",
-      ctaLabel: "Resume latest draft",
+      ctaLabel: "Resume latest architecture draft",
       kind: "resume-draft",
     });
   });
@@ -73,7 +73,7 @@ describe("resolveOperatorHomeLatestDraftPrimaryAction", () => {
 
     expect(action).toEqual({
       href: "/architecture/architectures/draft-001",
-      ctaLabel: "Resume latest draft",
+      ctaLabel: "Resume latest architecture draft",
       kind: "resume-draft",
     });
   });

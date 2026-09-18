@@ -27,7 +27,7 @@ describe("ArchitectureDraftGuidanceDisclosure", () => {
     mockUsePathname.mockReturnValue("/architecture/architectures");
   });
 
-  it("explains the draft vs review distinction without duplicating getting-started when that is the header topic", async () => {
+  it("explains the architecture draft vs review distinction without duplicating getting-started when that is the header topic", async () => {
     mockUsePathname.mockReturnValue("/architecture/architectures/draft-1");
     render(<ArchitectureDraftGuidanceDisclosure />);
 

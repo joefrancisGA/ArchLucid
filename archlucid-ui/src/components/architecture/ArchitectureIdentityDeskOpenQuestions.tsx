@@ -53,7 +53,7 @@ export function ArchitectureIdentityDeskOpenQuestions(
           className={OPERATOR_LINK.nav}
           data-testid="architecture-identity-open-questions-edit-link"
         >
-          Edit in draft editor
+          Edit in architecture draft editor
         </Link>
       </div>
       <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>

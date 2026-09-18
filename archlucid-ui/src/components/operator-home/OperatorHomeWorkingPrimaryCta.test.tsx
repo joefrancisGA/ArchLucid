@@ -38,7 +38,7 @@ function intakeDraftEntry(): ArchitectureDraftRegistryEntry {
 }
 
 describe("OperatorHomeWorkingPrimaryCta (PC-05)", () => {
-  it("opens the draft editor when no architecture or draft exists", () => {
+  it("opens the architecture draft editor when no architecture or draft exists", () => {
     resolveContinueLastArchitectureIdentityTarget.mockReturnValue(null);
     useArchitectureDraftRegistryEntries.mockReturnValue([]);
 

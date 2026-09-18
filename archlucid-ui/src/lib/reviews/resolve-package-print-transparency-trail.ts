@@ -9,7 +9,7 @@ function trailHasPresenterAnswers(trail: TransparencyTrail | null | undefined): 
 
 /**
  * Resolves transparency trail for package print meeting capture (PC-09 optional).
- * Prefers manifest summary when room answers are present; otherwise falls back to the linked draft document.
+ * Prefers manifest summary when room answers are present; otherwise falls back to the linked architecture draft document.
  */
 export async function resolvePackagePrintTransparencyTrail(
   bundle: RunDetailCriticalPageBundle,

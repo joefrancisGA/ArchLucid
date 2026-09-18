@@ -355,7 +355,7 @@ const sampleReviewHref = buildGoldenSponsorPackageWalkthroughHref();
 export const GETTING_STARTED_HELP_WORKING_QUICK_START_TITLE = "Use ArchLucid as your review desk" as const;
 
 export const GETTING_STARTED_HELP_WORKING_QUICK_START_COPY =
-  "Resume a draft, open an architecture package, inspect sealed records, or start a new review from the draft editor." as const;
+  "Resume an architecture draft, open an architecture package, inspect sealed records, or start a new review from the architecture draft editor." as const;
 
 export function resolveGettingStartedHelpPrimaryActions(workingMode: boolean): readonly GettingStartedActionCard[] {
   if (!workingMode) {
@@ -384,7 +384,7 @@ export function resolveGettingStartedHelpPrimaryActions(workingMode: boolean): r
   return [
     {
       title: "New review",
-      description: "Open the draft editor and start a new architecture review.",
+      description: "Open the architecture draft editor and start a new architecture review.",
       href: "/architecture/architectures/new",
       ctaLabel: "New review",
     },
@@ -392,7 +392,7 @@ export function resolveGettingStartedHelpPrimaryActions(workingMode: boolean): r
       title: "Resume drafts",
       description: "Open saved architecture drafts before filing evidence for review.",
       href: "/architecture/architectures",
-      ctaLabel: "Open drafts",
+      ctaLabel: "Open architecture drafts",
     },
     {
       title: WORKING_REVIEWS_INBOX_NAV_LABEL,

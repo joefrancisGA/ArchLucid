@@ -16,7 +16,7 @@ export const SYSTEM_NOT_JOB_NO_CREATE_ARCHITECTURE_VS_REVIEW_FORK_WORKING_OWNER 
 
 /** Working sidebar / palette tooltip — one sequence verb, not two peer start products (ADR 0069). */
 export const WORKING_SINGLE_START_NAV_TOOLTIP =
-  `${WORKING_NEW_REVIEW_LABEL} — resume last architecture or open the draft editor (Alt+N)` as const;
+  `${WORKING_NEW_REVIEW_LABEL} — resume last architecture or open the architecture draft editor (Alt+N)` as const;
 
 /** Grep ratchet — Guided keeps these labels; Working nav must not present them as peers. */
 export const WORKING_NAV_BANNED_PEER_START_LABELS: readonly string[] = [

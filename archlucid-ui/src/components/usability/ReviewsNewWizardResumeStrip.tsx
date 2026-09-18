@@ -98,7 +98,7 @@ export function ReviewsNewWizardResumeStrip(): React.JSX.Element | null {
             id="reviews-new-wizard-resume-heading"
             className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
           >
-            Resume your draft review
+            Resume your architecture draft review
           </h2>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             This browser saved your in-progress review intake{" "}

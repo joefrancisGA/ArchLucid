@@ -89,7 +89,7 @@ export const REVIEW_START_NAVIGATION_STALL_TIMEOUT_MS = 60_000;
 
 /**
  * Shown when the soft navigation is still outstanding at the ceiling. Framed as slow, not failed —
- * the draft is already saved and the pending navigation is not canceled by this notice.
+ * the architecture draft is already saved and the pending navigation is not canceled by this notice.
  */
 export const REVIEW_START_NAVIGATION_STALL_MESSAGE =
   "The review start page is taking longer than usual to open. Your architecture draft is saved — nothing was lost. Keep waiting, or open the page directly.";
