@@ -1,14 +1,12 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ARIA_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_CAPTURED_COLUMN_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_DELETE_ACTION_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_LOADING_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_RELATIONSHIPS_COLUMN_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_RESOURCES_COLUMN_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECT_ACTION_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECTED_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SUBSCRIPTION_COLUMN_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
@@ -16,22 +14,29 @@ import {
   formatInfraEvidenceSnapshotCapturedLabel,
   formatInfraEvidenceSubscriptionLabel,
 } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
+import type { DriftSnapshotsTableFilterState } from "@/lib/infra-evidence/infra-evidence-drift-snapshots-table-filter";
 import { cn } from "@/lib/utils";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
   EnterpriseTableCell,
-  EnterpriseTableHead,
-  EnterpriseTableHeadRow,
-  EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+
+import { DriftSnapshotsTableHead } from "./DriftSnapshotsTableHead";
 
 export type DriftSnapshotsTableProps = {
   readonly snapshots: readonly InfraEvidenceSnapshotSummary[];
   readonly selectedSnapshotId: string;
   readonly loading: boolean;
+  readonly tableFilterState: DriftSnapshotsTableFilterState;
+  readonly hasActiveFilters: boolean;
   readonly onSelectSnapshot: (snapshotId: string) => void;
+  readonly onSortColumn: (column: DriftSnapshotsTableFilterState["sortBy"]) => void;
+  readonly onTableFiltersChange: (patch: Partial<DriftSnapshotsTableFilterState>) => void;
+  readonly onClearFilters: () => void;
+  readonly onDeleteSnapshot?: (snapshotId: string) => void;
+  readonly deletingSnapshotId?: string | null;
 };
 
 function formatSubscriptionCell(snapshot: InfraEvidenceSnapshotSummary): string {
@@ -41,7 +46,19 @@ function formatSubscriptionCell(snapshot: InfraEvidenceSnapshotSummary): string 
 }
 
 export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.Element {
-  const { snapshots, selectedSnapshotId, loading, onSelectSnapshot } = props;
+  const {
+    snapshots,
+    selectedSnapshotId,
+    loading,
+    tableFilterState,
+    hasActiveFilters,
+    onSelectSnapshot,
+    onSortColumn,
+    onTableFiltersChange,
+    onClearFilters,
+    onDeleteSnapshot,
+    deletingSnapshotId = null,
+  } = props;
 
   if (loading && snapshots.length === 0) {
     return (
@@ -53,25 +70,13 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
 
   return (
     <EnterpriseTable ariaLabel={GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ARIA_LABEL}>
-      <EnterpriseTableHead>
-        <EnterpriseTableHeadRow>
-          <EnterpriseTableHeaderCell>
-            {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SUBSCRIPTION_COLUMN_LABEL}
-          </EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>
-            {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_CAPTURED_COLUMN_LABEL}
-          </EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>
-            {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_RESOURCES_COLUMN_LABEL}
-          </EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>
-            {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_RELATIONSHIPS_COLUMN_LABEL}
-          </EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>
-            {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECT_ACTION_LABEL}
-          </EnterpriseTableHeaderCell>
-        </EnterpriseTableHeadRow>
-      </EnterpriseTableHead>
+      <DriftSnapshotsTableHead
+        tableFilterState={tableFilterState}
+        hasActiveFilters={hasActiveFilters}
+        onSortColumn={onSortColumn}
+        onTableFiltersChange={onTableFiltersChange}
+        onClearFilters={onClearFilters}
+      />
       <EnterpriseTableBody data-testid="infra-drift-snapshots-body">
         {snapshots.map((snapshot) => {
           const isSelected = selectedSnapshotId === snapshot.snapshotId;
@@ -101,18 +106,35 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
               <EnterpriseTableCell>{snapshot.resourceCount}</EnterpriseTableCell>
               <EnterpriseTableCell>{snapshot.relationshipCount}</EnterpriseTableCell>
               <EnterpriseTableCell>
-                {isSelected ? (
-                  <span
-                    className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid={`infra-drift-snapshot-selected-${snapshot.snapshotId}`}
-                  >
-                    {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECTED_LABEL}
-                  </span>
-                ) : (
-                  <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECT_ACTION_LABEL}
-                  </span>
-                )}
+                <div className="flex flex-wrap items-center gap-2">
+                  {isSelected ? (
+                    <span
+                      className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid={`infra-drift-snapshot-selected-${snapshot.snapshotId}`}
+                    >
+                      {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECTED_LABEL}
+                    </span>
+                  ) : (
+                    <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECT_ACTION_LABEL}
+                    </span>
+                  )}
+                  {onDeleteSnapshot != null ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      data-testid={`infra-drift-snapshot-delete-${snapshot.snapshotId}`}
+                      disabled={deletingSnapshotId === snapshot.snapshotId}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onDeleteSnapshot(snapshot.snapshotId);
+                      }}
+                    >
+                      {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_DELETE_ACTION_LABEL}
+                    </Button>
+                  ) : null}
+                </div>
               </EnterpriseTableCell>
             </EnterpriseTableRow>
           );

@@ -19,8 +19,8 @@ import {
   REVIEW_FINDINGS_JOB_VIEW_PARAM,
   reviewFindingsJobViewHrefFromSearch,
 } from "@/lib/findings/review-findings-job-view-url";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 function governanceFindingsQueuePathname(
@@ -29,7 +29,7 @@ function governanceFindingsQueuePathname(
 ): string {
   return mode === "assigned-to-me"
     ? assignedToMeFindingsPathForProductLine(productLine)
-    : GOVERNANCE_FINDINGS_PATH;
+    : findingsPathForProductLine(productLine);
 }
 
 export function useGovernanceFindingsQueueFacets(mode: GovernanceFindingsQueueMode) {

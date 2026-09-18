@@ -1,4 +1,10 @@
 import {
+  buildDriftSnapshotsTableFilterPatch,
+  driftSnapshotsTableFilterSearchParams,
+  parseDriftSnapshotsTableFilterState,
+  type DriftSnapshotsTableFilterState,
+} from "@/lib/infra-evidence/infra-evidence-drift-snapshots-table-filter";
+import {
   buildDriftTableFilterPatch,
   driftTableFilterSearchParams,
   parseDriftTableFilterState,
@@ -33,7 +39,10 @@ function readDriftWorkbenchParam(
 
 export function driftWorkbenchHrefFromSearch(
   searchParams: URLSearchParams,
-  patch: Partial<InfraEvidenceWorkbenchContext> & { readonly tableFilters?: Partial<DriftTableFilterState> } = {},
+  patch: Partial<InfraEvidenceWorkbenchContext> & {
+    readonly tableFilters?: Partial<DriftTableFilterState>;
+    readonly snapshotTableFilters?: Partial<DriftSnapshotsTableFilterState>;
+  } = {},
 ): string {
   const snapshotId = readDriftWorkbenchParam(searchParams, DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM, patch.snapshotId);
   const cloudResourceId = readDriftWorkbenchParam(searchParams, DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM, patch.cloudResourceId);
@@ -56,11 +65,20 @@ export function driftWorkbenchHrefFromSearch(
     controlId: controlId.length > 0 ? controlId : null,
   });
   const tableFilterState = buildDriftTableFilterPatch(parseDriftTableFilterState(searchParams), patch.tableFilters ?? {});
+  const snapshotTableFilterState = buildDriftSnapshotsTableFilterPatch(
+    parseDriftSnapshotsTableFilterState(searchParams),
+    patch.snapshotTableFilters ?? {},
+  );
   const tableParams = driftTableFilterSearchParams(tableFilterState);
+  const snapshotTableParams = driftSnapshotsTableFilterSearchParams(snapshotTableFilterState);
   const [basePath, baseQuery = ""] = baseHref.split("?");
   const merged = new URLSearchParams(baseQuery);
 
   tableParams.forEach((value, key) => {
+    merged.set(key, value);
+  });
+
+  snapshotTableParams.forEach((value, key) => {
     merged.set(key, value);
   });
 

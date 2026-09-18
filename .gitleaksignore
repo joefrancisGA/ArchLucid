@@ -13,3 +13,6 @@ bbf8d44bd1956eeebbc44cc44b5e21da6e1b8eca:docs/library/TECH_BACKLOG.md:generic-ap
 
 # wave70 CAIQ SIG help URL param Vitest fixture; generic-api-key false positive on caiqSigEvidenceSegmentKey query name
 8b88f6597deba8cac47bb8e608be0e602e27df3d:archlucid-ui/src/lib/wave11-filter-url-helpers.test.ts:generic-api-key:5583
+
+# infra resource row ARM id disclosure URL Vitest fixture; generic-api-key false positive on a UUID query value, not a credential
+4cf02950ee9f8ef48ad83de828a20182d08fb175:archlucid-ui/src/lib/infra-evidence/infra-resource-row-arm-id-disclosure-url.test.ts:generic-api-key:46

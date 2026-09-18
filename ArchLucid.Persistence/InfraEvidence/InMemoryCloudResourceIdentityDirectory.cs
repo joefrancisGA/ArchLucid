@@ -147,7 +147,9 @@ public sealed class InMemoryCloudResourceIdentityDirectory : ICloudResourceIdent
             record.TenantId == scope.TenantId
             && record.WorkspaceId == scope.WorkspaceId
             && record.ProjectId == scope.ProjectId
-            && !AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(record.ResourceType));
+            && !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                record.ResourceType,
+                record.ExternalResourceIdNormalized));
 
         if (trimmedPrefix is not null)
         {

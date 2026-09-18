@@ -8,7 +8,7 @@ Starts a **Cursor Cloud Agent** (Composer 2.5 standard, not Fast) that follows t
 
 Each cloud hunt is a **seed hunt** or a **thorough defect hunt** (announced after the picker). Queued launches still complete that kind; they must not skim and exit.
 
-API hunts use the same **§1.1b hunt-ready bar** as local `/al-bug` (five fields including **Reachability**; no instance-list-only fixes).
+API hunts use the same **§1.1b hunt-ready bar** as local `/al-bug` (five fields including **Reachability**; no instance-list-only fixes). Example of a non-reachable core-costing input: `10weekkkkk` or spaced `10 / weekkk` — not Azure catalog `unitOfMeasure`; classify `(invalid)`, not hunt-ready.
 
 Distinct from **`/al-bug`** (local hunt loop) and **`/al-api`** (generic cloud task launcher).
 

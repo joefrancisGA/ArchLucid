@@ -1,7 +1,10 @@
 export const AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH = "/governance/audit-evidence";
 
+/** SecureNow Compliance shell — audit evidence lookup (same page, Compliance URL namespace). */
+export const SECURENOW_AUDIT_EVIDENCE_PATH = "/compliance/audit-evidence" as const;
+
 const AUDIT_EVIDENCE_CONTROL_LINEAGE_PATH_PATTERN =
-  /^\/governance\/audit-evidence\/([^/]+)\/snapshots\/([^/]+)\/controls\/([^/?#]+)/;
+  /^\/(?:governance|compliance)\/audit-evidence\/([^/]+)\/snapshots\/([^/]+)\/controls\/([^/?#]+)/;
 
 export type ParsedAuditEvidenceControlLineagePath = {
   readonly assessmentId: string;
@@ -13,8 +16,9 @@ export function buildAuditEvidenceControlLineagePath(
   assessmentId: string,
   snapshotId: string,
   controlId: string,
+  lookupPath: string = AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
 ): string {
-  return `${AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH}/${assessmentId}/snapshots/${snapshotId}/controls/${controlId}`;
+  return `${lookupPath}/${assessmentId}/snapshots/${snapshotId}/controls/${controlId}`;
 }
 
 export function parseAuditEvidenceControlLineagePath(
@@ -56,5 +60,10 @@ export function parseAuditEvidenceControlLineagePath(
 export function isAuditEvidenceRoutePath(pathname: string): boolean {
   const bare = pathname.split("?", 1)[0] ?? pathname;
 
-  return bare === AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH || bare.startsWith(`${AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH}/`);
+  return (
+    bare === AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH
+    || bare.startsWith(`${AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH}/`)
+    || bare === SECURENOW_AUDIT_EVIDENCE_PATH
+    || bare.startsWith(`${SECURENOW_AUDIT_EVIDENCE_PATH}/`)
+  );
 }

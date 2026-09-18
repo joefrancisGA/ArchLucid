@@ -146,6 +146,24 @@ public sealed class SecureNowArchitectMetricsQueryServiceTests
             string? subscriptionId,
             CancellationToken cancellationToken = default)
             => Task.FromResult<(IReadOnlyList<AzureInventorySnapshotRecord> Items, int TotalCount)>(([], 0));
+
+        public Task<(IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)?> ListResourcesBySnapshotIdPagedAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            int page,
+            int pageSize,
+            Guid? cloudResourceId = null,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)?>(null);
+
+        public Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult(new AzureInventorySnapshotDeleteResult
+            {
+                Outcome = AzureInventorySnapshotDeleteOutcome.NotFound,
+            });
     }
 
     private sealed class InMemoryPathRepository : ISecurityEvidencePathRepository

@@ -102,8 +102,11 @@ public sealed class ClosedLoopPublishStage(
             }
         }
 
-        if (!context.PublishDecision.PublishBlocked
-            && effectiveRequest.PublishToProduct
+        // PublishToProduct is a requested outcome; authorization is PublishBlocked (fail closed).
+        // codeql[cs/user-controlled-bypass]
+        if (ClosedLoopPublishMergeGate.ShouldMergeAuthorityFindings(
+                context.PublishDecision.PublishBlocked,
+                effectiveRequest.PublishToProduct)
             && context.ReReviewSubstantiation is not null
             && context.ReReview is not null)
         {

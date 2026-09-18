@@ -7,6 +7,8 @@ import {
   GLOBAL_SEARCH_PLACEHOLDER,
   OPERATOR_HELP_ARIA_KEYSHORTCUTS,
   OPERATOR_HELP_ARIA_LABEL,
+  resolveOperatorHelpAriaLabel,
+  resolveOperatorHelpTriggerLabel,
   commandPaletteOpenAriaLabel,
   commandPaletteTooltipLine,
   globalSearchInputTitle,
@@ -43,6 +45,8 @@ describe("keyboard-shortcut-display", () => {
 
   it("exposes operator help aria label and shortcuts", () => {
     expect(OPERATOR_HELP_ARIA_LABEL).toBe("Help & Support (F1)");
+    expect(resolveOperatorHelpTriggerLabel("architecture")).toBe("Help & Support");
+    expect(resolveOperatorHelpAriaLabel("security")).toBe("Help (F1)");
     expect(OPERATOR_HELP_ARIA_KEYSHORTCUTS).toContain("F1");
   });
 });

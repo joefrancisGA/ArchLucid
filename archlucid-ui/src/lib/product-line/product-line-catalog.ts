@@ -36,6 +36,7 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/governance/infrastructure/diagrams": "both",
   "/governance/infrastructure/diagram-reconcile": "both",
   "/governance/infrastructure/resources": "both",
+  "/governance/infrastructure/declared-connections": "both",
   "/governance/infrastructure/ask": "both",
   "/governance/infrastructure/remediation": "both",
   "/governance/infrastructure/extract-upload": "security",
@@ -71,7 +72,8 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/administration/connection-status": "both",
   "/administration/extract-upload": "architecture",
   "/administration/system-health": "both",
-  "/administration/support": "both",
+  // Support workspace is an Architecture tenant-admin surface — not in SecureNow nav (SN).
+  "/administration/support": "architecture",
 
   // Recycle bin restores architecture projects — keep it off the Security shell even though
   // `/administration/workspace-settings` itself is shared (exact match beats the nested prefix).
@@ -93,10 +95,27 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
  * (settings hub leaves, OAuth returns).
  */
 export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLineAssignment>> = {
+  "/architecture": "architecture",
+  "/insights": "architecture",
+  "/why-archlucid": "architecture",
   "/security/assigned-to-me": "security",
   "/security/remediation-factory": "security",
+  "/security/remediation-instances": "security",
   "/security/remediation-patterns": "security",
+  "/infrastructure": "security",
+  "/infrastructure/drift": "security",
+  "/infrastructure/terraform": "security",
   "/infrastructure/diagrams": "security",
+  "/infrastructure/diagram-reconcile": "security",
+  "/infrastructure/resources": "security",
+  "/infrastructure/declared-connections": "security",
+  "/infrastructure/ask": "security",
+  "/infrastructure/extract-upload": "security",
+  "/compliance": "security",
+  "/compliance/policy-packs": "security",
+  "/compliance/standards-and-rules": "security",
+  "/compliance/findings": "security",
+  "/compliance/audit-evidence": "security",
   "/administration/auth-domains": "both",
   "/administration/identity/sso-wizard": "both",
   "/integrations/itsm/oauth/callback": "both",
@@ -106,6 +125,8 @@ export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLine
 
 /** Nested URL trees that inherit the parent catalog assignment. */
 export const PRODUCT_LINE_NESTED_PREFIXES: readonly string[] = [
+  "/architecture",
+  "/insights",
   "/governance/infrastructure",
   "/governance/audit-evidence",
   "/governance/remediation-patterns",
@@ -114,7 +135,20 @@ export const PRODUCT_LINE_NESTED_PREFIXES: readonly string[] = [
   "/governance/policy-packs",
   "/governance/standards-and-rules",
   "/security",
+  "/compliance",
+  "/compliance/policy-packs",
+  "/compliance/standards-and-rules",
+  "/compliance/findings",
+  "/compliance/audit-evidence",
   "/infrastructure",
+  "/infrastructure/drift",
+  "/infrastructure/terraform",
+  "/infrastructure/diagrams",
+  "/infrastructure/diagram-reconcile",
+  "/infrastructure/resources",
+  "/infrastructure/declared-connections",
+  "/infrastructure/ask",
+  "/infrastructure/extract-upload",
   "/integrations/cloud-connections",
   "/integrations/jira",
   "/integrations/azure-boards",
@@ -138,7 +172,6 @@ export const PRODUCT_LINE_ALWAYS_ALLOWED_PREFIXES: readonly string[] = [
   "/account",
   "/auth",
   "/403",
-  "/why-archlucid",
 ];
 
 export { INTERNAL_PRODUCT_LINE_PATH } from "@/lib/internal-ops-route-paths";

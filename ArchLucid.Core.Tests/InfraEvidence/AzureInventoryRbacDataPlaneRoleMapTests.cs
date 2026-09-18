@@ -14,6 +14,12 @@ public sealed class AzureInventoryRbacDataPlaneRoleMapTests
     [InlineData("Contributor", AzureInventoryDerivedDataPlanePermission.Write)]
     [InlineData("Owner", AzureInventoryDerivedDataPlanePermission.Write)]
     [InlineData("Storage Blob Data Contributor", AzureInventoryDerivedDataPlanePermission.Write)]
+    [InlineData("SQL DB Contributor", AzureInventoryDerivedDataPlanePermission.ReadAndWrite)]
+    [InlineData("Azure Service Bus Data Receiver", AzureInventoryDerivedDataPlanePermission.Read)]
+    [InlineData("Azure Service Bus Data Sender", AzureInventoryDerivedDataPlanePermission.Write)]
+    [InlineData("Azure Service Bus Data Owner", AzureInventoryDerivedDataPlanePermission.ReadAndWrite)]
+    [InlineData("Azure Event Hubs Data Receiver", AzureInventoryDerivedDataPlanePermission.Read)]
+    [InlineData("Azure Event Hubs Data Sender", AzureInventoryDerivedDataPlanePermission.Write)]
     public void Resolve_allowlisted_roles_map_to_derived_permissions(
         string roleName,
         AzureInventoryDerivedDataPlanePermission expected)
@@ -26,5 +32,7 @@ public sealed class AzureInventoryRbacDataPlaneRoleMapTests
     {
         AzureInventoryRbacDataPlaneRoleMap.Resolve("Security Admin").Should().Be(
             AzureInventoryDerivedDataPlanePermission.None);
+        AzureInventoryRbacDataPlaneRoleMap.Resolve("Contributor").Should().Be(
+            AzureInventoryDerivedDataPlanePermission.Write);
     }
 }

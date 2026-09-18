@@ -35,7 +35,20 @@ public static class HostedAzureExtractorZipBuilder
         IReadOnlyList<HostedAzureArmPolicyAssignmentRecord>? policyAssignments = null,
         IReadOnlyList<HostedAzureArmDiagnosticSettingRecord>? diagnosticSettings = null,
         IReadOnlyList<HostedAzureArmDefenderSummaryRecord>? defenderSummaries = null,
-        IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord>? effectiveNetworkControls = null)
+        IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord>? effectiveNetworkControls = null,
+        IReadOnlyList<AzureInventoryAdfLinkedServiceRow>? adfLinkedServices = null,
+        IReadOnlyList<AzureInventoryAdfDatasetRow>? adfDatasets = null,
+        IReadOnlyList<AzureInventoryAdfPipelineFlowRow>? adfPipelineFlows = null,
+        IReadOnlyList<AzureInventoryAdfTriggerRow>? adfTriggers = null,
+        IReadOnlyList<AzureInventoryAdfIntegrationRuntimeRow>? adfIntegrationRuntimes = null,
+        IReadOnlyList<AzureInventoryAdfDataflowRow>? adfDataflows = null,
+        IReadOnlyList<AzureInventoryEventGridSubscriptionRow>? eventGridSubscriptions = null,
+        IReadOnlyList<AzureInventoryLogicAppConnectionRow>? logicAppConnections = null,
+        IReadOnlyList<AzureInventoryMessagingAssociationRow>? messagingAssociations = null,
+        IReadOnlyList<AzureInventoryPaasChildAssociationRow>? paasChildAssociations = null,
+        IReadOnlyList<AzureInventoryServiceConnectorLinkRow>? serviceConnectorLinks = null,
+        IReadOnlyList<AzureInventoryAppSettingHostRow>? appSettingHosts = null,
+        IReadOnlyList<string>? collectionWarnings = null)
     {
         bool hasSubscriptionId = !string.IsNullOrWhiteSpace(subscriptionId);
         bool hasManagementGroupId = !string.IsNullOrWhiteSpace(managementGroupId);
@@ -65,7 +78,7 @@ public static class HostedAzureExtractorZipBuilder
             ["switchesUsed"] = switchesUsed,
             ["azModuleVersion"] = "hosted-extractor",
             ["completenessScore"] = 1.0,
-            ["warnings"] = Array.Empty<string>(),
+            ["warnings"] = (collectionWarnings ?? []).ToArray(),
             ["errors"] = Array.Empty<string>(),
             ["resourceCount"] = resources.Count,
             ["captureMethod"] = "HostedReader",
@@ -78,8 +91,14 @@ public static class HostedAzureExtractorZipBuilder
             manifest["actualCostSummary"] = null;
         }
 
+        HashSet<string> privateLinkOnlyNicArmIds =
+            HostedAzureInventoryPrivateLinkOnlyNicCatalog.BuildOmittedNicArmIds(resources);
+
         object[] resourceRows = resources
-            .Where(static r => !AzureInventoryNeverShowArmTypes.ShouldOmitFromInventory(r.ResourceType))
+            .Where(r => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                r.ResourceType,
+                r.ResourceId,
+                privateLinkOnlyNicArmIds))
             .Select(static r => new
             {
                 resourceType = r.ResourceType,
@@ -173,6 +192,8 @@ public static class HostedAzureExtractorZipBuilder
                 targetResourceId = row.TargetResourceId,
                 name = row.Name,
                 workspaceId = row.WorkspaceId,
+                storageAccountId = row.StorageAccountId,
+                eventHubAuthorizationRuleId = row.EventHubAuthorizationRuleId,
             })
             .ToArray<object>();
 
@@ -192,6 +213,177 @@ public static class HostedAzureExtractorZipBuilder
                 collectionStatus = row.CollectionStatus,
                 effectiveResourceId = row.EffectiveResourceId,
                 payloadHashSha256 = row.PayloadHashSha256,
+            })
+            .ToArray<object>();
+
+        object[] adfLinkedServiceRows = (adfLinkedServices ?? [])
+            .Select(static row => new
+            {
+                factoryResourceId = row.FactoryResourceId,
+                linkedServiceResourceId = row.LinkedServiceResourceId,
+                linkedServiceName = row.LinkedServiceName,
+                linkedServiceType = row.LinkedServiceType,
+                targetResourceId = row.TargetResourceId,
+                targetHost = row.TargetHost,
+                keyVaultResourceId = row.KeyVaultResourceId,
+                integrationRuntimeName = row.IntegrationRuntimeName,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] adfDatasetRows = (adfDatasets ?? [])
+            .Select(static row => new
+            {
+                factoryResourceId = row.FactoryResourceId,
+                datasetResourceId = row.DatasetResourceId,
+                datasetName = row.DatasetName,
+                linkedServiceName = row.LinkedServiceName,
+                locationKind = row.LocationKind,
+                containerOrFilesystem = row.ContainerOrFilesystem,
+                folderPath = row.FolderPath,
+                tableName = row.TableName,
+                schemaName = row.SchemaName,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] adfPipelineFlowRows = (adfPipelineFlows ?? [])
+            .Select(static row => new
+            {
+                factoryResourceId = row.FactoryResourceId,
+                pipelineResourceId = row.PipelineResourceId,
+                pipelineName = row.PipelineName,
+                activityName = row.ActivityName,
+                activityType = row.ActivityType,
+                flowDirection = row.FlowDirection,
+                datasetName = row.DatasetName,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] adfTriggerRows = (adfTriggers ?? [])
+            .Select(static row => new
+            {
+                factoryResourceId = row.FactoryResourceId,
+                triggerResourceId = row.TriggerResourceId,
+                triggerName = row.TriggerName,
+                triggerType = row.TriggerType,
+                pipelineNames = row.PipelineNames,
+                sourceResourceId = row.SourceResourceId,
+                sourceHost = row.SourceHost,
+                scheduleRecurrence = row.ScheduleRecurrence,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] adfIntegrationRuntimeRows = (adfIntegrationRuntimes ?? [])
+            .Select(static row => new
+            {
+                factoryResourceId = row.FactoryResourceId,
+                integrationRuntimeResourceId = row.IntegrationRuntimeResourceId,
+                name = row.Name,
+                kind = row.Kind,
+                subnetId = row.SubnetId,
+                state = row.State,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] adfDataflowRows = (adfDataflows ?? [])
+            .Select(static row => new
+            {
+                factoryResourceId = row.FactoryResourceId,
+                dataflowResourceId = row.DataflowResourceId,
+                dataflowName = row.DataflowName,
+                sourceLinkedServiceNames = row.SourceLinkedServiceNames,
+                sinkLinkedServiceNames = row.SinkLinkedServiceNames,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] eventGridSubscriptionRows = (eventGridSubscriptions ?? [])
+            .Select(static row => new
+            {
+                sourceResourceId = row.SourceResourceId,
+                subscriptionName = row.SubscriptionName,
+                subscriptionResourceId = row.SubscriptionResourceId,
+                destinationResourceId = row.DestinationResourceId,
+                destinationHost = row.DestinationHost,
+                destinationKind = row.DestinationKind,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] logicAppConnectionRows = (logicAppConnections ?? [])
+            .Select(static row => new
+            {
+                workflowResourceId = row.WorkflowResourceId,
+                workflowName = row.WorkflowName,
+                connectionName = row.ConnectionName,
+                connectionResourceId = row.ConnectionResourceId,
+                targetResourceId = row.TargetResourceId,
+                targetHost = row.TargetHost,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] messagingAssociationRows = (messagingAssociations ?? [])
+            .Select(static row => new
+            {
+                parentResourceId = row.ParentResourceId,
+                childResourceId = row.ChildResourceId,
+                childName = row.ChildName,
+                childType = row.ChildType,
+                associationType = row.AssociationType,
+                captureStorageAccountId = row.CaptureStorageAccountId,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] paasChildAssociationRows = (paasChildAssociations ?? [])
+            .Select(static row => new
+            {
+                parentResourceId = row.ParentResourceId,
+                childResourceId = row.ChildResourceId,
+                childName = row.ChildName,
+                childType = row.ChildType,
+                associationType = row.AssociationType,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] serviceConnectorLinkRows = (serviceConnectorLinks ?? [])
+            .Select(static row => new
+            {
+                sourceResourceId = row.SourceResourceId,
+                linkerName = row.LinkerName,
+                linkerResourceId = row.LinkerResourceId,
+                targetResourceId = row.TargetResourceId,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
+            })
+            .ToArray<object>();
+
+        object[] appSettingHostRows = (appSettingHosts ?? [])
+            .Select(static row => new
+            {
+                siteResourceId = row.SiteResourceId,
+                settingName = row.SettingName,
+                host = row.Host,
+                keyVaultHost = row.KeyVaultHost,
+                secretName = row.SecretName,
+                collectionStatus = row.CollectionStatus,
+                warningCode = row.WarningCode,
             })
             .ToArray<object>();
 
@@ -233,6 +425,59 @@ public static class HostedAzureExtractorZipBuilder
                 archive,
                 AzureExtractorPackageZipEntryNames.EffectiveNetworkControls,
                 JsonSerializer.Serialize(effectiveNetworkControlRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.AdfLinkedServices,
+                JsonSerializer.Serialize(adfLinkedServiceRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.AdfDatasets,
+                JsonSerializer.Serialize(adfDatasetRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.AdfPipelineFlows,
+                JsonSerializer.Serialize(adfPipelineFlowRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.AdfTriggers,
+                JsonSerializer.Serialize(adfTriggerRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.AdfIntegrationRuntimes,
+                JsonSerializer.Serialize(adfIntegrationRuntimeRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.AdfDataflows,
+                JsonSerializer.Serialize(adfDataflowRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.EventGridSubscriptions,
+                JsonSerializer.Serialize(eventGridSubscriptionRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.LogicAppConnections,
+                JsonSerializer.Serialize(logicAppConnectionRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.MessagingAssociations,
+                JsonSerializer.Serialize(messagingAssociationRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.PaasChildAssociations,
+                JsonSerializer.Serialize(paasChildAssociationRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.ServiceConnectorLinks,
+                JsonSerializer.Serialize(serviceConnectorLinkRows, SerializerOptions));
+
+            if (appSettingHosts is not null)
+            {
+                AddUtf8Entry(
+                    archive,
+                    AzureExtractorPackageZipEntryNames.AppSettingsHosts,
+                    JsonSerializer.Serialize(appSettingHostRows, SerializerOptions));
+            }
+
             AddUtf8Entry(archive, "policy-compliance.json", JsonSerializer.Serialize(policyCompliance, SerializerOptions));
             AddUtf8Entry(archive, "README.txt", readme);
         }

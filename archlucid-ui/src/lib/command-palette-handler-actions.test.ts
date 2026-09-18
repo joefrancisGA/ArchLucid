@@ -23,6 +23,7 @@ describe("command-palette-handler-actions (LI-07 / WD-05)", () => {
     expect(isArchitectureDraftWorkPath("/architecture/architectures/new")).toBe(true);
     expect(isArchitectureDraftWorkPath("/architecture/reviews")).toBe(false);
     expect(isFindingsWorkPath("/governance/findings")).toBe(true);
+    expect(isFindingsWorkPath("/compliance/findings")).toBe(true);
     expect(isFindingsWorkPath("/architecture/reviews/run-1")).toBe(true);
     expect(isFindingsWorkPath("/architecture/reviews/abc/findings/f-1")).toBe(true);
     expect(

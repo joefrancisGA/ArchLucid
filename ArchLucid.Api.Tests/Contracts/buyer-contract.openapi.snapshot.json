@@ -6845,6 +6845,18 @@
           "changeType": {
             "$ref": "#/components/schemas/AzureInventoryChangeType"
           },
+          "changedByDisplayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "changedByKind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "cloudResourceId": {
             "format": "uuid",
             "type": [
@@ -6933,7 +6945,8 @@
           "SkuChanged",
           "DependencyChanged",
           "PolicyAssignmentChanged",
-          "Unknown"
+          "Unknown",
+          "ResourceUnchanged"
         ],
         "type": "string"
       },
@@ -7174,6 +7187,12 @@
             "type": [
               "null",
               "number",
+              "string"
+            ]
+          },
+          "completenessWarningsJson": {
+            "type": [
+              "null",
               "string"
             ]
           },
@@ -18032,6 +18051,12 @@
       },
       "GraphEdge": {
         "properties": {
+          "declaredConnectionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "edgeId": {
             "type": "string"
           },
@@ -18058,6 +18083,12 @@
               "type": "string"
             },
             "type": "object"
+          },
+          "provenanceKind": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "reasoningTrace": {
             "type": [
@@ -19071,6 +19102,41 @@
         },
         "type": "object"
       },
+      "InfraEvidenceMermaidCollapseEntry": {
+        "properties": {
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "nodeId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceMermaidCollapseReport": {
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/InfraEvidenceMermaidCollapseEntry"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "InfraEvidenceMermaidComplexityMetrics": {
         "properties": {
           "crossSubgraphEdgeCount": {
@@ -19126,6 +19192,29 @@
         },
         "type": "object"
       },
+      "InfraEvidenceMermaidIdentityDiagramHints": {
+        "properties": {
+          "inventoryFilteredIdentityArmTypes": {
+            "items": {
+              "$ref": "#/components/schemas/InfraEvidenceMermaidIdentityDiagramSuppressedArmType"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceMermaidIdentityDiagramSuppressedArmType": {
+        "properties": {
+          "armResourceType": {
+            "type": "string"
+          },
+          "resourceCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "InfraEvidenceMermaidModePreview": {
         "properties": {
           "edgeCount": {
@@ -19159,6 +19248,12 @@
       },
       "InfraEvidenceMermaidPreviewResponse": {
         "properties": {
+          "completenessWarnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "modes": {
             "items": {
               "$ref": "#/components/schemas/InfraEvidenceMermaidModePreview"
@@ -19174,6 +19269,22 @@
       },
       "InfraEvidenceMermaidRenderResponse": {
         "properties": {
+          "collapseReport": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InfraEvidenceMermaidCollapseReport"
+              }
+            ]
+          },
+          "completenessWarnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "fallbackArtifacts": {
             "items": {
               "$ref": "#/components/schemas/InfraEvidenceMermaidFallbackArtifactSummary"
@@ -19184,6 +19295,16 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "identityDiagramHints": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InfraEvidenceMermaidIdentityDiagramHints"
+              }
             ]
           },
           "layoutEngine": {
@@ -33895,6 +34016,129 @@
         },
         "type": "object"
       },
+      "SecurityDeclaredConnectionCreateApiRequest": {
+        "properties": {
+          "approvedByActorKey": {
+            "type": "string"
+          },
+          "evidenceReference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "expirationUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "fromCloudResourceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "relationshipType": {
+            "type": "string"
+          },
+          "requestedByActorKey": {
+            "type": "string"
+          },
+          "toCloudResourceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityDeclaredConnectionCreateApiResponse": {
+        "properties": {
+          "connectionId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityDeclaredConnectionExpirySweepApiResponse": {
+        "properties": {
+          "expiredCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityDeclaredConnectionRenewApiRequest": {
+        "properties": {
+          "approvedByActorKey": {
+            "type": "string"
+          },
+          "expirationUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "renewedByActorKey": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityDeclaredConnectionResponse": {
+        "properties": {
+          "connectionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "evidenceReference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "expirationUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "fromCloudResourceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provenanceKind": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "relationshipType": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "toCloudResourceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityDeclaredConnectionRevokeApiRequest": {
+        "properties": {
+          "revokedByActorKey": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SecurityDelta": {
         "properties": {
           "baseStatus": {
@@ -47819,6 +48063,9 @@
     },
     {
       "name": "OperationalSecurityAssetAssertions"
+    },
+    {
+      "name": "OperationalSecurityDeclaredConnections"
     },
     {
       "name": "OperationalSecurityFindings"

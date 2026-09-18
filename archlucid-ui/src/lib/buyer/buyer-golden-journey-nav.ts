@@ -13,10 +13,12 @@ import {
 } from "@/lib/showcase-static-demo";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import {
-  GOVERNANCE_STANDARDS_AND_RULES_PATH,
   pathMatchesGovernanceAlerts,
   pathMatchesGovernanceAudit,
   pathMatchesGovernanceExceptions,
+  pathMatchesGovernanceFindings,
+  pathMatchesGovernancePolicyPacks,
+  pathMatchesGovernanceResolution,
 } from "@/lib/governance/governance-route-paths";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
@@ -137,14 +139,11 @@ export function resolveBuyerGoldenJourneyNav(
       return null;
     } else if (path.startsWith("/insights/compare-two-reviews")) {
       return null;
-    } else if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
+    } else if (pathMatchesGovernancePolicyPacks(path)) {
       return null;
-    } else if (
-      path === GOVERNANCE_STANDARDS_AND_RULES_PATH
-      || path.startsWith(`${GOVERNANCE_STANDARDS_AND_RULES_PATH}/`)
-    ) {
+    } else if (pathMatchesGovernanceResolution(path)) {
       return null;
-    } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
+    } else if (pathMatchesGovernanceFindings(path)) {
       return null;
     } else if (pathMatchesGovernanceExceptions(path)) {
       return null;
@@ -153,7 +152,7 @@ export function resolveBuyerGoldenJourneyNav(
     } else if (pathMatchesGovernanceAudit(path)) {
       // Must run before the `/governance` catch-all — `/audit` permanently redirects to `/governance/audit`.
       stepIdx = 3;
-    } else if (path.startsWith("/governance")) {
+    } else if (path.startsWith("/governance") || path === "/compliance" || path.startsWith("/compliance/")) {
       return null;
     } else {
       const findingInspect = /^\/architecture\/reviews\/([^/]+)\/findings\/[^/]+\/(?:inspect|evidence-trace)\b/.exec(path);

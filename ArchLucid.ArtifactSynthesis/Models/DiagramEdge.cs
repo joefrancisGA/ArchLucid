@@ -26,4 +26,22 @@ public class DiagramEdge
         get;
         set;
     }
+
+    public string? ProvenanceKind
+    {
+        get;
+        set;
+    }
+
+    public string? InferenceSource
+    {
+        get;
+        set;
+    }
+
+    public string? DeclaredConnectionId
+    {
+        get;
+        set;
+    }
 }
