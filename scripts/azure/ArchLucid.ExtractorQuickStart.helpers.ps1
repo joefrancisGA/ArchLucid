@@ -65,6 +65,238 @@ function Ensure-ArchLucidAzModules
     }
 }
 
+function Get-ArchLucidAzureSubscriptionGuid
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $SubscriptionId
+    )
+
+    [string]$trimmedSubscriptionId = "$SubscriptionId".Trim()
+
+    if ($trimmedSubscriptionId -match '/subscriptions/([^/]+)')
+    {
+        return $Matches[1]
+    }
+
+    return $trimmedSubscriptionId
+}
+
+function Test-ArchLucidAzureSubscriptionIdsMatch
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $Left,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $Right
+    )
+
+    [string]$leftGuid = Get-ArchLucidAzureSubscriptionGuid -SubscriptionId $Left
+    [string]$rightGuid = Get-ArchLucidAzureSubscriptionGuid -SubscriptionId $Right
+
+    if ([string]::IsNullOrWhiteSpace($leftGuid) -or [string]::IsNullOrWhiteSpace($rightGuid))
+    {
+        return $false
+    }
+
+    return $leftGuid -eq $rightGuid
+}
+
+function Clear-ArchLucidAzureAccountSessions
+{
+    param(
+        [string[]] $ExceptTenantIds = @()
+    )
+
+    [object[]]$contexts = @(
+        Get-AzContext -ListAvailable -ErrorAction SilentlyContinue |
+            Where-Object { $null -ne $_ -and $null -ne $_.Account }
+    )
+
+    foreach ($context in $contexts)
+    {
+        [string]$contextTenantId = "$( $context.Tenant.Id )".Trim()
+
+        if ($ExceptTenantIds.Count -gt 0)
+        {
+            [bool]$keepTenant =
+                @($ExceptTenantIds | ForEach-Object { "$_".Trim() }) -contains $contextTenantId
+
+            if ($keepTenant)
+            {
+                continue
+            }
+        }
+
+        $null = Disconnect-AzAccount `
+            -AccountId $context.Account.Id `
+            -Confirm:$false `
+            -ErrorAction SilentlyContinue
+    }
+}
+
+function Sync-ArchLucidAzureCliSubscriptionContext
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SubscriptionId
+    )
+
+    [string]$trimmedSubscriptionId = Get-ArchLucidAzureSubscriptionGuid -SubscriptionId $SubscriptionId
+
+    if ([string]::IsNullOrWhiteSpace($trimmedSubscriptionId))
+    {
+        return
+    }
+
+    if ($null -eq (Get-Command -Name az -ErrorAction SilentlyContinue))
+    {
+        return
+    }
+
+    & az account set --subscription $trimmedSubscriptionId 2>$null
+
+    if ($LASTEXITCODE -ne 0)
+    {
+        Write-Host ("Azure CLI session is not scoped to subscription {0}. Cost collection via az rest may fail until you run az login for an account with that subscription." -f $trimmedSubscriptionId) -ForegroundColor Yellow
+    }
+}
+
+function Connect-ArchLucidAzureAccountForSubscription
+{
+    param(
+        [string] $TenantId = "",
+
+        [string] $SubscriptionId = ""
+    )
+
+    [string]$trimmedTenantId = "$TenantId".Trim()
+    [string]$trimmedSubscriptionId = "$SubscriptionId".Trim()
+
+    if (-not [string]::IsNullOrWhiteSpace($trimmedTenantId) -and -not [string]::IsNullOrWhiteSpace($trimmedSubscriptionId))
+    {
+        $null = Connect-AzAccount `
+            -Tenant $trimmedTenantId `
+            -Subscription $trimmedSubscriptionId `
+            -UseDeviceAuthentication `
+            -ErrorAction Stop
+
+        return
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($trimmedTenantId))
+    {
+        $null = Connect-AzAccount `
+            -Tenant $trimmedTenantId `
+            -UseDeviceAuthentication `
+            -ErrorAction Stop
+
+        return
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($trimmedSubscriptionId))
+    {
+        $null = Connect-AzAccount `
+            -Subscription $trimmedSubscriptionId `
+            -UseDeviceAuthentication `
+            -ErrorAction Stop
+
+        return
+    }
+
+    $null = Connect-AzAccount `
+        -UseDeviceAuthentication `
+        -ErrorAction Stop
+}
+
+function Ensure-ArchLucidAzureSubscriptionSession
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SubscriptionId,
+
+        [string] $TenantId = "",
+
+        [switch] $SkipConnect
+    )
+
+    if ($SkipConnect)
+    {
+        return
+    }
+
+    [string]$trimmedSubscriptionId = Get-ArchLucidAzureSubscriptionGuid -SubscriptionId $SubscriptionId
+    [string]$trimmedTenantId = "$TenantId".Trim()
+
+    [System.Management.Automation.ActionPreference]$previousWarningPreference = $WarningPreference
+    [object]$subscription = $null
+
+    try
+    {
+        $WarningPreference = 'SilentlyContinue'
+        $subscription = Get-AzSubscription `
+            -SubscriptionId $trimmedSubscriptionId `
+            -ErrorAction SilentlyContinue
+    }
+    finally
+    {
+        $WarningPreference = $previousWarningPreference
+    }
+
+    [string]$resolvedTenantId =
+        if (-not [string]::IsNullOrWhiteSpace($trimmedTenantId))
+        {
+            $trimmedTenantId
+        }
+        elseif ($null -ne $subscription)
+        {
+            "$( $subscription.TenantId )".Trim()
+        }
+        else
+        {
+            ""
+        }
+
+    if ($null -ne $subscription)
+    {
+        if (-not [string]::IsNullOrWhiteSpace($resolvedTenantId))
+        {
+            Clear-ArchLucidAzureAccountSessions -ExceptTenantIds @($resolvedTenantId)
+        }
+
+        [object]$currentContext = Get-AzContext -ErrorAction SilentlyContinue
+        [string]$currentSubscriptionId = "$( $currentContext.Subscription.Id )".Trim()
+        [string]$currentTenantId = "$( $currentContext.Tenant.Id )".Trim()
+
+        if (-not (Test-ArchLucidAzureSubscriptionIdsMatch -Left $currentSubscriptionId -Right $trimmedSubscriptionId) -or
+            (-not [string]::IsNullOrWhiteSpace($resolvedTenantId) -and $currentTenantId -ne $resolvedTenantId))
+        {
+            $null = Set-AzContext `
+                -SubscriptionId $trimmedSubscriptionId `
+                -Tenant $resolvedTenantId `
+                -ErrorAction Stop
+        }
+
+        Sync-ArchLucidAzureCliSubscriptionContext -SubscriptionId $trimmedSubscriptionId
+        return
+    }
+
+    Clear-ArchLucidAzureAccountSessions
+
+    Write-Host ("Signing in to Azure for subscription {0}..." -f $trimmedSubscriptionId) -ForegroundColor Cyan
+    Write-Host "Reader (or equivalent) at subscription scope is sufficient for read-only inventory collection." -ForegroundColor Cyan
+
+    Connect-ArchLucidAzureAccountForSubscription `
+        -TenantId $trimmedTenantId `
+        -SubscriptionId $trimmedSubscriptionId
+
+    Sync-ArchLucidAzureCliSubscriptionContext -SubscriptionId $trimmedSubscriptionId
+}
+
 function Ensure-ArchLucidAzureLogin
 {
     param(
@@ -82,6 +314,15 @@ function Ensure-ArchLucidAzureLogin
 
     [string]$trimmedTenantId = "$TenantId".Trim()
     [string]$trimmedSubscriptionId = "$SubscriptionId".Trim()
+
+    if (-not [string]::IsNullOrWhiteSpace($trimmedSubscriptionId))
+    {
+        Ensure-ArchLucidAzureSubscriptionSession `
+            -SubscriptionId $trimmedSubscriptionId `
+            -TenantId $trimmedTenantId
+
+        return
+    }
 
     [object]$context = Get-AzContext -ErrorAction SilentlyContinue
 
@@ -104,77 +345,7 @@ function Ensure-ArchLucidAzureLogin
         Write-Host "Signing in to Azure..." -ForegroundColor Cyan
         Write-Host "Reader (or equivalent) at subscription scope is sufficient for read-only inventory collection." -ForegroundColor Cyan
 
-        if (-not [string]::IsNullOrWhiteSpace($trimmedTenantId) -and -not [string]::IsNullOrWhiteSpace($trimmedSubscriptionId))
-        {
-            $null = Connect-AzAccount `
-                -Tenant $trimmedTenantId `
-                -Subscription $trimmedSubscriptionId `
-                -UseDeviceAuthentication `
-                -ErrorAction Stop
-        }
-        elseif (-not [string]::IsNullOrWhiteSpace($trimmedTenantId))
-        {
-            $null = Connect-AzAccount `
-                -Tenant $trimmedTenantId `
-                -UseDeviceAuthentication `
-                -ErrorAction Stop
-        }
-        elseif (-not [string]::IsNullOrWhiteSpace($trimmedSubscriptionId))
-        {
-            $null = Connect-AzAccount `
-                -Subscription $trimmedSubscriptionId `
-                -UseDeviceAuthentication `
-                -ErrorAction Stop
-        }
-        else
-        {
-            $null = Connect-AzAccount `
-                -UseDeviceAuthentication `
-                -ErrorAction Stop
-        }
-
-        return
-    }
-
-    if (-not [string]::IsNullOrWhiteSpace($trimmedSubscriptionId))
-    {
-        [System.Management.Automation.ActionPreference]$previousWarningPreference = $WarningPreference
-        [object]$subscription = $null
-
-        try
-        {
-            $WarningPreference = 'SilentlyContinue'
-            $subscription = Get-AzSubscription `
-                -SubscriptionId $trimmedSubscriptionId `
-                -ErrorAction Stop
-        }
-        finally
-        {
-            $WarningPreference = $previousWarningPreference
-        }
-
-        [string]$resolvedTenantId =
-            if (-not [string]::IsNullOrWhiteSpace($trimmedTenantId))
-            {
-                $trimmedTenantId
-            }
-            else
-            {
-                "$( $subscription.TenantId )".Trim()
-            }
-
-        [object]$currentContext = Get-AzContext -ErrorAction SilentlyContinue
-        [string]$currentSubscriptionId = "$( $currentContext.Subscription.Id )".Trim()
-        [string]$currentTenantId = "$( $currentContext.Tenant.Id )".Trim()
-
-        if ($currentSubscriptionId -ne $subscription.Id -or
-            (-not [string]::IsNullOrWhiteSpace($resolvedTenantId) -and $currentTenantId -ne $resolvedTenantId))
-        {
-            $null = Set-AzContext `
-                -SubscriptionId $subscription.Id `
-                -Tenant $resolvedTenantId `
-                -ErrorAction Stop
-        }
+        Connect-ArchLucidAzureAccountForSubscription -TenantId $trimmedTenantId
     }
 }
 
@@ -184,41 +355,15 @@ function Set-ArchLucidAzureExtractorSubscriptionContext
         [Parameter(Mandatory = $true)]
         [string] $SubscriptionId,
 
-        [string] $TenantId = ""
+        [string] $TenantId = "",
+
+        [switch] $SkipConnect
     )
 
-    [string]$trimmedSubscriptionId = "$SubscriptionId".Trim()
-    [string]$trimmedTenantId = "$TenantId".Trim()
-
-    [System.Management.Automation.ActionPreference]$previousWarningPreference = $WarningPreference
-    [object]$subscription = $null
-
-    try
-    {
-        $WarningPreference = 'SilentlyContinue'
-        $subscription = Get-AzSubscription `
-            -SubscriptionId $trimmedSubscriptionId `
-            -ErrorAction Stop
-    }
-    finally
-    {
-        $WarningPreference = $previousWarningPreference
-    }
-
-    [string]$resolvedTenantId =
-        if (-not [string]::IsNullOrWhiteSpace($trimmedTenantId))
-        {
-            $trimmedTenantId
-        }
-        else
-        {
-            "$( $subscription.TenantId )".Trim()
-        }
-
-    $null = Set-AzContext `
-        -SubscriptionId $subscription.Id `
-        -Tenant $resolvedTenantId `
-        -ErrorAction Stop
+    Ensure-ArchLucidAzureSubscriptionSession `
+        -SubscriptionId $SubscriptionId `
+        -TenantId $TenantId `
+        -SkipConnect:$SkipConnect
 }
 
 function Resolve-ArchLucidAzureSubscriptionDisplayName
