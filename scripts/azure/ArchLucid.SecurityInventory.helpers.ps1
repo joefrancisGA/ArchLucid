@@ -1655,15 +1655,16 @@ function Get-ArchLucidAzurePolicyAssignmentCompanionRows
     {
         if ($null -eq $assignment) { continue }
 
-        [string]$scope = "$( $assignment.Scope )".Trim()
-        [string]$policyDefinitionId = "$( $assignment.PolicyDefinitionId )".Trim()
-        [string]$policySetDefinitionId = "$( $assignment.PolicySetDefinitionId )".Trim()
+        [string]$scope = Get-ArchLucidInventoryPropertyStringValue -Properties $assignment -PropertyName 'Scope'
+        [string]$policyDefinitionId = Get-ArchLucidInventoryPropertyStringValue -Properties $assignment -PropertyName 'PolicyDefinitionId'
+        [string]$policySetDefinitionId = Get-ArchLucidInventoryPropertyStringValue -Properties $assignment -PropertyName 'PolicySetDefinitionId'
         [string]$definitionId = $(if (-not ([string]::IsNullOrWhiteSpace($policyDefinitionId))) { $policyDefinitionId } else { $policySetDefinitionId })
 
         if ([string]::IsNullOrWhiteSpace($scope)) { continue }
         if ([string]::IsNullOrWhiteSpace($definitionId)) { continue }
 
-        [string]$name = "$( $assignment.Name )".Trim()
+        [string]$name = Get-ArchLucidInventoryPropertyStringValue -Properties $assignment -PropertyName 'Name'
+        [string]$assignmentResourceId = Get-ArchLucidInventoryPropertyStringValue -Properties $assignment -PropertyName 'ResourceId'
         [string]$key = "$scope|$definitionId|$name"
 
         if ($seen.ContainsKey($key))
@@ -1677,7 +1678,7 @@ function Get-ArchLucidAzurePolicyAssignmentCompanionRows
             scope = $scope
             policyDefinitionId = $definitionId
             name = $(if ([string]::IsNullOrWhiteSpace($name)) { $null } else { $name })
-            assignmentId = $assignment.ResourceId
+            assignmentId = $(if ([string]::IsNullOrWhiteSpace($assignmentResourceId)) { $null } else { $assignmentResourceId })
         })
     }
 

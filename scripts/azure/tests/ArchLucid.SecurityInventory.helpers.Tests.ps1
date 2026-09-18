@@ -347,6 +347,36 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].policyDefinitionId | Should -Match 'policyDefinitions/audit-storage'
     }
 
+    It 'maps policy assignments that omit PolicySetDefinitionId without throwing' {
+        $assignment = [PSCustomObject]@{
+            Scope = '/subscriptions/sub1'
+            PolicyDefinitionId = '/providers/Microsoft.Authorization/policyDefinitions/audit-storage'
+            Name = 'audit-storage-assignment'
+            ResourceId = '/subscriptions/sub1/providers/Microsoft.Authorization/policyAssignments/abc'
+        }
+
+        { Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($assignment) } | Should -Not -Throw
+
+        [object[]]$rows = @(Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($assignment))
+
+        $rows.Count | Should -Be 1
+        $rows[0].policyDefinitionId | Should -Match 'policyDefinitions/audit-storage'
+    }
+
+    It 'maps initiative policy assignments that omit PolicyDefinitionId' {
+        $assignment = [PSCustomObject]@{
+            Scope = '/subscriptions/sub1'
+            PolicySetDefinitionId = '/providers/Microsoft.Authorization/policySetDefinitions/audit-initiative'
+            Name = 'audit-initiative-assignment'
+            ResourceId = '/subscriptions/sub1/providers/Microsoft.Authorization/policyAssignments/def'
+        }
+
+        [object[]]$rows = @(Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($assignment))
+
+        $rows.Count | Should -Be 1
+        $rows[0].policyDefinitionId | Should -Match 'policySetDefinitions/audit-initiative'
+    }
+
     It 'collects diagnostic settings for path-relevant resources' {
         function Invoke-AzRestMethod {
             param(
