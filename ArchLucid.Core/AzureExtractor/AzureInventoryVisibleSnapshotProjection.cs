@@ -177,6 +177,27 @@ public static class AzureInventoryVisibleSnapshotProjection
         return WrapSqlNullableColumnAsVisible(azureResourceIdColumn, omitChecks);
     }
 
+    public static string BuildSqlNeverShowSqlDatabasePredicate(
+        string resourceTypeColumn,
+        string azureResourceIdColumn)
+    {
+        List<string> clauses = [];
+
+        foreach (string databaseName in AzureInventoryNeverShowSqlDatabaseNames.NeverShowDatabaseNames)
+        {
+            string escapedName = EscapeSqlLiteral(databaseName);
+
+            clauses.Add(
+                $"NOT ({resourceTypeColumn} LIKE N'Microsoft.Sql/servers/databases%' AND LOWER({azureResourceIdColumn}) LIKE N'%/databases/{escapedName.ToLowerInvariant()}')");
+            clauses.Add(
+                $"NOT ({resourceTypeColumn} LIKE N'Microsoft.Sql/managedInstances/databases%' AND LOWER({azureResourceIdColumn}) LIKE N'%/databases/{escapedName.ToLowerInvariant()}')");
+        }
+
+        string omitChecks = string.Join(" AND ", clauses);
+
+        return $"({resourceTypeColumn} IS NULL OR {resourceTypeColumn} = N'' OR ({omitChecks}))";
+    }
+
     private static AzureInventorySnapshotRecord CloneHeader(
         AzureInventorySnapshotRecord header,
         int resourceCount,

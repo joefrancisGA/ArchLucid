@@ -811,6 +811,76 @@ function Get-ArchLucidAzurePrivateLinkOnlyNicArmIds
     return @($privateEndpointNicArmIds)
 }
 
+function Test-ArchLucidAzureInventoryNeverShowSqlDatabaseResource
+{
+    param(
+        [string] $ResourceType,
+        [string] $ResourceId,
+        [string] $ResourceName = ''
+    )
+
+    [string[]]$neverShowDatabaseNames = @('master')
+    [string[]]$sqlDatabaseArmTypePrefixes = @(
+        'Microsoft.Sql/servers/databases'
+        'Microsoft.Sql/managedInstances/databases'
+    )
+
+    [bool]$isSqlDatabase = $false
+
+    if (-not [string]::IsNullOrWhiteSpace($ResourceType))
+    {
+        foreach ($prefix in $sqlDatabaseArmTypePrefixes)
+        {
+            if ($ResourceType.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase))
+            {
+                $isSqlDatabase = $true
+                break
+            }
+        }
+    }
+
+    if (-not $isSqlDatabase -and -not [string]::IsNullOrWhiteSpace($ResourceId))
+    {
+        if (($ResourceId -like '*/Microsoft.Sql/servers/*' -and $ResourceId -like '*/databases/*') -or
+            ($ResourceId -like '*/Microsoft.Sql/managedInstances/*' -and $ResourceId -like '*/databases/*'))
+        {
+            $isSqlDatabase = $true
+        }
+    }
+
+    if (-not $isSqlDatabase)
+    {
+        return $false
+    }
+
+    [string]$effectiveName = "$( $ResourceName )".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($effectiveName) -and -not [string]::IsNullOrWhiteSpace($ResourceId))
+    {
+        [string[]]$segments = @($ResourceId -split '/' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+
+        if ($segments.Count -gt 0)
+        {
+            $effectiveName = $segments[$segments.Count - 1]
+        }
+    }
+
+    if ([string]::IsNullOrWhiteSpace($effectiveName))
+    {
+        return $false
+    }
+
+    foreach ($databaseName in $neverShowDatabaseNames)
+    {
+        if ($effectiveName.Equals($databaseName, [StringComparison]::OrdinalIgnoreCase))
+        {
+            return $true
+        }
+    }
+
+    return $false
+}
+
 function Test-ArchLucidAzureInventoryNeverShowResource
 {
     param(
@@ -822,8 +892,22 @@ function Test-ArchLucidAzureInventoryNeverShowResource
 
     [string]$resourceType = "$( $Resource.resourceType )".Trim()
     [string]$resourceId = "$( $Resource.resourceId )".Trim()
+    [string]$resourceName = ''
+
+    if ($null -ne $Resource.PSObject.Properties['name'])
+    {
+        $resourceName = "$( $Resource.name )".Trim()
+    }
 
     if (Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType $resourceType)
+    {
+        return $true
+    }
+
+    if (Test-ArchLucidAzureInventoryNeverShowSqlDatabaseResource `
+            -ResourceType $resourceType `
+            -ResourceId $resourceId `
+            -ResourceName $resourceName)
     {
         return $true
     }

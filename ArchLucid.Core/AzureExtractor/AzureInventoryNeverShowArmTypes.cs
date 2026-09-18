@@ -137,6 +137,11 @@ public static class AzureInventoryNeverShowArmTypes
             return true;
         }
 
+        if (AzureInventoryNeverShowSqlDatabaseNames.ShouldOmit(resourceType, azureResourceId))
+        {
+            return true;
+        }
+
         if (!AzureInventoryPrivateLinkOnlyNicCatalog.IsNetworkInterface(resourceType, azureResourceId))
         {
             return false;
