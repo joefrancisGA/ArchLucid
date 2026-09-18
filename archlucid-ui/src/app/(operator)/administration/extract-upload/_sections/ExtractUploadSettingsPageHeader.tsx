@@ -1,6 +1,7 @@
 "use client";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   PageContextualHelpButton,
@@ -66,6 +67,7 @@ function reviewBindingLabel(associateRunId: string | null): string | null {
 export function ExtractUploadSettingsPageHeader(
   props: ExtractUploadSettingsPageHeaderProps,
 ): React.JSX.Element {
+  const { productLine } = useProductLine();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const inventoryStatus = inventoryStatusPresentation(props.baselineLoading, props.hasInventoryOnFile);
   const reviewBinding = reviewBindingLabel(props.associateRunId);
@@ -77,7 +79,7 @@ export function ExtractUploadSettingsPageHeader(
       navHref={EXTRACT_UPLOAD_SETTINGS_NAV_HREF}
       headingLevel="h1"
       breadcrumb={buyerPolishedShell ? <ExtractUploadSettingsBreadcrumb /> : undefined}
-      subtitle={extractUploadSettingsPageSubtitle(buyerPolishedShell)}
+      subtitle={extractUploadSettingsPageSubtitle(buyerPolishedShell, productLine)}
       subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
       statusBadge={
         inventoryStatus !== null ? (
