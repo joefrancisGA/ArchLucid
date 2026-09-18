@@ -1265,6 +1265,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.managed"] = managed.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "role", out JsonElement role)
+                || TryGetPropertyIgnoreCase(res, "role", out role))
+            && role.ValueKind == JsonValueKind.String)
+        {
+            string? roleText = role.GetString();
+
+            if (!string.IsNullOrWhiteSpace(roleText))
+                properties["tf.role"] = roleText.Trim();
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
