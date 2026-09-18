@@ -1,5 +1,7 @@
 import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE = "Extract & upload" as const;
@@ -11,6 +13,9 @@ export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE =
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_BUYER =
   "Collect a read-only cloud inventory ZIP locally (Azure, AWS, or Google Cloud), validate it, and upload it to start architecture reviews." as const;
+
+export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_SECURENOW =
+  "Collect a read-only Azure inventory ZIP" as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID = "extract-upload-settings-primary-content" as const;
 
@@ -24,7 +29,14 @@ export const EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL = "Skip to extract and uplo
 
 export const EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_TOPIC_TITLE = EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE;
 
-export function extractUploadSettingsPageSubtitle(buyerPolishedShell: boolean): string {
+export function extractUploadSettingsPageSubtitle(
+  buyerPolishedShell: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_SECURENOW;
+  }
+
   return buyerPolishedShell
     ? EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_BUYER
     : EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE;
@@ -91,9 +103,6 @@ export const EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE =
   "Inventory package uploaded — open Reviews to attach it to a review." as const;
 
 export const EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX = "Upload binds to review" as const;
-
-export const EXTRACT_UPLOAD_REVIEW_BINDING_NONE =
-  "No review selected — upload updates workspace inventory for the next architecture review." as const;
 
 export const EXTRACT_UPLOAD_ACCEPTED_PACKAGE_PANEL_TITLE = "Last accepted architecture package" as const;
 
