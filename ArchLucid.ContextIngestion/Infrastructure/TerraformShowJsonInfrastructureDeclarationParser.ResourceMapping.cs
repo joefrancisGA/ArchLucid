@@ -1193,6 +1193,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "pending", out JsonElement pending)
+                || TryGetPropertyIgnoreCase(res, "pending", out pending))
+            && (pending.ValueKind == JsonValueKind.True || pending.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.pending"] = pending.GetBoolean() ? "true" : "false";
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
