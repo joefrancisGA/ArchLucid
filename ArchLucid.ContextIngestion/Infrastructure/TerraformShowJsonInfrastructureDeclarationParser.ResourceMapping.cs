@@ -1200,6 +1200,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.pending"] = pending.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "visible", out JsonElement visible)
+                || TryGetPropertyIgnoreCase(res, "visible", out visible))
+            && (visible.ValueKind == JsonValueKind.True || visible.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.visible"] = visible.GetBoolean() ? "true" : "false";
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
