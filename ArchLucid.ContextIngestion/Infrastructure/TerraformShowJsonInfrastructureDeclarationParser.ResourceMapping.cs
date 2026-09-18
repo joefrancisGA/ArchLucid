@@ -1425,6 +1425,64 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "approved", out JsonElement approved)
+                || TryGetPropertyIgnoreCase(res, "approved", out approved))
+            && (approved.ValueKind == JsonValueKind.True || approved.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.approved"] = approved.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "deprecated", out JsonElement deprecated)
+                || TryGetPropertyIgnoreCase(res, "deprecated", out deprecated))
+            && (deprecated.ValueKind == JsonValueKind.True || deprecated.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.deprecated"] = deprecated.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "purpose", out JsonElement purpose)
+                || TryGetPropertyIgnoreCase(res, "purpose", out purpose))
+            && purpose.ValueKind == JsonValueKind.String)
+        {
+            string? purposeText = purpose.GetString();
+
+            if (!string.IsNullOrWhiteSpace(purposeText))
+                properties["tf.purpose"] = purposeText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "bindings", out JsonElement bindingsEl)
+            || TryGetPropertyIgnoreCase(res, "bindings", out bindingsEl))
+        {
+            List<string> bindingsFields = [];
+
+            if (bindingsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in bindingsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        bindingsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (bindingsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = bindingsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    bindingsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (bindingsFields.Count > 0)
+            {
+                string joined = string.Join('|', bindingsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.bindings"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
