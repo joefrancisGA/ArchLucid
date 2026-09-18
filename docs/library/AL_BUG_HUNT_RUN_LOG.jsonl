@@ -5189,3 +5189,4 @@
 {"at":"2026-09-18T00:31:34.9186218Z","zoneId":"tenant-data-export","outcome":"seed-only"}
 {"at":"2026-09-18T00:31:38.6430675Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-18T00:33:21.9361682Z","zoneId":"topology-proposal-merge","outcome":"hit"}
+{"at":"2026-09-18T00:33:25.7985767Z","zoneId":"context-ingestion","outcome":"seed-only"}
