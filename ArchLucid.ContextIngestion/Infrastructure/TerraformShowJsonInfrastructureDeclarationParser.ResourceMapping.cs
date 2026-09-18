@@ -1623,6 +1623,40 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 properties["tf.notes"] = notesText.Trim();
         }
 
+        if (TryGetPropertyIgnoreCase(res, "subnets", out JsonElement subnetsEl)
+            || TryGetPropertyIgnoreCase(res, "subnets", out subnetsEl))
+        {
+            List<string> subnetsFields = [];
+
+            if (subnetsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in subnetsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        subnetsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (subnetsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = subnetsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    subnetsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (subnetsFields.Count > 0)
+            {
+                string joined = string.Join('|', subnetsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.subnets"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
