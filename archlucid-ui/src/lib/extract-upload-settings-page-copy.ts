@@ -95,15 +95,6 @@ export const EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX = "Upload binds to review" as 
 export const EXTRACT_UPLOAD_REVIEW_BINDING_NONE =
   "No review selected — upload updates workspace inventory for the next architecture review." as const;
 
-export const EXTRACT_UPLOAD_BASELINE_OVERWRITE_TITLE = "Replace workspace inventory?" as const;
-
-export const EXTRACT_UPLOAD_BASELINE_OVERWRITE_DESCRIPTION =
-  "This workspace already has inventory on file. Uploading replaces the workspace baseline used for findings and the evidence trail in sealed review records." as const;
-
-export const EXTRACT_UPLOAD_BASELINE_OVERWRITE_CONFIRM = "Replace inventory" as const;
-
-export const EXTRACT_UPLOAD_BASELINE_OVERWRITE_CANCEL = "Cancel" as const;
-
 export const EXTRACT_UPLOAD_ACCEPTED_PACKAGE_PANEL_TITLE = "Last accepted architecture package" as const;
 
 export const EXTRACT_UPLOAD_ACCEPTED_REPLACE_LABEL = "Replace inventory" as const;
