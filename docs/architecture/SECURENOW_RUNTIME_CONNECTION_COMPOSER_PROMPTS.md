@@ -1,15 +1,15 @@
-> **Scope:** Contributor-reference — copy-paste Composer/Cloud Agent prompts that close the ArchLucid DEV (and similar Container Apps) **Data flow** gap: Reader-declared env/RBAC/hostname wiring, optional observed overlay, optional SQL principal probe, optional uploaded-config confirmation. Internal engineering only. **Prompts only** in this PR — do not implement from the tables.
+> **Scope:** Contributor-reference — copy-paste Composer/Cloud Agent prompts that close the ArchLucid DEV (and similar Container Apps) **Data flow** gap: Reader-declared env/RBAC/hostname wiring, optional observed overlay, optional SQL principal probe, optional uploaded-config confirmation, optional inference questionnaire. Internal engineering only. **Prompts only** in this PR — do not implement from the tables.
 > **Index:** [`INFRA_EVIDENCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS.md). **Design:** [`../securenow/RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md`](../securenow/RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md). **Hold:** [`../library/SECURENOW_RUNTIME_CONNECTION_HOLD.md`](../library/SECURENOW_RUNTIME_CONNECTION_HOLD.md).
 > **DEV picture:** [`../securenow/ARCHLUCID_DEV_DATA_FLOW_CONNECTION_REFERENCE.md`](../securenow/ARCHLUCID_DEV_DATA_FLOW_CONNECTION_REFERENCE.md).
 > **Paste files:** [`.cursor/prompts/securenow-runtime-connection-00-index.md`](../../.cursor/prompts/securenow-runtime-connection-00-index.md) (one numbered file per session).
 >
 > **Do not** re-run **AX-DE-01–18**, **AX-DC-01–08**, **SN-DF-01–08**, or **SN-PE-01–07** as greenfield. Do not persist secret **values**. Do not merge observed arrows into **May access**. Hosted stays GET-only.
 
-# SN-RT-01–SN-RT-10 — Runtime declared and observed Data Flow connections
+# SN-RT-01–SN-RT-10 / SN-RT-12–13 — Runtime declared and observed Data Flow connections
 
-**Observed:** Owner (2026-09-18) on an empty ArchLucid DEV Data flow canvas (**19 nodes, 0 relationships**). Prefer **not** requiring Terraform. Willing to query logs, SQL, or ask the operator to upload config and **confirm** inferred edges.
+**Observed:** Owner (2026-09-18) on an empty ArchLucid DEV Data flow canvas (**19 nodes, 0 relationships**). Prefer **not** requiring Terraform. Willing to query logs, SQL, or ask the operator to upload config and **confirm** inferred edges. Owner also accepted an **inference → questionnaire** close for A’s gaps.
 
-**Product framing (locked):** four options. **A** is the primary fix (Reader ARM GET + parsers + RBAC/stages). **B** is a time-window overlay. **C** is in-database Entra membership. **D** is the non-Azure / Key Vault–only escape hatch. Families stay distinct.
+**Product framing (locked):** five options. **A** is the primary fix (Reader ARM GET + parsers + RBAC/stages). **E** sits on top of A (no new Azure). **B** is a time-window overlay. **C** is in-database Entra membership. **D** is the non-Azure / Key Vault–only escape hatch. Families stay distinct.
 
 ## Diagnosis → prompt
 
@@ -24,7 +24,9 @@
 | Logs would look like declared wiring | **SN-RT-07** | Operators read audit hits as architecture |
 | In-DB Entra users invisible | **SN-RT-08** | SQL still empty when `SQL DB Contributor` is absent |
 | No appsettings / `.env` / compose ingest | **SN-RT-09** | Key Vault–only env and non-Azure stay blank |
-| Silent upload inference | **SN-RT-10** | `{0}` catalogs and unresolved hosts auto-paint |
+| Silent upload inference | **SN-RT-10** | `{0}` catalogs and unresolved hosts auto-paint from files |
+| `{0}` / unresolved never asked | **SN-RT-12** | Tenant DBs stay server-level |
+| Questionnaire looks like auto-declared | **SN-RT-13** | Same-RG guesses paint as architecture |
 | Secret harvest / Kudu / hosted POST / ER | **SN-RT-HOLD** | Written hold |
 
 ## Sequencing
@@ -41,9 +43,11 @@
 | **SN-RT-08** SQL principals | **C** anytime after 01 | Compute `principalId` |
 | **SN-RT-09** Upload parsers | **D** independent of A; better after 02 | SN-RT-02 extractors |
 | **SN-RT-10** Confirm HumanAssertion | After 09; prefer 03 | Proposed-edge DTO |
+| **SN-RT-12** Questionnaire items | **E** after 03 | SN-RT-03 warnings; reuse 10 DTO if present |
+| **SN-RT-13** Questionnaire UI | After 12 | SN-RT-12 items; prefer 10 API |
 | **SN-RT-HOLD** | Not implementation | — |
 
-**Run A first.** B is an overlay. C is only if a buyer needs membership proof without SQL auditing. D is the escape hatch.
+**Run A first, then E on top.** B is an overlay. C is only if a buyer needs membership proof without SQL auditing. D is the escape hatch. E does not collect Azure.
 
 **Run one prompt per chat.** Feature branch per prompt (`cursor/sn-rt-<short-name>-a7c1`). Name the branch in any commit/push request. This prompt-set PR may live on `cursor/runtime-connection-prompts-30fc`.
 
@@ -64,7 +68,7 @@
 - Host index maps `*.database.windows.net` to the SQL **server**, not a database.
 - DEV SQL auth is in-database Entra users, not `SQL DB Contributor`.
 - Observed traffic is a **different family**. Never merge into declared/authorized arrows.
-- `{0}` tenant-catalog templates stay **server-level** until D confirmation or C membership.
+- `{0}` tenant-catalog templates stay **server-level** until E confirmation, D confirmation, or C membership.
 - Do not mint OpenAI / Search / Fabric when the ARM type is absent.
 
 ---
@@ -249,9 +253,45 @@ Do not run terraform on the host. Do not Kudu. Working-tree script. No git add -
 ### Prompt (copy below)
 
 ```text
-You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: show proposed connections from upload and/or unresolved A inferences; operator confirm or dismiss. Confirmed rows become ProvenanceKind.HumanAssertion and paint on Data Flow as Confirmed connection (HumanConfirmed family). Dismissed rows never paint. Do not auto-confirm. Do not call Azure at confirm time. Visible-boundary buttons. Disable confirm until a row is selected. Do not hide desktop review workspace tabs behind More.
+You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: show proposed connections from uploaded config; operator confirm or dismiss. Confirmed rows become ProvenanceKind.HumanAssertion and paint on Data Flow as Confirmed connection (HumanConfirmed family). Dismissed rows never paint. Do not auto-confirm. Do not call Azure at confirm time. Do not generate the inference questionnaire (SN-RT-12/13). Visible-boundary buttons. Disable confirm until a row is selected. Do not hide desktop review workspace tabs behind More.
 
 Read first: .cursor/prompts/securenow-runtime-connection-10-confirm-human-assertion.md
+
+Working-tree script. No git add -A. Heartbeat every 8s if >15s.
+```
+
+---
+
+# SN-RT-12 — Inference questionnaire items (Option E)
+
+**Depends on:** SN-RT-03 preferred · **Branch:** `cursor/sn-rt-questionnaire-items-a7c1`
+
+**Paste file:** [`.cursor/prompts/securenow-runtime-connection-12-inference-questionnaire-items.md`](../../.cursor/prompts/securenow-runtime-connection-12-inference-questionnaire-items.md)
+
+### Prompt (copy below)
+
+```text
+You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: from an inventory snapshot, emit proposed questionnaire items for edges A cannot close: {0} tenant catalogs (one item per user database on that server), SQL host without catalog, unresolved hosts, and UI→API when both apps share a Container Apps Environment. Never paint Data Flow from this prompt. Never cartesian-product compute×SQL in a resource group. Skip master. Cap items. Reuse SN-RT-10 proposed-edge DTO with source=questionnaire if present.
+
+Read first: .cursor/prompts/securenow-runtime-connection-12-inference-questionnaire-items.md and docs/securenow/RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md
+
+Do not implement the ask UI (SN-RT-13). Working-tree script. No git add -A.
+```
+
+---
+
+# SN-RT-13 — Inference questionnaire UI (Option E)
+
+**Depends on:** SN-RT-12 · prefer SN-RT-10 persist · **Branch:** `cursor/sn-rt-questionnaire-ui-a7c1`
+
+**Paste file:** [`.cursor/prompts/securenow-runtime-connection-13-inference-questionnaire-ui.md`](../../.cursor/prompts/securenow-runtime-connection-13-inference-questionnaire-ui.md)
+
+### Prompt (copy below)
+
+```text
+You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: walk the operator through SN-RT-12 items as Yes / No / Skip questions. Yes becomes ProvenanceKind.HumanAssertion Confirmed connection (HumanConfirmed). No dismissed. Skip stays proposed and does not paint. Reuse SN-RT-10 confirm API if landed. Disable the primary until a choice exists. Sentence case. Visible-boundary buttons. Do not hide desktop review workspace tabs behind More. Do not auto-answer. Do not bulk-confirm.
+
+Read first: .cursor/prompts/securenow-runtime-connection-13-inference-questionnaire-ui.md
 
 Working-tree script. No git add -A. Heartbeat every 8s if >15s.
 ```
@@ -264,4 +304,4 @@ Working-tree script. No git add -A. Heartbeat every 8s if >15s.
 
 Library copy: [`docs/library/SECURENOW_RUNTIME_CONNECTION_HOLD.md`](../library/SECURENOW_RUNTIME_CONNECTION_HOLD.md).
 
-Paste only when a session starts secret harvest, Kudu, merging observed arrows into declared, SQL table/FK harvest, hosted POST, or a second ZIP collector.
+Paste only when a session starts secret harvest, Kudu, merging observed arrows into declared, SQL table/FK harvest, hosted POST, a second ZIP collector, or auto-answering the inference questionnaire.

@@ -3,7 +3,7 @@
 > **Paste files:** [`.cursor/prompts/securenow-data-flow-00-index.md`](../../.cursor/prompts/securenow-data-flow-00-index.md) (one numbered file per session).
 >
 > **Do not** re-implement **IE-DD-01–04** (Data mode category/Failed), **IE-ND**, **IE-RF**, **SA-07** as greenfield. Do not claim observed traffic. Do not mint Fabric/Power BI/Confidential.
-> **Follow-on (not this set):** evidence-based probable families on Data Flow — [`SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md`](SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md) (**SN-PE-01–07**). Runtime declared / observed connections (Container Apps env, logs, SQL principals, upload+confirm) — [`SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) (**SN-RT-01–10**).
+> **Follow-on (not this set):** evidence-based probable families on Data Flow — [`SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md`](SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md) (**SN-PE-01–07**). Runtime declared / observed connections (Container Apps env, logs, SQL principals, upload+confirm, inference questionnaire) — [`SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) (**SN-RT-01–10**, **12–13**).
 
 # SN-DF-01–SN-DF-08 — Data architecture vs data flow diagrams
 

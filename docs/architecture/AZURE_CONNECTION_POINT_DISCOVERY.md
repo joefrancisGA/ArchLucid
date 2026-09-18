@@ -320,7 +320,7 @@ Future `associationType` values follow IE-RF-01 catalog rules:
 | [`AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md`](AZURE_EXTRACTOR_DIAGRAM_ENRICHMENT_COMPOSER_PROMPTS.md) | **AX-DE-01–18** collection prompts (**shipped** — do not re-run) |
 | [`AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_COMPOSER_PROMPTS.md`](AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_COMPOSER_PROMPTS.md) | **AX-DC-01–08** consumption prompts (canvas, strokes, warnings) |
 | [`SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md`](SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md) | **SN-PE-01–07** — Data Flow families (ordinal bands; DNS-joined PE hop); **prompts only** |
-| [`SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) | **SN-RT-01–10** — Container Apps env GET, parsers, SQL grain, RBAC/PaaS, LAW overlay, SQL principals, upload+confirm; **prompts only** |
+| [`SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) | **SN-RT-01–10**, **12–13** — Container Apps env GET, parsers, SQL grain, RBAC/PaaS, LAW overlay, SQL principals, upload+confirm, inference questionnaire; **prompts only** |
 | [`../securenow/EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md`](../securenow/EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md) | Locked Data Flow evidence-family design |
 | [`../securenow/RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md`](../securenow/RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md) | Locked runtime A/B/C/D options for empty Container Apps Data flow |
 | [`SECURENOW_ARCHITECT_PLANE.md`](../library/SECURENOW_ARCHITECT_PLANE.md) | Privilege / path engines consuming RBAC rows |

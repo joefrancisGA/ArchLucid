@@ -6,7 +6,7 @@ Library copy: [`docs/library/SECURENOW_RUNTIME_CONNECTION_HOLD.md`](../../docs/l
 
 ## Goal
 
-Close the Container Apps Data Flow gap with Reader-first declared wiring. Keep logs, SQL membership, and uploads in **separate** families. Do not turn SecureNow into a SIEM or an ER modeler.
+Close the Container Apps Data Flow gap with Reader-first declared wiring. Keep logs, SQL membership, uploads, and the inference questionnaire in **separate** families. Do not turn SecureNow into a SIEM or an ER modeler.
 
 ## Do not implement from SN-RT sessions
 
@@ -22,15 +22,17 @@ Close the Container Apps Data Flow gap with Reader-first declared wiring. Keep l
 | `"confidence": 80` | Ordinal bands |
 | Mint OpenAI/Search when type absent | Empty stage |
 | Auto-confirm uploaded guesses | SN-RT-10 |
+| Auto-answer questionnaire / same-RG cartesian pairs | SN-RT-12/13 |
 | `terraform apply` | Plane |
 | GTM **M-90 / M-44 / M-91 / M-92**; **TB-135 / TB-136** | Owner/GTM |
 | Desktop review tabs behind **More** | workspace rule |
 | Re-run AX-DE / SN-DF / SN-PE as greenfield | Consume |
 
-## Authorized spine (SN-RT-01–10)
+## Authorized spine (SN-RT-01–10, 12–13)
 
 ```text
 A: Container Apps env GET → parse → SQL catalog/FQDN → PaaS stages → RBAC allowlist
+        → E: inference questionnaire for A’s gaps → HumanAssertion
         → B: opt-in LAW companion → ObservedRuntime family
               → C: opt-in database principals
                     → D: upload parsers → confirm HumanAssertion
@@ -38,7 +40,7 @@ A: Container Apps env GET → parse → SQL catalog/FQDN → PaaS stages → RBA
 
 ## If a session is already implementing a hold item
 
-Stop. Revert uncommitted hold-item code. Point at **SN-RT-01–10** and the plane.
+Stop. Revert uncommitted hold-item code. Point at **SN-RT-01–10 / 12–13** and the plane.
 
 ## Done when
 

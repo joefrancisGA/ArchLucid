@@ -2,11 +2,11 @@
      Origin: 2026-09-18 owner (ArchLucid DEV 19 nodes / 0 edges; prefer no Terraform;
      logs/SQL/upload+confirm OK). Do not implement from this index. -->
 
-# SecureNow runtime connections — Composer prompt set (SN-RT-01–SN-RT-10 + hold)
+# SecureNow runtime connections — Composer prompt set (SN-RT-01–SN-RT-10, SN-RT-12–13 + hold)
 
-The ArchLucid DEV Data flow canvas is empty because **Container Apps env is not collected**, SQL catalogs are not parsed, and several RBAC/PaaS types never become Data Flow nodes. Four options: **A** Reader-only ARM, **B** Log Analytics overlay, **C** SQL principal probe, **D** upload + confirm.
+The ArchLucid DEV Data flow canvas is empty because **Container Apps env is not collected**, SQL catalogs are not parsed, and several RBAC/PaaS types never become Data Flow nodes. Five options: **A** Reader-only ARM, **B** Log Analytics overlay, **C** SQL principal probe, **D** upload + confirm, **E** inference questionnaire.
 
-**Do not implement from this index.** Paste **one** numbered `.cursor/prompts/securenow-runtime-connection-0N-*.md` file per Composer / Cloud Agent session.
+**Do not implement from this index.** Paste **one** numbered `.cursor/prompts/securenow-runtime-connection-NN-*.md` file per Composer / Cloud Agent session.
 
 Canonical design: [`docs/securenow/RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md`](../../docs/securenow/RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md). Wave doc: [`docs/architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](../../docs/architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md). Hold: [`docs/library/SECURENOW_RUNTIME_CONNECTION_HOLD.md`](../../docs/library/SECURENOW_RUNTIME_CONNECTION_HOLD.md).
 
@@ -38,6 +38,8 @@ DEV expected picture: [`docs/securenow/ARCHLUCID_DEV_DATA_FLOW_CONNECTION_REFERE
 | **C** | DB membership | Invisible | Opt-in `sys.database_principals` names only | **SN-RT-08** |
 | **D** | Upload | Terraform show-json exists; no appsettings | Parsers for appsettings.json / `.env` / compose env | **SN-RT-09** |
 | **D** | Confirm | Silent inference | Operator confirm → HumanAssertion | **SN-RT-10** |
+| **E** | Candidates | `{0}` / unresolved stay blank | Named-rule questionnaire items | **SN-RT-12** |
+| **E** | Ask | Silent same-RG guesses | Yes / No / Skip → HumanAssertion | **SN-RT-13** |
 
 ## What this set does *not* change
 
@@ -47,7 +49,7 @@ Do **not** hide desktop review workspace tabs behind **More**. Do **not** persis
 
 ## Run order
 
-**A first:** **01 → 02 → 03.** **04** and **05** after 03 (may parallel each other). **B:** **06** then **07** (after A if you want join keys). **C:** **08** anytime after 01 (needs compute principal ids). **D:** **09** then **10** (independent of A; better after 03 so confirm UI can show inventory matches). **11** is a written hold.
+**A first:** **01 → 02 → 03.** **04** and **05** after 03 (may parallel each other). **E on top of A:** **12** then **13** (after 03; reuse 10 persist if landed). **B:** **06** then **07** (after A if you want join keys). **C:** **08** anytime after 01 (needs compute principal ids). **D:** **09** then **10** (independent of A; better after 03 so confirm UI can show inventory matches). **11** is a written hold.
 
 Suggested Cloud Agent branch per prompt: `cursor/sn-rt-<short-name>-a7c1`. Implementation sessions use a **new** feature branch per prompt. This prompt-set PR may live on `cursor/runtime-connection-prompts-30fc`.
 
@@ -67,6 +69,8 @@ Suggested Cloud Agent branch per prompt: `cursor/sn-rt-<short-name>-a7c1`. Imple
 | 09 | `securenow-runtime-connection-09-uploaded-config-parsers.md` | D | No appsettings/.env ingest |
 | 10 | `securenow-runtime-connection-10-confirm-human-assertion.md` | D | Silent upload inference |
 | 11 | `securenow-runtime-connection-11-hold.md` | — | Written hold |
+| 12 | `securenow-runtime-connection-12-inference-questionnaire-items.md` | E | `{0}` / unresolved never asked |
+| 13 | `securenow-runtime-connection-13-inference-questionnaire-ui.md` | E | Questionnaire looks like auto-declared |
 
 ## After each prompt
 
