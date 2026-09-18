@@ -1613,6 +1613,16 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.canceled"] = canceled.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "notes", out JsonElement notes)
+                || TryGetPropertyIgnoreCase(res, "notes", out notes))
+            && notes.ValueKind == JsonValueKind.String)
+        {
+            string? notesText = notes.GetString();
+
+            if (!string.IsNullOrWhiteSpace(notesText))
+                properties["tf.notes"] = notesText.Trim();
+        }
+
         string canonicalLabel = name.ToLowerInvariant();
         string effectiveModuleAddress = ResolveResourceModuleAddress(res, moduleAddress);
         bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
