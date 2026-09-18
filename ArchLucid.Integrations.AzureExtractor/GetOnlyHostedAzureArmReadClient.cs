@@ -729,7 +729,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<HostedAzureArmDiagnosticSettingRecord>> ListDiagnosticSettingsAsync(
+    public async Task<HostedAzureDiagnosticSettingsCollectResult> ListDiagnosticSettingsAsync(
         string accessToken,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         CancellationToken cancellationToken)
@@ -739,6 +739,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
         List<HostedAzureArmDiagnosticSettingRecord> settings = [];
         HashSet<string> seenKeys = new(StringComparer.OrdinalIgnoreCase);
+        bool partialCollection = false;
 
         foreach (HostedAzureArmResourceRecord resource in resources)
         {
@@ -752,15 +753,21 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
                 continue;
             }
 
-            IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> resourceSettings =
+            (IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> resourceSettings, bool resourcePartial) =
                 await ListDiagnosticSettingsForResourceAsync(
                     accessToken,
                     resource.ResourceId.Trim(),
                     cancellationToken).ConfigureAwait(false);
 
+            if (resourcePartial)
+            {
+                partialCollection = true;
+            }
+
             foreach (HostedAzureArmDiagnosticSettingRecord setting in resourceSettings)
             {
-                string key = $"{setting.TargetResourceId}|{setting.Name}|{setting.WorkspaceId}";
+                string key =
+                    $"{setting.TargetResourceId}|{setting.Name}|{setting.WorkspaceId}|{setting.StorageAccountId}|{setting.EventHubAuthorizationRuleId}";
 
                 if (seenKeys.Add(key))
                 {
@@ -776,7 +783,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
                 settings.Count);
         }
 
-        return settings;
+        return new HostedAzureDiagnosticSettingsCollectResult
+        {
+            Settings = settings,
+            PartialCollection = partialCollection,
+        };
     }
 
     public async Task<IReadOnlyList<HostedAzureArmDefenderSummaryRecord>> ListSubscriptionDefenderSummariesAsync(
@@ -1042,12 +1053,14 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         return assignments;
     }
 
-    private async Task<IReadOnlyList<HostedAzureArmDiagnosticSettingRecord>> ListDiagnosticSettingsForResourceAsync(
+    private async Task<(IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> Settings, bool PartialCollection)>
+        ListDiagnosticSettingsForResourceAsync(
         string accessToken,
         string resourceId,
         CancellationToken cancellationToken)
     {
         List<HostedAzureArmDiagnosticSettingRecord> settings = [];
+        bool partialCollection = false;
         string? nextLink =
             $"https://management.azure.com/{resourceId.Trim()}/providers/Microsoft.Insights/diagnosticSettings?api-version={DiagnosticSettingsApiVersion}";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
@@ -1083,6 +1096,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             if (!response.IsSuccessStatusCode)
             {
+                if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                {
+                    partialCollection = true;
+                }
+
                 if (_logger.IsEnabled(LogLevel.Debug))
                 {
                     _logger.LogDebug(
@@ -1130,7 +1148,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             }
         }
 
-        return settings;
+        return (settings, partialCollection);
     }
 
     private static HostedAzureArmPolicyAssignmentRecord? MapPolicyAssignment(JsonElement item)
@@ -1189,7 +1207,12 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             }
         }
 
-        if (string.IsNullOrWhiteSpace(workspaceId))
+        string? storageAccountId = TryGetStringValue(propertiesElement, "storageAccountId");
+        string? eventHubAuthorizationRuleId = TryGetStringValue(propertiesElement, "eventHubAuthorizationRuleId");
+
+        if (string.IsNullOrWhiteSpace(workspaceId)
+            && string.IsNullOrWhiteSpace(storageAccountId)
+            && string.IsNullOrWhiteSpace(eventHubAuthorizationRuleId))
         {
             return null;
         }
@@ -1197,7 +1220,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         return new HostedAzureArmDiagnosticSettingRecord(
             targetResourceId.Trim(),
             name.Trim(),
-            workspaceId.Trim());
+            string.IsNullOrWhiteSpace(workspaceId) ? null : workspaceId.Trim(),
+            string.IsNullOrWhiteSpace(storageAccountId) ? null : storageAccountId.Trim(),
+            string.IsNullOrWhiteSpace(eventHubAuthorizationRuleId) ? null : eventHubAuthorizationRuleId.Trim());
     }
 
     public async Task<IReadOnlyList<HostedAzureArmFederatedCredentialRecord>> ListFederatedCredentialsAsync(
@@ -1499,10 +1524,16 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
         Dictionary<string, object?> properties = BuildProperties(item, resourceType!);
 
+        HostedAzureArmSystemDataPropertyCapture.Capture(item, properties);
+
         if (item.TryGetProperty("properties", out JsonElement propertiesElement)
             && propertiesElement.ValueKind == JsonValueKind.Object)
         {
             HostedAzureInventoryResourcePropertyExpander.Expand(resourceType!, propertiesElement, properties);
+            HostedAzureArmSystemDataPropertyCapture.CaptureVirtualMachineComputerName(
+                resourceType!,
+                propertiesElement,
+                properties);
         }
 
         return new HostedAzureArmResourceRecord(

@@ -68,7 +68,6 @@ import {
 import { useExtractUploadPageClient } from "./use-extract-upload-page-client";
 import { useExtractUploadShortcuts } from "./use-extract-upload-shortcuts";
 import { ExtractUploadAcceptedPackagePanel } from "./ExtractUploadAcceptedPackagePanel";
-import { ExtractUploadBaselineOverwriteConfirmDialog } from "./ExtractUploadBaselineOverwriteConfirmDialog";
 import { ExtractUploadProviderSelector } from "./ExtractUploadProviderSelector";
 
 function validateCommandForPlatform(platform: CloudInventoryPlatform): string {
@@ -138,10 +137,6 @@ function ExtractUploadSettingsPageClientInner() {
     upload,
     folderZip,
     demo,
-    baselineOverwriteOpen,
-    setBaselineOverwriteOpen,
-    confirmBaselineOverwrite,
-    cancelBaselineOverwrite,
     showAcceptedDropZone,
     beginReplaceInventory,
   } = viewModel;
@@ -489,17 +484,6 @@ function ExtractUploadSettingsPageClientInner() {
         </div>
       </div>
 
-      <ExtractUploadBaselineOverwriteConfirmDialog
-        open={baselineOverwriteOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            cancelBaselineOverwrite();
-          } else {
-            setBaselineOverwriteOpen(true);
-          }
-        }}
-        onConfirm={confirmBaselineOverwrite}
-      />
     </div>
   );
 }

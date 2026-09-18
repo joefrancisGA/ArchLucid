@@ -35,7 +35,7 @@ export function RunDetailPackageSpineExportCoLocationStrip(
 
   return (
     <div
-      className={cn(DESIGN_TOKENS.callout.infoShell, "mb-3 flex-col gap-2")}
+      className={cn(DESIGN_TOKENS.callout.info, "mb-3 flex flex-col gap-2")}
       data-testid="run-detail-package-spine-export-co-location"
     >
       <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>

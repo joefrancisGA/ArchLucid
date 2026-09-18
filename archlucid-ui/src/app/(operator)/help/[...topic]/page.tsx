@@ -27,7 +27,7 @@ import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-pri
 import { loadHelpTopicContent } from "@/lib/help/help-topic-content-loader";
 import { resolveHelpTopicView } from "@/lib/help/help-topic-view-resolver";
 import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-runbook-help-route-metadata";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { resolveProductLineIdForServer } from "@/lib/product-line/resolve-product-line-id-server";
 import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 /** ISR for buyer help topics — keep in sync with `HELP_TOPIC_ROUTE_REVALIDATE_SECONDS` (TB-1600). */
@@ -131,7 +131,7 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
     return <HelpTopicNotFoundView />;
   }
 
-  if (isHelpTopicExcludedForProductLine(entry.slug, resolveProductLineIdFromEnv())) {
+  if (isHelpTopicExcludedForProductLine(entry.slug, await resolveProductLineIdForServer())) {
     return <HelpTopicNotFoundView />;
   }
 

@@ -18,6 +18,7 @@ const CHANGE_TYPE_INDEX_TO_KEY: readonly string[] = [
   "DependencyChanged",
   "PolicyAssignmentChanged",
   "Unknown",
+  "ResourceUnchanged",
 ];
 
 const CHANGE_TYPE_LABELS: Readonly<Record<string, string>> = {
@@ -38,6 +39,7 @@ const CHANGE_TYPE_LABELS: Readonly<Record<string, string>> = {
   DependencyChanged: "Dependency changed",
   PolicyAssignmentChanged: "Policy assignment changed",
   Unknown: "Unknown",
+  ResourceUnchanged: "Unchanged",
   Modified: "Modified",
   Added: "Added",
   Removed: "Removed",
@@ -130,6 +132,9 @@ export function resolveInfraEvidenceChangeTypeStatusKind(
 
     case "Unknown":
       return "draft";
+
+    case "ResourceUnchanged":
+      return "neutral";
 
     default:
       return "neutral";

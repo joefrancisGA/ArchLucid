@@ -6,11 +6,45 @@ export type AzureResourceDisplay = {
   readonly secondaryLabel: string | null;
 };
 
+export type CloudResourceDisplayNameInput = {
+  readonly displayName?: string | null;
+  readonly externalResourceId: string;
+};
+
+const EMPTY_RESOURCE_NAME_PLACEHOLDER = "—";
+
+/**
+ * SecureNow lists and diagrams show Azure resource names in lowercase for scanability.
+ * Storage keeps the cloud provider casing; normalization is display-only.
+ */
+export function normalizeSecureNowResourceNameForDisplay(resourceName: string): string {
+  const trimmed = resourceName.trim();
+
+  if (trimmed.length === 0 || trimmed === EMPTY_RESOURCE_NAME_PLACEHOLDER) {
+    return trimmed.length > 0 ? trimmed : EMPTY_RESOURCE_NAME_PLACEHOLDER;
+  }
+
+  return trimmed.toLowerCase();
+}
+
+export function formatCloudResourceDisplayName(input: CloudResourceDisplayNameInput): string {
+  const displayName = input.displayName?.trim() ?? "";
+
+  if (displayName.length > 0) {
+    return normalizeSecureNowResourceNameForDisplay(displayName);
+  }
+
+  const segments = input.externalResourceId.split("/");
+  const fallbackName = segments[segments.length - 1] ?? input.externalResourceId;
+
+  return normalizeSecureNowResourceNameForDisplay(fallbackName);
+}
+
 const EMPTY_DISPLAY: AzureResourceDisplay = {
-  name: "—",
+  name: EMPTY_RESOURCE_NAME_PLACEHOLDER,
   resourceType: null,
   resourceGroup: null,
-  primaryLabel: "—",
+  primaryLabel: EMPTY_RESOURCE_NAME_PLACEHOLDER,
   secondaryLabel: null,
 };
 
@@ -30,6 +64,38 @@ function segmentAfterToken(segments: readonly string[], token: string): string |
   return value;
 }
 
+function stripMicrosoftProviderPrefix(namespace: string): string {
+  const prefix = "microsoft.";
+
+  if (namespace.toLowerCase().startsWith(prefix)) {
+    return namespace.slice("Microsoft.".length);
+  }
+
+  return namespace;
+}
+
+/**
+ * Table type column: drop the Azure `Microsoft.` provider prefix so
+ * `Microsoft.Network/publicIPAddresses` reads as `Network/publicIPAddresses`.
+ */
+export function formatAzureResourceTypeForDisplay(resourceType: string | null | undefined): string {
+  if (resourceType == null) {
+    return "—";
+  }
+
+  const trimmed = resourceType.trim();
+
+  if (trimmed.length === 0) {
+    return "—";
+  }
+
+  const slashIndex = trimmed.indexOf("/");
+  const namespace = slashIndex >= 0 ? trimmed.slice(0, slashIndex) : trimmed;
+  const remainder = slashIndex >= 0 ? trimmed.slice(slashIndex) : "";
+
+  return `${stripMicrosoftProviderPrefix(namespace)}${remainder}`;
+}
+
 function resourceTypeFromSegments(segments: readonly string[]): string | null {
   const providersIndex = segments.findIndex((segment) => segment.toLowerCase() === "providers");
 
@@ -37,14 +103,29 @@ function resourceTypeFromSegments(segments: readonly string[]): string | null {
     return null;
   }
 
-  // ARM ids end with .../{type}/{name}; the type segment is the one before the name.
-  const typeSegment = segments[segments.length - 2];
+  const namespaceSegment = segments[providersIndex + 1];
 
-  if (typeSegment == null || typeSegment.length === 0) {
+  if (namespaceSegment == null || namespaceSegment.length === 0) {
     return null;
   }
 
-  return typeSegment;
+  const typeSegments: string[] = [];
+
+  for (let index = providersIndex + 2; index <= segments.length - 2; index += 2) {
+    const typeSegment = segments[index];
+
+    if (typeSegment == null || typeSegment.length === 0) {
+      return null;
+    }
+
+    typeSegments.push(typeSegment);
+  }
+
+  if (typeSegments.length === 0) {
+    return null;
+  }
+
+  return `${stripMicrosoftProviderPrefix(namespaceSegment)}/${typeSegments.join("/")}`;
 }
 
 function joinSecondaryLabel(resourceType: string | null, resourceGroup: string | null): string | null {
@@ -72,11 +153,13 @@ export function formatAzureResourceDisplay(azureResourceId: string | null | unde
   const resourceGroup = segmentAfterToken(segments, "resourcegroups");
   const resourceType = resourceTypeFromSegments(segments);
 
+  const displayName = normalizeSecureNowResourceNameForDisplay(name);
+
   return {
-    name,
+    name: displayName,
     resourceType,
     resourceGroup,
-    primaryLabel: name,
+    primaryLabel: displayName,
     secondaryLabel: joinSecondaryLabel(resourceType, resourceGroup),
   };
 }

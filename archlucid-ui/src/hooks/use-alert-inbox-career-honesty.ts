@@ -39,7 +39,7 @@ export function useAlertInboxCareerHonesty(
 
   return resolveAlertInboxCareerHonesty({
     workingDesk: true,
-    isSample: input.isSample === true || isSampleRun === true,
+    isSample: isSampleRun === true,
     structuralExecutionMode,
     effectiveWorkingCareerRehearsalDoor: resolveHonestyWorkingCareerRehearsalDoor({
       stampedDoor,

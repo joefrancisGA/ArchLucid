@@ -134,6 +134,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
@@ -143,12 +144,15 @@ import { DiagramsWorkbenchClient } from "./DiagramsWorkbenchClient";
 
 describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
   it("renders skip link, picker sections, and sources strip", async () => {
-    searchParams = new URLSearchParams();
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DiagramsWorkbenchClient />);
 
     expect(screen.getByRole("link", { name: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
       `#${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID}`,
+    );
+    expect(screen.getByTestId("infra-diagrams-page-title")).toHaveTextContent(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
     );
     expect(screen.getByTestId("governance-infrastructure-diagrams-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
@@ -162,7 +166,11 @@ describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
     expect(snapshotLabel).toHaveClass("font-semibold");
     expect(modeLabel).toHaveClass("font-semibold");
 
-    expect(screen.getByLabelText("Snapshot and mode selection")).toHaveClass("md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]");
+    expect(screen.getByLabelText("Snapshot and mode selection")).toHaveClass(
+      "items-start",
+      "md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]",
+    );
+    expect(screen.getByTestId("infra-diagrams-snapshot-id-readout")).toHaveClass("col-start-1");
   });
 
   it("hides inline resource id behind disclosure when scoped", async () => {

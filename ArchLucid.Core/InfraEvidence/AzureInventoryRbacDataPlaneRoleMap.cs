@@ -38,6 +38,29 @@ public static class AzureInventoryRbacDataPlaneRoleMap
             return AzureInventoryDerivedDataPlanePermission.Write;
         }
 
+        if (normalized.Equals("SQL DB Contributor", StringComparison.OrdinalIgnoreCase))
+        {
+            return AzureInventoryDerivedDataPlanePermission.ReadAndWrite;
+        }
+
+        if (normalized.Equals("Azure Service Bus Data Receiver", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("Azure Event Hubs Data Receiver", StringComparison.OrdinalIgnoreCase))
+        {
+            return AzureInventoryDerivedDataPlanePermission.Read;
+        }
+
+        if (normalized.Equals("Azure Service Bus Data Sender", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("Azure Event Hubs Data Sender", StringComparison.OrdinalIgnoreCase))
+        {
+            return AzureInventoryDerivedDataPlanePermission.Write;
+        }
+
+        if (normalized.Equals("Azure Service Bus Data Owner", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("Azure Event Hubs Data Owner", StringComparison.OrdinalIgnoreCase))
+        {
+            return AzureInventoryDerivedDataPlanePermission.ReadAndWrite;
+        }
+
         return AzureInventoryDerivedDataPlanePermission.None;
     }
 }

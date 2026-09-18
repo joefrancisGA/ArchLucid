@@ -1,3 +1,7 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -26,6 +30,11 @@ import {
   OperatorHomeNavigateLoadingButton,
 } from "./OperatorHomeNavigateLoadingButton";
 
+const operatorHomeNavigateLoadingButtonSource = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "OperatorHomeNavigateLoadingButton.tsx"),
+  "utf8",
+);
+
 describe("OperatorHomeNavigateLoadingButton", () => {
   const assign = vi.fn();
 
@@ -45,6 +54,10 @@ describe("OperatorHomeNavigateLoadingButton", () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
+  });
+
+  it("disables Next.js prefetch so router.push does not race an in-flight segment-cache fetch", () => {
+    expect(operatorHomeNavigateLoadingButtonSource).toContain("prefetch={false}");
   });
 
   it("hard-navigates when soft navigation stalls on the home CTA", async () => {

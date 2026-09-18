@@ -2013,6 +2013,8 @@ export interface components {
             /** Format: uuid */
             changeId?: string;
             changeType?: components["schemas"]["AzureInventoryChangeType"];
+            changedByDisplayName?: null | string;
+            changedByKind?: null | string;
             /** Format: uuid */
             cloudResourceId?: null | string;
             /** Format: double */
@@ -2032,7 +2034,7 @@ export interface components {
             snapshotBId?: string;
         };
         /** @enum {string} */
-        AzureInventoryChangeType: "ResourceAdded" | "ResourceRemoved" | "ResourceModified" | "RelationshipAdded" | "RelationshipRemoved" | "IdentityChanged" | "PermissionChanged" | "NetworkExposureChanged" | "SecurityControlChanged" | "LoggingChanged" | "EncryptionChanged" | "TagChanged" | "RegionChanged" | "SkuChanged" | "DependencyChanged" | "PolicyAssignmentChanged" | "Unknown";
+        AzureInventoryChangeType: "ResourceAdded" | "ResourceRemoved" | "ResourceModified" | "RelationshipAdded" | "RelationshipRemoved" | "IdentityChanged" | "PermissionChanged" | "NetworkExposureChanged" | "SecurityControlChanged" | "LoggingChanged" | "EncryptionChanged" | "TagChanged" | "RegionChanged" | "SkuChanged" | "DependencyChanged" | "PolicyAssignmentChanged" | "Unknown" | "ResourceUnchanged";
         AzureInventoryClassifiedChangeRecord: {
             change?: components["schemas"]["AzureInventoryChangeRecord"];
             classification?: components["schemas"]["AzureInventoryDriftClassification"];
@@ -2110,6 +2112,7 @@ export interface components {
             collectorVersion?: null | string;
             /** Format: double */
             completenessScore?: null | number | string;
+            completenessWarningsJson?: null | string;
             /** Format: byte */
             contentHashSha256?: null | string;
             /** Format: date-time */
@@ -5190,6 +5193,7 @@ export interface components {
             withPolicyRuleCount?: number;
         };
         GraphEdge: {
+            declaredConnectionId?: null | string;
             edgeId?: string;
             edgeType?: string;
             fromNodeId?: string;
@@ -5198,6 +5202,7 @@ export interface components {
             properties?: {
                 [key: string]: string;
             };
+            provenanceKind?: null | string;
             reasoningTrace?: null | string;
             toNodeId?: string;
             /** Format: double */
@@ -5511,6 +5516,16 @@ export interface components {
             topicKind?: string;
             viewPlan?: null | components["schemas"]["DiagramViewPlan"];
         };
+        InfraEvidenceMermaidCollapseEntry: {
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            kind?: string;
+            nodeId?: null | string;
+            reason?: string;
+        };
+        InfraEvidenceMermaidCollapseReport: {
+            entries?: components["schemas"]["InfraEvidenceMermaidCollapseEntry"][];
+        };
         InfraEvidenceMermaidComplexityMetrics: {
             /** Format: int32 */
             crossSubgraphEdgeCount?: number;
@@ -5536,6 +5551,14 @@ export interface components {
             nodeCount?: number;
             status?: string;
         };
+        InfraEvidenceMermaidIdentityDiagramHints: {
+            inventoryFilteredIdentityArmTypes?: components["schemas"]["InfraEvidenceMermaidIdentityDiagramSuppressedArmType"][];
+        };
+        InfraEvidenceMermaidIdentityDiagramSuppressedArmType: {
+            armResourceType?: string;
+            /** Format: int32 */
+            resourceCount?: number;
+        };
         InfraEvidenceMermaidModePreview: {
             /** Format: int32 */
             edgeCount?: number;
@@ -5547,13 +5570,17 @@ export interface components {
             status?: string;
         };
         InfraEvidenceMermaidPreviewResponse: {
+            completenessWarnings?: string[];
             modes?: components["schemas"]["InfraEvidenceMermaidModePreview"][];
             /** Format: uuid */
             snapshotId?: string;
         };
         InfraEvidenceMermaidRenderResponse: {
+            collapseReport?: null | components["schemas"]["InfraEvidenceMermaidCollapseReport"];
+            completenessWarnings?: string[];
             fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
             fallbackKey?: null | string;
+            identityDiagramHints?: null | components["schemas"]["InfraEvidenceMermaidIdentityDiagramHints"];
             layoutEngine?: null | string;
             layoutSvg?: null | string;
             mermaid?: null | string;
@@ -9899,6 +9926,55 @@ export interface components {
             updatedUtc?: string;
         };
         SecurityAssetAssertionRevokeApiRequest: {
+            revokedByActorKey?: string;
+        };
+        SecurityDeclaredConnectionCreateApiRequest: {
+            approvedByActorKey?: string;
+            evidenceReference?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            /** Format: uuid */
+            fromCloudResourceId?: string;
+            rationale?: string;
+            relationshipType?: string;
+            requestedByActorKey?: string;
+            /** Format: uuid */
+            toCloudResourceId?: string;
+        };
+        SecurityDeclaredConnectionCreateApiResponse: {
+            /** Format: uuid */
+            connectionId?: string;
+        };
+        SecurityDeclaredConnectionExpirySweepApiResponse: {
+            /** Format: int32 */
+            expiredCount?: number;
+        };
+        SecurityDeclaredConnectionRenewApiRequest: {
+            approvedByActorKey?: string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            renewedByActorKey?: string;
+        };
+        SecurityDeclaredConnectionResponse: {
+            /** Format: uuid */
+            connectionId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            evidenceReference?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            /** Format: uuid */
+            fromCloudResourceId?: string;
+            provenanceKind?: string;
+            rationale?: string;
+            relationshipType?: string;
+            status?: string;
+            /** Format: uuid */
+            toCloudResourceId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        SecurityDeclaredConnectionRevokeApiRequest: {
             revokedByActorKey?: string;
         };
         SecurityDelta: {

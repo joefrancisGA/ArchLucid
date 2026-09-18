@@ -484,8 +484,13 @@ def resolve_strict_mode(*, base_ref: str, force_strict: bool, force_advisory: bo
     return bool(payload.get("buyerSurfaceChanged")), [str(path) for path in changed_paths]
 
 
+def _resolve_guard_argv(argv: tuple[str, ...]) -> list[str]:
+    """Use the active interpreter when guards invoke `python` (Linux agents often lack `python`)."""
+    return [sys.executable if part == "python" else part for part in argv]
+
+
 def run_guard(root: Path, guard: GuardCommand, *, strict: bool) -> tuple[int, str]:
-    argv = list(guard.argv)
+    argv = _resolve_guard_argv(guard.argv)
 
     if not strict and guard.advisory_flag is not None:
         argv.append(guard.advisory_flag)

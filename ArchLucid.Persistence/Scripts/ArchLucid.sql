@@ -11187,6 +11187,7 @@ BEGIN
         DurationMs            INT               NULL,
         CompletenessScore     DECIMAL(5, 4)     NULL,
         WarningCount          INT               NOT NULL CONSTRAINT DF_AzureInventorySnapshots_WarningCount DEFAULT (0),
+        CompletenessWarningsJson NVARCHAR(MAX)     NULL,
         ErrorCount            INT               NOT NULL CONSTRAINT DF_AzureInventorySnapshots_ErrorCount DEFAULT (0),
         ContentHashSha256     VARBINARY(32)     NULL,
         CreatedUtc            DATETIME2         NOT NULL,
@@ -11200,6 +11201,13 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_AzureInventorySnapshots_Scope_Created
         ON dbo.AzureInventorySnapshots (TenantId, WorkspaceId, ProjectId, CreatedUtc DESC);
+END;
+GO
+
+IF COL_LENGTH(N'dbo.AzureInventorySnapshots', N'CompletenessWarningsJson') IS NULL
+BEGIN
+    ALTER TABLE dbo.AzureInventorySnapshots
+        ADD CompletenessWarningsJson NVARCHAR(MAX) NULL;
 END;
 GO
 
@@ -12826,5 +12834,27 @@ IF OBJECT_ID(N'dbo.DiagramPeelCatalogVersion', N'U') IS NOT NULL
 BEGIN
     DELETE FROM dbo.DiagramPeelCatalogVersion;
     INSERT INTO dbo.DiagramPeelCatalogVersion (CatalogVersion) VALUES (3);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogEntry', N'U') IS NOT NULL
+BEGIN
+    MERGE dbo.DiagramPeelCatalogEntry AS target
+    USING (VALUES
+        (N'Microsoft.DataFactory/factories', N'Backbone — never peel'),
+        (N'Microsoft.Synapse/workspaces', N'Backbone — never peel')
+    ) AS source (ArmResourceType, Notes)
+        ON target.ArmResourceType = source.ArmResourceType
+    WHEN NOT MATCHED THEN
+        INSERT (ArmResourceType, PeelRank, AlwaysDispose, IsEnabled, Notes)
+        VALUES (source.ArmResourceType, NULL, 0, 1, source.Notes);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DiagramPeelCatalogVersion', N'U') IS NOT NULL
+   AND EXISTS (SELECT 1 FROM dbo.DiagramPeelCatalogVersion WHERE CatalogVersion < 4)
+BEGIN
+    DELETE FROM dbo.DiagramPeelCatalogVersion;
+    INSERT INTO dbo.DiagramPeelCatalogVersion (CatalogVersion) VALUES (4);
 END;
 GO
