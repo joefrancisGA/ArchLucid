@@ -10,6 +10,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InfraEvidenceCompletenessWarningsBanner } from "@/components/infra-evidence/InfraEvidenceCompletenessWarningsBanner";
+import { InfraEvidenceDataFlowCaptionDisclosure } from "@/components/infra-evidence/InfraEvidenceDataFlowCaptionDisclosure";
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
 import { InfraEvidenceDiagramLegend } from "@/components/infra-evidence/InfraEvidenceDiagramLegend";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -78,7 +79,7 @@ import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/i
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
 import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra-evidence/infra-evidence-mermaid-render-status-presentation";
-import { parseInfraDiagramsDataFlowCaptionsFromMermaid } from "@/lib/infra-evidence/infra-evidence-data-flow-diagram";
+import { parseInfraDiagramsDataFlowCaptionPresentation } from "@/lib/infra-evidence/infra-evidence-data-flow-diagram";
 import { isInfraEvidenceMermaidDiagramEmpty } from "@/lib/infra-evidence/infra-evidence-mermaid-empty-content";
 import { resolveInfraEvidenceDiagramOutlineResourceName } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-outline-resource-name";
 import {
@@ -530,10 +531,19 @@ export function DiagramsWorkbenchClient() {
     && !showFallbackCards;
   const isResourceGroupMapDiagram = isInfraEvidenceResourceGroupMapMermaid(mermaidSource);
   const isBackboneKeepDiagram = isInfraEvidenceBackboneKeepMermaid(mermaidSource);
-  const dataFlowCaptions = useMemo(
-    () => (selectedMode === "dataFlow" ? parseInfraDiagramsDataFlowCaptionsFromMermaid(mermaidSource) : []),
-    [mermaidSource, selectedMode],
-  );
+  const dataFlowCaptionPresentation = useMemo(() => {
+    if (selectedMode !== "dataFlow") {
+      return null;
+    }
+
+    const presentation = parseInfraDiagramsDataFlowCaptionPresentation(mermaidSource);
+
+    if (presentation.honestyCaptions.length === 0 && presentation.metadataComments.length === 0) {
+      return null;
+    }
+
+    return presentation;
+  }, [mermaidSource, selectedMode]);
   const diagramContentEmpty =
     isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount)
     && (layoutSvg ?? "").trim().length === 0;
@@ -1806,20 +1816,8 @@ export function DiagramsWorkbenchClient() {
               {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION}
             </p>
           ) : null}
-          {dataFlowCaptions.length > 0 ? (
-            <div
-              className="flex flex-col gap-1"
-              data-testid="infra-diagrams-data-flow-caption"
-            >
-              {dataFlowCaptions.map((caption) => (
-                <p
-                  key={caption}
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                >
-                  {caption}
-                </p>
-              ))}
-            </div>
+          {dataFlowCaptionPresentation != null ? (
+            <InfraEvidenceDataFlowCaptionDisclosure presentation={dataFlowCaptionPresentation} />
           ) : null}
           {diagramWalkthrough != null ? (
             <div className="flex flex-col gap-2">
