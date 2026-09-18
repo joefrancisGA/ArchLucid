@@ -263,6 +263,13 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             properties["tf.prevent_destroy"] = preventDestroy.GetBoolean() ? "true" : "false";
         }
 
+        if ((TryGetPropertyIgnoreCase(res, "deletion_protection", out JsonElement deletionProtection)
+                || TryGetPropertyIgnoreCase(res, "deletionProtection", out deletionProtection))
+            && (deletionProtection.ValueKind == JsonValueKind.True || deletionProtection.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.deletion_protection"] = deletionProtection.GetBoolean() ? "true" : "false";
+        }
+
         if ((TryGetPropertyIgnoreCase(res, "timeout_create", out JsonElement timeoutCreate)
                 || TryGetPropertyIgnoreCase(res, "timeoutCreate", out timeoutCreate))
             && timeoutCreate.ValueKind == JsonValueKind.String)
@@ -271,6 +278,291 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
 
             if (!string.IsNullOrWhiteSpace(timeoutCreateText))
                 properties["tf.timeout_create"] = timeoutCreateText.Trim();
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "timeout_delete", out JsonElement timeoutDelete)
+                || TryGetPropertyIgnoreCase(res, "timeoutDelete", out timeoutDelete))
+            && timeoutDelete.ValueKind == JsonValueKind.String)
+        {
+            string? timeoutDeleteText = timeoutDelete.GetString();
+
+            if (!string.IsNullOrWhiteSpace(timeoutDeleteText))
+                properties["tf.timeout_delete"] = timeoutDeleteText.Trim();
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "timeout_update", out JsonElement timeoutUpdate)
+                || TryGetPropertyIgnoreCase(res, "timeoutUpdate", out timeoutUpdate))
+            && timeoutUpdate.ValueKind == JsonValueKind.String)
+        {
+            string? timeoutUpdateText = timeoutUpdate.GetString();
+
+            if (!string.IsNullOrWhiteSpace(timeoutUpdateText))
+                properties["tf.timeout_update"] = timeoutUpdateText.Trim();
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "timeout_read", out JsonElement timeoutRead)
+                || TryGetPropertyIgnoreCase(res, "timeoutRead", out timeoutRead))
+            && timeoutRead.ValueKind == JsonValueKind.String)
+        {
+            string? timeoutReadText = timeoutRead.GetString();
+
+            if (!string.IsNullOrWhiteSpace(timeoutReadText))
+                properties["tf.timeout_read"] = timeoutReadText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "timeouts", out JsonElement timeouts)
+            && timeouts.ValueKind == JsonValueKind.Object)
+        {
+            List<string> timeoutPairs = [];
+
+            foreach (string key in new[] { "create", "delete", "read", "update" })
+            {
+                if (!TryGetPropertyIgnoreCase(timeouts, key, out JsonElement timeoutValue)
+                    || timeoutValue.ValueKind != JsonValueKind.String)
+                    continue;
+
+                string? timeoutText = timeoutValue.GetString();
+
+                if (!string.IsNullOrWhiteSpace(timeoutText))
+                    timeoutPairs.Add($"{key}={timeoutText.Trim()}");
+            }
+
+            if (timeoutPairs.Count > 0)
+            {
+                string joined = string.Join('|', timeoutPairs);
+
+                properties["tf.timeouts"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "generate_config", out JsonElement generateConfig)
+                || TryGetPropertyIgnoreCase(res, "generateConfig", out generateConfig))
+            && (generateConfig.ValueKind == JsonValueKind.True || generateConfig.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.generate_config"] = generateConfig.GetBoolean() ? "true" : "false";
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "refresh", out JsonElement refresh)
+            && (refresh.ValueKind == JsonValueKind.True || refresh.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.refresh"] = refresh.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "write_only", out JsonElement writeOnly)
+                || TryGetPropertyIgnoreCase(res, "writeOnly", out writeOnly))
+            && (writeOnly.ValueKind == JsonValueKind.True || writeOnly.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.write_only"] = writeOnly.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "refresh_only", out JsonElement refreshOnly)
+                || TryGetPropertyIgnoreCase(res, "refreshOnly", out refreshOnly))
+            && (refreshOnly.ValueKind == JsonValueKind.True || refreshOnly.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.refresh_only"] = refreshOnly.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "recreate", out JsonElement recreate)
+                || TryGetPropertyIgnoreCase(res, "recreate", out recreate))
+            && (recreate.ValueKind == JsonValueKind.True || recreate.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.recreate"] = recreate.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "import_id", out JsonElement importId)
+                || TryGetPropertyIgnoreCase(res, "importId", out importId))
+            && importId.ValueKind == JsonValueKind.String)
+        {
+            string? importIdText = importId.GetString();
+
+            if (!string.IsNullOrWhiteSpace(importIdText))
+                properties["tf.import_id"] = importIdText.Trim();
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "retain", out JsonElement retain)
+                || TryGetPropertyIgnoreCase(res, "retain", out retain))
+            && (retain.ValueKind == JsonValueKind.True || retain.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.retain"] = retain.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "allow_missing", out JsonElement allowMissing)
+                || TryGetPropertyIgnoreCase(res, "allowMissing", out allowMissing))
+            && (allowMissing.ValueKind == JsonValueKind.True || allowMissing.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.allow_missing"] = allowMissing.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "destroy", out JsonElement destroy)
+                || TryGetPropertyIgnoreCase(res, "destroy", out destroy))
+            && (destroy.ValueKind == JsonValueKind.True || destroy.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.destroy"] = destroy.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "upgrade", out JsonElement upgrade)
+                || TryGetPropertyIgnoreCase(res, "upgrade", out upgrade))
+            && (upgrade.ValueKind == JsonValueKind.True || upgrade.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.upgrade"] = upgrade.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "ephemeral", out JsonElement ephemeral)
+                || TryGetPropertyIgnoreCase(res, "ephemeral", out ephemeral))
+            && (ephemeral.ValueKind == JsonValueKind.True || ephemeral.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.ephemeral"] = ephemeral.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "replace", out JsonElement replace)
+                || TryGetPropertyIgnoreCase(res, "replace", out replace))
+            && (replace.ValueKind == JsonValueKind.True || replace.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.replace"] = replace.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "disabled", out JsonElement disabled)
+                || TryGetPropertyIgnoreCase(res, "disabled", out disabled))
+            && (disabled.ValueKind == JsonValueKind.True || disabled.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.disabled"] = disabled.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "locked", out JsonElement locked)
+                || TryGetPropertyIgnoreCase(res, "locked", out locked))
+            && (locked.ValueKind == JsonValueKind.True || locked.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.locked"] = locked.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "source", out JsonElement source)
+                || TryGetPropertyIgnoreCase(res, "source", out source))
+            && source.ValueKind == JsonValueKind.String)
+        {
+            string? sourceText = source.GetString();
+
+            if (!string.IsNullOrWhiteSpace(sourceText))
+                properties["tf.source"] = sourceText.Trim();
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "hidden", out JsonElement hidden)
+                || TryGetPropertyIgnoreCase(res, "hidden", out hidden))
+            && (hidden.ValueKind == JsonValueKind.True || hidden.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.hidden"] = hidden.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "waived", out JsonElement waived)
+                || TryGetPropertyIgnoreCase(res, "waived", out waived))
+            && (waived.ValueKind == JsonValueKind.True || waived.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.waived"] = waived.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "version", out JsonElement version)
+                || TryGetPropertyIgnoreCase(res, "version", out version))
+            && version.ValueKind == JsonValueKind.String)
+        {
+            string? versionText = version.GetString();
+
+            if (!string.IsNullOrWhiteSpace(versionText))
+                properties["tf.version"] = versionText.Trim();
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "declared", out JsonElement declared)
+                || TryGetPropertyIgnoreCase(res, "declared", out declared))
+            && (declared.ValueKind == JsonValueKind.True || declared.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.declared"] = declared.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "orphan", out JsonElement orphan)
+                || TryGetPropertyIgnoreCase(res, "orphan", out orphan))
+            && (orphan.ValueKind == JsonValueKind.True || orphan.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.orphan"] = orphan.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "module", out JsonElement module)
+                || TryGetPropertyIgnoreCase(res, "module", out module))
+            && module.ValueKind == JsonValueKind.String)
+        {
+            string? moduleText = module.GetString();
+
+            if (!string.IsNullOrWhiteSpace(moduleText))
+                properties["tf.module"] = moduleText.Trim();
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "nested", out JsonElement nested)
+                || TryGetPropertyIgnoreCase(res, "nested", out nested))
+            && (nested.ValueKind == JsonValueKind.True || nested.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.nested"] = nested.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "suspended", out JsonElement suspended)
+                || TryGetPropertyIgnoreCase(res, "suspended", out suspended))
+            && (suspended.ValueKind == JsonValueKind.True || suspended.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.suspended"] = suspended.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "target", out JsonElement target)
+                || TryGetPropertyIgnoreCase(res, "target", out target))
+            && target.ValueKind == JsonValueKind.String)
+        {
+            string? targetText = target.GetString();
+
+            if (!string.IsNullOrWhiteSpace(targetText))
+                properties["tf.target"] = targetText.Trim();
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "checkpoint", out JsonElement checkpoint)
+                || TryGetPropertyIgnoreCase(res, "checkpoint", out checkpoint))
+            && (checkpoint.ValueKind == JsonValueKind.True || checkpoint.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.checkpoint"] = checkpoint.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "revoked", out JsonElement revoked)
+                || TryGetPropertyIgnoreCase(res, "revoked", out revoked))
+            && (revoked.ValueKind == JsonValueKind.True || revoked.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.revoked"] = revoked.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "schema", out JsonElement schema)
+                || TryGetPropertyIgnoreCase(res, "schema", out schema))
+            && schema.ValueKind == JsonValueKind.String)
+        {
+            string? schemaText = schema.GetString();
+
+            if (!string.IsNullOrWhiteSpace(schemaText))
+                properties["tf.schema"] = schemaText.Trim();
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "annotated", out JsonElement annotated)
+                || TryGetPropertyIgnoreCase(res, "annotated", out annotated))
+            && (annotated.ValueKind == JsonValueKind.True || annotated.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.annotated"] = annotated.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "secured", out JsonElement secured)
+                || TryGetPropertyIgnoreCase(res, "secured", out secured))
+            && (secured.ValueKind == JsonValueKind.True || secured.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.secured"] = secured.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "label", out JsonElement label)
+                || TryGetPropertyIgnoreCase(res, "label", out label))
+            && label.ValueKind == JsonValueKind.String)
+        {
+            string? labelText = label.GetString();
+
+            if (!string.IsNullOrWhiteSpace(labelText))
+                properties["tf.label"] = labelText.Trim();
         }
 
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
@@ -329,6 +621,7 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 string joined = string.Join('|', refs.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
 
                 properties["terraformDependsOn"] = joined.Length > 2000 ? joined[..2000] : joined;
+                properties["tf.depends_on"] = joined.Length > 2000 ? joined[..2000] : joined;
             }
         }
 
@@ -397,6 +690,564 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
                 string joined = string.Join('|', ignoredFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
 
                 properties["tf.ignore_changes"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "precondition", out JsonElement precondition)
+            || TryGetPropertyIgnoreCase(res, "preconditions", out precondition))
+        {
+            List<string> preconditionFields = [];
+
+            if (precondition.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in precondition.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        preconditionFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (precondition.ValueKind == JsonValueKind.String)
+            {
+                string? value = precondition.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    preconditionFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (preconditionFields.Count > 0)
+            {
+                string joined = string.Join('|', preconditionFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.precondition"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "postcondition", out JsonElement postcondition)
+            || TryGetPropertyIgnoreCase(res, "postconditions", out postcondition))
+        {
+            List<string> postconditionFields = [];
+
+            if (postcondition.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in postcondition.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        postconditionFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (postcondition.ValueKind == JsonValueKind.String)
+            {
+                string? value = postcondition.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    postconditionFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (postconditionFields.Count > 0)
+            {
+                string joined = string.Join('|', postconditionFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.postcondition"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "removed", out JsonElement removedEl)
+            || TryGetPropertyIgnoreCase(res, "removed", out removedEl))
+        {
+            List<string> removedFields = [];
+
+            if (removedEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in removedEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        removedFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (removedEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = removedEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    removedFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (removedFields.Count > 0)
+            {
+                string joined = string.Join('|', removedFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.removed"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "moved", out JsonElement movedEl)
+            || TryGetPropertyIgnoreCase(res, "moved", out movedEl))
+        {
+            List<string> movedFields = [];
+
+            if (movedEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in movedEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        movedFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (movedEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = movedEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    movedFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (movedFields.Count > 0)
+            {
+                string joined = string.Join('|', movedFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.moved"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "triggers", out JsonElement triggersEl)
+            || TryGetPropertyIgnoreCase(res, "triggers", out triggersEl))
+        {
+            List<string> triggersFields = [];
+
+            if (triggersEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in triggersEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        triggersFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (triggersEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = triggersEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    triggersFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (triggersFields.Count > 0)
+            {
+                string joined = string.Join('|', triggersFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.triggers"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "conflicts_with", out JsonElement conflictswithEl)
+            || TryGetPropertyIgnoreCase(res, "conflictsWith", out conflictswithEl))
+        {
+            List<string> conflictswithFields = [];
+
+            if (conflictswithEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in conflictswithEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        conflictswithFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (conflictswithEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = conflictswithEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    conflictswithFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (conflictswithFields.Count > 0)
+            {
+                string joined = string.Join('|', conflictswithFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.conflicts_with"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "replace_on_changes", out JsonElement replaceonchangesEl)
+            || TryGetPropertyIgnoreCase(res, "replaceOnChanges", out replaceonchangesEl))
+        {
+            List<string> replaceonchangesFields = [];
+
+            if (replaceonchangesEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in replaceonchangesEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        replaceonchangesFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (replaceonchangesEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = replaceonchangesEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    replaceonchangesFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (replaceonchangesFields.Count > 0)
+            {
+                string joined = string.Join('|', replaceonchangesFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.replace_on_changes"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "aliases", out JsonElement aliasesEl)
+            || TryGetPropertyIgnoreCase(res, "aliases", out aliasesEl))
+        {
+            List<string> aliasesFields = [];
+
+            if (aliasesEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in aliasesEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        aliasesFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (aliasesEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = aliasesEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    aliasesFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (aliasesFields.Count > 0)
+            {
+                string joined = string.Join('|', aliasesFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.aliases"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "parents", out JsonElement parentsEl)
+            || TryGetPropertyIgnoreCase(res, "parents", out parentsEl))
+        {
+            List<string> parentsFields = [];
+
+            if (parentsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in parentsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        parentsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (parentsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = parentsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    parentsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (parentsFields.Count > 0)
+            {
+                string joined = string.Join('|', parentsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.parents"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "overrides", out JsonElement overridesEl)
+            || TryGetPropertyIgnoreCase(res, "overrides", out overridesEl))
+        {
+            List<string> overridesFields = [];
+
+            if (overridesEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in overridesEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        overridesFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (overridesEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = overridesEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    overridesFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (overridesFields.Count > 0)
+            {
+                string joined = string.Join('|', overridesFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.overrides"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "members", out JsonElement membersEl)
+            || TryGetPropertyIgnoreCase(res, "members", out membersEl))
+        {
+            List<string> membersFields = [];
+
+            if (membersEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in membersEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        membersFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (membersEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = membersEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    membersFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (membersFields.Count > 0)
+            {
+                string joined = string.Join('|', membersFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.members"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "children", out JsonElement childrenEl)
+            || TryGetPropertyIgnoreCase(res, "children", out childrenEl))
+        {
+            List<string> childrenFields = [];
+
+            if (childrenEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in childrenEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        childrenFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (childrenEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = childrenEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    childrenFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (childrenFields.Count > 0)
+            {
+                string joined = string.Join('|', childrenFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.children"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "siblings", out JsonElement siblingsEl)
+            || TryGetPropertyIgnoreCase(res, "siblings", out siblingsEl))
+        {
+            List<string> siblingsFields = [];
+
+            if (siblingsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in siblingsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        siblingsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (siblingsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = siblingsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    siblingsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (siblingsFields.Count > 0)
+            {
+                string joined = string.Join('|', siblingsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.siblings"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "archived", out JsonElement archived)
+                || TryGetPropertyIgnoreCase(res, "archived", out archived))
+            && (archived.ValueKind == JsonValueKind.True || archived.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.archived"] = archived.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "verified", out JsonElement verified)
+                || TryGetPropertyIgnoreCase(res, "verified", out verified))
+            && (verified.ValueKind == JsonValueKind.True || verified.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.verified"] = verified.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "owner", out JsonElement owner)
+                || TryGetPropertyIgnoreCase(res, "owner", out owner))
+            && owner.ValueKind == JsonValueKind.String)
+        {
+            string? ownerText = owner.GetString();
+
+            if (!string.IsNullOrWhiteSpace(ownerText))
+                properties["tf.owner"] = ownerText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "ancestors", out JsonElement ancestorsEl)
+            || TryGetPropertyIgnoreCase(res, "ancestors", out ancestorsEl))
+        {
+            List<string> ancestorsFields = [];
+
+            if (ancestorsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in ancestorsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        ancestorsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (ancestorsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = ancestorsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    ancestorsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (ancestorsFields.Count > 0)
+            {
+                string joined = string.Join('|', ancestorsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.ancestors"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "pending", out JsonElement pending)
+                || TryGetPropertyIgnoreCase(res, "pending", out pending))
+            && (pending.ValueKind == JsonValueKind.True || pending.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.pending"] = pending.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "visible", out JsonElement visible)
+                || TryGetPropertyIgnoreCase(res, "visible", out visible))
+            && (visible.ValueKind == JsonValueKind.True || visible.ValueKind == JsonValueKind.False))
+        {
+            properties["tf.visible"] = visible.GetBoolean() ? "true" : "false";
+        }
+
+        if ((TryGetPropertyIgnoreCase(res, "description", out JsonElement description)
+                || TryGetPropertyIgnoreCase(res, "description", out description))
+            && description.ValueKind == JsonValueKind.String)
+        {
+            string? descriptionText = description.GetString();
+
+            if (!string.IsNullOrWhiteSpace(descriptionText))
+                properties["tf.description"] = descriptionText.Trim();
+        }
+
+        if (TryGetPropertyIgnoreCase(res, "descendants", out JsonElement descendantsEl)
+            || TryGetPropertyIgnoreCase(res, "descendants", out descendantsEl))
+        {
+            List<string> descendantsFields = [];
+
+            if (descendantsEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement field in descendantsEl.EnumerateArray())
+                {
+                    if (field.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? value = field.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                        descendantsFields.Add(value.Trim().ToLowerInvariant());
+                }
+            }
+            else if (descendantsEl.ValueKind == JsonValueKind.String)
+            {
+                string? value = descendantsEl.GetString();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    descendantsFields.Add(value.Trim().ToLowerInvariant());
+            }
+
+            if (descendantsFields.Count > 0)
+            {
+                string joined = string.Join('|', descendantsFields.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
+
+                properties["tf.descendants"] = joined.Length > 2000 ? joined[..2000] : joined;
             }
         }
 
