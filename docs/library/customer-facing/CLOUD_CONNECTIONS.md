@@ -8,7 +8,7 @@ When you connect a cloud provider, ArchLucid uses **read-only** inventory and co
 
 ## Choose your cloud platform {#choose-your-cloud-platform}
 
-**Tier 1 (default, no ArchLucid credentials in your cloud account):** run `Get-ArchLucidAzurePackage.ps1`, `Get-ArchLucidAwsPackage.ps1`, or `Get-ArchLucidGcpPackage.ps1` from your ArchLucid clone, then upload the resulting ZIP from the **New architecture review** wizard. Tier 1 is the default posture when you do not want long-lived vendor access in your cloud account.
+**Tier 1 (default, no ArchLucid credentials in your cloud account):** schedule a customer-owned agent (Azure Automation runbook or Function timer) that runs the packaging script and uploads the ZIP, or run `Get-ArchLucidAzurePackage.ps1`, `Get-ArchLucidAwsPackage.ps1`, or `Get-ArchLucidGcpPackage.ps1` once from your ArchLucid clone and upload from the **New architecture review** wizard. Tier 1 is the default posture when you do not want long-lived vendor access in your cloud account. The scheduled agent is the preferred production cadence so operators do not pull inventory from a command line or UI.
 
 **Tier 2 (optional):** cloud-connected hosted pull through federated read-only roles in Azure, AWS, or GCP. Use this when you want ArchLucid to poll inventory on a schedule without storing access keys in tenant configuration.
 
@@ -25,7 +25,7 @@ You can also run **evidence-only** reviews from uploaded inventory ZIPs without 
 <details>
 <summary>Administrator details — automation upload paths</summary>
 
-Platform and integration teams can also upload a Tier 1 inventory ZIP through the documented extractor HTTP APIs (`/v1/extractor/azure|aws|gcp/upload`). Prefer the wizard for first-time and pilot use.
+Platform and integration teams can also upload a Tier 1 inventory ZIP through the documented extractor HTTP APIs (`/v1/extractor/azure|aws|gcp/upload`), or schedule the Azure collector as an Automation runbook / Function. Prefer the scheduled agent for production Azure estates; use the wizard for first-time and pilot use.
 
 </details>
 

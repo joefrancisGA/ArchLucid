@@ -3,7 +3,7 @@
     Collects read-only Azure ARM inventory and Azure Policy compliance states for ArchLucid ingestion (schema-versioned ZIP).
 
 .NOTES
-    - No ArchLucid credentials run in this tenant. Output is uploaded by you to ArchLucid.
+    - No ArchLucid credentials run in this tenant. Output is uploaded by you or by a customer-owned scheduled agent (Automation runbook / Function) to ArchLucid.
     - This script performs **read-only** Azure Resource Manager inventory (Get-AzResource) and Policy Insights policy state queries (Invoke-AzRestMethod POST on PolicyStates/latest/queryResults, the same read surface as Get-AzPolicyState).
     - **Never collected:** Key Vault secret values, connection strings, certificates/private keys, arbitrary user PII beyond resource tags.
     - `-IncludeRetailPrices` emits `retail-prices.json` by calling the **public** HTTPS Retail Prices API (`https://prices.azure.com`) for App Service plans, SQL databases, Virtual Machines, and Storage Accounts inventoried in `resources.json`; HTTPS GET only — no RBAC beyond Reader-style ARM read access (same as other catalog probes).

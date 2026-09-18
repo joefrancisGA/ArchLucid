@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-09-18 - Azure extractor: customer-owned scheduled agent
+
+**Outcome.** Production Azure inventory collection can run as a customer-owned Automation runbook or Function timer so operators do not pull from a command line or UI. The agent reuses `Get-ArchLucidAzurePackage.ps1` and `POST /v1/azure-extractor/upload`.
+
+**Surfaces.** `scripts/azure/Invoke-ArchLucidScheduledAzureExtractor.ps1`; Terraform under `deploy/customer-templates/scheduled-agent/`; runbook [`docs/runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md`](runbooks/AZURE_EXTRACTOR_SCHEDULED_AGENT.md); Extract & upload and Cloud connections help copy.
+
 ## 2026-09-07 - Pricing: **M-305** profit re-rate
 
 **Outcome.** Product leadership ratified the profit-maximizing list: apply the overdue §5.3 self-serve gate, destack the −25% trust concession from Architect/Team list (keep it baked into Professional/Enterprise only), fix the Professional public bundle as a 10-seat / 1-workspace expansion SKU, raise architecture-package overage above typical LLM COGS, mark up wallet overage **1.4×**, and scale hosted LLM hard stops by plan.

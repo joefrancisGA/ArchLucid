@@ -14,6 +14,7 @@ This file tracks **remaining** work after the initial ingest API, MVP PowerShell
 - `AzureExtractorCitationFormatter` for future evidence-bundle lines.
 - Advisory Terraform comment templates in `ArchLucid.Application`.
 - **IE-05 reconstruction:** `AdvisoryTerraformRepresentationService` builds labeled reconstruction artifacts from `AzureInventorySnapshot` rows (additive to C2 snippet path and CLI aztfexport primary export).
+- **Customer-owned scheduled agent:** `Invoke-ArchLucidScheduledAzureExtractor.ps1` + Terraform Azure Automation runbook (and Function timer sample) so production collection does not require a CLI or UI pull.
 
 ## Backlog (prioritized)
 

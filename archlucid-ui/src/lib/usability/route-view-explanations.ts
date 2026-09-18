@@ -239,7 +239,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
       summary:
         "Run the read-only Azure extractor locally, validate the ZIP, then upload inventory for architecture reviews.",
       nextAction:
-        "Copy the quick-start command, upload a validated ZIP, then open Start a review when the package is ready.",
+        "Set up scheduled collection, or copy the one-time packager command, upload a validated ZIP, then open Start a review when the package is ready.",
     },
   },
   {
