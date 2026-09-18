@@ -6,6 +6,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 
 describe("InfraEvidenceDiagramLegend", () => {
@@ -14,7 +15,18 @@ describe("InfraEvidenceDiagramLegend", () => {
       <InfraEvidenceDiagramLegend
         outline={{
           nodes: [],
-          edges: [{ from: "a", to: "b", label: "connects", source: "observed", declaredConnectionId: null }],
+          edges: [
+            {
+              from: "a",
+              to: "b",
+              label: "connects",
+              source: "observed",
+              confidenceBand: "observed",
+              provenanceKind: null,
+              inferenceSource: null,
+              declaredConnectionId: null,
+            },
+          ],
         }}
       />,
     );
@@ -33,6 +45,9 @@ describe("InfraEvidenceDiagramLegend", () => {
               to: "b",
               label: "declared · connects",
               source: "declared",
+              confidenceBand: "declared",
+              provenanceKind: "HumanAssertion",
+              inferenceSource: "human-declared-connection",
               declaredConnectionId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
             },
           ],
@@ -55,5 +70,29 @@ describe("InfraEvidenceDiagramLegend", () => {
     );
 
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED)).toBeInTheDocument();
+  });
+
+  it("shows probable legend row when outline contains derived authorization edges", () => {
+    render(
+      <InfraEvidenceDiagramLegend
+        outline={{
+          nodes: [],
+          edges: [
+            {
+              from: "web",
+              to: "sql",
+              label: "May access",
+              source: "probable",
+              confidenceBand: "probable",
+              provenanceKind: "DerivedFact",
+              inferenceSource: "inventory-app-authorized-access",
+              declaredConnectionId: null,
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE)).toBeInTheDocument();
   });
 });

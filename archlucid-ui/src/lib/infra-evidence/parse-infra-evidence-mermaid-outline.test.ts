@@ -131,6 +131,34 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         to: "vnet3",
         label: "peering",
         source: "observed",
+        confidenceBand: "observed",
+        provenanceKind: null,
+        inferenceSource: null,
+        declaredConnectionId: null,
+      },
+    ]);
+  });
+
+  it("parses probable authorization edge metadata from inventory mermaid", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    web["orders-api"]',
+        '    sql["orders-db"]',
+        "    %% al-provenance=DerivedFact al-inference=inventory-app-authorized-access",
+        '    web -.->|"May access"| sql',
+      ].join("\n"),
+    );
+
+    expect(outline.edges).toEqual([
+      {
+        from: "web",
+        to: "sql",
+        label: "May access",
+        source: "probable",
+        confidenceBand: "probable",
+        provenanceKind: "DerivedFact",
+        inferenceSource: "inventory-app-authorized-access",
         declaredConnectionId: null,
       },
     ]);
@@ -153,6 +181,9 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         to: "sql",
         label: "declared · connects",
         source: "declared",
+        confidenceBand: "declared",
+        provenanceKind: "HumanAssertion",
+        inferenceSource: "human-declared-connection",
         declaredConnectionId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
       },
     ]);
@@ -176,6 +207,9 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         to: "vnet2",
         label: null,
         source: "observed",
+        confidenceBand: "observed",
+        provenanceKind: null,
+        inferenceSource: null,
         declaredConnectionId: null,
       },
     ]);

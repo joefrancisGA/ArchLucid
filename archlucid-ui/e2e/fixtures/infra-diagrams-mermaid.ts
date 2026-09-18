@@ -262,3 +262,40 @@ export function elevenVnetOwnerGraphvizRenderResponse(): InfraEvidenceMermaidRen
 export function elevenVnetSparsePeeringMermaidOnlyRenderResponse(): InfraEvidenceMermaidRenderResponse {
   return buildRenderResponse(elevenVnetSparsePeeringMermaid(), 6, 0, null, "mermaid-dagre");
 }
+
+/** Executive Web App → SQL **May access** authorization overlay (AX-DC-07). */
+export function executiveMayAccessMermaid(): string {
+  return `flowchart TD
+    %% al-type=Microsoft.Web/sites al-rg=rg-app
+    web_app["orders-api"]
+    %% al-type=Microsoft.Sql/servers/databases al-rg=rg-data
+    sql_db["orders-db"]
+    %% al-provenance=DerivedFact al-inference=inventory-app-authorized-access
+    web_app -.->|"May access"| sql_db
+`;
+}
+
+export function executiveMayAccessRenderResponse(): InfraEvidenceMermaidRenderResponse {
+  const mermaid = executiveMayAccessMermaid();
+
+  return {
+    snapshotId: "22222222-2222-2222-2222-222222222222",
+    mode: "executive",
+    fallbackKey: null,
+    status: "Succeeded",
+    mermaid,
+    layoutSvg: null,
+    layoutEngine: "mermaid-dagre",
+    metrics: {
+      nodeCount: 2,
+      edgeCount: 1,
+      subgraphCount: 0,
+      maxDegree: 1,
+      crossSubgraphEdgeCount: 0,
+      textSizeBytes: mermaid.length,
+      layoutEstimate: 3,
+    },
+    fallbackArtifacts: [],
+    completenessWarnings: [],
+  };
+}

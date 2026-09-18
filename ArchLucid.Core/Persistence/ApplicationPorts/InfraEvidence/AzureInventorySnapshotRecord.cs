@@ -112,6 +112,12 @@ public sealed class AzureInventorySnapshotRecord
         init;
     }
 
+    public string? CompletenessWarningsJson
+    {
+        get;
+        init;
+    }
+
     public int ErrorCount
     {
         get;

@@ -150,6 +150,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             {
                 SnapshotId = snapshotId,
                 Modes = modePreviews,
+                CompletenessWarnings = ResolveCompletenessWarnings(defaultGraphResult.Snapshot),
             },
         };
     }
@@ -741,7 +742,20 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             LayoutEngine = resolvedLayout.LayoutEngine,
             CollapseReport = MapCollapseReport(renderResult.CollapseReport),
             IdentityDiagramHints = MapIdentityDiagramHints(modeKey, snapshot),
+            CompletenessWarnings = ResolveCompletenessWarnings(snapshot),
         };
+    }
+
+    private static List<string> ResolveCompletenessWarnings(AzureInventorySnapshotDetailReadModel? snapshot)
+    {
+        if (snapshot?.Header is null)
+        {
+            return [];
+        }
+
+        return AzureInventorySnapshotCompletenessWarningsJson
+            .Deserialize(snapshot.Header.CompletenessWarningsJson)
+            .ToList();
     }
 
     private static InfraEvidenceMermaidCollapseReport? MapCollapseReport(

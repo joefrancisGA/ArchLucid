@@ -88,6 +88,12 @@ public sealed class AzureInventorySnapshotMaterializeWriteRequest
         init;
     }
 
+    public string? CompletenessWarningsJson
+    {
+        get;
+        init;
+    }
+
     public int ErrorCount
     {
         get;

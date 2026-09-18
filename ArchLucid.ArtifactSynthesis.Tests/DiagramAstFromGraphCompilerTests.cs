@@ -978,6 +978,63 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_executive_mode_includes_app_authorized_access_endpoints()
+    {
+        GraphSnapshot graph = BuildExecutiveAlwaysShowGraph(virtualMachineCount: 0, databaseCount: 1, dataFactoryCount: 0);
+        GraphNode webApp = CreateTopologyNode(
+            "web-app",
+            "orders-api",
+            "Microsoft.Web/sites",
+            "rg-app",
+            "55555555-5555-5555-5555-555555555555",
+            GraphTopologyCategories.Compute);
+        graph.Nodes.Add(webApp);
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-may-access",
+            FromNodeId = "web-app",
+            ToNodeId = "sqldb-0",
+            EdgeType = GraphEdgeTypes.MayAccess,
+            Label = GraphEdgeTypes.MayAccess,
+            InferenceSource = GraphEdgeInferenceSources.InventoryAppAuthorizedAccess,
+            ProvenanceKind = "DerivedFact",
+        });
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+
+        ast.Nodes.Should().Contain(node => node.Label == "orders-api");
+        ast.Edges.Should().Contain(edge => edge.Label == "May access");
+    }
+
+    [Fact]
+    public void Compile_network_mode_hides_app_authorized_access_overlay_edges()
+    {
+        GraphSnapshot graph = BuildSampleGraph();
+        GraphNode webApp = CreateTopologyNode(
+            "web-app",
+            "orders-api",
+            "Microsoft.Web/sites",
+            "rg-app",
+            "11111111-1111-1111-1111-111111111111",
+            GraphTopologyCategories.Compute);
+        graph.Nodes.Add(webApp);
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-may-access",
+            FromNodeId = "web-app",
+            ToNodeId = "vnet-1",
+            EdgeType = GraphEdgeTypes.MayAccess,
+            Label = GraphEdgeTypes.MayAccess,
+            InferenceSource = GraphEdgeInferenceSources.InventoryAppAuthorizedAccess,
+            ProvenanceKind = "DerivedFact",
+        });
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Network);
+
+        ast.Edges.Should().NotContain(edge => edge.Label == "May access");
+    }
+
+    [Fact]
     public void Compile_human_assertion_edge_carries_provenance_and_declared_label()
     {
         GraphSnapshot graph = new()

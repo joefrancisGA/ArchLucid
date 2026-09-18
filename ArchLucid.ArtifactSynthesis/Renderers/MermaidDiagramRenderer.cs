@@ -219,7 +219,10 @@ public class MermaidDiagramRenderer : IDiagramRenderer
     {
         DiagramEdgeVisualKind visualKind = DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource);
 
-        if (visualKind == DiagramEdgeVisualKind.Declared || visualKind == DiagramEdgeVisualKind.AiInferred)
+        if (visualKind is DiagramEdgeVisualKind.Declared
+            or DiagramEdgeVisualKind.Probable
+            or DiagramEdgeVisualKind.AiInferred
+            or DiagramEdgeVisualKind.Inferred)
         {
             return "-.->";
         }

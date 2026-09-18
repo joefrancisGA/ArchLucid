@@ -7190,6 +7190,12 @@
               "string"
             ]
           },
+          "completenessWarningsJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "contentHashSha256": {
             "format": "byte",
             "type": [
@@ -19242,6 +19248,12 @@
       },
       "InfraEvidenceMermaidPreviewResponse": {
         "properties": {
+          "completenessWarnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "modes": {
             "items": {
               "$ref": "#/components/schemas/InfraEvidenceMermaidModePreview"
@@ -19266,6 +19278,12 @@
                 "$ref": "#/components/schemas/InfraEvidenceMermaidCollapseReport"
               }
             ]
+          },
+          "completenessWarnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "fallbackArtifacts": {
             "items": {
