@@ -9,6 +9,20 @@ public static class AzureInventoryDataFlowStageResolver
 {
     private const string MicrosoftNetworkProviderPrefix = "Microsoft.Network/";
 
+    private const string MicrosoftWebProviderPrefix = "Microsoft.Web/";
+
+    private const string MicrosoftAppProviderPrefix = "Microsoft.App/";
+
+    private const string MicrosoftEventGridProviderPrefix = "Microsoft.EventGrid/";
+
+    private const string MicrosoftLogicProviderPrefix = "Microsoft.Logic/";
+
+    private const string MicrosoftServiceBusProviderPrefix = "Microsoft.ServiceBus/";
+
+    private const string MicrosoftEventHubProviderPrefix = "Microsoft.EventHub/";
+
+    private const string MicrosoftKeyVaultProviderPrefix = "Microsoft.KeyVault/";
+
     private const string MicrosoftDataFactoryProviderPrefix = "Microsoft.DataFactory/";
 
     private const string MicrosoftSynapseProviderPrefix = "Microsoft.Synapse/";
@@ -34,6 +48,25 @@ public static class AzureInventoryDataFlowStageResolver
         if (resourceType.StartsWith(MicrosoftNetworkProviderPrefix, StringComparison.OrdinalIgnoreCase))
         {
             return null;
+        }
+
+        if (resourceType.StartsWith(MicrosoftWebProviderPrefix, StringComparison.OrdinalIgnoreCase)
+            || resourceType.StartsWith(MicrosoftAppProviderPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return AzureInventoryDataFlowStageNames.Application;
+        }
+
+        if (resourceType.StartsWith(MicrosoftEventGridProviderPrefix, StringComparison.OrdinalIgnoreCase)
+            || resourceType.StartsWith(MicrosoftLogicProviderPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return AzureInventoryDataFlowStageNames.Ingestion;
+        }
+
+        if (resourceType.StartsWith(MicrosoftServiceBusProviderPrefix, StringComparison.OrdinalIgnoreCase)
+            || resourceType.StartsWith(MicrosoftEventHubProviderPrefix, StringComparison.OrdinalIgnoreCase)
+            || resourceType.StartsWith(MicrosoftKeyVaultProviderPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return AzureInventoryDataFlowStageNames.Storage;
         }
 
         if (resourceType.StartsWith(MicrosoftDataFactoryProviderPrefix, StringComparison.OrdinalIgnoreCase))

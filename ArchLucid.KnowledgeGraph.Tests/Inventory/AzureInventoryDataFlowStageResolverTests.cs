@@ -10,6 +10,10 @@ public sealed class AzureInventoryDataFlowStageResolverTests
 {
     [Theory]
     [InlineData("Microsoft.DataFactory/factories", AzureInventoryDataFlowStageNames.Ingestion)]
+    [InlineData("Microsoft.Web/sites", AzureInventoryDataFlowStageNames.Application)]
+    [InlineData("Microsoft.App/containerApps", AzureInventoryDataFlowStageNames.Application)]
+    [InlineData("Microsoft.EventGrid/topics", AzureInventoryDataFlowStageNames.Ingestion)]
+    [InlineData("Microsoft.ServiceBus/namespaces/topics", AzureInventoryDataFlowStageNames.Storage)]
     [InlineData("Microsoft.Sql/servers", AzureInventoryDataFlowStageNames.Storage)]
     [InlineData("Microsoft.Storage/storageAccounts", AzureInventoryDataFlowStageNames.Storage)]
     [InlineData("Microsoft.DocumentDB/databaseAccounts", AzureInventoryDataFlowStageNames.Storage)]
@@ -30,5 +34,20 @@ public sealed class AzureInventoryDataFlowStageResolverTests
         AzureInventoryDataFlowStageResolver.Resolve(string.Empty, isExternalSource: true)
             .Should()
             .Be(AzureInventoryDataFlowStageNames.Source);
+    }
+
+    [Fact]
+    public void OrderedStages_places_application_immediately_after_source()
+    {
+        int sourceIndex = AzureInventoryDataFlowStageNames.OrderedStages
+            .Select((stage, index) => (stage, index))
+            .Single(pair => pair.stage == AzureInventoryDataFlowStageNames.Source)
+            .index;
+        int applicationIndex = AzureInventoryDataFlowStageNames.OrderedStages
+            .Select((stage, index) => (stage, index))
+            .Single(pair => pair.stage == AzureInventoryDataFlowStageNames.Application)
+            .index;
+
+        applicationIndex.Should().Be(sourceIndex + 1);
     }
 }

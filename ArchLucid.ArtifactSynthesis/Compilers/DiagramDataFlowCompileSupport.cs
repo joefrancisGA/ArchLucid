@@ -10,18 +10,6 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 internal static class DiagramDataFlowEdgeFilter
 {
-    private static readonly HashSet<string> AllowedAssociationTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
-        AzureInventoryRelationshipAssociationTypes.AdfReadsFrom,
-        AzureInventoryRelationshipAssociationTypes.AdfWritesTo,
-        AzureInventoryRelationshipAssociationTypes.AdfLinkedService,
-        AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred,
-        AzureInventoryRelationshipAssociationTypes.SynapseReadsFrom,
-        AzureInventoryRelationshipAssociationTypes.SynapseWritesTo,
-        AzureInventoryRelationshipAssociationTypes.SynapseLinkedService,
-        AzureInventoryRelationshipAssociationTypes.SynapseLinkedServiceInferred,
-    };
-
     public static bool IncludeEdge(GraphEdge edge)
     {
         ArgumentNullException.ThrowIfNull(edge);
@@ -37,18 +25,7 @@ internal static class DiagramDataFlowEdgeFilter
             return false;
         }
 
-        if (AllowedAssociationTypes.Contains(edge.EdgeType))
-        {
-            return true;
-        }
-
-        if (!string.IsNullOrWhiteSpace(edge.InferenceSource)
-            && AllowedAssociationTypes.Contains(edge.InferenceSource))
-        {
-            return true;
-        }
-
-        return GraphEdgeInferenceSources.IsInventoryAdfMovementInferenceSource(edge.InferenceSource);
+        return AzureInventoryDataFlowEvidenceCatalog.IncludeOnDataFlow(edge.EdgeType, edge.InferenceSource);
     }
 }
 
@@ -58,10 +35,46 @@ internal static class DiagramDataFlowCaptionBuilder
         IReadOnlyList<GraphNode> includedNodes,
         IReadOnlyList<GraphEdge> includedEdges)
     {
+        bool hasAuthorizedAccess = includedEdges.Any(edge =>
+            (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edge.EdgeType, out AzureInventoryDataFlowEvidenceAssociation? fromType)
+                && fromType is not null
+                && fromType.Family == AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess)
+            || (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edge.InferenceSource, out AzureInventoryDataFlowEvidenceAssociation? fromInference)
+                && fromInference is not null
+                && fromInference.Family == AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess));
+
+        bool hasPeReachable = includedEdges.Any(edge =>
+            string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.PeReachableTarget, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPeReachableTarget, StringComparison.OrdinalIgnoreCase));
+
+        bool hasNonAdfFamilies = hasAuthorizedAccess
+            || hasPeReachable
+            || includedEdges.Any(edge =>
+                (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edge.EdgeType, out AzureInventoryDataFlowEvidenceAssociation? evidence)
+                    && evidence is not null
+                    && evidence.Family is AzureInventoryDataFlowEvidenceFamily.StructuralNetworkPath
+                        or AzureInventoryDataFlowEvidenceFamily.InferredHostname)
+                || (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edge.InferenceSource, out AzureInventoryDataFlowEvidenceAssociation? inferred)
+                    && inferred is not null
+                    && inferred.Family is AzureInventoryDataFlowEvidenceFamily.StructuralNetworkPath
+                        or AzureInventoryDataFlowEvidenceFamily.InferredHostname));
+
         List<string> captions =
         [
-            DiagramDataFlowHonestyLegend.PrimarySentence,
+            hasNonAdfFamilies
+                ? DiagramDataFlowHonestyLegend.EvidenceFamiliesPrimarySentence
+                : DiagramDataFlowHonestyLegend.DeclaredPipelinePrimarySentence,
         ];
+
+        if (hasAuthorizedAccess)
+        {
+            captions.Add(DiagramDataFlowHonestyLegend.AuthorizedAccessBandSentence);
+        }
+
+        if (hasPeReachable)
+        {
+            captions.Add(DiagramDataFlowHonestyLegend.PrivateNetworkPathDnsSentence);
+        }
 
         bool hasIngestion = includedNodes.Any(node =>
             AzureInventoryDataFlowStageNames.EqualsStage(
