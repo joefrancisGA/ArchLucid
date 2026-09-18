@@ -16,6 +16,9 @@ public sealed partial class SqlAzureInventorySnapshotRepository
     private static readonly string PagedVisibleAzureResourceIdPredicate =
         AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("AzureResourceId");
 
+    private static readonly string PagedVisibleSqlDatabaseNamePredicate =
+        AzureInventoryVisibleSnapshotProjection.BuildSqlNeverShowSqlDatabasePredicate("ResourceType", "AzureResourceId");
+
     public async Task<(IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)?> ListResourcesBySnapshotIdPagedAsync(
         ScopeContext scope,
         Guid snapshotId,
@@ -41,6 +44,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
         string neverShowFilter = $"""
                                    AND {PagedVisibleResourceTypePredicate}
                                    AND {PagedVisibleAzureResourceIdPredicate}
+                                   AND {PagedVisibleSqlDatabaseNamePredicate}
                                    """;
 
         string countSql = $"""

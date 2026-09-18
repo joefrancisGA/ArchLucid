@@ -126,6 +126,14 @@ public static class HostedAzureInventoryPaasChildCollector
                     continue;
                 }
 
+                if (AzureInventoryNeverShowSqlDatabaseNames.ShouldOmit(
+                        resourceType: null,
+                        row.ChildResourceId,
+                        row.ChildName))
+                {
+                    continue;
+                }
+
                 AddRow(row, rows, seenKeys);
             }
         }
