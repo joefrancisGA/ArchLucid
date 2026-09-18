@@ -17,7 +17,8 @@ import { Button } from "@/components/ui/button";
 import {
   GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE,
   GETTING_STARTED_HELP_GUIDE_HEADINGS,
-  GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS,
+  resolveGettingStartedHelpPlainLanguageTerms,
+  resolveGettingStartedHelpPlainLanguageVocabIntro,
   GETTING_STARTED_HELP_PRIMARY_ACTIONS,
   GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY,
   GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE,
@@ -246,7 +247,9 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
   const diagramSummary = localize(resolveGettingStartedHelpDiagramSummary(productLine));
   const audienceLine = resolveGettingStartedHelpAudienceLine(productLine);
   const workflowSectionTitle = resolveGettingStartedHelpWorkflowSectionTitle(productLine);
-  const technicalTerms = resolveGettingStartedHelpTechnicalTerms(isWorkingMode);
+  const plainLanguageVocabIntro = resolveGettingStartedHelpPlainLanguageVocabIntro(productLine);
+  const plainLanguageTerms = resolveGettingStartedHelpPlainLanguageTerms(productLine);
+  const technicalTerms = resolveGettingStartedHelpTechnicalTerms(isWorkingMode, productLine);
   const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const showSectionNav = guideHeadings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
@@ -385,10 +388,8 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
 
           <section aria-labelledby="plain-language-vocabulary" className="space-y-3">
             <HelpSectionHeading id="plain-language-vocabulary">Plain-language vocabulary</HelpSectionHeading>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              Seven terms you will see across review, approval, and export surfaces.
-            </p>
-            <PlainLanguageTable terms={GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS} testId="getting-started-plain-language-table" />
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{plainLanguageVocabIntro}</p>
+            <PlainLanguageTable terms={plainLanguageTerms} testId="getting-started-plain-language-table" />
           </section>
 
           <section aria-labelledby="what-happens-during-a-review" className="space-y-4">
