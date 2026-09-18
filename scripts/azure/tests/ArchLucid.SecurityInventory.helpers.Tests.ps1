@@ -156,6 +156,23 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].pimEligibilityKind | Should -Be 'standing'
     }
 
+    It 'skips nsg allow rule derivation when securityRules is absent from inventory properties' {
+        $inventory = @(
+            [ordered]@{
+                resourceType = 'Microsoft.Network/networkSecurityGroups'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/nsg1'
+                properties = @{}
+            }
+        )
+
+        { Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources $inventory } |
+            Should -Not -Throw
+
+        [object[]]$rows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 0
+    }
+
     It 'builds nsg allow rule rows for storage service tag inbound allow rules' {
         $inventory = @(
             [ordered]@{

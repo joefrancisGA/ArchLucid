@@ -162,7 +162,7 @@ function Sync-ArchLucidAzureCliSubscriptionContext
 
     if ($LASTEXITCODE -ne 0)
     {
-        Write-Host ("Azure CLI session is not scoped to subscription {0}. Cost collection via az rest may fail until you run az login for an account with that subscription." -f $trimmedSubscriptionId) -ForegroundColor Yellow
+        Write-Host ("Azure CLI session is not scoped to subscription {0}. ActualCost collection will use the Az PowerShell session when az login is unavailable." -f $trimmedSubscriptionId) -ForegroundColor Yellow
     }
 }
 
