@@ -16,6 +16,16 @@ public static class DiagramEdgeVisualKindResolver
             return DiagramEdgeVisualKind.AiInferred;
         }
 
+        if (string.Equals(provenanceKind, "DerivedFact", StringComparison.OrdinalIgnoreCase))
+        {
+            return DiagramEdgeVisualKind.Probable;
+        }
+
+        if (string.Equals(provenanceKind, "DeterministicInference", StringComparison.OrdinalIgnoreCase))
+        {
+            return DiagramEdgeVisualKind.Inferred;
+        }
+
         return DiagramEdgeVisualKind.Observed;
     }
 

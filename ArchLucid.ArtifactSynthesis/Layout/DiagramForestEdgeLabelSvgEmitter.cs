@@ -65,11 +65,11 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         {
             pathAttributes.Add(new XAttribute("stroke-dasharray", "6 4"));
         }
-        else if (visualKind == DiagramEdgeVisualKind.Declared)
+        else if (visualKind == DiagramEdgeVisualKind.Declared || visualKind == DiagramEdgeVisualKind.Probable)
         {
             pathAttributes.Add(new XAttribute("stroke-dasharray", "4 3"));
         }
-        else if (visualKind == DiagramEdgeVisualKind.AiInferred)
+        else if (visualKind == DiagramEdgeVisualKind.AiInferred || visualKind == DiagramEdgeVisualKind.Inferred)
         {
             pathAttributes.Add(new XAttribute("stroke-dasharray", "1 3"));
         }
@@ -199,6 +199,8 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         {
             DiagramEdgeVisualKind.Declared => "declared",
             DiagramEdgeVisualKind.AiInferred => "ai-inferred",
+            DiagramEdgeVisualKind.Probable => "probable",
+            DiagramEdgeVisualKind.Inferred => "inferred",
             _ => "observed",
         };
 }

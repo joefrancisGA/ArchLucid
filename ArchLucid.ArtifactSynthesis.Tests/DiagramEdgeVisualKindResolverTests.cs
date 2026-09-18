@@ -49,13 +49,19 @@ public sealed class DiagramEdgeVisualKindResolverTests
             .Be(DiagramEdgeVisualKind.Observed);
     }
 
-    [Theory]
-    [InlineData("DerivedFact")]
-    [InlineData("DeterministicInference")]
-    public void From_inventory_backed_provenance_values_return_observed(string provenanceKind)
+    [Fact]
+    public void From_derived_fact_returns_probable()
     {
-        DiagramEdgeVisualKindResolver.From(provenanceKind, GraphEdgeInferenceSources.InventoryNicSubnet)
+        DiagramEdgeVisualKindResolver.From("DerivedFact", GraphEdgeInferenceSources.InventoryAppAuthorizedAccess)
             .Should()
-            .Be(DiagramEdgeVisualKind.Observed);
+            .Be(DiagramEdgeVisualKind.Probable);
+    }
+
+    [Fact]
+    public void From_deterministic_inference_returns_inferred()
+    {
+        DiagramEdgeVisualKindResolver.From("DeterministicInference", GraphEdgeInferenceSources.InventoryHostnameInferredTarget)
+            .Should()
+            .Be(DiagramEdgeVisualKind.Inferred);
     }
 }

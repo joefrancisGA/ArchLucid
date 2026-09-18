@@ -17,7 +17,7 @@ public static class DiagramEdgeProvenanceDisplayLabelApplier
 
             DiagramEdgeVisualKind visualKind = DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource);
 
-            if (visualKind == DiagramEdgeVisualKind.Observed)
+            if (visualKind is DiagramEdgeVisualKind.Observed or DiagramEdgeVisualKind.Probable)
             {
                 continue;
             }

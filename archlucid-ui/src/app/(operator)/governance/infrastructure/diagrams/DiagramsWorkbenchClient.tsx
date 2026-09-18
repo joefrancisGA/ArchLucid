@@ -9,6 +9,7 @@ import { ArchitectureDiagramViewer } from "@/components/architecture/Architectur
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { InfraEvidenceCompletenessWarningsBanner } from "@/components/infra-evidence/InfraEvidenceCompletenessWarningsBanner";
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
 import { InfraEvidenceDiagramLegend } from "@/components/infra-evidence/InfraEvidenceDiagramLegend";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -299,6 +300,7 @@ export function DiagramsWorkbenchClient() {
   const [dependencySeedBlockedDialog, setDependencySeedBlockedDialog] =
     useState<DependencyNeighborhoodSeedBlockedReason | null>(null);
   const [modePreviews, setModePreviews] = useState<InfraEvidenceMermaidModePreview[]>([]);
+  const [snapshotCompletenessWarnings, setSnapshotCompletenessWarnings] = useState<string[]>([]);
   const [renderResult, setRenderResult] = useState<InfraEvidenceMermaidRenderResponse | null>(null);
   const [loadingSnapshots, setLoadingSnapshots] = useState(true);
   const [loadingPreview, setLoadingPreview] = useState(false);
@@ -546,6 +548,11 @@ export function DiagramsWorkbenchClient() {
   const mermaidExportDisabled = exportsDisabled || !paintDiagramCanvas;
 
   const renderStatus = renderResult?.status ?? activeModePreview?.status ?? "";
+
+  const completenessWarnings = useMemo(
+    () => renderResult?.completenessWarnings ?? snapshotCompletenessWarnings,
+    [renderResult?.completenessWarnings, snapshotCompletenessWarnings],
+  );
 
   const renderStatusPresentation = useMemo(() => {
     if (renderStatus.length === 0 || renderStatus !== "Failed") {
@@ -870,6 +877,7 @@ export function DiagramsWorkbenchClient() {
   useEffect(() => {
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
       setModePreviews([]);
+      setSnapshotCompletenessWarnings([]);
       setRenderResult(null);
       return;
     }
@@ -885,11 +893,13 @@ export function DiagramsWorkbenchClient() {
 
         if (!cancelled) {
           setModePreviews(preview.modes ?? []);
+          setSnapshotCompletenessWarnings(preview.completenessWarnings ?? []);
         }
       } catch (error: unknown) {
         if (!cancelled) {
           setLoadError(formatInfraEvidenceMermaidApiError(error));
           setModePreviews([]);
+          setSnapshotCompletenessWarnings([]);
         }
       } finally {
         if (!cancelled) {
@@ -1200,6 +1210,10 @@ export function DiagramsWorkbenchClient() {
           label="Linked snapshot is not available in the diagrams workbench scope. Pick a snapshot below."
           data-testid="infra-diagrams-snapshot-deep-link-missing"
         />
+      ) : null}
+
+      {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
+        <InfraEvidenceCompletenessWarningsBanner warnings={completenessWarnings} />
       ) : null}
 
       {loadError != null

@@ -26,6 +26,16 @@ public static class DiagramEdgeProvenanceDisplayLabelBuilder
             return $"inferred · {trimmedVerb}";
         }
 
+        if (visualKind == DiagramEdgeVisualKind.Inferred)
+        {
+            if (trimmedVerb.Length == 0)
+            {
+                return "likely";
+            }
+
+            return $"likely · {trimmedVerb}";
+        }
+
         return trimmedVerb;
     }
 }

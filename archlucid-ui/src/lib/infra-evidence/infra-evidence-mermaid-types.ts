@@ -30,6 +30,7 @@ export type InfraEvidenceMermaidModePreview = {
 export type InfraEvidenceMermaidPreviewResponse = {
   snapshotId: string;
   modes: InfraEvidenceMermaidModePreview[];
+  completenessWarnings?: string[];
 };
 
 export type InfraEvidenceMermaidCollapseEntry = {
@@ -64,6 +65,7 @@ export type InfraEvidenceMermaidRenderResponse = {
   fallbackArtifacts: InfraEvidenceMermaidFallbackArtifactSummary[];
   collapseReport: InfraEvidenceMermaidCollapseReport | null;
   identityDiagramHints?: InfraEvidenceMermaidIdentityDiagramHints | null;
+  completenessWarnings?: string[];
 };
 
 export type InfraEvidenceMermaidRenderStatus = "Succeeded" | "Partitioned" | "Failed";
